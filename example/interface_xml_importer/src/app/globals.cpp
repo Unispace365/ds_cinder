@@ -42,11 +42,11 @@ void Globals::reloadXml()
 
 }
 
-const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
+ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
 }
 
-const ds::cfg::Settings& Globals::getSettingsLayout() const {
+ds::cfg::Settings& Globals::getSettingsLayout() const {
 	return mEngine.getEngineCfg().getSettings(SETTINGS_LAYOUT);
 }
 

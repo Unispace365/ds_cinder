@@ -5,12 +5,11 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/event_client.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/image.h>
 
 #include "model/generated/story_model.h"
 
-#include "ds/ui/sprite/text_pango.h"
 
 namespace pango {
 
@@ -39,9 +38,9 @@ private:
 	Globals&							mGlobals;
 
 	ds::EventClient						mEventClient;
-	ds::ui::MultilineText*				mMessage;
+	ds::ui::Text*						mMessage;
 	ds::ui::Image*						mImage;
-	ds::ui::TextPango*					mPangoText;
+	ds::ui::Text*						mPangoText;
 	std::wstring						mFullText;
 	ds::ui::Sprite*						mFakeCursor;
 

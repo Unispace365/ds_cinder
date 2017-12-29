@@ -33,8 +33,6 @@ mqtt_example::mqtt_example()
 	
 	/*fonts in use */
 	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "Noto Sans Bold", "noto-bold");
-
-	enableCommonKeystrokes(true);
 }
 
 void mqtt_example::setupServer(){
@@ -78,9 +76,9 @@ void mqtt_example::update() {
 
 }
 
-void mqtt_example::keyDown(ci::app::KeyEvent event){
+void mqtt_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	}

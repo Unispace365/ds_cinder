@@ -14,6 +14,7 @@
 #include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/stream_player.h"
+#include "ds/ui/media/player/panoramic_video_player.h"
 #include "ds/ui/media/player/web_player.h"
 #include <ds/util/file_meta_data.h>
 
@@ -24,6 +25,7 @@
 
 #include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
+#include "ds/ui/sprite/panoramic_video.h"
 
 namespace {
 class Init {
@@ -69,6 +71,7 @@ MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	: ds::ui::Sprite(eng)
 	, mInitialized(false)
 	, mVideoPlayer(nullptr)
+	, mPanoramicPlayer(nullptr)
 	, mStreamPlayer(nullptr)
 	, mPDFPlayer(nullptr)
 	, mWebPlayer(nullptr)
@@ -84,6 +87,7 @@ MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mInitialized(false)
 	, mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
 	, mVideoPlayer(nullptr)
+	, mPanoramicPlayer(nullptr)
 	, mPDFPlayer(nullptr)
 	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
@@ -99,6 +103,7 @@ MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mInitialized(false)
 	, mResource(resource)
 	, mVideoPlayer(nullptr)
+	, mPanoramicPlayer(nullptr)
 	, mPDFPlayer(nullptr)
 	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
@@ -226,14 +231,48 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
 
-		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
+		mVideoPlayer->setMedia(mResource.getPortableFilePath());
 
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
 
-	} else if(mediaType == ds::Resource::VIDEO_STREAM_TYPE){
+	} else if(mediaType == ds::Resource::VIDEO_PANORAMIC_TYPE) {
+		mPanoramicPlayer = new PanoramicVideoPlayer(mEngine, mEmbedInterface);
+		addChildPtr(mPanoramicPlayer);
+
+		mPanoramicPlayer->setErrorCallback([this](const std::string& msg) {
+			if(mErrorCallback) mErrorCallback(msg);
+		});
+
+		mPanoramicPlayer->setGoodStatusCallback([this] {
+			if(mStatusCallback) mStatusCallback(true);
+		});
+
+		mPanoramicPlayer->setPan(mMediaViewerSettings.mVideoPanning);
+		mPanoramicPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
+		mPanoramicPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
+		mPanoramicPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
+		mPanoramicPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
+		mPanoramicPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mPanoramicPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
+
+		mPanoramicPlayer->setMedia(mResource.getPortableFilePath());
+
+		if(!mMediaViewerSettings.mPanoramicVideoInteractive) {
+			auto pvs = mPanoramicPlayer->getPanoramicVideo();
+			if(pvs) {
+				pvs->enable(false);
+			}
+		}
+
+
+		mContentAspectRatio = mPanoramicPlayer->getWidth() / mPanoramicPlayer->getHeight();
+		contentWidth = mPanoramicPlayer->getWidth();
+		contentHeight = mPanoramicPlayer->getHeight();
+
+	} else if(mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 
 		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mStreamPlayer);
@@ -296,6 +335,7 @@ void MediaPlayer::initialize(){
 		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard, mMediaViewerSettings.mWebKeyboardAbove);
 		mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
 		mWebPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mWebPlayer->setStartInteractable(mMediaViewerSettings.mWebStartTouchable);
 
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -328,10 +368,10 @@ void MediaPlayer::initialize(){
 		mThumbnailImage = new ds::ui::Image(mEngine);
 		addChildPtr(mThumbnailImage);
 		mThumbnailImage->sendToBack();
-		if(mResource.getThumbnailId() > 0){
-			mThumbnailImage->setImageResource(mResource.getThumbnailId(), flags);
-		} else {
+		if(!mResource.getThumbnailFilePath().empty()) {
 			mThumbnailImage->setImageFile(mResource.getThumbnailFilePath(), flags);
+		} else {
+			mThumbnailImage->setImageResource(mResource.getThumbnailId(), flags);
 		}
 		mThumbnailImage->setOpacity(0.0f);
 		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
@@ -357,6 +397,9 @@ void MediaPlayer::uninitialize() {
 	if(mVideoPlayer){
 		mVideoPlayer->release();
 	}
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->release();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->release();
 	}
@@ -372,6 +415,7 @@ void MediaPlayer::uninitialize() {
 
 	mThumbnailImage = nullptr;
 	mVideoPlayer = nullptr;
+	mPanoramicPlayer = nullptr;
 	mPDFPlayer = nullptr;
 	mPrimaryImage = nullptr;
 	mWebPlayer = nullptr;
@@ -387,6 +431,10 @@ void MediaPlayer::layout(){
 
 	if(mVideoPlayer){
 		mVideoPlayer->setSize(getWidth(), getHeight());
+	}
+
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->setSize(getWidth(), getHeight());
 	}
 
 	if(mStreamPlayer){
@@ -418,11 +466,18 @@ void MediaPlayer::enter(){
 	if(mVideoPlayer){
 		mVideoPlayer->play();
 	}
+
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->play();
+	}
 }
 
 void MediaPlayer::exit(){
 	if(mVideoPlayer){
 		mVideoPlayer->pause();
+	}
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->pause();
 	}
 }
 
@@ -435,6 +490,9 @@ void MediaPlayer::userInputReceived(){
 void MediaPlayer::showInterface(){
 	if(mVideoPlayer){
 		mVideoPlayer->showInterface();
+	}
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->showInterface();
 	}
 	if(mStreamPlayer){
 		mStreamPlayer->showInterface();
@@ -451,6 +509,9 @@ void MediaPlayer::hideInterface(){
 	if(mVideoPlayer){
 		mVideoPlayer->hideInterface();
 	}
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->hideInterface();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->hideInterface();
 	}
@@ -466,7 +527,9 @@ void MediaPlayer::stopContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->stop();
 	}
-
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->stop();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->stop();
 	}
@@ -476,7 +539,9 @@ void MediaPlayer::playContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->play();
 	}
-
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->play();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->play();
 	}
@@ -486,7 +551,9 @@ void MediaPlayer::pauseContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->pause();
 	}
-
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->pause();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->pause();
 	}
@@ -496,7 +563,9 @@ void MediaPlayer::toggleMute(){
 	if(mVideoPlayer){
 		mVideoPlayer->toggleMute();
 	}
-
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->toggleMute();
+	}
 	if(mStreamPlayer){
 		mStreamPlayer->toggleMute();
 	}
@@ -505,6 +574,9 @@ void MediaPlayer::toggleMute(){
 ds::ui::Sprite* MediaPlayer::getPlayer(){
 	if(mVideoPlayer){
 		return mVideoPlayer;
+	}
+	if(mPanoramicPlayer) {
+		return mPanoramicPlayer;
 	}
 
 	if(mPDFPlayer){
@@ -529,6 +601,9 @@ ds::ui::Sprite* MediaPlayer::getPlayer(){
 ds::ui::MediaInterface* MediaPlayer::getMediaInterface(){
 	if(mVideoPlayer){
 		return mVideoPlayer->getVideoInterface();
+	}
+	if(mPanoramicPlayer) {
+		return mPanoramicPlayer->getVideoInterface();
 	}
 
 	if(mPDFPlayer){
@@ -567,6 +642,9 @@ void MediaPlayer::handleStandardClick(const ci::vec3& globalPos){
 	}
 	if(mVideoPlayer){
 		mVideoPlayer->togglePlayPause();
+	}
+	if(mPanoramicPlayer) {
+		mPanoramicPlayer->togglePlayPause();
 	}
 }
 

@@ -25,7 +25,7 @@
 #body {
 	font: sample:config;
 	position: 20, 80;
-	resize_limit: 250: 0;
+	resize_limit: 250, 0;
 }
 
 #sample_image_btn {

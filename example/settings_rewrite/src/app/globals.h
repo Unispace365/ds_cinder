@@ -3,7 +3,6 @@
 
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
-#include <ds/cfg/cfg_nine_patch.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
 #include "model/all_data.h"
@@ -33,9 +32,9 @@ public:
 	void							initialize();
 
 	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	const ds::cfg::Settings&		getAppSettings() const;
-	const ds::cfg::Settings&		getSettings(const std::string& name) const;
+	const ds::cfg::Text&			getText(const std::string& name);
+	ds::cfg::Settings&				getAppSettings();
+	ds::cfg::Settings&				getSettings(const std::string& name);
 
 private:
 

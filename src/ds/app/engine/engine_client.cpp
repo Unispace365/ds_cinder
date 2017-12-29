@@ -34,7 +34,7 @@ char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;
 }
 
-EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
+EngineClient::EngineClient(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
@@ -59,8 +59,8 @@ EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
 	
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
-			mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
-			mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+			mSendConnection.initialize(true, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+			mReceiveConnection.initialize(false, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
 		}
 	} catch(std::exception &e) {
 		DS_LOG_ERROR_M("EngineClient::EngineClient() initializing UDP: " << e.what(), ds::ENGINE_LOG);
@@ -301,11 +301,8 @@ void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
 	sendMouseTouch(2, e.getPos());
 }
 
-void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos){
-	
+void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos){	
 	ci::vec2 worldPoint = pos;
-//	worldPoint.x = pos.x / (mData.mSrcRect.getWidth() / mData.mDstRect.getWidth());
-//	worldPoint.y = pos.y / (mData.mSrcRect.getHeight() / mData.mDstRect.getHeight());
 	
 	EngineSender::AutoSend  send(mSender);
 	ds::DataBuffer&   buf = send.mData;
@@ -315,7 +312,6 @@ void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos){
 	buf.add(worldPoint.x);
 	buf.add(worldPoint.y);
 	buf.add(ds::TERMINATOR_CHAR);
-
 }
 
 /**

@@ -413,7 +413,9 @@ std::string Resource::getAbsoluteFilePath() const {
 }
 
 std::string Resource::getPortableFilePath() const {
-	if(!mLocalFilePath.empty()) return mLocalFilePath;
+	if(!mLocalFilePath.empty()) {
+		return ds::Environment::contract(mLocalFilePath);
+	}
 
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;

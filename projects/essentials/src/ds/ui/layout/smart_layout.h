@@ -69,7 +69,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	/// Set the image file for an Image sprite with name of spriteName. Image path is automatically expanded
 	void setSpriteImage(const std::string& spriteName, const std::string& imagePath);
 	/// Set the image resource for an Image sprite with name of spriteName.
-	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource);
+	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache = false);
 
 	/// Set the tap function on a sprite named spriteName
 	void setSpriteTapFn(const std::string& spriteName,
@@ -91,8 +91,10 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	using eventMap		= std::unordered_map<size_t, eventCallback>;
 
 	void onAppEvent(const ds::Event&);
+    virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
 	std::string		mLayoutFile;
+	bool			mNeedsLayout;
 	ds::EventClient mEventClient;
 	sMap			mSpriteMap;
 	eventMap		mEventCallbacks;

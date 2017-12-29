@@ -20,7 +20,7 @@ public:
 	virtual void			mouseDrag(ci::app::MouseEvent e);
 	virtual void			mouseUp(ci::app::MouseEvent e);
 
-	virtual void			keyDown(ci::app::KeyEvent event);
+	virtual void			onKeyDown(ci::app::KeyEvent event) override;
 	void					setupServer();
 	void					update();
 

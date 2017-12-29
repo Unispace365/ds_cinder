@@ -109,7 +109,7 @@ private:
 
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 	std::vector<b2WeldJoint*>		mWeldJoints;
-	std::vector<b2PrismaticJoint*>		mPrismaticJoints;
+	std::vector<b2PrismaticJoint*>	mPrismaticJoints;
 
 	std::unique_ptr<DebugDraw>		mDebugDraw;
 };

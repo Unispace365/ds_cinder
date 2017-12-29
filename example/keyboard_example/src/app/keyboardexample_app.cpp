@@ -25,32 +25,18 @@
 namespace example {
 
 KeyboardExample::KeyboardExample()
-	: inherited(ds::RootList()
-
-	// Note: this is where you'll customize the root list
-								.ortho() 
-								.pickColor()
-
-								.persp() 
-								.perspFov(60.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-								.perspNear(0.0002f)
-								.perspFar(20.0f)
-
-								.ortho() ) 
+	: ds::App() 
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
 	, mTouchDebug(mEngine)
+	, mSoftKeyboard(nullptr)
 {
 
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
-
-	enableCommonKeystrokes(true);
 }
 
 void KeyboardExample::setupServer(){
@@ -93,21 +79,27 @@ void KeyboardExample::setupServer(){
 	// add sprites
 	rootSprite.addChildPtr(new StoryView(mGlobals));
 
-	ds::ui::EntryField* ef = new ds::ui::EntryField(mEngine, ds::ui::EntryFieldSettings());
+	ds::ui::EntryFieldSettings efs;
+	efs.mCursorOffset.x = 0.0f;
+	ds::ui::EntryField* ef = new ds::ui::EntryField(mEngine, efs);
 	rootSprite.addChildPtr(ef);
 	ef->focus();
 	ef->setPosition(100.0f, 100.0f);
 
 	ds::ui::SoftKeyboardSettings sks;
-	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::vec2());
-	ds::ui::SoftKeyboard* sk = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
-	rootSprite.addChildPtr(sk);
-	sk->setPosition(mEngine.getWorldWidth() / 2.0f - sk->getWidth()/2.0f, mEngine.getWorldHeight() / 2.0f - sk->getHeight()/2.0f);
-	sk->setKeyPressFunction([this, sk, ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
+	sks.mGraphicKeys = true;
+	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getVec2("keyboard:text_offset", 0, ci::vec2());
+	//mSoftKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks);
+	//mSoftKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
+	//mSoftKeyboard = ds::ui::SoftKeyboardBuilder::buildLowercaseKeyboard(mEngine, sks);
+	mSoftKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
+	rootSprite.addChildPtr(mSoftKeyboard);
+	mSoftKeyboard->setPosition(mEngine.getWorldWidth() / 2.0f - mSoftKeyboard->getWidth()/2.0f, mEngine.getWorldHeight() / 2.0f - mSoftKeyboard->getHeight()/2.0f);
+	mSoftKeyboard->setKeyPressFunction([this, ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 		if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
-			sk->resetCurrentText();
+			mSoftKeyboard->resetCurrentText();
 		}
-		mEngine.getNotifier().notify(KeyPressedEvent(sk->getCurrentText()));
+		mEngine.getNotifier().notify(KeyPressedEvent(mSoftKeyboard->getCurrentText()));
 		//ef->setCurrentText(sk->getCurrentText());
 		ef->keyPressed(character, keyType);
 	});
@@ -116,7 +108,7 @@ void KeyboardExample::setupServer(){
 }
 
 void KeyboardExample::update() {
-	inherited::update();
+	ds::App::update();
 
 	if( mEngine.isIdling() && !mIdling ){
 		//Start idling
@@ -130,9 +122,9 @@ void KeyboardExample::update() {
 
 }
 
-void KeyboardExample::keyDown(ci::app::KeyEvent event){
+void KeyboardExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
@@ -158,6 +150,56 @@ void KeyboardExample::keyDown(ci::app::KeyEvent event){
 					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
 				}
 			}, true);
+		}
+	} else if(event.getCode() == KeyEvent::KEY_g) {
+		if(mSoftKeyboard) {
+			auto sks = mSoftKeyboard->getSoftKeyboardSettings();
+			sks.mGraphicKeys = !sks.mGraphicKeys;
+			mSoftKeyboard->setSoftKeyboardSettings(sks);
+		}
+	} else if(event.getCode() == KeyEvent::KEY_h) {
+		if(mSoftKeyboard) {
+			auto sks = mSoftKeyboard->getSoftKeyboardSettings();
+			if(sks.mGraphicRoundedCornerRadius > 0.0f) {
+				sks.mGraphicRoundedCornerRadius = 0.0f;
+			} else {
+				sks.mGraphicRoundedCornerRadius = 15.0f;
+			}
+			mSoftKeyboard->setSoftKeyboardSettings(sks);
+		}
+	} else if(event.getCode() == KeyEvent::KEY_c) {
+		if(mSoftKeyboard) {
+			auto sks = mSoftKeyboard->getSoftKeyboardSettings();
+			sks.mKeyUpColor = ci::Color::white();
+			sks.mKeyDownColor = ci::Color(0.5f, 0.5f, 0.5f);
+			if(sks.mGraphicType == ds::ui::SoftKeyboardSettings::kCircularBorder) {
+				sks.mGraphicType = ds::ui::SoftKeyboardSettings::kBorder;
+			} else {
+				sks.mGraphicType = ds::ui::SoftKeyboardSettings::kCircularBorder;
+			}
+			mSoftKeyboard->setSoftKeyboardSettings(sks);
+		}
+	} else if(event.getCode() == KeyEvent::KEY_v) {
+		if(mSoftKeyboard) {
+			auto sks = mSoftKeyboard->getSoftKeyboardSettings();
+			sks.mKeyDownColor = ci::Color::white();
+			sks.mKeyUpColor = ci::Color(0.25f, 0.25f, 0.25f);
+			if(sks.mGraphicType == ds::ui::SoftKeyboardSettings::kCircularSolid) {
+				sks.mGraphicType = ds::ui::SoftKeyboardSettings::kSolid;
+			} else {
+				sks.mGraphicType = ds::ui::SoftKeyboardSettings::kCircularSolid;
+			}
+			mSoftKeyboard->setSoftKeyboardSettings(sks);
+		}
+	} else if(event.getCode() == KeyEvent::KEY_b) {
+		if(mSoftKeyboard) {
+			auto sks = mSoftKeyboard->getSoftKeyboardSettings();
+			if(sks.mGraphicBorderWidth > 1.0f) {
+				sks.mGraphicBorderWidth = 1.0f;
+			} else {
+				sks.mGraphicBorderWidth = 5.0f;
+			}
+			mSoftKeyboard->setSoftKeyboardSettings(sks);
 		}
 	}
 }

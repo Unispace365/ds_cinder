@@ -5,7 +5,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/text.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/text_defs.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>

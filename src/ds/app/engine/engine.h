@@ -23,6 +23,7 @@
 #include "TuioClient.h"
 
 #include "ds/app/engine/engine_touch_queue.h"
+#include <ds/app/event_client.h>
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -41,6 +42,10 @@ class App;
 class AutoDrawService;
 class AutoUpdate;
 class EngineRoot;
+
+namespace cfg {
+class SettingsEditor;
+}
 
 extern const ds::BitMask	ENGINE_LOG;
 
@@ -67,7 +72,7 @@ public:
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
 	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
-	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
+
 	// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
 	// Add the image processing function to my global pool
@@ -90,11 +95,7 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "text.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
-	// Convenice to load a nine patch cfg file into a collection of cfg objects.
-	// @param filename is the leaf path of the settings file (i.e. "nine_patch.xml").
-	// It will be loaded from all appropriate locations.
-	void								loadNinePatchCfg(const std::string& filename);
-
+	
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
 	size_t								getRootCount() const;
@@ -103,6 +104,10 @@ public:
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
 	void								prepareSettings( ci::app::AppBase::Settings& );
+	void								showSettingsEditor(ds::cfg::Settings& theSettings);
+	void								hideSettingsEditor();
+	bool								isShowingSettingsEditor();
+
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
@@ -202,6 +207,9 @@ public:
 
 	virtual ci::app::WindowRef			getWindow();
 
+	void								showConsole();
+	void								hideConsole();
+
 	// Should only be used by the app class to record the average fps. 
 	// Allows for debug drawing of the fps
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
@@ -222,7 +230,7 @@ public:
 	void														createClientRoots(std::vector<RootList::Root> newRoots);
 
 protected:
-	Engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -242,6 +250,7 @@ protected:
 	virtual void						handleMouseTouchMoved(const ci::app::MouseEvent&, int id) = 0;
 	virtual void						handleMouseTouchEnded(const ci::app::MouseEvent&, int id) = 0;
 
+
 	ui::TouchManager					mTouchManager;
 
 	static const int					NumberOfNetworkThreads;
@@ -258,11 +267,25 @@ protected:
 private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	void								createStatsView(sprite_id_t root_id);
+	
+	/// Read these values from settings and apply them
+	void								setupWorldSize();
+	void								setupSrcDstRects();
+	void								setupConsole();
+	void								setupWindowMode();
+	void								setupMouseHide();
+	void								setupFrameRate();
+	void								setupVerticalSync();
+	void								setupIdleTimeout();
+	void								setupMute();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
-	const ds::EngineSettings&			mSettings;
+	ds::App&							mDsApp;
+	ds::EngineSettings&					mSettings;
+	ds::cfg::SettingsEditor*			mSettingsEditor;
+	bool								mShowConsole;
 	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
@@ -277,6 +300,10 @@ private:
 	float								mLastTouchTime;
 
 	ci::tuio::Client					mTuio;
+	uint32_t							mTuioBeganRegistrationId;
+	uint32_t							mTuioMovedRegistrationId;
+	uint32_t							mTuioEndedRegistrationId;
+	bool								mTuioRegistered;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;
@@ -284,7 +311,6 @@ private:
 	// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
 
-	ds::cfg::Settings					mDebugSettings;
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
 	ds::EngineTouchQueue<ds::ui::TouchEvent>
@@ -321,6 +347,10 @@ private:
 										mChannels;
 
 	float								mAverageFps;
+
+	/// For listening to settings changes and applying them
+	void								onAppEvent(const ds::Event&);
+	ds::EventClient						mEventClient;
 };
 
 } // namespace ds

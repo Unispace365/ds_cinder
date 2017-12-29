@@ -38,7 +38,7 @@ StoryView::StoryView(Globals& g)
 	mFakeCursor->setOpacity(0.5f);
 	addChildPtr(mFakeCursor);
 
-	mPangoText = dynamic_cast<ds::ui::TextPango*>(spriteMap["message_b"]);
+	mPangoText = dynamic_cast<ds::ui::Text*>(spriteMap["message_b"]);
 	if(mPangoText){
 		mFullText = mPangoText->getText();
 		mPangoText->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
@@ -61,6 +61,7 @@ StoryView::StoryView(Globals& g)
 	}
 
 	if(mPrimaryLayout){
+		mPrimaryLayout->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 		mPrimaryLayout->runLayout();
 	}
 

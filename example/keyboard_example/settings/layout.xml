@@ -1,11 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-	<!-- Standard animation duration, in seconds. -->
-	<float name="animation:duration" value="0.2" />
-	
-	<size  name="keyboard:text_offset" x="-1" y="-4" />
-	
-	<text  name="text:test:text" value="sample text and stuff and more samples and that was a couple tabs. FLARF. 88888888 snoot. SNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOT<>?:{}!@#$%^&*()_" />
-	<size  name="text:test:resize" x="1000.0" y="1400" />
-	<size  name="text:test:offset" x="1400" y="100" />
+	<setting name="animation:duration" value="0.2" type="float" comment=" Standard animation duration, in seconds. "/>
+	<setting name="keyboard:text_offset" value="-1, -4" type="vec2"/>
+	<setting name="text:test:text" value="sample text and stuff and more samples and that was a couple tabs. FLARF. 88888888 snoot. SNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOT&lt;&gt;?:{}!@#$%^&amp;*()_" type="string"/>
+	<setting name="text:test:resize" value="1000.0, 1400" type="vec2"/>
+	<setting name="text:test:offset" value="1400, 100" type="vec2"/>
 </settings>
+

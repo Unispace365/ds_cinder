@@ -47,6 +47,9 @@ public:
 	/// Clears previously-loaded fonts and reloads the fonts installed in Windows
 	void										loadFonts();
 
+
+	void										loadFamiliesAndFaces();
+
 	/// Load a local font file.
 	/// This is called when you use FontList::installFont(), recommend you use that method instead unless you know what you're doing
 	bool										loadFont(const std::string& path, const std::string& fontName);
@@ -63,16 +66,10 @@ public:
 	/// For creating pango contexts. Check for nullptr before using
 	PangoFontMap*								getPangoFontMap();
 
-	/// A really hacky way to fix some font rendering clipping issues.
-	/// If your text is rendering ok, no need to mess with this.
-	void										setTextSuffix(const std::wstring& suffix);
-	std::wstring								getTextSuffix();
-
 private:
 	PangoFontMap*								mFontMap;
 	std::map<std::string, DsPangoFontFamily>	mLoadedFamilies;
 	std::map<std::string, DsPangoFontFace>		mLoadedFonts;
-	std::wstring								mTextSuffix;
 };
 
 } // namespace ui

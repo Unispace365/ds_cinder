@@ -4,9 +4,9 @@
 #include <ds/app/event_notifier.h>
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
-#include <ds/cfg/cfg_nine_patch.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
+#include <model/location_model.h>
 
 namespace ds {
 namespace ui {
@@ -20,14 +20,19 @@ namespace globe_example {
  * \class globe_example::Globals
  * \brief Global data for the app.
  */
+
+
 class Globals {
 public:
 	Globals(ds::ui::SpriteEngine&);
 
 	ds::ui::SpriteEngine&			mEngine;
 
-	const ds::cfg::Settings&		getSettingsLayout() const;
+	ds::cfg::Settings&				getSettingsLayout() const;
 
+	void genDataModel();
+
+	std::vector<ds::model::LocationRef> mLocations;
 
 };
 

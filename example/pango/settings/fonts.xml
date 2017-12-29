@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-	<!-- Link together a font name and a font file -->
-	<text name="noto-bold" value="Noto Sans Bold" />
-	<text name="noto-regular" value="Noto Sans" />
+	<setting name="noto-bold" value="Noto Sans Bold" type="string" comment=" Link together a font name and a font file "/>
+	<setting name="noto-regular" value="Noto Sans" type="string"/>
 </settings>
+

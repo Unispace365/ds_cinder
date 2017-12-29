@@ -13,7 +13,7 @@ namespace ds {
  */
 class EngineClientServer : public AbstractEngineServer {
 public:
-	EngineClientServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
+	EngineClientServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClientServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }

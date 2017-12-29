@@ -330,7 +330,7 @@ bool TouchProcess::swipeHappened()
 {
 	mSwipeVector = vec3();
 
-	if (mSwipeQueue.size() < mSpriteEngine.getSwipeQueueSize()){
+	if (mSwipeQueue.size() < mSpriteEngine.getSwipeQueueSize() || mSwipeQueue.empty()){
 		return false;
 	}
 

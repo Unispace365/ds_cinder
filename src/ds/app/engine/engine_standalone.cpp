@@ -15,7 +15,7 @@ namespace ds {
 /**
  * \class ds::EngineStandalone
  */
-EngineStandalone::EngineStandalone(	ds::App& app, const ds::EngineSettings& settings,
+EngineStandalone::EngineStandalone(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)

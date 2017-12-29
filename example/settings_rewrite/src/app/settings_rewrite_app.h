@@ -11,6 +11,7 @@
 
 namespace downstream {
 class AllData;
+class StoryView;
 
 class settings_rewrite_app : public ds::App {
 public:
@@ -19,7 +20,7 @@ public:
 	virtual void		mouseDown(ci::app::MouseEvent e);
 	virtual void		mouseDrag(ci::app::MouseEvent e);
 	virtual void		mouseUp(ci::app::MouseEvent e);
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 
@@ -45,6 +46,8 @@ private:
 
 	// App events can be handled here
 	ds::EventClient		mEventClient;
+
+	StoryView*			mStoryView;
 };
 
 } // !namespace downstream

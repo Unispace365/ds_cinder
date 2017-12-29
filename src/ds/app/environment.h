@@ -45,10 +45,13 @@ public:
 	static std::string			getLocalSettingsPath(const std::string& fileName);
 
 	// Convenience to load in a settings file, first from the app path, then the local path
-	static void					loadSettings(const std::string& filename, ds::cfg::Settings&);
+	static void					loadSettings(const std::string& settingsName, const std::string& filename, ds::cfg::Settings&);
 	
 	// Convenience to save a settings file to the local path
 	static void					saveSettings(const std::string& filename, ds::cfg::Settings&);
+
+	// Utility to replace the value of an environment variable
+	static void					replaceEnvironmentVariable(const std::string& variable, const std::string& value);
 
 	// Utility to add a value to an environment variable. 
 	// This adds the value to the end of any existing value
@@ -84,10 +87,10 @@ public:
 	// Utility to get the current clipboard contents as a string
 	static std::string			getClipboard();
 
+	static void					setConfigDirFileExpandOverride(const bool doOverride);
 private:
 	friend class App;
 	static bool					initialize();
-	static void					setConfigDirFileExpandOverride(const bool doOverride);
 };
 
 } // namespace ds

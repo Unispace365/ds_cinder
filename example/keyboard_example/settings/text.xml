@@ -1,26 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-<!-- Font names are installed in the root app class on startup	-->
-	
-	<!-- Sample Text -->
-		<text  name="sample:config:name" value="Noto Thin" />
-		<float name="sample:config:size" value="24" />
-		<float name="sample:config:leading" value="1.0" />
-		<color name="sample:config:color" r="255" g="255" b="255" />
-
-		<text  name="keyboard:key:up:name" value="noto-bold" />
-		<float name="keyboard:key:up:size" value="24" />
-		<float name="keyboard:key:up:leading" value="0.75" />
-		<color name="keyboard:key:up:color" r="255" g="255" b="255" />
-		
-		<text  name="keyboard:key:down:name" value="noto-bold" />
-		<float name="keyboard:key:down:size" value="24" />
-		<float name="keyboard:key:down:leading" value="0.75" />
-		<color name="keyboard:key:down:color" r="200" g="200" b="200" />
-
-		<text  name="entry_field:text:name" value="noto-bold" />
-		<float name="entry_field:text:size" value="24" />
-		<float name="entry_field:text:leading" value="0.75" />
-		<color name="entry_field:text:color" r="255" g="255" b="255" />
-	
+	<setting name="sample:config:name" value="Noto Thin" type="string" comment=" Font names are installed in the root app class on startup	 Sample Text "/>
+	<setting name="sample:config:size" value="24" type="float"/>
+	<setting name="sample:config:leading" value="1.0" type="float"/>
+	<setting name="sample:config:color" value="#ffffffff" type="color"/>
+	<setting name="keyboard:key:up:name" value="noto-bold" type="string"/>
+	<setting name="keyboard:key:up:size" value="24" type="float"/>
+	<setting name="keyboard:key:up:leading" value="0.75" type="float"/>
+	<setting name="keyboard:key:up:color" value="#ffffffff" type="color"/>
+	<setting name="keyboard:key:down:name" value="noto-bold" type="string"/>
+	<setting name="keyboard:key:down:size" value="24" type="float"/>
+	<setting name="keyboard:key:down:leading" value="0.75" type="float"/>
+	<setting name="keyboard:key:down:color" value="#ffc8c8c8" type="color"/>
+	<setting name="entry_field:text:name" value="noto-bold" type="string"/>
+	<setting name="entry_field:text:size" value="24" type="float"/>
+	<setting name="entry_field:text:leading" value="0.75" type="float"/>
+	<setting name="entry_field:text:color" value="#ffffffff" type="color"/>
 </settings>
+

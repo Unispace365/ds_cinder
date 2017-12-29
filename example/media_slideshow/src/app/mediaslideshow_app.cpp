@@ -26,7 +26,6 @@ MediaSlideshow::MediaSlideshow()
 	/*fonts in use */
 	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
 }
 
 void MediaSlideshow::setupServer(){
@@ -60,9 +59,9 @@ void MediaSlideshow::update() {
 	ds::App::update();
 }
 
-void MediaSlideshow::keyDown(ci::app::KeyEvent event){
+void MediaSlideshow::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

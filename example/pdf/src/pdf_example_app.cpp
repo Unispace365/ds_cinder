@@ -14,7 +14,7 @@ public:
 	BasicTweenApp();
 
 	void				setupServer();
-	void                keyDown(KeyEvent);
+	virtual void		onKeyDown(KeyEvent) override;
 	virtual void		mouseUp(MouseEvent);
 	virtual void		fileDrop(ci::app::FileDropEvent event);
 
@@ -57,9 +57,7 @@ void BasicTweenApp::fileDrop(ci::app::FileDropEvent event){
 	}
 }
 
-void BasicTweenApp::keyDown(KeyEvent e) {
-	inherited::keyDown(e);
-
+void BasicTweenApp::onKeyDown(KeyEvent e) {
 	if (e.getCode() == KeyEvent::KEY_ESCAPE) {
 		quit();
 	} else if (e.getCode() == KeyEvent::KEY_PLUS || e.getCode() == KeyEvent::KEY_n || e.getCode() == KeyEvent::KEY_RIGHT) {

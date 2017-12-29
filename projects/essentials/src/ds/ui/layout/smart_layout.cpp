@@ -17,13 +17,15 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 						 const std::string xmlFileLocation)
 	: ds::ui::LayoutSprite(engine)
 	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
+	, mNeedsLayout(false)
 	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
 		if (m) this->onAppEvent(*m);
 	}) {
 
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
-	runLayout();
+	// Auto clear mNeedsLayout if client app runs layout manually
+	setLayoutUpdatedFunction([this] { mNeedsLayout = false; });
 }
 
 bool SmartLayout::hasSprite(const std::string& spriteName) {
@@ -48,18 +50,18 @@ void SmartLayout::onAppEvent(const ds::Event& in_e) {
 }
 
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {
-	return setSpriteText(spriteName, ds::wstr_from_utf8(theText));
-}
-
-void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
-	if (spr) {
+	if(spr) {
 		spr->setText(theText);
-		runLayout();
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
+}
+
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
+	return setSpriteText(spriteName, ds::utf8_from_wstr(theText));
 }
 
 void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string& textCfgName) {
@@ -67,7 +69,7 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 
 	if (spr) {
 		mEngine.getEngineCfg().getText(textCfgName).configure(*spr);
-		runLayout();
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to set Font " << textCfgName << " for Sprite: " << spriteName);
 	}
@@ -78,18 +80,22 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 
 	if (sprI) {
 		sprI->setImageFile(ds::Environment::expand(imagePath));
-		runLayout();
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		sprI->setImageResource(imageResource);
-		runLayout();
+		if(cache){
+			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F);
+		}else{
+			sprI->setImageResource(imageResource);
+		}
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
@@ -108,10 +114,17 @@ void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* n
 	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && newChild) {
 		spr->addChildPtr(newChild);
-		runLayout();
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to add child to " << spriteName);
 	}
+}
+
+void SmartLayout::onUpdateServer(const ds::UpdateParams& p){
+    if(mNeedsLayout) {
+        runLayout();
+        mNeedsLayout = false;
+    }
 }
 
 

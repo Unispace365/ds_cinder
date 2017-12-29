@@ -20,6 +20,11 @@ public:
 	// Gets called when the browser sends new paint info, aka new buffers
 	std::function<void(const void *, const int, const int)> mPaintCallback;
 
+	// Popups here are most commonly HTML select elements (drop down menus)
+	std::function<void(const void *, const int, const int)> mPopupPaintCallback;
+	std::function<void(const int xp, const int yp, const int wid, const int height)> mPopupRectCallback;
+	std::function<void(const bool showing)>					mPopupShowCallback;
+
 	// The loading state has changed (started or finished loading.
 	std::function<void(const bool isLoading, const bool canGoBack, const bool canGoForward, const std::string& newUrl)> mLoadChangeCallback;
 

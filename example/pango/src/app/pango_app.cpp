@@ -14,6 +14,9 @@
 
 #include "events/app_events.h"
 
+#include "ds/util/markdown_to_pango.h"
+#include "ds/util/string_util.h"
+
 #include "ui/story/story_view.h"
 
 
@@ -46,23 +49,21 @@ PangoApp::PangoApp()
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
-	enableCommonKeystrokes(true);
-
 	/// Load a local font file, and let the engine know what it's font name is. We can now refer to it by it's full name, Chlorinar Bold Italic
 	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"), "Chlorinar Bold Italic");
 
 	/// by entering the "title" as the third parameter, now we can refer to the font by that name or FreightSans Light. 
 	/// This is for convenience, as you could refer to "title" everywhere needed, and just replace this line to replace all the title fonts.
-	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"), "FreightSans Light", "title");
+	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"), "FreightSans Light,", "title");
 
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
 		// this is a way to register a font as well, which registers the font name (for example, Noto Sans Bold) to the short name (for example noto-bold). 
 		// So in your layout files, you can now set the font_name to be noto-bold OR Noto Sans Bold.
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), mEngine.getSettings("FONTS").getText(key), key);
+		mEngine.editFonts().installFont(ds::Environment::expand(setting.mRawValue), setting.mRawValue, setting.mName);
 	});
 }
 
@@ -76,8 +77,8 @@ void PangoApp::setupServer(){
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
-		mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editColors().install(setting.getColorA(mEngine), setting.mName);
 	});
 
 	/* Settings */
@@ -123,6 +124,8 @@ void PangoApp::setupServer(){
 	//auto secondStory = new StoryView(mGlobals);
 	//secondStory->setPosition(200.0f, 500.0f);
 	//rootSprite.addChildPtr(secondStory);
+
+
 
 	// The engine will actually be idling, and this gets picked up on the next update
 	mIdling = false;
@@ -176,9 +179,9 @@ void PangoApp::onAppEvent(const ds::Event& in_e){
 	} 
 }
 
-void PangoApp::keyDown(ci::app::KeyEvent event){
+void PangoApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
@@ -227,14 +230,35 @@ void PangoApp::mouseUp(ci::app::MouseEvent e) {
 void PangoApp::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
-		//ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		//mv->initialize();
-		//mEngine.getRootSprite().addChildPtr(mv);
+		mEngine.getRootSprite().clearChildren();
+
+		// read the file into a string
+		std::ifstream t((*it).string().c_str());
+		std::string str((std::istreambuf_iterator<char>(t)),
+						std::istreambuf_iterator<char>());
+
+		// parse it for pango
+		std::string pangoMd = ds::ui::markdown_to_pango(str);
+
+
+		ds::ui::Text* texty = new ds::ui::Text(mEngine);
+		texty->setFont("Noto Sans");
+		texty->setFontSize(10.0f);
+		texty->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
+		texty->setLeading(1.2f);
+		texty->setText(pangoMd);
+		texty->setPosition(100.0f, 100.0f);
+		texty->setColor(ci::Color(0.1f, 0.1f, 0.1f));
+
+		texty->enable(true);
+		texty->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION_Y);
+		mEngine.getRootSprite().addChildPtr(texty);
 	}
 }
 
 } // namespace pango
 
 // This line tells Cinder to actually create the application
-CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })
 

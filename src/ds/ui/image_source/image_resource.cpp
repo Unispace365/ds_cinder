@@ -92,7 +92,7 @@ public:
 	virtual bool							readFrom(DataBuffer& buf) {
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != RES_RES_ATT) return false;
-		mResource = ds::Resource(buf.read<std::string>(), ds::Resource::IMAGE_TYPE);
+		mResource = ds::Resource(ds::Environment::expand(buf.read<std::string>()), ds::Resource::IMAGE_TYPE);
 		mResource.setWidth(buf.read<float>());
 		mResource.setHeight(buf.read<float>());
 

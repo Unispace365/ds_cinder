@@ -1,132 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<!-- Project path for locating app resources  -->
-	<text name="project_path" value="downstream\yaml_importer" />
-	
-	<!---------------------->
-	<!-- SERVER SETTINGS --->
-	<!---------------------->
-	<!-- if false, won't connect udp sender / listener for server or client -->
-	<text name="server:connect" value="false" />
-	
-	<!-- the multicast ip address and port of the server -->
-	<text name="server:ip" value="239.255.42.58" />
-	<int name="server:send_port" value="10370" />
-	<int name="server:listen_port" value="10371" />
-	
-	<!-- Set the basic architecture, either a server (world engine), a client (render engine), a
-	both client and server (i.e. world + render, for cases where you want the app running as a
-	standalone app on one wall while also driving clients on other walls) or a standalone app
-	(no client server architecture at all).
-	values: "client", "server", "clientserver", ""
-	default = "", which is the standalone app -->
-	<text name="platform:architecture" value="" />
-	
-	<!-- Show console will create a console window, or not if this is false. 
-		If this setting is missing, debug mode will create a console, release will not. -->
-	<text name="console:show" value="true" />
-
-	<!---------------------->
-	<!-- WINDOW SETTINGS --->
-	<!---------------------->
-	<!-- how big the world size is, in pixels -->
-	<size name="world_dimensions" x="1920" y="1080" />
-	<!-- The src_rect is the area of world_dimensions to display. The dst_rect is
-	the window size and location. Typically, the dst_rect width and height match the
-	src_rect width and height, which results in a scale of 1, but change those values
-	to scale the window. -->
-	<rect name="src_rect" l="0" r="1920" t="0" b="1080" />
-	<rect name="dst_rect" l="20" r="1940" t="40" b="1110" />
-
-	<!-- title of the window -->
-	<text name="screen:title" value="Yaml Importer" />	
-	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
-	<text name="screen:mode" value="window" />
-	<!-- makes the window an always-on-top sort of window. default=false -->
-	<text name="screen:always_on_top" value="false" />
-		
-	<!---------------------->
-	<!-- RENDER SETTINGS --->
-	<!---------------------->
-	<!-- attempt to run the app at this rate -->
-	<float name="frame_rate" value="60" />
-	
-	<!-- false=no cursor visible, true=visible cursor. default=false -->
-	<text name="hide_mouse" value="false" />
-	
-	<!-- turns Fx Anti-aliasing on or off. default=false -->
-	<text name="FxAA" value="false" />
-	<float name="FxAA:SpanMax" value="2.0"/>
-	<float name="FxAA;ReduceMul" value="8.0" />
-	<float name="FxAA;ReduceMin" value="128.0" />
-	
-	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
-	<size name="camera:z_clip" x="1.0" y="1000.0" />
-	<!-- the field of view of the perspective camera? -->
-	<float name="camera:fov" value="30" />
-	
-	<!-- how much to step the camera when using the arrow keys.
-		set to a value above 0.025 to enable arrow key usage.
-		default=-1.0 -->
-	<float name="camera:arrow_keys" value="-1.0" />
-
-	<!---------------------->
-	<!-- TOUCH SETTINGS ---->
-	<!---------------------->
-	<!-- Override the built-in touch scale and offset parsing.
-		 It's uncommon you'll need to do this. 
-		 Default is to use the built-in Cinder touch translation (default=false)-->
-	<text name="touch_overlay:override_translation" value="false" />
-	<size name="touch_overlay:dimensions" x="1920" y="1080" />
-	<size name="touch_overlay:offset" x="0" y="0" />
-	
-	<!-- touch points outside this rectangle won't be used.
-			If the width of this rectangle == 0, no filtering will be applied-->
-	<rect name="touch_overlay:filter_rect" l="0" t="0" r="0" b="0" />
-
-	<!-- sets the color of debug touch points. default=255,255,255 -->
-	<color name="touch_color" r="255" g="255" b="255" />
-	<!-- draw circles around touch points -->
-	<text name="touch_overlay:debug" value="true" />
-	
-	<!-- Touch trails are special debug drawing that leaves a trail behind the touches.
-			use: true turns this on (overrides the stroked cirlce debug drawing (touch_overlay:debug must be true for this to be on)
-			length: how many touch points to keep in the tail
-			increment: how much bigger to make each touch point. Effective max size = (length-1) * increment.
-			Defaults: use=false, length=5, increment=5. Effective size of 20 pixel radius circle. -->
-	<text  name="touch_overlay:trails:use" value="false" />
-	<int   name="touch_overlay:trails:length" value="5" />
-	<float name="touch_overlay:trails:increment" value="5.0" />
-
-	<!-- Set the current touch mode. Options:
-		"Tuio" -- Receive events over TUIO.
-		"TuioAndMouse" -- Receive both TUIO and mouse events. The default.
-		"System" -- Receive native (Windows) system touch events.
-		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
-		cause the first touch event to be discarded, because it is also a mouse event.
-	-->
-	<text name="touch_mode" value="TuioAndMouse" />
-	
-	<!-- port to listen to tuio stream. default=3333 -->
-	<int name="tuio_port" value="0" />
-	
-	<!-- will allow tuio to receive object data. default=false -->
-	<text name="tuio:receive_objects" value="false" />
-	
-	<!-- How far a touch moves before it's not a tap, in pixels -->
-	<float name="tap_threshold" value="20" />
-	
-	<!----------------------->
-	<!-- RESOURCE SETTINGS -->
-	<!----------------------->
-	<!-- resource location and database for cms content-->
-	<text name="resource_location" value="" />
-	<text name="resource_db" value="" />
-
-	<!---------------------->
-	<!-- NETWORK SETTINGS -->
-	<!---------------------->
-	<!-- Seconds delay between checking the node for new messages. -->
-	<float name="node:refresh_rate" value="0.1" />
-
-
+	<setting name="SERVER SETTINGS" value="" type="section_header"/>
+	<setting name="project_path" value="downstream\yaml_importer" type="string" comment="Project path for locating app resources"/>
+	<setting name="server:connect" value="false" type="bool" comment="If false, won't connect udp sender / listener for server or client" default="false"/>
+	<setting name="server:ip" value="239.255.42.58" type="string" comment="The multicast group udp address and port of the server" default="239.255.42.58"/>
+	<setting name="server:send_port" value="10370" type="int" comment="The send port of the server. Match these between server and client" default="1037" min_value="1" max_value="99999"/>
+	<setting name="server:listen_port" value="10371" type="int" comment="The listen port of the server (which is what the client sends on). Match these between server and client." default="1038" min_value="1" max_value="99999"/>
+	<setting name="platform:architecture" value="" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
+	<setting name="platform:guid" value="Downstream" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
+	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
+	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
+	<setting name="src_rect" value="0, 0, 1920.000000, 1080.000000" type="rect" comment="The rectangle of the world space to render."/>
+	<setting name="dst_rect" value="20, 40, 1920.000000, 1080.000000" type="rect" comment="The output window size and position to render."/>
+	<setting name="screen:title" value="Yaml Importer" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
+	<setting name="screen:mode" value="window" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
+	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window." default="false"/>
+	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
+	<setting name="idle_time" value="300" type="double" comment="Seconds before idle happens. 300 = 5 minutes." default="300" min_value="0" max_value="1000"/>
+	<setting name="RENDER SETTINGS" value="" type="section_header"/>
+	<setting name="frame_rate" value="60" type="int" comment="Attempt to run the app at this rate" default="60" min_value="1" max_value="1000"/>
+	<setting name="vertical_sync" value="true" type="bool" comment="Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card" default="true"/>
+	<setting name="hide_mouse" value="false" type="bool" comment="False=cursor visible, true=no visible cursor." default="false"/>
+	<setting name="camera:arrow_keys" value="-1.0" type="float" comment="How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage." default="-1.0" min_value="-1.0" max_value="200.0"/>
+	<setting name="platform:mute" value="false" type="bool" comment="Mutes all video sound if true" default="false"/>
+	<setting name="TOUCH SETTINGS" value="" type="section_header"/>
+	<setting name="touch:mode" value="TuioAndMouse" type="string" comment="Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All." default="SystemAndMouse" possibles="Tuio, TuioAndMouse, System, SystemAndMouse, All"/>
+	<setting name="touch:tuio:port" value="0" type="int" comment="UDP Port to listen to tuio stream." default="3333" min_value="1" max_value="9999"/>
+	<setting name="touch:tuio:receive_objects" value="false" type="bool" comment="Will allow tuio to receive object data." default="false"/>
+	<setting name="touch:override_translation" value="false" type="bool" comment="Override the built-in touch scale and offset parsing. It's uncommon you'll need to do this. Default is to use the built-in Cinder touch translation, which is generally correct if the window is the same pixel size as the main screen and not scaled at all." default="false"/>
+	<setting name="touch:dimensions" value="1920, 1080" type="vec2" comment="How large in screen pixels the touch input stream covers" default="1920, 1080"/>
+	<setting name="touch:offset" value="0, 0" type="vec2" comment="How much to offset touch input in pixels" default="0, 0"/>
+	<setting name="touch:filter_rect" value="0, 0, 0.000000, 0.000000" type="rect" comment="Any touches started outside this rect will be ignored, in world space. Set to 0, 0, 0, 0 to ignore." default="0, 0, 0, 0"/>
+	<setting name="touch:verbose_logging" value="false" type="bool" comment="Prints out info for every touch info. Also can be set at runtime using shift-V." default="false"/>
+	<setting name="touch:debug" value="true" type="bool" comment="Draw circles around touch points " default="true"/>
+	<setting name="touch:debug_circle_radius" value="15" type="float" comment="Visual settings for touch debug circles." default="15" min_value="1" max_value="100"/>
+	<setting name="touch:debug_circle_color" value="#ffffffff" type="color" comment="The color of the touch debug circles" default="#ffffff"/>
+	<setting name="touch:debug_circle_filled" value="false" type="bool" comment="If the touch debug circles are a filled or stroked circle." default="false"/>
+	<setting name="touch:rotate_touches_default" value="false" type="bool" comment="Rotates touch points if the sprite getting touched is rotated. Helpful for table situations that can have sprites rotated 180 degrees or whatnot." default="false"/>
+	<setting name="touch:tap_threshold" value="20" type="float" comment="How far a touch moves before it's not a tap, in pixels." default="30" min_value="0" max_value="200"/>
+	<setting name="touch:minimum_distance" value="20.0" type="float" comment="How many pixels away from an existing touch point for a new touch to be considered valid." default="20.0" min_value="1.0" max_value="300"/>
+	<setting name="touch:smoothing" value="true" type="bool" comment="Average out touch points over time for smoother input, but slightly less accurate." default="true"/>
+	<setting name="touch:smooth_frames" value="5" type="int" comment="How many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off." default="5" min_value="1" max_value="64"/>
+	<setting name="touch:swipe:queue_size" value="4" type="int" comment="How many frames of touch swipe info to account for when calculating swipes" default="4" min_value="1" max_value="16"/>
+	<setting name="touch:swipe:minimum_velocity" value="800.0" type="float" comment="The velocity a swipe needs to exceed to count as a swipe" default="800.0" min_value="1.0" max_value="2400"/>
+	<setting name="touch:swipe:maximum_time" value="0.5" type="float" comment="How long a swipe can last to be counted as a swipe" default="0.5" min_value="0.0" max_value="3.0"/>
+	<setting name="RESOURCE SETTINGS " value="" type="section_header"/>
+	<setting name="resource_location" value="" type="string" comment="Resource location and database for cms content"/>
+	<setting name="resource_db" value="" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
+	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
+	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
+	<setting name="LOGGER" value="" type="section_header"/>
+	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
+	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>
+	<setting name="logger:async" value="true" type="string" comment="Whether to save logs on another thread or the main one." default="true"/>
+	<setting name="logger:file" value="%LOCAL%/logs/" type="string" comment="Filename and location" default="%LOCAL%/logs/"/>
 </settings>
+

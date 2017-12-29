@@ -24,6 +24,7 @@ struct MediaViewerSettings {
 		, mWebKeyboardAbove(true)
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
+		, mWebStartTouchable(false)
 		, mCacheImages(false)
 		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
@@ -32,6 +33,7 @@ struct MediaViewerSettings {
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
 		, mVideoStreamingLatency(0.2)
+		, mPanoramicVideoInteractive(true)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -53,6 +55,8 @@ struct MediaViewerSettings {
 	bool						mWebAllowTouchToggle;
 	// If true, the keyboard appears above the interface. False will show below
 	bool						mWebKeyboardAbove;
+	// If true, the website will load interactable. Default = false
+	bool						mWebStartTouchable;
 
 	//--------------------Image Settings -------------------------------------------//
 
@@ -87,6 +91,9 @@ struct MediaViewerSettings {
 
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
+
+	/// Ability to pan panoramic videos at start
+	bool						mPanoramicVideoInteractive;
 
 	/// The latency when opening a stream in seconds
 	double						mVideoStreamingLatency;

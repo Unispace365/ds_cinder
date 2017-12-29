@@ -161,7 +161,8 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName)
 	return p.toString();
 }
 
-void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings) {
+void Environment::loadSettings(const std::string& settingsName, const std::string& filename, ds::cfg::Settings& settings) {
+	settings.setName(settingsName);
 	settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
 	settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
 	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
@@ -200,6 +201,11 @@ std::string Environment::getLocalFile(	const std::string& category,
 std::string Environment::getProjectPath() {
 	return EngineSettings::envProjectPath();
 }
+
+void Environment::replaceEnvironmentVariable(const std::string& variable, const std::string& value) {
+	Poco::Environment::set(variable, value);
+}
+
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
 	std::string new_path = Poco::Environment::get(variable, "");

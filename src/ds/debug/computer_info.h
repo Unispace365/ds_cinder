@@ -22,7 +22,7 @@ namespace ds {
 class ComputerInfo
 {
 public:
-	static const enum MemoryConversion {
+	const enum MemoryConversion {
 		MEGABYTE,
 		GIGABYTE,
 		KILOBYTE,

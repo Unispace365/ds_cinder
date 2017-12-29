@@ -26,7 +26,7 @@ WebView::WebView(Globals& g)
 {
 
 
-	const std::string& url = mGlobals.getSettingsLayout().getText("web:url", 0, "http://google.com");
+	const std::string& url = mGlobals.getSettingsLayout().getString("web:url", 0, "http://google.com");
 
 	mWeb.setDragScrolling(true);
 	mWeb.setDragScrollingMinimumFingers(1);

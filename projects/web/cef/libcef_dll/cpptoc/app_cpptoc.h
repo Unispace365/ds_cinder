@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d584a988913aee077d1e99f919d02524133d299e$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_APP_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_APP_CPPTOC_H_
@@ -18,14 +20,14 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "include/cef_app.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefAppCppToC
-    : public CefCppToC<CefAppCppToC, CefApp, cef_app_t> {
+    : public CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t> {
  public:
   CefAppCppToC();
 };

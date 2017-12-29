@@ -69,7 +69,7 @@ public:
 
 	std::string					getTextAsString() const;
 	std::wstring				getText() const;
-	bool						hasText() const;
+	bool						hasText() const { return !mText.empty(); }
 
 	/// Can be plain text or use markup (see top of header)
 	void						setText(std::string text);
@@ -121,6 +121,9 @@ public:
 
 	float						getLeading() const;
 	Text&						setLeading(const float);
+
+	float						getLetterSpacing() const;
+	Text&						setLetterSpacing(const float);
 
 	virtual float				getWidth() const;
 	virtual float				getHeight() const;
@@ -194,8 +197,8 @@ private:
 
 	std::string					mCfgName;
 
-	std::wstring				mText;
-	std::wstring				mProcessedText; // stores text after newline filtering
+	std::string					mText;
+	std::string					mProcessedText; // stores text after newline filtering
 	bool						mProbablyHasMarkup;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
@@ -210,6 +213,7 @@ private:
 	EllipsizeMode				mEllipsizeMode;
 	WrapMode					mWrapMode;
 	float						mLeading;
+	float						mLetterSpacing;
 
 	// Info about the text layout
 	bool						mWrappedText;

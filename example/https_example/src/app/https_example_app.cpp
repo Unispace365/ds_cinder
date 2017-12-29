@@ -44,7 +44,6 @@ https_example::https_example()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
 }
 
 void https_example::setupServer(){
@@ -133,9 +132,9 @@ void https_example::update() {
 
 }
 
-void https_example::keyDown(ci::app::KeyEvent event){
+void https_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

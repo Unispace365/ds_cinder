@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f0494edd5fdf58f4c3d999ab6bf4f29658e0f819$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VALUE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VALUE_CTOCPP_H_
@@ -18,14 +20,14 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "include/cef_values.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefValueCToCpp
-    : public CefCToCpp<CefValueCToCpp, CefValue, cef_value_t> {
+    : public CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t> {
  public:
   CefValueCToCpp();
 

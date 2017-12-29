@@ -24,7 +24,7 @@ public:
 	void						setupServer();
 	void						handleTouchUno(const ci::vec3& pos);
 	void						handleTouchDuo(const ci::vec3& pos);
-	void						keyDown(ci::app::KeyEvent event);
+	void						onKeyDown(ci::app::KeyEvent event) override;
 	void						recenterSprites();
 
 private:
@@ -43,7 +43,6 @@ AutomatorApp::AutomatorApp()
 
 void AutomatorApp::setupServer()
 {
-	enableCommonKeystrokes();
 	const ci::vec2     cen(getWindowCenter());
 	ds::ui::Sprite     &rootSprite = mEngine.getRootSprite();
 
@@ -86,8 +85,7 @@ void AutomatorApp::handleTouchDuo(const ci::vec3& pos){
 	mSprite2.tweenPosition(pos, 0.25f, 0.0f, ci::EaseInOutExpo());
 }
 
-void AutomatorApp::keyDown(ci::app::KeyEvent event){
-	inherited::keyDown(event);
+void AutomatorApp::onKeyDown(ci::app::KeyEvent event){
 	if(event.getCode() == ci::app::KeyEvent::KEY_a){
 		mAutomator.toggleActive();
 	}

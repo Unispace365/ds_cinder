@@ -1,881 +1,454 @@
 #include "stdafx.h"
 
-#include "ds/cfg/settings.h"
-#include <boost/algorithm/string.hpp>
+#include "settings.h"
+
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
-#include "ds/app/engine/engine.h"
+#include "ds/ui/sprite/sprite_engine.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
+#include "ds/util/color_util.h"
 #include "ds/util/file_meta_data.h"
-
-static bool check_bool(const std::string& text, const bool defaultValue);
 
 namespace ds {
 namespace cfg {
 
-static const std::string		FALSE_SZ("false");
-static const std::string		TRUE_SZ("true");
-
-static const std::string		COLOR_NAME("color");
-static const std::string		FLOAT_NAME("float");
-static const std::string		INT_NAME("int");
-static const std::string		RECT_NAME("rect");
-static const std::string		RESOURCE_ID_NAME("resource id");
-static const std::string		SIZE_NAME("size");
-static const std::string		TEXT_NAME("text");
-static const std::string		TEXTW_NAME("wtext");
-static const std::string		POINT_NAME("point");
-
-static const cinder::Color		COLOR_TYPE;
-static const cinder::ColorA		COLORA_TYPE;
-static const float				FLOAT_TYPE(0.0f);
-static const int				INT_TYPE(0);
-static const ci::Rectf			RECT_TYPE;
-static const Resource::Id		RESOURCE_ID_TYPE;
-static const ci::vec2			SIZE_TYPE;
-static const std::string		TEXT_TYPE;
-static const std::wstring		TEXTW_TYPE;
-static const ci::vec3			POINT_TYPE;
+const std::string&				SETTING_TYPE_UNKNOWN = "unknown";
+const std::string&				SETTING_TYPE_BOOL = "bool";
+const std::string&				SETTING_TYPE_INT = "int";
+const std::string&				SETTING_TYPE_FLOAT = "float";
+const std::string&				SETTING_TYPE_DOUBLE = "double";
+const std::string&				SETTING_TYPE_STRING = "string";
+const std::string&				SETTING_TYPE_WSTRING = "wstring";
+const std::string&				SETTING_TYPE_COLOR = "color";
+const std::string&				SETTING_TYPE_COLORA = "colora";
+const std::string&				SETTING_TYPE_VEC2 = "vec2";
+const std::string&				SETTING_TYPE_VEC3 = "vec3";
+const std::string&				SETTING_TYPE_RECT = "rect";
+const std::string&				SETTING_TYPE_SECTION_HEADER = "section_header";
 
 namespace {
 
-// A is a map between a string and a vector
-template <typename A>
-static size_t get_size(const std::string& name, A& container)
-{
-	auto it = container.find(name);
-	if (it != container.end()) return it->second.size();
-	return 0;
-}
-
-// A is a map between a string and a templatized vector, whose type matches V
-template <typename A, typename V>
-static void add_item(const std::string& name, A& container, const V& value)
-{
-	auto it = container.find(name);
-	if (it != container.end()) {
-		it->second.push_back(value);
-	} else {
-		std::vector<V>		vec;
-		vec.push_back(value);
-		container[name] = vec;
+static std::vector<std::string>	SETTING_TYPES;
+void initialize_types(){
+	if(SETTING_TYPES.empty()){
+		SETTING_TYPES.emplace_back(SETTING_TYPE_UNKNOWN);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_BOOL);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_INT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_FLOAT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_DOUBLE);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_STRING);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_WSTRING);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_COLOR);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_COLORA);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_VEC2);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_VEC3);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_RECT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_SECTION_HEADER);
 	}
 }
 
-// V = std::map<std::string, V>
-template <typename V>
-static void merge(V& dst, const V& src)
-{
-	for (auto it=src.begin(), end=src.end(); it != end; ++it) {
-		dst[it->first] = it->second;
-	}
-}
-
-// V = std::map<std::string, std::vector<V>>
-template <typename V>
-static void merge_vec(V& dst, const V& src)
-{
-	for (auto it=src.begin(), end=src.end(); it != end; ++it) {
-		auto f = dst.find(it->first);
-		if (f == dst.end()) {
-			dst[it->first] = it->second;
-		} else {
-			for (std::size_t k=0; k<it->second.size(); k++) {
-				if (k < f->second.size()) f->second[k] = it->second[k];
-				else f->second.push_back(it->second[k]);
+static void merge_settings(
+	std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& dst,
+	const std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& src){
+	for(auto sit : src) {
+		bool found = false;
+		for(auto& dit : dst){
+			if(dit.first == sit.first){
+				dit.second = sit.second;
+				found = true;
+				break;
 			}
+		}
+
+		if(!found){
+			dst.emplace_back(sit);
 		}
 	}
 }
 
-template <typename A, typename V>
-const V& get_or_throw(const std::string& name, const A& container, const int index, const V& v, const std::string& typeName)
-{
-	auto it = container.find(name);
-	if (it != container.end() && index >= 0 && index < (int)it->second.size()) return it->second[index];
-
-	DS_LOG_ERROR("Setting " << typeName << " (" << name << ") does not exist");
-	return v;
 }
 
-template <typename A, typename V>
-const V& get(const std::string& name, const A& container, const int index, const V& defaultValue, const std::string& typeName)
-{
-	auto it = container.find(name);
-	if (it != container.end() && index >= 0 && index < (int)it->second.size()) return it->second[index];
-	return defaultValue;
+bool Settings::Setting::getBool() const {
+	return parseBoolean(mRawValue);
 }
 
-} // namespace
-
-/**
- * ds::cfg::Settings
- */
-Settings::Settings(ds::Engine* engine)
-	: mEngine(engine)
-	, mChanged(false)
-{
+int Settings::Setting::getInt() const{
+	return ds::string_to_int(mRawValue);
 }
 
-void Settings::readFrom(const std::string& filename, const bool append, const bool rawXmlText)
+float Settings::Setting::getFloat() const{
+	return ds::string_to_float(mRawValue);
+}
+
+double Settings::Setting::getDouble() const{
+	return ds::string_to_double(mRawValue);
+}
+
+const ci::Color Settings::Setting::getColor(ds::ui::SpriteEngine& eng) const{
+	return ds::parseColor(mRawValue, eng);
+}
+
+const ci::ColorA Settings::Setting::getColorA(ds::ui::SpriteEngine& eng) const{
+	return ds::parseColor(mRawValue, eng);
+}
+
+const std::string& Settings::Setting::getString() const{
+	return mRawValue;
+}
+
+const std::wstring Settings::Setting::getWString() const{
+	return ds::wstr_from_utf8(mRawValue);
+}
+
+const ci::vec2 Settings::Setting::getVec2() const {
+	return ci::vec2(parseVector(mRawValue));
+}
+
+const ci::vec3 Settings::Setting::getVec3() const {
+	return parseVector(mRawValue);
+}
+
+const cinder::Rectf Settings::Setting::getRect() const{
+	return parseRect(mRawValue);
+}
+
+std::vector<std::string> Settings::Setting::getPossibleValues() const{
+	std::vector<std::string> possibles = ds::split(mPossibleValues, ", ", true);
+	return possibles;
+}
+
+Settings::Settings()
+	: mReadIndex(1)
 {
-	mChanged = false;
-	if (!append) {
-		directReadFrom(filename, true, rawXmlText);
+	initialize_types();
+}
+
+void Settings::readFrom(const std::string& filename, const bool append){
+	if(!append) {
+		directReadFrom(filename, true);
 		return;
 	}
 
-	// We're appending, so create a temporary object, then merge all the changes
-	// on top of me.
-	Settings		s(mEngine);
-	s.directReadFrom(filename, false, rawXmlText);
+	Settings		s;
+	s.directReadFrom(filename, false);
 
-	merge(mFloat, s.mFloat);
-	merge(mRect, s.mRect);
-	merge_vec(mInt, s.mInt);
-	merge_vec(mRes, s.mRes);
-	merge_vec(mColor, s.mColor);
-	merge_vec(mColorA, s.mColorA);
-	merge(mSize, s.mSize);
-	merge_vec(mText, s.mText);
-	merge_vec(mTextW, s.mTextW);
-	merge_vec(mPoints, s.mPoints);
+	merge_settings(mSettings, s.mSettings);
 }
 
-void Settings::directReadFrom(const std::string& filename, const bool clearAll, const bool rawXmlText)
-{
+void Settings::directReadFrom(const std::string& filename, const bool clearAll){
+	if(clearAll) clear();
+
 	if(filename.empty()) {
 		return;
 	}
 
-	// Load based on the file format.
-	try {
-		if (rawXmlText) {
-			directReadXmlFromString(filename, clearAll);
+	if(!safeFileExistsCheck(filename)){
+		return;
+	}
+
+
+	ci::XmlTree xml;
+	try{
+		xml = ci::XmlTree(ci::loadFile(filename));
+	} catch(std::exception& e){
+		DS_LOG_WARNING("Exception loading settings from " << filename << " " << e.what());
+		return;
+	}
+
+	auto xmlEnd = xml.end();
+	for(auto it = xml.begin("settings/setting"); it != xmlEnd; ++it){
+		if(!it->hasAttribute("name")){
+			DS_LOG_WARNING("Missing a name attribute for a setting!");
+			continue;
+		}
+
+		std::string theName = it->getAttributeValue<std::string>("name");
+
+		Setting theSetting;
+		theSetting.mName = theName;
+		theSetting.mReadIndex = mReadIndex;
+		mReadIndex += 100; // leave space for other settings to be inserted
+		if(it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
+		if(it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
+		if(it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
+		if(it->hasAttribute("min_value"))	theSetting.mMinValue = it->getAttributeValue<std::string>("min_value");
+		if(it->hasAttribute("max_value"))	theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
+		if(it->hasAttribute("type"))		theSetting.mType = it->getAttributeValue<std::string>("type");
+		if(it->hasAttribute("possibles"))	theSetting.mPossibleValues = it->getAttributeValue<std::string>("possibles");
+
+		if(!validateType(theSetting.mType)){
+			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType << " source: " << filename);
+		}
+
+		theSetting.mSource = filename;
+
+		auto settingIndex = getSettingIndex(theName);
+		if(settingIndex > -1 && !mSettings.empty()){
+			mSettings[settingIndex].second.push_back(theSetting);
 		} else {
-			const cinder::fs::path  extPath(cinder::fs::path(filename).extension());
-			const std::string       ext(Poco::toLower(extPath.generic_string()));
-			if(ext == ".xml") {
-				directReadXmlFrom(filename, clearAll);
-			} else {
-				DS_LOG_WARNING("Unsupported format for xml settings: " << filename);
-			}
+			std::vector<Setting> newSettingVec;
+			newSettingVec.push_back(theSetting);
+			mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(theName, newSettingVec));
 		}
-	} catch(std::exception const& ex) {
-		// TODO:  Really need this writing to a log file, because it easily happens during construction of the app
-		std::cout << "ds::cfg::Settings::directReadFrom() failed on " << filename << " exception=" << ex.what() << std::endl;
 	}
 }
 
-void Settings::directReadXmlFromString(const std::string& xmlStr, const bool clearAll)
-{
-	if (xmlStr.empty()) return;
-	cinder::XmlTree     xml(xmlStr);
-	directReadXmlFromTree(xml, clearAll);
-}
 
-void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clearAll)
-{
-	if (clearAll) clear();
+void Settings::writeTo(const std::string& filename){
 
-	// GENERIC DEFINES
-	const std::string   NAME_SZ("name");
-	const std::string   VALUE_SZ("value");
-	const std::string   L_SZ("l");
-	const std::string   T_SZ("t");
-	const std::string   CODE_SZ("code");
-	const std::string   R_SZ("r");
-	const std::string   B_SZ("b");
-	const std::string   G_SZ("g");
-	const std::string   A_SZ("a");
-	const std::string	HEX_SZ("hex");
-	const std::string   X_SZ("x");
-	const std::string   Y_SZ("y");
-	const std::string   Z_SZ("z");
-	const std::string   W_SZ("w");
-	const std::string   H_SZ("h");
-
-
-	// FLOAT
-	const std::string   FLOAT_PATH("settings/float");
-	auto                end = xml.end();
-	for (auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
-		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-		add_item(name, mFloat, it->getAttributeValue<float>(VALUE_SZ));
+	ci::XmlTree xml = ci::XmlTree::createDoc();
+	ci::XmlTree rootNode;
+	rootNode.setTag("settings");
+	auto& sortedSettings = getReadSortedSettings();
+	for(auto sit : sortedSettings){
+		ci::XmlTree settingNode;
+		settingNode.setTag("setting");
+		settingNode.setAttribute("name", sit.mName);
+		settingNode.setAttribute("value", sit.mRawValue);
+		if(!sit.mType.empty()) settingNode.setAttribute("type", sit.mType);
+		if(!sit.mComment.empty()) settingNode.setAttribute("comment", sit.mComment);
+		if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
+		if(!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
+		if(!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
+		if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mPossibleValues);
+		rootNode.push_back(settingNode);
 	}
+	
 
-	// RECT
-	const std::string   RECT_PATH("settings/rect");
-	for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
-		const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
-		float t, l, b, r;
-		l = it->getAttributeValue<float>(L_SZ);
-		t = it->getAttributeValue<float>(T_SZ);
-		if(it->hasAttribute(R_SZ)){
-			r = it->getAttributeValue<float>(R_SZ);
-			b =	it->getAttributeValue<float>(B_SZ);
-		} else if(it->hasAttribute(W_SZ)){
-			r = l + it->getAttributeValue<float>(W_SZ);
-			b = t + it->getAttributeValue<float>(H_SZ);
-		}
-		const cinder::Rectf value(l, t, r, b);
-		add_item(name, mRect, value);
-		
-	}
-
-	// INT
-	const std::string   INT_PATH("settings/int");
-	for (auto it = xml.begin(INT_PATH); it != end; ++it) {
-		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-		add_item(name, mInt, it->getAttributeValue<int>(VALUE_SZ));
-	}
-
-	// COLOR
-	const std::string  COLOR_PATH("settings/color");
-	for (auto it = xml.begin(COLOR_PATH); it != end; ++it) {
-		const float             DEFV = 255.0f;
-		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		cinder::ColorA			c;
-		if(it->hasAttribute(CODE_SZ)) {
-			if(mEngine) {
-				std::string code = it->getAttributeValue<std::string>(CODE_SZ);
-				c = mEngine->getColors().getColorFromName(code);
-			}
-		} else if( it->hasAttribute(R_SZ)){
-			c = ci::ColorA(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
-				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
-				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
-				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
-
-		} else if (it->hasAttribute(HEX_SZ)){
-			
-			std::string s = it->getAttributeValue<std::string>(HEX_SZ);
-
-			if (boost::starts_with(s, "#")){
-				boost::erase_head(s, 1);
-			}
-
-			if (boost::starts_with(s, "0x")){
-				boost::erase_head(s, 2);
-			}
-
-			std::stringstream converter(s);
-			unsigned int value;
-			converter >> std::hex >> value;
-
-			float a = (s.length() > 6)
-				? ((value >> 24) & 0xFF) / 255.0f
-				: 1.0f;
-			float r = ((value >> 16) & 0xFF) / 255.0f;
-			float g = ((value >> 8) & 0xFF) / 255.0f;
-			float b = ((value)& 0xFF) / 255.0f;
-			
-			c = ci::ColorA(r, g, b, a);
-		}
-		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
-		add_item(name, mColorA, c);
-	}
-
-	// SIZE
-	const std::string  SIZE_PATH("settings/size");
-	for (auto it = xml.begin(SIZE_PATH); it != end; ++it) {
-		const float             DEFV = 0.0f;
-		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::vec2     value(it->getAttributeValue<float>(X_SZ, DEFV),
-			it->getAttributeValue<float>(Y_SZ, DEFV));
-		add_item(name, mSize, value);
-	}
-
-	// TEXT
-	const std::string  TEXT_PATH("settings/text");
-	for (auto it = xml.begin(TEXT_PATH); it != end; ++it) {
-		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const std::string       value = it->getAttributeValue<std::string>(VALUE_SZ);
-		add_item(name, mText, value);
-	}
-
-	// TEXTW
-	const std::string  TEXTW_PATH("settings/wtext");
-	for (auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
-		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const std::wstring       value = ds::wstr_from_utf8(it->getAttributeValue<std::string>(VALUE_SZ));
-		add_item(name, mTextW, value);
-	}
-
-	// POINT
-	const std::string  POINT_PATH("settings/point");
-	for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
-		const float             DEFV = 0.0f;
-		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		cinder::vec3           value(it->getAttributeValue<float>(X_SZ, DEFV),
-			it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
-		if (it->hasAttribute(Z_SZ)) {
-			value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
-		}
-
-		add_item(name, mPoints, value);
-	}
-}
-
-void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll){
-	if(!safeFileExistsCheck(filename)) return;
-
-	cinder::XmlTree     xml(cinder::loadFile(filename));
-	directReadXmlFromTree(xml, clearAll);
-}
-
-void Settings::writeTo(const std::string& filename)
-{
-	cinder::XmlTree tree("settings", "");
-
-	for(auto it = mFloat.begin(); it != mFloat.end(); it++)
-	{
-		cinder::XmlTree sub("float", "");
-		sub.setAttribute("name", (*it).first);
-		sub.setAttribute<float>("value", (*it).second.at(0));
-		tree.push_back(sub);
-	}
-
-	for(auto it = mRect.begin(); it != mRect.end(); it++)
-	{
-		cinder::XmlTree sub("rect", "");
-		sub.setAttribute("name", (*it).first);
-		ci::Rectf value((*it).second.at(0));
-		sub.setAttribute<float>("l", value.x1);
-		sub.setAttribute<float>("t", value.y1);
-		sub.setAttribute<float>("r", value.x2);
-		sub.setAttribute<float>("b", value.y2);
-		tree.push_back(sub);
-	}
-
-	for(auto it = mInt.begin(); it != mInt.end(); it++)
-	{
-		cinder::XmlTree sub("int", "");
-		sub.setAttribute("name", (*it).first);
-		sub.setAttribute<int>("value", (*it).second.at(0));
-		tree.push_back(sub);
-	}
-
-	for(auto it = mColorA.begin(); it != mColorA.end(); it++)
-	{
-		cinder::XmlTree sub("color", "");
-		sub.setAttribute("name", (*it).first);
-		ci::ColorA value((*it).second.at(0));
-		sub.setAttribute<int>("r", (int)(value.r * 255.0f));
-		sub.setAttribute<int>("g", (int)(value.g * 255.0f));
-		sub.setAttribute<int>("b", (int)(value.b * 255.0f));
-		if(value.a < 1.0f) {
-			sub.setAttribute<int>("a", (int)(value.a * 255.0f));
-		}
-		tree.push_back(sub);
-	}
-
-	for(auto it = mSize.begin(); it != mSize.end(); it++)
-	{
-		cinder::XmlTree sub("size", "");
-		sub.setAttribute("name", (*it).first);
-		ci::vec2 value((*it).second.at(0));
-		sub.setAttribute<float>("x", value.x);
-		sub.setAttribute<float>("y", value.y);
-		tree.push_back(sub);
-	}
-
-	for(auto it = mText.begin(); it != mText.end(); it++)
-	{
-		cinder::XmlTree sub("text", "");
-		sub.setAttribute("name", (*it).first);
-		sub.setAttribute("value", (*it).second.at(0));
-		tree.push_back(sub);
-	}
-
-	for(auto it = mTextW.begin(); it != mTextW.end(); it++)
-	{
-		cinder::XmlTree sub("wtext", "");
-		sub.setAttribute("name", (*it).first);
-		sub.setAttribute("value", ds::utf8_from_wstr((*it).second.at(0)));
-		tree.push_back(sub);
-	}
-
-	for(auto it = mPoints.begin(); it != mPoints.end(); it++)
-	{
-		cinder::XmlTree sub("point", "");
-		sub.setAttribute("name", (*it).first);
-		ci::vec3 value((*it).second.at(0));
-		sub.setAttribute<float>("x", value.x);
-		sub.setAttribute<float>("y", value.y);
-		sub.setAttribute<float>("z", value.z);
-		tree.push_back(sub);
-	}
-
-	tree.write(cinder::writeFile(filename));
+	xml.push_back(rootNode);
+	xml.write(ci::writeFile(filename), true);
 }
 
 bool Settings::empty() const {
-	if (!mFloat.empty()) return false;
-	if (!mRect.empty()) return false;
-	if (!mInt.empty()) return false;
-	if (!mColor.empty()) return false;
-	if (!mSize.empty()) return false;
-	if (!mText.empty()) return false;
-	if (!mTextW.empty()) return false;
-	if (!mPoints.empty()) return false;
-	return true;
+	return mSettings.empty();
 }
 
 void Settings::clear() {
-	mFloat.clear();
-	mInt.clear();
-	mRect.clear();
-	mRes.clear();
-	mColor.clear();
-	mColorA.clear();
-	mSize.clear();
-	mText.clear();
-	mTextW.clear();
-	mPoints.clear();
+	mSettings.clear();
 }
 
-size_t Settings::getBoolSize(const std::string& name) const {
-	return getTextSize(name);
+
+const bool Settings::getBool(const std::string& name, const int index) {
+	return getSetting(name, index).getBool();
 }
 
-size_t Settings::getColorSize(const std::string& name) const {
-	return get_size(name, mColor);
+const bool Settings::getBool(const std::string& name, const int index, const bool defaultValue){
+	/// std::to_string was converting bool to int and returning 1 or 0
+	std::string defaultString = "false";
+	if(defaultValue) defaultString = "true";
+	return getSetting(name, index, defaultString).getBool();
 }
 
-size_t Settings::getFloatSize(const std::string& name) const {
-	return get_size(name, mFloat);
+const int Settings::getInt(const std::string& name, const int index){
+	return getSetting(name, index).getInt();
 }
 
-size_t Settings::getIntSize(const std::string& name) const {
-	return get_size(name, mInt);
+const int Settings::getInt(const std::string& name, const int index, const int defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getInt();
 }
 
-size_t Settings::getRectSize(const std::string& name) const {
-	return get_size(name, mRect);
+const float Settings::getFloat(const std::string& name, const int index){
+	return getSetting(name, index).getFloat();
 }
 
-size_t Settings::getResourceIdSize(const std::string& name) const {
-	return get_size(name, mRes);
+const float Settings::getFloat(const std::string& name, const int index, const float defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getFloat();
 }
 
-size_t Settings::getTextSize(const std::string& name) const {
-	return get_size(name, mText);
+const double Settings::getDouble(const std::string& name, const int index){
+	return getSetting(name, index).getDouble();
 }
 
-size_t Settings::getTextWSize(const std::string& name) const {
-	return get_size(name, mTextW);
+const double Settings::getDouble(const std::string& name, const int index, const double defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getDouble();
 }
 
-size_t Settings::getPointSize(const std::string& name) const {
-	return get_size(name, mPoints);
+const ci::Color Settings::getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index){
+	return getSetting(name, index).getColor(engine);
 }
 
-float Settings::getFloat(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mFloat, index, FLOAT_TYPE, FLOAT_NAME);
+const ci::Color Settings::getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::Color& defaultValue){
+	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(engine);
 }
 
-const cinder::Rectf& Settings::getRect(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mRect, index, RECT_TYPE, RECT_NAME);
+const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index){
+	return getSetting(name, index).getColorA(engine);
 }
 
-int Settings::getInt(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mInt, index, INT_TYPE, INT_NAME);
+const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue){
+	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(engine);
 }
 
-const Resource::Id& Settings::getResourceId(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mRes, index, RESOURCE_ID_TYPE, RESOURCE_ID_NAME);
+const std::string& Settings::getString(const std::string& name, const int index){
+	return getSetting(name, index).getString();
 }
 
-const cinder::Color& Settings::getColor(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mColor, index, COLOR_TYPE, COLOR_NAME);
+const std::string& Settings::getString(const std::string& name, const int index, const std::string& defaultValue){
+	return getSetting(name, index, defaultValue).getString();
 }
 
-const cinder::ColorA& Settings::getColorA(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mColorA, index, COLORA_TYPE, COLOR_NAME);
+const std::wstring Settings::getWString(const std::string& name, const int index){
+	return getSetting(name, index).getWString();
 }
 
-const cinder::vec2& Settings::getSize(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mSize, index, SIZE_TYPE, SIZE_NAME);
+const std::wstring Settings::getWString(const std::string& name, const int index, const std::wstring& defaultValue){
+	return getSetting(name, index, ds::utf8_from_wstr(defaultValue)).getWString();
 }
 
-const std::string& Settings::getText(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mText, index, TEXT_TYPE, TEXT_NAME);
+const ci::vec2 Settings::getVec2(const std::string& name, const int index){
+	return getSetting(name, index).getVec2();
 }
 
-const std::wstring& Settings::getTextW(const std::string& name, const int index) const
-{
-	return get_or_throw(name, mTextW, index, TEXTW_TYPE, TEXTW_NAME);
+const ci::vec2 Settings::getVec2(const std::string& name, const int index, const ci::vec2& defaultValue){
+	return getSetting(name, index, ds::unparseVector(defaultValue)).getVec2();
 }
 
-const ci::vec3& Settings::getPoint( const std::string& name, const int index /*= 0*/ ) const
-{
-  return get_or_throw(name, mPoints, index, POINT_TYPE, POINT_NAME);
+const ci::vec3 Settings::getVec3(const std::string& name, const int index){
+	return getSetting(name, index).getVec3();
 }
 
-bool Settings::getBool(const std::string& name, const int index) const
-{
-	return check_bool(getText(name, index), false);
+const ci::vec3 Settings::getVec3(const std::string& name, const int index, const ci::vec3& defaultValue){
+	return getSetting(name, index, ds::unparseVector(defaultValue)).getVec3();
 }
 
-float Settings::getFloat(const std::string& name, const int index, const float defaultValue) const
-{
-	return get(name, mFloat, index, defaultValue, FLOAT_NAME);
+const cinder::Rectf Settings::getRect(const std::string& name, const int index){
+	return getSetting(name, index).getRect();
 }
 
-cinder::Rectf Settings::getRect(const std::string& name, const int index, const ci::Rectf& defaultValue) const
-{
-	return get(name, mRect, index, defaultValue, RECT_NAME);
+const cinder::Rectf Settings::getRect(const std::string& name, const int index, const ci::Rectf& defaultValue){
+	return getSetting(name, index, ds::unparseRect(defaultValue)).getRect();
 }
 
-int Settings::getInt(const std::string& name, const int index, const int defaultValue) const
-{
-	return get(name, mInt, index, defaultValue, INT_NAME);
+bool Settings::validateType(const std::string& inputType) {
+	return std::find(SETTING_TYPES.begin(), SETTING_TYPES.end(), inputType) != SETTING_TYPES.end();
 }
 
-Resource::Id Settings::getResourceId(const std::string& name, const int index, const Resource::Id& defaultValue) const
-{
-	return get(name, mRes, index, defaultValue, RESOURCE_ID_NAME);
+bool sortByReadIndex(ds::cfg::Settings::Setting& a, ds::cfg::Settings::Setting& b){
+	if(a.mReadIndex < b.mReadIndex){
+		return true;
+	} else if(a.mReadIndex == b.mReadIndex){
+		return a.mName < b.mName;
+	}
+
+	return false;
 }
 
-cinder::Color Settings::getColor(const std::string& name, const int index, const ci::Color& defaultValue) const
-{
-	return get(name, mColor, index, defaultValue, COLOR_NAME);
-}
+std::vector<ds::cfg::Settings::Setting>& Settings::getReadSortedSettings(){
+	mSortedSettings.clear();
 
-cinder::ColorA Settings::getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue) const
-{
-	return get(name, mColorA, index, defaultValue, COLOR_NAME);
-}
-
-cinder::vec2 Settings::getSize(const std::string& name, const int index, const ci::vec2& defaultValue) const
-{
-	return get(name, mSize, index, defaultValue, SIZE_NAME);
-}
-
-std::string Settings::getText(const std::string& name, const int index, const std::string& defaultValue) const
-{
-	return get(name, mText, index, defaultValue, TEXT_NAME);
-}
-
-std::wstring Settings::getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const
-{
-	return get(name, mTextW, index, defaultValue, TEXTW_NAME);
-}
-
-const ci::vec3& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::vec3& defaultValue ) const
-{
-	return get(name, mPoints, index, defaultValue, POINT_NAME);
-}
-
-bool Settings::getBool(const std::string& name, const int index, const bool defaultValue) const
-{
-	return check_bool(getText(name, index, defaultValue ? TRUE_SZ : FALSE_SZ), false);
-}
-
-void Settings::forEachColorAKey(const std::function<void(const std::string&)>& fn) const {
-	if (!fn || mColorA.empty()) return;
-
-	for (auto it=mColorA.begin(), end=mColorA.end(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachFloatKey(const std::function<void(const std::string&)>& fn) const {
-	if (!fn || mFloat.empty()) return;
-
-	for (auto it=mFloat.begin(), end=mFloat.end(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachIntKey(const std::function<void(const std::string&)>& fn) const {
-	if (!fn || mInt.empty()) return;
-
-	for (auto it=mInt.begin(), end=mInt.end(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachSizeKey(const std::function<void(const std::string&)>& fn) const {
-	if (!fn || mSize.empty()) return;
-
-	for (auto it=mSize.begin(), end=mSize.end(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn) const {
-	if (!fn || mText.empty()) return;
-
-	for (auto it=mText.begin(), end=mText.end(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachRectKey(const std::function<void(const std::string&)>& fn) const
-{
-	if (!fn || mRect.empty()) return;
-
-	for (auto it = mRect.cbegin(), end = mRect.cend(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachColorKey(const std::function<void(const std::string&)>& fn) const
-{
-	if (!fn || mColor.empty()) return;
-
-	for (auto it = mColor.cbegin(), end = mColor.cend(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachTextWKey(const std::function<void(const std::string&)>& fn) const
-{
-	if (!fn || mTextW.empty()) return;
-
-	for (auto it = mTextW.cbegin(), end = mTextW.cend(); it != end; ++it) fn(it->first);
-}
-
-void Settings::forEachPointKey(const std::function<void(const std::string&)>& fn) const
-{
-	if (!fn || mPoints.empty()) return;
-
-	for (auto it = mPoints.cbegin(), end = mPoints.cend(); it != end; ++it) fn(it->first);
-}
-
-/**
- * ds::xml::Settings::Editor
- */
-Settings::Editor::Editor(Settings& s, const int mode)
-	: mSettings(s)
-	, mMode(mode)
-{
-}
-
-template <typename A>
-static void clear_vec(A& container)
-{
-	for (auto it=container.begin(), end=container.end(); it != end; ++it) it->second.clear();
-	container.clear();
-}
-
-Settings::Editor& Settings::Editor::clear()
-{
-	mSettings.mChanged = true;
-
-	mSettings.mFloat.clear();
-	mSettings.mRect.clear();
-	clear_vec(mSettings.mInt);
-	clear_vec(mSettings.mRes);
-	clear_vec(mSettings.mColor);
-	clear_vec(mSettings.mColorA);
-	mSettings.mSize.clear();
-	clear_vec(mSettings.mText);
-	clear_vec(mSettings.mTextW);
-	clear_vec(mSettings.mPoints);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setMode(const int mode)
-{
-	mMode = mode;
-	return *this;
-}
-
-template <typename A, typename V>
-static void editor_set_vec(const int mode, const std::string& name, A& container, const V& value)
-{
-	// Always set the first value
-	if (mode == ds::cfg::Settings::Editor::SET_MODE) {
-		auto it = container.find(name);
-		if (it != container.end()) {
-			if (it->second.empty()) it->second.push_back(value);
-			else it->second[0] = value;
-		} else {
-			std::vector<V>		vec;
-			vec.push_back(value);
-			container[name] = vec;
+	for(auto it : mSettings){
+		auto theVec = it.second;
+		for(auto sit : theVec){
+			mSortedSettings.push_back(sit);
 		}
-	// Only set the first value if it doesn't exist
-	} else if (mode == ds::cfg::Settings::Editor::IF_MISSING_MODE) {
-		auto it = container.find(name);
-		if (it == container.end()) {
-			std::vector<V>		vec;
-			vec.push_back(value);
-			container[name] = vec;
-		} else {
-			if (it->second.empty()) it->second.push_back(value);
-		}
+	}
+
+	std::sort(mSortedSettings.begin(), mSortedSettings.end(), sortByReadIndex);
+
+	return mSortedSettings;
+}
+
+bool Settings::hasSetting(const std::string& name) const {
+	for(auto it : mSettings){
+		if(it.first == name) return true;
+	}
+
+	return false;
+}
+
+size_t Settings::countSetting(const std::string& name) const {
+	for(auto it : mSettings) {
+		if(it.first == name) return it.second.size();
+	}
+
+	return 0;
+}
+
+int Settings::getSettingIndex(const std::string& name) const {
+	for(int i = 0; i < mSettings.size(); i++){
+		if(mSettings[i].first == name) return i;
+	}
+
+	return -1;
+}
+
+void Settings::forEachSetting(const std::function<void(Setting&)>& func, const std::string& typeFilter /*= ""*/) {
+	auto& theThingies = getReadSortedSettings();
+	for(auto sit : theThingies){
+		if(!typeFilter.empty() && typeFilter != sit.mType) continue;
+		func(sit);
 	}
 }
 
-template <typename A, typename V>
-static void editor_add_vec(const int mode, const std::string& name, A& container, const V& value)
-{
-	auto it = container.find(name);
-	if (it != container.end()) {
-		it->second.push_back(value);
+ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const int index) {
+	return getSetting(name, index, "");
+}
+
+ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const int index, const std::string& defaultRawValue){
+	auto settingIndex = getSettingIndex(name);
+
+	if(settingIndex > -1 && index > -1 && !mSettings[settingIndex].second.empty() && index < mSettings[settingIndex].second.size()){
+		return mSettings[settingIndex].second[index];
+	}
+
+	// create a new blank setting and return that
+	std::vector<Setting> settings;
+	settings.push_back(Setting());
+	settings.back().mName = name;
+	settings.back().mRawValue = defaultRawValue;
+	settings.back().mReadIndex = mReadIndex;
+	mReadIndex += 100;
+	mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(name, settings));
+
+	return mSettings.back().second.back();
+
+}
+
+ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const int index, const std::string& settingType, 
+												 const std::string& commentValue, const std::string& defaultRawValue /*= ""*/, 
+												 const std::string& minValue /*= ""*/, const std::string& maxValue /*= ""*/, const std::string& possibleValues /*= ""*/){
+	auto& theSetting = getSetting(name, index, defaultRawValue);
+	theSetting.mType = settingType;
+	theSetting.mComment = commentValue;
+	theSetting.mDefault = defaultRawValue;
+	theSetting.mMinValue = minValue;
+	theSetting.mMaxValue = maxValue;
+	theSetting.mPossibleValues = possibleValues;
+	return theSetting;
+}
+
+void Settings::addSetting(const Setting& newSetting){
+	auto settingIndex = getSettingIndex(newSetting.mName);
+
+	if(settingIndex > -1 && !mSettings.empty()){
+		mSettings[settingIndex].second.push_back(newSetting);
 	} else {
-		std::vector<V>		vec;
-		vec.push_back(value);
-		container[name] = vec;
+		std::vector<Setting> theSettings;
+		theSettings.push_back(newSetting);
+		auto hintInsert = mSettings.end();
+		mSettings.insert(hintInsert, std::pair<std::string, std::vector<Setting>>(newSetting.mName, theSettings));
 	}
 }
 
-template <typename A>
-static void editor_delete_vec(const int mode, const std::string& name, A& container)
-{
-	auto it = container.find(name);
-	if(it != container.end()) {
-		container.erase(it);
+void Settings::printAllSettings(){
+	std::cout << "Settings: " << std::endl;
+	auto& theVec = getReadSortedSettings();
+	for(auto sit : theVec){
+		std::cout << std::endl << "\t" << sit.mName << ": \t" << sit.mRawValue << std::endl;
+		std::cout << "\t\t source: \t" << sit.mSource << std::endl;
+
+		if(!sit.mComment.empty()) std::cout << "\t\t comment: \t" << sit.mComment << std::endl;
+		if(!sit.mType.empty()) std::cout << "\t\t type: \t\t" << sit.mType << std::endl;
+		if(!sit.mDefault.empty()) std::cout << "\t\t default: \t" << sit.mDefault << std::endl;
+		if(!sit.mMinValue.empty()) std::cout << "\t\t min: \t\t" << sit.mMinValue << std::endl;
+		if(!sit.mMaxValue.empty()) std::cout << "\t\t max: \t\t" << sit.mMaxValue << std::endl;
+		if(!sit.mPossibleValues.empty()) std::cout << "\t\t possibles: \t\t" << sit.mPossibleValues << std::endl;
 	}
-}
-
-Settings::Editor& Settings::Editor::setColor(const std::string& name, const ci::Color &v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mColor, v);
-	editor_set_vec(mMode, name, mSettings.mColorA, ci::ColorA(v.r, v.g, v.b, 1.0f));
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setColorA(const std::string& name, const ci::ColorA &v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mColorA, v);
-	editor_set_vec(mMode, name, mSettings.mColor, ci::Color(v.r, v.g, v.b));
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mFloat, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setInt(const std::string& name, const int v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mInt, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setRect(const std::string& name, const ci::Rectf& v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mRect, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const Resource::Id& v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mRes, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::vec2& v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mSize, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mText, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setPoint(const std::string& name, const ci::vec3& v) {
-	mSettings.mChanged = true;
-	editor_set_vec(mMode, name, mSettings.mPoints, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v) {
-	mSettings.mChanged = true;
-	editor_add_vec(mMode, name, mSettings.mInt, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const Resource::Id& v) {
-	mSettings.mChanged = true;
-	editor_add_vec(mMode, name, mSettings.mRes, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v) {
-	mSettings.mChanged = true;
-	editor_add_vec(mMode, name, mSettings.mTextW, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::deleteColor(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mColor);
-	editor_delete_vec(mMode, name, mSettings.mColorA);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::deleteColorA(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mColor);
-	editor_delete_vec(mMode, name, mSettings.mColorA);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::deleteFloat(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mFloat);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::deleteInt(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mInt);
-	return *this;
-}
-
-
-Settings::Editor& Settings::Editor::deleteResourceId(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mRes);
-	return *this;
-}
-
-
-Settings::Editor& Settings::Editor::deleteRect(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mRect);
-	return *this;
-}
-
-
-Settings::Editor& Settings::Editor::deleteSize(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mSize);
-	return *this;
-}
-
-
-Settings::Editor& Settings::Editor::deleteText(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mText);
-	return *this;
-}
-
-
-Settings::Editor& Settings::Editor::deletePoint(const std::string& name) {
-	mSettings.mChanged = true;
-	editor_delete_vec(mMode, name, mSettings.mPoints);
-	return *this;
+	
 }
 
 } // namespace cfg
-
 } // namespace ds
-
-/**
- * check_book
- */
-static bool check_bool(const std::string& text, const bool defaultValue)
-{
-	if (text.empty()) return defaultValue;
-	if (text[0] == 't' || text[0] == 'T') return true;
-	if (text[0] == 'f' || text[0] == 'F') return false;
-	return defaultValue;
-}

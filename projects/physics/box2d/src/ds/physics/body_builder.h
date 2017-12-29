@@ -27,8 +27,10 @@ public:
 	bool				mFixedRotation;
 	bool				mIsStaticBody;
 	bool				mIsKinematicBody;
+	bool				mAllowSleep;
 	int					mCategoryBits;
 	int					mMaskBits;
+	int					mGroupIndex;
 
 protected:
 	BodyBuilder(const SpriteBody&);

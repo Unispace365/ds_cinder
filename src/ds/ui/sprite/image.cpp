@@ -77,10 +77,10 @@ const std::string CircleCropFrag =
 "		((delta.y * delta.y) / (circleRadius.y * circleRadius.y))\n"
 "		);\n"
 
-"	float totalAlpha;\n"
+"	float totalAlpha = 1.0;\n"
 
 	// do this with minimal aliasing
-"	float fragDelta = fwidth(radialDistance) * 3.0;\n"
+"	float fragDelta = fwidth(radialDistance) * 1.1;\n"
 "	totalAlpha = 1.0 - smoothstep(1.0 - fragDelta, 1.0, radialDistance);\n"
 
 "	oColor.a *= totalAlpha;\n"
@@ -152,7 +152,7 @@ Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) 
 }
 
 Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-	return makeImage(e, r.getPortableFilePath(), parent);
+	return makeImage(e, ds::Environment::expand(r.getPortableFilePath()), parent);
 }
 
 Image::Image(SpriteEngine& engine)
@@ -238,15 +238,27 @@ void Image::setCircleCrop(bool circleCrop){
 	}
 
 	mNeedsBatchUpdate = true;
+	markAsDirty(IMG_CROP_DIRTY);
 }
 
-void Image::setCircleCropRect(const ci::Rectf& rect)
-{
+void Image::setCircleCropRect(const ci::Rectf& rect){
 	markAsDirty(IMG_CROP_DIRTY);
 	mShaderExtraData.x = rect.x1;
 	mShaderExtraData.y = rect.y1;
 	mShaderExtraData.z = rect.x2;
 	mShaderExtraData.w = rect.y2;
+}
+
+
+void Image::cicleCropAutoCenter() {
+	setCircleCrop(true);
+	const float scw = getWidth();
+	const float sch = getHeight();
+	if(scw > sch) {
+		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+	} else {
+		setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
+	}
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn){
@@ -289,6 +301,7 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 
 	if (mDirty.has(IMG_CROP_DIRTY)) {
 		buf.add(IMG_CROP_ATT);
+		buf.add(mCircleCropped);
 		buf.add(mShaderExtraData.x);
 		buf.add(mShaderExtraData.y);
 		buf.add(mShaderExtraData.z);
@@ -301,6 +314,8 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 		mImageSource.readFrom(buf);
 		setStatus(Status::STATUS_EMPTY);
 	} else if (attributeId == IMG_CROP_ATT) {
+		mCircleCropped = buf.read<bool>();
+		setCircleCrop(mCircleCropped);
 		mShaderExtraData.x = buf.read<float>();
 		mShaderExtraData.y = buf.read<float>();
 		mShaderExtraData.z = buf.read<float>();

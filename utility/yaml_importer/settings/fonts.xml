@@ -1,4 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<!-- Link together a font name and a font file -->
-	<text name="noto-regular" value="%APP%/data/fonts/NotoSans-Regular.ttf" />
+	<setting name="noto-regular" value="%APP%/data/fonts/NotoSans-Regular.ttf" type="string" comment=" Link together a font name and a font file "/>
 </settings>
+

@@ -21,11 +21,11 @@ Globals::Globals(ds::ui::SpriteEngine& e)
 {
 }
 
-const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
+ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
 }
 
-const ds::cfg::Settings& Globals::getAppSettings() const {
+ds::cfg::Settings& Globals::getAppSettings() const {
 	return mEngine.getEngineCfg().getSettings("app_settings");
 }
 

@@ -24,11 +24,12 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mKeyboardAllow(true)
 	, mKeyboardAbove(true)
 	, mAllowTouchToggle(true)
+	, mStartInteractable(false)
 {
 	mLayoutFixedAspect = true;
 	enable(false);
 	setTransparent(false);
-	setColor(ci::Color::black());
+	setColor(ci::Color::white());
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize){
@@ -70,7 +71,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 
 	mWeb = new ds::ui::Web(mEngine);
 	mWeb->setDragScrolling(true);
-	mWeb->setDragScrollingMinimumFingers(1);
+	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
 
 	mWeb->setAddressChangedFn([this](const std::string& addy){
@@ -91,7 +92,12 @@ void WebPlayer::setMedia(const std::string mediaPath){
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
-	mWeb->enable(false);
+
+	if(mStartInteractable) {
+		mWeb->enable(true);
+	} else {
+		mWeb->enable(false);
+	}
 
 	if(mWebInterface){
 		mWebInterface->release();
@@ -161,8 +167,12 @@ void WebPlayer::hideInterface(){
 	}
 }
 
-void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+void WebPlayer::setShowInterfaceAtStart(const bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
+}
+
+void WebPlayer::setStartInteractable(const bool startInteractable) {
+	mStartInteractable = startInteractable;
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos){

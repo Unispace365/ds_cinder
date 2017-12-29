@@ -13,7 +13,7 @@ class web_example : public ds::App {
 public:
 	web_example();
 
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 private:

@@ -109,6 +109,8 @@ public:
 								int viewY,
 								int& screenX,
 								int& screenY) OVERRIDE;
+	virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
+	virtual void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
 
 	virtual void OnPaint(CefRefPtr<CefBrowser> browser,
 						 PaintElementType type,
@@ -213,6 +215,10 @@ public:
 	// We keep those browsers around to be used the next time a browser is requested
 	bool 					hasOrphans(){ return !mOrphanedBrowsers.empty(); }
 	void 					useOrphan(std::function<void(int)> callback, const std::string startUrl);
+
+	// No browser ID cause cookies are global
+	// Url and cookie name are optional. Will delete all if not specified.
+	void					deleteCookies(const std::string& url, const std::string& cookieName);
 
 private:
 

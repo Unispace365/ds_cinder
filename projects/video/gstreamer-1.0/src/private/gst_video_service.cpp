@@ -97,8 +97,11 @@ void GstVideoService::start() {
 		mValidInstall = false;
 	}
 
+	//gst_update_registry();
+
 	// Set the plugin path using GStreamer's registry
 	DS_LOG_INFO("Initialized GStreamer version " << gstVersion);
+
 
 	GstRegistry* registery;
 	registery = gst_registry_get();
