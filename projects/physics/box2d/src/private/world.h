@@ -11,6 +11,11 @@
 #include <ds/ui/touch/touch_info.h>
 #include "private/contact_listener.h"
 #include "private/touch.h"
+
+#include "Box2D/Dynamics/b2World.h"
+#include "debug_draw.h"
+
+
 class b2Body;
 class b2DistanceJoint;
 class b2MouseJoint;
@@ -33,13 +38,13 @@ public:
 	World(ds::ui::SpriteEngine&, ds::ui::Sprite&);
 
 	b2DistanceJoint*				createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz,
-													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+													const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
 	void							createWeldJoint(const SpriteBody&, const SpriteBody&, const float dampingRation, const float frequencyHz,
-													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+													const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 	b2PrismaticJoint*				createPrismaticJoint(const SpriteBody& body1, const SpriteBody& body2, b2Vec2 axis, bool enableLimit = false, float lowerTranslation = 0.0f, float upperTranslation = 0.0f,
 													 bool enableMotor= false, float maxMotorForce=0.0f, float motorSpeed=0.0f,
-													 const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+													 const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 
 	void							releaseJoints(const SpriteBody&);
 
@@ -58,8 +63,8 @@ public:
 	// Fill out the collision object, if it applies to me, otherwise return false
 	bool							makeCollision(const b2Fixture&, Collision&) const;
 
-	ci::Vec3f						box2CiTranslation(const b2Vec2&, ds::ui::Sprite*) const;
-	b2Vec2							Ci2BoxTranslation(const ci::Vec3f&, ds::ui::Sprite*) const;
+	ci::vec3						box2CiTranslation(const b2Vec2&, ds::ui::Sprite*) const;
+	b2Vec2							Ci2BoxTranslation(const ci::vec3&, ds::ui::Sprite*) const;
 
 	bool							isLocked() const;
 

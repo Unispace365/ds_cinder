@@ -14,7 +14,7 @@
     <ResourceCompile Include="Resources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -22,5 +22,11 @@
     <ClCompile Include="..\src\AutomatorApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(DS_PLATFORM_090)\src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(DS_PLATFORM_090)\src\stdafx.h" />
   </ItemGroup>
 </Project>

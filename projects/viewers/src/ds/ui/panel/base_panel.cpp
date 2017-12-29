@@ -26,6 +26,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mRemoving(false)
 	, mDefaultSize(engine.getWorldWidth(), engine.getWorldHeight())
 	, mLayoutCallback(nullptr)
+	, mAutoSendToFront(true)
 {
 
 	mLayoutFixedAspect = true;
@@ -90,9 +91,7 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	}
 }
 
-void BasePanel::updateServer(const ds::UpdateParams &updateParams){
-
-	ds::ui::Sprite::updateServer(updateParams);
+void BasePanel::onUpdateServer(const ds::UpdateParams &updateParams){
 	if(mMomentum.recentlyMoved() && !mAnimating){
 		checkBounds();
 	}
@@ -124,7 +123,7 @@ void BasePanel::setViewerSize(float contentWidth, float contentHeight){
 	setSize(nw, nh);
 }
 
-void BasePanel::setViewerSize(const ci::Vec2f newContentSize){
+void BasePanel::setViewerSize(const ci::vec2 newContentSize){
 	setViewerSize(newContentSize.x, newContentSize.y);
 }
 
@@ -136,20 +135,20 @@ void BasePanel::setViewerHeight(const float contentHeight){
 	setViewerSize(contentHeight * mContentAspectRatio, contentHeight);
 }
 
-void BasePanel::setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax) {
+void BasePanel::setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& absMax) {
 	mAbsMinSize = absMin; mAbsMaxSize = absMax;
 }
 
 void BasePanel::setSizeLimits(){
-	ci::Vec2f	panelDefaultSize = mDefaultSize;
+	ci::vec2	panelDefaultSize = mDefaultSize;
 	float				cw = getWidth() != 0 ? getWidth() : 1.0f;
 	float				ch = getHeight() != 0 ? getHeight() : 1.0f;
 	const float			aspect = cw / ch;
-	ci::Vec2f			minSize = ci::Vec2f(cw, ch),
-						defaultSize = ci::Vec2f(cw, ch),
-						maxSize = ci::Vec2f(cw * 10.0f, ch * 10.0f);
-	const ci::Vec2f		absMinSize = mAbsMinSize,
-						idealDefault = ci::Vec2f(panelDefaultSize.x, panelDefaultSize.y),
+	ci::vec2			minSize = ci::vec2(cw, ch),
+						defaultSize = ci::vec2(cw, ch),
+						maxSize = ci::vec2(cw * 10.0f, ch * 10.0f);
+	const ci::vec2		absMinSize = mAbsMinSize,
+						idealDefault = ci::vec2(panelDefaultSize.x, panelDefaultSize.y),
 						absMaxSize = mAbsMaxSize;
 	const float			absMinArea = absMinSize.x * absMinSize.y;
 	const float			absMaxArea = absMaxSize.x * absMaxSize.y;
@@ -219,14 +218,14 @@ void BasePanel::checkBounds(const bool immediate) {
 
 	if(mAnimating && !immediate) return;
 
-	const float thisWidth = getScaleWidth();
-	const float thisHeight = getScaleHeight();
+	// Constrain the bounding box of the sprite to mBoundingArea
+	auto bb = getBoundingBox();
+	const float thisWidth = bb.getWidth();
+	const float thisHeight = bb.getHeight();
+	const float thisX = bb.getX1();
+	const float thisY = bb.getY1();
 
-	const float anchorX = getCenter().x * thisWidth;
-	const float anchorY = getCenter().y * thisHeight;
-
-	const float thisX = getPosition().x - anchorX;
-	const float thisY = getPosition().y - anchorY;
+	//DS_LOG_INFO("BasePanel::checkBounds(): BB size: " << bb);
 
 	const float worldL = mBoundingArea.getX1();
 	const float worldR = mBoundingArea.getX2();
@@ -272,13 +271,48 @@ void BasePanel::checkBounds(const bool immediate) {
 
 	mMomentum.deactivate();
 
+
+	// Compute the position of the upper-left corner of the rotated sprite, relative to the bounding box
+	const auto normalizeAngle = []( const float degrees ) {
+		float ret = glm::mod(degrees, 360.0f);
+		if (ret < 0)
+			ret += 360.0f;
+		return ret;
+	};
+	const float degrees = normalizeAngle( getRotation().z );
+
+	const int quadrant = (int)glm::floor(degrees / 90.0f);
+	const float radians = glm::radians(degrees);
+	const float w = getScaleWidth();
+	const float h = getScaleHeight();
+	const float W = bb.getWidth();
+	const float H = bb.getHeight();
+	const auto ulPos =
+		   (0 == quadrant)
+			? ci::vec2(h * glm::sin(radians), 0 )
+		: ((1 == quadrant)
+			? ci::vec2(W, -h * glm::cos(radians))
+		: ((2 == quadrant)
+			? ci::vec2(-w * glm::cos(radians), H)
+		://(3 == quadrant)
+			  ci::vec2(0, -w * glm::sin(radians))
+	));
+
+	//DS_LOG_INFO("  BasePanel::checkBounds(): Constrained position: " << destinationX << ", " << destinationY << ", Angle: " << degrees << " degrees"  );
+	//DS_LOG_INFO("  BasePanel::setBounds(): upper-left position: " << ulPos );
+
 	// re-apply the anchor offset.
-	destinationX += anchorX;
-	destinationY += anchorY;
+	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth(), getScaleHeight());
+	const auto pos = ci::vec3(
+			ci::vec2(destinationX, destinationY)
+			+ ulPos
+			+ glm::rotate(anchorOffset, radians)
+	, 0);
+
 	if(immediate){
-		setPosition(floorf(destinationX), floorf(destinationY));
+		setPosition(pos);
 	} else {
-		tweenPosition(ci::Vec3f(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
+		tweenPosition(pos, mAnimDuration, 0.0f, ci::EaseOutQuint());
 	}
 }
 
@@ -288,7 +322,9 @@ void BasePanel::userInputReceived() {
 }
 
 void BasePanel::activatePanel() {
-	sendToFront();
+	if(mAutoSendToFront){
+		sendToFront();
+	}
 	onPanelActivated();
 }
 
@@ -305,22 +341,28 @@ void BasePanel::tweenEnded(){
 	layout(); // sometimes tweens are happening and not laying out properly, so just to be sure
 }
 
+
+void BasePanel::setAboutToBeRemoved(const bool isRemoving /*= true*/) {
+	mRemoving = true;
+	onAboutToBeRemoved();
+}
+
 void BasePanel::animateToDefaultSize(){
 	animateSizeTo(mDefaultSize);
 }
 
-void BasePanel::animateSizeTo(const ci::Vec2f newContentSize){
-	ci::Vec3f destSize = ci::Vec3f(newContentSize.x + mLeftPad + mRightPad, newContentSize.y + mTopPad + mBottomPad, 0.0f);
+void BasePanel::animateSizeTo(const ci::vec2 newContentSize){
+	ci::vec3 destSize = ci::vec3(newContentSize.x + mLeftPad + mRightPad, newContentSize.y + mTopPad + mBottomPad, 0.0f);
 	tweenStarted();
 	tweenSize(destSize, mAnimDuration, 0.0f, ci::EaseInOutQuad(), [this](){ tweenEnded(); });
 }
 
 void BasePanel::animateWidthTo(const float newWidth){
-	animateSizeTo(ci::Vec2f(newWidth, newWidth / mContentAspectRatio));
+	animateSizeTo(ci::vec2(newWidth, newWidth / mContentAspectRatio));
 }
 
 void BasePanel::animateHeightTo(const float newHeight){
-	animateSizeTo(ci::Vec2f(newHeight * mContentAspectRatio, newHeight));
+	animateSizeTo(ci::vec2(newHeight * mContentAspectRatio, newHeight));
 }
 
 void BasePanel::setLayoutCallback(std::function<void()> layoutCallback){

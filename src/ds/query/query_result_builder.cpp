@@ -1,9 +1,11 @@
+#include "stdafx.h"
+
 #include "ds/query/query_result_builder.h"
 
 #include <iostream>
 #include "ds/util/string_util.h"
 
-using namespace std;
+//using namespace std;
 
 namespace ds {
 
@@ -132,7 +134,7 @@ void ResultBuilder::build(const bool columnNames)
 				if (!getDouble(k, v)) mError = true;
 				addNumeric(v);
 			} else if (col == QUERY_STRING) {
-				string		v;
+				std::string		v;
 				if (!getString(k, v)) mError = true;
 				addString(v);
 			} else if (col == QUERY_NULL) {
@@ -145,7 +147,7 @@ void ResultBuilder::build(const bool columnNames)
 				addNumeric(v);
 
 				--mColIdx;
-				string		str;
+				std::string		str;
 				getString(k, str);
 				addString(str);
 			}

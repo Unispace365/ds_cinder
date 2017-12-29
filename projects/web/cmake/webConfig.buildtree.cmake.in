@@ -1,0 +1,44 @@
+if( NOT TARGET web@DS_CINDER_LIB_SUFFIX@ )
+	include( @PROJECT_BINARY_DIR@/@DS_CINDER_LIB_DIRECTORY@/webTargets.cmake )
+
+	# Set CEF_ROOT
+	# TODO: DRY this up
+	if( NOT CEF_ROOT )
+		get_filename_component( CEF_ROOT_ABS "${DS_CINDER_PATH}/../cef" ABSOLUTE )
+		set( CEF_ROOT ${CEF_ROOT_ABS} CACHE STRING
+			"Path to the binary CEF directory."
+			FORCE
+		)
+		ds_log_w( "CEF_ROOT not specified, defaulting to: ${CEF_ROOT}" )
+	endif()
+	message( "CEF ROOT: ${CEF_ROOT}" )
+	list( APPEND CMAKE_MODULE_PATH "${CEF_ROOT}/cmake" )
+
+	find_package( CEF REQUIRED )
+
+	# Logical target used to link the libcef library.
+	# TODO: DRY this up
+	ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
+	target_link_libraries( ${DS_CINDER_APP_TARGET} libcef_lib ${CEF_STANDARD_LIBS})
+
+	# TODO: Make this smarter:
+	#	* What to do if symlink src already exists?
+	#   * Debug/Release CEF binaries?
+	#	* Convert symlinks to actual files upon "install"?
+
+	# Copy (links to) CEF binaries and Resources to executable directory
+	add_custom_command( TARGET ${DS_CINDER_APP_TARGET} POST_BUILD
+		#COMMAND #file( MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef"
+		COMMENT "... Creating cef/ directory in target output directory"
+	)
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "${CEF_BINARY_DIR}"   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+
+	# Copy in (link to) the cefsimple program, custom-compiled for Linux
+	COPY_FILES(${DS_CINDER_APP_TARGET} "cefsimple" "${DS_CINDER_PATH}/projects/web/cef/lib_linux64/runtime/" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "cefsimple" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+endif()

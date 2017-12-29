@@ -26,8 +26,8 @@
 	<!---------------------->
 	<!-- how big the world size is, in pixels -->
 	<size name="world_dimensions" x="2560" y="1600" />
-	<rect name="src_rect" l="0" r="2560" t="0" b="1600" />
-	<rect name="dst_rect" l="0" r="2560" t="0" b="1600" />
+	<rect name="src_rect" l="0" w="2560" t="0" h="1600" />
+	<rect name="dst_rect" l="0" w="2560" t="0" h="1600" />
 	<!-- title of the window -->
 	<text name="screen:title" value="cef_develop" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->

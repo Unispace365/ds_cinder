@@ -31,7 +31,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	setColor(ci::Color::black());
 }
 
-void WebPlayer::setWebViewSize(const ci::Vec2f webSize){
+void WebPlayer::setWebViewSize(const ci::vec2 webSize){
 	mWebSize = webSize;
 	if(mWeb){
 		mWeb->setSize(mWebSize.x, mWebSize.y);
@@ -87,7 +87,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		targetH = mEngine.getWorldHeight();
 	}
 
-	setWebViewSize(ci::Vec2f(targetW, targetH));
+	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
@@ -127,7 +127,11 @@ void WebPlayer::onSizeChanged(){
 void WebPlayer::layout(){
 	if(mWeb){
 		float scale = this->getHeight() / mWeb->getHeight();
+		if(mWeb->getWidth() / mWeb->getHeight() > getWidth() / getHeight()){
+			scale = getWidth() / mWeb->getWidth();
+		}
 		mWeb->setScale(scale);
+		mWeb->setPosition(getWidth() / 2.0f - mWeb->getScaleWidth() / 2.0f, getHeight() / 2.0f - mWeb->getScaleHeight() /2.0f);
 	}
 
 	if(mWebInterface && mEmbedInterface){
@@ -161,7 +165,7 @@ void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
-void WebPlayer::sendClick(const ci::Vec3f& globalClickPos){
+void WebPlayer::sendClick(const ci::vec3& globalClickPos){
 	if(mWeb){
 		mWeb->sendMouseClick(globalClickPos);
 	}

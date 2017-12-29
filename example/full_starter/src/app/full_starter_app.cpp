@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "full_starter_app.h"
 
 #include <Poco/String.h>
@@ -8,7 +10,8 @@
 
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -31,8 +34,8 @@ FullStarterApp::FullStarterApp()
 	/*
 	.persp()
 	.perspFov(60.0f)
-	.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 	.perspNear(0.0002f)
 	.perspFar(20.0f)
 
@@ -64,7 +67,7 @@ void FullStarterApp::setupServer(){
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
 	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().install(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
 	});
 
 	// Colors
@@ -87,9 +90,9 @@ void FullStarterApp::setupServer(){
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
 
-	const int numRoots = mEngine.getRootCount();
+	const size_t numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
-	for(int i = 0; i < numRoots - 1; i++){
+	for(size_t i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
 
@@ -98,10 +101,10 @@ void FullStarterApp::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -125,7 +128,7 @@ void FullStarterApp::update() {
 	ds::App::update();
 
 	bool rootsIdle = true;
-	const int numRoots = mEngine.getRootCount();
+	const size_t numRoots = mEngine.getRootCount();
 	for(int i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
@@ -151,8 +154,8 @@ void FullStarterApp::update() {
 
 void FullStarterApp::forceStartIdleMode(){
 	// force idle mode to start again
-	const int numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
+	const size_t numRoots = mEngine.getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
 		mEngine.getRootSprite(i).startIdling();
@@ -178,9 +181,9 @@ void FullStarterApp::keyDown(ci::app::KeyEvent event){
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
-		const int numRoots = mEngine.getRootCount();
+		const size_t numRoots = mEngine.getRootCount();
 		int numPlacemats = 0;
-		for(int i = 0; i < numRoots - 1; i++){
+		for(size_t i = 0; i < numRoots - 1; i++){
 			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
 				if(sprite.isEnabled()){
 					sprite.setTransparent(false);
@@ -227,4 +230,5 @@ void FullStarterApp::fileDrop(ci::app::FileDropEvent event){
 } // namespace fullstarter
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(fullstarter::FullStarterApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(fullstarter::FullStarterApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })

@@ -7,10 +7,8 @@
 #include "ds/app/engine/engine_io.h"
 #include "ds/app/engine/engine_io_defs.h"
 #include "ds/network/udp_connection.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -21,12 +19,11 @@ namespace ds {
 class EngineClient : public Engine {
 public:
 	static char						getClientStatusBlob();
-	EngineClient(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineClient(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClient();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 	virtual ds::sprite_id_t			nextSpriteId();
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -38,6 +35,9 @@ public:
 
 	virtual void					stopServices();
 	virtual int						getMode() const { return CLIENT_MODE; }
+
+	virtual int						getBytesRecieved();
+	virtual int						getBytesSent();
 
 	// The most recent frame received from the server.
 	int32_t							mServerFrame;
@@ -53,13 +53,11 @@ private:
 	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
-	void							sendMouseTouch(const int phase, const ci::Vec2i pos);
+	void							sendMouseTouch(const int phase, const ci::ivec2 pos);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 
 	EngineIoInfo					mIoInfo;
 	ds::UdpConnection				mSendConnection;

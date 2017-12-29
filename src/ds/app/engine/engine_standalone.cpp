@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_standalone.h"
 
 #include "ds/app/app.h"
@@ -13,11 +15,11 @@ namespace ds {
 /**
  * \class ds::EngineStandalone
  */
-EngineStandalone::EngineStandalone(	ds::App& app, const ds::cfg::Settings& settings,
+EngineStandalone::EngineStandalone(	ds::App& app, const ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
-		, mRenderTextService(mRenderTextThread) {
+ {
 }
 
 EngineStandalone::~EngineStandalone() {
@@ -36,15 +38,12 @@ void EngineStandalone::installSprite(	const std::function<void(ds::BlobRegistry&
 void EngineStandalone::setup(ds::App& app) {
 	inherited::setup(app);
 
-	mRenderTextThread.start(true);
-
 	app.setupServer();
 }
 
 
 void EngineStandalone::update() {
 	mWorkManager.update();
-	mRenderTextService.update();
 	mComputerInfo->update();
 	updateServer();
 }

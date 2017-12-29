@@ -41,3 +41,4 @@ public:
 } // !namespace example
 
 #endif // !_SCROLLEXAMPLE_APP_GLOBALS_
+

@@ -47,8 +47,8 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// Jump to a specific frame. 
 	// Frame indices outside the range of the frames are ignored.
 	void						setCurrentFrameIndex(const int frameIndex);
-	const int					getCurrentFrameIndex() const;
-	const int					getNumberOfFrames();
+	const size_t				getCurrentFrameIndex() const;
+	const size_t				getNumberOfFrames();
 
 	// Returns the image sprite at the index supplied.
 	// If the index is invalid, returns nullptr
@@ -60,18 +60,16 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	void						sizeToFirstImage();
 
 private:
-	typedef ds::ui::Sprite		inherited;
-
-	virtual void				updateServer(const ds::UpdateParams& p);
+	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 
 	LoopStyle					mLoopStyle;
-	int							mCurrentFrameIndex;
+	size_t						mCurrentFrameIndex;
+	size_t						mNumFrames;
 	bool						mPlaying;
 	float						mFrameTime;
 	double						mLastFrameTime;
 	std::vector<ds::ui::Image*>	mFrames;
 
-	int							mNumFrames;
 };
 
 } // namespace ui

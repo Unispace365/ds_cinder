@@ -45,7 +45,7 @@ ThumbnailBar::ThumbnailBar(ds::ui::SpriteEngine& se)
 	mFileList = new ds::ui::ScrollList(mEngine, false);
 	addChildPtr(mFileList);
 
-	mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& cent){
+	mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::vec3& cent){
 		Image* rpi = dynamic_cast<Image*>(bs);
 		if(rpi && mClickedCallback){
 			// look up the resource from the image sprite in the image map

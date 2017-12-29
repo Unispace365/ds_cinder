@@ -1,4 +1,4 @@
-#include "Story_model.h" 
+#include "story_model.h" 
 
 
 namespace ds {
@@ -60,3 +60,4 @@ StoryRef& StoryRef::setFilterableId(const int& FilterableId){
 
 } // !namespace model
 } // !namespace ds
+

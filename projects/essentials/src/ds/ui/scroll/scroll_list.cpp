@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_list.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
@@ -145,7 +147,7 @@ void ScrollList::pushItemsTop(){
 	}
 }
 
-void ScrollList::setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement){
+void ScrollList::setGridLayout(const bool doGrid, const ci::vec2& gridIncrement){
 	mGridLayout = doGrid;
 	mGridIncrement = gridIncrement;
 
@@ -353,7 +355,7 @@ void ScrollList::assignItems(){
 			if(mCreateItemCallback) sprite = mCreateItemCallback();
 			if(sprite){
 				sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){ handleItemTouchInfo(sp, ti); });
-				sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::Vec3f cent){
+				sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
 					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 					if(timeDif < 0.2f){
@@ -392,7 +394,7 @@ void ScrollList::handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti){
 	if(bs){
 		if(mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-		if(mScrollArea  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+		if(mScrollArea  && ti.mPhase == ds::ui::TouchInfo::Moved &&ci::distance(ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
 			if(mStateChangeCallback) mStateChangeCallback(bs, false);
 			bs->passTouchToSprite(mScrollArea->getSpriteToPassTo(), ti);
 			return;
@@ -404,7 +406,7 @@ void ScrollList::onSizeChanged(){
 	layout();
 }
 
-void ScrollList::setItemTappedCallback(const std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)> &func){
+void ScrollList::setItemTappedCallback(const std::function<void(ds::ui::Sprite*, const ci::vec3& cent)> &func){
 	mItemTappedCallback = func;
 }
 

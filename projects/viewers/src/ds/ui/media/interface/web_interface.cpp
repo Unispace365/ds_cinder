@@ -11,6 +11,9 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
 
+#include <ds/ui/layout/layout_sprite.h>
+
+#include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_defs.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_button.h>
@@ -19,7 +22,7 @@
 namespace ds {
 namespace ui {
 
-WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedWeb(nullptr)
 	, mKeyboardArea(nullptr)
@@ -34,7 +37,12 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mKeyboardKeyScale(1.0f)
 	, mAbleToTouchToggle(true)
 	, mKeyboardAllowed(true)
+	, mKeyboardAutoDisablesTimeout(true)
 	, mWebLocked(false)
+	, mUserField(nullptr)
+	, mAuthLayout(nullptr)
+	, mPasswordField(nullptr)
+	, mAuthorizing(false)
 {
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
@@ -167,12 +175,143 @@ void WebInterface::setAllowTouchToggle(const bool allowTouchToggling){
 	}
 }
 
+void WebInterface::setKeyboardDisablesTimeout(const bool doAutoTimeout){
+	mKeyboardAutoDisablesTimeout = doAutoTimeout;
+}
+
+
+void WebInterface::startAuthCallback(const std::string& host, const std::string& realm){
+
+	if(!mLinkedWeb || !mKeyboardArea) return;
+
+	// If they can't type anything, then cancel the auth request
+	if(!mKeyboardAllowed){
+		mLinkedWeb->authCallbackCancel();
+	}
+
+	if(mAuthLayout){
+		mAuthLayout->release();
+		mAuthLayout = nullptr;
+		mUserField = nullptr;
+		mPasswordField = nullptr;
+	}
+
+	mAuthLayout = new ds::ui::LayoutSprite(mEngine);
+	mAuthLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
+	mAuthLayout->setTransparent(false);
+	mAuthLayout->setColor(ci::Color::black());
+	mAuthLayout->setCornerRadius(mKeyboardArea->getCornerRadius());
+
+	mAuthLayout->enable(true);
+	mAuthLayout->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	mAuthLayout->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		if(mUserField && mPasswordField){
+			if(mUserField->getIsInFocus()){
+				mUserField->unfocus();
+				mPasswordField->focus();
+			} else {
+				mUserField->focus();
+				mPasswordField->unfocus();
+			}
+		}
+	});
+	addChildPtr(mAuthLayout);
+
+	float padding = getHeight() / 4.0f;
+	auto innerLayout = new ds::ui::LayoutSprite(mEngine);
+	innerLayout->setSpacing(padding);
+	innerLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
+	innerLayout->mLayoutBPad = padding * 2.0f;
+	innerLayout->mLayoutRPad = padding * 2.0f;
+	innerLayout->mLayoutTPad = padding * 2.0f;
+	innerLayout->mLayoutLPad = padding * 2.0f;
+	mAuthLayout->addChildPtr(innerLayout);
+
+	auto authLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	std::stringstream ss;
+	ss << realm << " - "  << host;
+	authLabel->setText(ss.str());
+
+
+	auto userLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	userLabel->setFontSize(userLabel->getFontSize() * 0.66667f);
+	userLabel->setText("Username");
+	userLabel->mLayoutTPad = padding;
+
+	ds::ui::EntryFieldSettings efs;
+	efs.mTextConfig = "viewer:widget";
+	efs.mFieldSize.x = getWidth();
+	efs.mFieldSize.y = mEngine.getEngineCfg().getText("viewer:widget").mSize * 1.25f;
+	efs.mCursorSize.y = efs.mFieldSize.y;
+	mUserField = new ds::ui::EntryField(mEngine, efs);
+	mUserField->focus();
+	innerLayout->addChildPtr(mUserField);
+
+	auto passLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	passLabel->setFontSize(passLabel->getFontSize() * 0.66667f);
+	passLabel->setText("Password");
+	passLabel->mLayoutTPad = padding;
+
+	efs.mPasswordMode = true;
+	mPasswordField = new ds::ui::EntryField(mEngine, efs);
+	mPasswordField->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	mPasswordField->focus();
+	mPasswordField->unfocus();
+	innerLayout->addChildPtr(mPasswordField);
+
+
+	auto cancelButton = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	cancelButton->setFontSize(cancelButton->getFontSize());
+	cancelButton->setText("Cancel");
+	cancelButton->mLayoutTPad = padding;
+	cancelButton->enable(true);
+	cancelButton->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	cancelButton->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
+		cancelAuth();
+	});
+
+	mAuthorizing = true;
+	mKeyboardShowing = true;
+	updateWidgets();
+
+	mAuthLayout->setOpacity(0.0f);
+	mAuthLayout->tweenOpacity(1.0f, mAnimateDuration);
+
+	if(mCanDisplay){
+		userInputReceived();
+	}
+}
+
+
+void WebInterface::cancelAuth(){
+	if(!mAuthorizing) return;
+	if(mLinkedWeb){
+		mLinkedWeb->authCallbackCancel();
+	}
+
+	authComplete();
+}
+
+
+void WebInterface::authComplete(){
+	if(!mAuthorizing || !mAuthLayout) return;
+	mAuthorizing = false;
+	auto aa = mAuthLayout;
+	mAuthLayout->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this, aa]{ aa->release(); });
+	mAuthLayout = nullptr;
+	mUserField = nullptr;
+	mPasswordField = nullptr;
+}
+
 void WebInterface::setKeyboardKeyScale(const float newKeyScale){
 	mKeyboardKeyScale = newKeyScale;
 }
 
 void WebInterface::animateOff(){
 	mIdling = false;
+
+	cancelAuth();
+
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
 		hide();
 		mKeyboardShowing = false;
@@ -181,7 +320,18 @@ void WebInterface::animateOff(){
 }
 
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
+	if(mLinkedWeb && !linkedWeb){
+		mLinkedWeb->setAuthCallback(nullptr);
+	}
+
 	mLinkedWeb = linkedWeb;
+
+	if(mLinkedWeb){
+		mLinkedWeb->setAuthCallback([this](ds::ui::Web::AuthCallback callback){
+			startAuthCallback(callback.mHost, callback.mRealm);
+		});
+	}
+
 	updateWidgets();
 }
 
@@ -240,6 +390,12 @@ void WebInterface::onLayout(){
 		if(mKeyboardAbove) yp = -keyboardH;
 
 		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp);
+
+		if(mAuthLayout){
+			mAuthLayout->setSize(keyboardW, mAuthLayout->getHeight());
+			mAuthLayout->runLayout();
+			mAuthLayout->setPosition(mKeyboardArea->getPosition().x, yp - mAuthLayout->getHeight());
+		}
 	}
 }
 
@@ -278,11 +434,13 @@ void WebInterface::updateWidgets(){
 
 	if(mKeyboardArea){
 		if(mKeyboardShowing){
-			setSecondBeforeIdle(5.0f * 60.0f); // 5 minutes enough?
+			if(mKeyboardAutoDisablesTimeout){
+				setCanTimeout(false);
+			}
 			if(!mKeyboard){
 				ds::ui::SoftKeyboardSettings sks;
 				sks.mKeyScale = mKeyboardKeyScale;
-				mKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks);
+				mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
 				mKeyboardArea->addChildPtr(mKeyboard);
 
 				const float keyW = mKeyboard->getScaleWidth();
@@ -297,65 +455,175 @@ void WebInterface::updateWidgets(){
 
 				mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 					if(mLinkedWeb){
-						// spoof a keyevent to send to the web
-						bool send = true;
-						int code = 0;
-			
-						if(keyType == ds::ui::SoftKeyboardDefs::kShift){
-							send = false;
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-							code = ci::app::KeyEvent::KEY_BACKSPACE;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'	',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
-							code = ci::app::KeyEvent::KEY_RETURN;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'\r',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
-							code = ci::app::KeyEvent::KEY_TAB;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'	',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
+						if(mAuthorizing && mUserField && mPasswordField && mAuthLayout){
+							if(mUserField->getIsInFocus()){
+								if(keyType == SoftKeyboardDefs::KeyType::kEnter || keyType == SoftKeyboardDefs::KeyType::kTab){
+									mUserField->unfocus();
+									mPasswordField->focus();
+								} else {
+									mUserField->keyPressed(character, keyType);
+								}
+							} else {
+								if(keyType == SoftKeyboardDefs::KeyType::kEnter){
+									mLinkedWeb->authCallbackContinue(ds::utf8_from_wstr(mUserField->getCurrentText()), ds::utf8_from_wstr(mPasswordField->getCurrentText()));
+									authComplete();
+
+								} else if(keyType == SoftKeyboardDefs::KeyType::kTab){
+									mPasswordField->unfocus();
+									mUserField->focus();
+								} else {
+									mPasswordField->keyPressed(character, keyType);
+								}
+							}
+						} else {
+							// spoof a keyevent to send to the web
+							bool send = true;
+							int code = 0;
+
+							if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+								send = false;
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kArrow){
+								send = false;
+								if(character == L"<") code = ci::app::KeyEvent::KEY_LEFT;
+								if(character == L"^") code = ci::app::KeyEvent::KEY_UP;
+								if(character == L"v") code = ci::app::KeyEvent::KEY_DOWN;
+								if(character == L">") code = ci::app::KeyEvent::KEY_RIGHT;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kFunction){
+								send = false;
+								if(character == L"F1") code = ci::app::KeyEvent::KEY_F1;
+								if(character == L"F2") code = ci::app::KeyEvent::KEY_F2;
+								if(character == L"F3") code = ci::app::KeyEvent::KEY_F3;
+								if(character == L"F4") code = ci::app::KeyEvent::KEY_F4;
+								if(character == L"F5") code = ci::app::KeyEvent::KEY_F5;
+								if(character == L"F6") code = ci::app::KeyEvent::KEY_F6;
+								if(character == L"F7") code = ci::app::KeyEvent::KEY_F7;
+								if(character == L"F8") code = ci::app::KeyEvent::KEY_F8;
+								if(character == L"F9") code = ci::app::KeyEvent::KEY_F9;
+								if(character == L"F10") code = ci::app::KeyEvent::KEY_F10;
+								if(character == L"F11") code = ci::app::KeyEvent::KEY_F11;
+								if(character == L"F12") code = ci::app::KeyEvent::KEY_F12;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kEscape){
+								send = false;
+								code = ci::app::KeyEvent::KEY_ESCAPE;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete){
+								send = false;
+								code = ci::app::KeyEvent::KEY_DELETE;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kSpecial){
+								send = false;
+								if(character == L"Home") code = ci::app::KeyEvent::KEY_HOME;
+								if(character == L"End") code = ci::app::KeyEvent::KEY_END;
+								if(character == L"PgUp") code = ci::app::KeyEvent::KEY_PAGEUP;
+								if(character == L"PgDn") code = ci::app::KeyEvent::KEY_PAGEDOWN;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+
+
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
+								code = ci::app::KeyEvent::KEY_BACKSPACE;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
+								code = ci::app::KeyEvent::KEY_RETURN;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'\r',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
+								code = ci::app::KeyEvent::KEY_TAB;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							}
+
+							if(send){
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									0,
+									(char)character.c_str()[0],
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							}
 						}
 
-						if(send){
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								0,
-								(char)character.c_str()[0],
-								0,
-								code
-							);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						}
 					}
 				});
 				layout();
@@ -366,7 +634,9 @@ void WebInterface::updateWidgets(){
 				mKeyboardArea->tweenOpacity(0.98f, mAnimateDuration, 0.0f, ci::easeNone);
 			}
 		} else {
-			setSecondBeforeIdle(mInterfaceIdleSettings);
+			if(mKeyboardAutoDisablesTimeout){
+				setCanTimeout(true);
+			}
 			if(mKeyboardArea->visible()){
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this](){
 					mKeyboardArea->hide();

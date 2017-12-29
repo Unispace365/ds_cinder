@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedVideo(nullptr)
 	, mPlayButton(nullptr)
@@ -73,8 +73,8 @@ void VideoInterface::linkVideo(ds::ui::GstVideo* vid){
 	}
 }
 
-void VideoInterface::updateServer(const ds::UpdateParams& p){
-	MediaInterface::updateServer(p);
+void VideoInterface::onUpdateServer(const ds::UpdateParams& p){
+	MediaInterface::onUpdateServer(p);
 
 	if(mLinkedVideo && mPauseButton && mPlayButton){
 		if(mLinkedVideo->getIsStreaming()){
@@ -110,8 +110,8 @@ void VideoInterface::onLayout(){
 	}
 
 	if(mPlayButton && mPauseButton){
-		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getHeight() / 2.0f);
-		mPauseButton->setPosition(xp, h / 2.0f - mPauseButton->getHeight() / 2.0f);
+		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getScaleHeight() / 2.0f);
+		mPauseButton->setPosition(xp, h / 2.0f - mPauseButton->getScaleHeight() / 2.0f);
 		xp += mPlayButton->getScaleWidth() + padding;
 		spaceLeft -= mPlayButton->getScaleWidth() + padding;
 	}

@@ -44,6 +44,10 @@ public:
 	/// If this is false, will only load the current slide
 	void								allowLoadAhead(const bool loadAhead);
 
+	/// if true, will have empty areas on top or sides to show the whole media item, false will fill the area and crop (if clipping is on)
+	/// default is true
+	void								setLetterboxed(const bool letterbox);
+
 	/// Get the list of viewers. Be gentle with these
 	/// The slideshow has ownership of these, so releasing these may have unintended consequences.
 	/// These are also not guaranteed to be initialized
@@ -56,6 +60,7 @@ protected:
 	float								mAnimateDuration;
 	MediaViewerSettings					mMediaViewerSettings;
 	bool								mAllowLoadAhead;
+	bool								mLetterBoxed;
 
 	MediaInterface*						mCurrentInterface;
 	std::function<void(const int currentItemIndex, const int totalItems)> mItemChangedCallback;

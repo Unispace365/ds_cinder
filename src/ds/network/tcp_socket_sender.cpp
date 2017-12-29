@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/tcp_socket_sender.h"
 
 #include <Poco/Net/StreamSocket.h>
@@ -135,11 +137,10 @@ void TcpSocketSender::Worker::perform(const std::vector<std::string>& data) {
 			socket.setSendTimeout(net_timeout);
 			for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
 				const std::string&		d(*dit);
-				socket.sendBytes(d.data(), d.size());
+				socket.sendBytes(d.data(), static_cast<int>(d.size()));
 			}
 		} catch (std::exception const& ex) {
-			DS_LOG_WARNING("TcpServer::send() error sending data");
-			DS_DBG_CODE(std::cout << "TcpServer::send() error sending data (" << ex.what() << ")" << std::endl);
+			DS_LOG_WARNING("TcpServer::send() error sending data: " << ex.what());
 		}
 	}
 }

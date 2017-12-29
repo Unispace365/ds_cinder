@@ -1,3 +1,4 @@
+#include "stdafx.h"
 
 #include "infinity_scroll_list.h"
 
@@ -70,7 +71,7 @@ namespace ds{
 			layout();
 		}
 
-		void infinityList::setItemTappedCallback(const std::function<void(Sprite*, const ci::Vec3f& cent)> &func){
+		void infinityList::setItemTappedCallback(const std::function<void(Sprite*, const ci::vec3& cent)> &func){
 			mItemTappedCallback = func;
 		}
 
@@ -267,7 +268,7 @@ namespace ds{
 					if (mScroller){
 						if (mIsTurnOnStepSwipe)
 						{
-							if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
+							if (ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance())
 							{
 								if (mVertical)
 								{
@@ -498,7 +499,7 @@ namespace ds{
 				sprite->setProcessTouchCallback([this](Sprite* sp, const TouchInfo& ti){
 					handleItemTouchInfo(sp, ti);
 				});
-				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::Vec3f cent){
+				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::vec3 cent){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
 					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 					if (timeDif < 0.2f){
@@ -525,7 +526,7 @@ namespace ds{
 			if (bs){
 				if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
 					if (mStateChangeCallback) mStateChangeCallback(bs, false);
 					bs->passTouchToSprite(mScroller, ti);
 					return;

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "five_finger_cluster.h"
 
 #include <ds/debug/logger.h>
@@ -19,12 +21,12 @@ FiveFingerCluster::~FiveFingerCluster(){
 
 }
 
-void FiveFingerCluster::setTriggeredCallback(  const std::function<void (const ci::Vec2f)> &func )
+void FiveFingerCluster::setTriggeredCallback(  const std::function<void (const ci::vec2)> &func )
 {
 	mTriggeredFunction = func;
 }
 
-void FiveFingerCluster::setTriggerableCallback(  const std::function<void (const bool, const ci::Vec2f)> &func )
+void FiveFingerCluster::setTriggerableCallback(  const std::function<void (const bool, const ci::vec2)> &func )
 {
 	mTriggerableFunction = func;
 }
@@ -33,7 +35,7 @@ void FiveFingerCluster::setClusterUpdateCallback( const std::function<void (cons
 	mClusterUpdateFunction = func;
 }
 
-int FiveFingerCluster::closeToCluster(ci::Vec3f pos){
+int FiveFingerCluster::closeToCluster(ci::vec3 pos){
 	float deltaX(0.0f), deltaY(0.0f);
 	for (int i = 0; i < mClusters.size(); i++){
 		Cluster& c = mClusters[i];
@@ -51,12 +53,12 @@ int FiveFingerCluster::closeToCluster(ci::Vec3f pos){
 	return -1;
 }
 
-int FiveFingerCluster::findCluster(int fingerId, ci::Vec3f curPos){
+int FiveFingerCluster::findCluster(int fingerId, ci::vec3 curPos){
 	for (int i = 0; i < mClusters.size(); i++){
 		Cluster& c = mClusters[i];
 		for (auto it = c.mTouches.begin(); it < c.mTouches.end(); ++it){
 			if((*it).mFingerId == fingerId){
-				(*it).mCurrentGlobalPoint = ci::Vec3f(curPos.x, curPos.y, 0.0f);
+				(*it).mCurrentGlobalPoint = ci::vec3(curPos.x, curPos.y, 0.0f);
 				return i;
 			}
 		}
@@ -117,7 +119,7 @@ void FiveFingerCluster::parseTouch(const ds::ui::TouchInfo& ti){
 		if(clustyMcClustClust.mTriggerable){
 			if(clustyMcClustClust.mBoundingBox.getWidth() > mBoundingBoxSize || clustyMcClustClust.mBoundingBox.getHeight() > mBoundingBoxSize){
 				clustyMcClustClust.mTriggerable = false;
-				if(mTriggerableFunction) mTriggerableFunction(false, ci::Vec2f(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
+				if(mTriggerableFunction) mTriggerableFunction(false, ci::vec2(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
 			}
 		} else {
 			if(clustyMcClustClust.mBoundingBox.getWidth() < mBoundingBoxSize 
@@ -125,7 +127,7 @@ void FiveFingerCluster::parseTouch(const ds::ui::TouchInfo& ti){
 				&& clustyMcClustClust.mMaxTouches > mMinTouches - 1 
 				&& (Poco::Timestamp().epochMicroseconds() - clustyMcClustClust.mInitialTouchTime) > mTriggerTime * 1000000){
 				clustyMcClustClust.mTriggerable = true;
-				if(mTriggerableFunction) mTriggerableFunction(true, ci::Vec2f(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
+				if(mTriggerableFunction) mTriggerableFunction(true, ci::vec2(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
 			}
 		}
 	} else if ( ti.mPhase == ds::ui::TouchInfo::Removed ) {
@@ -156,8 +158,8 @@ void FiveFingerCluster::parseTouch(const ds::ui::TouchInfo& ti){
 
 			clustyMcClustClust.mTouches.clear();
 			if (clustyMcClustClust.mTriggerable){
-				if (mTriggeredFunction) mTriggeredFunction(ci::Vec2f(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
-				if (mTriggerableFunction) mTriggerableFunction(false, ci::Vec2f(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
+				if (mTriggeredFunction) mTriggeredFunction(ci::vec2(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
+				if (mTriggerableFunction) mTriggerableFunction(false, ci::vec2(clustyMcClustClust.mBoundingBox.getCenter().x, clustyMcClustClust.mBoundingBox.getCenter().y));
 				clustyMcClustClust.mTriggerable = false;
 			}
 			clustyMcClustClust.mMaxTouches = 0;
@@ -167,9 +169,9 @@ void FiveFingerCluster::parseTouch(const ds::ui::TouchInfo& ti){
 	}
 }
 
-void FiveFingerCluster::Cluster::addToBoundingBox(ci::Vec3f p, ci::Rectf& boxToEdit){
-	if(!boxToEdit.contains(ci::Vec2f(p.x, p.y))){
-		boxToEdit.include(ci::Vec2f(p.x, p.y));
+void FiveFingerCluster::Cluster::addToBoundingBox(ci::vec3 p, ci::Rectf& boxToEdit){
+	if(!boxToEdit.contains(ci::vec2(p.x, p.y))){
+		boxToEdit.include(ci::vec2(p.x, p.y));
 	}
 }
 

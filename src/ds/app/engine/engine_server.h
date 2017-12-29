@@ -7,10 +7,8 @@
 #include "ds/app/engine/engine_client_list.h"
 #include "ds/app/engine/engine_io.h"
 #include "ds/network/udp_connection.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -23,7 +21,7 @@ namespace ds {
  */
 class AbstractEngineServer : public Engine {
 public:
-	AbstractEngineServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	AbstractEngineServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~AbstractEngineServer();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
@@ -39,6 +37,9 @@ public:
 	virtual int						getMode() const { return SERVER_MODE; }
 
 	virtual void					spriteDeleted(const ds::sprite_id_t&);
+
+	virtual int						getBytesRecieved();
+	virtual int						getBytesSent();
 
 private:
 	void							receiveHeader(ds::DataBuffer&);
@@ -57,7 +58,6 @@ private:
 	WorkManager						mWorkManager;
 	EngineClientList				mClients;
 
-//    ds::ZmqConnection             mConnection;
 	ds::UdpConnection				mSendConnection;
 	ds::UdpConnection				mReceiveConnection;
 	EngineSender					mSender;
@@ -129,17 +129,14 @@ private:
  */
 class EngineServer : public AbstractEngineServer {
 public:
-	EngineServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 private:
 	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
-	GlNoThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

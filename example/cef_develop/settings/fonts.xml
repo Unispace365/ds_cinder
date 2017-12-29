@@ -1,7 +1,7 @@
 <settings>
 
 
-	<text name="noto_bold" value="%APP%/data/fonts/NotoSans-Bold.ttf" />
+	<text name="noto_bold" value="Noto Sans Bold" />
 	
 	
 </settings>

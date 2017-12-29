@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/cfg/cfg_nine_patch.h"
 
 #include <ds/ui/image_source/image_drop_shadow.h>
@@ -39,7 +41,9 @@ ds::ui::NinePatch* NinePatch::create(ds::ui::SpriteEngine& se, ds::ui::Sprite* p
 
 ds::ui::NinePatch& NinePatch::createOrThrow(ds::ui::SpriteEngine& se, ds::ui::Sprite* parent, const char* error) const {
 	ds::ui::NinePatch*				s = create(se, parent);
-	if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
+	if(!s){
+		DS_LOG_WARNING("failed to create a ninepatch sprite!");
+	}
 	return *s;
 }
 
@@ -49,7 +53,7 @@ void NinePatch::configure(ds::ui::NinePatch& s) const {
 								falloff = mStore.getFloat(FALLOFF_SZ, 0, 1.0f),
 								border = mStore.getFloat(BORDER_SZ, 0, 1.0f);
 		const ci::ColorA		clr = mStore.getColorA(COLOR_SZ, 0, ci::ColorA(1.0f, 1.0f, 1.0f));
-		ds::ui::ImageDropShadow	arc(radius, falloff, ci::Vec2f(0.0f, 0.0f), clr, border);
+		ds::ui::ImageDropShadow	arc(radius, falloff, ci::vec2(0.0f, 0.0f), clr, border);
 		arc.setWriteFile(mStore.getString(WRITE_FILE_SZ, 0, EMPTY_SZ));
 		s.setImage(arc);
 	}

@@ -10,77 +10,6 @@
 #include <ds/app/app.h>
 
 
-static std::string shader_name("drone");
-
-static std::string drone_vert =
-"/////////////////////////////////////////////////////////////////////// \n"
-"// Vertex shader inputs (You will also need to set tex0 for frag shader \n"
-"/////////////////////////////////////////////////////////////////////// \n"
-"																		 \n"
-"// ViewModel and Projection											 \n"
-"// NOTE: order matters!												 \n"
-"// Example for mv: ci::MayaCamUI::getCamera::getModelViewMatrix()		 \n"
-"// Example for p:  ci::MayaCamUI::getCamera::getProjectionMatrix()		 \n"
-"uniform mat4 mv, p;													 \n"
-"// globe / sphere radius (passed to ci::gl::drawSphere for example)	 \n"
-"uniform float radius;													 \n"
-"																		 \n"
-"/////////////////////////////////////////////////////////////////////// \n"
-"// Vertex shader outputs												 \n"
-"/////////////////////////////////////////////////////////////////////// \n"
-"																		 \n"
-"// calculated here and passed to fragment shader						 \n"
-"varying vec4 texCoords;												 \n"
-"																		 \n"
-"/////////////////////////////////////////////////////////////////////// \n"
-"// Vertex shader main() vertex to world mapping						 \n"
-"/////////////////////////////////////////////////////////////////////// \n"
-"																		 \n"
-"void main(void) {														 \n"
-"	// build the model view projection									 \n"
-"	mat4 mvp = p*mv;													 \n"
-"	// get the current world position									 \n"
-"	gl_Position = mvp * gl_Vertex;										 \n"
-"	// figure out where in the texture we are standing					 \n"
-"	texCoords = gl_Vertex * (1.0 / radius);								 \n"
-"}																		 \n"
-;
-
-static std::string drone_frag =
-"//////////////////////////////////////////////////////////////////////// \n"
-"// Fragment shader inputs (from C++)									  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"																		  \n"
-"// Cinder example: ci::gl::Texture::getId()							  \n"
-"uniform sampler2D tex0;												  \n"
-"																		  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"// Fragment shader inputs (from Vertex shader)							  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"																		  \n"
-"varying vec4 texCoords;												  \n"
-"																		  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"// Fragment shader defines												  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"																		  \n"
-"#define PI 3.1415926													  \n"
-"																		  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"// Fragment shader texturing main()									  \n"
-"//////////////////////////////////////////////////////////////////////// \n"
-"																		  \n"
-"void main(void) {														  \n"
-"	vec2 longLat = vec2(												  \n"
-"		1.0 - (atan(texCoords.y, texCoords.x) / PI + 1.0) * 0.5,		  \n"
-"		1.0 - (asin(texCoords.z) / PI + 0.5));							  \n"
-"																		  \n"
-"	gl_FragColor = texture2D(tex0, longLat);							  \n"
-"}																		  \n"
-;
-
-
-
 namespace {
 	static struct Initializer {
 		Initializer() {
@@ -122,38 +51,37 @@ void PanoramicVideo::installSprite(ds::Engine& engine)
 PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	: ds::ui::Sprite(engine)
 	, mVideoSprite(nullptr)
-	, mVideoTexture(nullptr)
-	, mSphere(ci::Sphere(ci::Vec3f::zero(), 100.0f)) // doesn't really matter how big this is. FIXME
 	, mInvertX(false)
 	, mInvertY(true)
-	, mXSensitivity(5.0f)
-	, mYSensitivity(5.0f)
+	, mXSensitivity(0.15f)
+	, mYSensitivity(0.15f)
 	, mFov(60.0f)
 	, mAutoSync(true)
 	, mPanning(0.0f)
+	, mXRot(0.0f)
+	, mYRot(-90.0f)
 {
 	mBlobType = _BLOB;
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 	setTransparent(true);
-	addNewMemoryShader(drone_vert, drone_frag, shader_name);
+
+	mSphereVbo = ci::gl::VboMesh::create(ci::geom::Sphere().subdivisions(120).radius(200.0f));
 
 	resetCamera();
 	
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
-		handleDrag(ti.mDeltaPoint.xy());
+		handleDrag(ci::vec2(ti.mDeltaPoint));
 	});
 }
 
-void PanoramicVideo::handleDrag(const ci::Vec2f& swipe)
+void PanoramicVideo::handleDrag(const ci::vec2& swipe)
 {
-	auto invert_x = mInvertX ? 1.0f : -1.0f;
-	auto invert_y = mInvertY ? 1.0f : -1.0f;
-	auto new_theta = getTheta() - invert_y * (swipe.y / mYSensitivity);
-	if (new_theta < 0.1f) new_theta = 0.1f;
-	else if (new_theta > 180.0f) new_theta = 180.0f - 0.1f;
-	setSphericalCoord(new_theta, getPhi() - invert_x * (swipe.x / mXSensitivity));
+	mXRot += swipe.y * mYSensitivity;
+	mYRot += swipe.x * mXSensitivity;
+	if(mXRot > 90.0f){ mXRot = 90.0f; }
+	if(mXRot < -90.0f){ mXRot = -90.0f; }
 }
 
 void PanoramicVideo::setDragParams(const float xSensitivity, const float ySensitivity){
@@ -181,8 +109,6 @@ void PanoramicVideo::onChildAdded(ds::ui::Sprite& child){
 		setTransparent(false);
 
 		mVideoSprite->setFinalRenderToTexture(true);
-		// register the texture
-		mVideoTexture = mVideoSprite->getFinalOutTexture();
 	}
 }
 
@@ -197,116 +123,91 @@ void PanoramicVideo::writeAttributesTo(ds::DataBuffer& buf) {
 
 	if(mDirty.has(SPHERE_DIRTY)) {
 		buf.add(mSphereCoordsAtt);
-		buf.add(mSphericalAngles.x);
-		buf.add(mSphericalAngles.y);
+		buf.add(mXRot);
+		buf.add(mYRot);
 	}
 }
 
 void PanoramicVideo::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == mSphereCoordsAtt) {
-		float theta = buf.read<float>();
-		float phi = buf.read<float>();
-		setSphericalCoord(theta, phi);
+		mXRot = buf.read<float>();
+		mYRot = buf.read<float>();
 
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 
+// no need to build the base render batch
+void PanoramicVideo::onBuildRenderBatch(){
+
+}
+
 void PanoramicVideo::drawLocalClient(){
 
-	if (mVideoSprite && mSpriteShader.getName().compare(shader_name) == 0){
+	if(mVideoSprite){
 
-		mVideoTexture = mVideoSprite->getFinalOutTexture();
-		if(!mVideoTexture) return;
-		//save off original viewport - restore after we are done
-		ci::Area viewport = ci::gl::getViewport();
+		ci::gl::TextureRef videoTexture = mVideoSprite->getFinalOutTexture();
+		if(!videoTexture) return;
+		
+		ci::Area newViewportBounds;
+
 		DS_REPORT_GL_ERRORS();
 
-
-		if(!getPerspective()) {
+		if(!getPerspective()){
 			ci::Rectf bb = getBoundingBox();
-			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(bb.getUpperLeft(), 0.0f));
-			ci::Vec3f br = getParent()->localToGlobal(ci::Vec3f(bb.getLowerRight(), 0.0f));
+			ci::vec3 ul = getParent()->localToGlobal(ci::vec3(bb.getUpperLeft(), 0.0f));
+			ci::vec3 br = getParent()->localToGlobal(ci::vec3(bb.getLowerRight(), 0.0f));
 
 			float yScale = mEngine.getSrcRect().getHeight() / mEngine.getDstRect().getHeight();
 			float xScale = mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth();
 
 			// even though we're not in perspective, the cinder perspective camera starts from the bottom of the window
 			// and counts upwards for y. So reverse that to draw where we expect
-			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ul = ul - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
 			ul.y /= yScale;
 			ul.x /= xScale;
 			ul.y = ci::app::getWindowBounds().getHeight() - ul.y;
 
-			br = br - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			br = br - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
 			br.y /= yScale;
 			br.x /= xScale;
 			br.y = ci::app::getWindowBounds().getHeight() - br.y;
 
-			ci::gl::setViewport(ci::Area(ul.xy(), br.xy()));
+			newViewportBounds = ci::Area(ci::vec2(ul), ci::vec2(br));
 		} else {
-			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(getPosition().xy() - getCenter().xy()*getSize().xy(), 0.0f));
-			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
-			ci::Vec3f br = ul + ci::Vec3f(getWidth(), getHeight(), 0.0f);
-			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
+			ci::vec3 ul = getParent()->localToGlobal(getPosition() - getCenter()*getSize());
+			ul = ul - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ci::vec3 br = ul + ci::vec3(getWidth(), getHeight(), 0.0f);
+			newViewportBounds = ci::Area(ci::vec2(ul.x, br.y), ci::vec2(br.x, ul.y));
 		}
 
-		mVideoTexture->enableAndBind();
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
-		shaderBase.bind();
+		// might have to figure this out for client/server
+		//ci::gl::ScopedViewport newViewport(newViewportBounds);
 
-		shaderBase.uniform("tex0", 0);// static_cast<int>(mVideoTexture->get()));
-		shaderBase.uniform("mv", mCamera.getModelViewMatrix());
-		shaderBase.uniform("p", mCamera.getProjectionMatrix());
-		shaderBase.uniform("radius", mSphere.getRadius());
+		videoTexture->bind();
 
-		ci::gl::draw(mSphere, 120);
+		ci::gl::ScopedMatrices matricies;
+		ci::gl::setMatrices(mCamera);
+		
+		ci::gl::rotate(ci::toRadians(mXRot), 0.0f, 0.0f, 1.0f);
+		ci::gl::rotate(ci::toRadians(mYRot), 0.0f, 1.0f, 0.0);
+		ci::gl::draw(mSphereVbo);
 
-		mVideoTexture->unbind();
-		shaderBase.unbind();
-
-		ci::gl::setViewport(viewport);
+		videoTexture->unbind();
+		
 	}
 }
 
 void PanoramicVideo::resetCamera(){
 	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
-	mCamera.setWorldUp(ci::Vec3f::zAxis());
-	mCamera.setEyePoint(mSphere.getCenter());
-	mCamera.setCenterOfInterest(mSphere.getRadius());
-	lookFront();
-}
+	mCamera.setWorldUp(ci::vec3(0.0f, -1.0f, 0.0f));
+	mCamera.setEyePoint(ci::vec3());
+	mCamera.setPivotDistance(200.0f);
+	mXRot = 0.0f;
+	mYRot = -90.0f;
+	mCamera.lookAt(ci::vec3(200.0f, 0.0f, 0.0f));
 
-namespace {
-void cleanAngle(float& degree) {
-	degree = ci::math<float>::fmod(degree, 360.0f);
-	if (degree < 0) degree += 360.0f;
-	if (degree < 0.0001f) degree = 0;
-}}
-
-void PanoramicVideo::setSphericalCoord(float theta, float phi){
-	// Clean for (over/under)flows and negative angles
-	cleanAngle(phi);
-	cleanAngle(theta);
-
-	// Cache for later use
-	mSphericalAngles.x = theta;
-	mSphericalAngles.y = phi;
-
-	markAsDirty(SPHERE_DIRTY);
-
-	// Convert to radian
-	theta = ci::toRadians(getTheta());
-	phi = ci::toRadians(getPhi());
-
-	// Calculate target point
-	ci::Vec3f target;
-	target.x = mSphere.getRadius() * ci::math<float>::sin(theta) * ci::math<float>::cos(phi);
-	target.y = mSphere.getRadius() * ci::math<float>::sin(theta) * ci::math<float>::sin(phi);
-	target.z = mSphere.getRadius() * ci::math<float>::cos(theta);
-
-	mCamera.lookAt(target);
 }
 
 void PanoramicVideo::onSizeChanged(){
@@ -319,8 +220,10 @@ void PanoramicVideo::loadVideo(const std::string& path){
 		mVideoSprite = nullptr;
 	}
 
-	mVideoTexture = nullptr;
-
+	// this does some dumb shit
+	// any added children are listened to and linked to the video sprite
+	// this is for the net sync stuff
+	// there should be a better way to do this
 	auto video_sprite = addChildPtr(new ds::ui::Video(mEngine));
 
 	//Need to enable this to enable panning 
@@ -331,6 +234,7 @@ void PanoramicVideo::loadVideo(const std::string& path){
 	video_sprite->setLooping(true);
 	video_sprite->setAutoSynchronize(mAutoSync);
 	video_sprite->loadVideo(path);
+	video_sprite->setFinalRenderToTexture(true);
 
 	resetCamera();
 }

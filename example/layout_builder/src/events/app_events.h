@@ -98,8 +98,8 @@ public:
 
 class MouseMoveEvent : public ds::RegisteredEvent<MouseMoveEvent>{
 public:
-	MouseMoveEvent( const ci::Vec3f mousePoint ) : mMousePoint(mousePoint) {}
-	ci::Vec3f			mMousePoint;
+	MouseMoveEvent( const ci::vec3 mousePoint ) : mMousePoint(mousePoint) {}
+	ci::vec3			mMousePoint;
 };
 
 class ShowSpriteHighlightEvent : public ds::RegisteredEvent<ShowSpriteHighlightEvent>{

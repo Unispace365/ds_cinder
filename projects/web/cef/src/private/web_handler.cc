@@ -18,6 +18,8 @@
 
 #include <ds/debug/logger.h>
 
+#include <cinder/app/KeyEvent.h>
+
 namespace {
 
 	ds::web::WebHandler* g_instance = NULL;
@@ -183,7 +185,7 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 								  CefRefPtr<CefFrame> frame, 
 								  const CefString& target_url, 
 								  const CefString& target_frame_name, 
-								  WindowOpenDisposition target_disposition, 
+								  CefLifeSpanHandler::WindowOpenDisposition target_disposition,
 								  bool user_gesture, 
 								  const CefPopupFeatures& popupFeatures, 
 								  CefWindowInfo& windowInfo, 
@@ -376,6 +378,46 @@ bool WebHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& ev
 	return false;
 }
 
+// This comes from the IO thread, so it needs to be locked with the main thread 
+bool WebHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port, const CefString& realm, const CefString& scheme, CefRefPtr<CefAuthCallback> callback){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	bool handled = false;
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mAuthCallback){
+			mAuthCallbacks[browserId] = callback;
+			findy->second.mAuthCallback(isProxy, host.ToString(), port, realm.ToString(), scheme.ToString());
+			handled = true;
+		}
+	}
+
+	return handled;
+}
+
+void WebHandler::authRequestCancel(const int browserId){
+
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	auto findy = mAuthCallbacks.find(browserId);
+	if(findy != mAuthCallbacks.end()){
+		findy->second->Cancel();
+		mAuthCallbacks.erase(findy);
+	}
+}
+
+void WebHandler::authRequestContinue(const int browserId, const std::string& username, const std::string& password){
+
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	auto findy = mAuthCallbacks.find(browserId);
+	if(findy != mAuthCallbacks.end()){
+		findy->second->Continue(CefString(username), CefString(password));
+		mAuthCallbacks.erase(findy);
+	}
+}
+
 void WebHandler::closeBrowser(const int browserId){
 
 	CefRefPtr<CefBrowserHost> browserHost = nullptr;
@@ -490,36 +532,44 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 
 	bool isChar = false;
 	keyEvent.type = KEYEVENT_RAWKEYDOWN;
-	keyEvent.native_key_code = MapVirtualKey(windows_key_code, MAPVK_VK_TO_VSC);
+#ifdef WIN32
+    keyEvent.native_key_code = MapVirtualKey(windows_key_code, MAPVK_VK_TO_VSC);
+#else
+    keyEvent.native_key_code = windows_key_code;
+#endif
 
 	switch(windows_key_code) {
 		// These keys are non-character keys and have different windows_key_codes from the character
 		// May need to add more codes to this list, or modify as time goes on
-		case VK_INSERT:
-		case VK_DELETE:
-		case VK_HOME:
-		case VK_END:
-		case VK_PRIOR:
-		case VK_NEXT:
-		case VK_UP:
-		case VK_DOWN:
-		case VK_LEFT:
-		case VK_RIGHT:
-		case VK_NUMLOCK:
-		case VK_CLEAR:
-		case VK_SHIFT:
-		case VK_LSHIFT:
-		case VK_RSHIFT:
-		case VK_CONTROL:
-		case VK_MENU:
-		case VK_LWIN:
-		case VK_RWIN:
-		case VK_BACK:
-		case VK_TAB:
+        case ci::app::KeyEvent::KEY_BACKSPACE:
+        case ci::app::KeyEvent::KEY_TAB:
+		case ci::app::KeyEvent::KEY_ESCAPE:
+
 		{
 			keyEvent.windows_key_code = windows_key_code;
 			break;
 		}
+		case ci::app::KeyEvent::KEY_F1:			keyEvent.windows_key_code = 112; break;
+		case ci::app::KeyEvent::KEY_F2:			keyEvent.windows_key_code = 113; break;
+		case ci::app::KeyEvent::KEY_F3:			keyEvent.windows_key_code = 114; break;
+		case ci::app::KeyEvent::KEY_F4:			keyEvent.windows_key_code = 115; break;
+		case ci::app::KeyEvent::KEY_F5:			keyEvent.windows_key_code = 116; break;
+		case ci::app::KeyEvent::KEY_F6:			keyEvent.windows_key_code = 117; break;
+		case ci::app::KeyEvent::KEY_F7:			keyEvent.windows_key_code = 118; break;
+		case ci::app::KeyEvent::KEY_F8:			keyEvent.windows_key_code = 119; break;
+		case ci::app::KeyEvent::KEY_F9:			keyEvent.windows_key_code = 120; break;
+		case ci::app::KeyEvent::KEY_F10:		keyEvent.windows_key_code = 121; break;
+		case ci::app::KeyEvent::KEY_F11:		keyEvent.windows_key_code = 122; break;
+		case ci::app::KeyEvent::KEY_F12:		keyEvent.windows_key_code = 123; break;
+		case ci::app::KeyEvent::KEY_DELETE:		keyEvent.windows_key_code = 46; break;
+		case ci::app::KeyEvent::KEY_HOME:		keyEvent.windows_key_code = 36; break;
+		case ci::app::KeyEvent::KEY_END:		keyEvent.windows_key_code = 35; break;
+		case ci::app::KeyEvent::KEY_PAGEDOWN:	keyEvent.windows_key_code = 34; break;
+		case ci::app::KeyEvent::KEY_PAGEUP:		keyEvent.windows_key_code = 33; break;
+		case ci::app::KeyEvent::KEY_LEFT:		keyEvent.windows_key_code = 37; break;
+		case ci::app::KeyEvent::KEY_RIGHT:		keyEvent.windows_key_code = 39; break;
+		case ci::app::KeyEvent::KEY_UP:			keyEvent.windows_key_code = 38; break;
+		case ci::app::KeyEvent::KEY_DOWN:		keyEvent.windows_key_code = 40; break;
 
 		default:
 			isChar = true;
@@ -598,7 +648,7 @@ void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
 	}
 }
 
-void WebHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+void WebHandler::requestBrowserResize(const int browserId, const ci::ivec2 newSize){
 	// be sure this is locked with other requests to the browser lists
 	{
 		base::AutoLock lock_scope(mLock);

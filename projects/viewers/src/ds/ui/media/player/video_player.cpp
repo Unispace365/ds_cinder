@@ -25,6 +25,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mAutoPlayFirstFrame(true)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
+	, mLooping(true)
 {
 	mLayoutFixedAspect = true;
 }
@@ -36,11 +37,31 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 
+	mVideo->setVideoCompleteCallback([this]{
+
+
+		mVideo->seekPosition(0);
+
+		if(!mLooping){
+			mVideo->pause();
+		}
+
+		// show the interface if we have one
+		if(mVideoInterface){
+			mVideoInterface->userInputReceived();
+		}
+
+		if(mVideoCompleteCallback){
+			mVideoCompleteCallback();
+		}
+	});
+
 	setPan(mPanning);
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
 	setVideoLoop(mLooping);
+	setAudioDevices(mAudioDevices);
 
 	mVideo->setErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
@@ -116,6 +137,7 @@ void VideoPlayer::layout(){
 	if(mVideo){
 		if(mVideo->getWidth() > 0.0f){
 			mVideo->setScale(getWidth() / mVideo->getWidth());
+			mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() / 2.0f);
 		}
 	}
 
@@ -180,6 +202,16 @@ void VideoPlayer::togglePlayPause(){
 	}
 }
 
+void VideoPlayer::toggleMute(){
+	if(mVideo){
+		if(mVideo->getIsMuted()){
+			mVideo->setMute(false);
+		} else {
+			mVideo->setMute(true);
+		}
+	}
+}
+
 void VideoPlayer::setPan(const float newPan){
 	if(mVideo){
 		mVideo->setPan(newPan);
@@ -219,6 +251,13 @@ void VideoPlayer::setVideoLoop(const bool doLoop){
 	mLooping = doLoop;
 	if(mVideo){
 		mVideo->setLooping(mLooping);
+	}
+}
+
+void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
+	mAudioDevices = audioDevices;
+	if(mVideo){
+		mVideo->setAudioDevices(audioDevices);
 	}
 }
 

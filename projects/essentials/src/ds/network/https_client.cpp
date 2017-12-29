@@ -1,5 +1,8 @@
+#include "stdafx.h"
+
 #include "https_client.h"
 
+#define CURL_STATICLIB
 #include "ds/network/curl/curl.h"
 
 #include <ds/debug/logger.h>
@@ -14,27 +17,30 @@ HttpsRequest::HttpsRequest(ds::ui::SpriteEngine& eng)
 }
 
 
-void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify){
+void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify, const bool isDownloadMedia, const std::string& downloadfile){
 	if(url.empty()){
 		DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 		return;
 	}
-	mRequests.start([this, url, peerVerify, hostVerify](IndividualRequest& q){
+	mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
 		q.mVerifyHost = hostVerify;
 		q.mVerifyPeers = peerVerify;
 		q.mIsGet = true;
-		q.mVerboseOutput = mVerbose;  });
+		q.mVerboseOutput = mVerbose; 
+		q.mIsDownloadMedia = isDownloadMedia;
+		q.mDownloadFile = downloadfile;
+	});
 }
 
 
-void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers){
+void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers, const bool isDownloadMedia, const std::string& downloadfile){
 	if(url.empty()){
 		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 		return;
 	}
 
-	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers](IndividualRequest& q){
+	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
 		q.mPostData = postData;
 		q.mVerifyHost = hostVerify;
@@ -42,7 +48,9 @@ void HttpsRequest::makePostRequest(const std::string& url, const std::string& po
 		q.mIsGet = false; 
 		q.mCustomRequest = customRequest; 
 		q.mHeaders = headers;
-		q.mVerboseOutput = mVerbose; });
+		q.mVerboseOutput = mVerbose;
+		q.mIsDownloadMedia = isDownloadMedia;
+		q.mDownloadFile = downloadfile; });
 
 }
 
@@ -68,21 +76,46 @@ HttpsRequest::IndividualRequest::IndividualRequest()
 	, mVerifyHost(true)
 	, mIsGet(true)
 	, mVerboseOutput(false)
+	, mIsDownloadMedia(false)
+	, mDownloadFile("")
 {}
 
 void HttpsRequest::IndividualRequest::setInput(std::string url){
 	mInput = url;
 }
 
-size_t write_callback(char *contents, size_t size, size_t nmemb, void *userdata){
+namespace {
+size_t this_write_callback(char *contents, size_t size, size_t nmemb, void *userdata){
 	size_t realsize = size * nmemb;
-	((std::string*)userdata)->append((char*)contents, size * nmemb);
+	((std::string*)userdata)->append((char*)contents, realsize);
 	return realsize;
 }
+
+size_t this_write_file_callback(char *contents, size_t size, size_t nmemb, void *userdata){
+	FILE* stream = (FILE*)userdata;
+	if (!stream)
+	{
+		printf("!!! No stream\n");
+		return 0;
+	}
+
+	size_t written = fwrite((FILE*)contents, size, nmemb, stream);
+	return written;
+}
+}
+
 void HttpsRequest::IndividualRequest::run(){
 	mError = false;
 	mErrorMessage = "";
 	mOutput = "";
+	if (mIsDownloadMedia)
+	{
+		mFp = fopen(mDownloadFile.c_str(), "wb");
+		if (!mFp)
+		{
+			printf("!!! Failed to create file on the disk\n");
+		}
+	}
 	mHttpStatus = 400;
 
 	if(mInput.empty()){
@@ -99,55 +132,46 @@ void HttpsRequest::IndividualRequest::run(){
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		}
 
-		struct curl_slist *headers = NULL;
-		if(mIsGet){
-			CURLcode res;
-			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+		curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
+		if (!mIsDownloadMedia)
+		{
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this_write_callback);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
+		}
+		else
+		{
+			curl_easy_setopt(curl, CURLoption::CURLOPT_FOLLOWLOCATION);
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this_write_file_callback);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, mFp);
+		}
 
-			/*
-			* If you want to connect to a site who isn't using a certificate that is
-			* signed by one of the certs in the CA bundle you have, you can skip the
-			* verification of the server's certificate. This makes the connection
-			* A LOT LESS SECURE.
-			*
-			* If you have a CA cert for the server stored someplace else than in the
-			* default bundle, then the CURLOPT_CAPATH option might come handy for
-			* you.
-			*/
-			if(!mVerifyPeers){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-			}
 
-			/*
-			* If the site you're connecting to uses a different host name that what
-			* they have mentioned in their server certificate's commonName (or
-			* subjectAltName) fields, libcurl will refuse to connect. You can skip
-			* this check, but this will make the connection less secure.
-			*/
-			if(!mVerifyHost){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-			}
+		/*
+		* If you want to connect to a site who isn't using a certificate that is
+		* signed by one of the certs in the CA bundle you have, you can skip the
+		* verification of the server's certificate. This makes the connection
+		* A LOT LESS SECURE.
+		*
+		* If you have a CA cert for the server stored someplace else than in the
+		* default bundle, then the CURLOPT_CAPATH option might come handy for
+		* you.
+		*/
+		if(!mVerifyPeers){
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		}
+		/*
+		* If the site you're connecting to uses a different host name that what
+		* they have mentioned in their server certificate's commonName (or
+		* subjectAltName) fields, libcurl will refuse to connect. You can skip
+		* this check, but this will make the connection less secure.
+		*/
+		if(!mVerifyHost){
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
 
-			res = curl_easy_perform(curl);
-
-			if(res != CURLE_OK){
-				mError = true;
-				mErrorMessage = curl_easy_strerror(res);
-				DS_LOG_WARNING(mErrorMessage);
-			} else {
-				// success
-			}
-
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
-		} else {
-			/* First set the URL that is about to receive our POST. This URL can
-			just as well be a https:// URL if that is what should receive the
-			data. */
-			CURLcode res;
-			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
-
+		struct curl_slist *headers = NULL;
+		CURLcode res;
+		if(!mIsGet){
 			if(!mHeaders.empty()){
 				for(auto it : mHeaders){
 					headers = curl_slist_append(headers, it.c_str());
@@ -165,47 +189,27 @@ void HttpsRequest::IndividualRequest::run(){
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mPostData.c_str());
 			}
 
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
-			/*
-			* If you want to connect to a site who isn't using a certificate that is
-			* signed by one of the certs in the CA bundle you have, you can skip the
-			* verification of the server's certificate. This makes the connection
-			* A LOT LESS SECURE.
-			*
-			* If you have a CA cert for the server stored someplace else than in the
-			* default bundle, then the CURLOPT_CAPATH option might come handy for
-			* you.
-			*/
-			if(!mVerifyPeers){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-			}
-			/*
-			* If the site you're connecting to uses a different host name that what
-			* they have mentioned in their server certificate's commonName (or
-			* subjectAltName) fields, libcurl will refuse to connect. You can skip
-			* this check, but this will make the connection less secure.
-			*/
-			if(!mVerifyHost){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-			}
-
-			/* Perform the request, res will get the return code */
-			res = curl_easy_perform(curl);
-			/* Check for errors */
-			if(res != CURLE_OK){
-				mError = true;
-				mErrorMessage = curl_easy_strerror(res);
-				DS_LOG_WARNING(mErrorMessage);
-			} 
-			
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 		}
+
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if(res != CURLE_OK){
+			mError = true;
+			mErrorMessage = curl_easy_strerror(res);
+			DS_LOG_WARNING(mErrorMessage);
+		}
+
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 
 		if(headers){
 			curl_slist_free_all(headers);
 		}
 		curl_easy_cleanup(curl);
+		if (mIsDownloadMedia)
+		{
+			fclose(mFp);
+		}
 	}
 }
 

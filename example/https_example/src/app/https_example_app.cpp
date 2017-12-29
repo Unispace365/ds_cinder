@@ -5,10 +5,9 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
-#include <ds/ui/media/media_viewer.h>
 
 #include <cinder/Rand.h>
-#include <cinder/Clipboard.h>
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -28,8 +27,8 @@ https_example::https_example()
 
 								.persp() 
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -43,7 +42,7 @@ https_example::https_example()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -69,10 +68,10 @@ void https_example::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -141,7 +140,7 @@ void https_example::keyDown(ci::app::KeyEvent event){
 		setupServer();
 
 	} else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
-		auto fileNameOrig = ci::Clipboard::getString();
+		auto fileNameOrig = ds::Environment::getClipboard();
 		mHttpsRequest.makeGetRequest("https://example.com", false, false);
 
 
@@ -194,14 +193,10 @@ void https_example::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		//paths.push_back((*it).string());
-
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
 	}
 }
 
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::https_example, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::https_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

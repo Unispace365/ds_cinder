@@ -1,11 +1,14 @@
+//#include "stdafx.h"
+
 #include "computer_info.h"
 
 #include <Poco/Timestamp.h>
 
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
+
 #include <iostream>
-using namespace std;
+//using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 
@@ -18,6 +21,8 @@ const double BYTE_2_GIGABYTE = 9.31323e-10;
 const double BYTE_2_KILOBYTE = 0.000976562;
 
 // Utilities to help with COM stuff
+
+#ifdef CINDER_MSW
 
 // COM-INIT
 class ComInit {
@@ -82,6 +87,9 @@ public:
 	IWbemServices*	mPSvc;
 };
 
+
+#endif // !CINDER_MSW
+
 }
 
 namespace ds {
@@ -114,12 +122,12 @@ ComputerInfo::ComputerInfo(const MemoryConversion memoryConversion, const int on
 	update();
 }
 
-void ComputerInfo::update()
-{
+void ComputerInfo::update(){
 	mMemoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&mMemoryStatus);
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&mProcessMemoryCounters, sizeof(PROCESS_MEMORY_COUNTERS_EX));
 
+	/* CPU percents seem to be totally inaccurate, disabling
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
 	double percent;
@@ -140,6 +148,7 @@ void ComputerInfo::update()
 	if(percent > 0.0){
 		mPercentCPU = percent * 100.0;
 	}
+	*/
 
 //	if((mOn&MAIN_ON) != 0) updateMain(); // this seems to be an exact duplicate of the above memory info, so no need to run it twice
 	if((mOn&VIDEO_ON) != 0) updateVideo();
@@ -431,6 +440,6 @@ double ComputerInfo::getPercentUsageCPU() const
   return 0.0f;
 }
 
-#endif
+#endif // # CINDER_MSW
 
 } // namespace ds

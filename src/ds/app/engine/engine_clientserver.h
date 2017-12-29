@@ -13,11 +13,10 @@ namespace ds {
  */
 class EngineClientServer : public AbstractEngineServer {
 public:
-	EngineClientServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineClientServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClientServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 	virtual void					setup(ds::App&);
 	virtual void					draw();
@@ -27,8 +26,6 @@ public:
 private:
 	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

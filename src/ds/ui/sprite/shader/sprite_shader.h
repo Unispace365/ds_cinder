@@ -9,15 +9,15 @@ namespace ui {
 
 class SpriteShader
 {
-  public:
+public:
 	SpriteShader(const std::string &defaultLocation, const std::string &defaultName);
-	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName);
+	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName);
 
-	virtual ~SpriteShader();
-    void setShaders(const std::string &location, const std::string &name);
-	void setShaders(const std::string &vert_memory, const std::string &frag_memory, std::string &shaderName);
+	void setShaders(const std::string &location, const std::string &name);
+	void setShaders(const std::string &vert_memory, const std::string &frag_memory, const std::string &shaderName);
+	void setToDefaultShader();
 	void loadShaders();
-    bool isValid() const;
+	bool isValid() const;
 
 	/**
 	 * Clears the cache of loaded GLSL shaders, so that the next time
@@ -27,26 +27,25 @@ class SpriteShader
 	 */
 	static void clearShaderCache();
 
-    ci::gl::GlslProg &getShader();
+	ci::gl::GlslProgRef getShader();
 
-    std::string getLocation() const;
-    std::string getName() const;
-  private:
-    void loadShadersFromFile();
+	std::string getLocation() const;
+	std::string getName() const;
+private:
+	void loadShadersFromFile();
 	void loadFromMemory();
 
-    void loadDefaultFromFile();
+	void loadDefaultFromFile();
 	void loadDefaultFromMemory();
 
-    std::string         mDefaultLocation;
-    std::string         mDefaultName;
-    std::string         mLocation;
-    std::string         mName;
+	std::string			mDefaultLocation;
+	std::string			mDefaultName;
+	std::string			mLocation;
+	std::string			mName;
 	std::string			mMemoryVert;
 	std::string			mMemoryFrag;
-	//std::string			mMemoryShaderName;
 
-    ci::gl::GlslProg    mShader;
+	ci::gl::GlslProgRef	mShader;
 };
 
 }

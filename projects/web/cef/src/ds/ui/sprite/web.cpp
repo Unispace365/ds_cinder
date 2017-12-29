@@ -95,6 +95,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mHasFullCallback(false)
 	, mHasLoadingCallback(false)
 	, mHasCallbacks(false)
+	, mHasAuthCallback(false)
 	, mIsFullscreen(false)
 	, mNeedsInitialized(false)
 	, mCallbacksCue(nullptr)
@@ -285,6 +286,31 @@ void Web::initializeBrowser(){
 		}
 	};
 
+	wcc.mAuthCallback = [this](const bool isProxy, const std::string& host, const int port, const std::string& realm, const std::string& scheme){
+		// This callback comes back from the CEF IO thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		// If the client ui has a callback for authorization, do that
+		// Otherwise, just cancel the request
+		if(mAuthRequestCallback){
+			mAuthCallback.mIsProxy = isProxy;
+			mAuthCallback.mHost = host;
+			mAuthCallback.mPort = port;
+			mAuthCallback.mRealm = realm;
+			mAuthCallback.mScheme = scheme;
+
+		} // if there's no authRequestCallback, we handle this in a callback to avoid recursive lock
+
+	
+		mHasAuthCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
+	};
+
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
@@ -324,24 +350,28 @@ void Web::dispatchCallbacks(){
 		mHasLoadingCallback = false;
 	}
 
+	if(mHasAuthCallback){
+		if(mAuthRequestCallback){
+			mAuthRequestCallback(mAuthCallback);
+		} else {
+			mService.authCallbackCancel(mBrowserId);
+		}
+		mHasAuthCallback = false;
+	}
+
 	mHasCallbacks = false;
 	mCallbacksCue = nullptr;
 }
 
-void Web::updateClient(const ds::UpdateParams &p) {
-	Sprite::updateClient(p);
-
+void Web::onUpdateClient(const ds::UpdateParams &p) {
 	update(p);
 }
 
-void Web::updateServer(const ds::UpdateParams &p) {
-	Sprite::updateServer(p);
-
+void Web::onUpdateServer(const ds::UpdateParams &p) {
 	mPageScrollCount = 0;
 
 	update(p);
 }
-
 
 void Web::update(const ds::UpdateParams &p) {
 
@@ -358,7 +388,7 @@ void Web::update(const ds::UpdateParams &p) {
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
-		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
 }
@@ -370,7 +400,7 @@ void Web::onSizeChanged() {
 
 		const int theWid = static_cast<int>(getWidth());
 		const int theHid = static_cast<int>(getHeight());
-		const ci::Vec2i newBrowserSize(theWid, theHid);
+		const ci::ivec2 newBrowserSize(theWid, theHid);
 		if(newBrowserSize == mBrowserSize && mBuffer){
 			return;
 		}
@@ -394,10 +424,16 @@ void Web::onSizeChanged() {
 
 void Web::drawLocalClient() {
 	if (mWebTexture) {
-		if(getPerspective()){
-			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
+		if(mRenderBatch){
+			// web texture is top down, and render batches work bottom up
+			// so flippy flip flip
+			ci::gl::scale(1.0f, -1.0f);
+			ci::gl::translate(0.0f, -getHeight());
+			mWebTexture->bind();
+			mRenderBatch->draw();
+			mWebTexture->unbind();
 		} else {
-			ci::gl::draw(mWebTexture);
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f));
 		}
 	}
 }
@@ -468,10 +504,10 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
-void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+void Web::sendMouseClick(const ci::vec3& globalClickPoint){
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(globalClickPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
@@ -507,7 +543,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	if(touchInfo.mFingerIndex != 0)
 		return;
 
-	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
@@ -630,6 +666,18 @@ void Web::setFullscreenChangedCallback(std::function<void(const bool)> func){
 	mFullscreenCallback = func;
 }
 
+void Web::setAuthCallback(std::function<void(AuthCallback)> func){
+	mAuthRequestCallback = func;
+}
+
+void Web::authCallbackCancel(){
+	mService.authCallbackCancel(mBrowserId);
+}
+
+void Web::authCallbackContinue(const std::string& username, const std::string& password){
+	mService.authCallbackContinue(mBrowserId, username, password);
+}
+
 void Web::setErrorMessage(const std::string &message){
 	mHasError = true;
 	mErrorMessage = message;
@@ -643,17 +691,17 @@ void Web::clearError(){
 	mHasError = false;
 }
 
-ci::Vec2f Web::getDocumentSize() {
+ci::vec2 Web::getDocumentSize() {
 	// TODO?
-	return ci::Vec2f(getWidth(), getHeight());
+	return ci::vec2(getWidth(), getHeight());
 }
 
-ci::Vec2f Web::getDocumentScroll() {
+ci::vec2 Web::getDocumentScroll() {
 	/* TODO
-	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+	if (!mWebViewPtr) return ci::vec2(0.0f, 0.0f);
 	return get_document_scroll(*mWebViewPtr);
 	*/
-	return ci::Vec2f::zero();
+	return ci::vec2(0.0f, 0.0f);
 }
 
 void Web::executeJavascript(const std::string& theScript){

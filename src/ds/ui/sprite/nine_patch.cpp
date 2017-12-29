@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "nine_patch.h"
 
 #include <map>
@@ -59,18 +61,16 @@ NinePatch& NinePatch::makeNinePatch(SpriteEngine& e, const std::string &file, Sp
 }
 
 NinePatch::NinePatch(SpriteEngine& engine)
-		: inherited(engine)
+		: ds::ui::Sprite(engine)
 		, ImageOwner(engine)
 		, mSizeDirty(true) {
 	init();
 	mBlobType = BLOB_TYPE;
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 	setTransparent(false);
 }
 
-void NinePatch::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
-
+void NinePatch::onUpdateServer(const UpdateParams& up) {
 	if (mStatusDirty) {
 		mStatusDirty = false;
 		if (mStatusFn) mStatusFn(mStatus);
@@ -80,13 +80,13 @@ void NinePatch::updateServer(const UpdateParams& up) {
 void NinePatch::drawLocalClient() {
 	if (!inBounds()) return;
 
-	const ci::gl::Texture*		tex = mImageSource.getImage();
+	const ci::gl::TextureRef		tex = mImageSource.getImage();
 	if (!tex) return;
 
 	// Probably should have an initialization stage
 	setStatus(Status::STATUS_LOADED);
 	if (mPatch.empty()) {
-		mPatch.buildSources(*tex);
+		mPatch.buildSources(tex);
 		mSizeDirty = true;
 //		mPatch.print();
 	}
@@ -109,7 +109,7 @@ void NinePatch::drawLocalClient() {
 //			ci::Area	src(100, 0, mTexture.getWidth(), mTexture.getHeight());
 //			ci::gl::draw(*tex, src, ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()+300), static_cast<float>(mTexture.getHeight())) );
 
-		mPatch.draw(*tex);
+		mPatch.draw(tex);
 	}
 }
 
@@ -120,7 +120,7 @@ void NinePatch::setStatusCallback(const std::function<void(const Status&)>& fn) 
 }
 
 void NinePatch::onSizeChanged() {
-	inherited::onSizeChanged();
+	ds::ui::Sprite::onSizeChanged();
 	mSizeDirty = true;
 }
 
@@ -131,7 +131,7 @@ void NinePatch::onImageChanged() {
 }
 
 void NinePatch::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(IMG_SRC_DIRTY)) {
 		buf.add(IMG_SRC_ATT);
@@ -143,7 +143,7 @@ void NinePatch::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		mImageSource.readFrom(buf);
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 
@@ -170,9 +170,9 @@ NinePatch::Cell::Cell()
 {
 }
 
-ci::Vec2f NinePatch::Cell::size() const
+ci::vec2 NinePatch::Cell::size() const
 {
-	ci::Vec2f		ans(0.0f, 0.0f);
+	ci::vec2		ans(0.0f, 0.0f);
 	if (mIsValid) {
 		ans.x = static_cast<float>(mSrc.getWidth());
 		ans.y = static_cast<float>(mSrc.getHeight());
@@ -180,7 +180,7 @@ ci::Vec2f NinePatch::Cell::size() const
 	return ans;
 }
 
-void NinePatch::Cell::draw(const ci::gl::Texture& tex)
+void NinePatch::Cell::draw(const ci::gl::TextureRef tex)
 {
 	if (!mIsValid) return;
 
@@ -215,7 +215,7 @@ bool NinePatch::Patch::empty() const
 	return mEmpty;
 }
 
-void NinePatch::Patch::buildSources(ci::gl::Texture tex)
+void NinePatch::Patch::buildSources(ci::gl::TextureRef tex)
 {
 	mEmpty = false;
 	for (int k=0; k<CELL_SIZE; ++k) mCell[k].mIsValid = false;
@@ -223,12 +223,11 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 
 	// Really just need the left and top rows of pixels, so this could
 	// be more efficient.
-	ci::Surface8u		s(tex);
-	int					stretchX_start = tex.getWidth()/2,
-						stretchY_start = (tex.getHeight()/2);
+	int					stretchX_start = tex->getWidth()/2,
+						stretchY_start = (tex->getHeight()/2);
 	int					stretchX_end = stretchX_start,
 						stretchY_end = (stretchY_start);
-	int					l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
+	int					l = 0, t = 0, r = tex->getWidth(), b = tex->getHeight();
 
 // jus playin
 //stretchX_start = (int)(tex.getWidth()*0.35f);
@@ -242,7 +241,7 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 		mCell[CELL_LT].mSrc = ci::Area(l, t, stretchX_start-1, stretchY_start-1);
 	}
 	// RIGHT TOP CELL
-	if (stretchX_end < tex.getWidth()) {
+	if (stretchX_end < tex->getWidth()) {
 		mCell[CELL_RT].mIsValid = true;
 		mCell[CELL_RT].mSrc = ci::Area(stretchX_end+1, t, r, stretchY_start-1);
 	}
@@ -252,7 +251,7 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 		mCell[CELL_LB].mSrc = ci::Area(l, stretchY_end+1, stretchX_start-1, b);
 	}
 	// RIGHT BOTTOM CELL
-	if (stretchX_end < tex.getWidth()) {
+	if (stretchX_end < tex->getWidth()) {
 		mCell[CELL_RB].mIsValid = true;
 		mCell[CELL_RB].mSrc = ci::Area(stretchX_end+1, stretchY_end+1, r, b);
 	}
@@ -286,22 +285,22 @@ void NinePatch::Patch::buildDestinations(const float width, const float height) 
 
 	// LEFT TOP CELL
 	if (mCell[CELL_LT].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_LT].size();
+		const ci::vec2	size = mCell[CELL_LT].size();
 		mCell[CELL_LT].mDst = ci::Rectf(0.0f, 0.0f, size.x, size.y);
 	}
 	// RIGHT TOP CELL
 	if (mCell[CELL_RT].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_RT].size();
+		const ci::vec2	size = mCell[CELL_RT].size();
 		mCell[CELL_RT].mDst = ci::Rectf(width - size.x, 0.0f, width, size.y);
 	}
 	// LEFT BOTTOM CELL
 	if (mCell[CELL_LB].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_LB].size();
+		const ci::vec2	size = mCell[CELL_LB].size();
 		mCell[CELL_LB].mDst = ci::Rectf(0.0f, height-size.y, size.x, height);
 	}
 	// RIGHT BOTTOM CELL
 	if (mCell[CELL_RB].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_RB].size();
+		const ci::vec2	size = mCell[CELL_RB].size();
 		mCell[CELL_RB].mDst = ci::Rectf(width - size.x, height-size.y, width, height);
 	}
 
@@ -344,7 +343,7 @@ void NinePatch::Patch::buildDestinations(const float width, const float height) 
 																	mCell[CELL_MB].mDst.x2, mCell[CELL_LM].mDst.y2);
 }
 
-void NinePatch::Patch::draw(const ci::gl::Texture& tex)
+void NinePatch::Patch::draw(const ci::gl::TextureRef tex)
 {
 	if (mEmpty) return;
 	for (int k=0; k<CELL_SIZE; ++k) mCell[k].draw(tex);

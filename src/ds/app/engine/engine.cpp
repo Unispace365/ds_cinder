@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine.h"
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
@@ -14,28 +16,22 @@
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
+#include "ds/util/file_meta_data.h"
 
 #include <cinder/Display.h>
+#include <boost/algorithm/string.hpp>
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
 //! to get removed. Poco is not part of the Cinder.
 #include <Poco/Path.h>
 
-#include <boost/algorithm/string/predicate.hpp>
-
-#include "renderers/engine_renderer_null.h"
-#include "renderers/engine_renderer_continuous_fxaa.h"
-#include "renderers/engine_renderer_continuous.h"
-#include "renderers/engine_renderer_discontinuous.h"
+//#include <boost/algorithm/string/predicate.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 namespace {
-const int			NUMBER_OF_NETWORK_THREADS = 2;
-
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
-
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -44,32 +40,35 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
+Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
 	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
 	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
-	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
-	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
+	, mFonts(*this)
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
+
 
 	// For now, install some default image processing functions here, for convenience. These are
 	// so lightweight it probably makes sense just to have them always available for clients instead
@@ -85,8 +84,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
+	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
@@ -95,19 +94,18 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 
-	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
+	const bool drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
 	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
 	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
-	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(0.0f, 0.0f));
+	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
+	mTouchManager.setVerboseLogging(verboseTouchLogging);
+
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -115,8 +113,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
 		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
 		if (settings.getPointSize("window_pos") > 0) {
-			const ci::Vec3f	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(size.xy());
+			const ci::vec3	size(settings.getPoint("window_pos"));
+			mData.mDstRect.offset(glm::vec2(size));
 		}
 	}
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
@@ -130,27 +128,19 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
 		
 	}
-	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
-	// the window size from this.
-	if (mData.mDstRect.x2 > mData.mDstRect.x1 && mData.mDstRect.y2 > mData.mDstRect.y1) {
-		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
-		// everything goes black. That really needs to be weeded out in favour of the new system.
-		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
-	}
 
-	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1 || mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
+	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
 		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
 		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
 		mData.mSrcRect = mainDisplayRect;
 		mData.mDstRect = mainDisplayRect;
-		mData.mScreenRect = mainDisplayRect;
 		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
-			mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 		}
 	}
 
-	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");
+	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
@@ -165,17 +155,18 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
 			RootList::Root&			r(*it);
 			r.mRootId = root_id;
-			Picking*						picking = nullptr;
-			if(r.mPick == r.kSelect) picking = &mSelectPicking;
 			std::unique_ptr<EngineRoot>		root;
 			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
-			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
-			if(!root) throw std::runtime_error("Engine can't create root");
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp));
+			if(!root){
+				DS_LOG_WARNING("Couldn't create root in the engine!");
+				continue;
+			}
 			mRoots.push_back(std::move(root));
 			--root_id;
 		}
 		if(mRoots.empty()) {
-			throw std::runtime_error("Engine can't create single root");
+			DS_LOG_WARNING("Engine can't create single root");
 		}
 		root_setup(mRoots);
 	}
@@ -204,7 +195,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	createStatsView(root_id);
 
 	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -212,18 +203,27 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
 
-	// SETUP PICKING
-	mSelectPicking.setWorldSize(mData.mWorldSize);
-
 	// SETUP RESOURCES
-	std::string resourceLocation = settings.getText("resource_location", 0, "");
+	std::string resourceLocation = ds::getNormalizedPath(settings.getText("resource_location", 0, ""));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
+		if (boost::contains(resourceLocation, "%USERPROFILE%")) {
+			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
+#ifndef _WIN32
+			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
+			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
+#endif
+		}
+
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
+		Resource::Id::setupPaths(
+			ds::getNormalizedPath(resourceLocation),
+			ds::getNormalizedPath(settings.getText("resource_db", 0)),
+			ds::getNormalizedPath(settings.getText("project_path", 0))
+		);
 	}
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
@@ -231,7 +231,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 }
 
 
-void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
@@ -244,7 +244,7 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 
 	} else {
 		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if(mData.mUsingDefaults){
+		if(mSettings.getUsingDefault()){
 			screenMode = "borderless";
 		}
 		screenMode = mSettings.getText("screen:mode", 0, screenMode);
@@ -262,9 +262,6 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 
 	settings.setResizable(false);
 
-	//if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
-	//	settings.enableMultiTouch();
-	//}
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
@@ -276,11 +273,13 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
+
 }
 
 void Engine::setup(ds::App& app) {
 
 	mCinderWindow = app.getWindow();
+	//mCinderWindow->spanAllDisplays
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
@@ -308,10 +307,7 @@ void Engine::setup(ds::App& app) {
 		// GN: recent updates should make this impossible to get to.
 		//		but leaving this here in case some weird case sets the size to an invalid value
 		DS_LOG_WARNING("Engine::setup() on 0 size width or height");
-		//std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
-		//throw std::runtime_error("Engine::setup() on 0 size width or height");
 	}
-	//////////////////////////////////////////////////////////////////////////
 
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
@@ -326,8 +322,6 @@ void Engine::setup(ds::App& app) {
 			if(it->second) it->second->start();
 		}
 	}
-
-	setupRenderer();
 }
 
 void Engine::setupTouch(ds::App& a) {
@@ -338,16 +332,9 @@ void Engine::setupTouch(ds::App& a) {
 		registerForTuioObjects(tuioClient);
 		try{
 			tuioClient.connect(mTuioPort);
+			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
 		} catch(std::exception ex) {
-			DS_LOG_WARNING("Tuio client could not be started.");
-		}
-	}
-
-	if(ds::ui::TouchMode::hasSystem(mTouchMode)){
-		BOOL(WINAPI *RegisterTouchWindow)(HWND, ULONG);
-		*(size_t *)&RegisterTouchWindow = (size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
-		if(RegisterTouchWindow) {
-			(*RegisterTouchWindow)((HWND)ci::app::getWindow()->getNative(), 0x00000002);
+			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
 		}
 	}
 }
@@ -365,7 +352,10 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 		sprite_id_t thisRootId = (*it).mRootId;
 		if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, thisRootId));
 		else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, thisRootId, r.mPersp));
-		if(!root) throw std::runtime_error("Engine can't create root");
+		if(!root){
+			DS_LOG_WARNING("Engine can't create root");
+			continue;
+		}
 		mRoots.push_back(std::move(root));
 		if(thisRootId < root_id){
 			root_id = thisRootId;
@@ -376,7 +366,7 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 	createStatsView(root_id);
 	root_setup(mRoots);
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -419,7 +409,15 @@ Engine::~Engine() {
 }
 
 ds::EventNotifier& Engine::getChannel(const std::string &name) {
-	if (name.empty()) throw std::runtime_error("Engine::getChannel() on empty name");
+	if(name.empty()){
+		DS_LOG_WARNING("Engine::getChannel() on empty name");
+		if(mChannels.empty()){
+			mChannels["blank"] = Channel();
+			return mChannels["blank"].mNotifier;
+		} else {
+			return mChannels.begin()->second.mNotifier;
+		}
+	}
 	if (!mChannels.empty()) {
 		auto f = mChannels.find(name);
 		if (f != mChannels.end()) return f->second.mNotifier;
@@ -427,18 +425,27 @@ ds::EventNotifier& Engine::getChannel(const std::string &name) {
 	mChannels[name] = Channel();
 	auto f = mChannels.find(name);
 	if (f != mChannels.end()) return f->second.mNotifier;
-	throw std::runtime_error("Engine::getChannel() no channel named " + name);
+	DS_LOG_WARNING("Engine::getChannel() no channel named " + name);
+	if(mChannels.empty()){
+		mChannels["blank"] = Channel();
+		return mChannels["blank"].mNotifier;
+	} else {
+		return mChannels.begin()->second.mNotifier;
+	}
 }
 
 void Engine::addChannel(const std::string &name, const std::string &description) {
-	if (name.empty()) throw std::runtime_error("Engine::addChannel() on empty name");
+	if(name.empty()){
+		DS_LOG_WARNING("Engine::addChannel() on empty name");
+		return;
+	}
 	mChannels[name] = Channel(description);
 }
 
 ds::AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
 	if ((mask&AutoUpdateType::SERVER) != 0) return mAutoUpdateServer;
 	if ((mask&AutoUpdateType::CLIENT) != 0) return mAutoUpdateClient;
-	throw std::runtime_error("Engine::getAutoUpdateList() on illegal param");
+	DS_LOG_WARNING("Engine::getAutoUpdateList() on illegal param");
 	return mAutoUpdateServer;
 }
 
@@ -479,19 +486,26 @@ void Engine::loadNinePatchCfg(const std::string& filename) {
 	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
-int Engine::getRootCount() const {
+size_t Engine::getRootCount() const {
 	return mRoots.size();
 }
 
 ui::Sprite& Engine::getRootSprite(const size_t index) {
-	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
+	if(index < 0 || index >= mRoots.size()){
+		DS_LOG_WARNING("Engine::getRootSprite() on invalid index " << index);
+		ui::Sprite* fs = mRoots.front()->getSprite();
+		return *fs;
+	}
 	ui::Sprite*		s = mRoots[index]->getSprite();
-	if (!s) throw std::runtime_error("Engine::getRootSprite() on null sprite");
+	if(!s) DS_LOG_WARNING("Engine::getRootSprite() on null sprite");
 	return *s;
 }
 
 const RootList::Root& Engine::getRootBuilder(const size_t index){
-	if(index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootBuilder() on invalid index");
+	if(index < 0 || index >= mRoots.size()){
+		DS_LOG_WARNING("Engine::getRootBuilder() on invalid index " << index);
+		return mRoots.front()->getBuilder();;
+	}
 	return mRoots[index]->getBuilder();
 }
 
@@ -507,12 +521,12 @@ void Engine::updateClient() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 	}
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -541,29 +555,29 @@ void Engine::updateServer() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 
 		mTouchBeginEvents.lockedUpdate();
 		mTouchMovedEvents.lockedUpdate();
-		mTouchEndEvents.lockedUpdate();
+		mTouchEndedEvents.lockedUpdate();
 
 		mTuioObjectsBegin.lockedUpdate();
 		mTuioObjectsMoved.lockedUpdate();
-		mTuioObjectsEnd.lockedUpdate();
+		mTuioObjectsEnded.lockedUpdate();
 	} // unlock touch mutex
 	//////////////////////////////////////////////////////////////////////////
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mTouchBeginEvents.update(curr);
 	mTouchMovedEvents.update(curr);
-	mTouchEndEvents.update(curr);
+	mTouchEndedEvents.update(curr);
 
 	mTuioObjectsBegin.update(curr);
 	mTuioObjectsMoved.update(curr);
-	mTuioObjectsEnd.update(curr);
+	mTuioObjectsEnded.update(curr);
 
 	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
@@ -592,7 +606,7 @@ PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
 		return root->getCamera();
 	}
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
-	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+	return PerspCameraParams();
 }
 
 const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const {
@@ -600,9 +614,10 @@ const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const
 	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
 	if (root) {
 		return root->getCameraRef();
-	}
+	} 
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
-	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+	static ci::CameraPersp defaultCamera;
+	return defaultCamera;
 }
 
 void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p) {
@@ -632,7 +647,8 @@ float Engine::getOrthoFarPlane(const size_t index)const{
 		return root->getFarPlane();
 	}
 	DS_LOG_ERROR(" Engine::getOrthoFarPlane() on invalid root (" << index << ")");
-	throw std::runtime_error("getOrthoFarPlane() on non-perspective root.");
+
+	return 0.0f;
 }
 
 float Engine::getOrthoNearPlane(const size_t index)const{
@@ -642,7 +658,7 @@ float Engine::getOrthoNearPlane(const size_t index)const{
 		return root->getNearPlane();
 	}
 	DS_LOG_ERROR(" Engine::getOrthoNearPlane() on invalid root (" << index << ")");
-	throw std::runtime_error("getOrthoNearPlane() on non-perspective root.");
+	return 0.0f;
 }
 
 void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane){
@@ -654,7 +670,6 @@ void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const
 		return;
 	}
 	DS_LOG_ERROR(" Engine::setOrthoViewPlanes() on invalid root (" << index << ")");
-	throw std::runtime_error("setOrthoViewPlanes() on non-perspective root.");
 }
 void Engine::clearAllSprites(const bool clearDebug) {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
@@ -667,16 +682,28 @@ void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
 		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
-		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 	}
 }
 
 void Engine::drawClient() {
-	mRenderer->drawClient();
+	ci::gl::enableAlphaBlending();
+
+	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+	for(auto it = getRoots().begin(), end = getRoots().end(); it != end; ++it){
+		(*it)->drawClient(getDrawParams(), getAutoDrawService());
+	}
 }
 
 void Engine::drawServer() {
-	mRenderer->drawServer();
+	ci::gl::enableAlphaBlending();
+
+	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+	for(auto it = getRoots().cbegin(), end = getRoots().cend(); it != end; ++it){
+		(*it)->drawServer(getDrawParams());
+	}
 }
 
 ds::sprite_id_t Engine::nextSpriteId() {
@@ -737,7 +764,7 @@ void Engine::touchesMoved(const ds::ui::TouchEvent &e) {
 }
 
 void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
-	mTouchEndEvents.incoming(mTouchTranslator.toWorldSpace(e));
+	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
 ci::tuio::Client &Engine::getTuioClient() {
@@ -758,7 +785,7 @@ void Engine::mouseTouchMoved(const ci::app::MouseEvent &e, int id) {
 
 void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
-		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
+		mMouseEndedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
@@ -769,8 +796,19 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
-	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const ci::Vec2i	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	// Transform the mouse event coordinate from window/screen space to world
+	// coordinates.  Note: We are using the actual window size here, not the
+	// mDstRect size, which may be different if the window gets automagically
+	// resized for some reason.  (For example, in fullscreen mode, or a window
+	// mode on a screen that is not big enough for the mDstRect)
+	const ci::vec2 srcOffset = mData.mSrcRect.getUpperLeft();
+
+	auto screenSize = glm::vec2( ci::app::getWindowSize() );
+	const ci::vec2 screenScale = screenSize / mData.mSrcRect.getSize();
+
+	const ci::vec2 mouseWorldPos = srcOffset + (ci::vec2(e.getX(), e.getY()) / screenScale);
+	const ci::ivec2 pos((int)mouseWorldPos.x, (int)mouseWorldPos.y);
+
 	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
@@ -787,6 +825,17 @@ void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e){
 	touchesEnded(e);
 }
 
+void Engine::injectObjectsBegin(const ds::TuioObject& o) {
+	mTuioObjectsBegin.incoming(o);
+}
+
+void Engine::injectObjectsMoved(const ds::TuioObject& o) {
+	mTuioObjectsMoved.incoming(o);
+}
+
+void Engine::injectObjectsEnded(const ds::TuioObject& o) {
+	mTuioObjectsEnded.incoming(o);
+}
 
 ds::ResourceList& Engine::getResources() {
 	return mResources;
@@ -817,23 +866,17 @@ void Engine::stopServices() {
 	}
 }
 
-bool Engine::hideMouse() const {
+void Engine::setHideMouse(const bool doMouseHide){
+	mHideMouse = doMouseHide;
+}
+
+bool Engine::getHideMouse() const {
 	return mHideMouse;
 }
 
-ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
+ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
-		
-		ci::Vec3f pointToUse = point;
-		if((*it)->getSprite()->getPerspective()){
-			// scale the point from world size to screen size (which is the size of the perspective root)
-			pointToUse.set(
-				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
-				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
-				0.0f
-			);
-		}
-		ds::ui::Sprite* s = (*it)->getHit(pointToUse);
+		ds::ui::Sprite* s = (*it)->getHit(point);
 		if (s) return s;
 	}
 	return nullptr;
@@ -842,17 +885,6 @@ ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
 void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
 }
-
-const ci::Rectf& Engine::getScreenRect() const {
-	return mData.mScreenRect;
-}
-
-void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
-	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
-	if(mTouchManager.getOverrideEnabled()){
-		mTouchManager.overrideTouchTranslation(inOutPoint);
-	}
-};
 
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
@@ -896,28 +928,6 @@ void Engine::resetIdleTimeout() {
 	mIdling = false;
 }
 
-namespace {
-ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::Rectf& offset) {
-	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
-	// Currently I believe that's fine -- and since our target is touch platforms without those things
-	// hopefully it always will be.
-	return ci::app::MouseEvent(	e.getWindow(), 0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
-								0, e.getWheelIncrement(), e.getNativeModifiers());
-}
-
-}
-
-void Engine::setToUserCamera() {
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		(*it)->setViewport(false);
-	}
-
-	// When using a user camera, offset the event inputs.
-	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-}
-
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
 	mTouchMode = mode;
 	mTouchManager.setTouchMode(mode);
@@ -929,45 +939,6 @@ ci::app::WindowRef Engine::getWindow(){
 
 bool Engine::getRotateTouchesDefault(){
 	return mRotateTouchesDefault;
-}
-
-void Engine::setupRenderer()
-{
-	//! multiple calls to this method should do nothing
-	//! but also should not crash the whole thing!
-	static std::once_flag renderer_initialized;
-	
-	//! decide and pick the most appropriate renderer and set it up.
-	//! based on engine.xml entries.
-	std::call_once(renderer_initialized, [this] {
-		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
-		{
-			mRenderer = std::make_unique<EngineRendererNull>(*this);
-		}
-		else if (mData.mWorldSlices.empty()) //if continuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuousFxaa>(*this);
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuous>(*this);
-			}
-		}
-		else //if discontinuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				//! I can't figure out a way to mix these two yet. Pending! (TODO: SL)
-				throw std::logic_error("FXAA is not supported in discontinuous rendering mode.");
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererDiscontinuous>(*this);
-			}
-		}
-	});
 }
 
 /**

@@ -107,6 +107,11 @@
 					<property name="sizer" radius="18" />
 				</xml>
 				
+				<sprite name="space_space" size="22" />
+				
+				<xml name="fuzzy" src="%APP%/data/layouts/fuzzy_brush_button.xml" >
+				</xml>
+				
 				<sprite name="kevin_spacey_one"
 					layout_size_mode="stretch" />
 				<text name="background_label"

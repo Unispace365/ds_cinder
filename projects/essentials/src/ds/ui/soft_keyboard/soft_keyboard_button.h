@@ -43,7 +43,7 @@ protected:
 	ds::ui::Text*						mText;
 	std::string							mTextConfigUp;
 	std::string							mTextConfigDown;
-	ci::Vec2f							mTextOffset;
+	ci::vec2							mTextOffset;
 
 };
 } // namespace ui

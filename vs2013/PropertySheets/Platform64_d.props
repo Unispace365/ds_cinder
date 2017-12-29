@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;
+	  $(CINDER_090)\boost;
+	  $(DS_PLATFORM_090)\src\osc\;
+	  $(DS_PLATFORM_090)\src\tuio\;
+	  $(DS_PLATFORM_090)\lib\poco\include;
+	  $(DS_PLATFORM_090)\src;
+	  $(DS_PLATFORM_090)\src\gtk;
+	  $(DS_PLATFORM_090)\src\gtk\cairo;
+	  $(DS_PLATFORM_090)\src\gtk\pango-1.0;
+	  $(DS_PLATFORM_090)\src\gtk\glib-2.0;
+	  $(DS_PLATFORM_090)\lib\snappy;
+	  %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+	  $(CINDER_090)\lib;
+	  $(CINDER_090)\lib\msw\x64;
+	  $(CINDER_090)\lib\msw\x64\Debug\v120;
+	  $(DS_PLATFORM_090)\lib\poco\lib\x64;
+	  $(DS_PLATFORM_090)\lib;
+	  $(DS_PLATFORM_090)\lib\gtk\lib64;
+	  $(DS_PLATFORM_090)\lib\snappy\lib64;
+	  %(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+	  cinder-v120_d.lib;
+	  glu32.lib;
+	  glib-2.0.lib;
+	  gobject-2.0.lib;
+	  PocoFoundationmtd.lib;
+	  PocoNetmtd.lib;
+	  platform64_d.lib;
+	  psapi.lib;
+	  snappy64_d.lib;
+	  cairo.lib;
+	  fontconfig.lib;
+	  pango-1.0.lib;
+	  pangocairo-1.0.lib;
+	  %(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib; libboost_date_time-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_60.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

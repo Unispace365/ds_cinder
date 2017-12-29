@@ -1,10 +1,15 @@
+#include "stdafx.h"
+
 #include "color_util.h"
 
 #include <ds/data/color_list.h>
+#include <ds/util/string_util.h>
 
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include <ds/debug/logger.h>
 
 namespace ds {
 
@@ -40,7 +45,10 @@ ci::Color parse_color(const std::string& input, const ci::Color& dv) {
 }
 
 ci::ColorA parse_colora(const std::string& input) {
-	if (input.size() < 3) throw std::runtime_error("parse_colora() invalid input (" + input + ")");
+	if(input.size() < 3){
+		DS_LOG_WARNING("parse_colora() invalid input (" + input + ")");
+		return ci::ColorA::black();
+	}
 	// Hex
 	if (input[0] == '#' || input[0] == 'x') {
 		const int	r = parse_component(input, 1, 0);
@@ -55,7 +63,8 @@ ci::ColorA parse_colora(const std::string& input) {
 		const int	b = parse_component(input, 4, 0);
 		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	}
-	throw std::runtime_error("parse_color() invalid input (" + input + ")");
+	DS_LOG_WARNING("parse_color() invalid input (" + input + ")");
+	return ci::ColorA::black();
 }
 
 ci::ColorA parse_colora(const std::string& input, const ci::ColorA& dv) {
@@ -79,21 +88,16 @@ std::string ARGBToHex(ci::ColorA theColor){
 }
 
 std::string ARGBToHex(int aNum, int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char a[255];
-	sprintf_s(a, "%.2X", aNum);
-	result.append(a);
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
+	std::stringstream ss;
+	ss
+		<< '#'
+		<< std::hex << std::setfill('0')
+		<< std::setw(2) << (aNum & 0xff)
+		<< std::setw(2) << (rNum & 0xff)
+		<< std::setw(2) << (gNum & 0xff)
+		<< std::setw(2) << (bNum & 0xff);
+
+	return ss.str();
 }
 
 std::string RGBToHex(ci::Color theColor){
@@ -101,18 +105,14 @@ std::string RGBToHex(ci::Color theColor){
 }
 
 std::string RGBToHex(int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
+	std::stringstream ss;
+	ss
+		<< '#'
+		<< std::hex << std::setfill('0')
+		<< std::setw(2) << (rNum & 0xff)
+		<< std::setw(2) << (gNum & 0xff)
+		<< std::setw(2) << (bNum & 0xff);
+	return ss.str();
 }
 
 // Grabs a color from the engine's supplied color list
@@ -152,6 +152,10 @@ ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engi
 
 	return parseHexColor(color);
 
+}
+
+ci::ColorA parseColor(const std::wstring &color, const ui::SpriteEngine& engine){
+	return parseColor(ds::utf8_from_wstr(color), engine);
 }
 
 } // namespace ds

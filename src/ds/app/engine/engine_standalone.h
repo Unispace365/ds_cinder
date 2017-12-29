@@ -3,10 +3,8 @@
 #define DS_APP_ENGINE_ENGINESTANDALONE_H_
 
 #include "ds/app/engine/engine.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -17,12 +15,11 @@ namespace ds {
  */
 class EngineStandalone : public Engine {
 public:
-	EngineStandalone(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineStandalone(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 	virtual void					installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
 													const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -34,6 +31,9 @@ public:
 	virtual void					stopServices();
 	virtual int						getMode() const { return STANDALONE_MODE; }
 
+	virtual int						getBytesRecieved(){ return 0; }
+	virtual int						getBytesSent(){ return 0; }
+
 private:
 	typedef Engine inherited;
 
@@ -43,8 +43,6 @@ private:
 
 	WorkManager						mWorkManager;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

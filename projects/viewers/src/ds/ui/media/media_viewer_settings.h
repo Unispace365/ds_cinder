@@ -5,6 +5,7 @@
 #include <string>
 #include <cinder/Vector.h>
 #include <cinder/Color.h>
+#include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
 namespace ui { 
@@ -30,11 +31,12 @@ struct MediaViewerSettings {
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
+		, mVideoStreamingLatency(0.2)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
-	ci::Vec2f					mDefaultBounds;
+	ci::vec2					mDefaultBounds;
 
 	/// Whether the interface should be visible immediately or not
 	bool						mShowInterfaceAtStart;
@@ -42,7 +44,7 @@ struct MediaViewerSettings {
 	//--------------------Web Settings ---------------------------------------------//
 
 	/// The size to load the web page, which will then get scaled up or down when the viewer changes size
-	ci::Vec2f					mWebDefaultSize;		
+	ci::vec2					mWebDefaultSize;		
 	// the scale of the keyboard
 	float						mWebKeyboardKeyScale;
 	// If we should show the keyboard button at all. Default = true
@@ -86,6 +88,11 @@ struct MediaViewerSettings {
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
 
+	/// The latency when opening a stream in seconds
+	double						mVideoStreamingLatency;
+
+	/// Which audio devices to play audio out of (see the gstreamer_audio_devices header for more details)
+	std::vector<GstAudioDevice> mVideoAudioDevices;
 
 
 };

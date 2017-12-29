@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/node_watcher.h"
 
 #include <Poco/Net/DatagramSocket.h>
@@ -89,52 +91,51 @@ void NodeWatcher::Loop::run() {
 	static const int			BUF_SIZE = 512;
 	char						buf[BUF_SIZE];
 
-	try
-	{
-		ScopedDatagramSocket so{ mHost, mPort };
-		
-		so.mCmsReceiver.setBlocking(false);
-		so.mCmsReceiver.setReceiveTimeout(0);
+	Poco::Net::DatagramSocket theSocket;
 
-		while (true)
-		{
+	try	{
+
+		theSocket.setBlocking(false);
+		theSocket.setReuseAddress(true);
+		theSocket.setReusePort(true);
+		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort));
+		theSocket.setReceiveTimeout(0);
+
+		while (true)		{
 			int						length = 0;
 
-			try
-			{
-				length = so.mCmsReceiver.receiveBytes(buf, BUF_SIZE);
-			}
-			catch (const Poco::TimeoutException&)
-			{
-			}
-			catch (const std::exception&)
-			{
+			try	{
+				length = theSocket.receiveBytes(buf, BUF_SIZE);
+			} catch (const Poco::TimeoutException&)	{
+			} catch (const std::exception&)	{
 			}
 
-			if (length > 0)
-			{
-				try
-				{
+			if (length > 0)	{
+				try	{
 					std::string		msg(buf, length);
 					Poco::Mutex::ScopedLock	l(mMutex);
 					mMsg.mData.push_back(msg);
 				}
-				catch (const std::exception&)
-				{
+				catch (const std::exception&){
 				}
 			}
+
 			Poco::Thread::sleep(mRefreshRateMs);
+
 			{
 				Poco::Mutex::ScopedLock	l(mMutex);
 				if (mAbort) break;
 			}
 		}
 	}
-	catch (...)
-	{
-		// WARNING: you must not use DS_LOG_XX here. We are in a thread and logger class
-		// is not thread-safe.
-		std::cerr << "Unable to construct the DatagramSocket to DS Node." << std::endl;
+	catch (std::exception& e){
+		std::cout << "Unable to construct the DatagramSocket to DS Node. " <<  e.what() << std::endl;
+	}
+
+	try{
+		//theSocket.close();
+	} catch(std::exception& e){
+		std::cout << "Exception closing node watcher datagram socket: " << e.what() << std::endl;
 	}
 }
 

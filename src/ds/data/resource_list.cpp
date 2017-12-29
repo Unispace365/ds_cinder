@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/resource_list.h"
 
 #include "ds/query/query_client.h"

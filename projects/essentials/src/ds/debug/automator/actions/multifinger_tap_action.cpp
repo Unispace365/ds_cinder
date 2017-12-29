@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "multifinger_tap_action.h"
 #include <ds/ui/sprite/sprite_engine.h>
 #include <cinder/Rand.h>
@@ -42,7 +44,7 @@ bool MultiTapAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 		return true;
 	}
 
@@ -54,19 +56,19 @@ void MultiTapAction::setup(float limit, int numberOfFingers){
 
 	mTouchPos.reserve(mInUseList.size());
 	float radius = 20.0f;
-	ci::Vec2f touchPos = ci::Vec2f(mFrame.getX1() + ci::randFloat(0.0f, mFrame.getWidth()), mFrame.getY1() + ci::randFloat(0.0f, mFrame.getHeight()));
+	ci::vec2 touchPos = ci::vec2(mFrame.getX1() + ci::randFloat(0.0f, mFrame.getWidth()), mFrame.getY1() + ci::randFloat(0.0f, mFrame.getHeight()));
 
 	float step = (2.0f*(float)M_PI) / mNumberOfFingers;
 	float angle = (float)M_PI;
 
 	std::vector<ci::app::TouchEvent::Touch> touches;
 	for(auto it = mInUseList.begin(), it2 = mInUseList.end(); it != it2; ++it)	{
-		ci::Vec2f nTouchPos = touchPos + ci::Vec2f(cos(angle)*radius - sin(angle)*radius, sin(angle)*radius + cos(angle)*radius);
+		ci::vec2 nTouchPos = touchPos + ci::vec2(cos(angle)*radius - sin(angle)*radius, sin(angle)*radius + cos(angle)*radius);
 		mTouchPos.push_back(nTouchPos);
 		angle += step;
 		touches.push_back(ci::app::TouchEvent::Touch(nTouchPos, nTouchPos, *it, 0.0, nullptr));
 	}
-	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 }
 
 } // namespace debug

@@ -1,4 +1,7 @@
+#include "stdafx.h"
+
 #include "scroll_area.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 namespace ds{
@@ -112,7 +115,7 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 void ScrollArea::checkBounds(){
 	if(!mScroller) return;
 	bool doTween = true;
-	ci::Vec3f tweenDestination = mScroller->getPosition();
+	ci::vec3 tweenDestination = mScroller->getPosition();
 
 	bool snapped = callSnapToPositionCallback(doTween, tweenDestination);
 
@@ -134,7 +137,7 @@ void ScrollArea::checkBounds(){
 			canKeepAllScrollerInWindow = true;
 
 			// only allowable position is zero
-			tweenDestination.set(0.0f, 0.0f, 0.0f);
+			tweenDestination= ci::vec3(0.0f, 0.0f, 0.0f);
 		} else {
 			float scrollerPos(0.0f);
 			if(mVertical){
@@ -156,16 +159,16 @@ void ScrollArea::checkBounds(){
 			if(scrollerPos < minPos){
 				// Can't scroll down any more
 				if(mVertical){
-					tweenDestination.set(0.0f, minPos, 0.0f);
+					tweenDestination=ci::vec3(0.0f, minPos, 0.0f);
 				} else {
-					tweenDestination.set(minPos, 0.0f, 0.0f);
+					tweenDestination=ci::vec3(minPos, 0.0f, 0.0f);
 				}
 			} else if(scrollerPos > maxPos){
 				// Can't scroll up any more
 				if(mVertical){
-					tweenDestination.set(0.0f, maxPos, 0.0f);
+					tweenDestination=ci::vec3(0.0f, maxPos, 0.0f);
 				} else {
-					tweenDestination.set(maxPos, 0.0f, 0.0f);
+					tweenDestination=ci::vec3(maxPos, 0.0f, 0.0f);
 				}
 			} else {
 				// In bounds
@@ -181,63 +184,30 @@ void ScrollArea::checkBounds(){
 			mWillSnapAfterDelay = false;
 			mSpriteMomentum.deactivate();
 			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ tweenComplete(); }, [this](){ scrollerTweenUpdated(); });
-			scrollerUpdated(tweenDestination.xy());
+			scrollerUpdated(ci::vec2(tweenDestination));
 		}, 0.0f);
 	} else {
 		// nothing special to do here
 		mScroller->animStop();
 		mScroller->setPosition(tweenDestination);
-		scrollerUpdated(tweenDestination.xy());
+		scrollerUpdated(ci::vec2(tweenDestination));
 		tweenComplete();
 	}
 }
 
-void ScrollArea::updateServer(const ds::UpdateParams& p){
-	Sprite::updateServer(p);
+void ScrollArea::onUpdateServer(const ds::UpdateParams& p){
 	if(mSpriteMomentum.recentlyMoved()){
 		checkBounds();
 	}
 }
-void decompose(ci::Matrix44f matrix, ci::Vec3f& scaling, ci::Quatf& rotation,
-			   ci::Vec3f& position){
-	// extract translation
-	position.x = matrix.at(0, 3);
-	position.y = matrix.at(1, 3);
-	position.z = matrix.at(2, 3);
 
-	// extract the rows of the matrix
+void decompose(ci::mat4 matrix, ci::vec3& scaling, ci::quat& rotation,
+			   ci::vec3& position){
 
-	ci::Vec3f columns[3] = {
-		matrix.getColumn(0).xyz(),
-		matrix.getColumn(1).xyz(),
-		matrix.getColumn(2).xyz()
-	};
-
-	// extract the scaling factors
-	scaling.x = columns[0].length();
-	scaling.y = columns[1].length();
-	scaling.z = columns[2].length();
-
-	// and remove all scaling from the matrix
-	if(scaling.x){
-		columns[0] /= scaling.x;
-	}
-	if(scaling.y){
-		columns[1] /= scaling.y;
-	}
-	if(scaling.z){
-		columns[2] /= scaling.z;
-	}
-
-	// build a 3x3 rotation matrix
-	ci::Matrix33f m(columns[0].x, columns[1].x, columns[2].x,
-					columns[0].y, columns[1].y, columns[2].y,
-					columns[0].z, columns[1].z, columns[2].z, true);
-
-	// and generate the rotation quaternion from it
-	rotation = ci::Quatf(m);
+	ci::vec3 skew;
+	ci::vec4 perspective;
+	glm::decompose(matrix, scaling, rotation, position, skew, perspective);
 }
-
 
 void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mPhase == ds::ui::TouchInfo::Added){
@@ -249,11 +219,11 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 		auto deltaPoint = ti.mDeltaPoint;
 		if(mHandleRotatedTouches){
 			auto globalTrans = getGlobalTransform();
-			ci::Vec3f scaley;
-			ci::Quatf rotty;
-			ci::Vec3f poss;
+			ci::vec3 scaley;
+			ci::quat rotty;
+			ci::vec3 poss;
 			decompose(globalTrans, scaley, rotty, poss);
-			deltaPoint.rotateZ(-ci::toDegrees(rotty.getRoll()));
+			deltaPoint = glm::rotateZ(deltaPoint, glm::roll(rotty));
 		}
 
 		if(mScroller){
@@ -266,7 +236,7 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 			} else {
 				mScroller->move(deltaPoint.x / ti.mNumberFingers, 0.0f);
 			}
-			scrollerUpdated(mScroller->getPosition().xy());
+			scrollerUpdated(ci::vec2(mScroller->getPosition()));
 		}
 	}
 
@@ -276,7 +246,7 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 	}
 }
 
-bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination){
+bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination){
 	bool output = false;
 
 	if(mSnapToPositionFunction){
@@ -377,7 +347,7 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 	}
 }
 
-void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
+void ScrollArea::scrollerUpdated(const ci::vec2 scrollPos){
 	float scrollerSize = mScroller->getHeight();
 	float scrollWindow = getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -435,7 +405,7 @@ void ScrollArea::setTweenCompleteCallback(const std::function<void(ds::ui::Scrol
 	mTweenCompleteFunction = func;
 }
 
-void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
+void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::vec3&)>& func){
 	mSnapToPositionFunction = func;
 }
 
@@ -443,12 +413,12 @@ void ScrollArea::setScrollerTouchedCallback(const std::function<void()>& func) {
 	mScrollerTouchedFunction = func;
 }
 
-const ci::Vec2f ScrollArea::getScrollerPosition(){
+const ci::vec2 ScrollArea::getScrollerPosition(){
 	if(mScroller){
-		return mScroller->getPosition().xy();
+		return ci::vec2(mScroller->getPosition());
 	}
 
-	return ci::Vec2f::zero();
+	return ci::vec2();
 }
 
 void ScrollArea::resetScrollerPosition() {
@@ -497,7 +467,6 @@ void ScrollArea::setScrollPercent(const float percenty){
 
 	float scrollerPossy = percenty * theTop;
 
-
 	if(mVertical){
 		if(getPerspective()){
 			scrollerPossy = theTop - scrollerPossy;
@@ -507,7 +476,43 @@ void ScrollArea::setScrollPercent(const float percenty){
 		mScroller->setPosition(scrollerPossy, 0.0f);
 	}
 	
-	scrollerUpdated(mScroller->getPosition().xy());
+	scrollerUpdated(ci::vec2(mScroller->getPosition()));
+}
+
+void ScrollArea::tweenScrollPercent(const float percenty){
+	if (!mScroller) return;
+
+	if (mScrollPercent == percenty) return;
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if (!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float scrollerPossy = percenty * theTop;
+
+
+	if (mVertical){
+		if (getPerspective()){
+			scrollerPossy = theTop - scrollerPossy;
+		}
+		mScroller->tweenPosition(ci::vec3(0.0f, scrollerPossy, 0.0f), mReturnAnimateTime, 0.0f, ci::easeOutQuint);
+	}
+	else {
+		mScroller->tweenPosition(ci::vec3(scrollerPossy, 0.0f, 0.0f), mReturnAnimateTime, 0.0f, ci::easeOutQuint);
+	}
+
+	tweenNormalized(mReturnAnimateTime, 0.0f, ci::easeOutQuint, [this]{
+			scrollerUpdated(ci::vec2(mScroller->getPosition()));
+		}, [this]{
+			scrollerUpdated(ci::vec2(mScroller->getPosition()));
+		});
+
 }
 
 float ScrollArea::getVisiblePercent(){
@@ -570,7 +575,7 @@ void ScrollArea::scrollPage(const bool forwards, const bool animate) {
 	if(destPixels > 0.0f) destPixels = 0.0f;
 
 
-	ci::Vec3f tweenDestination = mScroller->getPosition();
+	ci::vec3 tweenDestination = mScroller->getPosition();
 	if(mVertical){
 		if(getPerspective()){
 			destPixels = theTop - destPixels;
@@ -583,11 +588,11 @@ void ScrollArea::scrollPage(const bool forwards, const bool animate) {
 	mSpriteMomentum.deactivate();
 	if(animate){
 		mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseInOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-		scrollerUpdated(tweenDestination.xy());
+		scrollerUpdated(ci::vec2(tweenDestination));
 	} else {
 		mScroller->animStop();
 		mScroller->setPosition(tweenDestination);
-		scrollerUpdated(tweenDestination.xy());
+		scrollerUpdated(ci::vec2(tweenDestination));
 	}
 
 

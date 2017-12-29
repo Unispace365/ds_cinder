@@ -45,6 +45,7 @@ private:
 
 	void						printYamlRecursive(YAML::Node doc, const int level);
 	void						parseTable(const std::string& tableName, YAML::Node doc);
+	void						parseOptions(const YAML::Node& options);
 	void						parseColumn(YAML::Node mappedNode, ModelModel& modelModel);
 	void						parseRelations(YAML::Node relationsNode, ModelModel& mm);
 	void						parseActAs(YAML::Node relationsNode, ModelModel& mm);
@@ -57,3 +58,4 @@ private:
 } // namespace ds
 
 #endif
+

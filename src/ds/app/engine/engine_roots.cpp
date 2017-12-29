@@ -1,8 +1,9 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_roots.h"
 
 #include "ds/app/engine/engine.h"
 #include "ds/app/auto_draw.h"
-#include "ds/gl/save_camera.h"
 
 namespace ds {
 
@@ -32,7 +33,6 @@ OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		: inherited(r, id)
 		, mEngine(e)
 		, mCameraDirty(false)
-		, mSetViewport(true)
 		, mSprite(EngineRoot::make(e, id, false))
 		, mSrcRect(0.0f, 0.0f, -1.0f, -1.0f)
 		, mDstRect(0.0f, 0.0f, -1.0f, -1.0f)
@@ -49,18 +49,7 @@ void OrthRoot::setup(const Settings& s) {
 	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1
 			&& mDstRect.x2 > mDstRect.x1 && mDstRect.y2 > mDstRect.y1) {
 		mSprite->setSize(mSrcRect.getWidth(), mSrcRect.getHeight());
-	} else {
-		// This is deprecated, and should never be hit
-		const bool			scaleWorldToFit = s.mDebugSettings.getBool("scale_world_to_fit", 0, false);
-		const float			window_scale = s.mDebugSettings.getFloat("window_scale", 0, s.mDefaultScale);
-
-		mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
-		if (scaleWorldToFit) {
-			mSprite->setScale(mEngine.getWidth()/mEngine.getWorldWidth(), mEngine.getHeight()/mEngine.getWorldHeight());
-		} else if (window_scale != s.mDefaultScale) {
-			mSprite->setScale(window_scale, window_scale);
-		}
-	}
+	} 
 }
 
 void OrthRoot::postAppSetup() {
@@ -86,92 +75,71 @@ void OrthRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void OrthRoot::setCameraForDraw(ci::Matrix44f& m){
+void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	if(mCameraDirty) {
 		setCinderCamera();
 	}
 	setGlCamera();
 
-	// Account for src rect translation
-	if(mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
-		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
-			sy = mDstRect.getHeight() / mSrcRect.getHeight();
-		m.translate(ci::Vec3f(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
-		m.scale(ci::Vec3f(sx, sy, 1.0f));
-	}
-}
+	ci::gl::ScopedDepth depthScope( false );
 
-void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
-	ci::Matrix44f		m(ci::gl::getModelView());
-	if(getBuilder().mDrawScaled){
-		setCameraForDraw(m);
-	}
+	ci::mat4 m = ci::gl::getModelMatrix();
 	mSprite->drawClient(m, p);
 
 	if (auto_draw) auto_draw->drawClient(m, p);
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
-	ci::Matrix44f		m(ci::gl::getModelView());
-	if(getBuilder().mDrawScaled){
-		setCameraForDraw(m);
+	if(mCameraDirty) {
+		setCinderCamera();
 	}
+	setGlCamera();
+
+	ci::gl::ScopedDepth depthScope( false );
+
+	ci::mat4 m = ci::gl::getModelMatrix();
 	mSprite->drawServer(m, p);
 }
 
-ui::Sprite* OrthRoot::getHit(const ci::Vec3f& point) {
+ui::Sprite* OrthRoot::getHit(const ci::vec3& point) {
 	return mSprite->getHit(point);
 }
 
 void OrthRoot::setCinderCamera() {
 	mCameraDirty = false;
-	const ci::Rectf&		screen_rect(mEngine.getScreenRect());
 
-	// I think this should be in setGlCamera, but keeping it compatible for now.
-	if (mSetViewport) {
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+	if(getBuilder().mDrawScaled) {
+		mCamera.setOrtho(mSrcRect.x1, mSrcRect.x2, mSrcRect.y2, mSrcRect.y1, mNearPlane, mFarPlane);
 	}
-	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
-}
-
-void OrthRoot::setViewport(const bool b) {
-	mSetViewport = b;
+	else {
+		mCamera.setOrtho(0.0f, mDstRect.getWidth(), mDstRect.getHeight(), 0.0f, mNearPlane, mFarPlane);
+	}
 }
 
 void OrthRoot::markCameraDirty() {
+	mSrcRect = mEngine.getSrcRect();
 	mCameraDirty = true;
 }
 
 void OrthRoot::setGlCamera() {
-	if (mSetViewport) {
-		const ci::Rectf&		screen_rect(mEngine.getScreenRect());
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
-	}
 	ci::gl::setMatrices(mCamera);
-	ci::gl::disableDepthRead();
-	ci::gl::disableDepthWrite();
 }
 
 /**
  * \class ds::PerspRoot
  */
-PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p, Picking* picking)
+PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p)
 		: inherited(r, id)
 		, mEngine(e)
 		, mCameraDirty(false)
 		, mSprite(EngineRoot::make(e, id, true))
 		, mMaster(nullptr)
-		, mOldPick(mCamera)
-		, mPicking(picking ? *picking : mOldPick) {
-	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
-	mCamera.setFov(p.mFov);
-	mCamera.setNearClip(p.mNearPlane);
-	mCamera.setFarClip(p.mFarPlane);
+		, mCameraParams(p)
+{
 }
 
 void PerspRoot::setup(const Settings& s) {
-	mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
+	mSprite->setSize(s.mWorldSize.x, s.mWorldSize.y);
 	mSprite->setDrawSorted(true);
 }
 
@@ -201,34 +169,28 @@ void PerspRoot::updateServer(const ds::UpdateParams& p) {
 }
 
 void PerspRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
-	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
+	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelMatrix(), p);});
 
-	if (auto_draw) auto_draw->drawClient(ci::gl::getModelView(), p);
+	if (auto_draw) auto_draw->drawClient(ci::gl::getModelMatrix(), p);
 }
 
 void PerspRoot::drawServer(const DrawParams& p) {
-	// Redirect to client draw for now
-	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
+	drawFunc([this, &p](){mSprite->drawServer(ci::gl::getModelMatrix(), p);});
 }
 
-ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
-	ui::Sprite*		s = nullptr;
-	drawFunc([this, &point, &s](){s = mPicking.pickAt(point.xy(), *(mSprite.get()));});
-	return s;
+ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
+	if (mCameraDirty) {
+		setCinderCamera();
+	}
+
+	ds::CameraPick pick(mEngine, mCamera, point);
+	return mSprite->getPerspectiveHit(pick);
 }
 
 PerspCameraParams PerspRoot::getCamera() const {
 	if (mMaster) return mMaster->getCamera();
 
-	PerspCameraParams		p;
-	p.mPosition = mCamera.getEyePoint();
-	p.mTarget = mCamera.getCenterOfInterestPoint();
-	p.mFov = mCamera.getFov();
-	p.mNearPlane = mCamera.getNearClip();
-	p.mFarPlane = mCamera.getFarClip();
-	p.mLensShiftH = mCamera.getLensShiftHorizontal();
-	p.mLensShiftV = mCamera.getLensShiftVertical();
-	return p;
+	return mCameraParams;
 }
 
 const ci::CameraPersp& PerspRoot::getCameraRef() const {
@@ -243,20 +205,12 @@ void PerspRoot::setCameraRef(const ci::CameraPersp& cam){
 
 void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (mMaster) {
-#ifdef _DEBUG
-		throw std::runtime_error("PerspRoot::setCamera() illegal: root is a slave");
-#endif
+		DS_LOG_WARNING("PerspRoot::setCamera() illegal: root is a slave");
 		return;
 	}
 	if (p == getCamera()) return;
 
-	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
-	mCamera.setPerspective(p.mFov, ci::app::getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
-	mCamera.setLensShiftHorizontal(p.mLensShiftH);
-	mCamera.setLensShiftVertical(p.mLensShiftV);
-
-	//mCamera.setLensShiftHorizontal(1.0f);
+	mCameraParams = p;
 
 	mCameraDirty = true;
 }
@@ -270,8 +224,29 @@ void PerspRoot::setCinderCamera() {
 
 	if (mMaster) {
 		if (mMaster->mCameraDirty) mMaster->setCinderCamera();
-	} else {
-		mCamera.setPerspective(mCamera.getFov(), ci::app::getWindowAspectRatio(), mCamera.getNearClip(), mCamera.getFarClip());
+	}
+	else {
+		// The perspective camera is configured to render to a viewport that has the same
+		// aspect ratio as the world size.  If the actual SrcRect being displayed is different
+		// from the World rectangle, we need to adjust the fov and lens-shift proportionally.
+		// This allows us to pan the SrcRect anywhere around the world space while still drawing 
+		// perspective content exactly the same (just panned).
+		const float ww = mEngine.getWorldWidth();
+		const float wh = mEngine.getWorldHeight();
+		const auto srcRect = mEngine.getSrcRect();
+		const float sw = srcRect.getWidth();
+		const float sh = srcRect.getHeight();
+
+		const float tanHalfFov = ci::math<float>::tan(ci::toRadians(mCameraParams.mFov / 2.0f));
+		const float adjustedFov = 2.0f * ci::toDegrees(ci::math<float>::atan2(sh * tanHalfFov, wh));
+		const float adjustedLensShiftH =  (1.0 - ww / sw * (mCameraParams.mLensShiftH + 1.0f) + (2.0f * srcRect.x1 / sw));
+        const float adjustedLensShiftV = -(1.0 - wh / sh * (mCameraParams.mLensShiftV + 1.0f) + (2.0f * srcRect.y1 / sh));
+
+		mCamera.setEyePoint(mCameraParams.mPosition);
+		mCamera.lookAt(mCameraParams.mTarget);
+		mCamera.setPerspective(adjustedFov, ci::app::getWindowAspectRatio(), mCameraParams.mNearPlane, mCameraParams.mFarPlane);
+		mCamera.setLensShiftHorizontal(adjustedLensShiftH);
+		mCamera.setLensShiftVertical(adjustedLensShiftV);
 	}
 }
 
@@ -281,40 +256,19 @@ void PerspRoot::setGlCamera() {
 	} else {
 		ci::gl::setMatrices(mCamera);
 	}
-	// enable the depth buffer (after all, we are doing 3D)
-	//gl::enableDepthRead();
-	//gl::enableDepthWrite();
-	//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
 }
 
 void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
-	// XXX This shouldn't be necessary - the OrthoRoot should be setting
-	// all camera properties whenever it draws. But for some reason, without
-	// this, no later ortho roots will draw (but then it's fine once you go
-	// back to the first root). This inspite of the fact that the ortho
-	// setGlCamera code calls everything this does.
-	gl::SaveCamera		save_camera;
-
 	if (mCameraDirty) {
 		setCinderCamera();
 	}
 	setGlCamera();
 
+	// enable the depth buffer (after all, we are doing 3D)
+	ci::gl::ScopedDepth depthScope( true );
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	fn();
-}
-
-/**
- * \class ds::PerspRoot::OldPick
- */
-PerspRoot::OldPick::OldPick(ci::Camera& c)
-		: mCamera(c) {
-}
-
-ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
-	ds::CameraPick			pick(mCamera, ci::Vec3f(pt.x, pt.y, 0.0f), root.getWidth(), root.getHeight());
-	return root.getPerspectiveHit(pick);
 }
 
 } // namespace ds

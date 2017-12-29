@@ -40,7 +40,7 @@ public:
 	bool addChunk(std::string &chunk);
 	bool getNextGroup(std::string &dst);
 	void clearReceived();
-	int getAvailable() { return mGroupsAvailable.size(); }
+	unsigned getAvailable() { return mGroupsAvailable.size(); }
 
 private:
 	struct DeChunkStats	{
@@ -56,12 +56,12 @@ private:
 
 	void addChunkToGroup(DeChunkStats &stats, const char *chunk, unsigned size);
 
-	std::map<unsigned, DeChunkStats> mDataChunks;
-	std::vector<unsigned> mGroupsAvailable;
-	std::vector<unsigned> mGroupsReceived;
-	std::list<unsigned>   mReceived;
-	unsigned              mMaxReceivedSize;
-	std::vector<std::unique_ptr<std::string>> mReserveStrings;
+	std::map<unsigned, DeChunkStats>				mDataChunks;
+	std::vector<unsigned>							mGroupsAvailable;
+	std::vector<unsigned>							mGroupsReceived;
+	std::list<unsigned>							mReceived;
+	unsigned										mMaxReceivedSize;
+	std::vector<std::unique_ptr<std::string>>	mReserveStrings;
 };
 
 }

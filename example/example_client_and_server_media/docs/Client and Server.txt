@@ -1,3 +1,0 @@
-This example provides a test case for splitting the application into a client and server.  It's a bit of an artificial example:  For convenience, the app has been physically broken into two so it's easy for developers to run them both.  In practice, it would always just be the same app, running on different machines.
-
-The net effect is that there's a vc10_project/ that contains the actual project and app, and then I just have two copies of the .sln in separate folders so they can have their own settings.

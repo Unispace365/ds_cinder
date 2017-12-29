@@ -6,6 +6,7 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/util/ui_utils.h>
 
 #include <ds/data/resource.h>
 
@@ -27,6 +28,7 @@ MediaSlideshow::MediaSlideshow(ds::ui::SpriteEngine& eng)
 	, mCurrentInterface(nullptr)
 	, mItemChangedCallback(nullptr)
 	, mAllowLoadAhead(true)
+	, mLetterBoxed(true)
 {
 
 	mHolder = new ds::ui::Sprite(mEngine);
@@ -52,9 +54,9 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 		MediaViewer* mv = new MediaViewer(mEngine, (*it));
 		mv->setSettings(mMediaViewerSettings); 
 		mv->setDefaultBounds(getWidth(), getHeight());
-		mv->setDefaultSize(ci::Vec2f(getWidth(), getHeight()));
+		mv->setDefaultSize(ci::vec2(getWidth(), getHeight()));
 		mHolder->addChildPtr(mv);
-		mv->setSwipeCallback([this](ds::ui::Sprite* spr, const ci::Vec3f& amount){
+		mv->setSwipeCallback([this](ds::ui::Sprite* spr, const ci::vec3& amount){
 			// don't advance if we're zoomed in
 			if(spr->getWidth() <= getWidth()){
 				if(amount.x > 20.0f){
@@ -65,7 +67,7 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 			}
 		});
 		mv->setAnimateDuration(mAnimateDuration);
-		mv->setDoubleTapCallback([this, mv](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		mv->setDoubleTapCallback([this, mv](ds::ui::Sprite* bs, const ci::vec3& pos){
 			callAfterDelay([this]{recenterSlides(); }, 0.01f);
 		});
 		mViewers.push_back(mv);
@@ -86,15 +88,22 @@ void MediaSlideshow::layout(){
 	float mssHeight = getHeight();
 	float xp = 0.0f;
 
-	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
-		ci::Vec2f size = (*it)->getDefaultSize();
+	for(auto it : mViewers){
+		ci::vec2 size = it->getDefaultSize();
 		float viewerWidth = size.x;
 		float viewerHeight = size.y;
-
-		(*it)->setViewerSize(viewerWidth, viewerHeight);
-		(*it)->setPosition(xp, 0.0f);
-		(*it)->setOrigin((*it)->getPosition());
-		(*it)->setBoundingArea(ci::Rectf(xp, 0.0f, xp + mssWidth, 0.0f + mssHeight));
+		if(mLetterBoxed){
+			it->setViewerSize(viewerWidth, viewerHeight);
+		} else {
+			if(viewerWidth < viewerHeight){
+				it->setViewerWidth(mssWidth);
+			} else {
+				it->setViewerHeight(mssHeight);
+			}
+		}
+		it->setPosition(xp, 0.0f);
+		it->setOrigin(it->getPosition());
+		it->setBoundingArea(ci::Rectf(xp, 0.0f, xp + mssWidth, 0.0f + mssHeight));
 		xp += mssWidth;
 	}
 
@@ -106,14 +115,24 @@ void MediaSlideshow::recenterSlides(){
 	float xp = 0.0f;
 	const float w = getWidth();
 	const float h = getHeight();
-	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
-		(*it)->animateToDefaultSize();
-		(*it)->tweenPosition(ci::Vec3f((*it)->getOrigin().x + (w - (*it)->getDefaultSize().x) * 0.5f, (h - (*it)->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+	for(auto it : mViewers){
+		if(mLetterBoxed){
+			it->animateToDefaultSize();
+			it->tweenPosition(ci::vec3(it->getOrigin().x + (w - it->getDefaultSize().x) * 0.5f, (h - it->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+		} else {
+			if(it->getWidth() < w){
+				it->animateWidthTo(w);
+				it->tweenPosition(ci::vec3(it->getOrigin().x, (h - w / it->getContentAspectRatio()) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+			} else {
+				it->animateHeightTo(h);
+				it->tweenPosition(ci::vec3(it->getOrigin().x + (w - h * it->getContentAspectRatio()) * 0.5f, 0.0f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+			}
+		}
 		xp += w;
 	}
 
 	if(mItemChangedCallback){
-		mItemChangedCallback(mCurItemIndex, mViewers.size());
+		mItemChangedCallback(mCurItemIndex, (int)mViewers.size());
 	}
 }
 
@@ -127,13 +146,15 @@ void MediaSlideshow::stopAllContent(){
 void MediaSlideshow::gotoItemIndex(const int newIndex){
 	if(!mHolder || mViewers.empty()) return;
 
-	if(mCurItemIndex > -1 && mCurItemIndex < mViewers.size() && mCurItemIndex != newIndex){
+	const int numViewers = (int)mViewers.size();
+
+	if(mCurItemIndex > -1 && mCurItemIndex < numViewers && mCurItemIndex != newIndex){
 		// if the current view is in a drag, shut that down
 		MediaViewer &currentView = *mViewers[mCurItemIndex];
 		currentView.enable(false);
 
 		// fix the position if the center is oddly set
-		ci::Vec3f positionDelta = currentView.getCenter();
+		ci::vec3 positionDelta = currentView.getCenter();
 		positionDelta.x *= currentView.getWidth() * currentView.getScale().x;
 		positionDelta.y *= currentView.getHeight() * currentView.getScale().y;
 		currentView.setPosition(currentView.getPosition() - positionDelta);
@@ -143,14 +164,14 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 		currentView.exit();
 	}
 
-	if(newIndex < 0 || newIndex > mViewers.size() - 1){
+	if(newIndex < 0 || newIndex > numViewers - 1){
 		mCurItemIndex = 0;
 	} else {
 		mCurItemIndex = newIndex;
 	}
 
 	const float destX = -(float)(mCurItemIndex)* getWidth();
-	mHolder->tweenPosition(ci::Vec3f(destX, 0.0f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+	mHolder->tweenPosition(ci::vec3(destX, 0.0f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
 
 	// tell the new view that we're entering it
 	mViewers[mCurItemIndex]->enter();
@@ -161,7 +182,7 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 }
 
 void MediaSlideshow::setCurrentInterface(){
-	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > mViewers.size() - 1) return;
+	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > (int)mViewers.size() - 1) return;
 
 	// if there was an interface, get rid of it
 	if(mCurrentInterface){
@@ -189,7 +210,7 @@ void MediaSlideshow::setCurrentInterface(){
 void MediaSlideshow::gotoNext(const bool wrap){
 	if(mViewers.empty()) return;
 	int newIndex = mCurItemIndex + 1;
-	if(newIndex > mViewers.size() - 1){
+	if(newIndex > (int)mViewers.size() - 1){
 		if(!wrap){
 			// don't do anything if we're not supposed to wrap around
 			return;
@@ -208,7 +229,7 @@ void MediaSlideshow::gotoPrev(const bool wrap){
 			// don't do anything if we're not supposed to wrap around
 			return;
 		}
-		newIndex = mViewers.size() - 1;
+		newIndex = (int)mViewers.size() - 1;
 	}
 
 	gotoItemIndex(newIndex);
@@ -216,11 +237,34 @@ void MediaSlideshow::gotoPrev(const bool wrap){
 
 void MediaSlideshow::loadCurrentAndAdjacent(){
 	// Simple sanity checks
-	unsigned sizey = mViewers.size();
+	int sizey = (int)mViewers.size();
 	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > sizey - 1) return;
 
 	if(!mAllowLoadAhead){
-		mViewers[mCurItemIndex]->initialize();
+		auto curItem = mViewers[mCurItemIndex];
+		auto curPos = curItem->getPosition();
+		curItem->initialize();
+		if(mLetterBoxed){
+			curItem->setPosition(curItem->getPosition().x, (getHeight() - curItem->getDefaultSize().y) * 0.5f);
+		} else {
+
+			const float spriteAspect = curItem->getWidth() / curItem->getHeight();
+			const float areaAspect = getWidth() / getHeight();
+			float destScale = curItem->getScale().x;
+
+			if(spriteAspect < areaAspect){
+				destScale = getHeight() / curItem->getHeight();
+			} else {
+				destScale = getWidth() / curItem->getWidth();
+			}
+
+			
+			curItem->setViewerSize(ci::vec2(destScale * curItem->getWidth(), destScale * curItem->getHeight()));
+
+			curItem->setPosition(curItem->getPosition().x - (getWidth() - curItem->getScaleWidth()) * 0.5f, (getHeight() - curItem->getScaleHeight()) * 0.5f);
+			curItem->sendToFront();
+
+		}
 		return;
 	}
 
@@ -232,7 +276,9 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 		   || (mCurItemIndex == 0 && i == sizey - 1)	// The current one is the first one, so wrap backwards and load the last one
 		   )
 		{
-			mViewers[i]->initialize();
+			mViewers[i]->initialize();		
+			mViewers[i]->setPosition(mViewers[i]->getPosition().x, (getHeight() - mViewers[i]->getDefaultSize().y) * 0.5f);
+
 		} else {
 			mViewers[i]->uninitialize();
 		}
@@ -259,6 +305,11 @@ void MediaSlideshow::setMediaViewerSettings(const MediaViewerSettings& settings)
 
 void MediaSlideshow::allowLoadAhead(const bool loadAhead) {
 	mAllowLoadAhead = loadAhead;
+}
+
+
+void MediaSlideshow::setLetterboxed(const bool letterbox){
+	mLetterBoxed = letterbox;
 }
 
 } // namespace ui

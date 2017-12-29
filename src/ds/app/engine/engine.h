@@ -19,20 +19,18 @@
 
 #include <cinder/app/App.h>
 #include <cinder/app/TouchEvent.h>
-#include <cinder/app/AppBasic.h>
 
 #include "TuioClient.h"
 
-#include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
-#include "ds/cfg/settings.h"
+#include "ds/app/engine/engine_settings.h"
 #include "ds/ui/ip/ip_function_list.h"
+#include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
 #include "ds/ui/tween/tweenline.h"
@@ -67,6 +65,7 @@ public:
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
+	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
@@ -98,12 +97,12 @@ public:
 
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
-	int									getRootCount() const;
+	size_t								getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
-	void								prepareSettings( ci::app::AppBasic::Settings& );
+	void								prepareSettings( ci::app::AppBase::Settings& );
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
@@ -143,6 +142,14 @@ public:
 	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
 	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
 
+	virtual void						injectObjectsBegin(const ds::TuioObject&);
+	virtual void						injectObjectsMoved(const ds::TuioObject&);
+	virtual void						injectObjectsEnded(const ds::TuioObject&);
+
+	// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
+	// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
+	void								registerForTuioObjects(ci::tuio::Client&);
+
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
 	virtual bool						getRotateTouchesDefault();
@@ -165,29 +172,21 @@ public:
 	virtual float						getOrthoNearPlane(const size_t index) const;
 	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
 
-	// Modal -- prepare for the user to be able to move the camera.
-	// I discovered there's a call to setViewport() when the camera is set up that *seems* to
-	// do nothing except prevent me from dynamically changing the camera bounds. However, I
-	// know I'll discover it's significance at some point down the road, so this just lets
-	// specific apps turn off this behaviour.
-	void								setToUserCamera();
-
 	// Can be used by apps to stop services before exiting.
 	// This will happen automatically, but some apps might want
 	// to make sure everything is stopped before they go away.
 	virtual void						stopServices();
 
-	bool								hideMouse() const;
+	void								setHideMouse(const bool doMouseHide);
+	bool								getHideMouse() const;
 
-	ds::ui::Sprite*						getHit(const ci::Vec3f& point);
+	ds::ui::Sprite*						getHit(const ci::vec3& point);
 
 	ui::TouchManager&					getTouchManager(){ return mTouchManager; }
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
-	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint );
-	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
+	virtual bool						shouldDiscardTouch( ci::vec2& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	void								setTouchSmoothing(const bool doSmoothing);
 	const bool							getTouchSmoothing();
@@ -208,15 +207,6 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
-
-	// This really should move somewhere else (TODO: SL)
-	struct FxaaOptions
-	{
-		bool								mApplyFxAA{ false };
-		float								mFxAASpanMax;
-		float								mFxAAReduceMul;
-		float								mFxAAReduceMin;
-	} mFxaaOptions;
 	// -------------------------------------------------------------
 	// These functions are inlined, since they are called frequently
 	// -------------------------------------------------------------
@@ -224,7 +214,6 @@ public:
 	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
 	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
 	inline ds::AutoDrawService* const							getAutoDrawService() { return mAutoDraw; }
-	inline const FxaaOptions&									getFxaaOptions() const { return mFxaaOptions; }
 
 	/// This is for Clients to reconstruct roots when they re-connect with the server
 	void														clearRoots();
@@ -233,7 +222,7 @@ public:
 	void														createClientRoots(std::vector<RootList::Root> newRoots);
 
 protected:
-	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -245,7 +234,6 @@ protected:
 		\param clearDebug If true, will clear all the children from the debug roots too. 
 							If false, leaves them alone (for instance, in client situations) */
 	void								clearAllSprites(const bool clearDebug = true);
-	void								registerForTuioObjects(ci::tuio::Client&);
 
 	/** When mouse events are ready to be handled by the touch manager. 
 		These are enforced virtual functions to be sure the engine handles mouse events.
@@ -268,19 +256,15 @@ protected:
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
-	//! a pointer to the currently active renderer
-	std::unique_ptr<EngineRenderer>		mRenderer;
-	//! decides a renderer based on engine configurations. MUST be called inside "setup".
-	void								setupRenderer();
-
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	void								createStatsView(sprite_id_t root_id);
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
-	const ds::cfg::Settings&			mSettings;
+	const ds::EngineSettings&			mSettings;
 	ImageRegistry						mImageRegistry;
+	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
 	ResourceList						mResources;
@@ -308,17 +292,15 @@ private:
 	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchMovedEvents;
 	ds::EngineTouchQueue<ds::ui::TouchEvent>
-										mTouchEndEvents;
+										mTouchEndedEvents;
 	typedef std::pair<ci::app::MouseEvent, int> MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
-	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;
+	ds::EngineTouchQueue<MousePair>		mMouseEndedEvents;
 	// Only used if the settings file has "tuio:receive_objects" set to true
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
-	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
-
-	ds::SelectPicking					mSelectPicking;
+	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnded;
 
 	bool								mRotateTouchesDefault;
 	bool								mHideMouse;

@@ -46,9 +46,6 @@
     <Filter Include="src\ds\ui\soft_keyboard">
       <UniqueIdentifier>{6baae140-9c0e-4cb9-9e49-4e0aea6f86f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\layout">
-      <UniqueIdentifier>{04a111de-5a8a-43eb-ae01-220cf039c4a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\network\curl">
       <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
     </Filter>
@@ -69,6 +66,9 @@
     </Filter>
     <Filter Include="src\ds\ui\control">
       <UniqueIdentifier>{27aa7365-59b9-455f-96e6-3915c4fce6b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\smart_layout">
+      <UniqueIdentifier>{0ee73044-2222-49af-9b19-53f132f69c28}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -150,9 +150,6 @@
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
       <Filter>src\ds\ui\soft_keyboard</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp">
-      <Filter>src\ds\ui\layout</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
@@ -183,9 +180,11 @@
     <ClCompile Include="src\ds\ui\control\control_slider.cpp">
       <Filter>src\ds\ui\control</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\layout\smart_layout.cpp">
-      <Filter>src\ds\ui\layout</Filter>
+    <ClCompile Include="..\..\src\stdafx.cpp">
+      <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\layout\smart_layout.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -275,9 +274,6 @@
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
       <Filter>src\ds\ui\soft_keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\layout\layout_sprite.h">
-      <Filter>src\ds\ui\layout</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
@@ -335,8 +331,10 @@
     <ClInclude Include="src\ds\ui\control\control_slider.h">
       <Filter>src\ds\ui\control</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\layout\smart_layout.h">
-      <Filter>src\ds\ui\layout</Filter>
+    <ClInclude Include="..\..\src\stdafx.h">
+      <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
+    <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
   </ItemGroup>
 </Project>

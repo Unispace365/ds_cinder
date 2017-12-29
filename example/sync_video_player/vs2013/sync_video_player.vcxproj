@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -22,7 +30,18 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
@@ -32,33 +51,56 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d64.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF64.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform64_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d64_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF64_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\</OutDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <CustomBuildAfterTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     </CustomBuildAfterTargets>
+    <CustomBuildAfterTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -74,7 +116,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -86,7 +128,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -110,6 +152,55 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
       <Message />
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <PreLinkEvent>
+      <Message>
+      </Message>
+    </PreLinkEvent>
+    <PostBuildEvent>
+      <Command>xcopy  /Y /f ".\debug\sync_video_player.exe" "..\client\"
+xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\client\"
+xcopy  /Y /f ".\debug\sync_video_player.exe" "..\server\"
+xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -127,7 +218,7 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,7 +234,7 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /f  "..\sync_video_player.exe" "..\client"
@@ -152,6 +243,50 @@ xcopy  /Y /f "..\sync_video_player.exe" "..\server\"
     </PostBuildEvent>
     <PostBuildEvent>
       <Message />
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateMapFile>false</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /f  "..\sync_video_player.exe" "..\client"
+xcopy  /Y /f "..\sync_video_player.exe" "..\server\"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -167,7 +302,7 @@ xcopy  /Y /f "..\sync_video_player.exe" "..\server\"
     <ClInclude Include="..\src\app\video_interface\video_scrub_bar.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

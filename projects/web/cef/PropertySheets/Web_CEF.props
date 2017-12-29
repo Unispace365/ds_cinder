@@ -7,15 +7,15 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);
-	  $(DS_PLATFORM_086)\projects\web\cef\src;
-	  $(DS_PLATFORM_086)\projects\web\cef\include;
-	  $(DS_PLATFORM_086)\projects\web\cef;
-	  $(DS_PLATFORM_086)\projects\web\cef\src\private\client;
-	  $(DS_PLATFORM_086)\projects\web\cef\src\private</AdditionalIncludeDirectories>
+	  $(DS_PLATFORM_090)\projects\web\cef\src;
+	  $(DS_PLATFORM_090)\projects\web\cef\include;
+	  $(DS_PLATFORM_090)\projects\web\cef;
+	  $(DS_PLATFORM_090)\projects\web\cef\src\private\client;
+	  $(DS_PLATFORM_090)\projects\web\cef\src\private</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);libcef.lib;libcef_dll_wrapper.lib;web_cef.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\cef\lib\release;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\web\cef\lib\release;$(DS_PLATFORM_090)\projects\web\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

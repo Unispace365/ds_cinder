@@ -13,7 +13,7 @@
 namespace example {
 
 StoryView::StoryView(Globals& g)
-	: inherited(g.mEngine)
+	: ds::ui::Sprite(g.mEngine)
 	, mGlobals(g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mMessage(nullptr)
@@ -70,12 +70,6 @@ void StoryView::animateOn(){
 
 void StoryView::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getSettingsLayout().getFloat("story_view:anim_time", 0, 0.35f), 0.0f, ci::EaseNone(), [this]{hide(); });
-}
-
-void StoryView::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
-
-	// any changes for this frame happen here
 }
 
 

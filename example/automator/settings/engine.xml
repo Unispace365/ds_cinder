@@ -88,6 +88,9 @@
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
 	
+	<!-- Prints out info for every touch info. Also can be set at runtime using shift-V -->
+	<text  name="touch_overlay:verbose_logging" value="true" />
+	
 	<!-- average out touch points over time for smoother input, but slightly less accurate. default=true -->
 	<text name="touch_smoothing" value="true" />
 	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->

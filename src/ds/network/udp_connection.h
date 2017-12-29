@@ -12,8 +12,7 @@ namespace ds
 
 extern const unsigned int		NET_MAX_UDP_PACKET_SIZE;
 
-class UdpConnection : public NetConnection
-{
+class UdpConnection : public NetConnection {
 public:
 	UdpConnection(int numThreads = 1);
 	~UdpConnection();
@@ -34,13 +33,19 @@ public:
 
 	bool initialized() const;
 
+	// For status, will return the number of bytes sent/rec since the last time this was called
+	int getReceivedBytes();
+	int getSentBytes();
+
 private:
 	Poco::Net::MulticastSocket	mSocket;
-	bool                        mInitialized;
-	int                         mReceiveBufferMaxSize;
-	RecycleArray<char>          mReceiveBuffer;
-	// Initialization valuea
-	bool                        mServer;
+	int							mSentBytes;
+	int							mReccBytes;
+	bool						mInitialized;
+	int							mReceiveBufferMaxSize;
+	RecycleArray<char>			mReceiveBuffer;
+	// Initialization value
+	bool						mServer;
 	std::string					mIp;
 	std::string					mPort;
 };

@@ -36,10 +36,10 @@ public:
 
 private:
 	Poco::Net::DatagramSocket	mSocket;
-	bool                        mInitialized;
-	int                         mReceiveBufferMaxSize;
-	RecycleArray<char>          mReceiveBuffer;
-	// Initialization valuea
+	bool						mInitialized;
+	int							mReceiveBufferMaxSize;
+	RecycleArray<char>			mReceiveBuffer;
+	// Initialization value
 	std::string					mIp;
 	std::string					mPort;
 };

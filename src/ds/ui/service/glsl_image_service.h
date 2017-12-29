@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef DS_UI_SERVICE_GLSLIMAGESERVICE_H_
 #define DS_UI_SERVICE_GLSLIMAGESERVICE_H_
 
@@ -74,7 +74,7 @@ public:
 	/**
 	 * \brief Generate the image, if necessary, and answer.
 	 */
-	ci::gl::Texture			getImage(float& fade);
+	ci::gl::TextureRef		getImage(float& fade);
 
 private:
 	void					init();
@@ -84,7 +84,7 @@ private:
 	ImageKey				mKey;
 	bool					mAcquired;
 	bool					mError;
-	ci::gl::Texture			mTexture;
+	ci::gl::TextureRef		mTextureRef;
 };
 
 /* \class ds::glsl::ImageService
@@ -98,7 +98,7 @@ public:
 	bool					acquire(const ImageKey&);
 	void					release(const ImageKey&);
 
-	ci::gl::Texture			getImage(const ImageKey&, float& fade);
+	ci::gl::TextureRef		getImage(const ImageKey&, float& fade);
 
 	void					update();
 	void					clear();
@@ -111,7 +111,7 @@ public:
 
 		ImageKey			mKey;
 		int					mRefs;
-		ci::gl::Texture		mImg;
+		ci::gl::TextureRef	mImgRef;
 		bool				mError;
 	};
 
@@ -123,7 +123,7 @@ public:
 		// input
 		ImageKey			mKey;
 		// output
-		ci::gl::Texture		mImg;
+		ci::gl::TextureRef	mImgRef;
 	};
 
 private:

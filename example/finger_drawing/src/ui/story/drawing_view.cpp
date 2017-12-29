@@ -32,7 +32,7 @@ DrawingView::DrawingView(Globals& g)
 	mDrawingHolder = spriteMap["drawing_canvas_holder"];
 	mBackground = spriteMap["background"];
 	if(mDrawingHolder){
-		mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, "%APP%/data/images/drawing/fuzzy.png");
+		mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, "");// "%APP%/data/images/drawing/fuzzy.png");
 		mDrawingHolder->addChildPtr(mDrawingCanvas);
 	}
 
@@ -86,6 +86,20 @@ DrawingView::DrawingView(Globals& g)
 			blackground->showDown();
 			blackground->enable(false);
 		}
+	}
+
+	auto fuzzyButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap["fuzzy.the_button"]);
+	if(fuzzyButton){
+		fuzzyButton->setClickFn([this, fuzzyButton]{
+			if(mDrawingCanvas){
+				if(mDrawingCanvas->getBrushImagePath().empty()){
+					mDrawingCanvas->setBrushImage("%APP%/data/images/drawing/fuzzy.png");
+					fuzzyButton->showDown();
+				} else {
+					mDrawingCanvas->setBrushImage("");
+				}
+			}
+		});
 	}
 
 	auto clearButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["clear_button.the_button"]);
@@ -206,8 +220,7 @@ void DrawingView::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
-void DrawingView::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
+void DrawingView::onUpdateServer(const ds::UpdateParams& p){
 
 	// any changes for this frame happen here
 }

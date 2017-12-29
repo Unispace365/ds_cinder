@@ -77,9 +77,17 @@ public:
 	// Obsolete -- use ds::Environment::expand("%LOCAL%/settings/%PP%/filename");
 	static std::string			getLocalFile(const std::string& category, const bool includeProjectPath, const std::string& filename);
 
+	// Utility to get command-line parameters
+	static std::vector<std::string>
+								getCommandLineParams();
+
+	// Utility to get the current clipboard contents as a string
+	static std::string			getClipboard();
+
 private:
 	friend class App;
 	static bool					initialize();
+	static void					setConfigDirFileExpandOverride(const bool doOverride);
 };
 
 } // namespace ds

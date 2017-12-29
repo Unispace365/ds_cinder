@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_color_array.h"
 
 #include <boost/tokenizer.hpp>

@@ -1,10 +1,25 @@
+#include "stdafx.h"
+
 #include "ds/app/environment.h"
+#include "ds/util/file_meta_data.h"
 
 #include <boost/algorithm/string.hpp>
 #include <Poco/File.h>
 #include <Poco/Path.h>
+#include <Poco/Environment.h>
+#include <Poco/Format.h>
+#include <Poco/Process.h>
+
 #include "ds/app/app.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/util/string_util.h"
+
+#ifdef CINDER_MSW
+#include "cinder/Clipboard.h"
+#else
+#include "glfw/glfw3.h"
+#include "glfw/glfw3native.h"
+#endif
 
 static std::string    folder_from(const Poco::Path&, const std::string& folder, const std::string& fileName);
 
@@ -12,14 +27,35 @@ namespace ds {
 
 namespace {
 std::string				DOCUMENTS("%DOCUMENTS%");
+std::string				DOWNSTREAM_DOCUMENTS("%LOCAL%");
+bool					USE_CFG_FILE_OVERRIDE = false;
+#ifdef WIN32
+const std::string		ENV_PATH_SEPARATOR = ";";
+#else
+const std::string		ENV_PATH_SEPARATOR = ":";
+#endif
+
+bool					sInitialized = false;
 }
 
 bool Environment::initialize() {
-	// We will need to do something different for linux, no doubt
-	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
+	if (sInitialized)
+		return true;
+	sInitialized = true;
+
+	Poco::Path			p(Poco::Path::home());
 	p.append("Documents");
 	DOCUMENTS = p.toString();
+
+	p.append("downstream");
+	DOWNSTREAM_DOCUMENTS = p.toString();
+
 	return true;
+}
+
+
+void Environment::setConfigDirFileExpandOverride(const bool doOverride) {
+	USE_CFG_FILE_OVERRIDE = doOverride;
 }
 
 const std::string& Environment::SETTINGS() {
@@ -33,7 +69,21 @@ const std::string& Environment::RESOURCES() {
 }
 
 std::string Environment::expand(const std::string& _path) {
+	if (!sInitialized) ds::Environment::initialize();
+
 	std::string		p(_path);
+
+	if(USE_CFG_FILE_OVERRIDE && p.find("%APP%") != std::string::npos){
+		std::string tempP = p;
+		boost::replace_first(tempP, "%APP%", "%APP%/settings/%CFG_FOLDER%");
+		boost::replace_all(tempP, "%APP%", ds::App::envAppDataPath());
+		boost::replace_all(tempP, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
+		std::string tempPath = Poco::Path(tempP).toString();
+		if(ds::safeFileExistsCheck(tempPath)){
+			return tempPath;
+		}
+	}
+
 	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
 	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
 	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
@@ -45,6 +95,8 @@ std::string Environment::expand(const std::string& _path) {
 
 
 std::string Environment::contract(const std::string& fullPath){
+	if (!sInitialized) ds::Environment::initialize();
+
 	std::string		p(fullPath);
 	boost::replace_all(p, ds::App::envAppDataPath(), "%APP%");
 	boost::replace_all(p, EngineSettings::envProjectPath(), "%PP%");
@@ -97,11 +149,8 @@ std::string Environment::getLocalResourcesFolder(const std::string& folderName, 
 
 std::string Environment::getDownstreamDocumentsFolder()
 {
-	// We will need to do something different for linux, no doubt
-	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
-	p.append("Documents");
-	p.append("downstream");
-	return p.toString();
+	if (!sInitialized) ds::Environment::initialize();
+	return DOWNSTREAM_DOCUMENTS;
 }
 
 std::string Environment::getLocalSettingsPath(const std::string& fileName)
@@ -153,30 +202,62 @@ std::string Environment::getProjectPath() {
 }
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
-	std::string		new_path(variable + "=");
-	const char*		path_env = getenv(variable.c_str());
-	if (path_env) {
-		new_path += path_env;
-	}
-	if (new_path.length() > 0) {
-		if (!(new_path.back() == '=' || new_path.back() == ';')) {
-			new_path += ";";
-		}
+	std::string new_path = Poco::Environment::get(variable, "");
+
+	if(new_path.length() > 0) {
+		new_path += ENV_PATH_SEPARATOR;
 	}
 	new_path += value;
-	_putenv(new_path.c_str());
+
+	Poco::Environment::set(variable, new_path);
 }
 
 void Environment::addToFrontEnvironmentVariable(const std::string& variable, const std::string& value) {
-	std::string		new_path(variable + "=");
-	const char*		path_env = getenv(variable.c_str());
-	new_path += value;
-	new_path += ";";
-	if (path_env) {
-		new_path += path_env;
-	}
-	_putenv(new_path.c_str());
+	std::string old_path = Poco::Environment::get(variable, "");
+	std::string new_path = value + ENV_PATH_SEPARATOR + old_path;
+	Poco::Environment::set(variable, new_path);
 }
+
+// Platform dependent code for getting the command line args
+#ifdef CINDER_MSW
+#include <winsock2.h> // need to include winsock2 before windows
+#include <windows.h>
+#include <shellapi.h>
+
+std::vector<std::string> Environment::getCommandLineParams()
+{
+	std::vector<std::string> ret;
+	int nArgs;
+	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	if(szArglist != NULL) {
+		for(int i = 0; i < nArgs; ++i) ret.push_back(ds::utf8_from_wstr(szArglist[i]));
+	}
+	LocalFree(szArglist);
+
+	return ret;
+}
+#else
+// On Linux, we need to process the contents of cmdline from the /proc filesystem
+std::vector<std::string> Environment::getCommandLineParams()
+{
+	auto filename = Poco::format("/proc/%d/cmdline", Poco::Process::id());
+	auto ifs = std::ifstream( filename, std::ios::in|std::ios::binary );
+	std::ostringstream ss;
+	ss << ifs.rdbuf();
+
+	return ds::split( ss.str(), std::string("\0", 1), true );
+}
+#endif
+
+std::string Environment::getClipboard() {
+#ifdef CINDER_MSW
+	return ci::Clipboard::getString();
+#else
+	auto window = (GLFWwindow*)ci::app::getWindow()->getNative();
+	return std::string( glfwGetClipboardString(window) );
+#endif
+}
+
 
 } // namespace ds
 

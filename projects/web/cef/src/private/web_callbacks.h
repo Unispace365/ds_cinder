@@ -31,6 +31,8 @@ public:
 
 	std::function<void(const bool)>							mFullscreenCallback;
 
+	std::function<void(const bool isProxy, const std::string& host, const int port, const std::string& realm, const std::string& scheme)>	mAuthCallback;
+
 
 
 };

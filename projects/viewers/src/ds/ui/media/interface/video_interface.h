@@ -18,11 +18,11 @@ class VideoVolumeControl;
 */
 class VideoInterface : public MediaInterface  {
 public:
-	VideoInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	void						linkVideo(ds::ui::GstVideo* linkedVideo);
 
-	virtual void				updateServer(const ds::UpdateParams& p);
+	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 protected:
 
 	virtual void				onLayout();

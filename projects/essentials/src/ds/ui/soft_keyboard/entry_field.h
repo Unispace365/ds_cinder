@@ -3,7 +3,7 @@
 #define ESSENTIALS_UI_SOFT_KEYBOARD_ENTRY_FIELD
 
 #include <ds/ui/sprite/sprite.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
@@ -29,11 +29,11 @@ public:
 	{}
 
 	std::string mTextConfig;
-	ci::Vec2f	mTextOffset;
-	ci::Vec2f	mFieldSize;
-	ci::Vec2f	mCursorSize;
+	ci::vec2	mTextOffset;
+	ci::vec2	mFieldSize;
+	ci::vec2	mCursorSize;
 	ci::Color	mCursorColor;
-	ci::Vec2f	mCursorOffset; 
+	ci::vec2	mCursorOffset; 
 	bool		mPasswordMode;
 	float		mBlinkRate;
 	float		mAnimationRate;
@@ -50,6 +50,9 @@ public:
 
 	/// This field will lose focus, which hides the cursor, and this field won't be active
 	void								unfocus();
+
+	/// If this field is in focus
+	bool								getIsInFocus(){ return mInFocus; }
 
 	/// Get the current entered text string
 	const std::wstring					getCurrentText();
@@ -100,10 +103,10 @@ protected:
 	void								applyText(const std::wstring& theStr);
 
 	bool								mInFocus;
-	int									mCursorIndex;
+	size_t								mCursorIndex;
 
 	std::wstring						mCurrentText;
-	ds::ui::MultilineText*				mTextSprite;
+	ds::ui::Text*						mTextSprite;
 	ds::ui::Sprite*						mCursor;
 	std::vector<ds::ui::Sprite*>		mSelectionIndicators;
 	EntryFieldSettings					mEntryFieldSettings;

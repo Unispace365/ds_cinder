@@ -1,6 +1,7 @@
+#include "stdafx.h"
+
 #include "image_meta_data.h"
 
-#include <intrin.h>
 #include <unordered_map>
 #include <cinder/ImageIo.h>
 #include <cinder/Surface.h>
@@ -28,7 +29,6 @@ const std::string			PATH_SZ("q");
 const std::string			WIDTH_SZ("w");
 const std::string			HEIGHT_SZ("h");
 const std::string			TIMESTAMP_SZ("ts");
-//PersistentCache				DB("ds/imagemetadata", 1, PersistentCache::FieldList().addString(PATH_SZ).addInt(WIDTH_SZ).addInt(HEIGHT_SZ).addInt(TIMESTAMP_SZ));
 
 int							get_format(const std::string& filename) {
 	const Poco::Path		path(filename);
@@ -38,12 +38,12 @@ int							get_format(const std::string& filename) {
 	return FORMAT_UNKNOWN;
 }
 
-bool						is_little_endian() {
-	int n = 1;
-	return (*(char*)&n == 1);
+uint32_t					big_endian_bytes_to_native( const char* bytes ) {
+	const unsigned char* data = (unsigned char*)bytes;
+	return (data[3]<<0) | (data[2]<<8) | (data[1]<<16) | (data[0]<<24);
 }
 
-bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
+bool						get_format_png(const std::string& filename, ci::vec2& outSize) {
 	std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
 	if (!file.is_open() || !file) return false;
 
@@ -56,16 +56,14 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 	// Skip Chunk Type
 	file.seekg(4, std::ios_base::cur);
 
-	__int32 width, height;
+	char widthBytes[4];
+	char heightBytes[4];
+	file.read(widthBytes, 4);
+	file.read(heightBytes, 4);
 
-	file.read((char*)&width, 4);
-	file.read((char*)&height, 4);
-
-	// PNG format stores as big endian, convert to little
-	if (is_little_endian()) {
-		width = _byteswap_ulong(width);
-		height = _byteswap_ulong(height);
-	}
+	// PNG format stores as big endian, convert to native endianness
+	uint32_t width = big_endian_bytes_to_native(widthBytes);
+	uint32_t height = big_endian_bytes_to_native(heightBytes);
 
 	// check to make sure we correctly read the size. There's some bad png's out there
 	if(width < 1 || width > 20000 || height < 1 || height > 20000){
@@ -78,7 +76,7 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 }
 
 // A horrible fallback when no meta info has been supplied about the image size.
-void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize) {
+void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) {
 	try {
 		if (filename.empty()) return;
 		// Just load the image to get the dimensions -- this will incur what is
@@ -94,11 +92,11 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
 
 		auto s = ci::Surface8u(ci::loadImage(filename));
-		if(s) {
-			outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+		if(s.getData()) {
+			outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
 		} else {
 			DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
-			outSize = ci::Vec2f::zero();
+			outSize = ci::vec2();
 		}
 	} catch (std::exception const& ex) {
 		bool errored = true;
@@ -106,12 +104,12 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		// try to load it from the web
 		try{
 			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
-			if(s) {
-				outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+			if(s.getData()) {
+				outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
 				errored = false;
 			} else {
 				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
-				outSize = ci::Vec2f::zero();
+				outSize = ci::vec2();
 			}
 		} catch(std::exception const& extwo){
 			DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
@@ -133,11 +131,11 @@ public:
 	ImageAtts() {
 	}
 
-	ImageAtts(const ci::Vec2f& size) : mSize(size) {
+	ImageAtts(const ci::vec2& size) : mSize(size) {
 	}
 
 	Poco::Timestamp		mLastModified;
-	ci::Vec2f			mSize;
+	ci::vec2			mSize;
 };
 
 class ImageAttsCache {
@@ -145,7 +143,7 @@ public:
 	ImageAttsCache() {
 	}
 
-	void				add(const std::string& filePath, const ci::Vec2f size){
+	void				add(const std::string& filePath, const ci::vec2 size){
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
@@ -162,7 +160,7 @@ public:
 		}
 	}
 
-	ci::Vec2f			getSize(const std::string& fn) {
+	ci::vec2			getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		// Note: for the actual path, use the expanded fn.
 
@@ -200,7 +198,7 @@ public:
 			}
 		} catch (std::exception const&) {
 		}
-		return ci::Vec2f(0.0f, 0.0f);
+		return ci::vec2(0.0f, 0.0f);
 	}
 
 private:
@@ -211,7 +209,7 @@ private:
 			const int			w = meta.findValueType<int>("w", -1),
 								h = meta.findValueType<int>("h", -1);
 			if (w > 0 && h > 0) {
-				return ImageAtts(ci::Vec2f(static_cast<float>(w), static_cast<float>(h)));
+				return ImageAtts(ci::vec2(static_cast<float>(w), static_cast<float>(h)));
 			}
 		} catch (std::exception const&) {
 		}
@@ -231,7 +229,7 @@ private:
 		int outW = 0;
 		int outH = 0;
 		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
-			return ImageAtts(ci::Vec2f(static_cast<float>(outW), static_cast<float>(outH)));
+			return ImageAtts(ci::vec2(static_cast<float>(outW), static_cast<float>(outH)));
 		}
 
 		// 4. Load the whole damn image in and get that.
@@ -262,7 +260,7 @@ bool ImageMetaData::empty() const {
 	return mSize.x < 0.5f || mSize.y < 0.5;
 }
 
-void ImageMetaData::add( const std::string& filePath, const ci::Vec2f size ){
+void ImageMetaData::add( const std::string& filePath, const ci::vec2 size ){
 	CACHE.add(filePath, size);
 }
 

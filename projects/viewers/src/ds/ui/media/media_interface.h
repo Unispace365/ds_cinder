@@ -15,16 +15,25 @@ namespace ui {
 */
 class MediaInterface : public ds::ui::Sprite  {
 public:
-	MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey = ci::Vec2f(400.0f, 50.0f), const ci::Color backgroundColor = ci::Color::black());
+	MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f), const ci::Color backgroundColor = ci::Color::black());
 
 
 	virtual void						animateOn();
 	virtual void						animateOff();
 
-	virtual void						updateServer(const ds::UpdateParams& updateParams);
+	virtual void						onUpdateServer(const ds::UpdateParams& updateParams) override;
 	void								layout();
 
 	void								setAnimateDuration(const float animDuration){ mAnimateDuration = animDuration; }
+
+	/// allows the interface to timeout and hide itself after a period of time
+	/// e.g. when a web interface has a keyboard displaying, the interface doesn't idle timeout
+	void								setCanTimeout(const bool canTimeout){ mCanIdle = canTimeout; }
+
+	/// allows the interface to be shown at all (rare edge case when you temporarily want to hide this)
+	void								setAllowDisplay(const bool canDisplay){ mCanDisplay = canDisplay; }
+	
+	void								setBackgroundColorA(const ci::ColorA backgroundColor);
 
 protected:
 
@@ -33,6 +42,8 @@ protected:
 	float								mMinWidth;
 	float								mMaxWidth;
 	bool								mIdling;
+	bool								mCanIdle;
+	bool								mCanDisplay;
 	float								mInterfaceIdleSettings;
 	virtual void						onLayout(){};
 	virtual void						onSizeChanged();

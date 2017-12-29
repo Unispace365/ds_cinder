@@ -33,46 +33,53 @@ namespace ds {
 namespace ui {
 
 namespace {
-ds::ui::VideoMetaCache          CACHE("gstreamer-3");
-const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
-template<typename T> void       noop(T) { /* no op */ };
-void                            noop()  { /* no op */ };
+ds::ui::VideoMetaCache		CACHE("gstreamer-3");
+const ds::BitMask			GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
+template<typename T> void	noop(T) { /* no op */ };
+auto						void_noop = []() -> void {/* no op */};
 
 static int drawcount = 0;
 
+
 static std::string yuv_vert =
-"varying   vec2 gsvTexCoord;"
-"void main(){ "
-"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
-"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
-"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-"gl_FrontColor = gl_Color;"
-"gsvTexCoord = gl_TexCoord[0].xy;"
-"}";
+"#version 150\n"
+"uniform mat4       ciModelMatrix;\n"
+"uniform mat4       ciModelViewProjection;\n"
+"uniform vec4       uClipPlane0;\n"
+"uniform vec4       uClipPlane1;\n"
+"uniform vec4       uClipPlane2;\n"
+"uniform vec4       uClipPlane3;\n"
+"in vec4            ciPosition;\n"
+"in vec2            ciTexCoord0;\n"
+"in vec4            ciColor;\n"
+"out vec2           TexCoord0;\n"
+"out vec4           Color;\n"
+"void main()\n"
+"{\n"
+"    gl_Position = ciModelViewProjection * ciPosition;\n"
+"    TexCoord0 = ciTexCoord0;\n"
+"    Color = ciColor;\n"
+"    gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"    gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"    gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
+"}\n";
 
 const static std::string yuv_frag =
-//"precision mediump float;"
+"#version 150\n"
 "uniform sampler2D gsuTexture0;"
 "uniform sampler2D gsuTexture1;"
 "uniform sampler2D gsuTexture2;"
-"varying vec2 gsvTexCoord;"
+"in vec2            TexCoord0;\n"
+"in vec4            Color;\n"
+"out vec4           oColor;\n"
 "void main(){"
-"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
-"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
-"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+"float y = texture2D(gsuTexture0, TexCoord0).r;"
+"float u = texture2D(gsuTexture1, TexCoord0).r;"
+"float v = texture2D(gsuTexture2, TexCoord0).r;"
 "u = u - 0.5;"
 "v = v - 0.5;"
-"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
-
-// Below are other test color spaces, some ok, some poopy
-//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
-//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
-//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
-//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
-//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
-//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
-//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
-//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
+"oColor = Color * vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, Color.a);\n"
 "}";
 
 class Init {
@@ -168,7 +175,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVolume(1.0f)
 	, mStatusChanged(true)
 	, mStatusFn(noop<const Status&>)
-	, mVideoCompleteFn(noop)
+	, mVideoCompleteFn(void_noop)
 	, mErrorFn(nullptr)
 	, mShouldPlay(false)
 	, mAutoStart(false)
@@ -177,6 +184,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStatus(Status::STATUS_STOPPED)
 	, mPlaySingleFrame(false)
 	, mPlaySingleFrameFunction(nullptr)
+	, mSingleFrameStop(true)
 	, mDrawable(false)
 	, mVideoSize(0, 0)
 	, mAutoExtendIdle(false)
@@ -194,6 +202,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mPan(0.0f)
 	, mStreaming(false)
 	, mClientVideoCompleted(false)
+	, mStreamingLatency(200000000)
 {
 	mLayoutFixedAspect = true;
 	mBlobType = BLOB_TYPE;
@@ -206,7 +215,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	}
 
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 
 }
 
@@ -217,43 +226,14 @@ GstVideo::~GstVideo(){
 	}
 }
 
-void GstVideo::updateServer(const UpdateParams &up){
-	Sprite::updateServer(up);
-
-	mGstreamerWrapper->update();
-
-	if (mGstreamerWrapper->isNewLoop()){
-		mGstreamerWrapper->clearNewLoop();
-		markAsDirty(mBaseTimeDirty);
-		markAsDirty(mSeekDirty);
-	} else
-	//m_StartTime is used for pause/resume operations
-	if (mGstreamerWrapper->isPlayFromPause() )	{
-		mGstreamerWrapper->clearPlayFromPause();
-		mBaseTime = mGstreamerWrapper->getBaseTime();
-		mSeekTime = mGstreamerWrapper->getSeekTime();
-
-		markAsDirty(mBaseTimeDirty);
-		markAsDirty(mSeekTimeDirty);
-	}
-	
-	//check wrapper for new time sync.  If new, mark as dirty
-	//Don't try to sync base-time while fast seeking
-	else if (mGstreamerWrapper->getBaseTime() != mBaseTime ) {
-		mBaseTime = mGstreamerWrapper->getBaseTime();
-		markAsDirty(mBaseTimeDirty);
-	}	
-	
-	checkStatus();
-	checkOutOfBounds();
-
-	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
-		mEngine.resetIdleTimeOut();
-	}
-}
-
 void GstVideo::generateAudioBuffer(bool enableAudioBuffer ){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
+}
+
+void GstVideo::wantAudioBuffer(bool doWantAudioBuffer){
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setAudioBufferWanted(doWantAudioBuffer);
+	}
 }
 
 void GstVideo::setVerboseLogging(const bool doVerbose){
@@ -276,13 +256,68 @@ void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceName
 	markAsDirty(mInstancesDirty);
 }
 
-void GstVideo::updateClient(const UpdateParams& up){
-	Sprite::updateClient(up);
+unsigned char * GstVideo::getRawVideoData(){
+	return mGstreamerWrapper->getVideo();
+}
 
+size_t GstVideo::getRawVideoDataSize(){
+	return mGstreamerWrapper->getVideoBufferSize();
+}
+
+unsigned char * GstVideo::getRawAudioData(){
+	return mGstreamerWrapper->getAudio();
+}
+
+size_t GstVideo::getRawAudioDataSize(){
+	return mGstreamerWrapper->getAudioBufferSize();
+}
+
+void * GstVideo::getGstreamerElementByName(const std::string& theName){
+	return mGstreamerWrapper->getElementByName(theName);
+}
+
+void GstVideo::onUpdateServer(const UpdateParams &up){
+
+	mGstreamerWrapper->update();
+
+	if(mGstreamerWrapper->isNewLoop()){
+		mGstreamerWrapper->clearNewLoop();
+		markAsDirty(mBaseTimeDirty);
+		markAsDirty(mSeekDirty);
+	} else if(mGstreamerWrapper->isPlayFromPause())	{
+
+			//m_StartTime is used for pause/resume operations
+			mGstreamerWrapper->clearPlayFromPause();
+			mBaseTime = mGstreamerWrapper->getBaseTime();
+			mSeekTime = mGstreamerWrapper->getSeekTime();
+
+			markAsDirty(mBaseTimeDirty);
+			markAsDirty(mSeekTimeDirty);
+
+	//check wrapper for new time sync.  If new, mark as dirty
+	//Don't try to sync base-time while fast seeking
+	} else if(mGstreamerWrapper->getBaseTime() != mBaseTime) {
+		mBaseTime = mGstreamerWrapper->getBaseTime();
+		markAsDirty(mBaseTimeDirty);
+	}
+
+	checkStatus();
+	checkOutOfBounds();
+
+	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
+		mEngine.resetIdleTimeOut();
+	}
+
+	updateVideoTexture();
+}
+
+void GstVideo::onUpdateClient(const UpdateParams& up){
 	mGstreamerWrapper->update();
 
 	checkStatus();
 	checkOutOfBounds();
+
+	updateVideoTexture();
 
 	// The code below this is only for synchronization
 	if(!mDoSyncronization) return;
@@ -296,11 +331,12 @@ void GstVideo::updateClient(const UpdateParams& up){
 	}
 }
 
-void GstVideo::drawLocalClient(){
-	if (!mGstreamerWrapper){
+void GstVideo::updateVideoTexture() {
+	if(!mGstreamerWrapper){
 		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
 	}
+
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
 
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
@@ -322,53 +358,65 @@ void GstVideo::drawLocalClient(){
 
 			dat = mGstreamerWrapper->getVideo();
 
-			if (dat && mFrameTexture){
-				if (mColorType == kColorTypeShaderTransform ){
+			if(dat && mFrameTexture){
+				if(mColorType == kColorTypeShaderTransform){
 
 					if(mUFrameTexture && mVFrameTexture){
 						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
 						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
 						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
-						mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
-						mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-						mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+						mFrameTexture->update(yChannel);
+						mUFrameTexture->update(uChannel);
+						mVFrameTexture->update(vChannel);
 					}
 
 				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
-					mFrameTexture.update(video_surface);
+					mFrameTexture->update(video_surface);
 				}
 
 				mDrawable = true;
 			}
 
-			if (mPlaySingleFrame){
-				stop();
+			if(mPlaySingleFrame){
+				if(mSingleFrameStop){
+					stop();
+				} else {
+					pause();
+				}
 				mPlaySingleFrame = false;
-				if (mPlaySingleFrameFunction) mPlaySingleFrameFunction();
+				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
 				mPlaySingleFrameFunction = nullptr;
 			}
 
 			mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
-			if (mBufferUpdateTimes.size() > 10){
+			if(mBufferUpdateTimes.size() > 10){
 				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 			}
 		}
 	}
+}
 
+void GstVideo::drawLocalClient(){
+	if (!mGstreamerWrapper){
+		DS_LOG_WARNING("Gstreamer wrapper not available");
+		return;
+	}
+	
 	if (mFrameTexture && mDrawable){
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
 
-				if (mFrameTexture) mFrameTexture.bind(2);
-				if (mUFrameTexture) mUFrameTexture.bind(3);
-				if (mVFrameTexture) mVFrameTexture.bind(4);
+			if (mFrameTexture) mFrameTexture->bind(2);
+			if (mUFrameTexture) mUFrameTexture->bind(3);
+			if (mVFrameTexture) mVFrameTexture->bind(4);
 
-			}
-			if(getPerspective()){
+			
+			if(mRenderBatch){
+				mRenderBatch->draw();
+			} else if(getPerspective()){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
@@ -376,21 +424,25 @@ void GstVideo::drawLocalClient(){
 
 		} else {
 			if (getPerspective()){
-			 	mFrameTexture.setFlipped(true);
+				// TODO
+			 	//mFrameTexture->flip(true);
 			}
-			if (mFrameTexture) mFrameTexture.bind(0);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			if (mFrameTexture) mFrameTexture->bind(0);
+
+			if(mRenderBatch){
+				mRenderBatch->draw();
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			}
 		}
 
-
 		if (mColorType == kColorTypeShaderTransform){
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				if (mFrameTexture) mFrameTexture.unbind(2);
-				if (mUFrameTexture) mUFrameTexture.unbind(3);
-				if (mVFrameTexture) mVFrameTexture.unbind(4);
-			}
+			if(mFrameTexture) mFrameTexture->unbind(2);
+			if(mUFrameTexture) mUFrameTexture->unbind(3);
+			if(mVFrameTexture) mVFrameTexture->unbind(4);
+			
 		} else {
-			if (mFrameTexture) mFrameTexture.unbind();
+			if (mFrameTexture) mFrameTexture->unbind();
 		}
 	} 
 }
@@ -464,16 +516,11 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		return;
 	}
 
-
-
 	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
 	if(!videoService.getValidInstall()){
 		if(mErrorFn){
 			mErrorFn(videoService.getErrorMessage());
 		}
-
-
-		//return;
 	}
 
 	mStreaming = false;
@@ -507,20 +554,21 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		mServerOnlyMode = false;
 
+#ifndef _WIN64
 		if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
 			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
 			DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
 			if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
 			return;
 		}
+#endif
 
 		if(type == VideoMetaCache::AUDIO_ONLY_TYPE){
 			generateVideoBuffer = false;
 			mOutOfBoundsMuted = false;
 		}
 		// if the video was set previously, clear out the shader so we don't multiple-set the shader
-		removeShaders();
-		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+		//removeShaders();
 
 		mDrawable = false;
 
@@ -528,20 +576,25 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
 			std::string shaderName("yuv_colorspace_conversion");
-			addNewMemoryShader(yuv_vert, yuv_frag, shaderName, true);
+			mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
+			mSpriteShader.loadShaders();
 			ds::gl::Uniform uniform;
 
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
-			setShadersUniforms("yuv_colorspace_conversion", uniform);
+			uniform.applyTo(mSpriteShader.getShader());
+		} else {
+			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 		}
+
+		mNeedsBatchUpdate = true;
 
 		bool hasAudioTrack = (type == VideoMetaCache::AUDIO_ONLY_TYPE || type == VideoMetaCache::VIDEO_AND_AUDIO_TYPE);
 
 		mColorType = theColor;
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen: " << filename, GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight, hasAudioTrack);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight, hasAudioTrack, mCachedDuration);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();
@@ -584,12 +637,12 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		ci::gl::Texture::Format fmt;
 
 		if(mColorType == kColorTypeShaderTransform){
-			fmt.setInternalFormat(GL_LUMINANCE);
-			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-			mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
-			mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			fmt.setInternalFormat(GL_RED);
+			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 		} else {
-			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 
 	}
@@ -606,7 +659,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
-	removeShaders();
 	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 
 	mDrawable = false;
@@ -628,16 +680,19 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
 	std::string name("yuv_colorspace_conversion");
-	addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+	mSpriteShader.setShaders(yuv_vert, yuv_frag, name);// , true);
+	mSpriteShader.loadShaders();
 	ds::gl::Uniform uniform;
 
 	uniform.setInt("gsuTexture0", 2);
 	uniform.setInt("gsuTexture1", 3);
 	uniform.setInt("gsuTexture2", 4);
-	setShadersUniforms("yuv_colorspace_conversion", uniform);
+	uniform.applyTo(mSpriteShader.getShader());
+
+	mNeedsBatchUpdate = true;
 
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
-	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){
+	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight), mStreamingLatency)){
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
 		return;
 	}
@@ -657,12 +712,93 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 
 	ci::gl::Texture::Format fmt;
 	if(mColorType == kColorTypeShaderTransform){
-		fmt.setInternalFormat(GL_LUMINANCE);
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-		mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
-		mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		fmt.setInternalFormat(GL_RED);
+		mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 	} else {
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+	}
+}
+
+void GstVideo::parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight, const ColorType colorSpace, const std::string& videoSinkName /*= "appsink0"*/, const std::string& volumeElementName /*= "volume0"*/, const double secondsDuration /*= -1*/){
+
+	if(fullPipeline.empty()){
+		DS_LOG_WARNING_M("GstVideo::parseLaunch aborting loading a video because of a blank gstreamer pipeline.", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because there was no pipeline.");
+		return;
+	}
+
+	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
+	if(!videoService.getValidInstall()){
+		if(mErrorFn){
+			mErrorFn(videoService.getErrorMessage());
+		}
+	}
+
+	mStreaming = false;
+	mNeedsBatchUpdate = true;
+	mDrawable = false;
+	mColorType = colorSpace;
+
+	if(mColorType == ColorType::kColorTypeShaderTransform){
+		std::string shaderName("yuv_colorspace_conversion");
+		mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
+		mSpriteShader.loadShaders();
+		ds::gl::Uniform uniform;
+
+		uniform.setInt("gsuTexture0", 2);
+		uniform.setInt("gsuTexture1", 3);
+		uniform.setInt("gsuTexture2", 4);
+		uniform.applyTo(mSpriteShader.getShader());
+	} else {
+		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+	}
+
+
+	DS_LOG_INFO_M("GstVideo::parseLaunch() pipeline: " << fullPipeline, GSTREAMER_LOG);
+	mGstreamerWrapper->parseLaunch(fullPipeline, videoWidth, videoHeight, (int)mColorType, videoSinkName, volumeElementName, secondsDuration);
+
+	mVideoSize.x = mGstreamerWrapper->getWidth();
+	mVideoSize.y = mGstreamerWrapper->getHeight();
+	Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
+
+	applyMovieLooping();
+	applyMovieVolume();
+	applyMoviePan(mPan);
+
+	mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
+		if(mVideoCompleteFn) mVideoCompleteFn();
+		if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+			mClientVideoCompleted = true;
+		}
+	});
+
+	// TODO: add error callbacks to the server?
+	mGstreamerWrapper->setErrorMessageCallback([this](const std::string& msg){
+		if(mErrorFn) mErrorFn(msg);
+	});
+
+	if(mDoSyncronization && mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		setNetClock();
+	}
+
+	setStatus(Status::STATUS_PLAYING);
+
+
+	if(mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
+		// this is ok
+	} else {
+		ci::gl::Texture::Format fmt;
+
+		if(mColorType == kColorTypeShaderTransform){
+			fmt.setInternalFormat(GL_RED);
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		} else {
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		}
 	}
 }
 
@@ -839,6 +975,14 @@ void GstVideo::applyMovieLooping(){
 		mGstreamerWrapper->setLoopMode(LOOP);
 	} else {
 		mGstreamerWrapper->setLoopMode(NO_LOOP);
+	}
+}
+
+void GstVideo::setStreamingLatency(const uint64_t latencyNs){
+	mStreamingLatency = latencyNs;
+
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setStreamingLatency(latencyNs);
 	}
 }
 
@@ -1200,9 +1344,10 @@ double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
 
-void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
+void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn, const bool stopAfterFrame){
 	mPlaySingleFrame = true;
 	mPlaySingleFrameFunction = fn;
+	mSingleFrameStop = stopAfterFrame;
 	if(!getIsPlaying()) {
 		play();
 	}
@@ -1232,6 +1377,18 @@ void GstVideo::setAutoExtendIdle(const bool doAutoextend){
 void GstVideo::setAllowOutOfBoundsMuted(const bool allowMuted) {
 	mAllowOutOfBoundsMuted = allowMuted;
 	applyMovieVolume();
+}
+
+void GstVideo::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
+	mGstreamerWrapper->setAudioDevices(audioDevices);
+}
+
+void GstVideo::setAudioDeviceVolume(GstAudioDevice& deviceWithVolume){
+	mGstreamerWrapper->setAudioDeviceVolume(deviceWithVolume);
+}
+
+void GstVideo::setAudioDevicePan(GstAudioDevice& deviceWithPan){
+	mGstreamerWrapper->setAudioDevicePan(deviceWithPan);
 }
 
 GstVideo::Status::Status(int code){

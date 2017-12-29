@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_debug.h"
 
 #include <ds/app/engine/engine.h>
@@ -97,7 +99,7 @@ void TouchDebug::replicate(const ci::app::MouseEvent& eventy, ds::ui::TouchInfo:
 	float radiusy = mFiveTouchRadius;
 
 	for(int k = 0; k < mNumberOfReplicants; ++k) {
-		ci::Vec2f thisPos = ci::Vec2f((float)alteredMouse.getPos().x + radiusy * cos(ci::toRadians(angley)), (float)alteredMouse.getPos().y + radiusy * sin(ci::toRadians(angley)));
+		ci::vec2 thisPos = ci::vec2((float)alteredMouse.getPos().x + radiusy * cos(ci::toRadians(angley)), (float)alteredMouse.getPos().y + radiusy * sin(ci::toRadians(angley)));
 		touches.push_back(ci::app::TouchEvent::Touch(thisPos, thisPos, mTouchId + k, 0.0, nullptr));
 		angley += deltaAngley;
 	}

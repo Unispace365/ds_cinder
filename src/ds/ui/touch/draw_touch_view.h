@@ -38,7 +38,7 @@ private:
 	bool									mCircleFilled;
 	ci::ColorA								mCircleColor;
 
-	std::map<int, std::vector<ci::Vec3f>>	mTouchPointHistory;
+	std::map<int, std::vector<ci::vec3>>	mTouchPointHistory;
 	bool									mTouchTrailsUse;
 	int										mTouchTrailsLength;
 	float									mTouchTrailsIncrement;

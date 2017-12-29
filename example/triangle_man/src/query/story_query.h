@@ -27,3 +27,4 @@ private:
 } // !namespace nwm
 
 #endif //!_TRIANGLE_MAN_APP_QUERY_INDUSTRY_QUERY_H_
+

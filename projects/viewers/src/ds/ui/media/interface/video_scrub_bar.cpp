@@ -29,7 +29,7 @@ VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, con
 	setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){
 		// seek to the relative position, or something
 		if(!getParent() || !mLinkedVideo) return;
-		ci::Vec3f loccy = globalToLocal(ti.mCurrentGlobalPoint);
+		ci::vec3 loccy = globalToLocal(ti.mCurrentGlobalPoint);
 		double newPercent = (double)(loccy.x / getWidth());
 		if(newPercent < 0.0) newPercent = 0.0;
 		if(newPercent > 1.0) newPercent = 1.0;
@@ -60,9 +60,7 @@ void VideoScrubBar::linkVideo(ds::ui::GstVideo* vid){
 	mLinkedVideo = vid;
 }
 
-void VideoScrubBar::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
-
+void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 	if(mLinkedVideo && mProgress){
 		// update scrub bar
 		float progress = (float)mLinkedVideo->getCurrentPosition();

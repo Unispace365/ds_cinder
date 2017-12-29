@@ -18,7 +18,9 @@
 #include <ds/util/file_meta_data.h>
 
 #include "ds/ui/media/media_interface.h"
+#include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/interface/web_interface.h"
+#include "ds/ui/media/interface/pdf_interface.h"
 
 #include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
@@ -117,7 +119,7 @@ void MediaPlayer::setDefaultProperties(){
 	mContentAspectRatio = 1.0;
 	mLayoutFixedAspect = true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	setWebViewSize(ci::Vec2f::zero());
+	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
 }
 
@@ -151,7 +153,7 @@ void MediaPlayer::setDefaultBounds(const float defaultWidth, const float default
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaPlayer::setWebViewSize(const ci::Vec2f webSize){
+void MediaPlayer::setWebViewSize(const ci::vec2 webSize){
 	mMediaViewerSettings.mWebDefaultSize = webSize;
 }
 
@@ -182,22 +184,23 @@ void MediaPlayer::initialize(){
 		if(mMediaViewerSettings.mCacheImages){
 			flags |= Image::IMG_CACHE_F;
 		}
-		mPrimaryImage = new ds::ui::Image(mEngine, mResource, flags);
+		mPrimaryImage = new ds::ui::Image(mEngine);
 		addChildPtr(mPrimaryImage);
-		mPrimaryImage->checkStatus();
-		if(mPrimaryImage->isLoaded()){
-			showThumbnail = false;
-		} else {
-			mPrimaryImage->setOpacity(0.0f);
-			mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
-				if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
-					mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
-					if(mStatusCallback){
-						mStatusCallback(true);
-					}
+
+		mPrimaryImage->setOpacity(0.0f);
+		mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
+			if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
+				mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
+				if(mThumbnailImage){
+					mThumbnailImage->tweenOpacity(0.0f, mAnimDuration);
 				}
-			});
-		}
+				if(mStatusCallback){
+					mStatusCallback(true);
+				}
+			}
+		});
+
+		mPrimaryImage->setImageResource(mResource, flags);
 
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
@@ -221,6 +224,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -244,7 +248,7 @@ void MediaPlayer::initialize(){
 		});
 
 		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-
+		mStreamPlayer->setStreamLatency(mMediaViewerSettings.mVideoStreamingLatency);
 		mStreamPlayer->setResource(mResource);
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
@@ -252,6 +256,7 @@ void MediaPlayer::initialize(){
 		contentHeight = mStreamPlayer->getHeight();
 
 	} else if(mediaType == ds::Resource::PDF_TYPE){
+		showThumbnail = false;
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
 		addChildPtr(mPDFPlayer);
 
@@ -267,6 +272,18 @@ void MediaPlayer::initialize(){
 				mStatusCallback(true);
 			}
 		});
+
+		mPDFPlayer->setSizeChangedCallback([this](const ci::vec2& newSize){
+			//setSize(mPDFPlayer->getWidth(), mPDFPlayer->getHeight());
+			// change this size here?
+			if(mMediaSizeChangedCallback){
+				mContentAspectRatio = newSize.x / newSize.y;
+				mMediaSizeChangedCallback(newSize);
+			} else {
+				mPDFPlayer->layout();
+			}
+		});
+		
 
 		mContentAspectRatio = mPDFPlayer->getWidth() / mPDFPlayer->getHeight();
 		contentWidth = mPDFPlayer->getWidth();
@@ -303,7 +320,6 @@ void MediaPlayer::initialize(){
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
 	}
 
-
 	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
 		int flags = 0;
 		if(mMediaViewerSettings.mCacheImages){
@@ -319,7 +335,7 @@ void MediaPlayer::initialize(){
 		}
 		mThumbnailImage->setOpacity(0.0f);
 		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
-			if(status.mCode == status.STATUS_LOADED && mThumbnailImage){
+			if(status.mCode == status.STATUS_LOADED && mThumbnailImage && mPrimaryImage && !mPrimaryImage->isLoaded()){
 				mThumbnailImage->tweenOpacity(1.0f, mAnimDuration);
 			}
 		});
@@ -456,6 +472,36 @@ void MediaPlayer::stopContent(){
 	}
 }
 
+void MediaPlayer::playContent(){
+	if(mVideoPlayer){
+		mVideoPlayer->play();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->play();
+	}
+}
+
+void MediaPlayer::pauseContent(){
+	if(mVideoPlayer){
+		mVideoPlayer->pause();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->pause();
+	}
+}
+
+void MediaPlayer::toggleMute(){
+	if(mVideoPlayer){
+		mVideoPlayer->toggleMute();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->toggleMute();
+	}
+}
+
 ds::ui::Sprite* MediaPlayer::getPlayer(){
 	if(mVideoPlayer){
 		return mVideoPlayer;
@@ -480,6 +526,26 @@ ds::ui::Sprite* MediaPlayer::getPlayer(){
 	return nullptr;
 }
 
+ds::ui::MediaInterface* MediaPlayer::getMediaInterface(){
+	if(mVideoPlayer){
+		return mVideoPlayer->getVideoInterface();
+	}
+
+	if(mPDFPlayer){
+		return mPDFPlayer->getPDFInterface();
+	}
+
+	if(mStreamPlayer){
+		return mStreamPlayer->getVideoInterface();
+	}
+
+	if(mWebPlayer){
+		return mWebPlayer->getWebInterface();
+	}
+
+	return nullptr;
+}
+
 void MediaPlayer::setErrorCallback(std::function<void(const std::string& msg)> func){
 	mErrorCallback = func;
 }
@@ -492,7 +558,7 @@ void MediaPlayer::setInitializedCallback(std::function<void()> func){
 	mInitializedCallback = func;
 }
 
-void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
+void MediaPlayer::handleStandardClick(const ci::vec3& globalPos){
 	if(mWebPlayer){
 		mWebPlayer->sendClick(globalPos);
 	}
@@ -505,7 +571,7 @@ void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
 }
 
 void MediaPlayer::enableStandardClick(){
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		handleStandardClick(pos);
 	});
 }

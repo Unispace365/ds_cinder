@@ -25,18 +25,6 @@ public:
 	ds::ui::Video*		getVideo() const;
 	void				resetCamera();
 
-	// set the spherical coordinate (in degrees).
-	void				setSphericalCoord(float theta, float phi);
-
-	void				lookFront(){	setSphericalCoord(90.0f, 0); }
-	void				lookBack(){		setSphericalCoord(-90.0f, 0); }
-	void				lookUp(){		setSphericalCoord(0, 0); }
-	void				lookDown(){		setSphericalCoord(180.0f, 0); }
-	void				lookRight(){	setSphericalCoord(90.0f, -90.0f); }
-	void				lookLeft(){		setSphericalCoord(90.0f, 90.0f); }
-
-	float				getTheta() const { return mSphericalAngles.x; }
-	float				getPhi() const { return mSphericalAngles.y; }
 
 	// Sets how fast dragging around is. Higher numbers are slower panning, lower numbers are faster
 	// Default = 5.0f
@@ -45,7 +33,7 @@ public:
 	// Sets the drag direction, default x=false, y=true
 	void				setDragInvert(const bool xInvert, const bool yInvert);
 
-	void				handleDrag(const ci::Vec2f& deltaPos);
+	void				handleDrag(const ci::vec2& deltaPos);
 
 	void				setFOV(const float fov);
 
@@ -63,19 +51,21 @@ protected:
 	virtual void		writeAttributesTo(ds::DataBuffer&);
 	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
+	virtual void		onBuildRenderBatch() override;
+
 private:
 	ds::ui::Video*		mVideoSprite;
-	ci::gl::Texture*	mVideoTexture;
 
-	ci::gl::GlslProgRef	mShader;
 	ci::CameraPersp     mCamera;
-	ci::Sphere          mSphere;
-	ci::Vec2f			mSphericalAngles; // x is theta and y is phi
+	ci::gl::VboMeshRef	mSphereVbo;
 
 	bool				mInvertX;
 	bool				mInvertY;
 	float				mXSensitivity;
 	float				mYSensitivity;
+
+	float				mXRot;
+	float				mYRot;
 	float				mFov;
 
 	float				mPanning;

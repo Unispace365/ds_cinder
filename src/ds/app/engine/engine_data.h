@@ -35,25 +35,15 @@ public:
 	float					mSwipeMinVelocity;
 	float					mSwipeMaxTime;
 	float					mDoubleTapTime;
-	ci::Rectf				mScreenRect;
-	ci::Vec2f				mWorldSize;
+	ci::vec2				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
-	bool					mUsingDefaults; // if no settings file loaded, use all default settings
 	std::string				mAppInstanceName;
 
 	// The source rect in world bounds and the destination
-	// local rect. Together these should obsolete mScreenRect.
-	// The dest local rect.
+	// local rect.
 	ci::Rectf				mSrcRect,
 							mDstRect;
-
-	// A map of slices of the world to render.
-	// this is a special case of rendering and if this
-	// vector is non-empty then both mSrcRect and
-	// mDstRect match the world size.
-	std::vector < std::pair<ci::Area, ci::Rectf> >
-							mWorldSlices;
 
 	// Volume control for the whole app 
 

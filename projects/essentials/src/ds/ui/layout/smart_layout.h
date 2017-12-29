@@ -4,9 +4,8 @@
 
 
 #include <ds/ui/layout/layout_sprite.h>
-#include <ds/app/event_notifier.h>
-#include <ds/app/event_client.h>
-#include <ds/data/resource.h>
+#include <ds/ui/sprite/sprite.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds {
 namespace ui {
@@ -74,7 +73,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 
 	/// Set the tap function on a sprite named spriteName
 	void setSpriteTapFn(const std::string& spriteName,
-						const std::function<void(ds::ui::Sprite*, const ci::Vec3f&)>& tapCallback);
+						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
 	// Build => Run Animations on children
 	// this->addAnimation(name, duration, delay).size(elementName, to, delay=0).opacity(elementName, to,

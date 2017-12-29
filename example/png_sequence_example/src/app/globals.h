@@ -35,3 +35,4 @@ public:
 } // !namespace example
 
 #endif // !_PNGSEQUENCEEXAMPLE_APP_GLOBALS_
+

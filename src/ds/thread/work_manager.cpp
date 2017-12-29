@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/thread/work_manager.h"
 
 #include <algorithm>
@@ -5,9 +7,9 @@
 #include "ds/thread/work_client.h"
 
 using namespace ds;
-using namespace std;
+//using namespace std;
 
-static const string					WORK_THREAD_NAME("ds_work");
+static const std::string					WORK_THREAD_NAME("ds_work");
 
 /**
  * \class ds::WorkManager
@@ -46,7 +48,7 @@ void WorkManager::removeClient(WorkClient& c)
 	}
 }
 
-bool WorkManager::sendRequest(std::unique_ptr<WorkRequest>& upR, Poco::Timestamp* sendTime)
+bool WorkManager::sendRequest(std::unique_ptr<WorkRequest> upR, Poco::Timestamp* sendTime)
 {
 	if (!upR.get()) return false;
 	// Push new input onto the stack

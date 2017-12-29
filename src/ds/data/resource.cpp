@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/resource.h"
 
 #include <iostream>
@@ -21,6 +23,7 @@ const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
 const std::string		VIDEO_STREAM_TYPE_SZ("vs");
 const std::string		WEB_TYPE_SZ("w");
+const std::string		ZIP_TYPE_SZ("z");
 
 // This gets reduced to being a video type; here to support B&R CMSs, which
 // can't have audio files that are typed as video.
@@ -35,6 +38,7 @@ const std::wstring		PDF_NAME_SZ(L"pdf");
 const std::wstring		VIDEO_NAME_SZ(L"video");
 const std::wstring		VIDEO_STREAM_NAME_SZ(L"video stream");
 const std::wstring		WEB_NAME_SZ(L"web");
+const std::wstring		ZIP_NAME_SZ(L"zip");
 const std::wstring		ERROR_NAME_SZ(L"error");
 }
 
@@ -207,7 +211,8 @@ const std::string& Resource::Id::getDatabasePath() const
 }
 
 const std::string& Resource::Id::getPortableResourcePath() const {
-	if (mType == CMS_TYPE)		return CMS_PORTABLE_RESOURCE_PATH;
+	if(mType == CMS_TYPE)		return CMS_PORTABLE_RESOURCE_PATH;
+	if(mType <= CUSTOM_TYPE && CUSTOM_RESOURCE_PATH) return CUSTOM_RESOURCE_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -218,17 +223,20 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 	{
 		Poco::Path      p(resource);
 		p.append(db);
-		CMS_DB_PATH = p.toString();
+		CMS_DB_PATH = getNormalizedPath(p);
 	}
 
 	// Portable path. We want it as small as possible to ease network traffic.
 	std::string			local = ds::Environment::expand("%LOCAL%");
+	Poco::Path 			cmsPortableResourcePath;
 	if (boost::starts_with(resource, local)) {
-		CMS_PORTABLE_RESOURCE_PATH = "%LOCAL%" + resource.substr(local.size());
+		cmsPortableResourcePath = "%LOCAL%";
+		cmsPortableResourcePath.append(resource.substr(local.size()));
 	} else {
 		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
-		CMS_PORTABLE_RESOURCE_PATH = resource;
+		cmsPortableResourcePath =  resource;
 	}
+	CMS_PORTABLE_RESOURCE_PATH = ds::getNormalizedPath(cmsPortableResourcePath);
 
 	// If the project path exists, then setup our app-local resources path.
 	if (!projectPath.empty()) {
@@ -236,7 +244,7 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		p.append("resources");
 		p.append(projectPath);
 		p.append("app");
-		APP_RESOURCE_PATH = p.toString();
+		APP_RESOURCE_PATH = ds::getNormalizedPath(p);
 
 		p.append("db");
 		p.append("db.sqlite");
@@ -267,7 +275,7 @@ void Resource::Id::setupCustomPaths( const std::function<const std::string&(cons
 Resource Resource::fromImage(const std::string& full_path) {
 	Resource		r;
 	r.mType = IMAGE_TYPE;
-	r.mLocalFilePath = full_path;
+	r.mLocalFilePath = ds::getNormalizedPath(full_path);
 	ImageMetaData	meta(full_path);
 	r.mWidth = meta.mSize.x;
 	r.mHeight = meta.mSize.y;
@@ -312,8 +320,9 @@ Resource::Resource(const std::string& fullPath)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullPath)
+	, mLocalFilePath("")
 {
+	setLocalFilePath(fullPath);
 }
 
 Resource::Resource(const std::string& fullPath, const int type)
@@ -325,8 +334,9 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullPath)
+	, mLocalFilePath("")
 {
+	setLocalFilePath(fullPath);
 }
 
 Resource::Resource(const std::string& localFullPath, const float width, const float height)
@@ -338,7 +348,9 @@ Resource::Resource(const std::string& localFullPath, const float width, const fl
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(localFullPath){
+	, mLocalFilePath("")
+{
+	setLocalFilePath(localFullPath);
 }
 
 Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
@@ -354,8 +366,10 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 	, mThumbnailId(thumbnailId)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullFilePath)
-{}
+	, mLocalFilePath("")
+{
+	setLocalFilePath(fullFilePath);
+}
 	
 
 bool Resource::operator==(const Resource& o) const {
@@ -373,9 +387,18 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_NAME_SZ;
 	else if (mType == PDF_TYPE) return PDF_NAME_SZ;
 	else if (mType == VIDEO_TYPE) return VIDEO_NAME_SZ;
-	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
+	else if (mType == ZIP_TYPE) return ZIP_NAME_SZ;
+	else if (mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
 	return ERROR_NAME_SZ;
+}
+
+void Resource::setLocalFilePath(const std::string& localPath) {
+	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE){
+		mLocalFilePath = localPath;
+	} else {
+		mLocalFilePath = ds::getNormalizedPath(localPath);
+	}
 }
 
 std::string Resource::getAbsoluteFilePath() const {
@@ -386,7 +409,7 @@ std::string Resource::getAbsoluteFilePath() const {
 	Poco::Path        p(mDbId.getResourcePath());
 	if (p.depth() < 1) return EMPTY_SZ;
 	p.append(mPath).append(mFileName);
-	return p.toString();
+	return ds::getNormalizedPath(p);
 }
 
 std::string Resource::getPortableFilePath() const {
@@ -394,10 +417,13 @@ std::string Resource::getPortableFilePath() const {
 
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;
-	Poco::Path        p(mDbId.getPortableResourcePath());
-	if (p.depth() < 1) return EMPTY_SZ;
+	auto reccyPath = mDbId.getPortableResourcePath();
+	Poco::Path        p(reccyPath);
+	if(p.depth() < 1){
+		return EMPTY_SZ;
+	}
 	p.append(mPath).append(mFileName);
-	return p.toString();
+	return ds::getNormalizedPath(p);
 }
 
 void Resource::clear() {
@@ -488,6 +514,7 @@ const int Resource::makeTypeFromString(const std::string& typeChar){
 	else if(VIDEO_TYPE_SZ == typeChar) return VIDEO_TYPE;
 	else if(VIDEO_STREAM_TYPE_SZ == typeChar) return VIDEO_STREAM_TYPE;
 	else if(WEB_TYPE_SZ == typeChar) return WEB_TYPE;
+	else if(ZIP_TYPE_SZ == typeChar) return ZIP_TYPE;
 	else if(AUDIO_TYPE_SZ == typeChar) return VIDEO_TYPE;
 	else return ERROR_TYPE;
 }
@@ -500,7 +527,9 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 		return ds::Resource::ERROR_TYPE;
 	}
 
-	if(newMedia.find("http") == 0){
+	auto htmlFind = newMedia.find(".html");
+	auto htmlEnd = newMedia.size() - 5;
+	if(newMedia.find("http") == 0 || htmlFind == htmlEnd || newMedia.find("ftp://") == 0 || newMedia.find("ftps://") == 0){
 		return ds::Resource::WEB_TYPE;
 	}
 
@@ -532,6 +561,8 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 	} else if(extensionay.find("ttf") != std::string::npos
 				|| extensionay.find("otf") != std::string::npos){
 		return ds::Resource::FONT_TYPE;
+	} else if(extensionay.find("zip") != std::string::npos){
+		return ds::Resource::ZIP_TYPE;
 	} else if(extensionay.find("mov") != std::string::npos
 			  || extensionay.find("mp4") != std::string::npos
 			  || extensionay.find("mp3") != std::string::npos
@@ -562,6 +593,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("ts") != std::string::npos
 			  || extensionay.find("vob") != std::string::npos
 			  || extensionay.find("m4a") != std::string::npos
+			  || extensionay.find("mxf") != std::string::npos
 			  ){
 		return ds::Resource::VIDEO_TYPE;
 	} else {

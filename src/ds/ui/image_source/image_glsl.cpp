@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_glsl.h"
 
 #include <cinder/Surface.h>
@@ -40,12 +42,12 @@ public:
 		return !d.empty();
 	}
 
-	const ci::gl::Texture*		getImage() {
-		if (!mTexture) {
+	const ci::gl::TextureRef	getImage() {
+		if (!mTextureRef) {
 			float				fade(1.0f);
-			mTexture = mToken.getImage(fade);
+			mTextureRef = mToken.getImage(fade);
 		}
-		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
+		if(mTextureRef && mTextureRef->getWidth() > 0 && mTextureRef->getHeight() > 0) return mTextureRef;
 		return nullptr;
 	}
 
@@ -86,7 +88,7 @@ private:
 	std::string				mVertexFilename,
 							mFragmentFilename;
 	ds::gl::Uniform			mUniform;
-	ci::gl::Texture			mTexture;
+	ci::gl::TextureRef		mTextureRef;
 
 };
 

@@ -123,8 +123,8 @@ bool RecycleArray<T>::setSize(const int newSize)
 		mSize = newSize;
 		return true;
 	}
-	const int	newAlloc = newSize + mGrowBy;
-	T*			newD = (T*)realloc(mD, sizeof(T)*newAlloc);
+	const int		newAlloc = newSize + mGrowBy;
+	T*				newD = (T*)realloc(mD, sizeof(T)*newAlloc);
 	if(newD == NULL) return false;
 
 	mD = newD;
@@ -180,7 +180,7 @@ bool RecycleArray<T>::add(const T& t)
 		mD[mSize++] = t;
 		return true;
 	}
-	const int		oldSize = mSize;
+	const int oldSize = mSize;
 	if(!setSize(mSize + 1)) return false;
 	mD[oldSize] = t;
 	return true;
@@ -235,9 +235,9 @@ T RecycleArray<T>::popAt(const int index)
 template <class T>
 void RecycleArray<T>::swap(RecycleArray<T>& o)
 {
-	T*			d = mD;			mD = o.mD;			o.mD = d;
-	const int	s = mSize;		mSize = o.mSize;	o.mSize = s;
-	const int	a = mAlloc;		mAlloc = o.mAlloc;	o.mAlloc = a;
+	T*				d = mD;			mD = o.mD;			o.mD = d;
+	const int		s = mSize;		mSize = o.mSize;	o.mSize = s;
+	const int		a = mAlloc;		mAlloc = o.mAlloc;	o.mAlloc = a;
 }
 
 template <class T>

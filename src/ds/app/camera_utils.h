@@ -5,30 +5,41 @@
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
-#include <cinder/Matrix22.h>
+#include <cinder/Matrix.h>
 #include <cinder/Matrix33.h>
 #include <cinder/Matrix44.h>
 
 namespace ds {
+namespace ui {
+class SpriteEngine;
+class Sprite;
+} // namespace ui
 
 /**
  * \class ds::CameraPick
  * Utility for picking a sprite.
  */
-class CameraPick
-{
-	public:
-		CameraPick(	ci::Camera&, const ci::Vec3f& screenPt,
-								const float screenWidth, const float screenHeight);
+class CameraPick {
+public:
+	CameraPick( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint )
+		: mPickRay( calculatePickRay(engine, cameraPersp, worldTouchPoint) )
+		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
+	{}
+	// Takes an additional viewport argument, to enable 3d picking for arbitrary 3d viewports
+	CameraPick( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport , const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint )
+		: mPickRay( calculatePickRay(engine, viewport, cameraPersp, worldTouchPoint) )
+		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
+	{}
 
-		const ci::Vec3f&		getScreenPt() const;
-		ci::Vec2f				worldToScreen(const ci::Vec3f &worldCoord) const;
+	const bool					testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const;
+	const float					calcHitDepth( const ci::vec3& hitWorldPos ) const;
 
-  private:
-		ci::Camera&				mCamera;
-		const ci::Vec3f			mScreenPt;
-		const float				mScreenW,
-								mScreenH;
+	static const ci::Ray		calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint );
+	static const ci::Ray		calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint );
+
+protected:
+	const ci::Ray				mPickRay;
+	const ci::vec3				mCameraDirection;
 };
 
 /**
@@ -46,13 +57,13 @@ class ScreenToWorld
 		void					setScreenSize(const float width, const float height);
 		void					update();
 
-		ci::Vec3f				translate(const ci::Vec3f&);
+		ci::vec3				translate(const ci::vec3&);
 
   private:
-		ci::Vec3f				unproject(const ci::Vec3f&);
+		ci::vec3				unproject(const ci::vec3&);
 
-		ci::Matrix44f			mModelView;
-		ci::Matrix44f			mProjection;
+		ci::mat4			mModelView;
+		ci::mat4			mProjection;
 		ci::Area				mViewport;
 		ci::Rectf				mWindowSize;
 };

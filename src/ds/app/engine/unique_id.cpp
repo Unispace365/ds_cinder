@@ -1,23 +1,17 @@
-// Turn off an unnecessary warning in the boost GUID
-#define _SCL_SECURE_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include "stdafx.h"
 
-#include <boost/asio.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+
+#include <cinder/Rand.h>
+#include <string>
+#include <sstream>
 
 namespace ds {
 
 std::string					get_unique_id() {
 	std::stringstream		buf;
-	boost::uuids::uuid		uuid = boost::uuids::random_generator()();
-	// I stuff the machine name in there solely so it's easier to identify a
-	// problem machine when this gets used in an error report. It's entirely
-	// possible that in practice, the machine name is the only thing needed,
-	// but we'll play it safe.
-	buf << boost::asio::ip::host_name() << "-" << uuid;
+	auto compName = getenv("COMPUTERNAME");
+	ci::Rand::randSeed((uint32_t)std::time(0));
+	buf << compName << "-" << ci::randInt();
 	return buf.str();
 }
-
 } // namespace ds

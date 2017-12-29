@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "soft_keyboard_button.h"
 
 #include <ds/app/engine/engine_cfg.h>
@@ -46,7 +48,7 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 		mTextOffset = softKeySettings.mKeyTextOffset;
 	}
 
-	if(mKeyType == SoftKeyboardDefs::kNumber){
+	if(mKeyType == SoftKeyboardDefs::kNumber || mKeyType == SoftKeyboardDefs::kFunction || mKeyType == SoftKeyboardDefs::kArrow || mKeyType == SoftKeyboardDefs::kEscape){
 		getNormalImage().setImageFile(softKeySettings.mKeyNumberUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyNumberDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kLetter){
@@ -55,13 +57,14 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 	} else if(mKeyType == SoftKeyboardDefs::kSpace){
 		getNormalImage().setImageFile(softKeySettings.mKeySpaceUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeySpaceDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kDelete){
+	} else if(mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete){
 		getNormalImage().setImageFile(softKeySettings.mKeyDeleteUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyDeleteDnImage, ds::ui::Image::IMG_CACHE_F);
+
 	} else if(mKeyType == SoftKeyboardDefs::kShift){
 		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom){
+	} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom || mKeyType == SoftKeyboardDefs::kSpecial ){
 		getNormalImage().setImageFile(softKeySettings.mKeyTabUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyTabDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kEnter){
@@ -110,6 +113,14 @@ void SoftKeyboardButton::layout(){
 		}
 
 		mText->setPosition(getWidth() / 2.0f - mText->getWidth() / 2.0f + mTextOffset.x, getHeight() / 2.0f - mText->getHeight() / 2.0f + mTextOffset.y);
+	}
+
+
+	if(mKeyType == SoftKeyboardDefs::kFwdDelete){
+		getNormalImage().setRotation(180.0f);
+		getNormalImage().setPosition(getNormalImage().getWidth(), getNormalImage().getHeight());
+		getHighImage().setRotation(180.0f);
+		getHighImage().setPosition(getNormalImage().getWidth(), getNormalImage().getHeight());
 	}
 }
 

@@ -4,6 +4,8 @@
 
 #include <ds/app/engine/engine_service.h>
 #include <ds/app/auto_update.h>
+#include <memory>
+#include <thread>
 
 #include "web_callbacks.h"
 #include "web_app.h"
@@ -70,7 +72,7 @@ public:
 	void					loadUrl(const int browserId, const std::string& newUrl);
 
 	// Asynchronously resizes the browser. After the resize is complete, a new paint callback will come through at the correct size
-	void					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
+	void					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 
 	// Request the browser to go forwards in history (if it can)
 	void					goForwards(const int browserId);
@@ -88,8 +90,15 @@ public:
 	void					setZoomLevel(const int browserId, const double newZoomLevel);
 	double					getZoomLevel(const int browserId);
 
+	void					authCallbackCancel(const int browserId);
+	void					authCallbackContinue(const int browserId, const std::string& username, const std::string& password);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
+#ifndef _WIN32
+	std::shared_ptr<std::thread>
+							mCefMessageLoopThread;
+#endif
 
 private:
 	CefRefPtr<WebApp>		mCefSimpleApp;

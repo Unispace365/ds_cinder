@@ -3,8 +3,8 @@
 	<!-- Standard animation duration, in seconds. -->
 	<float name="animation:duration" value="0.4" />
 	
-	<float name="globe:radius" value="500" />
-	<int   name="globe:mesh_resolution" value="45" />
+	<float name="globe:radius" value="400" />
+	<int   name="globe:mesh_resolution" value="120" />
 	<float name="globe:touch_speed_divisor" value="5" />
 	
 </settings>

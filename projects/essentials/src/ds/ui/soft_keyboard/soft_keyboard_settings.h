@@ -17,7 +17,7 @@ public:
 	SoftKeyboardSettings()
 		: mKeyTouchPadding(4.0f)
 		, mKeyInitialPosition(0.0f, 0.0f)
-		, mKeyTextOffset(-5.0f, -5.0f)
+		, mKeyTextOffset(0.0f, 0.0f)
 		, mKeyUpColor(1.0f, 1.0f, 1.0f)
 		, mKeyDownColor(0.5f, 0.5f, 0.5f)
 		, mKeyLetterDnImage("%APP%/data/images/keyboard/Normal.png")
@@ -84,11 +84,11 @@ public:
 		}
 	}
 
-	ci::Vec2f			mKeyInitialPosition;
+	ci::vec2			mKeyInitialPosition;
 
 	std::string			mKeyUpTextConfig;
 	std::string			mKeyDnTextConfig;
-	ci::Vec2f			mKeyTextOffset;
+	ci::vec2			mKeyTextOffset;
 	ci::Color			mKeyDownColor;
 	ci::Color			mKeyUpColor;
 	float				mKeyTouchPadding;

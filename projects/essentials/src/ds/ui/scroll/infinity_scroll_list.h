@@ -19,7 +19,7 @@ namespace ds{
 			void								setContent(const std::vector<int>& dbIds);
 
 			// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
-			void								setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::Vec3f& cent)> &func);
+			void								setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::vec3& cent)> &func);
 
 			// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
 			void								setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func);
@@ -119,7 +119,7 @@ namespace ds{
 			Poco::Timestamp::TimeVal			mLastUpdateTime;
 
 
-			std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)>	mItemTappedCallback;
+			std::function<void(ds::ui::Sprite*, const ci::vec3& cent)>	mItemTappedCallback;
 			std::function<ds::ui::Sprite* ()>							mCreateItemCallback;
 			std::function<void(ds::ui::Sprite*, const int dbId)>		mSetDataCallback;
 			std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;

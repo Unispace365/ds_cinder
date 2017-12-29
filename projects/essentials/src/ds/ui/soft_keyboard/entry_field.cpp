@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "entry_field.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
@@ -18,7 +20,7 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	, mInFocus(false)
 	, mCursorIndex(0)
 {
-	mTextSprite = new ds::ui::MultilineText(engine);
+	mTextSprite = new ds::ui::Text(engine);
 	addChildPtr(mTextSprite);
 
 	mCursor = new ds::ui::Sprite(engine);
@@ -96,24 +98,70 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 	std::wstring currentCharacter = keyCharacter;
 	std::wstring currentFullText = getCurrentText();
 
-	if(mCursorIndex == currentFullText.size()){
+	/// Arrow keys
+	if(keyType == SoftKeyboardDefs::kArrow){
+		if(keyCharacter == L"<" || keyCharacter == L"^"){
+			mCursorIndex--;
+		} else if(keyCharacter == L">" || keyCharacter == L"v"){
+			mCursorIndex++;
+		}
+		cursorUpdated();
+
+	/// Ignore function keys (F1 - F12) 
+	} else if(keyType == SoftKeyboardDefs::kFunction){
+	} else if(keyType == SoftKeyboardDefs::kSpecial){
+		if(keyCharacter == L"Home" || keyCharacter == L"PgUp"){
+			mCursorIndex = 0;
+			cursorUpdated();
+		} else if(keyCharacter == L"End" || keyCharacter == L"PgDn"){
+			mCursorIndex = currentFullText.size();
+			cursorUpdated();
+		}
+
+
+	/// If the cursor is at the end, add text to the end
+	} else if(mCursorIndex == currentFullText.size()){
+
 		handleKeyPressGeneric(keyType, currentCharacter, currentFullText);
 
 		setCurrentText(currentFullText);
+		
+
+	/// If End or PgDn was clicked, move the cursor to the end
+	
+	/// The cursor is not at the end, handle 'inserts'
 	} else {
+
 
 		std::wstring preString = currentFullText.substr(0, mCursorIndex);
 		std::wstring posString = currentFullText.substr(mCursorIndex);
-		handleKeyPressGeneric(keyType, currentCharacter, preString);
+
+		/// delete forwards
+		if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete){
+			if(!posString.empty()){
+				posString = posString.substr(1);
+			}
+
+		/// insert normal text or backspace
+		} else {
+			handleKeyPressGeneric(keyType, currentCharacter, preString);
+		}
+
 		std::wstringstream wss;
 		wss << preString << posString;
-		
+
 		mCurrentText = wss.str();
 		applyText(wss.str());
 
 		if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-			mCursorIndex--;
-		} else if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+			if(!mCurrentText.empty()){
+				mCursorIndex--;
+			}
+
+			// cursor index stays the same
+		} else if(keyType == SoftKeyboardDefs::kShift 
+				  || keyType == SoftKeyboardDefs::kFwdDelete
+				  ){
 			// nothin!
 		} else {
 			mCursorIndex++;
@@ -181,10 +229,11 @@ void EntryField::textUpdated(){
 
 void EntryField::cursorUpdated(){
 	if(mTextSprite && mCursor){
+		if(mCursorIndex < 0) mCursorIndex = 0;
 		if(mCursorIndex > getCurrentText().size()){
 			mCursorIndex = getCurrentText().size();
 		}
-		ci::Vec2f cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
+		ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
 		mCursor->setPosition(cursorPos.x + mEntryFieldSettings.mCursorOffset.x, cursorPos.y + mEntryFieldSettings.mCursorOffset.y);
 	}
 }
@@ -193,8 +242,8 @@ void EntryField::cursorUpdated(){
 void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 
 	if(ti.mPhase != ds::ui::TouchInfo::Removed && mTextSprite){
-		ci::Vec3f loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
-		mCursorIndex = mTextSprite->getCharacterIndexForPosition(loccy.xy());
+		ci::vec3 loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
+		mCursorIndex = mTextSprite->getCharacterIndexForPosition(ci::vec2(loccy));
 
 		cursorUpdated();
 	}

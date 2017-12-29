@@ -1,13 +1,12 @@
 #include "panoramicvideo_app.h"
 
-#include <Poco/String.h>
+//#include <Poco/String.h>
+
 #include <ds/app/environment.h>
-#include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
-#include <ds/ui/media/media_viewer.h>
+//#include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -16,6 +15,7 @@
 
 #include "ui/video_list.h"
 #include "ui/panoramic_view.h"
+//#include <ds/debug/logger.h>
 
 namespace panoramic {
 
@@ -28,8 +28,8 @@ PanoramicVideo::PanoramicVideo()
 
 								.persp() 
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -43,8 +43,8 @@ PanoramicVideo::PanoramicVideo()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-thin");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -70,10 +70,10 @@ void PanoramicVideo::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -101,9 +101,9 @@ void PanoramicVideo::setupServer(){
 	mTouchMenu->setMenuConfig(tmc);
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
-//	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::Vec3f){ std::exit(0); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Show Video List", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::Vec3f p){ mEngine.getNotifier().notify(RequestVideoList(p)); }));
+//	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3){ std::exit(0); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Show Video List", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::vec3 p){ mEngine.getNotifier().notify(RequestVideoList(p)); }));
 
 	mTouchMenu->setMenuItemModels(menuItemModels);
 
@@ -174,13 +174,14 @@ void PanoramicVideo::fileDrop(ci::app::FileDropEvent event){
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		//paths.push_back((*it).string());
 
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
+	//	ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
+	//	mv->initialize();
+	//	mEngine.getRootSprite().addChildPtr(mv);
 	}
 }
 
 } // namespace panoramic
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(panoramic::PanoramicVideo, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(panoramic::PanoramicVideo, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

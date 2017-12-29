@@ -11,6 +11,8 @@ class ImageButton;
 class Text;
 class Web;
 class SoftKeyboard;
+class EntryField;
+class LayoutSprite;
 
 /**
 * \class ds:ui:::WebInterface
@@ -18,7 +20,7 @@ class SoftKeyboard;
 */
 class WebInterface : public MediaInterface  {
 public:
-	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	virtual void				animateOff();
 
@@ -30,6 +32,15 @@ public:
 	void						setKeyboardAbove(const bool kerboardAbove);
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
+	
+	/// If true, will keep the interface onscreen when the keyboard is on
+	/// If false, will allow timeouts when the keyboard is on (note: recommend to use this with setCanTimeout(false) on the base MediaInterface to persist the interface)
+	void						setKeyboardDisablesTimeout(const bool doAutoTimeout);
+
+	/// The browser has request a login (like when you hit an ftp site)
+	void						startAuthCallback(const std::string& host, const std::string& realm);
+	void						cancelAuth();
+	void						authComplete();
 
 protected:
 
@@ -43,6 +54,7 @@ protected:
 	bool						mKeyboardShowing;
 	bool						mKeyboardAllowed;
 	bool						mKeyboardAbove;
+	bool						mKeyboardAutoDisablesTimeout;
 
 	float						mKeyboardKeyScale;
 
@@ -54,6 +66,11 @@ protected:
 	ds::ui::ImageButton*		mForwardButton;
 	ds::ui::ImageButton*		mRefreshButton;
 	ds::ui::ImageButton*		mTouchToggle;
+
+	bool						mAuthorizing;
+	ds::ui::LayoutSprite*		mAuthLayout;
+	ds::ui::EntryField*			mUserField;
+	ds::ui::EntryField*			mPasswordField;
 
 };
 

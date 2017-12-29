@@ -37,8 +37,6 @@ public:
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
-	
-	virtual ~Image();
 
 	/// @note calls Image::setSizeAll(...) internally.
 	/// @see Image::setSizeAll(...)
@@ -66,6 +64,8 @@ public:
 
 protected:
 
+	virtual void				onBuildRenderBatch() override;
+
 	/// @brief override this if you override isLoaded() and there are additional resources to load after isLoaded() returns true
 	virtual bool				isLoadedPrimary() const;
 
@@ -75,8 +75,8 @@ protected:
 	virtual void				onImageLoaded() {}
 	virtual void				onImageUnloaded() {}
 
-	void						updateServer(const UpdateParams&) override;
-	void						updateClient(const UpdateParams&) override;
+	void						onUpdateServer(const UpdateParams&) override;
+	void						onUpdateClient(const UpdateParams&) override;
 	void						drawLocalClient() override;
 	void						writeAttributesTo(ds::DataBuffer&) override;
 	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;

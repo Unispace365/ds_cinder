@@ -1,4 +1,6 @@
-#include "Automator.h"
+#include "stdafx.h"
+
+#include "automator.h"
 
 #include <cinder/Rand.h>
 
@@ -18,7 +20,7 @@ Automator::Automator(ds::ui::SpriteEngine& engine, const std::string& watermarkT
 	, mActive(false)
 	, mWatermark(nullptr)
 	, mWatermarkConfig(watermarkTextConfig)
-	, mFrame(0.0f, 0.0f, 1.0f, 1.0f)
+	, mFrame(0.0f, 0.0f, mEngine.getWorldWidth(), mEngine.getWorldHeight())
 	, mPeriod(0.016f)
 	, mTotal(0.0f)
 	, mFingerMax(128)
@@ -47,9 +49,9 @@ void Automator::addFactory(const std::shared_ptr<BaseActionFactory>& fac){
 		mFactory.push_back(Factory());
 		mFactory.back().mFactory = fac;
 		// Assign everyone to a bucket for random selection.
-		const int			size = mFactory.size();
+		const size_t		size = mFactory.size();
 		float				min = 0;
-		for(int k = 0; k < size; ++k) {
+		for(size_t k = 0; k < size; ++k) {
 			Factory&		f = mFactory[k];
 			f.mMin = min;
 			f.mMax = float(k + 1) / float(size);
@@ -149,7 +151,7 @@ void Automator::clear(){
 	mActive = false;
 	std::vector<ci::app::TouchEvent::Touch> touches;
 	for(int i = 0; i < mFingerMax; ++i){
-		touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f::zero(), ci::Vec2f::zero(), i, 0.0, nullptr));
+		touches.push_back(ci::app::TouchEvent::Touch(ci::vec2(), ci::vec2(), i, 0.0, nullptr));
 	}
 	mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 

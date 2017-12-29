@@ -19,3 +19,4 @@ public:
 } // !namespace nwm
 
 #endif // !_TRIANGLE_MAN_APP_APPEVENTS_H_
+

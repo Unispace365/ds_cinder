@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "app_defs.h"
 
 #include "ds/app/engine/engine.h"
@@ -56,12 +58,12 @@ RootList& RootList::perspFov(const float v) {
 	return *this;
 }
 
-RootList& RootList::perspPosition(const ci::Vec3f& pt) {
+RootList& RootList::perspPosition(const ci::vec3& pt) {
 	if (!mRoots.empty()) mRoots.back().mPersp.mPosition = pt;
 	return *this;
 }
 
-RootList& RootList::perspTarget(const ci::Vec3f& pt) {
+RootList& RootList::perspTarget(const ci::vec3& pt) {
 	if (!mRoots.empty()) mRoots.back().mPersp.mTarget = pt;
 	return *this;
 }

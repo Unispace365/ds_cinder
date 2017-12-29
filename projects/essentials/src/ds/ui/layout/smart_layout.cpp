@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "smart_layout.h"
 
 #include <ds/app/environment.h>
@@ -5,10 +7,7 @@
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
-#include <ds/ui/sprite/multiline_text.h>
 #include <ds/util/string_util.h>
-#include <ds/app/engine/engine_cfg.h>
-#include <ds/ui/sprite/image.h>
 
 
 namespace ds {
@@ -54,13 +53,9 @@ void SmartLayout::setSpriteText(const std::string& spriteName, const std::string
 
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
-	ds::ui::MultilineText* sprM = getSprite<ds::ui::MultilineText>(spriteName);
 
 	if (spr) {
 		spr->setText(theText);
-		runLayout();
-	} else if (sprM) {
-		sprM->setText(theText);
 		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
@@ -101,7 +96,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 }
 
 void SmartLayout::setSpriteTapFn(const std::string& spriteName,
-								 const std::function<void(ds::ui::Sprite*, const ci::Vec3f&)>& tapCallback) {
+								 const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback) {
 	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && tapCallback) {
 		spr->enable(true);

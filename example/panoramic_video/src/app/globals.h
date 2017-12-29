@@ -45,3 +45,4 @@ private:
 } // !namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_GLOBALS_
+

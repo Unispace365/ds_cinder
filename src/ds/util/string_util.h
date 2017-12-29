@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <cinder/Vector.h>
+#include <cinder/Rect.h>
 
 namespace ds {
 
@@ -111,13 +112,17 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 
 /// Parses a string into a 3d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
 /// Defaults parameters to 0 if they don't exist.
-ci::Vec3f parseVector(const std::string &s);
+ci::vec3 parseVector(const std::string &s);
 
-/// The inverse of parseVector. For an input of ci::Vec3f(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
-std::string unparseVector(const ci::Vec3f& v);
+/// Parses a string into a rectangle. Example: size="400, 400, 0, 0", where it's "L, T, W, H" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::Rectf parseRect(const std::string &s);
 
-/// The inverse of parseVector. For an input of ci::Vec2f(123.0f, 0.0f) returns "123.0, 0.0"
-std::string unparseVector(const ci::Vec2f& v);
+/// The inverse of parseVector. For an input of ci::vec3(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
+std::string unparseVector(const ci::vec3& v);
+
+/// The inverse of parseVector. For an input of ci::vec2f(123.0f, 0.0f) returns "123.0, 0.0"
+std::string unparseVector(const ci::vec2& v);
 
 /// Parse true/false from a string. 
 bool parseBoolean(const std::string &s);

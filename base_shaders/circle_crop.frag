@@ -1,28 +1,32 @@
-#version 120
+#version 150
 
-varying vec2 position_interpolated;
-varying vec2 texture_interpolated;
-varying vec2 extent_interpolated;
-varying vec4 extra_interpolated;
+in vec2 position_interpolated;
+in vec2 texture_interpolated;
+in vec2 extent_interpolated;
+in vec4 extra_interpolated;
 
 uniform sampler2D tex0;
 uniform bool useTexture;
 uniform bool preMultiply;
 
+in vec2            TexCoord0;
+in vec4            Color;
+out vec4           oColor;
+
 void main()
 {
-	vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+	oColor = vec4(1.0, 1.0, 1.0, 1.0);
 
     if (useTexture) {
-        color = texture2D( tex0, gl_TexCoord[0].st );
+        oColor = texture2D( tex0, TexCoord0 );
     }
     
-    color *= gl_Color;
+    oColor *= Color;
     
     if (preMultiply) {
-        color.r *= color.a;
-        color.g *= color.a;
-        color.b *= color.a;
+        oColor.r *= oColor.a;
+        oColor.g *= oColor.a;
+        oColor.b *= oColor.a;
     }    
     
 	vec2 circleExtent = vec2(
@@ -59,7 +63,5 @@ void main()
 	totalAlpha = step(radialDistance, 1.0);
 	*/
 	
-	color.a *= totalAlpha;
-	
-	gl_FragColor = color;
+	oColor.a *= totalAlpha;
 }

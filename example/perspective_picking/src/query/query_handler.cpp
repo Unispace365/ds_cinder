@@ -33,3 +33,5 @@ void QueryHandler::onStoryQuery(StoryQuery& q) {
 
 
 } // !namespace perspective_picking
+
+

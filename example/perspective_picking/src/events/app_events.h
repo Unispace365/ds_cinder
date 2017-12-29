@@ -26,3 +26,4 @@ public:
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_APPEVENTS_H_
+

@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedPDF(nullptr)
 	, mUpButton(nullptr)
@@ -60,7 +60,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
 	if(mPageCounter){
-		mPageCounter->setResizeToText(true);
+		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 
@@ -131,7 +131,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 }
 
-void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource){
+void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource){
 	mLinkedPDF = linkedPDF;
 	mSourceResource = sourceResource;
 	if(mLinkedPDF){
@@ -149,8 +149,8 @@ void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource)
 	updateWidgets();
 }
 
-void PDFInterface::updateServer(const ds::UpdateParams& updateParams){
-	MediaInterface::updateServer(updateParams);
+void PDFInterface::onUpdateServer(const ds::UpdateParams& updateParams){
+	MediaInterface::onUpdateServer(updateParams);
 	if(mLinkedPDF){
 		updateWidgets();
 	}
@@ -241,5 +241,15 @@ void PDFInterface::updateWidgets(){
 
 	layout();
 }
+
+void PDFInterface::setPageFont(std::string fontName, float fontSize)
+{
+	if (mPageCounter)
+	{
+		mPageCounter->setFont(fontName);
+		mPageCounter->setFontSize(fontSize);
+	}
+}
+
 } // namespace ui
 } // namespace ds

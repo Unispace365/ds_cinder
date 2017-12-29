@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/http_client.h"
 
 #include <iostream>
@@ -15,7 +17,7 @@
 #include "ds/util/memory_ds.h"
 #include "ds/util/string_util.h"
 
-using namespace std;
+//using namespace std;
 
 // FOR TESTING HTTP:
 // Use http://requestb.in
@@ -26,8 +28,8 @@ namespace {
 static const int			HTTP_GET_OPT = (1<<0);
 static const int			HTTP_POST_OPT = (1<<1);
 
-static const string			EMPTY_SZ("");
-static const wstring		EMPTY_WSZ(L"");
+static const std::string			EMPTY_SZ("");
+static const std::wstring		EMPTY_WSZ(L"");
 
 const ds::BitMask			HTTP_LOG = ds::Logger::newModule("http");
 }
@@ -149,7 +151,7 @@ HttpClient::Request::Request(const void* clientId)
 
 void HttpClient::Request::run() {
 	mReply.clear();
-	const string						url8 = ds::utf8_from_wstr(mUrl);
+	const std::string						url8 = ds::utf8_from_wstr(mUrl);
 	if (url8.empty()) return;
 
 	try {
@@ -233,10 +235,10 @@ std::cout << "DONE" << std::endl;
 #endif
 		}
 	} catch (Poco::Net::ConnectionRefusedException&) {
-		cout << "HttpClient connection refused" << endl;
+		std::cout << "HttpClient connection refused" << std::endl;
 		mReply.mStatus = ds::HttpReply::REPLY_CONNECTION_ERROR;
 	} catch (std::exception& ex) {
-		cout << "HttpClient exception=" << ex.what() << endl;
+		std::cout << "HttpClient exception=" << ex.what() << std::endl;
 	}
 }
 

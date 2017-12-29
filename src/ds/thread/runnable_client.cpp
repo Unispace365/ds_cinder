@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/thread/runnable_client.h"
 
 #include "ds/util/memory_ds.h"

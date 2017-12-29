@@ -1,6 +1,0 @@
-*.*
-!pg.exe
-!README.md
-!.gitignore
-!settings/engine.xml
-!settings/debug.xml

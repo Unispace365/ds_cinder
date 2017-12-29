@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "draw_touch_view.h"
 
 #include <ds/math/math_defs.h>
@@ -25,12 +27,13 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	, mTouchTrailsIncrement(5.0f)
 	, mCircleRadius(20.0f)
 	, mCircleColor(ci::ColorA::white())
-	, mCircleFilled(false)
+	, mCircleFilled(false) {
 
-{
 	mTouchTrailsUse = settings.getBool("touch_overlay:trails:use", 0, mTouchTrailsUse);
 	mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
 	mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
+
+	mTouchTrailsUse = false;
 
 	if(mTouchTrailsUse){
 		setTransparent(false); 
@@ -40,20 +43,22 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	tm.setCapture(this);
 
 	mCircleRadius = settings.getFloat("touch_overlay:debug_circle_radius", 0, mCircleRadius);
-	mCircleColor  = settings.getColorA("touch_overlay:debug_circle_color", 0, mCircleColor);
+	mCircleColor = settings.getColorA("touch_overlay:debug_circle_color", 0, mCircleColor);
 	mCircleFilled = settings.getBool("touch_overlay:debug_circle_filled", 0, mCircleFilled);
 }
 
 void DrawTouchView::drawTrails(){
 	ds::ui::applyBlendingMode(ds::ui::NORMAL);
 
+	/* TODO: update drawing 
+
 	const float			incrementy = mTouchTrailsIncrement;
 	for(auto it = mTouchPointHistory.begin(), it2 = mTouchPointHistory.end(); it != it2; ++it) {
 		float sizey = incrementy;
 		int secondSize = it->second.size();
-		ci::Vec2f prevPos = ci::Vec2f::zero();
+		ci::vec2 prevPos = ci::vec2();
 		for(int i = 0; i < secondSize; i++){
-			ci::Vec2f		pos(it->second[i].xy());
+			ci::vec2		pos(it->second[i].xy());
 			ci::gl::drawSolidCircle(pos, sizey);
 
 			if(i < secondSize - 1 && i > 0){
@@ -62,10 +67,10 @@ void DrawTouchView::drawTrails(){
 				float angle = atan2f(pos.y - prevPos.y, pos.x - prevPos.x) + ds::math::PI / 2.0f;
 				float smallSize = (sizey - incrementy);
 				float bigSize = sizey;
-				ci::Vec2f p1 = ci::Vec2f(pos.x + bigSize * cos(angle), pos.y + bigSize * sin(angle));
-				ci::Vec2f p2 = ci::Vec2f(pos.x - bigSize * cos(angle), pos.y - bigSize * sin(angle));
-				ci::Vec2f p3 = ci::Vec2f(prevPos.x + smallSize * cos(angle), prevPos.y + smallSize * sin(angle));
-				ci::Vec2f p4 = ci::Vec2f(prevPos.x - smallSize * cos(angle), prevPos.y - smallSize * sin(angle));
+				ci::vec2 p1 = ci::vec2(pos.x + bigSize * cos(angle), pos.y + bigSize * sin(angle));
+				ci::vec2 p2 = ci::vec2(pos.x - bigSize * cos(angle), pos.y - bigSize * sin(angle));
+				ci::vec2 p3 = ci::vec2(prevPos.x + smallSize * cos(angle), prevPos.y + smallSize * sin(angle));
+				ci::vec2 p4 = ci::vec2(prevPos.x - smallSize * cos(angle), prevPos.y - smallSize * sin(angle));
 				glBegin(GL_QUADS);
 				ci::gl::vertex(p1);
 				ci::gl::vertex(p3);
@@ -79,6 +84,7 @@ void DrawTouchView::drawTrails(){
 			prevPos = pos;
 		}
 	}
+	*/
 }
 
 void DrawTouchView::drawLocalServer(){
@@ -99,21 +105,23 @@ void DrawTouchView::drawLocalClient(){
 
 void DrawTouchView::touchBegin(const ds::ui::TouchInfo &ti){
 	if(mTouchTrailsUse) {
-		mTouchPointHistory[ti.mFingerId] = std::vector<ci::Vec3f>();
+		mTouchPointHistory[ti.mFingerId] = std::vector<ci::vec3>();
 		mTouchPointHistory[ti.mFingerId].push_back(ti.mCurrentGlobalPoint);
 	} else {
 		if(mCircles[ti.mFingerId]){
 			mCircles[ti.mFingerId]->show();
 		} else {
-			Circle* circley = new Circle(mEngine, mCircleFilled, mCircleRadius);
+			Circle* circley = new Circle(mEngine, mCircleFilled, 0.0f);
 			circley->setColorA(mCircleColor);
 			circley->setDrawDebug(true);
 			circley->setCenter(0.5f, 0.5f);
 			addChildPtr(circley);
 			mCircles[ti.mFingerId] = circley;
 		}
-
-		if(mCircles[ti.mFingerId]) mCircles[ti.mFingerId]->setPosition(ti.mCurrentGlobalPoint);
+		if(mCircles[ti.mFingerId]){
+			mCircles[ti.mFingerId]->setPosition(ti.mCurrentGlobalPoint);
+			mCircles[ti.mFingerId]->setRadius(mCircleRadius);
+		}
 	}
 }
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/query/query_result.h"
 
 #include <algorithm>
@@ -7,11 +9,11 @@
 #include <ds/util/string_util.h>
 #include <Poco/DateTimeParser.h>
 
-using namespace std;
+//using namespace std;
 
 namespace {
-const string				RESULT_EMPTY_STR("");
-const wstring				RESULT_EMPTY_WSTR(L"");
+const std::string				RESULT_EMPTY_STR("");
+const std::wstring				RESULT_EMPTY_WSTR(L"");
 }
 
 #ifndef WIN32
@@ -94,7 +96,7 @@ bool Result::matches(const int* curType, ...) const
 	if (idx != mCol.size()) {
 		ans = false;
 #ifdef _DEBUG
-		cout << "dbg QueryResult::matches() failed my size=" << mCol.size() << " idx=" << idx << endl;
+		std::cout << "dbg QueryResult::matches() failed my size=" << mCol.size() << " idx=" << idx << std::endl;
 #endif
 	}
 	return ans;
@@ -109,7 +111,7 @@ int Result::getClientId() const {
 }
 
 int Result::getColumnSize() const {
-	return mCol.size();
+	return static_cast<int>(mCol.size());
 }
 
 const int Result::getColumnType(const int idx)const{
@@ -128,7 +130,7 @@ bool Result::rowsAreEmpty() const {
 }
 
 int Result::getRowSize() const {
-	return mRow.size();
+	return static_cast<int>(mRow.size());
 }
 
 Result::RowIterator Result::getRows() const {
@@ -386,24 +388,24 @@ const Poco::DateTime Result::RowIterator::getDateTime(const int columnIndex) con
 
 #ifdef _DEBUG
 void Result::print() const {
-	cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << endl;
+	std::cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << std::endl;
 	if (mCol.size() > 0) {
-		cout << "\tcols ";
+		std::cout << "\tcols ";
 		for (auto it=mCol.begin(), end=mCol.end(); it!=end; ++it) {
 			const int	col(*it);
-			if (col == QUERY_NUMERIC) cout << "NUMERIC ";
-			else if (col == QUERY_STRING) cout << "STRING ";
-			else cout << "? ";
+			if(col == QUERY_NUMERIC) std::cout << "NUMERIC ";
+			else if(col == QUERY_STRING) std::cout << "STRING ";
+			else std::cout << "? ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	RowIterator				it(getRows());
 	while (it.hasValue()) {
-		for (size_t k=0; k<mCol.size(); ++k) {
+		for (int k=0; k<static_cast<int>(mCol.size()); ++k) {
 			const int		col = mCol[k];
-			if (col == QUERY_NUMERIC)		cout << "\t" << k << " = " << it.getFloat(k) << endl;
-			else if (col == QUERY_STRING)	cout << "\t" << k << " = " << it.getString(k) << endl;
+			if(col == QUERY_NUMERIC)		std::cout << "\t" << k << " = " << it.getFloat(k) << std::endl;
+			else if(col == QUERY_STRING)	std::cout << "\t" << k << " = " << it.getString(k) << std::endl;
 		}
 		++it;
 	}

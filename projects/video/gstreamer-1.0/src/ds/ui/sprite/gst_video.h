@@ -7,7 +7,8 @@
 #include <ds/data/resource.h>
 
 #include <Poco/Timestamp.h>
-//#include <gst/gstclock.h>
+
+#include "gstreamer/gstreamer_audio_device.h"
 
 namespace gstwrapper {
 	class GStreamerWrapper;
@@ -42,6 +43,15 @@ public:
 		int					 mCode;
 	};
 
+
+	// A simple enum for specifying how the video gets rendered.
+	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
+	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
+	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
+	// This value is assumed from the output of the videometa cache
+	// Use these values if you're using the parseLaunch option
+	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
+
 public:
 
 	// Convenience for allocating a Video sprite pointer and optionally adding it
@@ -70,6 +80,9 @@ public:
 	/// If a video is in streaming mode (live pipeline)
 	bool				getIsStreaming(){ return mStreaming; }
 
+	/// Sets the latency for streaming. The default is 200000000 (200 milliseconds)
+	void				setStreamingLatency(const uint64_t latencyNs);
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behavior.
@@ -82,6 +95,16 @@ public:
 	//		rtsp://192.168.1.37:5015/Stream1
 	// Arbitrary pipelines can be set here, though this pathway assumes that the pipeline is live, and seeking is disabled
 	void				startStream(const std::string& streamingPipeline, const float width, const float height);
+
+
+	/** Similar to startStream above, but this is not considered a live pipeline, and will only create a single gstreamer element from the supplied pipeline.
+		Assumes you really know what you're doing with gstreamer. This assumes the source is part of the pipeline (so no filename from setResource or loadVideo is used)
+		Not currently setup for netsync (client/server) situations
+		Note that width and height are enforced to be multiples of 8 for I420 color space and multiples of 4 for the others
+	*/
+	void				parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,
+										const ColorType colorSpace, const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
+										const double secondsDuration = -1);
 
 	// Looping (play again after video complete)
 	void				setLooping(const bool on);
@@ -143,7 +166,8 @@ public:
 	/// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
 	/// Optional: Supply the time in ms to display
 	/// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
-	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
+	/// Optional: StopAfterFrame will stop the video and clear the pipeline, otherwise will pause and keep the pipeline open
+	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr, const bool stopAfterFrame = true);
 	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
 
@@ -151,11 +175,14 @@ public:
 	void				setAutoExtendIdle(const bool doAutoextend);
 	bool				getAutoExtendIdle() const;
 
-	virtual void		updateClient(const UpdateParams&) override;
-	virtual void		updateServer(const UpdateParams&) override;
+	virtual void		onUpdateClient(const UpdateParams&) override;
+	virtual void		onUpdateServer(const UpdateParams&) override;
 
-	///Allow for custom audio output
+	///Allow for custom audio output - generally you'll set a custom pipeline and get the output
 	void				generateAudioBuffer(bool enableAudioBuffer);
+
+	/// This means that you can actually get the audio buffer data itself
+	void				wantAudioBuffer(bool doWantAudioBuffer);
 
 	/// In case you want a ton of info from gstreamer about what's going on
 	void				setVerboseLogging(const bool doVerbose);
@@ -172,12 +199,34 @@ public:
 	/// Will only load and play video on the instances named in the vector. 
 	/// This must be called before you load a movie
 	/// Set instance names in engine.xml with platform:guid
-	/// This may interact badly with syncronization if you don't load the video on the ClientServer, so use with caution
+	/// This may interact badly with synchronization if you don't load the video on the ClientServer, so use with caution
 	void				setPlayableInstances(const std::vector<std::string>& instanceNames);
 
 	/// If this video goes out of the current instance's bounds, will automatically mute. default == true
 	/// If you're having trouble with networked videos dropping audio, try turning this off
 	void				setAllowOutOfBoundsMuted(const bool allowMuted);
+
+	/// Sets the audio devices for playback (allows multi-channel output like 5.1 surround)
+	void				setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
+
+	/// The volume of a specific device. The most common case is to use setVolume() above. This is only if you've setAudioDevices() and need to control a specific one
+	void				setAudioDeviceVolume(GstAudioDevice& deviceWithVolume);
+	/// The pan of a specific device. The most common case is to use setPan() above. This is only if you've setAudioDevices() and need to control a specific one
+	void				setAudioDevicePan(GstAudioDevice& deviceWithPan);
+
+	/// Have at the raw video and data.
+	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this
+	/// If you're like "Hey, I just want to show a video" then you are in the wrong place
+	/// This is the "I'd really like to know the byte value of a pixel of the U channel before color space conversion" sorta thing
+	unsigned char *		getRawVideoData();
+	size_t				getRawVideoDataSize();
+	unsigned char *		getRawAudioData();
+	size_t				getRawAudioDataSize();
+
+	/// Returns a pointer to a gstreamer element with the specified name.
+	/// May return null if there's no element with that name.
+	/// Use with caution
+	void *				getGstreamerElementByName(const std::string& theName);
 
 protected:
 	virtual void		drawLocalClient() override;
@@ -187,16 +236,12 @@ protected:
 	virtual void		writeClientAttributesTo(ds::DataBuffer&);
 	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
 
+	void				updateVideoTexture();
+
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
 
-	// A simple enum for specifying how the video gets rendered.
-	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
-	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
-	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
-	// This value is assumed from the output of the videometa cache
-	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
 	
 
 	// filename is the absolute path to the file.
@@ -213,13 +258,14 @@ private:
 	void				setNetClock();
 	bool				thisInstancePlayable();
 
+
 	ColorType			mColorType;
 
-	ci::gl::Texture		mFrameTexture;
-	ci::gl::Texture		mUFrameTexture;
-	ci::gl::Texture		mVFrameTexture;
+	ci::gl::TextureRef	mFrameTexture;
+	ci::gl::TextureRef	mUFrameTexture;
+	ci::gl::TextureRef	mVFrameTexture;
 
-	ci::Vec2i			mVideoSize;
+	ci::ivec2			mVideoSize;
 	double				mCachedDuration;
 	std::string			mFilename,
 						mPortableFilename;
@@ -249,12 +295,10 @@ private:
 	bool				mAutoExtendIdle;
 	// Playing a single frame, then stopping.
 	bool				mPlaySingleFrame;
+	bool				mSingleFrameStop;
 	bool				mStatusChanged;
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
-
-	// YUV/I420 -> RGB conversion
-	ci::gl::GlslProg	mShader;
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
@@ -276,6 +320,8 @@ private:
 	/// The client sets this flag to true, then the next writeClientAttributesTo() sends this flag to the server and resets it to false
 	/// The server gets a message that the client has completed and immediately dispatches a video complete message.
 	bool				mClientVideoCompleted;
+
+	std::uint64_t		mStreamingLatency;	// Latency for streaming pipelines
 
 	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
 	std::uint64_t		mSeekTime;		//Position to seek to

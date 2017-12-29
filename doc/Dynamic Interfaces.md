@@ -50,6 +50,7 @@ Sprite Types
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
+* **donut_arc** = ds::ui::DonutArc
 * **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
@@ -219,6 +220,11 @@ Border Parameters
 ---------------------------
 * **border_width**: Float, the width of the border, which has its outer edge at the extent of the sprite
 
+Donut Arc Parameters
+---------------------------
+* **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
+* **donut_percent**: Float, the percentage that the donut is filled in
+
 Scroll List Parameters
 -------------------------------
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
@@ -252,7 +258,7 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 * **password_mode**: If true, will show bullets instead of text. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
-* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended, pinpad and pincode. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad with an enter button. Pincode is a number entry keyboard with a back/delete button. Default: standard
 * **key_up_text_config**: The text config of the text in the keys when not pressed. Default: keyboard:key:up
 * **key_dn_text_config**: The text config of the text in the keys when pressed. Default: keyboard:key:down
 * **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white

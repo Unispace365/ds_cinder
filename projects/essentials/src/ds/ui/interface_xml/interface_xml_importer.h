@@ -61,8 +61,8 @@ public:
 
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 
-	static void dispatchStringEvents(const std::string& str, ds::ui::Sprite* bs, const ci::Vec3f& globalPos);
-	static void dispatchSingleEvent(const std::string& str, ds::ui::Sprite* bs, const ci::Vec3f& globalPos);
+	static void dispatchStringEvents(const std::string& str, ds::ui::Sprite* bs, const ci::vec3& globalPos);
+	static void dispatchSingleEvent(const std::string& str, ds::ui::Sprite* bs, const ci::vec3& globalPos);
 
 
 protected:

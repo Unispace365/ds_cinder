@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "story_view.h"
 
 #include <Poco/LocalDateTime.h>
@@ -90,9 +92,7 @@ void StoryView::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
-void StoryView::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
-
+void StoryView::onUpdateServer(const ds::UpdateParams& p){
 	// any changes for this frame happen here
 }
 

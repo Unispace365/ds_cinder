@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "query_handler.h"
 
 #include <boost/algorithm/string/predicate.hpp>

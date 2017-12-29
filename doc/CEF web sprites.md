@@ -66,8 +66,8 @@ Including the project
 * If you have Web_Awesomium property sheets included already, then delete them
 * Save and close the solution
 * Edit the solution and project files in a text editor, and update the absolute links above with environment variable links, for example:
-    * In the solution file: "cef_web", "%DS_PLATFORM_086%\projects\web\cef\cef_web.vcxproj" 
-	* In the project file: <Import Project="$(DS_PLATFORM_086)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
+    * In the solution file: "cef_web", "%DS_PLATFORM_090%\projects\web\cef\cef_web.vcxproj" 
+	* In the project file: <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
 	* This step is very important for others to be able to compile your project
 * Compile and run. The relevant runtime files are automatically copied to the $Configuration folders (debug or release near your project file)
 

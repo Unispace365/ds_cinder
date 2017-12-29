@@ -1,6 +1,7 @@
 #include "xmlsettingssetting_app.h"
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
@@ -19,7 +20,7 @@ XmlSettingsSetting::XmlSettingsSetting()
 {
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
+	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
 
 	enableCommonKeystrokes(true);
 
@@ -32,9 +33,9 @@ void XmlSettingsSetting::setupServer(){
 
 	mEngine.loadTextCfg("text.xml");
 
-	mEngine.getRootSprite(0).clearChildren();
-	mEngine.getRootSprite(1).clearChildren();
-	mEngine.getRootSprite(2).clearChildren();
+//	mEngine.getRootSprite(0).clearChildren();
+//	mEngine.getRootSprite(1).clearChildren();
+//	mEngine.getRootSprite(2).clearChildren();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
@@ -43,7 +44,7 @@ void XmlSettingsSetting::setupServer(){
 	mTestSprite = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
 	mTestSprite->setTransparent(false);
 	mTestSprite->setColor(ci::Color(0.6f, 0.2f, 0.2f));
-	mTestSprite->tweenPosition(ci::Vec3f(500.0f, 500.0f, 0.0f), mGlobals.getSettingsLayout().getFloat("animation:duration", 0, 0.2f), mGlobals.getSettingsLayout().getFloat("animation:delay", 0, 0.2f), ci::EaseInOutExpo(), [this](){tweenTestSprite(mTestSprite); });
+	mTestSprite->tweenPosition(ci::vec3(500.0f, 500.0f, 0.0f), mGlobals.getSettingsLayout().getFloat("animation:duration", 0, 0.2f), mGlobals.getSettingsLayout().getFloat("animation:delay", 0, 0.2f), ci::EaseInOutExpo(), [this](){tweenTestSprite(mTestSprite); });
 	rootSprite.addChild(*mTestSprite);
 
 	mSettings = new SettingsUi(mGlobals);
@@ -53,7 +54,7 @@ void XmlSettingsSetting::setupServer(){
 }
 
 void XmlSettingsSetting::tweenTestSprite(ds::ui::Sprite* bs){
-	bs->tweenPosition(ci::Vec3f(ci::Rand::randFloat(0.0f, mEngine.getWorldWidth()), ci::Rand::randFloat(0.0f, mEngine.getWorldHeight()), 0.0f), mGlobals.getSettingsLayout().getFloat("animation:duration", 0, 0.2f), mGlobals.getSettingsLayout().getFloat("animation:delay", 0, 0.2f), ci::EaseInOutExpo(), [this, bs](){tweenTestSprite(bs); });
+	bs->tweenPosition(ci::vec3(ci::Rand::randFloat(0.0f, mEngine.getWorldWidth()), ci::Rand::randFloat(0.0f, mEngine.getWorldHeight()), 0.0f), mGlobals.getSettingsLayout().getFloat("animation:duration", 0, 0.2f), mGlobals.getSettingsLayout().getFloat("animation:delay", 0, 0.2f), ci::EaseInOutExpo(), [this, bs](){tweenTestSprite(bs); });
 }
 
 void XmlSettingsSetting::update() {
@@ -79,4 +80,5 @@ void XmlSettingsSetting::keyDown(ci::app::KeyEvent event){
 } // namespace setter
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(setter::XmlSettingsSetting, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(setter::XmlSettingsSetting, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

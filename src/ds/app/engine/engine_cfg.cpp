@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_cfg.h"
 #include <cinder/app/App.h>
 #include <ds/debug/logger.h>
@@ -31,18 +33,18 @@ EngineCfg::EngineCfg(const ds::cfg::Settings& engine_settings)
 
 const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty name"));
+		DS_LOG_WARNING("EngineCfg::getSettings() on empty name");
 		return mEmptySettings;
 	}
 	if (mSettings.empty()) {
 		if (name == ENGINE_SZ) return mEngineSettings;
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty mSettings"));
+		DS_LOG_WARNING("EngineCfg::getSettings() on empty mSettings");
 		return mEmptySettings;
 	}
 	auto it = mSettings.find(name);
 	if (it == mSettings.end()) {
 		if (name == ENGINE_SZ) return mEngineSettings;
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() settings does not exist"));
+		DS_LOG_WARNING("EngineCfg::getSettings() settings does not exist: " << name);
 		return mEmptySettings;
 	}
 	return it->second;
@@ -50,16 +52,16 @@ const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 
 ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
 	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty name"));
+		DS_LOG_WARNING("EngineCfg::editSettings() on empty name");
 		return mEditEmptySettings;
 	}
-	if (mSettings.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty mSettings"));
+	if(mSettings.empty()) {
+		DS_LOG_WARNING("EngineCfg::getSettings() on empty mSettings");
 		return mEditEmptySettings;
 	}
 	auto it = mSettings.find(name);
-	if (it == mSettings.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() settings does not exist"));
+	if(it == mSettings.end()) {
+		DS_LOG_WARNING("EngineCfg::getSettings() settings does not exist: " << name);
 		return mEditEmptySettings;
 	}
 	return it->second;
@@ -106,17 +108,17 @@ bool EngineCfg::hasNinePatch(const std::string& name) const {
 }
 
 const ds::cfg::NinePatch& EngineCfg::getNinePatch(const std::string& name) const {
-	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty name"));
+	if(name.empty()) {
+		DS_LOG_WARNING("EngineCfg::getNinePatch() on empty name");
 		return mEmptyNinePatchCfg;
 	}
 	if (mNinePatchCfg.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty mNinePatchCfg (key=" + name + ")"));
+		DS_LOG_WARNING("EngineCfg::getNinePatch() on empty mNinePatchCfg (key=" + name + ")");
 		return mEmptyNinePatchCfg;
 	}
 	auto it = mNinePatchCfg.find(name);
 	if (it == mNinePatchCfg.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() cfg does not exist"));
+		DS_LOG_WARNING("EngineCfg::getNinePatch() cfg does not exist");
 		return mEmptyNinePatchCfg;
 	}
 	return it->second;
@@ -167,7 +169,7 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 			break;
 		}
 		// Set color to full red to alert that this wasn't actually loaded
-		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
+		mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	}
 }
 
@@ -258,12 +260,15 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 	ds::cfg::Settings s;
 
 	try {
-		ci::DataSourceRef ds = ci::app::App::loadResource(RES_TEXT);
-		ci::Buffer&	buf = ds->getBuffer();
+		// TODO? This appears to load a compiled-in xml for error text (why?) config
+		/*
+		ci::DataSourceRef ds = ci::app::AppBase::get()->loadResource(RES_TEXT);
+		ci::BufferRef	buf = ds->getBuffer();
 		if(buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
 			std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
 			s.readFrom(str, true, true);
 		}
+		*/
 	}
 	catch(std::exception& e) {
 		DS_LOG_WARNING("Failed to load default text settings: " << e.what());

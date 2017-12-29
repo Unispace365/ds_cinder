@@ -4,12 +4,12 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
-#include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/text.h>
 
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -18,6 +18,8 @@
 
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
+
+#include <ds/ui/layout/smart_layout.h>
 
 namespace example {
 
@@ -30,8 +32,8 @@ layout_example::layout_example()
 
 								.persp() 
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -44,7 +46,7 @@ layout_example::layout_example()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -70,10 +72,10 @@ void layout_example::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -125,7 +127,7 @@ void layout_example::setupServer(){
 	medFixed->mLayoutLPad = 50.0f;
 	rootLayout->addChildPtr(medFixed);
 
-	ds::ui::MultilineText* horizText = mGlobals.getText("sample:config").createMultiline(mEngine, medFixed);
+	ds::ui::Text* horizText = mGlobals.getText("sample:config").create(mEngine, medFixed);
 	horizText->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	horizText->mLayoutLPad = 10.0f;
 	horizText->mLayoutRPad = 10.0f;
@@ -159,7 +161,7 @@ void layout_example::setupServer(){
 	rootLayout->addChildPtr(imagey);
 
 
-	ds::ui::MultilineText* mt = mGlobals.getText("sample:config").createMultiline(mEngine, rootLayout);
+	ds::ui::Text* mt = mGlobals.getText("sample:config").create(mEngine, rootLayout);
 	mt->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	mt->mLayoutLPad = 10.0f;
 	mt->mLayoutRPad = 10.0f;
@@ -192,7 +194,7 @@ void layout_example::setupServer(){
 	horizontalLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
 	horizontalLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 
-	ds::ui::MultilineText* sampley = mGlobals.getText("sample:config").createMultiline(mEngine, horizontalLayout);
+	ds::ui::Text* sampley = mGlobals.getText("sample:config").create(mEngine, horizontalLayout);
 	sampley->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	sampley->mLayoutLPad = 10.0f;
 	sampley->mLayoutRPad = 10.0f;
@@ -216,7 +218,7 @@ void layout_example::setupServer(){
 
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layouts/layout_view.xml"), spriteMap);
 
 	auto generatedLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
 	if(generatedLayout){
@@ -226,13 +228,20 @@ void layout_example::setupServer(){
 	}
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMapTwo;
-	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_alignments.xml"), spriteMapTwo);
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layouts/layout_alignments.xml"), spriteMapTwo);
 
 	auto generatedLayoutTwo = dynamic_cast<ds::ui::LayoutSprite*>(spriteMapTwo["root_layout"]);
 	if(generatedLayoutTwo){
 		generatedLayoutTwo->runLayout();
 		generatedLayoutTwo->tweenAnimateOn(true, 0.5f, 0.1f);
 	}
+
+
+	ds::ui::SmartLayout* sl = new ds::ui::SmartLayout(mEngine, "smart_layout.xml");
+	sl->listenToEvents<IdleStartedEvent>([sl](const IdleStartedEvent& e){ sl->setSpriteText("event_text", "Idling!"); });
+	sl->listenToEvents<IdleEndedEvent>([sl](const IdleEndedEvent& e){ sl->setSpriteText("event_text", "Not Idling!"); });
+	rootSprite.addChildPtr(sl);
+	sl->tweenAnimateOn(true, 0.75f, 0.1f);
 }
 
 void layout_example::update() {
@@ -253,10 +262,14 @@ void layout_example::update() {
 void layout_example::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+	if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
-	// Shows all enabled sprites with a label for class type
+		// Shows all enabled sprites with a label for class type
+	} else if (event.getChar() == KeyEvent::KEY_i){ // I = toggle idle state
+		if (mEngine.isIdling()) mEngine.resetIdleTimeout();
+		else mEngine.startIdling();
+	
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
 		const int numRoots = mEngine.getRootCount();
@@ -308,4 +321,5 @@ void layout_example::fileDrop(ci::app::FileDropEvent event){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::layout_example, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::layout_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

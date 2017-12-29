@@ -27,3 +27,4 @@ private:
 } // !namespace panoramic
 
 #endif //!_PANORAMICVIDEO_APP_QUERY_INDUSTRY_QUERY_H_
+

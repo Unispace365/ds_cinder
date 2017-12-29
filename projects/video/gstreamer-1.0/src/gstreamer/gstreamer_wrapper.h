@@ -7,6 +7,8 @@
 #include <gst/audio/audio.h>
 #include <gst/net/gstnettimeprovider.h>
 
+#include "gstreamer_audio_device.h"
+
 #include <mutex>
 #include <atomic>
 #include <string>
@@ -68,14 +70,6 @@ enum ContentType {
 };
 
 /*
-Enumeration to describe the byte order (big endian = 4321 / little endian = 1234) of either video or audio stream
-*/
-enum Endianness {
-	BIG_ENDIAN = 4321,
-	LITTLE_ENDIAN = 1234
-};
-
-/*
 class GStreamerWrapper
 
 Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with the file
@@ -117,14 +111,26 @@ public:
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudio = true);
+	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, 
+								 const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, 
+								 const bool hasAudio = true, const double secondsDuration = -1);
 
 
 	/** you have to supply your own pipeline for streaming.
 		Streaming is also assumed to be YUV / I420 color space.
 		You must also have an appsink element named appsink0 for video output to work.
 		If you want to control volume, include a volume element named volume0 */
-	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight);
+	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight, const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
+
+	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer element from the supplied pipeline. 
+		This assumes the source is part of the pipeline.
+		*/
+	bool					parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,
+										const int colorSpace, const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
+										const double secondsDuration = -1);
+
+	/** Sets the playbin latency when streaming. May not work ok after the stream has started. */
+	void					setStreamingLatency(uint64_t latency_ns);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -173,7 +179,6 @@ public:
 	void					setCurrentAudioStream( int iCurrentAudioStream );
 
 	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
-
 
 	/*
 	Sets the playback speed of the opened media file.
@@ -267,6 +272,8 @@ public:
 	*/
 	unsigned char*			getVideo();
 
+	size_t					getVideoBufferSize(){ return m_cVideoBufferSize; }
+
 	/*
 	Returns the index of the current video stream
 	*/
@@ -304,11 +311,6 @@ public:
 
 	/*Get the current time from the pipeline clock*/
 	uint64_t				getPipelineTime();
-
-
-	/*Get the current time from the network clock*/
-	uint64_t				getNetworkTime();
-
 
 	void					setPipelineBaseTime(uint64_t base_time);
 	/*
@@ -396,6 +398,12 @@ public:
 	*/
 	void					setPan(float fPan);
 
+
+
+	/* This is distinct from the generateAudioBuffer property on openMovie. That now means "apply some extra properties to audio so you can set the pan\
+		This means that an actual buffer for audio will be created and pumped out.*/
+	void					setAudioBufferWanted(const bool wantedAudioBuffer){ m_AudioBufferWanted = wantedAudioBuffer; }
+
 	/*
 	Returns an unsigned char pointer containing a buffer to the currently decoded audio data
 	Returns NULL if there is either no audio stream in the media file, no file has been loaded or something went wrong
@@ -421,7 +429,7 @@ public:
 	/*
 	Returns the audio buffer size
 	*/
-	int						getAudioBufferSize();
+	size_t					getAudioBufferSize();
 
 	/*
 	Returns the audio buffer size without the audio width and audio channels
@@ -437,11 +445,6 @@ public:
 	Returns the current volume value
 	*/
 	float					getCurrentVolume();
-
-	/*
-	Returns the Endianness of the audio stream
-	*/
-	Endianness				getAudioEndianness();
 
 	/* Provides the initial setting for the baseclock of the server*/
 	gint64					getBaseTime();
@@ -486,6 +489,14 @@ public:
 	virtual void			setCustomFunction(){};
 
 	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
+
+	/* Sets the available audio devices for output. Note that this overrides other audio output controls like panning or custom audio output. */
+	void					setAudioDevices(std::vector<ds::GstAudioDevice>& devices) { m_AudioDevices = devices; }
+
+	/* Set the volume of a specific audio device by device name and volume. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDeviceVolume(ds::GstAudioDevice& theDevice);
+	/* Set the pan of a specific audio device by device name and pan. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDevicePan(ds::GstAudioDevice& theDevice);
 	
 	/*
 	Here the GStreamer messages are read and processed. Needed for error checking while streaming and
@@ -530,6 +541,9 @@ public:
 
 	/*clear flag to indicate if loop has started*/
 	void					clearNewLoop();
+
+	/* Returns a pointer to a GST_ELEMENT if it exists and gstreamer returns it correctly */
+	void *					getElementByName(const std::string& gst_element_name);
 
 private:
 	/*
@@ -583,7 +597,6 @@ private:
 	*/
 	static GstFlowReturn	onNewBufferFromAudioSource( GstAppSink* appsink, void* listener );
 
-
 	/*
 	Non-static method that is called inside "onNewPrerollFromVideoSource()" in order to handle
 	member variables that are non-static. Here the unsigned char array with the pixel data is actually filled
@@ -625,7 +638,6 @@ private:
 	// Getting app callbacks for new sinks requires registereing EOS callbacks.
 	// However, we handle EoS events from the message bus, so these don't do anything, but don't delete them.
 	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
-	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
 	// Clears out member properties
 	void					resetProperties();
@@ -639,11 +651,11 @@ private:
 
 protected:
 
-	int						m_iAudioBufferSize; /* Size of the audio buffer */
+	bool					m_AudioBufferWanted;
+	size_t					m_iAudioBufferSize; /* Size of the audio buffer */
 	unsigned char*			m_cAudioBuffer; /* Stores the audio data */
 	int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
 	bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
-	Endianness				m_AudioEndianness; /* Audio endianness, either big or small endian */
 	int						m_iAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
 	int						m_iNumAudioChannels; /* Number of audio channels */
 	int						m_iAudioSampleRate; /* Audio sample rate */
@@ -693,15 +705,18 @@ private:
 	PlayDirection			m_PlayDirection; /* The current playback direction */
 	ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
 	unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
-	int						m_cVideoBufferSize; /* Number of bytes in m_cVideoBuffer */
+	size_t					m_cVideoBufferSize; /* Number of bytes in m_cVideoBuffer */
 	GstElement*				m_GstVideoSink; /* Video sink that contains the raw video buffer. Gathered from the pipeline */
 	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
-	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	std::vector<ds::GstAudioDevice> m_AudioDevices; /* Which audio devices to use for playback. */
+	bool					m_LivePipeline; /* The video is playing live over the network which disallows seeking and a few other things (previously m_Streaming) */
+	bool					m_FullPipeline; /* This was launched from a gst_parse_launch command */
 	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
+	gint64					m_iStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to display it) */
 
 	bool					m_ValidInstall;
 	bool					m_VerboseLogging;
@@ -720,6 +735,9 @@ private:
 	bool					m_playFromPause;
 	//bool					m_isFastSeeking;
 	bool					m_newLoop;
+
+	bool					m_StreamNeedsRestart;
+	int						m_StreamRestartCount;
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
 #include <sstream>
@@ -8,6 +10,8 @@ void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const KeyType& inputKeyType
 			inOutFullString = inOutFullString.substr(0, inOutFullString.length() - 1);
 		}
 		inOutCurrentKey = L"";
+
+	} else if(inputKeyType == kFwdDelete || inputKeyType == kEscape || inputKeyType == kSpecial || inputKeyType == kFunction || inputKeyType == kArrow){
 
 	} else if(inputKeyType == kShift){
 		inOutCurrentKey = L"";

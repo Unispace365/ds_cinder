@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_drop_shadow.h"
 
 namespace ds {
@@ -11,7 +13,7 @@ ImageDropShadow::ImageDropShadow(const float radius, const float falloff)
 {
 	addColorInput(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f));
 	addFloatInput(falloff);
-	addVec2Input(ci::Vec2d(0.0, 0.0));
+	addVec2Input(ci::dvec2(0.0, 0.0));
 }
 
 /**
@@ -22,7 +24,7 @@ ImageDropShadow::ImageDropShadow(const float radius, const float falloff, const 
 {
 	addColorInput(color);
 	addFloatInput(falloff);
-	addVec2Input(ci::Vec2d(0.0, 0.0));
+	addVec2Input(ci::dvec2(0.0, 0.0));
 }
 
 /**
@@ -30,14 +32,14 @@ ImageDropShadow::ImageDropShadow(const float radius, const float falloff, const 
  */
 ImageDropShadow::ImageDropShadow(	const float radius,
 									const float falloff,
-									const ci::Vec2f& offset,
+									const ci::vec2& offset,
 									const ci::ColorA& color,
 									const float border)
 	: ImageArc(static_cast<int>(radius*2.0f)+1, static_cast<int>(radius*2.0f)+1, "resource:drop_shadow")
 {
 	addColorInput(color);
 	addFloatInput(falloff);
-	addVec2Input(ci::Vec2d(offset.x, offset.y));
+	addVec2Input(ci::dvec2(offset.x, offset.y));
 	addFloatInput(border);
 }
 

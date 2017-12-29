@@ -4,6 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 #include <ds/app/auto_update.h>
 
@@ -30,7 +31,8 @@ public:
 		const std::string& topic_inbound, // "ds_test_mqtt_inbound"
 		const std::string& topic_outbound, // "ds_test_mqtt_outbound"
 		float refresh_rate = 0.1f,
-		int port = 1883);
+		int port = 1883,
+		const std::string& clientId = ""); // blank id will use a randomized address
 
 	virtual ~MqttWatcher();
 
@@ -68,19 +70,23 @@ private:
 			const std::string& topic_inbound,
 			const std::string& topic_outband,
 			float refresh_rate,
-			int port);
+			int port,
+			const std::string& clientId);
 
 		virtual void				run();
 		void						setInBound(const std::string&);
 		void						setOutBound(const std::string&);
 		void						setHost(const std::string&);
 		void						setPort(const int);
+		const int					getPort(){ return mPort; };
+		std::string					getHost(){ return mHost; }
 
 	private:
 		std::string					mHost;
 		std::string					mTopicInbound;
 		std::string					mTopicOutbound;
 		int							mPort;
+		std::string					mClientId;
 		const int					mRefreshRateMs;	// in milliseconds
 		bool						mFirstTimeMessage;
 	};
@@ -89,10 +95,12 @@ private:
 	MessageQueue					mMsgOutbound;
 	std::vector < std::function<void(const MessageQueue&)> > mListeners;
 	MqttConnectionLoop				mLoop;
+	std::thread						mLoopThread;
 
 	Poco::Timestamp::TimeVal		mLastMessageTime;
 	float							mRetryWaitTime;
 	bool							mStarted;
+
 };
 
 } //!namespace net

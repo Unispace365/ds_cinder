@@ -102,6 +102,7 @@ public:
 	static const int		VIDEO_TYPE          = 5;
 	static const int		WEB_TYPE            = 6;
 	static const int		VIDEO_STREAM_TYPE	= 7;
+	static const int		ZIP_TYPE			= 8;
 
 public:
 	// Mainly for debugging
@@ -165,7 +166,7 @@ public:
 	std::string				getAbsoluteFilePath() const;
 
 	/// Local file path is the path to a file, generally not tracked by a database. This will be used instead of resource ID, and FileName and Path won't be used.
-	void					setLocalFilePath(const std::string& localPath){ mLocalFilePath = localPath; }
+	void					setLocalFilePath(const std::string& localPath);
 
 	/// Answer an abstract file path that can be resolved to an absolute one via ds::Environment::expand().
 	std::string				getPortableFilePath() const;

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "button_behaviour.h"
 
 #include <ds/debug/logger.h>
@@ -60,7 +62,7 @@ void ButtonBehaviour::disable() {
 namespace {
 void			anim_scale_to(ds::ui::Sprite& s, const float scale, const float duration) {
 	s.mAnimScale.stop();
-	s.getEngine().getTweenline().apply(s, s.ANIM_SCALE(), ci::Vec3f(scale, scale, 1.0f), duration, ci::easeInOutQuad);
+	s.getEngine().getTweenline().apply(s, s.ANIM_SCALE(), ci::vec3(scale, scale, 1.0f), duration, ci::easeInOutQuad);
 }
 
 }
@@ -147,24 +149,12 @@ void ButtonBehaviour::handleTouch(const ds::ui::TouchInfo& ti) {
 	}
 }
 
-bool ButtonBehaviour::ownerContains(const ci::Vec3f& point) const {
+bool ButtonBehaviour::ownerContains(const ci::vec3& point) const {
 	if (mTouchInsideCheckFunction != nullptr)
 		return mTouchInsideCheckFunction(point);
 	else
 		return mOwner.getEngine().getHit( point ) == &mOwner;
 	return false;
-#if 0
-	const float		PAD = 5.0f;
-	// If I'm set to scale, I need to deal with the fact that when I release,
-	// if the touch is near the edge, the button might be scaled so that the
-	// touch is out of bounds.
-	// Ideally, the visual representation is separated from the touch area.
-	if (mIsSetToScale) {
-		ds::ui::Sprite::LockScale	lock(mOwner, ci::Vec3f(1.0f, 1.0f, 1.0f));
-		return mOwner.contains(point, PAD);
-	}
-	return mOwner.contains(point, PAD);
-#endif
 }
 
 } // namespace ds

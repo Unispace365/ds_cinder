@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "error.h"
 
 #include <ds/app/engine/engine.h>
@@ -155,7 +157,7 @@ void ErrorList::removeById(const int32_t id) {
  * \class ds::AddErrorEvent
  */
 static ds::EventRegistry	ADDE("AddErrorEvent");
-int AddErrorEvent::WHAT()	{ return ADDE.mWhat; }
+size_t AddErrorEvent::WHAT()	{ return ADDE.mWhat; }
 
 AddErrorEvent::AddErrorEvent(const ErrorRef &e)
 		: ds::Event(ADDE.mWhat)
@@ -166,7 +168,7 @@ AddErrorEvent::AddErrorEvent(const ErrorRef &e)
  * \class ds::RemoveErrorEvent
  */
 static ds::EventRegistry		REME("RemoveErrorEvent");
-int RemoveErrorEvent::WHAT()	{ return REME.mWhat; }
+size_t RemoveErrorEvent::WHAT()	{ return REME.mWhat; }
 
 RemoveErrorEvent::RemoveErrorEvent(const int32_t id)
 		: ds::Event(REME.mWhat)
@@ -177,7 +179,7 @@ RemoveErrorEvent::RemoveErrorEvent(const int32_t id)
  * \class ds::ErrorsChangedEvent
  */
 static ds::EventRegistry		EC("ErrorsChangedEvent");
-int ErrorsChangedEvent::WHAT()	{ return EC.mWhat; }
+size_t ErrorsChangedEvent::WHAT()	{ return EC.mWhat; }
 
 ErrorsChangedEvent::ErrorsChangedEvent(const ErrorList &e)
 		: ds::Event(EC.mWhat)
@@ -188,7 +190,7 @@ ErrorsChangedEvent::ErrorsChangedEvent(const ErrorList &e)
  * \class ds::ToggleTestErrorEvent
  */
 static ds::EventRegistry			TTE("ToggleTestErrorEvent");
-int ToggleTestErrorEvent::WHAT()	{ return TTE.mWhat; }
+size_t ToggleTestErrorEvent::WHAT()	{ return TTE.mWhat; }
 
 ToggleTestErrorEvent::ToggleTestErrorEvent()
 		: ds::Event(TTE.mWhat) {

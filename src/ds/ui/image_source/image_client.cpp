@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_client.h"
 
 #include "ds/app/app_defs.h"
@@ -39,7 +41,7 @@ bool ImageClient::getMetaData(ImageMetaData& d) const {
 	return mGenerator->getMetaData(d);
 }
 
-const ci::gl::Texture* ImageClient::getImage() {
+const ci::gl::TextureRef ImageClient::getImage() {
 	if (!mGenerator) return nullptr;
 	return mGenerator->getImage();
 }

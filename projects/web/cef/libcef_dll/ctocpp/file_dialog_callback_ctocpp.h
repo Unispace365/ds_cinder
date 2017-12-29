@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_FILE_DIALOG_CALLBACK_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include <vector>
 #include "include/cef_dialog_handler.h"
@@ -29,16 +29,12 @@ class CefFileDialogCallbackCToCpp
     : public CefCToCpp<CefFileDialogCallbackCToCpp, CefFileDialogCallback,
         cef_file_dialog_callback_t> {
  public:
-  explicit CefFileDialogCallbackCToCpp(cef_file_dialog_callback_t* str)
-      : CefCToCpp<CefFileDialogCallbackCToCpp, CefFileDialogCallback,
-          cef_file_dialog_callback_t>(str) {}
-  virtual ~CefFileDialogCallbackCToCpp() {}
+  CefFileDialogCallbackCToCpp();
 
-  // CefFileDialogCallback methods
-  virtual void Continue(const std::vector<CefString>& file_paths) OVERRIDE;
-  virtual void Cancel() OVERRIDE;
+  // CefFileDialogCallback methods.
+  void Continue(int selected_accept_filter,
+      const std::vector<CefString>& file_paths) OVERRIDE;
+  void Cancel() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FILE_DIALOG_CALLBACK_CTOCPP_H_
-

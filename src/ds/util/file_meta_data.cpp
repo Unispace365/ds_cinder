@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "file_meta_data.h"
 
 #include <Poco/Path.h>
@@ -70,6 +72,8 @@ const std::string& FileMetaData::findValue(const std::string& key) const {
 
 
 bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
+	if(filePath.empty()) return false;
+
 	Poco::File xmlFile(filePath);
 	bool fileExists = false;
 	try{
@@ -81,13 +85,11 @@ bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
 		}
 	} catch(std::exception&){}
 
-
 	return fileExists;
-
 }
 
 std::string filePathRelativeTo(const std::string &base, const std::string &relative){
-	if(relative.find("%APP%") != std::string::npos){
+	if(relative.find("%APP%") != std::string::npos || relative.find("%LOCAL%") != std::string::npos){
 		return ds::Environment::expand(relative);
 	}
 
@@ -98,6 +100,19 @@ std::string filePathRelativeTo(const std::string &base, const std::string &relat
 		DS_LOG_WARNING("Trying to use bad relative file path: " << relative << ": " << e.message());
 	}
 	return ret;
+}
+
+std::string	getNormalizedPath(const std::string& path) {
+	auto ret = path;
+	std::replace(ret.begin(), ret.end(), '\\', '/');
+
+	ret = Poco::Path(ret).toString();
+
+	return ret;
+}
+
+std::string	getNormalizedPath(const Poco::Path& path) {
+	return getNormalizedPath(path.toString());
 }
 
 } // namespace ds

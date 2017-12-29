@@ -39,7 +39,7 @@ public:
 	EngineSettings();
 
 	void							printStartupInfo();
-	bool							getUsingDefault(){ return !mLoadedAnySettings; };
+	bool							getUsingDefault() const { return !mLoadedAnySettings; };
 
 private:
 	friend class Environment;

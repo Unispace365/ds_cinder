@@ -17,16 +17,16 @@ class TouchTranslator {
 public:
 	TouchTranslator();
 
-	ci::Vec2i			toWorldi(const int x, const int y) const;
-	ci::Vec2f			toWorldf(const float x, const float y) const;
+	ci::ivec2			toWorldi(const int x, const int y) const;
+	ci::vec2			toWorldf(const float x, const float y) const;
 
 	ds::ui::TouchEvent	toWorldSpace(const ds::ui::TouchEvent& inputEvent);
 
 	void				setTranslation(const float x, const float y);
 	void				setScale(const float x, const float y);
 
-	ci::Vec2f			getTranslate() const		{ return ci::Vec2f(mTx, mTy); }
-	ci::Vec2f			getScale() const			{ return ci::Vec2f(mSx, mSy); }
+	ci::vec2			getTranslate() const		{ return ci::vec2(mTx, mTy); }
+	ci::vec2			getScale() const			{ return ci::vec2(mSx, mSy); }
 
 private:
 	bool			mHasTouch;

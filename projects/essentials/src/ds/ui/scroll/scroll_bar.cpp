@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_bar.h"
 
 #include <ds/ui/scroll/scroll_area.h>
@@ -58,7 +60,7 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 
 void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mFingerIndex == 0){
-		ci::Vec3f localPos = globalToLocal(ti.mCurrentGlobalPoint);
+		ci::vec3 localPos = globalToLocal(ti.mCurrentGlobalPoint);
 
 
 		bool isPerspective = getPerspective();

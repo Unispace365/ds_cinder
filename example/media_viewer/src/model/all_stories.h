@@ -21,3 +21,4 @@ public:
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_MODEL_ALLSTORIES_H_
+

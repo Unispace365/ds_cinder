@@ -1,7 +1,5 @@
 #include "video_360_app.h"
 
-#include <cinder/Clipboard.h>
-
 #include <Poco/String.h>
 #include <Poco/Path.h>
 #include <Poco/File.h>
@@ -22,7 +20,7 @@ video_360::video_360()
 	, mOverlay(nullptr)
 {
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
 	enableCommonKeystrokes(true);
 }
 
@@ -75,8 +73,10 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 
-	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
-		loadMedia(ci::Clipboard::getString());
+	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
+		auto clipboard = ds::Environment::getClipboard();
+		if (!clipboard.empty())
+			loadMedia(clipboard);
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mPanoramicVideo){
 			mPanoramicVideo->getVideo()->setPan(-1.0f);
@@ -92,18 +92,18 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_1){
-		mPanoramicVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		//mPanoramicVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		//if (!mPanoramicVideo->getVideo()->removeShader("test1")) {
 		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		//}
 	} else if (event.getChar() == KeyEvent::KEY_2){
-		if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
-			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
-		}
+	//	if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
+		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
+	//	}
 	} else if (event.getChar() == KeyEvent::KEY_3){
-		if(!mPanoramicVideo->getVideo()->removeShader("toonify")) {
-			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
-		}
+		//if(!mPanoramicVideo->getVideo()->removeShader("toonify")) {
+		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
+		//}
 	}
 }
 
@@ -169,4 +169,5 @@ void video_360::loadMedia(const std::string& newMedia){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(test::video_360, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(test::video_360, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

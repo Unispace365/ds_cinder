@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "globals.h"
 
 #include <Poco/String.h>

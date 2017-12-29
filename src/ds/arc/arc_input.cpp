@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_input.h"
 
 #include <cinder/Xml.h>
@@ -32,7 +34,7 @@ double Input::getFloat(const size_t index, const double defaultValue) const {
 	return defaultValue;
 }
 
-ci::Vec2d Input::getVec2(const size_t index, const ci::Vec2d& defaultValue) const {
+ci::dvec2 Input::getVec2(const size_t index, const ci::dvec2& defaultValue) const {
 	if (index < mVec2.size()) return mVec2[index];
 	return defaultValue;
 }
@@ -45,7 +47,7 @@ void Input::addFloat(const double v) {
 	mFloat.push_back(v);
 }
 
-void Input::addVec2(const ci::Vec2d& v) {
+void Input::addVec2(const ci::dvec2& v) {
 	mVec2.push_back(v);
 }
 
@@ -74,7 +76,7 @@ bool Input::readFrom(DataBuffer& buf) {
 			} else if (att == FLOAT_ATT) {
 				mFloat.push_back(buf.read<double>());
 			} else if (att == VEC2_ATT) {
-				mVec2.push_back(buf.read<ci::Vec2d>());
+				mVec2.push_back(buf.read<ci::dvec2>());
 			} else if (att == END_ATT) {
 				return true;
 			} else {
@@ -141,12 +143,12 @@ void FloatParam::readXml(const ci::XmlTree& xml) {
 /**
  * ds::arc::Vec2Param
  */
-Vec2Param::Vec2Param(const ci::Vec2d& value)
+Vec2Param::Vec2Param(const ci::dvec2& value)
 		: mValue(value)
 		, mInputIndex(-1) {
 }
 
-ci::Vec2d Vec2Param::getValue(const Input& input) const {
+ci::dvec2 Vec2Param::getValue(const Input& input) const {
 	if (mInputIndex < 0) return mValue;
 	return input.getVec2(static_cast<size_t>(mInputIndex), mValue);
 }

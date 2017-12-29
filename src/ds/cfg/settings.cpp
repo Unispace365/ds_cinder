@@ -1,5 +1,7 @@
-#include "ds/cfg/settings.h"
+#include "stdafx.h"
 
+#include "ds/cfg/settings.h"
+#include <boost/algorithm/string.hpp>
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
@@ -33,16 +35,16 @@ static const float				FLOAT_TYPE(0.0f);
 static const int				INT_TYPE(0);
 static const ci::Rectf			RECT_TYPE;
 static const Resource::Id		RESOURCE_ID_TYPE;
-static const ci::Vec2f			SIZE_TYPE;
+static const ci::vec2			SIZE_TYPE;
 static const std::string		TEXT_TYPE;
 static const std::wstring		TEXTW_TYPE;
-static const ci::Vec3f			POINT_TYPE;
+static const ci::vec3			POINT_TYPE;
 
 namespace {
 
 // A is a map between a string and a vector
 template <typename A>
-static int get_size(const std::string& name, A& container)
+static size_t get_size(const std::string& name, A& container)
 {
 	auto it = container.find(name);
 	if (it != container.end()) return it->second.size();
@@ -94,9 +96,7 @@ const V& get_or_throw(const std::string& name, const A& container, const int ind
 {
 	auto it = container.find(name);
 	if (it != container.end() && index >= 0 && index < (int)it->second.size()) return it->second[index];
-#ifdef _DEBUG
-	throw std::logic_error("Setting " + typeName + " (" + name + ") does not exist");
-#endif
+
 	DS_LOG_ERROR("Setting " << typeName << " (" << name << ") does not exist");
 	return v;
 }
@@ -191,6 +191,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   B_SZ("b");
 	const std::string   G_SZ("g");
 	const std::string   A_SZ("a");
+	const std::string	HEX_SZ("hex");
 	const std::string   X_SZ("x");
 	const std::string   Y_SZ("y");
 	const std::string   Z_SZ("z");
@@ -243,11 +244,36 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 				std::string code = it->getAttributeValue<std::string>(CODE_SZ);
 				c = mEngine->getColors().getColorFromName(code);
 			}
-		} else {
-			c.set(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+		} else if( it->hasAttribute(R_SZ)){
+			c = ci::ColorA(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+
+		} else if (it->hasAttribute(HEX_SZ)){
+			
+			std::string s = it->getAttributeValue<std::string>(HEX_SZ);
+
+			if (boost::starts_with(s, "#")){
+				boost::erase_head(s, 1);
+			}
+
+			if (boost::starts_with(s, "0x")){
+				boost::erase_head(s, 2);
+			}
+
+			std::stringstream converter(s);
+			unsigned int value;
+			converter >> std::hex >> value;
+
+			float a = (s.length() > 6)
+				? ((value >> 24) & 0xFF) / 255.0f
+				: 1.0f;
+			float r = ((value >> 16) & 0xFF) / 255.0f;
+			float g = ((value >> 8) & 0xFF) / 255.0f;
+			float b = ((value)& 0xFF) / 255.0f;
+			
+			c = ci::ColorA(r, g, b, a);
 		}
 		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
 		add_item(name, mColorA, c);
@@ -258,7 +284,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	for (auto it = xml.begin(SIZE_PATH); it != end; ++it) {
 		const float             DEFV = 0.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::Vec2f     value(it->getAttributeValue<float>(X_SZ, DEFV),
+		const cinder::vec2     value(it->getAttributeValue<float>(X_SZ, DEFV),
 			it->getAttributeValue<float>(Y_SZ, DEFV));
 		add_item(name, mSize, value);
 	}
@@ -284,7 +310,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
 		const float             DEFV = 0.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		cinder::Vec3f           value(it->getAttributeValue<float>(X_SZ, DEFV),
+		cinder::vec3           value(it->getAttributeValue<float>(X_SZ, DEFV),
 			it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
 		if (it->hasAttribute(Z_SZ)) {
 			value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
@@ -351,7 +377,7 @@ void Settings::writeTo(const std::string& filename)
 	{
 		cinder::XmlTree sub("size", "");
 		sub.setAttribute("name", (*it).first);
-		ci::Vec2f value((*it).second.at(0));
+		ci::vec2 value((*it).second.at(0));
 		sub.setAttribute<float>("x", value.x);
 		sub.setAttribute<float>("y", value.y);
 		tree.push_back(sub);
@@ -377,7 +403,7 @@ void Settings::writeTo(const std::string& filename)
 	{
 		cinder::XmlTree sub("point", "");
 		sub.setAttribute("name", (*it).first);
-		ci::Vec3f value((*it).second.at(0));
+		ci::vec3 value((*it).second.at(0));
 		sub.setAttribute<float>("x", value.x);
 		sub.setAttribute<float>("y", value.y);
 		sub.setAttribute<float>("z", value.z);
@@ -412,39 +438,39 @@ void Settings::clear() {
 	mPoints.clear();
 }
 
-int Settings::getBoolSize(const std::string& name) const {
+size_t Settings::getBoolSize(const std::string& name) const {
 	return getTextSize(name);
 }
 
-int Settings::getColorSize(const std::string& name) const {
+size_t Settings::getColorSize(const std::string& name) const {
 	return get_size(name, mColor);
 }
 
-int Settings::getFloatSize(const std::string& name) const {
+size_t Settings::getFloatSize(const std::string& name) const {
 	return get_size(name, mFloat);
 }
 
-int Settings::getIntSize(const std::string& name) const {
+size_t Settings::getIntSize(const std::string& name) const {
 	return get_size(name, mInt);
 }
 
-int Settings::getRectSize(const std::string& name) const {
+size_t Settings::getRectSize(const std::string& name) const {
 	return get_size(name, mRect);
 }
 
-int Settings::getResourceIdSize(const std::string& name) const {
+size_t Settings::getResourceIdSize(const std::string& name) const {
 	return get_size(name, mRes);
 }
 
-int Settings::getTextSize(const std::string& name) const {
+size_t Settings::getTextSize(const std::string& name) const {
 	return get_size(name, mText);
 }
 
-int Settings::getTextWSize(const std::string& name) const {
+size_t Settings::getTextWSize(const std::string& name) const {
 	return get_size(name, mTextW);
 }
 
-int Settings::getPointSize( const std::string& name ) const {	
+size_t Settings::getPointSize(const std::string& name) const {
 	return get_size(name, mPoints);
 }
 
@@ -478,7 +504,7 @@ const cinder::ColorA& Settings::getColorA(const std::string& name, const int ind
 	return get_or_throw(name, mColorA, index, COLORA_TYPE, COLOR_NAME);
 }
 
-const cinder::Vec2f& Settings::getSize(const std::string& name, const int index) const
+const cinder::vec2& Settings::getSize(const std::string& name, const int index) const
 {
 	return get_or_throw(name, mSize, index, SIZE_TYPE, SIZE_NAME);
 }
@@ -493,7 +519,7 @@ const std::wstring& Settings::getTextW(const std::string& name, const int index)
 	return get_or_throw(name, mTextW, index, TEXTW_TYPE, TEXTW_NAME);
 }
 
-const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/ ) const
+const ci::vec3& Settings::getPoint( const std::string& name, const int index /*= 0*/ ) const
 {
   return get_or_throw(name, mPoints, index, POINT_TYPE, POINT_NAME);
 }
@@ -533,7 +559,7 @@ cinder::ColorA Settings::getColorA(const std::string& name, const int index, con
 	return get(name, mColorA, index, defaultValue, COLOR_NAME);
 }
 
-cinder::Vec2f Settings::getSize(const std::string& name, const int index, const ci::Vec2f& defaultValue) const
+cinder::vec2 Settings::getSize(const std::string& name, const int index, const ci::vec2& defaultValue) const
 {
 	return get(name, mSize, index, defaultValue, SIZE_NAME);
 }
@@ -548,7 +574,7 @@ std::wstring Settings::getTextW(const std::string& name, const int index, const 
 	return get(name, mTextW, index, defaultValue, TEXTW_NAME);
 }
 
-const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::Vec3f& defaultValue ) const
+const ci::vec3& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::vec3& defaultValue ) const
 {
 	return get(name, mPoints, index, defaultValue, POINT_NAME);
 }
@@ -742,7 +768,7 @@ Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::Vec2f& v) {
+Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::vec2& v) {
 	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mSize, v);
 	return *this;
@@ -754,7 +780,7 @@ Settings::Editor& Settings::Editor::setText(const std::string& name, const std::
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setPoint(const std::string& name, const ci::Vec3f& v) {
+Settings::Editor& Settings::Editor::setPoint(const std::string& name, const ci::vec3& v) {
 	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mPoints, v);
 	return *this;

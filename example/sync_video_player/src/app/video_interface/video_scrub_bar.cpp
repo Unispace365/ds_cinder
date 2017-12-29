@@ -51,7 +51,7 @@ namespace ds {
 			mTouchPhase = ti.mPhase;
 							//mUpdatedPosition = true;
 
-			ci::Vec3f loccy = globalToLocal(ti.mCurrentGlobalPoint);
+			ci::vec3 loccy = globalToLocal(ti.mCurrentGlobalPoint);
 			double newPercent = (double)(loccy.x / getWidth());
 			if (newPercent < 0.0) newPercent = 0.0;
 			if (newPercent > 1.0) newPercent = 1.0;
@@ -131,8 +131,7 @@ void VideoScrubBar::linkVideo(ds::ui::Video* vid){
 	mLinkedVideo = vid;
 }
 
-void VideoScrubBar::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
+void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 	if (!mLinkedVideo) return;
 
 	if (mAdded || mMoved || mRemoved) {
@@ -176,3 +175,5 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 
 
 } // namespace exxon
+
+

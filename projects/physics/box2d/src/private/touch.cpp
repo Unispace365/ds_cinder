@@ -43,8 +43,8 @@ float			wrap(float in, float size) {
 	return in;
 }
 
-ci::Vec3f	get_global_rotation(const ds::ui::Sprite& s) {
-	ci::Vec3f				rotation(0.0f, 0.0f, 0.0f);
+ci::vec3	get_global_rotation(const ds::ui::Sprite& s) {
+	ci::vec3				rotation(0.0f, 0.0f, 0.0f);
 	const ds::ui::Sprite*	p = &s;
 	while (p) {
 		rotation += p->getRotation();
@@ -58,12 +58,12 @@ ci::Vec3f	get_global_rotation(const ds::ui::Sprite& s) {
 void Touch::processTouchMoved(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
 	b2MouseJoint*		j = getTouchJoint(ti.mFingerId);
 	if (j) {
-		ci::Vec3f		rotation(0.0f, 0.0f, 0.0f);
+		ci::vec3		rotation(0.0f, 0.0f, 0.0f);
 		if (body.mSprite.getParent()) {
 			rotation = get_global_rotation(*(body.mSprite.getParent()));
 		}
-		ci::Vec3f		offset = ti.mCurrentGlobalPoint - ti.mStartPoint;
-		ci::Vec3f		new_position(offset);
+		ci::vec3		offset = ti.mCurrentGlobalPoint - ti.mStartPoint;
+		ci::vec3		new_position(offset);
 		const float		r = ci::toRadians(-rotation.z);
 		//new_position.rotateZ(r);
 

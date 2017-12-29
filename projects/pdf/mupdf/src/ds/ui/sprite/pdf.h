@@ -20,22 +20,17 @@ class Pdf : public ds::ui::Sprite {
 public:
 	static Pdf&					makePdf(SpriteEngine&, Sprite* parent = nullptr);
 	// Utility to get a render of the first page of a PDF.
-	static ci::Surface8u		renderPage(const std::string& path);
-	// Constant size will cause the sprite to size itself to the first PDF
-	// and scale all subsequent PDF pages to match.
-	// Auto resize will cause the view to resize when the page size changes.
-	enum						PageSizeMode { kConstantSize, kAutoResize };
+	static ci::Surface8uRef		renderPage(const std::string& path);
 
 	Pdf(ds::ui::SpriteEngine&);
 
-	Pdf&						setPageSizeMode(const PageSizeMode&);
 	Pdf&						setResourceFilename(const std::string& filename);
 	Pdf&						setResourceId(const ds::Resource::Id&);
-	// Callback when the page size changes (only triggered in kAutoResize mode).
+	// Callback when the page size changes. Highly recommend you listen for this. The sprite will change size before this is called
 	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
-	virtual void				updateClient(const UpdateParams&);
-	virtual void				updateServer(const UpdateParams&);
+	virtual void				onUpdateClient(const UpdateParams&) override;
+	virtual void				onUpdateServer(const UpdateParams&) override;
 
 	// PDF API
 	/** Displays the page given, from 1 to getPageCount() */
@@ -66,19 +61,17 @@ public:
 protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
-
+	
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
-	typedef ds::ui::Sprite		inherited;
 
 	// STATE
 	std::string					mResourceFilename;
-	PageSizeMode				mPageSizeMode;
 	std::function<void(void)>	mPageSizeChangeFn;
 	// CACHE
-	ci::Vec2i					mPageSizeCache;
+	ci::ivec2					mPageSizeCache;
 
 	// It'd be nice just have the PdfRes in a unique_ptr,
 	// but it has rules around destruction
@@ -90,13 +83,13 @@ private:
 		void					clear();
 
 		/// Returns true if the PDF was loaded successfully
-		bool					setResourceFilename(const std::string& filename, const PageSizeMode&);
+		bool					setResourceFilename(const std::string& filename);
 
 		/// Returns true if pixels were updated in this update
 		bool					update();
+		ci::gl::TextureRef		getTexture();
 		void					drawLocalClient();
-		void					setScale(const ci::Vec3f&);
-		void					setPageSizeMode(const PageSizeMode&);
+		void					setScale(const ci::vec3&);
 		float					getWidth() const;
 		float					getHeight() const;
 		float					getTextureWidth() const;
@@ -104,7 +97,7 @@ private:
 		void					setPageNum(const int pageNum);
 		int						getPageNum() const;
 		int						getPageCount() const;
-		ci::Vec2i				getPageSize() const;
+		ci::ivec2				getPageSize() const;
 		void					goToNextPage();
 		void					goToPreviousPage();
 
@@ -115,7 +108,7 @@ private:
 	ResHolder					mHolder;
 
 	// For clients to detect scale changes and re-render
-	ci::Vec3f					mPrevScale;
+	ci::vec3					mPrevScale;
 
 	std::function<void()>		mPageLoadedCallback;
 	std::function<void()>		mPageChangeCallback;

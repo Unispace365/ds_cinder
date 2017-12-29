@@ -7,7 +7,6 @@
 #include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
 #include "ds/app/engine/engine_service.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/ui/ip/ip_function_list.h"
 
 #include "ds/thread/parallel_runnable.h"
@@ -81,10 +80,10 @@ public:
 									const std::string& ip_params, const int flags);
 	void					release();
 
-	ci::gl::Texture			getImage(float& fade);
+	ci::gl::TextureRef		getImage(float& fade);
 
 	/// No refs are acquired, no image is loaded -- if it exists, answer it
-	const ci::gl::Texture	peekImage(const std::string& filename) const;
+	const ci::gl::TextureRef	peekImage(const std::string& filename) const;
 
 private:
 	void					init();
@@ -93,7 +92,7 @@ private:
 	ImageKey				mKey;
 	bool					mAcquired;
 	bool					mError;
-	ci::gl::Texture			mTexture;
+	ci::gl::TextureRef		mTextureRef;
 };
 
 /**
@@ -109,9 +108,9 @@ public:
 	bool						acquire(const ImageKey& key, const int flags);
 	void						release(const ImageKey& key);
 
-	ci::gl::Texture				getImage(const ImageKey&, float& fade);
+	ci::gl::TextureRef			getImage(const ImageKey&, float& fade);
 	// No refs are acquired, no image is loaded -- if it exists, answer it
-	const ci::gl::Texture		peekImage(const ImageKey&) const;
+	const ci::gl::TextureRef	peekImage(const ImageKey&) const;
 	// Answer true if the token exists (though the image might not be loaded), supplying the flags if you like
 	bool						peekToken(const ImageKey&, int* flags = nullptr) const;
 
@@ -123,7 +122,7 @@ private:
 		ImageHolder();
 
 		int						mRefs;
-		ci::gl::Texture			mTexture;
+		ci::gl::TextureRef		mTextureRef;
 		bool					mError;
 		int						mFlags;
 	};

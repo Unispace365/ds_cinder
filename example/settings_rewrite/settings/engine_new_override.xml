@@ -1,0 +1,9 @@
+<settings>
+	
+	<setting name="a new setting" value="0, 1" />
+
+	<setting name="project_path" value="stupid/thingy" />
+	<setting name="project_path" value="another/krumbum" />
+	
+
+</settings>

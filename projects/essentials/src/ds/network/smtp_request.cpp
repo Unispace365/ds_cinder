@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "smtp_request.h"
 
 #include "ds/network/curl/curl.h"

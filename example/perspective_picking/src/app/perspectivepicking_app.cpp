@@ -1,5 +1,7 @@
 #include "perspectivepicking_app.h"
 
+#include <cinder/app/RendererGl.h>
+
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -17,20 +19,25 @@ PerspectivePicking::PerspectivePicking()
 
 								.persp() // sample perp view
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 960.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 960.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
-								.perspFar(2000.0f)
+								.perspFar(10000.0f)
+
+								.ortho() // for debugging positions
 								)
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
+	, mTouchTestDuo(nullptr)
+	, mTopLeftMarker(nullptr)
+	, mBotRightMarker(nullptr)
 	, mDebugCamera(0)
 {
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
+	//mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-name-here");
 
 	enableCommonKeystrokes(true);
 }
@@ -45,6 +52,7 @@ void PerspectivePicking::setupServer(){
 	mEngine.getRootSprite().clearChildren();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite &orthoRoot = mEngine.getRootSprite(1);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	// add sprites
@@ -62,20 +70,38 @@ void PerspectivePicking::setupServer(){
 	rootSprite.addChild(*testTouchUno);
 
 
+	ds::ui::Sprite* holdy = new ds::ui::Sprite(mEngine);
+	holdy->setRotation(45.0f, 45.0f, 0.0f);
+	rootSprite.addChildPtr(holdy);
 
-	ds::ui::Sprite* testTouchDuo = new ds::ui::Sprite(mEngine);
-	testTouchDuo->setTransparent(false);
-	testTouchDuo->setColor(ci::Color(0.2f, 0.2f, 0.6f));
-	testTouchDuo->setSize(200.0f, 200.0f);
-	testTouchDuo->setPosition(300.0f, 0.0f);
-	testTouchDuo->setCenter(0.5f, 0.5f);
-	testTouchDuo->enable(true);
-	testTouchDuo->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	testTouchDuo->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+	mTouchTestDuo = new ds::ui::Sprite(mEngine);
+	mTouchTestDuo->setTransparent(false);
+	mTouchTestDuo->setColor(ci::Color(0.2f, 0.2f, 0.6f));
+	mTouchTestDuo->setSize(200.0f, 200.0f);
+	mTouchTestDuo->setPosition(300.0f, 0.0f, 100.0f);
+	mTouchTestDuo->setRotation(0.0f, 10.0f, 0.0f);
+	mTouchTestDuo->setCenter(0.5f, 0.5f);
+	mTouchTestDuo->enable(true);
+	mTouchTestDuo->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	mTouchTestDuo->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 		std::cout << "Touching duo" << std::endl;
 		bs->move(ti.mDeltaPoint.x, -ti.mDeltaPoint.y);
 	});
-	rootSprite.addChild(*testTouchDuo);
+	holdy->addChild(*mTouchTestDuo);
+
+
+	mTopLeftMarker = new ds::ui::Sprite(mEngine);
+	mTopLeftMarker->setTransparent(false);
+	mTopLeftMarker->setColor(ci::Color(1.0f, 0.0f, 0.0f));
+	mTopLeftMarker->setSize(4.0f, 4.0f);
+	orthoRoot.addChildPtr(mTopLeftMarker);
+
+
+	mBotRightMarker = new ds::ui::Sprite(mEngine);
+	mBotRightMarker->setTransparent(false);
+	mBotRightMarker->setColor(ci::Color(0.0f, 0.0f, 1.0f));
+	mBotRightMarker->setSize(4.0f, 4.0f);
+	orthoRoot.addChildPtr(mBotRightMarker);
 
 
 
@@ -83,7 +109,8 @@ void PerspectivePicking::setupServer(){
 	testTouchTre->setTransparent(false);
 	testTouchTre->setColor(ci::Color(0.2f, 0.2f, 0.6f));
 	testTouchTre->setSize(200.0f, 200.0f);
-	testTouchTre->setPosition(600.0f, 0.0f);
+	testTouchTre->setPosition(600.0f, 0.0f, -10.0f);
+	testTouchTre->setRotation(0.0f, -30.0f, 0.0f);
 	testTouchTre->setCenter(1.0f, 1.0f);
 	testTouchTre->enable(true);
 	testTouchTre->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -92,6 +119,8 @@ void PerspectivePicking::setupServer(){
 		bs->move(ti.mDeltaPoint.x, -ti.mDeltaPoint.y);
 	});
 	rootSprite.addChild(*testTouchTre);
+
+	//rootSprite.setUseDepthBuffer(true);
 }
 
 void PerspectivePicking::update() {
@@ -107,6 +136,58 @@ void PerspectivePicking::update() {
 		mEngine.getNotifier().notify( IdleEndedEvent() );
 	}
 
+
+	if(mTopLeftMarker && mTouchTestDuo){
+		auto perspCamera = mEngine.getPerspectiveCameraRef(0);
+
+		const float	w = mTouchTestDuo->getScaleWidth(),
+			h = mTouchTestDuo->getScaleHeight();
+
+
+		//ci::vec3 ptR = pick.getScreenPt();
+		ci::vec3 a = mTouchTestDuo->getPosition();
+
+		auto globalTransform = mTouchTestDuo->getGlobalTransform();
+
+		auto newBB = mTouchTestDuo->getBoundingBox();
+
+
+		//a.x -= mEngine.getWorldWidth();
+		//a.y -= mEngine.getWorldHeight();
+		//a.z = - mEngine.getWorldWidth() + a.z;
+		//a.z -= mEngine.getWorldWidth();// / 2.0f;
+
+		ci::vec3 camEye = perspCamera.getEyePoint();
+		//a.x -= camEye.x;
+		a.z -= camEye.z;
+		ci::vec3 ptA = a;
+		ci::vec3 ptB = a;
+		ci::vec3 ptC = a;
+		ci::vec3 ptD = a;
+
+		ci::vec2 ptA_s;
+		ci::vec2 ptB_s;
+		ci::vec2 ptC_s;
+
+		ptA.x -= mTouchTestDuo->getCenter().x*w;
+		ptA.y += (1.0f - mTouchTestDuo->getCenter().y)*h;
+		ptC.x += (1.0f - mTouchTestDuo->getCenter().x)*w;
+		ptC.y -= mTouchTestDuo->getCenter().y*h;
+
+
+		ci::AxisAlignedBox bb = ci::AxisAlignedBox(ptA, ptC);
+	//	bb.transform(globalTransform);
+
+		ptA_s = perspCamera.worldToScreen(ci::vec3(50.0f, 50.0f, 50.0f), mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		ptA_s = perspCamera.worldToScreen(ptA, mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		ptA_s = perspCamera.worldToScreen(bb.getMin(), mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		mTopLeftMarker->setPosition(ptA_s);
+
+		//ptC_s = perspCamera.worldToScreen(ci::vec3(ptC), mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		ptC_s = perspCamera.worldToScreen(bb.getMax(), mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		mBotRightMarker->setPosition(ptC_s);
+
+	}
 }
 
 void PerspectivePicking::keyDown(ci::app::KeyEvent event){
@@ -125,31 +206,34 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_RIGHT){
-		moveCamera(ci::Vec3f(moveAmount, 0.0f, 0.0f), moveTarget);
+		moveCamera(ci::vec3(moveAmount, 0.0f, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_LEFT){
-		moveCamera(ci::Vec3f(-moveAmount, 0.0f, 0.0f), moveTarget);
+		moveCamera(ci::vec3(-moveAmount, 0.0f, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_UP){
-		moveCamera(ci::Vec3f(0.0f, -moveAmount, 0.0f), moveTarget);
+		moveCamera(ci::vec3(0.0f, -moveAmount, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_DOWN){
-		moveCamera(ci::Vec3f(0.0f, moveAmount, 0.0f), moveTarget);
+		moveCamera(ci::vec3(0.0f, moveAmount, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, moveAmount), moveTarget);
+		moveCamera(ci::vec3(0.0f, 0.0f, moveAmount), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -moveAmount), moveTarget);
-	} else if(event.getCode() == KeyEvent::KEY_l){
+		moveCamera(ci::vec3(0.0f, 0.0f, -moveAmount), moveTarget);
+	} else if(event.getCode() == KeyEvent::KEY_j){
 		shiftLensH(moveAmount / 100.0f);
 	} else if(event.getCode() == KeyEvent::KEY_k){
 		shiftLensH(-moveAmount / 100.0f);
 
 	} else if(event.getCode() == KeyEvent::KEY_SEMICOLON){
-		moveRoot(ci::Vec3f(0.0f, moveAmount, 0.0f));
+		moveRoot(ci::vec3(0.0f, moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_COMMA){
-		moveRoot(ci::Vec3f(-moveAmount, 0.0f, 0.0f));
+		moveRoot(ci::vec3(-moveAmount, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_PERIOD){
-		moveRoot(ci::Vec3f(0.0f, -moveAmount, 0.0f));
+		moveRoot(ci::vec3(0.0f, -moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_SLASH){
-		moveRoot(ci::Vec3f(moveAmount, 0.0f, 0.0f));
-
+		moveRoot(ci::vec3(moveAmount, 0.0f, 0.0f));
+	} else if(event.getCode() == KeyEvent::KEY_QUOTE){
+		moveRoot(ci::vec3(0.0f, 0.0f, moveAmount));
+	} else if(event.getCode() == KeyEvent::KEY_l){
+		moveRoot(ci::vec3(0.0f, 0.0f, -moveAmount));
 	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
 		p.mFarPlane += moveAmount;
@@ -164,10 +248,10 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 
 	} else if(event.getCode() == KeyEvent::KEY_z){
 		ds::ui::Sprite& rooty = mEngine.getRootSprite(mDebugCamera);
-		rooty.setPosition(ci::Vec3f(0.0f, 0.0f, 0.0f));
+		rooty.setPosition(ci::vec3(0.0f, 0.0f, 0.0f));
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
-		p.mTarget = ci::Vec3f(0.0f, 0.0f, p.mTarget.z);
-		p.mPosition = ci::Vec3f(0.0f, 0.0f, p.mPosition.z);
+		p.mTarget = ci::vec3(0.0f, 0.0f, p.mTarget.z);
+		p.mPosition = ci::vec3(0.0f, 0.0f, p.mPosition.z);
 		mEngine.setPerspectiveCamera(mDebugCamera, p);
 
 		std::cout << "Reset camera " << mDebugCamera << std::endl;
@@ -179,13 +263,13 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void PerspectivePicking::moveRoot(const ci::Vec3f& deltaMove){
+void PerspectivePicking::moveRoot(const ci::vec3& deltaMove){
 	ds::ui::Sprite& rooty = mEngine.getRootSprite(mDebugCamera);
 	rooty.move(deltaMove);
 	std::cout << "Moving root " << mDebugCamera << " pos: " << rooty.getPosition() << std::endl;
 }
 
-void PerspectivePicking::moveCamera(const ci::Vec3f& deltaMove, const bool moveTarget){
+void PerspectivePicking::moveCamera(const ci::vec3& deltaMove, const bool moveTarget){
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
 	if(moveTarget){
 		p.mTarget += deltaMove;
@@ -210,4 +294,5 @@ void PerspectivePicking::shiftLensH(const float amount){
 } // namespace perspective_picking
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(perspective_picking::PerspectivePicking, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(perspective_picking::PerspectivePicking, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

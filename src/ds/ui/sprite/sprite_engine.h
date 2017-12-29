@@ -9,7 +9,6 @@
 #include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
-#include "fbo/fbo.h"
 #include <memory>
 
 namespace ds {
@@ -30,9 +29,11 @@ namespace cfg {
 class Settings;
 }
 
+class TuioObject;
+
 namespace ui {
 class LoadImageService;
-class RenderTextService;
+class PangoFontService;
 class Sprite;
 class Tweenline;
 class TouchEvent;
@@ -59,7 +60,7 @@ public:
 	virtual const ds::FontList&		getFonts() const = 0;
 	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
-	virtual RenderTextService&		getRenderTextService() = 0;
+	virtual PangoFontService&		getPangoFontService() = 0;
 	virtual ds::ImageRegistry&		getImageRegistry() = 0;
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
@@ -104,16 +105,11 @@ public:
 	float							getDoubleTapTime() const;
 	const ci::Rectf&				getSrcRect() const;
 	const ci::Rectf&				getDstRect() const;
-	// This should be obsoleted, everyone should be using src and dst rects now
-	ci::Rectf						getScreenRect() const;
 	float							getWidth() const;
 	float							getHeight() const;
 	float							getWorldWidth() const;
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
-
-	std::unique_ptr<FboGeneral>		getFbo();
-	void							giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
@@ -131,7 +127,7 @@ public:
 
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);
-	Sprite*							getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
+	Sprite*							getDragDestinationSprite(const ci::vec3 &globalPoint, Sprite *draggingSprite);
 
 	double							getElapsedTimeSeconds() const;
 
@@ -154,8 +150,9 @@ public:
 	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
 
-	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
+	virtual void					injectObjectsBegin(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsMoved(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsEnded(const ds::TuioObject&) = 0;
 
 	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
 	/// This calls *after* any sprites get the touch. 
@@ -169,7 +166,10 @@ public:
 	virtual bool					getRotateTouchesDefault() = 0;
 
 	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
-	virtual ds::ui::Sprite*			getHit(const ci::Vec3f& point) = 0;
+	virtual ds::ui::Sprite*			getHit(const ci::vec3& point) = 0;
+
+	virtual	int						getBytesRecieved() = 0;
+	virtual int						getBytesSent() = 0;
 
 
 	static const int				CLIENT_MODE = 0;
@@ -200,8 +200,6 @@ protected:
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
 	ds::ComputerInfo*				mComputerInfo;
-
-	std::list<std::unique_ptr<FboGeneral>> mFbos;
 
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;

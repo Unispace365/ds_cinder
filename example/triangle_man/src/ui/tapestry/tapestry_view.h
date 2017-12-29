@@ -70,11 +70,11 @@ private:
 	/// Triangle effects
 	class TriangleThingy {
 	public:
-		TriangleThingy(ci::Vec2f loc, int colorIndex, float curAlpha, float maxAlpha)
+		TriangleThingy(ci::vec2 loc, int colorIndex, float curAlpha, float maxAlpha)
 			: mCurAlpha(curAlpha), mVelocity(0.0f), mLocation(loc), mColorIndex(colorIndex), mGrowing(false), mMaxAlpha(maxAlpha)
 		{};
 
-		ci::Vec2f	mLocation;
+		ci::vec2	mLocation;
 		int			mColorIndex;
 		float		mCurAlpha;
 		float		mVelocity;
@@ -86,7 +86,7 @@ private:
 	std::vector<TriangleThingy>			mThingies;
 	bool								mInitialized;
 	TriangleSettings					mTriangleSettings;
-	ci::gl::VboMesh						mMesh;
+	ci::gl::VboMeshRef					mMesh;
 
 
 	void								onAppEvent(const ds::Event&);
@@ -112,3 +112,5 @@ private:
 } // namespace nwm
 
 #endif
+
+

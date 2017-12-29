@@ -25,6 +25,9 @@
     <ClCompile Include="..\src\model\generated\media_model.cpp">
       <Filter>src\model\generated</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -57,9 +60,12 @@
     <ClInclude Include="..\src\model\generated\media_model.h">
       <Filter>src\model\generated</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

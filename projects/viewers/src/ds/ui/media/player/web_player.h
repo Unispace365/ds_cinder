@@ -27,13 +27,13 @@ public:
 	void								showInterface();
 	void								hideInterface();
 
-	void								sendClick(const ci::Vec3f& globalClickPos);
+	void								sendClick(const ci::vec3& globalClickPos);
 
 	ds::ui::Web*						getWeb();
 	WebInterface*						getWebInterface(); // may be nullptr if embedInterface is false
 
 	/// UI params - replace with MediaViewerSettings?
-	void								setWebViewSize(const ci::Vec2f webSize);
+	void								setWebViewSize(const ci::vec2 webSize);
 	void								setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
 	void								setAllowTouchToggle(const bool allowTouchToggle);
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
@@ -46,7 +46,7 @@ protected:
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
 
-	ci::Vec2f							mWebSize;
+	ci::vec2							mWebSize;
 	float								mKeyboardKeyScale;
 	bool								mKeyboardAllow;
 	bool								mKeyboardAbove;

@@ -6,12 +6,11 @@
 // redefinition warnings.
 #include "ds/app/engine/engine.h"
 
-#include <cinder/Font.h>
-#include <cinder/gl/TextureFont.h>
 #include "ds/app/blob_registry.h"
 #include "ds/app/event.h"
 #include "ds/app/event_client.h"
 #include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/text.h"
 
 namespace ds {
 class Engine;
@@ -26,34 +25,27 @@ public:
 	static void					installAsClient(ds::BlobRegistry&);
 	EngineStatsView(ds::ui::SpriteEngine&);
 
-	virtual void				updateServer(const ds::UpdateParams&);
-	virtual void				updateClient(const ds::UpdateParams&);
-	virtual void				drawLocalClient();
-	virtual void				drawLocalServer();
 
+	virtual void				onUpdateServer(const ds::UpdateParams&) override;
+	virtual void				onUpdateClient(const ds::UpdateParams&) override;
+
+	void						updateStats();
 private:
-	float						drawLine(const std::string&, const float y);
 	void						onAppEvent(const ds::Event&);
-	void						makeTextureFont();
-	// Abstract drawing for server AND client
-	void						drawStats();
-	typedef ds::ui::Sprite		inherited;
 	ds::Engine&					mEngine;
 	ds::EventClient				mEventClient;
 	// UI
-	ci::Font					mFont;
-	ci::gl::TextureFontRef		mTextureFont;
+	ds::ui::Sprite*				mBackground;
+	ds::ui::Text*				mText;
+
 	// SETTINGS
-	const float					mFontSize;
-	const ci::Vec2f				mLT;
-	const ci::Vec2f				mBorder;
+	const ci::vec2				mLT;
 
 	// EVENTS
 public:
-	class Toggle : public ds::Event {
+	class ToggleStatsRequest : public ds::RegisteredEvent<ToggleStatsRequest> {
 	public:
-		static int WHAT();
-		Toggle();
+		ToggleStatsRequest(){}
 	};
 };
 

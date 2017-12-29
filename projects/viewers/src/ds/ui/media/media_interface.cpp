@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const ci::Color backgroudnColor)
+MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroudnColor)
 	: ds::ui::Sprite(eng, sizey.x, sizey.y)
 	, mBackground(nullptr)
 	, mIdling(nullptr)
@@ -24,6 +24,8 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	, mMaxWidth(sizey.x)
 	, mMinWidth(sizey.y)
 	, mInterfaceIdleSettings(5.0f)
+	, mCanIdle(true)
+	, mCanDisplay(true)
 {
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
@@ -39,10 +41,8 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	layout();
 }
 
-void MediaInterface::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
-
-	if(mIdling != isIdling()){
+void MediaInterface::onUpdateServer(const ds::UpdateParams& p){
+	if(mCanIdle && mIdling != isIdling()){
 		mIdling = isIdling();
 		if(mIdling){
 			animateOff();
@@ -51,7 +51,6 @@ void MediaInterface::updateServer(const ds::UpdateParams& p){
 		}
 	}
 }
-
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void MediaInterface::layout(){
@@ -69,7 +68,15 @@ void MediaInterface::layout(){
 	}
 }
 
+
+void MediaInterface::setBackgroundColorA(const ci::ColorA backgroundColor)
+{
+	if (mBackground)
+		mBackground->setColorA(backgroundColor);
+}
+
 void MediaInterface::animateOn(){
+	if(!mCanDisplay) return;
 	resetIdleTimer();
 	show();
 

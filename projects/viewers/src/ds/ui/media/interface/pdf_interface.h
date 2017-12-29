@@ -21,13 +21,14 @@ class ThumbnailBar;
 */
 class PDFInterface : public MediaInterface  {
 public:
-	PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
-	void						linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource);
+	void						linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource);
 	void						updateWidgets();
+	void						setPageFont(std::string fontName, float fontSize);
 
 protected:
-	virtual void				updateServer(const ds::UpdateParams& updateParams);
+	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;
 	virtual void				onLayout();
 
 	ds::ui::Pdf*				mLinkedPDF;

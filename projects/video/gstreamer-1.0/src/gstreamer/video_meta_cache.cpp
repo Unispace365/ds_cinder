@@ -2,7 +2,7 @@
 
 
 // Keep this at the front, can get messed if it comes later
-#include "MediaInfoDLL.h"
+#include "MediaInfoDLL/MediaInfoDLL.h"
 
 #include <sstream>
 #include <Poco/Path.h>
@@ -15,6 +15,20 @@
 
 #include "ds/ui/sprite/video.h"
 
+
+// Win32 has UNICODE defined, meaning MediaInfo strings are wstring
+// Linux just uses utf-8 strings.
+#if defined(UNICODE) || defined(_UNICODE)
+	#define _MI_TO_STR(__x) ds::utf8_from_wstr(__x)
+	#define _STR_TO_MI(__x) ds::wstr_from_utf8(__x)
+	#define _MI_TO_VALUE ds::wstring_to_value
+#else
+	#define _MI_TO_STR(__x) __x
+	#define _STR_TO_MI(__x) __x
+	#define _MI_TO_VALUE ds::string_to_value
+#endif
+
+
 namespace ds {
 namespace ui {
 
@@ -25,7 +39,7 @@ const std::string&	VIDEO_ONLY_TYPE_SZ() { static const std::string	ANS("v"); ret
 const std::string&	VIDEO_AND_AUDIO_TYPE_SZ() { static const std::string	ANS("va"); return ANS; }
 
 std::string get_db_directory() {
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	p.append("documents").append("downstream").append("cache").append("video");
 	return Poco::Path::expand(p.toString());
 }
@@ -182,7 +196,7 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 		throw std::runtime_error("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
 		return false;
 	}
-	media_info.Open(ds::wstr_from_utf8(entry.mPath));
+	media_info.Open(_STR_TO_MI(entry.mPath));
 	
 	size_t numAudio = media_info.Count_Get(MediaInfoDLL::Stream_Audio);
 	size_t numVideo = media_info.Count_Get(MediaInfoDLL::Stream_Video);
@@ -195,16 +209,17 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 
 	// If there's an audio channel, get it's codec
 	if(numAudio > 0){
-		entry.mAudioCodec = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Audio, 0, L"Codec", MediaInfoDLL::Info_Text));
-	}
+		entry.mAudioCodec = _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Codec"), MediaInfoDLL::Info_Text));
 
+		std::cout << "Number of audio channels: " << _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Channels"), MediaInfoDLL::Info_Text)) << std::endl;
+	}
 
 	// No video streams, but has at least one audio stream is a AUDIO_TYPE
 	if(numAudio > 0 && numVideo < 1){
 		entry.mType = AUDIO_ONLY_TYPE;
 		entry.mWidth = 0;
 		entry.mHeight = 0;
-		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Audio, 0, L"Duration", MediaInfoDLL::Info_Text), entry.mDuration)) return false;
+		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration)) return false;
 
 	// Any number of audio streams and at least one video streams is VIDEO_TYPE
 	} else if(numVideo > 0){
@@ -213,22 +228,17 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 		} else {
 			entry.mType = VIDEO_ONLY_TYPE;
 		}
-		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), entry.mWidth)) return false;
-		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), entry.mHeight)) return false;
+		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Video, 0, __T("Width"), MediaInfoDLL::Info_Text), entry.mWidth)) return false;
+		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Video, 0, __T("Height"), MediaInfoDLL::Info_Text), entry.mHeight)) return false;
 
 		// We don't check errors on these, cause they're not required by gstreamer to play a video, they're just nice-to-have
-		entry.mVideoCodec = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Codec", MediaInfoDLL::Info_Text));
-		entry.mColorSpace = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Colorimetry", MediaInfoDLL::Info_Text));
-		ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), entry.mDuration);
+		entry.mVideoCodec = _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Video, 0, __T("Codec"), MediaInfoDLL::Info_Text));
+		entry.mColorSpace = _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Video, 0, __T("Colorimetry"), MediaInfoDLL::Info_Text));
+		_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Video, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration);
 	}
 
 	entry.mDuration /= 1000.0f;
 
-	// Disabling duration check, if MediaInfo can't find it, that's ok, GStreamer can fill it in
-// 	if(entry.mDuration <= 0.0f || entry.mDuration > 360000.0f) {  // 360000.0f == 100 hours. That should be enough, right?
-// 		DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << entry.mDuration << ") for file (" << entry.mPath << ")");
-// 		return false;
-// 	}
 	return true;
 }
 

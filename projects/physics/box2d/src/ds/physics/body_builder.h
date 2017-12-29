@@ -72,7 +72,7 @@ public:
 
 	virtual void		createFixture(SpriteBody&) const;
 
-	 std::vector<ci::Vec2f> mPoints;
+	 std::vector<ci::vec2> mPoints;
 };
 
 } // namespace physics

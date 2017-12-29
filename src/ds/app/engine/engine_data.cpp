@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_data.h"
 
 #include "ds/app/engine/engine_service.h"
@@ -18,11 +20,9 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 	, mDoubleTapTime(0.35f)
 	, mFrameRate(60.0f)
 	, mIdleTimeout(300)
-	, mUsingDefaults(true)
 	, mAppInstanceName("Downstream")
 	, mMute(false)
 	, mSrcRect(ci::Rectf::zero())
-	, mScreenRect(ci::Rectf::zero())
 	, mDstRect(ci::Rectf::zero())
 {
 }

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "soft_keyboard.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

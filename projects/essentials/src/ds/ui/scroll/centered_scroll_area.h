@@ -45,7 +45,7 @@ class CenteredScrollArea : public ScrollArea {
 		
 	protected:
 		// This override only activates if the object has not had a snap callback set directly.
-		virtual bool	callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination);
+		virtual bool	callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination);
 		
 		bool			isOdd() { return ((mCenterBy % 2) == 1); }
 		float			trueCenterOfItem(int index);

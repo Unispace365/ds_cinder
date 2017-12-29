@@ -33,3 +33,4 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_APPDEFS_H_
+

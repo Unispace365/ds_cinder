@@ -30,7 +30,7 @@ public:
 
 	void					addColorInput(const ci::ColorA&);
 	void					addFloatInput(const double);
-	void					addVec2Input(const ci::Vec2d&);
+	void					addVec2Input(const ci::dvec2&);
 	// A filename to write the rendered image to, for debugging.
 	void					setWriteFile(const std::string&);
 
