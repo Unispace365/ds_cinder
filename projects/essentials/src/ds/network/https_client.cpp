@@ -140,7 +140,7 @@ void HttpsRequest::IndividualRequest::run(){
 		}
 		else
 		{
-			curl_easy_setopt(curl, CURLoption::CURLOPT_FOLLOWLOCATION);
+			curl_easy_setopt(curl, CURLoption::CURLOPT_FOLLOWLOCATION, 1L);
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this_write_file_callback);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, mFp);
 		}
