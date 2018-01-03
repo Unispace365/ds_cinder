@@ -23,7 +23,7 @@ DataQuery::DataQuery() {
 
 void DataQuery::run() {
 
-	mData = ds::model::DataModelRef("", "root", 0);
+	mData = ds::model::DataModelRef("root");
 
 	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
 	ds::query::Result result;
@@ -57,38 +57,48 @@ void DataQuery::run() {
 		}
 	}
 
+	/*
+	TODO:
+	 - Specify tables to use / ignore
+	 - Specify Id column (auto id?)
+	 - Foreign keys and auto-build children
+	 - Sorting (auto sort on sort_order column)
+	 - Multi sorting
+	 - Where clauses
+	 - Mark columns as resources
+
+	*/
 
 
 	getDataFromTable(mData, "sqlite_master");
-	auto table = mData.getChild("tables");
-	auto tables = table.getChildren("rows");
+	//auto table = mData.getChild("tables");
+	auto tables = mData.getChildren("rows");
 	for (auto it : tables){
+		it.setName(it.getProperty("tbl_name").getString());
 		getDataFromTable(it, it.getProperty("tbl_name").getString());
 	}
 
-	return;
-
-
+	/*
 	std::string tablesQuery = "SELECT tbl_name FROM sqlite_master";
 	if(ds::query::Client::query(dbPath, tablesQuery, result)) {
 		ds::query::Result::RowIterator it(result);
 		while(it.hasValue()) {
 			ds::query::Result tableResult;
-			ds::model::DataModelRef thisTable = ds::model::DataModelRef("", it.getString(0));
+			ds::model::DataModelRef thisTable = ds::model::DataModelRef(it.getString(0));
 			if(ds::query::Client::query(dbPath, "SELECT * FROM " + thisTable.getName(), tableResult, ds::query::Client::INCLUDE_COLUMN_NAMES_F)) {
 				ds::query::Result::RowIterator tit(tableResult);
 				while(tit.hasValue()) {
 
-					ds::model::DataModelRef thisRow = ds::model::DataModelRef("", thisTable.getName(), 0);
+					ds::model::DataModelRef thisRow = ds::model::DataModelRef(thisTable.getName());
 
-					for(size_t i = 0; i < tableResult.getColumnSize(); i++) {
+					for(int i = 0; i < tableResult.getColumnSize(); i++) {
 						std::string theValue = tit.getString(i);
 						if(theValue.empty()) {
 							if(tableResult.getColumnType(i) == ds::query::QUERY_NUMERIC) {
 
 							}
 						}
-						thisRow.setProperty(tableResult.getColumnName(i), ds::model::DataModelRef(theValue, tableResult.getColumnName(i), i));
+						thisRow.setProperty(tableResult.getColumnName(i), theValue);
 					}
 
 					thisTable.addChild("row", thisRow);
@@ -100,6 +110,7 @@ void DataQuery::run() {
 			++it;
 		}
 	}
+	*/
 }
 
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
@@ -118,13 +129,13 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << sampleQuery << std::endl);
 		} else {
 			int id = 1;
-			ds::model::DataModelRef thisTable = ds::model::DataModelRef("table", theTable, 0);
+			//ds::model::DataModelRef thisTable = ds::model::DataModelRef(theTable, 0);
 
 			while(true) {
 				auto statementResult = sqlite3_step(statement);
 				if(statementResult == SQLITE_ROW) {
 					auto columnCount = sqlite3_data_count(statement);
-					ds::model::DataModelRef thisRow = ds::model::DataModelRef("row", theTable, id);
+					ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
 					id++;
 					for(int i = 0; i < columnCount; i++) {
 						auto columnName = sqlite3_column_name(statement, i);
@@ -133,16 +144,16 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 						if(theText) {
 							theData = reinterpret_cast<const char*>(theText);
 						}
-						thisRow.setProperty(columnName, ds::model::DataModelRef(theData, columnName, i));
+						thisRow.setProperty(columnName, theData);
 					}
-					thisTable.addChild("rows", thisRow);
+					parentModel.addChild("rows", thisRow);
 				} else {
 					sqlite3_finalize(statement);
 					break;
 				}
 			}
 
-			parentModel.addChild("tables", thisTable);
+			//parentModel.addChild("tables", thisTable);
 		}
 
 	} else {

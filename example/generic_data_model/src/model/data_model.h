@@ -19,25 +19,14 @@ class SpriteEngine;
 
 namespace model {
 
-/**
-* \class ds::model::DataModelRef
-*/
-class DataModelRef {
+class DataProperty {
 public:
+	DataProperty();
+	DataProperty(const std::string& name, const std::string& value);
 
-	DataModelRef();
-	DataModelRef(const std::string& value, const std::string& name = "", const int id = 0);
-
-	/// Get the id for this item
-	const int&						getId() const;
-	void							setId(const int& id);
-
-	/// Get the name of this item
+	/// Get the name of this property
 	const std::string&				getName() const;
 	void							setName(const std::string& name);
-
-	/// If this item has no data, value, name, id, properties or children
-	const bool						empty() const;
 
 	const std::string&				getValue() const;
 	void							setValue(const std::string& value);
@@ -73,18 +62,47 @@ public:
 	const ci::vec3					getVec3() const;
 	const ci::Rectf					getRect() const;
 
+protected:
+	std::string						mName;
+	std::string						mValue;
+	ds::Resource					mResource;
+
+};
+
+/**
+* \class ds::model::DataModelRef
+*/
+class DataModelRef {
+public:
+
+
+	DataModelRef();
+	DataModelRef(const std::string& name, const int id = 0);
+
+	/// Get the id for this item
+	const int&						getId() const;
+	void							setId(const int& id);
+
+	/// Get the name of this item
+	const std::string&				getName() const;
+	void							setName(const std::string& name);
+
+	/// If this item has no data, value, name, id, properties or children
+	const bool						empty() const;
+
 
 	// -------  end of this value ---------------------------- //
 
 	/// Use this for looking stuff up only. Use the other functions to manage the list
-	const std::map<std::string, DataModelRef>&				getProperties();
+	const std::map<std::string, DataProperty>&				getProperties();
 
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
-	const DataModelRef										getProperty(const std::string& propertyName);
+	const DataProperty										getProperty(const std::string& propertyName);
 
 	/// Set the property with a given name
-	void													setProperty(const std::string& propertyName, DataModelRef datamodel);
+	void													setProperty(const std::string& propertyName, DataProperty datamodel);
+	void													setProperty(const std::string& propertyName, const std::string& propertyValue);
 
 	/// Gets all of the children of all names
 	/// Manage the children using the other functions

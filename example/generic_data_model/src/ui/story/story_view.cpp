@@ -40,14 +40,14 @@ StoryView::StoryView(Globals& g)
 	animateOn();
 
 
-	ds::model::DataModelRef dmr("", "root", 1);
-	dmr.addChild("tiles", ds::model::DataModelRef("", "tiles", 1));
-	dmr.addChild("Blurps", ds::model::DataModelRef("", "tiles", 1));
+	ds::model::DataModelRef dmr("root", 1);
+	dmr.addChild("tiles", ds::model::DataModelRef("tiles", 1));
+	dmr.addChild("Blurps", ds::model::DataModelRef("tiles", 1));
 
 	auto theTiles = dmr.getChild("tiles");
-	theTiles.addChild("tile", ds::model::DataModelRef("hello", "", 2));
-	theTiles.addChild("tile", ds::model::DataModelRef("is it me", "", 3));
-	theTiles.addChild("tile", ds::model::DataModelRef("you're looking for", "", 4));
+	theTiles.addChild("tile", ds::model::DataModelRef("hello", 2));
+	theTiles.addChild("tile", ds::model::DataModelRef("is it me", 3));
+	theTiles.addChild("tile", ds::model::DataModelRef("you're looking for", 4));
 
 	dmr.printTree(true, "");
 
