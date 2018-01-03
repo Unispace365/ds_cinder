@@ -23,7 +23,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
     2. Click "Environment Variables"
     3. Under "Sytem variables", select "New..."
     4. Variable name: CINDER_090
-    5. Variable value: the path of the unzipped cinder 0.9.1 directory (e.g D:\code\cinder_0.9.1_vc2013)
+    5. Variable value: the path of the unzipped cinder 0.9.1 directory (e.g D:\my_code\cinder_0.9.1_vc2013)
     6. Ok, Ok, Ok
 5. Open Visual Studio 2015 and open cinder.sln in cinder_0.9.1_vc2013/proj/vc2013
 6. You should be prompted to update the compiler version. If not, right-click the cinder project and upgrade the compiler version
