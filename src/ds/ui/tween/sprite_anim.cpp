@@ -30,7 +30,6 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mInternalSizeCinderTweenRef(nullptr)
 	, mInternalOpacityCinderTweenRef(nullptr)
 	, mInternalNormalizedCinderTweenRef(nullptr)
-	, mDelayedCallCueRef(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
