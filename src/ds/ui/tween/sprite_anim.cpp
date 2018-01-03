@@ -41,7 +41,6 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalSizeCinderTweenRef = nullptr;
 	mInternalOpacityCinderTweenRef = nullptr;
 	mInternalNormalizedCinderTweenRef = nullptr;
-	mDelayedCallCueRef = nullptr;
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -280,11 +279,6 @@ void SpriteAnimatable::animStop() {
 	animOpacityStop();
 	animColorStop();
 	animNormalizedStop();
-
-	if (mDelayedCallCueRef){
-		mDelayedCallCueRef->removeSelf();
-		mDelayedCallCueRef = nullptr;
-	}
 }
 
 void SpriteAnimatable::animPositionStop(){
@@ -399,8 +393,6 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = 0.35f;
 	float delayey = addedDelay;
-	if (!&mOwner)
-		return;
 	ci::vec3 currentPos = mOwner.getPosition();
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
@@ -452,7 +444,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	{
 		std::string animType = it->first;
 		ci::vec3 dest = it->second;
-		if (animType == "center" && &mOwner){
+		if (animType == "center"){
 			auto currentCenter = mOwner.getCenter();
 			if (ci::vec2(currentCenter) == ci::vec2(dest))
 				break;
@@ -517,69 +509,6 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 		}
 	}
 	
-}
-
-void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay /*= 0.0f*/)
-{
-	if (animScripts.empty()) return;
-	
-	std::vector<float> durationList, delayList;
-	parseMultiScripts(animScripts, durationList, delayList);
-
-	float delay = 0.0f, gap = 0.0f;
-	delay =addedDelay;
-	gap = gapTime;
-	if (mDelayedCallCueRef){
-		mDelayedCallCueRef->removeSelf();
-		mDelayedCallCueRef = nullptr;
-	}
-	for (size_t i = 0; i < animScripts.size(); i++)
-	{
-		ci::Timeline&		t = mEngine.getTweenline().getTimeline();
-		mDelayedCallCueRef = t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
-		delay += (durationList[i] + delayList[i] + gap);
-	}
-}
-
-void SpriteAnimatable::parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays)
-{
-	if (animScripts.empty()) return;
-
-
-	for (auto i = 0; i < animScripts.size(); i++)
-	{
-		// find all the commands in the string
-		std::vector<std::string> commands = ds::split(animScripts[i], "; ", true);
-
-		if (commands.empty()) return;
-
-		// set default parameters, if they're not supplied by the string
-		ci::EaseFn easing = ci::EaseInOutCubic();
-		float dur = 0.35f;
-		float delayey = 0.0f;
-
-		// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
-		std::map<std::string, ci::vec3> animationCommands;
-		for (auto it = commands.begin(); it < commands.end(); ++it){
-
-			// Split commands between the type and the destination
-			std::vector<std::string> commandProperties = ds::split((*it), ":", true);
-			if (commandProperties.empty() || commandProperties.size() < 1) continue;
-
-			// Parse out the special commands
-			std::string keyey = commandProperties.front();
-			if (keyey == "duration"){
-				ds::string_to_value<float>(commandProperties[1], dur);
-				continue;
-			}
-			else if (keyey == "delay"){
-				ds::string_to_value<float>(commandProperties[1], delayey);
-				continue;
-			}
-		}
-		durations.push_back(dur);
-		delays.push_back(delayey);
-	}
 }
 
 ci::EaseFn SpriteAnimatable::getEasingByString(const std::string& inString){

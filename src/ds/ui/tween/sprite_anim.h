@@ -162,9 +162,6 @@ public:
 		*/
 	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
 
-	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);
-	void									parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays);
-
 	/// Gets the cinder easing function by string value, to support the script running
 	static ci::EaseFn						getEasingByString(const std::string& inString);
 
@@ -199,10 +196,6 @@ private:
 	ci::TweenRef<ci::Color>					mInternalColorCinderTweenRef;
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
-
-	// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
-	// Cleared automatically on destruction
-	ci::CueRef			mDelayedCallCueRef;
 
 };
 
