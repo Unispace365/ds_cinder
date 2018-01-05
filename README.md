@@ -10,7 +10,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 **Install Visual Studio 2015**
 
-1. Download here: https://imagine.microsoft.com/en-US/Catalog/Product/101
+1. Download here: https://www.visualstudio.com/vs/older-downloads/
 2. Install it!
 
 **Download Cinder 0.9.1**
