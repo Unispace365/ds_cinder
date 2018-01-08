@@ -23,6 +23,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mAbsMaxSize(20000.0f, 20000.0f)
 	, mTouching(false)
 	, mAnimating(false)
+	, mEnableAfterAnimating(true)
 	, mRemoving(false)
 	, mDefaultSize(engine.getWorldWidth(), engine.getWorldHeight())
 	, mLayoutCallback(nullptr)
@@ -330,12 +331,15 @@ void BasePanel::activatePanel() {
 
 void BasePanel::tweenStarted(){
 	mMomentum.deactivate();
+	mEnableAfterAnimating = isEnabled();
 	enable(false);
 	mAnimating = true;
 }
 
 void BasePanel::tweenEnded(){
-	enable(true);
+	if(mEnableAfterAnimating) {
+		enable(true);
+	}
 	mAnimating = false;
 	checkBounds();
 	layout(); // sometimes tweens are happening and not laying out properly, so just to be sure

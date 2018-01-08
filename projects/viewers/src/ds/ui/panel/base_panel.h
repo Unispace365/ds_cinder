@@ -141,6 +141,7 @@ protected:
 
 	float							mAnimDuration;
 	bool							mAnimating;
+	bool							mEnableAfterAnimating;
 	bool							mRemoving; // the panel is on it's last animation
 	ci::Rectf						mBoundingArea;
 
