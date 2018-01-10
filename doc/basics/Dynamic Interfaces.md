@@ -49,6 +49,7 @@ Sprite Types
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
+* **dashed_line** = ds::ui::DashedLine
 * **donut_arc** = ds::ui::DonutArc
 * **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
@@ -228,7 +229,10 @@ Donut Arc Parameters
 * **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
 * **donut_percent**: Float, the percentage that the donut is filled in
 
-
+Dashed Line Parameters
+---------------------------
+* **dash_length**: The length of each dash in a dashed line
+* **dash_space_inc**: The distance between each dash in a dashed line
 
 Control Check Box Parameters
 ---------------------------

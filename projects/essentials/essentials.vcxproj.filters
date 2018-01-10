@@ -160,6 +160,7 @@
       <Filter>src\ds\ui\layout</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\dashed_line.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -277,5 +278,7 @@
       <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
+    <ClInclude Include="src\ds\ui\sprite\dashed_line.h" />
   </ItemGroup>
 </Project>

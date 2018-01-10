@@ -35,6 +35,7 @@
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
 #include <ds/ui/sprite/donut_arc.h>
+#include <ds/ui/sprite/dashed_line.h>
 #include <ds/util/string_util.h>
 #include <ds/util/color_util.h>
 #include <ds/util/file_meta_data.h>
@@ -743,6 +744,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set donut_percent on a non-donut sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if(property == "dash_length") {
+		auto dashed = dynamic_cast<DashedLine*>(&sprite);
+		if(dashed) {
+			dashed->setDashLength(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set dash_length on a non-dashed line sprite of type " << typeid(sprite).name());
+		}
+	} else if(property == "dash_space_inc") {
+		auto dashed = dynamic_cast<DashedLine*>(&sprite);
+		if(dashed) {
+			dashed->setSpaceIncrement(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set dash_space_increment on a non-dashed line sprite of type " << typeid(sprite).name());
+		}		
+	}
 	
 
 	/// Check box properties
@@ -1127,8 +1143,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ControlSlider(engine, false);
 	} else if(type == "control_slider_vertical"){
 		spriddy = new ds::ui::ControlSlider(engine, true);
-	} else if(type == "donut_arc"){
+	} else if(type == "donut_arc") {
 		spriddy = new ds::ui::DonutArc(engine);
+	} else if(type == "dashed_line"){
+		spriddy = new DashedLine(engine);
 	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){
