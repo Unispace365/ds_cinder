@@ -34,6 +34,9 @@
     <ClCompile Include="..\src\query\data_query.cpp">
       <Filter>src\query</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\query\data_wrangler.cpp">
+      <Filter>src\query</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -73,6 +76,9 @@
       <Filter>src\model</Filter>
     </ClInclude>
     <ClInclude Include="..\src\query\data_query.h">
+      <Filter>src\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\query\data_wrangler.h">
       <Filter>src\query</Filter>
     </ClInclude>
   </ItemGroup>

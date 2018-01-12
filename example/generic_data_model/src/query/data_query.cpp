@@ -21,6 +21,49 @@ namespace downstream {
 DataQuery::DataQuery() {
 }
 
+ds::model::DataModelRef DataQuery::readXml() {
+	ds::model::DataModelRef output;
+
+	ci::XmlTree xml;
+
+	try {
+		xml = ci::XmlTree(cinder::loadFile(ds::Environment::expand("%APP%/data/model/data_model.xml")));
+	} catch(ci::XmlTree::Exception &e) {
+		DS_LOG_WARNING("loadXmlContent doc not loaded! oh no: " << e.what());
+		return output;
+	} catch(std::exception &e) {
+		DS_LOG_WARNING("loadXmlContent doc not loaded! oh no: " << e.what());
+		return output;
+	}
+
+
+	auto rooty = xml.getChild("model");
+	int id = 1;
+	readXmlNode(rooty, output, id);
+
+	if(output.hasChild("model")) {
+		return output.getChild("model");
+	}
+
+	return output;
+}
+
+void DataQuery::readXmlNode(ci::XmlTree& tree, ds::model::DataModelRef& parentData, int& id) {
+	ds::model::DataModelRef thisNode;
+	thisNode.setName(tree.getTag());
+	thisNode.setId(id++);
+
+	for (auto it : tree.getAttributes()){
+		thisNode.setProperty(it.getName(), it.getValue());
+	}
+
+	for (auto& it : tree.getChildren()){
+		readXmlNode(*it, thisNode, id);
+	}
+
+	parentData.addChild(tree.getTag(), thisNode);
+}
+
 void DataQuery::run() {
 
 	mData = ds::model::DataModelRef("root");
@@ -60,16 +103,23 @@ void DataQuery::run() {
 	/*
 	TODO:
 	 - Specify tables to use / ignore
-	 - Specify Id column (auto id?)
+	 - Auto primary key
 	 - Foreign keys and auto-build children
 	 - Sorting (auto sort on sort_order column)
 	 - Multi sorting
 	 - Where clauses
 	 - Mark columns as resources
-
+	 - Display data model visually
+	 - Get nested data by string
 	*/
 
 
+	auto metaData = readXml();
+	metaData.printTree(true, "");
+
+	getDataFromTable(mData, metaData, dbPath, allResources);
+
+	/*
 	getDataFromTable(mData, "sqlite_master");
 	//auto table = mData.getChild("tables");
 	auto tables = mData.getChildren("rows");
@@ -77,6 +127,7 @@ void DataQuery::run() {
 		it.setName(it.getProperty("tbl_name").getString());
 		getDataFromTable(it, it.getProperty("tbl_name").getString());
 	}
+	*/
 
 	/*
 	std::string tablesQuery = "SELECT tbl_name FROM sqlite_master";
@@ -115,6 +166,7 @@ void DataQuery::run() {
 
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
 	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
+
 	std::string dbPath = cms.getDatabasePath();
 	std::string sampleQuery = "SELECT * FROM " + theTable;
 	sqlite3* db = NULL;
@@ -129,7 +181,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << sampleQuery << std::endl);
 		} else {
 			int id = 1;
-			//ds::model::DataModelRef thisTable = ds::model::DataModelRef(theTable, 0);
+
 
 			while(true) {
 				auto statementResult = sqlite3_step(statement);
@@ -138,7 +190,25 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 					ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
 					id++;
 					for(int i = 0; i < columnCount; i++) {
+
 						auto columnName = sqlite3_column_name(statement, i);
+
+						/*
+						const char * dataType = NULL;
+						const char * collSequence = NULL;
+						int notNull = 0;
+						int primaryKey = 0;
+						int autoInc = 0;
+
+						int resulty = sqlite3_table_column_metadata(db, NULL, theTable.c_str(), columnName, &dataType, &collSequence, &notNull, &primaryKey, &autoInc);
+
+						if(dataType) {
+							std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+						} else {
+							std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+						}
+						*/
+
 						auto theText = sqlite3_column_text(statement, i);
 						std::string theData = "";
 						if(theText) {
@@ -147,6 +217,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 						thisRow.setProperty(columnName, theData);
 					}
 					parentModel.addChild("rows", thisRow);
+
 				} else {
 					sqlite3_finalize(statement);
 					break;
@@ -158,6 +229,170 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 
 	} else {
 		DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
+	}
+}
+
+void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::map<int, ds::Resource>& allResources) {
+
+	std::string theTable = tableDescription.getPropertyValue("name");
+
+	if(theTable.empty()) {
+		DS_LOG_WARNING("No table name specified in datamodel query");
+
+	} else {
+
+		ds::model::DataModelRef tableModel;
+		tableModel.setName(theTable);
+
+		std::string selectStmt = tableDescription.getPropertyValue("select");
+		std::string sorting = tableDescription.getPropertyValue("sort");
+		std::string whereClause = tableDescription.getPropertyValue("where");
+		std::string reccys = tableDescription.getPropertyValue("resources");
+		std::string primaryId = tableDescription.getPropertyValue("id");
+
+		// Operations:
+		// select + where + sorting
+		// query
+		// apply resources and primary id (auto id to primary key column if left blank)
+
+		/// Select
+		std::stringstream theQuery;
+		if(selectStmt.empty()) {
+			theQuery << "SELECT * FROM " << theTable;
+		} else {
+			theQuery << selectStmt;
+		}
+
+		/// Where
+		if(!whereClause.empty()) {
+			theQuery << " WHERE " << whereClause;
+		}
+
+		/// Sorting
+		if(!sorting.empty()) {
+			auto theSorts = ds::split(sorting, ", ", true);
+
+			bool firsty = true;
+			for(auto it : theSorts) {
+				if(it.empty()) continue;
+
+				if(firsty) {
+					theQuery << " ORDER BY ";
+				} else {
+					theQuery << ", ";
+				}
+
+				firsty = false;
+				theQuery << it;
+			}
+		}
+
+		/// Resources
+		auto resourceColumns = ds::split(reccys, ", ", true);
+
+		/// Lets do the query!
+		sqlite3* db = NULL;
+		// open the database
+		const int sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(dbPath).c_str(), &db, SQLITE_OPEN_READONLY, 0);
+
+		/// if everything went ok
+		if(sqliteResultCode == SQLITE_OK) {
+			sqlite3_busy_timeout(db, 1500);
+
+			sqlite3_stmt*		statement;
+			const int			err = sqlite3_prepare_v2(db, theQuery.str().c_str(), -1, &statement, 0);
+			if(err != SQLITE_OK) {
+				sqlite3_finalize(statement);
+				DS_LOG_ERROR("DataQuery::rawSelect SQL error code=" << err << " message=" << sqlite3_errstr(err) << " on select=" << theQuery.str().c_str() << std::endl);
+
+			} else {
+
+				/// in case there's no id field specified or a primary key column
+				int id = 1;
+
+				/// go through all the rows
+				while(true) {
+
+					/// if this isn't a row, then we're done with the query
+					auto statementResult = sqlite3_step(statement);
+					if(statementResult == SQLITE_ROW) {
+
+						bool parsedMetadata = false;
+
+						auto columnCount = sqlite3_data_count(statement);
+						ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
+						id++;
+
+						for(int i = 0; i < columnCount; i++) {
+
+							auto columnName = sqlite3_column_name(statement, i);
+
+							/// If we don't have a primary id set already, look up the metadata for this column and see if it's the primary key
+							if(primaryId.empty() && !parsedMetadata) {
+								const char * dataType = NULL;
+								const char * collSequence = NULL;
+								int notNull = 0;
+								int primaryKey = 0;
+								int autoInc = 0;
+								int resulty = sqlite3_table_column_metadata(db, NULL, theTable.c_str(), columnName, &dataType, &collSequence, &notNull, &primaryKey, &autoInc);
+
+								if(primaryKey) {
+									primaryId = columnName;
+								}
+
+								/*
+								if(mVerbose) {
+									if(dataType) {
+										std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+									} else {
+										std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+									}
+								}
+								*/
+							}
+
+							auto theText = sqlite3_column_text(statement, i);
+
+							std::string theData = "";
+							if(theText) {
+								theData = reinterpret_cast<const char*>(theText);
+							}
+
+							if(columnName == primaryId) {
+								thisRow.setId(ds::string_to_int(theData));
+							}
+
+							ds::model::DataProperty theProperty(columnName, theData);
+
+							if(std::find(resourceColumns.begin(), resourceColumns.end(), columnName) != resourceColumns.end()) {
+								theProperty.setResource(allResources[ds::string_to_int(theData)]);
+							}
+
+							thisRow.setProperty(columnName, theProperty);
+						}
+
+						// only parse metada for the first row
+						parsedMetadata = true;
+
+						tableModel.addChild("rows", thisRow);
+
+					} else {
+						sqlite3_finalize(statement);
+						break;
+					}
+				}
+			}
+		} else {
+			DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
+		}
+
+		parentModel.addChild(theTable, tableModel);
+
+	} // table name is present
+
+	auto tableChildren = tableDescription.getChildren("table");
+	for (auto it : tableChildren){
+		getDataFromTable(parentModel, it, dbPath, allResources);
 	}
 }
 

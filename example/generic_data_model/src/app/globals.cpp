@@ -10,15 +10,18 @@
 
 #include "app_defs.h"
 
+#include "query/data_wrangler.h"
+
 namespace downstream {
 
 /**
  * \class downstream::Globals
  */
-Globals::Globals(ds::ui::SpriteEngine& e , const AllData& d )
-		: mEngine(e)
-		, mAllData(d)
-		, mAnimationDuration(0.35f)
+Globals::Globals(ds::ui::SpriteEngine& e, const AllData& d, DataWrangler& dataWrangler)
+	: mEngine(e)
+	, mAllData(d)
+	, mAnimationDuration(0.35f)
+	, mDataWrangler(dataWrangler)
 {
 }
 

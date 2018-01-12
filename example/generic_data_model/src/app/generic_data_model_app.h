@@ -7,6 +7,7 @@
 #include <ds/touch/touch_debug.h>
 
 #include "app/globals.h"
+#include "query/data_wrangler.h"
 #include "query/query_handler.h"
 
 namespace downstream {
@@ -32,6 +33,9 @@ private:
 
 	// Data
 	AllData				mAllData;
+
+
+	DataWrangler		mDataWrangler;
 
 	// Data acquisition
 	Globals				mGlobals;

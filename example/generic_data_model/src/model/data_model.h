@@ -99,6 +99,7 @@ public:
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
 	const DataProperty										getProperty(const std::string& propertyName);
+	const std::string										getPropertyValue(const std::string& propertyName);
 
 	/// Set the property with a given name
 	void													setProperty(const std::string& propertyName, DataProperty datamodel);
@@ -121,6 +122,8 @@ public:
 	void													setChild(const std::string& childName, DataModelRef datamodel);
 	/// Adds this child to the end of this children list
 	void													addChild(const std::string& childName, DataModelRef datamodel);
+	/// Is there at least one child with this name?
+	bool													hasChild(const std::string& childName);
 	/// Replaces any children with this name
 	void													setChildren(const std::string& childrenName, std::vector<ds::model::DataModelRef> children);
 	

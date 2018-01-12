@@ -31,13 +31,13 @@ QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
 	});
 
 	mDataQuery.setReplyHandler([this](DataQuery& q) {
-		q.mData.printTree(false, "");
+		q.mData.printTree(true, "");
 	});
 }
 
 void QueryHandler::runInitialQueries(const bool synchronous){
 	mStoryQuery.start(nullptr, synchronous);
-	mDataQuery.start(nullptr, synchronous);
+	//mDataQuery.start(nullptr, synchronous);
 }
 
 void QueryHandler::onAppEvent(const ds::Event& _e) {

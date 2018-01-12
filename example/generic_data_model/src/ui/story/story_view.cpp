@@ -13,6 +13,9 @@
 #include "events/app_events.h"
 #include "ds/ui/interface_xml/interface_xml_importer.h"
 
+#include "query/data_wrangler.h"
+#include "model/data_model.h"
+
 #include "model/data_model.h"
 
 namespace downstream {
@@ -39,6 +42,7 @@ StoryView::StoryView(Globals& g)
 	setData();
 	animateOn();
 
+	/*
 
 	ds::model::DataModelRef dmr("root", 1);
 	dmr.addChild("tiles", ds::model::DataModelRef("tiles", 1));
@@ -50,6 +54,7 @@ StoryView::StoryView(Globals& g)
 	theTiles.addChild("tile", ds::model::DataModelRef("you're looking for", 4));
 
 	dmr.printTree(true, "");
+	*/
 
 }
 
@@ -71,7 +76,18 @@ void StoryView::setData() {
 	// update view to match new content
 	// See story_query from where this content is sourced from
 	// In a real case, you'd likely have a single story ref for this instance and use that data
-	if(!mGlobals.mAllData.mStories.empty()){
+
+	if(mGlobals.mDataWrangler.mData.hasChild("leadership")) {
+		auto leadershipTable = mGlobals.mDataWrangler.mData.getChild("leadership");
+		auto leadershipItem = leadershipTable.getChild("rows");
+
+		if(mMessage) {
+			mMessage->setText(leadershipItem.getPropertyValue("firstname"));
+		}
+		if(mImage) {
+			mImage->setImageResource(leadershipItem.getProperty("resourceid").getResource());
+		}
+	} else if(!mGlobals.mAllData.mStories.empty()){
 
 		auto storyRef = mGlobals.mAllData.mStories.front();
 

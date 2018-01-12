@@ -29,21 +29,9 @@ generic_data_model_app::generic_data_model_app()
 	.ortho()
 	.pickColor()
 
-	// If you need a perspective view, add it here.
-	// Then you can refer to the perspective root later and modify its properties (see setupServer())
-	/*
-	.persp()
-	.perspFov(60.0f)
-	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-	.perspNear(0.0002f)
-	.perspFar(20.0f)
-
-	.ortho()
-	*/
-
 	)
-	, mGlobals(mEngine, mAllData)
+	, mGlobals(mEngine, mAllData, mDataWrangler)
+	, mDataWrangler(mEngine)
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling(false)
 	, mTouchDebug(mEngine)
@@ -84,6 +72,7 @@ void generic_data_model_app::setupServer(){
 
 	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
+	mDataWrangler.runQuery(true);
 
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);

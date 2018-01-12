@@ -14,6 +14,7 @@ class SpriteEngine;
 } // namespace ds
 
 namespace downstream {
+class DataWrangler;
 
 /**
  * \class downstream::Globals
@@ -21,9 +22,11 @@ namespace downstream {
  */
 class Globals {
 public:
-	Globals(ds::ui::SpriteEngine&, const AllData& d);
+	Globals(ds::ui::SpriteEngine&, const AllData& d, DataWrangler& dataWrangler);
 
 	ds::ui::SpriteEngine&			mEngine;
+
+	DataWrangler&					mDataWrangler;
 
 	const AllData&					mAllData;
 

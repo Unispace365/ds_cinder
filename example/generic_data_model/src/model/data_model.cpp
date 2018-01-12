@@ -216,6 +216,10 @@ const ds::model::DataProperty DataModelRef::getProperty(const std::string& prope
 	return EMPTY_PROPERTY;
 }
 
+const std::string DataModelRef::getPropertyValue(const std::string& propertyName) {
+	return getProperty(propertyName).getValue();
+}
+
 void DataModelRef::setProperty(const std::string& propertyName, DataProperty datamodel) {
 	createData();
 
@@ -279,6 +283,16 @@ void DataModelRef::addChild(const std::string& childName, DataModelRef datamodel
 	}
 }
 
+bool DataModelRef::hasChild(const std::string& childName) {
+	if(!mData) return false;
+	auto& findy = mData->mChildren.find(childName);
+	if(findy != mData->mChildren.end()) {
+		return true;
+	}
+
+	return false;
+}
+
 void DataModelRef::setChildren(const std::string& childrenName, std::vector<ds::model::DataModelRef> children) {
 	createData();
 	mData->mChildren[childrenName] = children;
@@ -293,9 +307,9 @@ void DataModelRef::printTree(const bool verbose, const std::string& indent) {
 
 			for(auto it : mData->mProperties) {
 				if(!it.second.getResource().empty()) {
-					DS_LOG_INFO(indent << "          prop:" << it.first << " value:" << it.second.getValue());
-				} else {
 					DS_LOG_INFO(indent << "          resource:" << it.second.getResource().getAbsoluteFilePath());
+				} else {
+					DS_LOG_INFO(indent << "          prop:" << it.first << " value:" << it.second.getValue());
 				}
 			}
 		}
