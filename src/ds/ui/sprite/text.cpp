@@ -587,7 +587,7 @@ bool Text::measurePangoText() {
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup = true; // ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos)) || mProcessedText.find("&amp;") != std::wstring::npos;
+			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos)) || mProcessedText.find("&amp;") != std::wstring::npos;
 
 			mNeedsMarkupDetection = false;
 		}
