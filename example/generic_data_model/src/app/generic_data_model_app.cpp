@@ -19,6 +19,7 @@
 #include "events/app_events.h"
 
 #include "ui/story/story_view.h"
+#include "ui/table/table_view.h"
 
 namespace downstream {
 
@@ -30,18 +31,34 @@ generic_data_model_app::generic_data_model_app()
 	.pickColor()
 
 	)
-	, mGlobals(mEngine, mAllData, mDataWrangler)
+	, mGlobals(mEngine, mDataWrangler)
 	, mDataWrangler(mEngine)
-	, mQueryHandler(mEngine, mAllData)
 	, mIdling(false)
 	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
 
+
+
+	/*
+
+	ds::model::DataModelRef dmr("root", 1);
+	dmr.addChild("tiles", ds::model::DataModelRef("tiles", 1));
+	dmr.addChild("Blurps", ds::model::DataModelRef("tiles", 1));
+
+	auto theTiles = dmr.getChild("tiles");
+	theTiles.addChild("tile", ds::model::DataModelRef("hello", 2));
+	theTiles.addChild("tile", ds::model::DataModelRef("is it me", 3));
+	theTiles.addChild("tile", ds::model::DataModelRef("you're looking for", 4));
+
+	dmr.printTree(true, "");
+	*/
+
+
 	// Register events so they can be called by string
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
-	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
+	ds::event::Registry::get().addEventCreator(DataUpdatedEvent::NAME(), [this]()->ds::Event*{return new DataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
 }
@@ -71,7 +88,6 @@ void generic_data_model_app::setupServer(){
 	mEngine.loadTextCfg("text.xml");
 
 	mGlobals.initialize();
-	mQueryHandler.runInitialQueries(true);
 	mDataWrangler.runQuery(true);
 
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
@@ -105,7 +121,8 @@ void generic_data_model_app::setupServer(){
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	
 	// add sprites
-	rootSprite.addChildPtr(new StoryView(mGlobals));
+	//rootSprite.addChildPtr(new StoryView(mGlobals));
+	rootSprite.addChildPtr(new TableView(mGlobals));
 
 	// The engine will actually be idling, and this gets picked up on the next update
 	mIdling = false;

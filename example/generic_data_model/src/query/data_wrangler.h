@@ -24,6 +24,7 @@ public:
 	void								runQuery(const bool synchronous);
 
 private:
+	ds::ui::SpriteEngine&				mEngine;
 	ds::SerialRunnable<DataQuery>		mDataQuery;
 
 	ds::DelayedNodeWatcher				mNodeWatcher;

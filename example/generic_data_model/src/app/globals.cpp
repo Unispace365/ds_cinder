@@ -17,9 +17,8 @@ namespace downstream {
 /**
  * \class downstream::Globals
  */
-Globals::Globals(ds::ui::SpriteEngine& e, const AllData& d, DataWrangler& dataWrangler)
+Globals::Globals(ds::ui::SpriteEngine& e, DataWrangler& dataWrangler)
 	: mEngine(e)
-	, mAllData(d)
 	, mAnimationDuration(0.35f)
 	, mDataWrangler(dataWrangler)
 {

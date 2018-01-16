@@ -75,6 +75,10 @@ protected:
 class DataModelRef {
 public:
 
+	// TODO: operators (equality and such
+	// TODO: get children / property by dot and array notation. For instance: getChild("something.items[5].title");
+	// TODO: duplicate
+	// TODO: auto validation
 
 	DataModelRef();
 	DataModelRef(const std::string& name, const int id = 0);
@@ -112,7 +116,7 @@ public:
 	/// Gets all of the children with a name. 
 	/// For instance, you could have a series of chapters, where each child is a DataModelRef, and the name of the children is "chapters"
 	/// Don't modify the children here, use the other functions
-	const std::vector<DataModelRef>&						getChildren(const std::string& childrenName);
+	const std::vector<DataModelRef>&						getChildren(const std::string& childrenName) const;
 
 	/// Gets the first child with a name
 	/// If no children exist for that name, creates a new child

@@ -42,19 +42,6 @@ StoryView::StoryView(Globals& g)
 	setData();
 	animateOn();
 
-	/*
-
-	ds::model::DataModelRef dmr("root", 1);
-	dmr.addChild("tiles", ds::model::DataModelRef("tiles", 1));
-	dmr.addChild("Blurps", ds::model::DataModelRef("tiles", 1));
-
-	auto theTiles = dmr.getChild("tiles");
-	theTiles.addChild("tile", ds::model::DataModelRef("hello", 2));
-	theTiles.addChild("tile", ds::model::DataModelRef("is it me", 3));
-	theTiles.addChild("tile", ds::model::DataModelRef("you're looking for", 4));
-
-	dmr.printTree(true, "");
-	*/
 
 }
 
@@ -67,7 +54,7 @@ void StoryView::onAppEvent(const ds::Event& in_e){
 	}
 
 	// If you have an event that is dispatched when new content is queryied, you could map that here.
-	if(in_e.mWhat == StoryDataUpdatedEvent::WHAT()){
+	if(in_e.mWhat == DataUpdatedEvent::WHAT()){
 		setData();
 	}
 }
@@ -79,25 +66,17 @@ void StoryView::setData() {
 
 	if(mGlobals.mDataWrangler.mData.hasChild("leadership")) {
 		auto leadershipTable = mGlobals.mDataWrangler.mData.getChild("leadership");
-		auto leadershipItem = leadershipTable.getChild("rows");
+		auto leadershipItems = leadershipTable.getChildren("rows");
 
-		if(mMessage) {
-			mMessage->setText(leadershipItem.getPropertyValue("firstname"));
-		}
-		if(mImage) {
-			mImage->setImageResource(leadershipItem.getProperty("resourceid").getResource());
-		}
-	} else if(!mGlobals.mAllData.mStories.empty()){
+		if(!leadershipItems.empty()) {
+			auto leadershipItem = leadershipItems[rand() % leadershipItems.size()];
 
-		auto storyRef = mGlobals.mAllData.mStories.front();
-
-		if(mMessage){
-			// Map the content from the app to the view sprites
-			mMessage->setText(storyRef.getTitle());
-		}
-
-		if(mImage && storyRef.getPrimaryResource().getType() == ds::Resource::IMAGE_TYPE){
-			mImage->setImageResource(storyRef.getPrimaryResource());
+			if(mMessage) {
+				mMessage->setText(leadershipItem.getPropertyValue("firstname"));
+			}
+			if(mImage) {
+				mImage->setImageResource(leadershipItem.getProperty("resourceid").getResource());
+			}
 		}
 	}
 

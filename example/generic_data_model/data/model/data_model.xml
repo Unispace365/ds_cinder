@@ -3,8 +3,8 @@
 	<table name="leadership"
 			resources="resourceid"
 			ignore="sourceid_cropdata"
-			select="SELECT firstname || ' ' || lastname || ' | ' || title  AS firstname, resourceid FROM leadership"
-			where="firstname='Heather'"
+			select="SELECT preferredfirstname || ' ' || lastname || ' | ' || email  AS firstname, resourceid FROM leadership"
+			where="resourceid != 0"
 		/>
 		
 	<table name="tile"
@@ -17,7 +17,7 @@
 			<table name="tile_related"
 				child_id="tileid"
 				resources="primaryresourceid"
-				sort="sort_order ASC, caption DESC"
+				sort="id ASC"
 				
 				/>
 	</table>

@@ -1,0 +1,43 @@
+<interface>
+
+		<table name="leadership"
+				resources="resourceid"
+				ignore="sourceid_cropdata"
+			/>
+			
+		<table name="tile"
+				resources="iconresourceid"
+				sort="title"
+				where="active=1"
+				>
+				
+				<!-- child_id is the id column in this table that matches the parent's -->
+				<table name="tile_related"
+					child_id="tileid"
+					resources="primaryresourceid"
+					sort="sort_order,title"
+					
+					/>
+		</table>
+		
+		<table name="tile_set"
+				sort="title"
+				where="active=1 AND date('localtime') BETWEEN startdate AND enddate"
+				>
+				
+				<!-- parent_id is the id in the parent's table that matches this table -->
+				<table name="background_theme"
+					parent_id="backgroundthemeid"					
+				>
+				
+					<table name="background_theme_image"
+						resources="primaryresourceid"
+						child_id="themeid"
+						sort="DESC:sort_order" />
+						
+				</table>
+		</table>
+	
+	
+</interface>
+

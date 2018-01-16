@@ -16,9 +16,9 @@ public:
 
 };
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
+class DataUpdatedEvent : public ds::RegisteredEvent<DataUpdatedEvent>{
 public:
-	StoryDataUpdatedEvent(){};
+	DataUpdatedEvent(){};
 }; 
 
 class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{

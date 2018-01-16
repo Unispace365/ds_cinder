@@ -4,6 +4,8 @@
 
 #include <ds/app/event_notifier.h>
 
+#include "events/app_events.h"
+
 namespace downstream {
 
 /**
@@ -11,6 +13,7 @@ namespace downstream {
 */
 DataWrangler::DataWrangler(ds::ui::SpriteEngine& se)
 	: mNodeWatcher(se)
+	, mEngine(se)
 	, mDataQuery(se, [] { return new DataQuery(); })
 {
 
@@ -21,7 +24,7 @@ DataWrangler::DataWrangler(ds::ui::SpriteEngine& se)
 	mDataQuery.setReplyHandler([this](DataQuery& q) {
 		mData = q.mData;
 
-		// dispatch event
+		mEngine.getNotifier().notify(DataUpdatedEvent());
 
 	//	q.mData.printTree(true, "");
 	});

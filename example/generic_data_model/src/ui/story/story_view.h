@@ -9,8 +9,6 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/layout/layout_sprite.h>
 
-#include "model/generated/story_model.h"
-
 namespace downstream {
 
 class Globals;

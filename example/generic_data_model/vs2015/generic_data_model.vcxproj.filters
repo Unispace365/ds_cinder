@@ -7,23 +7,11 @@
     <ClCompile Include="..\src\app\globals.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\query\query_handler.cpp">
-      <Filter>src\query</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\model\generated\story_model.cpp">
-      <Filter>src\model\generated</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\query\story_query.cpp">
-      <Filter>src\query</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\app\generic_data_model_app.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ui\story\story_view.cpp">
       <Filter>src\ui\story</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\model\generated\media_model.cpp">
-      <Filter>src\model\generated</Filter>
     </ClCompile>
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
@@ -37,6 +25,15 @@
     <ClCompile Include="..\src\query\data_wrangler.cpp">
       <Filter>src\query</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\table\table_view.cpp">
+      <Filter>src\ui\table</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\table\table_nav_item.cpp">
+      <Filter>src\ui\table</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\table\table_table_item.cpp">
+      <Filter>src\ui\table</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -48,26 +45,11 @@
     <ClInclude Include="..\src\app\globals.h">
       <Filter>src\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\query\query_handler.h">
-      <Filter>src\query</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\model\all_data.h">
-      <Filter>src\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\model\generated\story_model.h">
-      <Filter>src\model\generated</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\query\story_query.h">
-      <Filter>src\query</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\app\generic_data_model_app.h">
       <Filter>src\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ui\story\story_view.h">
       <Filter>src\ui\story</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\model\generated\media_model.h">
-      <Filter>src\model\generated</Filter>
     </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
@@ -81,6 +63,15 @@
     <ClInclude Include="..\src\query\data_wrangler.h">
       <Filter>src\query</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ui\table\table_view.h">
+      <Filter>src\ui\table</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\table\table_nav_item.h">
+      <Filter>src\ui\table</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\table\table_table_item.h">
+      <Filter>src\ui\table</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
@@ -92,9 +83,6 @@
     </Filter>
     <Filter Include="src\model">
       <UniqueIdentifier>{319fa3ee-b4b6-4c09-82f9-ae7e64131109}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\model\generated">
-      <UniqueIdentifier>{1508715c-b79f-4ac7-a607-eac85980f6a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\query">
       <UniqueIdentifier>{7406c89a-2752-4cbf-b0fc-2db2c8ec7223}</UniqueIdentifier>
@@ -114,10 +102,8 @@
     <Filter Include="src\ui\story">
       <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\model\generated\model.yml">
-      <Filter>src\model\generated</Filter>
-    </None>
+    <Filter Include="src\ui\table">
+      <UniqueIdentifier>{74540299-9679-44d8-9bef-2f9468b22ea2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

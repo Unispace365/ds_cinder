@@ -8,7 +8,6 @@
 
 #include "app/globals.h"
 #include "query/data_wrangler.h"
-#include "query/query_handler.h"
 
 namespace downstream {
 class AllData;
@@ -31,15 +30,10 @@ private:
 	void				forceStartIdleMode();
 	void				onAppEvent(const ds::Event&);
 
-	// Data
-	AllData				mAllData;
-
-
 	DataWrangler		mDataWrangler;
 
 	// Data acquisition
 	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
 
 	//Idle state of the app to detect state change
 	bool				mIdling;

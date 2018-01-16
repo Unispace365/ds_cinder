@@ -102,66 +102,26 @@ void DataQuery::run() {
 
 	/*
 	TODO:
-	 - Specify tables to use / ignore
-	 - Auto primary key
+	 - Rework resource cache so it doesn't get reloaded every time
 	 - Foreign keys and auto-build children
-	 - Sorting (auto sort on sort_order column)
-	 - Multi sorting
-	 - Where clauses
-	 - Mark columns as resources
 	 - Display data model visually
 	 - Get nested data by string
 	*/
 
 
 	auto metaData = readXml();
-	metaData.printTree(true, "");
-
-	getDataFromTable(mData, metaData, dbPath, allResources);
-
-	/*
-	getDataFromTable(mData, "sqlite_master");
-	//auto table = mData.getChild("tables");
-	auto tables = mData.getChildren("rows");
-	for (auto it : tables){
-		it.setName(it.getProperty("tbl_name").getString());
-		getDataFromTable(it, it.getProperty("tbl_name").getString());
-	}
-	*/
-
-	/*
-	std::string tablesQuery = "SELECT tbl_name FROM sqlite_master";
-	if(ds::query::Client::query(dbPath, tablesQuery, result)) {
-		ds::query::Result::RowIterator it(result);
-		while(it.hasValue()) {
-			ds::query::Result tableResult;
-			ds::model::DataModelRef thisTable = ds::model::DataModelRef(it.getString(0));
-			if(ds::query::Client::query(dbPath, "SELECT * FROM " + thisTable.getName(), tableResult, ds::query::Client::INCLUDE_COLUMN_NAMES_F)) {
-				ds::query::Result::RowIterator tit(tableResult);
-				while(tit.hasValue()) {
-
-					ds::model::DataModelRef thisRow = ds::model::DataModelRef(thisTable.getName());
-
-					for(int i = 0; i < tableResult.getColumnSize(); i++) {
-						std::string theValue = tit.getString(i);
-						if(theValue.empty()) {
-							if(tableResult.getColumnType(i) == ds::query::QUERY_NUMERIC) {
-
-							}
-						}
-						thisRow.setProperty(tableResult.getColumnName(i), theValue);
-					}
-
-					thisTable.addChild("row", thisRow);
-
-					++tit;
-				}
-			}
-			mData.addChild("table", thisTable);
-			++it;
+	//metaData.printTree(true, "");
+	if(metaData.empty()) {
+		getDataFromTable(mData, "sqlite_master");
+		//auto table = mData.getChild("tables");
+		auto tables = mData.getChildren("rows");
+		for(auto it : tables) {
+			it.setName(it.getProperty("tbl_name").getString());
+			getDataFromTable(it, it.getProperty("tbl_name").getString());
 		}
+	} else {
+		getDataFromTable(mData, metaData, dbPath, allResources);
 	}
-	*/
 }
 
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
@@ -235,13 +195,16 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::map<int, ds::Resource>& allResources) {
 
 	std::string theTable = tableDescription.getPropertyValue("name");
+	ds::model::DataModelRef tableModel;
 
 	if(theTable.empty()) {
-		DS_LOG_WARNING("No table name specified in datamodel query");
+		if(tableDescription.getName() != "model") {
+			DS_LOG_WARNING("No table name specified in datamodel query");
+		}
 
+		tableModel = parentModel;
 	} else {
 
-		ds::model::DataModelRef tableModel;
 		tableModel.setName(theTable);
 
 		std::string selectStmt = tableDescription.getPropertyValue("select");
@@ -392,7 +355,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 
 	auto tableChildren = tableDescription.getChildren("table");
 	for (auto it : tableChildren){
-		getDataFromTable(parentModel, it, dbPath, allResources);
+		getDataFromTable(tableModel, it, dbPath, allResources);
 	}
 }
 

@@ -27,15 +27,36 @@
 				shrink_to_children="both"
 			>
 			
-		
-				<text name="message"
-					font="media_viewer:title"
-					layout_v_align="middle"
+				<layout layout_type="vert"
+					layout_type="custom_blarbles"
+				
 					layout_size_mode="flex"
-					font_size="48"
-					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>Launcher</text>
+					height="200" 
+					>
 					
+					<foreach model="tile.tile_related"
+						>
+						<xml name="wahtever" />
+						<text name="blurb"
+						model="title"
+						/>
+					</foreach>
+					
+					<text name="message"
+						font="media_viewer:title"
+						layout_v_align="middle"
+						layout_size_mode="flex"
+						font_size="48"
+						animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+						model="tile.title"
+						>Launcher</text>
+					<scroll_list 
+						model="tile" 
+						item_layout="story_item.xml"
+						item_model="tile.tile_related"
+						item_tapped="specialEvent"
+						/>
+				</layout>
 				<sprite name="spacer_one" 
 					layout_size_mode="flex"
 					color="white"
@@ -45,11 +66,15 @@
 					opacity="0.5"
 					animate_on="fade; delay:0.5; duration:0.4"
 				/>
-				<image name="primary_image"
-					layout_size_mode="flex"
-					animate_on="fade; delay:0.5; duration:0.4"
-					/>
-					
+				<layout name="img_holder"
+					layout_type="horiz"
+					size="200, 200"
+					>
+					<image name="primary_image"
+						layout_size_mode="flex"
+						animate_on="fade; delay:0.5; duration:0.4"
+						/>
+				</layout>
 				<sprite name="spacer_two" 
 					layout_size_mode="flex"
 					color="white"
@@ -59,6 +84,11 @@
 					opacity="0.5"
 					animate_on="fade; delay:0.5; duration:0.4"
 				/>
+				<xml name="reload_button" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="the_button" on_click_event="DataUpdatedEvent"  />
+					<property name="high_icon" src="%APP%/data/images/media_interface/refresh.png" scale="0.5, 0.5" position="30, 23" />
+					<property name="high_label" text="Randomize" />
+				</xml>
 				<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
 					<property name="the_button" on_click_event="RequestAppExitEvent"  />
 					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="50, 23" />

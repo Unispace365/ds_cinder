@@ -236,7 +236,7 @@ const std::map<std::string, std::vector<DataModelRef>>& DataModelRef::getChildre
 	return mData->mChildren;
 }
 
-const std::vector<DataModelRef>& DataModelRef::getChildren(const std::string& childrenName) {
+const std::vector<DataModelRef>& DataModelRef::getChildren(const std::string& childrenName) const {
 	if(!mData) return EMPTY_DATAMODELREF_VECTOR;
 	auto findy = mData->mChildren.find(childrenName);
 	if(findy != mData->mChildren.end()) {

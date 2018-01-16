@@ -1,0 +1,26 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="horiz"
+				layout_size_mode="flex"
+				shrink_to_children="both"
+				layout_spacing="10"
+				enable="true"
+				multitouch="info"
+			>
+			
+			
+			<text name="id"
+				font="table_nav:id"
+				resize_limit="50"
+				text_align="right"
+				/>
+			
+			<text name="title"
+				font="table_nav:title" />
+				
+		</layout>
+	
+	
+</interface>
+
