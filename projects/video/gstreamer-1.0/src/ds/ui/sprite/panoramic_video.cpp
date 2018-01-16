@@ -72,7 +72,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
-		handleDrag(ci::vec2(ti.mDeltaPoint));
+		handleDrag(ci::vec2(ti.mDeltaPoint));		
 	});
 }
 
@@ -210,8 +210,8 @@ void PanoramicVideo::resetCamera(){
 
 }
 
-void PanoramicVideo::onSizeChanged(){
-	resetCamera();
+void PanoramicVideo::onSizeChanged() {
+	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
 }
 
 void PanoramicVideo::loadVideo(const std::string& path){
