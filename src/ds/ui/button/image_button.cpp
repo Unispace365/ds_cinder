@@ -118,9 +118,9 @@ ds::ui::Image& ImageButton::getHighImage(){
 	return mDown;
 }
 
-void ImageButton::setHighImage(const std::string& imageFile){
+void ImageButton::setHighImage(const std::string& imageFile, const int flags){
 	mHighFilePath = imageFile;
-	mDown.setImageFile(imageFile);
+	mDown.setImageFile(imageFile, flags);
 	layout();
 }
 
@@ -129,12 +129,12 @@ ds::ui::Image& ImageButton::getNormalImage(){
 	return mUp;
 }
 
-void ImageButton::setNormalImage(const std::string& imageFile){
+void ImageButton::setNormalImage(const std::string& imageFile, const int flags){
 	if(mNormalFilePath == mHighFilePath){
-		setHighImage(imageFile);
+		setHighImage(imageFile, flags);
 	}
 	mNormalFilePath = imageFile;
-	mUp.setImageFile(imageFile);
+	mUp.setImageFile(imageFile, flags);
 	layout();
 }
 

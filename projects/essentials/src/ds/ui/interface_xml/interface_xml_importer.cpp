@@ -507,14 +507,16 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			});
 		}
 	}
-	else if(property == "filename" || property == "src") {
+	else if(property == "filename" || property == "src" || property == "filename_cache" || property=="src_cache") {
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto image = dynamic_cast<Image *>(&sprite);
+		int flags = 0;
+		if(property == "filename_cache" || property == "src_cache") flags = ds::ui::Image::IMG_CACHE_F;
 		if(image) {
-			image->setImageFile(filePathRelativeTo(referer, value));
+			image->setImageFile(filePathRelativeTo(referer, value), flags);
 		} else if(imgBtn){
-			imgBtn->setNormalImage(filePathRelativeTo(referer, value));
-			imgBtn->setHighImage(filePathRelativeTo(referer, value));
+			imgBtn->setNormalImage(filePathRelativeTo(referer, value), flags);
+			imgBtn->setHighImage(filePathRelativeTo(referer, value), flags);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}

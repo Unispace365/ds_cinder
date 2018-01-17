@@ -73,8 +73,6 @@
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
-    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
-    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
     <ClInclude Include="src\ds\ui\menu\component\cluster_view.h" />
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />

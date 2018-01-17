@@ -179,6 +179,7 @@ Text Parameters
 Image Parameters
 -------------------------
 * **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
+* **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 
 Image Button Parameters

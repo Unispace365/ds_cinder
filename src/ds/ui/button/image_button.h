@@ -32,11 +32,11 @@ public:
 	void						setStateChangeFn(const std::function<void(const bool pressed)>&);
 
 	ds::ui::Image&				getNormalImage();
-	void						setNormalImage(const std::string& imageFile);
+	void						setNormalImage(const std::string& imageFile, const int flags = 0);
 	std::string					getNormalImagePath(){ return mNormalFilePath; }
 
 	ds::ui::Image&				getHighImage(); // http://i.imgur.com/1qIw7AV.jpg
-	void						setHighImage(const std::string& imageFile);
+	void						setHighImage(const std::string& imageFile, const int flags = 0);
 	std::string					getHighImagePath(){ return mHighFilePath; }
 
 	void						setNormalImageColor(const ci::Color& upColor);
