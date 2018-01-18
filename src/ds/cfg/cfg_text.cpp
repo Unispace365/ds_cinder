@@ -8,7 +8,12 @@ namespace cfg {
 
 Text::Text()
 		: mCenter(0.0f, 0.0f)
-		, mAlignment(ds::ui::Alignment::kLeft) {
+		, mAlignment(ds::ui::Alignment::kLeft)
+		, mLetterSpacing(0.0f)
+		, mSize(12.0f)
+		, mFont("Arial")
+		, mColor(ci::Color::white())
+{
 }
 
 Text::Text(const std::string& font, const std::string& configName, const float size, const float leading,

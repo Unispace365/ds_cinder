@@ -82,7 +82,7 @@ public:
 	Text&						setResizeLimit(const float width = 0, const float height = 0);
 
 	/// This is a convenience that can set all the text attributes at once
-	void						setTextStyle(std::string font = "Sans", float size = 12.0f, ci::ColorA color = ci::Color::black(), TextWeight weight = TextWeight::kNormal, Alignment::Enum alignment = Alignment::kLeft); 
+	void						setTextStyle(std::string font = "Sans", double size = 12.0f, ci::ColorA color = ci::Color::black(), TextWeight weight = TextWeight::kNormal, Alignment::Enum alignment = Alignment::kLeft); 
 
 	/// Sets the default color of the text for rendering.
 	/// You can also set the color of the sprite, which works like a "multiply" effect on the outputted text color
@@ -100,11 +100,11 @@ public:
 
 	/// The font name must match a family or face name installed on the system. Will warn and use a default if the desired font is not installed
 	Text&						setFont(const std::string& name);
-	Text&						setFont(const std::string& name, const float fontSize); // provided for compatibility with the old api
+	Text&						setFont(const std::string& name, const double fontSize); // provided for compatibility with the old api
 	std::string					getFont(){ return mTextFont; };
 
-	float						getFontSize(){ return mTextSize; }
-	void						setFontSize(float fontSize);
+	double						getFontSize(){ return mTextSize; }
+	void						setFontSize(double fontSize);
 
 	/// If using a font family, will set the desired weight for the whole sprite. You can use markup to specifically select portions of text to be different weights
 	TextWeight					getDefaultTextWeight();
@@ -203,7 +203,7 @@ private:
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
 
-	float						mTextSize;
+	double						mTextSize;
 	std::string					mTextFont;
 	ci::Color					mTextColor;
 	bool						mDefaultTextItalicsEnabled;
@@ -234,9 +234,6 @@ private:
 	// Pango references
 	PangoContext*				mPangoContext;
 	PangoLayout*				mPangoLayout;
-	PangoFontDescription*		mFontDescription;
-	cairo_surface_t*			mCairoSurface;
-	cairo_t*					mCairoContext;
 	cairo_font_options_t*		mCairoFontOptions;
 
 #ifdef WIN32
