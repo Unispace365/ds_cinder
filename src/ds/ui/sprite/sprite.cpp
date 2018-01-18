@@ -729,12 +729,8 @@ void Sprite::clearChildren(){
 	auto tempList = mChildren;
 	mChildren.clear();
 
-	for(auto it = tempList.begin(), it2 = tempList.end(); it != it2; ++it){
-		if(!(*it) || (*it)->getParent() != this)
-			continue;
-		(*it)->removeParent();
-		(*it)->setParent(nullptr);
-		delete *it;
+	for(auto it : tempList) {
+		it->release();
 	}
 }
 
