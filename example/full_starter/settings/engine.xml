@@ -31,7 +31,7 @@
 	<setting name="touch:dimensions" value="1920, 1080" type="vec2" comment="How large in screen pixels the touch input stream covers" default="1920, 1080"/>
 	<setting name="touch:offset" value="0, 0" type="vec2" comment="How much to offset touch input in pixels" default="0, 0"/>
 	<setting name="touch:filter_rect" value="0, 0, 0, 0" type="rect" comment="Any touches started outside this rect will be ignored, in world space. Set to 0, 0, 0, 0 to ignore." default="0, 0, 0, 0"/>
-	<setting name="touch:verbose_logging" value="true" type="bool" comment="Prints out info for every touch info. Also can be set at runtime using shift-V." default="false"/>
+	<setting name="touch:verbose_logging" value="false" type="bool" comment="Prints out info for every touch info. Also can be set at runtime using shift-V." default="false"/>
 	<setting name="touch:debug" value="true" type="bool" comment="Draw circles around touch points " default="true"/>
 	<setting name="touch:debug_circle_radius" value="15" type="float" comment="Visual settings for touch debug circles." default="15" min_value="1" max_value="100"/>
 	<setting name="touch:debug_circle_color" value="#ffffffff" type="color" comment="The color of the touch debug circles" default="#ffffff"/>
