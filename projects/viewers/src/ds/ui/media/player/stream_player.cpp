@@ -21,6 +21,7 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
+	, mIsPlaying(false)
 {
 	mLayoutFixedAspect = true;
 }
@@ -44,10 +45,10 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 	});
 
 	mVideo->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
-		bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
-		if(mGoodStatusCallback){
-			mGoodStatusCallback();
-		}
+		//bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+		//if(mGoodStatusCallback){
+		//	mGoodStatusCallback();
+		//}
 	});
 
 	mVideo->setStreamingLatency(mStreamLatency * 1000000000);
@@ -87,6 +88,17 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 
 }
 
+void StreamPlayer::onUpdateServer(const ds::UpdateParams& updateParams) {
+	if(mGoodStatusCallback && mVideo) {
+		bool isPlaying = mVideo->getVideoPlayingFramerate() > 1.0f;
+		if(isPlaying != mIsPlaying) {
+			if(isPlaying) {
+				mGoodStatusCallback();
+			}
+			mIsPlaying = isPlaying;
+		}
+	}
+}
 
 void StreamPlayer::onSizeChanged(){
 	layout();

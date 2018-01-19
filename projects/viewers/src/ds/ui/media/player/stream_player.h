@@ -46,10 +46,11 @@ public:
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
 
 protected:
-
-	virtual void						onSizeChanged();
+	virtual void						onUpdateServer(const ds::UpdateParams& updateParams) override;
+	virtual void						onSizeChanged() override;
 	VideoInterface*						mVideoInterface;
 	ds::ui::GstVideo*					mVideo;
+	bool								mIsPlaying;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
 	double								mStreamLatency;
