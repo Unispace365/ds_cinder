@@ -30,14 +30,11 @@ private:
 public:
 	bool loadPDF(const std::string &theFileName);
 
-	float					getTextureWidth() const;
-	float					getTextureHeight() const;
-
 	/// Returns true if the pixels were updated on this pass
 	bool					update();
 
-	ci::gl::TextureRef		getTexture(){ return mTexture; }
-	void					draw(float x, float y);
+	ci::Surface8uRef		getSurface(){ return mSurface; }
+	void					clearSurface();
 
 	float					getWidth() const;
 	float					getHeight() const;
@@ -75,13 +72,9 @@ public:
 
 		bool				empty() const;
 		bool				setSize(const int w, const int h);
-		int					getWidth() const		{ return mW; }
-		int					getHeight() const		{ return mH; }
-		unsigned char*		getData();
 		void				clearPixels();
+		void				deleteData();
 		unsigned char*		mData;
-
-	private:
 		int					mW, mH;
 	};
 
@@ -91,7 +84,7 @@ private:
 	mutable std::mutex			mMutex;
 
 	// MAIN THREAD
-	ci::gl::TextureRef			mTexture;
+	ci::Surface8uRef			mSurface;
 	
 	// WORKER THREAD
 

@@ -87,13 +87,11 @@ private:
 
 		/// Returns true if pixels were updated in this update
 		bool					update();
-		ci::gl::TextureRef		getTexture();
-		void					drawLocalClient();
+		ci::Surface8uRef		getSurface();
+		void					clearSurface();
 		void					setScale(const ci::vec3&);
 		float					getWidth() const;
 		float					getHeight() const;
-		float					getTextureWidth() const;
-		float					getTextureHeight() const;
 		void					setPageNum(const int pageNum);
 		int						getPageNum() const;
 		int						getPageCount() const;
@@ -106,6 +104,8 @@ private:
 		ds::pdf::PdfRes*		mRes;
 	};
 	ResHolder					mHolder;
+
+	ci::gl::TextureRef			mTexture;
 
 	// For clients to detect scale changes and re-render
 	ci::vec3					mPrevScale;

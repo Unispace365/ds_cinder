@@ -49,13 +49,17 @@ private:
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try(mCtx) {
-				if ((mDoc = fz_open_document(mCtx, (char *)file.c_str()))) {
+				if ((mDoc = fz_open_document(mCtx, file.c_str()))) {
+
 					const int		pageCount = fz_count_pages(mCtx, mDoc);
 					if (!(pageCount <= 0 || pageNumber > pageCount)) {
+						
 						if ((mPage = fz_load_page(mCtx, mDoc, pageNumber - 1))) {
 							ans = true;
 						}
+						
 					}
+					
 				}
 			}
 			fz_always(mCtx)
@@ -73,9 +77,21 @@ private:
 	}
 
 	void clear() {
-		try{ if(mPage) fz_drop_page(mCtx, mPage); } catch(...){}
-		try{ if(mDoc) fz_drop_document(mCtx, mDoc); } catch(...){}
-		try{ if(mCtx) fz_drop_context(mCtx); } catch(...){}
+		try {
+			if(mPage) {
+				fz_drop_page(mCtx, mPage);
+			}
+		} catch(...) {}
+		try {
+			if(mDoc) {
+				fz_drop_document(mCtx, mDoc);
+			}
+		} catch(...) {}
+		try {
+			if(mCtx) {
+				fz_drop_context(mCtx);
+			}
+		} catch(...) {}
 		mPage = nullptr;
 		mDoc = nullptr;
 		mCtx = nullptr;
@@ -169,7 +185,7 @@ public:
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
 
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.getData());
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.mData);
 
 					if(pixmap){
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
@@ -177,26 +193,19 @@ public:
 						if(device){
 							fz_run_page(&ctx, &page, device, &fz_identity, NULL);
 							ans = true;
+							fz_close_device(&ctx, device);
 							fz_drop_device(&ctx, device);
 						}
 					}
-
-					/*
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.getData());
-					pixmap = fz_new_pixmap_from_page(&ctx, &page, &transform, fz_device_rgb(&ctx), 0);
-
-					if (pixmap) {
-						memcpy(mPixels.getData(), pixmap->samples, mPixels.getWidth() * mPixels.getHeight() * 3);
-						ans = true;
-					}
-					*/
 				}
 			}
 			fz_always((&ctx)){}
 			fz_catch((&ctx)){
 				DS_LOG_WARNING("PdfRes: render page error: fz catch mode 1: " << fz_caught_message(&ctx));
 			}
-			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
+			if(pixmap) {
+				fz_drop_pixmap(&ctx, pixmap);
+			}
 		} catch (std::exception const& e) { 
 			DS_LOG_WARNING("Exception in PdfRes rendering page: " << e.what());
 		}
@@ -241,11 +250,7 @@ ci::Surface8uRef PdfRes::renderPage(const std::string& path) {
 	Draw					draw(pixels, 1.0f);
 	if (!load.run(draw, path, page_num)) return s;
 
-	return ci::Surface::create(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 3, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
-	
-	// TODO ? Previous code would clone the surface. dunno if that's needed anymore
-	//if (s) return s.clone(true);
-	//return s;
+	return ci::Surface::create(pixels.mData, examine.mWidth, examine.mHeight, examine.mWidth * 3, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
 }
 
 PdfRes::PdfRes(ds::GlThread& t)
@@ -286,22 +291,6 @@ bool PdfRes::loadPDF(const std::string& fileName) {
 	return false;
 }
 
-float PdfRes::getTextureWidth() const {
-	if (!mTexture) return 0.0f;
-	return mTexture->getWidth();
-}
-
-float PdfRes::getTextureHeight() const {
-	if (!mTexture) return 0.0f;
-	return mTexture->getHeight();
-}
-
-void PdfRes::draw(float x, float y) {
-	if (mPageCount > 0 && mTexture) {
-		ci::gl::draw(mTexture, ci::vec2(x, y));
-	}
-}
-
 void PdfRes::goToNextPage() {
 	if(mState.mPageNum >= mPageCount){
 		setPageNum(1); 
@@ -318,13 +307,18 @@ void PdfRes::goToPreviousPage() {
 	}
 }
 
+
+void PdfRes::clearSurface() {
+	mSurface = nullptr;
+}
+
 float PdfRes::getWidth() const {
-	if (mTexture) return mTexture->getWidth();
+	if (mSurface) return mSurface->getWidth();
 	return (float)mState.mWidth;
 }
 
 float PdfRes::getHeight() const {
-	if (mTexture) return mTexture->getHeight();
+	if (mSurface) return mSurface->getHeight();
 	return (float)mState.mHeight;
 }
 
@@ -374,13 +368,13 @@ bool PdfRes::update() {
 			pixelsWereUpdated = true;
 			mPixelsChanged = false;
 			if (mPixels.empty()) {
-				mTexture = nullptr;
+				mSurface = nullptr;
 			} else {
-				ci::gl::Texture::Format formatty;
-				formatty.setMinFilter(GL_LINEAR);
-				formatty.setMagFilter(GL_LINEAR);
-				mTexture = ci::gl::Texture::create(mPixels.getData(), GL_RGB, mPixels.getWidth(), mPixels.getHeight(), formatty);
-				if(!mTexture) return false;
+				mSurface = ci::Surface8u::create(mPixels.mData, mPixels.mW, mPixels.mH, mPixels.mW * 3, ci::SurfaceChannelOrder::RGB);
+
+				if(!mSurface) {
+					return false;
+				}
 			}
 		}
 		mState.mPageSize = mDrawState.mPageSize;
@@ -518,7 +512,7 @@ PdfRes::Pixels::Pixels()
 }
 
 PdfRes::Pixels::~Pixels() {
-	delete mData;
+	deleteData();
 }
 
 bool PdfRes::Pixels::empty() const {
@@ -527,12 +521,13 @@ bool PdfRes::Pixels::empty() const {
 
 bool PdfRes::Pixels::setSize(const int w, const int h) {
 	if (mW == w && mH == h) return true;
-	delete mData;
-	mData = nullptr;
+
+	deleteData();
+
 	mW = 0;
 	mH = 0;
 	if (w > 0 && h > 0) {
-		const int		size = (w * h) * 4;
+		const int		size = (w * h) * 3;
 		mData = new unsigned char[size];
 	}
 	if (!mData) return false;
@@ -541,14 +536,21 @@ bool PdfRes::Pixels::setSize(const int w, const int h) {
 	return true;
 }
 
-unsigned char* PdfRes::Pixels::getData() {
-	return mData;
-}
-
 void PdfRes::Pixels::clearPixels() {
 	if (mW < 1 || mH < 1) return;
-	const int			size = mW * mH * 4;
+	const int			size = mW * mH * 3;
 	memset(mData, 0, size);
+}
+
+
+void PdfRes::Pixels::deleteData() {
+	if(mData) {
+		delete mData;
+		mData = nullptr;
+	}
+
+	mW = 0;
+	mH = 0;
 }
 
 } // using namespace pdf

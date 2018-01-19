@@ -153,6 +153,19 @@ void Pdf::onUpdateClient(const UpdateParams& p) {
 void Pdf::onUpdateServer(const UpdateParams& p) {
 	if(mHolder.update()){
 
+		auto theSurface = mHolder.getSurface();
+		if(theSurface) {
+			if(!mTexture || mTexture->getWidth() != theSurface->getWidth() || mTexture->getHeight() != theSurface->getHeight()) {
+				mTexture = ci::gl::Texture2d::create(*theSurface.get());
+			} else {
+				mTexture->update(*theSurface.get());
+			}
+
+			mHolder.clearSurface();
+		} else {
+			mTexture = nullptr;
+		}
+
 		const ci::ivec2			page_size(mHolder.getPageSize());
 		if(mPageSizeCache != page_size) {
 			mPageSizeCache = page_size;
@@ -160,6 +173,8 @@ void Pdf::onUpdateServer(const UpdateParams& p) {
 				DS_LOG_WARNING("Received no size from muPDF!");
 			}
 			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
+
+
 			if(mPageSizeChangeFn) mPageSizeChangeFn();
 		}
 
@@ -211,29 +226,19 @@ void Pdf::onScaleChanged() {
 }
 
 void Pdf::drawLocalClient() {
-
-	const float				tw = mHolder.getTextureWidth(),
-		th = mHolder.getTextureHeight();
-	auto theTexture = mHolder.getTexture();
-	if(!theTexture || tw < 1.0f || th < 1.0f){
+	if(!mTexture) {
 		return;
-
-		auto shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			shaderBase->uniform("useTexture", false);
-			mUniform.applyTo(shaderBase);
-		}
-
-		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));// , false);
 	}
 
-	theTexture->bind();
+	auto tw = mTexture->getWidth();
+	auto th = mTexture->getHeight();
+	if(tw < 1 || th < 1){
+		return;
+	}
+
+	mTexture->bind();
 
 	if(mRenderBatch){
-		// The texture from PDF is flipped (and setting topDown on the texture doesn't seem to have an effect, so flip in GL before drawing
-		ci::gl::scale(1.0f, -1.0f);
-		ci::gl::translate(0.0f, -getHeight());
 		mRenderBatch->draw();
 	} else if(mCornerRadius > 0.0f){
 		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius, 0, ci::vec2(0, 0), ci::vec2(1, 1));
@@ -241,7 +246,7 @@ void Pdf::drawLocalClient() {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), ci::vec2(0, 0), ci::vec2(1, 1));
 	}
 
-	theTexture->unbind();
+	mTexture->unbind();
 
 }
 
@@ -314,15 +319,15 @@ bool Pdf::ResHolder::update() {
 }
 
 
-ci::gl::TextureRef Pdf::ResHolder::getTexture() {
-	if(mRes) return mRes->getTexture();
+ci::Surface8uRef Pdf::ResHolder::getSurface() {
+	if(mRes) return mRes->getSurface();
 	return nullptr;
 }
 
-void Pdf::ResHolder::drawLocalClient()
-{
-	if (mRes) {
-		mRes->draw(0.0f, 0.0f);
+
+void Pdf::ResHolder::clearSurface() {
+	if(mRes) {
+		mRes->clearSurface();
 	}
 }
 
@@ -341,18 +346,6 @@ float Pdf::ResHolder::getWidth() const
 float Pdf::ResHolder::getHeight() const
 {
 	if (mRes) return mRes->getHeight();
-	return 0.0f;
-}
-
-float Pdf::ResHolder::getTextureWidth() const
-{
-	if (mRes) return mRes->getTextureWidth();
-	return 0.0f;
-}
-
-float Pdf::ResHolder::getTextureHeight() const
-{
-	if (mRes) return mRes->getTextureHeight();
 	return 0.0f;
 }
 
