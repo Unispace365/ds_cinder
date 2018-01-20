@@ -203,27 +203,11 @@ const ci::gl::TextureRef Text::getTexture() {
 	return mTexture;
 }
 
-void Text::setTextStyle(std::string font, double size, ci::ColorA color, TextWeight weight,	Alignment::Enum alignment) {
+void Text::setTextStyle(std::string font, double size, ci::ColorA color, Alignment::Enum alignment) {
 	setFont(font);
 	setFontSize(size);
 	setColor(color);
-	setDefaultTextWeight(weight);
 	setAlignment(alignment);
-}
-
-TextWeight Text::getDefaultTextWeight() {
-	return mDefaultTextWeight;
-}
-
-void Text::setDefaultTextWeight(TextWeight weight) {
-	if(mDefaultTextWeight != weight) {
-		mDefaultTextWeight = weight;
-		mNeedsFontUpdate = true;
-		mNeedsMeasuring = true;
-		mNeedsTextRender = true;
-
-		markAsDirty(FONT_DIRTY);
-	}
 }
 
 Alignment::Enum Text::getAlignment() {
@@ -302,34 +286,6 @@ void Text::setTextColor(const ci::Color& color) {
 	if(mTextColor != color) {
 		mTextColor = color;
 		mNeedsTextRender = true;
-
-		markAsDirty(FONT_DIRTY);
-	}
-}
-
-bool Text::getDefaultTextSmallCapsEnabled() {
-	return mDefaultTextSmallCapsEnabled;
-}
-
-void Text::setDefaultTextSmallCapsEnabled(bool value) {
-	if(mDefaultTextSmallCapsEnabled != value) {
-		mDefaultTextSmallCapsEnabled = value;
-		mNeedsFontUpdate = true;
-		mNeedsMeasuring = true;
-
-		markAsDirty(FONT_DIRTY);
-	}
-}
-
-bool Text::getDefaultTextItalicsEnabled() {
-	return mDefaultTextItalicsEnabled;
-}
-
-void Text::setDefaultTextItalicsEnabled(bool value) {
-	if(mDefaultTextItalicsEnabled != value) {
-		mDefaultTextItalicsEnabled = value;
-		mNeedsFontUpdate = true;
-		mNeedsMeasuring = true;
 
 		markAsDirty(FONT_DIRTY);
 	}
@@ -592,13 +548,6 @@ bool Text::measurePangoText() {
 
 			PangoFontDescription* fontDescription = pango_font_description_from_string(mTextFont.c_str());// +" " + std::to_string(mTextSize)).c_str());
 			pango_font_description_set_absolute_size(fontDescription, mTextSize * 1.3333333333333 * 1024.0);
-
-			//-- Removed stuff that might be nice to implement in the future
-			//pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
-			//pango_font_description_set_style(fontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-			//pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
-			//-- --------
-
 			pango_layout_set_font_description(mPangoLayout, fontDescription);
 			pango_font_map_load_font(mEngine.getPangoFontService().getPangoFontMap(), mPangoContext, fontDescription);
 

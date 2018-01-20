@@ -82,7 +82,7 @@ public:
 	Text&						setResizeLimit(const float width = 0, const float height = 0);
 
 	/// This is a convenience that can set all the text attributes at once
-	void						setTextStyle(std::string font = "Sans", double size = 12.0f, ci::ColorA color = ci::Color::black(), TextWeight weight = TextWeight::kNormal, Alignment::Enum alignment = Alignment::kLeft); 
+	void						setTextStyle(std::string font = "Sans", double size = 12.0f, ci::ColorA color = ci::Color::black(), Alignment::Enum alignment = Alignment::kLeft); 
 
 	/// Sets the default color of the text for rendering.
 	/// You can also set the color of the sprite, which works like a "multiply" effect on the outputted text color
@@ -106,18 +106,8 @@ public:
 	double						getFontSize(){ return mTextSize; }
 	void						setFontSize(double fontSize);
 
-	/// If using a font family, will set the desired weight for the whole sprite. You can use markup to specifically select portions of text to be different weights
-	TextWeight					getDefaultTextWeight();
-	void						setDefaultTextWeight(TextWeight weight);
-
 	Alignment::Enum				getAlignment();
 	void						setAlignment(Alignment::Enum alignment);
-
-	bool						getDefaultTextSmallCapsEnabled();
-	void						setDefaultTextSmallCapsEnabled(bool value);
-
-	bool						getDefaultTextItalicsEnabled();
-	void						setDefaultTextItalicsEnabled(bool value);
 
 	float						getLeading() const;
 	Text&						setLeading(const float);
@@ -160,7 +150,6 @@ public:
 	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
 	int							getCharacterIndexForPosition(const ci::vec2& localPosition);
 
-	// TODO: make these function?
 	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
 	const std::string			getConfigName(){ return mCfgName; }
 	const std::string			getFontFileName(){ return mTextFont; }
@@ -235,10 +224,6 @@ private:
 	PangoContext*				mPangoContext;
 	PangoLayout*				mPangoLayout;
 	cairo_font_options_t*		mCairoFontOptions;
-
-#ifdef WIN32
-	cairo_surface_t*			mCairoWinImageSurface;
-#endif
 };
 }
 } // namespace kp::pango
