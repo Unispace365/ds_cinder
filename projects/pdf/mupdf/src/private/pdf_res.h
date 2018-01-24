@@ -75,6 +75,7 @@ public:
 		void				clearPixels();
 		void				deleteData();
 		unsigned char*		mData;
+		int					mDataSize;
 		int					mW, mH;
 	};
 
@@ -85,6 +86,7 @@ private:
 
 	// MAIN THREAD
 	ci::Surface8uRef			mSurface;
+	Pixels						mSurfacePixels;
 	
 	// WORKER THREAD
 

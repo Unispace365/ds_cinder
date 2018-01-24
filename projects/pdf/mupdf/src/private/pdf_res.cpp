@@ -310,6 +310,7 @@ void PdfRes::goToPreviousPage() {
 
 void PdfRes::clearSurface() {
 	mSurface = nullptr;
+	mSurfacePixels.clearPixels();
 }
 
 float PdfRes::getWidth() const {
@@ -365,12 +366,19 @@ bool PdfRes::update() {
 	{
 		std::lock_guard<decltype(mMutex)>		l(mMutex);
 		if (mPixelsChanged) {
+
 			pixelsWereUpdated = true;
 			mPixelsChanged = false;
+			;
 			if (mPixels.empty()) {
 				mSurface = nullptr;
 			} else {
-				mSurface = ci::Surface8u::create(mPixels.mData, mPixels.mW, mPixels.mH, mPixels.mW * 3, ci::SurfaceChannelOrder::RGB);
+				mSurfacePixels.setSize(mPixels.mW, mPixels.mH);
+				memcpy((unsigned char *)mSurfacePixels.mData, mPixels.mData, mPixels.mDataSize);
+
+				mPixels.deleteData();
+
+				mSurface = ci::Surface8u::create(mSurfacePixels.mData, mSurfacePixels.mW, mSurfacePixels.mH, mSurfacePixels.mW * 3, ci::SurfaceChannelOrder::RGB);
 
 				if(!mSurface) {
 					return false;
@@ -527,8 +535,8 @@ bool PdfRes::Pixels::setSize(const int w, const int h) {
 	mW = 0;
 	mH = 0;
 	if (w > 0 && h > 0) {
-		const int		size = (w * h) * 3;
-		mData = new unsigned char[size];
+		mDataSize = (w * h) * 3;
+		mData = new unsigned char[mDataSize];
 	}
 	if (!mData) return false;
 	mW = w;

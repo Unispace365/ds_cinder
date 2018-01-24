@@ -71,6 +71,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 		, mPageSizeCache(0, 0)
 		, mHolder(e) 
 		, mPrevScale(0.0f, 0.0f, 0.0f)
+	, mTexture(nullptr)
 {
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
@@ -157,7 +158,7 @@ void Pdf::onUpdateServer(const UpdateParams& p) {
 		if(theSurface) {
 			if(!mTexture || mTexture->getWidth() != theSurface->getWidth() || mTexture->getHeight() != theSurface->getHeight()) {
 				mTexture = ci::gl::Texture2d::create(*theSurface.get());
-			} else {
+			} else if(mTexture){
 				mTexture->update(*theSurface.get());
 			}
 
@@ -181,7 +182,6 @@ void Pdf::onUpdateServer(const UpdateParams& p) {
 		if(mPageLoadedCallback){
 			mPageLoadedCallback();
 		}
-
 	}
 }
 
@@ -247,7 +247,6 @@ void Pdf::drawLocalClient() {
 	}
 
 	mTexture->unbind();
-
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
