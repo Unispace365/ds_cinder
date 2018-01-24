@@ -331,7 +331,11 @@ void BasePanel::activatePanel() {
 
 void BasePanel::tweenStarted(){
 	mMomentum.deactivate();
-	mEnableAfterAnimating = isEnabled();
+
+	// check if this should be enabled after animating, and be sure we don't overwrite if this is already animating (and therefore disabled)
+	if(!mAnimating) {
+		mEnableAfterAnimating = isEnabled();
+	}
 	enable(false);
 	mAnimating = true;
 }

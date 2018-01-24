@@ -105,7 +105,9 @@
     <ClCompile Include="src\ds\ui\media\interface\thumbnail_bar.cpp">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\media\player\panoramic_video_player.cpp" />
+    <ClCompile Include="src\ds\ui\media\player\panoramic_video_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -183,6 +185,8 @@
     <ClInclude Include="src\ds\ui\media\interface\thumbnail_bar.h">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\media\player\panoramic_video_player.h" />
+    <ClInclude Include="src\ds\ui\media\player\panoramic_video_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
