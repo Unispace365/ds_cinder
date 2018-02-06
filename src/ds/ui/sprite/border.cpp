@@ -40,6 +40,7 @@ Border::Border(SpriteEngine& engine)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+	mSpriteShader.setToNoImageShader();
 }
 
 Border::Border(SpriteEngine& engine, const float width)
@@ -50,6 +51,7 @@ Border::Border(SpriteEngine& engine, const float width)
 	setTransparent(false);
 	mNeedsBatchUpdate = true;
 	markAsDirty(BORDER_WIDTH_DIRTY);
+	mSpriteShader.setToNoImageShader();
 }
 
 void Border::setBorderWidth(const float borderWidth) {
@@ -100,7 +102,6 @@ void Border::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 }
 
 void Border::onBuildRenderBatch() {
-
 	const float w = getWidth();
 	const float h = getHeight();
 	auto rect = ci::Rectf(0.0f, 0.0f, w, h);

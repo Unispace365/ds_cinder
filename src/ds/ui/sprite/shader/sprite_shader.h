@@ -16,6 +16,7 @@ public:
 	void setShaders(const std::string &location, const std::string &name);
 	void setShaders(const std::string &vert_memory, const std::string &frag_memory, const std::string &shaderName);
 	void setToDefaultShader();
+	void setToNoImageShader();
 	void loadShaders();
 	bool isValid() const;
 
@@ -37,6 +38,7 @@ private:
 
 	void loadDefaultFromFile();
 	void loadDefaultFromMemory();
+	void loadNoImageFromMemory();
 
 	std::string			mDefaultLocation;
 	std::string			mDefaultName;

@@ -55,6 +55,47 @@ const std::string DefaultVert =
 "    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
 "}\n";
 
+const std::string NoImageFrag =
+//"#version 150\n"
+"uniform int		tex0;\n"
+"uniform bool       useTexture;\n"
+"uniform bool       preMultiply;\n"
+"in vec4            Color;\n"
+"out vec4           oColor;\n"
+"void main()\n"
+"{\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    if (useTexture) {\n"
+"    }\n"
+"    oColor *= Color;\n"
+"    if (preMultiply) {\n"
+"        oColor.r *= oColor.a;\n"
+"        oColor.g *= oColor.a;\n"
+"        oColor.b *= oColor.a;\n"
+"    }\n"
+"}\n";
+
+const std::string NoImageVert =
+"#version 150\n"
+"uniform mat4       ciModelMatrix;\n"
+"uniform mat4       ciModelViewProjection;\n"
+"uniform vec4       uClipPlane0;\n"
+"uniform vec4       uClipPlane1;\n"
+"uniform vec4       uClipPlane2;\n"
+"uniform vec4       uClipPlane3;\n"
+"in vec4            ciPosition;\n"
+"in vec4            ciColor;\n"
+"out vec4           Color;\n"
+"void main()\n"
+"{\n"
+"    gl_Position = ciModelViewProjection * ciPosition;\n"
+"    Color = ciColor;\n"
+"    gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"    gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"    gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
+"}\n";
+
 const ds::BitMask SHADER_LOG = ds::Logger::newModule("shader");
 
 std::unordered_map<std::string, ci::gl::GlslProgRef> GlslProgs;
@@ -117,6 +158,15 @@ void SpriteShader::setToDefaultShader(){
 
 	mName = "base";
 	loadDefaultFromMemory();
+}
+
+void SpriteShader::setToNoImageShader() {
+	if(mShader) {
+		mShader.reset();
+	}
+
+	mName = "noImage";
+	loadNoImageFromMemory();
 }
 
 void SpriteShader::loadShaders() {
@@ -228,6 +278,21 @@ void SpriteShader::loadDefaultFromMemory(){
 	} catch(std::exception &e) {
 		//std::cout << e.what() << std::endl;
 		DS_LOG_WARNING_M(std::string("SpriteShader::loadDefaultFromMemory() on DefaultVert\n") + e.what(), SHADER_LOG);
+	}
+}
+
+void SpriteShader::loadNoImageFromMemory() {
+	try {
+		auto found = GlslProgs.find("noImage");
+		if(found == GlslProgs.end()) {
+			mShader = ci::gl::GlslProg::create(NoImageVert.c_str(), NoImageFrag.c_str());
+			GlslProgs["noImage"] = mShader;
+		} else {
+			mShader = found->second;
+		}
+	} catch(std::exception &e) {
+		//std::cout << e.what() << std::endl;
+		DS_LOG_WARNING_M(std::string("SpriteShader::loadDefaultFromMemory() on NoImage\n") + e.what(), SHADER_LOG);
 	}
 }
 
