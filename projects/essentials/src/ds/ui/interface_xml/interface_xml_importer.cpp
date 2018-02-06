@@ -512,11 +512,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		auto image = dynamic_cast<Image *>(&sprite);
 		int flags = 0;
 		if(property == "filename_cache" || property == "src_cache") flags = ds::ui::Image::IMG_CACHE_F;
+		std::string filePath = value;
+		if(!value.empty()) filePath = filePathRelativeTo(referer, value);
 		if(image) {
-			image->setImageFile(filePathRelativeTo(referer, value), flags);
+			image->setImageFile(filePath, flags);
 		} else if(imgBtn){
-			imgBtn->setNormalImage(filePathRelativeTo(referer, value), flags);
-			imgBtn->setHighImage(filePathRelativeTo(referer, value), flags);
+			imgBtn->setNormalImage(filePath, flags);
+			imgBtn->setHighImage(filePath, flags);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
