@@ -401,8 +401,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 				}
 			}, true);
 		}
-	} else if(e.getCode() == KeyEvent::KEY_f){
+	} else if(e.getCode() == KeyEvent::KEY_f) {
 		setFullScreen(!isFullScreen());
+	} else if(e.getCode() == KeyEvent::KEY_a){
+		ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop());
 	} else {
 		onKeyDown(e);
 	}

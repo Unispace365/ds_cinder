@@ -197,8 +197,6 @@ public:
 	const bool							getTouchSmoothing();
 	void								setTouchSmoothFrames(const int smoothFrames);
 
-	// Root support
-	const ci::Rectf&					getScreenRect() const;
 	// Utility to change touch mode
 	void								nextTouchMode();
 
