@@ -30,7 +30,7 @@
 namespace {
 
 const static std::string whiteboard_point_vert =
-"#version 150\n"
+//"#version 150\n"
 "uniform mat4		ciModelViewProjection;\n"
 "in vec4			ciPosition;\n"
 "in vec4			ciColor;\n"
@@ -279,7 +279,7 @@ void DrawingCanvas::drawLocalClient(){
 		ci::gl::color(ci::Color::white());
 		ci::gl::GlslProgRef shaderBase = getBaseShader().getShader();
 
-		auto theTex = mFbo->getTexture2d(GL_COLOR_ATTACHMENT1);
+		auto theTex = mFbo->getTexture2d(GL_COLOR_ATTACHMENT0);
 		theTex->bind(0);
 
 		if(shaderBase) {
@@ -341,9 +341,10 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 		textFormat.setMinFilter(GL_LINEAR);
 		textFormat.setMagFilter(GL_LINEAR);
 		textFormat.setInternalFormat(GL_RGBA32F);
+
 		ci::gl::Fbo::Format format;
 		//format.setSamples(4); // NOTE: don't anti-alias, it causes some weird shit at the edges
-		format.attachment(GL_COLOR_ATTACHMENT1, ci::gl::Texture2d::create(w, h, textFormat));
+		format.attachment(GL_COLOR_ATTACHMENT0, ci::gl::Texture2d::create(w, h, textFormat));
 		mFbo = ci::gl::Fbo::create(w, h, format);
 	}
 
