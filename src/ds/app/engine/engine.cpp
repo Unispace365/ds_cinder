@@ -489,7 +489,7 @@ void Engine::setupTouch(ds::App& app) {
 		}
 	}
 
-#ifdef WIN32
+#ifdef _WIN32
 	if(mDsApp.getWindow()) {
 		auto hwnd = (HWND)mDsApp.getWindow()->getNative();
 		if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
