@@ -11,6 +11,7 @@
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
 #ifdef _WIN32
+#include <Winuser.h>
 #include "ds/debug/console.h"
 #endif
 #include "ds/debug/debug_defines.h"
@@ -487,6 +488,39 @@ void Engine::setupTouch(ds::App& app) {
 			DS_LOG_INFO("TUIO disconnected");
 		}
 	}
+
+#ifdef WIN32
+	if(mDsApp.getWindow()) {
+		auto hwnd = (HWND)mDsApp.getWindow()->getNative();
+		if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
+
+			BOOL(WINAPI *RegisterTouchWindow)(HWND, ULONG);
+			*(size_t *)&RegisterTouchWindow = (size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
+			if(RegisterTouchWindow) {
+				(*RegisterTouchWindow)(hwnd, TWF_WANTPALM); // Immediately get the palm touch without waiting
+			}
+		}
+
+		/// Turn off all that dumb feedback shit always
+
+		BOOL fEnabled = FALSE;
+		SetWindowFeedbackSetting(hwnd,
+								 FEEDBACK_TOUCH_CONTACTVISUALIZATION,
+								 0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+								 FEEDBACK_TOUCH_TAP,
+								 0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+								 FEEDBACK_TOUCH_DOUBLETAP,
+								 0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+								 FEEDBACK_TOUCH_PRESSANDHOLD,
+								 0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+								 FEEDBACK_TOUCH_RIGHTTAP,
+								 0, sizeof(fEnabled), &fEnabled);
+	}
+#endif
 }
 
 void Engine::clearRoots(){
