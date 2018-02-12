@@ -38,7 +38,7 @@ void DashedLine::rebuildLine() {
 
 	ci::vec2 point = ci::vec2(0.0f, 0.0f);
 
-	while(point.y < getHeight()) {
+	while(point.y + mDashLength < getHeight()) {
 		ci::Path2d dash;
 		dash.moveTo(ci::vec2(point.x, point.y));
 		dash.lineTo(ci::vec2(point.x, point.y + mDashLength));
@@ -53,9 +53,6 @@ void DashedLine::drawLocalServer() {
 
 void DashedLine::drawLocalClient() {
 	ci::gl::ScopedLineWidth slw(mWidth);
-	auto par = getParent();
-	float oppa = getDrawOpacity();
-	ci::gl::color(ci::ColorA(ci::Color::white(), oppa));
 	for(auto seg : mSegments) {
 		ci::gl::draw(seg);
 	}	
