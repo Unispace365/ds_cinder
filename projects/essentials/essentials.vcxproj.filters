@@ -25,9 +25,6 @@
     <Filter Include="src\ds\ui\interface_xml">
       <UniqueIdentifier>{4ef0ddea-47c5-41b1-a726-039d9baa7560}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\button">
-      <UniqueIdentifier>{61cae238-1a76-4498-a57f-7da0bc32075e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\touch">
       <UniqueIdentifier>{6ab169de-3b25-4751-8241-426e54959e13}</UniqueIdentifier>
     </Filter>
@@ -42,9 +39,6 @@
     </Filter>
     <Filter Include="src\ds\network\helper">
       <UniqueIdentifier>{f3fdef8a-eaa7-4dbe-80c4-ee9f6cc1ced2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\soft_keyboard">
-      <UniqueIdentifier>{6baae140-9c0e-4cb9-9e49-4e0aea6f86f7}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\network\curl">
       <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
@@ -63,9 +57,6 @@
     </Filter>
     <Filter Include="src\ds\ui\drawing">
       <UniqueIdentifier>{0daa2cd3-cc8f-42cf-bcab-7465c71d6798}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\control">
-      <UniqueIdentifier>{27aa7365-59b9-455f-96e6-3915c4fce6b2}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{4573d40e-cf70-4452-a66a-0d042211e60c}</UniqueIdentifier>
@@ -277,9 +268,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\layout\smart_layout.h">
-      <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
     <ClInclude Include="src\ds\ui\sprite\donut_arc.h">
