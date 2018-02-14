@@ -32,6 +32,10 @@ public:
 	const ds::cfg::Text&			getDefaultTextCfg() const;
 	void							setText(const std::string& name, const ds::cfg::Text&);
 
+	// This is a relative operation, so each time you run it it will multiply the new scale
+	// Recommend reloading the text using loadText() before setting this a second time
+	void							applyTextScale(const float theScale);
+
 	// Answers true if settings with given key is already loaded
 	bool							hasSettings(const std::string& name) const;
 

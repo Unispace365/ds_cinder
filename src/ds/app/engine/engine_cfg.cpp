@@ -130,6 +130,12 @@ void EngineCfg::setText(const std::string& name, const ds::cfg::Text& t) {
 	}
 }
 
+void EngineCfg::applyTextScale(const float theScale) {
+	for (auto& it : mTextCfg){
+		it.second.mSize *= theScale;
+	}
+}
+
 bool EngineCfg::hasSettings(const std::string& name) const {
 	return mSettings.find(name) != mSettings.cend();
 }
