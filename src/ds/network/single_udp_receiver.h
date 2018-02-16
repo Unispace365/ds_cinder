@@ -18,22 +18,31 @@ public:
 	UdpReceiver(int numThreads = 1);
 	~UdpReceiver();
 
-	bool initialize(bool server, const std::string &ip, const std::string &port);
+	// Binds to an ip/port, for listening generally
+	bool initialize(const std::string &ip, const std::string &port);
+
+	// Connects to the ip/port for sending
+	bool connect(const std::string &ip, const std::string &port);
+
 	void close();
 	// Convenience to close and reinitialize
 	void renew();
 
-	bool sendMessage(const std::string &data);
-	bool sendMessage(const char *data, int size);
+	virtual bool sendMessage(const std::string &data) override;
+	virtual bool sendMessage(const char *data, int size) override;
 
-	bool isServer() const;
+	virtual int recvMessage(std::string &msg) override;
 
-	int recvMessage(std::string &msg);
 	// Answer true if I have more data to receive, false otherwise.
 	bool canRecv() const;
 
 	bool initialized() const;
 
+	/// Server is ignored for this type
+	virtual bool initialize(bool server, const std::string &ip, const std::string &port) override { return initialize(ip, port); }
+
+	/// This is never a server
+	virtual bool	isServer() const override { return false; }
 private:
 	Poco::Net::DatagramSocket	mSocket;
 	bool						mInitialized;
