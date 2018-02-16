@@ -57,4 +57,8 @@ const ci::ColorA& ColorList::getColorFromName(const std::string& n) const{
 	return EMPTY_COL;
 }
 
+const ci::ColorA& ColorList::getColorFromName(const std::wstring& namey) const {
+	return getColorFromName(ds::utf8_from_wstr(namey));
+}
+
 } // namespace ds

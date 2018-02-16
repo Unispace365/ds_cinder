@@ -28,6 +28,7 @@ public:
 	const ci::ColorA&		getColorFromId(const size_t id) const;
 	// Clients give either a shortname and I give them a color
 	const ci::ColorA&		getColorFromName(const std::string&) const;
+	const ci::ColorA&		getColorFromName(const std::wstring&) const;
 
 private:
 	class Entry {
