@@ -20,7 +20,7 @@ namespace ds {
 template <typename T>
 class EngineTouchQueue {
 public:
-	EngineTouchQueue(	std::mutex&, float& lastTouchTime, bool& idling,
+	EngineTouchQueue(	std::mutex&, float& lastTouchTime,
 						const std::function<void(const T&)>&, const std::string& debugLabel = "");
 
 	void					setUpdateFn(const std::function<void(const T&)>&);
@@ -40,7 +40,6 @@ private:
 
 	std::mutex&				mMutex;
 	float&					mLastTouchTime;
-	bool&					mIdling;
 	std::function<void(const T&)>
 							mUpdateFn;
 	std::string				mDebugLabel;
@@ -54,11 +53,10 @@ private:
 };
 
 template <typename T>
-EngineTouchQueue<T>::EngineTouchQueue(	std::mutex& m, float& lastTouchTime, bool& idling,
+EngineTouchQueue<T>::EngineTouchQueue(	std::mutex& m, float& lastTouchTime,
 										const std::function<void(const T&)>& updateFn, const std::string& debugLabel)
 		: mMutex(m)
 		, mLastTouchTime(lastTouchTime)
-		, mIdling(idling)
 		, mUpdateFn(updateFn)
 		, mDebugLabel(debugLabel)
 		, mAutoIdleReset(true)
@@ -96,7 +94,6 @@ void EngineTouchQueue<T>::update(const float currTime) {
 	if(mAutoIdleReset){
 		//DS_LOG_INFO("EngineTouchQueue: losing idle due to " << mDebugLabel);
 		mLastTouchTime = currTime;
-		mIdling = false;
 	}
 	
 	for (auto it=mUpdating.begin(), end=mUpdating.end(); it!=end; ++it) {

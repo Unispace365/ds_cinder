@@ -25,6 +25,8 @@
 #include <cinder/Display.h>
 #include <boost/algorithm/string.hpp>
 
+#include "engine_events.h"
+
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
 //! to get removed. Poco is not part of the Cinder.
@@ -62,15 +64,15 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
-	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
-	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
-	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
-	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
-	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
-	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
-	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
-	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
-	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
+	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
+	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
+	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
+	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
+	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
 	, mShowConsole(false)
 	, mUniqueColor(0, 0, 0)
@@ -118,10 +120,10 @@ void Engine::setupEngine() {
 	setupMouseHide();
 	setupWorldSize();
 	setupSrcDstRects();
-	setupIdleTimeout();
 	setupMute();
 	setupResourceLocation();
 	setupRoots();
+	setupIdleTimeout();
 }
 
 void Engine::setupLogger() {
@@ -203,6 +205,12 @@ void Engine::setupVerticalSync(){
 
 void Engine::setupIdleTimeout(){
 	setIdleTimeout(mSettings.getInt("idle_time"));
+
+	auto numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots; i++) {
+		getRootSprite(i).setSecondBeforeIdle(mData.mIdleTimeout);
+		getRootSprite(i).startIdling();
+	}
 }
 
 void Engine::setupMute(){
@@ -246,6 +254,8 @@ void Engine::setupRoots() {
 	sprite_id_t							root_id = EMPTY_SPRITE_ID - 1;
 	// Construct the root sprites
 	if(!isClient) {
+		// enable the bottom root to grab idle events
+		bool firstRoot = true;
 		RootList				roots(mRequestedRootList.runInitFn());
 		if(roots.empty()) roots.ortho();
 		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
@@ -258,6 +268,12 @@ void Engine::setupRoots() {
 				DS_LOG_WARNING("Couldn't create root in the engine!");
 				continue;
 			}
+
+			if(firstRoot) {
+				root->getSprite()->enable(true);
+				firstRoot = false;
+			}
+
 			mRoots.push_back(std::move(root));
 			--root_id;
 		}
@@ -379,6 +395,8 @@ void Engine::onAppEvent(const ds::Event& in_e){
 				setupMute();
 			} else if(e.mSettingName.find("touch") != std::string::npos){
 				setupTouch(mDsApp);
+			} else if(e.mSettingName == "animation:duration") {
+				setAnimDur(mSettings.getFloat("animation:duration"));
 			}
 		}
 	}
@@ -471,7 +489,8 @@ void Engine::setupTouch(ds::App& app) {
 	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size");
 	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity");
 	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time");
-	mData.mAnimDur = mSettings.getFloat("animation:duration");
+
+	setAnimDur(	mSettings.getFloat("animation:duration"));
 
 	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
 	setTouchMode(mTouchMode);
@@ -712,9 +731,8 @@ void Engine::updateClient() {
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
-	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
-		mIdling = true;
-	}
+	checkIdle();
+
 	{
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
@@ -748,6 +766,8 @@ void Engine::updateServer() {
 	const float		dt = curr - mLastTime;
 	mLastTime = curr;
 
+	checkIdle();
+
 	//////////////////////////////////////////////////////////////////////////
 	{
 		std::lock_guard<std::mutex> lock(mTouchMutex);
@@ -776,10 +796,6 @@ void Engine::updateServer() {
 	mTuioObjectsBegin.update(curr);
 	mTuioObjectsMoved.update(curr);
 	mTuioObjectsEnded.update(curr);
-
-	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
-		mIdling = true;
-	}
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -1110,20 +1126,59 @@ void Engine::writeSprites(std::ostream &s) const {
 #endif
 }
 
-bool Engine::isIdling() const {
+void Engine::checkIdle() {
+	bool newIdle = true;
+	const size_t numRoots = getRootCount();
+	for(int i = 0; i < numRoots - 1; i++) {
+		if(getRootBuilder(i).mDebugDraw) continue;
+		if(!getRootSprite(i).isIdling()) {
+			newIdle = false;
+			break;
+		}
+	}
+	
+	if(newIdle != mIdling) {
+		mIdling = newIdle;
+		if(mIdling) {
+			getNotifier().notify(ds::app::IdleStartedEvent());
+		} else {
+			getNotifier().notify(ds::app::IdleEndedEvent());
+		}
+	}
+
+}
+
+bool Engine::isIdling(){
+	checkIdle();
 	return mIdling;
 }
 
 void Engine::startIdling() {
+	// force idle mode to start again
+	const size_t numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++) {
+		// don't clear the last root, which is the debug draw
+		if(getRootBuilder(i).mDebugDraw) continue;
+		getRootSprite(i).startIdling();
+	}
 	mIdling = true;
+	getNotifier().notify(ds::app::IdleStartedEvent());
 }
 
 void Engine::resetIdleTimeout() {
-	//DS_LOG_INFO("ResetIdleTimeout");
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
+
+	const size_t numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++) {
+		// don't clear the last root, which is the debug draw
+		if(getRootBuilder(i).mDebugDraw) continue;
+		getRootSprite(i).resetIdleTimer();
+	}
+
 	mIdling = false;
+	getNotifier().notify(ds::app::IdleEndedEvent());
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

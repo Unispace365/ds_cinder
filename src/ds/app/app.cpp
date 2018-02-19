@@ -437,6 +437,12 @@ void App::keyDown(ci::app::KeyEvent e) {
 		setFullScreen(!isFullScreen());
 	} else if(e.getCode() == KeyEvent::KEY_a){
 		ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop());
+	} else if(e.getCode() == ci::app::KeyEvent::KEY_i) {
+		if(mEngine.isIdling()) {
+			mEngine.resetIdleTimeOut();
+		} else {
+			mEngine.startIdling();
+		}
 	} else {
 		onKeyDown(e);
 	}

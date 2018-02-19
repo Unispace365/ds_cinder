@@ -108,7 +108,7 @@ public:
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
-	void								prepareSettings( ci::app::AppBase::Settings& );
+	void								prepareSettings(ci::app::AppBase::Settings&);
 	void								reloadSettings();
 	void								showSettingsEditor(ds::cfg::Settings& theSettings);
 	void								hideSettingsEditor();
@@ -118,7 +118,8 @@ public:
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
 
-	bool								isIdling() const;
+	bool								isIdling();
+	void								checkIdle();
 	virtual void						startIdling();
 	virtual void						resetIdleTimeout();
 	

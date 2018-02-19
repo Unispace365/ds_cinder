@@ -9,22 +9,22 @@ class SpriteEngine;
 
 class IdleTimer
 {
-  public:
-    IdleTimer(ui::SpriteEngine &engine);
-    void    setSecondBeforeIdle( const double );
-    double  secondsToIdle() const;
-    bool    isIdling() const;
-    void    startIdling();
-    void    resetIdleTimer();
-    void    clear();
-    void    update();
-  private:
-    ui::SpriteEngine     &mEngine;
-    double                mStartTime;
-    double                mIdleTime;
-    bool                  mActive;
-    bool                  mSetup;
-    bool                  mIdling;
+public:
+	IdleTimer(ui::SpriteEngine &engine);
+	void    setSecondBeforeIdle(const double);
+	double  secondsToIdle() const;
+	bool    isIdling() const;
+	void    startIdling();
+	void    resetIdleTimer();
+	void    clear();
+	void    update();
+private:
+	ui::SpriteEngine     &mEngine;
+	double                mStartTime;
+	double                mIdleTime;
+	bool                  mActive;
+	bool                  mSetup;
+	bool                  mIdling;
 };
 
 }
