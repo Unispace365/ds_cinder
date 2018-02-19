@@ -3,5 +3,7 @@
 	<setting name="world_dimensions" value="1920, 1080" type="vec2"/>
 	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
 	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect"/>
+	
+	
 </settings>
 

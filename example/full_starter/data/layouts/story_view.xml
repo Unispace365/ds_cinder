@@ -4,8 +4,9 @@
 				layout_type="vert"
 				layout_size_mode="flex"
 				position="0, 0"				
-				size="1200, 800"
+				size="1280, 1080"
 				shrink_to_children="both"
+				enable="true"
 			>
 			
 			<sprite name="background"
@@ -33,7 +34,7 @@
 					layout_v_align="middle"
 					layout_size_mode="flex"
 					font_size="48"
-					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					animate_on="fade; ease:outQuint; slide:200, 0"
 					>Launcher</text>
 					
 				<sprite name="spacer_one" 
@@ -43,11 +44,11 @@
 					t_pad="5"
 					b_pad="5"
 					opacity="0.5"
-					animate_on="fade; delay:0.5; duration:0.4"
+					animate_on="fade; delay:0.5"
 				/>
 				<image name="primary_image"
 					layout_size_mode="flex"
-					animate_on="fade; delay:0.5; duration:0.4"
+					animate_on="fade; delay:0.5"
 					/>
 					
 				<sprite name="spacer_two" 
@@ -57,7 +58,7 @@
 					t_pad="5"
 					b_pad="5"
 					opacity="0.5"
-					animate_on="fade; delay:0.5; duration:0.4"
+					animate_on="fade; delay:0.5"
 				/>
 				<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
 					<property name="the_button" on_click_event="RequestAppExitEvent"  />

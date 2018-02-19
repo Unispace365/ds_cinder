@@ -7,8 +7,8 @@
 #include <cinder/Json.h>
 #include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
-#include "app/app_defs.h"
 #include "app/globals.h"
+#include "events/app_events.h"
 
 namespace fullstarter {
 
@@ -23,29 +23,22 @@ QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
 {
 
 	// Initialize data
-	mStoryQuery.setReplyHandler([this](StoryQuery& q){this->onStoryQuery(q); });
+	mStoryQuery.setReplyHandler([this](StoryQuery& q){
+		mAllData.mStories = q.mOutput.mStories;
+		mEventClient.notify(StoryDataUpdatedEvent());
+	});
 
 	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m){
-		runInitialQueries(false);
+		runQueries();
 	});
 }
 
-void QueryHandler::runInitialQueries(const bool synchronous){
-	mStoryQuery.start(nullptr, synchronous);
+void QueryHandler::runQueries(){
+	mStoryQuery.start(nullptr, false);
 }
 
-void QueryHandler::onAppEvent(const ds::Event& _e) {
+void QueryHandler::onAppEvent(const ds::Event& in_e) {
 	// Optionally handle app events to re - query if needed
 }
-
-void QueryHandler::onStoryQuery(StoryQuery& q) {
-	mAllData.mStories = q.mOutput.mStories;
-
-	// In general, when a view is re-loaded, it'll pick up the new stories after this point.
-	// You can also dispatch an event here to notify views of new data
-	//mEventClient.notify(StoryDataLoadedEvent());
-
-}
-
 
 } // !namespace fullstarter

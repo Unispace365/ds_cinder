@@ -22,12 +22,11 @@ class QueryHandler {
 public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
-	void								runInitialQueries(const bool synchronous);
+	void								runQueries();
 
 private:
 
 	void								onAppEvent(const ds::Event&);
-	void								onStoryQuery(StoryQuery&);
 
 	ds::EventClient						mEventClient;
 
