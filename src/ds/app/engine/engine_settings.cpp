@@ -91,7 +91,6 @@ void EngineSettings::loadInitialSettings() {
 	// in a production, but I will have a settings/ folder either at or above me.
 	const std::string         appSettingsPath = ds::Environment::getAppFolder(ds::Environment::SETTINGS());
 	if(appSettingsPath.empty()) {
-		//throw std::runtime_error("Missing application settings folder");
 		std::cout << "Couldn't find the application settings folder, that could be a problem." << std::endl;
 	}
 	Poco::Path                appP(appSettingsPath);
@@ -101,7 +100,7 @@ void EngineSettings::loadInitialSettings() {
 	if(safeFileExistsCheck(appFullPath)) {
 		mLoadedAnySettings = true;
 		mStartupInfo << "EngineSettings: Reading app settings from " << appFullPath << std::endl;
-		readFrom(appFullPath, false);
+		readFrom(appFullPath, true);
 	}
 
 	// LOCAL SETTINGS

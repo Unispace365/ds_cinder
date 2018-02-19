@@ -31,6 +31,8 @@ const std::string&				SETTING_TYPE_SECTION_HEADER = "section_header";
 
 namespace {
 
+static const int	SETTINGS_INCREMENT = 200;
+
 static std::vector<std::string>	SETTING_TYPES;
 void initialize_types(){
 	if(SETTING_TYPES.empty()){
@@ -53,17 +55,52 @@ void initialize_types(){
 static void merge_settings(
 	std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& dst,
 	const std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& src){
+
+	int highestReadIndex = 0;
+
+	for(auto& dit : dst) {
+		for (auto vit : dit.second){
+			if(vit.mReadIndex > highestReadIndex) highestReadIndex = vit.mReadIndex;
+		}
+	}
+
+	highestReadIndex += SETTINGS_INCREMENT;
+
 	for(auto sit : src) {
 		bool found = false;
 		for(auto& dit : dst){
 			if(dit.first == sit.first){
-				dit.second = sit.second;
+
+				int thisReadIndex = 0;
+				for(int i = 0; i < sit.second.size(); i++) {
+					if(i < dit.second.size()) {
+						int readIndex = dit.second[i].mReadIndex;
+						dit.second[i] = sit.second[i];
+						dit.second[i].mReadIndex = readIndex;
+
+						if(readIndex > thisReadIndex) thisReadIndex = readIndex;
+					} else {
+						dit.second.emplace_back(sit.second[i]);
+						if(thisReadIndex > 0) {
+							dit.second.back().mReadIndex = thisReadIndex;
+							thisReadIndex += 1;
+						}
+
+					}
+				}
+			
+
 				found = true;
 				break;
 			}
 		}
 
 		if(!found){
+			for (auto it : sit.second){
+				it.mReadIndex = highestReadIndex;
+				highestReadIndex += SETTINGS_INCREMENT;
+			}
+
 			dst.emplace_back(sit);
 		}
 	}
@@ -170,7 +207,7 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll){
 		Setting theSetting;
 		theSetting.mName = theName;
 		theSetting.mReadIndex = mReadIndex;
-		mReadIndex += 100; // leave space for other settings to be inserted
+		mReadIndex += SETTINGS_INCREMENT; // leave space for other settings to be inserted
 		if(it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
 		if(it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
 		if(it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
@@ -400,7 +437,7 @@ ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const 
 	settings.back().mName = name;
 	settings.back().mRawValue = defaultRawValue;
 	settings.back().mReadIndex = mReadIndex;
-	mReadIndex += 100;
+	mReadIndex += SETTINGS_INCREMENT;
 	mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(name, settings));
 
 	return mSettings.back().second.back();
