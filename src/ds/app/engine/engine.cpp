@@ -73,6 +73,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
 	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mAutoHideMouse(true)
 	, mHideMouse(false)
 	, mShowConsole(false)
 	, mUniqueColor(0, 0, 0)
@@ -192,6 +193,8 @@ void Engine::setupWindowMode(){
 
 void Engine::setupMouseHide(){
 	mHideMouse = mSettings.getBool("hide_mouse");
+	mAutoHideMouse = mSettings.getBool("auto_hide_mouse");
+	if(mAutoHideMouse) mHideMouse = true;
 }
 
 void Engine::setupFrameRate(){

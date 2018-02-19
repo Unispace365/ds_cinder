@@ -291,18 +291,28 @@ void App::update() {
 		mMouseHidden = false;
 		showCursor();
 	}
+
+	if(mEngine.getAutoHideMouse() && !mEngine.getHideMouse()) {
+		auto nowwy = Poco::Timestamp().epochMicroseconds();
+		if((float)(nowwy - mMouseMoveTime) / 1000000.0f > 2.0f) {
+			mEngine.setHideMouse(true);
+		}
+	}
 	mEngine.update();
 }
 
 void App::draw() {
 	mEngine.draw();
 }
-
 void App::mouseDown(ci::app::MouseEvent e) {
 	mTouchDebug.mouseDown(e);
 }
 
 void App::mouseMove(ci::app::MouseEvent e) {
+	if(mEngine.getAutoHideMouse()) {
+		mMouseMoveTime = Poco::Timestamp().epochMicroseconds();
+		mEngine.setHideMouse(false);
+	}
 }
 
 void App::mouseDrag(ci::app::MouseEvent e) {
@@ -314,6 +324,9 @@ void App::mouseUp(ci::app::MouseEvent e) {
 }
 
 void App::touchesBegan(ci::app::TouchEvent e) {
+	if(mEngine.getAutoHideMouse()) {
+		mEngine.setHideMouse(true);
+	}
 	mEngine.touchesBegin(e);
 }
 

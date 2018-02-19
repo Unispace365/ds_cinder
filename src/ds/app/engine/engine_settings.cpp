@@ -189,6 +189,7 @@ void EngineSettings::setDefaults(){
 	getSetting("RENDER SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("frame_rate", 0, ds::cfg::SETTING_TYPE_INT, "Attempt to run the app at this rate", "60", "1", "1000");
 	getSetting("vertical_sync", 0, ds::cfg::SETTING_TYPE_BOOL, "Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card", "true");
+	getSetting("auto_hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "True=automatically hide the mouse when mouse hasn't been moved, false=use hide_mouse setting", "true");
 	getSetting("hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "False=cursor visible, true=no visible cursor.", "false");
 	getSetting("camera:arrow_keys", 0, ds::cfg::SETTING_TYPE_FLOAT, "How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage.", "-1.0", "-1.0", "200.0");
 	getSetting("platform:mute", 0, ds::cfg::SETTING_TYPE_BOOL, "Mutes all video sound if true", "false");

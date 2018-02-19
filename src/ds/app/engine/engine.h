@@ -191,6 +191,7 @@ public:
 
 	void								setHideMouse(const bool doMouseHide);
 	bool								getHideMouse() const;
+	bool								getAutoHideMouse() const { return mAutoHideMouse; }
 
 	ds::ui::Sprite*						getHit(const ci::vec3& point);
 
@@ -342,6 +343,7 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnded;
 
 	bool								mRotateTouchesDefault;
+	bool								mAutoHideMouse;
 	bool								mHideMouse;
 	ci::Color8u							mUniqueColor;
 	int									mCachedWindowW, mCachedWindowH;
