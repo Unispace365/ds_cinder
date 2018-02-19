@@ -45,6 +45,7 @@ class EngineRoot;
 
 namespace cfg {
 class SettingsEditor;
+class Text;
 }
 
 extern const ds::BitMask	ENGINE_LOG;
@@ -77,25 +78,32 @@ public:
 	void								addService(const std::string&, ds::EngineService&);
 	// Add the image processing function to my global pool
 	void								addIp(const std::string& key, const ds::ui::ip::FunctionRef&);
+
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadSettings(const std::string& name, const std::string& filename);
+
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be saved ONLY in the user settings location.
 	void								saveSettings(const std::string& name, const std::string& filename);
+
 	// Convenice to append a setting file into the existing mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
 	// It will NOT be loaded from all appropriate locations.
 	void								appendSettings(const std::string& name, const std::string& filename);
+
 	// Convenice to load a text cfg file into a collection of cfg objects.
 	// @param filename is the leaf path of the settings file (i.e. "text.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
-	
+
+	// Convenence to get the confg for a text setting (font, size, color, leading) with the specified name
+	const ds::cfg::Text&				getTextCfg(const std::string& textName) const;
+
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
 	size_t								getRootCount() const;
@@ -104,6 +112,7 @@ public:
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
 	void								prepareSettings( ci::app::AppBase::Settings& );
+	void								reloadSettings();
 	void								showSettingsEditor(ds::cfg::Settings& theSettings);
 	void								hideSettingsEditor();
 	bool								isShowingSettingsEditor();
@@ -229,6 +238,12 @@ public:
 	/// For Clients to create roots when reconnecting to the server
 	void														createClientRoots(std::vector<RootList::Root> newRoots);
 
+
+	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
+	\param clearDebug If true, will clear all the children from the debug roots too.
+	If false, leaves them alone (for instance, in client situations) */
+	void								clearAllSprites(const bool clearDebug = true);
+
 protected:
 	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&);
 
@@ -237,11 +252,6 @@ protected:
 	void								updateServer();
 	void								drawClient();
 	void								drawServer();
-
-	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
-		\param clearDebug If true, will clear all the children from the debug roots too. 
-							If false, leaves them alone (for instance, in client situations) */
-	void								clearAllSprites(const bool clearDebug = true);
 
 	/** When mouse events are ready to be handled by the touch manager. 
 		These are enforced virtual functions to be sure the engine handles mouse events.
@@ -269,6 +279,8 @@ private:
 	void								createStatsView(sprite_id_t root_id);
 	
 	/// Read these values from settings and apply them
+	void								setupEngine(); /// calls all the below setup functions
+	void								setupLogger();
 	void								setupWorldSize();
 	void								setupSrcDstRects();
 	void								setupConsole();
@@ -278,6 +290,8 @@ private:
 	void								setupVerticalSync();
 	void								setupIdleTimeout();
 	void								setupMute();
+	void								setupResourceLocation();
+	void								setupRoots();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
@@ -293,6 +307,7 @@ private:
 	ResourceList						mResources;
 	ColorList							mColors;
 	FontList							mFonts;
+	RootList							mRequestedRootList;
 	UpdateParams						mUpdateParams;
 	DrawParams							mDrawParams;
 	float								mLastTime;

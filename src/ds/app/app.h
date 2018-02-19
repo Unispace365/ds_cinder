@@ -100,7 +100,9 @@ public:
 	virtual void				onKeyUp(ci::app::KeyEvent event){};
 
 	virtual void				prepareSettings( ci::app::AppBase::Settings* );
+	void						loadAppSettings();
 	virtual void				setup();
+	void						resetupServer();
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() {}
 	virtual void				update();

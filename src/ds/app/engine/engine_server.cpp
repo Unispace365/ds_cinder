@@ -5,7 +5,6 @@
 #include <ds/app/engine/engine_io_defs.h>
 #include "ds/app/app.h"
 #include "ds/app/blob_reader.h"
-#include <ds/app/error.h>
 #include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
 #include "ds/debug/computer_info.h"
@@ -42,7 +41,6 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& se
 	, mBlobReader(mReceiver.getData(), *this)
 	, mState(nullptr)
 {
-	mClients.setErrorChannel(&getChannel(ERROR_CHANNEL));
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
@@ -128,8 +126,7 @@ void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 			setState(mSendWorldState);
 		} else if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("CMD_SERVER_SEND_WORLD", ds::IO_LOG);
-			static const ErrorRef		MULTIPLE_SERVERS_ERROR(ErrorRef::getNextId(), L"Multiple servers", L"This app is running in server mode, but has received a command sent from another server. Check that there are not multiple servers sending to the same IP address");
-			getChannel(ERROR_CHANNEL).notify(AddErrorEvent(MULTIPLE_SERVERS_ERROR));
+			DS_LOG_ERROR_M("Multiple servers: This app is running in server mode, but has received a command sent from another server. Check that there are not multiple servers sending to the same IP address", ds::IO_LOG);
 		}
 	}
 }

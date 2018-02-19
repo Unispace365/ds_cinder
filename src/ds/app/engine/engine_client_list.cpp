@@ -69,9 +69,8 @@ void EngineClientList::compare(const int32_t server_frame) {
 		if (mErrorChannel && !it->mConnectionError.empty() && it->mGlobalsHasConnectionError != needs_connection_error) {
 			if(needs_connection_error){
 				DS_LOG_ERROR("Client " << it->mGuid << " connection appears lost (behind by " << (server_frame - cf) << " frames)");
-				mErrorChannel->notify(AddErrorEvent(it->mConnectionError));
+				//mErrorChannel->notify(AddErrorEvent(it->mConnectionError));
 			}
-			else mErrorChannel->notify(RemoveErrorEvent(it->mConnectionError.getId()));
 			it->mGlobalsHasConnectionError = needs_connection_error;
 		}
 	}
@@ -91,9 +90,9 @@ EngineClientList::State::State(const std::string &guid, const int32_t sessionid)
 		, mSessionId(sessionid)
 		, mServerSentFrame(-1)
 		, mGlobalsHasConnectionError(false) {
-	std::wstringstream		buf;
-	buf << "The server has lost the connection to client  " << ds::wstr_from_utf8(guid) << ".";
-	mConnectionError = ErrorRef(ErrorRef::getNextId(), L"Client connection lost", buf.str());
+	std::stringstream		buf;
+	buf << "Client connection lost: The server has lost the connection to client  " << guid << ".";
+	mConnectionError = buf.str();
 }
 
 } // namespace ds

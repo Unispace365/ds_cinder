@@ -42,6 +42,7 @@ public:
 	bool							getUsingDefault() const { return !mLoadedAnySettings; };
 	static const std::string&		getConfigurationFolder();
 	static const std::string&		envProjectPath();
+	void							loadInitialSettings();
 
 private:
 	friend class Environment;

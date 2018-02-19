@@ -397,7 +397,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 
 	// set default parameters, if they're not supplied by the string
 	ci::EaseFn easing = ci::EaseInOutCubic();
-	float dur = 0.35f;
+	float dur = mEngine.getAnimDur();
 	float delayey = addedDelay;
 	if (!&mOwner)
 		return;

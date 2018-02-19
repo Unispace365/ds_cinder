@@ -99,7 +99,7 @@
 					text="Drop a markdown file on this window. 8 <span style='oblique'>1/2</span>"
 					resize_limit="1600, 0"
 					></text>
-				<text name="message c"
+				<text name="message e"
 					font_name="HelveticaNeueLT Std UltLt Ext"
 					font_size="48"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
@@ -109,6 +109,18 @@
 					l_pad="50"
 					layout_size_mode="fixed"
 					text="😀 😍 🤔 😓 🤢 🤡 💩 😻 🙈 👦🏾 👵🏻 👵 👵🏿 👨‍🌾 🛀 ⛷ 🖕 💙 💚 💛 🐶 🦄 🌔 🌒 ⛈ 🌦 🌩 🥇 🕹 🥁 🖥 🔍 🔑 🗝 ⚰ 🗿 🔫"
+					resize_limit="1600, 0"
+					></text>
+				<text name="message korean"
+					font_name="HelveticaNeueLT Std UltLt Ext"
+					font_size="48"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					blend_mode="normal"
+					font_leading="0.5"
+					color="white"
+					l_pad="50"
+					layout_size_mode="fixed"
+					text="스칼라로 쓰여진 한국어 처리기입니다. 현재 텍스트 정규화와 형태소 분석, 스테밍을 지원하고 있습니다. 짧은 트윗은 물론이고 긴 글도 처리할 수 있습니다. 개발에 참여하시고 싶은 분은"
 					resize_limit="1600, 0"
 					></text>
 			</layout>
