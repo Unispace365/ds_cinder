@@ -452,7 +452,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 		ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop());
 	} else if(e.getCode() == ci::app::KeyEvent::KEY_i) {
 		if(mEngine.isIdling()) {
-			mEngine.resetIdleTimeOut();
+			mEngine.resetIdleTimeout();
 		} else {
 			mEngine.startIdling();
 		}

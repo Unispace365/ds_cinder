@@ -142,8 +142,6 @@ public:
 	void							setIdleTimeout(int idleTimeout);
 	virtual void					resetIdleTimeout(){};
 	virtual void					startIdling(){};
-	// deprecated -- use resetIdleTimeout()
-	virtual void					resetIdleTimeOut() { resetIdleTimeout(); }
 
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
