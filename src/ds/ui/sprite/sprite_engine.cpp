@@ -42,6 +42,10 @@ const ds::EngineCfg& SpriteEngine::getEngineCfg() const {
 	return mData.mEngineCfg;
 }
 
+const ds::cfg::Text& SpriteEngine::getTextCfg(const std::string& textName) const {
+	return mData.mEngineCfg.getText(textName);
+}
+
 ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
 }

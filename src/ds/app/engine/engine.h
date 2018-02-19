@@ -101,9 +101,6 @@ public:
 	// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
 
-	// Convenence to get the confg for a text setting (font, size, color, leading) with the specified name
-	const ds::cfg::Text&				getTextCfg(const std::string& textName) const;
-
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
 	size_t								getRootCount() const;

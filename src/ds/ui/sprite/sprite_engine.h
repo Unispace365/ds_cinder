@@ -27,6 +27,7 @@ class ComputerInfo;
 
 namespace cfg {
 class Settings;
+class Text;
 }
 
 class TuioObject;
@@ -84,6 +85,8 @@ public:
 	
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
+
+	const ds::cfg::Text&			getTextCfg(const std::string& textName) const;
 	// Shortcuts
 	ds::cfg::Settings&				getSettings(const std::string& name) const;
 	ds::cfg::Settings&				getAppSettings() const;

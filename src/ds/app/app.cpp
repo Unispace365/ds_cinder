@@ -135,7 +135,7 @@ App::App(const RootList& roots)
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
-	, mSecondMouseDown(false)
+	, mTouchDebug(mEngine)
 	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
@@ -298,29 +298,19 @@ void App::draw() {
 	mEngine.draw();
 }
 
-void App::mouseDown(ci::app::MouseEvent event ) {
-	if (mCtrlDown) {
-		if (!mSecondMouseDown) {
-			mEngine.mouseTouchBegin(event, 2);
-			mSecondMouseDown = true;
-		} else {
-			mEngine.mouseTouchEnded(event, 2);
-			mSecondMouseDown = false;
-		}
-	} else {
-		mEngine.mouseTouchBegin(event, 1);
-	}
+void App::mouseDown(ci::app::MouseEvent e) {
+	mTouchDebug.mouseDown(e);
 }
 
 void App::mouseMove(ci::app::MouseEvent e) {
 }
 
 void App::mouseDrag(ci::app::MouseEvent e) {
-	mEngine.mouseTouchMoved(e, 1);
+	mTouchDebug.mouseDrag(e);
 }
 
 void App::mouseUp(ci::app::MouseEvent e) {
-	mEngine.mouseTouchEnded(e, 1);
+	mTouchDebug.mouseUp(e);
 }
 
 void App::touchesBegan(ci::app::TouchEvent e) {

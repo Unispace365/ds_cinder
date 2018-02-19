@@ -684,10 +684,6 @@ void Engine::loadTextCfg(const std::string& filename) {
 	mData.mEngineCfg.loadText(filename, *this);
 }
 
-const ds::cfg::Text& Engine::getTextCfg(const std::string& textName) const {
-	return mData.mEngineCfg.getText(textName);
-}
-
 size_t Engine::getRootCount() const {
 	return mRoots.size();
 }

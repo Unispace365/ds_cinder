@@ -9,10 +9,8 @@
 #include <cinder/Rand.h>
 
 namespace ds {
+namespace ui {
 
-/**
-* \class ds::TouchDebug
-*/
 TouchDebug::TouchDebug(ds::Engine& enginey)
 	: mEngine(enginey)
 	, mTouchId(100)
@@ -29,7 +27,7 @@ void TouchDebug::mouseDown(const ci::app::MouseEvent& e) {
 	mReplicating = false;
 
 	if(e.isAltDown()) {
-		if(!mDropTouched){
+		if(!mDropTouched) {
 			mEngine.mouseTouchBegin(e, mTouchId + 2);
 			mDropTouched = true;
 		} else {
@@ -40,30 +38,26 @@ void TouchDebug::mouseDown(const ci::app::MouseEvent& e) {
 		mReplicating = true;
 		replicate(e, ds::ui::TouchInfo::Added);
 
-	} else if(e.isControlDown()){
-		if(mTwoTouching){
-			mTwoTouching = false;
-		} else {
+	} else if(e.isControlDown()) {
 			mTwoTouching = true;
-			mTwoTouchDown = e.getPos();
+			mTwoTouchDown = e.getPos() + ci::ivec2(mEngine.getMinTouchDistance(), mEngine.getMinTouchDistance());
 
-		}
-	} else if(mTwoTouching){
-		mEngine.mouseTouchBegin(e, mTouchId);
+			mEngine.mouseTouchBegin(e, mTouchId);
 
-		int deltaX = e.getPos().x - mTwoTouchDown.x;
-		int deltaY = e.getPos().y - mTwoTouchDown.y;
-		ci::app::MouseEvent mouseTwo = ci::app::MouseEvent(e.getWindow(), 0, mTwoTouchDown.x - deltaX, mTwoTouchDown.y - deltaY, e.getNativeModifiers(), e.getWheelIncrement(), e.getNativeModifiers());
-		mEngine.mouseTouchBegin(mouseTwo, mTouchId + 1);
+			int deltaX = e.getPos().x - mTwoTouchDown.x;
+			int deltaY = e.getPos().y - mTwoTouchDown.y;
+			ci::app::MouseEvent mouseTwo = ci::app::MouseEvent(e.getWindow(), 0, mTwoTouchDown.x - deltaX, mTwoTouchDown.y - deltaY, e.getNativeModifiers(), e.getWheelIncrement(), e.getNativeModifiers());
+			mEngine.mouseTouchBegin(mouseTwo, mTouchId + 1);
+		
 	} else {
 		mEngine.mouseTouchBegin(e, mTouchId);
 	}
 }
 
 void TouchDebug::mouseDrag(const ci::app::MouseEvent& e) {
-	if(mReplicating){
+	if(mReplicating) {
 		replicate(e, ds::ui::TouchInfo::Moved);
-	} else if(mTwoTouching){
+	} else if(mTwoTouching) {
 
 		mEngine.mouseTouchMoved(e, mTouchId);
 
@@ -78,11 +72,12 @@ void TouchDebug::mouseDrag(const ci::app::MouseEvent& e) {
 }
 
 void TouchDebug::mouseUp(const ci::app::MouseEvent& e) {
-	if(mReplicating){
+	if(mReplicating) {
 		replicate(e, ds::ui::TouchInfo::Removed);
 	} else {
-		if(mTwoTouching){
+		if(mTwoTouching) {
 			mEngine.mouseTouchEnded(e, mTouchId + 1);
+			mTwoTouching = false;
 		}
 		mEngine.mouseTouchEnded(e, mTouchId);
 	}
@@ -105,14 +100,15 @@ void TouchDebug::replicate(const ci::app::MouseEvent& eventy, ds::ui::TouchInfo:
 	}
 
 	ds::ui::TouchEvent te = ds::ui::TouchEvent(mEngine.getWindow(), touches, true);
-	if(p == ds::ui::TouchInfo::Added){
+	if(p == ds::ui::TouchInfo::Added) {
 		mEngine.injectTouchesBegin(te);
-	} else if(p == ds::ui::TouchInfo::Moved){
+	} else if(p == ds::ui::TouchInfo::Moved) {
 		mEngine.injectTouchesMoved(te);
-	} else if(p == ds::ui::TouchInfo::Removed){
+	} else if(p == ds::ui::TouchInfo::Removed) {
 		mEngine.injectTouchesEnded(te);
 	}
 }
 
 
+} // namespace ui
 } // namespace ds

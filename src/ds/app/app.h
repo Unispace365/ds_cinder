@@ -7,6 +7,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
 
 namespace ds {
@@ -126,7 +127,7 @@ private:
 	// if it's what you want
 	static const std::string&   envAppDataPath();
 	bool						mCtrlDown;
-	bool						mSecondMouseDown;
+	ds::ui::TouchDebug			mTouchDebug;
 	bool						mAppKeysEnabled;
 	bool						mMouseHidden;
 	// When enabled, the arrow keys will move the camera.
