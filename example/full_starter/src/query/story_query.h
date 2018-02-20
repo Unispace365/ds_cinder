@@ -2,17 +2,12 @@
 #ifndef _FULLSTARTER_APP_QUERY_STORY_QUERY_H_
 #define _FULLSTARTER_APP_QUERY_STORY_QUERY_H_
 
-#include <functional>
 #include <Poco/Runnable.h>
-#include <ds/query/query_result.h>
 
 #include "model/all_data.h"
 
 namespace fullstarter {
 
-/**
- * \class fullstarter::StoryQuery
- */
 class StoryQuery : public Poco::Runnable {
 public:
 	StoryQuery();

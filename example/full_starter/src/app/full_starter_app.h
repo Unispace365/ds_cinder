@@ -23,7 +23,6 @@ public:
 
 private:
 
-	void				forceStartIdleMode();
 	void				onAppEvent(const ds::Event&);
 
 	// Data

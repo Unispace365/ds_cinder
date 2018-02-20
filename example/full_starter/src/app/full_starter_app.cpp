@@ -2,19 +2,14 @@
 
 #include "full_starter_app.h"
 
-#include <Poco/String.h>
-#include <ds/app/environment.h>
-#include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
 
 #include "app/globals.h"
-
 #include "events/app_events.h"
 
 #include "ui/story/story_view.h"

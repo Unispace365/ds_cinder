@@ -2,11 +2,7 @@
 
 #include "story_view.h"
 
-#include <Poco/LocalDateTime.h>
-
-#include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/debug/logger.h>
 #include <ds/app/engine/engine_events.h>
 
 #include "app/globals.h"

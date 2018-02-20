@@ -2,19 +2,12 @@
 
 #include "query_handler.h"
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-#include <cinder/Json.h>
 #include <ds/app/event_notifier.h>
-#include <ds/debug/logger.h>
 #include "app/globals.h"
 #include "events/app_events.h"
 
 namespace fullstarter {
 
-/**
- * \class fullstarter::QueryHandler
- */
 QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
 		: mEventClient(se.getNotifier(), [this](const ds::Event* e){if (e) onAppEvent(*e); })
 		, mAllData(ad)
