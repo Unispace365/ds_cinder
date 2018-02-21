@@ -33,7 +33,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d64.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF64.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
@@ -43,7 +42,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d64_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF64_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
@@ -156,7 +154,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\full_starter_app.cpp" />
     <ClCompile Include="..\src\model\generated\media_model.cpp" />
@@ -169,7 +166,6 @@
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\full_starter_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />

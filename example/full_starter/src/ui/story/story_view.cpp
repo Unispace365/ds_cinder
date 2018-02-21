@@ -2,55 +2,27 @@
 
 #include "story_view.h"
 
-#include <Poco/LocalDateTime.h>
-
-#include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/debug/logger.h>
+#include <ds/app/engine/engine_events.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
-#include "ds/ui/interface_xml/interface_xml_importer.h"
+
 
 namespace fullstarter {
 
 StoryView::StoryView(Globals& g)
-	: ds::ui::Sprite(g.mEngine)
+	: ds::ui::SmartLayout(g.mEngine, "story_view.xml")
 	, mGlobals(g)
-	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
-	, mMessage(nullptr)
-	, mPrimaryLayout(nullptr)
-	, mImage(nullptr)
 {
+
 	hide();
 	setOpacity(0.0f);
+		
+	listenToEvents<ds::app::IdleStartedEvent>([this](const ds::app::IdleStartedEvent& e) { animateOff(); });
+	listenToEvents<ds::app::IdleEndedEvent>([this](const ds::app::IdleEndedEvent& e) { animateOn(); });
+	listenToEvents<StoryDataUpdatedEvent>([this](const StoryDataUpdatedEvent& e) { setData(); });
 
-
-	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/story_view.xml"), spriteMap);
-	mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
-	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
-	mImage = dynamic_cast<ds::ui::Image*>(spriteMap["primary_image"]);
-
-	// calls layout
-	setData();
-	animateOn();
-
-}
-
-void StoryView::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == IdleEndedEvent::WHAT()){
-		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
-		animateOn();
-	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
-		animateOff();
-	}
-
-	// If you have an event that is dispatched when new content is queryied, you could map that here.
-	if(in_e.mWhat == StoryDataUpdatedEvent::WHAT()){
-		setData();
-	}
 }
 
 void StoryView::setData() {
@@ -60,36 +32,29 @@ void StoryView::setData() {
 	if(!mGlobals.mAllData.mStories.empty()){
 
 		auto storyRef = mGlobals.mAllData.mStories.front();
-
-		if(mMessage){
-			// Map the content from the app to the view sprites
-			mMessage->setText(storyRef.getTitle());
-		}
-
-		if(mImage && storyRef.getPrimaryResource().getType() == ds::Resource::IMAGE_TYPE){
-			mImage->setImageResource(storyRef.getPrimaryResource());
-		}
+		setSpriteText("message", storyRef.getTitle());
+		
+		setSpriteImage("primary_image", storyRef.getPrimaryResource());
+		
 	}
 
-	layout();
+	completeAllTweens(false, true);
+	clearAnimateOnTargets(true);
+	runLayout();
+	tweenAnimateOn(true, 0.0f, 0.05f);
 }
 
-void StoryView::layout(){
-	if(mPrimaryLayout){
-		mPrimaryLayout->runLayout();
-	}
-}
 
 void StoryView::animateOn(){
 	show();
-	tweenOpacity(1.0f, mGlobals.getAnimDur());
+	tweenOpacity(1.0f, mEngine.getAnimDur());
 
 	// Recursively animate on any children, including the primary layout
 	tweenAnimateOn(true, 0.0f, 0.05f);
 }
 
 void StoryView::animateOff(){
-	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
+	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
 void StoryView::onUpdateServer(const ds::UpdateParams& p){

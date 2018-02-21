@@ -5,69 +5,69 @@
 
 namespace ds {
 
-IdleTimer::IdleTimer( ui::SpriteEngine &engine )
-  : mEngine(engine)
-  , mActive(false)
-  , mSetup(false)
-  , mIdling(false)
+IdleTimer::IdleTimer(ui::SpriteEngine &engine)
+	: mEngine(engine)
+	, mActive(false)
+	, mSetup(false)
+	, mIdling(false)
 {
 
 }
 
-void IdleTimer::setSecondBeforeIdle( const double idleTime )
+void IdleTimer::setSecondBeforeIdle(const double idleTime)
 {
-  mSetup = true;
-  mActive = true;
-  mIdleTime = idleTime;
-  resetIdleTimer();
+	mSetup = true;
+	mActive = true;
+	mIdleTime = idleTime;
+	resetIdleTimer();
 }
 
 double IdleTimer::secondsToIdle() const
 {
-  if (!mActive || !mSetup)
-    return 0.0;
+	if(!mActive || !mSetup)
+		return 0.0;
 
-  return mIdleTime - (mEngine.getElapsedTimeSeconds() - mStartTime);
+	return mIdleTime - (mEngine.getElapsedTimeSeconds() - mStartTime);
 }
 
 bool IdleTimer::isIdling() const
 {
-  if (!mActive || !mSetup)
-    return false;
+	if(!mActive || !mSetup)
+		return false;
 
-  return mIdling;
+	return mIdling;
 }
 
 void IdleTimer::startIdling()
 {
-  if (!mSetup)
-    return;
+	if(!mSetup)
+		return;
 
-  mIdling = true;
+	mIdling = true;
 }
 
 void IdleTimer::resetIdleTimer()
 {
-  if (!mSetup)
-    return;
+	if(!mSetup)
+		return;
 
-  mIdling = false;
-  mStartTime = mEngine.getElapsedTimeSeconds();
+	mIdling = false;
+	mStartTime = mEngine.getElapsedTimeSeconds();
 }
 
 void IdleTimer::update()
 {
-  if (!mActive || !mSetup)
-    return;
-  
-  if (!mIdling)
-    mIdling = (mEngine.getElapsedTimeSeconds() - mStartTime) > mIdleTime;
+	if(!mActive || !mSetup)
+		return;
+
+	if(!mIdling)
+		mIdling = (mEngine.getElapsedTimeSeconds() - mStartTime) > mIdleTime;
 }
 
 void IdleTimer::clear()
 {
-  mActive = false;
-  mSetup = false;
+	mActive = false;
+	mSetup = false;
 }
 
 }

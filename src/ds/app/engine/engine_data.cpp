@@ -24,6 +24,7 @@ EngineData::EngineData(ds::cfg::Settings& engine_settings)
 	, mMute(false)
 	, mSrcRect(ci::Rectf::zero())
 	, mDstRect(ci::Rectf::zero())
+	, mAnimDur(0.35f)
 {
 }
 

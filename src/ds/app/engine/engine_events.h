@@ -20,6 +20,16 @@ public:
 	EngineStateEvent(const int stateType): mStateType(stateType){};
 	const int mStateType;
 };
+
+/// Someone began interacting with the app
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
+public: IdleEndedEvent() {}
+};
+
+/// It's been <idle seconds> since someone last interacted with the app
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
+public: IdleStartedEvent() {}
+};
 }
 } // !namespace ds
 

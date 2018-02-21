@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include <ds/app/error.h>
 
 namespace ds {
 class EventNotifier;
@@ -27,7 +26,7 @@ public:
 		// echoed back.
 		int32_t					mServerSentFrame;
 		// Error sent when we lose a connection
-		ErrorRef				mConnectionError;
+		std::string				mConnectionError;
 		// Cache when my connection error is in the error list,
 		// so I can pull it out without going through all the message sending.
 		bool					mGlobalsHasConnectionError;

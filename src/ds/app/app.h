@@ -7,6 +7,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
 
 namespace ds {
@@ -100,7 +101,9 @@ public:
 	virtual void				onKeyUp(ci::app::KeyEvent event){};
 
 	virtual void				prepareSettings( ci::app::AppBase::Settings* );
+	void						loadAppSettings();
 	virtual void				setup();
+	void						resetupServer();
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() {}
 	virtual void				update();
@@ -124,9 +127,11 @@ private:
 	// if it's what you want
 	static const std::string&   envAppDataPath();
 	bool						mCtrlDown;
-	bool						mSecondMouseDown;
+	ds::ui::TouchDebug			mTouchDebug;
 	bool						mAppKeysEnabled;
 	bool						mMouseHidden;
+	Poco::Timestamp::TimeVal	mMouseMoveTime;
+
 	// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;
 	const bool					mArrowKeyCameraControl;

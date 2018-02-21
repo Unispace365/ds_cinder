@@ -305,7 +305,7 @@ void GstVideo::onUpdateServer(const UpdateParams &up){
 	checkOutOfBounds();
 
 	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
-		mEngine.resetIdleTimeOut();
+		mEngine.resetIdleTimeout();
 	}
 
 	updateVideoTexture();

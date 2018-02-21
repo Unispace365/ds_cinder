@@ -42,6 +42,10 @@ namespace ds {
 EngineSettings::EngineSettings() 
 	: mLoadedAnySettings(false)
 {
+	loadInitialSettings();
+}
+
+void EngineSettings::loadInitialSettings() {
 	setName("engine");
 	setDefaults();
 
@@ -72,8 +76,7 @@ EngineSettings::EngineSettings()
 			const std::string		full(p.toString());
 			projectPath = full.substr(0, full.length() - (fn.length() + 1));
 			localFilename = fn;
-		}
-		else if (key == "configuration" || key == "config") {
+		} else if(key == "configuration" || key == "config") {
 			commandLineAppConfig = value;
 		}
 
@@ -87,18 +90,17 @@ EngineSettings::EngineSettings()
 	// Find my app settings/ directory.  This will vary based on whether I'm in a dev environment or
 	// in a production, but I will have a settings/ folder either at or above me.
 	const std::string         appSettingsPath = ds::Environment::getAppFolder(ds::Environment::SETTINGS());
-	if(appSettingsPath.empty()){
-		//throw std::runtime_error("Missing application settings folder");
+	if(appSettingsPath.empty()) {
 		std::cout << "Couldn't find the application settings folder, that could be a problem." << std::endl;
 	}
 	Poco::Path                appP(appSettingsPath);
 	appP.append(appFilename);
 
 	std::string appFullPath = appP.toString();
-	if(safeFileExistsCheck(appFullPath)){
+	if(safeFileExistsCheck(appFullPath)) {
 		mLoadedAnySettings = true;
 		mStartupInfo << "EngineSettings: Reading app settings from " << appFullPath << std::endl;
-		readFrom(appFullPath, false);
+		readFrom(appFullPath, true);
 	}
 
 	// LOCAL SETTINGS
@@ -109,7 +111,7 @@ EngineSettings::EngineSettings()
 	} else {
 		// If it exists, then make sure then any project_path in the settings is the same.  No one
 		// should ever use that, but let's be safe.
-		
+
 		auto& theSetting = getSetting("project_path", 0);
 		theSetting.mRawValue = projectPath;
 
@@ -120,7 +122,7 @@ EngineSettings::EngineSettings()
 		PROJECT_PATH = projectPath;
 
 		std::string localSettingsPath = ds::Environment::getLocalSettingsPath(localFilename);
-		if(safeFileExistsCheck(localSettingsPath)){
+		if(safeFileExistsCheck(localSettingsPath)) {
 			mLoadedAnySettings = true;
 			mStartupInfo << "EngineSettings: Reading app settings from " << localSettingsPath << std::endl;
 			readFrom(localSettingsPath, true);
@@ -138,13 +140,13 @@ EngineSettings::EngineSettings()
 			const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + appFilename);
 			const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
 
-			if(safeFileExistsCheck(app)){
+			if(safeFileExistsCheck(app)) {
 				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
 				readFrom(app, true);
 			}
 
-			if(safeFileExistsCheck(local)){
+			if(safeFileExistsCheck(local)) {
 				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
 				readFrom(local, true);
@@ -187,9 +189,11 @@ void EngineSettings::setDefaults(){
 	getSetting("RENDER SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("frame_rate", 0, ds::cfg::SETTING_TYPE_INT, "Attempt to run the app at this rate", "60", "1", "1000");
 	getSetting("vertical_sync", 0, ds::cfg::SETTING_TYPE_BOOL, "Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card", "true");
+	getSetting("auto_hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "True=automatically hide the mouse when mouse hasn't been moved, false=use hide_mouse setting", "true");
 	getSetting("hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "False=cursor visible, true=no visible cursor.", "false");
 	getSetting("camera:arrow_keys", 0, ds::cfg::SETTING_TYPE_FLOAT, "How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage.", "-1.0", "-1.0", "200.0");
 	getSetting("platform:mute", 0, ds::cfg::SETTING_TYPE_BOOL, "Mutes all video sound if true", "false");
+	getSetting("animation:duration", 0, ds::cfg::SETTING_TYPE_FLOAT, "Standard duration for animations", "0.35", "0.0", "10.0");
 
 	getSetting("TOUCH SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("touch:mode", 0, ds::cfg::SETTING_TYPE_STRING, "Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All.", "SystemAndMouse", "", "", "Tuio, TuioAndMouse, System, SystemAndMouse, All");

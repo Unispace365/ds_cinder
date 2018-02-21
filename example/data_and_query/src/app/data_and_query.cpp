@@ -21,18 +21,9 @@
 namespace fullstarter {
 
 QueryAndDataApp::QueryAndDataApp()
-	: ds::App(ds::RootList()
-
-	// Note: this is where you'll customize the root list
-	.ortho()
-	.pickColor()
-
-
-	)
+	: ds::App()
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
-	, mIdling(false)
-	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
 
@@ -106,51 +97,13 @@ void QueryAndDataApp::setupServer(){
 	// add sprites
 	rootSprite.addChildPtr(new StoryView(mGlobals));
 
-	// The engine will actually be idling, and this gets picked up on the next update
-	mIdling = false;
 }
 
 void QueryAndDataApp::update() {
 	ds::App::update();
 
-	bool rootsIdle = true;
-	const int numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-		if(!mEngine.getRootSprite(i).isIdling()){
-			rootsIdle = false;
-			break;
-		}
-	}
-
-	if(rootsIdle && !mIdling){
-		//Start idling
-		mIdling = true;
-		mEngine.getNotifier().notify(IdleStartedEvent());
-		
-
-	} else if(!rootsIdle && mIdling){
-		//Stop idling
-		mIdling = false;
-		mEngine.getNotifier().notify(IdleEndedEvent());
-	}
-
 }
 
-void QueryAndDataApp::forceStartIdleMode(){
-	// force idle mode to start again
-	const int numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-		mEngine.getRootSprite(i).startIdling();
-	}
-	mEngine.startIdling();
-	mIdling = true;
-
-	mEngine.getNotifier().notify(IdleStartedEvent());
-}
 
 void QueryAndDataApp::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
@@ -160,47 +113,9 @@ void QueryAndDataApp::onAppEvent(const ds::Event& in_e){
 
 void QueryAndDataApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
+	if(event.getChar() == KeyEvent::KEY_l){
 
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_f){
-
-		const int numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(int i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
-
-					ds::ui::Text* labelly = mGlobals.getText("media_viewer:title").create(mEngine, &sprite);
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	} else if(event.getCode() == KeyEvent::KEY_i){
-		forceStartIdleMode();
 	}
-}
-
-void QueryAndDataApp::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void QueryAndDataApp::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void QueryAndDataApp::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 void QueryAndDataApp::fileDrop(ci::app::FileDropEvent event){

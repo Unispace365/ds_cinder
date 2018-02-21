@@ -42,8 +42,16 @@ const ds::EngineCfg& SpriteEngine::getEngineCfg() const {
 	return mData.mEngineCfg;
 }
 
+const ds::cfg::Text& SpriteEngine::getTextCfg(const std::string& textName) const {
+	return mData.mEngineCfg.getText(textName);
+}
+
 ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
+}
+
+ds::cfg::Settings& SpriteEngine::getAppSettings() const {
+	return mData.mEngineCfg.getSettings("APP");
 }
 
 float SpriteEngine::getMinTouchDistance() const {
@@ -223,6 +231,15 @@ void SpriteEngine::registerEntryField(IEntryField* entryField){
 
 ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){
 	return mRegisteredEntryField;
+}
+
+
+const float SpriteEngine::getAnimDur() const {
+	return mData.mAnimDur;
+}
+
+void SpriteEngine::setAnimDur(const float newAnimDur) {
+	mData.mAnimDur = newAnimDur;
 }
 
 } // namespace ui

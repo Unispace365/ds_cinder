@@ -37,7 +37,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\engine\unique_id.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
-    <ClInclude Include="..\src\ds\app\error.h" />
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
@@ -113,6 +112,7 @@
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
+    <ClInclude Include="..\src\ds\ui\touch\touch_debug.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />
     <ClInclude Include="..\src\ds\util\sundown\autolink.h" />
@@ -244,7 +244,6 @@
     <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
-    <ClCompile Include="..\src\ds\app\error.cpp" />
     <ClCompile Include="..\src\ds\app\event.cpp" />
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
@@ -314,6 +313,7 @@
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp" />
     <ClCompile Include="..\src\ds\util\date_util.cpp" />
     <ClCompile Include="..\src\ds\util\markdown_to_pango.cpp" />
     <ClCompile Include="..\src\ds\util\sundown\autolink.c">

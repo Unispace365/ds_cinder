@@ -20,6 +20,7 @@ EngineRoot::EngineRoot(const RootList::Root& r, const sprite_id_t id)
 }
 
 EngineRoot::~EngineRoot() {
+	std::cout << "destructing engine root " << std::endl;
 }
 
 const RootList::Root& EngineRoot::getBuilder() const {
@@ -39,6 +40,7 @@ OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		, mNearPlane(-1.0f)
 		, mFarPlane(1.0f)
 {
+	mSprite->setSecondBeforeIdle(mEngine.getSettings("engine").getDouble("idle_time"));
 }
 
 void OrthRoot::setup(const Settings& s) {

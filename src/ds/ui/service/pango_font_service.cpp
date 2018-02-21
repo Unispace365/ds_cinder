@@ -121,7 +121,8 @@ bool PangoFontService::loadFont(const std::string& path, const std::string& font
 
 	DS_LOG_INFO("Adding font " << fontName << " at " << path);
 
-	fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fcPath);
+	auto fcconfig = FcConfigGetCurrent();
+	fontAddStatus = FcConfigAppFontAddFile(fcconfig, fcPath);
 
 	if(!fontAddStatus) {
 		DS_LOG_WARNING_M("Pango failed to load font from file \"" << path << "\"", PANGO_FONT_LOG_M);

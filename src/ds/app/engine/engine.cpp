@@ -7,7 +7,6 @@
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/app/engine/engine_stats_view.h"
-#include "ds/app/error.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
 #ifdef _WIN32
@@ -25,6 +24,8 @@
 
 #include <cinder/Display.h>
 #include <boost/algorithm/string.hpp>
+
+#include "engine_events.h"
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
@@ -51,9 +52,10 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
-				ds::EngineData& ed, const RootList& _roots)
+Engine::Engine(ds::App& app, ds::EngineSettings &settings,
+			   ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
+	, mRequestedRootList(_roots)
 	, mDsApp(app)
 	, mTweenline(app.timeline())
 	, mIdling(true)
@@ -62,15 +64,16 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
-	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
-	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
-	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
-	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
-	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
-	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
-	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
-	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
-	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
+	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime,  [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
+	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
+	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime,  [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
+	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
+	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime,  [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mAutoHideMouse(true)
 	, mHideMouse(false)
 	, mShowConsole(false)
 	, mUniqueColor(0, 0, 0)
@@ -87,10 +90,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 {
 
-	setupConsole();
-
-	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
-	addService("ds/error", *(new ErrorService(*this)));
+	setupEngine();
 
 
 	// For now, install some default image processing functions here, for convenience. These are
@@ -100,107 +100,6 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
-	ds::Logger::setup(settings);
-
-	mData.mAppInstanceName = settings.getString("platform:guid");
-
-	ds::Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
-
-	setupFrameRate();
-	setupVerticalSync();
-	setupWindowMode();
-	setupMouseHide();
-	setupWorldSize();
-	setupSrcDstRects();
-	setupIdleTimeout();
-	setupMute();
-
-	ci::app::getWindow()->setTitle("Hey there");
-
-	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
-
-	// Don't construct roots on startup for clients, and instead create them when we connect to a server
-	const std::string	arch(settings.getString("platform:architecture"));
-	bool isClient = false;
-	if(arch == "client") isClient = true;
-
-	sprite_id_t							root_id = EMPTY_SPRITE_ID - 1;
-	// Construct the root sprites
-	if(!isClient){
-		RootList				roots(_roots.runInitFn());
-		if(roots.empty()) roots.ortho();
-		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
-			RootList::Root&			r(*it);
-			r.mRootId = root_id;
-			std::unique_ptr<EngineRoot>		root;
-			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
-			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp));
-			if(!root){
-				DS_LOG_WARNING("Couldn't create root in the engine!");
-				continue;
-			}
-			mRoots.push_back(std::move(root));
-			--root_id;
-		}
-		if(mRoots.empty()) {
-			DS_LOG_WARNING("Engine can't create single root");
-		}
-		root_setup(mRoots);
-	}
-
-	// If we're drawing the touches, create a separate top-level root to do that
-	// For clients, the debug touch root is created by the server and synced
-
-	// Add a view for displaying the stats.
-	createStatsView(root_id);
-
-	const bool drawTouches = settings.getBool("touch:debug");
-	if (drawTouches && !isClient) {
-		RootList::Root					root_cfg;
-		root_cfg.mType = root_cfg.kOrtho;
-		root_cfg.mDebugDraw = true;
-		root_cfg.mDrawScaled = true;
-		root_cfg.mRootId = root_id;
-		std::unique_ptr<EngineRoot>		root;
-		root.reset(new OrthRoot(*this, root_cfg, root_id));
-		if (root) {
-			ds::ui::Sprite*				parent = root->getSprite();
-			if (parent) {
-				parent->setDrawDebug(true);
-				mRoots.push_back(std::move(root));				
-			}
-		}
-	}
-
-	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		EngineRoot&				r(*(it->get()));
-		r.setup(er_settings);
-	}
-
-	// SETUP RESOURCES
-	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location"));
-	if (resourceLocation.empty()) {
-		// This is valid, though unusual
-		std::cout << "Engine() has no resource_location setting" << std::endl;
-	} else {
-		if (boost::contains(resourceLocation, "%USERPROFILE%")) {
-			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
-#ifndef _WIN32
-			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
-			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
-#endif
-		}
-
-		resourceLocation = Poco::Path::expand(resourceLocation);
-		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(
-			ds::getNormalizedPath(resourceLocation),
-			ds::getNormalizedPath(settings.getString("resource_db")),
-			ds::getNormalizedPath(settings.getString("project_path"))
-		);
-	}
 }
 
 Engine::~Engine() {
@@ -211,6 +110,30 @@ Engine::~Engine() {
 	mData.clearServices();
 
 	hideConsole();
+}
+
+void Engine::setupEngine() {
+	setupConsole();
+	setupLogger();
+	setupFrameRate();
+	setupVerticalSync();
+	setupWindowMode();
+	setupMouseHide();
+	setupWorldSize();
+	setupSrcDstRects();
+	setupMute();
+	setupResourceLocation();
+	setupRoots();
+	setupIdleTimeout();
+}
+
+void Engine::setupLogger() {
+
+	ds::Logger::setup(mSettings);
+
+	mData.mAppInstanceName = mSettings.getString("platform:guid");
+
+	ds::Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
 }
 
 void Engine::setupWorldSize(){
@@ -236,6 +159,8 @@ void Engine::setupSrcDstRects(){
 	}
 	ci::app::getWindow()->setPos(mData.mDstRect.getUpperLeft());
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
+
+	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 }
 
 void Engine::setupConsole(){
@@ -268,6 +193,8 @@ void Engine::setupWindowMode(){
 
 void Engine::setupMouseHide(){
 	mHideMouse = mSettings.getBool("hide_mouse");
+	mAutoHideMouse = mSettings.getBool("auto_hide_mouse");
+	if(mAutoHideMouse) mHideMouse = true;
 }
 
 void Engine::setupFrameRate(){
@@ -281,10 +208,114 @@ void Engine::setupVerticalSync(){
 
 void Engine::setupIdleTimeout(){
 	setIdleTimeout(mSettings.getInt("idle_time"));
+
+	auto numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots; i++) {
+		getRootSprite(i).setSecondBeforeIdle(mData.mIdleTimeout);
+		getRootSprite(i).startIdling();
+	}
 }
 
 void Engine::setupMute(){
 	setMute(mSettings.getBool("platform:mute"));
+}
+
+void Engine::setupResourceLocation() {
+
+	// SETUP RESOURCES
+	std::string resourceLocation = ds::getNormalizedPath(mSettings.getString("resource_location"));
+	if(resourceLocation.empty()) {
+		// This is valid, though unusual
+		std::cout << "Engine() has no resource_location setting" << std::endl;
+	} else {
+		if(boost::contains(resourceLocation, "%USERPROFILE%")) {
+			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
+#ifndef _WIN32
+			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
+			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
+#endif
+		}
+
+		resourceLocation = Poco::Path::expand(resourceLocation);
+		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
+		Resource::Id::setupPaths(
+			ds::getNormalizedPath(resourceLocation),
+			ds::getNormalizedPath(mSettings.getString("resource_db")),
+			ds::getNormalizedPath(mSettings.getString("project_path"))
+		);
+	}
+}
+
+void Engine::setupRoots() {
+	clearRoots();
+
+	// Don't construct roots on startup for clients, and instead create them when we connect to a server
+	const std::string	arch(mSettings.getString("platform:architecture"));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+
+	sprite_id_t							root_id = EMPTY_SPRITE_ID - 1;
+	// Construct the root sprites
+	if(!isClient) {
+		// enable the bottom root to grab idle events
+		bool firstRoot = true;
+		RootList				roots(mRequestedRootList.runInitFn());
+		if(roots.empty()) roots.ortho();
+		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
+			RootList::Root&			r(*it);
+			r.mRootId = root_id;
+			std::unique_ptr<EngineRoot>		root;
+			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp));
+			if(!root) {
+				DS_LOG_WARNING("Couldn't create root in the engine!");
+				continue;
+			}
+
+			if(firstRoot) {
+				root->getSprite()->enable(true);
+				firstRoot = false;
+			}
+
+			mRoots.push_back(std::move(root));
+			--root_id;
+		}
+		if(mRoots.empty()) {
+			DS_LOG_WARNING("Engine can't create single root");
+		}
+		root_setup(mRoots);
+	}
+
+	// If we're drawing the touches, create a separate top-level root to do that
+	// For clients, the debug touch root is created by the server and synced
+
+	// Add a view for displaying the stats.
+	createStatsView(root_id);
+
+	const bool drawTouches = mSettings.getBool("touch:debug");
+	if(drawTouches && !isClient) {
+		RootList::Root					root_cfg;
+		root_cfg.mType = root_cfg.kOrtho;
+		root_cfg.mDebugDraw = true;
+		root_cfg.mDrawScaled = true;
+		root_cfg.mRootId = root_id;
+		std::unique_ptr<EngineRoot>		root;
+		root.reset(new OrthRoot(*this, root_cfg, root_id));
+		if(root) {
+			ds::ui::Sprite*				parent = root->getSprite();
+			if(parent) {
+				parent->setDrawDebug(true);
+				mRoots.push_back(std::move(root));
+			}
+		}
+	}
+
+	// Initialize the roots
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		EngineRoot&				r(*(it->get()));
+		r.setup(er_settings);
+	}
 }
 
 void Engine::showConsole(){
@@ -335,6 +366,13 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 }
 
+void Engine::reloadSettings() {
+	mSettings.loadInitialSettings();
+	setupEngine();
+	setup(mDsApp);
+	setupTouch(mDsApp);
+}
+
 void Engine::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
 		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
@@ -360,6 +398,8 @@ void Engine::onAppEvent(const ds::Event& in_e){
 				setupMute();
 			} else if(e.mSettingName.find("touch") != std::string::npos){
 				setupTouch(mDsApp);
+			} else if(e.mSettingName == "animation:duration") {
+				setAnimDur(mSettings.getFloat("animation:duration"));
 			}
 		}
 	}
@@ -452,6 +492,8 @@ void Engine::setupTouch(ds::App& app) {
 	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size");
 	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity");
 	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time");
+
+	setAnimDur(	mSettings.getFloat("animation:duration"));
 
 	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
 	setTouchMode(mTouchMode);
@@ -692,9 +734,8 @@ void Engine::updateClient() {
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
-	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
-		mIdling = true;
-	}
+	checkIdle();
+
 	{
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
@@ -728,6 +769,8 @@ void Engine::updateServer() {
 	const float		dt = curr - mLastTime;
 	mLastTime = curr;
 
+	checkIdle();
+
 	//////////////////////////////////////////////////////////////////////////
 	{
 		std::lock_guard<std::mutex> lock(mTouchMutex);
@@ -756,10 +799,6 @@ void Engine::updateServer() {
 	mTuioObjectsBegin.update(curr);
 	mTuioObjectsMoved.update(curr);
 	mTuioObjectsEnded.update(curr);
-
-	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
-		mIdling = true;
-	}
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -1090,20 +1129,59 @@ void Engine::writeSprites(std::ostream &s) const {
 #endif
 }
 
-bool Engine::isIdling() const {
+void Engine::checkIdle() {
+	bool newIdle = true;
+	const size_t numRoots = getRootCount();
+	for(int i = 0; i < numRoots - 1; i++) {
+		if(getRootBuilder(i).mDebugDraw) continue;
+		if(!getRootSprite(i).isIdling()) {
+			newIdle = false;
+			break;
+		}
+	}
+	
+	if(newIdle != mIdling) {
+		mIdling = newIdle;
+		if(mIdling) {
+			getNotifier().notify(ds::app::IdleStartedEvent());
+		} else {
+			getNotifier().notify(ds::app::IdleEndedEvent());
+		}
+	}
+
+}
+
+bool Engine::isIdling(){
+	checkIdle();
 	return mIdling;
 }
 
 void Engine::startIdling() {
+	// force idle mode to start again
+	const size_t numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++) {
+		// don't clear the last root, which is the debug draw
+		if(getRootBuilder(i).mDebugDraw) continue;
+		getRootSprite(i).startIdling();
+	}
 	mIdling = true;
+	getNotifier().notify(ds::app::IdleStartedEvent());
 }
 
 void Engine::resetIdleTimeout() {
-	//DS_LOG_INFO("ResetIdleTimeout");
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
+
+	const size_t numRoots = getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++) {
+		// don't clear the last root, which is the debug draw
+		if(getRootBuilder(i).mDebugDraw) continue;
+		getRootSprite(i).resetIdleTimer();
+	}
+
 	mIdling = false;
+	getNotifier().notify(ds::app::IdleEndedEvent());
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

@@ -135,7 +135,7 @@ App::App(const RootList& roots)
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
-	, mSecondMouseDown(false)
+	, mTouchDebug(mEngine)
 	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
@@ -230,6 +230,34 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 #ifndef _WIN32
 	linuxImplRegisterWindowFiledropHandler(inherited::getWindow());
 #endif // !_WIN32
+
+
+	loadAppSettings();
+
+}
+
+void App::loadAppSettings() {
+	// Fonts links together a font name and a physical font file
+	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
+	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.editFonts().clear();
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_STRING);
+
+	// Colors
+	// After registration, colors can be called by name from settings files or in the app
+	mEngine.editColors().clear();
+	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
+	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
+	mEngine.loadSettings("COLORS", "colors.xml");
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
+
+	/* Settings */
+	mEngine.loadSettings("APP", "app_settings.xml");
+	mEngine.loadTextCfg("text.xml");
 }
 
 void App::setup() {
@@ -238,6 +266,13 @@ void App::setup() {
 	mEngine.getPangoFontService().loadFonts();
 	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+}
+
+void App::resetupServer() {
+	mEngine.clearAllSprites(true);
+	mEngine.reloadSettings();
+	loadAppSettings();
+	setupServer();
 }
 
 void App::update() {
@@ -256,39 +291,42 @@ void App::update() {
 		mMouseHidden = false;
 		showCursor();
 	}
+
+	if(mEngine.getAutoHideMouse() && !mEngine.getHideMouse()) {
+		auto nowwy = Poco::Timestamp().epochMicroseconds();
+		if((float)(nowwy - mMouseMoveTime) / 1000000.0f > 2.0f) {
+			mEngine.setHideMouse(true);
+		}
+	}
 	mEngine.update();
 }
 
 void App::draw() {
 	mEngine.draw();
 }
-
-void App::mouseDown(ci::app::MouseEvent event ) {
-	if (mCtrlDown) {
-		if (!mSecondMouseDown) {
-			mEngine.mouseTouchBegin(event, 2);
-			mSecondMouseDown = true;
-		} else {
-			mEngine.mouseTouchEnded(event, 2);
-			mSecondMouseDown = false;
-		}
-	} else {
-		mEngine.mouseTouchBegin(event, 1);
-	}
+void App::mouseDown(ci::app::MouseEvent e) {
+	mTouchDebug.mouseDown(e);
 }
 
 void App::mouseMove(ci::app::MouseEvent e) {
+	if(mEngine.getAutoHideMouse()) {
+		mMouseMoveTime = Poco::Timestamp().epochMicroseconds();
+		mEngine.setHideMouse(false);
+	}
 }
 
 void App::mouseDrag(ci::app::MouseEvent e) {
-	mEngine.mouseTouchMoved(e, 1);
+	mTouchDebug.mouseDrag(e);
 }
 
 void App::mouseUp(ci::app::MouseEvent e) {
-	mEngine.mouseTouchEnded(e, 1);
+	mTouchDebug.mouseUp(e);
 }
 
 void App::touchesBegan(ci::app::TouchEvent e) {
+	if(mEngine.getAutoHideMouse()) {
+		mEngine.setHideMouse(true);
+	}
 	mEngine.touchesBegin(e);
 }
 
@@ -384,7 +422,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 		mEngine.markCameraDirty();
 	} else if(e.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		/// TODO: reload engine settings	
-		setupServer();
+		resetupServer();
 	} else if(e.getCode() == KeyEvent::KEY_d){
 		const size_t numRoots = mEngine.getRootCount();
 		int numPlacemats = 0;
@@ -412,6 +450,12 @@ void App::keyDown(ci::app::KeyEvent e) {
 		setFullScreen(!isFullScreen());
 	} else if(e.getCode() == KeyEvent::KEY_a){
 		ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop());
+	} else if(e.getCode() == ci::app::KeyEvent::KEY_i) {
+		if(mEngine.isIdling()) {
+			mEngine.resetIdleTimeout();
+		} else {
+			mEngine.startIdling();
+		}
 	} else {
 		onKeyDown(e);
 	}
@@ -440,9 +484,7 @@ void App::quit(){
 }
 
 void App::shutdown(){
-	// TODO
 	quit();
-	//ci::app::App::shutdown();
 }
 
 /**

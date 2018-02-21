@@ -27,6 +27,7 @@ class ComputerInfo;
 
 namespace cfg {
 class Settings;
+class Text;
 }
 
 class TuioObject;
@@ -84,8 +85,11 @@ public:
 	
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
+
+	const ds::cfg::Text&			getTextCfg(const std::string& textName) const;
 	// Shortcuts
 	ds::cfg::Settings&				getSettings(const std::string& name) const;
+	ds::cfg::Settings&				getAppSettings() const;
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;
@@ -109,6 +113,10 @@ public:
 	float							getWorldWidth() const;
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
+
+	// Get the standard animation duration
+	const float						getAnimDur() const;
+	void							setAnimDur(const float newAnimDur);
 
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
@@ -134,8 +142,6 @@ public:
 	void							setIdleTimeout(int idleTimeout);
 	virtual void					resetIdleTimeout(){};
 	virtual void					startIdling(){};
-	// deprecated -- use resetIdleTimeout()
-	virtual void					resetIdleTimeOut() { resetIdleTimeout(); }
 
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
