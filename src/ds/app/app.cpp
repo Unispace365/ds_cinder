@@ -244,7 +244,7 @@ void App::update() {
 #ifdef _WIN32
 	if(mEngine.getSettings("engine").getBool("system:never_sleep", 0, true)) {
 		// prevents the system from going to sleep
-		SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED);
+		SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED | ES_AWAYMODE_REQUIRED);
 	}
 #endif
 
