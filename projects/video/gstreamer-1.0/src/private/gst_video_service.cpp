@@ -95,6 +95,7 @@ void GstVideoService::start() {
 		DS_LOG_ERROR(errorStr);
 		mErrorMessage = errorStr;
 		mValidInstall = false;
+		return;
 	}
 
 	//gst_update_registry();

@@ -233,7 +233,8 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		cmsPortableResourcePath = "%LOCAL%";
 		cmsPortableResourcePath.append(resource.substr(local.size()));
 	} else {
-		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
+		// Not an error
+		//DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
 		cmsPortableResourcePath =  resource;
 	}
 	CMS_PORTABLE_RESOURCE_PATH = ds::getNormalizedPath(cmsPortableResourcePath);

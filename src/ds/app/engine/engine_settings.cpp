@@ -224,6 +224,8 @@ void EngineSettings::setDefaults(){
 	getSetting("logger:module", 0, ds::cfg::SETTING_TYPE_STRING, "all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules.", "all");
 	getSetting("logger:async", 0, ds::cfg::SETTING_TYPE_STRING, "Whether to save logs on another thread or the main one.", "true");
 	getSetting("logger:file", 0, ds::cfg::SETTING_TYPE_STRING, "Filename and location", "%LOCAL%/logs/");
+
+	getSetting("smart_layout:verbose_logging", 0, ds::cfg::SETTING_TYPE_BOOL, "Whether to log all warnings for the smart layout class", "false");
 }
 
 const std::string& EngineSettings::getConfigurationFolder() {

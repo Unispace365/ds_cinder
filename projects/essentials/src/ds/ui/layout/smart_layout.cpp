@@ -18,9 +18,12 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 	: ds::ui::LayoutSprite(engine)
 	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
 	, mNeedsLayout(false)
+	, mVerboseLogging(false)
 	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
 		if (m) this->onAppEvent(*m);
 	}) {
+
+	mVerboseLogging = mEngine.getSettings("engine").getBool("smart_layout:verbose_logging", 0, false);
 
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
@@ -55,7 +58,7 @@ void SmartLayout::setSpriteText(const std::string& spriteName, const std::string
 	if(spr) {
 		spr->setText(theText);
 		mNeedsLayout = true;
-	} else {
+	} else if(mVerboseLogging) {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
 }
@@ -70,7 +73,7 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	if (spr) {
 		mEngine.getEngineCfg().getText(textCfgName).configure(*spr);
 		mNeedsLayout = true;
-	} else {
+	} else if(mVerboseLogging){
 		DS_LOG_WARNING("Failed to set Font " << textCfgName << " for Sprite: " << spriteName);
 	}
 }
@@ -81,7 +84,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 	if (sprI) {
 		sprI->setImageFile(ds::Environment::expand(imagePath));
 		mNeedsLayout = true;
-	} else {
+	} else if(mVerboseLogging) {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
 }
@@ -96,7 +99,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 			sprI->setImageResource(imageResource);
 		}
 		mNeedsLayout = true;
-	} else {
+	} else if(mVerboseLogging) {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
 }

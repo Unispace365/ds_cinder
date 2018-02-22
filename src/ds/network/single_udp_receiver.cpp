@@ -37,7 +37,7 @@ UdpReceiver::~UdpReceiver(){
 	close();
 }
 
-bool UdpReceiver::initialize(bool server, const std::string &ip, const std::string &portSz)
+bool UdpReceiver::initialize(const std::string &ip, const std::string &portSz)
 {
 	/*std::vector<std::string> numbers = ds::split(ip, ".");
 	int value;
@@ -71,10 +71,47 @@ bool UdpReceiver::initialize(bool server, const std::string &ip, const std::stri
 		return true;
 	} catch(std::exception &e)
 	{
-		std::cout << e.what() << std::endl;
+		DS_LOG_WARNING("SingleUdpReceiver exception starting: " << e.what());
 	} catch(...)
 	{
-		std::cout << "Caught unknown exception" << std::endl;
+		DS_LOG_WARNING("SingleUdpReceiver unknown exception starting");
+	}
+
+	return false;
+}
+
+bool UdpReceiver::connect(const std::string &ip, const std::string &portSz) {
+	mIp = ip;
+	mPort = portSz;
+	try {
+		unsigned short port;
+		ds::string_to_value(portSz, port);
+		mSocket.setReceiveTimeout(0);
+
+		mSocket.setReuseAddress(true);
+		mSocket.setReusePort(true);
+		mSocket.connect(Poco::Net::SocketAddress(ip, port));
+		mSocket.setBlocking(false);
+		mSocket.setSendBufferSize(ds::NET_MAX_UDP_PACKET_SIZE);
+
+		mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
+		if(mReceiveBufferMaxSize <= 0) {
+			//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
+			DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
+		}
+		if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)) {
+			//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
+			DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
+		}
+
+		mInitialized = true;
+		return true;
+	} catch(std::exception &e)
+	{
+		DS_LOG_WARNING("SingleUdpReceiver exception connecting: " << e.what());
+	} catch(...)
+	{
+		DS_LOG_WARNING("SingleUdpReceiver unknown exception connecting");
 	}
 
 	return false;
@@ -94,21 +131,23 @@ void UdpReceiver::close(){
 
 void UdpReceiver::renew() {
 	close();
-	initialize(true, mIp, mPort);
+	initialize(mIp, mPort);
 }
 
 
 bool UdpReceiver::sendMessage(const std::string &data){
-	return false;
+	return sendMessage(data.c_str(), data.length());
 }
 
 
-bool UdpReceiver::sendMessage(const char *data, int size){
-	return false;
-}
-
-bool UdpReceiver::isServer() const {
-	return false;
+bool UdpReceiver::sendMessage(const char *data, int size) {
+	int sentBytes = 0;
+	try {
+		sentBytes = mSocket.sendBytes(data, size);
+	} catch(std::exception& e) {
+		DS_LOG_WARNING("Exception sending bytes: " << e.what());
+	}
+	return  sentBytes;
 }
 
 int UdpReceiver::recvMessage(std::string &msg){
