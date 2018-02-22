@@ -25,7 +25,15 @@ class LineSprite final : public ds::ui::Sprite {
 	std::vector<ci::vec2> getPoints() { return mPoints; }
 	void				  clearPoints();
 
-	void setSplineSmoothing(const bool doSmooth);
+
+	void setLineStart(const float startAtPercent);
+	float getLineStart() { return mLineStart; }
+	void setLineEnd(const float endAtPercent);
+	float getLineEnd() { return mLineEnd; }
+	void setLineStartEnd(const float startAtPercent, const float endAtPercent);
+
+	void setSmoothing(const bool doSmooth);
+	bool getSmoothing() { return mSmoothSpline; }
 
 	void setLineWidth(const float linewidth);
 	float getLineWidth() { return mLineWidth; }
@@ -56,6 +64,7 @@ class LineSprite final : public ds::ui::Sprite {
 	bool  mSmoothSpline;
 	float mMiterLimit;
 	float mLineWidth;
+	float mLineStart, mLineEnd;
 
 	ci::gl::BatchRef	  mBatch;
 	std::vector<ci::vec2> mPoints;
