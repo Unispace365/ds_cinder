@@ -17,50 +17,50 @@ namespace ui {
 */
 class LineSprite final : public ds::ui::Sprite {
   public:
-    LineSprite(ds::ui::SpriteEngine& eng);
+	LineSprite(ds::ui::SpriteEngine& eng);
 
-    void addPoint(ci::vec2 point);
-    void setPoints(const std::vector<ci::vec2>& points);
-    std::vector<ci::vec2> getPoints() { return mPoints; }
-    void clearPoints();
+	void addPoint(ci::vec2 point);
+	void setPoints(const std::vector<ci::vec2>& points);
+	std::vector<ci::vec2> getPoints() { return mPoints; }
+	void				  clearPoints();
 
 	void setSplineSmoothing(const bool doSmooth);
 
-    void setLineWidth(const float linewidth);
-    float getLineWidth() { return mLineWidth; }
+	void setLineWidth(const float linewidth);
+	float getLineWidth() { return mLineWidth; }
 
-    void setMiterLimit(const float miterLimit);
+	void setMiterLimit(const float miterLimit);
 	float getMiterLimit() { return mMiterLimit; }
 
-    virtual void drawLocalClient();
-    virtual void onUpdateServer(const ds::UpdateParams& updateParams);
+	virtual void drawLocalClient();
+	virtual void onUpdateServer(const ds::UpdateParams& updateParams);
 
 	// Initialization
-	static void					installAsServer(ds::BlobRegistry&);
-	static void					installAsClient(ds::BlobRegistry&);
+	static void installAsServer(ds::BlobRegistry&);
+	static void installAsClient(ds::BlobRegistry&);
 
-protected:
-	virtual void				writeAttributesTo(ds::DataBuffer&);
-	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
-    virtual void buildRenderBatch();
-    virtual void onBuildRenderBatch();
+	virtual bool contains(const ci::vec3& point, const float pad = 0.0f) const;
+
+  protected:
+	virtual void writeAttributesTo(ds::DataBuffer&);
+	virtual void readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	virtual void buildRenderBatch();
+	virtual void onBuildRenderBatch();
+
+	virtual bool getInnerHit(const ci::vec3& pos) const;
 
   private:
-    void buildVbo();
+	void buildVbo();
 
-    bool  mSmoothSpline;
-    float mMiterLimit;
-    float mLineWidth;
+	bool  mSmoothSpline;
+	float mMiterLimit;
+	float mLineWidth;
 
-    bool mNeedsVboUpdate;
-    ci::gl::BatchRef      mBatch;
-    std::vector<ci::vec2> mPoints;
+	ci::gl::BatchRef	  mBatch;
+	std::vector<ci::vec2> mPoints;
 
-    // ci::BSpline2f         mSpline;
-    // ci::Path2d            mPath, mSplinePath;
-
-    ci::gl::GlslProgRef mShader;
-    ci::gl::VboMeshRef  mVboMesh;
+	ci::gl::GlslProgRef mShader;
+	ci::gl::VboMeshRef  mVboMesh;
 };
 
 }  // namespace experiments
