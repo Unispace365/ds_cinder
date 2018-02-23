@@ -163,24 +163,25 @@ void LineSprite::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromServer<LineSprite>(r); });
 }
 
-LineSprite::LineSprite(ds::ui::SpriteEngine& eng)
+LineSprite::LineSprite(ds::ui::SpriteEngine& eng, const std::vector<ci::vec2>& points)
   : ds::ui::Sprite(eng)
   , mLineStart(0.0f)
   , mLineEnd(1.0f)
   , mLineWidth(1.0f)
   , mMiterLimit(0.5f)
   , mSmoothSpline(false) {
-	mBlobType = BLOB_TYPE;
-	setTransparent(false);
-
 	// Load shaders
 	try {
 		mShader = ci::gl::GlslProg::create(lineVert, lineFrag, lineGeom);
 	} catch (const std::exception& e) {
-		std::cout << "Could not compile shader:" << e.what() << std::endl;
+		DS_LOG_ERROR("Could not compile shader for LineSprite! Error: " << e.what());
 		return;
 	}
 
+	mBlobType = BLOB_TYPE;
+	setTransparent(false);
+
+	setPoints(points);
 	mLayoutFixedAspect = true;
 }
 
@@ -202,11 +203,11 @@ void LineSprite::clearPoints() {
 	markAsDirty(POINTS_DIRTY);
 }
 
-void LineSprite::setLineStart(float startAtPercent) { setLineStartEnd(startAtPercent, mLineEnd); }
+void LineSprite::setStartPercentage(float startAtPercent) { setStartEndPercentages(startAtPercent, mLineEnd); }
 
-void LineSprite::setLineEnd(float endAtPercent) { setLineStartEnd(mLineStart, endAtPercent); }
+void LineSprite::setEndPercentage(float endAtPercent) { setStartEndPercentages(mLineStart, endAtPercent); }
 
-void LineSprite::setLineStartEnd(float startAtPercent, float endAtPercent) {
+void LineSprite::setStartEndPercentages(float startAtPercent, float endAtPercent) {
 	mLineStart = startAtPercent;
 	mLineEnd   = endAtPercent;
 	markAsDirty(START_STOP_DIRTY);
@@ -312,12 +313,11 @@ bool LineSprite::contains(const ci::vec3& point, const float pad) const {
 
 	buildGlobalTransform();
 
-
 	for (int i = 0; i < mPoints.size() - 1; ++i) {
 		auto testPt = mInverseGlobalTransform * ci::vec4(point, 1.0f);
 		auto bounds = ci::Rectf(mPoints[i], mPoints[i + 1]);
 		bounds.canonicalize();
-		bounds.inflate(ci::vec2(pad));
+		bounds.inflate(ci::vec2(mLineWidth));
 		if (bounds.contains(ci::vec2(testPt))) {
 			return true;
 		}
@@ -337,8 +337,7 @@ bool LineSprite::getInnerHit(const ci::vec3& pos) const {
 		auto bounds = ci::Rectf(mPoints[i], mPoints[i + 1]);
 		bounds.canonicalize();
 		bounds.inflate(ci::vec2(mLineWidth));
-		if (bounds.contains(ci::vec2(testPt)) &&
-			distCalc(mPoints[i], mPoints[i + 1], ci::vec2(testPt)) <= mLineWidth / 2.0f) {
+		if (bounds.contains(ci::vec2(testPt)) && distCalc(mPoints[i], mPoints[i + 1], ci::vec2(testPt)) <= mLineWidth) {
 			return true;
 		}
 	}
