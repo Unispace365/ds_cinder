@@ -28,18 +28,12 @@ void Globals::initialize(){
 	mAnimationDuration = getSettingsLayout().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
-const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
+ds::cfg::Settings& Globals::getSettings(const std::string& name){
 	return mEngine.getEngineCfg().getSettings(name);
 }
 
-const ds::cfg::Settings& Globals::getSettingsLayout() const {
+ds::cfg::Settings& Globals::getSettingsLayout(){
 	return mEngine.getEngineCfg().getSettings(SETTINGS_LAYOUT);
-}
-
-
-const ds::cfg::Text& Globals::getText(const std::string& name) const {
-	return mEngine.getEngineCfg().getText(name);
-
 }
 
 

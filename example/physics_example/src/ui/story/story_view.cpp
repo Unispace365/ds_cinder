@@ -7,6 +7,7 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/app/engine/engine_events.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -40,10 +41,10 @@ StoryView::StoryView(Globals& g)
 }
 
 void StoryView::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == IdleEndedEvent::WHAT()){
-		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
+	if(in_e.mWhat == ds::app::IdleEndedEvent::WHAT()){
+		const ds::app::IdleEndedEvent& e((const ds::app::IdleEndedEvent&)in_e);
 		animateOn();
-	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
+	} else if(in_e.mWhat == ds::app::IdleStartedEvent::WHAT()){
 		animateOff();
 	}
 

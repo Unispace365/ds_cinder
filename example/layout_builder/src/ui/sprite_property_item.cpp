@@ -29,14 +29,14 @@ SpritePropertyItem::SpritePropertyItem(Globals& g, const std::wstring& labelOne,
 	float theWiddy = 0.0f;
 	float theHiddy = 0.0f;
 	if(!labelOne.empty()){
-		mNameText = mGlobals.getText("layout_builder:tree:item").create(mEngine, this);
+		mNameText = mEngine.getTextCfg("layout_builder:tree:item").create(mEngine, this);
 		mNameText->setText(labelOne);
 		mNameText->setPosition(0.0f, paddin / 2.0f);
 		theWiddy += mNameText->getWidth() + paddin / 2.0f;
 		theHiddy = mNameText->getFontSize() + paddin;
 	}
 
-	mLabelTextTwo = mGlobals.getText("layout_builder:tree:item_two").create(mEngine, this);
+	mLabelTextTwo = mEngine.getTextCfg("layout_builder:tree:item_two").create(mEngine, this);
 	mLabelTextTwo->setText(labelTwo);
 	mLabelTextTwo->setPosition(theWiddy, paddin / 2.0f);
 	theWiddy += mLabelTextTwo->getWidth() + paddin / 2.0f;

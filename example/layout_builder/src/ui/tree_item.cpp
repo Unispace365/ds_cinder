@@ -41,14 +41,14 @@ TreeItem::TreeItem(Globals& g, ds::ui::Sprite* linkedItem)
 	mLayoutRPad = paddin/2.0f;
 	float theWiddy = 0.0f;
 	float theHiddy = 0.0f;
-	mNameText = mGlobals.getText("layout_builder:tree:item").create(mEngine, this);
+	mNameText = mEngine.getTextCfg("layout_builder:tree:item").create(mEngine, this);
 	mNameText->setText(mLinkedSprite->getSpriteName());
 	mNameText->setPosition(deleteButton->getScaleWidth(), paddin / 2.0f);
 	theWiddy += mNameText->getWidth() + paddin / 2.0f + deleteButton->getScaleWidth();
 	theHiddy = mNameText->getFontSize() + paddin;
 	
 
-	mLabelTextTwo = mGlobals.getText("layout_builder:tree:item_two").create(mEngine, this);
+	mLabelTextTwo = mEngine.getTextCfg("layout_builder:tree:item_two").create(mEngine, this);
 	mLabelTextTwo->setText(ds::ui::XmlImporter::getSpriteTypeForSprite(mLinkedSprite));
 	mLabelTextTwo->setPosition(theWiddy, paddin / 2.0f);
 	theWiddy += mLabelTextTwo->getWidth() + paddin / 2.0f;

@@ -13,7 +13,6 @@
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 
 #include "events/app_events.h"
@@ -36,8 +35,6 @@ settings_rewrite_app::settings_rewrite_app()
 	)
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
-	, mIdling(false)
-	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mStoryView(nullptr)
 {
@@ -51,29 +48,6 @@ settings_rewrite_app::settings_rewrite_app()
 
 void settings_rewrite_app::setupServer(){
 
-	// Fonts links together a font name and a physical font file
-	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
-	mEngine.loadSettings("FONTS", "fonts.xml");
-	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
-		mEngine.editFonts().installFont(ds::Environment::expand(setting.mRawValue), setting.mName);
-	});
-
-	// Colors
-	// After registration, colors can be called by name from settings files or in the app
-	mEngine.editColors().clear();
-	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
-	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
-		mEngine.editColors().install(setting.getColorA(mEngine), setting.mName);
-	}, ds::cfg::SETTING_TYPE_COLOR);
-
-	/* Settings */
-	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
-	mEngine.loadTextCfg("text.xml");
-
-	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
 	/*
@@ -106,31 +80,8 @@ void settings_rewrite_app::setupServer(){
 
 	*/
 
-	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
+	const bool cacheXML = mEngine.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
-
-	const size_t numRoots = mEngine.getRootCount();
-	int numPlacemats = 0;
-	for(size_t i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-
-		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
-		if(rooty.getPerspective()){
-			const float clippFar = 10000.0f;
-			const float fov = 60.0f;
-			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
-			p.mFarPlane = clippFar;
-			p.mFov = fov;
-			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
-			mEngine.setPerspectiveCamera(i, p);
-		} else {
-			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
-		}
-
-		rooty.clearChildren();
-	}
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
@@ -140,50 +91,6 @@ void settings_rewrite_app::setupServer(){
 	mStoryView = new StoryView(mGlobals);
 	rootSprite.addChildPtr(mStoryView);
 
-	// The engine will actually be idling, and this gets picked up on the next update
-	mIdling = false;
-}
-
-void settings_rewrite_app::update() {
-	ds::App::update();
-
-	bool rootsIdle = true;
-	const size_t numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-		if(!mEngine.getRootSprite(i).isIdling()){
-			rootsIdle = false;
-			break;
-		}
-	}
-
-	if(rootsIdle && !mIdling){
-		//Start idling
-		mIdling = true;
-		mEngine.getNotifier().notify(IdleStartedEvent());
-		
-
-	} else if(!rootsIdle && mIdling){
-		//Stop idling
-		mIdling = false;
-		mEngine.getNotifier().notify(IdleEndedEvent());
-	}
-
-}
-
-void settings_rewrite_app::forceStartIdleMode(){
-	// force idle mode to start again
-	const size_t numRoots = mEngine.getRootCount();
-	for(size_t i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-		mEngine.getRootSprite(i).startIdling();
-	}
-	mEngine.startIdling();
-	mIdling = true;
-
-	mEngine.getNotifier().notify(IdleStartedEvent());
 }
 
 void settings_rewrite_app::onAppEvent(const ds::Event& in_e){
@@ -194,21 +101,6 @@ void settings_rewrite_app::onAppEvent(const ds::Event& in_e){
 
 void settings_rewrite_app::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	if(event.getCode() == KeyEvent::KEY_i){
-		forceStartIdleMode();
-	}
-}
-
-void settings_rewrite_app::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void settings_rewrite_app::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void settings_rewrite_app::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){

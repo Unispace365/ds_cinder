@@ -5,17 +5,6 @@
 
 namespace downstream {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
-	IdleStartedEvent(){};
-};
-
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
-	IdleEndedEvent(){};
-
-};
-
 class DataUpdatedEvent : public ds::RegisteredEvent<DataUpdatedEvent>{
 public:
 	DataUpdatedEvent(){};

@@ -26,19 +26,6 @@ public:
 	ds::ui::SpriteEngine&			mEngine;
 
 	const AllData&					mAllData;
-
-	const float						getAnimDur();
-
-	void							initialize();
-
-	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name);
-	ds::cfg::Settings&				getAppSettings();
-	ds::cfg::Settings&				getSettings(const std::string& name);
-
-private:
-
-	float							mAnimationDuration;
 };
 
 } // !namespace downstream

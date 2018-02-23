@@ -6,7 +6,6 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
 #include "ds/ui/interface_xml/interface_xml_importer.h"
@@ -210,14 +209,14 @@ void DrawingView::layout(){
 
 void DrawingView::animateOn(){
 	show();
-	tweenOpacity(1.0f, mGlobals.getAnimDur());
+	tweenOpacity(1.0f, mEngine.getAnimDur());
 
 	// Recursively animate on any children, including the primary layout
 	tweenAnimateOn(true, 0.0f, 0.05f);
 }
 
 void DrawingView::animateOff(){
-	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
+	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
 void DrawingView::onUpdateServer(const ds::UpdateParams& p){

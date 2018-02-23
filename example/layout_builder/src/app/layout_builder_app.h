@@ -9,7 +9,6 @@
 
 #include "app/globals.h"
 #include "query/query_handler.h"
-#include "ds/touch/touch_debug.h"
 
 namespace layout_builder {
 class AllData;
@@ -22,9 +21,8 @@ public:
 	virtual void			mouseDrag(ci::app::MouseEvent e);
 	virtual void			mouseUp(ci::app::MouseEvent e);
 	virtual void			mouseMove(ci::app::MouseEvent e);
-	virtual void			keyDown(ci::app::KeyEvent event);
+	virtual void			onKeyDown(ci::app::KeyEvent event);
 	void					setupServer();
-	void					update();
 
 	virtual void			fileDrop(ci::app::FileDropEvent event);
 private:
@@ -44,15 +42,12 @@ private:
 
 
 	ds::EventClient			mEventClient;
-	ds::TouchDebug			mTouchDebug;
 
 	// TODO: move to another class
 	ds::ui::LayoutSprite*	mController;
 
 	ds::ui::Text*			mInputField;
 
-
-	void					moveCamera(const ci::vec3& deltaMove);
 };
 
 } // !namespace layout_builder

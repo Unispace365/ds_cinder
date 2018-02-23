@@ -156,7 +156,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\settings_rewrite_app.cpp" />
     <ClCompile Include="..\src\cfg\settings_updater.cpp" />
@@ -170,7 +169,6 @@
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\settings_rewrite_app.h" />
     <ClInclude Include="..\src\cfg\settings_updater.h" />

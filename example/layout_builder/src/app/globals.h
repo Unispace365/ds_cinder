@@ -1,9 +1,9 @@
+#pragma  once
 #ifndef _LAYOUT_BUILDER_APP_GLOBALS_
 #define _LAYOUT_BUILDER_APP_GLOBALS_
 
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
-#include <ds/cfg/cfg_nine_patch.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
 #include "model/all_data.h"
@@ -33,9 +33,8 @@ public:
 	void							initialize();
 
 	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	const ds::cfg::Settings&		getSettingsLayout() const;
-	const ds::cfg::Settings&		getSettings(const std::string& name) const;
+	ds::cfg::Settings&				getSettingsLayout();
+	ds::cfg::Settings&				getSettings(const std::string& name);
 
 private:
 

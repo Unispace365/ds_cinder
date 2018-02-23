@@ -17,7 +17,6 @@ namespace mv {
 
 CsApp::CsApp()
 	: mToggleSprite(nullptr)
-	, mTouchDebug(mEngine)
 {
 
 	mEngine.editFonts().registerFont("Arial", "arial");
@@ -123,18 +122,6 @@ void CsApp::recreateText(){
 		rootSprite.addChild(*imgSprite);
 	}
 
-}
-
-void CsApp::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void CsApp::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void CsApp::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 void CsApp::onKeyDown(ci::app::KeyEvent e) {

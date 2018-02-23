@@ -143,11 +143,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\mqtt_example_app.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\mqtt_example_app.h" />
   </ItemGroup>
   <ItemGroup>
