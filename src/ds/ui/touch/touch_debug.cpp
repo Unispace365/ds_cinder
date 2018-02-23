@@ -34,13 +34,11 @@ void TouchDebug::mouseDown(const ci::app::MouseEvent& e) {
 			mEngine.mouseTouchEnded(e, mTouchId + 2);
 			mDropTouched = false;
 		}
-	} else if(e.isShiftDown()) {
-		mReplicating = true;
-		replicate(e, ds::ui::TouchInfo::Added);
-
 	} else if(e.isControlDown()) {
 			mTwoTouching = true;
-			mTwoTouchDown = e.getPos() + ci::ivec2(mEngine.getMinTouchDistance(), mEngine.getMinTouchDistance());
+			int offset = mEngine.getMinTouchDistance() * 2;
+			if(e.isShiftDown()) offset *= 2;
+			mTwoTouchDown = e.getPos() + ci::ivec2(offset);
 
 			mEngine.mouseTouchBegin(e, mTouchId);
 
@@ -49,6 +47,10 @@ void TouchDebug::mouseDown(const ci::app::MouseEvent& e) {
 			ci::app::MouseEvent mouseTwo = ci::app::MouseEvent(e.getWindow(), 0, mTwoTouchDown.x - deltaX, mTwoTouchDown.y - deltaY, e.getNativeModifiers(), e.getWheelIncrement(), e.getNativeModifiers());
 			mEngine.mouseTouchBegin(mouseTwo, mTouchId + 1);
 		
+	} else if(e.isShiftDown()) {
+		mReplicating = true;
+		replicate(e, ds::ui::TouchInfo::Added);
+
 	} else {
 		mEngine.mouseTouchBegin(e, mTouchId);
 	}
