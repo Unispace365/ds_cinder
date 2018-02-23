@@ -58,3 +58,4 @@ projects/viewers/lib/
 projects/**/lib*.a
 
 .clang-format
+.fontconfig
