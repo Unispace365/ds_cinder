@@ -202,14 +202,14 @@ void LineSprite::clearPoints() {
 	markAsDirty(POINTS_DIRTY);
 }
 
+void LineSprite::setLineStart(float startAtPercent) { setLineStartEnd(startAtPercent, mLineEnd); }
 
-void LineSprite::setLineStart(float startAtPercent) { mLineStart = startAtPercent; }
-
-void LineSprite::setLineEnd(float endAtPercent) { mLineEnd = endAtPercent; }
+void LineSprite::setLineEnd(float endAtPercent) { setLineStartEnd(mLineStart, endAtPercent); }
 
 void LineSprite::setLineStartEnd(float startAtPercent, float endAtPercent) {
 	mLineStart = startAtPercent;
 	mLineEnd   = endAtPercent;
+	markAsDirty(START_STOP_DIRTY);
 }
 
 void LineSprite::setLineWidth(const float linewidth) {
@@ -314,7 +314,7 @@ bool LineSprite::contains(const ci::vec3& point, const float pad) const {
 
 
 	for (int i = 0; i < mPoints.size() - 1; ++i) {
-		auto testPt = ci::vec4(point, 1.0f);
+		auto testPt = mInverseGlobalTransform * ci::vec4(point, 1.0f);
 		auto bounds = ci::Rectf(mPoints[i], mPoints[i + 1]);
 		bounds.canonicalize();
 		bounds.inflate(ci::vec2(pad));
@@ -333,11 +333,12 @@ bool LineSprite::getInnerHit(const ci::vec3& pos) const {
 	};
 
 	for (int i = 0; i < mPoints.size() - 1; ++i) {
+		auto testPt = mInverseGlobalTransform * ci::vec4(pos, 1.0f);
 		auto bounds = ci::Rectf(mPoints[i], mPoints[i + 1]);
 		bounds.canonicalize();
 		bounds.inflate(ci::vec2(mLineWidth));
-		if (bounds.contains(ci::vec2(pos)) &&
-			distCalc(mPoints[i], mPoints[i + 1], ci::vec2(pos)) <= mLineWidth / 2.0f) {
+		if (bounds.contains(ci::vec2(testPt)) &&
+			distCalc(mPoints[i], mPoints[i + 1], ci::vec2(testPt)) <= mLineWidth / 2.0f) {
 			return true;
 		}
 	}

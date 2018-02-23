@@ -15,6 +15,7 @@ namespace ui {
 * \class ds::ui::Text
 *	A sprite for drawing lines made up of multiple points, nicely joined.
 *	!! USE WITH CAUTION, WIP !!
+*   Note: Hit testing doesnt depend on or respect sprite size.
 */
 class LineSprite final : public ds::ui::Sprite {
   public:
