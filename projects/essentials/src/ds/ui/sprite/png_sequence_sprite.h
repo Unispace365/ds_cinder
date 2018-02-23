@@ -47,8 +47,8 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// Jump to a specific frame. 
 	// Frame indices outside the range of the frames are ignored.
 	void						setCurrentFrameIndex(const int frameIndex);
-	const size_t				getCurrentFrameIndex() const;
-	const size_t				getNumberOfFrames();
+	const int					getCurrentFrameIndex() const;
+	const int					getNumberOfFrames();
 
 	// Returns the image sprite at the index supplied.
 	// If the index is invalid, returns nullptr
@@ -63,8 +63,8 @@ private:
 	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 
 	LoopStyle					mLoopStyle;
-	size_t						mCurrentFrameIndex;
-	size_t						mNumFrames;
+	int							mCurrentFrameIndex;
+	int							mNumFrames;
 	bool						mPlaying;
 	float						mFrameTime;
 	double						mLastFrameTime;

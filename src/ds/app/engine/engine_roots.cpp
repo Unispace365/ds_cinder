@@ -20,7 +20,6 @@ EngineRoot::EngineRoot(const RootList::Root& r, const sprite_id_t id)
 }
 
 EngineRoot::~EngineRoot() {
-	std::cout << "destructing engine root " << std::endl;
 }
 
 const RootList::Root& EngineRoot::getBuilder() const {
