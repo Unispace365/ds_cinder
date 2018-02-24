@@ -291,6 +291,7 @@ private:
 	void								setupMute();
 	void								setupResourceLocation();
 	void								setupRoots();
+	void								setupMetrics();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >

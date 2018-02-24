@@ -16,6 +16,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
+#include "ds/metrics/metrics_service.h"
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
@@ -125,6 +126,7 @@ void Engine::setupEngine() {
 	setupResourceLocation();
 	setupRoots();
 	setupIdleTimeout();
+	setupMetrics();
 }
 
 void Engine::setupLogger() {
@@ -316,6 +318,14 @@ void Engine::setupRoots() {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
+}
+
+void Engine::setupMetrics() {
+	if(mMetricsService) {
+		delete mMetricsService;
+	}
+
+	mMetricsService = new ds::MetricsService(*this);
 }
 
 void Engine::showConsole(){

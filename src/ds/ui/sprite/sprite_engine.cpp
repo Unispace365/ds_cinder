@@ -9,6 +9,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/computer_info.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
+#include "ds/metrics/metrics_service.h"
 
 namespace ds {
 namespace ui {
@@ -16,6 +17,8 @@ namespace ui {
 SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	: mData(ed)
 	, mRegisteredEntryField(nullptr)
+	, mCallbackId(0)
+	, mMetricsService(nullptr)
 {
 	mComputerInfo = new ds::ComputerInfo();
 }
@@ -233,6 +236,53 @@ ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){
 	return mRegisteredEntryField;
 }
 
+
+size_t SpriteEngine::timedCallback(std::function<void()> func, const double timerSeconds) {
+	auto theCallback = new ds::time::Callback(*this);
+	if(theCallback) {
+		DS_LOG_WARNING("Couldn't create a timed callback! That's a big deal!");
+		return 0;
+	}
+	mTimedCallbacks.emplace_back(theCallback);
+	auto wrappedCallback = [this, func, theCallback] {
+		func();
+		for(auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+			if((*it) == theCallback) {
+				mTimedCallbacks.erase(it);
+				break;
+			}
+		}
+	};
+
+	theCallback->timedCallback(wrappedCallback, timerSeconds);
+
+	return theCallback->getId();
+}
+
+size_t SpriteEngine::repeatedCallback(std::function<void()> func, const double timerSeconds) {
+	auto theCallback = new ds::time::Callback(*this);
+	if(theCallback) {
+		DS_LOG_WARNING("Couldn't create a repeated callback! That's a big deal!");
+		return 0;
+	}
+	return theCallback->repeatedCallback(func, timerSeconds);
+}
+
+void SpriteEngine::cancelTimedCallback(size_t callbackId) {
+	for(auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+		if((*it)->getId() == callbackId) {
+			(*it)->cancel();
+			mTimedCallbacks.erase(it);
+			break;
+		}
+	}
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue) {
+	if(mMetricsService) {
+		mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+	}
+}
 
 const float SpriteEngine::getAnimDur() const {
 	return mData.mAnimDur;

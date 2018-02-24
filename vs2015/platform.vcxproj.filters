@@ -121,6 +121,9 @@
     <Filter Include="src\ds\util\sundown">
       <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\metrics">
+      <UniqueIdentifier>{9dcb5691-ef16-4d0b-9a62-1d447eb771ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -747,6 +750,12 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\metrics\metrics_service.h">
+      <Filter>src\ds\metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\time\time_callback.h">
+      <Filter>src\ds\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1261,6 +1270,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp">
+      <Filter>src\ds\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\time\time_callback.cpp">
+      <Filter>src\ds\time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@ public:
 	void						stop();
 	void						restart(const double offset);
 	double						elapsed();
-	
+
 private:
 	Poco::Timestamp::TimeVal	mStart;
 	bool						mIsStarted;

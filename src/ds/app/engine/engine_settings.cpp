@@ -228,8 +228,15 @@ void EngineSettings::setDefaults(){
 	getSetting("logger:module", 0, ds::cfg::SETTING_TYPE_STRING, "all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules.", "all");
 	getSetting("logger:async", 0, ds::cfg::SETTING_TYPE_STRING, "Whether to save logs on another thread or the main one.", "true");
 	getSetting("logger:file", 0, ds::cfg::SETTING_TYPE_STRING, "Filename and location", "%LOCAL%/logs/");
-
 	getSetting("smart_layout:verbose_logging", 0, ds::cfg::SETTING_TYPE_BOOL, "Whether to log all warnings for the smart layout class", "false");
+
+	getSetting("METRICS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
+	getSetting("metrics:active", 0, ds::cfg::SETTING_TYPE_BOOL, "Enable telegraf metrics sending", "true");
+	getSetting("metrics:send_base_info", 0, ds::cfg::SETTING_TYPE_BOOL, "Send common engine info like fps and number of sprites", "true");
+	getSetting("metrics:base_info_send_delay", 0, ds::cfg::SETTING_TYPE_DOUBLE, "How often to send the base info in seconds", "5.0", "0.5", "100");
+	getSetting("metrics:udp_host", 0, ds::cfg::SETTING_TYPE_STRING, "The host name to send udp metrics info to", "127.0.0.1");
+	getSetting("metrics:udp_port", 0, ds::cfg::SETTING_TYPE_STRING, "The port to send udp metrics info to", "8094");
+
 }
 
 const std::string& EngineSettings::getConfigurationFolder() {

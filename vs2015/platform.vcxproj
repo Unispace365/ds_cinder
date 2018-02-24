@@ -76,6 +76,7 @@
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\Quaternion.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
+    <ClInclude Include="..\src\ds\metrics\metrics_service.h" />
     <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\network_info.h" />
     <ClInclude Include="..\src\ds\network\net_connection.h" />
@@ -100,6 +101,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\time\time_callback.h" />
     <ClInclude Include="..\src\ds\ui\button\image_button.h" />
     <ClInclude Include="..\src\ds\ui\button\layout_button.h" />
     <ClInclude Include="..\src\ds\ui\button\sprite_button.h" />
@@ -280,6 +282,7 @@
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
+    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\network_info.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
@@ -302,6 +305,7 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\time\time_callback.cpp" />
     <ClCompile Include="..\src\ds\ui\button\image_button.cpp" />
     <ClCompile Include="..\src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="..\src\ds\ui\button\sprite_button.cpp" />

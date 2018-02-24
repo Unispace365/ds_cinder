@@ -9,6 +9,7 @@
 #include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
+#include "ds/time/time_callback.h"
 #include <memory>
 
 namespace ds {
@@ -24,6 +25,7 @@ class PerspCameraParams;
 class ResourceList;
 class WorkManager;
 class ComputerInfo;
+class MetricsService;
 
 namespace cfg {
 class Settings;
@@ -202,6 +204,22 @@ public:
 	/// Returns the Entry Field registered. Returns nullptr if no entry field has been registered
 	IEntryField*					getRegisteredEntryField();
 
+	/// Calls the function after the elapsed time once
+	/// Save the returned ID if you want to cancel it later
+	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
+	size_t							timedCallback(std::function<void()> func, const double timerSeconds);
+
+	/// Calls the function after the elapsed time repeatedly
+	/// Save the returned ID if you want to cancel it later
+	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
+	size_t							repeatedCallback(std::function<void()> func, const double timerSeconds);
+
+	/// Cancels a timedCallback() or a repeatedCallback() using the return value from above
+	void							cancelTimedCallback(size_t callbackId);
+
+	/// Send this metric to telegraf. Requires metrics to be enabled in the engine settings
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue);
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -213,8 +231,14 @@ protected:
 	ds::ComputerInfo*				mComputerInfo;
 	IEntryField*					mRegisteredEntryField;
 
+	ds::MetricsService*				mMetricsService;
+
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
+
+	friend class ds::time::Callback;
+	std::vector<ds::time::Callback*>	mTimedCallbacks;
+	size_t							mCallbackId; // for tracking the above
 
 private:
 	ds::EngineService&				private_getService(const std::string&);
