@@ -60,6 +60,8 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("screen:mode", outputSettings, theChillins);
 	updateAnEngineSetting("screen:always_on_top", outputSettings, theChillins);
 	updateAnEngineSetting("console:show", outputSettings, theChillins);
+	updateAnEngineSetting("idle_time", outputSettings, theChillins);
+	updateAnEngineSetting("system:never_sleep", outputSettings, theChillins);
 
 	// RENDER SETTINGS
 	updateAnEngineSetting("frame_rate", outputSettings, theChillins);
@@ -67,6 +69,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("hide_mouse", outputSettings, theChillins);
 	updateAnEngineSetting("camera:arrow_keys", outputSettings, theChillins);
 	updateAnEngineSetting("platform:mute", outputSettings, theChillins);
+	updateAnEngineSetting("animation:duration", outputSettings, theChillins);
 
 	// TOUCH SETTINGS
 	updateAnEngineSetting("touch_mode", outputSettings, theChillins, "touch:mode");
@@ -95,6 +98,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	// RESOURCE SETTINGS
 	updateAnEngineSetting("resource_location", outputSettings, theChillins);
 	updateAnEngineSetting("resource_db", outputSettings, theChillins);
+	updateAnEngineSetting("configuration_folder:allow_expand_override", outputSettings, theChillins);
 	updateAnEngineSetting("node:refresh_rate", outputSettings, theChillins);
 
 	// LOGGER
@@ -102,6 +106,14 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("logger:module", outputSettings, theChillins);
 	updateAnEngineSetting("logger:async", outputSettings, theChillins);
 	updateAnEngineSetting("logger:file", outputSettings, theChillins);
+	updateAnEngineSetting("smart_layout:verbose_logging", outputSettings, theChillins);
+
+	// METRICS
+	updateAnEngineSetting("metrics:active", outputSettings, theChillins);
+	updateAnEngineSetting("metrics:send_base_info", outputSettings, theChillins);
+	updateAnEngineSetting("metrics:base_info_send_delay", outputSettings, theChillins);
+	updateAnEngineSetting("metrics:udp_host", outputSettings, theChillins);
+	updateAnEngineSetting("metrics:udp_port", outputSettings, theChillins);
 
 	outputSettings.writeTo(fileToUpdate);
 

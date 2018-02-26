@@ -221,7 +221,7 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
-	int									getNumberOfSprites() { return mSprites.size(); }
+	size_t								getNumberOfSprites() { return mSprites.size(); }
 
 	// -------------------------------------------------------------
 	// These functions are inlined, since they are called frequently
