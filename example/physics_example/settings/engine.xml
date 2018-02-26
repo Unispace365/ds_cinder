@@ -10,7 +10,7 @@
 	<setting name="server:send_port" value="10370" type="int" comment="The send port of the server. Match these between server and client" default="1037" min_value="1" max_value="99999"/>
 	<setting name="server:listen_port" value="10371" type="int" comment="The listen port of the server (which is what the client sends on). Match these between server and client." default="1038" min_value="1" max_value="99999"/>
 	<setting name="platform:architecture" value="" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
-	<setting name="platform:guid" value="Downstream" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
+	<setting name="platform:guid" value="example" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
 	<setting name="screen:title" value="Downstream Application" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
 	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
