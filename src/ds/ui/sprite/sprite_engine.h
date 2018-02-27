@@ -217,8 +217,27 @@ public:
 	/// Cancels a timedCallback() or a repeatedCallback() using the return value from above
 	void							cancelTimedCallback(size_t callbackId);
 
+	/// Get the service that saves metrics, to easily record multiple types
+	MetricsService*					getMetrics() { return mMetricsService; }
+
 	/// Send this metric to telegraf. Requires metrics to be enabled in the engine settings
-	void							recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue);
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue);	
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue);
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue);
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue);
+	/// Appends _x and _y to field name to save 2 metrics, one for each part of the vector
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec2& fieldValue);
+	/// Appends _x, _y and _z to field name to save 3 metrics, one for each part of the vector
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec3& fieldValue);
+	/// Appends _x, _y, _w, _h to field name to save 4 metrics, one for each part of the rect
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue);
+
+	/// Wraps the value in quotes
+	void							recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue);
+	void							recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue);
+
+	/// Saves an input with x, y, fingerid and phase
+	void							recordMetricTouch(ds::ui::TouchInfo& ti);
 
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,

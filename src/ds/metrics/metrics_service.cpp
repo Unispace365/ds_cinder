@@ -4,6 +4,7 @@
 
 #include <ds/debug/logger.h>
 #include <ds/debug/computer_info.h>
+#include <ds/util/string_util.h>
 
 
 namespace ds {
@@ -12,11 +13,13 @@ MetricsService::MetricsService(ds::Engine& eng)
 	: mEngine(eng)
 	, mActive(true)
 	, mSendBaseInfo(true)
+	, mSendTouchInfo(false)
 	, mCallbacks(eng)
 {
 
 	mActive = mEngine.getSettings("engine").getBool("metrics:active");
 	mSendBaseInfo = mEngine.getSettings("engine").getBool("metrics:send_base_info");
+	mSendTouchInfo = mEngine.getSettings("engine").getBool("metrics:send_touch_info");
 
 	if(mActive) {
 		std::string host = mEngine.getSettings("engine").getString("metrics:udp_host");
@@ -60,6 +63,58 @@ void MetricsService::recordMetric(const std::string& metricName, const std::stri
 	sanitizeString(theFieldName);
 	sanitizeString(theFieldValue);
 	sendMetrics(theMetricName + ",app=" + appName + " " + theFieldName + "=" + theFieldValue + "\n");
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue) {
+	recordMetric(metricName, fieldName, std::to_string(fieldValue));
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue) {
+	recordMetric(metricName, fieldName, std::to_string(fieldValue));
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue) {
+	recordMetric(metricName, fieldName, std::to_string(fieldValue));
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec2& fieldValue) {
+	recordMetric(metricName, fieldName + "_x", std::to_string(fieldValue.x));
+	recordMetric(metricName, fieldName + "_y", std::to_string(fieldValue.y));
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec3& fieldValue) {
+	recordMetric(metricName, fieldName + "_x", std::to_string(fieldValue.x));
+	recordMetric(metricName, fieldName + "_y", std::to_string(fieldValue.y));
+	recordMetric(metricName, fieldName + "_z", std::to_string(fieldValue.z));
+}
+
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue) {
+	recordMetric(metricName, fieldName + "_x", std::to_string(fieldValue.x1));
+	recordMetric(metricName, fieldName + "_y", std::to_string(fieldValue.y1));
+	recordMetric(metricName, fieldName + "_w", std::to_string(fieldValue.getWidth()));
+	recordMetric(metricName, fieldName + "_h", std::to_string(fieldValue.getHeight()));
+}
+
+void MetricsService::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue) {
+	recordMetric(metricName, fieldName, "\"" + stringValue + "\"");
+}
+
+void MetricsService::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue) {
+	recordMetricString(metricName, fieldName, ds::utf8_from_wstr(stringValue));
+}
+
+void MetricsService::recordMetricTouch(ds::ui::TouchInfo& ti) {
+	if(!mSendTouchInfo) return;
+
+	/// Save a separate setting so we can track number of inputs separate from all of the info
+	if(ti.mPhase == ds::ui::TouchInfo::Added) {
+		recordMetric("input", "added", "1");
+	} else if(ti.mPhase == ds::ui::TouchInfo::Removed) {
+		recordMetric("input", "removed", "1");
+	}
+	recordMetric("input", "phase", ti.mPhase);
+	recordMetric("input", "finger_id", ti.mFingerId);
+	recordMetric("input", "pos", ti.mCurrentGlobalPoint);
 }
 
 void MetricsService::sendMetrics(const std::string& metrix) {

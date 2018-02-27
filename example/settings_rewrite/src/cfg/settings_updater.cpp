@@ -112,6 +112,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("metrics:active", outputSettings, theChillins);
 	updateAnEngineSetting("metrics:send_base_info", outputSettings, theChillins);
 	updateAnEngineSetting("metrics:base_info_send_delay", outputSettings, theChillins);
+	updateAnEngineSetting("metrics:send_touch_info", outputSettings, theChillins);
 	updateAnEngineSetting("metrics:udp_host", outputSettings, theChillins);
 	updateAnEngineSetting("metrics:udp_port", outputSettings, theChillins);
 

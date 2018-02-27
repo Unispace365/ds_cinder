@@ -279,9 +279,43 @@ void SpriteEngine::cancelTimedCallback(size_t callbackId) {
 }
 
 void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue) {
-	if(mMetricsService) {
-		mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-	}
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec2& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec3& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue) {
+	if(mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
+}
+
+void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue) {
+	if(mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
+}
+
+void SpriteEngine::recordMetricTouch(ds::ui::TouchInfo& ti) {
+	if(mMetricsService) mMetricsService->recordMetricTouch(ti);
 }
 
 const float SpriteEngine::getAnimDur() const {

@@ -116,7 +116,11 @@ void TouchManager::inputBegin(const int fingerId, const ci::vec2& touchPos){
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
 
-	if(mCapture) mCapture->touchBegin(touchInfo);
+	if(mCapture) {
+		mCapture->touchBegin(touchInfo);
+	}
+
+	mEngine.recordMetricTouch(touchInfo);
 
 	Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 	touchInfo.mPickedSprite = currentSprite;
@@ -206,6 +210,9 @@ void TouchManager::inputMoved(const int fingerId, const ci::vec2& touchPos){
 	if(mCapture){
 		mCapture->touchMoved(touchInfo);
 	}
+	
+	mEngine.recordMetricTouch(touchInfo);
+	
 
 	mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
@@ -281,6 +288,8 @@ void TouchManager::inputEnded(const int fingerId, const ci::vec2& touchPos){
 	mFingerDispatcher.erase(touchInfo.mFingerId);
 
 	if(mCapture) mCapture->touchEnd(touchInfo);
+	mEngine.recordMetricTouch(touchInfo);
+	
 
 	if(mEngine.getTouchInfoPipeCallback()){
 		mEngine.getTouchInfoPipeCallback()(touchInfo);
