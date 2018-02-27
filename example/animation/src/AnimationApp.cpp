@@ -27,6 +27,7 @@ private:
 	ds::ui::Sprite&		mSprite1;
 	ds::ui::Image&		mSprite2;
 	ds::ui::Circle&		mSprite3;
+	size_t				mCallbackId;
 };
 
 AnimationApp::AnimationApp()
@@ -34,6 +35,7 @@ AnimationApp::AnimationApp()
 	, mSprite2(*(new ds::ui::Image(mEngine, "%APP%/data/this_is_real.png")))
 	, mSprite3(*(new ds::ui::Circle(mEngine, true, 25.0f)))
 {
+	mCallbackId = mEngine.repeatedCallback([this] { std::cout << "hey" << std::endl; }, 0.5);
 }
 
 void AnimationApp::onKeyDown(ci::app::KeyEvent event){
@@ -43,6 +45,8 @@ void AnimationApp::onKeyDown(ci::app::KeyEvent event){
 		mSprite1.completeTweenPosition(true);
 	} else if(event.getCode() == ci::app::KeyEvent::KEY_v){
 		mSprite1.animStop();
+	} else if(event.getCode() == ci::app::KeyEvent::KEY_l) {
+		mEngine.cancelTimedCallback(mCallbackId);
 	}
 }
 

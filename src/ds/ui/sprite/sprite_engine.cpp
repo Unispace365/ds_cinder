@@ -261,10 +261,11 @@ size_t SpriteEngine::timedCallback(std::function<void()> func, const double time
 
 size_t SpriteEngine::repeatedCallback(std::function<void()> func, const double timerSeconds) {
 	auto theCallback = new ds::time::Callback(*this);
-	if(theCallback) {
+	if(!theCallback) {
 		DS_LOG_WARNING("Couldn't create a repeated callback! That's a big deal!");
 		return 0;
 	}
+	mTimedCallbacks.emplace_back(theCallback);
 	return theCallback->repeatedCallback(func, timerSeconds);
 }
 
