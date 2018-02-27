@@ -32,7 +32,7 @@ GlThread::GlThread()
 void GlThread::start(const bool makeGlCalls)
 {
   if (mThread.isRunning()) {
-	DS_LOG_WARNING_M("ds::GlThread::start() thread already running", GLTHREAD_LOG_M);
+	//DS_LOG_WARNING_M("ds::GlThread::start() thread already running", GLTHREAD_LOG_M);
 	return;
   }
 

@@ -201,10 +201,14 @@ App::App(const RootList& roots)
 
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
-
+	DS_LOG_INFO(mEngine.getAppInstanceName() << " startup");
+	mEngine.recordMetric("engine", "startup", 1);
 }
 
 App::~App() {
+	mEngine.recordMetric("engine", "shutdown", 1);
+	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
+
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 }

@@ -116,6 +116,15 @@ void ds::Logger::setup(ds::cfg::Settings& settings)
 		const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
 		static const std::string		DATE_FORMAT("%Y-%m-%d");
 		std::string						fn;
+		fn.append(settings.getString("platform:guid"));
+		ds::replace(fn, "?", "");
+		ds::replace(fn, "<", "");
+		ds::replace(fn, ">", "");
+		ds::replace(fn, ":", "");
+		ds::replace(fn, "\"", "");
+		ds::replace(fn, "|", "");
+		ds::replace(fn, "*", "");
+		fn.append("-");
 		// If an actual file name was supplied, then do something to separate the date stamp
 		// XXX -- not currently supported, assume the default log name
 		//if (!file.empty() && !ends_in_separator(file)) file.append(" ");
