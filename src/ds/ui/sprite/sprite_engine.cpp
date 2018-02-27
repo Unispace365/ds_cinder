@@ -307,6 +307,10 @@ void SpriteEngine::recordMetric(const std::string& metricName, const std::string
 	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
 }
 
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldNameAndValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldNameAndValue);
+}
+
 void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue) {
 	if(mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
 }

@@ -95,6 +95,15 @@ void MetricsService::recordMetric(const std::string& metricName, const std::stri
 	recordMetric(metricName, fieldName + "_h", std::to_string(fieldValue.getHeight()));
 }
 
+void MetricsService::recordMetric(const std::string& metricName, const std::string& fieldNameAndValue) {
+	std::string appName = mEngine.getEngineData().mAppInstanceName;
+	auto theMetricName = metricName;
+	auto theFieldValue = fieldNameAndValue;
+	sanitizeString(theMetricName);
+	sanitizeString(theFieldValue);
+	sendMetrics(theMetricName + ",app=" + appName + " " + fieldNameAndValue + "\n");
+}
+
 void MetricsService::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue) {
 	recordMetric(metricName, fieldName, "\"" + stringValue + "\"");
 }

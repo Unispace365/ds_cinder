@@ -29,6 +29,11 @@ public:
 	/// Appends _x, _y, _w, _h to field name to save 4 metrics, one for each part of the rect
 	void								recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue);
 
+	/// Combined field and value in the format field0=fieldValue,field1=field1value 
+	/// Use this if you're sending multiple fields that should have the same timestamp
+	/// You'll need to wrap any string values in quotes
+	void								recordMetric(const std::string& metricName, const std::string& fieldNameAndValue);
+
 	/// Wraps the value in quotes
 	void								recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue);
 	void								recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue);
