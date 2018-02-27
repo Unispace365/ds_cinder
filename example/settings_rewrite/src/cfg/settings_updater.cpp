@@ -54,6 +54,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("xml_importer:cache", outputSettings, theChillins);
 
 	// WINDOW SETTINGS
+	updateAnEngineSetting("span_all_displays", outputSettings, theChillins);
 	updateAnEngineSetting("world_dimensions", outputSettings, theChillins);
 	updateAnEngineSetting("src_rect", outputSettings, theChillins);
 	updateAnEngineSetting("dst_rect", outputSettings, theChillins);

@@ -10,6 +10,7 @@
 	<setting name="platform:guid" value="FullStarter" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
+	<setting name="span_all_displays" value="true" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
 	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
 	<setting name="src_rect" value="" type="rect" comment="The rectangle of the world space to render."/>
 	<setting name="dst_rect" value="" type="rect" comment="The output window size and position to render."/>

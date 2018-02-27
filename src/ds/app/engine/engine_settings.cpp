@@ -176,6 +176,7 @@ void EngineSettings::setDefaults(){
 	getSetting("xml_importer:cache", 0, ds::cfg::SETTING_TYPE_BOOL, "If the xml importer should cache xml content or reload from disk each time", "true");
 
 	getSetting("WINDOW SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
+	getSetting("span_all_displays", 0, ds::cfg::SETTING_TYPE_BOOL, "Automatically spans displays and overrides world size, src/dst rect and screen:mode", "false");
 	getSetting("world_dimensions", 0, ds::cfg::SETTING_TYPE_VEC2, "The size of the overall app space.", "1920, 1080");
 	getSetting("src_rect", 0, ds::cfg::SETTING_TYPE_RECT, "The rectangle of the world space to render.");
 	getSetting("dst_rect", 0, ds::cfg::SETTING_TYPE_RECT, "The output window size and position to render.");

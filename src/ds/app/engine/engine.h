@@ -282,6 +282,7 @@ private:
 	void								setupLogger();
 	void								setupWorldSize();
 	void								setupSrcDstRects();
+	void								setupAutoSpan();
 	void								setupConsole();
 	void								setupWindowMode();
 	void								setupMouseHide();

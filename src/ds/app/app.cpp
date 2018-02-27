@@ -150,6 +150,7 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+
 	mEngineSettings.printStartupInfo();
 
 	add_dll_path();
@@ -198,10 +199,6 @@ App::App(const RootList& roots)
 
 	setFpsSampleInterval(0.25);
 
-#ifdef _WIN32
-	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
-#endif
-
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
 
@@ -215,7 +212,6 @@ App::~App() {
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
-
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 		inherited::setFrameRate(settings->getFrameRate());
@@ -275,6 +271,10 @@ void App::setup() {
 	mEngine.getPangoFontService().loadFonts();
 	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+
+#ifdef _WIN32
+	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
+#endif
 }
 
 void App::resetupServer() {

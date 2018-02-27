@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<setting name="world_dimensions" value="1920, 1080" type="vec2"/>
-	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
-	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect"/>
+	<setting name="span_all_displays" value="true" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
+	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
+	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render."/>
+	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect" comment="The output window size and position to render."/>
 	
 	
 </settings>

@@ -122,9 +122,10 @@ void Engine::setupEngine() {
 	setupMouseHide();
 	setupWorldSize();
 	setupSrcDstRects();
+	setupAutoSpan();
+	setupRoots();
 	setupMute();
 	setupResourceLocation();
-	setupRoots();
 	setupIdleTimeout();
 	setupMetrics();
 }
@@ -163,6 +164,26 @@ void Engine::setupSrcDstRects(){
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
 
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
+}
+
+void Engine::setupAutoSpan() {
+	bool autoSpan = mSettings.getBool("span_all_displays");
+	if(autoSpan && ci::app::getWindow()) {
+		ci::app::getWindow()->spanAllDisplays();
+		auto theX = ci::app::getWindow()->getPos().x;
+		auto theY = ci::app::getWindow()->getPos().y;
+		mData.mWorldSize.x = ci::app::getWindow()->getWidth();
+		mData.mWorldSize.y = ci::app::getWindow()->getHeight();
+		mData.mSrcRect = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
+		mData.mDstRect = ci::Rectf(theX, theY, theX + mData.mWorldSize.x, theY + mData.mWorldSize.y);
+
+		mSettings.getSetting("screen:mode", 0).mRawValue = "borderless";
+		mSettings.getSetting("world_dimensions", 0).mRawValue = ds::unparseVector(mData.mWorldSize);
+		mSettings.getSetting("src_rect", 0).mRawValue = ds::unparseRect(mData.mSrcRect);
+		mSettings.getSetting("dst_rect", 0).mRawValue = ds::unparseRect(mData.mDstRect);
+
+		DS_LOG_INFO("Auto-spanning window, world size:" << mSettings.getSetting("world_dimensions", 0).mRawValue << " src_rect:" << mSettings.getSetting("src_rect", 0).mRawValue << " dst_rect:" << mSettings.getSetting("dst_rect", 0).mRawValue);
+	}
 }
 
 void Engine::setupConsole(){
@@ -348,7 +369,7 @@ void Engine::hideConsole(){
 #endif
 }
 
-void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings) {
 	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 
 	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless they're here too
