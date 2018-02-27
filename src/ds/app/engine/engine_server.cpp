@@ -74,6 +74,7 @@ void AbstractEngineServer::installSprite( const std::function<void(ds::BlobRegis
 void AbstractEngineServer::setup(ds::App& app) {
 	inherited::setup(app);
 
+	app.preServerSetup();
 	app.setupServer();
 }
 

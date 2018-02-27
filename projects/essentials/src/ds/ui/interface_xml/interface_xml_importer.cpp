@@ -52,17 +52,29 @@
 #include <fstream>
 
 namespace {
+
 static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
 static bool AUTO_CACHE = false;
+
+// Get the setting if we're caching or not and run it just before server setup
+// That way we can clear the cache each time the server setup runs
+class Init {
+public:
+	Init() {
+		ds::App::AddServerSetup([](ds::Engine& e) {
+			AUTO_CACHE = e.getSettings("engine").getBool("xml_importer:cache");
+			PRELOADED_CACHE.clear();
+		});
+	}
+	void					doNothing() { }
+};
+Init						INIT;
 }
 
 namespace ds {
 namespace ui {
 
 static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
-
-//HACK!
-static std::string sCurrentFile;
 
 
 std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){

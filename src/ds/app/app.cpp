@@ -84,6 +84,11 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	return VEC;
 }
 
+static std::vector<std::function<void(ds::Engine&)>>& get_setups() {
+	static std::vector<std::function<void(ds::Engine&)>>	VEC;
+	return VEC;
+}
+
 namespace {
 std::string				APP_DATA_PATH;
 
@@ -122,7 +127,11 @@ void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Setting
 
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
-	if (fn != nullptr) get_startups().push_back(fn);
+	if(fn != nullptr) get_startups().push_back(fn);
+}
+
+void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
+	if(fn != nullptr) get_setups().push_back(fn);
 }
 
 /**
@@ -270,9 +279,15 @@ void App::setup() {
 
 void App::resetupServer() {
 	mEngine.clearAllSprites(true);
-	mEngine.reloadSettings();
 	loadAppSettings();
-	setupServer();
+	mEngine.reloadSettings();
+	//setupServer();
+}
+
+void App::preServerSetup() {
+	for(auto it : get_setups()) {
+		it(mEngine);
+	}
 }
 
 void App::update() {

@@ -38,6 +38,7 @@ void EngineStandalone::installSprite(	const std::function<void(ds::BlobRegistry&
 void EngineStandalone::setup(ds::App& app) {
 	inherited::setup(app);
 
+	app.preServerSetup();
 	app.setupServer();
 }
 

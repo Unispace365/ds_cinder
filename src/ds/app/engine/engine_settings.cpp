@@ -173,7 +173,7 @@ void EngineSettings::setDefaults(){
 	getSetting("server:listen_port", 0, ds::cfg::SETTING_TYPE_INT, "The listen port of the server (which is what the client sends on). Match these between server and client.", "1038", "1", "99999");
 	getSetting("platform:architecture", 0, ds::cfg::SETTING_TYPE_STRING, "If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive.", "standalone", "", "", "standalone, client, server, clientserver");
 	getSetting("platform:guid", 0, ds::cfg::SETTING_TYPE_STRING, "Unique identifier for network traffic (appended by additional unique values).", "Downstream");
-
+	getSetting("xml_importer:cache", 0, ds::cfg::SETTING_TYPE_BOOL, "If the xml importer should cache xml content or reload from disk each time", "true");
 
 	getSetting("WINDOW SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("world_dimensions", 0, ds::cfg::SETTING_TYPE_VEC2, "The size of the overall app space.", "1920, 1080");

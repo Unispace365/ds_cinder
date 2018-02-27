@@ -50,6 +50,9 @@ public:
 	// Note that throwing an exception in the function will exit the app.
 	static void AddStartup(const std::function<void(ds::Engine&)>&);
 
+	// Called just before the main app setupServer() virtual function
+	static void AddServerSetup(const std::function<void(ds::Engine&)>&);
+
 	// Apps can provide a list of root sprites by chaining commands to a RootList.
 	// For example, if you want a single perspective root, do this:
 	// App(ds::RootList().persp())
@@ -104,6 +107,8 @@ public:
 	void						loadAppSettings();
 	virtual void				setup();
 	void						resetupServer();
+	void						preServerSetup();
+
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() {}
 	virtual void				update();

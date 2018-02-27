@@ -379,8 +379,8 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 void Engine::reloadSettings() {
 	mSettings.loadInitialSettings();
 	setupEngine();
-	setup(mDsApp);
 	setupTouch(mDsApp);
+	setup(mDsApp);
 }
 
 void Engine::onAppEvent(const ds::Event& in_e){

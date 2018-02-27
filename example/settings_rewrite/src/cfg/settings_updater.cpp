@@ -51,6 +51,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("server:listen_port", outputSettings, theChillins);
 	updateAnEngineSetting("platform:architecture", outputSettings, theChillins);
 	updateAnEngineSetting("platform:guid", outputSettings, theChillins);
+	updateAnEngineSetting("xml_importer:cache", outputSettings, theChillins);
 
 	// WINDOW SETTINGS
 	updateAnEngineSetting("world_dimensions", outputSettings, theChillins);

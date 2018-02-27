@@ -36,9 +36,6 @@ FullStarterApp::FullStarterApp()
 
 void FullStarterApp::setupServer(){
 	mQueryHandler.runQueries();
-
-	const bool cacheXML = mEngine.getAppSettings().getBool("xml:cache", 0, true);
-	ds::ui::XmlImporter::setAutoCache(cacheXML);
 	
 	// add sprites
 	mEngine.getRootSprite().addChildPtr(new StoryView(mGlobals));
