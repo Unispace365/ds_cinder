@@ -2,10 +2,7 @@
 
 		<layout name="root_layout"
 				layout_type="vert"
-				layout_size_mode="flex"
-				position="0, 0"				
-				size="1280, 1080"
-				shrink_to_children="both"
+				overall_alignment="center"
 				enable="true"
 			>
 			
@@ -26,6 +23,7 @@
 				b_pad="20"
 				position="0, 0"
 				shrink_to_children="both"
+				layout_h_align="center"
 			>
 			
 		
@@ -34,6 +32,7 @@
 					layout_v_align="middle"
 					layout_size_mode="flex"
 					font_size="48"
+				layout_h_align="center"
 					animate_on="fade; ease:outQuint; slide:200, 0"
 					>Launcher</text>
 					
@@ -44,11 +43,13 @@
 					t_pad="5"
 					b_pad="5"
 					opacity="0.5"
-					animate_on="fade; delay:0.5"
+					animate_on="fade"
 				/>
 				<image name="primary_image"
-					layout_size_mode="flex"
-					animate_on="fade; delay:0.5"
+					layout_size_mode="fixed"
+					layout_size="1080, 1080"
+					animate_on="fade"
+				layout_h_align="center"
 					/>
 					
 				<sprite name="spacer_two" 
@@ -58,10 +59,10 @@
 					t_pad="5"
 					b_pad="5"
 					opacity="0.5"
-					animate_on="fade; delay:0.5"
+					animate_on="fade"
 				/>
 				<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
-					<property name="the_button" on_click_event="RequestAppExitEvent"  />
+					<property name="the_button" on_click_event="RequestAppExitEvent" 	layout_h_align="center" />
 					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="50, 23" />
 					<property name="high_label" text="Quit" />
 				</xml>
