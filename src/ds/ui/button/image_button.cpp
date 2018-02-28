@@ -14,7 +14,10 @@ namespace ui {
 */
 ImageButton& ImageButton::makeButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad, ds::ui::Sprite* parent) {
 	ImageButton*		b = new ImageButton(eng, downImage, upImage, touchPad);
-	if(!b) throw std::runtime_error("Can't create ImageButton");
+	if(!b) {
+		DS_LOG_WARNING("Can't create ImageButton");
+		return *b;
+	}
 	if(parent) parent->addChild(*b);
 	return *b;
 }

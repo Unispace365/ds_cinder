@@ -218,18 +218,15 @@ GlNoThread::GlNoThread()
 void GlNoThread::start(const bool)
 {
   DS_LOG_ERROR_M("GlNoThread::start() should not be starting NoThread", GLTHREAD_LOG_M);
-  throw std::runtime_error("ERROR GlNoThread::start() should not be starting NoThread");
 }
 
 bool GlNoThread::performOnWorkerThread(GlThreadCallback* cb)
 {
   DS_LOG_ERROR_M("GlNoThread::performOnWorkerThread() should not be sending operations to NoThread", GLTHREAD_LOG_M);
-//  throw std::runtime_error("ERROR GlNoThread::performOnWorkerThread() should not be sending operations to NoThread");
   return GlThread::performOnWorkerThread(cb);
 }
 
 void GlNoThread::waitForNoInput()
 {
   DS_LOG_ERROR_M("GlNoThread::waitForNoInput() should not be sending operations to NoThread", GLTHREAD_LOG_M);
-  throw std::runtime_error("ERROR GlNoThread::waitForNoInput() should not be sending operations to NoThread");
 }

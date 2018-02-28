@@ -193,7 +193,6 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 	if (!media_info.IsReady()) {
 		// Indicates the DLL couldn't be loaded
 		DS_LOG_ERROR("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
-		throw std::runtime_error("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
 		return false;
 	}
 	media_info.Open(_STR_TO_MI(entry.mPath));

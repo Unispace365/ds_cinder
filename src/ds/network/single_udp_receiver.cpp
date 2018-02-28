@@ -60,11 +60,9 @@ bool UdpReceiver::initialize(const std::string &ip, const std::string &portSz)
 
 		mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
 		if(mReceiveBufferMaxSize <= 0){
-			//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
 			DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
 		}
 		if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)){
-			//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
 			DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
 		}
 
@@ -98,11 +96,9 @@ bool UdpReceiver::connect(const std::string &ip, const std::string &portSz) {
 
 		mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
 		if(mReceiveBufferMaxSize <= 0) {
-			//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
 			DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
 		}
 		if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)) {
-			//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
 			DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
 		}
 

@@ -182,8 +182,7 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	ds::EngineService*	s = mData.mServices[str];
 	if(!s) {
 		const std::string	msg = "Service (" + str + ") does not exist";
-		DS_LOG_ERROR(msg);
-		throw std::runtime_error(msg);
+		DS_LOG_FATAL(msg);
 	}
 	return *s;
 }

@@ -89,10 +89,15 @@ SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(v
 		, mReplyHandler(nullptr)
 		, mStartHandler(nullptr) {
 	// Create the single runnable
-	if (!alloc) throw std::runtime_error("Can't allocate serial runnable (no allocator)");
+	if(!alloc) {
+		DS_LOG_WARNING("Can't allocate serial runnable (no allocator)");
+		return;
+	}
 	std::unique_ptr<T>		up(alloc());
 	mCache = std::move(up);
-	if (!mCache) throw std::runtime_error("Can't allocate serial runnable");
+	if(!mCache) {
+		DS_LOG_WARNING("Can't allocate serial runnable");
+	}
 
 	mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
 }

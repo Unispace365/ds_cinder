@@ -10,29 +10,33 @@ UserData::UserData() {
 }
 
 float UserData::getFloat(const std::string& key, const size_t index) const {
-	if (!mStore) throw std::invalid_argument("Key " + key + " is invalid");
+	if(!mStore) {
+		DS_LOG_WARNING("Key " + key + " is invalid");
+		return 0.0f;
+	}
 	return mStore->getFloat(key, index);
 }
 
 float UserData::getFloat(const std::string& key, const size_t index, const float notFound) const {
-	try {
-		return getFloat(key, index);
-	} catch (std::exception const&) {
+	if(!mStore) {
+		return notFound;
 	}
-	return notFound;
+	return mStore->getFloat(key, index);
 }
 
 std::int32_t UserData::getInt(const std::string& key, const size_t index) const {
-	if (!mStore) throw std::invalid_argument("Key " + key + " is invalid");
+	if(!mStore) {
+		DS_LOG_WARNING("Key " + key + " is invalid");
+		return 0;
+	}
 	return mStore->getInt(key, index);
 }
 
 std::int32_t UserData::getInt(const std::string& key, const size_t index, const std::int32_t notFound) const {
-	try {
-		return getInt(key, index);
-	} catch (std::exception const&) {
+	if(!mStore) {
+		return notFound;
 	}
-	return notFound;
+	return mStore->getInt(key, index);
 }
 
 void UserData::setFloat(const std::string& key, const float value, const size_t index) {
