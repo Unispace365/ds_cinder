@@ -446,7 +446,9 @@ void Web::update(const ds::UpdateParams &p) {
 	// Anything that modifies mBuffer needs to be locked
 	std::lock_guard<std::mutex> lock(mMutex);
 
-	if(mBuffer && mHasBuffer){
+	if(mBuffer && mHasBuffer) {
+		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
+
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
@@ -456,6 +458,8 @@ void Web::update(const ds::UpdateParams &p) {
 
 
 	if(mPopupBuffer && mHasPopupBuffer) {
+		DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
+
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
@@ -490,13 +494,18 @@ void Web::onSizeChanged() {
 		mHasBuffer = false;
 	}
 
+	DS_LOG_VERBOSE(4, "Web: changed size " << getSize() << " url=" << mUrl);
+
 	if(mBrowserId > -1){
 		mService.requestBrowserResize(mBrowserId, mBrowserSize);
 	}
 }
 
 void Web::drawLocalClient() {
-	if (mWebTexture) {
+	if(mWebTexture) {
+
+		DS_LOG_VERBOSE(8, "Web: drawing web " << mUrl);
+
 		if(mRenderBatch){
 			// web texture is top down, and render batches work bottom up
 			// so flippy flip flip
@@ -535,6 +544,9 @@ void Web::loadUrl(const std::wstring &url) {
 }
 
 void Web::loadUrl(const std::string &url) {
+
+	DS_LOG_VERBOSE(1, "Web: loading url " << url);
+
 	mCurrentUrl = url;
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
@@ -785,6 +797,8 @@ double Web::getZoom() const {
 }
 
 void Web::goBack() {
+	DS_LOG_VERBOSE(2, "Web: going back on " << mUrl);
+
 	mService.goBackwards(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -794,6 +808,8 @@ void Web::goBack() {
 }
 
 void Web::goForward() {
+	DS_LOG_VERBOSE(2, "Web: going forwards on " << mUrl);
+
 	mService.goForwards(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -803,6 +819,8 @@ void Web::goForward() {
 }
 
 void Web::reload(const bool ignoreCache) {
+	DS_LOG_VERBOSE(2, "Web: reloading on " << mUrl);
+
 	mService.reload(mBrowserId, ignoreCache);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -816,6 +834,8 @@ void Web::reload(const bool ignoreCache) {
 }
 
 void Web::stop() {
+	DS_LOG_VERBOSE(2, "Web: stop loading on " << mUrl);
+
 	mService.stopLoading(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){

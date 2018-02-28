@@ -145,7 +145,7 @@ bool Resource::Id::tryParse(const std::string& s)
 			return true;
 		}
 	}
-	DS_DBG_CODE(std::cout << "ERROR ds::resource_id::tryParse() illegal input (" << s << ")" << std::endl);
+	DS_LOG_VERBOSE(1, "ERROR ds::resource_id::tryParse() illegal input (" << s << ")");
 	return false;
 }
 

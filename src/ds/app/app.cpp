@@ -303,6 +303,9 @@ void App::update() {
 #endif
 
 	mEngine.setAverageFps(getAverageFps());
+
+	DS_LOG_VERBOSE(9, "App::Update fps=" << getAverageFps());
+
 	if (mEngine.getHideMouse() && !mMouseHidden) {
 		mMouseHidden = true;
 		hideCursor();
@@ -371,6 +374,7 @@ const std::string& App::envAppDataPath() {
 }
 
 void App::killSupportingApps() {
+	DS_LOG_INFO("App: killing supporting apps then myself");
 	system("taskkill /f /im RestartOnCrash.exe");
 	system("taskkill /f /im DSNode-Host.exe");
 	system("taskkill /f /im DSNodeConsole.exe");
@@ -393,6 +397,7 @@ void App::writeSpriteHierarchy() {
 }
 
 void App::debugEnabledSprites() {
+	DS_LOG_VERBOSE(1, "App::debugEnabledSprites()");
 	const size_t numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
 	for(size_t i = 0; i < numRoots - 1; i++) {
@@ -475,6 +480,8 @@ void App::setupKeyPresses() {
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
+	DS_LOG_VERBOSE(3, "App::keyDown char=" << e.getChar() << " code=" << e.getCode());
+
 	if(!mAppKeysEnabled){
 		onKeyDown(e);
 		return;
@@ -490,11 +497,14 @@ void App::keyDown(ci::app::KeyEvent e) {
 	onKeyDown(e);
 }
 
-void App::keyUp(ci::app::KeyEvent event){
-	onKeyUp(event);
+void App::keyUp(ci::app::KeyEvent e) {
+	DS_LOG_VERBOSE(3, "App::keyUp char=" << e.getChar() << " code=" << e.getCode());
+	onKeyUp(e);
 }
 
-void App::saveTransparentScreenshot(){
+void App::saveTransparentScreenshot() {
+	DS_LOG_VERBOSE(1, "App::saveTransparentScreenshot()");
+
 	Poco::Path		p(Poco::Path::home());
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;

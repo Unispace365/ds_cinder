@@ -229,6 +229,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	//Cache the engine for all our color calls
 	ds::ui::SpriteEngine& engine = sprite.getEngine();
 
+
+
+	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << value << " referer=" << referer);
+
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
 	// The slower parts of this are the actual functions that are called (particularly text setResizeLimit())
@@ -814,7 +818,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
-void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos){
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos) {
+	DS_LOG_VERBOSE(4, "XmlImporter: dispatchStringEvents value=" << value);
+
 	auto leadingBracket = value.find("{");
 	if(leadingBracket == 0){
 		auto events = ds::split(value, "},{", true);
@@ -829,13 +835,15 @@ void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite*
 	
 }
 
-void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos){
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos) {
+	DS_LOG_VERBOSE(4, "XmlImporter: dispatchSingleEvent value=" << value);
+
 	auto tokens = ds::split(value, "; ", true);
 	if(!tokens.empty()){
 		std::string eventName = tokens.front();
 		ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
 		if(eventy->mWhat < 1){
-			DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
+			DS_LOG_WARNING("XmlImporter::dispatchSingleEvent() Event not defined: " << eventName);
 		}
 
 		for(int i = 1; i < tokens.size(); i++){
@@ -867,7 +875,9 @@ XmlImporter::~XmlImporter() {
 	}
 }
 
-bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData){
+bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData) {
+	DS_LOG_VERBOSE(3, "XmlImporter: preloadXml filename=" << filename);
+
 	outData.mFilename = filename;
 	try {
 		if(!ds::safeFileExistsCheck(filename)) {
@@ -933,6 +943,7 @@ void XmlImporter::setAutoCache(const bool doCaching){
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto filename=" << filename << " prefix=" << prefixName);
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
 
@@ -967,7 +978,8 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild){
+bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -1039,7 +1051,10 @@ struct SelectorMatchChecker : public boost::static_visitor<bool> {
 	const std::string &mIdToCheck;
 };
 
-static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes) {
+static void applyStylesheet(const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes) {
+
+	DS_LOG_VERBOSE(3, "XmlImporter: applyStylesheet stylesheet=" << stylesheet.mReferer << " name=" << name << " classes=" << classes);
+
 	BOOST_FOREACH( auto &rule, stylesheet.mRules ) {
 		auto classes_vec = ds::split(classes, " ", true );
 		bool matches_rule = false;
@@ -1100,7 +1115,9 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 }
 
 // NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
-ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value){
+ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value) {
+	DS_LOG_VERBOSE(4, "XmlImporter: createSpriteByType type=" << type << " value=" << value);
+
 	ds::ui::Sprite* spriddy = nullptr;
 
 	if(type == "sprite") {
@@ -1301,9 +1318,12 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		DS_LOG_WARNING("No parent sprite specified when reading a sprite from xml file=" << mXmlFile);
 		return false;
 	}
+
 	std::string type = node->getTag();
 	std::string value = node->getValue();
 	auto &engine = parent->getEngine();
+
+	DS_LOG_VERBOSE(6, "XmlImporter: readSprite type=" << type << " value=" << value);
 
 	if(type == "xml"){
 		std::string xmlPath = filePathRelativeTo(mXmlFile, node->getAttributeValue<std::string>("src", ""));

@@ -115,6 +115,9 @@ void MetricsService::recordMetricString(const std::string& metricName, const std
 void MetricsService::recordMetricTouch(ds::ui::TouchInfo& ti) {
 	if(!mSendTouchInfo) return;
 
+	//ignore moved. 
+	if(ti.mPhase == ds::ui::TouchInfo::Moved) return;
+
 	/// Save a separate setting so we can track number of inputs separate from all of the info
 	if(ti.mPhase == ds::ui::TouchInfo::Added) {
 		recordMetric("input", "added", "1");
@@ -127,6 +130,7 @@ void MetricsService::recordMetricTouch(ds::ui::TouchInfo& ti) {
 }
 
 void MetricsService::sendMetrics(const std::string& metrix) {
+	DS_LOG_VERBOSE(1, metrix);
 	if(mUdpReccy.isConnected()) {
 		mUdpReccy.sendMessage(metrix);
 	}
