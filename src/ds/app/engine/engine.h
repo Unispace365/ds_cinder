@@ -118,9 +118,19 @@ public:
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
 
+	/// It's been enough time since the last input and is in idle mode
 	bool								isIdling();
+
+	/// Checks if it's been enough time since the last input to go into idle. Will take effect if it's been enough time
 	void								checkIdle();
+
+	/// Starts idle mode right away, regardless of time
 	virtual void						startIdling();
+
+	/// Ends idle mode, regardless of input and starts the timeout again
+	virtual void						stopIdling() { resetIdleTimeout(); }
+
+	/// Identical to stopIdling(), retained for backwards compatibility
 	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.
@@ -213,6 +223,7 @@ public:
 
 	virtual ci::app::WindowRef			getWindow();
 
+	void								toggleConsole();
 	void								showConsole();
 	void								hideConsole();
 

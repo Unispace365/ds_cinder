@@ -17,10 +17,7 @@
 namespace fullstarter {
 
 FullStarterApp::FullStarterApp()
-	: ds::App(ds::RootList()
-	.ortho()
-	.pickColor()
-	)
+	: ds::App()
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
@@ -32,6 +29,7 @@ FullStarterApp::FullStarterApp()
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
+	registerKeyPress("Requery data", [this] { mQueryHandler.runQueries(); }, ci::app::KeyEvent::KEY_n);
 }
 
 void FullStarterApp::setupServer(){
@@ -42,25 +40,13 @@ void FullStarterApp::setupServer(){
 
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting
-	mEngine.resetIdleTimeout();
+	mEngine.stopIdling();
 }
-
-void FullStarterApp::update() {
-	ds::App::update();
-
-}
-
 
 void FullStarterApp::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
 		quit();
 	} 
-}
-
-void FullStarterApp::onKeyDown(ci::app::KeyEvent event) {
-	if(event.getCode() == ci::app::KeyEvent::KEY_l) {
-		std::cout << "This is an example keypress function!" << std::endl;
-	}
 }
 
 void FullStarterApp::fileDrop(ci::app::FileDropEvent event){

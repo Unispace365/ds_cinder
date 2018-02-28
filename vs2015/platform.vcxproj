@@ -70,6 +70,7 @@
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\function_exists.h" />
+    <ClInclude Include="..\src\ds\debug\key_manager.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
@@ -279,6 +280,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
+    <ClCompile Include="..\src\ds\debug\key_manager.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />

@@ -15,9 +15,7 @@ class FullStarterApp : public ds::App {
 public:
 	FullStarterApp();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
-	void				update();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event) override;
 

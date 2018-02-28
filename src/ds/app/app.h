@@ -9,6 +9,7 @@
 #include "ds/app/engine/engine_settings.h"
 #include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
+#include "ds/debug/key_manager.h"
 
 namespace ds {
 class Environment;
@@ -119,6 +120,19 @@ public:
 	// Triggered by F8 key, saves a transparent png on the desktop
 	void						saveTransparentScreenshot();
 
+	// Kills RoC, dsnode, then this app
+	void						killSupportingApps();
+
+	// Logs all sprites to disk for deep debuggin
+	void						writeSpriteHierarchy();
+
+	/// Show sprites that are enabled
+	void						debugEnabledSprites();
+
+	/// Register a function to be called when a key is pressed (with optional modifier keys)
+	/// The Key codes can be found in ci::app::KeyEvent 
+	/// This will be displayed with the help debug
+	void						registerKeyPress(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown = false, const bool ctrlDown = false, const bool altDown = false);
 protected:
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
@@ -131,7 +145,8 @@ private:
 	// (but not including "data", you still need to add that
 	// if it's what you want
 	static const std::string&   envAppDataPath();
-	bool						mCtrlDown;
+	void						setupKeyPresses();
+	ds::keys::KeyManager		mKeyManager;
 	ds::ui::TouchDebug			mTouchDebug;
 	bool						mAppKeysEnabled;
 	bool						mMouseHidden;

@@ -348,6 +348,10 @@ void Engine::setupMetrics() {
 
 	mMetricsService = new ds::MetricsService(*this);
 }
+void Engine::toggleConsole() {
+	if(mShowConsole) hideConsole();
+	else showConsole();
+}
 
 void Engine::showConsole(){
 	// prevent calling create multiple times
@@ -1140,7 +1144,9 @@ void Engine::clearFingers( const std::vector<int> &fingers ) {
 }
 
 void Engine::nextTouchMode() {
-	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
+	mSettings.getSetting("touch:mode", 0).mRawValue = ds::ui::TouchMode::toString(ds::ui::TouchMode::next(mTouchMode));
+	setupTouch(mDsApp);
+	//setTouchMode();
 }
 
 void Engine::setTouchSmoothing(const bool doSmoothing){
