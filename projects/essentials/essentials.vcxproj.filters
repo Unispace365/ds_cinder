@@ -114,9 +114,6 @@
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp">
       <Filter>src\ds\ui\menu\component</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\touch\touch_debug.cpp">
-      <Filter>src\ds\touch</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp">
       <Filter>src\ds\network\helper</Filter>
     </ClCompile>
@@ -215,9 +212,6 @@
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h">
       <Filter>src\ds\ui\menu\component</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\touch\touch_debug.h">
-      <Filter>src\ds\touch</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h">
       <Filter>src\ds\network\helper</Filter>
     </ClInclude>
@@ -272,7 +266,6 @@
     <ClInclude Include="..\..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
     <ClInclude Include="src\ds\ui\sprite\donut_arc.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
@@ -281,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\line.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h">
+      <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

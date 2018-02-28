@@ -438,7 +438,9 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Take screenshot", [this] {saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
 	mKeyManager.registerKey("Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
 	mKeyManager.registerKey("Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
-	mKeyManager.registerKey("Verbose logging", [this] { mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging()); }, KeyEvent::KEY_v, true);
+	mKeyManager.registerKey("Verbose logging toggle", [this] { if(ds::getLogger().getVerboseLevel() > 0) ds::getLogger().setVerboseLevel(0); else ds::getLogger().setVerboseLevel(9); }, KeyEvent::KEY_v);
+	mKeyManager.registerKey("Verbose logging increment", [this] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, true);
+	mKeyManager.registerKey("Verbose logging decrement", [this] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, true);
 	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
 	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
 	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);

@@ -23,8 +23,6 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_StopOnLoopComplete(false)
 	, m_CustomPipeline(false)
 	, m_VideoLock(m_VideoMutex, std::defer_lock)
-	//, m_VerboseLogging(true)
-	, m_VerboseLogging(false)
 	, m_cVideoBufferSize(0)
 	, mClockProvider(NULL)
 	, m_NetClock(NULL)
@@ -282,9 +280,8 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	} else {
 
 		if(m_iHeight > 0 && m_iWidth > 0){
-			if(m_VerboseLogging){
-				DS_LOG_INFO("Video size not detected or video buffer not set to be created. Ignoring video output.");
-			}
+			DS_LOG_VERBOSE(1, "Video size not detected or video buffer not set to be created. Ignoring video output.");
+			
 			GstElement* videoSink = gst_element_factory_make("faksesink", NULL);
 			g_object_set(m_GstPipeline, "video-sink", videoSink, NULL);
 		}
@@ -1314,9 +1311,8 @@ void GStreamerWrapper::retrieveVideoInfo(){
 		m_ContentType = AUDIO;
 	}
 
-	if(m_VerboseLogging){
-		DS_LOG_INFO("Got video info, duration=" << m_iDurationInNs << " Number of video streams: " << m_iNumVideoStreams << " audio: " << m_iNumAudioStreams);
-	}
+	DS_LOG_VERBOSE(1, "Got video info, duration=" << m_iDurationInNs << " Number of video streams: " << m_iNumVideoStreams << " audio: " << m_iNumAudioStreams);
+	
 }
 
 static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer user_data){
@@ -1385,9 +1381,9 @@ void GStreamerWrapper::handleGStMessage(){
 					guint64 dropped;
 					GstFormat format = GST_FORMAT_TIME;
 					gst_message_parse_qos_stats(m_GstMessage, &format, &processed, &dropped);
-					if(m_VerboseLogging){
-						DS_LOG_INFO("Gst QoS message, seconds processed: " << processed << " frames dropped:" << dropped);
-					}
+					
+					DS_LOG_VERBOSE(3, "GstWrapper QoS message, seconds processed: " << processed << " frames dropped:" << dropped);
+					
 				}
 				break;
 
@@ -1405,9 +1401,8 @@ void GStreamerWrapper::handleGStMessage(){
 						gchar* debug;
 						gst_message_parse_info(m_GstMessage, &err, &debug);
 
-						if(m_VerboseLogging){
-							DS_LOG_INFO("Gst info: " << err->message << " " << debug);
-						}
+						DS_LOG_VERBOSE(2, "Gst info: " << err->message << " " << debug);
+						
 					}
 					break;
 
@@ -1475,9 +1470,8 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_NEW_CLOCK:{
-					if(m_VerboseLogging){
-						DS_LOG_INFO("Gst New clock");
-					}
+					DS_LOG_VERBOSE(2, "Gst New clock");
+					
 					// For example on net sync: http://noraisin.net/diary/?p=954
 					// also: #include "gst/net/gstnettimeprovider.h"
 
@@ -1553,9 +1547,8 @@ void GStreamerWrapper::handleGStMessage(){
 					break;
 
 				default:
-					if(m_VerboseLogging){
-						DS_LOG_INFO("Gst Message, Type: " << GST_MESSAGE_TYPE_NAME(m_GstMessage));
-					}
+					DS_LOG_VERBOSE(2, "Gst Message, Type: " << GST_MESSAGE_TYPE_NAME(m_GstMessage));
+					
 					break;
 				}
 			}
@@ -1570,10 +1563,6 @@ void GStreamerWrapper::handleGStMessage(){
 void GStreamerWrapper::onEosFromVideoSource(GstAppSink* appsink, void* listener){
 	// ignore
 	// Not handling EOS callbacks creates a crash, but we handle EOS on the bus messages
-}
-
-void GStreamerWrapper::setVerboseLogging(const bool verboseOn){
-	m_VerboseLogging = verboseOn;
 }
 
 GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource(GstAppSink* appsink, void* listener){

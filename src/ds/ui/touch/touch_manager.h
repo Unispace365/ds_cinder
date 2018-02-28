@@ -56,9 +56,6 @@ public:
 
 	bool									getOverrideEnabled(){ return mOverrideTranslation; }
 
-	void									setVerboseLogging(const bool verbosity);
-	bool									getVerboseLogging(){ return mVerboseLogging; }
-
 	// If you've set the override for translation, actually do that translation
 	void									overrideTouchTranslation(ci::vec2& inOutPoint);
 
@@ -88,8 +85,6 @@ private:
 	std::map<int, std::vector<ci::vec3>>	mTouchSmoothPoints;
 	bool									mSmoothEnabled;
 	int										mFramesToSmooth;
-
-	bool									mVerboseLogging;
 
 	Engine&									mEngine;
 

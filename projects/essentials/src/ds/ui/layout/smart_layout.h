@@ -85,10 +85,6 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	// this->animate(duration, delay)
 	// this->animate(file-or-string)
 
-	/// Turns on warnings for the "set" functions if the sprite doesn't exists
-	/// Also settable via the engine smart_layout:verbose_logging bool setting
-	void setVerboseLogging(const bool doLogging) { mVerboseLogging = doLogging; }
-
   protected:
 	using sMap			= std::map<std::string, ds::ui::Sprite*>;
 	using eventCallback = std::function<void(const ds::Event&)>;
@@ -102,8 +98,6 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	ds::EventClient mEventClient;
 	sMap			mSpriteMap;
 	eventMap		mEventCallbacks;
-
-	bool mVerboseLogging;
 };
 
 }  // namespace ui

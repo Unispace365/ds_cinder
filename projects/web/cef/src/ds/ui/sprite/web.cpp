@@ -28,7 +28,10 @@ public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
 			ds::web::WebCefService*		w = new ds::web::WebCefService(e);
-			if (!w) throw std::runtime_error("Can't create ds::web::Service");
+			if(!w) {
+				DS_LOG_WARNING("Couldn't create the CEF web service!");
+				return;
+			}
 			e.addService("cef_web", *w);
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Web::installAsServer(r);},
@@ -122,10 +125,14 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
+	DS_LOG_VERBOSE(4, "Web: creating CEF web sprite");
+
 	createBrowser();
 }
 
-void Web::createBrowser(){
+void Web::createBrowser() {
+	DS_LOG_VERBOSE(3, "Web: create browser");
+
 	clearBrowser();
 
 	mService.createBrowser("", this, [this](int browserId){
@@ -147,7 +154,9 @@ void Web::createBrowser(){
 	}, mTransparentBackground);
 }
 
-void Web::clearBrowser(){
+void Web::clearBrowser() {
+	DS_LOG_VERBOSE(3, "Web: clear browser");
+
 	if(mBrowserId < 0){
 		mService.cancelCreation(this);
 	} else {
@@ -549,6 +558,7 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 }
 
 void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
+
 	// spoof a keyevent to send to the web
 	int code = 0;
 
@@ -623,6 +633,8 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 }
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
+	DS_LOG_VERBOSE(3, "Web: send key down " << event.getChar() << " code: " << event.getCode());
+
 	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -631,7 +643,9 @@ void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
 	}
 }
 
-void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
+void Web::sendKeyUpEvent(const ci::app::KeyEvent &event) {
+	DS_LOG_VERBOSE(3, "Web: send key up " << event.getChar() << " code: " << event.getCode());
+
 	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -658,7 +672,9 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
-void Web::sendMouseClick(const ci::vec3& globalClickPoint){
+void Web::sendMouseClick(const ci::vec3& globalClickPoint) {
+	DS_LOG_VERBOSE(3, "Web: send mouse click " << globalClickPoint);
+
 	if(!mAllowClicks) return;
 
 	ci::vec2 pos = ci::vec2(globalToLocal(globalClickPoint));

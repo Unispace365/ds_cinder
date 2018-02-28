@@ -72,9 +72,6 @@
     <Filter Include="src\model\generated">
       <UniqueIdentifier>{1508715c-b79f-4ac7-a607-eac85980f6a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\query">
-      <UniqueIdentifier>{7406c89a-2752-4cbf-b0fc-2db2c8ec7223}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ui">
       <UniqueIdentifier>{9b9f5de1-cbd5-4cb7-a580-46be59c2cf82}</UniqueIdentifier>
     </Filter>
@@ -89,6 +86,9 @@
     </Filter>
     <Filter Include="src\ui\story">
       <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\query">
+      <UniqueIdentifier>{7406c89a-2752-4cbf-b0fc-2db2c8ec7223}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

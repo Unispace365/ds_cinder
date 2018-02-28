@@ -236,10 +236,6 @@ void GstVideo::wantAudioBuffer(bool doWantAudioBuffer){
 	}
 }
 
-void GstVideo::setVerboseLogging(const bool doVerbose){
-	mGstreamerWrapper->setVerboseLogging(doVerbose);
-}
-
 float GstVideo::getVideoPlayingFramerate(){
 	if(mBufferUpdateTimes.size() < 2) return 0.0f;
 	float deltaTime = (float)(mBufferUpdateTimes.back() - mBufferUpdateTimes.front()) / 1000000.0f;
@@ -281,6 +277,8 @@ void GstVideo::onUpdateServer(const UpdateParams &up){
 	mGstreamerWrapper->update();
 
 	if(mGstreamerWrapper->isNewLoop()){
+		DS_LOG_VERBOSE(4, "GstVideo: video starting new loop");
+
 		mGstreamerWrapper->clearNewLoop();
 		markAsDirty(mBaseTimeDirty);
 		markAsDirty(mSeekDirty);
@@ -305,6 +303,8 @@ void GstVideo::onUpdateServer(const UpdateParams &up){
 	checkOutOfBounds();
 
 	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
+		DS_LOG_VERBOSE(5, "GstVideo: Extending idle timeout");
+
 		mEngine.resetIdleTimeout();
 	}
 
@@ -395,6 +395,8 @@ void GstVideo::updateVideoTexture() {
 				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 			}
 		}
+
+		DS_LOG_VERBOSE(5, "GstVideo: New video frame gst fps:" << getVideoPlayingFramerate());
 	}
 }
 
@@ -444,6 +446,8 @@ void GstVideo::drawLocalClient(){
 		} else {
 			if (mFrameTexture) mFrameTexture->unbind();
 		}
+
+		DS_LOG_VERBOSE(6, "GstVideo drawing video frame");
 	} 
 }
 
@@ -587,6 +591,8 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		} else {
 			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 		}
+
+		DS_LOG_VERBOSE(3, "GstVideo set color space to " << theColor);
 
 		mNeedsBatchUpdate = true;
 
@@ -1027,6 +1033,8 @@ void GstVideo::checkStatus(){
 	if (mStatusChanged){
 		mStatusFn(mStatus);
 		mStatusChanged = false;
+
+		DS_LOG_VERBOSE(4, "GstVideo status changed to "  << mStatus.mCode);
 	}
 
 	if (mGstreamerWrapper->getState() == STOPPED && mStatus != Status::STATUS_STOPPED){
@@ -1080,11 +1088,14 @@ void GstVideo::setNetClock(){
 void GstVideo::checkOutOfBounds() {
 	if (!inBounds()){
 		if (!mOutOfBoundsMuted)	{
+
+			DS_LOG_VERBOSE(3, "GstVideo muting due to out of bounds ");
 			mGstreamerWrapper->setVolume(0.0f);
 			mOutOfBoundsMuted = true;
 		}
 		return;
-	} else if (mOutOfBoundsMuted) {
+	} else if(mOutOfBoundsMuted) {
+		DS_LOG_VERBOSE(3, "GstVideo unmuting due to back in bounds ");
 		mOutOfBoundsMuted = false;
 		applyMovieVolume();
 	}
@@ -1344,7 +1355,8 @@ double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
 
-void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn, const bool stopAfterFrame){
+void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn, const bool stopAfterFrame) {
+	DS_LOG_VERBOSE(3, "GstVideo playing a single frame at time " << time_ms << " and stopAfterFrame is " << stopAfterFrame);
 	mPlaySingleFrame = true;
 	mPlaySingleFrameFunction = fn;
 	mSingleFrameStop = stopAfterFrame;

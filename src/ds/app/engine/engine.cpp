@@ -519,7 +519,6 @@ void Engine::setupTouch(ds::App& app) {
 	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions"));
 	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset"));
 	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect"));
-	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging"));
 
 	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default");
 	

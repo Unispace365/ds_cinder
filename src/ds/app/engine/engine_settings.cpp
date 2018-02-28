@@ -192,7 +192,7 @@ void EngineSettings::setDefaults(){
 	getSetting("vertical_sync", 0, ds::cfg::SETTING_TYPE_BOOL, "Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card", "true");
 	getSetting("auto_hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "True=automatically hide the mouse when mouse hasn't been moved, false=use hide_mouse setting", "true");
 	getSetting("hide_mouse", 0, ds::cfg::SETTING_TYPE_BOOL, "False=cursor visible, true=no visible cursor.", "false");
-	getSetting("camera:arrow_keys", 0, ds::cfg::SETTING_TYPE_FLOAT, "How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage.", "-1.0", "-1.0", "200.0");
+	getSetting("camera:arrow_keys", 0, ds::cfg::SETTING_TYPE_FLOAT, "How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage.", "30.0", "-1.0", "200.0");
 	getSetting("platform:mute", 0, ds::cfg::SETTING_TYPE_BOOL, "Mutes all video sound if true", "false");
 	getSetting("animation:duration", 0, ds::cfg::SETTING_TYPE_FLOAT, "Standard duration for animations", "0.35", "0.0", "10.0");
 
@@ -204,7 +204,6 @@ void EngineSettings::setDefaults(){
 	getSetting("touch:dimensions", 0, ds::cfg::SETTING_TYPE_VEC2, "How large in screen pixels the touch input stream covers", "1920, 1080");
 	getSetting("touch:offset", 0, ds::cfg::SETTING_TYPE_VEC2, "How much to offset touch input in pixels", "0, 0");
 	getSetting("touch:filter_rect", 0, ds::cfg::SETTING_TYPE_RECT, "Any touches started outside this rect will be ignored, in world space. Set to 0, 0, 0, 0 to ignore.", "0, 0, 0, 0");
-	getSetting("touch:verbose_logging", 0, ds::cfg::SETTING_TYPE_BOOL, "Prints out info for every touch info. Also can be set at runtime using shift-V.", "false");
 	getSetting("touch:debug", 0, ds::cfg::SETTING_TYPE_BOOL, "Draw circles around touch points ", "true");
 	getSetting("touch:debug_circle_radius", 0, ds::cfg::SETTING_TYPE_FLOAT, "Visual settings for touch debug circles.", "15", "1", "100");
 	getSetting("touch:debug_circle_color", 0, ds::cfg::SETTING_TYPE_COLOR, "The color of the touch debug circles", "#ffffff");
@@ -229,7 +228,7 @@ void EngineSettings::setDefaults(){
 	getSetting("logger:module", 0, ds::cfg::SETTING_TYPE_STRING, "all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules.", "all");
 	getSetting("logger:async", 0, ds::cfg::SETTING_TYPE_STRING, "Whether to save logs on another thread or the main one.", "true");
 	getSetting("logger:file", 0, ds::cfg::SETTING_TYPE_STRING, "Filename and location", "%LOCAL%/logs/");
-	getSetting("smart_layout:verbose_logging", 0, ds::cfg::SETTING_TYPE_BOOL, "Whether to log all warnings for the smart layout class", "false");
+	getSetting("logger:verbose_level", 0, ds::cfg::SETTING_TYPE_INT, "How much verbose output to log. 0=nothing, 9=everything", "0", "0", "9");
 
 	getSetting("METRICS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("metrics:active", 0, ds::cfg::SETTING_TYPE_BOOL, "Enable telegraf metrics sending", "true");
@@ -237,7 +236,7 @@ void EngineSettings::setDefaults(){
 	getSetting("metrics:base_info_send_delay", 0, ds::cfg::SETTING_TYPE_DOUBLE, "How often to send the base info in seconds", "5.0", "0.5", "100");
 	getSetting("metrics:send_touch_info", 0, ds::cfg::SETTING_TYPE_BOOL, "Record touch data or not", "false");
 	getSetting("metrics:udp_host", 0, ds::cfg::SETTING_TYPE_STRING, "The host name to send udp metrics info to", "127.0.0.1");
-	getSetting("metrics:udp_port", 0, ds::cfg::SETTING_TYPE_STRING, "The port to send udp metrics info to", "8094");
+	getSetting("metrics:udp_port", 0, ds::cfg::SETTING_TYPE_STRING, "The port to send udp metrics info to", "8089");
 
 }
 
