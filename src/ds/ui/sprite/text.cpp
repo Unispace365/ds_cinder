@@ -622,7 +622,11 @@ bool Text::measurePangoText() {
 
 			if(mLetterSpacing != 0.0f) {
 				auto attrs = pango_layout_get_attributes(mPangoLayout);
-				if(attrs == nullptr) { attrs = pango_attr_list_new(); }
+				bool createdNew = false;
+				if(attrs == nullptr) {
+					attrs = pango_attr_list_new();
+					createdNew = true;
+				}
 
 				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
 				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing) * PANGO_SCALE));
@@ -632,7 +636,9 @@ bool Text::measurePangoText() {
 
 				pango_layout_set_attributes(mPangoLayout, attrs);
 
-				pango_attr_list_unref(attrs);
+				if(createdNew) {
+					pango_attr_list_unref(attrs);
+				}
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
