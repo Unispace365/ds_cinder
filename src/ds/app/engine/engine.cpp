@@ -496,11 +496,16 @@ void Engine::setup(ds::App& app) {
 	mUpdateParams.setDeltaTime(0.0f);
 	mUpdateParams.setElapsedTime(curr);
 
-	// Start any library services
-	if(!mData.mServices.empty()) {
-		for(auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
-			if(it->second) it->second->start();
+	static bool firstRun = true;
+	/// we only need to start services once, and not on any restarts
+	if(firstRun) {
+		// Start any library services
+		if(!mData.mServices.empty()) {
+			for(auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
+				if(it->second) it->second->start();
+			}
 		}
+		firstRun = false;
 	}
 }
 
