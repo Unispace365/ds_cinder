@@ -244,7 +244,7 @@ void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
 void TouchManager::mouseTouchEnded(const ci::app::MouseEvent &event, int id){
 	ci::vec2 globalPos = translateMousePoint(event.getPos());
 
-	DS_LOG_VERBOSE(1, "Mouse input ended, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos, TOUCH_MANAGER_LOG);
+	DS_LOG_VERBOSE(1, "Mouse input ended, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos);
 	
 
 	inputEnded(id, globalPos);

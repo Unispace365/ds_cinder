@@ -225,9 +225,6 @@
     <ClInclude Include="..\src\ds\math\math_func.h">
       <Filter>src\ds\math</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\math\random.h">
-      <Filter>src\ds\math</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\data\resource_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
