@@ -5,6 +5,6 @@
 	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render."/>
 	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect" comment="The output window size and position to render."/>
 	
-	
+	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
 </settings>
 
