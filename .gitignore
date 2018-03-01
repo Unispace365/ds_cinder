@@ -27,11 +27,10 @@ projects/pdf/lib/
 projects/physics/lib/
 projects/video/lib/
 projects/web/lib/
+projects/viewers/lib/
 projects/essentials/lib/essentials_d.lib
 projects/essentials/lib/essentials.lib
-projects/rocket/build
 example/simple_video_player/MediaInfo.dll
-projects/viewers/lib/
 /example/sync_video_player/debug.txt
 /projects/mosquitto/lib/ds_mosquitto.lib
 /projects/mosquitto/lib/ds_mosquitto_d.lib
@@ -53,7 +52,6 @@ projects/viewers/lib/
 
 *GPUCache/
 
-*build*/
 /example/*/bin/
 projects/**/lib*.a
 
