@@ -11,6 +11,7 @@
 #include "ds/cfg/settings_editor.h"
 #ifdef _WIN32
 #include <Winuser.h>
+#include <VersionHelpers.h>
 #include "ds/debug/console.h"
 #endif
 #include "ds/debug/debug_defines.h"
@@ -583,23 +584,24 @@ void Engine::setupTouch(ds::App& app) {
 		}
 
 		/// Turn off all that dumb feedback shit always
-
-		BOOL fEnabled = FALSE;
-		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_CONTACTVISUALIZATION,
-								 0, sizeof(fEnabled), &fEnabled);
-		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_TAP,
-								 0, sizeof(fEnabled), &fEnabled);
-		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_DOUBLETAP,
-								 0, sizeof(fEnabled), &fEnabled);
-		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_PRESSANDHOLD,
-								 0, sizeof(fEnabled), &fEnabled);
-		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_RIGHTTAP,
-								 0, sizeof(fEnabled), &fEnabled);
+		if(IsWindows8OrGreater()) {
+			BOOL fEnabled = FALSE;
+			SetWindowFeedbackSetting(hwnd,
+									 FEEDBACK_TOUCH_CONTACTVISUALIZATION,
+									 0, sizeof(fEnabled), &fEnabled);
+			SetWindowFeedbackSetting(hwnd,
+									 FEEDBACK_TOUCH_TAP,
+									 0, sizeof(fEnabled), &fEnabled);
+			SetWindowFeedbackSetting(hwnd,
+									 FEEDBACK_TOUCH_DOUBLETAP,
+									 0, sizeof(fEnabled), &fEnabled);
+			SetWindowFeedbackSetting(hwnd,
+									 FEEDBACK_TOUCH_PRESSANDHOLD,
+									 0, sizeof(fEnabled), &fEnabled);
+			SetWindowFeedbackSetting(hwnd,
+									 FEEDBACK_TOUCH_RIGHTTAP,
+									 0, sizeof(fEnabled), &fEnabled);
+		}
 	}
 #endif
 }
