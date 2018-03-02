@@ -582,26 +582,26 @@ void Engine::setupTouch(ds::App& app) {
 				(*RegisterTouchWindow)(hwnd, TWF_WANTPALM); // Immediately get the palm touch without waiting
 			}
 		}
-
+#if 0
 		/// Turn off all that dumb feedback shit always
-		if(IsWindows8OrGreater()) {
-			BOOL fEnabled = FALSE;
-			SetWindowFeedbackSetting(hwnd,
-									 FEEDBACK_TOUCH_CONTACTVISUALIZATION,
-									 0, sizeof(fEnabled), &fEnabled);
-			SetWindowFeedbackSetting(hwnd,
-									 FEEDBACK_TOUCH_TAP,
-									 0, sizeof(fEnabled), &fEnabled);
-			SetWindowFeedbackSetting(hwnd,
-									 FEEDBACK_TOUCH_DOUBLETAP,
-									 0, sizeof(fEnabled), &fEnabled);
-			SetWindowFeedbackSetting(hwnd,
-									 FEEDBACK_TOUCH_PRESSANDHOLD,
-									 0, sizeof(fEnabled), &fEnabled);
-			SetWindowFeedbackSetting(hwnd,
-									 FEEDBACK_TOUCH_RIGHTTAP,
-									 0, sizeof(fEnabled), &fEnabled);
-		}
+		BOOL fEnabled = FALSE;
+		SetWindowFeedbackSetting(hwnd,
+									FEEDBACK_TOUCH_CONTACTVISUALIZATION,
+									0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+									FEEDBACK_TOUCH_TAP,
+									0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+									FEEDBACK_TOUCH_DOUBLETAP,
+									0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+									FEEDBACK_TOUCH_PRESSANDHOLD,
+									0, sizeof(fEnabled), &fEnabled);
+		SetWindowFeedbackSetting(hwnd,
+									FEEDBACK_TOUCH_RIGHTTAP,
+									0, sizeof(fEnabled), &fEnabled);
+		
+#endif
 	}
 #endif
 }
