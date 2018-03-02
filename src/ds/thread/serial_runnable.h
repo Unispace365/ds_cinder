@@ -6,6 +6,7 @@
 #include <vector>
 #include "ds/thread/runnable_client.h"
 #include "ds/util/memory_ds.h"
+#include <ds/debug/logger.h>
 
 namespace ds {
 

@@ -14,20 +14,17 @@ namespace ds {
  */
 class ResourceList
 {
-  public:
-    ResourceList();
+public:
+	ResourceList();
 
-    void                clear();
+	void	clear();
+	bool	get(const Resource::Id&, Resource&);
 
-    bool						    get(const Resource::Id&, Resource&);
+private:
+	std::unordered_map<Resource::Id, ds::Resource>	
+			mData;
 
-  private:
-    std::unordered_map<Resource::Id, ds::Resource> 
-                        mData;
-
-    std::stringstream   mBuf;
-
-    bool						    query(const Resource::Id&, Resource&);
+	bool	query(const Resource::Id&, Resource&);
 };
 
 } // namespace ds
