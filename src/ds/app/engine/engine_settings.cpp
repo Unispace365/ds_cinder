@@ -236,7 +236,7 @@ void EngineSettings::setDefaults(){
 	getSetting("metrics:base_info_send_delay", 0, ds::cfg::SETTING_TYPE_DOUBLE, "How often to send the base info in seconds", "5.0", "0.5", "100");
 	getSetting("metrics:send_touch_info", 0, ds::cfg::SETTING_TYPE_BOOL, "Record touch data or not", "false");
 	getSetting("metrics:udp_host", 0, ds::cfg::SETTING_TYPE_STRING, "The host name to send udp metrics info to", "127.0.0.1");
-	getSetting("metrics:udp_port", 0, ds::cfg::SETTING_TYPE_STRING, "The port to send udp metrics info to", "8089");
+	getSetting("metrics:udp_port", 0, ds::cfg::SETTING_TYPE_STRING, "The port to send udp metrics info to", "8094");
 
 }
 

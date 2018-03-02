@@ -34,7 +34,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
 
-    $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml -Recurse;
+    $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml,README.md -Recurse;
 
     foreach ($File in $FileList) {
         $OutputFile = $File.FullName;
