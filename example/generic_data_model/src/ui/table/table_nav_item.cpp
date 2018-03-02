@@ -42,7 +42,8 @@ void TableNavItem::setData(ds::model::DataModelRef theData) {
 	mData = theData;
 	mChildrenName = "";
 
-	setSpriteText("id", ds::value_to_string(theData.getId()));
+	if(theData.getId() > 0) setSpriteText("id", ds::value_to_string(theData.getId()));
+	else setSpriteText("id", "");
 	setSpriteText("title", theData.getName());
 
 	runLayout();

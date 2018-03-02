@@ -25,13 +25,16 @@ DataWrangler::DataWrangler(ds::ui::SpriteEngine& se)
 		mData = q.mData;
 
 		mEngine.getNotifier().notify(DataUpdatedEvent());
-
-	//	q.mData.printTree(true, "");
 	});
 }
 
-void DataWrangler::runQuery(const bool synchronous) {
-	mDataQuery.start(nullptr, synchronous);
+void DataWrangler::runQuery() {
+	mDataQuery.start([this](downstream::DataQuery& dq) {
+		const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
+		dq.mXmlDataModel = "%APP%/data/model/data_model.xml"; 
+		dq.mCmsDatabase = cms.getDatabasePath();
+		dq.mResourceLocation = cms.getResourcePath();
+	}, false);
 }
 
 } // !namespace downstream

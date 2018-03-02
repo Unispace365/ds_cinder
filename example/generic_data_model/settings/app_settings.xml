@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<setting name="animation:duration" value="0.5" type="float" comment=""/>
-	<setting name="xml:cache" value="false" type="bool" comment=" If you cache xml, they'll load faster after the first one, but you'll have to restart the app to see any changes "/>
 </settings>
 

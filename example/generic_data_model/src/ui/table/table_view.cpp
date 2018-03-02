@@ -128,7 +128,9 @@ void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::mode
 }
 
 void TableView::setTableData(ds::model::DataModelRef theModel, const std::string& childrenName) {
-	auto oldItems = mTableItems;
+	for(auto it : mTableItems) {
+		it->release();
+	}
 	mTableItems.clear();
 
 
@@ -136,22 +138,13 @@ void TableView::setTableData(ds::model::DataModelRef theModel, const std::string
 	if(!holder) return;
 
 	for (auto it : theModel.getChildren(childrenName)){
-		TableTableItem* tti = nullptr;
-		if(!oldItems.empty()) {
-			tti = oldItems.back();
-			oldItems.pop_back();
-		} else {
-			tti = new TableTableItem(mGlobals);
-		}
+		TableTableItem* tti = new TableTableItem(mGlobals);
 
 		holder->addChildPtr(tti);
 		tti->setData(it);
 		mTableItems.emplace_back(tti);
 	}
 
-	for (auto it : oldItems){
-		it->release();
-	}
 
 	runLayout();
 }

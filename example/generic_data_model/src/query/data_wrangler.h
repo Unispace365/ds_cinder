@@ -21,7 +21,7 @@ public:
 
 	ds::model::DataModelRef				mData;
 
-	void								runQuery(const bool synchronous);
+	void								runQuery();
 
 private:
 	ds::ui::SpriteEngine&				mEngine;

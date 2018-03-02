@@ -27,7 +27,7 @@ ds::model::DataModelRef DataQuery::readXml() {
 	ci::XmlTree xml;
 
 	try {
-		xml = ci::XmlTree(cinder::loadFile(ds::Environment::expand("%APP%/data/model/data_model.xml")));
+		xml = ci::XmlTree(cinder::loadFile(ds::Environment::expand(mXmlDataModel)));
 	} catch(ci::XmlTree::Exception &e) {
 		DS_LOG_WARNING("loadXmlContent doc not loaded! oh no: " << e.what());
 		return output;
@@ -35,7 +35,6 @@ ds::model::DataModelRef DataQuery::readXml() {
 		DS_LOG_WARNING("loadXmlContent doc not loaded! oh no: " << e.what());
 		return output;
 	}
-
 
 	auto rooty = xml.getChild("model");
 	int id = 1;
@@ -64,20 +63,32 @@ void DataQuery::readXmlNode(ci::XmlTree& tree, ds::model::DataModelRef& parentDa
 	parentData.addChild(tree.getTag(), thisNode);
 }
 
+/*
+TODO:
+- Foreign keys and auto-build children
+- Get nested data by string
+*/
+
 void DataQuery::run() {
+
+	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
 
 	mData = ds::model::DataModelRef("root");
 
-	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
 	ds::query::Result result;
 	ds::query::Result recResult;
-	std::string dbPath = cms.getDatabasePath();
-	std::string resourcesPath = cms.getResourcePath();
 
-	std::map<int, ds::Resource> allResources;
-	//									0			1				2				3				4				5					6			7
-	std::string recyQuery = "SELECT resourcesid, resourcestype,resourcesduration,resourceswidth,resourcesheight,resourcesfilename,resourcespath,resourcesthumbid FROM Resources";
-	if(ds::query::Client::query(dbPath, recyQuery, recResult)) {
+	//									0			1				2				3				4				5					6			7				8
+	std::string recyQuery = "SELECT resourcesid, resourcestype,resourcesduration,resourceswidth,resourcesheight,resourcesfilename,resourcespath,resourcesthumbid,updated_at FROM Resources ";
+	if(!mLastUpdatedResource.empty()) {
+		recyQuery.append("WHERE updated_at > '");
+		recyQuery.append(mLastUpdatedResource);
+		recyQuery.append("' ");
+	}
+
+	recyQuery.append("ORDER BY updated_at ASC");
+
+	if(ds::query::Client::query(mCmsDatabase, recyQuery, recResult)) {
 		ds::query::Result::RowIterator	rit(recResult);
 		while(rit.hasValue()) {
 			ds::Resource reccy;
@@ -91,26 +102,21 @@ void DataQuery::run() {
 				reccy.setLocalFilePath(rit.getString(5));
 			} else {
 				std::stringstream loclPath;
-				loclPath << resourcesPath << rit.getString(6) << rit.getString(5);
+				loclPath << mResourceLocation << rit.getString(6) << rit.getString(5);
 				reccy.setLocalFilePath(loclPath.str());
 			}
 			reccy.setThumbnailId(rit.getInt(7));
-			allResources[mediaId] = reccy;
+			mAllResources[mediaId] = reccy;
+			mLastUpdatedResource = rit.getString(8);
+
 			++rit;
 		}
 	}
 
-	/*
-	TODO:
-	 - Rework resource cache so it doesn't get reloaded every time
-	 - Foreign keys and auto-build children
-	 - Display data model visually
-	 - Get nested data by string
-	*/
-
-
 	auto metaData = readXml();
-	//metaData.printTree(true, "");
+
+	if(ds::getLogger().hasVerboseLevel(2)) metaData.printTree(true, "");
+
 	if(metaData.empty()) {
 		getDataFromTable(mData, "sqlite_master");
 		//auto table = mData.getChild("tables");
@@ -120,8 +126,12 @@ void DataQuery::run() {
 			getDataFromTable(it, it.getProperty("tbl_name").getString());
 		}
 	} else {
-		getDataFromTable(mData, metaData, dbPath, allResources);
+		getDataFromTable(mData, metaData, mCmsDatabase, mAllResources);
 	}
+
+	Poco::Timestamp::TimeVal after = Poco::Timestamp().epochMicroseconds();
+
+	DS_LOG_VERBOSE(1, "Finished data query in " << (float)(after - before) / 1000000.0f << " seconds.");
 }
 
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
@@ -192,7 +202,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 	}
 }
 
-void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::map<int, ds::Resource>& allResources) {
+void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources) {
 
 	std::string theTable = tableDescription.getPropertyValue("name");
 	ds::model::DataModelRef tableModel;
@@ -210,6 +220,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 		std::string selectStmt = tableDescription.getPropertyValue("select");
 		std::string sorting = tableDescription.getPropertyValue("sort");
 		std::string whereClause = tableDescription.getPropertyValue("where");
+		std::string limits = tableDescription.getPropertyValue("limit");
 		std::string reccys = tableDescription.getPropertyValue("resources");
 		std::string primaryId = tableDescription.getPropertyValue("id");
 
@@ -248,6 +259,10 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 				firsty = false;
 				theQuery << it;
 			}
+		}
+
+		if(!limits.empty()) {
+			theQuery << " LIMIT " << limits;
 		}
 
 		/// Resources
@@ -303,15 +318,13 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 									primaryId = columnName;
 								}
 
-								/*
-								if(mVerbose) {
+								if(ds::getLogger().hasVerboseLevel(3)) {
 									if(dataType) {
 										std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
 									} else {
 										std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
 									}
 								}
-								*/
 							}
 
 							auto theText = sqlite3_column_text(statement, i);

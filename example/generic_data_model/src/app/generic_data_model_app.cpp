@@ -56,14 +56,9 @@ generic_data_model_app::generic_data_model_app()
 
 void generic_data_model_app::setupServer(){
 
-	mDataWrangler.runQuery(true);
-
-	const bool cacheXML = mEngine.getAppSettings().getBool("xml:cache", 0, true);
-	ds::ui::XmlImporter::setAutoCache(cacheXML);
+	mDataWrangler.runQuery(false);
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
-	rootSprite.setTransparent(false);
-	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	
 	// add sprites
 	//rootSprite.addChildPtr(new StoryView(mGlobals));
