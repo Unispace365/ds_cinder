@@ -142,7 +142,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm256 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -175,7 +175,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm256 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

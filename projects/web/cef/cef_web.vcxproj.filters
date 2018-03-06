@@ -717,6 +717,9 @@
     <ClInclude Include="src\private\web_app.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp">
@@ -730,6 +733,9 @@
     </ClCompile>
     <ClCompile Include="src\private\web_app.cc">
       <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\stdafx.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "web.h"
 
 #include <algorithm>

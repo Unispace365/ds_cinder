@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "media_interface_builder.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

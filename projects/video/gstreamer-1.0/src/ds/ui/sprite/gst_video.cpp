@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "gst_video.h"
 
 #include <ds/app/app.h>

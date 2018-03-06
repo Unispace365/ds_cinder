@@ -42,6 +42,9 @@
     <ClCompile Include="src\gstreamer\gstreamer_audio_device.cpp">
       <Filter>src\gstreamer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gstreamer\video_meta_cache.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="src\gstreamer\gstreamer_audio_device.h">
       <Filter>src\gstreamer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\stdafx.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

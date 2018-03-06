@@ -108,6 +108,7 @@
     <ClCompile Include="src\ds\ui\media\player\panoramic_video_player.cpp">
       <Filter>src\ds\ui\media\player</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -188,5 +189,6 @@
     <ClInclude Include="src\ds\ui\media\player\panoramic_video_player.h">
       <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\stdafx.h" />
   </ItemGroup>
 </Project>

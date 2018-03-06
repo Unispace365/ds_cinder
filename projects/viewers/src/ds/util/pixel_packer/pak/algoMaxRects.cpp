@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 /*
 -------------------------------------------------------------------------
 This file is part of PixelPacker, tools to pack textures into as small as space as possible.

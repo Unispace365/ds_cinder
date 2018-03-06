@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "video_meta_cache.h"
 
 

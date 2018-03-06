@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "web_interface.h"
 
 #include <ds/app/environment.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "panoramic_video_player.h"
 
 

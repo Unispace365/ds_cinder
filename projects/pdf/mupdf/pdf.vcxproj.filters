@@ -27,6 +27,9 @@
     <ClInclude Include="src\private\pdf_res.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\private\pdf_service.cpp">
@@ -37,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="src\private\pdf_res.cpp">
       <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\stdafx.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

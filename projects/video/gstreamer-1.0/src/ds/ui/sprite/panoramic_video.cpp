@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "panoramic_video.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

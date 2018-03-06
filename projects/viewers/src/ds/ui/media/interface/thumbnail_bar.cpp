@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "thumbnail_bar.h"
 
 #include <ds/app/app.h>

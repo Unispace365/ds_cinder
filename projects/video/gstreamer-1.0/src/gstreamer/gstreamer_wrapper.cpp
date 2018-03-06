@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "gstreamer_wrapper.h"
 
 #include "ds/debug/logger.h"
