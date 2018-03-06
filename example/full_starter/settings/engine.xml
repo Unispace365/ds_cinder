@@ -17,7 +17,7 @@
 	<setting name="screen:title" value="" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
 	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window." default="false"/>
-	<setting name="console:show" value="false" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
+	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
 	<setting name="idle_time" value="300" type="double" comment="Seconds before idle happens. 300 = 5 minutes." default="300" min_value="0" max_value="1000"/>
 	<setting name="system:never_sleep" value="true" type="bool" comment="Prevent the system from sleeping or powering off the screen" default="true"/>
 	<setting name="RENDER SETTINGS" value="" type="section_header"/>
@@ -52,6 +52,7 @@
 	<setting name="resource_location" value="" type="string" comment="Resource location and database for cms content"/>
 	<setting name="resource_db" value="" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
+	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>

@@ -140,6 +140,10 @@ float SpriteEngine::getFrameRate() const {
 }
 
 
+const std::string& SpriteEngine::getCmsURL() const {
+	return mData.mCmsURL;
+}
+
 double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();
 }

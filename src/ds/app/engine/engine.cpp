@@ -246,14 +246,23 @@ void Engine::setupMute(){
 
 void Engine::setupResourceLocation() {
 
-	// SETUP RESOURCES
+
+	mData.mCmsURL = mSettings.getString("cms:url");
+	if(mData.mCmsURL.empty() || mData.mCmsURL == "DS_BASEURL") {
+		auto _env_var_ptr = std::getenv("DS_BASEURL");
+		mData.mCmsURL = std::string{ _env_var_ptr == nullptr ? "" : _env_var_ptr };
+		if(mData.mCmsURL.empty()) {
+			DS_LOG_VERBOSE(1, "cms:url and DS_BASEURL are both not defined. Only a problem if this app relies on Engine::getCmsURL()");
+		} else {
+			DS_LOG_INFO("Engine: Cms URL: " << mData.mCmsURL);
+		}
+
+	}
+	
 	std::string resourceLocation = ds::getNormalizedPath(mSettings.getString("resource_location"));
 	if(resourceLocation.empty()) {
-		// This is valid, though unusual
-		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
 		if(boost::contains(resourceLocation, "%USERPROFILE%")) {
-			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
 #ifndef _WIN32
 			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
 			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");

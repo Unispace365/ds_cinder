@@ -116,6 +116,9 @@ public:
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
 
+	// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
+	const std::string&				getCmsURL() const;
+
 	// Get the standard animation duration
 	const float						getAnimDur() const;
 	void							setAnimDur(const float newAnimDur);
