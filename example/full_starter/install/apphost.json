@@ -1,10 +1,10 @@
 {
-  "PreventSleep": false,
-  "Kiosk": false,
+  "PreventSleep": true,
+  "Kiosk": true,
   "RestartApps": {
-    "Enabled": false,
-    "Hour": 12,
-    "Minute": 24
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
   },
   "RestartSystem": {
     "Enabled": false,

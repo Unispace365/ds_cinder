@@ -40,7 +40,7 @@ public:
 	static bool loadXMLto(ds::ui::Sprite * parent, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "", const bool mergeFirstSprite = false);
 	static bool loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& xmldata, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "", const bool mergeFirstSprite = false);
 
-	// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads associated with importing stuff
+	/// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads associated with importing stuff
 	static bool preloadXml(const std::string& xmlFile, XmlPreloadData& outData);
 
 	/// If true, will automatically cache xml interfaces after the first time they're loaded
@@ -56,8 +56,20 @@ public:
 	static ds::ui::Sprite* createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value = "");
 	static void getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml);
 
-	// the opposite of loading an xml to a sprite
+	/// the opposite of loading an xml to a sprite
 	static ci::XmlTree createXmlFromSprite(ds::ui::Sprite& sprite);
+
+	/// Parses the value if it starts with #expression, evaluates it, and returns the value as a string 
+	static std::string parseExpression(const std::string& value);
+	static std::string parseAllExpressions(const std::string& value);
+
+	/// Replaces any values starting with $_ with any variables that are found. 
+	/// Runs until no more variables are found, so be careful with circular references!
+	static std::string replaceVariables(const std::string& value);
+	static std::string replaceSingleVariable(const std::string& value);
+
+	/// Add a variable to use when replacing variables in layouts
+	static void addVariable(const std::string& varName, const std::string& varValue);
 
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 

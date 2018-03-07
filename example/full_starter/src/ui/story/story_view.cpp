@@ -16,7 +16,6 @@ StoryView::StoryView(Globals& g)
 	, mGlobals(g)
 {
 
-	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	hide();
 	setOpacity(0.0f);
 		

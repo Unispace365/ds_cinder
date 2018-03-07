@@ -33,6 +33,8 @@ FullStarterApp::FullStarterApp()
 }
 
 void FullStarterApp::setupServer(){
+
+	// Asynchronously run initial queries. Listen to StoryDataUpdatedEvent for when queries are complete
 	mQueryHandler.runQueries();
 	
 	// add sprites

@@ -21,6 +21,8 @@
     <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
+    <ClCompile Include="src\ds\math\fparser.cc" />
+    <ClCompile Include="src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="src\ds\network\https_client.cpp" />
     <ClCompile Include="src\ds\network\smtp_request.cpp" />
@@ -54,6 +56,10 @@
     <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\actions\tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\automator.h" />
+    <ClInclude Include="src\ds\math\fparser.hh" />
+    <ClInclude Include="src\ds\math\fparser_gmpint.hh" />
+    <ClInclude Include="src\ds\math\fparser_mpfr.hh" />
+    <ClInclude Include="src\ds\math\fpconfig.hh" />
     <ClInclude Include="src\ds\network\curl\curl.h" />
     <ClInclude Include="src\ds\network\curl\curlver.h" />
     <ClInclude Include="src\ds\network\curl\easy.h" />
@@ -132,7 +138,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;lib</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -142,7 +148,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalOptions>/Zm256 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm256 /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
