@@ -11,12 +11,9 @@
 #include <cinder/Rect.h>
 
 namespace ds {
-
-class conversion_error : public std::exception { };
-
 // Format conversions
-std::wstring		wstr_from_utf8(const std::string&);		// throws conversion_error
-std::string			utf8_from_wstr(const std::wstring&);	// throws conversion_error
+std::wstring		wstr_from_utf8(const std::string&);		
+std::string			utf8_from_wstr(const std::wstring&);	
 
 // If you have some ANSI text, iso 8859-1
 std::wstring		iso_8859_1_string_to_wstring(const std::string& input);
@@ -24,8 +21,7 @@ std::string			iso_8859_1_wstring_to_string(const std::wstring& input);
 
 // Number conversions
 template <typename T>
-bool wstring_to_value(const std::wstring& str, T& ans)
-{
+bool wstring_to_value(const std::wstring& str, T& ans){
 	std::wistringstream		ss(str);
 	T						v;
 	ss >> v;
@@ -37,8 +33,7 @@ bool wstring_to_value(const std::wstring& str, T& ans)
 }
 
 template <typename T>
-bool string_to_value(const std::string& str, T& ans)
-{
+bool string_to_value(const std::string& str, T& ans){
 	std::istringstream		ss(str);
 	T						v;
 	ss >> v;
@@ -50,16 +45,14 @@ bool string_to_value(const std::string& str, T& ans)
 }
 
 template <typename T>
-std::string value_to_string(T number)
-{
+std::string value_to_string(T number){
 	std::ostringstream ss;
 	ss << number;
 	return ss.str();
 }
 
 template <typename T>
-std::wstring value_to_wstring(T number)
-{
+std::wstring value_to_wstring(T number){
 	std::wostringstream ss;
 	ss << number;
 	return ss.str();

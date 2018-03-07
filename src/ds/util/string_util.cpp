@@ -22,13 +22,14 @@ std::wstring wstr_from_str(const std::string& str, const UINT cp)
 	if (str.empty()) return std::wstring();
 
 	const int len = MultiByteToWideChar(cp, 0, str.c_str(), static_cast<int>(str.length()), 0, 0);
-	if (!len) throw conversion_error();
+	if(!len) {
+		return L"";
+	}
 
 	std::vector<wchar_t> wbuff(len + 1);
 	// NOTE: this does not NULL terminate the string in wbuff, but this is ok
 	//       since it was zero-initialized in the vector constructor
 	if(!MultiByteToWideChar(cp, 0, str.c_str(), static_cast<int>(str.length()), &wbuff[0], len)){
-		//throw conversion_error();
 		return L"";
 	}
 
@@ -40,14 +41,15 @@ std::string str_from_wstr(const std::wstring& wstr, const UINT cp)
 	if (wstr.empty()) return std::string();
 
 	const int len = WideCharToMultiByte(cp, 0, wstr.c_str(), static_cast<int>(wstr.length()), 0, 0, 0, 0);
-	if (!len) throw conversion_error();
+	if(!len) {
+		return "";
+	}
 
 	std::vector<char> abuff(len + 1);
 
 	// NOTE: this does not NULL terminate the string in abuff, but this is ok
 	//       since it was zero-initialized in the vector constructor
 	if(!WideCharToMultiByte(cp, 0, wstr.c_str(), static_cast<int>(wstr.length()), &abuff[0], len, 0, 0)){
-		//throw conversion_error();
 		return "";
 	}
 
