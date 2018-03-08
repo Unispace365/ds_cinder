@@ -164,6 +164,7 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\ui\layout\data_layout.cpp" />
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
     <ClCompile Include="..\src\ui\table\table_nav_item.cpp" />
     <ClCompile Include="..\src\ui\table\table_table_item.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="..\src\query\data_query.h" />
     <ClInclude Include="..\src\query\data_wrangler.h" />
     <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\ui\layout\data_layout.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
     <ClInclude Include="..\src\ui\table\table_nav_item.h" />
     <ClInclude Include="..\src\ui\table\table_table_item.h" />

@@ -19,6 +19,7 @@
 
 #include "ui/story/story_view.h"
 #include "ui/table/table_view.h"
+#include "ui/layout/data_layout.h"
 
 namespace downstream {
 
@@ -28,8 +29,6 @@ generic_data_model_app::generic_data_model_app()
 	, mDataWrangler(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
-
-
 
 	/*
 
@@ -56,7 +55,7 @@ generic_data_model_app::generic_data_model_app()
 
 void generic_data_model_app::setupServer(){
 
-	mDataWrangler.runQuery(false);
+	mDataWrangler.runQuery();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	
@@ -68,14 +67,16 @@ void generic_data_model_app::setupServer(){
 void generic_data_model_app::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
 		quit();
-	} 
+	} else if(in_e.mWhat == DataUpdatedEvent::WHAT()) {
+		auto dm = mDataWrangler.mData.getChild("sample_data");
+		for(auto it : dm.getChildren("rows")) {
+			DS_LOG_INFO("Data model: " << it.getName() << " " << it.getProperty("title").getString() << " " << it.getProperty("resourceid").getString());
+
+			mEngine.getRootSprite().addChildPtr(new ds::ui::DataLayout(mEngine, "sample_data.xml", it));
+	
+		}
+	}
 }
-
-void generic_data_model_app::onKeyDown(ci::app::KeyEvent event){
-	using ci::app::KeyEvent;
-
-}
-
 
 void generic_data_model_app::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;

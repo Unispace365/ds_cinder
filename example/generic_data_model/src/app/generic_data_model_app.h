@@ -15,7 +15,6 @@ class generic_data_model_app : public ds::App {
 public:
 	generic_data_model_app();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event) override;

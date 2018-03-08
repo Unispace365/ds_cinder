@@ -1,0 +1,81 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="vert"
+				layout_size_mode="flex"
+				position="300, 0"				
+				size="1200, 800"
+				shrink_to_children="both"
+			>
+			
+			<sprite name="background"
+				color="white"
+				opacity="1.0"
+				blend_mode="normal"
+				layout_size_mode="fill"
+				/>
+			
+			<layout name="header_layout"
+				layout_type="vert"
+				layout_size_mode="flex"
+				layout_spacing="20"
+				l_pad="20"
+				t_pad="20"
+				r_pad="20"
+				b_pad="20"
+				position="0, 0"
+				shrink_to_children="both"
+			>
+			
+
+				<text name="title"
+					font="media_viewer:title"
+					layout_v_align="middle"
+					layout_size_mode="flex"
+					color="black"
+					font_size="48"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					/>		
+					
+				<text name="body"
+					font="media_viewer:title"
+					layout_v_align="middle"
+					color="black"
+					layout_size_mode="flex"
+					font_size="24"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					/>
+						
+				<sprite name="spacer_one" 
+					layout_size_mode="flex"
+					color="black"
+					size="200, 1"
+					t_pad="5"
+					b_pad="5"
+					opacity="0.5"
+					animate_on="fade; delay:0.5; duration:0.4"
+				/>
+				<layout name="img_holder"
+					layout_type="horiz"
+					size="200, 200"
+					>
+					<image name="resourceid"
+						layout_size_mode="flex"
+						animate_on="fade; delay:0.5; duration:0.4"
+						/>
+				</layout>
+				<sprite name="spacer_two" 
+					layout_size_mode="flex"
+					color="black"
+					size="200, 1"
+					t_pad="5"
+					b_pad="5"
+					opacity="0.5"
+					animate_on="fade; delay:0.5; duration:0.4"
+				/>
+			</layout>
+		</layout>
+	
+	
+</interface>
+

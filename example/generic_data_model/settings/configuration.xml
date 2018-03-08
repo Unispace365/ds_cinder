@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="folder" value="1920x1080" type="string" comment="Set the config override folder"/>
+</settings>
+

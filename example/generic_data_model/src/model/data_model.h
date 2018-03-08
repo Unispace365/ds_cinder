@@ -75,10 +75,12 @@ protected:
 class DataModelRef {
 public:
 
-	// TODO: operators (equality and such
-	// TODO: get children / property by dot and array notation. For instance: getChild("something.items[5].title");
+	// TODO: operators (equality and such)
+	// TODO: get children / property by dot and array notation. For instance: getChild("something.items[5].title"); // DOT notation is done
 	// TODO: duplicate
 	// TODO: auto validation
+
+	// TODO: Rework the children setup so it's a single vector of children instead of a map. We're effectively making each list of children it's own node and it's confusing
 
 	DataModelRef();
 	DataModelRef(const std::string& name, const int id = 0);
@@ -114,7 +116,7 @@ public:
 	const std::map<std::string, std::vector<DataModelRef>>&	getChildrenMap();
 
 	/// Gets all of the children with a name. 
-	/// For instance, you could have a series of chapters, where each child is a DataModelRef, and the name of the children is "chapters"
+	/// For instance, you could have a series of chapters, where each child is a DataModelRef, and the name of the children is "chapters". And another series of children named "images"
 	/// Don't modify the children here, use the other functions
 	const std::vector<DataModelRef>&						getChildren(const std::string& childrenName) const;
 

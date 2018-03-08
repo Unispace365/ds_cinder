@@ -249,6 +249,19 @@ const std::vector<DataModelRef>& DataModelRef::getChildren(const std::string& ch
 DataModelRef DataModelRef::getChild(const std::string& childName) {
 	createData();
 
+	if(childName.find(".") != std::string::npos) {
+		auto childrens = ds::split(childName, ".", true);
+		if(childrens.empty()) {
+			DS_LOG_WARNING("DataModelRef::getChild() Cannot find a child with the name \".\"");
+		} else {
+			DataModelRef curChild = getChild(childrens.front());
+			for(int i = 1; i < childrens.size(); i++) {
+				curChild = curChild.getChild(childrens[i]);
+			}
+			return curChild;
+		}
+	}
+
 	auto findy = mData->mChildren.find(childName);
 	if(findy == mData->mChildren.end()
 	   || findy->second.empty()

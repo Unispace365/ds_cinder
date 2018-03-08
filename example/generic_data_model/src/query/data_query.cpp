@@ -320,9 +320,9 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 
 								if(ds::getLogger().hasVerboseLevel(3)) {
 									if(dataType) {
-										std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+										DS_LOG_VERBOSE(3, " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc);
 									} else {
-										std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+										DS_LOG_VERBOSE(3, " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc);
 									}
 								}
 							}

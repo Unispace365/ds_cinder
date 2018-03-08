@@ -31,6 +31,9 @@
     <ClCompile Include="..\src\ui\table\table_table_item.cpp">
       <Filter>src\ui\table</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\layout\data_layout.cpp">
+      <Filter>src\ui\layout</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\events\app_events.h">
@@ -66,6 +69,9 @@
     <ClInclude Include="..\src\ui\table\table_table_item.h">
       <Filter>src\ui\table</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ui\layout\data_layout.h">
+      <Filter>src\ui\layout</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
@@ -98,6 +104,9 @@
     </Filter>
     <Filter Include="src\ui\table">
       <UniqueIdentifier>{74540299-9679-44d8-9bef-2f9468b22ea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\layout">
+      <UniqueIdentifier>{23e2b98c-6e24-45d1-a723-f866d6e54fa1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
