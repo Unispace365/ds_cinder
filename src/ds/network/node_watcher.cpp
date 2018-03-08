@@ -129,13 +129,13 @@ void NodeWatcher::Loop::run() {
 		}
 	}
 	catch (std::exception& e){
-		std::cout << "Unable to construct the DatagramSocket to DS Node. " <<  e.what() << std::endl;
+		DS_LOG_WARNING("Unable to construct the DatagramSocket to DS Node. " << e.what());
 	}
 
 	try{
 		//theSocket.close();
 	} catch(std::exception& e){
-		std::cout << "Exception closing node watcher datagram socket: " << e.what() << std::endl;
+		DS_LOG_WARNING("Exception closing node watcher datagram socket: " << e.what());
 	}
 }
 
