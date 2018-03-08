@@ -210,6 +210,10 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// Init main pipeline --> playbin
 	m_GstPipeline = gst_element_factory_make( "playbin", "pipeline" );
 
+	// BUS
+	// Set GstBus
+	m_GstBus = gst_pipeline_get_bus(GST_PIPELINE(m_GstPipeline));
+
 	// Open Uri
 	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
 
@@ -395,6 +399,8 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			setCustomFunction();
 		}
 		else if(hasAudioTrack){
+
+			/*
 			//Add components for sub-pipeline
 
 			m_GstConverter = gst_element_factory_make("audioconvert", "convert");
@@ -421,12 +427,21 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-		}
-	} 
+			*/
 
-	// BUS
-	// Set GstBus
-	m_GstBus = gst_pipeline_get_bus( GST_PIPELINE( m_GstPipeline ) );
+			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
+			g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
+			g_object_set(m_GstPipeline, "audio-filter", m_GstPanorama, NULL);
+			
+
+			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+			g_object_set(m_GstPipeline, "audio-sink", thisSink, NULL);
+
+		}
+	} else {
+		GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+		g_object_set(m_GstPipeline, "audio-sink", thisSink, NULL);
+	}
 
 	if ( m_GstPipeline ){
 		gst_element_set_state( m_GstPipeline, GST_STATE_READY );
@@ -1454,6 +1469,7 @@ void GStreamerWrapper::handleGStMessage(){
 							m_CurrentGstState = STATE_READY;
 						}
 
+						DS_LOG_VERBOSE(2, "Gst State Change, new state: " << m_CurrentGstState);
 
 					  }
 
@@ -1464,7 +1480,9 @@ void GStreamerWrapper::handleGStMessage(){
 					// constructed, so doesn't get applied.
 					g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
 					retrieveVideoInfo();
-				
+
+					DS_LOG_VERBOSE(3, "Gst Async done");
+
 					if ((m_CurrentGstState == STATE_PLAYING || m_CurrentGstState == STATE_PAUSED) && m_PendingSeek){
 						seekFrame(m_PendingSeekTime);
 					}
@@ -1472,7 +1490,7 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_NEW_CLOCK:{
-					DS_LOG_VERBOSE(2, "Gst New clock");
+					DS_LOG_VERBOSE(3, "Gst New clock");
 					
 					// For example on net sync: http://noraisin.net/diary/?p=954
 					// also: #include "gst/net/gstnettimeprovider.h"
@@ -1499,6 +1517,7 @@ void GStreamerWrapper::handleGStMessage(){
 												break;
 				case GST_MESSAGE_EOS:
 
+					DS_LOG_VERBOSE(2, "Gst EOS Message");
 					switch ( m_LoopMode )
 					{
 

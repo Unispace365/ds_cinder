@@ -68,12 +68,6 @@ The Visual Studio project file needs to be updated to use precompiled headers
 </ClCompile>
 ```
 
-* Precompiled headers should be disabled for generated model files
-```xml
-<ClCompile Include="..\src\model\generated\{NAME}_model.cpp" >
-  <PrecompiledHeader>NotUsing</PrecompiledHeader>
-</ClCompile>
-```
 
 ### Updating Files
 
