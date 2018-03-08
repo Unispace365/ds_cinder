@@ -12,9 +12,9 @@
 			limit="10"
 			>
 			
-			<!-- child_id is the id column in this table that matches the parent's -->
+			<!-- parent_id is the id column in this table that matches the parent's primary id-->
 			<table name="tile_related"
-				child_id="tileid"
+				parent_id="tileid"
 				resources="primaryresourceid"
 				sort="id ASC"				
 				limit="10"
@@ -27,9 +27,9 @@
 			limit="10"
 			>
 			
-			<!-- parent_id is the id in the parent's table that matches this table -->
+			<!-- child_id is the id in the parent's table that matches this table -->
 			<table name="background_theme"
-				parent_id="backgroundthemeid"			
+				child_id="backgroundthemeid"			
 				limit="10"		
 			>
 			

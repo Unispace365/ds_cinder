@@ -111,27 +111,34 @@ public:
 	void													setProperty(const std::string& propertyName, DataProperty datamodel);
 	void													setProperty(const std::string& propertyName, const std::string& propertyValue);
 
-	/// Gets all of the children of all names
-	/// Manage the children using the other functions
-	const std::map<std::string, std::vector<DataModelRef>>&	getChildrenMap();
-
-	/// Gets all of the children with a name. 
-	/// For instance, you could have a series of chapters, where each child is a DataModelRef, and the name of the children is "chapters". And another series of children named "images"
+	/// Gets all of the children
 	/// Don't modify the children here, use the other functions
-	const std::vector<DataModelRef>&						getChildren(const std::string& childrenName) const;
+	const std::vector<DataModelRef>&						getChildren() const;
 
-	/// Gets the first child with a name
-	/// If no children exist for that name, creates a new child
-	DataModelRef											getChild(const std::string& childName);
+	/// If no children exist, returns an empty data model
+	/// If index is greater than the size of the children, returns the last child
+	DataModelRef											getChild(const size_t index);
 
-	/// Replaces any children with this name
-	void													setChild(const std::string& childName, DataModelRef datamodel);
-	/// Adds this child to the end of this children list
-	void													addChild(const std::string& childName, DataModelRef datamodel);
-	/// Is there at least one child with this name?
-	bool													hasChild(const std::string& childName);
-	/// Replaces any children with this name
-	void													setChildren(const std::string& childrenName, std::vector<ds::model::DataModelRef> children);
+	/// Get the first child that matches this id
+	/// If no children exist or match that id, returns an empty data model
+	DataModelRef											getChildById(const int id);
+
+	/// Get the first child that matches this name
+	/// Can get nested children using dot notation. for example: getChildByName("the_stories.chapter_one.first_paragraph");
+	/// If no children exist or match that id, returns an empty data model
+	DataModelRef											getChildByName(const std::string& childName);
+
+	/// Adds this child to the end of this children list, or at the index supplied
+	void													addChild(DataModelRef datamodel, const size_t index = std::numeric_limits<std::size_t>::max());
+
+	/// Is there a child with this name?
+	bool													hasChild(const std::string& name);
+
+	/// Is there at least one child?
+	bool													hasChildren();
+
+	/// Replaces all children
+	void													setChildren(std::vector<ds::model::DataModelRef> children);
 	
 	/// Logs this, it's properties, and all it's children recursively
 	void					printTree(const bool verbose, const std::string& indent);

@@ -1,8 +1,14 @@
 <model>
 	<table name="sample_data"
 			resources="resourceid"
-			sort="id ASC"		
-			limit="1"
-		/>
+			sort="id DESC"		
+			limit="2"
+			name_field="title"
+		>
+		<table name="sample_items"
+			child_id="sample_data_id"
+			name_field="name"
+			/>
+	</table>
 </model>
 

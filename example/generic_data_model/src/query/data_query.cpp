@@ -41,7 +41,7 @@ ds::model::DataModelRef DataQuery::readXml() {
 	readXmlNode(rooty, output, id);
 
 	if(output.hasChild("model")) {
-		return output.getChild("model");
+		return output.getChildByName("model");
 	}
 
 	return output;
@@ -60,7 +60,7 @@ void DataQuery::readXmlNode(ci::XmlTree& tree, ds::model::DataModelRef& parentDa
 		readXmlNode(*it, thisNode, id);
 	}
 
-	parentData.addChild(tree.getTag(), thisNode);
+	parentData.addChild(thisNode);
 }
 
 /*
@@ -120,7 +120,7 @@ void DataQuery::run() {
 	if(metaData.empty()) {
 		getDataFromTable(mData, "sqlite_master");
 		//auto table = mData.getChild("tables");
-		auto tables = mData.getChildren("rows");
+		auto tables = mData.getChildren();
 		for(auto it : tables) {
 			it.setName(it.getProperty("tbl_name").getString());
 			getDataFromTable(it, it.getProperty("tbl_name").getString());
@@ -186,7 +186,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std:
 						}
 						thisRow.setProperty(columnName, theData);
 					}
-					parentModel.addChild("rows", thisRow);
+					parentModel.addChild(thisRow);
 
 				} else {
 					sqlite3_finalize(statement);
@@ -223,6 +223,9 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 		std::string limits = tableDescription.getPropertyValue("limit");
 		std::string reccys = tableDescription.getPropertyValue("resources");
 		std::string primaryId = tableDescription.getPropertyValue("id");
+		std::string theName = tableDescription.getPropertyValue("name_field");
+		std::string parentId = tableDescription.getPropertyValue("parent_id");
+		std::string childId = tableDescription.getPropertyValue("child_id");
 
 		// Operations:
 		// select + where + sorting
@@ -338,6 +341,10 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 								thisRow.setId(ds::string_to_int(theData));
 							}
 
+							if(!theName.empty() &&  columnName == theName) {
+								thisRow.setName(theData);
+							}
+
 							ds::model::DataProperty theProperty(columnName, theData);
 
 							if(std::find(resourceColumns.begin(), resourceColumns.end(), columnName) != resourceColumns.end()) {
@@ -350,7 +357,30 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 						// only parse metada for the first row
 						parsedMetadata = true;
 
-						tableModel.addChild("rows", thisRow);
+						bool allocated = false;
+						if(!childId.empty()) {
+							for(auto it : parentModel.getChildren()) {
+								if(it.getId() == thisRow.getProperty(childId).getInt()) {
+									it.addChild(thisRow);
+									allocated = true;
+									break;
+								}
+							}
+						}
+
+						if(!allocated && !parentId.empty()) {
+							for(auto it : parentModel.getChildren()) {
+								if(it.getProperty(parentId).getInt() == thisRow.getId()) {
+									it.addChild(thisRow);
+									allocated = true;
+									break;
+								}
+							}
+						}
+
+						if(!allocated) {
+							tableModel.addChild(thisRow);
+						}
 
 					} else {
 						sqlite3_finalize(statement);
@@ -362,11 +392,14 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 			DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 		}
 
-		parentModel.addChild(theTable, tableModel);
+		
+
+		parentModel.addChild(tableModel);
+		
 
 	} // table name is present
 
-	auto tableChildren = tableDescription.getChildren("table");
+	auto tableChildren = tableDescription.getChildren();
 	for (auto it : tableChildren){
 		getDataFromTable(tableModel, it, dbPath, allResources);
 	}

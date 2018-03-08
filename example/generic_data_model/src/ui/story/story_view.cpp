@@ -65,8 +65,8 @@ void StoryView::setData() {
 	// In a real case, you'd likely have a single story ref for this instance and use that data
 
 	if(mGlobals.mDataWrangler.mData.hasChild("leadership")) {
-		auto leadershipTable = mGlobals.mDataWrangler.mData.getChild("leadership");
-		auto leadershipItems = leadershipTable.getChildren("rows");
+		auto leadershipTable = mGlobals.mDataWrangler.mData.getChildByName("leadership");
+		auto leadershipItems = leadershipTable.getChildren();
 
 		if(!leadershipItems.empty()) {
 			auto leadershipItem = leadershipItems[rand() % leadershipItems.size()];

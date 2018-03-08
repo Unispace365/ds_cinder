@@ -21,9 +21,9 @@ public:
 
 private:
 	void								setData();
-	void								addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::DataModelRef theModel, const std::string& childrenName);
+	void								addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::DataModelRef theModel);
 
-	void								setTableData(ds::model::DataModelRef theModel, const std::string& childrenName);
+	void								setTableData(ds::model::DataModelRef theModel);
 
 	std::vector<TableNavItem*>			mNavItems;
 

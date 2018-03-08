@@ -24,7 +24,6 @@ const std::vector<DataModelRef>		EMPTY_DATAMODELREF_VECTOR;
 const DataModelRef										EMPTY_DATAMODEL;
 const DataProperty										EMPTY_PROPERTY;
 const std::map<std::string, DataProperty>				EMPTY_PROPERTY_MAP;
-const std::map<std::string, std::vector<DataModelRef>>	EMPTY_CHILDREN_MAP;
 
 }
 
@@ -155,7 +154,7 @@ public:
 	std::string mName;
 	int mId;
 	std::map<std::string, DataProperty> mProperties;
-	std::map<std::string, std::vector<DataModelRef>> mChildren;
+	std::vector<DataModelRef> mChildren;
 
 };
 
@@ -231,22 +230,34 @@ void DataModelRef::setProperty(const std::string& propertyName, const std::strin
 	mData->mProperties[propertyName] = DataProperty(propertyName, propertyValue);
 }
 
-const std::map<std::string, std::vector<DataModelRef>>& DataModelRef::getChildrenMap() {
-	if(!mData) return EMPTY_CHILDREN_MAP;
-	return mData->mChildren;
+const std::vector<DataModelRef>& DataModelRef::getChildren() const {
+	if(!mData) return EMPTY_DATAMODELREF_VECTOR;
+	return  mData->mChildren;
 }
 
-const std::vector<DataModelRef>& DataModelRef::getChildren(const std::string& childrenName) const {
-	if(!mData) return EMPTY_DATAMODELREF_VECTOR;
-	auto findy = mData->mChildren.find(childrenName);
-	if(findy != mData->mChildren.end()) {
-		return findy->second;
+DataModelRef DataModelRef::getChild(const size_t index) {
+	createData();
+
+	if(index < mData->mChildren.size()) {
+		return mData->mChildren[index];
+	} else if(!mData->mChildren.empty()) {
+		return mData->mChildren.back();
 	}
 
-	return EMPTY_DATAMODELREF_VECTOR;
+	return EMPTY_DATAMODEL;
 }
 
-DataModelRef DataModelRef::getChild(const std::string& childName) {
+DataModelRef DataModelRef::getChildById(const int id) {
+	createData();
+
+	for(auto it : mData->mChildren) {
+		if(it.getId() == id) return it;
+	}
+
+	return EMPTY_DATAMODEL;
+}
+
+DataModelRef DataModelRef::getChildByName(const std::string& childName) {
 	createData();
 
 	if(childName.find(".") != std::string::npos) {
@@ -254,61 +265,49 @@ DataModelRef DataModelRef::getChild(const std::string& childName) {
 		if(childrens.empty()) {
 			DS_LOG_WARNING("DataModelRef::getChild() Cannot find a child with the name \".\"");
 		} else {
-			DataModelRef curChild = getChild(childrens.front());
+			DataModelRef curChild = getChildByName(childrens.front());
 			for(int i = 1; i < childrens.size(); i++) {
-				curChild = curChild.getChild(childrens[i]);
+				curChild = curChild.getChildByName(childrens[i]);
 			}
 			return curChild;
 		}
 	}
 
-	auto findy = mData->mChildren.find(childName);
-	if(findy == mData->mChildren.end()
-	   || findy->second.empty()
-	   ) {
-		std::vector<DataModelRef> newChildren;
-		newChildren.push_back(DataModelRef(childName));
-		mData->mChildren[childName] = newChildren;
-		return newChildren.back();
-	} 
-	// we checked for end and empty above, so this should always be valid
-	return findy->second.front();
+	for (auto it : mData->mChildren){
+		if(it.getName() == childName) return it;
+	}
+
+	return EMPTY_DATAMODEL;
 }
 
-void DataModelRef::setChild(const std::string& childName, DataModelRef datamodel) {
+void DataModelRef::addChild(DataModelRef datamodel, const size_t index) {
 	createData();
 
-	std::vector<DataModelRef> newChildren;
-	newChildren.push_back(DataModelRef(childName));
-	mData->mChildren[childName] = newChildren;
-}
-
-void DataModelRef::addChild(const std::string& childName, DataModelRef datamodel) {
-	createData();
-
-	auto& findy = mData->mChildren.find(childName);
-	if(findy == mData->mChildren.end()) {
-		std::vector<DataModelRef> newChildren;
-		newChildren.push_back(datamodel);
-		mData->mChildren[childName] = newChildren;
+	if(index < mData->mChildren.size()) {
+		mData->mChildren.insert(mData->mChildren.begin() + index, datamodel);
 	} else {
-		findy->second.emplace_back(datamodel);
+		mData->mChildren.emplace_back(datamodel);
 	}
 }
 
-bool DataModelRef::hasChild(const std::string& childName) {
-	if(!mData) return false;
-	auto& findy = mData->mChildren.find(childName);
-	if(findy != mData->mChildren.end()) {
-		return true;
+bool DataModelRef::hasChild(const std::string& name) {
+	if(!mData || mData->mChildren.empty()) return false;
+
+	for (auto it : mData->mChildren){
+		if(it.getName() == name) return true;
 	}
 
 	return false;
 }
 
-void DataModelRef::setChildren(const std::string& childrenName, std::vector<ds::model::DataModelRef> children) {
+bool DataModelRef::hasChildren() {
+	if(!mData) return false;
+	return !mData->mChildren.empty();
+}
+
+void DataModelRef::setChildren(std::vector<ds::model::DataModelRef> children) {
 	createData();
-	mData->mChildren[childrenName] = children;
+	mData->mChildren = children;
 }
 
 void DataModelRef::printTree(const bool verbose, const std::string& indent) {
@@ -330,10 +329,9 @@ void DataModelRef::printTree(const bool verbose, const std::string& indent) {
 		if(!mData->mChildren.empty()) {
 
 			for(auto it : mData->mChildren) {
-				DS_LOG_INFO(indent << "          children:" << it.first);
-				for(auto cit : it.second) {
-					cit.printTree(verbose, indent + "  ");
-				}
+			//	DS_LOG_INFO(indent << "          child:" << it.getName());
+				it.printTree(verbose, indent + "  ");
+				
 			}
 		}
 	}

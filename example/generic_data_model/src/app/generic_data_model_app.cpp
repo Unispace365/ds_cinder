@@ -68,10 +68,11 @@ void generic_data_model_app::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
 		quit();
 	} else if(in_e.mWhat == DataUpdatedEvent::WHAT()) {
-		auto dm = mDataWrangler.mData.getChild("sample_data");
-		for(auto it : dm.getChildren("rows")) {
-			DS_LOG_INFO("Data model: " << it.getName() << " " << it.getProperty("title").getString() << " " << it.getProperty("resourceid").getString());
 
+		mDataWrangler.mData.printTree(true, "");
+
+		auto dm = mDataWrangler.mData.getChildByName("sample_data");
+		for(auto it : dm.getChildren()) {
 			mEngine.getRootSprite().addChildPtr(new ds::ui::DataLayout(mEngine, "sample_data.xml", it));
 	
 		}

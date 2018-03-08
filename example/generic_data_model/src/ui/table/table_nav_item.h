@@ -21,14 +21,12 @@ public:
 	bool								getExpanded();
 	void								setExpanded(const bool isExpanded);
 
-	void								setData(ds::model::DataModelRef parent, const std::string& childrenName);
 	void								setData(ds::model::DataModelRef theData);
 	ds::model::DataModelRef				getData();
 
 private:
 	bool								mExpanded;
 	ds::model::DataModelRef				mData;
-	std::string							mChildrenName;
 	Globals&							mGlobals;
 
 };

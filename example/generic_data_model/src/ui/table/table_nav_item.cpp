@@ -30,35 +30,29 @@ bool TableNavItem::getExpanded() {
 
 void TableNavItem::setExpanded(const bool isExpanded) {
 	mExpanded = isExpanded;
-	if(mExpanded) {
-		setSpriteText("id", "-");
-	} else {
-		setSpriteText("id", "+");
+	if(mData.hasChildren()) {
+		if(mExpanded) {
+			setSpriteText("id", "-");
+		} else {
+			setSpriteText("id", "+");
+		}
 	}
 	runLayout();
 }
 
 void TableNavItem::setData(ds::model::DataModelRef theData) {
 	mData = theData;
-	mChildrenName = "";
 
-	if(theData.getId() > 0) setSpriteText("id", ds::value_to_string(theData.getId()));
-	else setSpriteText("id", "");
+	if(mData.hasChildren()) {
+		setSpriteText("id", "+");
+	} else {
+		setSpriteText("id", " ");
+	}
 	setSpriteText("title", theData.getName());
 
 	runLayout();
 }
 
-void TableNavItem::setData(ds::model::DataModelRef parentData, const std::string& childrenName) {
-	mData = parentData;
-	mChildrenName = childrenName;
-
-	setSpriteText("id", "+");
-	setSpriteText("title", mChildrenName);
-
-	runLayout();
-
-}
 
 ds::model::DataModelRef TableNavItem::getData() {
 	return mData;
