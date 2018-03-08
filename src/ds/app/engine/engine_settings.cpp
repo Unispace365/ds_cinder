@@ -127,30 +127,30 @@ void EngineSettings::loadInitialSettings() {
 			mStartupInfo << "EngineSettings: Reading app settings from " << localSettingsPath << std::endl;
 			readFrom(localSettingsPath, true);
 		}
+	}
 
-		// Load the configuration settings, which can be used to modify settings even more.
-		// Currently used to provide alternate layout sizes.
-		ds::Environment::loadSettings("configuration", "configuration.xml", mConfiguration);
-		CONFIGURATION_FOLDER = commandLineAppConfig.empty()
-			? mConfiguration.getString("folder", 0, "")
-			: commandLineAppConfig;
+	// Load the configuration settings, which can be used to modify settings even more.
+	// Currently used to provide alternate layout sizes.
+	ds::Environment::loadSettings("configuration", "configuration.xml", mConfiguration);
+	CONFIGURATION_FOLDER = commandLineAppConfig.empty()
+		? mConfiguration.getString("folder", 0, "")
+		: commandLineAppConfig;
 
-		// If the folder exists, then apply any changes to the engine file
-		if(!CONFIGURATION_FOLDER.empty()) {
-			const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + appFilename);
-			const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
+	// If the folder exists, then apply any changes to the engine file
+	if(!CONFIGURATION_FOLDER.empty()) {
+		const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + appFilename);
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
 
-			if(safeFileExistsCheck(app)) {
-				mLoadedAnySettings = true;
-				mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
-				readFrom(app, true);
-			}
+		if(safeFileExistsCheck(app)) {
+			mLoadedAnySettings = true;
+			mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
+			readFrom(app, true);
+		}
 
-			if(safeFileExistsCheck(local)) {
-				mLoadedAnySettings = true;
-				mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
-				readFrom(local, true);
-			}
+		if(safeFileExistsCheck(local)) {
+			mLoadedAnySettings = true;
+			mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
+			readFrom(local, true);
 		}
 	}
 
