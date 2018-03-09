@@ -83,15 +83,22 @@ public:
 	// TODO: Rework the children setup so it's a single vector of children instead of a map. We're effectively making each list of children it's own node and it's confusing
 
 	DataModelRef();
-	DataModelRef(const std::string& name, const int id = 0);
+	DataModelRef(const std::string& name, const int id = 0, const std::string& label = "");
 
 	/// Get the id for this item
 	const int&						getId() const;
 	void							setId(const int& id);
 
 	/// Get the name of this item
+	/// Name is generally inherited by the table or thing this belongs to
+	/// This is used in the getChildByName()
 	const std::string&				getName() const;
 	void							setName(const std::string& name);
+
+	/// Get the label for this item
+	/// This is a helpful name or display name for this thing
+	const std::string&				getLabel() const;
+	void							setLabel(const std::string& label);
 
 	/// If this item has no data, value, name, id, properties or children
 	const bool						empty() const;
@@ -107,10 +114,31 @@ public:
 	/// If you want to modify a property, use the setProperty() function
 	const DataProperty										getProperty(const std::string& propertyName);
 	const std::string										getPropertyValue(const std::string& propertyName);
+	bool													getPropertyBool(const std::string& propertyName);
+	int														getPropertyInt(const std::string& propertyName);
+	float													getPropertyFloat(const std::string& propertyName);
+	double													getPropertyDouble(const std::string& propertyName);
+	/// The Engine is supplied to look up named colors
+	const ci::Color											getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName);
+	const ci::ColorA										getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName);
+	const std::string										getPropertyString(const std::string& propertyName); // same as getPropertyValue(), but supplied here for convenience
+	const std::wstring										getPropertyWString(const std::string& propertyName);
+	const ci::vec2											getPropertyVec2(const std::string& propertyName);
+	const ci::vec3											getPropertyVec3(const std::string& propertyName);
+	const ci::Rectf											getPropertyRect(const std::string& propertyName);
 
 	/// Set the property with a given name
 	void													setProperty(const std::string& propertyName, DataProperty datamodel);
-	void													setProperty(const std::string& propertyName, const std::string& propertyValue);
+	void													setProperty(const std::string& propertyName, const std::string& value);
+	void													setProperty(const std::string& propertyName, const std::wstring& value);
+	void													setProperty(const std::string& propertyName, const int& value);
+	void													setProperty(const std::string& propertyName, const double& value);
+	void													setProperty(const std::string& propertyName, const float& value);
+	void													setProperty(const std::string& propertyName, const ci::Color& value);
+	void													setProperty(const std::string& propertyName, const ci::ColorA& value);
+	void													setProperty(const std::string& propertyName, const ci::vec2& value);
+	void													setProperty(const std::string& propertyName, const ci::vec3& value);
+	void													setProperty(const std::string& propertyName, const ci::Rectf& value);
 
 	/// Gets all of the children
 	/// Don't modify the children here, use the other functions

@@ -30,7 +30,7 @@ void DataQuery::run() {
 
 	updateResourceCache();
 
-	mData = ds::model::DataModelRef("root");
+	mData = ds::model::DataModelRef("root", 0, "The root of all data");
 	mTableId = 0;
 
 	auto metaData = readXml();
@@ -66,7 +66,7 @@ void DataQuery::assembleModels(ds::model::DataModelRef tablesParent) {
 	/// find the highest depth
 	int maxDepth = 0;
 	for (auto it : tablesParent.getChildren()){
-		int thisDepth = it.getProperty("depth").getInt();
+		int thisDepth = it.getPropertyInt("depth");
 		if(thisDepth > maxDepth) maxDepth = thisDepth;
 	}
 
@@ -75,22 +75,22 @@ void DataQuery::assembleModels(ds::model::DataModelRef tablesParent) {
 
 		// find all the tables at this depth and apply their rows to the parent rows
 		for (auto it : tablesParent.getChildren()){
-			if(it.getProperty("depth").getInt() == i) {
+			if(it.getPropertyInt("depth") == i) {
 
 				// find the parent model for this table
-				ds::model::DataModelRef parentModel = tablesParent.getChildById(it.getProperty("parent_id").getInt());
+				ds::model::DataModelRef parentModel = tablesParent.getChildById(it.getPropertyInt("parent_id"));
 				if(parentModel.empty()) {
 					DS_LOG_WARNING("DataQuery::assembleModels() no parent table found! this will leave the table " << it.getName() << " orphaned!");
 					continue;
 				}
 
-				auto childLocalId = it.getPropertyValue("child_local_id");
-				auto parentForeignId = it.getPropertyValue("parent_foreign_id");
+				auto childLocalId = it.getPropertyString("child_local_id");
+				auto parentForeignId = it.getPropertyString("parent_foreign_id");
 
 				for(auto row : it.getChildren()) {
 					if(!childLocalId.empty()) {
 						for(auto parChild : parentModel.getChildren()) {
-							if(parChild.getId() == row.getProperty(childLocalId).getInt()) {
+							if(parChild.getId() == row.getPropertyInt(childLocalId)) {
 								parChild.addChild(row);
 							}
 						}
@@ -98,7 +98,7 @@ void DataQuery::assembleModels(ds::model::DataModelRef tablesParent) {
 
 					if(!parentForeignId.empty()) {
 						for(auto parChild : parentModel.getChildren()) {
-							if(parChild.getProperty(parentForeignId).getInt() == row.getId()) {
+							if(parChild.getPropertyInt(parentForeignId) == row.getId()) {
 								parChild.addChild(row);
 							}
 						}
@@ -111,7 +111,7 @@ void DataQuery::assembleModels(ds::model::DataModelRef tablesParent) {
 
 	/// assign top level to the final output
 	for (auto it : tablesParent.getChildren()){
-		if(it.getProperty("depth").getInt() == 1) {
+		if(it.getPropertyInt("depth") == 1) {
 			mData.addChild(it);
 		}
 	}
@@ -201,29 +201,30 @@ void DataQuery::updateResourceCache() {
 void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources, const int depth, const int parentModelId) {
 
 	std::string theTable = tableDescription.getPropertyValue("name");
-	ds::model::DataModelRef tableModel;
 	int thisId = mTableId++;
+	ds::model::DataModelRef tableModel = ds::model::DataModelRef(theTable, thisId, "SQLite Table");
+
 	if(theTable.empty()) {
 		if(tableDescription.getName() != "model") {
 			DS_LOG_WARNING("No table name specified in datamodel query");
 		}
 
 		tableModel = parentModel;
+
 	} else {
 
-		tableModel.setName(theTable);
-
-		std::string selectStmt = tableDescription.getPropertyValue("select");
-		std::string sorting = tableDescription.getPropertyValue("sort");
-		std::string whereClause = tableDescription.getPropertyValue("where");
-		std::string limits = tableDescription.getPropertyValue("limit");
-		std::string reccys = tableDescription.getPropertyValue("resources");
-		std::string primaryId = tableDescription.getPropertyValue("id");
-		std::string theName = tableDescription.getPropertyValue("name_field");
+		std::string selectStmt = tableDescription.getPropertyString("select");
+		std::string sorting = tableDescription.getPropertyString("sort");
+		std::string whereClause = tableDescription.getPropertyString("where");
+		std::string limits = tableDescription.getPropertyString("limit");
+		std::string reccys = tableDescription.getPropertyString("resources");
+		std::string primaryId = tableDescription.getPropertyString("id");
+		std::string theName = tableDescription.getPropertyString("name_field");
+		std::string theLabel = tableDescription.getPropertyString("label_field");
 
 		tableModel.setProperties(tableDescription.getProperties());
-		tableModel.setProperty("depth", std::to_string(depth));
-		tableModel.setProperty("parent_id", std::to_string(parentModelId));
+		tableModel.setProperty("depth", depth);
+		tableModel.setProperty("parent_id", parentModelId);
 		tableModel.setId(thisId);
 
 
@@ -301,7 +302,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 						bool parsedMetadata = false;
 
 						auto columnCount = sqlite3_data_count(statement);
-						ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
+						ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable, id, theTable + " row");
 						id++;
 
 						for(int i = 0; i < columnCount; i++) {
@@ -343,6 +344,9 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 
 							if(!theName.empty() && columnName == theName) {
 								thisRow.setName(theData);
+							}
+							if(!theLabel.empty() && columnName == theLabel) {
+								thisRow.setLabel(theData);
 							}
 
 							ds::model::DataProperty theProperty(columnName, theData);

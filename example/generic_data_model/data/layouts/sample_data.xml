@@ -3,9 +3,8 @@
 		<layout name="root_layout"
 				layout_type="vert"
 				layout_size_mode="flex"
-				position="300, 0"				
-				size="1200, 800"
-				shrink_to_children="both"
+				position="#expr{$_world_width / 2.0}, 0"				
+				size="#expr{$_world_width / 2.0}, #expr{$_world_height}"
 			>
 			
 			<sprite name="background"

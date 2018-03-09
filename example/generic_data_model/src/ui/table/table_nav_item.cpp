@@ -48,7 +48,7 @@ void TableNavItem::setData(ds::model::DataModelRef theData) {
 	} else {
 		setSpriteText("id", " ");
 	}
-	setSpriteText("title", theData.getName());
+	setSpriteText("title", "<span weight='bold'>" + theData.getName() + "</span> | <span weight='light'>" + theData.getLabel() + "</span>");
 
 	runLayout();
 }

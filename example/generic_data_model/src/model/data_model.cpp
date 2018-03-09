@@ -10,14 +10,6 @@ namespace ds {
 namespace model {
 namespace {
 const int							EMPTY_INT = 0;
-// const unsigned int					EMPTY_UINT = 0;
-// const ci::vec2						EMPTY_VEC2 = ci::vec2();
-// const ci::vec3						EMPTY_VEC3 = ci::vec3();
-// const ci::Rectf						EMPTY_RECTF = ci::Rectf();
-// const float							EMPTY_FLOAT = 0.0f;
-// const double						EMPTY_DOUBLE = 0.0;
-// const ci::Color						EMPTY_COLOR = ci::Color(0.0f, 0.0f, 0.0f);
-// const ci::ColorA					EMPTY_COLORA = ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f);
 const std::string					EMPTY_STRING;
 const ds::Resource					EMPTY_RESOURCE;
 const std::vector<DataModelRef>		EMPTY_DATAMODELREF_VECTOR;
@@ -148,10 +140,12 @@ class DataModelRef::Data {
 public:
 	Data()
 		: mName(EMPTY_STRING)
+		, mLabel(EMPTY_STRING)
 		, mId(EMPTY_INT)
 	{}
 
 	std::string mName;
+	std::string mLabel;
 	int mId;
 	std::map<std::string, DataProperty> mProperties;
 	std::vector<DataModelRef> mChildren;
@@ -161,9 +155,10 @@ public:
 DataModelRef::DataModelRef() {}
 
 
-DataModelRef::DataModelRef(const std::string& name, const int id) {
+DataModelRef::DataModelRef(const std::string& name, const int id, const std::string& label) {
 	setName(name);
 	setId(id);
+	setLabel(label);
 }
 
 const int& DataModelRef::getId() const {
@@ -184,6 +179,16 @@ const std::string& DataModelRef::getName() const {
 void DataModelRef::setName(const std::string& name) {
 	createData();
 	mData->mName = name;
+}
+
+const std::string& DataModelRef::getLabel() const {
+	if(!mData) return EMPTY_STRING;
+	return mData->mLabel;
+}
+
+void DataModelRef::setLabel(const std::string& name) {
+	createData();
+	mData->mLabel = name;
 }
 
 const bool DataModelRef::empty() const {
@@ -224,6 +229,50 @@ const std::string DataModelRef::getPropertyValue(const std::string& propertyName
 	return getProperty(propertyName).getValue();
 }
 
+bool DataModelRef::getPropertyBool(const std::string& propertyName){
+	return getProperty(propertyName).getBool();
+}
+
+int DataModelRef::getPropertyInt(const std::string& propertyName) {
+	return getProperty(propertyName).getInt();
+}
+
+float DataModelRef::getPropertyFloat(const std::string& propertyName) {
+	return getProperty(propertyName).getFloat();
+}
+
+double DataModelRef::getPropertyDouble(const std::string& propertyName) {
+	return getProperty(propertyName).getDouble();
+}
+
+const ci::Color DataModelRef::getPropertyColor(ds::ui::SpriteEngine& eng, const std::string& propertyName) {
+	return getProperty(propertyName).getColor(eng);
+}
+
+const ci::ColorA DataModelRef::getPropertyColorA(ds::ui::SpriteEngine& eng, const std::string& propertyName) {
+	return getProperty(propertyName).getColorA(eng);
+}
+
+const std::string DataModelRef::getPropertyString(const std::string& propertyName) {
+	return getProperty(propertyName).getString();
+}
+
+const std::wstring DataModelRef::getPropertyWString(const std::string& propertyName) {
+	return getProperty(propertyName).getWString();
+}
+
+const ci::vec2 DataModelRef::getPropertyVec2(const std::string& propertyName) {
+	return getProperty(propertyName).getVec2();
+}
+
+const ci::vec3 DataModelRef::getPropertyVec3(const std::string& propertyName) {
+	return getProperty(propertyName).getVec3();
+}
+
+const ci::Rectf DataModelRef::getPropertyRect(const std::string& propertyName) {
+	return getProperty(propertyName).getRect();
+}
+
 void DataModelRef::setProperty(const std::string& propertyName, DataProperty datamodel) {
 	createData();
 
@@ -233,6 +282,69 @@ void DataModelRef::setProperty(const std::string& propertyName, DataProperty dat
 void DataModelRef::setProperty(const std::string& propertyName, const std::string& propertyValue) {
 	createData();
 	mData->mProperties[propertyName] = DataProperty(propertyName, propertyValue);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const std::wstring& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const int& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const double& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const float& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const ci::Color& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const ci::ColorA& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const ci::vec2& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const ci::vec3& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
+}
+
+void DataModelRef::setProperty(const std::string& propertyName, const ci::Rectf& value) {
+	DataProperty dp;
+	dp.setName(propertyName);
+	dp.setValue(value);
+	setProperty(propertyName, dp);
 }
 
 const std::vector<DataModelRef>& DataModelRef::getChildren() const {
