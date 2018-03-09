@@ -18,7 +18,103 @@ namespace downstream {
 /**
 * \class downstream::DataQuery
 */
-DataQuery::DataQuery() {
+DataQuery::DataQuery()
+	: mTableId(0)
+{
+}
+
+
+void DataQuery::run() {
+
+	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
+
+	updateResourceCache();
+
+	mData = ds::model::DataModelRef("root");
+	mTableId = 0;
+
+	auto metaData = readXml();
+
+	if(ds::getLogger().hasVerboseLevel(2)) metaData.printTree(true, "");
+
+	if(metaData.empty()) {
+		getDataFromTable(mData, "sqlite_master");
+		//auto table = mData.getChild("tables");
+		auto tables = mData.getChildren();
+		for(auto it : tables) {
+			it.setName(it.getProperty("tbl_name").getString());
+			getDataFromTable(it, it.getProperty("tbl_name").getString());
+		}
+	} else {
+
+		/// First we get all the tables independently in a list
+		auto tablesData = ds::model::DataModelRef("tables");
+		getDataFromTable(tablesData, metaData, mCmsDatabase, mAllResources, 0, mTableId);
+
+		/// then we link all the tables together based on depth and parent id's
+		assembleModels(tablesData);
+	}
+
+
+	Poco::Timestamp::TimeVal after = Poco::Timestamp().epochMicroseconds();
+
+	DS_LOG_VERBOSE(1, "Finished data query in " << (float)(after - before) / 1000000.0f << " seconds.");
+}
+
+void DataQuery::assembleModels(ds::model::DataModelRef tablesParent) {
+
+	/// find the highest depth
+	int maxDepth = 0;
+	for (auto it : tablesParent.getChildren()){
+		int thisDepth = it.getProperty("depth").getInt();
+		if(thisDepth > maxDepth) maxDepth = thisDepth;
+	}
+
+	/// work backwards through depth levels assigning children to parents
+	for(int i = maxDepth; i > 1; i--) {
+
+		// find all the tables at this depth and apply their rows to the parent rows
+		for (auto it : tablesParent.getChildren()){
+			if(it.getProperty("depth").getInt() == i) {
+
+				// find the parent model for this table
+				ds::model::DataModelRef parentModel = tablesParent.getChildById(it.getProperty("parent_id").getInt());
+				if(parentModel.empty()) {
+					DS_LOG_WARNING("DataQuery::assembleModels() no parent table found! this will leave the table " << it.getName() << " orphaned!");
+					continue;
+				}
+
+				auto childLocalId = it.getPropertyValue("child_local_id");
+				auto parentForeignId = it.getPropertyValue("parent_foreign_id");
+
+				for(auto row : it.getChildren()) {
+					if(!childLocalId.empty()) {
+						for(auto parChild : parentModel.getChildren()) {
+							if(parChild.getId() == row.getProperty(childLocalId).getInt()) {
+								parChild.addChild(row);
+							}
+						}
+					}
+
+					if(!parentForeignId.empty()) {
+						for(auto parChild : parentModel.getChildren()) {
+							if(parChild.getProperty(parentForeignId).getInt() == row.getId()) {
+								parChild.addChild(row);
+							}
+						}
+					}
+
+				} // End of this tables rows
+			} // End of this depth check
+		} // End of tables in this for loop
+	} // End of depth for loop
+
+	/// assign top level to the final output
+	for (auto it : tablesParent.getChildren()){
+		if(it.getProperty("depth").getInt() == 1) {
+			mData.addChild(it);
+		}
+	}
 }
 
 ds::model::DataModelRef DataQuery::readXml() {
@@ -63,19 +159,7 @@ void DataQuery::readXmlNode(ci::XmlTree& tree, ds::model::DataModelRef& parentDa
 	parentData.addChild(thisNode);
 }
 
-/*
-TODO:
-- Foreign keys and auto-build children
-- Get nested data by string
-*/
-
-void DataQuery::run() {
-
-	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
-
-	mData = ds::model::DataModelRef("root");
-
-	ds::query::Result result;
+void DataQuery::updateResourceCache() {
 	ds::query::Result recResult;
 
 	//									0			1				2				3				4				5					6			7				8
@@ -112,101 +196,13 @@ void DataQuery::run() {
 			++rit;
 		}
 	}
-
-	auto metaData = readXml();
-
-	if(ds::getLogger().hasVerboseLevel(2)) metaData.printTree(true, "");
-
-	if(metaData.empty()) {
-		getDataFromTable(mData, "sqlite_master");
-		//auto table = mData.getChild("tables");
-		auto tables = mData.getChildren();
-		for(auto it : tables) {
-			it.setName(it.getProperty("tbl_name").getString());
-			getDataFromTable(it, it.getProperty("tbl_name").getString());
-		}
-	} else {
-		getDataFromTable(mData, metaData, mCmsDatabase, mAllResources);
-	}
-
-	Poco::Timestamp::TimeVal after = Poco::Timestamp().epochMicroseconds();
-
-	DS_LOG_VERBOSE(1, "Finished data query in " << (float)(after - before) / 1000000.0f << " seconds.");
 }
 
-void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
-	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
-
-	std::string dbPath = cms.getDatabasePath();
-	std::string sampleQuery = "SELECT * FROM " + theTable;
-	sqlite3* db = NULL;
-	const int sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(dbPath).c_str(), &db, SQLITE_OPEN_READONLY, 0);
-	if(sqliteResultCode == SQLITE_OK) {
-		sqlite3_busy_timeout(db, 1500);
-
-		sqlite3_stmt*		statement;
-		const int			err = sqlite3_prepare_v2(db, sampleQuery.c_str(), -1, &statement, 0);
-		if(err != SQLITE_OK) {
-			sqlite3_finalize(statement);
-			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << sampleQuery << std::endl);
-		} else {
-			int id = 1;
-
-
-			while(true) {
-				auto statementResult = sqlite3_step(statement);
-				if(statementResult == SQLITE_ROW) {
-					auto columnCount = sqlite3_data_count(statement);
-					ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
-					id++;
-					for(int i = 0; i < columnCount; i++) {
-
-						auto columnName = sqlite3_column_name(statement, i);
-
-						/*
-						const char * dataType = NULL;
-						const char * collSequence = NULL;
-						int notNull = 0;
-						int primaryKey = 0;
-						int autoInc = 0;
-
-						int resulty = sqlite3_table_column_metadata(db, NULL, theTable.c_str(), columnName, &dataType, &collSequence, &notNull, &primaryKey, &autoInc);
-
-						if(dataType) {
-							std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
-						} else {
-							std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
-						}
-						*/
-
-						auto theText = sqlite3_column_text(statement, i);
-						std::string theData = "";
-						if(theText) {
-							theData = reinterpret_cast<const char*>(theText);
-						}
-						thisRow.setProperty(columnName, theData);
-					}
-					parentModel.addChild(thisRow);
-
-				} else {
-					sqlite3_finalize(statement);
-					break;
-				}
-			}
-
-			//parentModel.addChild("tables", thisTable);
-		}
-
-	} else {
-		DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
-	}
-}
-
-void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources) {
+void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model::DataModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources, const int depth, const int parentModelId) {
 
 	std::string theTable = tableDescription.getPropertyValue("name");
 	ds::model::DataModelRef tableModel;
-
+	int thisId = mTableId++;
 	if(theTable.empty()) {
 		if(tableDescription.getName() != "model") {
 			DS_LOG_WARNING("No table name specified in datamodel query");
@@ -224,8 +220,12 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 		std::string reccys = tableDescription.getPropertyValue("resources");
 		std::string primaryId = tableDescription.getPropertyValue("id");
 		std::string theName = tableDescription.getPropertyValue("name_field");
-		std::string parentId = tableDescription.getPropertyValue("parent_id");
-		std::string childId = tableDescription.getPropertyValue("child_id");
+
+		tableModel.setProperties(tableDescription.getProperties());
+		tableModel.setProperty("depth", std::to_string(depth));
+		tableModel.setProperty("parent_id", std::to_string(parentModelId));
+		tableModel.setId(thisId);
+
 
 		// Operations:
 		// select + where + sorting
@@ -341,7 +341,7 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 								thisRow.setId(ds::string_to_int(theData));
 							}
 
-							if(!theName.empty() &&  columnName == theName) {
+							if(!theName.empty() && columnName == theName) {
 								thisRow.setName(theData);
 							}
 
@@ -357,30 +357,8 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 						// only parse metada for the first row
 						parsedMetadata = true;
 
-						bool allocated = false;
-						if(!childId.empty()) {
-							for(auto it : parentModel.getChildren()) {
-								if(it.getId() == thisRow.getProperty(childId).getInt()) {
-									it.addChild(thisRow);
-									allocated = true;
-									break;
-								}
-							}
-						}
-
-						if(!allocated && !parentId.empty()) {
-							for(auto it : parentModel.getChildren()) {
-								if(it.getProperty(parentId).getInt() == thisRow.getId()) {
-									it.addChild(thisRow);
-									allocated = true;
-									break;
-								}
-							}
-						}
-
-						if(!allocated) {
-							tableModel.addChild(thisRow);
-						}
+						tableModel.addChild(thisRow);
+						
 
 					} else {
 						sqlite3_finalize(statement);
@@ -392,16 +370,84 @@ void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, ds::model:
 			DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 		}
 
-		
+
 
 		parentModel.addChild(tableModel);
-		
+
 
 	} // table name is present
 
 	auto tableChildren = tableDescription.getChildren();
-	for (auto it : tableChildren){
-		getDataFromTable(tableModel, it, dbPath, allResources);
+	for(auto it : tableChildren) {
+		getDataFromTable(parentModel, it, dbPath, allResources, depth + 1, thisId);
+	}
+}
+
+void DataQuery::getDataFromTable(ds::model::DataModelRef parentModel, const std::string& theTable) {
+	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
+
+	std::string dbPath = cms.getDatabasePath();
+	std::string sampleQuery = "SELECT * FROM " + theTable;
+	sqlite3* db = NULL;
+	const int sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(dbPath).c_str(), &db, SQLITE_OPEN_READONLY, 0);
+	if(sqliteResultCode == SQLITE_OK) {
+		sqlite3_busy_timeout(db, 1500);
+
+		sqlite3_stmt*		statement;
+		const int			err = sqlite3_prepare_v2(db, sampleQuery.c_str(), -1, &statement, 0);
+		if(err != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << sampleQuery << std::endl);
+		} else {
+			int id = 1;
+
+
+			while(true) {
+				auto statementResult = sqlite3_step(statement);
+				if(statementResult == SQLITE_ROW) {
+					auto columnCount = sqlite3_data_count(statement);
+					ds::model::DataModelRef thisRow = ds::model::DataModelRef(theTable + "_row", id);
+					id++;
+					for(int i = 0; i < columnCount; i++) {
+
+						auto columnName = sqlite3_column_name(statement, i);
+
+						/*
+						const char * dataType = NULL;
+						const char * collSequence = NULL;
+						int notNull = 0;
+						int primaryKey = 0;
+						int autoInc = 0;
+
+						int resulty = sqlite3_table_column_metadata(db, NULL, theTable.c_str(), columnName, &dataType, &collSequence, &notNull, &primaryKey, &autoInc);
+
+						if(dataType) {
+							std::cout << " Column " << columnName << " type:" << dataType << " col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+						} else {
+							std::cout << " Column " << columnName << " type:NULL col seq:" << collSequence << " not null:" << notNull << " prim key:" << primaryKey << " autoinc:" << autoInc << std::endl;
+						}
+						*/
+
+						auto theText = sqlite3_column_text(statement, i);
+						std::string theData = "";
+						if(theText) {
+							theData = reinterpret_cast<const char*>(theText);
+						}
+						thisRow.setProperty(columnName, theData);
+					}
+					parentModel.addChild(thisRow);
+
+				} else {
+					sqlite3_finalize(statement);
+					break;
+				}
+			}
+
+			//parentModel.addChild("tables", thisTable);
+		}
+
+	} else {
+		DS_LOG_ERROR("DataQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 	}
 }
 

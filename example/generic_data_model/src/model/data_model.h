@@ -101,6 +101,7 @@ public:
 
 	/// Use this for looking stuff up only. Use the other functions to manage the list
 	const std::map<std::string, DataProperty>&				getProperties();
+	void													setProperties(const std::map<std::string, DataProperty>& newProperties);
 
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function

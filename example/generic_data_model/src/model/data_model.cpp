@@ -205,6 +205,11 @@ const std::map<std::string, DataProperty>& DataModelRef::getProperties() {
 	return mData->mProperties;
 }
 
+void DataModelRef::setProperties(const std::map<std::string, DataProperty>& newProperties) {
+	createData();
+	mData->mProperties = newProperties;
+}
+
 const ds::model::DataProperty DataModelRef::getProperty(const std::string& propertyName) {
 	if(!mData) return EMPTY_PROPERTY;
 	auto findy = mData->mProperties.find(propertyName);

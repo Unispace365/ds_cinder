@@ -6,9 +6,14 @@
 			name_field="title"
 		>
 		<table name="sample_items"
-			child_id="sample_data_id"
+			child_local_id="sample_data_id"
 			name_field="name"
-			/>
+			>
+			<table name="sample_theme"
+				parent_foreign_id="theme_id"
+				resources="media"
+				/>
+		</table>
 	</table>
 </model>
 
