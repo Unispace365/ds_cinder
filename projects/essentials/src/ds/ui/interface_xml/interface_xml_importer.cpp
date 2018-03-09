@@ -293,9 +293,9 @@ std::string XmlImporter::parseAllExpressions(const std::string& value) {
 
 			auto bracketOpen = exprAndAfter.find("{");
 			auto bracketClose = exprAndAfter.find("}");
-			if(bracketClose < bracketOpen) {
+			if(bracketClose < bracketOpen || bracketClose == std::string::npos) {
 				DS_LOG_WARNING("XmlImporter::parseAllExpressions() syntax error with brackets in " << value);
-				return "0.0";
+				return beforeReplace + "0.0";
 			}
 
 			std::string theExpr = exprAndAfter.substr(bracketOpen + 1, bracketClose - bracketOpen - 1);
@@ -375,6 +375,12 @@ std::string XmlImporter::replaceSingleVariable(const std::string& value) {
 
 	auto semiEnd = value.find(";", theStart);
 	if(semiEnd < theEnd) theEnd = semiEnd;
+
+	auto brackSta = value.find("{", theStart);
+	if(brackSta < theEnd) theEnd = brackSta;
+
+	auto brackEnd = value.find("}", theStart);
+	if(brackEnd < theEnd) theEnd = brackEnd;
 
 	if(theEnd == std::string::npos) theEnd = value.size();
 
