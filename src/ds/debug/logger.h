@@ -155,8 +155,8 @@ Logger&                     getLogger();
 #define DS_LOGW(level, streamExp, module)	{ if (ds::Logger::hasLevel(level) && ds::Logger::hasModule(module)) { std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(level, buf.str()); } }
 
 // Only logs if the verbose level is high enough
-#define DS_LOG_VERBOSE(verbLevel, streamExp){ if(ds::Logger::hasVerboseLevel(verbLevel)){ std::stringstream buf; buf << streamExp; ds::getLogger().log(ds::Logger::LOG_INFO, buf.str()); }}
-#define DS_LOG_VERBOSEW(verbLevel, streamExp){ if(ds::Logger::hasVerboseLevel(verbLevel)){ std::wstringstream buf; buf << streamExp; ds::getLogger().log(ds::Logger::LOG_INFO, buf.str()); }}
+#define DS_LOG_VERBOSE(verbLevel, streamExp){ if(ds::Logger::hasVerboseLevel(verbLevel)){ std::stringstream buf; buf << "VERB " << verbLevel << " " << streamExp; ds::getLogger().log(ds::Logger::LOG_INFO, buf.str()); }}
+#define DS_LOG_VERBOSEW(verbLevel, streamExp){ if(ds::Logger::hasVerboseLevel(verbLevel)){ std::wstringstream buf; buf << L"VERB " << verbLevel << L" " << streamExp; ds::getLogger().log(ds::Logger::LOG_INFO, buf.str()); }}
 
 // Logging convenience
 #define DS_LOG_STARTUP(streamExp)			DS_LOG(ds::Logger::LOG_STARTUP,	streamExp, ds::BitMask::newFilled())
