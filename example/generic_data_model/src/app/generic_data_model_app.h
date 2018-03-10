@@ -4,6 +4,7 @@
 #include <cinder/app/App.h>
 #include <ds/app/app.h>
 #include <ds/app/event_client.h>
+#include <ds/storage/directory_watcher.h>
 
 #include "app/globals.h"
 #include "query/data_wrangler.h"
@@ -24,6 +25,8 @@ private:
 	void				onAppEvent(const ds::Event&);
 
 	DataWrangler		mDataWrangler;
+
+	ds::DirectoryWatcher mDirectoryWatcher;
 
 	// Data acquisition
 	Globals				mGlobals;

@@ -9,10 +9,10 @@
 	<setting name="orange" value="#fff35e09" type="color"/>
 	<setting name="orange_yellow" value="#fff78f1f" type="color"/>
 	<setting name="yellow" value="#ffffbd11" type="color"/>
-	<setting name="dark_grey" value="#ff202020" type="color"/>
+	<setting name="dark_grey" value="#ff222222" type="color"/>
 	<setting name="grey" value="#ff404041" type="color"/>
 	<setting name="bright_grey" value="#ffbebebe" type="color"/>
-	<setting name="light_grey" value="#ffa89b92" type="color"/>
+	<setting name="light_grey" value="#ffcccccc" type="color"/>
 	<setting name="near_white" value="#ffececec" type="color"/>
 	<setting name="tan" value="#ffc9a88d" type="color"/>
 	<setting name="light_orange" value="#fffab283" type="color"/>

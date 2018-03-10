@@ -20,8 +20,6 @@ TableNavItem::TableNavItem(Globals& g)
 	, mGlobals(g)
 	, mExpanded(false)
 {
-
-
 }
 
 bool TableNavItem::getExpanded() {

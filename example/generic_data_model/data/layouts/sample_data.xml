@@ -5,6 +5,7 @@
 				layout_size_mode="flex"
 				position="#expr{$_world_width / 2.0}, 0"				
 				size="#expr{$_world_width / 2.0}, #expr{$_world_height}"
+				model="position:sample_items.sample_theme->offset"
 			>
 			
 			<sprite name="background"
@@ -12,6 +13,7 @@
 				opacity="1.0"
 				blend_mode="normal"
 				layout_size_mode="fill"
+				model="color:sample_items.sample_theme->color; opacity:sample_items.sample_theme->opacity"
 				/>
 			
 			<layout name="header_layout"
@@ -34,16 +36,31 @@
 					color="black"
 					font_size="48"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					model="text:this->title; color:sample_items.sample_theme->text_color"
 					/>		
+					
+	
+				<text name="subtitle"
+					font="media_viewer:title"
+					layout_v_align="middle"
+					layout_size_mode="flex"
+					color="black"
+					font_size="20"
+					pad_all="$_padding"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					model="text:settings_test->subtitle"
+					/>	
 					
 				<text name="body"
 					font="media_viewer:title"
-					layout_v_align="middle"
+					layout_h_align="left"
 					color="black"
 					layout_size_mode="flex"
-					font_size="24"
+					font_size="20"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					model="text:this->body; color:sample_items.sample_theme->text_color; opacity:sample_items.sample_theme->opacity"
 					/>
+					
 						
 				<sprite name="spacer_one" 
 					layout_size_mode="flex"
@@ -51,8 +68,9 @@
 					size="200, 1"
 					t_pad="5"
 					b_pad="5"
-					opacity="0.5"
+					opacity="1.0"
 					animate_on="fade; delay:0.5; duration:0.4"
+					model="color:sample_items.sample_theme->text_color; opacity:sample_items.sample_theme->opacity"
 				/>
 				<layout name="img_holder"
 					layout_type="horiz"
@@ -61,6 +79,7 @@
 					<image name="resourceid"
 						layout_size_mode="flex"
 						animate_on="fade; delay:0.5; duration:0.4"
+						model="blend_mode:sample_items.sample_theme->blend_mode; resource:this->resourceid"
 						/>
 				</layout>
 				<sprite name="spacer_two" 
@@ -71,6 +90,7 @@
 					b_pad="5"
 					opacity="0.5"
 					animate_on="fade; delay:0.5; duration:0.4"
+					model="color:sample_items.sample_theme->text_color"
 				/>
 			</layout>
 		</layout>

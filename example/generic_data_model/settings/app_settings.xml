@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
+
+	<setting name="padding" value="10" />
+	<setting name="text_color" value="orange" />
+	<setting name="adjective" value="super" />
 </settings>
 

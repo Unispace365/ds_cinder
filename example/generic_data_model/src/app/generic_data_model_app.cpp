@@ -28,8 +28,11 @@ generic_data_model_app::generic_data_model_app()
 	, mGlobals(mEngine, mDataWrangler)
 	, mDataWrangler(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
+	, mDirectoryWatcher(mEngine)
 {
 
+	mDirectoryWatcher.addPath(ds::Environment::expand("%APP%"));
+	mDirectoryWatcher.start();
 	/*
 
 	ds::model::DataModelRef dmr("root", 1);
@@ -62,6 +65,7 @@ void generic_data_model_app::setupServer(){
 	// add sprites
 	//rootSprite.addChildPtr(new StoryView(mGlobals));
 	rootSprite.addChildPtr(new TableView(mGlobals));
+
 }
 
 void generic_data_model_app::onAppEvent(const ds::Event& in_e){
@@ -76,6 +80,10 @@ void generic_data_model_app::onAppEvent(const ds::Event& in_e){
 			mEngine.getRootSprite().addChildPtr(new ds::ui::DataLayout(mEngine, "sample_data.xml", it));
 	
 		}
+	} else if(in_e.mWhat == ds::DirectoryWatcher::Changed::WHAT()) {
+		mEngine.getRootSprite().callAfterDelay([this] {
+			resetupServer(); }, 0.05f
+		);
 	}
 }
 
