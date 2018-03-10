@@ -242,7 +242,7 @@ ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){
 
 size_t SpriteEngine::timedCallback(std::function<void()> func, const double timerSeconds) {
 	auto theCallback = new ds::time::Callback(*this);
-	if(theCallback) {
+	if(!theCallback) {
 		DS_LOG_WARNING("Couldn't create a timed callback! That's a big deal!");
 		return 0;
 	}
