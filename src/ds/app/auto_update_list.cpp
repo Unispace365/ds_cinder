@@ -26,8 +26,8 @@ void AutoUpdateList::update(const ds::UpdateParams &p) {
 	}
 	if (mRunning.empty()) return;
 
-	for (auto it=mRunning.begin(), end=mRunning.end(); it != end; ++it) {
-		(*it)->update(p);
+	for (auto it : mRunning) {
+		it->update(p);
 	}
 }
 
