@@ -382,6 +382,12 @@ std::string XmlImporter::replaceSingleVariable(const std::string& value) {
 	auto brackEnd = value.find("}", theStart);
 	if(brackEnd < theEnd) theEnd = brackEnd;
 
+	auto period = value.find(".", theStart);
+	if(period < theEnd) theEnd = period;
+
+	auto quot = value.find("'", theStart);
+	if(quot < theEnd) theEnd = quot;
+
 	if(theEnd == std::string::npos) theEnd = value.size();
 
 	auto beforeString = value.substr(0, theStart);
@@ -607,7 +613,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Couldn't set shrink_to_children, as this sprite is not a LayoutSprite.");
 		}
 	}
-	
+
 	// Text specific attributes
 	else if(property == "font") {
 		// Try to set the font
@@ -1002,12 +1008,16 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	}
 
+	else if(property == "model") {
+		auto& ud = sprite.getUserData();
+		ud.setString(property, value);
+	}
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
 		return;
 	}
 
-	else {
+	else {		 
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
