@@ -39,6 +39,11 @@ std::int32_t UserData::getInt(const std::string& key, const size_t index, const 
 	return mStore->getInt(key, index);
 }
 
+std::string UserData::getString(const std::string& key, const size_t index /*= 0*/, const std::string& defaultStr /*= ""*/) const {
+	if(!mStore) return defaultStr;
+	return mStore->getString(key, index);
+}
+
 void UserData::setFloat(const std::string& key, const float value, const size_t index) {
 	try {
 		if (!mStore) mStore.reset(new KeyValueStore());
@@ -52,6 +57,14 @@ void UserData::setInt(const std::string& key, const std::int32_t value, const si
 		if (!mStore) mStore.reset(new KeyValueStore());
 		if (mStore) mStore->setInt(key, value, index);
 	} catch (std::exception const&) {
+	}
+}
+
+void UserData::setString(const std::string& key, const std::string& value, const size_t index /*= 0*/) {
+	try {
+		if(!mStore) mStore.reset(new KeyValueStore());
+		if(mStore) mStore->setString(key, value, index);
+	} catch(std::exception const&) {
 	}
 }
 
