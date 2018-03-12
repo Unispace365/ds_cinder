@@ -10,10 +10,6 @@ public:
 	DataUpdatedEvent(){};
 }; 
 
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
-	RequestAppExitEvent(){};
-};
 
 } // !namespace downstream
 

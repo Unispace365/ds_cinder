@@ -30,6 +30,12 @@ public: IdleEndedEvent() {}
 class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
 public: IdleStartedEvent() {}
 };
+
+/// A request for the app to exit completely
+class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {
+public:
+	RequestAppExitEvent() {};
+};
 }
 } // !namespace ds
 

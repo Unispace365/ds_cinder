@@ -20,14 +20,15 @@ FullStarterApp::FullStarterApp()
 	: ds::App()
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
-	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
+	, mEventClient(mEngine)
 {
 
 	// Register events so they can be called by string
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
-	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
-	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
+	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event* {return new StoryDataUpdatedEvent(); });
+
+	mEventClient.listenToEvents<StoryDataUpdatedEvent>([this](const StoryDataUpdatedEvent& e) { std::cout << "Story data was updated." << std::endl; });
 
 	registerKeyPress("Requery data", [this] { mQueryHandler.runQueries(); }, ci::app::KeyEvent::KEY_n);
 }
@@ -43,12 +44,6 @@ void FullStarterApp::setupServer(){
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting
 	mEngine.stopIdling();
-}
-
-void FullStarterApp::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
-	} 
 }
 
 void FullStarterApp::fileDrop(ci::app::FileDropEvent event){

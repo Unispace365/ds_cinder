@@ -10,11 +10,6 @@ public:
 	StoryDataUpdatedEvent(){};
 }; 
 
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
-	RequestAppExitEvent(){};
-};
-
 } // !namespace fullstarter
 
 #endif // !_FULLSTARTER_APP_APPEVENTS_H_

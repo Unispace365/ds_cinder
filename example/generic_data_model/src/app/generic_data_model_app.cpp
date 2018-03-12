@@ -48,7 +48,6 @@ generic_data_model_app::generic_data_model_app()
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(DataUpdatedEvent::NAME(), [this]()->ds::Event*{return new DataUpdatedEvent(); });
-	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
 }
 
@@ -65,9 +64,7 @@ void generic_data_model_app::setupServer(){
 }
 
 void generic_data_model_app::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
-	} else if(in_e.mWhat == DataUpdatedEvent::WHAT()) {
+	if(in_e.mWhat == DataUpdatedEvent::WHAT()) {
 
 		mDataWrangler.mData.printTree(true, "");
 

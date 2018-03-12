@@ -93,6 +93,9 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mAutoRefresh(*this)
 {
 
+
+	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(), [this]()->ds::Event* {return new ds::app::RequestAppExitEvent(); });
+
 	setupEngine();
 
 
@@ -454,6 +457,8 @@ void Engine::onAppEvent(const ds::Event& in_e){
 				setAnimDur(mSettings.getFloat("animation:duration"));
 			}
 		}
+	} else if(in_e.mWhat == ds::app::RequestAppExitEvent::WHAT()) {
+		mDsApp.quit();
 	}
 }
 
