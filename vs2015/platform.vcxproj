@@ -66,6 +66,7 @@
     <ClInclude Include="..\src\ds\data\resource_list.h" />
     <ClInclude Include="..\src\ds\data\tuio_object.h" />
     <ClInclude Include="..\src\ds\data\user_data.h" />
+    <ClInclude Include="..\src\ds\debug\auto_refresh.h" />
     <ClInclude Include="..\src\ds\debug\computer_info.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
@@ -274,6 +275,7 @@
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
     <ClCompile Include="..\src\ds\data\tuio_object.cpp" />
     <ClCompile Include="..\src\ds\data\user_data.cpp" />
+    <ClCompile Include="..\src\ds\debug\auto_refresh.cpp" />
     <ClCompile Include="..\src\ds\debug\computer_info.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

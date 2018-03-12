@@ -90,6 +90,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mTuioRegistered(false)
 	, mFonts(*this)
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
+	, mAutoRefresh(*this)
 {
 
 	setupEngine();
@@ -129,6 +130,7 @@ void Engine::setupEngine() {
 	setupResourceLocation();
 	setupIdleTimeout();
 	setupMetrics();
+	setupAutoRefresh();
 }
 
 void Engine::setupLogger() {
@@ -358,6 +360,11 @@ void Engine::setupMetrics() {
 
 	mMetricsService = new ds::MetricsService(*this);
 }
+
+void Engine::setupAutoRefresh() {
+	mAutoRefresh.initialize();
+}
+
 void Engine::toggleConsole() {
 	if(mShowConsole) hideConsole();
 	else showConsole();

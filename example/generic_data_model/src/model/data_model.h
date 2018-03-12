@@ -76,11 +76,8 @@ class DataModelRef {
 public:
 
 	// TODO: operators (equality and such)
-	// TODO: get children / property by dot and array notation. For instance: getChild("something.items[5].title"); // DOT notation is done
 	// TODO: duplicate
-	// TODO: auto validation
-
-	// TODO: Rework the children setup so it's a single vector of children instead of a map. We're effectively making each list of children it's own node and it's confusing
+	// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
 
 	DataModelRef();
 	DataModelRef(const std::string& name, const int id = 0, const std::string& label = "");

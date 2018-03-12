@@ -756,6 +756,9 @@
     <ClInclude Include="..\src\ds\debug\key_manager.h">
       <Filter>src\ds\debug</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\debug\auto_refresh.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1278,6 +1281,9 @@
       <Filter>src\ds\time</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\debug\key_manager.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\auto_refresh.cpp">
       <Filter>src\ds\debug</Filter>
     </ClCompile>
   </ItemGroup>

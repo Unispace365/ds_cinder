@@ -21,10 +21,9 @@ namespace ds {
 class DirectoryWatcher : public ds::AutoUpdate {
 // Change event
 public:
-	class Changed : public ds::Event {
+	class Changed : public ds::RegisteredEvent<Changed> {
 	public:
-		static int WHAT();
-		Changed(const std::string& path);
+		Changed(const std::string& path) : mPath(path) {}
 		const std::string& mPath;
 	};
 
@@ -35,6 +34,9 @@ public:
 	// NOTE:  addPath is initialization only.  As soon as you start, don't use it.
 	// Why?  I guess I'm cheap that way.  It's not currently thread safe.
 	void						addPath(const std::string& path);
+
+	// Must be called while the directory watcher is stopped
+	void						clearPaths();
 
 	void						start();
 	void						stop();
@@ -47,7 +49,7 @@ private:
 class Waiter : public Poco::Runnable {
 public:
 	// Directories I'm watching
-	std::vector<std::string>	mPath;
+	std::vector<std::string>	mPaths;
 
 public:
 	Waiter(const Poco::AtomicCounter&, ds::EventNotifier&);

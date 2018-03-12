@@ -28,6 +28,7 @@
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
+#include "ds/debug/auto_refresh.h"
 #include "ds/app/engine/engine_settings.h"
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
@@ -303,6 +304,7 @@ private:
 	void								setupResourceLocation();
 	void								setupRoots();
 	void								setupMetrics();
+	void								setupAutoRefresh();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
@@ -336,6 +338,8 @@ private:
 	AutoUpdateList						mAutoUpdateClient;
 	// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
+
+	AutoRefresh							mAutoRefresh;
 
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;

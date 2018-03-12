@@ -18,9 +18,7 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 	: ds::ui::LayoutSprite(engine)
 	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
 	, mNeedsLayout(false)
-	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
-	if(m) this->onAppEvent(*m);
-}) {
+	, mEventClient(engine) {
 
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
@@ -38,15 +36,6 @@ ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 		return findy->second;
 	}
 	return nullptr;
-}
-
-void SmartLayout::onAppEvent(const ds::Event& in_e) {
-	if (mEventCallbacks.empty()) return;
-
-	auto callbackIt = mEventCallbacks.find(in_e.mWhat);
-	if (callbackIt != end(mEventCallbacks)) {
-		(callbackIt->second)(in_e);
-	}
 }
 
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {

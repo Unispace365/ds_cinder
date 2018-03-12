@@ -54,6 +54,8 @@
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
 	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
+	<setting name="data:auto_refresh_app" value="false" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
+	<setting name="data:auto_refresh_directories" value="%APP%" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>

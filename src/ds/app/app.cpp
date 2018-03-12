@@ -321,6 +321,10 @@ void App::update() {
 		}
 	}
 	mEngine.update();
+
+	if(mEngine.getRestartAfterNextUpdate() && mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE) {
+		resetupServer();
+	}
 }
 
 void App::draw() {

@@ -41,23 +41,11 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	// NOTE!!: These templates need to be in the header to work
 	/// Calls the lambda callback for the event type from Template, casting event automatically
 	template <class EVENT>
-	void listenToEvents(std::function<void(const EVENT&)> callback) {
-		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
-		auto type = EVENT::WHAT();
+	void listenToEvents(std::function<void(const EVENT&)> callback) { mEventClient.listenToEvents<EVENT>(callback); }
 
-		mEventCallbacks[type] = [callback](const ds::Event& e) { callback(static_cast<const EVENT&>(e)); };
-	}
 	/// Disables / removes callback (if it exists) for the event from the template
 	template <class EVENT>
-	void stopListeningToEvents() {
-		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
-		auto type = EVENT::WHAT();
-
-		auto findy = mEventCallbacks.find(type);
-		if (findy != end(mEventCallbacks)) {
-			mEventCallbacks.erase(findy);
-		}
-	}
+	void stopListeningToEvents() {	mEventClient.stopListeningToEvents<EVENT>(); }
 
 	/// Sets the wide text for a Text sprite with a name of spriteName
 	void setSpriteText(const std::string& spriteName, const std::wstring& theText);
@@ -87,17 +75,13 @@ class SmartLayout : public ds::ui::LayoutSprite {
 
   protected:
 	using sMap			= std::map<std::string, ds::ui::Sprite*>;
-	using eventCallback = std::function<void(const ds::Event&)>;
-	using eventMap		= std::unordered_map<size_t, eventCallback>;
 
-	void onAppEvent(const ds::Event&);
     virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
 	std::string		mLayoutFile;
 	bool			mNeedsLayout;
 	ds::EventClient mEventClient;
 	sMap			mSpriteMap;
-	eventMap		mEventCallbacks;
 };
 
 }  // namespace ui

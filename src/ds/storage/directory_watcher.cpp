@@ -7,27 +7,10 @@
 
 namespace ds {
 
-/**
- * \class ds::DirectoryWatcher::Changed
- */
-static ds::EventRegistry    DIRECTORY_CHANGED("DirectoryWatcher::Changed");
-
-int DirectoryWatcher::Changed::WHAT() {
-	return DIRECTORY_CHANGED.mWhat;
-}
-
-DirectoryWatcher::Changed::Changed(const std::string& path)
-		: Event(DIRECTORY_CHANGED.mWhat)
-		, mPath(path) {
-}
-
-/**
- * \class ds::DirectoryWatcher
- */
 DirectoryWatcher::DirectoryWatcher(ds::ui::SpriteEngine& se)
-		: ds::AutoUpdate(se)
-		,  mStop(0)
-		, mWaiter(mStop, se.getNotifier()) {
+	: ds::AutoUpdate(se)
+	, mStop(0)
+	, mWaiter(mStop, se.getNotifier()) {
 }
 
 DirectoryWatcher::~DirectoryWatcher() {
@@ -36,13 +19,23 @@ DirectoryWatcher::~DirectoryWatcher() {
 
 void DirectoryWatcher::addPath(const std::string& path) {
 	try {
-		if (!path.empty()) mWaiter.mPath.push_back(path);
-	} catch (std::exception&) {
+		if (!path.empty()) mWaiter.mPaths.push_back(path);
+	} catch (std::exception& ex) {
+		DS_LOG_WARNING("DirectoryWatcher::addPath() exception: " << ex.what());
+	}
+}
+
+void DirectoryWatcher::clearPaths() {
+	try {
+		mWaiter.mPaths.clear();
+	} catch(std::exception& ex) {
+		DS_LOG_WARNING("DirectoryWatcher::clearPaths() exception: " << ex.what());
 	}
 }
 
 void DirectoryWatcher::start() {
 	if (!mThread.isRunning()) {
+		mStop = 0;
 		mThread.start(mWaiter);
 	}
 }

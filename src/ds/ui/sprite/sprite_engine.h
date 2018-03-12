@@ -247,6 +247,12 @@ public:
 	/// Saves an input with x, y, fingerid and phase
 	void							recordMetricTouch(ds::ui::TouchInfo& ti);
 
+	/// Soft restarts the app on the next update (if this is some kind of server)
+	/// This happens outside of the engine update loop to avoid iterator issues
+	void							restartAfterNextUpdate();
+	/// If this engine has been set to restart soon. Resets the variable to false after calling
+	bool							getRestartAfterNextUpdate();
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -259,6 +265,8 @@ protected:
 	IEntryField*					mRegisteredEntryField;
 
 	ds::MetricsService*				mMetricsService;
+
+	bool							mRestartAfterUpdate;
 
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <Windows.h>
 
+#include <ds/debug/logger.h>
+
 //using namespace std;
 using namespace ds;
 
@@ -47,7 +49,7 @@ void DirectoryWatcher::Waiter::run()
 	DWORD				notify = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME
 								 | FILE_NOTIFY_CHANGE_ATTRIBUTES | FILE_NOTIFY_CHANGE_SIZE
 								 | FILE_NOTIFY_CHANGE_LAST_WRITE;
-	size_t				k, count = mPath.size();
+	size_t				k, count = mPaths.size();
 	if (count < 1) return;
 	// Insert my own handle I can wakeup
 	++count;
@@ -57,12 +59,12 @@ void DirectoryWatcher::Waiter::run()
 	setWakeup(handle[0]);
 
 	for (k = 1; k < count; k++) {
-		handle[k] = FindFirstChangeNotificationA(mPath[k-1].c_str(), true, notify);
+		handle[k] = FindFirstChangeNotificationA(mPaths[k-1].c_str(), true, notify);
 	}
 	if (handle[0] == INVALID_HANDLE_VALUE) goto cleanup;
 	for (k = 1; k < count; k++) {
 		if (handle[k] == INVALID_HANDLE_VALUE) {
-			std::cout << "ERROR DirectoryWatcherOp invalid handle on " << mPath[k - 1] << std::endl;
+			std::cout << "ERROR DirectoryWatcherOp invalid handle on " << mPaths[k - 1] << std::endl;
 			goto cleanup;
 		}
 	}
@@ -77,8 +79,8 @@ void DirectoryWatcher::Waiter::run()
 		ans -= WAIT_OBJECT_0;
 
 		if (ans >= 1 && ans < count) {
-//			cout << "CHANGED=" << mPath[ans-1] << endl;
-			if (!onChanged(mPath[ans-1])) goto cleanup;
+			DS_LOG_VERBOSE(3, "DirectoryWatcherWin32:: CHANGED=" << mPaths[ans-1]);
+			if (!onChanged(mPaths[ans-1])) goto cleanup;
 		}
 
 		if (FindNextChangeNotification(handle[ans]) == FALSE) goto cleanup;

@@ -46,7 +46,7 @@
 					animate_on="$_default:anim"
 				/>
 				
-				<text name="message"
+				<text name="subtitle_message"
 					font="media_viewer:title"
 					layout_v_align="middle"
 					layout_size_mode="flex"

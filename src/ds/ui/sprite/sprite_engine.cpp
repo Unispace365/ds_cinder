@@ -19,6 +19,7 @@ SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	, mRegisteredEntryField(nullptr)
 	, mCallbackId(0)
 	, mMetricsService(nullptr)
+	, mRestartAfterUpdate(false)
 {
 	mComputerInfo = new ds::ComputerInfo();
 }
@@ -324,6 +325,16 @@ void SpriteEngine::recordMetricString(const std::string& metricName, const std::
 
 void SpriteEngine::recordMetricTouch(ds::ui::TouchInfo& ti) {
 	if(mMetricsService) mMetricsService->recordMetricTouch(ti);
+}
+
+void SpriteEngine::restartAfterNextUpdate() {
+	mRestartAfterUpdate = true;
+}
+
+bool SpriteEngine::getRestartAfterNextUpdate() {
+	bool doRestart = mRestartAfterUpdate;
+	mRestartAfterUpdate = false;
+	return doRestart;
 }
 
 const float SpriteEngine::getAnimDur() const {
