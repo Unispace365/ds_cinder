@@ -5,10 +5,7 @@
 
 namespace fullstarter {
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
-public:
-	StoryDataUpdatedEvent(){};
-}; 
+class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{}; 
 
 } // !namespace fullstarter
 
