@@ -5,10 +5,7 @@
 
 namespace downstream {
 
-class DataUpdatedEvent : public ds::RegisteredEvent<DataUpdatedEvent>{
-public:
-	DataUpdatedEvent(){};
-}; 
+class DataUpdatedEvent : public ds::RegisteredEvent<DataUpdatedEvent>{}; 
 
 
 } // !namespace downstream
