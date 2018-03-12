@@ -8,6 +8,7 @@
 #include <ds/util/string_util.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/ui/scroll/scroll_area.h>
+#include <ds/cfg/settings.h>
 
 #include <ds/data/resource.h>
 
@@ -42,7 +43,7 @@ void PanoramicView::startVideo(const ds::Resource& newVideo){
 	}
 
 	mPanoramicVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	mPanoramicVideo->setFOV(mGlobals.getSettingsLayout().getFloat("panoramic_video:fov", 0, 60.0f));
+	mPanoramicVideo->setFOV(mEngine.getAppSettings().getFloat("panoramic_video:fov", 0, 60.0f));
 	mPanoramicVideo->loadVideo(newVideo.getAbsoluteFilePath());
 	mPanoramicVideo->setOpacity(0.0f);
 	mPanoramicVideo->tweenOpacity(1.0f, 1.0f, 1.0f);

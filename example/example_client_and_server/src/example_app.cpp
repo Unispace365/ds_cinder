@@ -170,4 +170,5 @@ ds::ui::Sprite* CsApp::newToggleSprite() const {
 
 }
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::CsApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(mv::CsApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })

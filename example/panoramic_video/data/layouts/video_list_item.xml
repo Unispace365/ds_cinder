@@ -9,7 +9,7 @@
 		
 			<sprite name="background_highlight"
 				layout_size_mode="fill"
-				color="53c2e8" 
+				color="#53c2e8" 
 				opacity="0.2"
 				animate_on="grow:0.0, -1.0; ease:outQuint; duration:0.4"
 				/>
@@ -19,7 +19,7 @@
 				l_pad="10"
 				t_pad="10"
 				b_pad="10"
-				color="53c2e8"
+				color="#53c2e8"
 				animate_on="grow; ease:outQuint; duration:0.4"
 			/>
 			<text name="title"

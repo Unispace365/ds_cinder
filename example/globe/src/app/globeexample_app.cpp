@@ -24,7 +24,7 @@
 namespace globe_example {
 
 GlobeExample::GlobeExample()
-	: inherited(ds::RootList()
+	: ds::App(ds::RootList()
 								.persp() // sample perp view
 								.perspFov(30.0f)
 								.perspPosition(ci::vec3(0.0, 0.0f, 2000.0f))
@@ -63,7 +63,7 @@ void GlobeExample::setupServer(){
 }
 
 void GlobeExample::update() {
-	inherited::update();
+	ds::App::update();
 }
 
 void GlobeExample::onKeyDown(ci::app::KeyEvent event){
@@ -73,9 +73,7 @@ void GlobeExample::onKeyDown(ci::app::KeyEvent event){
 	if(event.isShiftDown()) moveAmount = 10.0f;
 	if(event.isAltDown()) moveAmount = 100.0f;
 
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-	} else if(event.getCode() == KeyEvent::KEY_d){
+	if(event.getCode() == KeyEvent::KEY_d){
 		moveCamera(ci::vec3(moveAmount, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_a){
 		moveCamera(ci::vec3(-moveAmount, 0.0f, 0.0f));

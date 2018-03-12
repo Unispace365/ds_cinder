@@ -159,9 +159,6 @@
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\mediaslideshow_app.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

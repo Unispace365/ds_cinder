@@ -9,7 +9,6 @@
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 
 #include "events/app_events.h"
@@ -33,7 +32,6 @@ PangoApp::PangoApp()
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
-	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
 	/// Load a local font file, and let the engine know what it's font name is. We can now refer to it by it's full name, Chlorinar Bold Italic
 	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"), "Chlorinar Bold Italic");
@@ -55,11 +53,7 @@ PangoApp::PangoApp()
 
 void PangoApp::setupServer(){
 
-	/* Settings */
-	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
-	mEngine.loadTextCfg("text.xml");
 
-	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
@@ -76,16 +70,10 @@ void PangoApp::setupServer(){
 }
 
 void PangoApp::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
-	} 
 }
 
 void PangoApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	if(event.getCode() == KeyEvent::KEY_p){
-	//	mEngine.getPangoFontService().logFonts(false);
-	}
 }
 
 

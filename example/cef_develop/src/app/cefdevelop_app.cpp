@@ -180,4 +180,5 @@ void CefDevelop::fileDrop(ci::app::FileDropEvent event){
 } // namespace cef
 
 // This line tells Cinder to actually create the application
-CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })

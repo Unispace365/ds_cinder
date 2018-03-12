@@ -3,6 +3,8 @@
 #ifndef DS_EXAMPLE_GLOBE_UI_PIN
 #define DS_EXAMPLE_GLOBE_UI_PIN
 
+#include <cinder/CinderMath.h>
+#include "cinder/CinderGlm.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/sprite/sprite.h"
 
@@ -16,7 +18,7 @@ namespace ds {
 		{
 		public:
 			
-			GlobePin(SpriteEngine& g);
+			GlobePin(SpriteEngine& g) : Sprite(g) {};
 			GlobePin::~GlobePin() {}
 
 			float getLat(){ return mLat; }

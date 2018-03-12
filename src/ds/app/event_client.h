@@ -3,6 +3,7 @@
 #define DS_APP_EVENTCLIENT_H
 
 #include <functional>
+#include <unordered_map>
 
 namespace ds {
 class Event;

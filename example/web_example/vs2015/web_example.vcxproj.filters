@@ -18,7 +18,6 @@
     <ResourceCompile Include="Resources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

@@ -124,7 +124,6 @@
     <ClCompile Include="..\src\pdf_example_app.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

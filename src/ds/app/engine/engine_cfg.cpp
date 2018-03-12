@@ -3,7 +3,6 @@
 #include "ds/app/engine/engine_cfg.h"
 #include <cinder/app/App.h>
 #include <ds/debug/logger.h>
-#include "ds/app/FrameworkResources.h"
 
 #include <Poco/String.h>
 #include "ds/app/environment.h"

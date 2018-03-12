@@ -41,10 +41,6 @@ void mqtt_example::setupServer(){
 void mqtt_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-	}
-
 	std::cout << "sending message to mqtt: Hello Whirlled!" << std::endl;
 	mMqttWatcher.sendOutboundMessage("Hello Whirlled!");
 }

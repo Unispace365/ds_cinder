@@ -11,6 +11,7 @@
 #include <ds/util/string_util.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/ui/scroll/scroll_area.h>
+#include <ds/cfg/settings.h>
 
 #include <ds/data/resource.h>
 
@@ -30,7 +31,7 @@ VideoList::VideoList(Globals& g)
 	, mCloseButton(nullptr)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
-	const float itemSize = mGlobals.getSettingsLayout().getFloat("info_list:item:height", 0, 100.0f);
+	const float itemSize = mEngine.getAppSettings().getFloat("info_list:item:height", 0, 100.0f);
 	mFileList = new ds::ui::ScrollList(mEngine);
 
 	mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::vec3& cent){
@@ -74,7 +75,7 @@ VideoList::VideoList(Globals& g)
 	mScrollBar->linkScrollList(mFileList);
 	addChildPtr(mScrollBar);
 
-	const float padding = mGlobals.getSettingsLayout().getFloat("titled_viewer:padding", 0, 20.0f);
+	const float padding = mEngine.getAppSettings().getFloat("titled_viewer:padding", 0, 20.0f);
 	mCloseButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/ui/close_button.png", "%APP%/data/images/ui/close_button.png", padding * 2.0f);
 	addChildPtr(mCloseButton);
 	mCloseButton->getHighImage().setColor(ci::Color(0.5f, 0.5f, 0.5f));
@@ -91,9 +92,9 @@ VideoList::VideoList(Globals& g)
 	backy->sendToBack();
 
 
-	const float listPad = mGlobals.getSettingsLayout().getFloat("info_list:item:pad", 0, 10.0f);
+	const float listPad = mEngine.getAppSettings().getFloat("info_list:item:pad", 0, 10.0f);
 	const float startWidth = 600.0f;
-	const float startHeight = mGlobals.getSettingsLayout().getFloat("folder_browser:start_height", 0, 600.0f);
+	const float startHeight = mEngine.getAppSettings().getFloat("folder_browser:start_height", 0, 600.0f);
 	mContentAspectRatio = startWidth / startHeight;
 	mLeftPad = listPad;
 	mRightPad = listPad;

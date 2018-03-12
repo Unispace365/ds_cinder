@@ -39,6 +39,7 @@ AutomatorApp::AutomatorApp()
 	, mSprite2(*(new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "this_is_real.jpg"))))
 	, mAutomator(mEngine)
 {
+	registerKeyPress("Toggle automator", [this] { mAutomator.toggleActive(); }, ci::app::KeyEvent::KEY_p);
 }
 
 void AutomatorApp::setupServer()
@@ -86,9 +87,6 @@ void AutomatorApp::handleTouchDuo(const ci::vec3& pos){
 }
 
 void AutomatorApp::onKeyDown(ci::app::KeyEvent event){
-	if(event.getCode() == ci::app::KeyEvent::KEY_a){
-		mAutomator.toggleActive();
-	}
 }
 
 void AutomatorApp::recenterSprites(){

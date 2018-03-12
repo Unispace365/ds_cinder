@@ -3,6 +3,7 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/cfg/settings.h>
 
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
@@ -87,8 +88,8 @@ void VideoListItem::layout(){
 
 void VideoListItem::setState(const int buttonState){
 	if(mBackground){
-		ci::Color normalColor = mGlobals.getSettingsLayout().getColor(mEngine, "info_list:item:normal_color", 0, ci::Color::white());
-		ci::Color highliColor = mGlobals.getSettingsLayout().getColor(mEngine, "info_list:item:highli_color", 0, ci::Color::white());
+		ci::Color normalColor = mEngine.getAppSettings().getColor(mEngine, "info_list:item:normal_color", 0, ci::Color::white());
+		ci::Color highliColor = mEngine.getAppSettings().getColor(mEngine, "info_list:item:highli_color", 0, ci::Color::white());
 		if(buttonState == 1){
 			mBackground->setColor(highliColor);
 		} else {

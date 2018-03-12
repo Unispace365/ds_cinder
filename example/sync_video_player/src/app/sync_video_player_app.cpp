@@ -251,17 +251,7 @@ void sync_video_player::onKeyDown(ci::app::KeyEvent event){
 		if (mVideo){
 			mVideo->setPan(1.0f);
 		}
-	}
-	else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		if (mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE){
-			setupServer();
-		}
-	} else if(event.getChar() == KeyEvent::KEY_v){
-		mVerbose = !mVerbose;
-		if(mVideo){
-			mVideo->setVerboseLogging(mVerbose);
-		}
-	} else if (event.getChar() == KeyEvent::KEY_d){ // d = delete selected video (only on master).
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_d){ // d = delete selected video (only on master).
 		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE ){
 			return;
 		}

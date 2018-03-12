@@ -163,7 +163,6 @@ xcopy  /Y /f "..\sync_video_player.exe" "..\server\"
     <ClInclude Include="..\src\app\video_interface\video_scrub_bar.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -59,10 +59,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-    <ResourceCompile Include="Resources.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="src">
       <UniqueIdentifier>{bd651da1-0866-4e2a-aa82-d56951beeff3}</UniqueIdentifier>
     </Filter>
@@ -95,5 +91,10 @@
     <None Include="..\src\model\generated\model.yml">
       <Filter>src\model\generated</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

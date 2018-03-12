@@ -144,7 +144,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\pango_app.cpp" />
     <ClCompile Include="..\src\model\generated\media_model.cpp" />
@@ -154,7 +153,6 @@
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\pango_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
@@ -164,9 +162,6 @@
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\model\generated\model.yml" />

@@ -55,9 +55,6 @@
     <Filter Include="src\ds\ui\image_source">
       <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\arc">
-      <UniqueIdentifier>{0dabc65a-df40-4df3-9b7b-f2d4553611a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\app">
       <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
     </Filter>
@@ -300,38 +297,8 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_chain.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_layer.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_io.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_color_array.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\file_meta_data.h">
       <Filter>src\ds\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_pow.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_input.h">
-      <Filter>src\ds\arc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\app.h">
       <Filter>src\ds\app</Filter>
@@ -364,9 +331,6 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\event_notifier.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\FrameworkResources.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\image_registry.h">
@@ -449,9 +413,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_map.h">
-      <Filter>src\ds\arc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
       <Filter>src\ds\ui\image_source</Filter>
@@ -893,38 +854,8 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_chain.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_layer.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_io.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_pow.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_input.cpp">
-      <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\app.cpp">
       <Filter>src\ds\app</Filter>
@@ -1024,9 +955,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_map.cpp">
-      <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
       <Filter>src\ds\ui\image_source</Filter>

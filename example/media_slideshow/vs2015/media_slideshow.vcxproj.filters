@@ -23,17 +23,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="src">
       <UniqueIdentifier>{bd651da1-0866-4e2a-aa82-d56951beeff3}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\app">
       <UniqueIdentifier>{dd1b41ab-1751-4126-9ac0-507d8fee6176}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

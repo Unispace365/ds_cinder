@@ -13,7 +13,6 @@
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 
 #include "events/app_events.h"
@@ -33,38 +32,15 @@ physics_example_app::physics_example_app()
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
-	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
 }
 
 void physics_example_app::setupServer(){
 
-	// Fonts links together a font name and a physical font file
-	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
-	mEngine.loadSettings("FONTS", "fonts.xml");
-	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
-		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName);
-	}, ds::cfg::SETTING_TYPE_STRING);
 
-	// Colors
-	// After registration, colors can be called by name from settings files or in the app
-	mEngine.editColors().clear();
-	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
-	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
-		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
-	}, ds::cfg::SETTING_TYPE_COLOR);
-
-	/* Settings */
-	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
-	mEngine.loadTextCfg("text.xml");
-
-	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
-	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
+	const bool cacheXML = mEngine.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
@@ -77,9 +53,6 @@ void physics_example_app::setupServer(){
 
 
 void physics_example_app::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
-	} 
 }
 
 void physics_example_app::onKeyDown(ci::app::KeyEvent event){

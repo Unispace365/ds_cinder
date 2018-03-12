@@ -114,8 +114,7 @@ void MediaViewer::onKeyDown(ci::app::KeyEvent event){
 		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 
 
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_p){
+	} else if(event.getCode() == KeyEvent::KEY_k){
 		if(mStreamer){
 			mStreamer->stop();
 			mStreamer->release();

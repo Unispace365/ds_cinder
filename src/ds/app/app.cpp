@@ -26,7 +26,6 @@
 #include "ds/ui/sprite/circle_border.h"
 
 // For installing the image generators
-#include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
 #include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
@@ -36,9 +35,6 @@
 
 // For installing the framework services
 #include "ds/ui/service/glsl_image_service.h"
-
-// For verifying that the resources are installed
-#include "ds/app/FrameworkResources.h"
 
 // For the screenshot
 #include <Poco/Timestamp.h>
@@ -174,8 +170,7 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
 				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
 
-	// Initialize the engine image generator typess.
-	ds::ui::ImageArc::install(mEngine.getImageRegistry());
+	// Initialize the engine image generator types.
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
 	ds::ui::ImageGlsl::install(mEngine.getImageRegistry());
 	ds::ui::ImageResource::install(mEngine.getImageRegistry());
@@ -183,13 +178,6 @@ App::App(const RootList& roots)
 	// Install the framework services
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
 	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
-
-	// Verify that the application has included the framework resources.
-	try {
-		ci::DataSourceRef ds = loadResource(RES_ARC_DROPSHADOW);
-	} catch (std::exception&) {
-		std::cout << "ERROR Failed to load framework resource -- did you include FrameworkResources.rc in your application project?" << std::endl;
-	}
 
 	// Run all the statically-created initialization code.
 	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();

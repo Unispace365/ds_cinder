@@ -28,8 +28,6 @@ private:
 	Globals				mGlobals;
 	QueryHandler		mQueryHandler;
 
-
-	void				moveCamera(const ci::vec3& deltaMove);
 };
 
 } // !namespace example

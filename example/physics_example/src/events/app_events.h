@@ -10,10 +10,6 @@ public:
 	StoryDataUpdatedEvent(){};
 }; 
 
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
-	RequestAppExitEvent(){};
-};
 
 } // !namespace physics
 

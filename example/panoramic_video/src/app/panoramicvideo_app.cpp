@@ -34,12 +34,9 @@ PanoramicVideo::PanoramicVideo()
 
 void PanoramicVideo::setupServer(){
 
-
 	/* Settings */
-	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
 
-	mGlobals.initialize();
 	mQueryHandler.runInitialQueries();
 
 
