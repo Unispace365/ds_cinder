@@ -33,10 +33,12 @@ public:
 
 public:
 	// Standard node location
-	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7777);
+	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7777, const bool autoStart = true);
 	~NodeWatcher();
 
 	void							add(const std::function<void(const Message&)>&);
+	void							startWatching();
+	void							stopWatching();
 
 protected:
 	virtual void					update(const ds::UpdateParams &);

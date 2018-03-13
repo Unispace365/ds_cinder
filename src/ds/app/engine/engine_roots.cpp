@@ -39,7 +39,7 @@ OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		, mNearPlane(-1.0f)
 		, mFarPlane(1.0f)
 {
-	mSprite->setSecondBeforeIdle(mEngine.getSettings("engine").getDouble("idle_time"));
+	mSprite->setSecondBeforeIdle(mEngine.getEngineSettings().getDouble("idle_time"));
 }
 
 void OrthRoot::setup(const Settings& s) {

@@ -223,8 +223,11 @@ void EngineSettings::setDefaults(){
 	getSetting("configuration_folder:allow_expand_override", 0, ds::cfg::SETTING_TYPE_BOOL, "Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration.", "false");
 	getSetting("cms:url", 0, ds::cfg::SETTING_TYPE_STRING, "The URL of a Content Management System, set as DS_BASE_URL to use that env variable.", "DS_BASEURL");
 	getSetting("node:refresh_rate", 0, ds::cfg::SETTING_TYPE_FLOAT, "If your app uses a NodeWatcher, how often to check for node updates", "0.1", "0.001", "10.0");
-	getSetting("data:auto_refresh_app", 0, ds::cfg::SETTING_TYPE_BOOL, "Listen to directory changes and auto soft-restart the app.", "false");
-	getSetting("data:auto_refresh_directories", 0, ds::cfg::SETTING_TYPE_STRING, "Semi-colon separated list of directories to listen to to restart the app.", "%APP%");
+	getSetting("content:node_watch", 0, ds::cfg::SETTING_TYPE_BOOL, "If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777", "true");
+	getSetting("content:model_location", 0, ds::cfg::SETTING_TYPE_STRING, "Where ContentWrangler should look for an xml file that describes a data model to load sqlite data", "%APP%/data/model/content_model.xml");
+	getSetting("content:use_wrangler", 0, ds::cfg::SETTING_TYPE_BOOL, " If ContentWrangler should be used to automatically grab data", "true");
+	getSetting("auto_refresh_app", 0, ds::cfg::SETTING_TYPE_BOOL, "Listen to directory changes and auto soft-restart the app.", "false");
+	getSetting("auto_refresh_directories", 0, ds::cfg::SETTING_TYPE_STRING, "Semi-colon separated list of directories to listen to to restart the app.", "%APP%");
 
 	getSetting("LOGGER", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("logger:level", 0, ds::cfg::SETTING_TYPE_STRING, "What level of log to log.", "all", "", "", "all, none, info, warning, error, fatal");

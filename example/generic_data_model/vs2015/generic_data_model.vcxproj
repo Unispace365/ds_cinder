@@ -156,30 +156,17 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\generic_data_model_app.cpp" />
-    <ClCompile Include="..\src\model\data_model.cpp" />
-    <ClCompile Include="..\src\query\data_query.cpp" />
-    <ClCompile Include="..\src\query\data_wrangler.cpp" />
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\src\ui\layout\data_layout.cpp" />
-    <ClCompile Include="..\src\ui\story\story_view.cpp" />
     <ClCompile Include="..\src\ui\table\table_nav_item.cpp" />
     <ClCompile Include="..\src\ui\table\table_table_item.cpp" />
     <ClCompile Include="..\src\ui\table\table_view.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\generic_data_model_app.h" />
-    <ClInclude Include="..\src\events\app_events.h" />
-    <ClInclude Include="..\src\model\data_model.h" />
-    <ClInclude Include="..\src\query\data_query.h" />
-    <ClInclude Include="..\src\query\data_wrangler.h" />
     <ClInclude Include="..\src\stdafx.h" />
-    <ClInclude Include="..\src\ui\layout\data_layout.h" />
-    <ClInclude Include="..\src\ui\story\story_view.h" />
     <ClInclude Include="..\src\ui\table\table_nav_item.h" />
     <ClInclude Include="..\src\ui\table\table_table_item.h" />
     <ClInclude Include="..\src\ui\table\table_view.h" />

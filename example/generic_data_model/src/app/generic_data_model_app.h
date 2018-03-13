@@ -5,9 +5,6 @@
 #include <ds/app/app.h>
 #include <ds/app/event_client.h>
 
-#include "app/globals.h"
-#include "query/data_wrangler.h"
-
 namespace downstream {
 class AllData;
 
@@ -17,16 +14,7 @@ public:
 
 	void				setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
-
 private:
-
-	void				onAppEvent(const ds::Event&);
-
-	DataWrangler		mDataWrangler;
-
-	// Data acquisition
-	Globals				mGlobals;
 
 	// App events can be handled here
 	ds::EventClient		mEventClient;

@@ -36,7 +36,7 @@ char EngineClient::getClientStatusBlob() {
 
 EngineClient::EngineClient(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
-		: inherited(app, settings, ed, roots)
+		: Engine(app, settings, ed, roots, CLIENT_MODE)
 		, mLoadImageService(*this, mIpFunctions)
 		, mSender(mSendConnection, false)
 		, mReceiver(mReceiveConnection, true)
@@ -82,10 +82,6 @@ void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& 
 ds::sprite_id_t EngineClient::nextSpriteId() {
 	// Clients never generate sprite IDs, they are always assigned from a blob.
 	return 0;
-}
-
-void EngineClient::setup(ds::App& app) {
-	inherited::setup(app);
 }
 
 void EngineClient::update() {
@@ -140,7 +136,7 @@ void EngineClient::draw() {
 }
 
 void EngineClient::stopServices() {
-	inherited::stopServices();
+	Engine::stopServices();
 	mWorkManager.stopManager();
 }
 

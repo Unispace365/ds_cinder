@@ -68,7 +68,7 @@ class Init {
 public:
 	Init() {
 		ds::App::AddServerSetup([](ds::Engine& e) {
-			AUTO_CACHE = e.getSettings("engine").getBool("xml_importer:cache");
+			AUTO_CACHE = e.getEngineSettings().getBool("xml_importer:cache");
 			PRELOADED_CACHE.clear();
 
 			VARIABLE_MAP.clear();

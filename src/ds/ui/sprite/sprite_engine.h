@@ -10,6 +10,8 @@
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
 #include "ds/time/time_callback.h"
+#include "ds/thread/work_manager.h"
+#include "ds/content/content_model.h"
 #include <memory>
 
 namespace ds {
@@ -58,7 +60,7 @@ public:
 	virtual ds::EventNotifier&		getChannel(const std::string&) = 0;
 
 	// General engine services
-	virtual ds::WorkManager&		getWorkManager() = 0;
+	virtual ds::WorkManager&		getWorkManager() final { return mWorkManager;	};
 	virtual ds::ResourceList&		getResources() = 0;
 	virtual const ds::ColorList&	getColors() const = 0;
 	virtual const ds::FontList&		getFonts() const = 0;
@@ -85,12 +87,20 @@ public:
 	/** Access to the current engine configuration info. */
 	void							loadSettings(const std::string& name, const std::string& filename);
 	
+	/// EngineCfg owns all the settings and configs. 
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
 
+	/// Gets the text config for a particular name (Font name, size, color, leading) from text.xml
 	const ds::cfg::Text&			getTextCfg(const std::string& textName) const;
-	// Shortcuts
+
+	/// Returns the settings with this settings name
 	ds::cfg::Settings&				getSettings(const std::string& name) const;
+
+	/// Returns the settings for engine.xml (convenience)
+	ds::cfg::Settings&				getEngineSettings() const;
+
+	/// Returns the settings for app_settings.xml (convenience)
 	ds::cfg::Settings&				getAppSettings() const;
 
 	// Sprite management
@@ -186,7 +196,7 @@ public:
 	static const int				SERVER_MODE = 1;
 	static const int				CLIENTSERVER_MODE = 2;
 	static const int				STANDALONE_MODE = 3;
-	virtual int						getMode() const = 0;
+	virtual int						getMode() final {	return mAppMode; };
 
 	ds::ComputerInfo&				getComputerInfo();
 
@@ -253,16 +263,21 @@ public:
 	/// If this engine has been set to restart soon. Resets the variable to false after calling
 	bool							getRestartAfterNextUpdate();
 
+	/// Content delivered by ContentWrangler
+	ds::model::ContentModelRef		mContent;
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
-	SpriteEngine(ds::EngineData&);
+	SpriteEngine(ds::EngineData&, const int appMode);
 	virtual ~SpriteEngine();
 
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
 	ds::ComputerInfo*				mComputerInfo;
 	IEntryField*					mRegisteredEntryField;
+	const int						mAppMode;
+	WorkManager						mWorkManager;
 
 	ds::MetricsService*				mMetricsService;
 

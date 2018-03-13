@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_MODEL_DATA_MODEL
-#define DS_MODEL_DATA_MODEL
+#ifndef DS_CONTENT_CONTENT_MODEL
+#define DS_CONTENT_CONTENT_MODEL
 
 #include <map>
 #include <memory>
@@ -19,10 +19,16 @@ class SpriteEngine;
 
 namespace model {
 
-class DataProperty {
+
+/**
+* \class ds::ContentProperty
+* \brief A single property on a ContentModel. 
+*		 For instance, this could be ContentProperty("longitude", 123.456); or ContentProperty("title", "The title of this thing")
+*/
+class ContentProperty {
 public:
-	DataProperty();
-	DataProperty(const std::string& name, const std::string& value);
+	ContentProperty();
+	ContentProperty(const std::string& name, const std::string& value);
 
 	/// Get the name of this property
 	const std::string&				getName() const;
@@ -69,18 +75,28 @@ protected:
 
 };
 
+
 /**
-* \class ds::model::DataModelRef
+* \class ds::ContentModelRef
+* \brief A nodal hierarchy-based generic content model
+*		 Each ContentModelRef points to an underlying Data object by a shared pointer, so you can copy these instances around freely
+*		 Each ContentModelRef has:
+*			* A series of properties (e.g. Title, Body, ImageResource, Latitude, etc)
+*			* A series of children, all ContentModelRefs themselves, to build a hierarchy
+*			* A name, which can be used to look up models. Typically the name of a table from a database
+*			* A label, for identifying models to humans
+*			* An Id, which has no guarantee of uniqueness, that typically comes from a database, and can be used to look up models
 */
-class DataModelRef {
+class ContentModelRef {
 public:
 
 	// TODO: operators (equality and such)
 	// TODO: duplicate
 	// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
+	// TODO: ability to set a user data pointer
 
-	DataModelRef();
-	DataModelRef(const std::string& name, const int id = 0, const std::string& label = "");
+	ContentModelRef();
+	ContentModelRef(const std::string& name, const int id = 0, const std::string& label = "");
 
 	/// Get the id for this item
 	const int&						getId() const;
@@ -101,15 +117,14 @@ public:
 	const bool						empty() const;
 
 
-	// -------  end of this value ---------------------------- //
 
-	/// Use this for looking stuff up only. Use the other functions to manage the list
-	const std::map<std::string, DataProperty>&				getProperties();
-	void													setProperties(const std::map<std::string, DataProperty>& newProperties);
+	/// Use this for looking stuff up only. Recommend using the other functions to manage the list
+	const std::map<std::string, ContentProperty>&			getProperties();
+	void													setProperties(const std::map<std::string, ContentProperty>& newProperties);
 
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
-	const DataProperty										getProperty(const std::string& propertyName);
+	const ContentProperty									getProperty(const std::string& propertyName);
 	const std::string										getPropertyValue(const std::string& propertyName);
 	bool													getPropertyBool(const std::string& propertyName);
 	int														getPropertyInt(const std::string& propertyName);
@@ -125,7 +140,7 @@ public:
 	const ci::Rectf											getPropertyRect(const std::string& propertyName);
 
 	/// Set the property with a given name
-	void													setProperty(const std::string& propertyName, DataProperty datamodel);
+	void													setProperty(const std::string& propertyName, ContentProperty theProp);
 	void													setProperty(const std::string& propertyName, const std::string& value);
 	void													setProperty(const std::string& propertyName, const std::wstring& value);
 	void													setProperty(const std::string& propertyName, const int& value);
@@ -139,23 +154,23 @@ public:
 
 	/// Gets all of the children
 	/// Don't modify the children here, use the other functions
-	const std::vector<DataModelRef>&						getChildren() const;
+	const std::vector<ContentModelRef>&						getChildren() const;
 
 	/// If no children exist, returns an empty data model
 	/// If index is greater than the size of the children, returns the last child
-	DataModelRef											getChild(const size_t index);
+	ContentModelRef											getChild(const size_t index);
 
 	/// Get the first child that matches this id
 	/// If no children exist or match that id, returns an empty data model
-	DataModelRef											getChildById(const int id);
+	ContentModelRef											getChildById(const int id);
 
 	/// Get the first child that matches this name
 	/// Can get nested children using dot notation. for example: getChildByName("the_stories.chapter_one.first_paragraph");
 	/// If no children exist or match that id, returns an empty data model
-	DataModelRef											getChildByName(const std::string& childName);
+	ContentModelRef											getChildByName(const std::string& childName);
 
 	/// Adds this child to the end of this children list, or at the index supplied
-	void													addChild(DataModelRef datamodel, const size_t index = std::numeric_limits<std::size_t>::max());
+	void													addChild(ContentModelRef datamodel, const size_t index = std::numeric_limits<std::size_t>::max());
 
 	/// Is there a child with this name?
 	bool													hasChild(const std::string& name);
@@ -164,8 +179,8 @@ public:
 	bool													hasChildren();
 
 	/// Replaces all children
-	void													setChildren(std::vector<ds::model::DataModelRef> children);
-	
+	void													setChildren(std::vector<ds::model::ContentModelRef> children);
+
 	/// Logs this, it's properties, and all it's children recursively
 	void					printTree(const bool verbose, const std::string& indent);
 
@@ -180,4 +195,5 @@ private:
 
 #endif
 
+#pragma once
 #pragma once

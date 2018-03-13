@@ -57,8 +57,10 @@ Event::Event(const size_t what)
 {
 }
 
-const std::string& Event::getName() const {
-	return EventRegistry::getName(mWhat);
+const std::string Event::getName() const {
+	auto theName = EventRegistry::getName(mWhat);
+	if(theName.empty()) theName = mEventName;
+	return theName;
 }
 
 Event::~Event() {

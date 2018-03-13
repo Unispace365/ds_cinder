@@ -7,7 +7,7 @@
 	<setting name="server:send_port" value="1037" type="int" comment="The send port of the server. Match these between server and client" default="1037" min_value="1" max_value="99999"/>
 	<setting name="server:listen_port" value="1038" type="int" comment="The listen port of the server (which is what the client sends on). Match these between server and client." default="1038" min_value="1" max_value="99999"/>
 	<setting name="platform:architecture" value="standalone" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
-	<setting name="platform:guid" value="Downstream" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
+	<setting name="platform:guid" value="Generic Data Model" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="false" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
 	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
@@ -54,8 +54,8 @@
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
 	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
-	<setting name="data:auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
-	<setting name="data:auto_refresh_directories" value="%APP%/data/" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
+	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
+	<setting name="auto_refresh_directories" value="%APP%/data/" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>

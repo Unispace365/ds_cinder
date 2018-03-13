@@ -7,17 +7,10 @@
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
-#include "query/data_wrangler.h"
-#include "model/data_model.h"
-#include "events/app_events.h"
-
-#include "app/globals.h"
-
 namespace downstream {
 
-TableNavItem::TableNavItem(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "table_nav_item.xml")
-	, mGlobals(g)
+TableNavItem::TableNavItem(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "table_nav_item.xml")
 	, mExpanded(false)
 {
 }
@@ -38,7 +31,7 @@ void TableNavItem::setExpanded(const bool isExpanded) {
 	runLayout();
 }
 
-void TableNavItem::setData(ds::model::DataModelRef theData) {
+void TableNavItem::setData(ds::model::ContentModelRef theData) {
 	mData = theData;
 
 	if(mData.hasChildren()) {
@@ -52,7 +45,7 @@ void TableNavItem::setData(ds::model::DataModelRef theData) {
 }
 
 
-ds::model::DataModelRef TableNavItem::getData() {
+ds::model::ContentModelRef TableNavItem::getData() {
 	return mData;
 }
 

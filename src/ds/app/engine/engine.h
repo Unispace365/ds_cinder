@@ -255,7 +255,7 @@ public:
 	void								clearAllSprites(const bool clearDebug = true);
 
 protected:
-	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&, const int appMode);
 
 	// Conveniences for the subclases
 	void								updateClient();

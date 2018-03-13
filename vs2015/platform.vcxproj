@@ -47,6 +47,10 @@
     <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings_editor.h" />
+    <ClInclude Include="..\src\ds\content\content_events.h" />
+    <ClInclude Include="..\src\ds\content\content_model.h" />
+    <ClInclude Include="..\src\ds\content\content_query.h" />
+    <ClInclude Include="..\src\ds\content\content_wrangler.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
@@ -68,6 +72,7 @@
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\Quaternion.h" />
     <ClInclude Include="..\src\ds\metrics\metrics_service.h" />
+    <ClInclude Include="..\src\ds\network\helper\delayed_node_watcher.h" />
     <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\network_info.h" />
     <ClInclude Include="..\src\ds\network\net_connection.h" />
@@ -245,6 +250,9 @@
     <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp" />
+    <ClCompile Include="..\src\ds\content\content_model.cpp" />
+    <ClCompile Include="..\src\ds\content\content_query.cpp" />
+    <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
@@ -265,6 +273,7 @@
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\metrics\metrics_service.cpp" />
+    <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\network_info.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />

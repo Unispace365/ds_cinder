@@ -7,10 +7,10 @@
 #include "ds/app/engine/engine_client_list.h"
 #include "ds/app/engine/engine_io.h"
 #include "ds/network/udp_connection.h"
-#include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
 
 namespace ds {
+class ContentWrangler;
 
 /**
  * \class ds::AbstractEngineServer
@@ -21,10 +21,8 @@ namespace ds {
  */
 class AbstractEngineServer : public Engine {
 public:
-	AbstractEngineServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
+	AbstractEngineServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&, const int appMode);
 	~AbstractEngineServer();
-
-	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
 													const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -34,7 +32,6 @@ public:
 	virtual void					draw();
 
 	virtual void					stopServices();
-	virtual int						getMode() const { return SERVER_MODE; }
 
 	virtual void					spriteDeleted(const ds::sprite_id_t&);
 
@@ -54,8 +51,6 @@ private:
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
-	typedef Engine inherited;
-	WorkManager						mWorkManager;
 	EngineClientList				mClients;
 
 	ds::UdpConnection				mSendConnection;
@@ -63,6 +58,7 @@ private:
 	EngineSender					mSender;
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
+	ContentWrangler*				mContentWrangler;
 
 	// STATES
 	class State {
@@ -135,7 +131,6 @@ public:
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
 
 private:
-	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
 };
 

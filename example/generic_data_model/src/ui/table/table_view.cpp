@@ -6,24 +6,20 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 
-#include "app/globals.h"
-#include "query/data_wrangler.h"
-#include "model/data_model.h"
-#include "events/app_events.h"
+#include <ds/content/content_events.h>
 
 #include "table_nav_item.h"
 #include "table_table_item.h"
 
 namespace downstream {
 
-TableView::TableView(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "table_view.xml")
-	, mGlobals(g)
+TableView::TableView(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "table_view.xml")
 {
 
 	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 
-	listenToEvents<DataUpdatedEvent>([this](const DataUpdatedEvent& ev) {
+	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& ev) {
 		setData();
 	});
 
@@ -41,16 +37,16 @@ void TableView::setData() {
 
 	auto holder = getSprite("nav_layout");
 	if(holder) {
-		addNavItem(holder, 0.0f, mGlobals.mDataWrangler.mData);
+		addNavItem(holder, 0.0f, mEngine.mContent);
 	}
 
 	runLayout();
 }
 
 
-void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::DataModelRef theModel) {
+void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::ContentModelRef theModel) {
 	if(!parenty) return;
-	TableNavItem* tvi = new TableNavItem(mGlobals);
+	TableNavItem* tvi = new TableNavItem(mEngine);
 	tvi->mLayoutLPad = indent;
 
 	tvi->setData(theModel);
@@ -120,7 +116,7 @@ void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::mode
 
 }
 
-void TableView::setTableData(ds::model::DataModelRef theModel) {
+void TableView::setTableData(ds::model::ContentModelRef theModel) {
 	for(auto it : mTableItems) {
 		it->release();
 	}
@@ -131,7 +127,7 @@ void TableView::setTableData(ds::model::DataModelRef theModel) {
 	if(!holder) return;
 
 	for (auto it : theModel.getChildren()){
-		TableTableItem* tti = new TableTableItem(mGlobals);
+		TableTableItem* tti = new TableTableItem(mEngine);
 
 		holder->addChildPtr(tti);
 		tti->setData(it);

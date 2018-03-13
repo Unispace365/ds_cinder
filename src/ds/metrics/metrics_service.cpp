@@ -17,20 +17,20 @@ MetricsService::MetricsService(ds::Engine& eng)
 	, mCallbacks(eng)
 {
 
-	mActive = mEngine.getSettings("engine").getBool("metrics:active");
-	mSendBaseInfo = mEngine.getSettings("engine").getBool("metrics:send_base_info");
-	mSendTouchInfo = mEngine.getSettings("engine").getBool("metrics:send_touch_info");
+	mActive = mEngine.getEngineSettings().getBool("metrics:active");
+	mSendBaseInfo = mEngine.getEngineSettings().getBool("metrics:send_base_info");
+	mSendTouchInfo = mEngine.getEngineSettings().getBool("metrics:send_touch_info");
 
 	if(mActive) {
-		std::string host = mEngine.getSettings("engine").getString("metrics:udp_host");
-		std::string port = mEngine.getSettings("engine").getString("metrics:udp_port");
+		std::string host = mEngine.getEngineSettings().getString("metrics:udp_host");
+		std::string port = mEngine.getEngineSettings().getString("metrics:udp_port");
 		if(mUdpReccy.connect(host, port)) {
 			DS_LOG_INFO("MetricsService: connected to telegraf udp at " << host << ":" << port);
 		}
 	}
 
 	if(mSendBaseInfo) {
-		double callbackDelay = mEngine.getSettings("engine").getDouble("metrics:base_info_send_delay");
+		double callbackDelay = mEngine.getEngineSettings().getDouble("metrics:base_info_send_delay");
 		if(callbackDelay < 0.1) callbackDelay = 0.1; // don't swamp it with too much info (this is probably still too much)
 		mCallbacks.repeatedCallback([this] {
 			sendSystemInfo();
@@ -130,7 +130,7 @@ void MetricsService::recordMetricTouch(ds::ui::TouchInfo& ti) {
 }
 
 void MetricsService::sendMetrics(const std::string& metrix) {
-	DS_LOG_VERBOSE(1, metrix);
+	DS_LOG_VERBOSE(3, metrix);
 	if(mUdpReccy.isConnected()) {
 		mUdpReccy.sendMessage(metrix);
 	}

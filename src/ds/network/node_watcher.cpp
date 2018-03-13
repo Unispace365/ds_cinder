@@ -12,19 +12,19 @@ namespace ds {
 /**
  * \class ds::NodeWatcher
  */
-NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port)
+NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port, const bool autostart)
 		: ds::AutoUpdate(se)
 		, mLoop(se, host, port) {
-	mThread.start(mLoop);
+	if(autostart) {
+		startWatching();
+	}
 }
 
 NodeWatcher::~NodeWatcher() {
 	{
 		Poco::Mutex::ScopedLock		l(mLoop.mMutex);
 		mLoop.mAbort = true;
-		// I don't know how one would "wakeup" the socket.  If I knew that,
-		// I could increase the timeout and make the whole thing more efficient.
-//		mLoop.mCondition.signal();
+		mThread.wakeUp();
 	}
 	try {
 		mThread.join();
@@ -36,8 +36,33 @@ void NodeWatcher::add(const std::function<void(const Message&)>& f) {
 	if (!f) return;
 
 	try {
-		mListener.push_back(f);
-	} catch (std::exception&) {
+		mListener.emplace_back(f);
+	} catch (std::exception& ex) {
+		DS_LOG_WARNING("NodeWatcher::add() Couldn't add a listener function with exception " << ex.what());
+	}
+}
+
+void NodeWatcher::startWatching() {
+	if(mThread.isRunning()) return;
+
+	try {
+		DS_LOG_VERBOSE(2, "NodeWatcher::Start watching");
+		mThread.start(mLoop);
+	} catch(std::exception& ex) {
+		DS_LOG_WARNING("NodeWatcher::startWatching() Couldn't with exception " << ex.what());
+	}
+}
+
+void NodeWatcher::stopWatching() {
+	if(!mThread.isRunning()) return;
+	try {
+		Poco::Mutex::ScopedLock	l(mLoop.mMutex);
+		DS_LOG_VERBOSE(2, "NodeWatcher::Stop watching");
+		mLoop.mAbort = true;
+		mThread.wakeUp();
+		
+	} catch(std::exception& ex) {
+		DS_LOG_WARNING("NodeWatcher::stopWatching() Couldn't with exception " << ex.what());
 	}
 }
 
@@ -49,8 +74,14 @@ void NodeWatcher::update(const ds::UpdateParams &) {
 	}
 	if (mMsg.empty()) return;
 
-	for (auto it=mListener.begin(), end=mListener.end(); it != end; ++it) {
-		(*it)(mMsg);
+	if(ds::Logger::hasVerboseLevel(1)) {
+		for(auto it : mMsg.mData) {
+			DS_LOG_VERBOSE(1, "NodeWatcher: got message: " << it);
+		}
+	}
+
+	for (auto it : mListener) {
+		it(mMsg);
 	}
 }
 
@@ -59,7 +90,7 @@ void NodeWatcher::update(const ds::UpdateParams &) {
  */
 static long get_refresh_rate(ds::ui::SpriteEngine& e) {
 	// Default to one second
-	ds::cfg::Settings&				settings = e.getSettings("engine");
+	ds::cfg::Settings&				settings = e.getEngineSettings();
 	float							rate = settings.getFloat("node:refresh_rate", 0, .1f);
 	long							ans = static_cast<long>(rate * 1000.0f);
 	if (ans < 10) return 10;
@@ -74,19 +105,6 @@ NodeWatcher::Loop::Loop(ds::ui::SpriteEngine& e, const std::string& host, const 
 		, mRefreshRateMs(get_refresh_rate(e)) {
 }
 
-// WARNING: this class can throw in constructor thanks to
-// awesome architecture of Poco. Use with try-catch.
-struct ScopedDatagramSocket
-{
-	ScopedDatagramSocket(const std::string& host, int port)
-		: mCmsReceiver(Poco::Net::SocketAddress(host, port))
-	{}
-
-	~ScopedDatagramSocket() { try { mCmsReceiver.close(); } catch (...) {} }
-
-	Poco::Net::DatagramSocket	mCmsReceiver;
-};
-
 void NodeWatcher::Loop::run() {
 	static const int			BUF_SIZE = 512;
 	char						buf[BUF_SIZE];
@@ -98,7 +116,7 @@ void NodeWatcher::Loop::run() {
 		theSocket.setBlocking(false);
 		theSocket.setReuseAddress(true);
 		theSocket.setReusePort(true);
-		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort));
+		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true);
 		theSocket.setReceiveTimeout(0);
 
 		while (true)		{
@@ -114,7 +132,7 @@ void NodeWatcher::Loop::run() {
 				try	{
 					std::string		msg(buf, length);
 					Poco::Mutex::ScopedLock	l(mMutex);
-					mMsg.mData.push_back(msg);
+					mMsg.mData.emplace_back(msg);
 				}
 				catch (const std::exception&){
 				}
@@ -124,7 +142,7 @@ void NodeWatcher::Loop::run() {
 
 			{
 				Poco::Mutex::ScopedLock	l(mMutex);
-				if (mAbort) break;
+				if(mAbort) break;
 			}
 		}
 	}

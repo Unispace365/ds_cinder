@@ -9,6 +9,7 @@
 #include "ds/util/string_util.h"
 #include "ds/debug/computer_info.h"
 #include "ds/app/engine/engine_events.h"
+#include "ds/content/content_wrangler.h"
 
 namespace ds {
 
@@ -33,8 +34,8 @@ using namespace ci::app;
  * \class ds::AbstractEngineServer
  */
 AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& settings,
-											ds::EngineData& ed, const ds::RootList& roots)
-	: inherited(app, settings, ed, roots)
+											ds::EngineData& ed, const ds::RootList& roots, const int appMode)
+	: ds::Engine(app, settings, ed, roots, appMode)
 //    , mConnection(NumberOfNetworkThreads)
 	, mSender(mSendConnection, true)
 	, mReceiver(mReceiveConnection, false)
@@ -72,7 +73,14 @@ void AbstractEngineServer::installSprite( const std::function<void(ds::BlobRegis
 }
 
 void AbstractEngineServer::setup(ds::App& app) {
-	inherited::setup(app);
+	Engine::setup(app);
+
+	if(!mContentWrangler) {
+		mContentWrangler = new ContentWrangler(*this);
+	}
+	if(mContentWrangler) {
+		mContentWrangler->initialize();
+	}
 
 	app.preServerSetup();
 	app.setupServer();
@@ -91,7 +99,7 @@ void AbstractEngineServer::draw() {
 }
 
 void AbstractEngineServer::stopServices() {
-	inherited::stopServices();
+	Engine::stopServices();
 	mWorkManager.stopManager();
 }
 
@@ -472,7 +480,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
  */
 EngineServer::EngineServer(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
-	: inherited(app, settings, ed, roots)
+	: AbstractEngineServer(app, settings, ed, roots, SERVER_MODE)
 	, mLoadImageService(*this, mIpFunctions)
 {
 }

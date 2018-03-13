@@ -63,6 +63,9 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteTapFn(const std::string& spriteName,
 						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
+	/// This is a helpful comment for what this function means
+	void setContentModel(ds::model::ContentModelRef& theData);
+
 	// Build => Run Animations on children
 	// this->addAnimation(name, duration, delay).size(elementName, to, delay=0).opacity(elementName, to,
 	// delay=0).finishFn(callback);

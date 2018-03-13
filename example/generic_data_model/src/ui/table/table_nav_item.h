@@ -4,11 +4,9 @@
 
 
 #include <ds/ui/layout/smart_layout.h>
-#include "model/data_model.h"
+#include <ds/content/content_model.h>
 
 namespace downstream {
-
-class Globals;
 
 /**
 * \class downstream::TableNavItem
@@ -16,18 +14,17 @@ class Globals;
 */
 class TableNavItem : public ds::ui::SmartLayout {
 public:
-	TableNavItem(Globals& g);
+	TableNavItem(ds::ui::SpriteEngine& eng);
 
 	bool								getExpanded();
 	void								setExpanded(const bool isExpanded);
 
-	void								setData(ds::model::DataModelRef theData);
-	ds::model::DataModelRef				getData();
+	void								setData(ds::model::ContentModelRef theData);
+	ds::model::ContentModelRef			getData();
 
 private:
 	bool								mExpanded;
-	ds::model::DataModelRef				mData;
-	Globals&							mGlobals;
+	ds::model::ContentModelRef			mData;
 
 };
 

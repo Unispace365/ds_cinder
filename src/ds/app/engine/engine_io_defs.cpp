@@ -36,7 +36,7 @@ const char			ATT_ROOTS = 5;
  * \class ds::EngineIoInfo
  */
 EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
-	if (engine.getSettings("engine").hasSetting("platform:guid"))
+	if (engine.getEngineSettings().hasSetting("platform:guid"))
 	{
 		/*!
 		 * \note (Sepehr Laal) I figured there's no advantage of having the server dispatching
@@ -51,7 +51,7 @@ EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
 		 *	   That's not really true any more, and you can in fact run multiple clients on the same machine without setting the guid.
 		 *	   However, there's some value to being able to specify an ID for each client, so this setting is left here.
 		 */
-		mGlobalId = engine.getSettings("engine").getString("platform:guid");
+		mGlobalId = engine.getEngineSettings().getString("platform:guid");
 	}
 	else
 	{

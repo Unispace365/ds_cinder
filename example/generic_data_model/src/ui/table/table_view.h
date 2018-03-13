@@ -4,12 +4,11 @@
 
 
 #include <ds/ui/layout/smart_layout.h>
-#include "model/data_model.h"
+#include <ds/content/content_model.h>
 
 namespace downstream {
 class TableNavItem;
 class TableTableItem;
-class Globals;
 
 /**
 * \class downstream::TableView
@@ -17,19 +16,18 @@ class Globals;
 */
 class TableView : public ds::ui::SmartLayout {
 public:
-	TableView(Globals& g);
+	TableView(ds::ui::SpriteEngine& eng);
 
 private:
 	void								setData();
-	void								addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::DataModelRef theModel);
+	void								addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::ContentModelRef theModel);
 
-	void								setTableData(ds::model::DataModelRef theModel);
+	void								setTableData(ds::model::ContentModelRef theModel);
 
 	std::vector<TableNavItem*>			mNavItems;
 
 	std::vector<TableTableItem*>		mTableItems;
 
-	Globals&							mGlobals;
 
 };
 

@@ -14,8 +14,9 @@
 namespace ds {
 namespace ui {
 
-SpriteEngine::SpriteEngine(ds::EngineData& ed)
+SpriteEngine::SpriteEngine(ds::EngineData& ed, const int appMode)
 	: mData(ed)
+	, mAppMode(appMode)
 	, mRegisteredEntryField(nullptr)
 	, mCallbackId(0)
 	, mMetricsService(nullptr)
@@ -52,6 +53,10 @@ const ds::cfg::Text& SpriteEngine::getTextCfg(const std::string& textName) const
 
 ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
+}
+
+ds::cfg::Settings& SpriteEngine::getEngineSettings() const {
+	return mData.mEngineCfg.getSettings("engine");
 }
 
 ds::cfg::Settings& SpriteEngine::getAppSettings() const {

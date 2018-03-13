@@ -465,7 +465,7 @@ void Web::update(const ds::UpdateParams &p) {
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
-		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, mPopupSize.x, mPopupSize.y, fmt);
+		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
 		mHasPopupBuffer = false;
 		mPopupReady = true;
 	}

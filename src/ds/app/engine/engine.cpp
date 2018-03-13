@@ -55,8 +55,8 @@ namespace ds {
 const int Engine::NumberOfNetworkThreads = 2;
 
 Engine::Engine(ds::App& app, ds::EngineSettings &settings,
-			   ds::EngineData& ed, const RootList& _roots)
-	: ds::ui::SpriteEngine(ed)
+			   ds::EngineData& ed, const RootList& _roots, const int appMode)
+	: ds::ui::SpriteEngine(ed, appMode)
 	, mRequestedRootList(_roots)
 	, mDsApp(app)
 	, mTweenline(app.timeline())
