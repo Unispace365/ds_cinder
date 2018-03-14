@@ -159,6 +159,7 @@ void ImageButton::setHighImageColor(const ci::Color& downColor){
 
 void ImageButton::setHighImageColor(const ci::ColorA& downColor){
 	mDown.setColorA(downColor);
+	showUp();
 }
 
 } // namespace ui
