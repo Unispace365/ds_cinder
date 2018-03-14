@@ -16,7 +16,7 @@ Fonts can be loaded when the app starts up, allowing you to include fonts that d
 
     mEngine.editFonts().installFont(fullFontFilePath, fontName, shortHandName);
 	
-We'll get to shotHandName in a minute. 
+We'll get to shortHandName in a minute. 
 
 It's most common that you'll want to load a few fonts all at once. Many apps do something like this:
 

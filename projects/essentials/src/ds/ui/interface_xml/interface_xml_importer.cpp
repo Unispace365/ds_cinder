@@ -39,6 +39,7 @@
 #include <ds/util/string_util.h>
 #include <ds/util/color_util.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/util/markdown_to_pango.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -662,16 +663,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			}
 		}
 
-
 	} else if (property == "text") {
-		// Try to set content
 		auto text = dynamic_cast<Text*>(&sprite);
-		if (text) {
+		if(text) {
 			text->setText(value);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property == "font_size") {
+	} else if(property == "markdown") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			text->setText(ds::ui::markdown_to_pango(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_size") {
 		// Try to set the font size
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {

@@ -229,6 +229,7 @@ Layout Parameters (valid if using a layout sprite as a parent)
 Text Parameters
 ------------------------------------------------------------
 * **text**: Set the content show on the screen. text="Hello World"
+* **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
@@ -313,6 +314,7 @@ Scroll List Parameters
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
 * **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+* **scroll_fade_size**: Set the size of the fade as a float.
 
 EntryField and SoftKeyboard Parameters
 --------------------------------------
