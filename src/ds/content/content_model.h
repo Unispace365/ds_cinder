@@ -148,6 +148,7 @@ public:
 	const ci::vec2											getPropertyVec2(const std::string& propertyName);
 	const ci::vec3											getPropertyVec3(const std::string& propertyName);
 	const ci::Rectf											getPropertyRect(const std::string& propertyName);
+	ds::Resource											getPropertyResource(const std::string& propertyName);
 
 	/// Set the property with a given name
 	void													setProperty(const std::string& propertyName, ContentProperty theProp);

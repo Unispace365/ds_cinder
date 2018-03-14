@@ -344,6 +344,10 @@ const ci::Rectf ContentModelRef::getPropertyRect(const std::string& propertyName
 	return getProperty(propertyName).getRect();
 }
 
+ds::Resource ContentModelRef::getPropertyResource(const std::string& propertyName) {
+	return getProperty(propertyName).getResource();
+}
+
 void ContentModelRef::setProperty(const std::string& propertyName, ContentProperty datamodel) {
 	createData();
 
