@@ -13,7 +13,7 @@ namespace ds {
 ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	: mNodeWatcher(se, "localhost", 7777, false)
 	, mEngine(se)
-	, mContentQuery(se, [] { return new ContentQuery(); })
+	, mContentQuery(se, [] { return new ContentQuery(); }, true)
 	, mEventClient(se)
 {
 

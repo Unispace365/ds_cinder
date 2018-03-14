@@ -65,6 +65,8 @@ generic_data_model_app::generic_data_model_app()
 
 		}
 	});
+
+	registerKeyPress("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_u);
 }
 
 void generic_data_model_app::setupServer(){

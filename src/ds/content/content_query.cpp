@@ -62,7 +62,6 @@ void ContentQuery::run() {
 		assembleModels(tablesData);
 	}
 
-
 	Poco::Timestamp::TimeVal after = Poco::Timestamp().epochMicroseconds();
 
 	DS_LOG_VERBOSE(1, "Finished data query in " << (float)(after - before) / 1000000.0f << " seconds.");

@@ -34,29 +34,16 @@ namespace ds {
 template <class T>
 class SerialRunnable {
 public:
-	/*!
-	 * \note The previous implementation of this class had a templatized
-	 * lambda (!!) as constructor's default argument. VS2010 fearlessly
-	 * accepts such a miserable mistake but templatized lambdas
-	 * (aka polymorphic lambdas) are not standard C++11. They are,
-	 * however standard in C++14 and C++17. (SL.)
-	 *
-	 * Replaced with a static factory to prevent future compiler errors.
-	 * Also a factory static is more readable than a polymorphic lambda!
-	 */
-	static T* raw_pointer_factory() { return new T; }
 
-public:
 	typedef std::function<void (T&)>	HandlerFunc;
 
-public:
-	SerialRunnable(	ui::SpriteEngine&,
-					// If T has a constructor without arguments, ignore the alloc. If you need
-					// to supply info to the constructor, supply a custom alloc.
-					const std::function<T*(void)>& alloc = SerialRunnable<T>::raw_pointer_factory);
+	/// The alloc function is to create a new instance of the runnable, required
+	/// NotifyWhenWaiting will send the reply handler even if there's another serial runnable about to be run
+	SerialRunnable(	ui::SpriteEngine&,	const std::function<T*(void)>& alloc, const bool notifyWhenWaiting = false);
 	
 	void					setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
-	// Start a new runnable, intializing it via the handler block.  Any previous, unfinished runs
+
+	// Start a new runnable, initializing it via the handler block.  Any previous, unfinished runs
 	// will be ignored.
 	// If waitForResult is true, this will be run synchronously, blocking until the operation is finished.
 	// This is useful for serial runnables that run through the life of an app, but during setup you
@@ -81,14 +68,17 @@ private:
 	HandlerFunc				mReplyHandler;
 	// If start comes in and I can't start yet, cache the start handler
 	HandlerFunc				mStartHandler;
+	bool					mNotifyWhenWaiting;
 };
 
 template <class T>
-SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(void)>& alloc)
+SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(void)>& alloc, const bool notifyWhenWaiting)
 		: mClient(se)
 		, mState(CACHED)
 		, mReplyHandler(nullptr)
-		, mStartHandler(nullptr) {
+		, mStartHandler(nullptr)
+		, mNotifyWhenWaiting(notifyWhenWaiting)
+{
 	// Create the single runnable
 	if(!alloc) {
 		DS_LOG_WARNING("Can't allocate serial runnable (no allocator)");
@@ -149,7 +139,7 @@ template <class T>
 void SerialRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r) {
 	std::unique_ptr<T>		payload(ds::unique_dynamic_cast<T, Poco::Runnable>(r));
 	if (payload) {
-		if (mState != WAITING) {
+		if (mState != WAITING || mNotifyWhenWaiting) {
 			if (mReplyHandler) mReplyHandler(*(payload.get()));
 		}
 		mCache = std::move(payload);
