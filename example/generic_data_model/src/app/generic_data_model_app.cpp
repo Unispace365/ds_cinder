@@ -23,6 +23,33 @@ generic_data_model_app::generic_data_model_app()
 	, mEventClient(mEngine)
 {
 	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) {
+
+
+		/// This is a baseline equality test, of course this should return true
+		bool equalityTest = mEngine.mContent == mEngine.mContent;
+		DS_LOG_INFO("Test for equality A: " << equalityTest);
+
+		/// Duplicating the data makes a copy of the root and all it's children
+		auto theDupe = mEngine.mContent.duplicate();
+
+		/// We still expect this to be true, since the test for equality is on each item, and not if they're the same data pointer
+		equalityTest = mEngine.mContent == theDupe;
+		DS_LOG_INFO("Test for equality after dupe: " << equalityTest);
+
+		/// Set the label for a child of the dupe
+		if(!theDupe.getChildren().empty()) {
+			auto chillin = theDupe.getChild(0);
+			chillin.setLabel("Well shing a thinga majig");
+		}
+
+		/// Now we'd expect these to not be the same, since there's a label difference on a child
+		equalityTest = mEngine.mContent == theDupe;
+		DS_LOG_INFO("Test for equality after dupe change: " << equalityTest);
+
+		//mEngine.mContent.printTree(true, "");
+		//theDupe.printTree(true, "");
+
+
 		auto dm = mEngine.mContent.getChildByName("sample_data");
 		for(auto it : dm.getChildren()) {
 			auto sl = new ds::ui::SmartLayout(mEngine, "sample_data.xml");
@@ -38,7 +65,6 @@ void generic_data_model_app::setupServer(){
 	
 	// add sprites
 	rootSprite.addChildPtr(new TableView(mEngine));
-
 }
 
 } // namespace downstream

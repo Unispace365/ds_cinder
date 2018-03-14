@@ -1,0 +1,25 @@
+<model>
+	<table name="sample_data"
+			resources="resourceid"
+			sort="id ASC"		
+			limit="2"
+			label_field="title"
+		>
+		<table name="sample_items"
+			child_local_id="sample_data_id"
+			label_field="name"
+			>
+			<table name="sample_theme"
+				parent_foreign_id="theme_id"
+				resources="media"
+				label_field="name"
+				/>
+		</table>
+		
+		<table name="settings_test"
+			child_local_id="sample_data_id"
+			label_field="subtitle"
+			/>
+	</table>
+</model>
+

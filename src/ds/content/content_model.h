@@ -49,6 +49,8 @@ public:
 	ds::Resource					getResource() const;
 	void							setResource(const ds::Resource& resource);
 
+	/// The name, value and resource are equal
+	bool							operator==(const ContentProperty&) const;
 
 	// ------- This value, type converted when called --------- //
 
@@ -116,6 +118,12 @@ public:
 	/// If this item has no data, value, name, id, properties or children
 	const bool						empty() const;
 
+	/// Makes a copy of this content. 
+	/// This make a brand new ContentModelRef with a different underlying data object, so you can modify the two independently
+	ds::model::ContentModelRef		duplicate() const;
+
+	/// Tests if this ContentModelRef has the same Id, Name, Label and underlying data pointer
+	bool							operator==(const ContentModelRef&) const;
 
 
 	/// Use this for looking stuff up only. Recommend using the other functions to manage the list

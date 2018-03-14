@@ -90,6 +90,10 @@ void ContentProperty::setResource(const ds::Resource& resource) {
 	mResource = resource;
 }
 
+bool ContentProperty::operator==(const ContentProperty& b) const {
+	return mName == b.mName && mValue == b.mValue && mResource == b.mResource;
+}
+
 bool ContentProperty::getBool() const {
 	return ds::parseBoolean(mValue);
 }
@@ -195,6 +199,7 @@ const bool ContentModelRef::empty() const {
 	if(!mData) return true;
 	if(mData->mId == EMPTY_INT
 	   && mData->mName == EMPTY_STRING
+	   && mData->mLabel == EMPTY_STRING
 	   && mData->mChildren.empty()
 	   && mData->mProperties.empty()
 	   ) {
@@ -204,6 +209,55 @@ const bool ContentModelRef::empty() const {
 	return false;
 }
 
+ds::model::ContentModelRef ContentModelRef::duplicate() const {
+	if(empty()) {
+		return ds::model::ContentModelRef();
+	}
+
+	ds::model::ContentModelRef newModel(getName(), getId(), getLabel());
+	
+	if(!mData) return newModel;
+
+	std::map<std::string, ContentProperty> props = mData->mProperties;
+	newModel.setProperties(props);
+
+	std::vector<ContentModelRef> newChildren;
+	for(auto it : mData->mChildren) {
+		newChildren.emplace_back(it.duplicate());
+	}	
+	newModel.setChildren(newChildren);
+
+	return newModel;
+}
+
+template <typename Map>
+bool map_compare(Map const &lhs, Map const &rhs) {
+	// No predicate needed because there is operator== for pairs already.
+	return lhs.size() == rhs.size()
+		&& std::equal(lhs.begin(), lhs.end(),
+					  rhs.begin());
+}
+
+bool ContentModelRef::operator==(const ContentModelRef& b) const {
+	if(empty() && b.empty()) return true;
+
+	if(mData->mName == b.mData->mName
+	   && mData->mId == b.mData->mId
+	   && mData->mLabel == b.mData->mLabel
+	   && mData->mProperties.size() == b.mData->mProperties.size()
+	   && mData->mChildren.size() == b.mData->mChildren.size()
+	   ) {
+		if(!map_compare(mData->mProperties, b.mData->mProperties)) {
+			return false;
+		}
+		if(!map_compare(mData->mChildren, b.mData->mChildren)) {
+			return false;
+		}
+		return true;
+	}
+
+	return false;
+}
 
 const std::map<std::string, ContentProperty>& ContentModelRef::getProperties() {
 	if(!mData) return EMPTY_PROPERTY_MAP;
@@ -431,7 +485,7 @@ void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
 	if(empty() || !mData) {
 		DS_LOG_INFO(indent << "Empty DataModel.");
 	} else {
-		DS_LOG_INFO(indent << "DataModel id:" << mData->mId << " name:" << mData->mName);
+		DS_LOG_INFO(indent << "DataModel id:" << mData->mId << " name:" << mData->mName << " label:" << mData->mLabel);
 		if(verbose) {
 
 			for(auto it : mData->mProperties) {
