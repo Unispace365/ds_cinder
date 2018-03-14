@@ -146,10 +146,12 @@ public:
 		: mName(EMPTY_STRING)
 		, mLabel(EMPTY_STRING)
 		, mId(EMPTY_INT)
+		, mUserData(nullptr)
 	{}
 
 	std::string mName;
 	std::string mLabel;
+	void * mUserData;
 	int mId;
 	std::map<std::string, ContentProperty> mProperties;
 	std::vector<ContentModelRef> mChildren;
@@ -195,11 +197,22 @@ void ContentModelRef::setLabel(const std::string& name) {
 	mData->mLabel = name;
 }
 
+void * ContentModelRef::getUserData() const {
+	if(!mData) return nullptr;
+	return mData->mUserData;
+}
+
+void ContentModelRef::setUserData(void * userData) {
+	createData();
+	mData->mUserData = userData;
+}
+
 const bool ContentModelRef::empty() const {
 	if(!mData) return true;
 	if(mData->mId == EMPTY_INT
 	   && mData->mName == EMPTY_STRING
 	   && mData->mLabel == EMPTY_STRING
+	   && mData->mUserData == nullptr
 	   && mData->mChildren.empty()
 	   && mData->mProperties.empty()
 	   ) {
@@ -215,6 +228,7 @@ ds::model::ContentModelRef ContentModelRef::duplicate() const {
 	}
 
 	ds::model::ContentModelRef newModel(getName(), getId(), getLabel());
+	newModel.setUserData(getUserData());
 	
 	if(!mData) return newModel;
 
@@ -230,12 +244,14 @@ ds::model::ContentModelRef ContentModelRef::duplicate() const {
 	return newModel;
 }
 
+namespace {
 template <typename Map>
 bool map_compare(Map const &lhs, Map const &rhs) {
 	// No predicate needed because there is operator== for pairs already.
 	return lhs.size() == rhs.size()
 		&& std::equal(lhs.begin(), lhs.end(),
 					  rhs.begin());
+}
 }
 
 bool ContentModelRef::operator==(const ContentModelRef& b) const {
@@ -244,6 +260,7 @@ bool ContentModelRef::operator==(const ContentModelRef& b) const {
 	if(mData->mName == b.mData->mName
 	   && mData->mId == b.mData->mId
 	   && mData->mLabel == b.mData->mLabel
+	   && mData->mUserData == b.mData->mUserData
 	   && mData->mProperties.size() == b.mData->mProperties.size()
 	   && mData->mChildren.size() == b.mData->mChildren.size()
 	   ) {

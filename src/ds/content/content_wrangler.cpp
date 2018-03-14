@@ -33,7 +33,10 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	});
 
 	mContentQuery.setReplyHandler([this](ContentQuery& q) {
-		mEngine.mContent = q.mData;
+		mEngine.mContent.setName(q.mData.getName());
+		mEngine.mContent.setLabel(q.mData.getLabel());
+		mEngine.mContent.setId(q.mData.getId());
+		mEngine.mContent.setChildren(q.mData.getChildren());
 
 		mEngine.getNotifier().notify(ContentUpdatedEvent());
 	});

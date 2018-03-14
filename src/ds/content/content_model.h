@@ -92,8 +92,6 @@ protected:
 class ContentModelRef {
 public:
 
-	// TODO: operators (equality and such)
-	// TODO: duplicate
 	// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
 	// TODO: ability to set a user data pointer
 
@@ -114,6 +112,10 @@ public:
 	/// This is a helpful name or display name for this thing
 	const std::string&				getLabel() const;
 	void							setLabel(const std::string& label);
+
+	/// Get the user data pointer. 
+	void *							getUserData() const;
+	void							setUserData(void * userData);
 
 	/// If this item has no data, value, name, id, properties or children
 	const bool						empty() const;

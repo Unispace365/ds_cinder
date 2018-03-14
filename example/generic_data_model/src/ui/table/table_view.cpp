@@ -10,6 +10,7 @@
 
 #include "table_nav_item.h"
 #include "table_table_item.h"
+#include "app/generic_data_model_app.h"
 
 namespace downstream {
 
@@ -20,6 +21,16 @@ TableView::TableView(ds::ui::SpriteEngine& eng)
 	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 
 	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& ev) {
+		if(mEngine.mContent.getUserData()) {
+			generic_data_model_app* gdma = (generic_data_model_app*)mEngine.mContent.getUserData();
+			if(gdma) {
+				DS_LOG_INFO("Sample value: " << gdma->mSampleValue);
+			}
+		}
+
+		DS_LOG_INFO("Example property from mEngine.mContent:" << mEngine.mContent.getPropertyString("example"));
+		
+
 		setData();
 	});
 

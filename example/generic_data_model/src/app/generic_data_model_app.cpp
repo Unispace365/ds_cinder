@@ -21,7 +21,14 @@ namespace downstream {
 generic_data_model_app::generic_data_model_app()
 	: ds::App()
 	, mEventClient(mEngine)
+	, mSampleValue(123.45f)
 {
+	// The Engine's mContent retains it's userdata and properties through data requeries
+	// See Table view for getting this data out
+	mEngine.mContent.setUserData(this);
+	std::string wellHelloThere = "Well hello there";
+	mEngine.mContent.setProperty("example", wellHelloThere);
+
 	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) {
 
 

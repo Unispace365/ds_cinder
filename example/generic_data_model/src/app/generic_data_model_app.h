@@ -14,6 +14,8 @@ public:
 
 	void				setupServer();
 
+	float				mSampleValue;
+
 private:
 
 	// App events can be handled here
