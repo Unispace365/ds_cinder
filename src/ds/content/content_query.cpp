@@ -110,7 +110,7 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 						}
 					}
 
-				} // End of this tables rows
+				} // End of this table's rows
 			} // End of this depth check
 		} // End of tables in this for loop
 	} // End of depth for loop
@@ -171,6 +171,7 @@ void ContentQuery::readXmlNode(ci::XmlTree& tree, ds::model::ContentModelRef& pa
 	parentData.addChild(thisNode);
 }
 
+/// TODO: rewrite to use raw sqlite calls or use column names for better portability
 void ContentQuery::updateResourceCache() {
 	ds::query::Result recResult;
 
@@ -218,7 +219,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 
 	if(theTable.empty()) {
 		if(tableDescription.getName() != "model") {
-			DS_LOG_WARNING("No table name specified in datamodel query");
+			DS_LOG_WARNING("ContentQuery::getDataFromTable() No table name specified in datamodel query");
 		}
 
 		tableModel = parentModel;
@@ -239,11 +240,6 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 		tableModel.setProperty("parent_id", parentModelId);
 		tableModel.setId(thisId);
 
-
-		// Operations:
-		// select + where + sorting
-		// query
-		// apply resources and primary id (auto id to primary key column if left blank)
 
 		/// Select
 		std::stringstream theQuery;
@@ -386,10 +382,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 			DS_LOG_ERROR("ContentQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 		}
 
-
-
 		parentModel.addChild(tableModel);
-
 
 	} // table name is present
 

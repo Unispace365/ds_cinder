@@ -33,6 +33,8 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	});
 
 	mContentQuery.setReplyHandler([this](ContentQuery& q) {
+		DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
+
 		mEngine.mContent.setName(q.mData.getName());
 		mEngine.mContent.setLabel(q.mData.getLabel());
 		mEngine.mContent.setId(q.mData.getId());
@@ -72,6 +74,8 @@ void ContentWrangler::runQuery() {
 		DS_LOG_VERBOSE(2, "ContentWrangler: no database path or model location specified. Not a problem if you're not using ContentWrangler or Sqlite");
 		return;
 	}
+
+	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() starting");
 
 	mContentQuery.start([this](ds::ContentQuery& dq) {
 		const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);

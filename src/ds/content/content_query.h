@@ -17,8 +17,6 @@ namespace ds {
 class ContentQuery : public Poco::Runnable {
 public:
 
-	// TODO: Detect errors and pass them to the wrangler
-
 	ContentQuery();
 
 	virtual void							run();
