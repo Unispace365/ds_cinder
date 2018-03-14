@@ -1,0 +1,93 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			size="$_world_size"
+			enable="true"
+			multitouch="info"
+		>
+		
+		<layout name="slide_area"
+			layout_type="vert"
+			layout_size_mode="stretch"
+		>
+			<layout name="slide_holder"
+				layout_size_mode="fill"
+				/>
+		</layout>
+		
+		<layout name="controller"
+			layout_type="horiz"
+			layout_size_mode="flex"
+			layout_h_align="center"
+			layout_spacing="$_padding"
+			overall_alignment="center"			
+			size="100, 100"
+			>
+			
+			<sprite name="background"
+				layout_size_mode="fill"
+				color="grey"
+				opacity="0.25"
+				/>
+			<image_button
+				src="%APP%/data/images/media_interface/prev.png"
+				on_tap_event="SlideBackRequest"
+				scale="0.5, 0.5"
+				down_image_color="orange"
+				layout_v_align="middle"
+				/>
+			<layout name="text_text"
+				layout_type="vert"
+				layout_v_align="middle"
+				layout_size="400, 100"
+				layout_size_mode="fixed"
+				shrink_to_children="height"
+				layout_spacing="#expr{$_padding / 4.0}"
+			>
+				
+				<layout name="text_area"
+					layout_type="horiz"
+					layout_size_mode="flex"
+					shrink_to_children="height"
+					layout_spacing="#expr{$_padding / 4.0}"
+					overall_alignment="center"
+					>
+					<text name="count"
+						font="controller:count"
+						layout_fudge="0, 3"
+						/>
+					<text name="line"
+						text="|"
+						font="controller:count"
+						layout_fudge="0, 1"
+						/>
+					<text name="slide_title"
+						font="controller:title"
+						model="text:this->title"
+						/>
+				</layout>
+				<text name="markdown_file"
+					font="controller:count"
+					layout_h_align="center"
+					font_size="10"
+					model="text:this->markdown_file"
+					/>
+			</layout>
+			<image_button
+				src="%APP%/data/images/media_interface/next.png"
+				on_tap_event="SlideForwardRequest"
+				scale="0.5, 0.5"
+				layout_v_align="middle"
+				down_image_color="orange"
+				/>
+				
+				<!-- buttons here -->
+				
+		</layout>
+	</layout>
+
+	
+</interface>
+
+

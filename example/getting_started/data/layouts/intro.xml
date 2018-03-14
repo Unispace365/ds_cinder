@@ -1,0 +1,51 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="horiz"
+		layout_spacing="$_padding"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		animate_on="$_default:anim"
+		>
+		
+		
+	
+		<layout 
+			layout_type="vert"
+			layout_size_mode="stretch"
+			layout_v_align="middle"
+			overall_alignment="center"
+			pad_all="$_padding"
+			>
+			<text name="slide_title"
+				font="slide:title"
+				layout_h_align="right"
+				text_align="right"
+				model="text:this->title"
+				/>
+			<text name="slide_body"
+				font="slide:body"
+				layout_h_align="right"
+				text_align="right"
+				model="text:this->body"
+				/>
+		</layout>
+		<layout 
+			layout_type="vert"
+			layout_h_align="center"
+			layout_size_mode="stretch"
+			overall_alignment="center"
+			pad_all="#expr{$_padding * 4.0}"
+			>
+			<image name="media"
+				model="src:this->local_resource"
+				layout_size_mode="flex"
+				/>
+					
+		</layout>
+	</layout>
+
+	
+</interface>
+
+

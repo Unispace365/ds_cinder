@@ -1,0 +1,9 @@
+<model>
+	<table name="slides"
+			resources="resourceid"
+			sort="sort_order ASC"		
+			label_field="title"
+		/>
+</model>
+
+
