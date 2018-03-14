@@ -49,12 +49,15 @@
 	<setting name="touch:swipe:minimum_velocity" value="800.0" type="float" comment="The velocity a swipe needs to exceed to count as a swipe" default="800.0" min_value="1.0" max_value="2400"/>
 	<setting name="touch:swipe:maximum_time" value="0.5" type="float" comment="How long a swipe can last to be counted as a swipe" default="0.5" min_value="0.0" max_value="3.0"/>
 	<setting name="RESOURCE SETTINGS " value="" type="section_header"/>
-	<setting name="resource_location" value="" type="string" comment="Resource location and database for cms content"/>
-	<setting name="resource_db" value="" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
+	<setting name="resource_location" value="%APP%/data/" type="string" comment="Resource location and database for cms content"/>
+	<setting name="resource_db" value="db.sqlite" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
 	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
-	<setting name="auto_refresh_app" value="false" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
+	<setting name="content:node_watch" value="true" type="bool" comment="If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777" default="true"/>
+	<setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data" default="%APP%/data/model/content_model.xml"/>
+	<setting name="content:use_wrangler" value="true" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
+	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
 	<setting name="auto_refresh_directories" value="%APP%" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
@@ -69,5 +72,7 @@
 	<setting name="metrics:send_touch_info" value="false" type="bool" comment="Record touch data or not" default="false"/>
 	<setting name="metrics:udp_host" value="127.0.0.1" type="string" comment="The host name to send udp metrics info to" default="127.0.0.1"/>
 	<setting name="metrics:udp_port" value="8094" type="string" comment="The port to send udp metrics info to" default="8089"/>
+	<setting name="data:auto_refresh_app" value="" type="unknown"/>
+	<setting name="data:auto_refresh_directories" value="" type="unknown"/>
 </settings>
 

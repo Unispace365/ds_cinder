@@ -3,43 +3,34 @@
 #include "full_starter_app.h"
 
 #include <ds/app/engine/engine.h>
-#include <ds/ui/interface_xml/interface_xml_importer.h>
-
+#include <ds/content/content_events.h>
 #include <ds/ui/media/media_viewer.h>
 
 #include <cinder/app/RendererGl.h>
 
-#include "app/globals.h"
 #include "events/app_events.h"
-
 #include "ui/story/story_view.h"
 
 namespace fullstarter {
 
 FullStarterApp::FullStarterApp()
 	: ds::App()
-	, mGlobals(mEngine, mAllData)
-	, mQueryHandler(mEngine, mAllData)
 	, mEventClient(mEngine)
 {
 
 	// Register events so they can be called by string
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
-	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event* {return new StoryDataUpdatedEvent(); });
+	ds::event::Registry::get().addEventCreator(SomethingHappenedEvent::NAME(), [this]()->ds::Event* {return new SomethingHappenedEvent(); });
 
-	mEventClient.listenToEvents<StoryDataUpdatedEvent>([this](const StoryDataUpdatedEvent& e) { std::cout << "Story data was updated." << std::endl; });
+	mEventClient.listenToEvents<SomethingHappenedEvent>([this](const SomethingHappenedEvent& e) { std::cout << "Something happened" << std::endl; });
 
-	registerKeyPress("Requery data", [this] { mQueryHandler.runQueries(); }, ci::app::KeyEvent::KEY_n);
+	registerKeyPress("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
 }
 
 void FullStarterApp::setupServer(){
-
-	// Asynchronously run initial queries. Listen to StoryDataUpdatedEvent for when queries are complete
-	mQueryHandler.runQueries();
-	
 	// add sprites
-	mEngine.getRootSprite().addChildPtr(new StoryView(mGlobals));
+	mEngine.getRootSprite().addChildPtr(new StoryView(mEngine));
 
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting

@@ -22,13 +22,13 @@
 				layout_h_align="center"
 			>
 			
-				<text name="message"
+				<text name="app_title"
 					font="app:title"
-					layout_v_align="middle"
 					layout_size_mode="flex"
 					pad_all="#expr $_padding * 2.0"
 					layout_h_align="center"
 					animate_on="$_default:anim"
+					text="full_starter"
 					/>
 					
 				<sprite name="spacer_one" 
@@ -39,6 +39,14 @@
 					animate_on="$_default:anim"
 				/>
 				
+				<text name="title"
+					font="media_viewer:title"
+					layout_size_mode="flex"
+					layout_h_align="center"
+					animate_on="$_default:anim"
+					model="text:this->title"
+					/>
+					
 				<image name="primary_image"
 					layout_size_mode="fixed"
 					layout_size="#expr{$_world_height / 2.0}, #expr{$_world_height / 2.0}"
@@ -48,7 +56,6 @@
 				
 				<text name="subtitle_message"
 					font="media_viewer:title"
-					layout_v_align="middle"
 					layout_size_mode="flex"
 					layout_h_align="center"
 					text_align="center"
@@ -63,6 +70,12 @@
 					opacity="$_line:opacity"
 					animate_on="$_default:anim"
 				/>
+				
+				<xml name="sample_button" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="the_button" on_click_event="SomethingHappenedEvent" 	layout_h_align="center" />
+					<property name="high_icon" src="%APP%/data/images/media_interface/touch.png" scale="0.25, 0.25" position="20, 23" />
+					<property name="high_label" text="Something" />
+				</xml>
 				
 				<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
 					<property name="the_button" on_click_event="RequestAppExitEvent" 	layout_h_align="center" />

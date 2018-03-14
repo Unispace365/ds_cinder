@@ -4,16 +4,15 @@
 
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/app/engine/engine_events.h>
+#include <ds/content/content_events.h>
 
-#include "app/globals.h"
 #include "events/app_events.h"
 
 
 namespace fullstarter {
 
-StoryView::StoryView(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "story_view.xml")
-	, mGlobals(g)
+StoryView::StoryView(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "story_view.xml")
 {
 
 	hide();
@@ -21,7 +20,10 @@ StoryView::StoryView(Globals& g)
 		
 	listenToEvents<ds::app::IdleStartedEvent>([this](const ds::app::IdleStartedEvent& e) { animateOff(); });
 	listenToEvents<ds::app::IdleEndedEvent>([this](const ds::app::IdleEndedEvent& e) { animateOn(); });
-	listenToEvents<StoryDataUpdatedEvent>([this](const StoryDataUpdatedEvent& e) { setData(); });
+	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) { setData(); });
+	listenToEvents<SomethingHappenedEvent>([this](const SomethingHappenedEvent& e) { 
+		setSpriteText("subtitle_message", "You hit the 'Something' button at " + std::to_string(e.mEventOrigin.x) + ", " + std::to_string(e.mEventOrigin.y)); 
+	});
 
 }
 
@@ -29,12 +31,14 @@ void StoryView::setData() {
 	// update view to match new content
 	// See story_query from where this content is sourced from
 	// In a real case, you'd likely have a single story ref for this instance and use that data
-	if(!mGlobals.mAllData.mStories.empty()){
+	if(!mEngine.mContent.getChildren().empty()){
 
-		auto storyRef = mGlobals.mAllData.mStories.front();
-		setSpriteText("message", storyRef.getTitle());
+		/// Uses the "model" property on any xml-loaded children to map to this data model
+		auto storyRef = mEngine.mContent.getChildByName("sample_data.sample_data");
+		setContentModel(storyRef);
 		
-		setSpriteImage("primary_image", storyRef.getPrimaryResource());
+		/// You can also manually apply properties to items
+		setSpriteImage("primary_image", storyRef.getPropertyResource("resourceid"));
 		
 	}
 
@@ -55,10 +59,6 @@ void StoryView::animateOn(){
 
 void StoryView::animateOff(){
 	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
-}
-
-void StoryView::onUpdateServer(const ds::UpdateParams& p){
-	// any changes for this frame happen here
 }
 
 
