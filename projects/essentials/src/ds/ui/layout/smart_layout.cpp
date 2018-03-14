@@ -130,10 +130,10 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 						}
 
 					} else {
-						DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping");
+						DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << theModel);
 					}
 				} else {
-					DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping");
+					DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << theModel);
 				}
 			}
 		}

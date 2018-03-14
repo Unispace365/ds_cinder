@@ -227,7 +227,7 @@ void EngineSettings::setDefaults(){
 	getSetting("content:model_location", 0, ds::cfg::SETTING_TYPE_STRING, "Where ContentWrangler should look for an xml file that describes a data model to load sqlite data", "%APP%/data/model/content_model.xml");
 	getSetting("content:use_wrangler", 0, ds::cfg::SETTING_TYPE_BOOL, " If ContentWrangler should be used to automatically grab data", "true");
 	getSetting("auto_refresh_app", 0, ds::cfg::SETTING_TYPE_BOOL, "Listen to directory changes and auto soft-restart the app.", "false");
-	getSetting("auto_refresh_directories", 0, ds::cfg::SETTING_TYPE_STRING, "Semi-colon separated list of directories to listen to to restart the app.", "%APP%");
+	getSetting("auto_refresh_directories", 0, ds::cfg::SETTING_TYPE_STRING, "Semi-colon separated list of directories to listen to to restart the app. If auto_refresh_app is off, will still listen to these directories", "%APP%");
 
 	getSetting("LOGGER", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("logger:level", 0, ds::cfg::SETTING_TYPE_STRING, "What level of log to log.", "all", "", "", "all, none, info, warning, error, fatal");
