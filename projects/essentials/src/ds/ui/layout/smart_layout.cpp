@@ -124,9 +124,7 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 								actualValue = theData.getChildByName(theChild).getPropertyString(theProp);
 							}
 
-							if(!actualValue.empty()) {
-								ds::ui::XmlImporter::setSpriteProperty(*it.second, sprPropToSet, actualValue);
-							}
+							ds::ui::XmlImporter::setSpriteProperty(*it.second, sprPropToSet, actualValue);
 						}
 
 					} else {
