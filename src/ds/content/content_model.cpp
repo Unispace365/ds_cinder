@@ -257,6 +257,10 @@ bool map_compare(Map const &lhs, Map const &rhs) {
 bool ContentModelRef::operator==(const ContentModelRef& b) const {
 	if(empty() && b.empty()) return true;
 
+	if(!mData && !b.mData) return true;
+
+	if(!mData && b.mData || mData && !b.mData) return false;
+
 	if(mData->mName == b.mData->mName
 	   && mData->mId == b.mData->mId
 	   && mData->mLabel == b.mData->mLabel
