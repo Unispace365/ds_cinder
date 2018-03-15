@@ -95,6 +95,9 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 
 
 	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(), [this]()->ds::Event* {return new ds::app::RequestAppExitEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::app::IdleEndedEvent::NAME(), [this]()->ds::Event* {return new ds::app::IdleEndedEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::app::IdleStartedEvent::NAME(), [this]()->ds::Event* {return new ds::app::IdleStartedEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleStatsRequest::NAME(), [this]()->ds::Event* {return new ds::EngineStatsView::ToggleStatsRequest(); });
 
 	setupEngine();
 
