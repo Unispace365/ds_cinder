@@ -66,6 +66,9 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	/// This is a helpful comment for what this function means
 	void setContentModel(ds::model::ContentModelRef& theData);
 
+	/// Returns the last-set ContentModelRef
+	ds::model::ContentModelRef getContentModel() { return mContentModel; }
+
 	// Build => Run Animations on children
 	// this->addAnimation(name, duration, delay).size(elementName, to, delay=0).opacity(elementName, to,
 	// delay=0).finishFn(callback);
@@ -85,6 +88,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	bool			mNeedsLayout;
 	ds::EventClient mEventClient;
 	sMap			mSpriteMap;
+	ds::model::ContentModelRef mContentModel;
 };
 
 }  // namespace ui

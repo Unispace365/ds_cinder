@@ -100,6 +100,7 @@ void SmartLayout::setSpriteTapFn(const std::string& spriteName,
 }
 
 void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
+	mContentModel = theData;
 	for(auto it : mSpriteMap) {
 		auto theModel = it.second->getUserData().getString("model");
 		if(!theModel.empty()) {
