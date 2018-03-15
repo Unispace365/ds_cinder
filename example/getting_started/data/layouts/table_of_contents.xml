@@ -25,20 +25,14 @@
 			resize_limit="#expr{$_world_width / 2.0}"
 			model="text:this->body"
 			/>
-
 			
-		<layout 
+		<layout name="slides_hodler"
 			layout_type="vert"
+			pad_all="$_padding"
 			layout_h_align="center"
-			shrink_to_children="height"
-			size="#expr{$_world_width / 2.0}, 0"
-			>
-			<image name="media"
-				model="resource:this->resourceid"
-				layout_size_mode="flex"
-				/>
-					
-		</layout>
+			shrink_to_children="both"
+			/>
+
 	</layout>
 
 	

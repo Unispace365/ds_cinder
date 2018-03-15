@@ -1,0 +1,92 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		animate_on="$_default:anim"
+		>
+		
+		
+	
+		<text name="slide_title"
+			font="slide:title"
+			layout_h_align="center"
+			text_align="center"
+			layout_size_mode="flex"
+			t_pad="#expr{$_padding * 3}"
+			model="text:this->title"
+			/>
+			
+	
+		<text name="slide_body"
+			font="slide:body"
+			layout_h_align="center"
+			resize_limit="#expr{$_world_width / 2.0}"
+			t_pad="#expr{$_padding * 1.0}"
+			model="text:this->body"
+			/>
+
+			
+		<layout 
+			layout_type="vert"
+			layout_h_align="center"
+			layout_size_mode="stretch"
+			pad_all="$_padding"
+			layout_spacing="$_padding"
+			>
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				layout_h_align="center"
+				>
+				<border 
+					border_width="2"
+					color="orange"
+					size="600, 500"
+					enable="true"
+					multitouch="all"
+					>
+					<sprite 
+						color="white"
+						size="100, 100"
+						position="20, 20"
+						enable="true"
+						multitouch="pos"
+						/>
+					
+					<text 
+						font="controller:count"
+						text="^ Child sprite. <br>This child's position is 20, 20 <br>Drag the parent around and the children move with it<br>Use control-click to two-finger touch-scale-rotate"
+						position="20, 125"
+						layout_h_align="center"
+					/>	
+					<text 
+						font="controller:count"
+						text="Border sprite parent"
+						position="0, 505"
+						layout_h_align="center"
+					/>	
+					
+					<image
+						src="%APP%/data/images/slides/whynot.png"
+						position="280, 350"
+						scale="0.25, 0.25"
+						/>
+					
+					<text 
+						font="controller:count"
+						text="^ Child image sprite"
+						position="280, 425"
+						layout_h_align="center"
+					/>	
+				</sprite>					
+			</layout>
+					
+		</layout>
+	</layout>
+
+	
+</interface>
+
+

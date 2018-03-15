@@ -1,0 +1,327 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		animate_on="$_default:anim"
+		>
+		
+		
+	
+		<text name="slide_title"
+			font="slide:title"
+			layout_h_align="center"
+			text_align="center"
+			layout_size_mode="flex"
+			model="text:this->title"
+			t_pad="#expr{$_padding * 3}"
+			/>
+			
+	
+		<text name="slide_body"
+			font="slide:body"
+			t_pad="$_padding"
+			layout_h_align="center"
+			resize_limit="#expr{$_world_width / 2.0}"
+			model="text:this->body"
+			/>
+
+			
+		<layout 
+			layout_type="horiz"
+			layout_h_align="center"
+			layout_size_mode="stretch"
+			shrink_to_children="both"
+			pad_all="$_padding"
+			layout_spacing="$_padding"
+			>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<sprite 
+					color="orange"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text 
+					font="controller:count"
+					text="Sprite"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<sprite 
+					color="orange"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					corner_radius="20"
+					/>
+				<text 
+					font="controller:count"
+					text="Sprite"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<border 
+					color="orange"
+					border_width="5"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					corner_radius="20"
+					/>
+				<text 
+					font="controller:count"
+					text="Border"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<circle 
+					color="orange"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text
+					font="controller:count"
+					text="Circle"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<circle_border 
+					color="orange"
+					border_width="5"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text
+					font="controller:count"
+					text="CircleBorder"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<donut_arc 
+					color="orange"
+					donut_width="30"
+					donut_percent="0.666"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text 
+					font="controller:count"
+					text="DonutArc"
+					layout_h_align="center"
+				/>						
+			</layout>
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<gradient 
+					gradientColors="orange, red, dark_blue, white"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text
+					font="controller:count"
+					text="Gradient"
+					layout_h_align="center"
+				/>						
+			</layout>
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<gradient 
+					colorTop="orange"
+					colorBot="red"
+					corner_radius="15"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					/>
+				<text
+					font="controller:count"
+					text="Gradient"
+					layout_h_align="center"
+				/>						
+			</layout>
+		</layout>
+		
+		<layout 
+			layout_type="horiz"
+			layout_h_align="center"
+			layout_size_mode="stretch"
+			shrink_to_children="both"
+			pad_all="$_padding"
+			layout_spacing="$_padding"
+			>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<dashed_line 
+					color="orange"
+					size="100, 100"
+					enable="true"
+					multitouch="all"
+					corner_radius="20"
+					/>
+				<text 
+					font="controller:count"
+					text="DashedLine"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<image 
+					layout_size="100, 100"
+					src_cache="%APP%/data/images/slides/whynot.png"
+					enable="true"
+					multitouch="all"
+					/>
+				<text 
+					font="controller:count"
+					text="Image"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<image 
+					color="orange"
+					blend_mode="screen"
+					layout_size="100, 100"
+					src_cache="%APP%/data/images/slides/whynot.png"
+					enable="true"
+					multitouch="all"
+					corner_radius="20"
+					/>
+				<text 
+					font="controller:count"
+					text="Image"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<image_button 
+					size="100, 100"
+					enable="true"
+					src="%APP%/data/images/media_interface/touch.png"
+					down_image_color="white"
+					up_image_color="orange"
+					btn_touch_padding="18"
+					/>
+				<text
+					font="controller:count"
+					text="ImageButton"
+					layout_h_align="center"
+				/>						
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<sprite_button 
+					size="100, 100"
+					enable="true"
+					>
+					<sprite 
+						color="orange"
+						size="100, 100"
+						attach_state="normal"
+						/>
+					<sprite 
+						color="white"
+						size="100, 100"
+						attach_state="high"
+						/>
+				</sprite_button>
+				<text
+					font="controller:count"
+					text="SpriteButton"
+					layout_h_align="center"
+				/>						
+			</layout>
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<control_check_box 
+					size="100, 100"
+					enable="true"
+					layout_h_align="center"
+					/>
+				<text
+					font="controller:count"
+					text="ControlCheckBox"
+					layout_h_align="center"
+				/>						
+			</layout>
+			<layout
+			
+				layout_type="vert"
+				shrink_to_children="both"
+				>
+				<control_slider 
+					size="100, 50"
+					/>
+				<text
+					font="controller:count"
+					text="ControlSlider"
+					t_pad="50"
+					layout_h_align="center"
+				/>						
+			</layout>
+		</layout>
+	</layout>
+
+	
+</interface>
+
+

@@ -1,0 +1,39 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="horiz"
+		overall_alignment="center"
+		shrink_to_children="both"
+		animate_on="$_default:anim"
+		enable="true"
+		multitouch="info"
+		>
+		
+		
+	
+		<text name="page_num"
+			font="controller:count"
+			layout_h_align="center"
+			text_align="right"
+			resize_limit="30"
+			layout_size_mode="flex"
+			model="text:this->title"
+			color="orange"
+			r_pad="10"
+			layout_fudge="0, 4"
+			/>
+		<text name="slide_title"
+			font="controller:title"
+			layout_h_align="center"
+			text_align="center"
+			layout_size_mode="flex"
+			model="text:this->title"
+			/>
+			
+
+	</layout>
+
+	
+</interface>
+
+

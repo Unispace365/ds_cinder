@@ -19,10 +19,10 @@ SlideController::SlideController(ds::ui::SpriteEngine& eng)
 	, mCurrentSlide(nullptr)
 {
 
-	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) { setData(false); });
-	listenToEvents<SlideForwardRequest>([this](const SlideForwardRequest& e) { goForward(); });
-	listenToEvents<SlideBackRequest>([this](const SlideBackRequest& e) { goBack(); });
-	listenToEvents<SlideSetRequest>([this](const SlideSetRequest& e) { setData(true); });
+	listenToEvents<ds::ContentUpdatedEvent>([this](auto e) { setData(false); });
+	listenToEvents<SlideForwardRequest>([this](auto e) { goForward(); });
+	listenToEvents<SlideBackRequest>([this](auto e) { goBack(); });
+	listenToEvents<SlideSetRequest>([this](auto e) { setData(true); });
 
 	setSwipeCallback([this](ds::ui::Sprite* bs, const ci::vec3& amount) {
 		if(amount.x < 0.0) {
@@ -35,6 +35,21 @@ SlideController::SlideController(ds::ui::SpriteEngine& eng)
 }
 
 void SlideController::setData(const bool doAnimation, const bool forwards) {
+	// find the new slide in the list
+	auto allSlides = mEngine.mContent.getChildByName("slides");
+	int curSlide = mEngine.mContent.getPropertyInt("current_slide");
+	auto thisSlide = allSlides.getChildById(curSlide);
+
+	if(thisSlide.empty()) {
+		DS_LOG_WARNING("Slide not found!");
+		thisSlide = allSlides.getChild(0);
+		mEngine.mContent.setProperty("current_slide", thisSlide.getId());
+	}
+
+	// if the new page is identical, then skip loading anything
+	if(getContentModel() == thisSlide) return;
+
+	/// Remove the current slide
 	if(mCurrentSlide) {
 		if(doAnimation) {
 			auto cs = mCurrentSlide;
@@ -42,9 +57,11 @@ void SlideController::setData(const bool doAnimation, const bool forwards) {
 			if(!forwards) dest.x = -dest.x;
 			cs->tweenPosition(dest, mEngine.getAnimDur(), 0.0f, ci::easeInQuad, [this, cs] { cs->release(); });
 		} else {
-			mCurrentSlide->release();
-			mCurrentSlide = nullptr;
+			auto cs = mCurrentSlide;
+			cs->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeInQuad, [this, cs] { cs->release(); });
 		}
+
+		mCurrentSlide = nullptr;
 	}
 	auto holder = getSprite("slide_holder");
 	if(!holder) {
@@ -52,15 +69,7 @@ void SlideController::setData(const bool doAnimation, const bool forwards) {
 		return;
 	}
 
-	auto allSlides = mEngine.mContent.getChildByName("slides");
-	int curSlide = mEngine.mContent.getPropertyInt("current_slide");
-	auto thisSlide = allSlides.getChildById(curSlide);
-	if(thisSlide.empty()) {
-		DS_LOG_WARNING("Slide not found!");
-		thisSlide = allSlides.getChild(0);
-		mEngine.mContent.setProperty("current_slide", thisSlide.getId());
-	}
-
+	/// Load the new slide
 	auto slideLayout = thisSlide.getPropertyString("layout");
 	if(slideLayout.empty()) slideLayout = "slide.xml";
 
@@ -76,6 +85,22 @@ void SlideController::setData(const bool doAnimation, const bool forwards) {
 		ds::ui::XmlImporter::setSpriteProperty(*mCurrentSlide->getSprite("markdown"), "markdown", str);
 	}
 
+
+	// Build the table of contents page, if that's what this is
+	if(slideLayout == "table_of_contents.xml" && mCurrentSlide->hasSprite("slides_hodler")) {
+		int pageNum = 1;
+		auto hodler = mCurrentSlide->getSprite("slides_hodler");
+		for (auto it : allSlides.getChildren()){
+			auto chillin = new ds::ui::SmartLayout(mEngine, "table_of_contents_item.xml");
+			chillin->setContentModel(it);
+			chillin->setSpriteText("page_num", std::to_string(pageNum++));
+			int slideId = it.getId();
+			chillin->setTapCallback([this, slideId](ds::ui::Sprite* bs, const ci::vec3&){ mEngine.mContent.setProperty("current_slide", slideId); mEngine.getNotifier().notify(SlideSetRequest()); });
+			hodler->addChildPtr(chillin);
+		}
+	}
+
+	// Sets the controller bits at the bottom
 	setContentModel(thisSlide);
 
 	if(hasSprite("count")) {

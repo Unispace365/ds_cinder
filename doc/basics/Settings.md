@@ -18,7 +18,7 @@ There are two pieces to any setting: the xml setting, and it's c++ counterpart. 
 	
 In c++ land, the setting gets ready like this:
 
-    float theSpeed = mGlobals.getAppSettings().getFloat("particular_component:speed");
+    float theSpeed = mEngine.getAppSettings().getFloat("particular_component:speed");
 	
 
 ## Indicies
@@ -30,14 +30,14 @@ You can have multiple instances of the same setting, to define a series of thing
 	
 In c++:
 
-    std::string firstAddress = mGlobals.getAppSettings().getString("component:address", 0);
-    std::string secondAddres = mGlobals.getAppSettings().getString("component:address", 1);
+    std::string firstAddress = mEngine.getAppSettings().getString("component:address", 0);
+    std::string secondAddres = mEngine.getAppSettings().getString("component:address", 1);
 
 You can also iterate through each setting with the same name:
 
     int i = 0;
     while(true){
-        std::string theAddress = mGlobals.getAppSettings().getString("component:address", i);
+        std::string theAddress = mEngine.getAppSettings().getString("component:address", i);
         if(theAddress.empty()) break;
         i++
     }
@@ -52,7 +52,7 @@ If you want to look through all the settings in a settings file:
 
 Pass a default value to the getter, and if the setting doesn't exist in the xml file, the default value will be returned.
 
-    ci::vec2 viewerSize = mGlobals.getAppSettings().getVec2("viewer:size", 0, ci::vec2(1920.0f, 1080.0f);
+    ci::vec2 viewerSize = mEngine.getAppSettings().getVec2("viewer:size", 0, ci::vec2(1920.0f, 1080.0f);
 	
 In the settings editor, you'll not only see any values set from xml, but called with a getter. You could define the entire settings file using c++ if you wanted. Check out the bottom of src/ds/app/engine/engine_settings.cpp to see how the engine.xml file is defined.
 

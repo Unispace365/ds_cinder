@@ -1,0 +1,67 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		animate_on="$_default:anim"
+		>
+		
+		
+	
+		<text name="slide_title"
+			font="slide:title"
+			layout_h_align="center"
+			text_align="center"
+			layout_size_mode="flex"
+			t_pad="#expr{$_padding * 3}"
+			model="text:this->title"
+			/>
+			
+	
+		<text name="slide_body"
+			font="slide:body"
+			layout_h_align="center"
+			resize_limit="#expr{$_world_width / 2.0}"
+			t_pad="#expr{$_padding * 1.0}"
+			model="text:this->body"
+			/>
+
+			
+		<layout 
+			layout_type="vert"
+			layout_h_align="center"
+			layout_size_mode="stretch"
+			pad_all="$_padding"
+			layout_spacing="$_padding"
+			>
+			<layout
+				layout_type="vert"
+				shrink_to_children="both"
+			layout_h_align="center"
+				>
+				<border 
+					border_width="2"
+					color="orange"
+					size="600, 200"
+					enable="true"
+					multitouch="all"
+					on_tap_event="SlideForwardRequest"
+					>
+					<text 
+						font="controller:count"
+						text="This enabled border sprite can be moved, scaled and rotated.<br>It also can be tapped to go to the next slide"
+						position="20, 20"
+						layout_h_align="center"
+					/>	
+				
+				</sprite>					
+			</layout>
+					
+		</layout>
+	</layout>
+
+	
+</interface>
+
+

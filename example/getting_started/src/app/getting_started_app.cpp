@@ -29,7 +29,7 @@ getting_started_app::getting_started_app()
 	ds::event::Registry::get().addEventCreator(SlideBackRequest::NAME(), [this]()->ds::Event* {return new SlideBackRequest(); });
 	ds::event::Registry::get().addEventCreator(SlideSetRequest::NAME(), [this]()->ds::Event* {return new SlideSetRequest(); });
 
-	mEventClient.listenToEvents<ds::DirectoryWatcher::Changed>([this](const ds::DirectoryWatcher::Changed& e) { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); });
+	//mEventClient.listenToEvents<ds::DirectoryWatcher::Changed>([this](auto e) { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); });
 
 	registerKeyPress("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
 }
@@ -52,7 +52,7 @@ void getting_started_app::setupServer(){
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3) { mEngine.getNotifier().notify(ds::app::RequestAppExitEvent()); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Next", "%APP%/data/images/menu/next_normal.png", "%APP%/data/images/menu/next_glow.png", [this](ci::vec3 pos) {mEngine.getNotifier().notify(SlideForwardRequest()); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Home", "%APP%/data/images/menu/home_normal.png", "%APP%/data/images/menu/home_glow.png", [this](ci::vec3) { mEngine.mContent.setProperty("current_slide", -1); mEngine.getNotifier().notify(SlideSetRequest()); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Home", "%APP%/data/images/menu/home_normal.png", "%APP%/data/images/menu/home_glow.png", [this](ci::vec3) { mEngine.mContent.setProperty("current_slide", 6); mEngine.getNotifier().notify(SlideSetRequest()); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Prev", "%APP%/data/images/menu/prev_normal.png", "%APP%/data/images/menu/prev_glow.png", [this](ci::vec3) { mEngine.getNotifier().notify(SlideBackRequest()); }));
 	mTouchMenu->setMenuItemModels(menuItemModels);
 

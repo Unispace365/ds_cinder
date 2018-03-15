@@ -35,6 +35,7 @@
 			>
 			<layout 
 				layout_size_mode="stretch"
+				layout_type="vert"
 				pad_all="$_padding"
 				layout_spacing="#expr{$_padding / 2.0}"
 				>
@@ -42,11 +43,13 @@
 					layout_v_align="top"
 					layout_size_mode="stretch"
 					model="src:this->local_resource"
+					layout_h_align="right"
 					/>
 				<text name="image_name"
 					font="slide:body"
 					font_size="10"
 					font_name="consolas"
+					layout_h_align="right"
 					model="text:this->local_resource"
 					/>
 			</layout>

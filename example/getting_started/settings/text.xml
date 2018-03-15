@@ -27,7 +27,7 @@
 	
 	<setting name="slide:body:name" value="Noto Sans Light" type="string"/>
 	<setting name="slide:body:size" value="16" type="float"/>
-	<setting name="slide:body:leading" value="1.0" type="float"/>
+	<setting name="slide:body:leading" value="1.25" type="float"/>
 	<setting name="slide:body:color" value="white" type="color"/>
 	
 	<setting name="controller:title:name" value="Noto Sans Bold" type="string"/>
