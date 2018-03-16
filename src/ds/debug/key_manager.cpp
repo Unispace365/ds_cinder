@@ -45,10 +45,10 @@ bool KeyManager::keyDown(ci::app::KeyEvent event) {
 	return handled;
 }
 
-void KeyManager::printCurrentKeys() {
-	DS_LOG_INFO("Available keys:");
+std::string KeyManager::getAllKeysString() {
+	std::stringstream ss;
+	ss << "Available keys:" << std::endl;
 	for(auto it : mKeyRegisters) {
-		std::stringstream ss;
 
 		if(it.mAltDown) 	ss << "alt  ";
 		ss << "\t";
@@ -59,9 +59,14 @@ void KeyManager::printCurrentKeys() {
 		if(it.mCtrlDown) 	ss << "ctrl ";
 		ss << "\t";
 
-		ss << keyCodeToString(it.mKeyCode) << "\t" << it.mName;
-		DS_LOG_INFO(ss.str());
+		ss << keyCodeToString(it.mKeyCode) << "\t" << it.mName << std::endl;
 	}
+	return ss.str();
+}
+
+
+void KeyManager::printCurrentKeys() {
+	DS_LOG_INFO(getAllKeysString());
 }
 
 std::string KeyManager::keyCodeToString(const int keyCode) {

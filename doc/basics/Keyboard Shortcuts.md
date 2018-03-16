@@ -25,6 +25,9 @@
 **shift-alt-v**: Decrease verbose logging level
 **d**: Highlight enabled sprites (helpful for touch debugging)
 **ctrl-d**: Log the entire sprite hierarchy
+**n**: Requery content
+**l**: Print content hierarchy to console
+**shift-l**: Verbose print content hierarchy to console
 **p**: Log system fonts, helpful for setting font names in text.xml
 **shift-p**: Verbose logging of system fonts
 

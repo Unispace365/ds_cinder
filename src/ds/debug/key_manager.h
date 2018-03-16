@@ -14,6 +14,7 @@ namespace keys {
 * \brief Register keys with callbacks and store simple info about em
 */
 class KeyManager {
+public:
 	class KeyRegister {
 	public:
 		KeyRegister(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown, const bool ctrlDown, const bool altDown)
@@ -27,7 +28,6 @@ class KeyManager {
 		bool mAltDown;
 	};
 
-public:
 	KeyManager();
 
 	void registerKey(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown = false, const bool ctrlDown = false, const bool altDown = false);
@@ -40,6 +40,10 @@ public:
 
 	std::string keyCodeToString(const int keyCode);
 
+	/// Output all set keys into a string.
+	std::string getAllKeysString();
+
+	/// getAllKeysString() -> log info
 	void printCurrentKeys();
 
 private:

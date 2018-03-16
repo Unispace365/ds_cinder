@@ -14,6 +14,7 @@
 #include "ds/app/environment.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/content/content_events.h"
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
@@ -425,7 +426,7 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, true);
 	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, false, true);
 	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_F4);
-	mKeyManager.registerKey("Print available keys", [this] { mKeyManager.printCurrentKeys(); }, KeyEvent::KEY_h);
+	mKeyManager.registerKey("Print available keys", [this] { mKeyManager.printCurrentKeys(); mEngine.getNotifier().notify(EngineStatsView::ToggleHelpRequest()); }, KeyEvent::KEY_h);
 	mKeyManager.registerKey("Toggle stats", [this] {mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); }, KeyEvent::KEY_s);
 	mKeyManager.registerKey("Toggle fullscreen", [this] {setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey("Toggle always on top", [this] {ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
@@ -441,6 +442,9 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
 	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
 	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
+	mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
+	mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
+	mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
 	mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
 	mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
 	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);

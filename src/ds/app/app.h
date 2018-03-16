@@ -133,6 +133,10 @@ public:
 	/// The Key codes can be found in ci::app::KeyEvent 
 	/// This will be displayed with the help debug
 	void						registerKeyPress(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown = false, const bool ctrlDown = false, const bool altDown = false);
+
+	/// Get the instance of the key manager
+	ds::keys::KeyManager&		getKeyManager() { return mKeyManager; }
+
 protected:
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;

@@ -49,10 +49,28 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	: ds::ui::Sprite(e)
 	, mEngine((ds::Engine&)e)
-	, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if(e) onAppEvent(*e); })
+	, mEventClient(e)
 	, mText(nullptr)
+	, mShowingHelp(false)
 
 {
+
+	mEventClient.listenToEvents<ToggleStatsRequest>([this](auto e) {
+		if(visible()) {
+			hide();
+		} else {
+			show();
+		}
+	});
+
+	mEventClient.listenToEvents<ToggleHelpRequest>([this](auto e) {
+		if(!visible()) {
+			show();
+		} 
+
+		mShowingHelp = !mShowingHelp;
+	});
+
 	mBlobType = BLOB_TYPE;
 
 	setDrawDebug(true);
@@ -61,7 +79,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground = new ds::ui::Sprite(mEngine, 400.0f, 40.0f);
 	mBackground->setTransparent(false);
 	mBackground->setColor(0, 0, 0);
-	mBackground->setOpacity(0.5f);
+	mBackground->setOpacity(0.75f);
 	addChildPtr(mBackground);
 	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 }
@@ -80,13 +98,13 @@ void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 
 void EngineStatsView::updateStats() {
 	setPosition(mEngine.getSrcRect().x1, mEngine.getSrcRect().y1);
-	if(!mText){
+	if(!mText && mBackground){
 		const float pad = 30.0f;
 	
 		mText = new ds::ui::Text(mEngine);
-		mText->setFont("Arial", 16.0f);
+		mText->setFont("Arial", 14.0f);
 		mText->setPosition(pad, pad);
-		mText->setResizeLimit(getWidth() - pad * 2.0f);
+		mText->setResizeLimit(mBackground->getWidth() - pad * 2.0f);
 		mText->setLeading(1.2f);
 		addChildPtr(mText);
 	}
@@ -113,21 +131,15 @@ void EngineStatsView::updateStats() {
 			ss << "<span weight='bold'>FPS:</span> " << fpsy << std::endl;
 		}
 
+		if(mShowingHelp) {
+			auto appy = dynamic_cast<ds::App*>(ds::App::get());
+			ss << std::endl << "<span size='xx-small'>" << appy->getKeyManager().getAllKeysString() << "</span>";
+		}
+
 		mText->setText(ss.str());
 
-		if(mBackground->getHeight() < mText->getPosition().y * 2.0f + mText->getHeight()){
-			mBackground->setSize(mBackground->getWidth(), mText->getPosition().y * 2.0f + mText->getHeight());
-		}
-	}
-}
-
-void EngineStatsView::onAppEvent(const ds::Event &_e) {
-	if (ToggleStatsRequest::WHAT() == _e.mWhat) {
-		if(visible()){
-			hide();
-		} else {
-			show();
-		}
+		mBackground->setSize(mBackground->getWidth(), mText->getPosition().y * 2.0f + mText->getHeight());
+		
 	}
 }
 

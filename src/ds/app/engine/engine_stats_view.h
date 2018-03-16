@@ -21,6 +21,11 @@ class Engine;
  */
 class EngineStatsView : public ds::ui::Sprite {
 public:
+	/// A request to show or hide the stats view (# of sprites, memory use, fps)
+	class ToggleStatsRequest : public ds::RegisteredEvent<ToggleStatsRequest> {};
+	/// Show the available keys and the stats view if hidden
+	class ToggleHelpRequest : public ds::RegisteredEvent<ToggleHelpRequest> {};
+
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
 	EngineStatsView(ds::ui::SpriteEngine&);
@@ -31,19 +36,12 @@ public:
 
 	void						updateStats();
 private:
-	void						onAppEvent(const ds::Event&);
 	ds::Engine&					mEngine;
 	ds::EventClient				mEventClient;
 	// UI
 	ds::ui::Sprite*				mBackground;
 	ds::ui::Text*				mText;
-
-	// EVENTS
-public:
-	class ToggleStatsRequest : public ds::RegisteredEvent<ToggleStatsRequest> {
-	public:
-		ToggleStatsRequest(){}
-	};
+	bool						mShowingHelp;
 };
 
 } // namespace ds

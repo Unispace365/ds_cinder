@@ -31,15 +31,11 @@ getting_started_app::getting_started_app()
 
 	//mEventClient.listenToEvents<ds::DirectoryWatcher::Changed>([this](auto e) { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); });
 
-	registerKeyPress("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
-	registerKeyPress("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
-	registerKeyPress("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
 }
 
 void getting_started_app::setupServer(){
 	// add sprites
 	mEngine.getRootSprite().addChildPtr(new SlideController(mEngine));
-
 
 	auto mTouchMenu = new ds::ui::TouchMenu(mEngine);
 	mEngine.getRootSprite().addChildPtr(mTouchMenu);
