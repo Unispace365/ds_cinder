@@ -4,9 +4,9 @@
 
 The "VC" stands for very cool. New, as of March 2018.
 
-ContentModel is a new piece of code that greatly simplifies defining a data model and pulling it out of a sqlite database. There's a simple XML descriptor that describes which tables your interested, can link Resources, builds hierarchies, and allows control of the SQL queries. ContentModel is mostly string-based, so any type of data can be stored in it, and it can be applied to layout files at runtime.
+ContentModel greatly simplifies defining a data model and pulling it out of a sqlite database. There's a simple XML descriptor that describes which tables your interested in, links Resources, builds hierarchies, and allows control of the SQL queries. ContentModel is string-based, so any type of data can be stored in it, and it can be applied to layout files at runtime.
 
-Lets say you have a table in a sqlite db called "slides". Check out the getting_started example db for a real-life example.
+Let's say you have a table in a sqlite db called "slides". (Check out the getting_started example db for a real-life example.)
 
     CREATE TABLE "slides" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT, `body` TEXT, `resourceid` TEXT, `sort_order` INTEGER, `layout` TEXT, `local_resource` TEXT, `markdown_file` TEXT )
 	

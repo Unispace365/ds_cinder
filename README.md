@@ -54,12 +54,13 @@ DS Cinder is a framework for interactive applications built on top of the fantas
     6. Ok, Ok, Ok
 3. Open an example project in the example folder and compile
   
+## Getting to know ds_cinder
+
+Start with the "getting_started" example - it has a handy guide for basic concepts in ds_cinder. It also has a good number of common ds_cinder components in the app so you can mess with the pieces and see what's what.
   
 ## Starting a project
 
 There's a project cloner in utility/project_cloner.ps1. Right-click that file and Run with Powershell. That applet will duplicate the full_starter example project with a name and namespace of your choice. From there, you can customize the app as you see fit. The full starter example comes with most of the extention projects (web, pdf, video, etc) already added, so you can start developing right away without messing with property sheets or compilation settings. 
-
-When getting to know DS Cinder, take a look at the docs/ directory, which has some background info on the basics. It's also recommended to look through the examples for how to use the various components.
 
 ### Linux + Mac
 

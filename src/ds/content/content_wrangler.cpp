@@ -46,6 +46,7 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 					break;
 				}
 			}
+			mEngine.mContent.setChildren(theChildren);
 		}
 		mEngine.mContent.addChild(q.mData);
 
