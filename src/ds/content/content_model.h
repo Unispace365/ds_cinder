@@ -93,7 +93,7 @@ class ContentModelRef {
 public:
 
 	// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
-	// TODO: ability to set a user data pointer
+	// TODO: remove child
 
 	ContentModelRef();
 	ContentModelRef(const std::string& name, const int id = 0, const std::string& label = "");

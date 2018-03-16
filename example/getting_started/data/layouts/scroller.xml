@@ -38,7 +38,7 @@
 				layout_size_mode="stretch"
 				pad_all="$_padding"
 				scroll_fade_colors="#ff000000, #00000000"
-				scroll_fade_size="100"
+				scroll_fade_size="50"
 				>
 				<text name="markdown"
 					font="slide:body"

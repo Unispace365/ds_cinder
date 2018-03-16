@@ -53,11 +53,11 @@ generic_data_model_app::generic_data_model_app()
 		equalityTest = mEngine.mContent == theDupe;
 		DS_LOG_INFO("Test for equality after dupe change: " << equalityTest);
 
-		//mEngine.mContent.printTree(true, "");
+		mEngine.mContent.printTree(true, "");
 		//theDupe.printTree(true, "");
 
 
-		auto dm = mEngine.mContent.getChildByName("sample_data");
+		auto dm = mEngine.mContent.getChildByName("sqlite.sample_data");
 		for(auto it : dm.getChildren()) {
 			auto sl = new ds::ui::SmartLayout(mEngine, "sample_data.xml");
 			sl->setContentModel(it);

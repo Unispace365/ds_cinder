@@ -27,3 +27,12 @@
 **ctrl-d**: Log the entire sprite hierarchy
 **p**: Log system fonts, helpful for setting font names in text.xml
 **shift-p**: Verbose logging of system fonts
+
+
+## Adding your own shortcuts
+
+In the main app class:
+
+    registerKeyPress("Do the thing", [this] { doTheThing(); }, ci::app::KeyEvent::KEY_n);
+	
+That's it! This will print out with the rest of the key commands when pressing 'h'. There's no check for duplication, so if you duplicate a key, both functions will be called. You can also add optional flags for shift, ctrl, and alt.

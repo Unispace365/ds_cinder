@@ -16,6 +16,7 @@
 			layout_size_mode="flex"
 			t_pad="#expr{$_padding * 3}"
 			model="text:this->title"
+			
 			/>
 			
 	

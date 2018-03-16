@@ -22,7 +22,9 @@ ContentQuery::ContentQuery()
 
 
 void ContentQuery::run() {
-	mData = ds::model::ContentModelRef("root", 0, "The root of all data");
+	mData = ds::model::ContentModelRef("sqlite", 0, "The root of all sqlite data");
+	mData.setProperty("cms_database", mCmsDatabase);
+	mData.setProperty("model_xml", mXmlDataModel);
 	mTableId = 0;
 
 	if(mCmsDatabase.empty()) {

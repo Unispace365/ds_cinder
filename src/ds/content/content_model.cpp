@@ -459,7 +459,7 @@ ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
 	if(childName.find(".") != std::string::npos) {
 		auto childrens = ds::split(childName, ".", true);
 		if(childrens.empty()) {
-			DS_LOG_WARNING("DataModelRef::getChild() Cannot find a child with the name \".\"");
+			DS_LOG_WARNING("ContentModelRef::getChild() Cannot find a child with the name \".\"");
 		} else {
 			ContentModelRef curChild = getChildByName(childrens.front());
 			for(int i = 1; i < childrens.size(); i++) {
@@ -508,9 +508,9 @@ void ContentModelRef::setChildren(std::vector<ds::model::ContentModelRef> childr
 
 void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
 	if(empty() || !mData) {
-		DS_LOG_INFO(indent << "Empty DataModel.");
+		DS_LOG_INFO(indent << "Empty ContentModel.");
 	} else {
-		DS_LOG_INFO(indent << "DataModel id:" << mData->mId << " name:" << mData->mName << " label:" << mData->mLabel);
+		DS_LOG_INFO(indent << "ContentModel id:" << mData->mId << " name:" << mData->mName << " label:" << mData->mLabel);
 		if(verbose) {
 
 			for(auto it : mData->mProperties) {

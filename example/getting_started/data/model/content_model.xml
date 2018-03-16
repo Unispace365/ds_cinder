@@ -1,4 +1,5 @@
 <model>
+
 	<table name="slides"
 			resources="resourceid"
 			sort="sort_order ASC"		

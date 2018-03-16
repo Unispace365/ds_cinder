@@ -17,6 +17,9 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	, mEventClient(se)
 {
 
+	mEngine.mContent.setName("root");
+	mEngine.mContent.setLabel("The root of all content");
+
 	ds::event::Registry::get().addEventCreator(DsNodeMessageReceivedEvent::NAME(), [this]()->ds::Event* {return new DsNodeMessageReceivedEvent(); });
 	ds::event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(), [this]()->ds::Event* {return new ContentUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestContentQueryEvent::NAME(), [this]()->ds::Event* {return new RequestContentQueryEvent(); });
@@ -35,10 +38,16 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	mContentQuery.setReplyHandler([this](ContentQuery& q) {
 		DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
 
-		mEngine.mContent.setName(q.mData.getName());
-		mEngine.mContent.setLabel(q.mData.getLabel());
-		mEngine.mContent.setId(q.mData.getId());
-		mEngine.mContent.setChildren(q.mData.getChildren());
+		if(mEngine.mContent.hasChild(q.mData.getName())) {
+			auto theChildren = mEngine.mContent.getChildren();
+			for(auto it = theChildren.begin(); it < theChildren.end(); it++) {
+				if((*it).getName() == q.mData.getName()) {
+					theChildren.erase(it);
+					break;
+				}
+			}
+		}
+		mEngine.mContent.addChild(q.mData);
 
 		mEngine.getNotifier().notify(ContentUpdatedEvent());
 	});

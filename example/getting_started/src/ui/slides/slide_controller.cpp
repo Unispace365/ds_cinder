@@ -36,7 +36,7 @@ SlideController::SlideController(ds::ui::SpriteEngine& eng)
 
 void SlideController::setData(const bool doAnimation, const bool forwards) {
 	// find the new slide in the list
-	auto allSlides = mEngine.mContent.getChildByName("slides");
+	auto allSlides = mEngine.mContent.getChildByName("sqlite.slides");
 	int curSlide = mEngine.mContent.getPropertyInt("current_slide");
 	auto thisSlide = allSlides.getChildById(curSlide);
 
@@ -128,9 +128,12 @@ void SlideController::setData(const bool doAnimation, const bool forwards) {
 
 
 void SlideController::goForward() {
-	auto allSlides = mEngine.mContent.getChildByName("slides");
+	auto allSlides = mEngine.mContent.getChildByName("sqlite.slides");
 
-	if(allSlides.getChildren().empty()) return;
+	if(allSlides.getChildren().empty()) {
+		DS_LOG_WARNING("No sqlite.slides child found in mEngine.mContent");
+		return;
+	}
 
 	int curSlide = mEngine.mContent.getPropertyInt("current_slide");
 	bool found = false;
@@ -150,9 +153,12 @@ void SlideController::goForward() {
 }
 
 void SlideController::goBack() {
-	auto allSlides = mEngine.mContent.getChildByName("slides");
+	auto allSlides = mEngine.mContent.getChildByName("sqlite.slides");
 
-	if(allSlides.getChildren().empty()) return;
+	if(allSlides.getChildren().empty()) {
+		DS_LOG_WARNING("No sqlite.slides child found in mEngine.mContent");
+		return;
+	}
 
 	int curSlide = mEngine.mContent.getPropertyInt("current_slide");
 	int prevId = -1;

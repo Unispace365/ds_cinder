@@ -34,7 +34,7 @@ void StoryView::setData() {
 	if(!mEngine.mContent.getChildren().empty()){
 
 		/// Uses the "model" property on any xml-loaded children to map to this data model
-		auto storyRef = mEngine.mContent.getChildByName("sample_data.sample_data");
+		auto storyRef = mEngine.mContent.getChildByName("sqlite.sample_data.sample_data");
 		setContentModel(storyRef);
 		
 		/// You can also manually apply properties to items
