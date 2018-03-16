@@ -12,8 +12,6 @@
 namespace ds {
 namespace ui {
 
-class Globals;
-
 /**
 * \class bragg::DashedLine
 *			Sprite to draw lines for map path!

@@ -39,6 +39,7 @@
 #include <ds/util/string_util.h>
 #include <ds/util/color_util.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/util/markdown_to_pango.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -51,18 +52,50 @@
 #include <iostream>
 #include <fstream>
 
+//#include "exprtk.hpp"
+
+#include "ds/math/fparser.hh"
+
+
 namespace {
+
+static std::unordered_map<std::string, std::string> VARIABLE_MAP;
 static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
 static bool AUTO_CACHE = false;
+
+// Get the setting if we're caching or not and run it just before server setup
+// That way we can clear the cache each time the server setup runs
+class Init {
+public:
+	Init() {
+		ds::App::AddServerSetup([](ds::Engine& e) {
+			AUTO_CACHE = e.getEngineSettings().getBool("xml_importer:cache");
+			PRELOADED_CACHE.clear();
+
+			VARIABLE_MAP.clear();
+
+			VARIABLE_MAP["world_width"] = std::to_string(e.getWorldWidth());
+			VARIABLE_MAP["world_height"] = std::to_string(e.getWorldHeight());
+			VARIABLE_MAP["world_size"] = ds::unparseVector(ci::vec2(e.getWorldWidth(), e.getWorldHeight()));
+			VARIABLE_MAP["anim_dur"] = std::to_string(e.getAnimDur());
+
+			e.getAppSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
+				ds::ui::XmlImporter::addVariable(theSetting.mName, theSetting.mRawValue);
+			});
+
+		});
+	}
+	void					doNothing() { }
+};
+Init						INIT;
+
+
 }
 
 namespace ds {
 namespace ui {
 
 static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
-
-//HACK!
-static std::string sCurrentFile;
 
 
 std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
@@ -208,21 +241,204 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
 	return newXml;
 }
 
+std::string XmlImporter::parseExpression(const std::string& theExpr) {
+
+	std::string returny = theExpr;
+
+	FunctionParser fparser;
+	fparser.AddConstant("pi", 3.1415926535897932);
+	int res = fparser.Parse(theExpr, "");
+	if(res > -1) {
+		DS_LOG_WARNING("XmlImporter::parseExpression() error parsing: " << fparser.ErrorMsg());
+		return "0.0";
+	}
+
+	double* vals = {};
+	double theResult = fparser.Eval(vals);
+	returny = std::to_string(theResult);
+
+	/* Previous parsing library
+	 - was really great, but huge compile time hit
+	exprtk::expression<double> expr;
+	exprtk::parser<double> parser;
+	parser.compile(theExpr, expr);
+
+	returny = std::to_string(expr.value());
+	*/
+
+	if(returny == "nan") {
+		DS_LOG_WARNING("XmlImporter: Experession didn't parse to a number! Using 0.0");
+		return "0.0";
+	}
+
+	DS_LOG_VERBOSE(2, "XmlImporter: Parsed expression: " << theExpr << " into " << returny);
+
+	return returny;
+
+}
+
+std::string XmlImporter::parseAllExpressions(const std::string& value) {
+
+	auto exprFindy = value.find("#expr{");
+
+	if(exprFindy != std::string::npos) {
+
+		auto theReplacement = value;
+		while(exprFindy != std::string::npos) {
+
+			
+			std::string beforeReplace = theReplacement.substr(0, exprFindy);
+
+
+			std::string exprAndAfter = theReplacement.substr(exprFindy);
+
+			auto bracketOpen = exprAndAfter.find("{");
+			auto bracketClose = exprAndAfter.find("}");
+			if(bracketClose < bracketOpen || bracketClose == std::string::npos) {
+				DS_LOG_WARNING("XmlImporter::parseAllExpressions() syntax error with brackets in " << value);
+				return beforeReplace + "0.0";
+			}
+
+			std::string theExpr = exprAndAfter.substr(bracketOpen + 1, bracketClose - bracketOpen - 1);
+			std::string afterExpr = exprAndAfter.substr(bracketClose + 1);
+
+			theExpr = parseExpression(theExpr);
+
+			theReplacement = beforeReplace + theExpr + afterExpr;
+
+			exprFindy = theReplacement.find("#expr{");
+
+		}
+
+		DS_LOG_VERBOSE(3, "XmlImporter::parseAllExpressions from " << value << " into " << theReplacement);
+
+		return theReplacement;
+
+		auto beforeString = value.substr(0, exprFindy);
+
+	} else {
+		auto findy = value.find("#expr");
+		if(findy != std::string::npos) {
+			auto theExpr = value.substr(findy + 5);
+			return parseExpression(theExpr);
+		}
+	}
+
+	return value;
+}
+
+std::string XmlImporter::replaceVariables(const std::string& value) {
+	if(value.find("$_") != std::string::npos) {
+		/// keep track of parses, cause it could get circular
+		unsigned int numTries = 0;
+
+		auto theReplacement = value;
+		int maxTries = 100000;
+		while(numTries < maxTries) {
+
+			auto newReplacement = replaceSingleVariable(theReplacement);
+
+			/// nothing was replaced, we're done
+			if(newReplacement == theReplacement) {
+				break;
+			}
+
+			theReplacement = newReplacement;
+
+			/// No more parameters, skipsies
+			if(newReplacement.find("$_") == std::string::npos) {
+				break;
+			}
+
+			numTries++;
+		}
+
+		if(numTries == maxTries) {
+			DS_LOG_WARNING("XmlImporter::replaceVariables() tried max tries, that means you have a circular references in your parameters");
+		}
+
+		return theReplacement;
+		
+	}
+	return value;
+}
+
+std::string XmlImporter::replaceSingleVariable(const std::string& value) {
+
+	auto theStart = value.find("$_");
+
+	if(theStart == std::string::npos) return value;
+
+	auto theEnd = value.find(" ", theStart);
+
+	auto commaEnd = value.find(",", theStart);
+	if(commaEnd < theEnd) theEnd = commaEnd;
+
+	auto semiEnd = value.find(";", theStart);
+	if(semiEnd < theEnd) theEnd = semiEnd;
+
+	auto brackSta = value.find("{", theStart);
+	if(brackSta < theEnd) theEnd = brackSta;
+
+	auto brackEnd = value.find("}", theStart);
+	if(brackEnd < theEnd) theEnd = brackEnd;
+
+	auto period = value.find(".", theStart);
+	if(period < theEnd) theEnd = period;
+
+	auto quot = value.find("'", theStart);
+	if(quot < theEnd) theEnd = quot;
+
+	if(theEnd == std::string::npos) theEnd = value.size();
+
+	auto beforeString = value.substr(0, theStart);
+	auto paramName = value.substr(theStart + 2, theEnd - theStart - 2); // ditch the $_
+	auto endString = value.substr(theEnd);
+
+	//std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" << paramName << std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd << std::endl;
+
+	auto findy = VARIABLE_MAP.find(paramName);
+	if(findy != VARIABLE_MAP.end()) {
+		std::string replacement = findy->second;
+
+		return beforeString + replacement + endString;
+	} else {
+		DS_LOG_WARNING("XmlImporter::replaceSingleVariable() parameter not found! Name=" << paramName);
+		return beforeString + endString;
+	}
+
+	return value;
+}
+
+void XmlImporter::addVariable(const std::string& varName, const std::string& varValue) {
+	if(varName.empty()) {
+		DS_LOG_WARNING("XmlImporter: No variable name specified when adding variable");
+		return;
+	}
+
+	VARIABLE_MAP[varName] = varValue;
+}
+
 void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer) {
 	std::string property = attr.getName();
 	setSpriteProperty(sprite, property, attr.getValue(), referer);
 }
 
-void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer) {
+void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& theValue, const std::string &referer) {
 	//Cache the engine for all our color calls
 	ds::ui::SpriteEngine& engine = sprite.getEngine();
+
+
+
+	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << theValue << " referer=" << referer);
 
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
 	// The slower parts of this are the actual functions that are called (particularly text setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
 
-
+	std::string value = replaceVariables(theValue);
+	value = parseAllExpressions(value);
 
 	if(property == "name"){
 		sprite.setSpriteName(ds::wstr_from_utf8(value));
@@ -398,7 +614,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Couldn't set shrink_to_children, as this sprite is not a LayoutSprite.");
 		}
 	}
-	
+
 	// Text specific attributes
 	else if(property == "font") {
 		// Try to set the font
@@ -447,16 +663,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			}
 		}
 
-
 	} else if (property == "text") {
-		// Try to set content
 		auto text = dynamic_cast<Text*>(&sprite);
-		if (text) {
+		if(text) {
 			text->setText(value);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property == "font_size") {
+	} else if(property == "markdown") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			text->setText(ds::ui::markdown_to_pango(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_size") {
 		// Try to set the font size
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
@@ -793,16 +1014,22 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	}
 
+	else if(property == "model") {
+		auto& ud = sprite.getUserData();
+		ud.setString(property, value);
+	}
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
 		return;
 	}
 
-	else {
+	else {		 
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
-void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos){
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos) {
+	DS_LOG_VERBOSE(4, "XmlImporter: dispatchStringEvents value=" << value);
+
 	auto leadingBracket = value.find("{");
 	if(leadingBracket == 0){
 		auto events = ds::split(value, "},{", true);
@@ -817,13 +1044,15 @@ void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite*
 	
 }
 
-void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos){
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos) {
+	DS_LOG_VERBOSE(4, "XmlImporter: dispatchSingleEvent value=" << value);
+
 	auto tokens = ds::split(value, "; ", true);
 	if(!tokens.empty()){
 		std::string eventName = tokens.front();
 		ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
 		if(eventy->mWhat < 1){
-			DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
+			DS_LOG_WARNING("XmlImporter::dispatchSingleEvent() Event not defined: " << eventName);
 		}
 
 		for(int i = 1; i < tokens.size(); i++){
@@ -855,7 +1084,9 @@ XmlImporter::~XmlImporter() {
 	}
 }
 
-bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData){
+bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData) {
+	DS_LOG_VERBOSE(3, "XmlImporter: preloadXml filename=" << filename);
+
 	outData.mFilename = filename;
 	try {
 		if(!ds::safeFileExistsCheck(filename)) {
@@ -921,6 +1152,7 @@ void XmlImporter::setAutoCache(const bool doCaching){
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto filename=" << filename << " prefix=" << prefixName);
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
 
@@ -955,7 +1187,8 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild){
+bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -1027,7 +1260,10 @@ struct SelectorMatchChecker : public boost::static_visitor<bool> {
 	const std::string &mIdToCheck;
 };
 
-static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes) {
+static void applyStylesheet(const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes) {
+
+	DS_LOG_VERBOSE(3, "XmlImporter: applyStylesheet stylesheet=" << stylesheet.mReferer << " name=" << name << " classes=" << classes);
+
 	BOOST_FOREACH( auto &rule, stylesheet.mRules ) {
 		auto classes_vec = ds::split(classes, " ", true );
 		bool matches_rule = false;
@@ -1088,7 +1324,9 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 }
 
 // NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
-ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value){
+ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value) {
+	DS_LOG_VERBOSE(4, "XmlImporter: createSpriteByType type=" << type << " value=" << value);
+
 	ds::ui::Sprite* spriddy = nullptr;
 
 	if(type == "sprite") {
@@ -1289,9 +1527,12 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		DS_LOG_WARNING("No parent sprite specified when reading a sprite from xml file=" << mXmlFile);
 		return false;
 	}
+
 	std::string type = node->getTag();
 	std::string value = node->getValue();
 	auto &engine = parent->getEngine();
+
+	DS_LOG_VERBOSE(6, "XmlImporter: readSprite type=" << type << " value=" << value);
 
 	if(type == "xml"){
 		std::string xmlPath = filePathRelativeTo(mXmlFile, node->getAttributeValue<std::string>("src", ""));

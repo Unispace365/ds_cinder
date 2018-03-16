@@ -220,7 +220,10 @@ const float DrawingCanvas::getBrushSize(){
 	return mBrushSize;
 }
 
-void DrawingCanvas::setBrushImage(const std::string& imagePath){
+void DrawingCanvas::setBrushImage(const std::string& imagePath) {
+
+	DS_LOG_VERBOSE(3, "DrawingCanvas: setBrushImage " << imagePath);
+
 	mBrushImagePath = imagePath;
 
 	if (imagePath.empty()){
@@ -234,7 +237,10 @@ void DrawingCanvas::setBrushImage(const std::string& imagePath){
 	markAsDirty( sBrushImagePathDirty );
 }
 
-void DrawingCanvas::clearCanvas(){
+void DrawingCanvas::clearCanvas() {
+
+	DS_LOG_VERBOSE(3, "DrawingCanvas: clearCanvas");
+
 	auto w = getWidth();
 	auto h = getHeight();
 
@@ -308,7 +314,10 @@ void DrawingCanvas::drawLocalClient(){
 	}
 }
 
-void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
+void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
+
+	DS_LOG_VERBOSE(5, "DrawingCanvas: renderLine start=" << start << " end=" << end);
+
 	ci::gl::Texture2dRef brushTexture = getImageTexture();
 
 	bool brushTexMode = true;

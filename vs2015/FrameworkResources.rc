@@ -1,7 +1,0 @@
-#include "../src/ds/app/FrameworkResources.h"
-
-
-RES_ARC_DROPSHADOW
-RES_ARC_ROUNDEDRECT
-
-//RES_MY_RESOURCE

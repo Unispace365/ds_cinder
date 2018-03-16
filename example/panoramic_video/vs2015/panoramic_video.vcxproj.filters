@@ -59,9 +59,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="src">
       <UniqueIdentifier>{bd651da1-0866-4e2a-aa82-d56951beeff3}</UniqueIdentifier>
     </Filter>
@@ -76,9 +73,6 @@
     </Filter>
     <Filter Include="src\events">
       <UniqueIdentifier>{6447eec3-c372-4d24-b1e9-c64d49a9aa30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ui">
       <UniqueIdentifier>{e2f44522-c265-434a-b612-d307324f82d8}</UniqueIdentifier>

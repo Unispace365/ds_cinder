@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="animation:duration" value="0.5" type="float" comment="Standard animation duration, in seconds. "/>
+	<setting name="xml:cache" value="false" type="bool" comment=" If you cache xml, they'll load faster after the first one, but you'll have to restart the app to see any changes "/>
+	<setting name="video:pipeline" value="autovideosrc ! videoconvert ! videoscale ! video/x-raw, format=(string)BGR, width=1920, height=1080 !  appsink name=appsink0" comment="This will work for almost any webcam, but might not use the optimal settings" />
+	<setting name="video:pipeline" value="autovideosrc ! video/x-raw, width=1600, height=896, framerate=24/1 ! videoscale ! video/x-raw, format=(string)BGR, width=1920, height=1080 ! appsink name=appsink0" comment="This will work for webcams that support raw video at the above res and framerate. Use gst-device-discoverer to find what your webcam supports" />
+	<setting name="video:num_shaders" value="5" />
+</settings>
+

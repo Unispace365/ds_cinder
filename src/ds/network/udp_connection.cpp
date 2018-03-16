@@ -8,25 +8,6 @@
 
 const unsigned int		ds::NET_MAX_UDP_PACKET_SIZE = 2000000;
 
-namespace {
-
-class BadIpException : public std::exception {
-public:
-	BadIpException(const std::string &ip){
-		mMsg = ip + " is outside of the Multicast range. Please choose an address between 224.0.0.0 and 239.255.255.255.";
-	}
-
-	const char *what() const throw() {
-		return mMsg.c_str();
-	}
-
-	virtual ~BadIpException() throw() {}
-private:
-	std::string mMsg;
-};
-
-}
-
 namespace ds {
 
 UdpConnection::UdpConnection(int numThreads)

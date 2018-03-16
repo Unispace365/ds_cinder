@@ -78,7 +78,8 @@ void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 	}
 }
 
-void EngineStatsView::updateStats(){
+void EngineStatsView::updateStats() {
+	setPosition(mEngine.getSrcRect().x1, mEngine.getSrcRect().y1);
 	if(!mText){
 		const float pad = 30.0f;
 	

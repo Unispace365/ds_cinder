@@ -37,14 +37,18 @@ public:
 	bool canRecv() const;
 
 	bool initialized() const;
+	bool isConnected() const { return mConnected; }
 
 	/// Server is ignored for this type
 	virtual bool initialize(bool server, const std::string &ip, const std::string &port) override { return initialize(ip, port); }
 
 	/// This is never a server
 	virtual bool	isServer() const override { return false; }
+
+
 private:
 	Poco::Net::DatagramSocket	mSocket;
+	bool						mConnected;
 	bool						mInitialized;
 	int							mReceiveBufferMaxSize;
 	RecycleArray<char>			mReceiveBuffer;

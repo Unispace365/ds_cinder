@@ -11,11 +11,13 @@
 #include "ds/cfg/settings_editor.h"
 #ifdef _WIN32
 #include <Winuser.h>
+#include <VersionHelpers.h>
 #include "ds/debug/console.h"
 #endif
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
+#include "ds/metrics/metrics_service.h"
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
@@ -53,8 +55,8 @@ namespace ds {
 const int Engine::NumberOfNetworkThreads = 2;
 
 Engine::Engine(ds::App& app, ds::EngineSettings &settings,
-			   ds::EngineData& ed, const RootList& _roots)
-	: ds::ui::SpriteEngine(ed)
+			   ds::EngineData& ed, const RootList& _roots, const int appMode)
+	: ds::ui::SpriteEngine(ed, appMode)
 	, mRequestedRootList(_roots)
 	, mDsApp(app)
 	, mTweenline(app.timeline())
@@ -88,7 +90,14 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mTuioRegistered(false)
 	, mFonts(*this)
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
+	, mAutoRefresh(*this)
 {
+
+
+	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(), [this]()->ds::Event* {return new ds::app::RequestAppExitEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::app::IdleEndedEvent::NAME(), [this]()->ds::Event* {return new ds::app::IdleEndedEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::app::IdleStartedEvent::NAME(), [this]()->ds::Event* {return new ds::app::IdleStartedEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleStatsRequest::NAME(), [this]()->ds::Event* {return new ds::EngineStatsView::ToggleStatsRequest(); });
 
 	setupEngine();
 
@@ -121,10 +130,13 @@ void Engine::setupEngine() {
 	setupMouseHide();
 	setupWorldSize();
 	setupSrcDstRects();
+	setupAutoSpan();
+	setupRoots();
 	setupMute();
 	setupResourceLocation();
-	setupRoots();
 	setupIdleTimeout();
+	setupMetrics();
+	setupAutoRefresh();
 }
 
 void Engine::setupLogger() {
@@ -161,6 +173,26 @@ void Engine::setupSrcDstRects(){
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
 
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
+}
+
+void Engine::setupAutoSpan() {
+	bool autoSpan = mSettings.getBool("span_all_displays");
+	if(autoSpan && ci::app::getWindow()) {
+		ci::app::getWindow()->spanAllDisplays();
+		auto theX = ci::app::getWindow()->getPos().x;
+		auto theY = ci::app::getWindow()->getPos().y;
+		mData.mWorldSize.x = ci::app::getWindow()->getWidth();
+		mData.mWorldSize.y = ci::app::getWindow()->getHeight();
+		mData.mSrcRect = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
+		mData.mDstRect = ci::Rectf(theX, theY, theX + mData.mWorldSize.x, theY + mData.mWorldSize.y);
+
+		mSettings.getSetting("screen:mode", 0).mRawValue = "borderless";
+		mSettings.getSetting("world_dimensions", 0).mRawValue = ds::unparseVector(mData.mWorldSize);
+		mSettings.getSetting("src_rect", 0).mRawValue = ds::unparseRect(mData.mSrcRect);
+		mSettings.getSetting("dst_rect", 0).mRawValue = ds::unparseRect(mData.mDstRect);
+
+		DS_LOG_INFO("Auto-spanning window, world size:" << mSettings.getSetting("world_dimensions", 0).mRawValue << " src_rect:" << mSettings.getSetting("src_rect", 0).mRawValue << " dst_rect:" << mSettings.getSetting("dst_rect", 0).mRawValue);
+	}
 }
 
 void Engine::setupConsole(){
@@ -222,14 +254,23 @@ void Engine::setupMute(){
 
 void Engine::setupResourceLocation() {
 
-	// SETUP RESOURCES
+
+	mData.mCmsURL = mSettings.getString("cms:url");
+	if(mData.mCmsURL.empty() || mData.mCmsURL == "DS_BASEURL") {
+		auto _env_var_ptr = std::getenv("DS_BASEURL");
+		mData.mCmsURL = std::string{ _env_var_ptr == nullptr ? "" : _env_var_ptr };
+		if(mData.mCmsURL.empty()) {
+			DS_LOG_VERBOSE(1, "cms:url and DS_BASEURL are both not defined. Only a problem if this app relies on Engine::getCmsURL()");
+		} else {
+			DS_LOG_INFO("Engine: Cms URL: " << mData.mCmsURL);
+		}
+
+	}
+	
 	std::string resourceLocation = ds::getNormalizedPath(mSettings.getString("resource_location"));
 	if(resourceLocation.empty()) {
-		// This is valid, though unusual
-		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
 		if(boost::contains(resourceLocation, "%USERPROFILE%")) {
-			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
 #ifndef _WIN32
 			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
 			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
@@ -318,6 +359,23 @@ void Engine::setupRoots() {
 	}
 }
 
+void Engine::setupMetrics() {
+	if(mMetricsService) {
+		delete mMetricsService;
+	}
+
+	mMetricsService = new ds::MetricsService(*this);
+}
+
+void Engine::setupAutoRefresh() {
+	mAutoRefresh.initialize();
+}
+
+void Engine::toggleConsole() {
+	if(mShowConsole) hideConsole();
+	else showConsole();
+}
+
 void Engine::showConsole(){
 	// prevent calling create multiple times
 	if(mShowConsole) return;
@@ -338,7 +396,7 @@ void Engine::hideConsole(){
 #endif
 }
 
-void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings) {
 	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 
 	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless they're here too
@@ -369,8 +427,8 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 void Engine::reloadSettings() {
 	mSettings.loadInitialSettings();
 	setupEngine();
-	setup(mDsApp);
 	setupTouch(mDsApp);
+	setup(mDsApp);
 }
 
 void Engine::onAppEvent(const ds::Event& in_e){
@@ -402,6 +460,8 @@ void Engine::onAppEvent(const ds::Event& in_e){
 				setAnimDur(mSettings.getFloat("animation:duration"));
 			}
 		}
+	} else if(in_e.mWhat == ds::app::RequestAppExitEvent::WHAT()) {
+		mDsApp.quit();
 	}
 }
 
@@ -465,11 +525,16 @@ void Engine::setup(ds::App& app) {
 	mUpdateParams.setDeltaTime(0.0f);
 	mUpdateParams.setElapsedTime(curr);
 
-	// Start any library services
-	if(!mData.mServices.empty()) {
-		for(auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
-			if(it->second) it->second->start();
+	static bool firstRun = true;
+	/// we only need to start services once, and not on any restarts
+	if(firstRun) {
+		// Start any library services
+		if(!mData.mServices.empty()) {
+			for(auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
+				if(it->second) it->second->start();
+			}
 		}
+		firstRun = false;
 	}
 }
 
@@ -479,7 +544,6 @@ void Engine::setupTouch(ds::App& app) {
 	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions"));
 	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset"));
 	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect"));
-	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging"));
 
 	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default");
 	
@@ -542,25 +606,26 @@ void Engine::setupTouch(ds::App& app) {
 				(*RegisterTouchWindow)(hwnd, TWF_WANTPALM); // Immediately get the palm touch without waiting
 			}
 		}
-
+#if 0
 		/// Turn off all that dumb feedback shit always
-
 		BOOL fEnabled = FALSE;
 		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_CONTACTVISUALIZATION,
-								 0, sizeof(fEnabled), &fEnabled);
+									FEEDBACK_TOUCH_CONTACTVISUALIZATION,
+									0, sizeof(fEnabled), &fEnabled);
 		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_TAP,
-								 0, sizeof(fEnabled), &fEnabled);
+									FEEDBACK_TOUCH_TAP,
+									0, sizeof(fEnabled), &fEnabled);
 		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_DOUBLETAP,
-								 0, sizeof(fEnabled), &fEnabled);
+									FEEDBACK_TOUCH_DOUBLETAP,
+									0, sizeof(fEnabled), &fEnabled);
 		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_PRESSANDHOLD,
-								 0, sizeof(fEnabled), &fEnabled);
+									FEEDBACK_TOUCH_PRESSANDHOLD,
+									0, sizeof(fEnabled), &fEnabled);
 		SetWindowFeedbackSetting(hwnd,
-								 FEEDBACK_TOUCH_RIGHTTAP,
-								 0, sizeof(fEnabled), &fEnabled);
+									FEEDBACK_TOUCH_RIGHTTAP,
+									0, sizeof(fEnabled), &fEnabled);
+		
+#endif
 	}
 #endif
 }
@@ -1104,7 +1169,9 @@ void Engine::clearFingers( const std::vector<int> &fingers ) {
 }
 
 void Engine::nextTouchMode() {
-	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
+	mSettings.getSetting("touch:mode", 0).mRawValue = ds::ui::TouchMode::toString(ds::ui::TouchMode::next(mTouchMode));
+	setupTouch(mDsApp);
+	//setTouchMode();
 }
 
 void Engine::setTouchSmoothing(const bool doSmoothing){

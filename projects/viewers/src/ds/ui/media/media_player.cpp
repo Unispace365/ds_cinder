@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "media_player.h"
 
 #include <ds/app/app.h>

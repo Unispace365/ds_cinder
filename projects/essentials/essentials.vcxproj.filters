@@ -37,9 +37,6 @@
     <Filter Include="src\ds\network">
       <UniqueIdentifier>{11f3c3d1-dc4f-457f-8771-d30d01e73643}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\network\helper">
-      <UniqueIdentifier>{f3fdef8a-eaa7-4dbe-80c4-ee9f6cc1ced2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\network\curl">
       <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,12 @@
     </Filter>
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{4573d40e-cf70-4452-a66a-0d042211e60c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\math">
+      <UniqueIdentifier>{eac9b533-3fe3-4b8b-acad-7dd5bc0bd71b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\math\fparser">
+      <UniqueIdentifier>{1005bb4f-54cb-421f-b9c2-a9924fc84764}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +117,6 @@
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp">
       <Filter>src\ds\ui\menu\component</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp">
-      <Filter>src\ds\network\helper</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
@@ -152,6 +152,15 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\line.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\math\fpoptimizer.cc">
+      <Filter>src\ds\math\fparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\math\fparser.cc">
+      <Filter>src\ds\math\fparser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -208,9 +217,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h">
       <Filter>src\ds\ui\menu\component</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h">
-      <Filter>src\ds\network\helper</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\util\ui_utils.h">
       <Filter>src\ds\ui\util</Filter>
@@ -269,8 +275,23 @@
     <ClInclude Include="src\ds\ui\sprite\dashed_line.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\line.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
     <ClInclude Include="src\ds\ui\layout\smart_layout.h">
       <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\math\fparser_gmpint.hh">
+      <Filter>src\ds\math\fparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\math\fparser_mpfr.hh">
+      <Filter>src\ds\math\fparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\math\fpconfig.hh">
+      <Filter>src\ds\math\fparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\math\fparser.hh">
+      <Filter>src\ds\math\fparser</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

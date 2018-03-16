@@ -148,7 +148,6 @@
     <ClInclude Include="..\src\ui\web\web_view.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>

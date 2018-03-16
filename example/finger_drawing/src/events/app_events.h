@@ -5,17 +5,6 @@
 
 namespace example {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
-	IdleStartedEvent(){};
-};
-
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
-	IdleEndedEvent(){};
-
-};
-
 class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
 public:
 	StoryDataUpdatedEvent(){};

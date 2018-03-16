@@ -9,6 +9,9 @@
 #include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
+#include "ds/time/time_callback.h"
+#include "ds/thread/work_manager.h"
+#include "ds/content/content_model.h"
 #include <memory>
 
 namespace ds {
@@ -24,6 +27,7 @@ class PerspCameraParams;
 class ResourceList;
 class WorkManager;
 class ComputerInfo;
+class MetricsService;
 
 namespace cfg {
 class Settings;
@@ -56,7 +60,7 @@ public:
 	virtual ds::EventNotifier&		getChannel(const std::string&) = 0;
 
 	// General engine services
-	virtual ds::WorkManager&		getWorkManager() = 0;
+	virtual ds::WorkManager&		getWorkManager() final { return mWorkManager;	};
 	virtual ds::ResourceList&		getResources() = 0;
 	virtual const ds::ColorList&	getColors() const = 0;
 	virtual const ds::FontList&		getFonts() const = 0;
@@ -83,12 +87,20 @@ public:
 	/** Access to the current engine configuration info. */
 	void							loadSettings(const std::string& name, const std::string& filename);
 	
+	/// EngineCfg owns all the settings and configs. 
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
 
+	/// Gets the text config for a particular name (Font name, size, color, leading) from text.xml
 	const ds::cfg::Text&			getTextCfg(const std::string& textName) const;
-	// Shortcuts
+
+	/// Returns the settings with this settings name
 	ds::cfg::Settings&				getSettings(const std::string& name) const;
+
+	/// Returns the settings for engine.xml (convenience)
+	ds::cfg::Settings&				getEngineSettings() const;
+
+	/// Returns the settings for app_settings.xml (convenience)
 	ds::cfg::Settings&				getAppSettings() const;
 
 	// Sprite management
@@ -113,6 +125,9 @@ public:
 	float							getWorldWidth() const;
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
+
+	// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
+	const std::string&				getCmsURL() const;
 
 	// Get the standard animation duration
 	const float						getAnimDur() const;
@@ -181,7 +196,7 @@ public:
 	static const int				SERVER_MODE = 1;
 	static const int				CLIENTSERVER_MODE = 2;
 	static const int				STANDALONE_MODE = 3;
-	virtual int						getMode() const = 0;
+	virtual int						getMode() final {	return mAppMode; };
 
 	ds::ComputerInfo&				getComputerInfo();
 
@@ -202,19 +217,78 @@ public:
 	/// Returns the Entry Field registered. Returns nullptr if no entry field has been registered
 	IEntryField*					getRegisteredEntryField();
 
+	/// Calls the function after the elapsed time once
+	/// Save the returned ID if you want to cancel it later
+	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
+	size_t							timedCallback(std::function<void()> func, const double timerSeconds);
+
+	/// Calls the function after the elapsed time repeatedly
+	/// Save the returned ID if you want to cancel it later
+	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
+	size_t							repeatedCallback(std::function<void()> func, const double timerSeconds);
+
+	/// Cancels a timedCallback() or a repeatedCallback() using the return value from above
+	void							cancelTimedCallback(size_t callbackId);
+
+	/// Get the service that saves metrics, to easily record multiple types
+	MetricsService*					getMetrics() { return mMetricsService; }
+
+	/// Send this metric to telegraf. Requires metrics to be enabled in the engine settings
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue);	
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue);
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue);
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue);
+	/// Appends _x and _y to field name to save 2 metrics, one for each part of the vector
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec2& fieldValue);
+	/// Appends _x, _y and _z to field name to save 3 metrics, one for each part of the vector
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec3& fieldValue);
+	/// Appends _x, _y, _w, _h to field name to save 4 metrics, one for each part of the rect
+	void							recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue);
+
+	/// Combined field and value in the format field0=fieldValue,field1=field1value 
+	/// Use this if you're sending multiple fields that should have the same timestamp
+	/// You'll need to wrap any string values in quotes
+	void							recordMetric(const std::string& metricName, const std::string& fieldNameAndValue);
+
+	/// Wraps the value in quotes
+	void							recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue);
+	void							recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue);
+
+	/// Saves an input with x, y, fingerid and phase
+	void							recordMetricTouch(ds::ui::TouchInfo& ti);
+
+	/// Soft restarts the app on the next update (if this is some kind of server)
+	/// This happens outside of the engine update loop to avoid iterator issues
+	void							restartAfterNextUpdate();
+	/// If this engine has been set to restart soon. Resets the variable to false after calling
+	bool							getRestartAfterNextUpdate();
+
+	/// Content delivered by ContentWrangler
+	ds::model::ContentModelRef		mContent;
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
-	SpriteEngine(ds::EngineData&);
+	SpriteEngine(ds::EngineData&, const int appMode);
 	virtual ~SpriteEngine();
 
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
 	ds::ComputerInfo*				mComputerInfo;
 	IEntryField*					mRegisteredEntryField;
+	const int						mAppMode;
+	WorkManager						mWorkManager;
+
+	ds::MetricsService*				mMetricsService;
+
+	bool							mRestartAfterUpdate;
 
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
+
+	friend class ds::time::Callback;
+	std::vector<ds::time::Callback*>	mTimedCallbacks;
+	size_t							mCallbackId; // for tracking the above
 
 private:
 	ds::EngineService&				private_getService(const std::string&);

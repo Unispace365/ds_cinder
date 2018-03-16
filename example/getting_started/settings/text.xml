@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="sample:config:name" value="Noto Sans Bold" type="string" comment=" Font names are installed in the root app class on startup	 Sample Text "/>
+	<setting name="sample:config:size" value="16" type="float"/>
+	<setting name="sample:config:leading" value="1.0" type="float"/>
+	<setting name="sample:config:color" value="white" type="color"/>
+	
+	<setting name="media_viewer:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="media_viewer:title:size" value="16" type="float"/>
+	<setting name="media_viewer:title:leading" value="1.0" type="float"/>
+	<setting name="media_viewer:title:color" value="white" type="color"/>
+	
+	<setting name="touch:menu:name" value="Noto Sans Bold" type="string"/>
+	<setting name="touch:menu:size" value="16" type="float"/>
+	<setting name="touch:menu:leading" value="1.0" type="float"/>
+	<setting name="touch:menu:color" value="white" type="color"/>
+	
+	<setting name="app:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="app:title:size" value="48" type="float"/>
+	<setting name="app:title:leading" value="1.0" type="float"/>
+	<setting name="app:title:color" value="white" type="color"/>
+	
+	<setting name="slide:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="slide:title:size" value="36" type="float"/>
+	<setting name="slide:title:leading" value="1.0" type="float"/>
+	<setting name="slide:title:color" value="white" type="color"/>
+	
+	<setting name="slide:body:name" value="Noto Sans Light" type="string"/>
+	<setting name="slide:body:size" value="16" type="float"/>
+	<setting name="slide:body:leading" value="1.25" type="float"/>
+	<setting name="slide:body:color" value="white" type="color"/>
+	
+	<setting name="controller:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="controller:title:size" value="16" type="float"/>
+	<setting name="controller:title:leading" value="1.0" type="float"/>
+	<setting name="controller:title:color" value="white" type="color"/>
+	
+	<setting name="controller:count:name" value="Noto Sans Ultra-Light" type="string"/>
+	<setting name="controller:count:size" value="12" type="float"/>
+	<setting name="controller:count:leading" value="1.0" type="float"/>
+	<setting name="controller:count:color" value="white" type="color"/>
+</settings>
+
+

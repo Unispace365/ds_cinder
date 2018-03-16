@@ -3,10 +3,10 @@
 #define DS_APP_ENGINE_ENGINESTANDALONE_H_
 
 #include "ds/app/engine/engine.h"
-#include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
 
 namespace ds {
+class ContentWrangler;
 
 /**
  * \class ds::EngineStandalone
@@ -18,8 +18,7 @@ public:
 	EngineStandalone(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
 
-	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
-	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
+	virtual ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
 
 	virtual void					installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
 													const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -35,14 +34,13 @@ public:
 	virtual int						getBytesSent(){ return 0; }
 
 private:
-	typedef Engine inherited;
 
 	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
-	WorkManager						mWorkManager;
 	ui::LoadImageService			mLoadImageService;
+	ContentWrangler*				mContentWrangler;
 };
 
 } // namespace ds

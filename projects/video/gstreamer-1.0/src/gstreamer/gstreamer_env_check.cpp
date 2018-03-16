@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "gstreamer_env_check.h"
 
 #include <Poco/Path.h>

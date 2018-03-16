@@ -1,0 +1,9 @@
+<model>
+	<table name="sample_data"
+			resources="resourceid"
+			sort="id ASC"		
+			limit="1"
+			label_field="title"
+		/>
+</model>
+

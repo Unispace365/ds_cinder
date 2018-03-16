@@ -553,32 +553,57 @@ namespace ui {
 		/** Does this Sprite have a specific Multitouch bitmask set? see ds::ui::MULTITOUCH_INFO_ONLY */
 		bool					hasMultiTouchConstraint(const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS) const;
 
+		/** Set a lambda callback for each time this sprite gets interaction. Requires the sprite to be enabled. See TouchInfo for what data comes in. */
 		void					setProcessTouchCallback(const std::function<void(Sprite *, const TouchInfo &)> &func);
-		// Stateful tap is the new-style and should be preferred over others.  It lets you
-		// know the state of the tap in addition to the count.  It also lets clients cancel
-		// a tap if, for example, they only want to handle single taps.  Answer true as
-		// long as you want to keep checking for a tap, false otherwise.
+
+		/** Stateful tap is the new-style and should be preferred over others.  It lets you
+			know the state of the tap in addition to the count.  It also lets clients cancel
+			 a tap if, for example, they only want to handle single taps.  Answer true as
+			long as you want to keep checking for a tap, false otherwise. */
 		void					setTapInfoCallback(const std::function<bool(Sprite *, const TapInfo &)> &func);
+
+		/** Get notified if a swipe occurred. This is called after the touch completes. Set the swipe threshold in engine.xml for how sensitive this is */
 		void					setSwipeCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
+
+		/** Get notified when this sprite has been tapped. A tap is a single finger down and up within the tap threshold. More than one finger at a time cancels taps. 
+			If doubleTapCallback has been set, waits for the double tap time to expire before being notified. */
 		void					setTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
+
+		/** Get notified if a double tap has occurred within the double tap threshold. */
 		void					setDoubleTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
+
+		/** Get notified if this sprite gets dragged over any desintation sprites. Set destination sprites with mEngine.addToDragDestinationList()*/
 		void					setDragDestinationCallback(const std::function<void(Sprite *, const DragDestinationInfo &)> &func);
 
-		// true will size the sprite using setSize() on a touch scale gesture
-		// false (the default) will scale the sprite using setScale9) on a touch scale gesture.
-		// MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect
-		void					setTouchScaleMode(bool doSizeScale);
-
-		void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
-		void					cancelDelayedCall();
-
-		bool					inBounds() const;
-		void					setCheckBounds(bool checkBounds);
-		bool					getCheckBounds() const;
-		virtual bool			isLoaded() const;
+		/** Used internally by touch process to set the destination sprite when this sprite is being checked for drag destinations */
 		void					setDragDestination(Sprite *dragDestination);
+		/** Returns the sprite destination this sprite has been dragged over. Requires setDragDestinationCallback() to have been set. */
 		Sprite*					getDragDestination() const;
 
+		/** true will size the sprite using setSize() on a touch scale gesture
+			false (the default) will scale the sprite using setScale9) on a touch scale gesture.
+			MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect */
+		void					setTouchScaleMode(bool doSizeScale);
+
+		/** Calls a function after the delay in seconds. Only one function is active at a time, so if you set this twice, the first delayed call will be ignored.
+			Also see src/ds/time_callback or mEngine.timedCallback() or mEngine.repeatedCallback() for a generic timed callback*/
+		void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
+
+		/** Cancels any pending callAfterDelay() funcitons */
+		void					cancelDelayedCall();
+
+		/** This sprite is within the boundaries of the src_rect for this instance */
+		bool					inBounds() const;
+
+		/** If this sprite should check if it's in bounds or not */
+		void					setCheckBounds(bool checkBounds);
+		bool					getCheckBounds() const;
+
+		/** If the content of this sprite has been loaded. Base Sprite always returns true. Override for specific sprite types. */
+		virtual bool			isLoaded() const;
+
+		/** If this sprite got some dirt on it. hahaha just kidding.
+			This is if any properties have been modified since the last frame. */
 		bool					isDirty() const;
 		void					writeTo(ds::DataBuffer&);
 		void					readFrom(ds::BlobReader&);
@@ -620,7 +645,6 @@ namespace ui {
 		bool					isIdling() const;
 		void					startIdling();
 		void					resetIdleTimer();
-		// clears the idle timer, not the whole sprite or anything
 		void					clearIdleTimer();
 
 		// Prevent this sprite (and all children) from replicating. NOTE: Should
@@ -729,14 +753,8 @@ namespace ui {
 		virtual void		onChildAdded(Sprite& child){}
 		virtual void		onChildRemoved(Sprite& child){}
 		virtual void		onParentSet(){}
-		// Note: there's a reason this is not called onVisibilityChanged().
-		// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
-		// The reason is that,  the final visibility of a sprite is decided
-		// by the visibility of itself and its parents.  the "visible" flag
-		// here is the result of the calculation based on calls to self and
-		// parents' hide() / show() methods. The "visible" flag here is NOT
-		// the same as Sprite::visible()! Sprite::visible() is only limited
-		// to the sprite itself while visible flag here is described above.
+
+		/// If this or any parent's visibility has changed
 		virtual void		onAppearanceChanged(bool visible){}
 
 		/// Override this to build mRenderBatch when you need to.

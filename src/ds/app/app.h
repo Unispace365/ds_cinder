@@ -9,6 +9,7 @@
 #include "ds/app/engine/engine_settings.h"
 #include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
+#include "ds/debug/key_manager.h"
 
 namespace ds {
 class Environment;
@@ -49,6 +50,9 @@ public:
 	// static initializer.
 	// Note that throwing an exception in the function will exit the app.
 	static void AddStartup(const std::function<void(ds::Engine&)>&);
+
+	// Called just before the main app setupServer() virtual function
+	static void AddServerSetup(const std::function<void(ds::Engine&)>&);
 
 	// Apps can provide a list of root sprites by chaining commands to a RootList.
 	// For example, if you want a single perspective root, do this:
@@ -104,6 +108,8 @@ public:
 	void						loadAppSettings();
 	virtual void				setup();
 	void						resetupServer();
+	void						preServerSetup();
+
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() {}
 	virtual void				update();
@@ -114,6 +120,19 @@ public:
 	// Triggered by F8 key, saves a transparent png on the desktop
 	void						saveTransparentScreenshot();
 
+	// Kills RoC, dsnode, then this app
+	void						killSupportingApps();
+
+	// Logs all sprites to disk for deep debuggin
+	void						writeSpriteHierarchy();
+
+	/// Show sprites that are enabled
+	void						debugEnabledSprites();
+
+	/// Register a function to be called when a key is pressed (with optional modifier keys)
+	/// The Key codes can be found in ci::app::KeyEvent 
+	/// This will be displayed with the help debug
+	void						registerKeyPress(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown = false, const bool ctrlDown = false, const bool altDown = false);
 protected:
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
@@ -126,7 +145,8 @@ private:
 	// (but not including "data", you still need to add that
 	// if it's what you want
 	static const std::string&   envAppDataPath();
-	bool						mCtrlDown;
+	void						setupKeyPresses();
+	ds::keys::KeyManager		mKeyManager;
 	ds::ui::TouchDebug			mTouchDebug;
 	bool						mAppKeysEnabled;
 	bool						mMouseHidden;

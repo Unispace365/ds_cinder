@@ -22,6 +22,9 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 		DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 		return;
 	}
+
+	DS_LOG_VERBOSE(1, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+
 	mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
 		q.mVerifyHost = hostVerify;
@@ -39,6 +42,8 @@ void HttpsRequest::makePostRequest(const std::string& url, const std::string& po
 		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 		return;
 	}
+
+	DS_LOG_VERBOSE(1, "HttpsRequest::makePostRequest url=" << url << " postData=" << postData <<  " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
 
 	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
@@ -201,6 +206,8 @@ void HttpsRequest::IndividualRequest::run(){
 		}
 
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
+
+		DS_LOG_VERBOSE(1, "Curl request completed with result=" << res << " with httpsStatus=" << mHttpStatus << " for url=" << mInput);
 
 		if(headers){
 			curl_slist_free_all(headers);

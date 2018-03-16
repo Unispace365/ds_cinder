@@ -7,21 +7,12 @@
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
-#include "query/data_wrangler.h"
-#include "model/data_model.h"
-#include "events/app_events.h"
-
-#include "app/globals.h"
-
 namespace downstream {
 
-TableNavItem::TableNavItem(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "table_nav_item.xml")
-	, mGlobals(g)
+TableNavItem::TableNavItem(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "table_nav_item.xml")
 	, mExpanded(false)
 {
-
-
 }
 
 bool TableNavItem::getExpanded() {
@@ -30,36 +21,31 @@ bool TableNavItem::getExpanded() {
 
 void TableNavItem::setExpanded(const bool isExpanded) {
 	mExpanded = isExpanded;
-	if(mExpanded) {
-		setSpriteText("id", "-");
-	} else {
-		setSpriteText("id", "+");
+	if(mData.hasChildren()) {
+		if(mExpanded) {
+			setSpriteText("id", "-");
+		} else {
+			setSpriteText("id", "+");
+		}
 	}
 	runLayout();
 }
 
-void TableNavItem::setData(ds::model::DataModelRef theData) {
+void TableNavItem::setData(ds::model::ContentModelRef theData) {
 	mData = theData;
-	mChildrenName = "";
 
-	setSpriteText("id", ds::value_to_string(theData.getId()));
-	setSpriteText("title", theData.getName());
+	if(mData.hasChildren()) {
+		setSpriteText("id", "+");
+	} else {
+		setSpriteText("id", " ");
+	}
+	setSpriteText("title", "<span weight='bold'>" + theData.getName() + "</span> | <span weight='light'>" + theData.getLabel() + "</span>");
 
 	runLayout();
 }
 
-void TableNavItem::setData(ds::model::DataModelRef parentData, const std::string& childrenName) {
-	mData = parentData;
-	mChildrenName = childrenName;
 
-	setSpriteText("id", "+");
-	setSpriteText("title", mChildrenName);
-
-	runLayout();
-
-}
-
-ds::model::DataModelRef TableNavItem::getData() {
+ds::model::ContentModelRef TableNavItem::getData() {
 	return mData;
 }
 

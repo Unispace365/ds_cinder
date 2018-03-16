@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "stream_player.h"
 
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "private/pdf_service.h"
 
 #include <ds/app/engine/engine.h>

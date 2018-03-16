@@ -1,6 +1,7 @@
 Basic XML interface
 ======================
 
+````XML
     <interface>
         <sprite
             name="sprite_name"
@@ -13,6 +14,7 @@ Basic XML interface
             <image name="child_image" filename="RELATIVE PATH TO IMG" />
         </sprite>
     </interface>
+````
 
 Creating a Sprite and loading XML
 -------------------------------
@@ -20,8 +22,10 @@ The tag value is the sprite type. For instance, <sprite/> creates a blank ds::ui
 
 Loading an interface XML to your class:
 
+````c++
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+````
 
 Adds the hierarchy in the interface as a child of "this".
 Use the spriteMap to look up specific sprites by string name. This lets you apply a data model or deal with touch callbacks, etc. Avoid setting the layout in c++ land, as that can confuse where the layout is managed.
@@ -97,6 +101,64 @@ Sprite Parameters
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
 
+
+Variables
+----------------------
+
+Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
+
+````xml
+<interface>
+	<layout name="example"
+		size="$_world_size"
+		pad_all="$_padding"
+		animate_on="$_default:anim"
+		/>
+</interface>
+````
+
+Variables are replaced first before expressions (see below), and parsed recursively. For example, in app_settings.xml you can specify a variable that references another variable:
+
+````xml
+	<setting name="default:delay" value="0.1" />
+	<setting name="default:anim" value="fade; slide:$_world_width, 0; ease:outQuint; delay:$_default:delay" />
+````
+
+* Add variables in c++ using ds::ui::XmlImporter::addVariable()
+* Variables are all treated as strings, so you can replace any sprite property, such as font name, animation script, alignment, etc
+* If a variable replacement isn't found, the original value is used and a warning is logged
+
+### Default Variables
+
+* **world_width**: The equivalent of mEngine.getWorldWidth()
+* **world_height**: The equivalent of mEngine.getWorldHeight()
+* **world_size**: The equivalent of "mEngine.getWorldWidth(), mEngine.getWorldHeight()"
+* **anim_dur**: The equivalent of mEngine.getAnimDur()
+
+
+Expressions
+--------------------
+
+Layouts support math expressions that are parsed when the layout is loaded. Expressions are parsed after variables, and before properties are assigned. There are two ways to indicate that a value is an expression: By starting a line with #expr or by wrapping an expression in #expr{}.
+
+````xml
+<interface>
+	<layout name="example"
+		pad_all="#expr 123.45 + 67.89 - sin(pi)"
+		size="#expr{50.0 * 2.0}, #expr{$_world_height / 2.0}"
+		/>
+</interface>
+````
+
+Syntax Rules:
+
+* Expression parsing syntax: http://warp.povusers.org/FunctionParser/fparser.html#usage
+* Note that we don't support expression variables (such as sqrt(x * x + y * y)), the expression must evaluate to a single value
+* The starting syntax must be "#expr{" with no spaces
+* If you start a line with #expr (with no brackets), the entire rest of the line is evaluated as an expression
+* pi is automatically defined
+
+
 Events
 --------------------------------------------------------
 
@@ -117,13 +179,15 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
 
 * **Handling events:** The app will need to handle the events like normal using an event client and handling the app event. The parameters described above are automatically applied to the Event by the xml importer and you can access them through the event:
 
+````c++
         void ViewerController::onAppEvent(const ds::Event& in_e){
             if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
                 std::string fileName = in_e.mUserStringData;
                 //Do something with the filename and open media
             }
         }
-
+````
+		
 
 Layout Parameters (valid if using a layout sprite as a parent)
 ------------------------------------------------------
@@ -165,6 +229,7 @@ Layout Parameters (valid if using a layout sprite as a parent)
 Text Parameters
 ------------------------------------------------------------
 * **text**: Set the content show on the screen. text="Hello World"
+* **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
@@ -196,6 +261,7 @@ Sprite Button and Layout Button Parameters
 ----------------------------
 **attach_state**: Add this to a sprite that's a child of a sprite button or a layout button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
 
+````c++
     <interface>
         <sprite_button
             name="sample_button"
@@ -205,7 +271,7 @@ Sprite Button and Layout Button Parameters
             <image name="child_image" filename="%APP%/data/images/icons/down_icon.png" attach_state="high" />
         </sprite>
     </interface>
-
+````
 
 Gradient Sprite Parameters
 ---------------------------
@@ -248,11 +314,13 @@ Scroll List Parameters
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
 * **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+* **scroll_fade_size**: Set the size of the fade as a float.
 
 EntryField and SoftKeyboard Parameters
 --------------------------------------
 EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:
 
+````xml
     <entry_field
         name="search_field"
         sprite_link="primary_keyboard"
@@ -260,6 +328,7 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 
     <soft_keyboard name="primary_keyboard">
     type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
+````
 
 **ENTRY FIELD PARAMETERS**
 * **sprite_link**: Allows you to link the text entry field with a soft keyboard. Set the value of sprite_link to the name of the soft_keyboard. The keyboard needs to be in the same sprite map as entry field to be linked. Once linked, the keyboard will type it's text into the entry field.
@@ -323,6 +392,7 @@ Example:
 
 **menu_view.xml:**
 
+````xml
     <layout name="layout" >
         <xml name="home" src="%APP%/data/layouts/menu_button.xml" >
             <!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
@@ -338,18 +408,22 @@ Example:
             <property name="down_gradient" opacity="0.5" animate_on="fade" />
         </xml>
     </layout>
+````
 
 **menu_button.xml:**
 
+````xml
     <sprite_button name="the_button" size="80, 80">
         <gradient name="down_gradient" attach_state="high" size="80, 80"
                   gradientColors="red_orange, red_orange, red_orange, orange"/>
         <image attach_state="normal" name="normal_icon"/>
         <image attach_state="high" name="high_icon" />
     </sprite_button>
+````
 
 **In c++:**
 
+````c++
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/menu_view.xml"), spriteMap);
     // Note that the home button is given the name of the xml "home" plus it's local name.
@@ -362,6 +436,7 @@ Example:
     if(mMapButton){
         mMapButton->setClickFn([this]{ /* do something to load the map screen */ });
     }
+````
 
 Animation
 ==============================

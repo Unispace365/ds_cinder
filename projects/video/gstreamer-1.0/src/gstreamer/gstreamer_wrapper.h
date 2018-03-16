@@ -516,9 +516,6 @@ public:
 	*/
 	void					retrieveVideoInfo();
 
-	/** Spite out a ton of messages when running gstreamer pipelines. */
-	void					setVerboseLogging(const bool verboseOn);
-
 	/* Setup network clock from server */
 	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
 	
@@ -719,7 +716,6 @@ private:
 	gint64					m_iStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to display it) */
 
 	bool					m_ValidInstall;
-	bool					m_VerboseLogging;
 
 	GstNetTimeProvider*		mClockProvider;
 

@@ -184,9 +184,6 @@ public:
 	/// This means that you can actually get the audio buffer data itself
 	void				wantAudioBuffer(bool doWantAudioBuffer);
 
-	/// In case you want a ton of info from gstreamer about what's going on
-	void				setVerboseLogging(const bool doVerbose);
-
 	/// Calculates a rough fps for how many actual buffers we're displaying per second
 	float				getVideoPlayingFramerate();
 
@@ -241,8 +238,6 @@ protected:
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
-
-	
 
 	// filename is the absolute path to the file.
 	// portable_filename is the CMS-relative path, so apps installed under different

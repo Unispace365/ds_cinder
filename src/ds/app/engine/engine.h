@@ -28,6 +28,7 @@
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
+#include "ds/debug/auto_refresh.h"
 #include "ds/app/engine/engine_settings.h"
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
@@ -118,9 +119,19 @@ public:
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
 
+	/// It's been enough time since the last input and is in idle mode
 	bool								isIdling();
+
+	/// Checks if it's been enough time since the last input to go into idle. Will take effect if it's been enough time
 	void								checkIdle();
+
+	/// Starts idle mode right away, regardless of time
 	virtual void						startIdling();
+
+	/// Ends idle mode, regardless of input and starts the timeout again
+	virtual void						stopIdling() { resetIdleTimeout(); }
+
+	/// Identical to stopIdling(), retained for backwards compatibility
 	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.
@@ -179,7 +190,6 @@ public:
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
 	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&);
 
-	// Will throw if the root at the index is the wrong type
 	virtual float						getOrthoFarPlane(const size_t index) const;
 	virtual float						getOrthoNearPlane(const size_t index) const;
 	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
@@ -213,6 +223,7 @@ public:
 
 	virtual ci::app::WindowRef			getWindow();
 
+	void								toggleConsole();
 	void								showConsole();
 	void								hideConsole();
 
@@ -221,7 +232,7 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
-	int									getNumberOfSprites() { return mSprites.size(); }
+	size_t								getNumberOfSprites() { return mSprites.size(); }
 
 	// -------------------------------------------------------------
 	// These functions are inlined, since they are called frequently
@@ -244,7 +255,7 @@ public:
 	void								clearAllSprites(const bool clearDebug = true);
 
 protected:
-	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&, const int appMode);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -282,6 +293,7 @@ private:
 	void								setupLogger();
 	void								setupWorldSize();
 	void								setupSrcDstRects();
+	void								setupAutoSpan();
 	void								setupConsole();
 	void								setupWindowMode();
 	void								setupMouseHide();
@@ -291,6 +303,8 @@ private:
 	void								setupMute();
 	void								setupResourceLocation();
 	void								setupRoots();
+	void								setupMetrics();
+	void								setupAutoRefresh();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
@@ -324,6 +338,8 @@ private:
 	AutoUpdateList						mAutoUpdateClient;
 	// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
+
+	AutoRefresh							mAutoRefresh;
 
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;

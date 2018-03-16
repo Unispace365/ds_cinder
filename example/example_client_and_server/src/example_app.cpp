@@ -17,7 +17,6 @@ namespace mv {
 
 CsApp::CsApp()
 	: mToggleSprite(nullptr)
-	, mTouchDebug(mEngine)
 {
 
 	mEngine.editFonts().registerFont("Arial", "arial");
@@ -125,18 +124,6 @@ void CsApp::recreateText(){
 
 }
 
-void CsApp::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void CsApp::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void CsApp::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
-}
-
 void CsApp::onKeyDown(ci::app::KeyEvent e) {
 
 	const int		code = e.getCode();
@@ -183,4 +170,5 @@ ds::ui::Sprite* CsApp::newToggleSprite() const {
 
 }
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::CsApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(mv::CsApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })

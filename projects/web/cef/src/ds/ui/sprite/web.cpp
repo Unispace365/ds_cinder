@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "web.h"
 
 #include <algorithm>
@@ -28,7 +30,10 @@ public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
 			ds::web::WebCefService*		w = new ds::web::WebCefService(e);
-			if (!w) throw std::runtime_error("Can't create ds::web::Service");
+			if(!w) {
+				DS_LOG_WARNING("Couldn't create the CEF web service!");
+				return;
+			}
 			e.addService("cef_web", *w);
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Web::installAsServer(r);},
@@ -122,10 +127,14 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
+	DS_LOG_VERBOSE(4, "Web: creating CEF web sprite");
+
 	createBrowser();
 }
 
-void Web::createBrowser(){
+void Web::createBrowser() {
+	DS_LOG_VERBOSE(3, "Web: create browser");
+
 	clearBrowser();
 
 	mService.createBrowser("", this, [this](int browserId){
@@ -147,7 +156,9 @@ void Web::createBrowser(){
 	}, mTransparentBackground);
 }
 
-void Web::clearBrowser(){
+void Web::clearBrowser() {
+	DS_LOG_VERBOSE(3, "Web: clear browser");
+
 	if(mBrowserId < 0){
 		mService.cancelCreation(this);
 	} else {
@@ -437,7 +448,9 @@ void Web::update(const ds::UpdateParams &p) {
 	// Anything that modifies mBuffer needs to be locked
 	std::lock_guard<std::mutex> lock(mMutex);
 
-	if(mBuffer && mHasBuffer){
+	if(mBuffer && mHasBuffer) {
+		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
+
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
@@ -447,10 +460,12 @@ void Web::update(const ds::UpdateParams &p) {
 
 
 	if(mPopupBuffer && mHasPopupBuffer) {
+		DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
+
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
-		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, mPopupSize.x, mPopupSize.y, fmt);
+		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
 		mHasPopupBuffer = false;
 		mPopupReady = true;
 	}
@@ -481,13 +496,18 @@ void Web::onSizeChanged() {
 		mHasBuffer = false;
 	}
 
+	DS_LOG_VERBOSE(4, "Web: changed size " << getSize() << " url=" << mUrl);
+
 	if(mBrowserId > -1){
 		mService.requestBrowserResize(mBrowserId, mBrowserSize);
 	}
 }
 
 void Web::drawLocalClient() {
-	if (mWebTexture) {
+	if(mWebTexture) {
+
+		DS_LOG_VERBOSE(8, "Web: drawing web " << mUrl);
+
 		if(mRenderBatch){
 			// web texture is top down, and render batches work bottom up
 			// so flippy flip flip
@@ -526,6 +546,9 @@ void Web::loadUrl(const std::wstring &url) {
 }
 
 void Web::loadUrl(const std::string &url) {
+
+	DS_LOG_VERBOSE(1, "Web: loading url " << url);
+
 	mCurrentUrl = url;
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
@@ -549,6 +572,7 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 }
 
 void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
+
 	// spoof a keyevent to send to the web
 	int code = 0;
 
@@ -623,6 +647,8 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 }
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
+	DS_LOG_VERBOSE(3, "Web: send key down " << event.getChar() << " code: " << event.getCode());
+
 	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -631,7 +657,9 @@ void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
 	}
 }
 
-void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
+void Web::sendKeyUpEvent(const ci::app::KeyEvent &event) {
+	DS_LOG_VERBOSE(3, "Web: send key up " << event.getChar() << " code: " << event.getCode());
+
 	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -658,7 +686,9 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
-void Web::sendMouseClick(const ci::vec3& globalClickPoint){
+void Web::sendMouseClick(const ci::vec3& globalClickPoint) {
+	DS_LOG_VERBOSE(3, "Web: send mouse click " << globalClickPoint);
+
 	if(!mAllowClicks) return;
 
 	ci::vec2 pos = ci::vec2(globalToLocal(globalClickPoint));
@@ -769,6 +799,8 @@ double Web::getZoom() const {
 }
 
 void Web::goBack() {
+	DS_LOG_VERBOSE(2, "Web: going back on " << mUrl);
+
 	mService.goBackwards(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -778,6 +810,8 @@ void Web::goBack() {
 }
 
 void Web::goForward() {
+	DS_LOG_VERBOSE(2, "Web: going forwards on " << mUrl);
+
 	mService.goForwards(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -787,6 +821,8 @@ void Web::goForward() {
 }
 
 void Web::reload(const bool ignoreCache) {
+	DS_LOG_VERBOSE(2, "Web: reloading on " << mUrl);
+
 	mService.reload(mBrowserId, ignoreCache);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
@@ -800,6 +836,8 @@ void Web::reload(const bool ignoreCache) {
 }
 
 void Web::stop() {
+	DS_LOG_VERBOSE(2, "Web: stop loading on " << mUrl);
+
 	mService.stopLoading(mBrowserId);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){

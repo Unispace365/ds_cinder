@@ -7,22 +7,15 @@
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
-#include "query/data_wrangler.h"
-#include "model/data_model.h"
-#include "events/app_events.h"
-
-#include "app/globals.h"
-
 namespace downstream {
 
-TableTableItem::TableTableItem(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "table_table_item.xml")
-	, mGlobals(g)
+TableTableItem::TableTableItem(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "table_table_item.xml")
 {
 }
 
 
-void TableTableItem::setData(ds::model::DataModelRef theData) {
+void TableTableItem::setData(ds::model::ContentModelRef theData) {
 	mData = theData;
 
 	setSpriteText("id", ds::value_to_string(theData.getId()));
@@ -41,7 +34,7 @@ void TableTableItem::setData(ds::model::DataModelRef theData) {
 }
 
 
-ds::model::DataModelRef TableTableItem::getData() {
+ds::model::ContentModelRef TableTableItem::getData() {
 	return mData;
 }
 

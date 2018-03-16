@@ -30,6 +30,7 @@ namespace ds
 UdpReceiver::UdpReceiver(int numThreads)
 	: mInitialized(false)
 	, mReceiveBufferMaxSize(0)
+	, mConnected(false)
 {
 }
 
@@ -42,7 +43,7 @@ bool UdpReceiver::initialize(const std::string &ip, const std::string &portSz)
 	/*std::vector<std::string> numbers = ds::split(ip, ".");
 	int value;
 	ds::string_to_value(numbers.front(), value);*/
-
+	mConnected = false;
 	mIp = ip;
 	mPort = portSz;
 	try	{
@@ -59,11 +60,9 @@ bool UdpReceiver::initialize(const std::string &ip, const std::string &portSz)
 
 		mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
 		if(mReceiveBufferMaxSize <= 0){
-			//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
 			DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
 		}
 		if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)){
-			//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
 			DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
 		}
 
@@ -83,6 +82,7 @@ bool UdpReceiver::initialize(const std::string &ip, const std::string &portSz)
 bool UdpReceiver::connect(const std::string &ip, const std::string &portSz) {
 	mIp = ip;
 	mPort = portSz;
+	mConnected = false;
 	try {
 		unsigned short port;
 		ds::string_to_value(portSz, port);
@@ -96,15 +96,14 @@ bool UdpReceiver::connect(const std::string &ip, const std::string &portSz) {
 
 		mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
 		if(mReceiveBufferMaxSize <= 0) {
-			//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
 			DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
 		}
 		if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)) {
-			//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
 			DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
 		}
 
 		mInitialized = true;
+		mConnected = true;
 		return true;
 	} catch(std::exception &e)
 	{

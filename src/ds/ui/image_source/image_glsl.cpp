@@ -5,8 +5,6 @@
 #include <cinder/Surface.h>
 #include <ds/app/environment.h>
 #include "ds/app/image_registry.h"
-#include "ds/arc/arc_io.h"
-#include "ds/arc/arc_render_circle.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/service/glsl_image_service.h"
@@ -56,27 +54,11 @@ public:
 	}
 
 	virtual void							writeTo(DataBuffer& buf) const {
-		assert(false);
-#if 0
-		buf.add(RES_FN_ATT);
-		buf.add(mFilename);
-
-		buf.add(RES_FLAGS_ATT);
-		buf.add(mFlags);
-#endif
+		DS_LOG_WARNING("ImageGlsl::Generator::writeTo is not supported");
 	}
 
 	virtual bool							readFrom(DataBuffer& buf) {
-		assert(false);
-#if 0
-		if (!buf.canRead<char>()) return false;
-		if (buf.read<char>() != RES_FN_ATT) return false;
-		mFilename = buf.read<std::string>();
-
-		if (!buf.canRead<char>()) return false;
-		if (buf.read<char>() != RES_FLAGS_ATT) return false;
-		mFlags = buf.read<int>();
-#endif
+		DS_LOG_WARNING("ImageGlsl::Generator::writeTo is not supported");
 
 		return true;
 	}

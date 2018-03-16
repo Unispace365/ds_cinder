@@ -55,9 +55,6 @@
     <Filter Include="src\ds\ui\image_source">
       <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\arc">
-      <UniqueIdentifier>{0dabc65a-df40-4df3-9b7b-f2d4553611a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\app">
       <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
     </Filter>
@@ -120,6 +117,15 @@
     </Filter>
     <Filter Include="src\ds\util\sundown">
       <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\metrics">
+      <UniqueIdentifier>{9dcb5691-ef16-4d0b-9a62-1d447eb771ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\content">
+      <UniqueIdentifier>{a17a3242-099b-4dc1-90dd-459d20a0616f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network\helper">
+      <UniqueIdentifier>{32c8fd76-b477-4ba3-810a-7221c033fa50}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -222,9 +228,6 @@
     <ClInclude Include="..\src\ds\math\math_func.h">
       <Filter>src\ds\math</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\math\random.h">
-      <Filter>src\ds\math</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\data\resource_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
@@ -300,38 +303,8 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_chain.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_layer.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_io.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_color_array.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\file_meta_data.h">
       <Filter>src\ds\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_pow.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_input.h">
-      <Filter>src\ds\arc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\app.h">
       <Filter>src\ds\app</Filter>
@@ -364,9 +337,6 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\event_notifier.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\FrameworkResources.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\image_registry.h">
@@ -449,9 +419,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_map.h">
-      <Filter>src\ds\arc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
       <Filter>src\ds\ui\image_source</Filter>
@@ -747,6 +714,33 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\metrics\metrics_service.h">
+      <Filter>src\ds\metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\time\time_callback.h">
+      <Filter>src\ds\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\key_manager.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\auto_refresh.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\content_model.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\content_query.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\content_wrangler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\helper\delayed_node_watcher.h">
+      <Filter>src\ds\network\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\content_events.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -881,38 +875,8 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_chain.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_layer.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_io.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_pow.cpp">
-      <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_input.cpp">
-      <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\app.cpp">
       <Filter>src\ds\app</Filter>
@@ -1012,9 +976,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_map.cpp">
-      <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
       <Filter>src\ds\ui\image_source</Filter>
@@ -1261,6 +1222,30 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp">
+      <Filter>src\ds\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\time\time_callback.cpp">
+      <Filter>src\ds\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\key_manager.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\auto_refresh.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\content_model.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\content_query.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\content_wrangler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp">
+      <Filter>src\ds\network\helper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

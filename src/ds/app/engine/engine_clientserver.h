@@ -18,13 +18,9 @@ public:
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
 
-	virtual void					setup(ds::App&);
 	virtual void					draw();
 
-	virtual int						getMode() const { return CLIENTSERVER_MODE; }
-
 private:
-	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
 };
 

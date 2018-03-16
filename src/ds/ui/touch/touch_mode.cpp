@@ -50,12 +50,12 @@ TouchMode::Enum TouchMode::fromSettings(ds::cfg::Settings &s) {
 }
 
 TouchMode::Enum TouchMode::next(const TouchMode::Enum &m) {
-	if (m == TouchMode::kAll) return kAll;
+	if (m == TouchMode::kAll) return kTuio;
 	if (m == TouchMode::kTuio) return kTuioAndMouse;
-	if (m == TouchMode::kTuioAndMouse) return kTuio;
+	if (m == TouchMode::kTuioAndMouse) return kSystem;
 	if (m == TouchMode::kSystem) return kSystemAndMouse;
-	if (m == TouchMode::kSystemAndMouse) return kSystem;
-	return kTuioAndMouse;
+	if (m == TouchMode::kSystemAndMouse) return kAll;
+	return kAll;
 }
 
 } // namespace ui

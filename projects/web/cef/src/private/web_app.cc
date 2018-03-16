@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 // Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
@@ -14,6 +16,7 @@
 #include "include/wrapper/cef_helpers.h"
 
 #include <ds/debug/debug_defines.h>
+#include <ds/debug/logger.h>
 #include <cinder/app/App.h>
 
 // For getting X11 window handle from app window
@@ -96,10 +99,12 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);
+		// Create the first browser window.
+		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
+	} else {
+		DS_LOG_WARNING("No handler exists when trying to create a browser!");
 	}
 
-	// Create the first browser window.
-	CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
 }
 
 

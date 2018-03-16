@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "private/gst_video_service.h"
 
 #include <ds/app/engine/engine.h>
@@ -68,6 +70,17 @@ bool GstVideoService::getValidInstall(){
 
 const std::string& GstVideoService::getErrorMessage(){
 	return mErrorMessage;
+}
+
+void gstLogFunction(GstDebugCategory* category,
+					GstDebugLevel level,
+					const gchar *file,
+					const gchar *function,
+					gint line,
+					GObject *object,
+					GstDebugMessage *message,
+					gpointer user_data) {
+	DS_LOG_VERBOSE(3, "GST_DEBUG " << level << " "  << file << " " << function << " " << gst_debug_message_get(message) );
 }
 
 void GstVideoService::start() {
@@ -143,7 +156,11 @@ void GstVideoService::start() {
 		gst_object_unref(playbinPlugin);
 	}
 
-	
+	if(ds::getLogger().hasVerboseLevel(3)) {
+		gst_debug_set_active(true);
+		gst_debug_set_threshold_from_string("*:3", true); // 4 for gstreamer is the threshold for a TON of stuff
+		gst_debug_add_log_function(*gstLogFunction, NULL, NULL);
+	}
 
 	mValidInstall = true;
 }

@@ -3,9 +3,9 @@
 #include "ds/app/engine/engine_standalone.h"
 
 #include "ds/app/app.h"
-
-#include <ds/debug/logger.h>
-#include <ds/debug/computer_info.h>
+#include "ds/content/content_wrangler.h"
+#include "ds/debug/logger.h"
+#include "ds/debug/computer_info.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -17,8 +17,9 @@ namespace ds {
  */
 EngineStandalone::EngineStandalone(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots)
-		: inherited(app, settings, ed, roots)
-		, mLoadImageService(*this, mIpFunctions)
+	: ds::Engine(app, settings, ed, roots, STANDALONE_MODE)
+	, mLoadImageService(*this, mIpFunctions)
+	, mContentWrangler(nullptr)
  {
 }
 
@@ -36,9 +37,18 @@ void EngineStandalone::installSprite(	const std::function<void(ds::BlobRegistry&
 }
 
 void EngineStandalone::setup(ds::App& app) {
-	inherited::setup(app);
+	ds::Engine::setup(app);
 
+	if(!mContentWrangler) {
+		mContentWrangler = new ContentWrangler(*this);
+	}
+	if(mContentWrangler) {
+		mContentWrangler->initialize();
+	}
+
+	app.preServerSetup();
 	app.setupServer();
+
 }
 
 
@@ -53,7 +63,7 @@ void EngineStandalone::draw() {
 }
 
 void EngineStandalone::stopServices() {
-	inherited::stopServices();
+	ds::Engine::stopServices();
 	mWorkManager.stopManager();
 }
 

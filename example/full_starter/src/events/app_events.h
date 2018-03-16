@@ -5,15 +5,7 @@
 
 namespace fullstarter {
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
-public:
-	StoryDataUpdatedEvent(){};
-}; 
-
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
-	RequestAppExitEvent(){};
-};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
 
 } // !namespace fullstarter
 

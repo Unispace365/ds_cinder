@@ -5,6 +5,11 @@
 	<setting name="sample:config:leading" value="0.75" type="float"/>
 	<setting name="sample:config:color" value="white" type="color"/>
 	
+	<setting name="media_viewer:title:name" value="Noto Sans" type="string"/>
+	<setting name="media_viewer:title:size" value="12" type="float"/>
+	<setting name="media_viewer:title:leading" value="0.75" type="float"/>
+	<setting name="media_viewer:title:color" value="white" type="color"/>
+	
 	<setting name="table_nav:id:name" value="Noto Sans Bold" type="string"/>
 	<setting name="table_nav:id:size" value="12" type="float"/>
 	<setting name="table_nav:id:leading" value="0.75" type="float"/>

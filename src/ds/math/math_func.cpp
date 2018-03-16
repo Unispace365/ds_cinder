@@ -2,7 +2,6 @@
 
 #include "math_func.h"
 #include "math_defs.h"
-#include "random.h"
 
 using namespace ci;
 
@@ -126,9 +125,9 @@ double degree(const double x2, const double y2)
 
 ci::vec3 randomUnitVector(){
 	// make some random orthogonal distances, then normalize
-	float x = 2.0f * (float)ds::math::random() - 1.0f;
-	float y = 2.0f * (float)ds::math::random() - 1.0f;
-	float z = 2.0f * (float)ds::math::random() - 1.0f;
+	float x = ci::randFloat(-1.0f, 1.0f);
+	float y = ci::randFloat(-1.0f, 1.0f);
+	float z = ci::randFloat(-1.0f, 1.0f);
 
 	ci::vec3 output(x, y, z);
 	if(ci::length2(output) > 0.0f){

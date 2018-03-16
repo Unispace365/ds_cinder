@@ -9,13 +9,18 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/computer_info.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
+#include "ds/metrics/metrics_service.h"
 
 namespace ds {
 namespace ui {
 
-SpriteEngine::SpriteEngine(ds::EngineData& ed)
+SpriteEngine::SpriteEngine(ds::EngineData& ed, const int appMode)
 	: mData(ed)
+	, mAppMode(appMode)
 	, mRegisteredEntryField(nullptr)
+	, mCallbackId(0)
+	, mMetricsService(nullptr)
+	, mRestartAfterUpdate(false)
 {
 	mComputerInfo = new ds::ComputerInfo();
 }
@@ -48,6 +53,10 @@ const ds::cfg::Text& SpriteEngine::getTextCfg(const std::string& textName) const
 
 ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
+}
+
+ds::cfg::Settings& SpriteEngine::getEngineSettings() const {
+	return mData.mEngineCfg.getSettings("engine");
 }
 
 ds::cfg::Settings& SpriteEngine::getAppSettings() const {
@@ -137,6 +146,10 @@ float SpriteEngine::getFrameRate() const {
 }
 
 
+const std::string& SpriteEngine::getCmsURL() const {
+	return mData.mCmsURL;
+}
+
 double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();
 }
@@ -179,8 +192,7 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	ds::EngineService*	s = mData.mServices[str];
 	if(!s) {
 		const std::string	msg = "Service (" + str + ") does not exist";
-		DS_DBG_CODE(DS_LOG_ERROR(msg));
-		throw std::runtime_error(msg);
+		DS_LOG_FATAL(msg);
 	}
 	return *s;
 }
@@ -233,6 +245,102 @@ ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){
 	return mRegisteredEntryField;
 }
 
+
+size_t SpriteEngine::timedCallback(std::function<void()> func, const double timerSeconds) {
+	auto theCallback = new ds::time::Callback(*this);
+	if(!theCallback) {
+		DS_LOG_WARNING("Couldn't create a timed callback! That's a big deal!");
+		return 0;
+	}
+	mTimedCallbacks.emplace_back(theCallback);
+	auto wrappedCallback = [this, func, theCallback] {
+		func();
+		for(auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+			if((*it) == theCallback) {
+				mTimedCallbacks.erase(it);
+				break;
+			}
+		}
+	};
+
+	theCallback->timedCallback(wrappedCallback, timerSeconds);
+
+	return theCallback->getId();
+}
+
+size_t SpriteEngine::repeatedCallback(std::function<void()> func, const double timerSeconds) {
+	auto theCallback = new ds::time::Callback(*this);
+	if(!theCallback) {
+		DS_LOG_WARNING("Couldn't create a repeated callback! That's a big deal!");
+		return 0;
+	}
+	mTimedCallbacks.emplace_back(theCallback);
+	return theCallback->repeatedCallback(func, timerSeconds);
+}
+
+void SpriteEngine::cancelTimedCallback(size_t callbackId) {
+	for(auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+		if((*it)->getId() == callbackId) {
+			(*it)->cancel();
+			mTimedCallbacks.erase(it);
+			break;
+		}
+	}
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const std::string& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec2& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::vec3& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const ci::Rectf& fieldValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
+}
+
+void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldNameAndValue) {
+	if(mMetricsService) mMetricsService->recordMetric(metricName, fieldNameAndValue);
+}
+
+void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::string& stringValue) {
+	if(mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
+}
+
+void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName, const std::wstring& stringValue) {
+	if(mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
+}
+
+void SpriteEngine::recordMetricTouch(ds::ui::TouchInfo& ti) {
+	if(mMetricsService) mMetricsService->recordMetricTouch(ti);
+}
+
+void SpriteEngine::restartAfterNextUpdate() {
+	mRestartAfterUpdate = true;
+}
+
+bool SpriteEngine::getRestartAfterNextUpdate() {
+	bool doRestart = mRestartAfterUpdate;
+	mRestartAfterUpdate = false;
+	return doRestart;
+}
 
 const float SpriteEngine::getAnimDur() const {
 	return mData.mAnimDur;

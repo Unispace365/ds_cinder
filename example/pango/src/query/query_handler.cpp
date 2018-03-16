@@ -1,11 +1,7 @@
 #include "query_handler.h"
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-#include <cinder/Json.h>
 #include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
-#include "app/app_defs.h"
 #include "app/globals.h"
 
 namespace pango {

@@ -18,12 +18,7 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 	: ds::ui::LayoutSprite(engine)
 	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
 	, mNeedsLayout(false)
-	, mVerboseLogging(false)
-	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
-		if (m) this->onAppEvent(*m);
-	}) {
-
-	mVerboseLogging = mEngine.getSettings("engine").getBool("smart_layout:verbose_logging", 0, false);
+	, mEventClient(engine) {
 
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
@@ -43,23 +38,14 @@ ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	return nullptr;
 }
 
-void SmartLayout::onAppEvent(const ds::Event& in_e) {
-	if (mEventCallbacks.empty()) return;
-
-	auto callbackIt = mEventCallbacks.find(in_e.mWhat);
-	if (callbackIt != end(mEventCallbacks)) {
-		(callbackIt->second)(in_e);
-	}
-}
-
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
 	if(spr) {
 		spr->setText(theText);
 		mNeedsLayout = true;
-	} else if(mVerboseLogging) {
-		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
+	} else  {
+		DS_LOG_VERBOSE(2, "Failed to set Text for Sprite: " << spriteName);
 	}
 }
 
@@ -73,7 +59,7 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	if (spr) {
 		mEngine.getEngineCfg().getText(textCfgName).configure(*spr);
 		mNeedsLayout = true;
-	} else if(mVerboseLogging){
+	} else {
 		DS_LOG_WARNING("Failed to set Font " << textCfgName << " for Sprite: " << spriteName);
 	}
 }
@@ -84,8 +70,8 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 	if (sprI) {
 		sprI->setImageFile(ds::Environment::expand(imagePath));
 		mNeedsLayout = true;
-	} else if(mVerboseLogging) {
-		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
+	} else {
+		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
@@ -99,8 +85,8 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 			sprI->setImageResource(imageResource);
 		}
 		mNeedsLayout = true;
-	} else if(mVerboseLogging) {
-		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
+	} else {
+		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
@@ -111,6 +97,60 @@ void SmartLayout::setSpriteTapFn(const std::string& spriteName,
 		spr->enable(true);
 		spr->setTapCallback(tapCallback);
 	}
+}
+
+void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
+	mContentModel = theData;
+	for(auto it : mSpriteMap) {
+		auto theModel = it.second->getUserData().getString("model");
+		if(!theModel.empty()) {
+			auto models = ds::split(theModel, "; ", true);
+			for(auto mit : models) {
+				auto keyVals = ds::split(mit, ":", true);
+				if(keyVals.size() == 2) {
+					auto childProps = ds::split(keyVals[1], "->", true);
+					if(childProps.size() == 2) {
+						auto sprPropToSet = keyVals[0];
+						auto theChild = childProps[0];
+						auto theProp = childProps[1];
+						std::string actualValue = "";
+
+						if(sprPropToSet == "resource") {
+							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
+
+						} else {
+							if(theChild == "this") {
+								actualValue = theData.getPropertyString(theProp);
+							} else {
+								actualValue = theData.getChildByName(theChild).getPropertyString(theProp);
+							}
+
+							ds::ui::XmlImporter::setSpriteProperty(*it.second, sprPropToSet, actualValue);
+						}
+
+					} else {
+						DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << theModel);
+					}
+				} else {
+					DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << theModel);
+				}
+			}
+		}
+	}
+
+	/*
+	for (auto it : theData.getProperties()){
+	if(hasSprite(it.first)) {
+	if(it.second.getResource().empty()) {
+	setSpriteText(it.first, it.second.getString());
+	} else {
+	setSpriteImage(it.first, it.second.getResource());
+	}
+	}
+	}
+	*/
+
+	runLayout();
 }
 
 void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild) {

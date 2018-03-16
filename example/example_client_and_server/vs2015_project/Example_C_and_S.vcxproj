@@ -124,9 +124,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\src\custom_sprite.cpp" />
     <ClCompile Include="..\src\example_app.cpp" />
   </ItemGroup>

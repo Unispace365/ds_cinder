@@ -33,7 +33,6 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mRotationTranslator(*(mRotationTranslatorPtr.get()))
 		, mSmoothEnabled(true)
 		, mFramesToSmooth(8)
-		, mVerboseLogging(false)
 {
 }
 
@@ -52,16 +51,15 @@ void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
 
 		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 
-		if(mVerboseLogging){
-			DS_LOG_INFO_M("Touch began, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime(), TOUCH_MANAGER_LOG);
-		}
+
+		DS_LOG_VERBOSE(1, "Touch began, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime());
+
 
 		if(shouldDiscardTouch(touchPos)){
 			mDiscardTouchMap[fingerId] = true;
 
-			if(mVerboseLogging){
-				DS_LOG_INFO_M("Touch DISCARDED as out of bounds " << touchIt->getId() << " bounds: " << mTouchFilterRect, TOUCH_MANAGER_LOG);
-			}
+			DS_LOG_VERBOSE(1, "Touch DISCARDED as out of bounds " << touchIt->getId() << " bounds: " << mTouchFilterRect);
+			
 
 			continue;
 		}
@@ -74,9 +72,8 @@ void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
 void TouchManager::mouseTouchBegin(const ci::app::MouseEvent &event, int id){
 	ci::vec2 globalPos = translateMousePoint(event.getPos());
 
-	if(mVerboseLogging){
-		DS_LOG_INFO_M("Mouse input began, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos, TOUCH_MANAGER_LOG);
-	}
+
+	DS_LOG_VERBOSE(1, "Mouse input began, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos);
 
 	if(shouldDiscardTouch(globalPos)){
 		return;
@@ -116,7 +113,11 @@ void TouchManager::inputBegin(const int fingerId, const ci::vec2& touchPos){
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
 
-	if(mCapture) mCapture->touchBegin(touchInfo);
+	if(mCapture) {
+		mCapture->touchBegin(touchInfo);
+	}
+
+	mEngine.recordMetricTouch(touchInfo);
 
 	Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 	touchInfo.mPickedSprite = currentSprite;
@@ -152,9 +153,8 @@ void TouchManager::touchesMoved(const ds::ui::TouchEvent &event) {
 			overrideTouchTranslation(touchPos);
 		}
 
-		if(mVerboseLogging){
-			DS_LOG_INFO_M("Touch moved, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime(), TOUCH_MANAGER_LOG);
-		}
+		DS_LOG_VERBOSE(5, "Touch moved, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime());
+		
 
 		inputMoved(fingerId, touchPos);
 	}
@@ -163,9 +163,7 @@ void TouchManager::touchesMoved(const ds::ui::TouchEvent &event) {
 void TouchManager::mouseTouchMoved(const ci::app::MouseEvent &event, int id){
 	ci::vec2 globalPos = translateMousePoint(event.getPos());
 
-	if(mVerboseLogging){
-		DS_LOG_INFO_M("Mouse input moved, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos, TOUCH_MANAGER_LOG);
-	}
+	DS_LOG_VERBOSE(5, "Mouse input moved, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos);
 
 	inputMoved(id, globalPos);
 }
@@ -206,6 +204,9 @@ void TouchManager::inputMoved(const int fingerId, const ci::vec2& touchPos){
 	if(mCapture){
 		mCapture->touchMoved(touchInfo);
 	}
+	
+	mEngine.recordMetricTouch(touchInfo);
+	
 
 	mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
@@ -234,10 +235,8 @@ void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
 			overrideTouchTranslation(touchPos);
 		}
 
-		if(mVerboseLogging){
-			DS_LOG_INFO_M("Touch ended, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime(), TOUCH_MANAGER_LOG);
-		}
-
+		DS_LOG_VERBOSE(1, "Touch ended, id:" << touchIt->getId() << " pos:" << touchIt->getPos() << " translated pos:" << touchPos << " time:" << touchIt->getTime());
+		
 		inputEnded(fingerId, touchPos);
 	}
 }
@@ -245,9 +244,8 @@ void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
 void TouchManager::mouseTouchEnded(const ci::app::MouseEvent &event, int id){
 	ci::vec2 globalPos = translateMousePoint(event.getPos());
 
-	if(mVerboseLogging){
-		DS_LOG_INFO_M("Mouse input ended, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos, TOUCH_MANAGER_LOG);
-	}
+	DS_LOG_VERBOSE(1, "Mouse input ended, id:" << id << " pos:" << event.getPos() << " translated pos:" << globalPos);
+	
 
 	inputEnded(id, globalPos);
 }
@@ -281,6 +279,8 @@ void TouchManager::inputEnded(const int fingerId, const ci::vec2& touchPos){
 	mFingerDispatcher.erase(touchInfo.mFingerId);
 
 	if(mCapture) mCapture->touchEnd(touchInfo);
+	mEngine.recordMetricTouch(touchInfo);
+	
 
 	if(mEngine.getTouchInfoPipeCallback()){
 		mEngine.getTouchInfoPipeCallback()(touchInfo);
@@ -362,17 +362,6 @@ void TouchManager::setTouchSmoothing(const bool doSmoothing){
 
 void TouchManager::setTouchSmoothFrames(const int smoothFrames){
 	mFramesToSmooth = smoothFrames;
-}
-
-void TouchManager::setVerboseLogging(const bool verbosity){
-	mVerboseLogging = verbosity;
-
-	// If there's no verbose logging when we first start up, there's no need to tell anyone that
-	static bool firstTime = true;
-	if(firstTime && !verbosity) return;
-	firstTime = false;
-
-	DS_LOG_INFO_M("TouchManager: Verbose logging is " << verbosity, TOUCH_MANAGER_LOG);
 }
 
 void TouchManager::overrideTouchTranslation(ci::vec2& inOutPoint){

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/sprite/pdf.h"
 
 #include <ds/app/app.h>

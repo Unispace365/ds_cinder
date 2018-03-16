@@ -26,19 +26,6 @@ public:
 	ds::ui::SpriteEngine&			mEngine;
 
 	const AllData&					mAllData;
-
-	const float						getAnimDur();
-
-	void							initialize();
-
-	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	ds::cfg::Settings&				getAppSettings() const;
-	ds::cfg::Settings&				getSettings(const std::string& name) const;
-
-private:
-
-	float							mAnimationDuration;
 };
 
 } // !namespace pango

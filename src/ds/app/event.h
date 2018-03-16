@@ -29,7 +29,7 @@ public:
 	Event(const size_t what);
 	virtual ~Event();
 
-	const std::string&		getName() const;
+	const std::string		getName() const;
 
 	/*
 	 * \fn as()
@@ -47,6 +47,7 @@ public:
 	const T* const			as() const;
 
 	size_t					mWhat;
+	std::string				mEventName;
 
 	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
 	ci::vec3				mEventOrigin;
@@ -91,7 +92,9 @@ public:
 	static const std::string		NAME() { return demangleTypeName(typeid(Derived).name()); }
 
 protected:
-	RegisteredEvent() : Event(sENTRY.getWhat()) {}
+	RegisteredEvent() : Event(sENTRY.getWhat()) {
+		mEventName = NAME();
+	}
 
 private:
 	static event::Registry::Entry	sENTRY;

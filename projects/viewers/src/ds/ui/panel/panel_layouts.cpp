@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "panel_layouts.h"
 
 #include <ds/debug/logger.h>

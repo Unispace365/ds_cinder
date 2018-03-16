@@ -31,6 +31,7 @@ const int			LOG_LEVEL_BLOCK_CODE = LOG_LEVEL_ERROR_CODE-1;
 const int			LEVEL_SIZE = 5;
 // Only assign during setup()
 bool				HAS_LEVEL[LEVEL_SIZE];
+int					VERBOSE_LEVEL = 0;
 ds::BitMask			HAS_MODULE = ds::BitMask::newFilled();
 bool				HAS_ASYNC = true;
 std::string			LOG_FILE;
@@ -97,6 +98,14 @@ void ds::Logger::setup(ds::cfg::Settings& settings)
 							module = settings.getString("logger:module"),
 							async = settings.getString("logger:async"),
 							file = settings.getString("logger:file");
+
+	VERBOSE_LEVEL = settings.getInt("logger:verbose_level");
+	if(VERBOSE_LEVEL < 0) VERBOSE_LEVEL = 0;
+	if(VERBOSE_LEVEL > 9) VERBOSE_LEVEL = 9;
+	if(VERBOSE_LEVEL > 0) {
+		std::cout << "Log verbosity is now " << std::to_string(VERBOSE_LEVEL) << std::endl;
+	}
+
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
 		HAS_MODULE = ds::BitMask::newEmpty();
@@ -116,6 +125,15 @@ void ds::Logger::setup(ds::cfg::Settings& settings)
 		const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
 		static const std::string		DATE_FORMAT("%Y-%m-%d");
 		std::string						fn;
+		fn.append(settings.getString("platform:guid"));
+		ds::replace(fn, "?", "");
+		ds::replace(fn, "<", "");
+		ds::replace(fn, ">", "");
+		ds::replace(fn, ":", "");
+		ds::replace(fn, "\"", "");
+		ds::replace(fn, "|", "");
+		ds::replace(fn, "*", "");
+		fn.append("-");
 		// If an actual file name was supplied, then do something to separate the date stamp
 		// XXX -- not currently supported, assume the default log name
 		//if (!file.empty() && !ends_in_separator(file)) file.append(" ");
@@ -157,10 +175,35 @@ ds::BitMask Logger::newModule(const std::string& name) {
 	return ans;
 }
 
-bool Logger::hasLevel(const int level) {
+bool Logger::hasLevel(const int level) { 
 	if (level == LOG_STARTUP) return true;
 	if (level < 0 || level >= LEVEL_SIZE) return false;
 	return HAS_LEVEL[level];
+}
+
+bool ds::Logger::hasVerboseLevel(const int verboseLevel) {
+	return verboseLevel <= VERBOSE_LEVEL;
+}
+
+void ds::Logger::setVerboseLevel(const int newVerboseLevel) {
+	VERBOSE_LEVEL = newVerboseLevel;
+	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
+}
+
+const int ds::Logger::getVerboseLevel() {
+	return VERBOSE_LEVEL;
+}
+
+void ds::Logger::incrementVerboseLevel() {
+	VERBOSE_LEVEL++;
+	if(VERBOSE_LEVEL > 9) VERBOSE_LEVEL = 0;
+	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
+}
+
+void ds::Logger::decrementVerboseLevel() {
+	VERBOSE_LEVEL--;
+	if(VERBOSE_LEVEL < 0) VERBOSE_LEVEL = 9;
+	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
 }
 
 bool Logger::hasModule(const ds::BitMask& m)

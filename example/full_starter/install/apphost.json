@@ -1,0 +1,35 @@
+{
+  "PreventSleep": true,
+  "Kiosk": true,
+  "RestartApps": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "RestartSystem": {
+    "Enabled": false,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "Profiles": [
+    {
+      "Name": "full_starter",
+      "Apps": [
+        {
+          "Path": "%PROGRAMFILES%/Downstream/full_starter/full_starter.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        },
+        {
+          "Path": "%PROGRAMFILES%/Downstream/full_starter/DSNode/DSNode.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        }
+      ]
+    }
+  ]
+}

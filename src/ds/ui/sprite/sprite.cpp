@@ -12,16 +12,15 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/math/math_defs.h"
 #include "ds/math/math_func.h"
-#include "ds/math/random.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/tween/tweenline.h"
 #include "ds/util/string_util.h"
 #include "util/clip_plane.h"
 #include "ds/params/draw_params.h"
 
-#include <Poco/Debugger.h>
 #include "cinder/ImageIo.h"
 #include <cinder/Ray.h>
+#include <cinder/Rand.h>
 
 //#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -185,9 +184,9 @@ void Sprite::init(const ds::sprite_id_t id) {
 
 	setSpriteId(id);
 
-	mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
-							  static_cast<float>(math::random()*0.5 + 0.5),
-							  static_cast<float>(math::random()*0.5 + 0.5),
+	mServerColor = ci::ColorA(static_cast<float>(ci::randFloat(0.5, 1.0f)),
+							  static_cast<float>(ci::randFloat(0.5, 1.0f)),
+							  static_cast<float>(ci::randFloat(0.5, 1.0f)),
 							  0.4f);
 	mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
 	mClippingBoundsDirty = false;

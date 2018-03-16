@@ -1,0 +1,14 @@
+<settings>
+
+	<text name="noto-bold" value="Noto Sans Bold" />
+	
+	<text name="frutiger-light" value="Noto Sans" />
+	<text name="frutiger-roman" value="Noto Sans" />
+	<text name="frutiger-bold" value="Noto Sans Bold" />
+	
+	
+	<text name="noto-thin" value="Noto Sans" />
+	<text name="guardian-bold" value="Noto Sans Bold" />
+	<text name="guardian-light" value="Noto Sans" />
+	<text name="guardian-regular" value="Noto Sans" />
+</settings>

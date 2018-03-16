@@ -1,0 +1,12 @@
+<interface>
+
+		<multiline_text name="text" 
+			text="Hello!"
+			font="tree:item"
+			position="30"
+			text_align="middle"
+			resize_limit="100"
+			/>
+	
+</interface>
+

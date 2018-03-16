@@ -156,7 +156,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\physics_example_app.cpp" />
     <ClCompile Include="..\src\model\generated\media_model.cpp" />
@@ -170,7 +169,6 @@
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\physics_example_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
@@ -184,7 +182,6 @@
     <ClInclude Include="..\src\ui\story\story_view.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>

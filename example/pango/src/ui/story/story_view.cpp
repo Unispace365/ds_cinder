@@ -8,7 +8,6 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 
-#include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
 #include "ds/ui/interface_xml/interface_xml_importer.h"
@@ -84,13 +83,6 @@ void StoryView::randomizeText(){
 }
 
 void StoryView::onAppEvent(const ds::Event& in_e){
-	if(in_e.mWhat == IdleEndedEvent::WHAT()){
-		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
-		//animateOn();
-	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
-		//animateOff();
-	}
-
 	// If you have an event that is dispatched when new content is queryied, you could map that here.
 	if(in_e.mWhat == StoryDataUpdatedEvent::WHAT()){
 		setData();
@@ -123,14 +115,14 @@ void StoryView::layout(){
 
 void StoryView::animateOn(){
 	show();
-	tweenOpacity(1.0f, mGlobals.getAnimDur());
+	tweenOpacity(1.0f, mEngine.getAnimDur());
 
 	// Recursively animate on any children, including the primary layout
 	tweenAnimateOn(true, 0.0f, 0.05f);
 }
 
 void StoryView::animateOff(){
-	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
+	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
 void StoryView::onUpdateServer(const ds::UpdateParams& p){

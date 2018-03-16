@@ -32,14 +32,17 @@ void EventNotifier::removeRequestListener(void *id) {
 }
 
 void EventNotifier::notify(const ds::Event& e) {
+	DS_LOG_VERBOSE(2, "EventNotifier::notify event " << e.getName());
 	mEventNotifier.notify(&e);
 }
 
 void EventNotifier::notify(const ds::Event* e) {
+	if(e) DS_LOG_VERBOSE(2, "EventNotifier::notify event " << e->getName());
 	mEventNotifier.notify(e);
 }
 
 void EventNotifier::notify(const std::string& eventName) {
+	DS_LOG_VERBOSE(2, "EventNotifier::notify event " << eventName);
 	mEventNotifier.notify(event::Registry::get().getEventCreator(eventName)());
 }
 

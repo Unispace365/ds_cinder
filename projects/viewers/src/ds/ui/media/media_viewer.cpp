@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "media_viewer.h"
 
 

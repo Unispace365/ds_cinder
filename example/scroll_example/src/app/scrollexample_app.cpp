@@ -252,5 +252,6 @@ void ScrollExample::moveCamera(const ci::vec3& deltaMove){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP(example::ScrollExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(example::ScrollExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "pdf_player.h"
 
 

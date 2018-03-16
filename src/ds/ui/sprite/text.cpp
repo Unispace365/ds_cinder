@@ -501,7 +501,7 @@ void Text::onUpdateServer(const UpdateParams&){
 bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
-		if(mText.empty()){
+		if(mText.empty() || mTextSize <= 0.0f){
 			if(mWidth > 0.0f || mHeight > 0.0f){
 				setSize(0.0f, 0.0f);
 			}
@@ -622,7 +622,11 @@ bool Text::measurePangoText() {
 
 			if(mLetterSpacing != 0.0f) {
 				auto attrs = pango_layout_get_attributes(mPangoLayout);
-				if(attrs == nullptr) { attrs = pango_attr_list_new(); }
+				bool createdNew = false;
+				if(attrs == nullptr) {
+					attrs = pango_attr_list_new();
+					createdNew = true;
+				}
 
 				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
 				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing) * PANGO_SCALE));
@@ -632,7 +636,9 @@ bool Text::measurePangoText() {
 
 				pango_layout_set_attributes(mPangoLayout, attrs);
 
-				pango_attr_list_unref(attrs);
+				if(createdNew) {
+					pango_attr_list_unref(attrs);
+				}
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
@@ -683,7 +689,7 @@ void Text::renderPangoText(){
 	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
 	int extraTextureSize = (int)mTextSize;
 
-	if(mNeedsTextRender) {
+	if(mNeedsTextRender && mPixelWidth > 0 && mPixelHeight > 0) {
 		// Create appropriately sized cairo surface
 		const bool grayscale = false; // Not really supported
 		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
@@ -780,7 +786,7 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 	} else if(attributeId == FONTNAME_ATT) {
 
 		std::string fontName = buf.read<std::string>();
-		float fontSize = buf.read<float>();
+		double fontSize = buf.read<double>();
 		float leading = buf.read<float>();
 		float letterSpacing = buf.read<float>();
 		ci::Color fontColor = buf.read<ci::Color>();

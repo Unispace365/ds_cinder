@@ -37,7 +37,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 }
 
 void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
-	size_t i=0;
+	int i=0;
 	for(auto it = imageFiles.begin(); it < imageFiles.end(); ++it){
 		bool created_new_frames = false;
 		while ( mFrames.size() < i+1 ) {
@@ -106,11 +106,11 @@ void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
 	}
 }
 
-const size_t PngSequenceSprite::getCurrentFrameIndex()const{
+const int PngSequenceSprite::getCurrentFrameIndex()const{
 	return mCurrentFrameIndex;
 }
 
-const size_t PngSequenceSprite::getNumberOfFrames(){
+const int PngSequenceSprite::getNumberOfFrames(){
 	return mNumFrames;
 }
 
@@ -153,7 +153,12 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 			}
 		}
 
-		if(advanceFrame && !mFrames.empty() && mCurrentFrameIndex > -1 && mCurrentFrameIndex < mFrames.size()){
+		bool doAdvance = advanceFrame && !mFrames.empty() && mCurrentFrameIndex > -1 && mCurrentFrameIndex < mFrames.size();
+		std::cout << doAdvance << " " << advanceFrame<< " "  << !mFrames.empty() << " " << mCurrentFrameIndex << " " << mFrames.size() << std::endl;
+		if(advanceFrame 
+		   && !mFrames.empty() 
+		   && mCurrentFrameIndex > -1 
+		   && mCurrentFrameIndex < mFrames.size()){
 			// hide the old frame
 			mFrames[mCurrentFrameIndex]->hide();
 

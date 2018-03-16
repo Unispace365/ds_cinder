@@ -97,7 +97,7 @@ bool HttpClient::sendHttp(	const int opt, const std::string &verb, const std::ws
 							const std::function<void(Poco::Net::HTTPRequest&)>& requestFn)
 {
 	if (url.empty()) {
-		DS_DBG_CODE(std::cout << "ERROR ds::HttpClient() empty url" << std::endl);
+		DS_LOG_WARNING("ERROR ds::HttpClient() empty url");
 		return false;
 	}
 

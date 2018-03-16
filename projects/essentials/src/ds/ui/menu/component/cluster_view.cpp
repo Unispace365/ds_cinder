@@ -141,7 +141,10 @@ void ClusterView::cancelTappableMode(){
 
 }
 
-void ClusterView::activateMenu(){
+void ClusterView::activateMenu() {
+
+	DS_LOG_VERBOSE(2, "ClusterView: activateMenu() at pos=" << getGlobalPosition());
+
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
 		(*it)->animateOn();
 	}
@@ -152,7 +155,9 @@ void ClusterView::activateMenu(){
 	
 }
 
-void ClusterView::setHighlight(ci::vec2 clusterCenter){
+void ClusterView::setHighlight(ci::vec2 clusterCenter) {
+
+	DS_LOG_VERBOSE(4, "ClusterView: setHighlight() at pos=" << clusterCenter);
 
 	bool somethingHighlighted(false);
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
@@ -208,10 +213,12 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 	}
 }
 
-void ClusterView::itemActivated(MenuItem* mi){
+void ClusterView::itemActivated(MenuItem* mi) {
+
 	ci::vec3 launchPos = this->localToGlobal(mi->getCenter());
 
-	if(mi && mi->getModel().mActivatedCallback){
+	if(mi && mi->getModel().mActivatedCallback) {
+		DS_LOG_VERBOSEW(2, L"ClusterView: itemActivated() " << mi->getModel().mTitle);
 		mi->getModel().mActivatedCallback(launchPos);
 	}
 }

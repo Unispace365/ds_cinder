@@ -8,15 +8,10 @@
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
 
-#include "app/app_defs.h"
-
 namespace example {
 
 mqtt_example::mqtt_example()
-	: inherited(ds::RootList()
-								.ortho() 
-								.pickColor() ) 
-	, mTouchDebug(mEngine)
+	: inherited() 
 	, mMqttWatcher(mEngine, "10.143.100.179", "#", "#", 0.01f, 1883)
 //	, mMqttWatcher(mEngine, "PUT_AN_MQTT_SERVER_HERE_DUMMY", "#", "#", 0.01f, 1883)
 {
@@ -38,65 +33,16 @@ mqtt_example::mqtt_example()
 void mqtt_example::setupServer(){
 	mMqttWatcher.startListening();
 
-	/* Settings */
-	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
-	mEngine.loadTextCfg("text.xml");
-
-	const int numRoots = mEngine.getRootCount();
-	int numPlacemats = 0;
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-
-		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
-		if(rooty.getPerspective()){
-			const float clippFar = 10000.0f;
-			const float fov = 60.0f;
-			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
-			p.mFarPlane = clippFar;
-			p.mFov = fov;
-			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
-			mEngine.setPerspectiveCamera(i, p);
-		} else {
-			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
-		}
-
-		rooty.clearChildren();
-	}
-
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 }
 
-void mqtt_example::update() {
-	inherited::update();
-
-
-}
-
 void mqtt_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-	}
-
 	std::cout << "sending message to mqtt: Hello Whirlled!" << std::endl;
 	mMqttWatcher.sendOutboundMessage("Hello Whirlled!");
-}
-
-void mqtt_example::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void mqtt_example::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void mqtt_example::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 

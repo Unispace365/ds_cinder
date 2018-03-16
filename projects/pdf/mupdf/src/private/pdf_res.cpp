@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "private/pdf_res.h"
 
 #include <ds/debug/logger.h>

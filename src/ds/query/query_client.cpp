@@ -66,7 +66,7 @@ bool Client::runAsync(	const std::string& database, const std::string& query,
 						Poco::Timestamp* sendTime, int* id)
 {
 	if (database.empty() || query.empty()) {
-		DS_DBG_CODE(std::cout << "ERROR ds::query::Client() empty value database=" << database << " query=" << query << std::endl);
+		DS_LOG_WARNING("ds::query::Client() empty value database=" << database << " query=" << query);
 		return false;
 	}
 
@@ -105,7 +105,7 @@ void Client::Request::run()
 	int							errorCode = 0;
 	SqlDatabase					resourceDB(mDatabase, SQLITE_OPEN_READONLY, &errorCode);
 	if (errorCode != SQLITE_OK) {
-		DS_DBG_CODE(std::cout << "ds::query::Client::Request: Unable to access the resource database (SQLite error " << errorCode << ").");
+		DS_LOG_WARNING("ds::query::Client::Request: Unable to access the resource database (SQLite error " << errorCode << ").");
 	} else {
 		SqlResultBuilder		qrb(mResult, resourceDB.rawSelect(mQuery));
 		qrb.build();

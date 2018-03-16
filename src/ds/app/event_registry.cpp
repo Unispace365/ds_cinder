@@ -121,7 +121,7 @@ static void register_event_deprecated(const size_t what, const std::string& name
 	if (!e.empty()) {
 		auto f = e.find(what);
 		if (f != e.end()) {
-			DS_DBG_CODE(std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl);
+			DS_LOG_VERBOSE(1, "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")");
 			//assert(false);
 			return;
 		}
@@ -134,13 +134,13 @@ static size_t register_event(const std::string& name) {
 	Poco::Mutex::ScopedLock		l(get_register_lock());
 	auto&						e = get_events();
 	size_t						what = e.size() + 1;
-	DS_DBG_CODE(if (!e.empty()) {
+	if (!e.empty()) {
 		auto f = e.find(what);
 		if (f != e.end()) {
-			std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl;
+			DS_LOG_VERBOSE(1, "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")");
 			//assert(false);
 		}
-	});
+	};
 	e[what] = name;
 	return what;
 }

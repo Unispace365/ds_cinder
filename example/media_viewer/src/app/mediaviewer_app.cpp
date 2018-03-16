@@ -23,8 +23,6 @@ MediaViewer::MediaViewer()
 	: inherited()
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
-	, mIdling( false )
-	, mTouchDebug(mEngine)
 	, mTouchMenu(nullptr)
 	, mStreamer(nullptr)
 	, mStreamerParent(nullptr)
@@ -43,30 +41,6 @@ void MediaViewer::setupServer(){
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
-	/*
-	const int numRoots = mEngine.getRootCount();
-	int numPlacemats = 0;
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-
-		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
-		if(rooty.getPerspective()){
-			const float clippFar = 10000.0f;
-			const float fov = 60.0f;
-			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
-			p.mFarPlane = clippFar;
-			p.mFov = fov;
-			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
-			mEngine.setPerspectiveCamera(i, p);
-		} else {
-			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
-		}
-
-		rooty.clearChildren();
-	}
-	*/
 
 	mStreamer = nullptr;
 	mGlobals.initialize();
@@ -108,29 +82,11 @@ void MediaViewer::setupServer(){
 
 }
 
-void MediaViewer::update() {
-	inherited::update();
-
-	if( mEngine.isIdling() && !mIdling ){
-		//Start idling
-		mIdling = true;
-		mEngine.getNotifier().notify( IdleStartedEvent() );
-	} else if ( !mEngine.isIdling() && mIdling ){
-		//Stop idling
-		mIdling = false;
-		mEngine.getNotifier().notify( IdleEndedEvent() );
-	}
-
-}
 
 void MediaViewer::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-
-	}
-	else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
+	if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
 		auto fileNameOrig = ds::Environment::getClipboard();
 		ds::model::MediaRef newMedia = ds::model::MediaRef();
 
@@ -158,30 +114,7 @@ void MediaViewer::onKeyDown(ci::app::KeyEvent event){
 		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 
 
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_f){
-
-		const size_t numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(size_t i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
-
-					ds::ui::Text* labelly = mGlobals.getText("media_viewer:title").create(mEngine, &sprite);
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	} else if(event.getCode() == KeyEvent::KEY_p){
+	} else if(event.getCode() == KeyEvent::KEY_k){
 		if(mStreamer){
 			mStreamer->stop();
 			mStreamer->release();
@@ -197,19 +130,6 @@ void MediaViewer::onKeyDown(ci::app::KeyEvent event){
 		
 	//	mStreamerParent->addChildPtr(new ds::ui::Image(mEngine, "%APP%/data/images/sample.png"));
 	}
-}
-
-
-void MediaViewer::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void MediaViewer::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void MediaViewer::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 void MediaViewer::fileDrop(ci::app::FileDropEvent event){
@@ -244,5 +164,6 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 } // namespace mv
 
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })
 

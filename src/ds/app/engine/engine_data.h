@@ -40,6 +40,7 @@ public:
 	int						mIdleTimeout;
 	std::string				mAppInstanceName;
 	float					mAnimDur;
+	std::string				mCmsURL;
 
 	// The source rect in world bounds and the destination
 	// local rect.

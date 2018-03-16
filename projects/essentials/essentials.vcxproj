@@ -21,7 +21,8 @@
     <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
-    <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp" />
+    <ClCompile Include="src\ds\math\fparser.cc" />
+    <ClCompile Include="src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="src\ds\network\https_client.cpp" />
     <ClCompile Include="src\ds\network\smtp_request.cpp" />
     <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
     <ClCompile Include="src\ds\ui\sprite\dashed_line.cpp" />
     <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\line.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +55,10 @@
     <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\actions\tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\automator.h" />
+    <ClInclude Include="src\ds\math\fparser.hh" />
+    <ClInclude Include="src\ds\math\fparser_gmpint.hh" />
+    <ClInclude Include="src\ds\math\fparser_mpfr.hh" />
+    <ClInclude Include="src\ds\math\fpconfig.hh" />
     <ClInclude Include="src\ds\network\curl\curl.h" />
     <ClInclude Include="src\ds\network\curl\curlver.h" />
     <ClInclude Include="src\ds\network\curl\easy.h" />
@@ -60,7 +66,6 @@
     <ClInclude Include="src\ds\network\curl\multi.h" />
     <ClInclude Include="src\ds\network\curl\stdcheaders.h" />
     <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
-    <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h" />
     <ClInclude Include="src\ds\network\https_client.h" />
     <ClInclude Include="src\ds\network\smtp_request.h" />
     <ClInclude Include="src\ds\query\content\generic_content_model.h" />
@@ -82,6 +87,7 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
     <ClInclude Include="src\ds\ui\sprite\dashed_line.h" />
     <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
+    <ClInclude Include="src\ds\ui\sprite\line.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
     <ClInclude Include="src\ds\ui\util\ui_utils.h" />
@@ -130,7 +136,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;lib</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -140,7 +146,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm256 /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -173,7 +179,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm256 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

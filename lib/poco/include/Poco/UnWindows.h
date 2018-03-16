@@ -108,7 +108,7 @@
 #undef OpenEvent
 #undef CreateSemaphore
 #undef OpenSemaphore
-#undef LoadLibrary
+//#undef LoadLibrary
 #undef GetModuleFileName
 #undef CreateProcess
 #undef GetCommandLine

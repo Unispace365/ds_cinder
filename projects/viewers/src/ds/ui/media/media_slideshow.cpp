@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "media_slideshow.h"
 
 
@@ -244,6 +246,7 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 		auto curItem = mViewers[mCurItemIndex];
 		auto curPos = curItem->getPosition();
 		curItem->initialize();
+		curItem->enable(true);
 		if(mLetterBoxed){
 			curItem->setPosition(curItem->getPosition().x, (getHeight() - curItem->getDefaultSize().y) * 0.5f);
 		} else {
@@ -277,6 +280,7 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 		   )
 		{
 			mViewers[i]->initialize();		
+			mViewers[i]->enable(true);
 			mViewers[i]->setPosition(mViewers[i]->getPosition().x, (getHeight() - mViewers[i]->getDefaultSize().y) * 0.5f);
 
 		} else {

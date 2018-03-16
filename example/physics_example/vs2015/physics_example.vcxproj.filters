@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp">
-      <Filter>src\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\app\globals.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
@@ -33,9 +30,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\app\app_defs.h">
-      <Filter>src\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\events\app_events.h">
       <Filter>src\events</Filter>
     </ClInclude>
@@ -69,10 +63,6 @@
     <ClInclude Include="..\src\ui\bouncy\bouncy_view.h">
       <Filter>src\ui\bouncy</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
-    <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -110,5 +100,10 @@
     <None Include="..\src\model\generated\model.yml">
       <Filter>src\model\generated</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

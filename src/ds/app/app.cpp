@@ -26,7 +26,6 @@
 #include "ds/ui/sprite/circle_border.h"
 
 // For installing the image generators
-#include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
 #include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
@@ -36,9 +35,6 @@
 
 // For installing the framework services
 #include "ds/ui/service/glsl_image_service.h"
-
-// For verifying that the resources are installed
-#include "ds/app/FrameworkResources.h"
 
 // For the screenshot
 #include <Poco/Timestamp.h>
@@ -84,6 +80,11 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	return VEC;
 }
 
+static std::vector<std::function<void(ds::Engine&)>>& get_setups() {
+	static std::vector<std::function<void(ds::Engine&)>>	VEC;
+	return VEC;
+}
+
 namespace {
 std::string				APP_DATA_PATH;
 
@@ -122,7 +123,11 @@ void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Setting
 
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
-	if (fn != nullptr) get_startups().push_back(fn);
+	if(fn != nullptr) get_startups().push_back(fn);
+}
+
+void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
+	if(fn != nullptr) get_setups().push_back(fn);
 }
 
 /**
@@ -134,13 +139,15 @@ App::App(const RootList& roots)
 	, mEnvironmentInitialized(ds::Environment::initialize())
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
-	, mCtrlDown(false)
 	, mTouchDebug(mEngine)
 	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+
+	setupKeyPresses();
+
 	mEngineSettings.printStartupInfo();
 
 	add_dll_path();
@@ -163,8 +170,7 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
 				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
 
-	// Initialize the engine image generator typess.
-	ds::ui::ImageArc::install(mEngine.getImageRegistry());
+	// Initialize the engine image generator types.
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
 	ds::ui::ImageGlsl::install(mEngine.getImageRegistry());
 	ds::ui::ImageResource::install(mEngine.getImageRegistry());
@@ -172,13 +178,6 @@ App::App(const RootList& roots)
 	// Install the framework services
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
 	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
-
-	// Verify that the application has included the framework resources.
-	try {
-		ci::DataSourceRef ds = loadResource(RES_ARC_DROPSHADOW);
-	} catch (std::exception&) {
-		std::cout << "ERROR Failed to load framework resource -- did you include FrameworkResources.rc in your application project?" << std::endl;
-	}
 
 	// Run all the statically-created initialization code.
 	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();
@@ -189,16 +188,16 @@ App::App(const RootList& roots)
 
 	setFpsSampleInterval(0.25);
 
-#ifdef _WIN32
-	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
-#endif
-
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
-
+	DS_LOG_INFO(mEngine.getAppInstanceName() << " startup");
+	mEngine.recordMetric("engine", "startup", 1);
 }
 
 App::~App() {
+	mEngine.recordMetric("engine", "shutdown", 1);
+	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
+
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 }
@@ -206,7 +205,6 @@ App::~App() {
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
-
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 		inherited::setFrameRate(settings->getFrameRate());
@@ -233,7 +231,6 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 
 	loadAppSettings();
-
 }
 
 void App::loadAppSettings() {
@@ -266,24 +263,37 @@ void App::setup() {
 	mEngine.getPangoFontService().loadFonts();
 	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+
+#ifdef _WIN32
+	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
+#endif
 }
 
 void App::resetupServer() {
 	mEngine.clearAllSprites(true);
-	mEngine.reloadSettings();
 	loadAppSettings();
-	setupServer();
+	mEngine.reloadSettings();
+	//setupServer();
+}
+
+void App::preServerSetup() {
+	for(auto it : get_setups()) {
+		it(mEngine);
+	}
 }
 
 void App::update() {
 #ifdef _WIN32
-	if(mEngine.getSettings("engine").getBool("system:never_sleep", 0, true)) {
+	if(mEngine.getEngineSettings().getBool("system:never_sleep", 0, true)) {
 		// prevents the system from going to sleep
 		SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED | ES_AWAYMODE_REQUIRED);
 	}
 #endif
 
 	mEngine.setAverageFps(getAverageFps());
+
+	DS_LOG_VERBOSE(9, "App::Update fps=" << getAverageFps());
+
 	if (mEngine.getHideMouse() && !mMouseHidden) {
 		mMouseHidden = true;
 		hideCursor();
@@ -299,6 +309,10 @@ void App::update() {
 		}
 	}
 	mEngine.update();
+
+	if(mEngine.getRestartAfterNextUpdate() && mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE) {
+		resetupServer();
+	}
 }
 
 void App::draw() {
@@ -351,7 +365,115 @@ const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
 
+void App::killSupportingApps() {
+	DS_LOG_INFO("App: killing supporting apps then myself");
+	system("taskkill /f /im RestartOnCrash.exe");
+	system("taskkill /f /im DSNode-Host.exe");
+	system("taskkill /f /im DSNodeConsole.exe");
+	quit();
+}
+
+void App::writeSpriteHierarchy() {
+	std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
+	std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
+	std::fstream	filestr;
+	filestr.open(path, std::fstream::out);
+	if(filestr.is_open()) {
+		mEngine.writeSprites(filestr);
+		filestr.close();
+	}
+	// and to console
+	std::stringstream		buf;
+	mEngine.writeSprites(buf);
+	std::cout << buf.str() << std::endl;
+}
+
+void App::debugEnabledSprites() {
+	DS_LOG_VERBOSE(1, "App::debugEnabledSprites()");
+	const size_t numRoots = mEngine.getRootCount();
+	int numPlacemats = 0;
+	for(size_t i = 0; i < numRoots - 1; i++) {
+		mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite) {
+			if(sprite.isEnabled()) {
+				sprite.setTransparent(false);
+				sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
+				sprite.setOpacity(0.95f);
+
+				ds::ui::Text* labelly = new ds::ui::Text(mEngine);
+				labelly->setFont("Arial");
+				labelly->setFontSize(16.0f);
+				labelly->setText(typeid(sprite).name());
+				labelly->enable(false);
+				labelly->setColor(ci::Color::black());
+			} else {
+
+				ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
+				if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
+			}
+		}, true);
+	}
+}
+
+void App::registerKeyPress(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown /*= false*/, const bool ctrlDown /*= false*/, const bool altDown /*= false*/) {
+	mKeyManager.registerKey(name, func, keyCode, shiftDown, ctrlDown, altDown);
+}
+
+void App::setupKeyPresses() {
+	using ci::app::KeyEvent;
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_ESCAPE);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, true);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, false, true);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_F4);
+	mKeyManager.registerKey("Print available keys", [this] { mKeyManager.printCurrentKeys(); }, KeyEvent::KEY_h);
+	mKeyManager.registerKey("Toggle stats", [this] {mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); }, KeyEvent::KEY_s);
+	mKeyManager.registerKey("Toggle fullscreen", [this] {setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
+	mKeyManager.registerKey("Toggle always on top", [this] {ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
+	mKeyManager.registerKey("Toggle idling", [this] {mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); }, KeyEvent::KEY_i);
+	mKeyManager.registerKey("Toggle console", [this] {mEngine.toggleConsole(); }, KeyEvent::KEY_c);
+	mKeyManager.registerKey("Touch mode", [this] {mEngine.nextTouchMode(); }, KeyEvent::KEY_t);
+	mKeyManager.registerKey("Take screenshot", [this] {saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
+	mKeyManager.registerKey("Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
+	mKeyManager.registerKey("Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
+	mKeyManager.registerKey("Verbose logging toggle", [this] { if(ds::getLogger().getVerboseLevel() > 0) ds::getLogger().setVerboseLevel(0); else ds::getLogger().setVerboseLevel(9); }, KeyEvent::KEY_v);
+	mKeyManager.registerKey("Verbose logging increment", [this] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false, true);
+	mKeyManager.registerKey("Verbose logging decrement", [this] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false, true);
+	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
+	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
+	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
+	mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
+	mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
+	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
+
+	mKeyManager.registerKey("Move src rect left", [this] {
+		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_LEFT);
+
+	mKeyManager.registerKey("Move src rect right", [this] {
+		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_RIGHT);
+
+	mKeyManager.registerKey("Move src rect up", [this] {
+		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_UP);
+
+	mKeyManager.registerKey("Move src rect down", [this] {
+		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_DOWN);
+
+}
+
 void App::keyDown(ci::app::KeyEvent e) {
+	DS_LOG_VERBOSE(3, "App::keyDown char=" << e.getChar() << " code=" << e.getCode());
+
 	if(!mAppKeysEnabled){
 		onKeyDown(e);
 		return;
@@ -362,115 +484,19 @@ void App::keyDown(ci::app::KeyEvent e) {
 		return;
 	}
 
-	using ci::app::KeyEvent;
-	const int		code = e.getCode();
-	if(code == KeyEvent::KEY_ESCAPE || code == KeyEvent::KEY_q) {
-		quit();
-	}
-	if(code == ci::app::KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
-		mCtrlDown = true;
-	} else if(KeyEvent::KEY_s == code) {
-		mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest());
-	} else if(KeyEvent::KEY_t == code) {
-		mEngine.nextTouchMode();
-	} else if(KeyEvent::KEY_F8 == code){
-		saveTransparentScreenshot();
-	} else if(KeyEvent::KEY_k == code && mCtrlDown){
-		system("taskkill /f /im RestartOnCrash.exe");
-		system("taskkill /f /im DSNode-Host.exe");
-		system("taskkill /f /im DSNodeConsole.exe");
-	} else if(ci::app::KeyEvent::KEY_m == code){
-		mEngine.setHideMouse(!mEngine.getHideMouse());
-	} else if(code == KeyEvent::KEY_v && e.isShiftDown()){
-		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
-	} else if(code == KeyEvent::KEY_e){
-		if(mEngine.isShowingSettingsEditor()){
-			mEngine.hideSettingsEditor();
-		} else {
-			mEngine.showSettingsEditor(mEngineSettings);
-		}
-	} else if(ci::app::KeyEvent::KEY_p == code){
-		mEngine.getPangoFontService().logFonts(e.isShiftDown());
-	} else if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
-		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
-		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
-		std::fstream	filestr;
-		filestr.open(path, std::fstream::out);
-		if(filestr.is_open()) {
-			mEngine.writeSprites(filestr);
-			filestr.close();
-		}
-		// and to console
-		std::stringstream		buf;
-		mEngine.writeSprites(buf);
-		std::cout << buf.str() << std::endl;
-	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_LEFT) {
-		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_RIGHT) {
-		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_UP) {
-		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_DOWN) {
-		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	} else if(e.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		/// TODO: reload engine settings	
-		resetupServer();
-	} else if(e.getCode() == KeyEvent::KEY_d){
-		const size_t numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(size_t i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
+	if(mKeyManager.keyDown(e)) return;
 
-					ds::ui::Text* labelly = new ds::ui::Text(mEngine);
-					labelly->setFont("Arial");
-					labelly->setFontSize(16.0f);
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	} else if(e.getCode() == KeyEvent::KEY_f) {
-		setFullScreen(!isFullScreen());
-	} else if(e.getCode() == KeyEvent::KEY_a){
-		ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop());
-	} else if(e.getCode() == ci::app::KeyEvent::KEY_i) {
-		if(mEngine.isIdling()) {
-			mEngine.resetIdleTimeout();
-		} else {
-			mEngine.startIdling();
-		}
-	} else {
-		onKeyDown(e);
-	}
-	
+	onKeyDown(e);
 }
 
-void App::keyUp(ci::app::KeyEvent event){
-	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL){
-		mCtrlDown = false;
-	}
-
-	onKeyUp(event);
+void App::keyUp(ci::app::KeyEvent e) {
+	DS_LOG_VERBOSE(3, "App::keyUp char=" << e.getChar() << " code=" << e.getCode());
+	onKeyUp(e);
 }
 
-void App::saveTransparentScreenshot(){
+void App::saveTransparentScreenshot() {
+	DS_LOG_VERBOSE(1, "App::saveTransparentScreenshot()");
+
 	Poco::Path		p(Poco::Path::home());
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;

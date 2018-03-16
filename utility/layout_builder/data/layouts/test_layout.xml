@@ -1,0 +1,31 @@
+<interface>
+
+		<layout name="layout"
+					layout_spacing="15"
+					layout_type="vert"
+					layout_size_mode="fixed"
+					size="700, 150"
+					color="AAAAA"
+					animate_on="slide:350, 0.0; fade:-1.0; ease:outQuint; duration:0.4; delay:0.5"
+					
+					position="400, 400"
+				>
+			<multiline_text name="title_up"
+				text="Sophisticated New "
+				font="connections:title"
+				layout_size_mode="flex"
+				l_pad="20"
+				t_pad="20"
+				text_align="left"
+			/>
+
+			<multiline_text name="title_down"
+				font="connections:title"
+				layout_h_align="right"
+				layout_size_mode="flex"
+				text_align="right"
+				r_pad="20"
+			>Management Style New Sophisticated</multiline_text>
+		</layout>
+
+</interface>

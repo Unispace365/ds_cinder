@@ -5,7 +5,6 @@
 #include <ds/app/app.h>
 
 #include "app/globals.h"
-#include "ds/touch/touch_debug.h"
 
 #include <ds/ui/media/media_slideshow.h>
 
@@ -16,12 +15,8 @@ class MediaSlideshow : public ds::App {
 public:
 	MediaSlideshow();
 
-	virtual void		mouseDown(ci::app::MouseEvent e);
-	virtual void		mouseDrag(ci::app::MouseEvent e);
-	virtual void		mouseUp(ci::app::MouseEvent e);
 	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
-	void				update();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event);
 private:
@@ -29,12 +24,8 @@ private:
 	// Data acquisition
 	Globals				mGlobals;
 
-	ds::TouchDebug		mTouchDebug;
-
 	ds::ui::MediaSlideshow* mSlideshow;
 
-
-	void				moveCamera(const ci::vec3& deltaMove);
 };
 
 } // !namespace example

@@ -6,24 +6,31 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 
-#include "app/globals.h"
-#include "query/data_wrangler.h"
-#include "model/data_model.h"
-#include "events/app_events.h"
+#include <ds/content/content_events.h>
 
 #include "table_nav_item.h"
 #include "table_table_item.h"
+#include "app/generic_data_model_app.h"
 
 namespace downstream {
 
-TableView::TableView(Globals& g)
-	: ds::ui::SmartLayout(g.mEngine, "table_view.xml")
-	, mGlobals(g)
+TableView::TableView(ds::ui::SpriteEngine& eng)
+	: ds::ui::SmartLayout(eng, "table_view.xml")
 {
 
 	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 
-	listenToEvents<DataUpdatedEvent>([this](const DataUpdatedEvent& ev) {
+	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& ev) {
+		if(mEngine.mContent.getUserData()) {
+			generic_data_model_app* gdma = (generic_data_model_app*)mEngine.mContent.getUserData();
+			if(gdma) {
+				DS_LOG_INFO("Sample value: " << gdma->mSampleValue);
+			}
+		}
+
+		DS_LOG_INFO("Example property from mEngine.mContent:" << mEngine.mContent.getPropertyString("example"));
+		
+
 		setData();
 	});
 
@@ -41,117 +48,103 @@ void TableView::setData() {
 
 	auto holder = getSprite("nav_layout");
 	if(holder) {
-		addNavItem(holder, 0.0f, mGlobals.mDataWrangler.mData, "");
+		addNavItem(holder, 0.0f, mEngine.mContent);
 	}
 
 	runLayout();
 }
 
 
-void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::DataModelRef theModel, const std::string& childrenName) {
+void TableView::addNavItem(ds::ui::Sprite* parenty, const float indent, ds::model::ContentModelRef theModel) {
 	if(!parenty) return;
-	TableNavItem* tvi = new TableNavItem(mGlobals);
+	TableNavItem* tvi = new TableNavItem(mEngine);
 	tvi->mLayoutLPad = indent;
 
-	if(childrenName.empty()) {
-		tvi->setData(theModel);
-	} else {
-		tvi->setData(theModel, childrenName);
-		tvi->setTapCallback([this, tvi, childrenName, parenty, theModel](ds::ui::Sprite* bs, const ci::vec3& pos) {
+	tvi->setData(theModel);
+	tvi->setTapCallback([this, tvi, parenty, theModel](ds::ui::Sprite* bs, const ci::vec3& pos) {
 
-			auto oldItems = mNavItems;
-			mNavItems.clear();
-			if(tvi->getExpanded()) {
-				tvi->setExpanded(false);
+		auto oldItems = mNavItems;
+		mNavItems.clear();
+		if(tvi->getExpanded()) {
+			tvi->setExpanded(false);
 
-				std::vector<TableNavItem*> deletingItems;
+			std::vector<TableNavItem*> deletingItems;
 
-				bool deleting = false;
-				for(auto it : oldItems) {
-					if(it == tvi) {
-						deleting = true;
-						mNavItems.emplace_back(it);
-					} else if(deleting){
-						if(it->mLayoutLPad > tvi->mLayoutLPad) {
-							deletingItems.emplace_back(it);
-						} else {
-							mNavItems.emplace_back(it);
-							deleting = false;
-						}
+			bool deleting = false;
+			for(auto it : oldItems) {
+				if(it == tvi) {
+					deleting = true;
+					mNavItems.emplace_back(it);
+				} else if(deleting) {
+					if(it->mLayoutLPad > tvi->mLayoutLPad) {
+						deletingItems.emplace_back(it);
 					} else {
 						mNavItems.emplace_back(it);
+						deleting = false;
 					}
-				}
-
-				for (auto it : deletingItems){
-					it->release();
-				}
-
-
-			} else {
-
-				for(auto it : oldItems) {
-					it->sendToFront();
+				} else {
 					mNavItems.emplace_back(it);
-					if(it == tvi) {
-						auto theChillins = theModel.getChildren(childrenName);
-						for(auto cit : theChillins) {
-							addNavItem(parenty, tvi->mLayoutLPad + 20.0f, cit, "");
-						}
-					}
-
 				}
+			}
 
-				setTableData(theModel, childrenName);
-
-				tvi->setExpanded(true);
+			for(auto it : deletingItems) {
+				it->release();
 			}
 
 
-			runLayout();
-		});
-	}
+		} else {
+
+			for(auto it : oldItems) {
+				it->sendToFront();
+				mNavItems.emplace_back(it);
+				if(it == tvi) {
+					auto theChillins = theModel.getChildren();
+					for(auto cit : theChillins) {
+						addNavItem(parenty, tvi->mLayoutLPad + 20.0f, cit);
+					}
+				}
+
+			}
+
+			setTableData(theModel);
+
+			tvi->setExpanded(true);
+		}
+
+
+		runLayout();
+	});
+
 	parenty->addChildPtr(tvi);
 	mNavItems.emplace_back(tvi);
 
-
-	if(childrenName.empty()) {
-		for(auto it : theModel.getChildrenMap()) {
-			if(it.second.size() == 1) {
-				addNavItem(parenty, indent + 20.0f, it.second.front(), "");
-			} else {
-				addNavItem(parenty, indent + 20.0f, theModel, it.first);
-			}
-		}
+	/*
+	for(auto it : theModel.getChildren()) {
+		addNavItem(parenty, indent + 20.0f, it);
 	}
+	*/
+
 
 }
 
-void TableView::setTableData(ds::model::DataModelRef theModel, const std::string& childrenName) {
-	auto oldItems = mTableItems;
+void TableView::setTableData(ds::model::ContentModelRef theModel) {
+	for(auto it : mTableItems) {
+		it->release();
+	}
 	mTableItems.clear();
 
 
 	auto holder = getSprite("table_layout");
 	if(!holder) return;
 
-	for (auto it : theModel.getChildren(childrenName)){
-		TableTableItem* tti = nullptr;
-		if(!oldItems.empty()) {
-			tti = oldItems.back();
-			oldItems.pop_back();
-		} else {
-			tti = new TableTableItem(mGlobals);
-		}
+	for (auto it : theModel.getChildren()){
+		TableTableItem* tti = new TableTableItem(mEngine);
 
 		holder->addChildPtr(tti);
 		tti->setData(it);
 		mTableItems.emplace_back(tti);
 	}
 
-	for (auto it : oldItems){
-		it->release();
-	}
 
 	runLayout();
 }

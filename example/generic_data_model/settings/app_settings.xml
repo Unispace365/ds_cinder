@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<setting name="animation:duration" value="0.5" type="float" comment=""/>
-	<setting name="xml:cache" value="false" type="bool" comment=" If you cache xml, they'll load faster after the first one, but you'll have to restart the app to see any changes "/>
+
+	<setting name="padding" value="10" />
+	<setting name="text_color" value="orange" />
+	<setting name="adjective" value="super" />
 </settings>
 

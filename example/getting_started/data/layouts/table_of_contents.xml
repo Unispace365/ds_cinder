@@ -1,0 +1,41 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		animate_on="$_default:anim"
+		layout_spacing="#expr{$_padding / 2.0}"
+		>
+		
+		
+	
+		<text name="slide_title"
+			font="slide:title"
+			layout_h_align="center"
+			text_align="center"
+			layout_size_mode="flex"
+			model="text:this->title"
+			/>
+			
+	
+		<text name="slide_body"
+			font="slide:body"
+			layout_h_align="center"
+			resize_limit="#expr{$_world_width / 2.0}"
+			model="text:this->body"
+			/>
+			
+		<layout name="slides_hodler"
+			layout_type="vert"
+			pad_all="$_padding"
+			layout_h_align="center"
+			shrink_to_children="both"
+			/>
+
+	</layout>
+
+	
+</interface>
+
+

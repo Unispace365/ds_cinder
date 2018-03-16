@@ -7,7 +7,6 @@
 #include <ds/ui/sprite/png_sequence_sprite.h>
 
 #include "app/globals.h"
-#include "ds/touch/touch_debug.h"
 
 namespace example {
 
@@ -18,12 +17,8 @@ class PngSequenceExample : public ds::App {
 public:
 	PngSequenceExample();
 
-	virtual void		mouseDown(ci::app::MouseEvent e);
-	virtual void		mouseDrag(ci::app::MouseEvent e);
-	virtual void		mouseUp(ci::app::MouseEvent e);
 	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
-	void				update();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event);
 private:
@@ -34,8 +29,6 @@ private:
 	Globals						mGlobals;
 
 	ds::ui::PngSequenceSprite*	mPngSequence;
-
-	ds::TouchDebug				mTouchDebug;
 };
 
 } // !namespace example

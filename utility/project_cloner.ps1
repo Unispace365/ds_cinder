@@ -24,15 +24,17 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     $IpchDir = $BaseDir + "vs2015\ipch";
     $x64Dir = $BaseDir + "vs2015\x64";
     $logsDir = $BaseDir + "logs";
+    $gpuDir = $BaseDir + "vs2015\GPUCache";
+    $fcDir = $BaseDir + "vs2015\.fontconfig";
 
     #Write-Host "Removing old stuff at the destination";
     #Remove-Item -Recurse -Force $DestDir;
 
     Write-Host "Duplicating base project " $BaseDir " to " $DestDir;
 
-    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir /xf *.sdf *.suo *.db *.opendb
+    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
 
-    $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h -Recurse;
+    $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml,*.iss,*.ps1,*.json,README.md -Recurse;
 
     foreach ($File in $FileList) {
         $OutputFile = $File.FullName;

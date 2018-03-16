@@ -5,7 +5,6 @@
 #include <cinder/app/RendererGl.h>
 #include <ds/app/app.h>
 #include <ds/ui/sprite/image.h>
-#include "ds/touch/touch_debug.h"
 #include <ds/app/event_client.h>
 
 #include "custom_sprite.h"
@@ -15,10 +14,6 @@ namespace mv {
 class CsApp : public ds::App {
 public:
 	CsApp();
-
-	virtual void			mouseDown(ci::app::MouseEvent e);
-	virtual void			mouseDrag(ci::app::MouseEvent e);
-	virtual void			mouseUp(ci::app::MouseEvent e);
 
 	virtual void			onKeyDown(ci::app::KeyEvent event) override;
 	void					setupServer();
@@ -32,7 +27,6 @@ private:
 
 
 	ds::ui::Sprite*			newToggleSprite() const;
-	ds::TouchDebug			mTouchDebug;
 	ds::ui::Text*			mTexty;
 	ds::ui::Image*			imgSprite;
 	ds::ui::Sprite*			mToggleSprite;

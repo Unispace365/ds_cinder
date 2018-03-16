@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "private/web_service.h"
 
 #include <ds/app/engine/engine.h>

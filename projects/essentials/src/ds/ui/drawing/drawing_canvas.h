@@ -15,8 +15,6 @@
 namespace ds {
 namespace ui {
 
-class Globals;
-
 /**
 * \class dev::DrawingCanvas
 *			A view that you can touch to draw on

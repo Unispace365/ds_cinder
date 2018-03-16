@@ -16,9 +16,8 @@
 namespace example {
 
 MediaSlideshow::MediaSlideshow()
-	: ds::App(ds::RootList().ortho() ) 
+	: ds::App() 
 	, mGlobals(mEngine)
-	, mTouchDebug(mEngine)
 	, mSlideshow(nullptr)
 {
 
@@ -36,17 +35,6 @@ void MediaSlideshow::setupServer(){
 
 	mGlobals.initialize();
 
-	const int numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
-		// don't clear the last root, which is the debug draw
-		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
-
-		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
-		mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
-
-		rooty.clearChildren();
-	}
-
 	mSlideshow = nullptr;
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
@@ -55,53 +43,8 @@ void MediaSlideshow::setupServer(){
 	
 }
 
-void MediaSlideshow::update() {
-	ds::App::update();
-}
-
 void MediaSlideshow::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_f){
-
-		const int numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(int i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
-
-					ds::ui::Text* labelly = mGlobals.getText("media_viewer:title").create(mEngine, &sprite);
-					if(!labelly) return;
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	}
-}
-
-void MediaSlideshow::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
-}
-
-void MediaSlideshow::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
-}
-
-void MediaSlideshow::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
 }
 
 void MediaSlideshow::fileDrop(ci::app::FileDropEvent event){

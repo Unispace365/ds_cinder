@@ -1,5 +1,8 @@
 #include "globe_view.h"
 
+#include <cinder/CinderMath.h>
+#include "cinder/CinderGlm.h"
+
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>

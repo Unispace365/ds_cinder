@@ -111,7 +111,7 @@ void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) 
 				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
 				outSize = ci::vec2();
 			}
-		} catch(ci::StreamExc& streamEx){
+		} catch(ci::StreamExc&){
 			DS_LOG_WARNING_M("ImageMetaData stream exception loading file from url (" << filename << ")", GENERAL_LOG);
 			
 		} catch(std::exception const& extwo){
