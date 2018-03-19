@@ -10,6 +10,7 @@
 	<setting name="platform:guid" value="example" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
+	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
 	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
 	<setting name="src_rect" value="" type="rect" comment="The rectangle of the world space to render."/>
 	<setting name="dst_rect" value="" type="rect" comment="The output window size and position to render."/>
@@ -52,13 +53,20 @@
 	<setting name="resource_location" value="" type="string" comment="Resource location and database for cms content"/>
 	<setting name="resource_db" value="" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
+	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
+	<setting name="content:node_watch" value="false" type="bool" comment="If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777" default="true"/>
+	<setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data" default="%APP%/data/model/content_model.xml"/>
+	<setting name="content:use_wrangler" value="false" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
+	<setting name="auto_refresh_app" value="false" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
+	<setting name="auto_refresh_directories" value="%APP%" type="string" comment="Semi-colon separated list of directories to listen to to restart the app. If auto_refresh_app is off, will still listen to these directories" default="%APP%"/>
+	<setting name="smart_layout:verbose_logging" value="false" type="bool" comment="Whether to log all warnings for the smart layout class" default="false"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>
 	<setting name="logger:async" value="true" type="string" comment="Whether to save logs on another thread or the main one." default="true"/>
 	<setting name="logger:file" value="%LOCAL%/logs/" type="string" comment="Filename and location" default="%LOCAL%/logs/"/>
-	<setting name="smart_layout:verbose_logging" value="false" type="bool" comment="Whether to log all warnings for the smart layout class" default="false"/>
+	<setting name="logger:verbose_level" value="0" type="int" comment="How much verbose output to log. 0=nothing, 9=everything" default="0" min_value="0" max_value="9"/>
 	<setting name="METRICS" value="" type="section_header"/>
 	<setting name="metrics:active" value="true" type="bool" comment="Enable telegraf metrics sending" default="true"/>
 	<setting name="metrics:send_base_info" value="true" type="bool" comment="Send common engine info like fps and number of sprites" default="true"/>

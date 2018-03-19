@@ -68,6 +68,7 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	// RENDER SETTINGS
 	updateAnEngineSetting("frame_rate", outputSettings, theChillins);
 	updateAnEngineSetting("vertical_sync", outputSettings, theChillins);
+	updateAnEngineSetting("auto_hide_mouse", outputSettings, theChillins);
 	updateAnEngineSetting("hide_mouse", outputSettings, theChillins);
 	updateAnEngineSetting("camera:arrow_keys", outputSettings, theChillins);
 	updateAnEngineSetting("platform:mute", outputSettings, theChillins);
@@ -101,14 +102,20 @@ void SettingsUpdater::updateEngineSettings(const std::string& fileToUpdate){
 	updateAnEngineSetting("resource_location", outputSettings, theChillins);
 	updateAnEngineSetting("resource_db", outputSettings, theChillins);
 	updateAnEngineSetting("configuration_folder:allow_expand_override", outputSettings, theChillins);
+	updateAnEngineSetting("cms:url", outputSettings, theChillins);
 	updateAnEngineSetting("node:refresh_rate", outputSettings, theChillins);
+	updateAnEngineSetting("content:node_watch", outputSettings, theChillins);
+	updateAnEngineSetting("content:model_location", outputSettings, theChillins);
+	updateAnEngineSetting("content:use_wrangler", outputSettings, theChillins);
+	updateAnEngineSetting("auto_refresh_app", outputSettings, theChillins);
+	updateAnEngineSetting("auto_refresh_directories", outputSettings, theChillins);
 
 	// LOGGER
 	updateAnEngineSetting("logger:level", outputSettings, theChillins);
 	updateAnEngineSetting("logger:module", outputSettings, theChillins);
 	updateAnEngineSetting("logger:async", outputSettings, theChillins);
 	updateAnEngineSetting("logger:file", outputSettings, theChillins);
-	updateAnEngineSetting("smart_layout:verbose_logging", outputSettings, theChillins);
+	updateAnEngineSetting("logger:verbose_level", outputSettings, theChillins);
 
 	// METRICS
 	updateAnEngineSetting("metrics:active", outputSettings, theChillins);
