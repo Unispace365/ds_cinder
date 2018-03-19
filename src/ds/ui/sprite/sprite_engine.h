@@ -103,6 +103,9 @@ public:
 	/// Returns the settings for app_settings.xml (convenience)
 	ds::cfg::Settings&				getAppSettings() const;
 
+	/// Returns the settings for colors.xml (convenience)
+	ds::cfg::Settings&				getColorSettings() const;
+
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;
 	virtual void					registerSprite(Sprite&) = 0;
