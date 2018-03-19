@@ -24,6 +24,8 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 
 	// Auto clear mNeedsLayout if client app runs layout manually
 	setLayoutUpdatedFunction([this] { mNeedsLayout = false; });
+
+	runLayout();
 }
 
 bool SmartLayout::hasSprite(const std::string& spriteName) {
