@@ -1,10 +1,6 @@
 #ifndef _PANGO_APP_GLOBALS_
 #define _PANGO_APP_GLOBALS_
 
-#include <ds/cfg/cfg_text.h>
-#include <ds/cfg/settings.h>
-#include <ds/ui/sprite/sprite_engine.h>
-
 #include "model/all_data.h"
 
 namespace ds {

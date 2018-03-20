@@ -169,7 +169,7 @@ GType pango_engine_lang_get_type (void) G_GNUC_CONST;
 typedef struct _PangoEngineShapeClass PangoEngineShapeClass;
 
 /**
- * PangoEngineShape
+ * PangoEngineShape:
  *
  * The #PangoEngineShape class is implemented by engines that
  * customize the rendering-system dependent part of the
@@ -241,7 +241,7 @@ typedef struct _PangoEngineInfo PangoEngineInfo;
 typedef struct _PangoEngineScriptInfo PangoEngineScriptInfo;
 
 /**
- * PangoEngineScriptInfo
+ * PangoEngineScriptInfo:
  * @script: a #PangoScript. The value %PANGO_SCRIPT_COMMON has
  * the special meaning here of "all scripts"
  * @langs: a semicolon separated list of languages that this
@@ -288,7 +288,7 @@ struct _PangoEngineInfo
 };
 
 /**
- * script_engine_list:
+ * script_engine_list: (skip)
  * @engines: location to store a pointer to an array of engines.
  * @n_engines: location to store the number of elements in @engines.
  *
@@ -301,7 +301,7 @@ void script_engine_list (PangoEngineInfo **engines,
 			 int              *n_engines);
 
 /**
- * script_engine_init:
+ * script_engine_init: (skip)
  * @module: a #GTypeModule structure used to associate any
  *  GObject types created in this module with the module.
  *
@@ -314,7 +314,7 @@ void script_engine_init (GTypeModule *module);
 
 
 /**
- * script_engine_exit:
+ * script_engine_exit: (skip)
  *
  * Do not use.
  *
@@ -324,7 +324,7 @@ PANGO_DEPRECATED_IN_1_38
 void script_engine_exit (void);
 
 /**
- * script_engine_create:
+ * script_engine_create: (skip)
  * @id: the ID of an engine as reported by script_engine_list.
  *
  * Do not use.

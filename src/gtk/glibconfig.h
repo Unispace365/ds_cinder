@@ -161,16 +161,16 @@ typedef unsigned __int64 guintptr;
 #endif
 
 #define GLIB_MAJOR_VERSION 2
-#define GLIB_MINOR_VERSION 50
+#define GLIB_MINOR_VERSION 54
 #define GLIB_MICRO_VERSION 3
 
 #define G_OS_WIN32
 #define G_PLATFORM_WIN32
 
 
-#ifndef _MSC_VER
+#if !defined (_MSC_VER) || (_MSC_VER >= 1800)
 #define G_VA_COPY	va_copy
-#endif /* not _MSC_VER */
+#endif /* not _MSC_VER or 2013 or later */
 
 #ifndef _MSC_VER
 #define G_HAVE_ISO_VARARGS 1
@@ -219,10 +219,19 @@ typedef unsigned __int64 guintptr;
 #define GUINT_TO_LE(val)	((guint) GUINT32_TO_LE (val))
 #define GINT_TO_BE(val)		((gint) GINT32_TO_BE (val))
 #define GUINT_TO_BE(val)	((guint) GUINT32_TO_BE (val))
-#define GSIZE_TO_LE(val)	((gsize) GUINT32_TO_LE (val))
-#define GSSIZE_TO_LE(val)	((gssize) GINT32_TO_LE (val))
-#define GSIZE_TO_BE(val)	((gsize) GUINT32_TO_BE (val))
-#define GSSIZE_TO_BE(val)	((gssize) GINT32_TO_BE (val))
+
+#ifdef _WIN64
+# define GSIZE_TO_LE(val)	((gsize) GUINT64_TO_LE (val))
+# define GSSIZE_TO_LE(val)	((gssize) GINT64_TO_LE (val))
+# define GSIZE_TO_BE(val)	((gsize) GUINT64_TO_BE (val))
+# define GSSIZE_TO_BE(val)	((gssize) GINT64_TO_BE (val))
+#else
+# define GSIZE_TO_LE(val)	((gsize) GUINT32_TO_LE (val))
+# define GSSIZE_TO_LE(val)	((gssize) GINT32_TO_LE (val))
+# define GSIZE_TO_BE(val)	((gsize) GUINT32_TO_BE (val))
+# define GSSIZE_TO_BE(val)	((gssize) GINT32_TO_BE (val))
+#endif
+
 #define G_BYTE_ORDER G_LITTLE_ENDIAN
 
 #define GLIB_SYSDEF_POLLIN =1

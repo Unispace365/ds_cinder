@@ -4,6 +4,7 @@
 	<setting name="sample:config:size" value="16" type="float"/>
 	<setting name="sample:config:leading" value="0.75" type="float"/>
 	<setting name="sample:config:color" value="white" type="color"/>
+	
 	<setting name="media_viewer:title:name" value="noto-bold" type="string"/>
 	<setting name="media_viewer:title:size" value="16" type="float"/>
 	<setting name="media_viewer:title:leading" value="0.75" type="float"/>
