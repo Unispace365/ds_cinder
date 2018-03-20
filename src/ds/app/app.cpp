@@ -371,6 +371,8 @@ void App::killSupportingApps() {
 	system("taskkill /f /im RestartOnCrash.exe");
 	system("taskkill /f /im DSNode-Host.exe");
 	system("taskkill /f /im DSNodeConsole.exe");
+	system("taskkill /f /im DSNode.exe");
+	system("taskkill /f /im DSAppHost.exe");
 	quit();
 }
 
