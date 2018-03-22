@@ -23,8 +23,6 @@
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
     <ClCompile Include="src\ds\math\fparser.cc" />
     <ClCompile Include="src\ds\math\fpoptimizer.cc" />
-    <ClCompile Include="src\ds\network\https_client.cpp" />
-    <ClCompile Include="src\ds\network\smtp_request.cpp" />
     <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
     <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
@@ -59,15 +57,6 @@
     <ClInclude Include="src\ds\math\fparser_gmpint.hh" />
     <ClInclude Include="src\ds\math\fparser_mpfr.hh" />
     <ClInclude Include="src\ds\math\fpconfig.hh" />
-    <ClInclude Include="src\ds\network\curl\curl.h" />
-    <ClInclude Include="src\ds\network\curl\curlver.h" />
-    <ClInclude Include="src\ds\network\curl\easy.h" />
-    <ClInclude Include="src\ds\network\curl\mprintf.h" />
-    <ClInclude Include="src\ds\network\curl\multi.h" />
-    <ClInclude Include="src\ds\network\curl\stdcheaders.h" />
-    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
-    <ClInclude Include="src\ds\network\https_client.h" />
-    <ClInclude Include="src\ds\network\smtp_request.h" />
     <ClInclude Include="src\ds\query\content\generic_content_model.h" />
     <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />

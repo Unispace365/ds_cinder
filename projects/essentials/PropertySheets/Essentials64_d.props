@@ -9,7 +9,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\essentials\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-		<AdditionalDependencies>essentials_d.lib;libcurl_a_debug.lib;%(AdditionalDependencies);</AdditionalDependencies>
+		<AdditionalDependencies>essentials_d.lib;%(AdditionalDependencies);</AdditionalDependencies>
 		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\essentials\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

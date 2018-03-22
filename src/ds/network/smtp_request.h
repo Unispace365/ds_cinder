@@ -13,7 +13,7 @@ namespace ds {
 namespace net {
 /**
 * \class ds::net::SMTPRequest
-* Make very simple SMTP requests
+* Make SMTP requests to send an email. This uses Curl behind the scenes
 */
 
 class SMTPRequest {

@@ -34,10 +34,9 @@ public:
 };
 
 /* HTTP-CLIENT
- * Perform an HTTP GET operation asynchronously.  Not that
- * HTTPS is not supported -- getting SSL in place is a can
- * I don't want to open.  Also, currently don't support any
- * actual reply, this is a fire and forget for now.
+ * Perform an HTTP GET operation asynchronously.  Note that
+ * HTTPS is not supported -- Use HttpsClient for that. 
+ * This uses Poco to make requests. Recommend using HttpsClient (or use curl directly) instead
  ******************************************************************/
 class HttpClient : public ds::WorkClient {
 public:

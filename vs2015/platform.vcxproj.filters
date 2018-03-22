@@ -127,6 +127,9 @@
     <Filter Include="src\ds\network\helper">
       <UniqueIdentifier>{32c8fd76-b477-4ba3-810a-7221c033fa50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\network\curl">
+      <UniqueIdentifier>{d030141c-261f-4064-b52a-ae0320b31a46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -741,6 +744,36 @@
     <ClInclude Include="..\src\ds\content\content_events.h">
       <Filter>src\ds\content</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\smtp_request.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\https_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\curlver.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\easy.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\mprintf.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\multi.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\stdcheaders.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\system.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\typecheck-gcc.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\curl\curl.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1246,6 +1279,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp">
       <Filter>src\ds\network\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\smtp_request.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\https_client.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

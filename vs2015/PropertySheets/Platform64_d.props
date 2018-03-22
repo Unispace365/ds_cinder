@@ -43,6 +43,7 @@
 	  fontconfig.lib;
 	  pango-1.0.lib;
 	  pangocairo-1.0.lib;
+	  libcurl_a_debug.lib;
 	  %(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib; libboost_date_time-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_60.lib</IgnoreSpecificDefaultLibraries>
     </Link>
