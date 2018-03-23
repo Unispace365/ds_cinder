@@ -11,6 +11,7 @@
 #include "ds/app/event_client.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/debug/apphost_stats_view.h"
 
 namespace ds {
 class Engine;
@@ -41,6 +42,8 @@ private:
 	// UI
 	ds::ui::Sprite*				mBackground;
 	ds::ui::Text*				mText;
+	ds::ui::AppHostStatsView*	mAppHostStats;
+
 	bool						mShowingHelp;
 };
 

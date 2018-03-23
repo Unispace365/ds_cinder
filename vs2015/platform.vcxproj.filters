@@ -774,6 +774,9 @@
     <ClInclude Include="..\src\ds\network\curl\curl.h">
       <Filter>src\ds\network\curl</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\debug\apphost_stats_view.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1285,6 +1288,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\https_client.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\apphost_stats_view.cpp">
+      <Filter>src\ds\debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -52,6 +52,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	, mEventClient(e)
 	, mText(nullptr)
 	, mShowingHelp(false)
+	, mAppHostStats(nullptr)
 
 {
 
@@ -66,9 +67,26 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mEventClient.listenToEvents<ToggleHelpRequest>([this](auto e) {
 		if(!visible()) {
 			show();
-		} 
+		} else if(mShowingHelp) {
+			hide();
+		}
 
 		mShowingHelp = !mShowingHelp;
+
+		// show apphost stats
+		if(mShowingHelp && !mAppHostStats && mBackground && visible()) {
+			mAppHostStats = new ds::ui::AppHostStatsView(mEngine);
+			addChildPtr(mAppHostStats);
+			mAppHostStats->setPosition(mBackground->getWidth(), 0.0f);
+		}
+
+		if(mAppHostStats) {
+			if(mShowingHelp) {
+				mAppHostStats->activate();
+			} else {
+				mAppHostStats->deactivate();
+			}
+		}
 	});
 
 	mBlobType = BLOB_TYPE;
@@ -76,7 +94,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	setDrawDebug(true);
 	hide();
 
-	mBackground = new ds::ui::Sprite(mEngine, 400.0f, 40.0f);
+	mBackground = new ds::ui::Sprite(mEngine, 420.0f, 40.0f);
 	mBackground->setTransparent(false);
 	mBackground->setColor(0, 0, 0);
 	mBackground->setOpacity(0.75f);
@@ -141,6 +159,7 @@ void EngineStatsView::updateStats() {
 		mBackground->setSize(mBackground->getWidth(), mText->getPosition().y * 2.0f + mText->getHeight());
 		
 	}
+
 }
 
 } // namespace ds
