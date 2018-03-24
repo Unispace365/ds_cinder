@@ -476,6 +476,13 @@ ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
 	return EMPTY_DATAMODEL;
 }
 
+void ContentModelRef::addChild(ContentModelRef datamodel) {
+	createData();
+
+	mData->mChildren.emplace_back(datamodel);
+	
+}
+
 void ContentModelRef::addChild(ContentModelRef datamodel, const size_t index) {
 	createData();
 

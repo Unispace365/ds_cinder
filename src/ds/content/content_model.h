@@ -181,7 +181,8 @@ public:
 	ContentModelRef											getChildByName(const std::string& childName);
 
 	/// Adds this child to the end of this children list, or at the index supplied
-	void													addChild(ContentModelRef datamodel, const size_t index = std::numeric_limits<std::size_t>::max());
+	void													addChild(ContentModelRef datamodel);
+	void													addChild(ContentModelRef datamodel, const size_t index);
 
 	/// Is there a child with this name?
 	bool													hasChild(const std::string& name);
