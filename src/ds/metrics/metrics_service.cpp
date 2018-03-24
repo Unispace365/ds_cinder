@@ -27,16 +27,16 @@ MetricsService::MetricsService(ds::Engine& eng)
 		if(mUdpReccy.connect(host, port)) {
 			DS_LOG_INFO("MetricsService: connected to telegraf udp at " << host << ":" << port);
 		}
-	}
 
-	if(mSendBaseInfo) {
-		double callbackDelay = mEngine.getEngineSettings().getDouble("metrics:base_info_send_delay");
-		if(callbackDelay < 0.1) callbackDelay = 0.1; // don't swamp it with too much info (this is probably still too much)
-		mCallbacks.repeatedCallback([this] {
-			sendSystemInfo();
-		}, callbackDelay);
-	} else {
-		mCallbacks.cancel();
+		if(mSendBaseInfo) {
+			double callbackDelay = mEngine.getEngineSettings().getDouble("metrics:base_info_send_delay");
+			if(callbackDelay < 0.1) callbackDelay = 0.1; // don't swamp it with too much info (this is probably still too much)
+			mCallbacks.repeatedCallback([this] {
+				sendSystemInfo();
+			}, callbackDelay);
+		} else {
+			mCallbacks.cancel();
+		}
 	}
 }
 
