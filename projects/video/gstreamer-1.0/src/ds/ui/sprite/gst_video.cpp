@@ -205,6 +205,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStreaming(false)
 	, mClientVideoCompleted(false)
 	, mStreamingLatency(200000000)
+	, mUseGstGL(false)
 {
 	mLayoutFixedAspect = true;
 	mBlobType = BLOB_TYPE;
@@ -339,63 +340,72 @@ void GstVideo::updateVideoTexture() {
 		return;
 	}
 
-	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
+	if(mGstreamerWrapper->isNewVideoFrame()) {
+		if(mUseGstGL) {
+		//	mFrameTexture = mGstreamerWrapper->getVideoTexture();
+			mDrawable = true;
+		
+		} else if(mGstreamerWrapper->hasVideo()) {
 
-		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
-			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
-			unloadVideo();
-		} else {
-			int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
-			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
-			if(mColorType == kColorTypeSolid){
-				videoDepth = mVideoSize.x * 3;
-				co = ci::SurfaceChannelOrder::BGR;
-			} else if(mColorType == kColorTypeShaderTransform){
-				videoDepth = mVideoSize.x;
-				co = ci::SurfaceChannelOrder::CHAN_RED;
-			}
+			if(mGstreamerWrapper->getWidth() != mVideoSize.x) {
+				DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
+				unloadVideo();
+			} else {
+				int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
+				ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
+				if(mColorType == kColorTypeSolid) {
+					videoDepth = mVideoSize.x * 3;
+					co = ci::SurfaceChannelOrder::BGR;
+				} else if(mColorType == kColorTypeShaderTransform) {
+					videoDepth = mVideoSize.x;
+					co = ci::SurfaceChannelOrder::CHAN_RED;
+				}
 
-			unsigned char * dat = nullptr;
-			Surface8u* video_surface = nullptr;
+				unsigned char * dat = nullptr;
+				Surface8u* video_surface = nullptr;
 
-			dat = mGstreamerWrapper->getVideo();
+				dat = mGstreamerWrapper->getVideo();
 
-			if(dat && mFrameTexture){
-				if(mColorType == kColorTypeShaderTransform){
+				if(dat && mFrameTexture) {
+					if(mColorType == kColorTypeShaderTransform) {
 
-					if(mUFrameTexture && mVFrameTexture){
-						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
-						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
-						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
+						if(mUFrameTexture && mVFrameTexture) {
+							ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+							ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
+							ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
-						mFrameTexture->update(yChannel);
-						mUFrameTexture->update(uChannel);
-						mVFrameTexture->update(vChannel);
+							mFrameTexture->update(yChannel);
+							mUFrameTexture->update(uChannel);
+							mVFrameTexture->update(vChannel);
+						}
+
+					} else {
+						ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
+						mFrameTexture->update(video_surface);
 					}
 
-				} else {
-					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
-					mFrameTexture->update(video_surface);
+					mDrawable = true;
 				}
 
-				mDrawable = true;
-			}
+				
 
-			if(mPlaySingleFrame){
-				if(mSingleFrameStop){
-					stop();
-				} else {
-					pause();
-				}
-				mPlaySingleFrame = false;
-				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
-				mPlaySingleFrameFunction = nullptr;
 			}
+		}
 
-			mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
-			if(mBufferUpdateTimes.size() > 10){
-				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
+		if(mPlaySingleFrame) {
+			if(mSingleFrameStop) {
+				stop();
+			} else {
+				pause();
 			}
+			mPlaySingleFrame = false;
+			if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
+			mPlaySingleFrameFunction = nullptr;
+		}
+
+		mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
+		if(mBufferUpdateTimes.size() > 10) {
+			mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 		}
 
 		DS_LOG_VERBOSE(5, "GstVideo: New video frame gst fps:" << getVideoPlayingFramerate());
@@ -433,7 +443,7 @@ void GstVideo::drawLocalClient(){
 			}
 			if (mFrameTexture) mFrameTexture->bind(0);
 
-			if(mRenderBatch){
+			if(false && mRenderBatch){
 				mRenderBatch->draw();
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
@@ -579,7 +589,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		mDrawable = false;
 
 		ColorType theColor = ColorType::kColorTypeTransparent;
-		if(colorSpace == "4:2:0"){
+		if(colorSpace == "4:2:0" && !mUseGstGL){
 			theColor = ColorType::kColorTypeShaderTransform;
 			std::string shaderName("yuv_colorspace_conversion");
 			mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
@@ -649,7 +659,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 			mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 			mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
-		} else {
+		} else if(!mUseGstGL) {
 			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 

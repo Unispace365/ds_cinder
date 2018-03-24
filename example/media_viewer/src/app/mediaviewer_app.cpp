@@ -17,6 +17,7 @@
 #include "events/app_events.h"
 #include "ui/viewers/viewer_controller.h"
 
+
 namespace mv {
 
 MediaViewer::MediaViewer()
@@ -26,6 +27,7 @@ MediaViewer::MediaViewer()
 	, mTouchMenu(nullptr)
 	, mStreamer(nullptr)
 	, mStreamerParent(nullptr)
+	, mPlayerSprite(nullptr)
 {
 
 
@@ -33,11 +35,13 @@ MediaViewer::MediaViewer()
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
+
+	registerKeyPress("Test new video player", [this] { startGstPlayerSprite(); }, ci::app::KeyEvent::KEY_o);
 }
 
 void MediaViewer::setupServer(){
 
-
+	mPlayerSprite = nullptr;
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
@@ -80,6 +84,22 @@ void MediaViewer::setupServer(){
 
 	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti){ mTouchMenu->handleTouchInfo(ti); });
 
+}
+
+void MediaViewer::startGstPlayerSprite() {
+	if(mPlayerSprite) {
+	//	mPlayerSprite->release();
+	//	mPlayerSprite = nullptr;
+	}
+
+	mPlayerSprite = new ds::ui::GstPlayerSprite(mEngine);
+//	mPlayerSprite->loadVideo("d:/content/sample_videos_2/ds_tech.mp4");
+	//mPlayerSprite->loadVideo("d:/content/sample_videos_2/8k-maybe.mp4");
+	mPlayerSprite->loadVideo(mLastFilePath);
+	mPlayerSprite->enable(true);
+	mPlayerSprite->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
+	mPlayerSprite->play();
+	mEngine.getRootSprite().addChildPtr(mPlayerSprite);
 }
 
 
@@ -148,6 +168,8 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 		Poco::Path pathy = filey.path();
 		std::string fileName = pathy.getFileName();
 		fileName = fileName.substr(0, fileName.length() - 4);
+
+		mLastFilePath = (*it).string();
 
 		ds::model::MediaRef newMedia = ds::model::MediaRef();
 		newMedia.setPrimaryResource(ds::Resource((*it).string(), ds::Resource::parseTypeFromFilename((*it).string())));

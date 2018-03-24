@@ -159,6 +159,7 @@ void GstVideoService::start() {
 	if(ds::getLogger().hasVerboseLevel(3)) {
 		gst_debug_set_active(true);
 		gst_debug_set_threshold_from_string("*:3", true); // 4 for gstreamer is the threshold for a TON of stuff
+		//gst_debug_set_threshold_from_string("gl*:7", true); // 4 for gstreamer is the threshold for a TON of stuff
 		gst_debug_add_log_function(*gstLogFunction, NULL, NULL);
 	}
 

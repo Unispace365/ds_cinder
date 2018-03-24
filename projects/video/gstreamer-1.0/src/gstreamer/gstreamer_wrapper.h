@@ -7,6 +7,9 @@
 #include <gst/audio/audio.h>
 #include <gst/net/gstnettimeprovider.h>
 
+#ifdef DS_GST_GL
+#include <gst/gl/gstglcontext.h>
+#endif
 #include "gstreamer_audio_device.h"
 
 #include <mutex>
@@ -248,8 +251,6 @@ public:
 	*/
 	void					setPosition(double fPos);
 
-
-	void					setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
@@ -271,6 +272,8 @@ public:
 	went wrong while streaming
 	*/
 	unsigned char*			getVideo();
+
+	ci::gl::TextureRef		getVideoTexture();
 
 	size_t					getVideoBufferSize(){ return m_cVideoBufferSize; }
 
@@ -530,8 +533,6 @@ public:
 
 	/*Clear the Pause to Play flag*/
 	void					clearPlayFromPause();
-	//void					fastSeek(float speed);
-	//bool					isFastSeeking();
 
 	/*Flag to indicate the video just looped*/
 	bool					isNewLoop();
@@ -734,6 +735,29 @@ private:
 
 	bool					m_StreamNeedsRestart;
 	int						m_StreamRestartCount;
+
+
+	void createBuffer(GstSample* videoSinkSample);
+
+	void								createTexture();
+	GLint								getTextureID(GstBuffer* newBuffer);
+	void                                resetGLVideoBuffers();
+
+#ifdef DS_GST_GL
+	ci::gl::TextureRef		m_GLTexture;
+	guint					m_CurTexId;
+	bool					m_UseGL;
+
+
+	std::shared_ptr<GstBuffer>          mCurrentBuffer;
+	std::shared_ptr<GstBuffer>          mNewBuffer;
+
+
+	public:
+		ci::gl::Context*			m_origContext;
+		ci::gl::ContextRef		m_ciGlContext;
+	GstGLContext*			m_GstGLContext;
+#endif
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

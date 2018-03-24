@@ -328,6 +328,8 @@ private:
 	bool						mDoSyncronization; 
 	std::vector<std::string>	mPlayableInstances;
 
+	bool				mUseGstGL; // Gstreamer uploads directly to openGL
+
 	// Initialization
 public:
 	static void					installAsServer(ds::BlobRegistry&);
