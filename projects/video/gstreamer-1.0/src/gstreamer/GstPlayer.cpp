@@ -6,7 +6,7 @@
 #pragma diagnostic ignored "-Wmacro-redefined"
 #endif
 
-#include "cinder/linux/GstPlayer.h"
+#include "GstPlayer.h"
 
 #if defined( CINDER_GST_HAS_GL ) && defined( CINDER_LINUX )
 #if ! defined( CINDER_LINUX_EGL_ONLY )
@@ -29,10 +29,11 @@ namespace video {
 
 #if defined( CINDER_GST_HAS_GL )
 static GstGLDisplay* sGstGLDisplay = nullptr;
+static GstGLContext* sGstAsyncContext = nullptr;
 #endif
 
 static bool         sUseGstGl = true;
-static const int    sEnableAsyncStateChange = false;
+static const int    sEnableAsyncStateChange = true;
 
 GstData::GstData()
 	: isPaused(false)
@@ -161,9 +162,17 @@ GstBusSyncReply checkBusMessagesSync(GstBus* bus, GstMessage* message, gpointer 
 			GstStructure *s = gst_context_writable_structure(context);
 
 #ifdef GST_TYPE_GL_CONTEXT
-			gst_structure_set(s, "context", GST_TYPE_GL_CONTEXT, data.context, nullptr);
+			if(sEnableAsyncStateChange && sGstAsyncContext) {
+				gst_structure_set(s, "context", GST_TYPE_GL_CONTEXT, sGstAsyncContext, nullptr);
+			} else {
+				gst_structure_set(s, "context", GST_TYPE_GL_CONTEXT, data.context, nullptr);
+			}
 #else 
-			gst_structure_set(s, "context", GST_GL_TYPE_CONTEXT, data.context, nullptr);
+			if(sEnableAsyncStateChange && sGstAsyncContext) {
+				gst_structure_set(s, "context", GST_GL_TYPE_CONTEXT, sGstAsyncContext, nullptr);
+			} else {
+				gst_structure_set(s, "context", GST_GL_TYPE_CONTEXT, data.context, nullptr);
+			}
 #endif
 			gst_element_set_context(GST_ELEMENT(message->src), context);
 		}
@@ -419,6 +428,9 @@ void GstPlayer::resetPipeline()
 		gst_object_unref(mGstData.context);
 		mGstData.context = nullptr;
 		gst_object_unref(sGstGLDisplay);
+		if(sGstAsyncContext) {
+			gst_object_unref(sGstAsyncContext);
+		}
 		// Pipeline will unref and destroy its children..
 		mGstData.glupload = nullptr;
 		mGstData.glcolorconvert = nullptr;
@@ -535,6 +547,19 @@ bool GstPlayer::initialize()
 		ci::gl::env()->makeContextCurrent(nullptr);
 		auto platformData = std::dynamic_pointer_cast<ci::gl::PlatformDataMsw>(ci::gl::context()->getPlatformData());
 		mGstData.context = gst_gl_context_new_wrapped(sGstGLDisplay, (guintptr)platformData->mGlrc, GST_GL_PLATFORM_WGL, GST_GL_API_OPENGL);
+
+		if(sEnableAsyncStateChange && !sGstAsyncContext) {
+			if(!sGstAsyncContext) {
+				sGstAsyncContext = gst_gl_context_new(sGstGLDisplay);
+				GError* err = NULL;
+				if(!gst_gl_context_create(sGstAsyncContext, mGstData.context, &err) && err) {
+					//g_printerr("Context not created with error " << err->code << " " << err->domain << " " << err->message);
+				}
+			} else {
+				gst_object_ref(sGstAsyncContext);
+			}
+		}
+
 		ci::gl::context()->makeCurrent();
 #endif
 		if(holdDisplayRef) {
@@ -553,6 +578,10 @@ void GstPlayer::resetCustomPipeline()
 		resetBus(); // reset the associated bus
 		mUsingCustomPipeline = false;
 	}
+}
+
+static GstGLContext* create_gl_context(GstGLDisplay* display, GstGLContext* context, gpointer userData) {
+	return sGstAsyncContext;
 }
 
 void GstPlayer::constructPipeline()
@@ -621,6 +650,10 @@ void GstPlayer::constructPipeline()
 
 		pad = gst_element_get_static_pad(mGstData.rawCapsFilter, "sink");
 		gst_element_add_pad(mGstData.videoBin, gst_ghost_pad_new("sink", pad));
+
+		if(sEnableAsyncStateChange) {
+			g_signal_connect(sGstGLDisplay, "create-context", G_CALLBACK(create_gl_context), this, NULL);
+		}
 
 #endif
 	} else {
