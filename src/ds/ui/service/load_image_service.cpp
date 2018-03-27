@@ -19,7 +19,7 @@ LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
 
 void LoadImageService::initialize() {
 	if(mThreads.empty()) {
-		for(int i = 0; i < 16; i++) {
+		for(int i = 0; i < 4; i++) {
 			ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
 			auto aThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&LoadImageService::loadImagesThreadFn, this, backgroundCtx)));
 			mThreads.emplace_back(aThread);
@@ -215,7 +215,9 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				{
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
 					auto fence = ci::gl::Sync::create();
-					fence->clientWaitSync();
+					auto waitCond = fence->clientWaitSync(1U, 1000000);
+					
+					//std::cout << "Fence complete: " << waitCond << " " << GL_ALREADY_SIGNALED << " " << GL_TIMEOUT_EXPIRED << " " << GL_CONDITION_SATISFIED << std::endl;
 
 					nextImage.mTexture = tex;
 				}
@@ -233,6 +235,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 						break;
 					}
 				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 
 		} catch(std::exception &exc) {

@@ -72,7 +72,5 @@
 	<setting name="metrics:send_touch_info" value="false" type="bool" comment="Record touch data or not" default="false"/>
 	<setting name="metrics:udp_host" value="127.0.0.1" type="string" comment="The host name to send udp metrics info to" default="127.0.0.1"/>
 	<setting name="metrics:udp_port" value="8094" type="string" comment="The port to send udp metrics info to" default="8089"/>
-	<setting name="data:auto_refresh_app" value="" type="unknown"/>
-	<setting name="data:auto_refresh_directories" value="" type="unknown"/>
 </settings>
 

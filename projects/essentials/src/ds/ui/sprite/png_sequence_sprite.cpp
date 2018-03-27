@@ -154,7 +154,7 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 		}
 
 		bool doAdvance = advanceFrame && !mFrames.empty() && mCurrentFrameIndex > -1 && mCurrentFrameIndex < mFrames.size();
-		std::cout << doAdvance << " " << advanceFrame<< " "  << !mFrames.empty() << " " << mCurrentFrameIndex << " " << mFrames.size() << std::endl;
+	//	std::cout << doAdvance << " " << advanceFrame<< " "  << !mFrames.empty() << " " << mCurrentFrameIndex << " " << mFrames.size() << std::endl;
 		if(advanceFrame 
 		   && !mFrames.empty() 
 		   && mCurrentFrameIndex > -1 
