@@ -26,17 +26,6 @@
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
 
-// For installing the image generators
-#include "ds/ui/image_source/image_file.h"
-#include "ds/ui/image_source/image_glsl.h"
-#include "ds/ui/image_source/image_resource.h"
-
-// For installing mesh caches
-#include "ds/ui/mesh_source/mesh_cache_service.h"
-
-// For installing the framework services
-#include "ds/ui/service/glsl_image_service.h"
-
 // For the screenshot
 #include <Poco/Timestamp.h>
 #include <Poco/Path.h>
@@ -171,15 +160,6 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
 				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
 
-	// Initialize the engine image generator types.
-	ds::ui::ImageFile::install(mEngine.getImageRegistry());
-	ds::ui::ImageGlsl::install(mEngine.getImageRegistry());
-	ds::ui::ImageResource::install(mEngine.getImageRegistry());
-
-	// Install the framework services
-	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
-	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
-
 	// Run all the statically-created initialization code.
 	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();
 	for (auto it=startups.begin(), end=startups.end(); it!=end; ++it) {
@@ -268,6 +248,8 @@ void App::setup() {
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
 #endif
+
+	mEngine.getLoadImageService().initialize();
 }
 
 void App::resetupServer() {

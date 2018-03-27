@@ -14,7 +14,6 @@
 #include "ds/data/data_buffer.h"
 #include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/image_source/image_file.h>
 
 #include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
@@ -125,7 +124,6 @@ const char			CANVAS_IMAGE_PATH_ATT	= 85;
 const char			CLEAR_CANVAS_ATT		= 86;
 const char			ERASE_MODE_ATT			= 87;
 const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
-const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
 const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
 const DirtyState&	sCanvasImagePathDirty	= newUniqueDirtyState();
@@ -147,15 +145,19 @@ void DrawingCanvas::installAsClient(ds::BlobRegistry& registry) {
 
 DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath)
 	: ds::ui::Sprite(eng)
-	, ds::ui::ImageOwner(eng)
 	, mBrushSize(24.0f)
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
 	, mEraseMode(false)
 	, mCanvasFileLoaderClient(eng)
+	, mBrushImage(nullptr)
 {
 	mBlobType = BLOB_TYPE;
 	setBaseShader(vertShader, opacityFrag, shaderNameOpaccy);
+
+	mBrushImage = new Image(mEngine);
+	addChildPtr(mBrushImage);
+	mBrushImage->hide();
 
 	mPointShader.loadShaders();
 
@@ -221,20 +223,16 @@ const float DrawingCanvas::getBrushSize(){
 }
 
 void DrawingCanvas::setBrushImage(const std::string& imagePath) {
-
+	if(!mBrushImage) return;
 	DS_LOG_VERBOSE(3, "DrawingCanvas: setBrushImage " << imagePath);
 
 	mBrushImagePath = imagePath;
 
 	if (imagePath.empty()){
-		clearImage();
+		mBrushImage->clearImage();
 	} else {
-		setImageFile(imagePath);
-
-		// The image won't actually load until it's requested, so try to load it immediately
-		getImageTexture();
+		mBrushImage->setImageFile(imagePath);
 	}
-	markAsDirty( sBrushImagePathDirty );
 }
 
 void DrawingCanvas::clearCanvas() {
@@ -265,11 +263,11 @@ void DrawingCanvas::setEraseMode(const bool eraseMode){
 void DrawingCanvas::drawLocalClient(){
 	// If we have a new texture from the canvas loader,
 	// swap that in for the draw texture
-	if (mCanvasFileLoaderClient.getImage()) {
-		auto loaderTex = mCanvasFileLoaderClient.getImage();
+	if (mCanvasFileLoaderClient.getImageTexture()) {
+		auto loaderTex = mCanvasFileLoaderClient.getImageTexture();
 		// TODO
-		//mDrawTexture = *loaderTex;
-		mCanvasFileLoaderClient.clear();
+	///	mDrawTexture = *loaderTex;
+		mCanvasFileLoaderClient.clearImage();
 	}
 
 	// If any serialized points have been received from the server, draw them
@@ -316,9 +314,14 @@ void DrawingCanvas::drawLocalClient(){
 
 void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 
+	if(!mBrushImage) {
+		DS_LOG_WARNING("No brush image sprite in drawing canvas");
+		return;
+	}
+
 	DS_LOG_VERBOSE(5, "DrawingCanvas: renderLine start=" << start << " end=" << end);
 
-	ci::gl::Texture2dRef brushTexture = getImageTexture();
+	ci::gl::Texture2dRef brushTexture = mBrushImage->getImageTexture();
 
 	bool brushTexMode = true;
 	float widdy = mBrushSize;
@@ -404,10 +407,6 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 	Sprite::writeAttributesTo(buf);
 
-	if (mDirty.has(sBrushImagePathDirty)){
-		buf.add(BRUSH_IMAGE_SRC_ATT);
-		mImageSource.writeTo(buf);
-	}
 	if (mDirty.has(sBrushColorDirty)){
 		buf.add(BRUSH_COLOR_ATT);
 		buf.add(mBrushColor.r);
@@ -431,8 +430,8 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 		mSerializedPointsQueue.clear();
 	}
 	if (mDirty.has(sCanvasImagePathDirty)){
-		buf.add(CANVAS_IMAGE_PATH_ATT);
-		mCanvasFileLoaderClient.writeTo(buf);
+		//buf.add(CANVAS_IMAGE_PATH_ATT);
+		//mCanvasFileLoaderClient.writeTo(buf);
 	}
 	if (mDirty.has(sClearCanvasDirty)){
 		buf.add(CLEAR_CANVAS_ATT);
@@ -444,10 +443,7 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 }
 
 void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
-	if (attrid == BRUSH_IMAGE_SRC_ATT) {
-		mImageSource.readFrom(buf);
-	}
-	else if (attrid == BRUSH_COLOR_ATT) {
+	if (attrid == BRUSH_COLOR_ATT) {
 		mBrushColor.r = buf.read<float>();
 		mBrushColor.g = buf.read<float>();
 		mBrushColor.b = buf.read<float>();
@@ -468,7 +464,7 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 		}
 	}
 	else if (attrid == CANVAS_IMAGE_PATH_ATT) {
-		mCanvasFileLoaderClient.readFrom(buf);
+	//	mCanvasFileLoaderClient.readFrom(buf);
 	}
 	else if (attrid == CLEAR_CANVAS_ATT) {
 		clearCanvas();
@@ -479,10 +475,6 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
-}
-
-void DrawingCanvas::onImageChanged() {
-	markAsDirty(sBrushImagePathDirty);
 }
 
 void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
@@ -515,9 +507,10 @@ void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
 void DrawingCanvas::loadCanvasImage(const std::string& filePath) {
 	markAsDirty(sCanvasImagePathDirty);
 
+	DS_LOG_WARNING("Re-implement DrawingCanvas::loadCanvasImage()!");
 	// This will load the image file asynchronously.  When it's
 	// ready, the texture will be grabbed in drawLocalClient.
-	mCanvasFileLoaderClient.setSource(ds::ui::ImageFile(filePath));
+	//mCanvasFileLoaderClient.setSource(ds::ui::ImageFile(filePath));
 }
 
 

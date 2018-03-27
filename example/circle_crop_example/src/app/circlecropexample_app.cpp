@@ -12,9 +12,6 @@
 
 #include <ds/ui/sprite/circle_border.h>
 
-// These three includes are required for the circle crop and image
-#include <ds/ui/ip/ip_defs.h>
-#include <ds/ui/image_source/image_file.h>
 #include <ds/ui/sprite/image.h>
 
 namespace example {
@@ -72,7 +69,8 @@ void CircleCropExample::setupServer(){
 	// Can result in a lower resolution circle edge if the image is lower resolution and scaled up
 	ds::ui::Image*	imagey = new ds::ui::Image(mEngine);
 	std::string fileName = "%APP%/data/images/cupola.png";
-	imagey->setImage(ds::ui::ImageFile(fileName, ds::ui::ip::CIRCLE_MASK, ""));
+	imagey->setImageFile(fileName);
+	imagey->cicleCropAutoCenter();
 	rootSprite.addChildPtr(imagey);
 	imagey->setScale(2.0f);
 	imagey->setPosition(0.0f, 100.0f);

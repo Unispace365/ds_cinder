@@ -10,7 +10,6 @@
 #include "cinder/gl/Texture.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "cinder/gl/Fbo.h"
-#include <ds/ui/image_source/image_owner.h>
 
 namespace ds {
 namespace ui {
@@ -21,7 +20,6 @@ namespace ui {
 */
 class DrawingCanvas
 	: public ds::ui::Sprite
-	, public ImageOwner
 {
 
 public:
@@ -70,9 +68,8 @@ protected:
 	virtual void						drawLocalClient() override;
 	virtual void						writeAttributesTo(DataBuffer&) override;
 	virtual void						readAttributeFrom(const char, DataBuffer&) override;
-	virtual void						onImageChanged() override;
 
-	ds::ui::ImageClient					mCanvasFileLoaderClient;
+	ds::ui::Image						mCanvasFileLoaderClient;
 
 private:
 
@@ -83,10 +80,12 @@ private:
 
 	/// Only for the getter, the actual brush image is loaded via the image loading API
 	std::string							mBrushImagePath;
+	ds::ui::Image*						mBrushImage;
 
 	float								mBrushSize;
 	ci::ColorA							mBrushColor;
 	bool								mEraseMode;
+
 };
 
 } // namespace ui

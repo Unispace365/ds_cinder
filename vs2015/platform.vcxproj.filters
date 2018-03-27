@@ -52,9 +52,6 @@
     <Filter Include="src\ds\ui\tweenline">
       <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\image_source">
-      <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\app">
       <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
     </Filter>
@@ -70,17 +67,8 @@
     <Filter Include="src\ds\time">
       <UniqueIdentifier>{bd82e7a9-956c-4d26-a56b-bbfe3c2a2e72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\ip">
-      <UniqueIdentifier>{480bdf66-e8fe-43b8-9627-e8eaacd8f2dd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\ip\functions">
-      <UniqueIdentifier>{03cb731e-c5f5-44bd-9745-6afa3e648d94}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\storage">
       <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\mesh_source">
-      <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\osc">
       <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
@@ -294,18 +282,6 @@
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_client.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_generator.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\file_meta_data.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
@@ -340,9 +316,6 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\event_notifier.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\image_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
@@ -408,9 +381,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_defs.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\time\timer.h">
       <Filter>src\ds\time</Filter>
     </ClInclude>
@@ -423,29 +393,8 @@
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h">
-      <Filter>src\ds\ui\service</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\data\key_value_store.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\ip\ip_function.h">
-      <Filter>src\ds\ui\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h">
-      <Filter>src\ds\ui\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\ip\functions\ip_circle_mask.h">
-      <Filter>src\ds\ui\ip\functions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\ip\ip_defs.h">
-      <Filter>src\ds\ui\ip</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -459,29 +408,8 @@
     <ClInclude Include="..\src\ds\params\camera_params.h">
       <Filter>src\ds\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\mesh.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_source.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\picking.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h">
-      <Filter>src\ds\ui\mesh_source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\storage\directory_watcher.h">
       <Filter>src\ds\storage</Filter>
@@ -899,18 +827,6 @@
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
@@ -942,9 +858,6 @@
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\event_notifier.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\image_registry.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
@@ -1001,9 +914,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\time\timer.cpp">
       <Filter>src\ds\time</Filter>
     </ClCompile>
@@ -1013,29 +923,8 @@
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp">
-      <Filter>src\ds\ui\service</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\data\key_value_store.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp">
-      <Filter>src\ds\ui\ip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp">
-      <Filter>src\ds\ui\ip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\ip\functions\ip_circle_mask.cpp">
-      <Filter>src\ds\ui\ip\functions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp">
-      <Filter>src\ds\ui\ip</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
@@ -1049,32 +938,11 @@
     <ClCompile Include="..\src\ds\params\camera_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_source.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\app\app_defs.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp">
       <Filter>src\ds\ui\touch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp">
-      <Filter>src\ds\ui\mesh_source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\storage\directory_watcher_win32.cpp">
       <Filter>src\ds\storage</Filter>

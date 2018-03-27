@@ -219,7 +219,8 @@ private:
 			FileMetaData		meta(fn);
 			const int			w = meta.findValueType<int>("w", -1),
 								h = meta.findValueType<int>("h", -1);
-			if (w > 0 && h > 0) {
+			if(w > 0 && h > 0) {
+				DS_LOG_VERBOSE(7, "ImageAttsCache got filename image size " << w << "x" << h << " for " << fn);
 				return ImageAtts(ci::vec2(static_cast<float>(w), static_cast<float>(h)));
 			}
 		} catch (std::exception const&) {
@@ -229,7 +230,8 @@ private:
 		try {
 			ImageAtts			atts;
 			const int			format = get_format(fn);
-			if (format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
+			if(format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
+				DS_LOG_VERBOSE(7, "ImageAttsCache got png image size " << atts.mSize.x<< "x" << atts.mSize.y << " for " << fn);
 				return atts;
 			}
 		} catch (std::exception const& e) {
@@ -240,12 +242,14 @@ private:
 		int outW = 0;
 		int outH = 0;
 		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
+			DS_LOG_VERBOSE(7, "ImageAttsCache got exif image size " << outW << "x" << outH << " for " << fn);
 			return ImageAtts(ci::vec2(static_cast<float>(outW), static_cast<float>(outH)));
 		}
 
 		// 4. Load the whole damn image in and get that.
 		ImageAtts			atts;
 		super_slow_image_atts(fn, atts.mSize);
+		DS_LOG_VERBOSE(7, "ImageAttsCache got super slow image size " << atts.mSize.x << "x" << atts.mSize.y << " for " << fn);
 		return atts;
 	}
 

@@ -12,7 +12,6 @@ namespace ds {
 EngineClientServer::EngineClientServer(	ds::App& app, ds::EngineSettings& settings,
 										ds::EngineData& ed, const ds::RootList& roots)
 		: AbstractEngineServer(app, settings, ed, roots, CLIENTSERVER_MODE)
-		, mLoadImageService(*this, mIpFunctions)
 {
 }
 

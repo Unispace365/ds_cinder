@@ -21,7 +21,6 @@ public:
 	EngineClient(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClient();
 
-	virtual ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
 	virtual ds::sprite_id_t			nextSpriteId();
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -50,8 +49,6 @@ private:
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 	void							sendMouseTouch(const int phase, const ci::ivec2 pos);
-
-	ui::LoadImageService			mLoadImageService;
 
 	EngineIoInfo					mIoInfo;
 	ds::UdpConnection				mSendConnection;

@@ -16,12 +16,9 @@ public:
 	EngineClientServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClientServer();
 
-	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
 
 	virtual void					draw();
 
-private:
-	ui::LoadImageService			mLoadImageService;
 };
 
 } // namespace ds

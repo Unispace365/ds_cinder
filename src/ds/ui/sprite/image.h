@@ -5,7 +5,7 @@
 #include <string>
 
 #include <ds/ui/sprite/sprite.h>
-#include <ds/ui/image_source/image_owner.h>
+#include <ds/util/image_meta_data.h>
 
 namespace ds {
 namespace ui {
@@ -15,8 +15,7 @@ namespace ui {
  * @namespace ds::ui
  * @brief     A Sprite that draws an image on-screen
  */
-class Image : public Sprite
-			, public ImageOwner {
+class Image : public Sprite {
 public:
 	/// @note These really belong elsewhere now, like ImgeSource or probably ImageDefs.
 
@@ -38,6 +37,38 @@ public:
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
 
+	virtual ~Image();
+
+	/** Loads an image based on the filename.
+	* \param filename is the absolute file path to the resource.
+	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	*/
+	void						setImageFile(const std::string& filename, const int flags = 0);
+
+	/** Loads an image based on the resource.
+	* \param resource is the resource.
+	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	*/
+	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0);
+
+	/** Loads an image based on the resource id.
+	* \param resourceId is the resource.
+	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	*/
+	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
+
+	/// Returns the absolute image path, even if the image was set by resource 
+	const std::string&			getImageFilename() { return mFilename; }
+
+	/// Returns the ds::Resource if it was set as a full resource or as an id. 
+	ds::Resource				getImageResource() { return mResource; }
+
+	/// Returns the loaded image, if not loaded returns an emptry ref (nullptr) 
+	const ci::gl::TextureRef	getImageTexture() {	return mTextureRef; }
+
+	/// Clears the image from this sprite. Removes a reference in the image store if not cached 
+	void						clearImage();
+
 	/// @note calls Image::setSizeAll(...) internally.
 	/// @see Image::setSizeAll(...)
 	void						setSize( float width, float height );
@@ -48,22 +79,28 @@ public:
 	/// @brief returns true if the last requested image is loaded as a texture
 	virtual bool				isLoaded() const;
 
-	virtual void				setCircleCrop(bool circleCrop);
-	virtual void				setCircleCropRect(const ci::Rectf& rect);
-	virtual bool				getCircleCrop(){ return mCircleCropped; }
+	/// The error message if the image status function returned an error
+	const std::string&			getErrorMessage() { return mErrorMsg; }
 
-	/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
+	/// Uses a shader to crop this image to a circle. By default, uses the bounds of the image for the circle (could be an oval)
+	/// If you use your own shader for this sprite, the circle crop won't work
+	virtual void				setCircleCrop(bool circleCrop);
+	/// Set the specific area to circle crop
+	virtual void				setCircleCropRect(const ci::Rectf& rect);
+	/// Returns if this is set to crop to a circle
+	virtual bool				getCircleCrop(){ return mCircleCropped; }
+		/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
 	void						cicleCropAutoCenter();
 
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;
+		static const int		STATUS_ERRORED = 2;
 		int						mCode;
 	};
 
 	/// Calls a function when the image is actually loaded, so you can fade the image in or whatever
 	void						setStatusCallback(const std::function<void(const Status&)>&);
-	void						checkStatus();
 
 protected:
 
@@ -74,7 +111,7 @@ protected:
 
 	/// @cond image status callbacks
 
-	virtual void				onImageChanged() override;
+	virtual void				onImageChanged() {};
 	virtual void				onImageLoaded() {}
 	virtual void				onImageUnloaded() {}
 
@@ -83,24 +120,29 @@ protected:
 	void						drawLocalClient() override;
 	void						writeAttributesTo(ds::DataBuffer&) override;
 	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
+	bool						getMetaData(ImageMetaData&) const;
 
 	/// @endcond
 
 private:
-	typedef Sprite				inherited;
-
+	void						checkStatus();
+	void						imageChanged();
 	void						setStatus(const int);
 	void						doOnImageLoaded();
 	void						doOnImageUnloaded();
 
 	Status						mStatus;
+	std::string					mErrorMsg;
 	std::function<void(const Status&)>
 								mStatusFn;
 	struct { ci::Rectf mPerspRect; ci::Rectf mOrthoRect; }
 								mDrawRect;
 
 	bool						mCircleCropped;
-
+	ci::gl::TextureRef			mTextureRef;
+	std::string					mFilename;
+	ds::Resource				mResource;
+	int							mFlags;
 public:
 
 	/// @cond Sprite BLOB registry

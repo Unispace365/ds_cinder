@@ -22,7 +22,6 @@ class EngineData;
 class EngineService;
 class EventNotifier;
 class FontList;
-class ImageRegistry;
 class PerspCameraParams;
 class ResourceList;
 class WorkManager;
@@ -67,7 +66,6 @@ public:
 	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
 	virtual PangoFontService&		getPangoFontService() = 0;
-	virtual ds::ImageRegistry&		getImageRegistry() = 0;
 	virtual Tweenline&				getTweenline() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 

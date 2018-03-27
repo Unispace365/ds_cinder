@@ -13,6 +13,7 @@
 #include "ds/app/blob_registry.h"
 #include "ds/util/image_meta_data.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/service/load_image_service.h"
 
 using namespace ci;
 
@@ -25,8 +26,10 @@ char				BLOB_TYPE			= 0;
 const DirtyState&	IMG_SRC_DIRTY		= INTERNAL_A_DIRTY;
 const DirtyState&	IMG_CROP_DIRTY		= INTERNAL_B_DIRTY;
 
+
 const char			IMG_SRC_ATT			= 80;
 const char			IMG_CROP_ATT		= 81;
+const char          RES_FLAGS_ATT		= 82;
 
 const std::string CircleCropFrag =
 "#version 150\n"
@@ -156,8 +159,7 @@ Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) 
 }
 
 Image::Image(SpriteEngine& engine)
-	: inherited(engine)
-	, ImageOwner(engine)
+	: Sprite(engine)
 	, mStatusFn(nullptr)
 	, mCircleCropped(false)
 {
@@ -193,21 +195,65 @@ Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags
 	setImageResource(resource, flags);
 }
 
+Image::~Image() {
+	mEngine.getLoadImageService().release(mFilename, this);
+}
+
+void Image::setImageFile(const std::string& filename, const int flags) {
+	if(mFilename == filename && mFlags == flags) {
+		return;
+	}
+
+	mEngine.getLoadImageService().release(mFilename, this);
+
+	mFilename = ds::Environment::expand(filename);
+	mFlags = flags;
+
+	imageChanged();
+
+	mEngine.getLoadImageService().acquire(mFilename, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
+		mTextureRef = tex;
+		if(error) {
+			mErrorMsg = errorMsg;
+			setStatus(Status::STATUS_EMPTY);
+		} else {
+			checkStatus();
+		}
+	});
+}
+
+void Image::setImageResource(const ds::Resource& r, const int flags) {
+	mResource = r;
+
+	setImageFile(r.getAbsoluteFilePath(), flags);
+}
+
+void Image::setImageResource(const ds::Resource::Id& rid, const int flags) {
+	if(!rid.empty()) {
+		mEngine.getResources().get(rid, mResource);
+	}
+
+	if(!mResource.empty()) {
+		setImageResource(mResource, flags);
+	} else {
+		DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << rid.mValue);
+	}
+}
+
 void Image::onUpdateServer(const UpdateParams& up){
-	checkStatus();
+	//checkStatus();
 }
 
 void Image::onUpdateClient(const UpdateParams& up){
-	checkStatus();
+	//checkStatus();
 }
 
 void Image::drawLocalClient(){
 	if (!inBounds() || !isLoaded()) return;
 
-	if (auto tex = mImageSource.getImage())
-	{
+	if (mTextureRef){
 
-		tex->bind();
+		mTextureRef->bind();
 		if(mRenderBatch){
 			mRenderBatch->draw();
 		} else {
@@ -215,8 +261,20 @@ void Image::drawLocalClient(){
 			ci::gl::drawSolidRect(useRect);
 		}
 
-		tex->unbind();
+		mTextureRef->unbind();
 	}
+}
+
+void Image::clearImage() {
+	mEngine.getLoadImageService().release(mFilename, this);
+	mTextureRef = nullptr;
+	mFilename = "";
+	mResource = ds::Resource();
+	imageChanged();
+}
+
+void Image::setSize(float width, float height) {
+	setSizeAll(width, height, mDepth);
 }
 
 void Image::setSizeAll( float width, float height, float depth ){
@@ -249,7 +307,6 @@ void Image::setCircleCropRect(const ci::Rectf& rect){
 	mShaderExtraData.w = rect.y2;
 }
 
-
 void Image::cicleCropAutoCenter() {
 	setCircleCrop(true);
 	const float scw = getWidth();
@@ -262,25 +319,26 @@ void Image::cicleCropAutoCenter() {
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn){
-	if(mEngine.getMode() != mEngine.STANDALONE_MODE){
-		//DS_LOG_WARNING("Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
-		// TODO: fill in some callbacks? This actually kinda works. This will only not work in server-only mode. Everything else is fine
-	}
 	mStatusFn = fn;
+
+	// In case the image was already loaded (cached or onscreen already), and the callback function gets set after the setImage call, make sure we get the message
+	if(mStatus.mCode == Status::STATUS_LOADED && mStatusFn) {
+		mStatusFn(mStatus);
+	}
 }
 
 bool Image::isLoadedPrimary() const {
 	return isLoaded();
 }
 
-void Image::onImageChanged() {
+void Image::imageChanged() {
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
 	// Make my size match
 	ImageMetaData		d;
-	if (mImageSource.getMetaData(d) && !d.empty()) {
+	if(getMetaData(d) && !d.empty()) {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
 		// Metadata not found, reset all internal states
@@ -289,14 +347,20 @@ void Image::onImageChanged() {
 		mDrawRect.mOrthoRect = ci::Rectf::zero();
 		mDrawRect.mPerspRect = ci::Rectf::zero();
 	}
+
+	onImageChanged();
 }
 
 void Image::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(IMG_SRC_DIRTY)) {
 		buf.add(IMG_SRC_ATT);
-		mImageSource.writeTo(buf);
+		buf.add(mFilename);
+		buf.add(mResource.getPortableFilePath());
+		buf.add(mResource.getWidth());
+		buf.add(mResource.getHeight());
+		buf.add(mFlags);
 	}
 
 	if (mDirty.has(IMG_CROP_DIRTY)) {
@@ -311,8 +375,21 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
-		mImageSource.readFrom(buf);
 		setStatus(Status::STATUS_EMPTY);
+		mFilename = buf.read<std::string>(); 
+		auto resourceFileName = ds::Environment::expand(buf.read<std::string>());
+		mResource = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
+		mResource.setWidth(buf.read<float>());
+		mResource.setHeight(buf.read<float>());
+		mFlags = buf.read<int>();
+
+		if(resourceFileName.empty()) {
+			setImageFile(mFilename, mFlags);
+		} else {
+			setImageResource(mResource, mFlags);
+		}
+		
+
 	} else if (attributeId == IMG_CROP_ATT) {
 		mCircleCropped = buf.read<bool>();
 		setCircleCrop(mCircleCropped);
@@ -321,33 +398,52 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 		mShaderExtraData.z = buf.read<float>();
 		mShaderExtraData.w = buf.read<float>();
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		Sprite::readAttributeFrom(attributeId, buf);
 	}
+}
+
+
+bool Image::getMetaData(ImageMetaData& d) const {
+	std::string	fn;
+	if(!mResource.empty()) {
+		if(mResource.getWidth() > 0 && mResource.getHeight() > 0) {
+			d.mSize.x = mResource.getWidth();
+			d.mSize.y = mResource.getHeight();
+			return true;
+		}
+		fn = mResource.getAbsoluteFilePath();
+	} else {
+		fn = mFilename;
+	}
+
+	if(fn.empty()) return false;
+	ImageMetaData			atts(fn);
+	d = atts;
+	return !d.empty();
 }
 
 void Image::setStatus(const int code) {
 	if (code == mStatus.mCode) return;
+
+	if(code != Status::STATUS_ERRORED) mErrorMsg = "";
 
 	mStatus.mCode = code;
 	if (mStatusFn) mStatusFn(mStatus);
 }
 
 void Image::checkStatus() {
-	if (mImageSource.getImage() && !isLoadedPrimary()){
-		if (mEngine.getMode() == mEngine.CLIENT_MODE){
-			setStatus(Status::STATUS_LOADED);
-			doOnImageLoaded();
-		} else {
-			auto tex = mImageSource.getImage();
-			setStatus(Status::STATUS_LOADED);
-			doOnImageLoaded();
+	if(mTextureRef) {
+		setStatus(Status::STATUS_LOADED);
+		doOnImageLoaded();
+
+		if (mEngine.getMode() != mEngine.CLIENT_MODE){
 			const float prevRealW = getWidth(), prevRealH = getHeight();
 			if (prevRealW <= 0 || prevRealH <= 0) {
-				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()), static_cast<float>(mTextureRef->getHeight()), mDepth);
 			} else {
 				float prevWidth = prevRealW * getScale().x;
 				float prevHeight = prevRealH * getScale().y;
-				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()), static_cast<float>(mTextureRef->getHeight()), mDepth);
 				setSize(prevWidth, prevHeight);
 			}
 		}
@@ -378,10 +474,10 @@ void Image::onBuildRenderBatch() {
 }
 
 void Image::doOnImageLoaded() {
-	if (auto tex = mImageSource.getImage()){
+	if (mTextureRef){
 		mNeedsBatchUpdate = true;
-		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f);
-		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()));
+		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()), static_cast<float>(mTextureRef->getWidth()), 0.0f);
+		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTextureRef->getWidth()), static_cast<float>(mTextureRef->getHeight()));
 	}
 
 	onImageLoaded();
@@ -389,10 +485,6 @@ void Image::doOnImageLoaded() {
 
 void Image::doOnImageUnloaded() {
 	onImageUnloaded();
-}
-
-void Image::setSize( float width, float height ) {
-	setSizeAll(width, height, mDepth);
 }
 
 } // namespace ui

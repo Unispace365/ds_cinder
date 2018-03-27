@@ -30,8 +30,8 @@
 #include "ds/data/tuio_object.h"
 #include "ds/debug/auto_refresh.h"
 #include "ds/app/engine/engine_settings.h"
-#include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
+#include "ds/ui/service/load_image_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
@@ -71,14 +71,12 @@ public:
 	virtual ds::EventNotifier&			getChannel(const std::string&);
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
-	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
-	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
+	virtual ds::ui::PangoFontService&	getPangoFontService() { return mPangoFontService; }
+	virtual ds::ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 
 	// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
-	// Add the image processing function to my global pool
-	void								addIp(const std::string& key, const ds::ui::ip::FunctionRef&);
 
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
@@ -280,8 +278,6 @@ protected:
 										mSprites;
 	int									mTuioPort;
 
-	// All the installed image processing functions.
-	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
@@ -313,7 +309,6 @@ private:
 	ds::EngineSettings&					mSettings;
 	ds::cfg::SettingsEditor*			mSettingsEditor;
 	bool								mShowConsole;
-	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
@@ -364,6 +359,7 @@ private:
 	ci::Color8u							mUniqueColor;
 	int									mCachedWindowW, mCachedWindowH;
 	ci::app::WindowRef					mCinderWindow;
+	ui::LoadImageService				mLoadImageService;
 
 	// Channels. A channel is simply a notifier, with an optional description.
 	class Channel {

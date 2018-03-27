@@ -51,8 +51,6 @@ void ImageWithThumbnail::setImageResource(const ds::Resource& resource, const in
 		mThumbnail = nullptr;
 	}
 
-	checkStatus();
-
 	if(!isLoadedPrimary()){
 		if(resource.getThumbnailId() > 0 || !resource.getThumbnailFilePath().empty()){
 			mThumbnail = new ds::ui::Image(mEngine);

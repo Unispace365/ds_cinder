@@ -1,175 +1,94 @@
 #pragma once
-#ifndef DS_UI_SERVICE_LOADIMAGESERVICE_H_
-#define DS_UI_SERVICE_LOADIMAGESERVICE_H_
+#ifndef DS_UI_SERVICE_LOAD_IMAGE_SERVICE
+#define DS_UI_SERVICE_LOAD_IMAGE_SERVICE
 
-#include <unordered_map>
-#include <vector>
-#include <cinder/Surface.h>
+#include <ds/app/auto_update.h>
+#include <cinder/Thread.h>
 #include <cinder/gl/Texture.h>
-#include "ds/app/engine/engine_service.h"
-#include "ds/ui/ip/ip_function_list.h"
-
-#include "ds/thread/parallel_runnable.h"
 
 namespace ds {
 namespace ui {
-class LoadImageService;
+class SpriteEngine;
 
-/**
- * \class ds::ui::ImageKey
- * \brief Internal class that acts as a key for a cached image.
- */
-class ImageKey {
+class LoadImageService : public ds::AutoUpdate {
 public:
-	ImageKey();
-	ImageKey(const std::string& filename, const std::string& ip_key, const std::string& ip_params, const int flags);
 
-	bool					operator==(const ImageKey&) const;
-	void					clear();
+	typedef std::function<void(ci::gl::TextureRef, const bool errored, const std::string& errMsg)> LoadedCallback;
 
-	std::string				mFilename,
-							mIpKey,
-							mIpParams;
-	int						mFlags;
-};
-
-} // namespace ui
-} // namespace ds
-
-/* \cond Ignore this function in Doxygen
-	Make the ImageKey available for hashing functions
-*/
-namespace std {
-	template<>
-	struct hash<ds::ui::ImageKey> : public unary_function<ds::ui::ImageKey, size_t> {
-		size_t operator()(const ds::ui::ImageKey& id) const {
-			std::size_t h1 = std::hash<std::string>()(id.mFilename);
-			std::size_t h2 = std::hash<std::string>()(id.mIpKey);
-			return h1 ^ (h2 << 1);
-		}
-	};
-}
-/* \endcond */
-
-namespace ds {
-namespace ui {
-
-/**
- * \class ds::ui::ImageToken
- * \brief Essentially a reference on an image.
- */
-class ImageToken {
-public:
-	ImageToken(LoadImageService&);
-	~ImageToken();
-
-	/// Answer true if I have neither an actual image nor a request for one.
-	bool					empty() const;
-	bool					canAcquire() const;
-
-	/**
-	 * \brief Request the resource be loaded.
-	 * \param filename is the filename (and path) for the resource ID.
-	 * \param ip_key is a key to an IpFunction, which must be one of the
-	 * system ones in ip_defs.h, or installed by the app.
-	 * \param ip_params is parameters to the IpFunction. Format is dependent
-	 * on the function.
-	 * \param flags provides scope info (i.e. ds::IMG_CACHE).
-	 */
-	void					acquire(const std::string& filename, const std::string& ip_key,
-									const std::string& ip_params, const int flags);
-	void					release();
-
-	ci::gl::TextureRef		getImage(float& fade);
-
-	/// No refs are acquired, no image is loaded -- if it exists, answer it
-	const ci::gl::TextureRef	peekImage(const std::string& filename) const;
-
-private:
-	void					init();
-
-	LoadImageService&		mSrv;
-	ImageKey				mKey;
-	bool					mAcquired;
-	bool					mError;
-	ci::gl::TextureRef		mTextureRef;
-};
-
-/**
- * \class ds::ui::LoadImageService
- * \brief Manage and load images.
- */
-class LoadImageService  {
-public:
-	LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList&);
+	LoadImageService(SpriteEngine& eng);
 	~LoadImageService();
 
-	// Clients should call release() for every successful acquire
-	bool						acquire(const ImageKey& key, const int flags);
-	void						release(const ImageKey& key);
+	// TODOs:
+	//  - Settable number of threads
+	//  - Non cached image loaded -> new request on same image to cache -> cache it
 
-	ci::gl::TextureRef			getImage(const ImageKey&, float& fade);
-	// No refs are acquired, no image is loaded -- if it exists, answer it
-	const ci::gl::TextureRef	peekImage(const ImageKey&) const;
-	// Answer true if the token exists (though the image might not be loaded), supplying the flags if you like
-	bool						peekToken(const ImageKey&, int* flags = nullptr) const;
+	// TESTS:
+	//  - Cached retains image indefinitely
+	//  - Image texture goes away if there were no caches for it
+	//  - No memory leaks
 
-	void						clear();
+	/// Asynchronously get an image at the specified path or url
+	/// Flags are for caching (IMG_CACHE_F) or mipmapping (IMG_MIPMAP_F)
+	/// Each requester can only get 1 callback. Important! Be sure you release before the requester goes away
+	/// The callback will be called one time only, and calls back if there is an error or it succeeds.
+	/// All callbacks happen in the update cycle
+	void acquire(const std::string& filePath, const int flags, void * requester, LoadedCallback loadedCallback);
+
+	/// You must call release if you no longer want the image or the refferr is about to be released
+	void release(const std::string& filePath, void * requester);
+
+	/// Can be called multiple times, but does nothing after the first time
+	/// Starts the threads to load stuff and creates OpenGL contexts
+	void initialize();
 
 private:
-	// store a single image slot
-	struct ImageHolder {
-		ImageHolder();
 
-		int						mRefs;
-		ci::gl::TextureRef		mTextureRef;
-		bool					mError;
-		int						mFlags;
+	/// Keeps track of requests for images, in-use images, and cached images
+	struct ImageLoadRequest {
+		ImageLoadRequest()
+			: mFilePath("")
+			, mFlags(0)
+			, mRefs(0)
+			, mLoaded(false)
+		{}
+
+		ImageLoadRequest(const std::string filePath, const int flags)
+			: mFilePath(filePath)
+			, mFlags(flags)
+			, mError(false)
+			, mRefs(1)
+			, mLoaded(false)
+		{
+		}
+		std::string						mFilePath;
+		int								mFlags;
+		bool							mError;
+		std::string						mErrorMsg;
+		ci::gl::TextureRef				mTexture;
+		int								mRefs;
+		bool							mLoaded;
 	};
 
-	// an op for loading images
-	struct ImageOperation {
-		ImageOperation();
-		ImageOperation(const ImageOperation&);
-		ImageOperation(const ImageKey&, const int flags, const ds::ui::ip::FunctionRef&);
-
-		void					clear();
-
-		ImageKey				mKey;
-		ci::Surface8u			mSurface;
-		int						mFlags;
-		ds::ui::ip::FunctionRef	mIpFunction;
-		int						mNumberTries;
-	};
-
-	class ImageLoadThread : public Poco::Runnable {
-		public:
-			ImageLoadThread();
-
-			virtual void						run();
-			ImageOperation						mOutput;
-			bool								mError;
-	};
-
-// ImageLoadService Private members ------------------------------------
 
 
+	std::unordered_map<std::string, std::unordered_map<void *, LoadedCallback>> mCallbacks;
 
-	ds::ui::ip::FunctionList&					mFunctions;
-	std::unordered_map<ImageKey, ImageHolder>	mImageResource;
+	virtual void update(const ds::UpdateParams&) override;
 
-	void										onLoadComplete(ImageLoadThread& loadThread);
-	void										advanceQueue();
-	int											mLoadsInProgress;
-	const int									mMaxSimultaneousLoads;
-	const int									mMaxLoadTries;
+	/// If the cache flag is present, store a reference to the texture
+	std::vector<ImageLoadRequest>				mCachedImages;
+	std::vector<ImageLoadRequest>				mInUseImages;
 
-	std::vector<ImageOperation>					mOperationsQueue;
+	void										loadImagesThreadFn(ci::gl::ContextRef context);
+	std::vector<std::shared_ptr<std::thread>>	mThreads;
+	// shared between threads
+	std::vector<ImageLoadRequest>				mRequests;
+	std::vector<ImageLoadRequest>				mLoadedRequests;
+	bool										mShouldQuit;
+	mutable std::mutex							mMutex;
 
-	ds::ParallelRunnable<ImageLoadThread>		mLoadThreads;
 };
 
-} // namespace ui
-} // namespace ds
-
+}
+}
 #endif

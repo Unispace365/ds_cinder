@@ -18,8 +18,6 @@
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "ds/metrics/metrics_service.h"
-#include "ds/ui/ip/ip_defs.h"
-#include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
 #include "ds/util/file_meta_data.h"
@@ -63,6 +61,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mLoadImageService(*this)
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
@@ -101,12 +100,6 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleHelpRequest::NAME(), [this]()->ds::Event* {return new ds::EngineStatsView::ToggleHelpRequest(); });
 
 	setupEngine();
-
-
-	// For now, install some default image processing functions here, for convenience. These are
-	// so lightweight it probably makes sense just to have them always available for clients instead
-	// of requiring some sort of configuration.
-	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
@@ -750,10 +743,6 @@ void Engine::addService(const std::string& str, ds::EngineService& service) {
 		}
 		mData.mServices[str] = &service;
 	}
-}
-
-void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
-	mIpFunctions.add(key, fn);
 }
 
 void Engine::loadSettings(const std::string& name, const std::string& filename) {

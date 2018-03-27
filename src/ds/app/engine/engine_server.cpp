@@ -481,7 +481,6 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 EngineServer::EngineServer(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: AbstractEngineServer(app, settings, ed, roots, SERVER_MODE)
-	, mLoadImageService(*this, mIpFunctions)
 {
 }
 
