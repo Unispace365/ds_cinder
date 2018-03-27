@@ -58,7 +58,7 @@ private:
 			: mFilePath("")
 			, mFlags(0)
 			, mRefs(0)
-			, mLoaded(false)
+			, mLoading(false)
 			, mTexture(nullptr)
 		{}
 
@@ -67,7 +67,7 @@ private:
 			, mFlags(flags)
 			, mError(false)
 			, mRefs(1)
-			, mLoaded(false)
+			, mLoading(false)
 			, mTexture(nullptr)
 		{
 		}
@@ -77,7 +77,7 @@ private:
 		std::string						mErrorMsg;
 		ci::gl::TextureRef				mTexture;
 		int								mRefs;
-		bool							mLoaded;
+		bool							mLoading;
 	};
 
 

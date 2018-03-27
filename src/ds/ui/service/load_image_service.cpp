@@ -19,7 +19,7 @@ LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
 
 void LoadImageService::initialize() {
 	if(mThreads.empty()) {
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < 16; i++) {
 			ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
 			auto aThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&LoadImageService::loadImagesThreadFn, this, backgroundCtx)));
 			mThreads.emplace_back(aThread);
@@ -61,14 +61,18 @@ void LoadImageService::update(const ds::UpdateParams&) {
 		auto oldRequests = mRequests;
 		mRequests.clear();
 		for (auto it : oldRequests){
-			if(!it.mLoaded) mRequests.emplace_back(it);
+			if(!it.mLoading && !it.mTexture && !it.mError) {
+				mRequests.emplace_back(it);
+			}
 		}
 	}
 
 	// cache or track completed loads
 	for(auto& it : newCompletedRequests) {
-		if(it.mTexture){
+		if(it.mTexture && it.mTexture->getId() > 0){
 			mInUseImages.emplace_back(it);
+		} else {
+			continue;
 		}
 		DS_LOG_VERBOSE(1, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError << " refs=" << it.mRefs);
 
@@ -88,7 +92,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 
 void LoadImageService::acquire(const std::string& filePath, const int flags, void * requester, LoadedCallback loadedCallback) {
 	if(filePath.empty()) {
-		DS_LOG_WARNING("LoadImageService got a blank file path.");
+		DS_LOG_VERBOSE(6, "LoadImageService got a blank file path.");
 		return;
 	}
 
@@ -174,8 +178,9 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
 			for(auto& it : mRequests) {
-				if(!it.mLoaded) {
-					it.mLoaded = true;
+				if(!it.mLoading) {
+					it.mLoading = true;
+					it.mTexture = nullptr;
 					nextImage = it;
 					break;
 				}
@@ -205,22 +210,26 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 			}
 			auto tex = ci::gl::Texture::create(isr, fmt);
 
-			// we need to wait on a fence before alerting the primary thread that the Texture is ready
-			auto fence = ci::gl::Sync::create();
-			fence->clientWaitSync();
 
-			nextImage.mTexture = tex;
+			if(tex->getId() > 0) {
+				{
+					// we need to wait on a fence before alerting the primary thread that the Texture is ready
+					auto fence = ci::gl::Sync::create();
+					fence->clientWaitSync();
 
-			if(tex->getId() > 0){
-				std::lock_guard<std::mutex> lock(mMutex);
-				mLoadedRequests.emplace_back(nextImage);
-				
+					nextImage.mTexture = tex;
+				}
+			
+				{
+					std::lock_guard<std::mutex> lock(mMutex);
+					mLoadedRequests.emplace_back(nextImage);
+				}
 			} else {
-				DS_LOG_WARNING("Invalid texture found for image " << nextImage.mFilePath);
+				DS_LOG_WARNING("Invalid texture found for image " << nextImage.mFilePath << " " << std::this_thread::get_id());
 				std::lock_guard<std::mutex> lock(mMutex);
 				for(auto& it : mRequests) {
 					if(it.mFilePath == nextImage.mFilePath) {
-						it.mLoaded = false;
+						it.mLoading = false;
 						break;
 					}
 				}
@@ -242,8 +251,8 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				std::lock_guard<std::mutex> lock(mMutex);
 				mLoadedRequests.emplace_back(nextImage);
 			}
-		}
-	}
+		} // end of try / catch
+	} // end of while loop
 }
 
 }

@@ -100,6 +100,7 @@ public:
 	};
 
 	/// Calls a function when the image is actually loaded, so you can fade the image in or whatever
+	/// NOTE: This could return immediately if the image is already loaded
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
