@@ -40,6 +40,15 @@ public:
 	/// Can be called multiple times, but does nothing after the first time
 	/// Starts the threads to load stuff and creates OpenGL contexts
 	void initialize();
+	
+	/// Clears references to all loaded images
+	/// Wont' clear images currently held by sprites
+	/// But will force all new images to load from scratch
+	/// This also clears the metadata cache
+	void clearCache();
+
+	/// Logs all in-use and cached images to info
+	void logCache();
 
 private:
 
@@ -50,6 +59,7 @@ private:
 			, mFlags(0)
 			, mRefs(0)
 			, mLoaded(false)
+			, mTexture(nullptr)
 		{}
 
 		ImageLoadRequest(const std::string filePath, const int flags)
@@ -58,6 +68,7 @@ private:
 			, mError(false)
 			, mRefs(1)
 			, mLoaded(false)
+			, mTexture(nullptr)
 		{
 		}
 		std::string						mFilePath;
@@ -76,7 +87,6 @@ private:
 	virtual void update(const ds::UpdateParams&) override;
 
 	/// If the cache flag is present, store a reference to the texture
-	std::vector<ImageLoadRequest>				mCachedImages;
 	std::vector<ImageLoadRequest>				mInUseImages;
 
 	void										loadImagesThreadFn(ci::gl::ContextRef context);

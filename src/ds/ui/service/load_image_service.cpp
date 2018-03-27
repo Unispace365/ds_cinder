@@ -27,6 +27,18 @@ void LoadImageService::initialize() {
 	}
 }
 
+void LoadImageService::clearCache() {
+	mInUseImages.clear();
+	ImageMetaData::clearMetadataCache();
+}
+
+void LoadImageService::logCache() {
+	DS_LOG_INFO("Load Image Service, in use images:");
+	for (auto it : mInUseImages){
+		DS_LOG_INFO("Image, refs=" << it.mRefs << " err=" << it.mError << " flags=" << it.mFlags << " path=" << it.mFilePath);
+	}
+}
+
 LoadImageService::~LoadImageService() {
 	mCallbacks.clear();
 
@@ -55,10 +67,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 
 	// cache or track completed loads
 	for(auto& it : newCompletedRequests) {
-		if(it.mTexture && it.mFlags&Image::IMG_CACHE_F) {
-			mCachedImages.emplace_back(it);
-		} else {
-			it.mRefs++;
+		if(it.mTexture){
 			mInUseImages.emplace_back(it);
 		}
 		DS_LOG_VERBOSE(1, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError << " refs=" << it.mRefs);
@@ -88,20 +97,11 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 		return;
 	}
 
-	// Check if this was cached already (doesn't matter if the new flags have cached or not, since this will always exist)
-	for(auto it : mCachedImages) {
-		if(it.mFilePath == filePath && !it.mError) {
-			DS_LOG_VERBOSE(1, "LoadImageService using a cached image for " << filePath);
-			loadedCallback(it.mTexture, it.mError, it.mErrorMsg);
-			return;
-		}
-	}
-
 	// See if this has already been loaded
 	for(auto& it : mInUseImages) {
 		if(it.mFilePath == filePath && !it.mError) {
 			it.mRefs++;
-			DS_LOG_VERBOSE(1, "LoadImageService using a non-cached in-use image for " << filePath << " refs=" << it.mRefs);
+			DS_LOG_VERBOSE(1, "LoadImageService using an in-use image for " << filePath << " refs=" << it.mRefs);
 			loadedCallback(it.mTexture, it.mError, it.mErrorMsg);
 			return;
 		}
@@ -153,9 +153,9 @@ void LoadImageService::release(const std::string& filePath, void * referrer) {
 	for(auto it = mInUseImages.begin(); it < mInUseImages.end(); ++it) {
 		if((*it).mFilePath == filePath) {
 			(*it).mRefs--;
-			if((*it).mRefs < 1) {
+			if((*it).mRefs < 1 && ((*it).mFlags&Image::IMG_CACHE_F) == 0) {
 				mInUseImages.erase(it);
-				DS_LOG_VERBOSE(1, "LoadImageService  no more refs for " << filePath);
+				DS_LOG_VERBOSE(1, "LoadImageService no more refs for " << filePath);
 			}
 			break;
 		}

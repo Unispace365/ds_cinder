@@ -426,6 +426,8 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
 	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
 	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
+	mKeyManager.registerKey("Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
+	mKeyManager.registerKey("Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
 	mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
 	mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
 	mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);

@@ -162,6 +162,7 @@ Image::Image(SpriteEngine& engine)
 	: Sprite(engine)
 	, mStatusFn(nullptr)
 	, mCircleCropped(false)
+	, mTextureRef(nullptr)
 {
 	mStatus.mCode = Status::STATUS_EMPTY;
 	mDrawRect.mOrthoRect = ci::Rectf::zero();

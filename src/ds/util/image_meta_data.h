@@ -14,8 +14,12 @@ namespace ds {
  */
 class ImageMetaData {
 public:
+
 	ImageMetaData();
 	ImageMetaData(const std::string& filename);
+
+	/// Clears any stored w/h info
+	static void					clearMetadataCache();
 
 	bool						empty() const;
 	void						add(const std::string& filePath, const ci::vec2 size );

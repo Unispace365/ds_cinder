@@ -154,7 +154,11 @@ public:
 	ImageAttsCache() {
 	}
 
-	void				add(const std::string& filePath, const ci::vec2 size){
+	void clear() {
+		mCache.clear();
+	}
+
+	void add(const std::string& filePath, const ci::vec2 size){
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
@@ -269,6 +273,10 @@ ImageMetaData::ImageMetaData()
 ImageMetaData::ImageMetaData(const std::string& filename)
 		: mSize(0.0f, 0.0f) {
 	mSize = CACHE.getSize(filename);
+}
+
+void ImageMetaData::clearMetadataCache() {
+	CACHE.clear();
 }
 
 bool ImageMetaData::empty() const {
