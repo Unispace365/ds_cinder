@@ -33,7 +33,7 @@ void LoadImageService::clearCache() {
 }
 
 void LoadImageService::logCache() {
-	DS_LOG_INFO("Load Image Service, in use images:");
+	DS_LOG_INFO("Load Image Service, number of in use images:" << mInUseImages.size());
 	for (auto it : mInUseImages){
 		DS_LOG_INFO("Image, refs=" << it.mRefs << " err=" << it.mError << " flags=" << it.mFlags << " path=" << it.mFilePath);
 	}
@@ -211,9 +211,19 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 
 			nextImage.mTexture = tex;
 
-			{
+			if(tex->getId() > 0){
 				std::lock_guard<std::mutex> lock(mMutex);
 				mLoadedRequests.emplace_back(nextImage);
+				
+			} else {
+				DS_LOG_WARNING("Invalid texture found for image " << nextImage.mFilePath);
+				std::lock_guard<std::mutex> lock(mMutex);
+				for(auto& it : mRequests) {
+					if(it.mFilePath == nextImage.mFilePath) {
+						it.mLoaded = false;
+						break;
+					}
+				}
 			}
 
 		} catch(std::exception &exc) {
