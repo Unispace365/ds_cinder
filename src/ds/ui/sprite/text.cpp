@@ -740,8 +740,9 @@ void Text::renderPangoText(){
 			unsigned char *pixels = cairo_image_surface_get_data(cairoSurface);
 
 			ci::gl::Texture::Format format;
-			format.setMagFilter(GL_LINEAR);
-			format.setMinFilter(GL_LINEAR);
+			format.enableMipmapping(true);
+			//format.setMagFilter(GL_NEAREST);
+			//format.setMinFilter(GL_NEAREST);
 			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
