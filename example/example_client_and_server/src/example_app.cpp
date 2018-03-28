@@ -28,6 +28,8 @@ CsApp::CsApp()
 void CsApp::setupServer() {
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
+	/*
+	*/
 	// Example image sprite from a hardcoded filename.
 	imgSprite = new ds::ui::Image(mEngine, "%APP%/data/lorem_kicksum.png");
 	imgSprite->setScale(0.25f, 0.25f);
@@ -110,6 +112,7 @@ void CsApp::recreateText(){
 	}
 	mTexty->callAfterDelay([this]{recreateText(); }, 5.0f);
 
+	/**/
 	if(imgSprite){
 		imgSprite->release();
 		imgSprite = new ds::ui::Image(mEngine, "%APP%/data/lorem_kicksum.png");

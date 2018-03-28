@@ -41,6 +41,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& se
 	, mReceiver(mReceiveConnection, false)
 	, mBlobReader(mReceiver.getData(), *this)
 	, mState(nullptr)
+	, mContentWrangler(nullptr)
 {
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.

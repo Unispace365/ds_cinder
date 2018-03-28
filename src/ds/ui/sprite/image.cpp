@@ -377,17 +377,17 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		setStatus(Status::STATUS_EMPTY);
-		mFilename = buf.read<std::string>(); 
+		auto filename = buf.read<std::string>(); 
 		auto resourceFileName = ds::Environment::expand(buf.read<std::string>());
-		mResource = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
-		mResource.setWidth(buf.read<float>());
-		mResource.setHeight(buf.read<float>());
-		mFlags = buf.read<int>();
+		auto resource = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
+		resource.setWidth(buf.read<float>());
+		resource.setHeight(buf.read<float>());
+		auto flags = buf.read<int>();
 
 		if(resourceFileName.empty()) {
-			setImageFile(mFilename, mFlags);
+			setImageFile(filename, flags);
 		} else {
-			setImageResource(mResource, mFlags);
+			setImageResource(resource, flags);
 		}
 		
 

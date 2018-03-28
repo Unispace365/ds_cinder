@@ -12,7 +12,7 @@ namespace ds {
 namespace ui {
 
 LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
-	: ds::AutoUpdate(eng)
+	: ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mShouldQuit(false)
 {
 }
@@ -215,10 +215,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				{
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
 					auto fence = ci::gl::Sync::create();
-					auto waitCond = fence->clientWaitSync(1U, 1000000);
-					
-					//std::cout << "Fence complete: " << waitCond << " " << GL_ALREADY_SIGNALED << " " << GL_TIMEOUT_EXPIRED << " " << GL_CONDITION_SATISFIED << std::endl;
-
+					fence->clientWaitSync(1U, 1000000);
 					nextImage.mTexture = tex;
 				}
 			
@@ -227,7 +224,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 					mLoadedRequests.emplace_back(nextImage);
 				}
 			} else {
-				DS_LOG_WARNING("Invalid texture found for image " << nextImage.mFilePath << " " << std::this_thread::get_id());
+				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " " << std::this_thread::get_id());
 				std::lock_guard<std::mutex> lock(mMutex);
 				for(auto& it : mRequests) {
 					if(it.mFilePath == nextImage.mFilePath) {
