@@ -18,8 +18,20 @@ LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
 }
 
 void LoadImageService::initialize() {
+	int numThreads = mEngine.getEngineSettings().getInt("load_image:threads");
+	if(numThreads != mThreads.size()) {
+		mShouldQuit = true;
+		for(auto it : mThreads) {
+			it->join();
+		}
+		mThreads.clear();
+	}
+
+	//clearCache();
+
+	mShouldQuit = false;
 	if(mThreads.empty()) {
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < numThreads; i++) {
 			ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
 			auto aThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&LoadImageService::loadImagesThreadFn, this, backgroundCtx)));
 			mThreads.emplace_back(aThread);
@@ -35,7 +47,7 @@ void LoadImageService::clearCache() {
 void LoadImageService::logCache() {
 	DS_LOG_INFO("Load Image Service, number of in use images:" << mInUseImages.size());
 	for (auto it : mInUseImages){
-		DS_LOG_INFO("Image, refs=" << it.mRefs << " err=" << it.mError << " flags=" << it.mFlags << " path=" << it.mFilePath);
+		DS_LOG_INFO("Image, refs=" << it.second.mRefs << " err=" << it.second.mError << " flags=" << it.second.mFlags << " path=" << it.second.mFilePath);
 	}
 }
 
@@ -61,8 +73,8 @@ void LoadImageService::update(const ds::UpdateParams&) {
 		auto oldRequests = mRequests;
 		mRequests.clear();
 		for (auto it : oldRequests){
-			if(!it.mLoading && !it.mTexture && !it.mError) {
-				mRequests.emplace_back(it);
+			if(!it.second.mLoading && !it.second.mTexture && !it.second.mError) {
+				mRequests[it.second.mFilePath] = it.second;
 			}
 		}
 	}
@@ -70,11 +82,18 @@ void LoadImageService::update(const ds::UpdateParams&) {
 	// cache or track completed loads
 	for(auto& it : newCompletedRequests) {
 		if(it.mTexture && it.mTexture->getId() > 0){
-			mInUseImages.emplace_back(it);
+			auto findy = mInUseImages.find(it.mFilePath);
+			if(findy == mInUseImages.end()) {
+				mInUseImages[it.mFilePath] = it;
+			} else {
+				// this shouldn't really ever happen, but just in case
+				DS_LOG_INFO("LoadImageService: somehow we ended up with duplicate loads for image " << it.mFilePath);
+				findy->second.mRefs += it.mRefs;
+			}
 		} else {
 			continue;
 		}
-		DS_LOG_VERBOSE(1, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError << " refs=" << it.mRefs);
+		DS_LOG_VERBOSE(5, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError << " refs=" << it.mRefs);
 
 		auto filecallbacks = mCallbacks.find(it.mFilePath);
 		if(filecallbacks != mCallbacks.end()) {
@@ -102,13 +121,12 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 	}
 
 	// See if this has already been loaded
-	for(auto& it : mInUseImages) {
-		if(it.mFilePath == filePath && !it.mError) {
-			it.mRefs++;
-			DS_LOG_VERBOSE(1, "LoadImageService using an in-use image for " << filePath << " refs=" << it.mRefs);
-			loadedCallback(it.mTexture, it.mError, it.mErrorMsg);
-			return;
-		}
+	auto& inFind = mInUseImages.find(filePath);
+	if(inFind != mInUseImages.end()) {
+		inFind->second.mRefs++;
+		DS_LOG_VERBOSE(1, "LoadImageService using an in-use image for " << filePath << " refs=" << inFind->second.mRefs);
+		loadedCallback(inFind->second.mTexture, inFind->second.mError, inFind->second.mErrorMsg);
+		return;
 	}
 
 	auto findy = mCallbacks.find(filePath);
@@ -125,18 +143,17 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		bool existsAlready = false;
-		for(auto& it : mRequests) {
-			if(it.mFilePath == filePath) {
-				existsAlready = true;
-				it.mRefs++;
-				if((flags&Image::IMG_CACHE_F) && (it.mFlags&Image::IMG_CACHE_F) == 0) it.mFlags |= Image::IMG_CACHE_F;
-				if((flags&Image::IMG_ENABLE_MIPMAP_F) && (it.mFlags&Image::IMG_ENABLE_MIPMAP_F) == 0) it.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
-				break;
-			}
+		auto requestFindy = mRequests.find(filePath);
+		if(requestFindy != mRequests.end()) {
+			existsAlready = true;
+			requestFindy->second.mRefs++;
+			if((flags&Image::IMG_CACHE_F) && (requestFindy->second.mFlags&Image::IMG_CACHE_F) == 0) requestFindy->second.mFlags |= Image::IMG_CACHE_F;
+			if((flags&Image::IMG_ENABLE_MIPMAP_F) && (requestFindy->second.mFlags&Image::IMG_ENABLE_MIPMAP_F) == 0) requestFindy->second.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
 		}
 
+
 		if(!existsAlready) {
-			mRequests.emplace_back(ilr);
+			mRequests[filePath] = (ilr);
 		}
 	}
 }
@@ -154,19 +171,18 @@ void LoadImageService::release(const std::string& filePath, void * referrer) {
 		}
 	}
 
-	for(auto it = mInUseImages.begin(); it < mInUseImages.end(); ++it) {
-		if((*it).mFilePath == filePath) {
-			(*it).mRefs--;
-			if((*it).mRefs < 1 && ((*it).mFlags&Image::IMG_CACHE_F) == 0) {
-				mInUseImages.erase(it);
-				DS_LOG_VERBOSE(1, "LoadImageService no more refs for " << filePath);
-			}
-			break;
+	auto inFind = mInUseImages.find(filePath);
+	if(inFind != mInUseImages.end()) {
+		inFind->second.mRefs--;
+		if(inFind->second.mRefs < 1 && (inFind->second.mFlags&Image::IMG_CACHE_F) == 0) {
+			mInUseImages.erase(filePath);
+			DS_LOG_VERBOSE(1, "LoadImageService no more refs for " << filePath);
 		}
 	}
 }
 
 void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
+	DS_LOG_VERBOSE(1, "Starting load thread " << std::this_thread::get_id());
 	ci::ThreadSetup threadSetup;
 
 	/// Make the shared context current
@@ -178,10 +194,10 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
 			for(auto& it : mRequests) {
-				if(!it.mLoading) {
-					it.mLoading = true;
-					it.mTexture = nullptr;
-					nextImage = it;
+				if(!it.second.mLoading) {
+					it.second.mLoading = true;
+					it.second.mTexture = nullptr;
+					nextImage = it.second;
 					break;
 				}
 			}
@@ -197,11 +213,12 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		try {
 			ci::ImageSourceRef isr = nullptr;
 
-			if(ds::safeFileExistsCheck(nextImage.mFilePath)) {
+			// TODO: re-implement url loading
+		//	if(ds::safeFileExistsCheck(nextImage.mFilePath)) {
 				isr = ci::loadImage(nextImage.mFilePath);
-			} else {
-				isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
-			}
+		//	} else {
+		//		isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
+		//	}
 
 			ci::gl::Texture::Format	fmt;
 			if((nextImage.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
@@ -225,14 +242,15 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				}
 			} else {
 				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " " << std::this_thread::get_id());
-				std::lock_guard<std::mutex> lock(mMutex);
-				for(auto& it : mRequests) {
-					if(it.mFilePath == nextImage.mFilePath) {
-						it.mLoading = false;
-						break;
+				{
+					std::lock_guard<std::mutex> lock(mMutex);
+					auto findy = mRequests.find(nextImage.mFilePath);
+					if(findy != mRequests.end()) {
+						findy->second.mLoading = false;
 					}
+					
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 
 		} catch(std::exception &exc) {
@@ -253,6 +271,8 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 			}
 		} // end of try / catch
 	} // end of while loop
+
+	DS_LOG_VERBOSE(1, "Exiting load thread " << std::this_thread::get_id());
 }
 
 }

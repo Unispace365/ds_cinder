@@ -256,6 +256,7 @@ void App::resetupServer() {
 	mEngine.clearAllSprites(true);
 	loadAppSettings();
 	mEngine.reloadSettings();
+	mEngine.getLoadImageService().initialize();
 	//setupServer();
 }
 

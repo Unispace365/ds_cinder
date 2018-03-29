@@ -195,6 +195,7 @@ void EngineSettings::setDefaults(){
 	getSetting("camera:arrow_keys", 0, ds::cfg::SETTING_TYPE_FLOAT, "How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage.", "30.0", "-1.0", "200.0");
 	getSetting("platform:mute", 0, ds::cfg::SETTING_TYPE_BOOL, "Mutes all video sound if true", "false");
 	getSetting("animation:duration", 0, ds::cfg::SETTING_TYPE_FLOAT, "Standard duration for animations", "0.35", "0.0", "10.0");
+	getSetting("load_image:threads", 0, ds::cfg::SETTING_TYPE_INT, "Number of threads to spawn for image loading", "1", "0", "32");
 
 	getSetting("TOUCH SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("touch:mode", 0, ds::cfg::SETTING_TYPE_STRING, "Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All.", "SystemAndMouse", "", "", "Tuio, TuioAndMouse, System, SystemAndMouse, All");

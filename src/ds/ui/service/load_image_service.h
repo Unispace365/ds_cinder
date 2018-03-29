@@ -87,15 +87,15 @@ private:
 	virtual void update(const ds::UpdateParams&) override;
 
 	/// If the cache flag is present, store a reference to the texture
-	std::vector<ImageLoadRequest>				mInUseImages;
+	std::unordered_map<std::string, ImageLoadRequest>	mInUseImages;
 
-	void										loadImagesThreadFn(ci::gl::ContextRef context);
-	std::vector<std::shared_ptr<std::thread>>	mThreads;
+	void												loadImagesThreadFn(ci::gl::ContextRef context);
+	std::vector<std::shared_ptr<std::thread>>			mThreads;
 	// shared between threads
-	std::vector<ImageLoadRequest>				mRequests;
-	std::vector<ImageLoadRequest>				mLoadedRequests;
-	bool										mShouldQuit;
-	mutable std::mutex							mMutex;
+	std::unordered_map<std::string, ImageLoadRequest>	mRequests;
+	std::vector<ImageLoadRequest>						mLoadedRequests;
+	bool												mShouldQuit;
+	mutable std::mutex									mMutex;
 
 };
 
