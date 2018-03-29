@@ -226,7 +226,7 @@ void EngineSettings::setDefaults(){
 	getSetting("node:refresh_rate", 0, ds::cfg::SETTING_TYPE_FLOAT, "If your app uses a NodeWatcher, how often to check for node updates", "0.1", "0.001", "10.0");
 	getSetting("content:node_watch", 0, ds::cfg::SETTING_TYPE_BOOL, "If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777", "true");
 	getSetting("content:model_location", 0, ds::cfg::SETTING_TYPE_STRING, "Where ContentWrangler should look for an xml file that describes a data model to load sqlite data", "%APP%/data/model/content_model.xml");
-	getSetting("content:use_wrangler", 0, ds::cfg::SETTING_TYPE_BOOL, " If ContentWrangler should be used to automatically grab data", "true");
+	getSetting("content:use_wrangler", 0, ds::cfg::SETTING_TYPE_BOOL, " If ContentWrangler should be used to automatically grab data", "false");
 	getSetting("auto_refresh_app", 0, ds::cfg::SETTING_TYPE_BOOL, "Listen to directory changes and auto soft-restart the app.", "false");
 	getSetting("auto_refresh_directories", 0, ds::cfg::SETTING_TYPE_STRING, "Semi-colon separated list of directories to listen to to restart the app. If auto_refresh_app is off, will still listen to these directories", "%APP%");
 
