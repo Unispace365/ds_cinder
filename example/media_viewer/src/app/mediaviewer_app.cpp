@@ -30,6 +30,8 @@ MediaViewer::MediaViewer()
 	, mPlayerSprite(nullptr)
 {
 
+	mLastFilePath = "D:/content/sample_videos_2/56b52a791e7f7.mp4";
+
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
