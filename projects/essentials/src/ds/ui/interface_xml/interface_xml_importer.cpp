@@ -22,6 +22,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/layout/perspective_layout.h>
 #include <ds/ui/control/control_check_box.h>
 #include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
@@ -1015,6 +1016,39 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	}
 
+	/// Persp layout
+	else if(property == "persp_fov") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setFov(ds::string_to_float(theValue));
+		}
+	} else if(property == "persp_auto_clip") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setAutoClip(ds::parseBoolean(theValue));
+		}
+	} else if(property == "persp_auto_clip_range") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setAutoClipDepthRange(ds::string_to_float(theValue));
+		}
+	} else if(property == "persp_near_clip") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setNearClip(ds::string_to_float(theValue));
+		}
+	} else if(property == "persp_far_clip") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setFarClip(ds::string_to_float(theValue));
+		}
+	} else if(property == "persp_enabled") {
+		auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&sprite);
+		if(perspLayout) {
+			perspLayout->setPerspectiveEnabled(ds::parseBoolean(theValue));
+		}
+	}
+
 	else if(property == "model") {
 		auto& ud = sprite.getUserData();
 		ud.setString(property, value);
@@ -1311,6 +1345,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
+	if(dynamic_cast<ds::ui::PerspectiveLayout*>(sp)) return "persp_layout";
 	if(dynamic_cast<ds::ui::ControlSlider*>(sp)){
 		auto slider = dynamic_cast<ds::ui::ControlSlider*>(sp);
 		if(slider->getIsVertical()){
@@ -1390,8 +1425,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::DonutArc(engine);
 	} else if(type == "dashed_line"){
 		spriddy = new DashedLine(engine);
-	} else if(type == "scroll_bar"){
+	} else if(type == "scroll_bar") {
 		spriddy = new ds::ui::ScrollBar(engine);
+	} else if(type == "persp_layout"){
+		spriddy = new ds::ui::PerspectiveLayout(engine);
 	} else if(type == "soft_keyboard"){
 		SoftKeyboardSettings sks;
 		auto tokens = ds::split(value, "; ", true);

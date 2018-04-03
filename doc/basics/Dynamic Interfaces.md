@@ -51,6 +51,7 @@ Sprite Types
 * **text** = ds::ui::Text
 * **gradient** = ds::ui::GradientSprite
 * **layout** = ds::ui::LayoutSprite
+* **persp_layout** = ds::ui::PerspectiveLayout
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
 * **dashed_line** = ds::ui::DashedLine
@@ -225,6 +226,15 @@ Layout Parameters (valid if using a layout sprite as a parent)
     3. height: Adjusts the height of this sprite to its children (for vertical, the total height of the children, for horiz, the tallest child)
     4. both or true: Both width and height
 * **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
+
+Perspective Layout Parameters
+------------------------------------------------------------
+* **persp_fov**: Float field of view in degrees. Default is 30
+* **persp_auto_clip**: Bool enable or disable automatically setting the near / far clip distance
+* **persp_auto_clip_range**: Float for how far around the eye distance to calculate the clip distance if auto clip is on
+* **persp_near_clip**: Float for the near clipping distance, only if auto clip is disabled
+* **persp_far_clip**: Float for the far clipping distance, only if auto clip is disabled
+* **persp_enabled**: Bool to enable or disable rendering in 3d at all
 
 Text Parameters
 ------------------------------------------------------------

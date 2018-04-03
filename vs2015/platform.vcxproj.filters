@@ -705,6 +705,9 @@
     <ClInclude Include="..\src\ds\debug\apphost_stats_view.h">
       <Filter>src\ds\debug</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\layout\perspective_layout.h">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1159,6 +1162,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\debug\apphost_stats_view.cpp">
       <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\layout\perspective_layout.cpp">
+      <Filter>src\ds\ui\layout</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
