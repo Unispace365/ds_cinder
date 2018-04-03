@@ -121,7 +121,8 @@ static const bool					DEFAULT_CHECKBOUNDS = false;
 static const ds::ui::BlendMode		DEFAULT_BLENDMODE = ds::ui::NORMAL;
 static const float					DEFAULT_LAYOUT_PAD = 0.0f;
 static const float					DEFAULT_LAYOUT_SPACING = 0.0f;
-static const ci::vec2				DEFAULT_LAYOUT_SIZEFUDGE = ci::vec2();
+static const ci::vec2				DEFAULT_LAYOUT_SIZE = ci::vec2();
+static const ci::vec3				DEFAULT_LAYOUT_FUDGE = ci::vec3();
 static const int					DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
 static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::LayoutSprite::kLayoutNone;
 static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
@@ -149,8 +150,8 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(sp.mLayoutBPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("b_pad", sp.mLayoutBPad);
 	if(sp.mLayoutLPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("l_pad", sp.mLayoutLPad);
 	if(sp.mLayoutRPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("r_pad", sp.mLayoutRPad);
-	if(sp.mLayoutFudge != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_fudge", unparseVector(sp.mLayoutFudge));
-	if(sp.mLayoutSize != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_size", unparseVector(sp.mLayoutSize));
+	if(sp.mLayoutFudge != DEFAULT_LAYOUT_FUDGE) xml.setAttribute("layout_fudge", unparseVector(sp.mLayoutFudge));
+	if(sp.mLayoutSize != DEFAULT_LAYOUT_SIZE) xml.setAttribute("layout_size", unparseVector(sp.mLayoutSize));
 	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", LayoutSprite::getLayoutSizeModeString(sp.mLayoutUserType));
 	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", LayoutSprite::getLayoutVAlignString(sp.mLayoutVAlign));
 	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", LayoutSprite::getLayoutHAlignString(sp.mLayoutHAlign));
@@ -537,7 +538,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
 		}
 	} else if(property == "layout_fudge"){
-		sprite.mLayoutFudge = ci::vec2(parseVector(value));
+		sprite.mLayoutFudge = parseVector(value);
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = ci::vec2(parseVector(value));
 	} else if(property == "on_tap_event"){

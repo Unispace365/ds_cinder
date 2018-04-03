@@ -282,8 +282,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		
 		// finally set the position of the child
 		ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-		ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter;
-		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
+		ci::vec2 totalOffset = ci::vec2(chillin->mLayoutFudge) + childCenter;
+		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y, chillin->mLayoutFudge.z);	
 		
 		// move along through the layout
 		if(vertical){
@@ -321,8 +321,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 
 				ci::vec2 centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
 				ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-				ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
-				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
+				ci::vec2 totalOffset = ci::vec2(chillin->mLayoutFudge) + childCenter + centerOffset;
+				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y, chillin->mLayoutFudge.z);
 			}
 		}
 	}

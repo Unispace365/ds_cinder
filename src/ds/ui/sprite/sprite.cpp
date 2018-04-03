@@ -170,7 +170,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutTPad = 0.0f;
 	mLayoutRPad = 0.0f;
 	mLayoutLPad = 0.0f;
-	mLayoutFudge = ci::vec2();
+	mLayoutFudge = ci::vec3();
 	mLayoutSize = ci::vec2();
 	mLayoutHAlign = 0;
 	mLayoutVAlign = 0;

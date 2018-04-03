@@ -704,7 +704,7 @@ namespace ui {
 		float					mLayoutLPad;
 		float					mLayoutRPad;
 		ci::vec2				mLayoutSize;
-		ci::vec2				mLayoutFudge;
+		ci::vec3				mLayoutFudge;
 		int						mLayoutHAlign;
 		int						mLayoutVAlign;
 		int						mLayoutUserType;

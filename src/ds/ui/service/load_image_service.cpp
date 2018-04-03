@@ -211,6 +211,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		}
 
 		try {
+
 			ci::ImageSourceRef isr = nullptr;
 
 			// TODO: re-implement url loading

@@ -45,7 +45,7 @@ AppHostStatsView::AppHostStatsView(ds::ui::SpriteEngine& eng)
 	});
 
 
-	mEngine.repeatedCallback([this] {updateStats(); }, 5.0);
+	//mEngine.repeatedCallback([this] {updateStats(); }, 5.0);
 }
 
 void AppHostStatsView::activate() {
