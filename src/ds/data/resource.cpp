@@ -394,11 +394,13 @@ const std::wstring& Resource::getTypeName() const {
 	return ERROR_NAME_SZ;
 }
 
-void Resource::setLocalFilePath(const std::string& localPath) {
-	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE){
+void Resource::setLocalFilePath(const std::string& localPath, const bool normalizeThePath /*= true*/) {
+	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
 		mLocalFilePath = localPath;
-	} else {
+	} else if(normalizeThePath) {
 		mLocalFilePath = ds::getNormalizedPath(localPath);
+	} else {
+		mLocalFilePath = localPath;
 	}
 }
 

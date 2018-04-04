@@ -175,6 +175,15 @@ void ContentQuery::readXmlNode(ci::XmlTree& tree, ds::model::ContentModelRef& pa
 	parentData.addChild(thisNode);
 }
 
+std::string getSqliteString(sqlite3_stmt* statement, const int columnIndex) {
+	auto theText = sqlite3_column_text(statement, columnIndex);
+	std::string theData = "";
+	if(theText) {
+		theData = reinterpret_cast<const char*>(theText);
+	}
+	return theData;
+}
+
 /// TODO: rewrite to use raw sqlite calls or use column names for better portability
 /// TODO: Improve speed
 void ContentQuery::updateResourceCache() {
@@ -192,6 +201,69 @@ void ContentQuery::updateResourceCache() {
 
 	recyQuery.append("ORDER BY updated_at ASC");
 
+
+
+	/// Lets do the query!
+	sqlite3* db = NULL;
+	// open the database
+	const int sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(mCmsDatabase).c_str(), &db, SQLITE_OPEN_READONLY, 0);
+
+	/// if everything went ok
+	if(sqliteResultCode == SQLITE_OK) {
+		sqlite3_busy_timeout(db, 1500);
+		sqlite3_stmt*		statement;
+		const int			err = sqlite3_prepare_v2(db, recyQuery.c_str(), -1, &statement, 0);
+		if(err != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			DS_LOG_ERROR("ContentQuery::updateResourceQuery::rawSelect SQL error code=" << err << " message=" << sqlite3_errstr(err) << " on select=" << recyQuery << std::endl);
+
+		} else {
+
+			/// go through all the rows
+			while(true) {
+
+				/// if this isn't a row, then we're done with the query
+				auto statementResult = sqlite3_step(statement);
+				if(statementResult == SQLITE_ROW) {
+
+					int thisId = sqlite3_column_int(statement, 0);
+					std::string thePath = getSqliteString(statement, 6);
+
+					mAllResources[thisId] = ds::Resource(thisId, // db id
+													  ds::Resource::makeTypeFromString(getSqliteString(statement, 1)), // type (image, video, pdf) as int
+													  sqlite3_column_double(statement, 2), // duration
+													  (float)sqlite3_column_double(statement, 3), // width
+													  (float)sqlite3_column_double(statement, 4), // height
+													  getSqliteString(statement, 5), // filename
+													  thePath, // path
+													  sqlite3_column_int(statement, 7),// thumbnail id
+													  "" // full filepath (set in a second)
+													  );
+
+					auto& reccy = mAllResources[thisId];
+					if(reccy.getType() == ds::Resource::WEB_TYPE) {
+						reccy.setLocalFilePath(reccy.getFileName());
+					} else {
+						std::stringstream loclPath;
+						loclPath << mResourceLocation << thePath << reccy.getFileName();
+						std::string ret = loclPath.str();
+						std::replace(ret.begin(), ret.end(), '\\', '/');
+						reccy.setLocalFilePath(ret, false);
+					}
+
+					mLastUpdatedResource = getSqliteString(statement, 8);
+
+				} else {
+					sqlite3_finalize(statement);
+					break;
+				}
+			}
+		} 
+	} else {
+		DS_LOG_ERROR("ContentQuery:updateResourceQuery Unable to access the database " << mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
+	}
+
+	/*
 	if(ds::query::Client::query(mCmsDatabase, recyQuery, recResult)) {
 		ds::query::Result::RowIterator	rit(recResult);
 		while(rit.hasValue()) {
@@ -216,6 +288,7 @@ void ContentQuery::updateResourceCache() {
 			++rit;
 		}
 	}
+	*/
 
 	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache lastUpdated=" << mLastUpdatedResource);
 }
