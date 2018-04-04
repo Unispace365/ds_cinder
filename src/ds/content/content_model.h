@@ -29,6 +29,7 @@ class ContentProperty {
 public:
 	ContentProperty();
 	ContentProperty(const std::string& name, const std::string& value);
+	ContentProperty(const std::string& name, const std::string& value, const int& valueInt, const double& valueDouble);
 
 	/// Get the name of this property
 	const std::string&				getName() const;
@@ -73,7 +74,9 @@ public:
 protected:
 	std::string						mName;
 	std::string						mValue;
-	ds::Resource					mResource;
+	int								mIntValue;
+	double							mDoubleValue;
+	std::shared_ptr<Resource>		mResource;
 
 };
 
@@ -151,7 +154,7 @@ public:
 	ds::Resource											getPropertyResource(const std::string& propertyName);
 
 	/// Set the property with a given name
-	void													setProperty(const std::string& propertyName, ContentProperty theProp);
+	void													setProperty(const std::string& propertyName, ContentProperty& theProp);
 	void													setProperty(const std::string& propertyName, const std::string& value);
 	void													setProperty(const std::string& propertyName, const std::wstring& value);
 	void													setProperty(const std::string& propertyName, const int& value);
@@ -162,6 +165,7 @@ public:
 	void													setProperty(const std::string& propertyName, const ci::vec2& value);
 	void													setProperty(const std::string& propertyName, const ci::vec3& value);
 	void													setProperty(const std::string& propertyName, const ci::Rectf& value);
+	void													setPropertyResource(const std::string& propertyName, const ds::Resource& resource);
 
 	/// Gets all of the children
 	/// Don't modify the children here, use the other functions

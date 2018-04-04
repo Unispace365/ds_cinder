@@ -39,10 +39,12 @@ void ContentQuery::run() {
 
 	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
 
-	updateResourceCache();
-
 
 	auto metaData = readXml();
+
+	if(metaData.getChildByName("meta").getPropertyBool("cache_resources")) {
+		updateResourceCache();
+	}
 
 	if(ds::getLogger().hasVerboseLevel(4)) metaData.printTree(true, "");
 
@@ -174,7 +176,10 @@ void ContentQuery::readXmlNode(ci::XmlTree& tree, ds::model::ContentModelRef& pa
 }
 
 /// TODO: rewrite to use raw sqlite calls or use column names for better portability
+/// TODO: Improve speed
 void ContentQuery::updateResourceCache() {
+
+	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache");
 	ds::query::Result recResult;
 
 	//									0			1				2				3				4				5					6			7				8
@@ -211,6 +216,8 @@ void ContentQuery::updateResourceCache() {
 			++rit;
 		}
 	}
+
+	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache lastUpdated=" << mLastUpdatedResource);
 }
 
 void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::model::ContentModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources, const int depth, const int parentModelId) {
@@ -220,7 +227,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 	ds::model::ContentModelRef tableModel = ds::model::ContentModelRef(theTable, thisId, "SQLite Table");
 
 	if(theTable.empty()) {
-		if(tableDescription.getName() != "model") {
+		if(tableDescription.getName() != "model" && tableDescription.getName() != "meta") {
 			DS_LOG_WARNING("ContentQuery::getDataFromTable() No table name specified in datamodel query");
 		}
 
@@ -342,6 +349,9 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 							}
 
 							auto theText = sqlite3_column_text(statement, i);
+							
+							auto theInt = sqlite3_column_int(statement, i);
+							auto theDoub = sqlite3_column_double(statement, i);
 
 							std::string theData = "";
 							if(theText) {
@@ -349,7 +359,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 							}
 
 							if(columnName == primaryId) {
-								thisRow.setId(ds::string_to_int(theData));
+								thisRow.setId(theInt);
 							}
 
 							if(!theName.empty() && columnName == theName) {
@@ -359,13 +369,12 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 								thisRow.setLabel(theData);
 							}
 
-							ds::model::ContentProperty theProperty(columnName, theData);
+							thisRow.setProperty(columnName, ds::model::ContentProperty(columnName, theData, theInt, theDoub));
 
-							if(std::find(resourceColumns.begin(), resourceColumns.end(), columnName) != resourceColumns.end()) {
-								theProperty.setResource(allResources[ds::string_to_int(theData)]);
+							if(!resourceColumns.empty() && std::find(resourceColumns.begin(), resourceColumns.end(), columnName) != resourceColumns.end()) {
+								thisRow.setPropertyResource(columnName, allResources[ds::string_to_int(theData)]);
 							}
 
-							thisRow.setProperty(columnName, theProperty);
 						}
 
 						// only parse metada for the first row
