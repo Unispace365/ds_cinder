@@ -120,6 +120,9 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 						if(sprPropToSet == "resource") {
 							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
 
+						} else if(sprPropToSet == "media_player_src") {
+							ds::ui::XmlImporter::setSpriteProperty(*it.second, theData.getProperty(theProp).getResource().getAbsoluteFilePath(), actualValue);
+
 						} else {
 							if(theChild == "this") {
 								actualValue = theData.getPropertyString(theProp);
