@@ -23,7 +23,7 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 		return;
 	}
 
-	DS_LOG_VERBOSE(1, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+	DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
 
 	mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
@@ -43,7 +43,7 @@ void HttpsRequest::makePostRequest(const std::string& url, const std::string& po
 		return;
 	}
 
-	DS_LOG_VERBOSE(1, "HttpsRequest::makePostRequest url=" << url << " postData=" << postData <<  " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+	DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url=" << url << " postData=" << postData <<  " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
 
 	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers, isDownloadMedia, downloadfile](IndividualRequest& q){
 		q.mInput = url;
@@ -113,12 +113,11 @@ void HttpsRequest::IndividualRequest::run(){
 	mError = false;
 	mErrorMessage = "";
 	mOutput = "";
-	if (mIsDownloadMedia)
-	{
+	if (mIsDownloadMedia)	{
 		mFp = fopen(mDownloadFile.c_str(), "wb");
-		if (!mFp)
-		{
-			printf("!!! Failed to create file on the disk\n");
+		if (!mFp)		{
+			DS_LOG_WARNING("HttpsRequest:: Failed to create download file on the disk at file location= " << mDownloadFile);
+			return;
 		}
 	}
 	mHttpStatus = 400;
@@ -207,13 +206,13 @@ void HttpsRequest::IndividualRequest::run(){
 
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 
-		DS_LOG_VERBOSE(1, "Curl request completed with result=" << res << " with httpsStatus=" << mHttpStatus << " for url=" << mInput);
+		DS_LOG_VERBOSE(2, "Curl request completed with result=" << res << " with httpsStatus=" << mHttpStatus << " for url=" << mInput);
 
 		if(headers){
 			curl_slist_free_all(headers);
 		}
 		curl_easy_cleanup(curl);
-		if (mIsDownloadMedia)
+		if (mIsDownloadMedia && mFp)
 		{
 			fclose(mFp);
 		}

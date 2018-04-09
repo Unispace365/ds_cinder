@@ -42,7 +42,7 @@ void ContentQuery::run() {
 
 	auto metaData = readXml();
 
-	if(metaData.getChildByName("meta").getPropertyBool("cache_resources")) {
+	if(metaData.getChildByName("meta").empty() || metaData.getChildByName("meta").getPropertyString("use_resources").empty() || metaData.getChildByName("meta").getPropertyBool("use_resources")) {
 		updateResourceCache();
 	}
 
