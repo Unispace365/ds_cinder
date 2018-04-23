@@ -14,23 +14,40 @@ namespace ds {
 namespace ui {
 
 SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLayoutFile,
-						 const std::string xmlFileLocation)
-	: ds::ui::LayoutSprite(engine)
-	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
-	, mNeedsLayout(false)
-	, mEventClient(engine) {
+						 const std::string xmlFileLocation, const bool loadImmediately)
+  : ds::ui::LayoutSprite(engine)
+  , mLayoutFile(xmlFileLocation + xmlLayoutFile)
+  , mNeedsLayout(false)
+  , mInitialized(false)
+  , mEventClient(engine) {
+	if (loadImmediately) {
+		initialize();
+	}
+}
 
+void SmartLayout::setLayoutFile(const std::string& xmlLayoutFile, const std::string xmlFileLocation,
+								const bool loadImmediately) {
+	mInitialized = false;
+	mLayoutFile  = xmlFileLocation + xmlLayoutFile;
+
+	if (loadImmediately) {
+		initialize();
+	}
+}
+
+void SmartLayout::initialize() {
+	mSpriteMap.clear();
+	clearChildren();
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
 	// Auto clear mNeedsLayout if client app runs layout manually
 	setLayoutUpdatedFunction([this] { mNeedsLayout = false; });
 
 	runLayout();
+	mInitialized = true;
 }
 
-bool SmartLayout::hasSprite(const std::string& spriteName) {
-	return mSpriteMap.find(spriteName) != mSpriteMap.end();
-}
+bool SmartLayout::hasSprite(const std::string& spriteName) { return mSpriteMap.find(spriteName) != mSpriteMap.end(); }
 
 ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	auto findy = mSpriteMap.find(spriteName);
@@ -43,10 +60,10 @@ ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
-	if(spr) {
+	if (spr) {
 		spr->setText(theText);
 		mNeedsLayout = true;
-	} else  {
+	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Text for Sprite: " << spriteName);
 	}
 }
@@ -81,9 +98,9 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if(cache){
+		if (cache) {
 			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F);
-		}else{
+		} else {
 			sprI->setImageResource(imageResource);
 		}
 		mNeedsLayout = true;
@@ -92,7 +109,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 	}
 }
 
-void SmartLayout::setSpriteTapFn(const std::string& spriteName,
+void SmartLayout::setSpriteTapFn(const std::string&											  spriteName,
 								 const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback) {
 	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && tapCallback) {
@@ -103,28 +120,30 @@ void SmartLayout::setSpriteTapFn(const std::string& spriteName,
 
 void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 	mContentModel = theData;
-	for(auto it : mSpriteMap) {
+	for (auto it : mSpriteMap) {
 		auto theModel = it.second->getUserData().getString("model");
-		if(!theModel.empty()) {
+		if (!theModel.empty()) {
 			auto models = ds::split(theModel, "; ", true);
-			for(auto mit : models) {
+			for (auto mit : models) {
 				auto keyVals = ds::split(mit, ":", true);
-				if(keyVals.size() == 2) {
+				if (keyVals.size() == 2) {
 					auto childProps = ds::split(keyVals[1], "->", true);
-					if(childProps.size() == 2) {
-						auto sprPropToSet = keyVals[0];
-						auto theChild = childProps[0];
-						auto theProp = childProps[1];
-						std::string actualValue = "";
+					if (childProps.size() == 2) {
+						auto		sprPropToSet = keyVals[0];
+						auto		theChild	 = childProps[0];
+						auto		theProp		 = childProps[1];
+						std::string actualValue  = "";
 
-						if(sprPropToSet == "resource") {
+						if (sprPropToSet == "resource") {
 							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
 
-						} else if(sprPropToSet == "media_player_src") {
-							ds::ui::XmlImporter::setSpriteProperty(*it.second, theData.getProperty(theProp).getResource().getAbsoluteFilePath(), actualValue);
+						} else if (sprPropToSet == "media_player_src") {
+							ds::ui::XmlImporter::setSpriteProperty(
+									*it.second, theData.getProperty(theProp).getResource().getAbsoluteFilePath(),
+									actualValue);
 
 						} else {
-							if(theChild == "this") {
+							if (theChild == "this") {
 								actualValue = theData.getPropertyString(theProp);
 							} else {
 								actualValue = theData.getChildByName(theChild).getPropertyString(theProp);
@@ -134,7 +153,8 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 						}
 
 					} else {
-						DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << theModel);
+						DS_LOG_WARNING(
+								"SmartLayout::setData() Invalid syntax for child / property mapping: " << theModel);
 					}
 				} else {
 					DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << theModel);
@@ -168,11 +188,11 @@ void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* n
 	}
 }
 
-void SmartLayout::onUpdateServer(const ds::UpdateParams& p){
-    if(mNeedsLayout) {
-        runLayout();
-        mNeedsLayout = false;
-    }
+void SmartLayout::onUpdateServer(const ds::UpdateParams& p) {
+	if (mNeedsLayout) {
+		runLayout();
+		mNeedsLayout = false;
+	}
 }
 
 
