@@ -184,6 +184,11 @@ public:
 	/// If no children exist or match that id, returns an empty data model
 	ContentModelRef											getChildByName(const std::string& childName);
 
+	/// Looks through the entire tree to find a child that matches the name and id. 
+	/// For instance, if you have a branched tree several levels deep and need to find a specific node. 
+	/// Depends on children having a consistent name and unique id.
+	ContentModelRef											getDescendant(const std::string& childName, const int childId);
+
 	/// Adds this child to the end of this children list, or at the index supplied
 	void													addChild(ContentModelRef datamodel);
 	void													addChild(ContentModelRef datamodel, const size_t index);
