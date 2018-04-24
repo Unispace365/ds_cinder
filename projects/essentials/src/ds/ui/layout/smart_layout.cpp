@@ -25,6 +25,16 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 	}
 }
 
+SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine)
+	: ds::ui::LayoutSprite(engine)
+	, mLayoutFile("")
+	, mInitialized(false)
+	, mNeedsLayout(false)
+	, mEventClient(engine)
+{
+
+}
+
 void SmartLayout::setLayoutFile(const std::string& xmlLayoutFile, const std::string xmlFileLocation,
 								const bool loadImmediately) {
 	mInitialized = false;
@@ -47,7 +57,9 @@ void SmartLayout::initialize() {
 	mInitialized = true;
 }
 
-bool SmartLayout::hasSprite(const std::string& spriteName) { return mSpriteMap.find(spriteName) != mSpriteMap.end(); }
+bool SmartLayout::hasSprite(const std::string& spriteName) { 
+	return mSpriteMap.find(spriteName) != mSpriteMap.end(); 
+}
 
 ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	auto findy = mSpriteMap.find(spriteName);

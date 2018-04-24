@@ -16,6 +16,9 @@ namespace ui {
  */
 class SmartLayout : public ds::ui::LayoutSprite {
   public:
+
+	SmartLayout(ds::ui::SpriteEngine& engine);
+
 	/// Automatically loads the xmlLayout file (at %APP%/data/layouts/xmlLayoutFile) and runs the layout upon creation
 	SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLayoutFile,
 				const std::string xmlFileLocation = "%APP%/data/layouts/", const bool loadImmediately = true);
