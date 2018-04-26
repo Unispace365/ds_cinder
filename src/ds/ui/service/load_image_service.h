@@ -18,10 +18,6 @@ public:
 	LoadImageService(SpriteEngine& eng);
 	~LoadImageService();
 
-	// TODOs:
-	//  - Settable number of threads
-	//  - Non cached image loaded -> new request on same image to cache -> cache it
-
 	// TESTS:
 	//  - Cached retains image indefinitely
 	//  - Image texture goes away if there were no caches for it
@@ -29,12 +25,13 @@ public:
 
 	/// Asynchronously get an image at the specified path or url
 	/// Flags are for caching (IMG_CACHE_F) or mipmapping (IMG_MIPMAP_F)
-	/// Each requester can only get 1 callback. Important! Be sure you release before the requester goes away
+	/// Each requester can only get 1 callback. 
+	/// Important! Be sure to call release before the requester goes away
 	/// The callback will be called one time only, and calls back if there is an error or it succeeds.
 	/// All callbacks happen in the update cycle
 	void acquire(const std::string& filePath, const int flags, void * requester, LoadedCallback loadedCallback);
 
-	/// You must call release if you no longer want the image or the refferr is about to be released
+	/// You must call release if you no longer want the image or the reffer is about to be released
 	void release(const std::string& filePath, void * requester);
 
 	/// Can be called multiple times, but does nothing after the first time
