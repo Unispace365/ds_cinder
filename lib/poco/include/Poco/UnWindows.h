@@ -93,6 +93,7 @@
 #if !defined(POCO_NO_UNWINDOWS)
 // A list of annoying macros to #undef.
 // Extend as required.
+/*
 #undef GetBinaryType
 #undef GetShortPathName
 #undef GetLongPathName
@@ -109,14 +110,14 @@
 #undef CreateSemaphore
 #undef OpenSemaphore
 //#undef LoadLibrary
-#undef GetModuleFileName
+//#undef GetModuleFileName
 #undef CreateProcess
 #undef GetCommandLine
 #undef GetEnvironmentVariable
 #undef SetEnvironmentVariable
 #undef ExpandEnvironmentStrings
 #undef OutputDebugString
-#undef FindResource
+//#undef FindResource
 #undef UpdateResource
 #undef FindAtom
 #undef AddAtom
@@ -127,11 +128,11 @@
 #undef GetCurrentDirectory
 #undef CreateDirectory
 #undef RemoveDirectory
-#undef CreateFile
-#undef DeleteFile
+//#undef CreateFile
+//#undef DeleteFile
 #undef SearchPath
 #undef CopyFile
-#undef MoveFile
+//#undef MoveFile
 #undef ReplaceFile
 #undef GetComputerName
 #undef SetComputerName
@@ -139,6 +140,7 @@
 #undef LogonUser
 #undef GetVersion
 #undef GetObject
+*/
 #endif // POCO_NO_UNWINDOWS
 
 #endif // Foundation_UnWindows_INCLUDED
