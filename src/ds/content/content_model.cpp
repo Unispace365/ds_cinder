@@ -493,8 +493,9 @@ ContentModelRef ContentModelRef::getChildById(const int id) {
 	return EMPTY_DATAMODEL;
 }
 
-ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
-	createData();
+ContentModelRef ContentModelRef::getChildByName(const std::string& childName) const {
+	if (!mData || mData->mChildren.empty())
+		return EMPTY_DATAMODEL;
 
 	if(childName.find(".") != std::string::npos) {
 		auto childrens = ds::split(childName, ".", true);
@@ -516,6 +517,10 @@ ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
 	return EMPTY_DATAMODEL;
 }
 
+bool ContentModelRef::hasChild(const std::string& name) const {
+	return !getChildByName(name).empty();
+}
+
 void ContentModelRef::addChild(ContentModelRef datamodel) {
 	createData();
 
@@ -533,7 +538,7 @@ void ContentModelRef::addChild(ContentModelRef datamodel, const size_t index) {
 	}
 }
 
-bool ContentModelRef::hasChild(const std::string& name) {
+bool ContentModelRef::hasDirectChild(const std::string& name) const {
 	if(!mData || mData->mChildren.empty()) return false;
 
 	for(auto it : mData->mChildren) {
@@ -543,7 +548,7 @@ bool ContentModelRef::hasChild(const std::string& name) {
 	return false;
 }
 
-bool ContentModelRef::hasChildren() {
+bool ContentModelRef::hasChildren() const {
 	if(!mData) return false;
 	return !mData->mChildren.empty();
 }

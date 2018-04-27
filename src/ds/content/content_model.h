@@ -182,23 +182,24 @@ public:
 	/// Get the first child that matches this name
 	/// Can get nested children using dot notation. for example: getChildByName("the_stories.chapter_one.first_paragraph");
 	/// If no children exist or match that id, returns an empty data model
-	ContentModelRef											getChildByName(const std::string& childName);
+	ContentModelRef											getChildByName(const std::string& childName) const;
 
 	/// Adds this child to the end of this children list, or at the index supplied
 	void													addChild(ContentModelRef datamodel);
 	void													addChild(ContentModelRef datamodel, const size_t index);
 
 	/// Is there a child with this name?
-	bool													hasChild(const std::string& name);
+	bool													hasChild(const std::string& name) const;
+	bool													hasDirectChild(const std::string& name) const;
 
 	/// Is there at least one child?
-	bool													hasChildren();
+	bool													hasChildren() const;
 
 	/// Replaces all children
 	void													setChildren(std::vector<ds::model::ContentModelRef> children);
 
 	/// Logs this, it's properties, and all it's children recursively
-	void					printTree(const bool verbose, const std::string& indent);
+	void					printTree(const bool verbose, const std::string& indent="");
 
 private:
 	void					createData();

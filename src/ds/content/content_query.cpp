@@ -152,7 +152,7 @@ ds::model::ContentModelRef ContentQuery::readXml() {
 	int id = 1;
 	readXmlNode(rooty, output, id);
 
-	if(output.hasChild("model")) {
+	if(output.hasDirectChild("model")) {
 		return output.getChildByName("model");
 	}
 

@@ -38,7 +38,7 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	mContentQuery.setReplyHandler([this](ContentQuery& q) {
 		DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
 
-		if(mEngine.mContent.hasChild(q.mData.getName())) {
+		if(mEngine.mContent.hasDirectChild(q.mData.getName())) {
 			auto theChildren = mEngine.mContent.getChildren();
 			for(auto it = theChildren.begin(); it < theChildren.end(); it++) {
 				if((*it).getName() == q.mData.getName()) {
