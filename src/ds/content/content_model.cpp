@@ -517,6 +517,21 @@ ContentModelRef ContentModelRef::getChildByName(const std::string& childName) co
 	return EMPTY_DATAMODEL;
 }
 
+ds::model::ContentModelRef ContentModelRef::getDescendant(const std::string& childName, const int childId) {
+	for(auto it : getChildren()) {
+		if(it.getId() == childId && it.getName() == childName) {
+			return it;
+		} else {
+			auto chillin = it.getDescendant(childName, childId);
+			if(!chillin.empty()) {
+				return chillin;
+			}
+		}
+	}
+
+	return ds::model::ContentModelRef();
+}
+
 bool ContentModelRef::hasChild(const std::string& name) const {
 	return !getChildByName(name).empty();
 }

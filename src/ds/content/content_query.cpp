@@ -371,6 +371,8 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 		if(sqliteResultCode == SQLITE_OK) {
 			sqlite3_busy_timeout(db, 1500);
 
+			DS_LOG_VERBOSE(4, "Executing SQL query " << theQuery.str());
+
 			sqlite3_stmt*		statement;
 			const int			err = sqlite3_prepare_v2(db, theQuery.str().c_str(), -1, &statement, 0);
 			if(err != SQLITE_OK) {
