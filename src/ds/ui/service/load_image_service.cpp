@@ -124,7 +124,7 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 	auto& inFind = mInUseImages.find(filePath);
 	if(inFind != mInUseImages.end()) {
 		inFind->second.mRefs++;
-		DS_LOG_VERBOSE(1, "LoadImageService using an in-use image for " << filePath << " refs=" << inFind->second.mRefs);
+		DS_LOG_VERBOSE(4, "LoadImageService using an in-use image for " << filePath << " refs=" << inFind->second.mRefs);
 		loadedCallback(inFind->second.mTexture, inFind->second.mError, inFind->second.mErrorMsg);
 		return;
 	}
@@ -176,7 +176,7 @@ void LoadImageService::release(const std::string& filePath, void * referrer) {
 		inFind->second.mRefs--;
 		if(inFind->second.mRefs < 1 && (inFind->second.mFlags&Image::IMG_CACHE_F) == 0) {
 			mInUseImages.erase(filePath);
-			DS_LOG_VERBOSE(1, "LoadImageService no more refs for " << filePath);
+			DS_LOG_VERBOSE(4, "LoadImageService no more refs for " << filePath);
 		}
 	}
 }
