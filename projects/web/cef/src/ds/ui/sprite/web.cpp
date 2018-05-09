@@ -452,8 +452,9 @@ void Web::update(const ds::UpdateParams &p) {
 		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
 
 		ci::gl::Texture::Format fmt;
-		fmt.setMinFilter(GL_LINEAR);
-		fmt.setMagFilter(GL_LINEAR);
+		fmt.enableMipmapping(true);
+		//fmt.setMinFilter(GL_LINEAR);
+		//fmt.setMagFilter(GL_LINEAR);
 		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
@@ -463,8 +464,9 @@ void Web::update(const ds::UpdateParams &p) {
 		DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
 
 		ci::gl::Texture::Format fmt;
-		fmt.setMinFilter(GL_LINEAR);
-		fmt.setMagFilter(GL_LINEAR);
+		fmt.enableMipmapping(true);
+		//fmt.setMinFilter(GL_LINEAR);
+		//fmt.setMagFilter(GL_LINEAR);
 		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
 		mHasPopupBuffer = false;
 		mPopupReady = true;
@@ -731,6 +733,12 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
+
+	// in case the global to local failed, use the global point
+	if(xPos < -10000000 || yPos < -10000000) {
+		xPos = (int)(touchInfo.mCurrentGlobalPoint.x / getScale().x);
+		yPos = (int)(touchInfo.mCurrentGlobalPoint.y / getScale().y);
+	}
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
 		if(mAllowClicks){
