@@ -60,11 +60,11 @@ ds::cfg::Settings& SpriteEngine::getEngineSettings() const {
 }
 
 ds::cfg::Settings& SpriteEngine::getAppSettings() const {
-	return mData.mEngineCfg.getSettings("APP");
+	return mData.mEngineCfg.getSettings("app_settings");
 }
 
 ds::cfg::Settings& SpriteEngine::getColorSettings() const {
-	return mData.mEngineCfg.getSettings("COLORS");
+	return mData.mEngineCfg.getSettings("colors");
 }
 
 float SpriteEngine::getMinTouchDistance() const {

@@ -78,7 +78,7 @@ private:
 	};
 
 
-
+	
 	std::unordered_map<std::string, std::unordered_map<void *, LoadedCallback>> mCallbacks;
 
 	virtual void update(const ds::UpdateParams&) override;

@@ -217,9 +217,9 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 void App::loadAppSettings() {
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
-	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.loadSettings("fonts", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+	mEngine.getSettings("fonts").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
 		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
 	}, ds::cfg::SETTING_TYPE_STRING);
 
@@ -228,13 +228,13 @@ void App::loadAppSettings() {
 	mEngine.editColors().clear();
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+	mEngine.loadSettings("colors", "colors.xml");
+	mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
 		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 	}, ds::cfg::SETTING_TYPE_COLOR);
 
 	/* Settings */
-	mEngine.loadSettings("APP", "app_settings.xml");
+	mEngine.loadSettings("app_settings", "app_settings.xml");
 	mEngine.loadTextCfg("text.xml");
 }
 
