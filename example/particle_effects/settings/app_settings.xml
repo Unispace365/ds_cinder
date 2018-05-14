@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<setting name="padding" value="20" type="float" />	
+	
+	<setting name="line:opacity" value="0.5" type="float" />
+	<setting name="line:size" value="1.0, 1.0" type="vec2" />
+	
+	<setting name="default:delay" value="0.01" />
+	<setting name="default:anim" value="fade; slide:$_world_width, 0; ease:outQuint; delay:$_default:delay" />
+	
+	
+	<setting name="particles:overall_scale" value="1.0" type="float"/>
+	<setting name="particles:mesh_style" value="circle" type="string" possible_values="teapot, circle, square, icosahedron"/>
+	<setting name="particles:num" value="10000" type="int"/>
+	<setting name="particles:blend_mode" value="screen" type="string"/>
+	<setting name="particles:max_opacity" value="1.0" type="float" />
+	<setting name="particles:touch_power" value="0.001" type="float"/>
+	<setting name="particles:touch_radius" value="500.0" type="float"/>
+	<setting name="particles:lifespan_min" value="0.1" type="float"/>
+	<setting name="particles:lifespan_max" value="100" type="float"/>
+	<setting name="particles:counter_multiplier" value="10000.0" type="float"/>
+	<setting name="particles:perlin_scale" value="0.1" type="float"/>
+	<setting name="particles:anim_speed" value="0.01" type="float"/>
+	<setting name="particles:min_vel" value="-0.1" type="float"/>
+	<setting name="particles:max_vel" value="0.1" type="float"/>
+	<setting name="particles:scale" value="10" type="float"/>
+	<setting name="particles:friction" value="0.99" type="float"/>
+	<setting name="particles:spawn_size" value="960" type="float"/>
+	<setting name="particles:repulsor:factor" value="50000" type="float"/>
+	<setting name="particles:repulsor:border" value="40" type="float"/>
+	
+</settings>
+
+
