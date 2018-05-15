@@ -97,7 +97,8 @@ Sprite Parameters
     * pos_scale = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE
     * pos_rotate = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE
     * rotate = MULTITOUCH_CAN_ROTATE
-* **transparent**: A boolean of wheather the sprite should draw or not.
+* **transparent**: A boolean of wheather the sprite should draw or not. This works only locally. For base sprite, this will draw a rectangle (if the sprite has a size)
+* **visible**: A boolean of the visibilty flag. Doesn't affect the draw status, but does turn off this sprite and any children if hidden. True = show(), false = hide()
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.

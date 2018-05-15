@@ -478,6 +478,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.enableMultiTouch(parseMultitouchMode(value));
 	} else if(property == "transparent"){
 		sprite.setTransparent(parseBoolean(value));
+	} else if(property == "visible") {
+		auto isVisible = parseBoolean(value);
+		if(isVisible) sprite.show();
+		else sprite.hide();
 	} else if(property == "animate_on"){
 		sprite.setAnimateOnScript(value);
 	} else if(property == "corner_radius"){
