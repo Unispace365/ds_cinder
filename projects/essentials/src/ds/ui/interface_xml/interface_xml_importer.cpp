@@ -1055,6 +1055,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 
 	else if(property == "model") {
 		auto& ud = sprite.getUserData();
+		if(sprite.getSpriteName(false).empty()) {
+			DS_LOG_WARNING("Setting the model of a sprite without a name may not produce any results. model=" << value);
+		}
 		ud.setString(property, value);
 	}
 	// fallback to engine-registered properites last
