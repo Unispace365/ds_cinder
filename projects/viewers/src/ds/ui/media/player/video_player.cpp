@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/util/ui_utils.h>
 
 #include <ds/ui/sprite/video.h>
 #include <ds/ui/button/image_button.h>
@@ -138,8 +139,7 @@ void VideoPlayer::onSizeChanged(){
 void VideoPlayer::layout(){
 	if(mVideo){
 		if(mVideo->getWidth() > 0.0f){
-			mVideo->setScale(getWidth() / mVideo->getWidth());
-			mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() / 2.0f);
+			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
 		}
 	}
 
