@@ -25,6 +25,7 @@
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
+#include "ds/ui/touch/touch_manager.h"
 
 // For the screenshot
 #include <Poco/Timestamp.h>
@@ -417,7 +418,7 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Toggle always on top", [this] {ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
 	mKeyManager.registerKey("Toggle idling", [this] {mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); }, KeyEvent::KEY_i);
 	mKeyManager.registerKey("Toggle console", [this] {mEngine.toggleConsole(); }, KeyEvent::KEY_c);
-	mKeyManager.registerKey("Touch mode", [this] {mEngine.nextTouchMode(); }, KeyEvent::KEY_t);
+	mKeyManager.registerKey("Touch mode", [this] {mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
 	mKeyManager.registerKey("Take screenshot", [this] {saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
 	mKeyManager.registerKey("Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
 	mKeyManager.registerKey("Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
@@ -435,6 +436,36 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
 	mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
 	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
+
+	mKeyManager.registerKey("Translate src rect input mode", [this] {
+		if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
+			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+		} else {
+			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputTranslate);
+		}
+	}, KeyEvent::KEY_t);
+
+	mKeyManager.registerKey("Scale src rect input mode", [this] {
+		if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
+			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+		} else {
+			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputScale);
+		}
+	}, KeyEvent::KEY_y);
+
+
+	mKeyManager.registerKey("Restore src rect", [this] {
+		mEngineData.mSrcRect = mEngineData.mOriginalSrcRect;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_BACKQUOTE);
+
+	mKeyManager.registerKey("src rect 100% scale", [this] {
+		mEngineData.mSrcRect.x1 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f - mEngineData.mDstRect.getWidth() / 2.0f;
+		mEngineData.mSrcRect.x2 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f + mEngineData.mDstRect.getWidth() / 2.0f;
+		mEngineData.mSrcRect.y1 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f - mEngineData.mDstRect.getHeight() / 2.0f;
+		mEngineData.mSrcRect.y2 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f + mEngineData.mDstRect.getHeight() / 2.0f;
+		mEngine.markCameraDirty();
+	}, KeyEvent::KEY_1);
 
 	mKeyManager.registerKey("Move src rect left", [this] {
 		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;

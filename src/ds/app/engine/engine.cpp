@@ -166,6 +166,8 @@ void Engine::setupSrcDstRects(){
 	ci::app::getWindow()->setPos(mData.mDstRect.getUpperLeft());
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
 
+	mData.mOriginalSrcRect = mData.mSrcRect;
+
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 }
 
@@ -179,6 +181,7 @@ void Engine::setupAutoSpan() {
 		mData.mWorldSize.y = ci::app::getWindow()->getHeight();
 		mData.mSrcRect = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
 		mData.mDstRect = ci::Rectf(theX, theY, theX + mData.mWorldSize.x, theY + mData.mWorldSize.y);
+		mData.mOriginalSrcRect = mData.mSrcRect;
 
 		mSettings.getSetting("screen:mode", 0).mRawValue = "borderless";
 		mSettings.getSetting("world_dimensions", 0).mRawValue = ds::unparseVector(mData.mWorldSize);
@@ -1062,6 +1065,8 @@ void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 }
 
 ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) const {
+	if(mTouchManager.getInputMode() != ds::ui::TouchManager::kInputNormal) return e;
+
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
 	// hopefully it always will be.

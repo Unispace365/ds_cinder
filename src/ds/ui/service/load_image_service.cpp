@@ -226,6 +226,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				fmt.enableMipmapping(true);
 				fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 			}
+
 			auto tex = ci::gl::Texture::create(isr, fmt);
 
 

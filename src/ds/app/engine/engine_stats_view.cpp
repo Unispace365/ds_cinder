@@ -99,7 +99,6 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground->setColor(0, 0, 0);
 	mBackground->setOpacity(0.75f);
 	addChildPtr(mBackground);
-	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 }
 
 void EngineStatsView::onUpdateServer(const ds::UpdateParams &p) {
@@ -115,6 +114,7 @@ void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 }
 
 void EngineStatsView::updateStats() {
+	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 	setPosition(mEngine.getSrcRect().x1, mEngine.getSrcRect().y1);
 	if(!mText && mBackground){
 		const float pad = 30.0f;

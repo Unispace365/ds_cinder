@@ -31,8 +31,15 @@ public:
 };
 
 public:
+	typedef enum { kInputNormal = 0, kInputTranslate, kInputScale } InputMode;
+
 	TouchManager(Engine&, const TouchMode::Enum&);
 
+	/// Sets the input mode. kInputNormal is the most common and passes touch and mouse to the app.
+	///		Translate will move the src rect around
+	///		Scale will scale the src rect
+	void									setInputMode(const InputMode& theMode);
+	const InputMode&						getInputMode() const { return mInputMode; }
 	void									setTouchMode(const TouchMode::Enum&);
 
 	void									mouseTouchBegin(const ci::app::MouseEvent&, int id);
@@ -99,8 +106,12 @@ private:
 	ci::Rectf								mTouchFilterRect;
 	std::function<bool(const ci::vec2& p)>	mTouchFilterFunc;
 
+	InputMode								mInputMode;
+	int										mTransScaleFingId;
+	ci::vec2								mTransScaleOrigin;
+	ci::Rectf								mStartSrcRect;
+
 	TouchMode::Enum							mTouchMode;
-	// Hack to support the touch trails
 	Capture*								mCapture;
 
 	// This is overkill but done this way so I can make changes to

@@ -46,6 +46,8 @@ public:
 	// local rect.
 	ci::Rectf				mSrcRect,
 							mDstRect;
+	// the srcRect loaded from settings (for restoring after manual translation)
+	ci::Rectf				mOriginalSrcRect;
 
 	// Volume control for the whole app 
 
