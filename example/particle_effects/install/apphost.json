@@ -19,6 +19,7 @@
           "Path": "%PROGRAMFILES%/Downstream/particle_effects/particle_effects.exe",
           "Args": "",
           "StartDelay": 1000,
+          "RestartDelay": 10000,	
           "EnableMonitor": true,
           "MemoryLimit": 10000
         },
@@ -26,6 +27,7 @@
           "Path": "%PROGRAMFILES%/Downstream/particle_effects/DSNode/DSNode.exe",
           "Args": "",
           "StartDelay": 1000,
+          "RestartDelay": 10000,	
           "EnableMonitor": true,
           "MemoryLimit": 10000
         }
