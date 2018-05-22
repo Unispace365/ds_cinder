@@ -57,6 +57,48 @@ public:
 
 				mediaPlayer->loadMedia(theResource, true);
 			});
+
+			e.registerSpritePropertySetter("media_player_auto_start", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_auto_start on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mVideoAutoPlayFirstFrame = !ds::parseBoolean(theValue);
+				mediaPlayer->setSettings(mvs);
+				
+			});
+
+			e.registerSpritePropertySetter("media_player_show_interface", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_show_interface on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mShowInterfaceAtStart = ds::parseBoolean(theValue);
+				mediaPlayer->setSettings(mvs);
+
+			});
+
+			e.registerSpritePropertySetter("media_player_web_size", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_web_size on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mWebDefaultSize = ci::vec2(ds::parseVector(theValue));
+				mediaPlayer->setSettings(mvs);
+
+			});
 		});
 	}
 

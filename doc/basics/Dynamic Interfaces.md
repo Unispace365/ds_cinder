@@ -387,6 +387,9 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_src**: Relative or absolute path to the media. For example:
 
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
+* **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop
+* **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
+* **media_player_web_size**: Vector, sets the w/h in pixels of web views
 
 XML
 -------------------------------
