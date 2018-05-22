@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/util/ui_utils.h>
 
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/pdf.h>
@@ -27,6 +28,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cacheP
 	, mPDFPrevHolder(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
+	, mLetterbox(true)
 	, mAutoCachePrevNext(cachePrevNext)
 	, mCurrentPage(-1)
 	, mNextReady(false)
@@ -257,8 +259,11 @@ void PDFPlayer::layout(){
 		if(theScale * pfnw > w){
 			theScale = w / pfnw;
 		}
-		mPDFNextHolder->setScale(theScale * 2.0f);
-		mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+		//mPDFNextHolder->setScale(theScale * 2.0f);
+		//mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+
+
+		fitInside(mPDFNextHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
 	if(mPDFPrevHolder && mPDFPrev){
@@ -268,21 +273,25 @@ void PDFPlayer::layout(){
 		if(theScale * pfnw > w){
 			theScale = w / pfnw;
 		}
-		mPDFPrevHolder->setScale(theScale * 2.0f);
-		mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+		//mPDFPrevHolder->setScale(theScale * 2.0f);
+	//	mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+
+		fitInside(mPDFPrevHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
 	if(mPDF && w > 0.0f && h > 0.0f && mPDF->getHeight() > 0.0f && mPDF->getWidth() > 0.0f){
 		// make the PDF content fill the vertical space perfectly
 		float theScale = h / mPDF->getHeight();
-		mPDF->setScale(theScale);
+		//mPDF->setScale(theScale);
 
 		if(mPDF->getScaleWidth() > w){
-			mPDF->setScale(w / mPDF->getWidth());
+	//		mPDF->setScale(w / mPDF->getWidth());
 		}
 
 		// then center it
-		mPDF->setPosition((w - mPDF->getScaleWidth()) * 0.5f, (h - mPDF->getScaleHeight()) * 0.5f);
+	//	mPDF->setPosition((w - mPDF->getScaleWidth()) * 0.5f, (h - mPDF->getScaleHeight()) * 0.5f);
+
+		fitInside(mPDF, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
 	if(mPdfInterface){
@@ -312,6 +321,11 @@ void PDFPlayer::hideInterface(){
 }
 void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
+}
+
+void PDFPlayer::setLetterbox(const bool doLetterbox) {
+	mLetterbox = doLetterbox;
+	layout();
 }
 
 void PDFPlayer::nextPage(){

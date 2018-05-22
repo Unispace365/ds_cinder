@@ -37,6 +37,7 @@ public:
 	VideoInterface*						getVideoInterface(){ return mVideoInterface; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setAutoRestartStream(bool autoRestart);
+	void								setLetterbox(const bool doLetterbox);
 
 	void								setStreamLatency(const double latencyInSeconds);
 
@@ -53,6 +54,7 @@ protected:
 	bool								mIsPlaying;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
+	bool								mLetterbox;
 	double								mStreamLatency;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;

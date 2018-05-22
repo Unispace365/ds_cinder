@@ -41,6 +41,7 @@ public:
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setSizeChangedCallback(std::function<void(const ci::vec2& size)> func){ mSizeChangedCallback = func; }
+	void								setLetterbox(const bool doLetterbox);
 
 protected:
 
@@ -61,6 +62,7 @@ protected:
 	PDFInterface*								mPdfInterface;
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
+	bool										mLetterbox;
 	bool										mAutoCachePrevNext;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const ci::vec2&)>		mSizeChangedCallback;

@@ -19,6 +19,7 @@ struct MediaViewerSettings {
 	MediaViewerSettings()
 		: mDefaultBounds(0.0f, 0.0f)
 		, mShowInterfaceAtStart(true)
+		, mLetterBox(true)
 		, mWebDefaultSize(0.0f, 0.0f)
 		, mWebKeyboardKeyScale(1.0f)
 		, mWebKeyboardAbove(true)
@@ -42,6 +43,9 @@ struct MediaViewerSettings {
 
 	/// Whether the interface should be visible immediately or not
 	bool						mShowInterfaceAtStart;
+
+	/// If true, centers and fits the content. If false, will expand the content so it fills the player (doesn't clip by default though)
+	bool						mLetterBox;
 
 	//--------------------Web Settings ---------------------------------------------//
 

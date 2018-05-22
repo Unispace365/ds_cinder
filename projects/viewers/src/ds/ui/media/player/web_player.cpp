@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/util/ui_utils.h>
 
 #include <ds/ui/sprite/web.h>
 
@@ -27,6 +28,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mKeyboardAbove(true)
 	, mAllowTouchToggle(true)
 	, mStartInteractable(false)
+	, mLetterbox(true)
 {
 	mLayoutFixedAspect = true;
 	enable(false);
@@ -134,12 +136,7 @@ void WebPlayer::onSizeChanged(){
 
 void WebPlayer::layout(){
 	if(mWeb){
-		float scale = this->getHeight() / mWeb->getHeight();
-		if(mWeb->getWidth() / mWeb->getHeight() > getWidth() / getHeight()){
-			scale = getWidth() / mWeb->getWidth();
-		}
-		mWeb->setScale(scale);
-		mWeb->setPosition(getWidth() / 2.0f - mWeb->getScaleWidth() / 2.0f, getHeight() / 2.0f - mWeb->getScaleHeight() /2.0f);
+		fitInside(mWeb, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mLetterbox);
 	}
 
 	if(mWebInterface && mEmbedInterface){
@@ -175,6 +172,11 @@ void WebPlayer::setShowInterfaceAtStart(const bool showInterfaceAtStart){
 
 void WebPlayer::setStartInteractable(const bool startInteractable) {
 	mStartInteractable = startInteractable;
+}
+
+void WebPlayer::setLetterbox(const bool doLetterbox) {
+	mLetterbox = doLetterbox;
+	layout();
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos){

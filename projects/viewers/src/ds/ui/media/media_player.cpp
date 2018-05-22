@@ -99,6 +99,20 @@ public:
 				mediaPlayer->setSettings(mvs);
 
 			});
+
+			e.registerSpritePropertySetter("media_player_letterbox", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_letterbox on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mLetterBox = ds::parseBoolean(theValue);
+				mediaPlayer->setSettings(mvs);
+
+			});
 		});
 	}
 
@@ -274,6 +288,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
+		mVideoPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
 
 		mVideoPlayer->setMedia(mResource.getPortableFilePath());
 
@@ -331,6 +346,7 @@ void MediaPlayer::initialize(){
 		});
 
 		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mStreamPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
 		mStreamPlayer->setStreamLatency(mMediaViewerSettings.mVideoStreamingLatency);
 		mStreamPlayer->setResource(mResource);
 
@@ -343,6 +359,7 @@ void MediaPlayer::initialize(){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
 		addChildPtr(mPDFPlayer);
 
+		mPDFPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
 		mPDFPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mPDFPlayer->setResource(mResource);
 
@@ -376,6 +393,7 @@ void MediaPlayer::initialize(){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
 		mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
+		mWebPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
 		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard, mMediaViewerSettings.mWebKeyboardAbove);
 		mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
 		mWebPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
@@ -490,11 +508,11 @@ void MediaPlayer::layout(){
 	}
 
 	if(mThumbnailImage){
-		fitInside(mThumbnailImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
+		fitInside(mThumbnailImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mMediaViewerSettings.mLetterBox);
 	}
 
 	if(mPrimaryImage){
-		fitInside(mPrimaryImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
+		fitInside(mPrimaryImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mMediaViewerSettings.mLetterBox);
 	}
 
 	if(mWebPlayer){

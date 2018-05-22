@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/util/ui_utils.h>
 
 #include <ds/ui/sprite/video.h>
 #include <ds/ui/button/image_button.h>
@@ -24,6 +25,7 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
 	, mIsPlaying(false)
+	, mLetterbox(true)
 {
 	mLayoutFixedAspect = true;
 }
@@ -107,9 +109,10 @@ void StreamPlayer::onSizeChanged(){
 }
 
 void StreamPlayer::layout(){
-	if (mVideo){
-		mVideo->setScale(getWidth() / mVideo->getWidth());
-		mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() /2.0f);
+	if(mVideo) {
+		if(mVideo->getWidth() > 0.0f) {
+			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mLetterbox);
+		}
 	}
 
 	if (mVideoInterface && mEmbedInterface){
@@ -142,6 +145,11 @@ void StreamPlayer::setAutoRestartStream(bool autoRestart){
 	if(mVideo){
 		mVideo->setAutoRestartStream(autoRestart);
 	}
+}
+
+void StreamPlayer::setLetterbox(const bool doLetterbox) {
+	mLetterbox = doLetterbox;
+	layout();
 }
 
 void StreamPlayer::setStreamLatency(const double latencyInSeconds){

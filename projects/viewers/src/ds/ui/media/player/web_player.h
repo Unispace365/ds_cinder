@@ -38,6 +38,7 @@ public:
 	void								setAllowTouchToggle(const bool allowTouchToggle);
 	void								setShowInterfaceAtStart(const bool showInterfaceAtStart);
 	void								setStartInteractable(const bool startInteractable);
+	void								setLetterbox(const bool doLetterbox);
 
 protected:
 
@@ -46,6 +47,7 @@ protected:
 	WebInterface*						mWebInterface;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
+	bool								mLetterbox;
 
 	ci::vec2							mWebSize;
 	float								mKeyboardKeyScale;

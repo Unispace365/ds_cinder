@@ -29,6 +29,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
 	, mLooping(true)
+	, mLetterbox(true)
 {
 	mLayoutFixedAspect = true;
 }
@@ -139,7 +140,7 @@ void VideoPlayer::onSizeChanged(){
 void VideoPlayer::layout(){
 	if(mVideo){
 		if(mVideo->getWidth() > 0.0f){
-			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
+			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mLetterbox);
 		}
 	}
 
@@ -192,6 +193,11 @@ void VideoPlayer::stop(){
 
 ds::ui::GstVideo* VideoPlayer::getVideo(){
 	return mVideo;
+}
+
+void VideoPlayer::setLetterbox(const bool doLetterBox) {
+	mLetterbox = doLetterBox;
+	layout();
 }
 
 void VideoPlayer::togglePlayPause(){
