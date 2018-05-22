@@ -41,8 +41,8 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cacheP
 	mLayoutFixedAspect = true;
 	mPDFNextHolder = new ds::ui::Sprite(mEngine);
 	mPDFPrevHolder = new ds::ui::Sprite(mEngine);
-	addChildPtr(mPDFNextHolder);
 	addChildPtr(mPDFPrevHolder);
+	addChildPtr(mPDFNextHolder);
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
@@ -142,6 +142,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		mPDFPrevHolder->addChildPtr(mPDFPrev);
 
 		mPDFPrevHolder->sendToFront();
+		mPDFNextHolder->sendToFront();
 	}
 
 	mCurrentPage = 0;
@@ -256,14 +257,16 @@ void PDFPlayer::layout(){
 		float pfnw = mPDFNext->getWidth();
 		float pfnh = mPDFNext->getHeight();
 		float theScale = h / pfnh;
-		if(theScale * pfnw > w){
+
+		if(theScale * pfnw > w) {
 			theScale = w / pfnw;
 		}
-		//mPDFNextHolder->setScale(theScale * 2.0f);
-		//mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
 
+		mPDFNextHolder->setScale(theScale * 2.0f);
+		mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
 
-		fitInside(mPDFNextHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
+		//todo: support next/prev in non-letterbox
+		//fitInside(mPDFNextHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
 	if(mPDFPrevHolder && mPDFPrev){
@@ -273,24 +276,14 @@ void PDFPlayer::layout(){
 		if(theScale * pfnw > w){
 			theScale = w / pfnw;
 		}
-		//mPDFPrevHolder->setScale(theScale * 2.0f);
-	//	mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+		mPDFPrevHolder->setScale(theScale * 2.0f);
+		mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
 
-		fitInside(mPDFPrevHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
+		//todo: support next/prev in non-letterbox
+		//fitInside(mPDFPrevHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
 	if(mPDF && w > 0.0f && h > 0.0f && mPDF->getHeight() > 0.0f && mPDF->getWidth() > 0.0f){
-		// make the PDF content fill the vertical space perfectly
-		float theScale = h / mPDF->getHeight();
-		//mPDF->setScale(theScale);
-
-		if(mPDF->getScaleWidth() > w){
-	//		mPDF->setScale(w / mPDF->getWidth());
-		}
-
-		// then center it
-	//	mPDF->setPosition((w - mPDF->getScaleWidth()) * 0.5f, (h - mPDF->getScaleHeight()) * 0.5f);
-
 		fitInside(mPDF, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 	}
 
