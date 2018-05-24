@@ -43,6 +43,8 @@ public:
 
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
+
+	/// Sets the area for the initial default web size calculation. must be called before initialize or load media to have an effect
 	void					setWebViewSize(const ci::vec2 webSize);
 
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.

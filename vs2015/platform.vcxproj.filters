@@ -708,6 +708,9 @@
     <ClInclude Include="..\src\ds\ui\layout\perspective_layout.h">
       <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\tuio_input.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1165,6 +1168,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\layout\perspective_layout.cpp">
       <Filter>src\ds\ui\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\tuio_input.cpp">
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

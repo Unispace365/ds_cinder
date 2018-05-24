@@ -592,6 +592,21 @@ void Engine::setupTouch(ds::App& app) {
 		}
 	}
 
+	mTuioInputs.clear();
+	auto& theSettings = getSettings("tuio_inputs");
+	const int numInputs = theSettings.getInt("tuio_input:number", 0, 0);
+	for(int i = 0; i < numInputs; i++) {
+		const int       tuioPort = theSettings.getInt("tuio_input:port", i, 0);
+		const int       idOffset = theSettings.getInt("tuio_input:id_offset", i, 32);
+		const ci::vec2  touchScale = theSettings.getVec2("tuio_input:scale", i, ci::vec2());
+		const ci::vec2  touchOffset = theSettings.getVec2("tuio_input:offset", i, ci::vec2());
+		const float     touchRotation = theSettings.getFloat("tuio_input:rotation", i, 0.0f);
+		const ci::Rectf filterRect = theSettings.getRect("tuio_input:filter_rect", i, ci::Rectf());
+		mTuioInputs.push_back(std::make_shared<ds::ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
+														  idOffset, filterRect));
+	}
+
+
 #ifdef _WIN32
 	if(mDsApp.getWindow()) {
 		auto hwnd = (HWND)mDsApp.getWindow()->getNative();

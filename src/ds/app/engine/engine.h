@@ -35,6 +35,7 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
+#include "ds/ui/touch/tuio_input.h"
 #include "ds/ui/tween/tweenline.h"
 #include "ds/app/camera_utils.h"
 
@@ -322,11 +323,16 @@ private:
 	bool								mIdling;
 	float								mLastTouchTime;
 
+	// The base tuio client
 	ci::tuio::Client					mTuio;
 	uint32_t							mTuioBeganRegistrationId;
 	uint32_t							mTuioMovedRegistrationId;
 	uint32_t							mTuioEndedRegistrationId;
 	bool								mTuioRegistered;
+
+	// Additional tuio inputs if configured
+	std::vector<std::shared_ptr<ds::ui::TuioInput>> mTuioInputs;
+
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;

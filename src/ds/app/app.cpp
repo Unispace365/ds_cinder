@@ -237,6 +237,8 @@ void App::loadAppSettings() {
 	/* Settings */
 	mEngine.loadSettings("app_settings", "app_settings.xml");
 	mEngine.loadTextCfg("text.xml");
+
+	mEngine.loadSettings("tuio_inputs", "tuio_inputs.xml");
 }
 
 void App::setup() {
