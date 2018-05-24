@@ -236,16 +236,19 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				{
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
 					auto fence = ci::gl::Sync::create();
-					auto ret = fence->clientWaitSync(1U, 1000000);
-					if(ret != GL_ALREADY_SIGNALED && ret != GL_CONDITION_SATISFIED) {
-						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << ret);
+					GLenum syncReturn;
+					do{
+						syncReturn = fence->clientWaitSync(1U, 2000000);  // 2ms
+					} while (syncReturn == GL_TIMEOUT_EXPIRED);
+
+					if (syncReturn == GL_WAIT_FAILED) {
+						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << syncReturn);
+					} else {
+						nextImage.mTexture = tex;
+
+						std::lock_guard<std::mutex> lock(mMutex);
+						mLoadedRequests.emplace_back(nextImage);
 					}
-					nextImage.mTexture = tex;
-				}
-			
-				{
-					std::lock_guard<std::mutex> lock(mMutex);
-					mLoadedRequests.emplace_back(nextImage);
 				}
 			} else {
 				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " " << std::this_thread::get_id());
