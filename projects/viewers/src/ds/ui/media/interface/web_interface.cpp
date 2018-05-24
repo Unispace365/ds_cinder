@@ -516,5 +516,15 @@ void WebInterface::updateWidgets(){
 	layout();
 }
 
+void WebInterface::showKeyboard(bool show) {
+	mKeyboardShowing = show;
+	updateWidgets();
+}
+
+void WebInterface::toggleKeyboard() {
+	mKeyboardShowing = !mKeyboardShowing;
+	updateWidgets();
+}
+
 } // namespace ui
 } // namespace ds
