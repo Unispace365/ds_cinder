@@ -32,9 +32,11 @@ void LoadImageService::initialize() {
 	mShouldQuit = false;
 	if(mThreads.empty()) {
 		for(int i = 0; i < numThreads; i++) {
-			ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
-			auto aThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&LoadImageService::loadImagesThreadFn, this, backgroundCtx)));
-			mThreads.emplace_back(aThread);
+			mEngine.timedCallback([this] {
+				ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
+				auto aThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&LoadImageService::loadImagesThreadFn, this, backgroundCtx)));
+				mThreads.emplace_back(aThread);
+			}, 0.1);
 		}
 	}
 }
@@ -234,7 +236,10 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				{
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
 					auto fence = ci::gl::Sync::create();
-					fence->clientWaitSync(1U, 1000000);
+					auto ret = fence->clientWaitSync(1U, 1000000);
+					if(ret != GL_ALREADY_SIGNALED && ret != GL_CONDITION_SATISFIED) {
+						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << ret);
+					}
 					nextImage.mTexture = tex;
 				}
 			
