@@ -43,7 +43,7 @@ WebCefService::WebCefService(ds::Engine& e)
 			return;
 		}
 
-		webby->setUrl(theValue);
+		webby->setUrl(ds::Environment::expand(theValue));
 	});
 
 
