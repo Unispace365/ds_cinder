@@ -50,6 +50,9 @@ public:
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
 	void								setPan(const float newPan);
 
+	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
+	void								setVolume(const float volume);
+
 	/// See the function of the same name on GstVideo, Whether to synchronize across client/servers, default = true
 	void								setAutoSynchronize(const bool doSync);
 
@@ -84,6 +87,7 @@ protected:
 
 	/// Settings - these are kept locally here so the settings can be applied at any time
 	float										mPanning;
+	float										mVolume;
 	bool										mAutoSyncronize;
 	bool										mAutoPlayFirstFrame;
 	bool										mAllowOutOfBoundsMuted;

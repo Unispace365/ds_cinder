@@ -41,6 +41,9 @@ public:
 
 	void								setStreamLatency(const double latencyInSeconds);
 
+	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
+	void								setVolume(const float volume);
+
 	ds::ui::GstVideo*					getVideo();
 
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
@@ -51,6 +54,7 @@ protected:
 	virtual void						onSizeChanged() override;
 	VideoInterface*						mVideoInterface;
 	ds::ui::GstVideo*					mVideo;
+	float								mVolume;
 	bool								mIsPlaying;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;

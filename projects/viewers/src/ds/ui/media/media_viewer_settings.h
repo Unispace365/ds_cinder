@@ -29,6 +29,7 @@ struct MediaViewerSettings {
 		, mCacheImages(false)
 		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
+		, mVideoVolume(1.0f)
 		, mVideoAutoSync(true)
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
@@ -76,6 +77,9 @@ struct MediaViewerSettings {
 
 	/// From -1.0f (left) to 1.0f (right). Default = 0.0f (center)
 	float						mVideoPanning;
+
+	/// The volume of the video's audio when it starts
+	float						mVideoVolume;
 
 	/// A list of clients to not load the video on
 	/// Default is empty, which loads everywhere

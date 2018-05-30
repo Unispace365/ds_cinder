@@ -113,6 +113,20 @@ public:
 				mediaPlayer->setSettings(mvs);
 
 			});
+
+			e.registerSpritePropertySetter("media_player_video_volume", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_video_volume on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mVideoVolume = ds::string_to_float(theValue);
+				mediaPlayer->setSettings(mvs);
+
+			});
 		});
 	}
 
@@ -282,6 +296,7 @@ void MediaPlayer::initialize(){
 		});
 
 		mVideoPlayer->setPan(mMediaViewerSettings.mVideoPanning);
+		mVideoPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
 		mVideoPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
@@ -310,6 +325,7 @@ void MediaPlayer::initialize(){
 		});
 
 		mPanoramicPlayer->setPan(mMediaViewerSettings.mVideoPanning);
+		mPanoramicPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
 		mPanoramicPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
 		mPanoramicPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mPanoramicPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
@@ -345,6 +361,7 @@ void MediaPlayer::initialize(){
 			if(mStatusCallback) mStatusCallback(true);
 		});
 
+		mStreamPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
 		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mStreamPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
 		mStreamPlayer->setStreamLatency(mMediaViewerSettings.mVideoStreamingLatency);

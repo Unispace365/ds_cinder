@@ -390,6 +390,7 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
+* **media_player_video_volume**: Float, sets the volume of videos when they start
 
 XML
 -------------------------------

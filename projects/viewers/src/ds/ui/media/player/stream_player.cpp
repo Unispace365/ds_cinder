@@ -26,6 +26,7 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mShowInterfaceAtStart(true)
 	, mIsPlaying(false)
 	, mLetterbox(true)
+	, mVolume(1.0f)
 {
 	mLayoutFixedAspect = true;
 }
@@ -54,6 +55,8 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 		//	mGoodStatusCallback();
 		//}
 	});
+
+	setVolume(mVolume);
 
 	mVideo->setStreamingLatency(mStreamLatency * 1000000000);
 
@@ -157,6 +160,14 @@ void StreamPlayer::setStreamLatency(const double latencyInSeconds){
 	if(mVideo){
 		mVideo->setStreamingLatency(latencyInSeconds * 1000000000);
 	}
+}
+
+void StreamPlayer::setVolume(const float volume) {
+	if(mVideo) {
+		mVideo->setVolume(volume);
+	}
+
+	mVolume = volume;
 }
 
 void StreamPlayer::play(){

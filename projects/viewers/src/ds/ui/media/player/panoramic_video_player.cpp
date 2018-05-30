@@ -29,6 +29,7 @@ PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool
 	, mAutoPlayFirstFrame(true)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
+	, mVolume(1.0f)
 	, mLooping(true)
 {
 	mLayoutFixedAspect = true;
@@ -72,6 +73,7 @@ void PanoramicVideoPlayer::setMedia(const std::string mediaPath) {
 	});
 
 	setPan(mPanning);
+	setVolume(mVolume);
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
@@ -233,6 +235,14 @@ void PanoramicVideoPlayer::setPan(const float newPan) {
 	}
 
 	mPanning = newPan;
+}
+
+void PanoramicVideoPlayer::setVolume(const float volume) {
+	if(mVideo) {
+		mVideo->setVolume(volume);
+	}
+
+	mVolume = volume;
 }
 
 void PanoramicVideoPlayer::setAutoSynchronize(const bool doSync) {

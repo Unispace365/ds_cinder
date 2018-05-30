@@ -28,6 +28,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mAutoPlayFirstFrame(true)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
+	, mVolume(1.0f)
 	, mLooping(true)
 	, mLetterbox(true)
 {
@@ -61,6 +62,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	});
 
 	setPan(mPanning);
+	setVolume(mVolume);
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
@@ -226,6 +228,14 @@ void VideoPlayer::setPan(const float newPan){
 	}
 
 	mPanning = newPan;
+}
+
+void VideoPlayer::setVolume(const float volume) {
+	if(mVideo) {
+		mVideo->setVolume(volume);
+	}
+
+	mVolume = volume;
 }
 
 void VideoPlayer::setAutoSynchronize(const bool doSync){
