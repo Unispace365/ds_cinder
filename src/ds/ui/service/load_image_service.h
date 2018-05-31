@@ -82,6 +82,8 @@ private:
 	std::unordered_map<std::string, std::unordered_map<void *, LoadedCallback>> mCallbacks;
 
 	virtual void update(const ds::UpdateParams&) override;
+    /// Stop all running threads and clear shared_ptr's
+    void stopThreads();
 
 	/// If the cache flag is present, store a reference to the texture
 	std::unordered_map<std::string, ImageLoadRequest>	mInUseImages;
@@ -89,11 +91,10 @@ private:
 	void												loadImagesThreadFn(ci::gl::ContextRef context);
 	std::vector<std::shared_ptr<std::thread>>			mThreads;
 	// shared between threads
-	std::unordered_map<std::string, ImageLoadRequest>	mRequests;
+	mutable std::mutex									mMutex;
+	std::vector<ImageLoadRequest>	                    mRequests;
 	std::vector<ImageLoadRequest>						mLoadedRequests;
 	bool												mShouldQuit;
-	mutable std::mutex									mMutex;
-
 };
 
 }
