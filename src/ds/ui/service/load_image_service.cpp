@@ -186,16 +186,16 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
             if(!mRequests.empty()){
-                // Grab a request from the queue
-                nextImage = mRequests.back();
-                mRequests.pop_back();
+                // Get first request from the queue
+                nextImage = mRequests.front();
+                mRequests.erase(mRequests.begin());
                 gotRequest = true;
             }
 		}
 
 		// there was no filepaths, so wait and try again in a little bit (the time is a guess)
 		if (!gotRequest) {
-			std::this_thread::sleep_for(10ms);
+			std::this_thread::sleep_for(4ms);
 			continue;
 		}
 
@@ -222,7 +222,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 					auto   fence = ci::gl::Sync::create();
 					GLenum syncReturn;
 					do {
-						syncReturn = fence->clientWaitSync(1U, std::chrono::duration_cast<std::chrono::nanoseconds>(2ms).count());  // 2ms to nanoseconds
+						syncReturn = fence->clientWaitSync(1U, std::chrono::duration_cast<std::chrono::nanoseconds>(1ms).count());  // 1ms to nanoseconds
 					} while (syncReturn == GL_TIMEOUT_EXPIRED);
 
 					if (syncReturn == GL_WAIT_FAILED) {
