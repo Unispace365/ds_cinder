@@ -67,7 +67,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 	// grab any completed image loads and clear the shared vector
 	std::vector<ImageLoadRequest> newCompletedRequests;
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mLoadedMutex);
 		newCompletedRequests = mLoadedRequests;
 		mLoadedRequests.clear();
 	}
@@ -141,7 +141,7 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 
 	// ok, this image isn't cached and it's not currently in use/loading, start a new load request
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::mutex> lock(mRequestsMutex);
         mRequests.push_back(mInUseImages[filePath]);
 	}
 }
@@ -184,7 +184,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
         bool gotRequest = false;
 
 		{
-			std::lock_guard<std::mutex> lock(mMutex);
+			std::lock_guard<std::mutex> lock(mRequestsMutex);
             if(!mRequests.empty()){
                 // Get first request from the queue
                 nextImage = mRequests.front();
@@ -231,7 +231,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 						nextImage.mTexture = tex;
                         nextImage.mLoading = false;
 
-						std::lock_guard<std::mutex> lock(mMutex);
+						std::lock_guard<std::mutex> lock(mLoadedMutex);
 						mLoadedRequests.emplace_back(nextImage);
 					}
 				}
@@ -239,7 +239,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " "
 																		 << std::this_thread::get_id());
 				{
-					std::lock_guard<std::mutex> lock(mMutex);
+					std::lock_guard<std::mutex> lock(mRequestsMutex);
                     mRequests.push_back(nextImage);
 				}
 			}
@@ -257,7 +257,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 
 			/// Send the error back out
 			{
-				std::lock_guard<std::mutex> lock(mMutex);
+				std::lock_guard<std::mutex> lock(mLoadedMutex);
 				mLoadedRequests.emplace_back(nextImage);
 			}
 		}  // end of try / catch

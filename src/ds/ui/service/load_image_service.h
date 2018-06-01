@@ -91,9 +91,13 @@ private:
 	void												loadImagesThreadFn(ci::gl::ContextRef context);
 	std::vector<std::shared_ptr<std::thread>>			mThreads;
 	// shared between threads
-	mutable std::mutex									mMutex;
+
+	mutable std::mutex									mRequestsMutex;
 	std::vector<ImageLoadRequest>	                    mRequests;
+
+	mutable std::mutex									mLoadedMutex;
 	std::vector<ImageLoadRequest>						mLoadedRequests;
+
 	bool												mShouldQuit;
 };
 
