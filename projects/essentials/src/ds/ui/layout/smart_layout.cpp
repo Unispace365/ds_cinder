@@ -148,7 +148,8 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 
 						if (sprPropToSet == "resource") {
 							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
-
+						} else if (sprPropToSet == "resource_cache") {
+							setSpriteImage(it.first, theData.getProperty(theProp).getResource(), true);
 						} else if (sprPropToSet == "media_player_src") {
 							auto theResource = theData.getProperty(theProp).getResource();
 							if(theResource.empty()) {
