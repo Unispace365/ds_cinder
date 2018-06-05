@@ -251,6 +251,13 @@ void WebCefService::loadUrl(const int browserId, const std::string& newUrl){
 
 }
 
+void WebCefService::executeJavascript(const int browserId, const std::string& theJS, const std::string& debugUrl) {
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler) {
+		handler->executeJavascript(browserId, theJS, debugUrl);
+	}
+}
+
 void WebCefService::requestBrowserResize(const int browserId, const ci::ivec2 newSize){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){

@@ -895,12 +895,8 @@ ci::vec2 Web::getDocumentScroll() {
 	return ci::vec2(0.0f, 0.0f);
 }
 
-void Web::executeJavascript(const std::string& theScript){
-	/* TODO
-	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
-	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
-	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
-	*/
+void Web::executeJavascript(const std::string& theScript, const std::string& debugUrl /*= ""*/) {
+	mService.executeJavascript(mBrowserId, theScript, debugUrl);
 }
 
 void Web::writeAttributesTo(ds::DataBuffer &buf) {

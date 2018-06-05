@@ -145,16 +145,8 @@ public:
 	ci::vec2									getDocumentSize();
 	ci::vec2									getDocumentScroll();
 
-	// Scripting.
-	// Send function to object with supplied args. For example, if you want to just invoke the global
-	// function "makeItHappen()" you'd call: RunJavaScript("window", "makeItHappen", ds::web::ScriptTree());
-	//ds::web::ScriptTree		runJavaScript(	const std::string& object, const std::string& function,
-	//										const ds::web::ScriptTree& args);
-	// Register a handler for a callback from javascript
-	//void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
-	//													const std::function<void(const ds::web::ScriptTree&)>&);
-
-	void										executeJavascript(const std::string& theScript);
+	/// Executes the script on the main frame of the loaded browser. Browser must exist already for this to work
+	void										executeJavascript(const std::string& theScript, const std::string& debugUrl = "");
 
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void										setAllowClicks(const bool doAllowClicks);
