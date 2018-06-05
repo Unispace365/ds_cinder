@@ -179,20 +179,6 @@ Web::~Web() {
 	if(mCallbacksCue){
 		mCallbacksCue->removeSelf();
 	}
-
-	{
-		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
-	//	std::lock_guard<std::mutex> lock(mMutex);
-		if(mBuffer){
-			delete mBuffer;
-			mBuffer = nullptr;
-		}
-
-		if(mPopupBuffer) {
-			delete mPopupBuffer;
-			mPopupBuffer = nullptr;
-		}
-	}
 }
 
 void Web::setWebTransparent(const bool isTransparent){
@@ -272,9 +258,10 @@ void Web::initializeBrowser(){
 		// verify the buffer exists and is the correct size
 		// TODO: Add ability to redraw only the changed rectangles (which is what comes from CEF)
 		// Would be much more performant, especially for large browsers with small ui changes (like blinking cursors)
-		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
+
+		if(buffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
 			mHasBuffer = true;
-			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
+			mBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
 		}
 	};
 
@@ -282,21 +269,9 @@ void Web::initializeBrowser(){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		// resize buffer if needed
-		if( mPopupBuffer && (bufferWidth != mPopupSize.x || bufferHeight != mPopupSize.y)) {
-			delete mPopupBuffer;
-			mPopupBuffer = nullptr;
-		}
-
-		// create the buffer if needed
-		if(!mPopupBuffer) {
-			mPopupBuffer = new unsigned char[bufferWidth * bufferHeight * 4];
-		}  
-
-		// if everything went ok
-		if(mPopupBuffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
+		if(buffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
 			mHasPopupBuffer = true;
-			memcpy(mPopupBuffer, buffer, bufferWidth * bufferHeight * 4);
+			mPopupBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
 		}
 	};
 
@@ -306,7 +281,6 @@ void Web::initializeBrowser(){
 		mHasPopupBuffer = false;
 		
 		if(mPopupSize.x != widthy || mPopupSize.y != heighty) {
-			delete mPopupBuffer;
 			mPopupBuffer = nullptr;
 			mPopupReady = false;
 		}
@@ -487,14 +461,7 @@ void Web::onSizeChanged() {
 		}
 
 		mBrowserSize = newBrowserSize;
-
-		if(mBuffer){
-			delete mBuffer;
-			mBuffer = nullptr;
-		}
-		const int bufferSize = theWid * theHid * 4;
-		mBuffer = new unsigned char[bufferSize];
-
+		mBuffer = nullptr; // buffer memory is managed by CEF
 		mHasBuffer = false;
 	}
 
