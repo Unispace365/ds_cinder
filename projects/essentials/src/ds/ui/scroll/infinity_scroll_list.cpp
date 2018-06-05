@@ -59,6 +59,8 @@ namespace ds{
 			clearItems();
 			initFillScreen();
 
+			if (dbIds.empty()) return;
+
 			mItemPlaceHolders.push_back(ItemPlaceHolder(dbIds[dbIds.size() - 1]));
 			if (dbIds.size() > 1)
 			{
@@ -93,6 +95,10 @@ namespace ds{
 
 		void infinityList::setScrollUpdatedCallback(const std::function<void(void)> &func){
 			mScrollUpdatedCallback = func;
+		}
+
+		void infinityList::setItemPositionUpdatedCallback(const std::function<void(void)> &func){
+			mItemPosUpdatedCallback = func;
 		}
 
 		void infinityList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount)
@@ -133,7 +139,7 @@ namespace ds{
 			float targetAmount = 0.0f;
 			if (mVertical)
 			{
-
+				targetAmount = mStartPositionY - mIncrementAmount - pos.y;
 			}
 			else
 			{
@@ -152,7 +158,7 @@ namespace ds{
 			float targetAmount = 0.0f;
 			if (mVertical)
 			{
-
+				targetAmount = mStartPositionY - pos.y;
 			}
 			else
 			{
@@ -243,12 +249,17 @@ namespace ds{
 
 				mOnScreenItemList.push_back(placeHolder);
 			}
+			if (mItemPosUpdatedCallback) mItemPosUpdatedCallback();
 		}
 
 		void infinityList::initItemStart(int itemNum){
+			if (mItemPlaceHolders.empty()) return;
+
 			mScroller->clearChildren();
 			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 1;
 			if (mBottomIndex < 0) mBottomIndex = mItemPlaceHolders.size() + mBottomIndex;
+			mTopIndex = mBottomIndex - mOnScreenItemSize;
+			if (mTopIndex < 0) mTopIndex = mItemPlaceHolders.size() - 1 + mTopIndex;
 			assignItems();
 		}
 
@@ -272,7 +283,10 @@ namespace ds{
 							{
 								if (mVertical)
 								{
-
+									if (ti.mDeltaPoint.y > mMinimumTouchDistance)
+										previousItem();
+									else if (ti.mDeltaPoint.y < -mMinimumTouchDistance)
+										nextItem();
 								}
 								else
 								{
@@ -320,6 +334,7 @@ namespace ds{
 				checkIsOnScreen();
 			}
 			checkBounds();
+			if (mItemPosUpdatedCallback) mItemPosUpdatedCallback();
 		}
 
 		void infinityList::tweenItemPos(const float delta, float duration)
@@ -344,6 +359,11 @@ namespace ds{
 					checkIsOnScreen();
 				});
 			}
+			tweenNormalized(duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this]{
+				if (mItemPosUpdatedCallback) mItemPosUpdatedCallback();
+			}, [this]{
+				if (mItemPosUpdatedCallback) mItemPosUpdatedCallback();
+			});
 			callAfterDelay([this](){
 				checkBounds();
 				if (mScrollUpdatedCallback) mScrollUpdatedCallback();
@@ -450,8 +470,6 @@ namespace ds{
 			if (mBottomIndex >= mItemPlaceHolders.size())
 				mBottomIndex = 0;
 
-			//std::cout << "add to end, top index is " << mTopIndex << " and bottom index is" << mBottomIndex << std::endl;
-
 			auto &placeHolder = mItemPlaceHolders[mBottomIndex];
 			createSprite(placeHolder);
 			if (mVertical)
@@ -475,8 +493,6 @@ namespace ds{
 			if (mBottomIndex <= -1)
 				mBottomIndex = mItemPlaceHolders.size() - 1;
 
-			//std::cout << "add to top, top index is " << mTopIndex << " and bottom index is" << mBottomIndex << std::endl;
-
 			auto &placeHolder = mItemPlaceHolders[mTopIndex ];
 			createSprite(placeHolder);
 			if (mVertical)
@@ -485,6 +501,7 @@ namespace ds{
 				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[0].mAssociatedSprite->getPosition().x - mIncrementAmount, mStartPositionY);
 			mOnScreenItemList.insert(mOnScreenItemList.begin(), placeHolder);
 			mOnScreenItemSize++;
+
 			checkIsOnScreen();
 		}
 
@@ -526,7 +543,7 @@ namespace ds{
 			if (bs){
 				if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
+				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved){//&& ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
 					if (mStateChangeCallback) mStateChangeCallback(bs, false);
 					bs->passTouchToSprite(mScroller, ti);
 					return;
