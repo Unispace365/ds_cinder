@@ -36,6 +36,9 @@ namespace ds{
 			// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
 			void								setScrollUpdatedCallback(const std::function<void(void)> &func);
 
+			// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+			void								setItemPositionUpdatedCallback(const std::function<void(void)> &func);
+
 			// REQUIRED TO LOOK OK: 
 			// @param startPositionX Where to start the items horizontally
 			// @param startPositionY Where to start the items Vertically
@@ -125,6 +128,7 @@ namespace ds{
 			std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
 			std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
 			std::function<void()>										mScrollUpdatedCallback;
+			std::function<void()>										mItemPosUpdatedCallback;
 
 			float								mMinimumTouchDistance;
 		};
