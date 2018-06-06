@@ -391,6 +391,7 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
 * **media_player_video_volume**: Float, sets the volume of videos when they start
+* **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 
 XML
 -------------------------------
