@@ -242,7 +242,15 @@ void ContentQuery::updateResourceCache() {
 
 					auto& reccy = mAllResources[thisId];
 					if(reccy.getType() == ds::Resource::WEB_TYPE) {
-						reccy.setLocalFilePath(reccy.getFileName());
+						auto webPath = reccy.getFileName();
+						// detect if this is a local path
+						if(webPath.find("http") != 0 && webPath.find("ftp") != 0) {
+							std::stringstream loclPath;
+							loclPath << mResourceLocation << thePath << webPath;
+							webPath = loclPath.str();
+							std::replace(webPath.begin(), webPath.end(), '\\', '/');
+						}
+						reccy.setLocalFilePath(webPath, false);
 					} else {
 						std::stringstream loclPath;
 						loclPath << mResourceLocation << thePath << reccy.getFileName();
