@@ -42,10 +42,12 @@ public:
 	void						cancelAuth();
 	void						authComplete();
 
+	void						showKeyboard(bool show);
+	void                        toggleKeyboard();
+
 protected:
 
 	virtual void				onLayout();
-	void						showKeyboard(bool show);
 
 	ds::ui::Web*				mLinkedWeb;
 
