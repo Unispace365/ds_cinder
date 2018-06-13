@@ -764,14 +764,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	else if(property == "down_image") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->setHighImage(filePathRelativeTo(referer, value));
+			image->setHighImage(filePathRelativeTo(referer, value), ds::ui::Image::IMG_CACHE_F);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "up_image") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->setNormalImage(filePathRelativeTo(referer, value));
+			image->setNormalImage(filePathRelativeTo(referer, value), ds::ui::Image::IMG_CACHE_F);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
