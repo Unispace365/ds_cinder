@@ -676,6 +676,24 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "text_uppercase") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			auto upperText = value;
+			std::transform(upperText.begin(), upperText.end(), upperText.begin(), ::toupper);
+			text->setText(upperText);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "text_lowercase") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			auto lowerText = value;
+			std::transform(lowerText.begin(), lowerText.end(), lowerText.begin(), ::tolower);
+			text->setText(lowerText);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
 	} else if(property == "markdown") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if(text) {

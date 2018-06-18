@@ -240,6 +240,8 @@ Perspective Layout Parameters
 Text Parameters
 ------------------------------------------------------------
 * **text**: Set the content show on the screen. text="Hello World"
+* **text_uppercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as HELLO WORLD
+* **text_lowercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as hello world
 * **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
