@@ -158,6 +158,7 @@ public:
 	void							setIdleTimeout(int idleTimeout);
 	virtual void					resetIdleTimeout(){};
 	virtual void					startIdling(){};
+	virtual bool					isIdling() = 0;
 
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;

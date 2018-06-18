@@ -119,7 +119,7 @@ public:
 	void								setupTouch(ds::App&);
 
 	/// It's been enough time since the last input and is in idle mode
-	bool								isIdling();
+	virtual bool						isIdling() override;
 
 	/// Checks if it's been enough time since the last input to go into idle. Will take effect if it's been enough time
 	void								checkIdle();
