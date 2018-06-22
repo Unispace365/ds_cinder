@@ -204,6 +204,10 @@ private:
 	// Cleared automatically on destruction
 	ci::CueRef			mDelayedCallCueRef;
 
+	// Store multiple CueRefs from the cinder timeline in the case of a multi anim script
+	// Cleared automatically on destruction;
+	std::vector<ci::CueRef> mMultiDelayedCallCueRefs;
+
 };
 
 } // namespace ui
