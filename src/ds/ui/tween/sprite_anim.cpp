@@ -42,6 +42,7 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalOpacityCinderTweenRef = nullptr;
 	mInternalNormalizedCinderTweenRef = nullptr;
 	mDelayedCallCueRef = nullptr;
+	mMultiDelayedCallCueRefs.clear();
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -284,6 +285,15 @@ void SpriteAnimatable::animStop() {
 	if (mDelayedCallCueRef){
 		mDelayedCallCueRef->removeSelf();
 		mDelayedCallCueRef = nullptr;
+	}
+
+	if (!mMultiDelayedCallCueRefs.empty()) {
+		for (auto cue : mMultiDelayedCallCueRefs) {
+			if (!cue) continue;
+			cue->removeSelf();
+			cue = nullptr;
+		}
+		mMultiDelayedCallCueRefs.clear();
 	}
 }
 
@@ -529,14 +539,21 @@ void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> a
 	float delay = 0.0f, gap = 0.0f;
 	delay =addedDelay;
 	gap = gapTime;
-	if (mDelayedCallCueRef){
-		mDelayedCallCueRef->removeSelf();
-		mDelayedCallCueRef = nullptr;
+
+	if (!mMultiDelayedCallCueRefs.empty()) {
+		for (auto cue : mMultiDelayedCallCueRefs) {
+			if (!cue) continue;
+			cue->removeSelf();
+			cue = nullptr;
+		}
+		mMultiDelayedCallCueRefs.clear();
 	}
+
+	ci::Timeline&		t = mEngine.getTweenline().getTimeline();
+
 	for (size_t i = 0; i < animScripts.size(); i++)
 	{
-		ci::Timeline&		t = mEngine.getTweenline().getTimeline();
-		mDelayedCallCueRef = t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
+		mMultiDelayedCallCueRefs.push_back(t.add([this, delay, animScripts, i]() {runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay));
 		delay += (durationList[i] + delayList[i] + gap);
 	}
 }
