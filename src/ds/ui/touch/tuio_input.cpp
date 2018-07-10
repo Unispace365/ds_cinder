@@ -77,7 +77,10 @@ ds::ui::TouchEvent TuioInput::convertTouchEvent(ci::app::TouchEvent& e, const bo
 		ci::vec2   prevPos = transformEventPosition(touch.getPrevPos(), true);
 
 		// we're only kicking out add points in the rectangle
-		if(isAdd && mAllowedRect.getInteriorArea().calcArea() > 0.0f && !mAllowedRect.contains(pos)) continue;
+		if(isAdd && mAllowedRect.getWidth() > 0.0f && mAllowedRect.getHeight() > 0.0f && !mAllowedRect.contains(pos)) {
+			DS_LOG_VERBOSE(1, "TuioInput: discarding touch point at " << pos << " because it doesn't fit in the filter rect " << mAllowedRect);
+			continue;
+		}
 
 		//	std::cout << "TouchInput event: " << touch.getPos() << " " << possy << std::endl;
 		touches.push_back(ci::app::TouchEvent::Touch(pos, prevPos, touch.getId() + mFingerIdOffset, touch.getTime(),
