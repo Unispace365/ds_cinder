@@ -50,8 +50,8 @@ Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 #endif
 
-Source: "{#SYSTEMF}/system32/msvcr100.dll"; DestDir: "{app}"
-Source: "{#SYSTEMF}/system32/msvcr120.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
 
 #ifdef USE_GSTREAMER
 Source: "{#GST}/bin/*"; DestDir: "{app}/dll"
