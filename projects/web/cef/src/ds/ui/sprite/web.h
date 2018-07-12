@@ -69,6 +69,7 @@ public:
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
 	void										setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
 	void										setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
+	void										setDragScrollingDirection(bool scrollsUp) { mDragScrollingDirection = scrollsUp; }
 
 	void										sendKeyDownEvent(const ci::app::KeyEvent &event);
 	void										sendKeyUpEvent(const ci::app::KeyEvent &event);
@@ -247,6 +248,7 @@ private:
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
+	bool										mDragScrollingDirection;
 	bool										mIsDragging;
 	// Cache the page size and scroll during touch events
 	ci::vec2									mPageSizeCache,

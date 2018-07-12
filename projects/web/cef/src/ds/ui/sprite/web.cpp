@@ -77,6 +77,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mService(engine.getService<ds::web::WebCefService>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
+	, mDragScrollingDirection(true)
 	, mIsDragging(false)
 	, mClickDown(false)
 	, mPageScrollCount(0)
@@ -736,6 +737,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 				}
 
 				float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
+				if (!mDragScrollingDirection) yDelta = -yDelta;
 				sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));
 			}
 
