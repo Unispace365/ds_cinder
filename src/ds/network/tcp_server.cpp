@@ -50,7 +50,7 @@ namespace {
 					keepRunning = false;
 				}
 				if (keepRunning) {
-					Poco::Thread::sleep(10);
+					Poco::Thread::sleep(1);
 				}
 			}
 		}
