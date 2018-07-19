@@ -59,8 +59,11 @@ Source: "{#GST}/lib/gstreamer-1.0/*"; DestDir: "{app}/dll/gst_plugins"
 #endif
 
 [Icons]
-Name: "{group}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
-Name: "{commondesktop}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
+Name: "{group}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+Name: "{commondesktop}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+#ifdef USE_APPHOST
+Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
+#endif
 
 ; In production will launch the app on system boot
 #ifdef IS_PRODUCTION
