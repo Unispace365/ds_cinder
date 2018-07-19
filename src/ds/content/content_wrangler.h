@@ -24,7 +24,6 @@ public:
 	ContentWrangler(ds::ui::SpriteEngine&);
 
 	// TODO: handle errors from the content query (don't replace mData or send out update events)
-	// TODO: detect when a query is already running and don't try to start a new one (could have a situation where the previous query never finishes)
 
 	/// A map of all the resources from the resources table
 	std::unordered_map<int, ds::Resource>	mAllResources; 

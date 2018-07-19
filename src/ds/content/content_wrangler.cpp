@@ -40,15 +40,50 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 
 		if(mEngine.mContent.hasDirectChild(q.mData.getName())) {
 			auto theChildren = mEngine.mContent.getChildren();
-			for(auto it = theChildren.begin(); it < theChildren.end(); it++) {
-				if((*it).getName() == q.mData.getName()) {
-					theChildren.erase(it);
+
+			for (auto& it : theChildren){
+				
+				// Find the top-level node that matches the incoming data
+				if(it.getName() == q.mData.getName()) {
+
+					// Merge new tables with the existing data tables
+					std::vector<ds::model::ContentModelRef> existingTables = it.getChildren();
+					std::vector<ds::model::ContentModelRef> newTables = q.mData.getChildren();
+					std::vector<ds::model::ContentModelRef> mergedList;
+
+					for (auto tit : existingTables){
+
+						bool foundNewTable = false;
+						// look for updates to this table, and if there are, remove them from the new list
+						for(auto nit = newTables.begin(); nit < newTables.end(); nit++) {
+							if((*nit).getName() == tit.getName()) {
+								mergedList.emplace_back((*nit));
+								foundNewTable = true;
+								// remove from the new list so when we add the remainders later, it's there
+								newTables.erase(nit);
+								break;
+							}
+						}
+
+						/// One of the existing tables didn't get updated, so add it to the merged list
+						if(!foundNewTable) {
+							mergedList.emplace_back(tit);
+						}
+					}
+
+					/// Add any new tables that weren't already in the existing list
+					for (auto nit : newTables){
+						mergedList.emplace_back(nit);
+					}
+
+					/// replace all children of the top-level node
+					it.setChildren(mergedList);
 					break;
 				}
 			}
-			mEngine.mContent.setChildren(theChildren);
+		} else {
+			mEngine.mContent.addChild(q.mData);
 		}
-		mEngine.mContent.addChild(q.mData);
 
 		mEngine.getNotifier().notify(ContentUpdatedEvent());
 	});
@@ -79,20 +114,23 @@ void ContentWrangler::runQuery() {
 		return;
 	}
 
-	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
-	if(mModelModelLocation.empty() && cms.getDatabasePath().empty()) {
-		DS_LOG_VERBOSE(2, "ContentWrangler: no database path or model location specified. Not a problem if you're not using ContentWrangler or Sqlite");
+	if(mModelModelLocation.empty()) {
+		DS_LOG_VERBOSE(2, "ContentWrangler: no model location specified. Not a problem if you're not using ContentWrangler or Sqlite");
 		return;
 	}
 
 	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() starting");
 
-	mContentQuery.start([this](ds::ContentQuery& dq) {
-		const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
-		dq.mXmlDataModel = mModelModelLocation;
-		dq.mCmsDatabase = cms.getDatabasePath();
-		dq.mResourceLocation = cms.getResourcePath();
-	}, false);
+	auto allModels = ds::split(mModelModelLocation, ";", true);
+	for(auto it : allModels) {
+		auto thisModel = it;
+		mContentQuery.start([this, thisModel](ds::ContentQuery& dq) {
+			const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
+			dq.mXmlDataModel = thisModel;
+			dq.mCmsDatabase = cms.getDatabasePath();
+			dq.mResourceLocation = cms.getResourcePath();
+		}, false);
+	}
 }
 
 } // !namespace downstream

@@ -27,6 +27,26 @@ void ContentQuery::run() {
 	mData.setProperty("model_xml", mXmlDataModel);
 	mTableId = 0;
 
+	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
+
+	auto metaData = readXml();
+
+	auto metaNode = metaData.getChildByName("meta");
+	if(!metaNode.empty() && !metaNode.getPropertyString("db_location").empty() && !metaNode.getPropertyString("resource_location").empty()) {
+		mAllResources.clear();
+		mResourceLocation = ds::getNormalizedPath(ds::Environment::expand(metaNode.getPropertyString("resource_location")));
+		try {
+			Poco::Path p = Poco::Path(mResourceLocation);
+			p.append(metaNode.getPropertyString("db_location"));
+			mCmsDatabase = ds::getNormalizedPath(p);
+		} catch(std::exception& e) {
+			DS_LOG_WARNING("Exception parsing data model path " << e.what());
+			return;
+		}
+
+		mData.setProperty("cms_database", mCmsDatabase);
+	}
+
 	if(mCmsDatabase.empty()) {
 		DS_LOG_VERBOSE(3, "ContentQuery: no sqlite database location specified.");
 		return;
@@ -37,12 +57,7 @@ void ContentQuery::run() {
 		return;
 	}
 
-	Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
-
-
-	auto metaData = readXml();
-
-	if(metaData.getChildByName("meta").empty() || metaData.getChildByName("meta").getPropertyString("use_resources").empty() || metaData.getChildByName("meta").getPropertyBool("use_resources")) {
+	if(metaNode.empty() || metaNode.getPropertyString("use_resources").empty() || metaNode.getPropertyBool("use_resources")) {
 		updateResourceCache();
 	}
 
