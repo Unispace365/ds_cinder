@@ -2,7 +2,7 @@
 #ifndef DS_CONTENT_CONTENT_WRANGLER
 #define DS_CONTENT_CONTENT_WRANGLER
 
-#include <ds/thread/serial_runnable.h>
+#include <ds/thread/parallel_runnable.h>
 #include <ds/network/helper/delayed_node_watcher.h>
 #include <ds/app/event_client.h>
 
@@ -36,7 +36,7 @@ public:
 
 private:
 	ds::ui::SpriteEngine&					mEngine;
-	ds::SerialRunnable<ContentQuery>		mContentQuery;
+	ds::ParallelRunnable<ContentQuery>		mContentQuery;
 
 	ds::DelayedNodeWatcher					mNodeWatcher;
 	ds::EventClient							mEventClient;

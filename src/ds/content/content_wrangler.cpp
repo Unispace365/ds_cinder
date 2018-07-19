@@ -13,7 +13,7 @@ namespace ds {
 ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	: mNodeWatcher(se, "localhost", 7777, false)
 	, mEngine(se)
-	, mContentQuery(se, [] { return new ContentQuery(); }, true)
+	, mContentQuery(se, [] { return new ContentQuery(); })
 	, mEventClient(se)
 {
 
@@ -26,7 +26,8 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	mEventClient.listenToEvents<RequestContentQueryEvent>([this](const RequestContentQueryEvent& e) { runQuery(); });
 
 	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m) {
-		mContentQuery.start(nullptr, false);
+		//mContentQuery.start(nullptr);
+		runQuery();
 
 		for(auto it : m.mData) {
 			DsNodeMessageReceivedEvent dnmre;
@@ -129,7 +130,7 @@ void ContentWrangler::runQuery() {
 			dq.mXmlDataModel = thisModel;
 			dq.mCmsDatabase = cms.getDatabasePath();
 			dq.mResourceLocation = cms.getResourcePath();
-		}, false);
+		});
 	}
 }
 
