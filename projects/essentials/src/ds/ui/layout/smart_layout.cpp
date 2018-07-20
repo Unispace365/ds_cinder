@@ -150,14 +150,18 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
 						} else if (sprPropToSet == "resource_cache") {
 							setSpriteImage(it.first, theData.getProperty(theProp).getResource(), true);
-						} else if (sprPropToSet == "media_player_src") {
+						} else if(sprPropToSet == "media_player_src") {
 							auto theResource = theData.getProperty(theProp).getResource();
 							if(theResource.empty()) {
 								theResource = ds::Resource(ds::Environment::expand(theData.getPropertyString(theProp)));
 							}
 							ds::ui::XmlImporter::setSpriteProperty(
-									*it.second, "media_player_src", theResource.getAbsoluteFilePath());
-
+								*it.second, "media_player_src", theResource.getAbsoluteFilePath());
+						} else if(sprPropToSet == "text_update"){
+							actualValue = theData.getPropertyString(theProp);
+							if(!actualValue.empty()) {
+								ds::ui::XmlImporter::setSpriteProperty(*it.second, "text", actualValue);
+							}
 						} else {
 							if (theChild == "this") {
 								actualValue = theData.getPropertyString(theProp);
