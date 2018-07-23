@@ -146,28 +146,25 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 						auto		theProp		 = childProps[1];
 						std::string actualValue  = "";
 
+						ds::model::ContentModelRef theNode = theData;
+						if(theChild != "this") {
+							theNode = theData.getChildByName(theChild);
+						}
+
 						if (sprPropToSet == "resource") {
-							setSpriteImage(it.first, theData.getProperty(theProp).getResource());
+							setSpriteImage(it.first, theNode.getProperty(theProp).getResource());
 						} else if (sprPropToSet == "resource_cache") {
-							setSpriteImage(it.first, theData.getProperty(theProp).getResource(), true);
+							setSpriteImage(it.first, theNode.getProperty(theProp).getResource(), true);
 						} else if(sprPropToSet == "media_player_src") {
-							auto theResource = theData.getProperty(theProp).getResource();
+							auto theResource = theNode.getProperty(theProp).getResource();
 							if(theResource.empty()) {
-								theResource = ds::Resource(ds::Environment::expand(theData.getPropertyString(theProp)));
+								theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
 							}
 							ds::ui::XmlImporter::setSpriteProperty(
 								*it.second, "media_player_src", theResource.getAbsoluteFilePath());
-						} else if(sprPropToSet == "text_update"){
-							actualValue = theData.getPropertyString(theProp);
-							if(!actualValue.empty()) {
-								ds::ui::XmlImporter::setSpriteProperty(*it.second, "text", actualValue);
-							}
+
 						} else {
-							if (theChild == "this") {
-								actualValue = theData.getPropertyString(theProp);
-							} else {
-								actualValue = theData.getChildByName(theChild).getPropertyString(theProp);
-							}
+							actualValue = theNode.getPropertyString(theProp);
 
 							ds::ui::XmlImporter::setSpriteProperty(*it.second, sprPropToSet, actualValue);
 						}
@@ -182,18 +179,6 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 			}
 		}
 	}
-
-	/*
-	for (auto it : theData.getProperties()){
-	if(hasSprite(it.first)) {
-	if(it.second.getResource().empty()) {
-	setSpriteText(it.first, it.second.getString());
-	} else {
-	setSpriteImage(it.first, it.second.getResource());
-	}
-	}
-	}
-	*/
 
 	runLayout();
 }

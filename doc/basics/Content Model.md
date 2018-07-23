@@ -80,13 +80,38 @@ Now that the content is in the app, we'll want to access it. To get the slides t
 So we've got a reference to our slides table, and we want to do something with each slide:
 
 ````
+void ExampleThing::setData(){
+	/// get all the slides
+    auto slidesTableModel = mEngine.mContent.getChildByName("sqlite.slides");
+	
+	/// simple validation
 	if(slidesTableModel.empty()){
 		DS_LOG_WARNING("Slides table is empty!");
+		return;
 	}
 
+	/// Create a slide for each data model
 	for(auto it : slidesTableModel.getChildren()){
 		buildSlide(it);
 	}
+	
+	/// layout everything
+	runLayout();
+	
+	/// animate everything
+	tweenAnimateOn(true, 0.0f, 0.05f);
+}
+	
+void ExampleThing::buildSlide(ds::model::ContentModelRef theSlide){
+	/// create a new smart layout
+	auto newSlide = ds::ui::SmartLayout(mEngine, "slide_layout.xml");
+	
+	/// apply the slide content model to the smart layout (see Dynamic Interfaces Content Model section for details)
+	newSlide->setContentModel(theSlide);
+	
+	/// Add the sprite to this layout
+	addChildPtr(newSlide);
+}
 ````
 
 It's important to do sanity checks on the models, so if something doesn't show up in your app you know where to start looking.
@@ -197,3 +222,9 @@ When these get queried, you'll get a data structure like this:
 				- slide_items row
 				etc.
 ````
+
+
+Applying to a layout file
+===========================
+
+See the Dynamic Interfaces document for more info.

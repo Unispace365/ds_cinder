@@ -102,6 +102,7 @@ Sprite Parameters
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
+* **model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 
 
 Variables
@@ -189,9 +190,9 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
             }
         }
 ````
-		
+	
 
-Layout Parameters (valid if using a layout sprite as a parent)
+Layout Parameters : valid for any sprite if the parent is a layout
 ------------------------------------------------------
 * **t_pad**: Padding on the top part of this sprite in the layout
 * **b_pad**: Padding on the bottom part of this sprite in the layout
@@ -237,9 +238,10 @@ Perspective Layout Parameters
 * **persp_far_clip**: Float for the far clipping distance, only if auto clip is disabled
 * **persp_enabled**: Bool to enable or disable rendering in 3d at all
 
-Text Parameters
+Text Parameters : text
 ------------------------------------------------------------
 * **text**: Set the content show on the screen. text="Hello World"
+* **text_update**: Set the text content show on the screen, but only if there is content. See ContentModel section below. text="" // does nothing, text="Hey" // set's the text
 * **text_uppercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as HELLO WORLD
 * **text_lowercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as hello world
 * **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
@@ -254,13 +256,13 @@ Text Parameters
     2. "center": Center-aligns the layout.
     3. "right": Align rows of text to the right side of the resize_limit
 
-Image Parameters
+Image Parameters : image
 -------------------------
 * **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
 * **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 
-Image Button Parameters
+Image Button Parameters : image_button
 -------------------------
 * **filename**: Will apply the same image to down and up state. Will override down_image and up_image, and vice-versa.
 * **down_image**: The image to display when touch is happening on this button. See filename for explanation. down_image="../data/images/refresh_btn.png"
@@ -270,7 +272,7 @@ Image Button Parameters
 * **up_image_color**: Applies a color to the up (normal) image, to make creating responsive buttons easy from a single image.
 
 
-Sprite Button and Layout Button Parameters
+Sprite Button and Layout Button Parameters : sprite_button, layout_button
 ----------------------------
 **attach_state**: Add this to a sprite that's a child of a sprite button or a layout button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
 
@@ -286,7 +288,7 @@ Sprite Button and Layout Button Parameters
     </interface>
 ````
 
-Gradient Sprite Parameters
+Gradient Sprite Parameters : gradient
 ---------------------------
 * **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="ffffff"
 * **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="ffffff"
@@ -294,33 +296,33 @@ Gradient Sprite Parameters
 * **colorRight**: A color value to set the TR and BR colors of the gradient to. colorRight="ffffff"
 * **gradientColors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
 
-Circle Sprite Parameters
+Circle Sprite Parameters : circle
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
 * **line_width**: Float, the width for non-filled circle border
 
-Border Parameters
+Border Parameters : border
 ---------------------------
 * **border_width**: Float, the width of the border, which has its outer edge at the extent of the sprite
 
-Donut Arc Parameters
+Donut Arc Parameters : donut_arc
 ---------------------------
 * **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
 * **donut_percent**: Float, the percentage that the donut is filled in
 
-Dashed Line Parameters
+Dashed Line Parameters : dashed_line
 ---------------------------
 * **dash_length**: The length of each dash in a dashed line
 * **dash_space_inc**: The distance between each dash in a dashed line
 
-Control Check Box Parameters
+Control Check Box Parameters : control_check_box
 ---------------------------
 * **font**: Sets the font text config of the label (which also adds a true/false label at all, optional)
 * **check_box_true_label**: Sets the text string that shows up when the box is checked
 * **check_box_false_label**: Sets the text string that shows up when the box is unchecked
 
-Scroll List Parameters
+Scroll List Parameters : scroll_list
 -------------------------------
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
@@ -329,7 +331,7 @@ Scroll List Parameters
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: Set the size of the fade as a float.
 
-EntryField and SoftKeyboard Parameters
+EntryField and SoftKeyboard Parameters : entry_field, soft_keyboard
 --------------------------------------
 EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:
 
@@ -367,23 +369,23 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 * **key_scale**: The amount the keyboard is scaled as a single float. Default: 1.0
 * See soft_keyboard_settings.h for the default text configs and key images.
 
-Web Parameters
+Web Parameters : web
 -------------------------------
 If you have the web project included, you can create web sprites.
 * **web_url**: The full url of a site to load.
 
-PDF Parameters
+PDF Parameters : pdf
 -------------------------------
 If you have the pdf project included, you can create pdf sprites.
 * **pdf_src**: Relative or absolute path to the pdf. For example: pdf_src="%APP%/data/test/test.pdf" or pdf_src="c:/test.pdf"
 
-Video Parameters
+Video Parameters : video
 -------------------------------
 If you have the video project included, you can create video sprites.
 * **video_src**: Relative or absolute path to the video. For example: video_src="%APP%/data/test/test.mp4" or video_src="c:/test.mp4"
 * **stream_src**: A pipeline for a live stream source or the URI of a stream. Example: stream_src="rtsp://192.168.1.37:5015/Stream1"
 
-Media Players Parameters
+Media Players Parameters : media_player
 -------------------------------
 If you have the viewers project included, you can create media players. Media players are a simple way to view Images, PDFs, Videos, and Web sites. Media Players created this way automatically have an embedded interface (to flip through pages or control videos). Media types are deduced by file extension. MediaPlayer sprites need to be enabled or accept some user input for the interface to re-appear.
 * **media_player_src**: Relative or absolute path to the media. For example:
@@ -395,7 +397,7 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_video_volume**: Float, sets the volume of videos when they start
 * **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 
-XML
+XML : xml
 -------------------------------
 You can load another xml interface from within an xml interface. This is super handy for menus and such that have a bunch of identical buttons or to make a consistent close button for your whole app.
 Limitations:
@@ -540,3 +542,72 @@ Supply a delay in seconds for the start of the tween. Default is 0.0 seconds.
 
 **Cascading delays:**
 When calling tweenAnimateOn(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
+
+
+ContentModel : model in a SmartLayout
+=========================
+
+If you're using ds::model::ContentModelRef for your data model and queries (see Content Model doc) and SmartLayouts for your layouts, you can apply the content models in the XML itself. You'll do this with the **model** property. **Note:** the sprite **must** be named for this value to be read.
+
+* **model**: String, colon-separated sprite parameters, semi-colon and space separated for multiple settings.
+
+**Syntax**: {sprite property}:{content model reference}->{content model property}.
+
+**Example**: 
+
+````XML
+<text name="must_name_your_sprite"
+	font="sample:font"
+	model="text:this->title"
+	/>
+````
+
+When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking. 
+
+The second part of the syntax is the **content model reference**. Typically you'll use the "this" value, which indicates the current ContentModelRef for this SmartLayout. You can also access any level of children that can be accessed through mContentModel.getChildByName(""), such as "slide.theme" or "sqlite.settings".
+
+After a pointer arrow, you'll specify the **content model property** to use. In general these will be the column names from a sqlite db. Since all data in ContentModelRef is stored as string and type converted when applied, you can apply any content model property to any sprite property, so it's up to you to make sure it makes sense. On the flip side, you could apply properties to a text field for quick debugging. For instance, if a color is not appearing correctly, you could apply the color property to a text field to check the value.
+
+Set multiple models separated by a **semi-colon and a space**.
+
+````C++
+ds::model::ContentModelRef sampleSlideModel = ds::model::ContentModelRef("sample");
+sampleSlideModel.setProperty("title", std::string("Hello there!"));
+
+ds::model::ContentModelRef themeModel = ds::model::ContentModelRef("theme");
+themeModel.setProperty("title_color", std::string("red"));
+
+sampleSlideModel.addChild(themeModel);
+
+auto mySlide = new ds::ui::SmartLayout(mEngine, "slide.xml");
+mySlide->setContentModel(sampleSlideModel);
+addChildPtr(mySlide);
+````
+
+````XML
+<!-- slide.xml -->
+<layout name="root_layout" >
+	<text name="the_title"
+		font="slide:title"
+		model="color:theme->title_color; text:this->title"
+		/>
+</layout>
+````
+
+Caveats
+-----------------------
+Setting the model runs when you call setContentModel() on the SmartLayout. This means that it will be applied after all the other properties on the sprite. Expressions and parameters are evaluated both before and after the model is processed, so this could be valid: model="text:this->$_title_column_name", assuming "title_column_name" is in app_settings.xml. Additionally, you can put expressions and parameters into the content model itself, and they will be evaluated normally. The same limitations apply (e.g. no nested expressions).
+
+**name**: Must have a value for the sprite to have a model applied
+**resource and resource_cache**: These currently only apply to Images
+**media_player_src**: Tried to find an existing resource or looks it up on disk, but can apply to all media player types
+**text_update**: Very handy if you only want to overwrite the text if it exists. This is great if you have a text field with generic info that could show an error message if it's available. Or you could have one layout file for several different tables and only apply the title field text if it exists:
+
+````
+<text name="the_title"
+	font="slide:title"
+	model="text_update:this->title; text_update:this->name; text_update:this->label"
+	/>
+````
+
+
