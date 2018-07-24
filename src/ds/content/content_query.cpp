@@ -31,9 +31,11 @@ void ContentQuery::run() {
 
 	auto metaData = readXml();
 
+	mLastUpdatedResource.clear();
+	mAllResources.clear();
+
 	auto metaNode = metaData.getChildByName("meta");
 	if(!metaNode.empty() && !metaNode.getPropertyString("db_location").empty() && !metaNode.getPropertyString("resource_location").empty()) {
-		mAllResources.clear();
 		mResourceLocation = ds::getNormalizedPath(ds::Environment::expand(metaNode.getPropertyString("resource_location")));
 		try {
 			Poco::Path p = Poco::Path(mResourceLocation);
