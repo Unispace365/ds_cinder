@@ -186,6 +186,7 @@ void EngineSettings::setDefaults(){
 	getSetting("console:show", 0, ds::cfg::SETTING_TYPE_BOOL, "Show console will create a console window, or not if this is false.", "false");
 	getSetting("idle_time", 0, ds::cfg::SETTING_TYPE_DOUBLE, "Seconds before idle happens. 300 = 5 minutes.", "300", "0", "1000");
 	getSetting("system:never_sleep", 0, ds::cfg::SETTING_TYPE_BOOL, "Prevent the system from sleeping or powering off the screen", "true");
+	getSetting("apphost:exit_on_quit", 0, ds::cfg::SETTING_TYPE_BOOL, "Exit apphost when quitting the app", "true");
 
 	getSetting("RENDER SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("frame_rate", 0, ds::cfg::SETTING_TYPE_INT, "Attempt to run the app at this rate", "60", "1", "1000");

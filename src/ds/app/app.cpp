@@ -15,6 +15,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/content/content_events.h"
+#include "ds/network/https_client.h"
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
@@ -430,80 +431,80 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
 	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
 	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
-	mKeyManager.registerKey("Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
-	mKeyManager.registerKey("Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
-	mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
-	mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
-	mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
-	mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
-	mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
-	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
+mKeyManager.registerKey("Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
+mKeyManager.registerKey("Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
+mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
+mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
+mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
+mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
+mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
+mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
 
-	mKeyManager.registerKey("Translate src rect input mode", [this] {
-		if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
-			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
-		} else {
-			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputTranslate);
-		}
-	}, KeyEvent::KEY_t);
+mKeyManager.registerKey("Translate src rect input mode", [this] {
+	if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+	} else {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputTranslate);
+	}
+}, KeyEvent::KEY_t);
 
-	mKeyManager.registerKey("Scale src rect input mode", [this] {
-		if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
-			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
-		} else {
-			mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputScale);
-		}
-	}, KeyEvent::KEY_y);
+mKeyManager.registerKey("Scale src rect input mode", [this] {
+	if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+	} else {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputScale);
+	}
+}, KeyEvent::KEY_y);
 
 
-	mKeyManager.registerKey("Restore src rect", [this] {
-		mEngineData.mSrcRect = mEngineData.mOriginalSrcRect;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_BACKQUOTE);
+mKeyManager.registerKey("Restore src rect", [this] {
+	mEngineData.mSrcRect = mEngineData.mOriginalSrcRect;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_BACKQUOTE);
 
-	mKeyManager.registerKey("src rect 100% scale", [this] {
-		mEngineData.mSrcRect.x1 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f - mEngineData.mDstRect.getWidth() / 2.0f;
-		mEngineData.mSrcRect.x2 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f + mEngineData.mDstRect.getWidth() / 2.0f;
-		mEngineData.mSrcRect.y1 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f - mEngineData.mDstRect.getHeight() / 2.0f;
-		mEngineData.mSrcRect.y2 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f + mEngineData.mDstRect.getHeight() / 2.0f;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_1);
+mKeyManager.registerKey("src rect 100% scale", [this] {
+	mEngineData.mSrcRect.x1 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f - mEngineData.mDstRect.getWidth() / 2.0f;
+	mEngineData.mSrcRect.x2 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f + mEngineData.mDstRect.getWidth() / 2.0f;
+	mEngineData.mSrcRect.y1 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f - mEngineData.mDstRect.getHeight() / 2.0f;
+	mEngineData.mSrcRect.y2 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f + mEngineData.mDstRect.getHeight() / 2.0f;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_1);
 
-	mKeyManager.registerKey("Move src rect left", [this] {
-		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_LEFT);
+mKeyManager.registerKey("Move src rect left", [this] {
+	mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+	mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_LEFT);
 
-	mKeyManager.registerKey("Move src rect right", [this] {
-		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_RIGHT);
+mKeyManager.registerKey("Move src rect right", [this] {
+	mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+	mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_RIGHT);
 
-	mKeyManager.registerKey("Move src rect up", [this] {
-		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_UP);
+mKeyManager.registerKey("Move src rect up", [this] {
+	mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+	mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_UP);
 
-	mKeyManager.registerKey("Move src rect down", [this] {
-		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_DOWN);
+mKeyManager.registerKey("Move src rect down", [this] {
+	mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+	mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_DOWN);
 
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
 	DS_LOG_VERBOSE(3, "App::keyDown char=" << e.getChar() << " code=" << e.getCode());
 
-	if(!mAppKeysEnabled){
+	if(!mAppKeysEnabled) {
 		onKeyDown(e);
 		return;
 	}
 
-	if(mEngine.getRegisteredEntryField()){
+	if(mEngine.getRegisteredEntryField()) {
 		mEngine.getRegisteredEntryField()->keyPressed(e);
 		return;
 	}
@@ -529,7 +530,14 @@ void App::saveTransparentScreenshot() {
 	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
-void App::quit(){
+void App::quit() {
+	if(mEngine.getEngineSettings().getBool("apphost:exit_on_quit", 0, true)) {
+		DS_LOG_INFO("Requesting Apphost to exit...");
+		ds::net::HttpsRequest httpsRequest = ds::net::HttpsRequest(mEngine);
+		httpsRequest.makeGetRequest("http://localhost:7800/api/exit");
+	}
+
+	DS_LOG_INFO("App shutting down");
 	ci::app::App::quit();
 }
 
