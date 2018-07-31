@@ -180,6 +180,23 @@ Web::~Web() {
 	if(mCallbacksCue){
 		mCallbacksCue->removeSelf();
 	}
+
+	mHasCallbacks = false;
+	mHasDocCallback = false;
+	mDocumentReadyFn = nullptr;
+	mHasErrorCallback = false;
+	mErrorCallback = nullptr;
+	mHasAddressCallback = false;
+	mAddressChangedCallback = nullptr;
+	mHasTitleCallback = false;
+	mTitleChangedCallback = nullptr;
+	mHasFullCallback = false;
+	mFullscreenCallback = nullptr;
+	mHasLoadingCallback = false;
+	mLoadingUpdatedCallback = nullptr;
+	mHasAuthCallback = false;
+	mAuthRequestCallback = nullptr;
+	
 }
 
 void Web::setWebTransparent(const bool isTransparent){
@@ -220,7 +237,7 @@ void Web::initializeBrowser(){
 		mHasTitleCallback = true;
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};

@@ -322,8 +322,9 @@ void WebInterface::animateOff(){
 }
 
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
-	if(mLinkedWeb && !linkedWeb){
+	if(mLinkedWeb){
 		mLinkedWeb->setAuthCallback(nullptr);
+		mLinkedWeb->setLoadingUpdatedCallback(nullptr);
 	}
 
 	mLinkedWeb = linkedWeb;

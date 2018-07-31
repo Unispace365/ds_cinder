@@ -78,7 +78,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 			auto findy = mInUseImages.find(it.mFilePath);
 			if (findy == mInUseImages.end()) {
 				// mInUseImages[it.mFilePath] = it;
-				DS_LOG_INFO("Image loaded after no one was left to care!" << it.mFilePath);
+				DS_LOG_VERBOSE(3, "Image loaded after no one was left to care!" << it.mFilePath);
 			} else {
 				mInUseImages[it.mFilePath] = it;
 				// this shouldn't really ever happen, but just in case
