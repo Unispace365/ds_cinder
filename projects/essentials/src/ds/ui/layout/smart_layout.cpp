@@ -160,8 +160,10 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 							if(theResource.empty()) {
 								theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
 							}
-							ds::ui::XmlImporter::setSpriteProperty(
-								*it.second, "media_player_src", theResource.getAbsoluteFilePath());
+							if(!theResource.empty()) {
+								ds::ui::XmlImporter::setSpriteProperty(
+									*it.second, "media_player_src", theResource.getAbsoluteFilePath());
+							}
 
 						} else {
 							actualValue = theNode.getPropertyString(theProp);
