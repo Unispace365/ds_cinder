@@ -31,7 +31,10 @@
 #define USE_DSNODE
 
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
-;#define CMS_URL ""
+;#define CMS_URL ""        
+
+; Define to not create a normal app icon
+;#define SKIP_APP_ICON
 
 ; -------- Required include of the base install
 ; This grabs the full installer script to actually build the thing

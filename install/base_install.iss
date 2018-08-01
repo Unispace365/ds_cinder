@@ -60,7 +60,9 @@ Source: "{#GST}/lib/gstreamer-1.0/*"; DestDir: "{app}/dll/gst_plugins"
 
 [Icons]
 Name: "{group}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+#ifndef SKIP_APP_ICON
 Name: "{commondesktop}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+#endif
 #ifdef USE_APPHOST
 Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
 #endif
