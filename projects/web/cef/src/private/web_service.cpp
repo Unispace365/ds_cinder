@@ -144,6 +144,10 @@ void WebCefService::start() {
 	const char* path = "cefsimple.exe";
 	CefString(&settings.browser_subprocess_path).FromASCII(path);
 
+
+	const char* cachePath = ds::Environment::expand("%LOCAL%/cache/browser_cache/").c_str();
+	CefString(&settings.cache_path).FromASCII(cachePath);
+
 	CefInitialize(main_args, settings, mCefSimpleApp.get(), NULL);
 
 #else

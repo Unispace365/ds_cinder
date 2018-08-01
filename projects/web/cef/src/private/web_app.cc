@@ -80,6 +80,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	CefBrowserSettings browser_settings;
 	browser_settings.windowless_frame_rate = 60;
 
+
 	// On Windows, ci::Window::getNative() returns a HWND, cast as void*.
 	// On Linux, ci::Window::getNative() returns a GLFWwindow*, cast as void*.
 	// On Windows, CefWindowHandle is typedef'ed as HWND
