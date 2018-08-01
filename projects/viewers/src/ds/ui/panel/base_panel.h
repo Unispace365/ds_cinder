@@ -78,6 +78,9 @@ public:
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the override class after this.*/
 	void							setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& absMax);
 
+	/** Calculate the size limits */
+	void							setSizeLimits();
+
 	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
 	void							setDefaultSize(const ci::vec2& defaultSize){ mDefaultSize = defaultSize; }
 
@@ -118,7 +121,6 @@ protected:
 	virtual void					userInputReceived() override;
 
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
-	void							setSizeLimits();
 	
 	float							mContentAspectRatio;
 	float							mTopPad;
