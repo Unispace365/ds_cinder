@@ -12,7 +12,9 @@ Let's say you have a table in a sqlite db called "slides". (Check out the gettin
 	
 To tell ContentQuery to grab that table, you'd add an entry in data/model/content_model.xml:
 
-   	<table name="slides"/>
+```XML
+<table name="slides"/>
+```
 	
 ContentQuery would automatically get all the rows and columns from that table and make children and properties from them, respectively. Here's what the data structure would look like if we were to call mEngine.mContent.printTree(true, "") in the app:
 
@@ -152,7 +154,7 @@ If you want to specify the entire statement yourself, just use the select parame
 
 * **resources**: A comma-space separate list of columns that map to the resources table. Example: "primary_image, thumbnail_image". These automatically get mapped to ds::Resource values
 * **id**: The query automatically picks the primary key column to be the id, but if you want to override that you can specify an id field here. Example: "title_id"
-* **name_field: The name for each item is inherited from it's parent, but if you want to override that specify a field here. Example: "title"
+* **name_field**: The name for each item is inherited from it's parent, but if you want to override that specify a field here. Example: "title"
 * **label_field**: Labels are just a helpful field for humans. Specify a field to display here. Example: "subtitle"
 
 ```XML
