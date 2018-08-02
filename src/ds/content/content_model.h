@@ -189,6 +189,11 @@ public:
 	/// Depends on children having a consistent name and unique id.
 	ContentModelRef											getDescendant(const std::string& childName, const int childId);
 
+	/// Looks through all direct children, and returns all children that have a given label.
+    /// Useful for models that have children from more than one table
+    /// \note By default, labels are in the form "sql_table_name row"
+	std::vector<ds::model::ContentModelRef>					getChildrenWithLabel(const std::string& label);
+
 	/// Adds this child to the end of this children list, or at the index supplied
 	void													addChild(ContentModelRef datamodel);
 	void													addChild(ContentModelRef datamodel, const size_t index);

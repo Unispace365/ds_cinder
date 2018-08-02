@@ -532,6 +532,16 @@ ds::model::ContentModelRef ContentModelRef::getDescendant(const std::string& chi
 	return ds::model::ContentModelRef();
 }
 
+std::vector<ds::model::ContentModelRef> ContentModelRef::getChildrenWithLabel(const std::string& label) {
+	std::vector<ds::model::ContentModelRef> childrenWithLabel;
+	for(auto it : getChildren()) {
+		if(it.getLabel() == label) {
+			childrenWithLabel.push_back(it);
+		}
+	}
+	return childrenWithLabel;
+}
+
 bool ContentModelRef::hasChild(const std::string& name) const {
 	return !getChildByName(name).empty();
 }
