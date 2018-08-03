@@ -2,11 +2,11 @@
 
 ## Folders
 
-**data**: where fonts, images, layouts, and data models live
-**install**: scripts for building installers
-**settings**: xml files that configure your app
-**src**: c++ source
-**vs2015**: project, solution, and build output
+* **data**: where fonts, images, layouts, and data models live
+* **install**: scripts for building installers
+* **settings**: xml files that configure your app
+* **src**: c++ source
+* **vs2015**: project, solution, and build output
 
 
 ## Structure

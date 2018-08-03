@@ -26,7 +26,7 @@ public:
 
 	Pdf&						setResourceFilename(const std::string& filename);
 	Pdf&						setResourceId(const ds::Resource::Id&);
-	// Callback when the page size changes. Highly recommend you listen for this. The sprite will change size before this is called
+	/// Callback when the page size changes. Highly recommend you listen for this. The sprite will change size before this is called
 	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
 	virtual void				onUpdateClient(const UpdateParams&) override;

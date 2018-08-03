@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "Downstream's Cinder framework"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = ./vs2015/ds_app_icon.ico
+PROJECT_LOGO           = ./doc/doxygen/logo.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -790,14 +790,15 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  =./src \
-                        ./projects/essentials/src/ds \
-                        ./projects/mosquitto/src/ds \
-                        ./projects/pdf/mupdf/src/ds \
-                        ./projects/physics/box2d/src/ds \
-                        ./projects/video/gstreamer-1.0/src/ds \
-                        ./projects/viewers/src/ds \
-                        ./projects/web/cef/src/ds
+INPUT                  = src \
+                         projects/essentials/src/ds \
+                         projects/mosquitto/src/ds \
+                         projects/pdf/mupdf/src/ds \
+                         projects/physics/box2d/src/ds \
+                         projects/video/gstreamer-1.0/src/ds \
+                         projects/viewers/src/ds \
+                         projects/web/cef/src/ds \
+                         doc/basics
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -882,6 +883,7 @@ EXCLUDE                = ./src/gtk \
                          ./src/ds/util/sundown \
                          ./src/osc \
                          ./src/tuio \
+                         ./projects/essentials/src/ds/math
 
 
 
@@ -899,20 +901,19 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */doc/* \
-                         */example/* \
-                         */lib/* \
-                         */base_shaders/* \
-                         */resources/* \
-                         */vs2013/* \
-                         "*/project generator/*" \
-                         */boilerplate/* \
-                         */sqlite3.c \
-                         */poco/* \
-                         *sqlite3* \
-                         */projects/* \
-                         */vs2015/* \
-                         */utility/*
+EXCLUDE_PATTERNS       = *sqlite3*
+#                          */example/* \
+#                          */lib/* \
+#                          */base_shaders/* \
+#                          */resources/* \
+#                          */vs2013/* \
+#                          "*/project generator/*" \
+#                          */boilerplate/* \
+#                          */sqlite3.c \
+#                          */poco/* \
+#                          */projects/* \
+#                          */vs2015/* \
+#                          */utility/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

@@ -59,7 +59,7 @@ public:
 	/// the opposite of loading an xml to a sprite
 	static ci::XmlTree createXmlFromSprite(ds::ui::Sprite& sprite);
 
-	/// Parses the value if it starts with #expression, evaluates it, and returns the value as a string 
+	/// Parses the value if it starts with \#expression, evaluates it, and returns the value as a string 
 	static std::string parseExpression(const std::string& value);
 	static std::string parseAllExpressions(const std::string& value);
 

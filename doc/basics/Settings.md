@@ -14,45 +14,58 @@ When running an app, press the "e" key to show the editor. You can browse throug
 
 There are two pieces to any setting: the xml setting, and it's c++ counterpart. The xml setting looks something like this:
 
-    <setting name="particular_component:speed" value="100.0" />
+```xml
+<setting name="particular_component:speed" value="100.0" />
+```
 	
 In c++ land, the setting gets ready like this:
 
-    float theSpeed = mEngine.getAppSettings().getFloat("particular_component:speed");
+```cpp
+float theSpeed = mEngine.getAppSettings().getFloat("particular_component:speed");
+```
 	
 
 ## Indicies
 
 You can have multiple instances of the same setting, to define a series of things:
-    
-    <setting name="component:address" value="127.0.0.1" />
-    <setting name="component:address" value="8.8.8.8" />
+```xml
+<setting name="component:address" value="127.0.0.1" />
+<setting name="component:address" value="8.8.8.8" />
+```
 	
 In c++:
 
-    std::string firstAddress = mEngine.getAppSettings().getString("component:address", 0);
-    std::string secondAddres = mEngine.getAppSettings().getString("component:address", 1);
+```cpp
+std::string firstAddress = mEngine.getAppSettings().getString("component:address", 0);
+std::string secondAddres = mEngine.getAppSettings().getString("component:address", 1);
+```
 
 You can also iterate through each setting with the same name:
 
-    int i = 0;
-    while(true){
-        std::string theAddress = mEngine.getAppSettings().getString("component:address", i);
-        if(theAddress.empty()) break;
-        i++
-    }
+```cpp
+int i = 0;
+while(true){
+    std::string theAddress = mEngine.getAppSettings().getString("component:address", i);
+    if(theAddress.empty()) break;
+    i++
+}
+```
 	
 If you want to look through all the settings in a settings file:
 
-    mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
-        std::cout << "The value is " << theSetting.getString() << " for setting name " << theSetting.mName << std::endl;
-    });
+```cpp
+mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
+    std::cout << "The value is " << theSetting.getString() << " for setting name " << theSetting.mName << std::endl;
+});
+```
 	
 ## Default Values
 
 Pass a default value to the getter, and if the setting doesn't exist in the xml file, the default value will be returned.
 
-    ci::vec2 viewerSize = mEngine.getAppSettings().getVec2("viewer:size", 0, ci::vec2(1920.0f, 1080.0f);
+```cpp
+ci::vec2 viewerSize = mEngine.getAppSettings().getVec2("viewer:size", 0, ci::vec2(1920.0f, 1080.0f);
+```
 	
 In the settings editor, you'll not only see any values set from xml, but called with a getter. You could define the entire settings file using c++ if you wanted. Check out the bottom of src/ds/app/engine/engine_settings.cpp to see how the engine.xml file is defined.
 
@@ -60,15 +73,21 @@ In the settings editor, you'll not only see any values set from xml, but called 
 
 You can define the type of the setting as a hint to the editor for how to handle the setting. In XML:
 
-    <setting name="debug:show" value="true" type="bool" comment="Show the debug stuff" />
+```xml
+<setting name="debug:show" value="true" type="bool" comment="Show the debug stuff" />
+```
 
 In C++:
 
-    getSetting("debug:show", 0, ds::cfg::SETTING_TYPE_BOOL, "Show the debug stuff", "false");
+```cpp
+getSetting("debug:show", 0, ds::cfg::SETTING_TYPE_BOOL, "Show the debug stuff", "false");
+```
 
 This doesn't prevent getting that setting by any other type, it just defines how the editor displays the setting. For instance, this would return "true" or "false" as a string:
 
-    std::string showConsole = mGlobale.getAppSettings().getString("debug:show");
+```cpp
+std::string showConsole = mGlobale.getAppSettings().getString("debug:show");
+```
 	
 	
 # Where are they located?

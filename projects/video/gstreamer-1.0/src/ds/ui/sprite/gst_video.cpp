@@ -164,7 +164,7 @@ void GstVideo::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class Video static
+ * Video
  */
 GstVideo::GstVideo(SpriteEngine& engine)
 	: Sprite(engine)
