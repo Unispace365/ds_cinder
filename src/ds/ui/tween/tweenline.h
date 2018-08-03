@@ -9,7 +9,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::Tweenline
+* \class Tweenline
 * A wrapper around the Cinder timeline that provides some sprite-based management.
 */
 class Tweenline {
@@ -23,7 +23,7 @@ public:
 										  const float delay = 0,
 										  const std::function<void(void)>& updateFn = nullptr);
 
-	// Clients can go nuts with full access to the cinder timeline
+	/// Clients can go nuts with full access to the cinder timeline
 	cinder::Timeline&     getTimeline();
 
 private:

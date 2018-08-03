@@ -15,7 +15,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class dev::DrawingCanvas
+* \class DrawingCanvas
 *			A view that you can touch to draw on
 */
 class DrawingCanvas

@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
-* \class vm::MetricsService
+* \class MetricsService
 * \brief Sends metrics data to a telegraf data collector
 */
 class MetricsService {

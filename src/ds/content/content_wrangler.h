@@ -15,7 +15,7 @@ class SpriteEngine;
 }
 
 /**
-* \class downstream::ContentWrangler
+* \class ContentWrangler
 * \brief Listen to dsnode and app events to run queries and notify about the results
 *		 Does nothing if no resource location has been specified
 */
@@ -23,7 +23,7 @@ class ContentWrangler {
 public:
 	ContentWrangler(ds::ui::SpriteEngine&);
 
-	// TODO: handle errors from the content query (don't replace mData or send out update events)
+	/// TODO: handle errors from the content query (don't replace mData or send out update events)
 
 	/// A map of all the resources from the resources table
 	std::unordered_map<int, ds::Resource>	mAllResources; 

@@ -10,7 +10,7 @@ namespace ds {
 namespace net {
 
 /**
- * \class ds::TcpSocketSender
+ * \class TcpSocketSender
  */
 TcpSocketSender::TcpSocketSender() {
 	try {
@@ -42,7 +42,7 @@ void TcpSocketSender::send(const std::string& data) {
 }
 
 /**
- * \class ds::TcpSocketSender::Worker
+ * \class Worker
  */
 TcpSocketSender::Worker::Worker()
 		: mAbort(false) {

@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::LayoutButton
+* \class LayoutButton
 */
 LayoutButton::LayoutButton(SpriteEngine& eng, const float widdy, const float hiddy)
 	: ds::ui::LayoutSprite(eng)

@@ -13,7 +13,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class bragg::DashedLine
+* \class DashedLine
 *			Sprite to draw lines for map path!
 */
 class DashedLine : public ds::ui::Sprite {

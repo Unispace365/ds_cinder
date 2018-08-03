@@ -18,7 +18,7 @@ namespace cfg {
 class Settings;
 
 /**
- * \class ds::cfg::Text
+ * \class Text
  * Store config settings that can be used to generate a Text sprite
  */
 class Text {

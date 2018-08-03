@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::PerspectiveLayout
+* \class PerspectiveLayout
 *			Renders children in 3d.
 *	Caveats:
 *		- Centers the perspective view on the center of this sprite

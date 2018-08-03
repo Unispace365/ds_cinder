@@ -45,7 +45,7 @@ class TouchEvent;
 struct TouchInfo;
 
 /**
- * \class ds::ui::SpriteEngine
+ * \class SpriteEngine
  * Interface for the API that is supplied to sprites.
  */
 class SpriteEngine {
@@ -58,7 +58,7 @@ public:
 		 channel if it doesn't exist. */
 	virtual ds::EventNotifier&		getChannel(const std::string&) = 0;
 
-	// General engine services
+	/// General engine services
 	virtual ds::WorkManager&		getWorkManager() final { return mWorkManager;	};
 	virtual ds::ResourceList&		getResources() = 0;
 	virtual const ds::ColorList&	getColors() const = 0;
@@ -79,7 +79,7 @@ public:
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
 	template <typename T>
 	T&								getService(const std::string&);
-	// Answers true if the requested service exists and registered with Engine.
+	/// Answers true if the requested service exists and registered with Engine.
 	bool							hasService(const std::string&) const;
 
 	/** Access to the current engine configuration info. */
@@ -104,12 +104,12 @@ public:
 	/// Returns the settings for colors.xml (convenience)
 	ds::cfg::Settings&				getColorSettings() const;
 
-	// Sprite management
+	/// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;
 	virtual void					registerSprite(Sprite&) = 0;
 	virtual void					unregisterSprite(Sprite&) = 0;
 	virtual Sprite*					findSprite(const ds::sprite_id_t) = 0;
-	// Notification that a sprite has been deleted
+	/// Notification that a sprite has been deleted
 	virtual void					spriteDeleted(const ds::sprite_id_t&) = 0;
 	virtual ci::Color8u				getUniqueColor() = 0;
 
@@ -127,23 +127,23 @@ public:
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
 
-	// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
+	/// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
 	const std::string&				getCmsURL() const;
 
-	// Get the standard animation duration
+	/// Get the standard animation duration
 	const float						getAnimDur() const;
 	void							setAnimDur(const float newAnimDur);
 
-	// Camera control. Will throw if the root at the index is the wrong type.
-	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
-	// no earlier than App::setup().
+	/// Camera control. Will throw if the root at the index is the wrong type.
+	/// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
+	/// no earlier than App::setup().
 	virtual PerspCameraParams		getPerspectiveCamera(const size_t index) const = 0;
-	// For clients that frequently read the camera params, they can cache a direct reference.
+	/// For clients that frequently read the camera params, they can cache a direct reference.
 	virtual const ci::CameraPersp&	getPerspectiveCameraRef(const size_t index) const = 0;
 	virtual void					setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
 	virtual void					setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
 
-	// Will throw if the root at the index is the wrong type
+	/// Will throw if the root at the index is the wrong type
 	virtual float					getOrthoFarPlane(const size_t index) const = 0;
 	virtual float					getOrthoNearPlane(const size_t index) const = 0;
 	virtual void					setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
@@ -164,10 +164,10 @@ public:
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
 	virtual ui::Sprite*				getSpriteForFinger( const int fingerId ) = 0;
 
-	// If you want to create touch events from your client app, use these functions.
-	// The touch events will use the same pathways that normal touches would.
-	// This is generally only recommended for debugging stuff (like automators) 
-	// or if you have an unusual input situation (like a kinect or something) and want to use touch
+	/// If you want to create touch events from your client app, use these functions.
+	/// The touch events will use the same pathways that normal touches would.
+	/// This is generally only recommended for debugging stuff (like automators) 
+	/// or if you have an unusual input situation (like a kinect or something) and want to use touch
 	virtual void					injectTouchesBegin(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
@@ -183,11 +183,11 @@ public:
 	/// Get the function for touch info callbacks, for TouchManager to callback on.
 	std::function<void(const ds::ui::TouchInfo&)>	getTouchInfoPipeCallback(){ return mTouchInfoPipe; }
 
-	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
-	// Sprites can still turn this off after creation
+	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	/// Sprites can still turn this off after creation
 	virtual bool					getRotateTouchesDefault() = 0;
 
-	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
+	/// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
 	virtual ds::ui::Sprite*			getHit(const ci::vec3& point) = 0;
 
 	virtual	int						getBytesRecieved() = 0;
@@ -269,8 +269,8 @@ public:
 	ds::model::ContentModelRef		mContent;
 
 protected:
-	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
-	// which is how things work by default (the data and engine are owned by the App).
+	/// The data is not copied, so it needs to exist for the life of the SpriteEngine,
+	/// which is how things work by default (the data and engine are owned by the App).
 	SpriteEngine(ds::EngineData&, const int appMode);
 	virtual ~SpriteEngine();
 

@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::::ImageButton
+* \class ImageButton
 *	A convenience class to create a button from an image or two
 */
 class ImageButton : public ds::ui::Sprite {
@@ -22,7 +22,7 @@ public:
 	const float					getPad() const;
 	void						setTouchPad(const float touchPad);
 	
-	// the amount of time the images take fading between themselves
+	/// the amount of time the images take fading between themselves
 	void						setAnimationDuration(const float dur);
 
 	/// When the button has been clicked (touch released inside)
@@ -61,16 +61,16 @@ private:
 	std::function<void(void)>		mClickFn;
 	std::function<void(const bool)>	mStateChangeFunction;
 
-	// VIEW
+	/// VIEW
 	ds::ui::Image&				mDown;
 	ds::ui::Image&				mUp;
 	std::string					mHighFilePath;
 	std::string					mNormalFilePath;
 
-	// TOUCH
+	/// TOUCH
 	ds::ButtonBehaviour			mButtonBehaviour;
 
-	// SETTINGS
+	/// SETTINGS
 	float						mPad;
 	float						mAnimDuration;
 

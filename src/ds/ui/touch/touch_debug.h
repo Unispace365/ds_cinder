@@ -11,7 +11,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::TouchDebug
+* \class TouchDebug
 * \brief Takes over mouse-to-touch conversion for your app to perform some common multi-touch thingies.
 * Hold down shift while clicking with mouse to access 5-finger menu.
 * Hold down control to drop a second touch point (to simulate scaling and shit)

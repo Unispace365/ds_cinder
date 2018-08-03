@@ -54,16 +54,16 @@ private:
 	std::map<int, TouchInfo> mFingers;
 	std::list<int>			mFingerIndex;
 
-	// the fingerIndexes of the current 2 control fingers
+	/// the fingerIndexes of the current 2 control fingers
 	int						mControlFingerIndexes[2];
 
-	// the start point of the first finger, in local coordinates
+	/// the start point of the first finger, in local coordinates
 	ci::vec3				mMultiTouchAnchor;
 
-	// Start properties are stored to determine deltas
+	/// Start properties are stored to determine deltas
 	ci::vec3				mStartPosition;
 
-	// and to reset the anchor on touch completion and switches
+	/// and to reset the anchor on touch completion and switches
 	ci::vec3				mStartScale;
 	ci::vec3				mStartRotation;
 	ci::vec3				mStartAnchor;
@@ -71,7 +71,7 @@ private:
 	float					mStartWidth;
 	float					mStartHeight;
 
-	// These 4 variables are for calculating touch deltas.
+	/// These 4 variables are for calculating touch deltas.
 	float					mStartDistance;
 	float					mCurrentDistance;
 	float					mCurrentScale;
@@ -80,13 +80,13 @@ private:
 	ci::vec3				mSwipeVector;
 	int						mSwipeFingerId;
 
-	// the last few touch events and their time, for calculating swipes
+	/// the last few touch events and their time, for calculating swipes
 	std::deque<SwipeQueueEvent> mSwipeQueue;
 
-	// is the current finger action potentially a tap? If it is, the sprite won't move.
+	/// is the current finger action potentially a tap? If it is, the sprite won't move.
 	bool					mTappable;
 
-	// used to track for double taps
+	/// used to track for double taps
 	bool					mOneTap;
 	float					mDoubleTapTime;
 	ci::vec3				mFirstTapPos;

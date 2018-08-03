@@ -21,7 +21,7 @@ namespace model {
 
 
 /**
-* \class ds::ContentProperty
+* \class ContentProperty
 * \brief A single property on a ContentModel. 
 *		 For instance, this could be ContentProperty("longitude", 123.456); or ContentProperty("title", "The title of this thing")
 */
@@ -53,7 +53,7 @@ public:
 	/// The name, value and resource are equal
 	bool							operator==(const ContentProperty&) const;
 
-	// ------- This value, type converted when called --------- //
+	/// ------- This value, type converted when called --------- //
 
 	bool							getBool() const;
 	int								getInt() const;
@@ -82,7 +82,7 @@ protected:
 
 
 /**
-* \class ds::ContentModelRef
+* \class ContentModelRef
 * \brief A nodal hierarchy-based generic content model
 *		 Each ContentModelRef points to an underlying Data object by a shared pointer, so you can copy these instances around freely
 *		 Each ContentModelRef has:
@@ -95,8 +95,8 @@ protected:
 class ContentModelRef {
 public:
 
-	// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
-	// TODO: remove child
+	/// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
+	/// TODO: remove child
 
 	ContentModelRef();
 	ContentModelRef(const std::string& name, const int id = 0, const std::string& label = "");

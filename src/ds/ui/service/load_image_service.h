@@ -11,7 +11,7 @@ namespace ui {
 class SpriteEngine;
 
 /**
- * \class ds::ui::LoadImageService
+ * \class LoadImageService
  * \brief Loads images into textures on multiple threads.
  */
 class LoadImageService : public ds::AutoUpdate {
@@ -22,12 +22,12 @@ public:
 	LoadImageService(SpriteEngine& eng);
 	~LoadImageService();
 
-	// TESTS:
-	//  - Cached retains image indefinitely
-	//  - Image texture goes away if there were no caches for it
-	//  - No memory leaks
+	/// TESTS:
+	///  - Cached retains image indefinitely
+	///  - Image texture goes away if there were no caches for it
+	///  - No memory leaks
 
-	/// @brief Asynchronously get an image at the specified path or url
+	/// \brief Asynchronously get an image at the specified path or url
 	/// Flags are for caching (IMG_CACHE_F) or mipmapping (IMG_MIPMAP_F)
 	/// Each requester can only get 1 callback. 
 	/// Important! Be sure to call release before the requester goes away
@@ -38,12 +38,12 @@ public:
 	/// You must call release if you no longer want the image or the reffer is about to be released
 	void release(const std::string& filePath, void * requester);
 
-	/// @brief Starts the threads to load stuff and creates OpenGL contexts
+	/// \brief Starts the threads to load stuff and creates OpenGL contexts
 	/// Can be called multiple times, will reinit the loading threads if the load_image:threads
     /// setting has been changed.
 	void initialize();
 	
-	/// @brief Clears references to all loaded images
+	/// \brief Clears references to all loaded images
 	/// Wont' clear images currently held by sprites
 	/// But will force all new images to load from scratch
 	/// This also clears the metadata cache
@@ -95,7 +95,7 @@ private:
 
 	void												loadImagesThreadFn(ci::gl::ContextRef context);
 	std::vector<std::shared_ptr<std::thread>>			mThreads;
-	// shared between threads
+	/// shared between threads
 
 	mutable std::mutex									mRequestsMutex;
 	std::vector<ImageLoadRequest>	                    mRequests;

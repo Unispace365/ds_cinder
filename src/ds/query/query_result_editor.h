@@ -9,7 +9,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::ResultEditor
+ * \class ResultEditor
  * \brief An editor on a query Result.
  */
 class ResultEditor

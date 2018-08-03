@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineService
+ * \class EngineService
  * Abstract superclass for generic classes that live in and are scoped to the engine.
  */
 class EngineService {

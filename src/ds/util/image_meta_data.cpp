@@ -264,7 +264,7 @@ ImageAttsCache			CACHE;
 }
 
 /**
- * \class ds::ImageMetaData
+ * \class ImageMetaData
  */
 ImageMetaData::ImageMetaData()
 		: mSize(0.0f, 0.0f) {

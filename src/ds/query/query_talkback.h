@@ -7,7 +7,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::Talkback
+ * \class Talkback
  * \brief This is a placeholder class, in case we ever want to add
  * response info to query results handling.
  */

@@ -12,7 +12,7 @@ namespace ds {
 class EngineService;
 
 /**
- * \class ds::EngineData
+ * \class EngineData
  * \brief Store all the data for an engine. Primarily a
  * programmer convenience, to hide and group info.
  */
@@ -24,7 +24,7 @@ public:
 	std::unordered_map<std::string, ds::EngineService*>
 							mServices;
 
-	// Will stop and delete them.
+	/// Will stop and delete them.
 	void					clearServices();
 
 	ds::EngineCfg			mEngineCfg;
@@ -42,14 +42,14 @@ public:
 	float					mAnimDur;
 	std::string				mCmsURL;
 
-	// The source rect in world bounds and the destination
-	// local rect.
+	/// The source rect in world bounds and the destination
+	/// local rect.
 	ci::Rectf				mSrcRect,
 							mDstRect;
-	// the srcRect loaded from settings (for restoring after manual translation)
+	/// the srcRect loaded from settings (for restoring after manual translation)
 	ci::Rectf				mOriginalSrcRect;
 
-	// Volume control for the whole app 
+	/// Volume control for the whole app 
 
 	bool					mMute;
 

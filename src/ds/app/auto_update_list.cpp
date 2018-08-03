@@ -10,7 +10,7 @@
 namespace ds {
 
 /**
- * \class ds::AutoUpdateList
+ * \class AutoUpdateList
  */
 AutoUpdateList::AutoUpdateList() {
 	mRunning.reserve(32);

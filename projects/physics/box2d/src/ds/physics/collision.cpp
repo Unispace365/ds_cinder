@@ -4,7 +4,7 @@ namespace ds {
 namespace physics {
 
 /**
- * \class ds::physics::Collision
+ * \class Collision
  */
 Collision::Collision()
 	: mForce(0.0f)

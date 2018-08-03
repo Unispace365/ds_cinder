@@ -3,13 +3,13 @@
 #define DS_UTIL_BITMASK_H_
 
 // Solely for the uint64_t
-#include <cinder/Cinder.h>
+#include <cstdint>
 
 namespace ds {
 class BitMaskInitializer;
 
 /**
- * \class ds::BitMask
+ * \class BitMask
  * \brief Store an array of bits.
  */
 class BitMask {
@@ -27,14 +27,14 @@ class BitMask {
      */
     BitMask(const int index);
 
-    bool          operator!=(const BitMask&) const;
-    void          operator|=(const BitMask&);
-    BitMask       operator|(const BitMask&) const;
-    void          operator&=(const BitMask&);
-    bool          operator&(const BitMask&) const;
-    BitMask       operator~() const;
-    BitMask       operator ^(const BitMask &rhs) const;
-    BitMask       &operator ^=(const BitMask &rhs);
+    bool          operator!= (const BitMask&) const;
+    void          operator|= (const BitMask&);
+    BitMask       operator| (const BitMask&) const;
+    void          operator&= (const BitMask& o);
+    bool          operator& (const BitMask& o) const;
+    BitMask       operator~ () const;
+    BitMask       operator^ (const BitMask &rhs) const;
+    BitMask&      operator^= (const BitMask &rhs);
 
     /**
      * \brief Check to see if I have the dirty state

@@ -123,7 +123,7 @@ void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
 }
 
 /**
- * \class ds::App
+ * \class App
  */
 App::App(const RootList& roots)
 	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
@@ -546,7 +546,7 @@ void App::shutdown(){
 }
 
 /**
- * \class ds::EngineSettingsPreloader::Initializer
+ * \class Initializer
  */
 static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);

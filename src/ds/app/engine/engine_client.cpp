@@ -28,7 +28,7 @@ char				CLIENT_INPUT_BLOB = 0;
 }
 
 /**
- * \class ds::EngineClient
+ * \class EngineClient
  */
 char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;

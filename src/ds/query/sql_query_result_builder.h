@@ -11,7 +11,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::SqlResultBuilder
+ * \class SqlResultBuilder
  * \brief Translate an SQL statement into a local result.
  */
 class SqlResultBuilder : public ResultBuilder
@@ -31,7 +31,7 @@ public:
 private:
 	sqlite3_stmt*				mStatement;
 	int							mStatementResult;
-	// Reuse our string buffer
+	/// Reuse our string buffer
 	std::stringstream			mStrBuf;
 };
 

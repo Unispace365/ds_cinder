@@ -33,7 +33,7 @@ const char			ATT_FRAME = 4;
 const char			ATT_ROOTS = 5;
 
 /**
- * \class ds::EngineIoInfo
+ * \class EngineIoInfo
  */
 EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
 	if (engine.getEngineSettings().hasSetting("platform:guid"))
@@ -83,7 +83,7 @@ EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
 }
 
 /**
- * \class ds::ScopedClientAtts
+ * \class ScopedClientAtts
  */
 ScopedClientAtts::ScopedClientAtts(ds::DataBuffer &b, const sprite_id_t id)
 		: mBuffer(b) {

@@ -63,10 +63,10 @@ public:
 
 	bool									getOverrideEnabled(){ return mOverrideTranslation; }
 
-	// If you've set the override for translation, actually do that translation
+	/// If you've set the override for translation, actually do that translation
 	void									overrideTouchTranslation(ci::vec2& inOutPoint);
 
-	// If we have a rect defined to discard touches, discard that shit!
+	/// If we have a rect defined to discard touches, discard that shit!
 	bool									shouldDiscardTouch(const ci::vec2& p);
 
 	void									setCapture(Capture*);
@@ -79,10 +79,10 @@ public:
 	void									setTouchSmoothFrames(const int smoothFrames);
 
 private:
-	// Utility to get the hit sprite in either the orthogonal or perspective root sprites
+	/// Utility to get the hit sprite in either the orthogonal or perspective root sprites
 	Sprite* 								getHit(const ci::vec3 &point);
 
-	// If the window is stretched, the mouse points will be off. Fix that shit!
+	/// If the window is stretched, the mouse points will be off. Fix that shit!
 	ci::vec2								translateMousePoint(const ci::ivec2);
 
 	void									inputBegin(const int fingerId, const ci::vec2& globalPos);
@@ -114,8 +114,8 @@ private:
 	TouchMode::Enum							mTouchMode;
 	Capture*								mCapture;
 
-	// This is overkill but done this way so I can make changes to
-	// the rotation translator without causing a recompile.
+	/// This is overkill but done this way so I can make changes to
+	/// the rotation translator without causing a recompile.
 	std::shared_ptr<RotationTranslator>		mRotationTranslatorPtr;
 	RotationTranslator&						mRotationTranslator;
 };

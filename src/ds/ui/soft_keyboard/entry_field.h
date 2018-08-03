@@ -102,7 +102,7 @@ public:
 	/// Set a lambda function that's called just after onTextUpdated()
 	void								setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func);
 
-	/// Gets the index of the cursor position in the visible text string (might have weird results when using <span> tags in Text.
+	/// Gets the index of the cursor position in the visible text string (might have weird results when using `<span>` tags in Text.
 	size_t								getCursorIndex(){ return mCursorIndex; }
 	/// Set the index of the cursor. Will bounds check the cursor
 	void								setCursorIndex(const size_t index);

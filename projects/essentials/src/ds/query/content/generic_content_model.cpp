@@ -15,7 +15,7 @@ const ds::Resource					EMPTY_RESOURCE;
 }
 
 /**
-* \class ds::model::Data
+* \class Data
 */
 class GenericContentRef::Data {
 public:

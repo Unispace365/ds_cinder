@@ -1275,7 +1275,7 @@ bool Engine::getRotateTouchesDefault(){
 }
 
 /**
- * \class ds::Engine::Channel
+ * \class Channel
  */
 Engine::Channel::Channel() {
 }

@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::SpriteButton
+* \class SpriteButton
 */
 SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hiddy)
 	: inherited(eng, widdy, hiddy)

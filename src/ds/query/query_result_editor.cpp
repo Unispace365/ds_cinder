@@ -9,7 +9,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::ResultEditor
+ * \class ResultEditor
  */
 ResultEditor::ResultEditor(Result& qr, const bool append)
 		: mResult(qr)

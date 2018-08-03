@@ -16,7 +16,7 @@ class VideoInterface;
 class MediaInterface;
 
 /**
-* \class ds::ui::VideoPlayer
+* \class VideoPlayer
 *			Creates a video and puts an interface on top of it.
 */
 class StreamPlayer : public ds::ui::Sprite  {

@@ -14,7 +14,7 @@ class Event;
 namespace event {
 
 /**
- * \class ds::event::Registry
+ * \class Registry
  * \brief Store all registered message types. This is an internal-only
  * object; entries are made automatically by constructing new
  * RegisteredEvent subclasses.
@@ -26,7 +26,7 @@ public:
 
 	size_t						add(const std::string&);
 
-	// Print out all registered messages
+	/// Print out all registered messages
 	void						report();
 
 	const std::string&			getName(const size_t what);
@@ -62,7 +62,7 @@ private:
  */
 
 /**
- * \class ds::EventRegistry
+ * \class EventRegistry
  * Utility to make sure all event types are unique, and named.
  */
 class EventRegistry {
@@ -70,8 +70,8 @@ public:
 	static const std::string&	getName(const size_t what);
 
 	EventRegistry(const std::string& name);
-	// What is now obsolete, the value is generated automatically.
-	// This only exists for backwards compatibility
+	/// What is now obsolete, the value is generated automatically.
+	/// This only exists for backwards compatibility
 	EventRegistry(const size_t what, const std::string& name);
 
 	const size_t			mWhat;

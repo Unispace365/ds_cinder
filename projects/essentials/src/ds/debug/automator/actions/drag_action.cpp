@@ -10,7 +10,7 @@ namespace ds {
 namespace debug {
 
 /**
- * \class ds::DragActionFactory
+ * \class DragActionFactory
  */
 float DragActionFactory::getLimit() const {
 	return ci::randFloat(0.1f, 1.0f);
@@ -25,7 +25,7 @@ BaseAction* DragActionFactory::build(std::vector<int> &freeList, ds::ui::SpriteE
 }
 
 /**
- * \class ds::DragAction
+ * \class DragAction
  */
 DragAction::DragAction(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame)
 	: BaseAction(freeList, engine, frame)

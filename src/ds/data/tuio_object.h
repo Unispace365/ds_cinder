@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::TuioObject
+ * \class TuioObject
  * \brief A wrapper around the TUIO object, so the
  * TUIO system doesn't have to be exposed to the app.
  */

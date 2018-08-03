@@ -12,18 +12,17 @@ namespace ui {
 
 /*!
  * @class     Image
- * @namespace ds::ui
  * @brief     A Sprite that draws an image on-screen
  */
 class Image : public Sprite {
 public:
-	/// @note These really belong elsewhere now, like ImgeSource or probably ImageDefs.
+	/// \note These really belong elsewhere now, like ImgeSource or probably ImageDefs.
 
-	// Cache any texture loaded by this sprite, never releasing it.
+	/// Cache any texture loaded by this sprite, never releasing it.
 	static const int			IMG_CACHE_F = (1<<0);
-	// Begin loading an image as soon as it's received.
+	/// Begin loading an image as soon as it's received.
 	static const int			IMG_PRELOAD_F = (1<<1);
-	// Enable mipmapping. This only applies to an image source, so being here is weird.
+	/// Enable mipmapping. This only applies to an image source, so being here is weird.
 	static const int			IMG_ENABLE_MIPMAP_F = (1<<2);
 
 	
@@ -31,7 +30,7 @@ public:
 	static Image&				makeImage(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
 	
 	
-	/// @brief constructs an image sprite
+	/// \brief constructs an image sprite
 	Image(SpriteEngine&);
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
@@ -69,14 +68,14 @@ public:
 	/// Clears the image from this sprite. Removes a reference in the image store if not cached 
 	void						clearImage();
 
-	/// @note calls Image::setSizeAll(...) internally.
-	/// @see Image::setSizeAll(...)
+	/// \note calls Image::setSizeAll(...) internally.
+	/// \see Image::setSizeAll(...)
 	void						setSize( float width, float height );
 
-	/// @note sets scale based on size passed. More like a convenience.
+	/// \note sets scale based on size passed. More like a convenience.
 	void						setSizeAll( float width, float height, float depth ) override;
 
-	/// @brief returns true if the last requested image is loaded as a texture
+	/// \brief returns true if the last requested image is loaded as a texture
 	virtual bool				isLoaded() const;
 
 	/// The error message if the image status function returned an error
@@ -89,7 +88,7 @@ public:
 	virtual void				setCircleCropRect(const ci::Rectf& rect);
 	/// Returns if this is set to crop to a circle
 	virtual bool				getCircleCrop(){ return mCircleCropped; }
-		/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
+	/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
 	void						cicleCropAutoCenter();
 
 	struct Status {
@@ -107,23 +106,19 @@ protected:
 
 	virtual void				onBuildRenderBatch() override;
 
-	/// @brief override this if you override isLoaded() and there are additional resources to load after isLoaded() returns true
+	/// \brief override this if you override isLoaded() and there are additional resources to load after isLoaded() returns true
 	virtual bool				isLoadedPrimary() const;
-
-	/// @cond image status callbacks
 
 	virtual void				onImageChanged() {};
 	virtual void				onImageLoaded() {}
 	virtual void				onImageUnloaded() {}
 
-	void						onUpdateServer(const UpdateParams&) override;
-	void						onUpdateClient(const UpdateParams&) override;
+	void						onUpdateServer(const UpdateParams& up) override;
+	void						onUpdateClient(const UpdateParams& up) override;
 	void						drawLocalClient() override;
-	void						writeAttributesTo(ds::DataBuffer&) override;
-	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
-	bool						getMetaData(ImageMetaData&) const;
-
-	/// @endcond
+	void						writeAttributesTo(ds::DataBuffer& buf) override;
+	void						readAttributeFrom(const char attributeId, ds::DataBuffer& buf) override;
+	bool						getMetaData(ImageMetaData& d) const;
 
 private:
 	void						checkStatus();
@@ -146,12 +141,8 @@ private:
 	int							mFlags;
 public:
 
-	/// @cond Sprite BLOB registry
-
-	static void					installAsServer(ds::BlobRegistry&);
-	static void					installAsClient(ds::BlobRegistry&);
-
-	/// @endcond
+	static void					installAsServer(ds::BlobRegistry&); ///< Register as server
+	static void					installAsClient(ds::BlobRegistry&); ///< Register as client
 };
 
 } // namespace ui

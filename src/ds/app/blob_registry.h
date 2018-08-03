@@ -9,7 +9,7 @@ namespace ds {
 class BlobReader;
 
 /**
- * \class ds::BlobRegistry
+ * \class BlobRegistry
  * Global handlers on flattenable data clients.  Someone who wants to
  * participate in reading and writing to a byte stream will install
  * a handler on me.
@@ -18,7 +18,7 @@ class BlobRegistry {
   public:
     BlobRegistry();
 
-    // Add a new blob handler.  I answer with the unique key assigned the handler.
+    /// Add a new blob handler.  I answer with the unique key assigned the handler.
     char              add(const std::function<void(BlobReader&)>& reader);
 
   private:

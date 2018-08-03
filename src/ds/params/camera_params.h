@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::PerspCameraParams
+ * \class PerspCameraParams
  */
 class PerspCameraParams {
 public:

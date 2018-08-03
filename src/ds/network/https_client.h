@@ -12,7 +12,7 @@
 namespace ds {
 namespace net {
 /**
-* \class ds::net::HttpsRequest
+* \class HttpsRequest
 * Make very simple https requests
 * This uses Curl on the backend, whereas HttpRequest uses Poco (which doesn't support SSL)
 */

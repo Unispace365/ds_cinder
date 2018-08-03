@@ -26,22 +26,22 @@ class ScrollArea;
 
 		void						setContent(const std::vector<int>& dbIds);
 
-		// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
+		/// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
 		void						setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::vec3& cent)> &func);
 
-		// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
+		/// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
 		void						setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func);
 
-		// REQUIRED: When a sprite needs data assigned (coming onscreen for the first time for example). May need to cast the sprite to your custom type
+		/// REQUIRED: When a sprite needs data assigned (coming onscreen for the first time for example). May need to cast the sprite to your custom type
 		void						setDataCallback(const std::function<void(ds::ui::Sprite*, const int dbId) > &func);
 
-		// OPTIONAL: During animate on, you can call custom animation code here with delay (set member properties for delay if desired, defaults=0.0 seconds)
+		/// OPTIONAL: During animate on, you can call custom animation code here with delay (set member properties for delay if desired, defaults=0.0 seconds)
 		void						setAnimateOnCallback(const std::function<void(ds::ui::Sprite*, const float delay)>&func);
 
-		// OPTIONAL: If you want to show highlighted states you can react here
+		/// OPTIONAL: If you want to show highlighted states you can react here
 		void						setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func);
 
-		// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+		/// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
 		void						setScrollUpdatedCallback(const std::function<void(void)> &func);
 
 		/// Animates the current items onscreen only
@@ -50,46 +50,46 @@ class ScrollArea;
 		/// When using animateItemsOn()
 		void						setAnimateOnParams(const float startDelay, const float deltaDelay);
 
-		// REQUIRED TO LOOK OK: 
-		// @param startPositionX Where to start the items horizontally
-		// @param startPositionY Where to start the items Vertically
-		// @param incremenetAmount How much distance between the start of one item and the start of the next item
-		// @param fill_from_top Whether to align to the bottom of the scroll area or the top. For instance, if there's not enough items to fill the whole space, will start filling and align to the bottom if this param is false.
+		/// REQUIRED TO LOOK OK: 
+		/// \param startPositionX Where to start the items horizontally
+		/// \param startPositionY Where to start the items Vertically
+		/// \param incremenetAmount How much distance between the start of one item and the start of the next item
+		/// \param fill_from_top Whether to align to the bottom of the scroll area or the top. For instance, if there's not enough items to fill the whole space, will start filling and align to the bottom if this param is false.
 		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top = true);
 
 
 		//When mOriginTop==true, shift items to top of scroll list
 		void						pushItemsTop();
-		// Use caution when modifying the scroll area
-		// Recommend only using this to reset the scroll position and change the fade graphics
-		// Setting your own scroll position callback will break the scroll list
+		/// Use caution when modifying the scroll area
+		/// Recommend only using this to reset the scroll position and change the fade graphics
+		/// Setting your own scroll position callback will break the scroll list
 		ds::ui::ScrollArea*			getScrollArea(){ return mScrollArea; }
 
-		// calls a function for each sprite that's currently onscreen and in reserve
+		/// calls a function for each sprite that's currently onscreen and in reserve
 		void						forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> function);
 
-		// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
-		// NOTE: not tested yet for perspective OR horizontal scrolling
+		/// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
+		/// NOTE: not tested yet for perspective OR horizontal scrolling
 		void						setGridLayout(const bool doGrid, const ci::vec2& gridIncrement);
 
 		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
 		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
-		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
+		/// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
 		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
 
-		// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
+		/// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
 		virtual void				layout();
 
 	protected:
 
-		// We only create enough sprites that are onscreen at one time.
-		// Here's how this crap works (roughly in order):
+		/// We only create enough sprites that are onscreen at one time.
+		/// Here's how this crap works (roughly in order):
 		//		- Set Data: clear out old data, and build a list of placeholders. These are just the data (product), a position and a pointer to a sprite
 		//		- layoutItems: place the placeholders on a virtual grid.
 		//		- assignItems: figure out which placeholders should be onscreen and associate sprites with them. New sprites can be created here if needeed.
 		//						extra sprites are kept in mReserveI tems.
 
-		// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
+		/// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
 		struct ItemPlaceHolder	{
 
 			ItemPlaceHolder(const int dbId, float x = 0.0f, float y = 0.0f, ds::ui::Sprite *associatedSprite = nullptr)
@@ -124,7 +124,7 @@ class ScrollArea;
 		ds::ui::Sprite*						mScrollableHolder;
 		const bool							mVerticalScrolling;
 
-		// for laying out items
+		/// for laying out items
 		float								mStartPositionY;
 		float								mStartPositionX;
 		float								mIncrementAmount;
@@ -133,7 +133,7 @@ class ScrollArea;
 		bool								mSpecialLayout;
 		ci::vec2							mGridIncrement;
 
-		// for animate on
+		/// for animate on
 		float								mAnimateOnDeltaDelay;
 		float								mAnimateOnStartDelay;
 
@@ -144,7 +144,7 @@ class ScrollArea;
 		std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
 		std::function<void()>										mScrollUpdatedCallback;
 
-		// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
+		/// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
 		Poco::Timestamp::TimeVal			mLastUpdateTime;
 
 		int									mTargetRow;

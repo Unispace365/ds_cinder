@@ -33,7 +33,7 @@ std::string			make_line(const std::string &key, const float v) {
 }
 
 /**
- * \class ds::EngineStatsView
+ * \class EngineStatsView
  */
 void EngineStatsView::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {ds::ui::Sprite::handleBlobFromClient(r);});
@@ -44,7 +44,7 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class ds::EngineStatsView
+ * \class EngineStatsView
  */
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	: ds::ui::Sprite(e)

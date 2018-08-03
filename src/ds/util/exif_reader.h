@@ -24,13 +24,13 @@ static bool getImageSize(const std::string filePath, int& outWidth, int& outHeig
 	}
 	fclose(fp);
 
-	// Parse EXIF
+	/// Parse EXIF
 	easyexif::EXIFInfo result;
 	int code = result.parseFrom(buf, fsize);
 	delete[] buf;
 	if(code) {
 		if(code == 1983){
-			// this means the file didn't have any exif. Bummer. ignore it, no reason to log it.
+			/// this means the file didn't have any exif. Bummer. ignore it, no reason to log it.
 		} else {
 			DS_LOG_WARNING("Error parsing EXIF: code " << code << " for filepath: " << filePath);
 		}
@@ -50,7 +50,7 @@ static bool getImageSize(const std::string filePath, int& outWidth, int& outHeig
 /// Prints out all the exif data
 static int printExifData(std::string filePath) {
 
-	// Read the JPEG file into a buffer
+	/// Read the JPEG file into a buffer
 	FILE *fp = fopen(filePath.c_str(), "rb");
 	if(!fp) {
 		printf("Can't open file.\n");
@@ -67,7 +67,7 @@ static int printExifData(std::string filePath) {
 	}
 	fclose(fp);
 
-	// Parse EXIF
+	/// Parse EXIF
 	easyexif::EXIFInfo result;
 	int code = result.parseFrom(buf, fsize);
 	delete[] buf;
@@ -76,7 +76,7 @@ static int printExifData(std::string filePath) {
 		return -3;
 	}
 
-	// Dump EXIF information
+	/// Dump EXIF information
 	printf("Camera make          : %s\n", result.Make.c_str());
 	printf("Camera model         : %s\n", result.Model.c_str());
 	printf("Software             : %s\n", result.Software.c_str());

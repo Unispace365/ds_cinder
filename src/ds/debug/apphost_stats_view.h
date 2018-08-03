@@ -11,7 +11,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::AppHostStatsView
+* \class AppHostStatsView
 * \brief Show the status of DSAppHost and send it some messages
 */
 class AppHostStatsView : public ds::ui::LayoutSprite {

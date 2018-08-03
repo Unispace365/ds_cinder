@@ -9,7 +9,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::MediaInterface
+* \class MediaInterface
 *			Abstract base class for the other media interfaces (PDF, Web, Video)
 *			In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward navigate, refresh, play/pause, scrub bar, volume control)
 */

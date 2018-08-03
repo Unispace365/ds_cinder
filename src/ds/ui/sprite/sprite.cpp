@@ -577,11 +577,11 @@ void Sprite::setRotation(const ci::vec3& rot) {
 	doSetRotation(rot);
 }
 
-void Sprite::setRotation(const ci::vec3 &rot, const float degree)
+void Sprite::setRotation(const ci::vec3 &axis, const float angle)
 {
-	doSetRotation(rot);
+	doSetRotation(axis);
 	mDoSpecialRotation = true;
-	mDegree = degree;
+	mDegree = angle;
 }
 
 void Sprite::doSetRotation(const ci::vec3& rot) {

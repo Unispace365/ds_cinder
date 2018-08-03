@@ -10,7 +10,7 @@ namespace ds {
 namespace keys {
 
 /**
-* \class ds::keys::KeyManager
+* \class KeyManager
 * \brief Register keys with callbacks and store simple info about em
 */
 class KeyManager {
@@ -34,7 +34,7 @@ public:
 	void registerKey(KeyRegister);
 
 	/// Handle key presses
-	// Returns true if they key was handled, false if nothing happened
+	/// Returns true if they key was handled, false if nothing happened
 	bool keyDown(ci::app::KeyEvent event);
 	std::vector<KeyRegister>&	getKeyRegistry() { return mKeyRegisters; }
 

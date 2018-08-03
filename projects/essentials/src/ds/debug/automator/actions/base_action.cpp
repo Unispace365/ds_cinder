@@ -6,7 +6,7 @@ namespace ds {
 namespace debug {
 
 /**
- * \class ds::debug::BaseActionFactory
+ * \class BaseActionFactory
  */
 BaseActionFactory::BaseActionFactory(){
 }
@@ -15,7 +15,7 @@ BaseActionFactory::~BaseActionFactory(){
 }
 
 /**
- * \class ds::debug::BaseAction
+ * \class BaseAction
  */
 BaseAction::BaseAction(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame)
 	: mFreeList(freeList)

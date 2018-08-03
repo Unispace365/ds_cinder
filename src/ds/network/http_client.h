@@ -40,16 +40,16 @@ public:
  ******************************************************************/
 class HttpClient : public ds::WorkClient {
 public:
-	// If the URL contains a query part it needs to be URL encoded, that won't happen automatically.
+	/// If the URL contains a query part it needs to be URL encoded, that won't happen automatically.
 	static bool						httpGetAndReply(const std::wstring& url, ds::HttpReply*);
 	static bool						httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply*);
-	// Do a post with complete control over what goes in the form. Poco supplies utilities for
-	// adding strings and files. An example of posting a file into the form would be this:
-	// const std::string  filename("c:\\tempfile.png")'
-	// auto postFn = [filename](Poco::Net::HTMLForm& f) {
-	//    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
-	//    if (ps) f.addPart("file", ps);
-	// };
+	/// Do a post with complete control over what goes in the form. Poco supplies utilities for
+	/// adding strings and files. An example of posting a file into the form would be this:
+	/// const std::string  filename("c:\\tempfile.png")'
+	/// auto postFn = [filename](Poco::Net::HTMLForm& f) {
+	///    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
+	///    if (ps) f.addPart("file", ps);
+	/// };
 	static bool						httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>&, ds::HttpReply*);
 
 public:
@@ -73,19 +73,19 @@ private:
 	public:
 		Request(const void* clientId);
 
-		// input
+		/// input
 		int							mOpt;
 		std::string					mVerb;
 		std::wstring				mUrl;
 		std::string					mBody;
-		// Utility to write multipart form data in a post
+		/// Utility to write multipart form data in a post
 		std::function<void(Poco::Net::HTMLForm&)>
 									mPostFn;
-		// Utility to write to the message
+		/// Utility to write to the message
 		std::function<void(Poco::Net::HTTPRequest&)>
 									mRequestFn;
 
-        // output
+        /// output
 		ds::HttpReply				mReply;
 
 		virtual void				run();

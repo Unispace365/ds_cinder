@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
-* \class ds::FontList
+* \class FontList
 * \brief A list of colors. Used to create a central color pallet usable by layout xmls.
 */
 class ColorList
@@ -20,13 +20,13 @@ public:
 	void					clear();
 	bool					empty() const;
 
-	// Short name can be supplied by the app and used to refer to colors from now on.
-	// Often it might be something in a settings file.
+	/// Short name can be supplied by the app and used to refer to colors from now on.
+	/// Often it might be something in a settings file.
 	void					install(const ci::ColorA& color, const std::string& shortName = "");
-	// Answer > 0 for a valid ID. Name can either be the file or short name, which should never conflict.
+	/// Answer > 0 for a valid ID. Name can either be the file or short name, which should never conflict.
 	size_t 					getIdFromName(const std::string&) const;
 	const ci::ColorA&		getColorFromId(const size_t id) const;
-	// Clients give either a shortname and I give them a color
+	/// Clients give either a shortname and I give them a color
 	const ci::ColorA&		getColorFromName(const std::string&) const;
 	const ci::ColorA&		getColorFromName(const std::wstring&) const;
 

@@ -9,7 +9,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::TuioInput
+* \class TuioInput
 * \brief Handles multiplexed TUIO input, with unique transformations for each input
 *		 Note that this is in additional to the built-in touch mode
 */

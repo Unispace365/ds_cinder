@@ -6,7 +6,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::TouchTranslator
+ * \class TouchTranslator
  */
 TouchTranslator::TouchTranslator()
 		: mHasTouch(false)

@@ -15,10 +15,11 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/service/load_image_service.h"
 
-using namespace ci;
 
 namespace ds {
 namespace ui {
+
+using namespace ci;
 
 namespace {
 char				BLOB_TYPE			= 0;

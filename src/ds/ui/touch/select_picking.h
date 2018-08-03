@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::SelectPicking
+ * \class SelectPicking
  * \brief Perform picking via OpenGL select mode.
  */
 class SelectPicking : public Picking {

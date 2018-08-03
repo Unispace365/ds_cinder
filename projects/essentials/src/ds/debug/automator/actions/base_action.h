@@ -11,7 +11,7 @@ namespace debug{
 class BaseAction;
 
 /**
- * \class ds::debug::BaseActionFactory
+ * \class BaseActionFactory
  */
 class BaseActionFactory {
 public:
@@ -24,7 +24,7 @@ public:
 };
 
 /**
- * \class ds::debug::BaseAction
+ * \class BaseAction
  */
 class BaseAction {
 public:

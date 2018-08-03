@@ -12,7 +12,7 @@ class SpriteEngine;
 namespace debug{
 
 /**
- * \class ds::debug::DragActionFactory
+ * \class DragActionFactory
  */
 class DragActionFactory : public BaseActionFactory {
 public:
@@ -25,7 +25,7 @@ public:
 };
 
 /**
- * \class ds::DragAction
+ * \class DragAction
  */
 class DragAction : public BaseAction
 {

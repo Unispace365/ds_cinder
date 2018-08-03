@@ -19,7 +19,7 @@ class VideoInterface;
 class MediaInterface;
 
 /**
-* \class ds::ui::PanoramicVideoPlayer
+* \class PanoramicVideoPlayer
 *			Creates a panoramicvideo and puts an interface on top of it.
 */
 class PanoramicVideoPlayer : public ds::ui::Sprite {

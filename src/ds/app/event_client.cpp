@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::EventClient
+ * \class EventClient
  */
 EventClient::EventClient( EventNotifier& n,
 						  const std::function<void(const ds::Event *)>& fn,

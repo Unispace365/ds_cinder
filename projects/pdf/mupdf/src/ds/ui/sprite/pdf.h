@@ -14,7 +14,7 @@ class Service;
 namespace ui {
 
 /**
- * \class ds::ui::sprite::Pdf
+ * \class Pdf
  */
 class Pdf : public ds::ui::Sprite {
 public:

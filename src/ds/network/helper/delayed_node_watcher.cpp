@@ -6,7 +6,7 @@
 namespace ds {
 
 /**
-* \class ds::DelayedNodeWatcher
+* \class DelayedNodeWatcher
 */
 DelayedNodeWatcher::DelayedNodeWatcher(ds::ui::SpriteEngine& eng, const std::string& host, const int port, const bool autostart)
 	: ds::AutoUpdate(eng)

@@ -142,7 +142,7 @@ void MqttWatcher::setPort(const int port){
 }
 
 /**
-* \class bmc::MqttWatcher::Loop
+* \class Loop
 */
 
 MqttWatcher::MqttConnectionLoop::MqttConnectionLoop (

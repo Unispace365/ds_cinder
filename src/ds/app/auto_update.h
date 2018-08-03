@@ -14,7 +14,7 @@ class SpriteEngine;
 }
 
 /**
- * \class ds::AutoUpdate
+ * \class AutoUpdate
  * Automatically run an update operation. Handle managing myself
  * in my containing list.
  */

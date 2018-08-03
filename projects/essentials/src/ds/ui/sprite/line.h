@@ -27,39 +27,39 @@ class LineSprite final : public ds::ui::Sprite {
   public:
 	LineSprite(ds::ui::SpriteEngine& eng, const std::vector<ci::vec2>& points = std::vector<ci::vec2>());
 
-	/// @brief Add a point to the end of the line
+	/// \brief Add a point to the end of the line
 	void addPoint(ci::vec2 point);
-	/// @brief Set all points
+	/// \brief Set all points
 	void setPoints(const std::vector<ci::vec2>& points);
-	/// @brief Get all the points that make up the line
+	/// \brief Get all the points that make up the line
 	std::vector<ci::vec2> getPoints() { return mPoints; }
-	/// @brief Clear entire line
+	/// \brief Clear entire line
 	void clearPoints();
 
 
-	/// @brief Set percentage of the line to start drawing at
+	/// \brief Set percentage of the line to start drawing at
 	void setStartPercentage(const float startAtPercent);
-	/// @brief Get percentage of the line to start drawing at
+	/// \brief Get percentage of the line to start drawing at
 	float getStartPercentage() { return mLineStart; }
-	/// @brief Set percentage of the line to stop drawing at
+	/// \brief Set percentage of the line to stop drawing at
 	void setEndPercentage(const float endAtPercent);
-	/// @brief Get percentage of the line to stop drawing at
+	/// \brief Get percentage of the line to stop drawing at
 	float getEndPercentage() { return mLineEnd; }
-	/// @brief Sets the portion of the line to be drawn, in percentages (0.0f - 1.0f)
+	/// \brief Sets the portion of the line to be drawn, in percentages (0.0f - 1.0f)
 	void setStartEndPercentages(const float startAtPercent, const float endAtPercent);
 
-	/// @brief Sets if the line should be converted to a smooth spline
+	/// \brief Sets if the line should be converted to a smooth spline
 	void setSmoothing(const bool doSmooth);
 	bool getSmoothing() { return mSmoothSpline; }
 
-	/// @brief Sets if the line should be converted to a smooth spline
+	/// \brief Sets if the line should be converted to a smooth spline
 	void setLineWidth(const float linewidth);
-	/// @brief Sets if the line should be converted to a smooth spline
+	/// \brief Sets if the line should be converted to a smooth spline
 	float getLineWidth() { return mLineWidth; }
 
-	/// @brief Set if sharp angled joins should be capped off. Ranges from -1: "Always miter" to +1: "Never Miter"
+	/// \brief Set if sharp angled joins should be capped off. Ranges from -1: "Always miter" to +1: "Never Miter"
 	void setMiterLimit(const float miterLimit);
-	/// @brief Get current miter limit
+	/// \brief Get current miter limit
 	float getMiterLimit() { return mMiterLimit; }
 
 	virtual void drawLocalClient();

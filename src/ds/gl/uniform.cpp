@@ -128,7 +128,7 @@ void UniformVisitor::operator()(const ci::mat4 *data)
 }
 
 /**
- * \class ds::gl::Uniform
+ * \class Uniform
  */
 Uniform::Uniform()
 	: mIsEmpty(true)

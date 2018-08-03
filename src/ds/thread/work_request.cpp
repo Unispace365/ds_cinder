@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::WorkRequest
+ * \class WorkRequest
  */
 WorkRequest::WorkRequest(const void* clientId)
 	: mClientId(clientId)

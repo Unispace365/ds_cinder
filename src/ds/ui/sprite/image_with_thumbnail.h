@@ -11,32 +11,30 @@ namespace ui {
 
 /*!
  * @class     ImageWithThumbnail
- * @namespace ds::ui
  * @brief     A Sprite that draws an image on-screen
  */
 class ImageWithThumbnail : public Image {
 public:
 	static const float DEFAULT_FADE_DURATION;
 
-	/// @cond Constructor overloads
-	
-	/// @brief constructs an image sprite and shows the thumbnail until the main image is ready
+	/// \brief constructs an image sprite and shows the thumbnail until the main image is ready
 	ImageWithThumbnail(SpriteEngine& engine, const int flags = 0, float fadeDuration = DEFAULT_FADE_DURATION);
+	/// \brief constructs an image sprite and shows the thumbnail until the main image is ready
 	ImageWithThumbnail(SpriteEngine& engine, const std::string& filename, const int flags = 0, float fadeDuration = DEFAULT_FADE_DURATION);
+	/// \brief constructs an image sprite and shows the thumbnail until the main image is ready
 	ImageWithThumbnail(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags = 0, float fadeDuration = DEFAULT_FADE_DURATION);
+	/// \brief constructs an image sprite and shows the thumbnail until the main image is ready
 	ImageWithThumbnail(SpriteEngine& engine, const ds::Resource& resource, const int flags = 0, float fadeDuration = DEFAULT_FADE_DURATION);
 
-	/// @endcond
-
-public:
-	float						getFadeDuration() { return mFadeDuration; }
+	float						getFadeDuration() const { return mFadeDuration; }
 	void						setFadeDuration(float fadeDuration) { mFadeDuration = fadeDuration; };
 
-	// this is our interception point for duplicating the resource with a thumbnail (if any)
+	/// this is our interception point for duplicating the resource with a thumbnail (if any)
 	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0);
 
-	/// @brief returns true if the last requested image is loaded as a texture
+	/// \brief returns true if the last requested image is loaded as a texture
 	virtual bool				isLoaded() const;
+	/// \brief returns true if the last requested image's thumbnail is loaded as a texture
 	bool						isLoadedThumbnail(bool thumbnail) const;
 
 	virtual void				setCircleCrop(bool circleCrop);
@@ -44,11 +42,8 @@ public:
 
 protected:
 	virtual bool				isLoadedPrimary() const;
-	
-	/// @cond image status callbacks
-	virtual void				onImageLoaded();
-	/// @endcond
 
+	virtual void				onImageLoaded();
 	virtual void				onSizeChanged();
 
 private:

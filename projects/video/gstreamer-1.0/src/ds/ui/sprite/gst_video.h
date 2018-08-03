@@ -18,7 +18,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::GstVideo
+ * \class GstVideo
  * \brief Video playback.
  * Note: If you want to use multiple playback systems simultaneously, use this
  * uniquely-named class. If you want to have one playback system that you can

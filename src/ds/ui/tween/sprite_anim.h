@@ -13,7 +13,7 @@ class Sprite;
 class SpriteEngine;
 
 /**
- * \class ds::ui::SpriteAnim
+ * \class SpriteAnim
  * A utility to class to provide animation access to a single
  * sprite property.
  *
@@ -27,11 +27,11 @@ class SpriteEngine;
 template<typename T>
 class SpriteAnim {
   public:
-	SpriteAnim( // Provide access to the Anim<> object that holds the value we will animate
+	SpriteAnim( /// Provide access to the Anim<> object that holds the value we will animate
 				const std::function<ci::Anim<T>&(Sprite&)>& getAnim,
-				// Answer the current value of the property we will animate
+				/// Answer the current value of the property we will animate
 				const std::function<T(Sprite&)>& getStartValue,
-				// Assign the new property value
+				/// Assign the new property value
 				const std::function<void(const T&, Sprite&)>& assignValue)
 		: mGetAnim(getAnim)
 		, mGetStartValue(getStartValue)
@@ -51,7 +51,7 @@ class SpriteAnim {
 };
 
 /**
- * \class ds::ui::SpriteAnimatable
+ * \class SpriteAnimatable
  * Provide conveniences for the common properties that can
  * be animated on a sprite.
  */
@@ -148,7 +148,7 @@ public:
 	void									clearAnimateOnTargets(const bool recursive = false);
 
 	/** Parse the string as a script to run a few animations.
-		Syntax: <type>:<valueX, valueY, valueZ>;
+		Syntax: `<type>:<valueX, valueY, valueZ>;`
 		Special params: 
 			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
 			duration: in seconds
@@ -200,12 +200,12 @@ private:
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
 
-	// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
-	// Cleared automatically on destruction
+	/// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
+	/// Cleared automatically on destruction
 	ci::CueRef			mDelayedCallCueRef;
 
-	// Store multiple CueRefs from the cinder timeline in the case of a multi anim script
-	// Cleared automatically on destruction;
+	/// Store multiple CueRefs from the cinder timeline in the case of a multi anim script
+	/// Cleared automatically on destruction;
 	std::vector<ci::CueRef> mMultiDelayedCallCueRefs;
 
 };

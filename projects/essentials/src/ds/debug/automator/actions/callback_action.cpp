@@ -9,7 +9,7 @@ namespace ds {
 namespace debug {
 
 /**
-* \class ds::CallbackActionFactory
+* \class CallbackActionFactory
 */
 float CallbackActionFactory::getLimit() const {
 	return ci::randFloat(mMinFrequency, mMaxFrequency);
@@ -24,7 +24,7 @@ BaseAction* CallbackActionFactory::build(std::vector<int> &freeList, ds::ui::Spr
 }
 
 /**
-* \class ds::CallbackAction
+* \class CallbackAction
 */
 CallbackAction::CallbackAction(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame, const std::function<void(void)>& callback, const float minTime, const float maxTime)
 	: BaseAction(freeList, engine, frame)

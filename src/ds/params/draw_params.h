@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::DrawParams
+ * \class DrawParams
  * \brief Provided to sprites for draw()ing functions.
  */
 class DrawParams {

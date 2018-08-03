@@ -37,7 +37,7 @@ static bool			get_key_value(const std::string& arg, std::string& key, std::strin
 namespace ds {
 
 /**
- * \class ds::EngineSettings
+ * \class EngineSettings
  */
 EngineSettings::EngineSettings() 
 	: mLoadedAnySettings(false)

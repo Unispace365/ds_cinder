@@ -11,7 +11,7 @@ class SpriteEngine;
 }
 
 /**
-* \class ds::AutoRefresh
+* \class AutoRefresh
 * \brief Listens to directory changes and soft restarts the app.
 */
 class AutoRefresh {

@@ -12,7 +12,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::SpriteAnimatable
+ * \class SpriteAnimatable
  */
 SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	: mOwner(s)

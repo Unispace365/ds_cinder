@@ -31,7 +31,7 @@ using namespace ci;
 using namespace ci::app;
 
 /**
- * \class ds::AbstractEngineServer
+ * \class AbstractEngineServer
  */
 AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& settings,
 											ds::EngineData& ed, const ds::RootList& roots, const int appMode)
@@ -477,7 +477,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 }
 
 /**
- * \class ds::EngineServer
+ * \class EngineServer
  */
 EngineServer::EngineServer(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)

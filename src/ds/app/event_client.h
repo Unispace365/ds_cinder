@@ -14,7 +14,7 @@ class SpriteEngine;
 }
 
 /**
- * \class ds::EventClient
+ * \class EventClient
  * Utility for safely accessing the event mechanism.
  */
 class EventClient
@@ -24,11 +24,11 @@ public:
 	EventClient(ds::ui::SpriteEngine&);
 
 	/// Supply your own event notifier and listeners
-	EventClient(EventNotifier&,
-				// To be meaningful, clients should supply something
-				// that handles notifications, or requests, or both.
-				const std::function<void(const ds::Event *)>& notifyListener,
-				const std::function<void(ds::Event &)>& requestListener = nullptr);
+	/// To be meaningful, clients should supply something
+	/// that handles notifications, or requests, or both.
+	EventClient(EventNotifier& n,
+				const std::function<void(const ds::Event *)>& fn,
+				const std::function<void(ds::Event &)>& requestFn = nullptr);
 	~EventClient();
 
 	void			notify(const ds::Event&);

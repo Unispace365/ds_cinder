@@ -12,7 +12,7 @@ class WebInterface;
 class MediaInterface;
 
 /**
-* \class ds::ui::WebPlayer
+* \class WebPlayer
 *			Creates a web sprite and puts an interface on top of it.
 */
 class WebPlayer : public ds::ui::Sprite  {

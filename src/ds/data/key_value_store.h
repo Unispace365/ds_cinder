@@ -11,7 +11,7 @@
 namespace ds {
 
 /**
- * \class ds::KeyValueStore
+ * \class KeyValueStore
  * \brief A generic data store. Intended to be relatively efficient for
  * sparse users, only allocating storage as needed.
  */
@@ -22,10 +22,10 @@ public:
 
 	KeyValueStore&			operator=(const KeyValueStore&);
 
-	// The API allows for indexed entries, but currently that's not supported.
-	// It's not intended to ever be supported, it's just super annoying
-	// to retrofit, so it's there just in case.
-	// In all cases if an error value is not supplied then I throw on missing.
+	/// The API allows for indexed entries, but currently that's not supported.
+	/// It's not intended to ever be supported, it's just super annoying
+	/// to retrofit, so it's there just in case.
+	/// In all cases if an error value is not supplied then I throw on missing.
 	ci::ColorA				getColorA(const std::string& key, const size_t index = 0) const;
 	ci::ColorA				getColorA(const std::string& key, const size_t index, const ci::ColorA& notFound) const;
 	float					getFloat(const std::string& key, const size_t index = 0) const;

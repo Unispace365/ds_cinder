@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::WorkRequest
+ * \class WorkRequest
  * \brief Abstract class for anything that can be sent into the work manager.
  */
 class WorkRequest : public Poco::Runnable {

@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::EventNotifier
+ * \class EventNotifier
  */
 EventNotifier::EventNotifier() {
 }

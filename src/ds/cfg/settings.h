@@ -35,7 +35,7 @@ extern const std::string&				SETTING_TYPE_RECT;
 extern const std::string&				SETTING_TYPE_SECTION_HEADER; // A meta type of setting for ui display
 
 /**
-* \class ds::cfg::Settings
+* \class Settings
 * \brief Store generic settings info.
 */
 class Settings {
@@ -44,7 +44,7 @@ public:
 
 
 
-	// An actual setting with some metadata. 
+	/// An actual setting with some metadata. 
 	struct Setting {
 		Setting() : mType(SETTING_TYPE_UNKNOWN), mReadIndex(-1){};
 
@@ -68,8 +68,8 @@ public:
 		std::vector<std::string>		getPossibleValues() const; 
 
 
-		/// <setting name="the_name" value="sample" type="string" comment="Detailed description" default="null" /> 
-		/// <setting name="the_name" value="1.0" type="double" min_value="0.01" max_value="10.0" default="1.5" /> 
+		/// \code <setting name="the_name" value="sample" type="string" comment="Detailed description" default="null" /> \endcode
+		/// \code <setting name="the_name" value="1.0" type="double" min_value="0.01" max_value="10.0" default="1.5" /> \endcode
 
 		/// The name of the setting. Multiple values are getted by the index value in the getters below
 		std::string						mName;
@@ -119,58 +119,58 @@ public:
 	/// All getters type convert from the raw string value when you get the value
 	/// If the setting doesn't exist when you get it, it will be created. Supplying the default value will apply that value to the new setting
 
-	/// <setting name="the_name" value="true" type="bool" /> // index 0
-	/// <setting name="the_name" value="false" type="bool" /> // index 1
+	/// \code <setting name="the_name" value="true" type="bool" /> // index 0 \endcode
+	/// \code <setting name="the_name" value="false" type="bool" /> // index 1 \endcode
 	const bool							getBool(const std::string& name, const int index = 0);
 	const bool							getBool(const std::string& name, const int index, const bool defaultValue);
 
 
-	/// <setting name="the_name" value="1" type="int" min_value="0" max_value="1000" default="5" /> 
+	/// \code <setting name="the_name" value="1" type="int" min_value="0" max_value="1000" default="5" />  \endcode
 	const int							getInt(const std::string& name, const int index = 0);
 	const int							getInt(const std::string& name, const int index, const int defaultValue);
 
-	/// <setting name="the_name" value="1.0" type="float" /> 
+	/// \code <setting name="the_name" value="1.0" type="float" />  \endcode
 	const float							getFloat(const std::string& name, const int index = 0);
 	const float							getFloat(const std::string& name, const int index, const float defaultValue);
 
-	/// <setting name="the_name" value="10.0000000000000000001" type="double" /> 
+	/// \code <setting name="the_name" value="10.0000000000000000001" type="double" />  \endcode
 	const double						getDouble(const std::string& name, const int index = 0);
 	const double						getDouble(const std::string& name, const int index, const double defaultValue);
 
-	/// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb 
+	/// Color format: \#AARRGGBB OR \#RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or \#9933ffbb 
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This will ignore the alpha value when returning the color
-	/// <setting name="the_name" value="123456" type="color" /> 
+	/// \code <setting name="the_name" value="123456" type="color" />  \endcode
 	const ci::Color						getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
 	const ci::Color						getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::Color& defaultValue);
 
-	/// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb 
+	/// Color format: \#AARRGGBB OR \#RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or \#9933ffbb 
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This one retains the alpha value
-	/// <setting name="the_name" value="12345678" type="colora" /> 
+	/// \code <setting name="the_name" value="12345678" type="colora" />  \endcode
 	const ci::ColorA					getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
 	const ci::ColorA					getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue);
 
-	/// <setting name="the_name" value="What about the droid attack on the wookie army?" type="string" /> 
+	/// \code <setting name="the_name" value="What about the droid attack on the wookie army?" type="string" />  \endcode
 	const std::string&					getString(const std::string& name, const int index = 0);
 	const std::string&					getString(const std::string& name, const int index, const std::string& defaultValue);
 
-	/// <setting name="the_name" value="I hate sand, it's course and rough and irritating!" type="string" /> 
+	/// \code <setting name="the_name" value="I hate sand, it's course and rough and irritating!" type="string" />  \endcode
 	const std::wstring					getWString(const std::string& name, const int index = 0);
 	const std::wstring					getWString(const std::string& name, const int index, const std::wstring& defaultValue);
 
 	/// vec2 format value="X, Y" The space after the comma is required. Y defaults to 0.0 if it's not present
-	/// <setting name="the_name" value="140, 100" type="vec2" /> 
+	/// \code <setting name="the_name" value="140, 100" type="vec2" />  \endcode
 	const ci::vec2						getVec2(const std::string& name, const int index = 0);
 	const ci::vec2						getVec2(const std::string& name, const int index, const ci::vec2& defaultValue);
 
 	/// vec3 format value="X, Y, Z" The space after the commas are required. Y and Z default to 0.0 if not present
-	/// <setting name="the_name" value="-1.0, -1000.0, 50" type="vec3" /> 
+	/// \code <setting name="the_name" value="-1.0, -1000.0, 50" type="vec3" />  \endcode
 	const ci::vec3						getVec3(const std::string& name, const int index = 0);
 	const ci::vec3						getVec3(const std::string& name, const int index, const ci::vec3& defaultValue);
 
 	/// rect format value="L, T, W, H" The space after the commas are required.
-	/// <setting name="the_name" value="0, 0, 1920, 1080" type="rect" /> 
+	/// \code <setting name="the_name" value="0, 0, 1920, 1080" type="rect" />  \endcode
 	const cinder::Rectf					getRect(const std::string& name, const int index = 0);
 	const cinder::Rectf					getRect(const std::string& name, const int index, const ci::Rectf& defaultValue);
 

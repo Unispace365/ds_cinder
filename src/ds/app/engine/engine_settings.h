@@ -9,7 +9,7 @@ namespace ds {
 class Environment;
 
 /**
- * \class ds::EngineSettings
+ * \class EngineSettings
  * Container for the engine settings.  This class only adds initialization
  * behavior, and codifies the rules around the engine settings.
  *
@@ -47,7 +47,7 @@ public:
 private:
 	friend class Environment;
 	friend class EngineCfg;
-	// Answer the configuration.xml if it exists.
+	/// Answer the configuration.xml if it exists.
 	const ds::cfg::Settings&		getConfiguration();
 
 	void							setDefaults();

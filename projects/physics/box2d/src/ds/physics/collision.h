@@ -8,7 +8,7 @@ namespace ds {
 namespace physics {
 
 /**
- * \class ds::physics::Collision
+ * \class Collision
  * \brief Information about a collision.
  */
 class Collision {

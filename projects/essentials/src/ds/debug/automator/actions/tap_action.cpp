@@ -12,7 +12,7 @@ namespace ds {
 namespace debug {
 
 /**
- * \class ds::TapActionFactory
+ * \class TapActionFactory
  */
 float TapActionFactory::getLimit() const {
 	return ci::randFloat(0.01f, 0.5f);
@@ -29,7 +29,7 @@ BaseAction* TapActionFactory::build(std::vector<int> &freeList, ds::ui::SpriteEn
 }
 
 /**
- * \class ds::TapAction
+ * \class TapAction
  */
 TapAction::TapAction(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame)
 	: BaseAction(freeList, engine, frame)

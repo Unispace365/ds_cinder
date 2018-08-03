@@ -13,7 +13,7 @@ class MediaViewer;
 class MediaInterface;
 
 /**
-* \class ds::ui::MediaSlideshow
+* \class MediaSlideshow
 *			Holds a series of MediaViewers that can be viewed sequentially
 */
 class MediaSlideshow : public ds::ui::Sprite  {

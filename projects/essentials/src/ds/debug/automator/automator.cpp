@@ -163,7 +163,7 @@ void Automator::clear(){
 }
 
 /**
-* \class ds::Automator::Factory
+* \class Factory
 */
 Automator::Factory::Factory()
 	: mMin(0)

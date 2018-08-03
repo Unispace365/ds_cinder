@@ -9,7 +9,7 @@ namespace ds {
 class ContentWrangler;
 
 /**
- * \class ds::EngineStandalone
+ * \class EngineStandalone
  * The Standalone engine contains all behaviour found in both the client
  * and server, and no communication pipe replicating sprite changes.
  */

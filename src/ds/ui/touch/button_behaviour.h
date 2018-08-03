@@ -27,14 +27,14 @@ public:
 	void						setOnEnterFn(const std::function<void(void)>&);
 	void						setOnExitFn(const std::function<void(void)>&);
 	void						setOnClickFn(const std::function<void(void)>&);
-	// This happens when the touch ends but it doesn't result in a click.
+	/// This happens when the touch ends but it doesn't result in a click.
 	void						setOnUpFn(const std::function<void(void)>&);
 
-	// MACROS. These override the functions.
-	// Set the button to scale the owner sprite while it's being pressed
+	/// MACROS. These override the functions.
+	/// Set the button to scale the owner sprite while it's being pressed
 	void						setToScale(	const float pressedScale, const float pressedAnimDuration,
 											const std::function<void(void)>& clickFn);
-	// Like setToScale, but shrinks by the given number of pixels based on the owner's size
+	/// Like setToScale, but shrinks by the given number of pixels based on the owner's size
 	void						setToScalePixel(const float pixels, const float pressedAnimDuration,
 												const std::function<void(void)>& clickFn);
 
@@ -64,7 +64,7 @@ private:
 
 	TouchInsideCheckFunction	mTouchInsideCheckFunction;
 
-	// Track the fingers on me
+	/// Track the fingers on me
 	std::unordered_map<int, ci::vec3>
 								mFinger;
 	bool						mIsSetToScale;

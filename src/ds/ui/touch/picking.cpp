@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::Picking
+ * \class Picking
  */
 Picking::Picking() {
 }

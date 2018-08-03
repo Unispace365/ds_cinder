@@ -18,14 +18,14 @@ public:
 	UdpReceiver(int numThreads = 1);
 	~UdpReceiver();
 
-	// Binds to an ip/port, for listening generally
+	/// Binds to an ip/port, for listening generally
 	bool initialize(const std::string &ip, const std::string &port);
 
-	// Connects to the ip/port for sending
+	/// Connects to the ip/port for sending
 	bool connect(const std::string &ip, const std::string &port);
 
 	void close();
-	// Convenience to close and reinitialize
+	/// Convenience to close and reinitialize
 	void renew();
 
 	virtual bool sendMessage(const std::string &data) override;
@@ -33,7 +33,7 @@ public:
 
 	virtual int recvMessage(std::string &msg) override;
 
-	// Answer true if I have more data to receive, false otherwise.
+	/// Answer true if I have more data to receive, false otherwise.
 	bool canRecv() const;
 
 	bool initialized() const;
@@ -52,7 +52,7 @@ private:
 	bool						mInitialized;
 	int							mReceiveBufferMaxSize;
 	RecycleArray<char>			mReceiveBuffer;
-	// Initialization value
+	/// Initialization value
 	std::string					mIp;
 	std::string					mPort;
 };

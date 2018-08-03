@@ -11,7 +11,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ThumbnailBar
+* \class ThumbnailBar
 *			Show the thumbnails for a Resource (like a PDF) in a bar and get callbacks for when those thumbnails are clicked
 */
 class ThumbnailBar : public ds::ui::Sprite  {

@@ -17,7 +17,7 @@ namespace web {
 
 namespace ui {
 /**
- * \class ds::ui::Web
+ * \class Web
  * \brief Display a web page using Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef
  *		  The process and threading model here is complex.
  *		  In short, on creation, this sprite will asynchronously request an underlying browser from CefWebService.

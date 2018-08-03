@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::Picking
+ * \class Picking
  * \brief Abstract superclass for picking.
  */
 class Picking {

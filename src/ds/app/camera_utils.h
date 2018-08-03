@@ -16,7 +16,7 @@ class Sprite;
 } // namespace ui
 
 /**
- * \class ds::CameraPick
+ * \class CameraPick
  * Utility for picking a sprite.
  */
 class CameraPick {
@@ -25,7 +25,7 @@ public:
 		: mPickRay( calculatePickRay(engine, cameraPersp, worldTouchPoint) )
 		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
 	{}
-	// Takes an additional viewport argument, to enable 3d picking for arbitrary 3d viewports
+	/// Takes an additional viewport argument, to enable 3d picking for arbitrary 3d viewports
 	CameraPick( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport , const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint )
 		: mPickRay( calculatePickRay(engine, viewport, cameraPersp, worldTouchPoint) )
 		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
@@ -43,7 +43,7 @@ protected:
 };
 
 /**
- * \class ds::ScreenToWorld
+ * \class ScreenToWorld
  * Utility for converting screen points to world points.
  * Pulled from cinder forums:
  *	http://forum.libcinder.org/topic/converting-the-mouse-position-to-3d-world-cordinates

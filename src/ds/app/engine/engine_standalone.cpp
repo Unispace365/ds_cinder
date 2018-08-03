@@ -13,7 +13,7 @@ using namespace ci::app;
 namespace ds {
 
 /**
- * \class ds::EngineStandalone
+ * \class EngineStandalone
  */
 EngineStandalone::EngineStandalone(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots)

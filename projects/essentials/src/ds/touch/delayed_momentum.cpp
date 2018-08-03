@@ -6,7 +6,7 @@ namespace ds {
 namespace ui{
 
 /**
-* \class ds::ui::DelayedMomentum
+* \class DelayedMomentum
 */
 DelayedMomentum::DelayedMomentum(ds::ui::SpriteEngine& enging, const float deltaBurndown, const int maxSmoothFrames)
 	: inherited(enging)

@@ -21,7 +21,7 @@ extern const int		QUERY_STRING;
 extern const int		QUERY_NULL;
 
 /**
- * \class ds::query::Result
+ * \class Result
  * \brief A datastore for query results.
  */
 class Result
@@ -34,9 +34,9 @@ public:
 	public:
 		RowIterator(const RowIterator&);
 		RowIterator(const Result&);
-		// This variant seeks to the first row with the supplied name.
+		/// This variant seeks to the first row with the supplied name.
 		RowIterator(const Result&, const std::string&);
-		// Find by row index
+		/// Find by row index
 		RowIterator(const Result&, const size_t index);
 
 		void							operator++();
@@ -44,9 +44,9 @@ public:
 		bool							hasValue() const;
 
 		const std::string&				getName() const;
-		// There's no error checking here -- if the reply doesn't have an
-		// error, and you've checked matches(), and you ask for the right
-		// column, you should be fine.
+		/// There's no error checking here -- if the reply doesn't have an
+		/// error, and you've checked matches(), and you ask for the right
+		/// column, you should be fine.
 		int								getInt(const int columnIndex) const;
 		int64_t							getInt64(const int columnIndex) const;
 		float							getFloat(const int columnIndex) const;
@@ -65,7 +65,7 @@ public:
 		const Result&					mResult;
 		std::vector<std::unique_ptr<Row>>::const_iterator
 										mRowIt;
-		// A utility -- directly override my current item. Can't increment
+		/// A utility -- directly override my current item. Can't increment
 		Row*							mOverride;
 	};
 
@@ -74,17 +74,17 @@ public:
 	explicit Result(const Result&);
 
 	Result&					operator=(const Result&);
-	// Replace my contents with a single row from the row iterator
+	/// Replace my contents with a single row from the row iterator
 	Result&					operator=(const RowIterator&);
 
 	void					clear();
 
-	// In certain situations clients can do an assert test to make
-	// sure the structure matches what they're expecting, i.e.:
-	// _ASSERT(queryResult.matches(&QUERY_NUMERIC, &QUERY_STRING, NULL));
-	// Note that this doesn't work for results from SQLite, as columns
-	// that are sometimes ints can be promoted to strings on NULL cases.
-	// In that case, the best you can do is match the number of columns.
+	/// In certain situations clients can do an assert test to make
+	/// sure the structure matches what they're expecting, i.e.:
+	/// _ASSERT(queryResult.matches(&QUERY_NUMERIC, &QUERY_STRING, NULL));
+	/// Note that this doesn't work for results from SQLite, as columns
+	/// that are sometimes ints can be promoted to strings on NULL cases.
+	/// In that case, the best you can do is match the number of columns.
 	bool					matches(const int* type0, ...) const;
 
 	Poco::Timestamp			getRequestTime() const;
@@ -98,23 +98,23 @@ public:
 	int						getRowSize() const;
 	RowIterator				getRows() const;
 	RowIterator				rowAt(const size_t index) const;
-	// Answer a RowIterator for the first row that has the given int field
-	// with the given value.
-	// Add all of source rows into me
+	/// Answer a RowIterator for the first row that has the given int field
+	/// with the given value.
+	/// Add all of source rows into me
 	bool					addRows(const Result& src);
-	// Remove my first row, optionally placing it 
+	/// Remove my first row, optionally placing it 
 	void					popRowFront();
 
-	// Turn this off for now, not sure if anyone's using it
+	/// Turn this off for now, not sure if anyone's using it
 //	void					moveRow(Result&, const int from, const int to);
-	// Swap all data
+	/// Swap all data
 	void					swap(Result&);
-	// Sort by specific columns
+	/// Sort by specific columns
 	void					sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>&);
 	void					sort_if(const std::function<bool(const RowIterator& a, const RowIterator& b)>&);
 
 private:
-	// Convenience to add a new row at the end, throwing if I fail
+	/// Convenience to add a new row at the end, throwing if I fail
 	Row*								pushBackRow();
 
 	friend class ResultBuilder;
@@ -122,9 +122,9 @@ private:
 	friend class ResultRandomizer;
 	class Row {
 	public:
-		// Rows have an optional name.  This isn't used when returning results from
-		// a query, but it is used when we are using the QueryResult as a general data
-		// storage mechanism locally in apps.
+		/// Rows have an optional name.  This isn't used when returning results from
+		/// a query, but it is used when we are using the QueryResult as a general data
+		/// storage mechanism locally in apps.
 		std::string						mName;
 		std::vector<double>				mNumeric;
 		std::vector<std::string>		mString;
@@ -136,12 +136,12 @@ private:
 		Row&							operator=(const Row&);
 	};
 
-	// column types
+	/// column types
 	std::vector<int>					mCol;
 	std::vector<std::string>			mColNames;
 	std::vector<std::unique_ptr<Row>>	mRow;
 
-	// The time this query was requested.
+	/// The time this query was requested.
 	Poco::Timestamp						mRequestTime;
 	int									mClientId;
 

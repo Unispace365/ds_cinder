@@ -12,7 +12,7 @@ class SpriteEngine;
 namespace debug{
 
 /**
- * \class ds::MultiTapActionFactory
+ * \class MultiTapActionFactory
  */
 class MultiTapActionFactory : public BaseActionFactory {
 public:
@@ -25,7 +25,7 @@ public:
 };
 
 /**
- * \class ds::MultiTapAction
+ * \class MultiTapAction
  */
 class MultiTapAction : public BaseAction
 {

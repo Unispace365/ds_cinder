@@ -12,7 +12,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineClient
+ * \class EngineClient
  * The Server engine contains all app-side behaviour, but no rendering.
  */
 class EngineClient : public Engine {
@@ -34,7 +34,7 @@ public:
 	virtual int						getBytesRecieved();
 	virtual int						getBytesSent();
 
-	// The most recent frame received from the server.
+	/// The most recent frame received from the server.
 	int32_t							mServerFrame;
 
 private:
@@ -57,11 +57,11 @@ private:
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
 	int32_t							mSessionId;
-	// True if I lost the connection, renewed it, and am
-	// waiting to hear back.
+	/// True if I lost the connection, renewed it, and am
+	/// waiting to hear back.
 	bool							mConnectionRenewed;
 
-	// STATES
+	/// STATES
 	class State {
 	public:
 		State();
@@ -78,9 +78,9 @@ private:
 		virtual void				update(EngineClient&);
 	};
 
-	// I have just started, and am sending the server the
-	// CMD_CLIENT_STARTED command. I will wait here until
-	// I receive CMD_CLIENT_STARTED_REPLY.
+	/// I have just started, and am sending the server the
+	/// CMD_CLIENT_STARTED command. I will wait here until
+	/// I receive CMD_CLIENT_STARTED_REPLY.
 	class ClientStartedState : public State {
 	public:
 		ClientStartedState();
@@ -89,11 +89,11 @@ private:
 		virtual void				update(EngineClient&);
 
 	private:
-		// Avoid flooding the server with requests for the world.
+		/// Avoid flooding the server with requests for the world.
 		int							mSendFrame;
 	};
 
-	// I have no data, and am waiting for a complete refresh
+	/// I have no data, and am waiting for a complete refresh
 	class BlankState : public State {
 	public:
 		BlankState();
@@ -102,7 +102,7 @@ private:
 		virtual void				update(EngineClient&);
 
 	private:
-		// Avoid flooding the server with requests for the world.
+		/// Avoid flooding the server with requests for the world.
 		int							mSendFrame;
 	};
 

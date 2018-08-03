@@ -44,7 +44,7 @@ namespace ui {
 	struct TapInfo;
 	struct TouchInfo;
 
-	// Attribute access
+	/// Attribute access
 	extern const char SPRITE_ID_ATTRIBUTE;
 
 	/**
@@ -292,8 +292,8 @@ namespace ui {
 			\return 3d Vector of the pixel position of the center of this Sprite. */
 		ci::vec3				getCenterPosition() const;
 
-		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
-			Effectively ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space.
+			Effectively \code ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z) \endcode
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::vec3				getLocalCenterPosition() const;
 
@@ -313,8 +313,9 @@ namespace ui {
 		void					setRotation(const ci::vec3 &rot);
 
 		/** Set the rotation around all 3 given axis'es with the given degree
-		\param rot 3d vector of the new rotation, in degrees.*/
-		void					setRotation(const ci::vec3 &rot, const float degree);
+			\param axis    axis to rotate around
+			\param angle   Amount of rotation in degrees */
+		void					setRotation(const ci::vec3 &axis, const float angle);
 		bool					mDoSpecialRotation;
 		float					mDegree;
 
@@ -607,23 +608,23 @@ namespace ui {
 		bool					isDirty() const;
 		void					writeTo(ds::DataBuffer&);
 		void					readFrom(ds::BlobReader&);
-		// Only used when running in client mode
+		/// Only used when running in client mode
 		void					writeClientTo(ds::DataBuffer&);
-		// IMPORTANT: readClientFrom must not be virtual. If any of the clients try to communicate
-		// back with server, the communication must happen through "readClientAttributeFrom".
+		/// IMPORTANT: readClientFrom must not be virtual. If any of the clients try to communicate
+		/// back with server, the communication must happen through "readClientAttributeFrom".
 		void					readClientFrom(ds::DataBuffer&);
 
 		void					setBlendMode(const BlendMode &blendMode);
 		BlendMode				getBlendMode() const;
 
-		//	Determines if the final render will be to the display or a texture.
+		///	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
 
-		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
+		/// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 		void					setBaseShader(const std::string &vertShaderString, const std::string& fragShaderString, const std::string &shadername, bool applyToChildren = false);
 
@@ -647,29 +648,29 @@ namespace ui {
 		void					resetIdleTimer();
 		void					clearIdleTimer();
 
-		// Prevent this sprite (and all children) from replicating. NOTE: Should
-		// only be done once on construction, if you change it, weird things could happen.
+		/// Prevent this sprite (and all children) from replicating. NOTE: Should
+		/// only be done once on construction, if you change it, weird things could happen.
 		void					setNoReplicationOptimization(const bool = false);
-		// Special function to mark every sprite from me down as dirty.
+		/// Special function to mark every sprite from me down as dirty.
 		void					markTreeAsDirty();
 
-		// When true, the touch input is automatically rotated to account for my rotation.
+		/// When true, the touch input is automatically rotated to account for my rotation.
 		void					setRotateTouches(const bool = false);
 		bool					isRotateTouches() const;
 
 		bool					getPerspective() const;
-		// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for
-		// views that are inside of perspective cameras, but are expressed in screen coordinates.
+		/// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for
+		/// views that are inside of perspective cameras, but are expressed in screen coordinates.
 		void					setIsInScreenCoordsHack(const bool);
 
 		void					setUseDepthBuffer(bool useDepth);
 		bool					getUseDepthBuffer() const;
 
-		// If this sprite renders locally and the radius is > 0, will draw a rounded rect
+		/// If this sprite renders locally and the radius is > 0, will draw a rounded rect
 		void					setCornerRadius(const float newRadius);
 		float					getCornerRadius() const;
 
-		// Answer true if this sprite currently has any touches.
+		/// Answer true if this sprite currently has any touches.
 		bool					hasTouches() const;
 		/*
 		 * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
@@ -735,9 +736,9 @@ namespace ui {
 		void				updateCheckBounds() const;
 		bool				checkBounds() const;
 
-		// Once the sprite has passed the getHit() sprite bounds, this is a second
-		// stage that allows the sprite itself to determine if the point is interior,
-		// in the case that the sprite has transparency or other special rules.
+		/// Once the sprite has passed the getHit() sprite bounds, this is a second
+		/// stage that allows the sprite itself to determine if the point is interior,
+		/// in the case that the sprite has transparency or other special rules.
 		virtual bool		getInnerHit(const ci::vec3&) const;
 
 		virtual void		doSetPosition(const ci::vec3&);
@@ -765,24 +766,24 @@ namespace ui {
 		/// Recommend re-using mRenderBatch if possible by calling replaceVboMesh on mRenderBatch
 		virtual void		onBuildRenderBatch();	
 
-		// Always access the bounds via this, which will build them if necessary
+		/// Always access the bounds via this, which will build them if necessary
 		const ci::Rectf&	getClippingBounds();
 		void				computeClippingBounds();
 
 		void				setSpriteId(const ds::sprite_id_t&);
-		// Helper utility to set a flag
+		/// Helper utility to set a flag
 		void				setFlag(const int newBit, const bool on, const DirtyState&, int& oldFlags);
 		bool				getFlag(const int bit, const int flags) const;
 
 		virtual void		markAsDirty(const DirtyState&);
-		// Special function that marks all children as dirty, without sending anything up the hierarchy.
+		/// Special function that marks all children as dirty, without sending anything up the hierarchy.
 		virtual void		markChildrenAsDirty(const DirtyState&);
 		virtual void		writeAttributesTo(ds::DataBuffer&);
-		// Used during client mode, to let clients get info back to the server. Use the
-		// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
+		/// Used during client mode, to let clients get info back to the server. Use the
+		/// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
 		virtual void		writeClientAttributesTo(ds::DataBuffer&){};
 		virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&){}
-		// Read a single attribute
+		/// Read a single attribute
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
 		void				setUseShaderTexture(bool flag);
@@ -798,8 +799,8 @@ namespace ui {
 
 
 		SpriteEngine&			mEngine;
-		// The ID must always be assigned through setSpriteId(), which has some
-		// behaviour associated with the ID changing.
+		/// The ID must always be assigned through setSpriteId(), which has some
+		/// behaviour associated with the ID changing.
 		ds::sprite_id_t			mId;
 		ci::Color8u				mUniqueColor;
 
@@ -839,11 +840,11 @@ namespace ui {
 
 		Sprite*					mParent;
 		std::vector<Sprite *>	mChildren;
-		// A cache for when I need to sort my children. This could be
-		// a lot more efficient, only running the sort when Z changes.
+		/// A cache for when I need to sort my children. This could be
+		/// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
 
-		// Class-unique key for this type.  Subclasses can replace.
+		/// Class-unique key for this type.  Subclasses can replace.
 		char					mBlobType;
 		DirtyState				mDirty;
 
@@ -858,7 +859,7 @@ namespace ui {
 		BitMask				mMultiTouchConstraints;
 		bool				mTouchScaleSizeMode;
 
-		// All touch processing happens in the process touch class
+		/// All touch processing happens in the process touch class
 		TouchProcess		mTouchProcess;
 
 		bool				mCheckBounds;
@@ -866,72 +867,72 @@ namespace ui {
 		IdleTimer			mIdleTimer;
 		bool				mUseDepthBuffer;
 		float				mCornerRadius;
-		// For clients that do their own drawing -- this is the current parent * me opacity.
-		// Essentially anyone who sets alpha in drawLocalClient should probably use this value.
-		// \see Sprite::getDrawOpacity()
+		/// For clients that do their own drawing -- this is the current parent * me opacity.
+		/// Essentially anyone who sets alpha in drawLocalClient should probably use this value.
+		/// \see Sprite::getDrawOpacity()
 		float				mDrawOpacity;
 
-		// Transport uniform data to the shader
+		/// Transport uniform data to the shader
 		ds::gl::Uniform		mUniform;
 
 	private:
-		// Utility to reorder the sprites
+		/// Utility to reorder the sprites
 		void				setSpriteOrder(const std::vector<sprite_id_t>&);
 
 		friend class ds::Engine;
 		friend class ds::EngineRoot;
-		// Disable copy constructor; sprites are managed by their parent and
-		// must be allocated
+		/// Disable copy constructor; sprites are managed by their parent and
+		/// must be allocated
 		Sprite(const Sprite&);
-		// Internal constructor just for the Engine, used to create the root sprite,
-		// which always exists and is identical across all architectures.
+		/// Internal constructor just for the Engine, used to create the root sprite,
+		/// which always exists and is identical across all architectures.
 		Sprite(SpriteEngine&, const ds::sprite_id_t id, const bool perspective = false);
 
 		void				init(const ds::sprite_id_t);
 		void				readAttributesFrom(ds::DataBuffer&);
 
 		void				dimensionalStateChanged();
-		// Applies to all children, too.
+		/// Applies to all children, too.
 		void				markClippingDirty();
-		// Store all children in mSortedTmp by z order.
-		// XXX Need to optimize this so only built when needed.
+		/// Store all children in mSortedTmp by z order.
+		/// XXX Need to optimize this so only built when needed.
 		void				makeSortedChildren();
-		// calls removeParent then addChild to parent.
-		// setParent was previously public, but calling it by itself can cause an infinite loop
-		// Use addChild() from outside sprite.cpp
+		/// calls removeParent then addChild to parent.
+		/// setParent was previously public, but calling it by itself can cause an infinite loop
+		/// Use addChild() from outside sprite.cpp
 		void				setParent(Sprite *parent);
 
 		ci::gl::TextureRef	mRenderTarget;
 		BlendMode			mBlendMode;
 
 		//set flag for determining whether to use orthoganol or perspective.
-		// this flag is only set on the root perspective sprite.
+		/// this flag is only set on the root perspective sprite.
 		bool				mPerspective;
 
 		//set by sprite constructors. doesn't need to be passed through.
 		bool				mUseShaderTexture;
 
 		ci::ColorA			mServerColor;
-		// This to make onSizeChanged() more efficient -- it can get
-		// triggered as a result of position changes, which shouldn't affect it.
+		/// This to make onSizeChanged() more efficient -- it can get
+		/// triggered as a result of position changes, which shouldn't affect it.
 		float				mLastWidth, mLastHeight;
 
-		// Total hack needed in certain cases where you're using a perspective camera.
-		// This is used by the picking to let the touch system know that the sprite
-		// (position/dimensions) are in the screen coordinate space.
+		/// Total hack needed in certain cases where you're using a perspective camera.
+		/// This is used by the picking to let the touch system know that the sprite
+		/// (position/dimensions) are in the screen coordinate space.
 		bool				mIsInScreenCoordsHack;
 
-		// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
-		// Cleared automatically on destruction
+		/// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
+		/// Cleared automatically on destruction
 		ci::CueRef			mDelayedCallCueRef;
 
-		// For debugging, and in a super-duper pinch, in production. 
+		/// For debugging, and in a super-duper pinch, in production. 
 		std::wstring		mSpriteName;
 
 	public:
 #ifdef _DEBUG
-		// Debugging aids to write out my state. write() calls writeState
-		// on me and all my children.
+		/// Debugging aids to write out my state. write() calls writeState
+		/// on me and all my children.
 		void				write(std::ostream&, const size_t tab) const;
 		virtual void		writeState(std::ostream&, const size_t tab) const;
 #endif
@@ -987,9 +988,9 @@ namespace ui {
 			}
 			s->setSpriteId(id);
 			s->readFrom(r);
-			// If it didn't get assigned to a parent, something is wrong,
-			// and it would disappear forever from memory management if I didn't
-			// clean up here.
+			/// If it didn't get assigned to a parent, something is wrong,
+			/// and it would disappear forever from memory management if I didn't
+			/// clean up here.
 			if(!s->mParent) {
 				std::cout << "ERROR: No parent created for sprite id: " << id << " Be sure you add your sprite to a parent directly after construction." << std::endl;
 				//assert(false);

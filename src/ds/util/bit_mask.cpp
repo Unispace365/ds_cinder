@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "ds/util/bit_mask.h"
+#include "bit_mask.h"
 
 #include <assert.h>
 
@@ -57,41 +57,41 @@ BitMask::BitMask(const int index)
 	assert(index >= 0 && index < 64);
 }
 
-bool BitMask::operator!=(const BitMask& o) const
+bool BitMask::operator!= (const BitMask& o) const
 {
   return mMask != o.mMask;
 }
 
-void BitMask::operator|=(const BitMask& o)
+void BitMask::operator|= (const BitMask& o)
 {
 	mMask |= o.mMask;
 }
 
-BitMask BitMask::operator|(const BitMask& o) const
+BitMask BitMask::operator| (const BitMask& o) const
 {
 	BitMask			ans(*this);
 	ans.mMask |= o.mMask;
 	return ans;
 }
 
-void BitMask::operator&=(const BitMask& o)
+void BitMask::operator&= (const BitMask& o)
 {
 	mMask &= o.mMask;
 }
 
-bool BitMask::operator&(const BitMask& o) const
+bool BitMask::operator& (const BitMask& o) const
 {
-	return (mMask&o.mMask) != 0;
+	return (mMask & o.mMask) != 0;
 }
 
-BitMask BitMask::operator~() const
+BitMask BitMask::operator~ () const
 {
 	BitMask			ans(*this);
 	ans.mMask = ~(ans.mMask);
 	return ans;
 }
 
-BitMask ds::BitMask::operator ^( const BitMask &rhs ) const
+BitMask ds::BitMask::operator^ ( const BitMask &rhs ) const
 {
     BitMask temp(*this);
     temp ^= rhs;
@@ -103,7 +103,7 @@ uint64_t ds::BitMask::getMaskValue() const
     return mMask;
 }
 
-BitMask &BitMask::operator ^=( const BitMask &rhs )
+BitMask& BitMask::operator^= ( const BitMask &rhs )
 {
     mMask ^= rhs.mMask;
     return *this;

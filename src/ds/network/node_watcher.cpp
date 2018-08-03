@@ -10,7 +10,7 @@
 namespace ds {
 
 /**
- * \class ds::NodeWatcher
+ * \class NodeWatcher
  */
 NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port, const bool autostart)
 		: ds::AutoUpdate(se)
@@ -86,7 +86,7 @@ void NodeWatcher::update(const ds::UpdateParams &) {
 }
 
 /**
- * \class ds::NodeWatcher::Loop
+ * \class Loop
  */
 static long get_refresh_rate(ds::ui::SpriteEngine& e) {
 	// Default to one second
@@ -158,7 +158,7 @@ void NodeWatcher::Loop::run() {
 }
 
 /**
- * \class ds::NodeWatcher::Message
+ * \class Message
  */
 NodeWatcher::Message::Message()
 {

@@ -11,7 +11,7 @@
 namespace ds {
 
 /**
-* \class ds::ContentQuery
+* \class ContentQuery
 * \brief Reads a content model xml descriptor, queries a Sqlite database from that descriptor, and assembles the data model
 */
 class ContentQuery : public Poco::Runnable {

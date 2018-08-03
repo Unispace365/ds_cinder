@@ -16,7 +16,7 @@ class StreamPlayer;
 class MediaInterface;
 
 /**
-* \class ds::MediaPlayer
+* \class MediaPlayer
 *			This will load an appropriate media player after deducing the type: PDF, Web, Image, Video file or Video stream.
 *			After loading a piece of media and initializing, the size of this sprite will match the size of the loaded media.
 *			After initializing, you can set the size of this sprite to resize the media. 

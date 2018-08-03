@@ -11,7 +11,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineClientList
+ * \class EngineClientList
  */
 EngineClientList::EngineClientList()
 		: mNextSessionId(1)
@@ -77,7 +77,7 @@ void EngineClientList::compare(const int32_t server_frame) {
 }
 
 /**
- * \class ds::EngineClientList::State
+ * \class State
  */
 EngineClientList::State::State()
 		: mSessionId(0)

@@ -14,7 +14,7 @@ namespace net {
 
 
 /**
-* \class ds::MqttWatcher
+* \class MqttWatcher
 * \brief Listen and send messages on MQTT ( http://mqtt.org )
 */
 class MqttWatcher : public ds::AutoUpdate {

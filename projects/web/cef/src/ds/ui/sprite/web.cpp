@@ -59,7 +59,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::sprite::Web static
+ * \class Web static
  */
 void Web::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
@@ -70,7 +70,7 @@ void Web::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class ds::ui::sprite::Web
+ * \class Web
  */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: IEntryField(engine)

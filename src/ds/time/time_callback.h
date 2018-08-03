@@ -10,7 +10,7 @@ namespace ds {
 namespace time {
 
 /**
-* \class ds::time::Callback
+* \class Callback
 * \brief Get a lambda function back after a certain amount of time. Only supports a single callback at a time
 */
 class Callback : ds::AutoUpdate {

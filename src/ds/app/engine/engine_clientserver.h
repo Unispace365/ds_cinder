@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineClientServer
+ * \class EngineClientServer
  * The ClientServer engine contains all behaviour found in both the client
  * and server, and no communication pipe replicating sprite changes.
  */

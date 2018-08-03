@@ -15,7 +15,7 @@ class EntryField;
 class LayoutSprite;
 
 /**
-* \class ds:ui:::WebInterface
+* \class WebInterface
 *			Implements forward/back and refresh
 */
 class WebInterface : public MediaInterface  {

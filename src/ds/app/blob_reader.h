@@ -10,7 +10,7 @@ class SpriteEngine;
 } // namespace ui
 
 /**
- * \class ds::ui::BlobReader
+ * \class BlobReader
  * A collection class for the object used in the blob registry.
  */
 class BlobReader {

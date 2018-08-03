@@ -16,10 +16,10 @@ class UserData {
 public:
 	UserData();
 
-	// The API allows for indexed entries, but currently that's not supported.
-	// It's not intended to ever be supported, it's just super annoying
-	// to retrofit, just in case.
-	// In all cases if an error value is not supplied then I throw on missing.
+	/// The API allows for indexed entries, but currently that's not supported.
+	/// It's not intended to ever be supported, it's just super annoying
+	/// to retrofit, just in case.
+	/// In all cases if an error value is not supplied then I throw on missing.
 	float					getFloat(const std::string& key, const size_t index = 0) const;
 	float					getFloat(const std::string& key, const size_t index, const float notFound) const;
 	std::int32_t			getInt(const std::string& key, const size_t index = 0) const;

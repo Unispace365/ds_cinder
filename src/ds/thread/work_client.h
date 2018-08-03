@@ -14,7 +14,7 @@ class SpriteEngine;
 }
 
 /**
- * \class ds::WorkClient
+ * \class WorkClient
  * \brief Abstract superclass for anything that can supply requests to the work manager.
  */
 class WorkClient {
@@ -25,7 +25,7 @@ public:
 protected:
 	friend class WorkManager;
 
-	// Subclasses should take ownership if they want to recycle the request.
+	/// Subclasses should take ownership if they want to recycle the request.
 	virtual void			handleResult(std::unique_ptr<WorkRequest>&);
 
 protected:

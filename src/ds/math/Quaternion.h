@@ -55,10 +55,10 @@ public:
 	Quaternion( const Quaternion<FromT>& q ) : w( static_cast<T>( q.w ) ), v( q.v ) {}
 
 	Quaternion( T aW, T x, T y, T z ): w( aW ), v( x, y, z ) {}	
-	// construct from axis-angle
+	/// construct from axis-angle
 	Quaternion( const Vec3<T> &axis, T radians ) { set( axis, radians ); } 
 	Quaternion( const Vec3<T> &from, const Vec3<T> &to ) { set( from, to ); }
-	// create from Euler angles in radians expressed in ZYX rotation order
+	/// create from Euler angles in radians expressed in ZYX rotation order
 	Quaternion( T xRotation, T yRotation, T zRotation ) { set( xRotation, yRotation, zRotation ); }
 	Quaternion( const Matrix33<T> &m ) { set( m ); }
 	Quaternion( const Matrix44<T> &m ) { set( m ); }
@@ -67,7 +67,7 @@ public:
 		: w( QUATCONV<Quaternion<typename Quaternion::TYPE>,Y>::getW( v ) ), v( QUATCONV<typename Quaternion::TYPE,Y>::getX( v ), QUATCONV<typename Quaternion::TYPE,Y>::getY( v ), QUATCONV<typename Quaternion::TYPE,Y>::getZ( v ) )
 	{}
 	
-	// get axis-angle representation's axis
+	/// get axis-angle representation's axis
 	Vec3<T> getAxis() const
 	{
 		T cos_angle = w;
@@ -76,14 +76,14 @@ public:
 		return v * invLen;
 	}
 	
-	// get axis-angle representation's angle in radians
+	/// get axis-angle representation's angle in radians
 	T getAngle() const
 	{
 		T cos_angle = w;
 		return cinder::math<T>::acos( cos_angle ) * 2;
 	}
 
-	// these are only valid for ZYX rotation order
+	/// these are only valid for ZYX rotation order
 	T getPitch() const
 	{
 		return cinder::math<T>::atan2( (T)2 * ( v.y * v.z + w * v.x ), w * w - v.x * v.x - v.y * v.y + v.z * v.z );
@@ -117,7 +117,7 @@ public:
 	Quaternion<T> inverse() const
 	{
 		T norm = w * w + v.x * v.x + v.y * v.y + v.z * v.z;
-		// if we're the zero quaternion, just return identity
+		/// if we're the zero quaternion, just return identity
 		/*if( ! ( cinder::math<T>::abs( norm ) < EPSILON_VALUE ) ) {
 			return identity();
 		}*/
@@ -154,8 +154,8 @@ public:
 		return result;
 	}
 
-	// For unit quaternion, from Advanced Animation and 
-	// Rendering Techniques by Watt and Watt, Page 366:
+	/// For unit quaternion, from Advanced Animation and 
+	/// Rendering Techniques by Watt and Watt, Page 366:
 	Quaternion<T> log() const
 	{
 		T theta = cinder::math<T>::acos( std::min( w, (T) 1.0 ) );
@@ -174,9 +174,9 @@ public:
 		return Quaternion<T>( (T)0, v.x * k, v.y * k, v.z * k );
 	}
 
-	// For pure quaternion (zero scalar part):
-	// from Advanced Animation and Rendering
-	// Techniques by Watt and Watt, Page 366:
+	/// For pure quaternion (zero scalar part):
+	/// from Advanced Animation and Rendering
+	/// Techniques by Watt and Watt, Page 366:
 	Quaternion<T> exp() const
 	{
 		T theta = v.length();
@@ -242,9 +242,9 @@ public:
 			setRotationInternal (f0, t0, *this);
 		}
 		else {
-			// The angle is greater than pi/2.  After computing h0,
-			// which is halfway between f0 and t0, we rotate first
-			// from f0 to h0, then from h0 to t0.
+			/// The angle is greater than pi/2.  After computing h0,
+			/// which is halfway between f0 and t0, we rotate first
+			/// from f0 to h0, then from h0 to t0.
 
 			Vec3<T> h0 = (f0 + t0).normalized();
 
@@ -261,9 +261,9 @@ public:
 				//*this *= q;
 			}
 			else {
-				// f0 and t0 point in exactly opposite directions.
-				// Pick an arbitrary axis that is orthogonal to f0,
-				// and rotate by pi.
+				/// f0 and t0 point in exactly opposite directions.
+				/// Pick an arbitrary axis that is orthogonal to f0,
+				/// and rotate by pi.
 
 				w = T( 0 );
 
@@ -282,22 +282,22 @@ public:
 	static void setRotationInternal( const Vec3<T> &f0, const Vec3<T> &t0, Quaternion<T> &q )
 	{
 		//
-		// The following is equivalent to setAxisAngle(n,2*phi),
-		// where the rotation axis, is orthogonal to the f0 and
-		// t0 vectors, and 2*phi is the angle between f0 and t0.
+		/// The following is equivalent to setAxisAngle(n,2*phi),
+		/// where the rotation axis, is orthogonal to the f0 and
+		/// t0 vectors, and 2*phi is the angle between f0 and t0.
 		//
-		// This function is called by setRotation(), above; it assumes
-		// that f0 and t0 are normalized and that the angle between
-		// them is not much greater than pi/2.  This function becomes
-		// numerically inaccurate if f0 and t0 point into nearly
-		// opposite directions.
+		/// This function is called by setRotation(), above; it assumes
+		/// that f0 and t0 are normalized and that the angle between
+		/// them is not much greater than pi/2.  This function becomes
+		/// numerically inaccurate if f0 and t0 point into nearly
+		/// opposite directions.
 		//
 
-		// Find a normalized vector, h0, that is half way between f0 and t0.
-		// The angle between f0 and h0 is phi.
+		/// Find a normalized vector, h0, that is half way between f0 and t0.
+		/// The angle between f0 and h0 is phi.
 		Vec3<T> h0 = ( f0 + t0 ).normalized();
 
-		// Store the rotation axis and rotation angle.
+		/// Store the rotation axis and rotation angle.
 		q.w = f0.dot( h0 );	//  f0 ^ h0 == cos (phi)
 		q.v = f0.cross( h0 );	// (f0 % h0).length() == sin (phi)
 	}
@@ -309,14 +309,14 @@ public:
 		v = axis.normalized() * cinder::math<T>::sin( radians / 2 );
 	}
 
-	// assumes ZYX rotation order and radians
+	/// assumes ZYX rotation order and radians
 	void set( T xRotation, T yRotation, T zRotation )
 	{
 		zRotation *= T( 0.5 );
 		yRotation *= T( 0.5 );
 		xRotation *= T( 0.5 );
 
-		// get sines and cosines of half angles
+		/// get sines and cosines of half angles
 		T Cx = cinder::math<T>::cos( xRotation );
 		T Sx = cinder::math<T>::sin( xRotation );
 
@@ -326,14 +326,14 @@ public:
 		T Cz = cinder::math<T>::cos( zRotation );
 		T Sz = cinder::math<T>::sin( zRotation );
 
-		// multiply it out
+		/// multiply it out
 		w =		Cx*Cy*Cz - Sx*Sy*Sz;
 		v.x =	Sx*Cy*Cz + Cx*Sy*Sz;
 		v.y =	Cx*Sy*Cz - Sx*Cy*Sz;
 		v.z =	Cx*Cy*Sz + Sx*Sy*Cz;
 
 		/*
-		// if we ever get to XYZ order, here you go
+		/// if we ever get to XYZ order, here you go
 		w =		Sx*Sy*Sz + Cx*Cy*Cz;
 		v.x =	Cx*Cy*Sz - Sx*Sy*Cz;
 		v.y =	Sx*Cy*Sz + Cx*Sy*Cz;
@@ -430,33 +430,33 @@ public:
 
 	Quaternion<T> lerp( T t, const Quaternion<T> &end ) const
 	{
-		// get cos of "angle" between quaternions
+		/// get cos of "angle" between quaternions
 		float cosTheta = dot( end );
 
-		// initialize result
+		/// initialize result
 		Quaternion<T> result = end * t;
 
-		// if "angle" between quaternions is less than 90 degrees
+		/// if "angle" between quaternions is less than 90 degrees
 		if( cosTheta >= EPSILON ) {
-			// use standard interpolation
+			/// use standard interpolation
 			result += *this * ( static_cast<T>( 1.0 ) - t );
 		}
 		else {
-			// otherwise, take the shorter path
+			/// otherwise, take the shorter path
 			result += *this * ( t - static_cast<T>( 1.0 ) );
 		}
 		
 		return result;
 	}
 
-    // This method does *not* interpolate along the shortest
-    // arc between q1 and q2.  If you desire interpolation
-    // along the shortest arc, and q1.dot( q2 ) is negative, then
-    // consider flipping the second quaternion explicitly.
+    /// This method does *not* interpolate along the shortest
+    /// arc between q1 and q2.  If you desire interpolation
+    /// along the shortest arc, and q1.dot( q2 ) is negative, then
+    /// consider flipping the second quaternion explicitly.
     //
-    // NOTE: the difference between this and slerp isn't clear, but we're using
-    // the Don Hatch / ilmbase squad code which explicity requires this impl. of slerp
-    // so I'm leaving it for now
+    /// NOTE: the difference between this and slerp isn't clear, but we're using
+    /// the Don Hatch / ilmbase squad code which explicity requires this impl. of slerp
+    /// so I'm leaving it for now
 	Quaternion<T> slerpShortestUnenforced( T t, const Quaternion<T> &end ) const
 	{
 	    Quaternion<T> d = *this - end;
@@ -476,42 +476,42 @@ public:
 
 	Quaternion<T> slerp( T t, const Quaternion<T> &end ) const
 	{
-		// get cosine of "angle" between quaternions
+		/// get cosine of "angle" between quaternions
 		T cosTheta = this->dot( end );
 		T startInterp, endInterp;
 
-		// if "angle" between quaternions is less than 90 degrees
+		/// if "angle" between quaternions is less than 90 degrees
 		if( cosTheta >= EPSILON ) {
-			// if angle is greater than zero
+			/// if angle is greater than zero
 			if( ( static_cast<T>( 1.0 ) - cosTheta ) > EPSILON ) {
-				// use standard slerp
+				/// use standard slerp
 				T theta = cinder::math<T>::acos( cosTheta );
 				T recipSinTheta = static_cast<T>( 1.0 ) / cinder::math<T>::sin( theta );
 
 				startInterp = cinder::math<T>::sin( ( static_cast<T>( 1.0 ) - t ) * theta ) * recipSinTheta;
 				endInterp = cinder::math<T>::sin( t * theta ) * recipSinTheta;
 			}
-			// angle is close to zero
+			/// angle is close to zero
 			else {
-				// use linear interpolation
+				/// use linear interpolation
 				startInterp = static_cast<T>( 1.0 ) - t;
 				endInterp = t;
 			}
 		}
-		// otherwise, take the shorter route
+		/// otherwise, take the shorter route
 		else {
-			// if angle is less than 180 degrees
+			/// if angle is less than 180 degrees
 			if( ( static_cast<T>( 1.0 ) + cosTheta ) > EPSILON ) {
-				// use slerp w/negation of start quaternion
+				/// use slerp w/negation of start quaternion
 				T theta = cinder::math<T>::acos( -cosTheta );
 				T recipSinTheta = static_cast<T>( 1.0 ) / cinder::math<T>::sin( theta );
 
 				startInterp = cinder::math<T>::sin( ( t - static_cast<T>( 1.0 ) ) * theta ) * recipSinTheta;
 				endInterp = cinder::math<T>::sin( t * theta ) * recipSinTheta;
 			}
-			// angle is close to 180 degrees
+			/// angle is close to 180 degrees
 			else {
-				// use lerp w/negation of start quaternion
+				/// use lerp w/negation of start quaternion
 				startInterp = t - static_cast<T>( 1.0 );
 				endInterp = t;
 			}
@@ -520,12 +520,12 @@ public:
 		return *this * startInterp + end * endInterp;
 	}
 
-	// Spherical Quadrangle Interpolation -
-	// from Advanced Animation and Rendering
-	// Techniques by Watt and Watt, Page 366:
-	// It constructs a spherical cubic interpolation as 
-	// a series of three spherical linear interpolations 
-	// of a quadrangle of unit quaternions. 
+	/// Spherical Quadrangle Interpolation -
+	/// from Advanced Animation and Rendering
+	/// Techniques by Watt and Watt, Page 366:
+	/// It constructs a spherical cubic interpolation as 
+	/// a series of three spherical linear interpolations 
+	/// of a quadrangle of unit quaternions. 
 	Quaternion<T> squadShortestEnforced( T t, const Quaternion<T> &qa, const Quaternion<T> &qb, const Quaternion<T> &q2 ) const
 	{
 		Quaternion<T> r1;
@@ -553,25 +553,25 @@ public:
 		return r1.slerp( 2 * t * (1-t), r2 );
 	}
 
-	// Spherical Cubic Spline Interpolation -
-	// from Advanced Animation and Rendering
-	// Techniques by Watt and Watt, Page 366:
-	// A spherical curve is constructed using three
-	// spherical linear interpolations of a quadrangle
-	// of unit quaternions: q1, qa, qb, q2.
-	// Given a set of quaternion keys: q0, q1, q2, q3,
-	// this routine does the interpolation between
-	// q1 and q2 by constructing two intermediate
-	// quaternions: qa and qb. The qa and qb are 
-	// computed by the intermediate function to 
-	// guarantee the continuity of tangents across
-	// adjacent cubic segments. The qa represents in-tangent
-	// for q1 and the qb represents the out-tangent for q2.
-	// 
-	// The q1 q2 is the cubic segment being interpolated. 
-	// The q0 is from the previous adjacent segment and q3 is 
-	// from the next adjacent segment. The q0 and q3 are used
-	// in computing qa and qb.
+	/// Spherical Cubic Spline Interpolation -
+	/// from Advanced Animation and Rendering
+	/// Techniques by Watt and Watt, Page 366:
+	/// A spherical curve is constructed using three
+	/// spherical linear interpolations of a quadrangle
+	/// of unit quaternions: q1, qa, qb, q2.
+	/// Given a set of quaternion keys: q0, q1, q2, q3,
+	/// this routine does the interpolation between
+	/// q1 and q2 by constructing two intermediate
+	/// quaternions: qa and qb. The qa and qb are 
+	/// computed by the intermediate function to 
+	/// guarantee the continuity of tangents across
+	/// adjacent cubic segments. The qa represents in-tangent
+	/// for q1 and the qb represents the out-tangent for q2.
+	/// 
+	/// The q1 q2 is the cubic segment being interpolated. 
+	/// The q0 is from the previous adjacent segment and q3 is 
+	/// from the next adjacent segment. The q0 and q3 are used
+	/// in computing qa and qb.
 	Quaternion<T> spline( T t, const Quaternion<T> &q1,
 			   const Quaternion<T> &q2, const Quaternion<T> &q3 ) const
 	{
@@ -644,7 +644,7 @@ public:
 		}
 	}
 
-	// Operators
+	/// Operators
 	Quaternion<T>& operator=( const Quaternion<T> &rhs )
 	{
 		v = rhs.v;
@@ -666,8 +666,8 @@ public:
 		return Quaternion<T>( lhs.w + rhs.w, lhs.v.x + rhs.v.x, lhs.v.y + rhs.v.y, lhs.v.z + rhs.v.z );  
 	}
 
-	// post-multiply operator, similar to matrices, but different from Shoemake
-	// Concatenates 'rhs' onto 'this'
+	/// post-multiply operator, similar to matrices, but different from Shoemake
+	/// Concatenates 'rhs' onto 'this'
 	const Quaternion<T> operator*( const Quaternion<T> &rhs ) const
 	{
 		return Quaternion<T>( rhs.w*w - rhs.v.x*v.x - rhs.v.y*v.y - rhs.v.z*v.z,
@@ -681,7 +681,7 @@ public:
 		return Quaternion<T>( w * rhs, v.x * rhs, v.y * rhs, v.z * rhs );
 	}
 
-	// transform a vector by the quaternion
+	/// transform a vector by the quaternion
 	const Vec3<T> operator*( const Vec3<T> &vec ) const
 	{
 		T vMult = T( 2 ) * ( v.x * vec.x + v.y * vec.y + v.z * vec.z );
@@ -747,7 +747,7 @@ public:
 		return Quaternion();
 	}
 
-	// Output
+	/// Output
 	friend std::ostream& operator <<( std::ostream &oss, const Quaternion<T> &q )
 	{
 		oss << q.getAxis() << " @ " << q.getAngle() * ( (T)180 / M_PI ) << "deg";
@@ -755,11 +755,11 @@ public:
 	}
 
  private:
-	// From advanced Animation and Rendering
-	// Techniques by Watt and Watt, Page 366:
-	// computing the inner quadrangle 
-	// points (qa and qb) to guarantee tangent
-	// continuity.
+	/// From advanced Animation and Rendering
+	/// Techniques by Watt and Watt, Page 366:
+	/// computing the inner quadrangle 
+	/// points (qa and qb) to guarantee tangent
+	/// continuity.
 	static Quaternion<T> splineIntermediate( const Quaternion<T> &q0, const Quaternion<T> &q1, const Quaternion<T> &q2 )
 	{
 		Quaternion<T> q1inv = q1.inverted();

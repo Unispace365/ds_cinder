@@ -14,7 +14,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineSender
+ * \class EngineSender
  */
 EngineSender::EngineSender(ds::NetConnection& con, const bool useChunker)
 		: mConnection(con) 
@@ -28,7 +28,7 @@ void EngineSender::setPacketNumber(unsigned int packetId){
 }
 
 /**
- * \class ds::EngineSender::AutoSend
+ * \class AutoSend
  */
 EngineSender::AutoSend::AutoSend(EngineSender& sender)
 		: mData(sender.mSendBuffer)
@@ -65,7 +65,7 @@ EngineSender::AutoSend::~AutoSend() {
 }
 
 /**
- * \class ds::EngineReceiver
+ * \class EngineReceiver
  */
 EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
 		: mConnection(con)

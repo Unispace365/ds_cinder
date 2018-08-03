@@ -8,7 +8,7 @@ namespace ds
 {
 
 /**
- * \class ds::EngineData
+ * \class EngineData
  */
 EngineData::EngineData(ds::cfg::Settings& engine_settings)
 	: mEngineCfg( engine_settings)

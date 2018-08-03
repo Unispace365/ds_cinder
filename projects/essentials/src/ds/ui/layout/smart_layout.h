@@ -11,7 +11,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::SmartLayout
+ * \class SmartLayout
  *        SmartLayout combines a layout sprite with XML importing.
  */
 class SmartLayout : public ds::ui::LayoutSprite {

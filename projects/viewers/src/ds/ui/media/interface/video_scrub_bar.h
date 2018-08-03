@@ -9,7 +9,7 @@ namespace ui {
 class GstVideo;
 
 /**
-* \class ds::ui::VideoScrubBar
+* \class VideoScrubBar
 *			Seeking / playback info for  a video
 */
 class VideoScrubBar : public ds::ui::Sprite  {

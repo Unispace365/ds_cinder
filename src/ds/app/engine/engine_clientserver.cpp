@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineClientServer
+ * \class EngineClientServer
  */
 EngineClientServer::EngineClientServer(	ds::App& app, ds::EngineSettings& settings,
 										ds::EngineData& ed, const ds::RootList& roots)

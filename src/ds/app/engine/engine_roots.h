@@ -16,7 +16,7 @@ class AutoDrawService;
 class Engine;
 
 /**
- * \class ds::EngineRoot
+ * \class EngineRoot
  * \brief Abstract superclass for an engine root. Pending...
  */
 class EngineRoot {
@@ -35,27 +35,27 @@ public:
 	};
 	virtual void					setup(const Settings&) = 0;
 	virtual void					postAppSetup() = 0;
-	// Initialize myself as a slave to the master
+	/// Initialize myself as a slave to the master
 	virtual void					slaveTo(EngineRoot*) = 0;
 
 	const RootList::Root&			getBuilder() const;
-	// Sprite management. Note that ideally Roots don't require having a sprite. Currently everything
-	// does, and that was the initial design, but it would be nice to move away from that instead of
-	// letting it get more entrenched.
+	/// Sprite management. Note that ideally Roots don't require having a sprite. Currently everything
+	/// does, and that was the initial design, but it would be nice to move away from that instead of
+	/// letting it get more entrenched.
 	virtual ds::ui::Sprite*			getSprite() = 0;
 	virtual void					clearChildren() = 0;
-	// Sprite passthrough
+	/// Sprite passthrough
 	virtual void					updateClient(const ds::UpdateParams&) = 0;
 	virtual void					updateServer(const ds::UpdateParams&) = 0;
 	virtual void					drawClient(const DrawParams&, AutoDrawService*) = 0;
 	virtual void					drawServer(const DrawParams&) = 0;
-	// Camera
+	/// Camera
 	virtual void					markCameraDirty() = 0;
 	virtual void					setCinderCamera() = 0;
 	virtual ui::Sprite*				getHit(const ci::vec3& point) = 0;
 	
 protected:
-	// The builder object for this root. Params only used during initialization.
+	/// The builder object for this root. Params only used during initialization.
 	const RootList::Root			mRootBuilder;
 	const sprite_id_t				mSpriteId;
 
@@ -65,7 +65,7 @@ private:
 };
 
 /**
- * \class ds::OrthRoot
+ * \class OrthRoot
  * \brief Root for for the orthogonal camera.
  */
 class OrthRoot : public EngineRoot {
@@ -99,17 +99,17 @@ private:
 	ci::CameraOrtho					mCamera;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
-	// Hack in the src_rect, dst_rect stuff as I figure that out.
+	/// Hack in the src_rect, dst_rect stuff as I figure that out.
 	ci::Rectf						mSrcRect, mDstRect;
 
-	// The drawing distance near and far, default = -1 and 1
+	/// The drawing distance near and far, default = -1 and 1
 	float							mNearPlane;
 	float							mFarPlane;
 
 };
 
 /**
- * \class ds::PerspRoot
+ * \class PerspRoot
  * \brief Root for for the perspective camera.
  */
 class PerspRoot : public EngineRoot {
@@ -127,7 +127,7 @@ public:
 	virtual void					drawServer(const DrawParams&);
 	virtual ui::Sprite*				getHit(const ci::vec3& point);
 
-	// Camera
+	/// Camera
 	PerspCameraParams				getCamera() const;
 	void							setCamera(const PerspCameraParams&);
 
@@ -156,7 +156,7 @@ private:
 	ci::CameraPersp					mCamera;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
-	// If I have a master, use it for my camera
+	/// If I have a master, use it for my camera
 	PerspRoot*						mMaster;
 };
 

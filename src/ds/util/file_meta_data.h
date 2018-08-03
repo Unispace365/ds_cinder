@@ -23,7 +23,7 @@ std::string		getNormalizedPath(const Poco::Path& path);
 
 
 /**
- * \class ds::FileMetaData
+ * \class FileMetaData
  * Collection of file meta data.
  */
 class FileMetaData {

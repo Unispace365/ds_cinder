@@ -19,21 +19,21 @@ public:
 
 	bool initialize(bool server, const std::string &ip, const std::string &port);
 	void close();
-	// Convenience to close and reinitialize
+	/// Convenience to close and reinitialize
 	void renew();
 
 	bool sendMessage(const std::string &data);
 	bool sendMessage(const char *data, int size);
 
 	int recvMessage(std::string &msg);
-	// Answer true if I have more data to receive, false otherwise.
+	/// Answer true if I have more data to receive, false otherwise.
 	bool canRecv() const;
 
 	bool isServer() const;
 
 	bool initialized() const;
 
-	// For status, will return the number of bytes sent/rec since the last time this was called
+	/// For status, will return the number of bytes sent/rec since the last time this was called
 	int getReceivedBytes();
 	int getSentBytes();
 
@@ -44,7 +44,7 @@ private:
 	bool						mInitialized;
 	int							mReceiveBufferMaxSize;
 	RecycleArray<char>			mReceiveBuffer;
-	// Initialization value
+	/// Initialization value
 	bool						mServer;
 	std::string					mIp;
 	std::string					mPort;

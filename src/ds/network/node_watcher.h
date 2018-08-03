@@ -13,17 +13,17 @@
 namespace ds {
 
 /**
- * \class ds::NodeWatcher
+ * \class NodeWatcher
  * \brief Feed clients information about changes in the node.
  */
 class NodeWatcher : public ds::AutoUpdate {
 public:
-	// A generic class that stores info received from the node.
+	/// A generic class that stores info received from the node.
 	class Message {
 	public:
 		Message();
 
-		// A stack of all the messages received
+		/// A stack of all the messages received
 		std::vector<std::string>	mData;
 
 		bool						empty() const;
@@ -32,7 +32,7 @@ public:
 	};
 
 public:
-	// Standard node location
+	/// Standard node location
 	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7777, const bool autoStart = true);
 	~NodeWatcher();
 
