@@ -58,7 +58,7 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 
 	setVolume(mVolume);
 
-	mVideo->setStreamingLatency(mStreamLatency * 1000000000);
+	mVideo->setStreamingLatency(static_cast<uint64_t>(mStreamLatency * 1000000000.0));
 
 	mVideo->setResource(resource);
 
@@ -158,7 +158,7 @@ void StreamPlayer::setLetterbox(const bool doLetterbox) {
 void StreamPlayer::setStreamLatency(const double latencyInSeconds){
 	mStreamLatency = latencyInSeconds;
 	if(mVideo){
-		mVideo->setStreamingLatency(latencyInSeconds * 1000000000);
+		mVideo->setStreamingLatency(static_cast<uint64_t>(latencyInSeconds * 1000000000.0));
 	}
 }
 

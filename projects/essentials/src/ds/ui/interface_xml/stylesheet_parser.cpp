@@ -2,6 +2,10 @@
 
 #include "stylesheet_parser.h"
 
+// C4348: Redefinition of default parameter
+// Something in boost::spirit is exploding with warnings here... only show one
+#pragma warning( once : 4348 )
+
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>

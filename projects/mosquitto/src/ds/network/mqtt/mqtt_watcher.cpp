@@ -230,7 +230,7 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		if(!mLoopOutbound.empty())	{
 			std::lock_guard<std::mutex>	_lock(mOutboundMutex);
 			while(!mLoopOutbound.empty()){
-				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), mLoopOutbound.back().message.size(), mLoopOutbound.back().message.data(), 1);
+				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), static_cast<int>(mLoopOutbound.back().message.size()), mLoopOutbound.back().message.data(), 1);
 				mLoopOutbound.pop_back();
 			}
 		}

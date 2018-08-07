@@ -40,7 +40,7 @@ public:
 	bool addChunk(std::string &chunk);
 	bool getNextGroup(std::string &dst);
 	void clearReceived();
-	unsigned getAvailable() { return mGroupsAvailable.size(); }
+	size_t getAvailable() { return mGroupsAvailable.size(); }
 
 private:
 	struct DeChunkStats	{

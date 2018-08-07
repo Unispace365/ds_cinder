@@ -175,10 +175,10 @@ void Engine::setupAutoSpan() {
 	bool autoSpan = mSettings.getBool("span_all_displays");
 	if(autoSpan && ci::app::getWindow()) {
 		ci::app::getWindow()->spanAllDisplays();
-		auto theX = ci::app::getWindow()->getPos().x;
-		auto theY = ci::app::getWindow()->getPos().y;
-		mData.mWorldSize.x = ci::app::getWindow()->getWidth();
-		mData.mWorldSize.y = ci::app::getWindow()->getHeight();
+		auto theX = static_cast<float>(ci::app::getWindow()->getPos().x);
+		auto theY = static_cast<float>(ci::app::getWindow()->getPos().y);
+		mData.mWorldSize.x = static_cast<float>(ci::app::getWindow()->getWidth());
+		mData.mWorldSize.y = static_cast<float>(ci::app::getWindow()->getHeight());
 		mData.mSrcRect = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
 		mData.mDstRect = ci::Rectf(theX, theY, theX + mData.mWorldSize.x, theY + mData.mWorldSize.y);
 		mData.mOriginalSrcRect = mData.mSrcRect;

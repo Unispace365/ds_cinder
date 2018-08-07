@@ -20,7 +20,7 @@ void Chunker::Chunkify(const char *src, unsigned size, unsigned groupId, std::ve
 
 	snappy::Compress(src, size, &mCompressedBuffer);
 
-	unsigned nSize = mCompressedBuffer.size();
+	unsigned nSize = static_cast<unsigned>(mCompressedBuffer.size());
 	unsigned numIterations = nSize / chunkSize;
 
 	unsigned excess = nSize % chunkSize;
@@ -50,7 +50,7 @@ void Chunker::Chunkify(const char *src, unsigned size, unsigned groupId, std::ve
 }
 
 void Chunker::Chunkify(std::string src, unsigned groupId, std::vector<std::string> &dst){
-	Chunkify(src.c_str(), src.size(), groupId, dst);
+	Chunkify(src.c_str(), static_cast<unsigned>(src.size()), groupId, dst);
 }
 
 
@@ -59,7 +59,7 @@ DeChunker::DeChunker(){
 }
 
 bool DeChunker::addChunk(std::string &chunk){
-	return addChunk(chunk.c_str(), chunk.size());
+	return addChunk(chunk.c_str(), static_cast<unsigned>(chunk.size()));
 }
 
 bool DeChunker::addChunk(const char *chunk, unsigned size){

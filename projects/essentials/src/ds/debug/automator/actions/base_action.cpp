@@ -43,7 +43,7 @@ void BaseAction::setup(float limit, int numberOfFingers){
 	release();
 
 	if((int)mFreeList.size() < mNumberOfFingers)
-		mNumberOfFingers = mFreeList.size();
+		mNumberOfFingers = static_cast<int>(mFreeList.size());
 
 	for(int i = 0; i < mNumberOfFingers; ++i)
 	{

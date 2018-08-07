@@ -54,7 +54,7 @@ void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
 		i++;
 	}
 
-	mNumFrames = imageFiles.size();
+	mNumFrames = static_cast<int>(imageFiles.size());
 
 	// Hide all the old frames if there were previously more frames than there are now
 	for ( i=mNumFrames; i<mFrames.size(); i++ )
