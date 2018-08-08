@@ -28,6 +28,9 @@ public:
 	/// Default is a clockwise fill, use this to fill in the other way
 	void 		setAntiClock(const bool isAntiClock);
 
+	/// Get fill direction
+	bool		getIsAntiClock();
+
 	/// Sets the draw percentage to 0.0. Use this after setPercent() and before animateOn() to animate the graph from scratch
 	void 		resetDrawPercent();
 
