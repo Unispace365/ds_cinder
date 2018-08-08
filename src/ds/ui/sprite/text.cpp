@@ -376,13 +376,11 @@ WrapMode Text::getWrapMode(){
 }
 
 void Text::onBuildRenderBatch(){
-
-
 	float preWidth = 0.0f;
 	float preHeight = 0.0f;
 	if(mTexture){
-		preWidth = mTexture->getWidth();
-		preHeight = mTexture->getHeight();
+		preWidth = static_cast<float>(mTexture->getWidth());
+		preHeight = static_cast<float>(mTexture->getHeight());
 	}
 
 	renderPangoText();
@@ -607,7 +605,7 @@ bool Text::measurePangoText() {
 			int newPixelWidth = 0;
 			int newPixelHeight = 0;
 			if(mProbablyHasMarkup){
-				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
+				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), static_cast<int>(mProcessedText.size()));
 
 				// check the pixel size, if it's empty, then we can try again without markup
 				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
@@ -615,7 +613,7 @@ bool Text::measurePangoText() {
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				if(hadMarkup){
-					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
+					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), static_cast<int>(mProcessedText.size()));
 				}
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}

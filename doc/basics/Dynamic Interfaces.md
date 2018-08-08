@@ -1,7 +1,7 @@
 Basic XML interface
 ======================
 
-````XML
+```XML
     <interface>
         <sprite
             name="sprite_name"
@@ -14,7 +14,7 @@ Basic XML interface
             <image name="child_image" filename="RELATIVE PATH TO IMG" />
         </sprite>
     </interface>
-````
+```
 
 Creating a Sprite and loading XML
 -------------------------------
@@ -22,10 +22,10 @@ The tag value is the sprite type. For instance, <sprite/> creates a blank ds::ui
 
 Loading an interface XML to your class:
 
-````c++
+```cpp
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
-````
+```
 
 Adds the hierarchy in the interface as a child of "this".
 Use the spriteMap to look up specific sprites by string name. This lets you apply a data model or deal with touch callbacks, etc. Avoid setting the layout in c++ land, as that can confuse where the layout is managed.
@@ -110,7 +110,7 @@ Variables
 
 Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
 
-````xml
+```xml
 <interface>
 	<layout name="example"
 		size="$_world_size"
@@ -118,14 +118,14 @@ Add dynamic variables to any sprite parameter. Variables are pulled from app_set
 		animate_on="$_default:anim"
 		/>
 </interface>
-````
+```
 
 Variables are replaced first before expressions (see below), and parsed recursively. For example, in app_settings.xml you can specify a variable that references another variable:
 
-````xml
+```xml
 	<setting name="default:delay" value="0.1" />
 	<setting name="default:anim" value="fade; slide:$_world_width, 0; ease:outQuint; delay:$_default:delay" />
-````
+```
 
 * Add variables in c++ using ds::ui::XmlImporter::addVariable()
 * Variables are all treated as strings, so you can replace any sprite property, such as font name, animation script, alignment, etc
@@ -144,14 +144,14 @@ Expressions
 
 Layouts support math expressions that are parsed when the layout is loaded. Expressions are parsed after variables, and before properties are assigned. There are two ways to indicate that a value is an expression: By starting a line with #expr or by wrapping an expression in #expr{}.
 
-````xml
+```xml
 <interface>
 	<layout name="example"
 		pad_all="#expr 123.45 + 67.89 - sin(pi)"
 		size="#expr{50.0 * 2.0}, #expr{$_world_height / 2.0}"
 		/>
 </interface>
-````
+```
 
 Syntax Rules:
 
@@ -182,14 +182,14 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
 
 * **Handling events:** The app will need to handle the events like normal using an event client and handling the app event. The parameters described above are automatically applied to the Event by the xml importer and you can access them through the event:
 
-````c++
+```cpp
         void ViewerController::onAppEvent(const ds::Event& in_e){
             if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
                 std::string fileName = in_e.mUserStringData;
                 //Do something with the filename and open media
             }
         }
-````
+```
 	
 
 Layout Parameters : valid for any sprite if the parent is a layout
@@ -276,7 +276,7 @@ Sprite Button and Layout Button Parameters : sprite_button, layout_button
 ----------------------------
 **attach_state**: Add this to a sprite that's a child of a sprite button or a layout button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
 
-````c++
+```cpp
     <interface>
         <sprite_button
             name="sample_button"
@@ -286,7 +286,7 @@ Sprite Button and Layout Button Parameters : sprite_button, layout_button
             <image name="child_image" filename="%APP%/data/images/icons/down_icon.png" attach_state="high" />
         </sprite>
     </interface>
-````
+```
 
 Gradient Sprite Parameters : gradient
 ---------------------------
@@ -335,7 +335,7 @@ EntryField and SoftKeyboard Parameters : entry_field, soft_keyboard
 --------------------------------------
 EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:
 
-````xml
+```xml
     <entry_field
         name="search_field"
         sprite_link="primary_keyboard"
@@ -343,7 +343,7 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 
     <soft_keyboard name="primary_keyboard">
     type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
-````
+```
 
 **ENTRY FIELD PARAMETERS**
 * **sprite_link**: Allows you to link the text entry field with a soft keyboard. Set the value of sprite_link to the name of the soft_keyboard. The keyboard needs to be in the same sprite map as entry field to be linked. Once linked, the keyboard will type it's text into the entry field.
@@ -413,7 +413,7 @@ Example:
 
 **menu_view.xml:**
 
-````xml
+```xml
     <layout name="layout" >
         <xml name="home" src="%APP%/data/layouts/menu_button.xml" >
             <!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
@@ -429,22 +429,22 @@ Example:
             <property name="down_gradient" opacity="0.5" animate_on="fade" />
         </xml>
     </layout>
-````
+```
 
 **menu_button.xml:**
 
-````xml
+```xml
     <sprite_button name="the_button" size="80, 80">
         <gradient name="down_gradient" attach_state="high" size="80, 80"
                   gradientColors="red_orange, red_orange, red_orange, orange"/>
         <image attach_state="normal" name="normal_icon"/>
         <image attach_state="high" name="high_icon" />
     </sprite_button>
-````
+```
 
 **In c++:**
 
-````c++
+```cpp
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/menu_view.xml"), spriteMap);
     // Note that the home button is given the name of the xml "home" plus it's local name.
@@ -457,7 +457,7 @@ Example:
     if(mMapButton){
         mMapButton->setClickFn([this]{ /* do something to load the map screen */ });
     }
-````
+```
 
 Animation
 ==============================
@@ -556,12 +556,12 @@ If you're using ds::model::ContentModelRef for your data model and queries (see 
 
 **Example**: 
 
-````XML
+```XML
 <text name="must_name_your_sprite"
 	font="sample:font"
 	model="text:this->title"
 	/>
-````
+```
 
 When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking. 
 
@@ -571,7 +571,7 @@ After a pointer arrow, you'll specify the **content model property** to use. In 
 
 Set multiple models separated by a **semi-colon and a space**.
 
-````C++
+```cpp
 ds::model::ContentModelRef sampleSlideModel = ds::model::ContentModelRef("sample");
 sampleSlideModel.setProperty("title", std::string("Hello there!"));
 
@@ -583,9 +583,9 @@ sampleSlideModel.addChild(themeModel);
 auto mySlide = new ds::ui::SmartLayout(mEngine, "slide.xml");
 mySlide->setContentModel(sampleSlideModel);
 addChildPtr(mySlide);
-````
+```
 
-````XML
+```XML
 <!-- slide.xml -->
 <layout name="root_layout" >
 	<text name="the_title"
@@ -593,7 +593,7 @@ addChildPtr(mySlide);
 		model="color:theme->title_color; text:this->title"
 		/>
 </layout>
-````
+```
 
 Caveats
 -----------------------
@@ -604,11 +604,11 @@ Setting the model runs when you call setContentModel() on the SmartLayout. This 
 **media_player_src**: Tried to find an existing resource or looks it up on disk, but can apply to all media player types
 **text_update**: Very handy if you only want to overwrite the text if it exists. This is great if you have a text field with generic info that could show an error message if it's available. Or you could have one layout file for several different tables and only apply the title field text if it exists:
 
-````
+```XML
 <text name="the_title"
 	font="slide:title"
 	model="text_update:this->title; text_update:this->name; text_update:this->label"
 	/>
-````
+```
 
 

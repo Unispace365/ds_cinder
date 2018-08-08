@@ -135,7 +135,7 @@ void UdpReceiver::renew() {
 
 
 bool UdpReceiver::sendMessage(const std::string &data){
-	return sendMessage(data.c_str(), data.length());
+	return sendMessage(data.c_str(), static_cast<int>(data.length()));
 }
 
 
@@ -146,7 +146,7 @@ bool UdpReceiver::sendMessage(const char *data, int size) {
 	} catch(std::exception& e) {
 		DS_LOG_WARNING("Exception sending bytes: " << e.what());
 	}
-	return  sentBytes;
+	return  sentBytes > 0;
 }
 
 int UdpReceiver::recvMessage(std::string &msg){

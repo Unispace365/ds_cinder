@@ -34,6 +34,15 @@ public:
 	void						addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator);
 	std::function<ds::Event*()>	getEventCreator(const std::string& eventName);
 
+
+    /// Convienence for adding event creators with default parameters
+	template<class EVENT>
+	void addEventCreator() {
+		static_assert(std::is_base_of<ds::Event, EVENT>::value,
+			"addEventCreator EVENT template parameter must derive from ds::Event");
+		addEventCreator(EVENT::NAME(), []() {return new EVENT(); });
+	}
+
 public:
 	class Entry {
 	public:

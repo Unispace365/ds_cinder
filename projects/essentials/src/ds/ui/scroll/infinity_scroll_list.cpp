@@ -257,9 +257,9 @@ namespace ds{
 
 			mScroller->clearChildren();
 			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 1;
-			if (mBottomIndex < 0) mBottomIndex = mItemPlaceHolders.size() + mBottomIndex;
+			if (mBottomIndex < 0) mBottomIndex = static_cast<int>(mItemPlaceHolders.size()) + mBottomIndex;
 			mTopIndex = mBottomIndex - mOnScreenItemSize;
-			if (mTopIndex < 0) mTopIndex = mItemPlaceHolders.size() - 1 + mTopIndex;
+			if (mTopIndex < 0) mTopIndex = static_cast<int>(mItemPlaceHolders.size()) - 1 + mTopIndex;
 			assignItems();
 		}
 
@@ -489,9 +489,9 @@ namespace ds{
 			mTopIndex--;
 			mBottomIndex--;
 			if (mTopIndex <= -1)
-				mTopIndex = mItemPlaceHolders.size() - 1;
+				mTopIndex = static_cast<int>(mItemPlaceHolders.size()) - 1;
 			if (mBottomIndex <= -1)
-				mBottomIndex = mItemPlaceHolders.size() - 1;
+				mBottomIndex = static_cast<int>(mItemPlaceHolders.size()) - 1;
 
 			auto &placeHolder = mItemPlaceHolders[mTopIndex ];
 			createSprite(placeHolder);

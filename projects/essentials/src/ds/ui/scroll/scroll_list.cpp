@@ -335,7 +335,7 @@ void ScrollList::assignItems(){
 			if(it->mAssociatedSprite){
 				it->mAssociatedSprite->setPosition(it->mX, it->mY);
 			} else {
-				needsSprite.push_back(it - mItemPlaceHolders.begin());
+				needsSprite.push_back(static_cast<int>(it - mItemPlaceHolders.begin()));
 			}
 		} else {
 			if(it->mAssociatedSprite){
