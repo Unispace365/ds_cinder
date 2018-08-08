@@ -83,6 +83,8 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	/// Returns the last-set ContentModelRef
 	ds::model::ContentModelRef getContentModel() { return mContentModel; }
 
+	void setContentUpdatedCallback(std::function<void()> func) { mContentUpdatedCallback = func; }
+
 	// Build => Run Animations on children
 	// this->addAnimation(name, duration, delay).size(elementName, to, delay=0).opacity(elementName, to,
 	// delay=0).finishFn(callback);
@@ -104,6 +106,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	ds::EventClient			   mEventClient;
 	sMap					   mSpriteMap;
 	ds::model::ContentModelRef mContentModel;
+	std::function<void()>		mContentUpdatedCallback;
 };
 
 }  // namespace ui
