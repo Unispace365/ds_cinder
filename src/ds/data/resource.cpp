@@ -24,6 +24,7 @@ const std::string		VIDEO_TYPE_SZ("v");
 const std::string		VIDEO_STREAM_TYPE_SZ("vs");
 const std::string		WEB_TYPE_SZ("w");
 const std::string		ZIP_TYPE_SZ("z");
+const std::string		ERROR_TYPE_SZ("0");
 
 // This gets reduced to being a video type; here to support B&R CMSs, which
 // can't have audio files that are typed as video.
@@ -392,6 +393,18 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
 	return ERROR_NAME_SZ;
+}
+
+const std::string& Resource::getTypeChar() const {
+	if(mType == FONT_TYPE) return FONT_TYPE_SZ;
+	else if(mType == IMAGE_TYPE) return IMAGE_TYPE_SZ;
+	else if(mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_TYPE_SZ;
+	else if(mType == PDF_TYPE) return PDF_TYPE_SZ;
+	else if(mType == VIDEO_TYPE) return VIDEO_TYPE_SZ;
+	else if(mType == ZIP_TYPE) return ZIP_TYPE_SZ;
+	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_TYPE_SZ;
+	else if(mType == WEB_TYPE) return WEB_TYPE_SZ;
+	return ERROR_TYPE_SZ;
 }
 
 void Resource::setLocalFilePath(const std::string& localPath, const bool normalizeThePath /*= true*/) {
