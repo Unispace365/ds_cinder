@@ -784,6 +784,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "auto_circle_crop") {
+		auto image = dynamic_cast<Image *>(&sprite);
+		if(image) {
+			if(parseBoolean(value)) {
+				image->cicleCropAutoCenter();
+			} else {
+				image->setCircleCrop(false);
+			}
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
 	}
 
 

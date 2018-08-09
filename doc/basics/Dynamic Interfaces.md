@@ -261,6 +261,7 @@ Image Parameters : image
 * **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
 * **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
+* **auto_circle_crop**: Boolean. If true, centers the crop in the middle of the image and always makes it a circle, persists through image file changes.
 
 Image Button Parameters : image_button
 -------------------------
