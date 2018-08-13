@@ -132,6 +132,7 @@ public:
 	void					setDbId(const Resource::Id& dbId)	{ mDbId = dbId; }
 
 	const std::wstring&		getTypeName() const;
+	const std::string&		getTypeChar() const;
 	int						getType() const						{ return mType; }
 	void					setType(const int newType)			{ mType = newType; }
 

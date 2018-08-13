@@ -88,8 +88,11 @@ public:
 	virtual void				setCircleCropRect(const ci::Rectf& rect);
 	/// Returns if this is set to crop to a circle
 	virtual bool				getCircleCrop(){ return mCircleCropped; }
-	/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
-	void						cicleCropAutoCenter();
+	/// Enables circle cropping and also automatically centers the rect 
+	void						cicleCropAutoCenter(); /// whoopsies
+	void						circleCropAutoCenter();
+	/// Turns off the above functionality
+	void						disableCircleCropCentered();
 
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
@@ -135,6 +138,7 @@ private:
 								mDrawRect;
 
 	bool						mCircleCropped;
+	bool						mCircleCropCentered;
 	ci::gl::TextureRef			mTextureRef;
 	std::string					mFilename;
 	ds::Resource				mResource;

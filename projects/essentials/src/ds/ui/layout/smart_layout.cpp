@@ -183,6 +183,8 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 	}
 
 	runLayout();
+
+	if(mContentUpdatedCallback) { mContentUpdatedCallback(); }
 }
 
 void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild) {

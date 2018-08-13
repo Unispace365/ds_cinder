@@ -163,6 +163,7 @@ Image::Image(SpriteEngine& engine)
 	: Sprite(engine)
 	, mStatusFn(nullptr)
 	, mCircleCropped(false)
+	, mCircleCropCentered(false)
 	, mTextureRef(nullptr)
 {
 	mStatus.mCode = Status::STATUS_EMPTY;
@@ -222,6 +223,10 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 			checkStatus();
 		}
 	});
+
+	if(mCircleCropCentered) {
+		circleCropAutoCenter();
+	}
 }
 
 void Image::setImageResource(const ds::Resource& r, const int flags) {
@@ -310,6 +315,11 @@ void Image::setCircleCropRect(const ci::Rectf& rect){
 }
 
 void Image::cicleCropAutoCenter() {
+	circleCropAutoCenter();
+}
+
+void Image::circleCropAutoCenter() {
+	mCircleCropCentered = true;
 	setCircleCrop(true);
 	const float scw = getWidth();
 	const float sch = getHeight();
@@ -318,6 +328,11 @@ void Image::cicleCropAutoCenter() {
 	} else {
 		setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
 	}
+}
+
+void Image::disableCircleCropCentered() {
+	mCircleCropCentered = false;
+	setCircleCrop(false);
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn){
