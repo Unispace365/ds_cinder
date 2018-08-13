@@ -26,6 +26,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     $logsDir = $BaseDir + "logs";
     $gpuDir = $BaseDir + "vs2015\GPUCache";
     $fcDir = $BaseDir + "vs2015\.fontconfig";
+	$readmeLoc = $DestDir + "\README.md"
 
     #Write-Host "Removing old stuff at the destination";
     #Remove-Item -Recurse -Force $DestDir;
@@ -78,6 +79,8 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     }
 
     Write-Host "Clone finished.";
+
+	Start-Process $readmeLoc
 }
 
 
