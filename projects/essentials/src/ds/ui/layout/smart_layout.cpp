@@ -8,7 +8,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/util/string_util.h>
-#include <ds/ui/layout/smart_scroll_list.h>
+#include <ds/ui/scroll/smart_scroll_list.h>
 
 
 namespace ds {
