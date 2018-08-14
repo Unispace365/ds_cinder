@@ -41,8 +41,7 @@
 * **Lead Designer** - 
 * **Project Manager** - 
 * **Original Developer(s)** - 
-
-**Install Site(s):** London England, wherever else
-**PM / Designer name:** A colloquial name for this application
-**Github Name:** what the application is called on github
-**Name in project file:** how to find this application in visual studio (is it a part of a larger thing)
+* **Install Site(s):** London England, wherever else
+* **PM / Designer name:** A colloquial name for this application
+* **Github Name:** what the application is called on github
+* **Name in project file:** how to find this application in visual studio (is it a part of a larger thing)

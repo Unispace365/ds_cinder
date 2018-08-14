@@ -2,23 +2,27 @@
 
 #include "perspective_layout.h"
 
-
 namespace ds {
 namespace ui {
 
-PerspectiveLayout::PerspectiveLayout(ds::ui::SpriteEngine& e, const float fov, const bool autoClip, const float autoClipDepthRange)
-	: ds::ui::LayoutSprite(e)
-	, mPerspEnabled(true)
-	, mFov(fov)
-	, mAutoClip(autoClip)
-	, mAutoClipDepthRange(autoClipDepthRange)
-	, mNearClip(-1000.0f)
-	, mFarClip(1000.0f)
-{
-}
+PerspectiveLayout::PerspectiveLayout(ds::ui::SpriteEngine &e, const float fov, const bool autoClip,
+									 const float autoClipDepthRange)
+  : ds::ui::LayoutSprite(e)
+  , mPerspEnabled(true)
+  , mDstWidth(e.getDstRect().getWidth())
+  , mDstHeight(e.getDstRect().getHeight())
+  , mSrcWidth(e.getSrcRect().getWidth())
+  , mSrcHeight(e.getSrcRect().getHeight())
+  , mScaleW(mDstWidth / mSrcWidth)
+  , mScaleH(mDstHeight / mSrcHeight)
+  , mFov(fov)
+  , mAutoClip(autoClip)
+  , mAutoClipDepthRange(autoClipDepthRange)
+  , mNearClip(-1000.0f)
+  , mFarClip(1000.0f) {}
 
-ds::ui::Sprite* PerspectiveLayout::getHit(const ci::vec3& point) {
-	if(mPerspEnabled && contains(point)) {
+ds::ui::Sprite *PerspectiveLayout::getHit(const ci::vec3 &point) {
+	if (mPerspEnabled && contains(point)) {
 		ds::CameraPick cp = ds::CameraPick(mEngine, mViewport, mCam, point);
 		return getPerspectiveHit(cp);
 	} else {
@@ -26,35 +30,33 @@ ds::ui::Sprite* PerspectiveLayout::getHit(const ci::vec3& point) {
 	}
 }
 
-void PerspectiveLayout::updateCam(const ci::mat4& transform) {
+void PerspectiveLayout::updateCam(const ci::mat4 &transform) {
 	auto screenSize = glm::vec2(ci::app::getWindowSize());
-	auto scaleW = screenSize.x / mEngine.getSrcRect().getWidth();
-	auto scaleH = screenSize.y / mEngine.getSrcRect().getHeight();
+	mScaleW			= screenSize.x / mSrcWidth;
+	mScaleH			= screenSize.y / mSrcHeight;
 
-	mCam = ci::CameraPersp((int)getWidth(), (int)getHeight(), mFov, mNearClip, mFarClip);
-	if(mAutoClip) {
-		float nearClip = mCam.getEyePoint().z - mAutoClipDepthRange / 2.0f;
-		if(nearClip < 0.1f) nearClip = 0.1f;
-		mCam.setNearClip(nearClip);
-		mCam.setFarClip(mCam.getEyePoint().z + mAutoClipDepthRange / 2.0f);
+	mCam = ci::CameraPersp(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFov, mNearClip, mFarClip);
+	if (mAutoClip) {
+		mNearClip = mCam.getEyePoint().z - mAutoClipDepthRange / 2.0f;
+		if (mNearClip < 0.1f) mNearClip = 0.1f;
+		mFarClip = mCam.getEyePoint().z + mAutoClipDepthRange / 2.0f;
+
+		mCam.setNearClip(mNearClip);
+		mCam.setFarClip(mFarClip);
 	}
+
 	mCam.setWorldUp(ci::vec3(0.0f, 1.0f, 0.0f));
 
 	// Needs to be in screeen space,
-	ci::vec2 vpSize(getWidth(), getHeight());
-	ci::vec2 vpPos(getPosition().x, getPosition().y);
-	mViewport = ci::Rectf(vpPos, vpPos + vpSize);
+	mViewport = ci::Rectf(ci::vec2(getGlobalPosition()), ci::vec2(getSize()));
 
-	auto vp = mViewport.transformed(ci::mat3(transform));
-	vp.offset(ci::vec2(getGlobalPosition()));
-
-	auto lowerLeft = vp.getLowerLeft() * ci::vec2(scaleW, scaleH);
-	lowerLeft.y = screenSize.y - lowerLeft.y;
-	mViewport = ci::Rectf(lowerLeft, lowerLeft + vp.getSize() * ci::vec2(scaleW, scaleH));
+	mVpSize  = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
+	mVpPos   = ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
+	mVpPos.y = screenSize.y - (mVpPos.y + mVpSize.y);
 }
 
-void PerspectiveLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) {
-	if(!mPerspEnabled) {
+void PerspectiveLayout::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParams &drawParams) {
+	if (!mPerspEnabled) {
 		ds::ui::LayoutSprite::drawClient(transformMatrix, drawParams);
 		return;
 	}
@@ -62,12 +64,12 @@ void PerspectiveLayout::drawClient(const ci::mat4& transformMatrix, const ds::Dr
 	updateCam(transformMatrix);
 
 	ci::gl::ScopedMatrices scm;
-	ci::gl::ScopedViewport svp(mViewport.getUpperLeft(), mViewport.getSize());
+	ci::gl::ScopedViewport svp(mVpPos, mVpSize);
 	ci::gl::setMatrices(mCam);
 
 	auto trans = ci::mat4();
-	trans = glm::scale(trans, ci::vec3(1.0f, -1.0f, 1.0f));
-	trans = glm::translate(trans, ci::vec3(0.0f, -getHeight(), 0.0f));
+	trans	  = glm::scale(trans, ci::vec3(1.0f, -1.0f, 1.0f));
+	trans	  = glm::translate(trans, ci::vec3(0.0f, -getHeight(), 0.0f));
 
 	ds::ui::LayoutSprite::drawClient(trans, drawParams);
 }
