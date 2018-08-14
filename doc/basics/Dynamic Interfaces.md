@@ -336,6 +336,14 @@ Scroll List Parameters : scroll_list
 
 SmartLayout : smart_layout
 --------------------------------------
+**Note:** Any children you add to a smart layout in an xml will get removed if you set the smart_layout_xml value. You can set tag value to have the xml loaded when SmartLayout is created, like so:
+
+```xml
+<smart_layout name="the_thing">menu/sample_layout.xml<sprite name="another_sprite"/></smart_layout>
+```
+
+**Another note:** Be careful of named children, since the parent sprite map won't know about the child Smart Layout's children. 
+
 * **smart_layout_xml**: Sets the layout file for the smart layout, relative to %APP%/data/layouts/
 
 SmartScrollList : smart_scroll_list

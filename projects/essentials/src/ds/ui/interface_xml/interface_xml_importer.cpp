@@ -1187,7 +1187,7 @@ bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outDat
 
 	outData.mFilename = filename;
 	try {
-		if(!ds::safeFileExistsCheck(filename)) {
+		if(!ds::safeFileExistsCheck(filename, false)) {
 			DS_LOG_WARNING("XmlImporter file doesn't exist: " << filename);
 			return false;
 		}
