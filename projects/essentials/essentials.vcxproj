@@ -40,6 +40,7 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\smart_scroll_list.cpp" />
     <ClCompile Include="src\ds\ui\sprite\dashed_line.cpp" />
     <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
     <ClCompile Include="src\ds\ui\sprite\line.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
+    <ClInclude Include="src\ds\ui\scroll\smart_scroll_list.h" />
     <ClInclude Include="src\ds\ui\sprite\dashed_line.h" />
     <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
     <ClInclude Include="src\ds\ui\sprite\line.h" />

@@ -23,12 +23,14 @@
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/layout/perspective_layout.h>
+#include <ds/ui/layout/smart_layout.h>
 #include <ds/ui/control/control_check_box.h>
 #include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
+#include <ds/ui/scroll/smart_scroll_list.h>
 #include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
@@ -951,6 +953,22 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		else {
 			DS_LOG_WARNING("Couldn't set scroll_fade_size for this sprite ");
 		}
+	} 
+	else if(property == "smart_layout_xml") {
+		auto smartLayout = dynamic_cast<ds::ui::SmartLayout*>(&sprite);
+		if(smartLayout) {
+			smartLayout->setLayoutFile(value);
+		} else {
+			DS_LOG_WARNING("Can't set " << property << " on sprite of type : " << typeid(sprite).name());
+		}
+	}
+	else if(property == "smart_scroll_item_layout") {
+		auto smartScrollList = dynamic_cast<ds::ui::SmartScrollList*>(&sprite);
+		if(smartScrollList) {
+			smartScrollList->setItemLayoutFile(value);
+		} else {
+			DS_LOG_WARNING("Can't set " << property << " on sprite of type : " << typeid(sprite).name());
+		}
 	}
 
 	// Border sprite properties
@@ -1452,14 +1470,18 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::Circle(engine);
 	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	} else if(type == "scroll_list" || type == "scroll_list_vertical"){
+	} else if(type == "scroll_list" || type == "scroll_list_vertical") {
 		spriddy = new ds::ui::ScrollList(engine);
 	} else if(type == "scroll_list_horizontal"){
 		spriddy = new ds::ui::ScrollList(engine, false);
 	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
-	} else if(type == "centered_scroll_area"){
+	} else if(type == "centered_scroll_area") {
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
+	} else if(type == "smart_layout"){
+		spriddy = new ds::ui::SmartLayout(engine, value);
+	} else if(type == "smart_scroll_list") {
+		spriddy = new ds::ui::SmartScrollList(engine, value);
 	} else if(type == "control_check_box"){
 		spriddy = new ds::ui::ControlCheckBox(engine);
 	} else if(type == "control_slider" || type == "control_slider_horizontal"){

@@ -77,7 +77,12 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteTapFn(const std::string&											 spriteName,
 						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
-	/// Sets the ContentModelRef & updates children that refer to the model
+	/// Set the content model for this SmartLayout.
+	///  - this will apply the content to each named sprite in the map, if they had a "model" property applied
+	///  - model="resource:this->image_resource" for instance will map the "image_resource" property of the set content model to the sprite's resource property
+	///  - You can use any sprite property in the first field
+	///  - The content model set here can be retrieved with getContentModel()
+	///  - After all sprites have been set, the callback for setContentUpdatedCallback() is called
 	void setContentModel(ds::model::ContentModelRef& theData);
 
 	/// Returns the last-set ContentModelRef
