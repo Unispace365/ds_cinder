@@ -58,6 +58,8 @@ Sprite Types
 * **donut_arc** = ds::ui::DonutArc
 * **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
+* **smart_layout** = ds::ui::SmartLayout
+* **smart_scroll_list** = ds::ui::SmartScrollList
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
 * **control_check_box** = ds::ui::ControlCheckBox
 * **control_slider[_(horizontal|vertical)]** = ds::ui::ControlSlider
@@ -331,6 +333,14 @@ Scroll List Parameters : scroll_list
 * **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: Set the size of the fade as a float.
+
+SmartLayout : smart_layout
+--------------------------------------
+* **smart_layout_xml**: Sets the layout file for the smart layout, relative to %APP%/data/layouts/
+
+SmartScrollList : smart_scroll_list
+--------------------------------------
+* **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
 
 EntryField and SoftKeyboard Parameters : entry_field, soft_keyboard
 --------------------------------------

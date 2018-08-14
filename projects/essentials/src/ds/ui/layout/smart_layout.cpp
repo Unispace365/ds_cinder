@@ -8,6 +8,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/layout/smart_scroll_list.h>
 
 
 namespace ds {
@@ -150,8 +151,12 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 						if(theChild != "this") {
 							theNode = theData.getChildByName(theChild);
 						}
-
-						if (sprPropToSet == "resource") {
+						if(sprPropToSet == "smart_scroll_children") {
+							auto ssl = getSprite<SmartScrollList>(it.first);
+							if(ssl) {
+								ssl->setContentList(theNode);
+							}
+						} else if (sprPropToSet == "resource") {
 							setSpriteImage(it.first, theNode.getProperty(theProp).getResource());
 						} else if (sprPropToSet == "resource_cache") {
 							setSpriteImage(it.first, theNode.getProperty(theProp).getResource(), true);

@@ -150,6 +150,9 @@
     <ClCompile Include="src\ds\math\fparser.cc">
       <Filter>src\ds\math\fparser</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\smart_scroll_list.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\math\fparser.hh">
       <Filter>src\ds\math\fparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\smart_scroll_list.h">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
