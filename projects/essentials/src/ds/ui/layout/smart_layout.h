@@ -48,8 +48,8 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	/// Adds newChild to the sprite with spriteName
 	void addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild);
 
-	// NOTE!!: These templates need to be in the header to work
 	/// Calls the lambda callback for the event type from Template, casting event automatically
+	/// \note These templates need to be in the header to work
 	template <class EVENT>
 	void listenToEvents(std::function<void(const EVENT&)> callback) {
 		mEventClient.listenToEvents<EVENT>(callback);
@@ -77,7 +77,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteTapFn(const std::string&											 spriteName,
 						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
-	/// This is a helpful comment for what this function means
+	/// Sets the ContentModelRef & updates children that refer to the model
 	void setContentModel(ds::model::ContentModelRef& theData);
 
 	/// Returns the last-set ContentModelRef
