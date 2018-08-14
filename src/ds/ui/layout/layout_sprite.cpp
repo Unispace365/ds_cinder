@@ -38,9 +38,7 @@ void LayoutSprite::runLayout(){
 }
 
 void LayoutSprite::runNoneLayout(){
-	const std::vector<ds::ui::Sprite*>& chillins = getChildren();
-	for(auto it = chillins.begin(); it < chillins.end(); ++it){
-		ds::ui::Sprite* chillin = (*it);
+	for(auto chillin : getChildren()){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(chillin);
 		if(layoutSprite){
 			layoutSprite->runLayout();
@@ -49,17 +47,13 @@ void LayoutSprite::runNoneLayout(){
 }
 
 void LayoutSprite::runSizeLayout(){
-
-	const std::vector<ds::ui::Sprite*>& chillins = getChildren();
 	const float layoutWidth = getWidth();
 	const float layoutHeight = getHeight();
 
 	// Size layout just adjusts the size of child elements to fit, if specified.
 	// If children should ignore the size, don't add a layout size and set them to fixed.
 	// Otherwise, stretch and flex both "gracefully" match sprites to the size of this layout
-	for(auto it = chillins.begin(); it < chillins.end(); ++it){
-		ds::ui::Sprite* chillin = (*it);
-
+	for(auto chillin : getChildren()){
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
@@ -96,8 +90,7 @@ void LayoutSprite::runSizeLayout(){
 		}
 
 
-		LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
-		if(ls){
+		if(auto ls = dynamic_cast<LayoutSprite*>(chillin)){
 			ls->runLayout();
 		}
 	}
@@ -114,15 +107,11 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 	float maxHeight = 0.0f;
 	float maxSize = (vertical ? layoutHeight : layoutWidth);
 	
-	const std::vector<ds::ui::Sprite*>& chillins = getChildren();
-
 	// Look through all children to determine total size and how many items are set to stretch to fill the space
 	// Also run recursive layouts on any non-stretch layouts and size any flexible items
 	int spacedChildren = 0;
 
-	for(auto it = chillins.begin(); it < chillins.end(); ++it){
-		ds::ui::Sprite* chillin = (*it);
-
+	for(auto chillin : getChildren()){
 		if(chillin->mLayoutUserType == kFillSize){
 			hasFills = true;
 		} else {
@@ -231,9 +220,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 
 	// now that we know the offset and per stretch size, go through the children again, set position for all fixed, flex, and stretch children 
 	// and set the size of any stretch children
-	for(auto it = chillins.begin(); it < chillins.end(); ++it){
-		ds::ui::Sprite* chillin = (*it);
-
+	for(auto chillin : getChildren()){
 		if(chillin->mLayoutUserType == kFillSize) {
 			continue;
 		}
@@ -296,8 +283,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 
 	// finally set the position and size of any fill children
 	if(hasFills){
-		for(auto it = chillins.begin(); it < chillins.end(); ++it){
-			ds::ui::Sprite* chillin = (*it);
+		for(auto chillin : getChildren()){
 			if(chillin->mLayoutUserType == kFillSize){
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
