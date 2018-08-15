@@ -141,6 +141,20 @@ public:
 				mediaPlayer->setSettings(mvs);
 
 			});
+
+			e.registerSpritePropertySetter("media_player_video_reset_on_complete", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_video_reset_on_complete on a non-mediaPlayer sprite");
+					return;
+				}
+
+				auto& mvs = mediaPlayer->getSettings();
+				mvs.mVideoResetOnComplete = ds::parseBoolean(theValue);
+				mediaPlayer->setSettings(mvs);
+
+			});
 		});
 	}
 
@@ -315,6 +329,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
+		mVideoPlayer->setResetOnVideoComplete(mMediaViewerSettings.mVideoResetOnComplete);
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
 		mVideoPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);

@@ -70,6 +70,9 @@ public:
 	/// Sets looping on the video
 	void								setVideoLoop(const bool doLooping);
 
+	/// If not looping, when the video finishes, do we reset to frame 0 or not?
+	void								setResetOnVideoComplete(const bool doReset);
+
 	/// Sets the audio devices for playback (see gstreamer_audio_device header for more info)
 	void								setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
 
@@ -81,6 +84,7 @@ protected:
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
 	bool										mLetterbox;
+	bool										mResetOnVideoComplete;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(void)>					mVideoCompleteCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;

@@ -55,6 +55,7 @@ public:
 
 	/// If true, the player has been initialized and it has media. False and it hasn't, and is empty, though may have a Resource set.
 	const bool				getInitialized(){ return mInitialized; }
+	virtual bool			isLoaded() const override { return mInitialized; }
 
 	/// When true, will cache any image players. Has no effect on other media types
 	void					setCacheImages(bool cacheImages) { mMediaViewerSettings.mCacheImages = cacheImages; }

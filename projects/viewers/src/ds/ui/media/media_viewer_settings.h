@@ -34,6 +34,7 @@ struct MediaViewerSettings {
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
+		, mVideoResetOnComplete(true)
 		, mVideoStreamingLatency(0.2)
 		, mPanoramicVideoInteractive(true)
 	{}
@@ -99,6 +100,9 @@ struct MediaViewerSettings {
 
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
+
+	/// Whether to seek to 0.0 when the video finishes in non-loop mode; default=true
+	bool						mVideoResetOnComplete;
 
 	/// Ability to pan panoramic videos at start
 	bool						mPanoramicVideoInteractive;

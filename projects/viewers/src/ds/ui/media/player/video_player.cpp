@@ -30,6 +30,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mPanning(0.0f)
 	, mVolume(1.0f)
 	, mLooping(true)
+	, mResetOnVideoComplete(true)
 	, mLetterbox(true)
 {
 	mLayoutFixedAspect = true;
@@ -44,15 +45,16 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 
 	mVideo->setVideoCompleteCallback([this]{
 
-
-		mVideo->seekPosition(0);
+		if(mResetOnVideoComplete) {
+			mVideo->seekPosition(0);
+		}
 
 		if(!mLooping){
 			mVideo->pause();
 		}
 
 		// show the interface if we have one
-		if(mVideoInterface){
+		if(mVideoInterface && mResetOnVideoComplete){
 			mVideoInterface->userInputReceived();
 		}
 
@@ -270,6 +272,10 @@ void VideoPlayer::setVideoLoop(const bool doLoop){
 	if(mVideo){
 		mVideo->setLooping(mLooping);
 	}
+}
+
+void VideoPlayer::setResetOnVideoComplete(const bool doReset) {
+	mResetOnVideoComplete = doReset;
 }
 
 void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
