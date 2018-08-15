@@ -48,8 +48,8 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	/// Adds newChild to the sprite with spriteName
 	void addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild);
 
-	// NOTE!!: These templates need to be in the header to work
 	/// Calls the lambda callback for the event type from Template, casting event automatically
+	/// \note These templates need to be in the header to work
 	template <class EVENT>
 	void listenToEvents(std::function<void(const EVENT&)> callback) {
 		mEventClient.listenToEvents<EVENT>(callback);
@@ -77,7 +77,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteTapFn(const std::string&											 spriteName,
 						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
-	/// Set the content model for this SmartLayot. 
+	/// Set the content model for this SmartLayout.
 	///  - this will apply the content to each named sprite in the map, if they had a "model" property applied
 	///  - model="resource:this->image_resource" for instance will map the "image_resource" property of the set content model to the sprite's resource property
 	///  - You can use any sprite property in the first field
