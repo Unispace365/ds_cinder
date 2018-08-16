@@ -285,7 +285,7 @@ void MediaPlayer::initialize(){
 	bool showThumbnail = true;
 
 	if(mediaType == ds::Resource::IMAGE_TYPE){
-		int flags = 0;
+		int flags = Image::IMG_ENABLE_MIPMAP_F;
 		if(mMediaViewerSettings.mCacheImages){
 			flags |= Image::IMG_CACHE_F;
 		}

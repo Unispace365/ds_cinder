@@ -99,7 +99,7 @@ StoryView::StoryView(ds::ui::SpriteEngine& eng)
 
 					std::stringstream ss;
 					ss << "Finished. " << std::endl;
-					ss << "Updated: " << mNumUpdated << std::endl;
+					ss << "Added: " << mNumUpdated << std::endl;
 					ss << "Skipped / existing: " << mNumSkipped << std::endl;
 					ss << "Invalid file types: " << mNumInvalid << std::endl;
 					ss << "Error writing sql: " << mNumError;
