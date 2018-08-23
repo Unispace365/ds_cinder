@@ -186,6 +186,16 @@ void StreamPlayer::pause(){
 	}
 }
 
+void StreamPlayer::togglePlayPause() {
+	if(mVideo) {
+		if(mVideo->getIsPlaying()) {
+			mVideo->pause();
+		} else {
+			mVideo->play();
+		}
+	}
+}
+
 void StreamPlayer::stop(){
 	if (mVideo){
 		mVideo->stop();

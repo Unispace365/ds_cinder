@@ -29,6 +29,7 @@ public:
 
 	void								play();
 	void								pause();
+	void								togglePlayPause();
 	void								stop();
 	void								toggleMute();
 

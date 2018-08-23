@@ -72,6 +72,7 @@ public:
 	/// Really only for videos at the moment
 	void					playContent();
 	void					pauseContent();
+	void					togglePlayPause();
 	void					toggleMute();
 
 	/// Returns any current player. Will need to be dynamic casted to be used
