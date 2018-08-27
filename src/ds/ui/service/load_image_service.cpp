@@ -69,6 +69,7 @@ LoadImageService::~LoadImageService() {
 }
 
 void LoadImageService::update(const ds::UpdateParams&) {
+
 	// grab any completed image loads and clear the shared vector
 	std::vector<ImageLoadRequest> newCompletedRequests;
 	{
@@ -246,21 +247,37 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 			if (tex->getId() > 0) {
 				{
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
-					auto   fence = ci::gl::Sync::create();
+					auto fence = ci::gl::Sync::create();
+
+					// Switch fence sync.
+					// wait sync sends a command to the gpu to wait until this operation is complete to display
+					// client wait sync stops the CPU until the GPU command queue is ready (i think)
+					// In some modes, namely true fullscreen, the client wait sync waits indefinitely, in practice it's been 15 seconds+
+					// This method might be introducing some hitching, but doesn't have the same indefinite waiting 
+					glFlush();
+					fence->waitSync();
+
+					/*
+					int numWaits = 0;
 					GLenum syncReturn;
 					do {
-						syncReturn = fence->clientWaitSync(1U, std::chrono::duration_cast<std::chrono::nanoseconds>(1ms).count());  // 1ms to nanoseconds
+						numWaits++;
+						syncReturn = fence->clientWaitSync(GL_SYNC_FLUSH_COMMANDS_BIT, std::chrono::duration_cast<std::chrono::nanoseconds>(1ms).count());  // 1ms to nanoseconds
 					} while (syncReturn == GL_TIMEOUT_EXPIRED);
+					std::cout << "waited " << numWaits << " times for gl fence" << std::endl;
 
 					if (syncReturn == GL_WAIT_FAILED) {
 						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << syncReturn);
 					} else {
+					*/
+
 						nextImage.mTexture = tex;
                         nextImage.mLoading = false;
 
 						std::lock_guard<std::mutex> lock(mLoadedMutex);
 						mLoadedRequests.emplace_back(nextImage);
-					}
+
+					//}
 				}
 			} else {
 				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " "
