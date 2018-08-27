@@ -78,6 +78,7 @@ private:
 		bool							mError;
 		std::string						mErrorMsg;
 		ci::gl::TextureRef				mTexture;
+		ci::ImageSourceRef				mImageSourceRef; // only for main-thread image creation
 		int								mRefs;
 		bool							mLoading;
 	};
@@ -104,6 +105,8 @@ private:
 	std::vector<ImageLoadRequest>						mLoadedRequests;
 
 	bool												mShouldQuit;
+
+	bool												mTextureOnMainThread;
 };
 
 }

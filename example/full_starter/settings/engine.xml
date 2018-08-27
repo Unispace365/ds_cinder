@@ -29,6 +29,7 @@
 	<setting name="camera:arrow_keys" value="30.0" type="float" comment="How much to step the camera when using the arrow keys. Set to a value above 0.025 to enable arrow key usage." default="-1.0" min_value="-1.0" max_value="200.0"/>
 	<setting name="platform:mute" value="false" type="bool" comment="Mutes all video sound if true" default="false"/>
 	<setting name="animation:duration" value="0.35" type="float" comment="Standard duration for animations" default="0.35" min_value="0.0" max_value="10.0"/>
+	<setting name="load_image:threads" value="1" type="float" comment="Number of threads to spawn for image loading" default="1" min_value="1" max_value="32"/>
 	<setting name="TOUCH SETTINGS" value="" type="section_header"/>
 	<setting name="touch:mode" value="SystemAndMouse" type="string" comment="Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All." default="SystemAndMouse" possibles="Tuio, TuioAndMouse, System, SystemAndMouse, All"/>
 	<setting name="touch:tuio:port" value="3333" type="int" comment="UDP Port to listen to tuio stream." default="3333" min_value="1" max_value="9999"/>

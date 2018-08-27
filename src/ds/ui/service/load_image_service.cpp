@@ -13,7 +13,12 @@ namespace ui {
 
 LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
   : ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
-  , mShouldQuit(false) {}
+  , mShouldQuit(false) 
+  , mTextureOnMainThread(false)
+{
+	mEngine.getEngineSettings().getSetting("load_image:create_texture_on_main_thread", 0, ds::cfg::SETTING_TYPE_BOOL, "True will create the gl texture on the main thread. Only use if you have issues with delayed image loading, typically in fullscreen", "false");
+	mTextureOnMainThread = mEngine.getEngineSettings().getBool("load_image:create_texture_on_main_thread", 0, false);
+}
 
 void LoadImageService::initialize() {
 	const int numThreads = mEngine.getEngineSettings().getInt("load_image:threads");
@@ -74,15 +79,29 @@ void LoadImageService::update(const ds::UpdateParams&) {
 
 	// cache or track completed loads
 	for (auto& it : newCompletedRequests) {
-		if (it.mTexture && it.mTexture->getId() > 0) {
+		if (mTextureOnMainThread || (it.mTexture && it.mTexture->getId() > 0)) {
 			auto findy = mInUseImages.find(it.mFilePath);
 			if (findy == mInUseImages.end()) {
-				// mInUseImages[it.mFilePath] = it;
 				DS_LOG_VERBOSE(3, "Image loaded after no one was left to care!" << it.mFilePath);
 			} else {
+
+				/// This is a fallback in case gl fencing for thread creation stalls
+				if(mTextureOnMainThread) {
+					ci::gl::Texture::Format fmt;
+					if((it.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
+						fmt.enableMipmapping(true);
+						fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+					}
+
+					it.mTexture = ci::gl::Texture::create(it.mImageSourceRef, fmt);
+					if(!it.mTexture || it.mTexture->getId() < 1) {
+						DS_LOG_WARNING("LoadImageService: couldn't load an image texture on the main thread for " << it.mFilePath);
+					}
+
+					it.mImageSourceRef = nullptr;
+				}
+
 				mInUseImages[it.mFilePath] = it;
-				// this shouldn't really ever happen, but just in case
-				// findy->second.mRefs += it.mRefs;
 			}
 		} else {
 			DS_LOG_WARNING("LoadImgeService failed for file: " << it.mFilePath)
@@ -200,12 +219,20 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		}
 
 		try {
-			// TODO: re-implement url loading
-			//	if(ds::safeFileExistsCheck(nextImage.mFilePath)) {
 			auto isr = ci::loadImage(nextImage.mFilePath);
-			//	} else {
+
+
+			/// once we have the surface in main-thread mode, bail out
+			if(mTextureOnMainThread && isr) {
+				nextImage.mImageSourceRef = isr;
+				nextImage.mLoading = false;
+				std::lock_guard<std::mutex> lock(mLoadedMutex);
+				mLoadedRequests.emplace_back(nextImage);
+				continue;
+			}
+
+			// TODO: re-implement url loading
 			//		isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
-			//	}
 
 			ci::gl::Texture::Format fmt;
 			if ((nextImage.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
