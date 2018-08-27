@@ -209,8 +209,13 @@ void Engine::setupWindowMode(){
 	if(newMode == "borderless"){
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(true);
-	} else if(newMode.find("full") != std::string::npos){
-		ci::app::getWindow()->setFullScreen(true);
+	} else if(newMode.find("full") != std::string::npos) {
+		/// setting fullscreen immediately causes some weirdness
+		static bool firstSet = true;
+		if(!firstSet) {
+			ci::app::getWindow()->setFullScreen(true);
+		}
+		firstSet = false;
 	} else {
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(false);
