@@ -38,6 +38,9 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setUseFades(const bool doFading);
 		void				setFadeHeight(const float fadeHeight);
 
+		/// recalculates the size of the scroller and fades
+		void				recalculateSizes();
+
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
 		void				setTweenCompleteCallback(const std::function<void(ScrollArea*)>& func);
 		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::vec3&)>& func);

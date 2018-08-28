@@ -326,6 +326,10 @@ void ScrollArea::setFadeHeight(const float fadeHeight){
 	onSizeChanged();
 }
 
+void ScrollArea::recalculateSizes() {
+	onSizeChanged();
+}
+
 void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTrans){
 	mFadeFullColor = fadeColorFull;
 	mFadeTransColor = fadeColorTrans;
