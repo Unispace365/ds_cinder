@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<setting name="padding" value="40" type="float" />	
+	
+	<setting name="rfid:mqtt:address" value="add an address in app_settings.xml"  />
+	<setting name="rfid:mqtt:port" value="1883"  />
+	<setting name="rfid:mqtt:inbound_route" value="sample/inbound/route/#"  />
+	<setting name="rfid:mqtt:outbound_route" value="sample/outbound/route/"  />
+	
+</settings>
+
+
