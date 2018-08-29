@@ -4,6 +4,7 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/util/string_util.h>
 
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
@@ -75,6 +76,7 @@ public:
 
 	/// Get the current entered text string
 	const std::wstring					getCurrentText();
+	const std::string					getCurrentTextString() { return ds::utf8_from_wstr(getCurrentText()); }
 
 	/// Set the the current text string. Does not call any callbacks.
 	void								setCurrentText(const std::wstring& curTxtStr);
