@@ -106,6 +106,7 @@ void MqttWatcher::startListening(){
 	mStarted = true;
 	if(!mLoop.mConnected){
 		DS_LOG_INFO_M("Attempting to connect to the MQTT server at " << mLoop.getHost() << ":" << mLoop.getPort(), MQTT_LOG);
+
 		mLoopThread = std::thread( [this](){ mLoop.run(); } );
 		mLoop.mConnected = true;
 	}
@@ -121,6 +122,10 @@ void MqttWatcher::stopListening(){
 	if(mLoopThread.joinable()){
 		mLoopThread.join();
 	}
+}
+
+void MqttWatcher::clearInboundListeners() {
+	mListeners.clear();
 }
 
 void MqttWatcher::setTopicInbound(const std::string& inBound){
@@ -237,6 +242,14 @@ void MqttWatcher::MqttConnectionLoop::run(){
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(mRefreshRateMs));
 	}
+
+	mqtt_isnt.setMessageAction(nullptr);
+	mqtt_isnt.unsubscribe(nullptr, mTopicInbound.c_str());
+	int disconnectReturn = mqtt_isnt.disconnect();
+	if(disconnectReturn != MOSQ_ERR_SUCCESS) {
+		DS_LOG_WARNING_M("MQTT disconnect errored with number: " << disconnectReturn << " Error string is: " << mosqpp::strerror(disconnectReturn), MQTT_LOG);
+	}
+
 	DS_LOG_INFO_M("MQTT Watcher loop is returning, setting connected to false.", MQTT_LOG);
 	mConnected = false;
 	//if(mFirstTimeMessage) std::cout << "MQTT watcher returned.";

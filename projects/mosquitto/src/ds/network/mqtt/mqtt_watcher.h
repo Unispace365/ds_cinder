@@ -38,6 +38,9 @@ public:
 
 	void							startListening();
 	void							stopListening();
+	/// Removes all callback functions for inbound traffic
+	void							clearInboundListeners();
+	/// Sets a callback for when a message comes in on the specified topic
 	void							addInboundListener(const std::function<void(const MessageQueue&)>&);
 	void							sendOutboundMessage(const std::string&);
 
