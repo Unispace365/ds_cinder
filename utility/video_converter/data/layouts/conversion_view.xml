@@ -1,0 +1,110 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="vert"
+				enable="true"
+				size="$_world_size"
+			>
+			
+			
+			<layout name="header_layout"
+				layout_type="vert"
+				layout_size_mode="fill"
+				layout_spacing="#expr 0.5 * $_padding"
+				layout_h_align="center"
+				pad_all="$_padding"
+			>
+			
+				<text name="app_title"
+					font="app:title"
+					layout_size_mode="flex"
+					b_pad="0"
+					animate_on="$_default:anim"
+					text="<b>downstream</b> video converter"
+					/>
+					
+				<sprite name="spacer_one" 
+					layout_size_mode="flex"
+					color="white"
+					size="$_line:size"
+					opacity="$_line:opacity"
+					animate_on="$_default:anim"
+					l_pad="#expr -1.0 * $_padding"
+					r_pad="#expr -1.0 * $_padding"
+				/>
+				
+				<control_check_box name="h264"
+					font="app:body"
+					check_box_false_label="H.264 (normal)"
+					check_box_true_label="ProRes 4444 (transparent)"
+					/>
+				<layout layout_type="horiz"
+					shrink_to_children="both"
+					>
+					<text name="width_label"
+						text="Scale filter (iw:ih keeps original size): "
+						font="app:body"
+						r_pad="10"
+						/>
+					<entry_field 
+						name="entry_field"
+						
+						>text_config:app:body; cursor_offset:0, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:white</entry_field>
+				</layout>
+				<sprite name="spacer_two" 
+					layout_size_mode="flex"
+					color="white"
+					size="$_line:size"
+					opacity="$_line:opacity"
+					animate_on="$_default:anim"
+					l_pad="#expr -1.0 * $_padding"
+					r_pad="#expr -1.0 * $_padding"
+				/>
+				
+				
+				<text name="subtitle_message"
+					font="app:body"
+					layout_size_mode="flex"
+					animate_on="$_default:anim"
+					text="Drop a video file on this window to convert"
+					/>
+					
+				<scroll_area name="the_scroller"
+					layout_size_mode="stretch"
+					scroll_area_vert="true"
+					scroll_fade_colors="#ff000000, #00000000"
+					scroll_fade_size="80"
+					>
+					<layout name="rows_hodler"
+						layout_type="vert"
+						size="$_world_size"
+						shrink_to_children="height"
+						/>
+				</scroll_area>
+				
+				<layout name="button_layout"
+					layout_type="horiz"
+					layout_spacing="$_padding"
+					layout_h_align="right"
+					shrink_to_children="both"
+					>
+				
+					<xml name="convert_button" src="%APP%/data/layouts/icon_label_button.xml" >
+						<property name="the_button" on_click_event="SomethingHappenedEvent" 	layout_h_align="center" />
+						<property name="high_icon" src="%APP%/data/images/media_interface/touch.png" scale="0.25, 0.25" position="20, 23" />
+						<property name="high_label" text="Convert" />
+					</xml>
+					
+					<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
+						<property name="the_button" on_click_event="RequestAppExitEvent" 	layout_h_align="center" />
+						<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="50, 23" />
+						<property name="high_label" text="Quit" />
+					</xml>
+				</layout>
+			</layout>
+		</layout>
+	
+	
+</interface>
+
+

@@ -37,6 +37,7 @@ void MqttService::initialize() {
 	mMqttWatcher.setTopicOutbound(mOutboundTopic);
 	mMqttWatcher.setPort(mEngine.getAppSettings().getInt("rfid:mqtt:port", 0, 1883));
 
+	mMqttWatcher.clearInboundListeners();
 	mMqttWatcher.addInboundListener([this](const ds::net::MqttWatcher::MessageQueue& queue) {
 
 		for(auto msg : queue) {

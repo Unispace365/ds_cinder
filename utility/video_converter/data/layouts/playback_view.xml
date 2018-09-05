@@ -1,0 +1,36 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="vert"
+				enable="true"
+				size="$_world_size"
+				visible="false"
+			>
+			
+			<sprite layout_size_mode="fill"
+				color="orange"
+				opacity="0.9"
+				/>
+			<media_player name="the_player"
+				media_player_auto_start="true"
+				media_player_show_interface="true"
+				layout_size_mode="stretch"		
+				media_player_letterbox="true"
+				pad_all="$_padding"
+				layout_h_align="center"
+				layout_fixed_aspect="false"
+				animate_on="fade; duration:1.0; ease:outExpo; delay:0.1"
+				/>	
+				
+				<xml name="close_button" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="left" opacity="1.0" pad_all="$_padding"/>
+					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="20, 23" />
+					<property name="high_label" text="Close" resize_limit="200"/>
+				</xml>
+		</layout>
+	
+	
+			
+</interface>
+
+
