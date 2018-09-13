@@ -138,6 +138,10 @@ void MqttWatcher::setTopicOutbound(const std::string& outBound){
 	mLoop.setOutBound(outBound);
 }
 
+void MqttWatcher::setUserPass(const std::string& user, const std::string& pass) {
+	mLoop.setUserPass(user, pass);
+}
+
 void MqttWatcher::setHostString(const std::string& host){
 	mLoop.setHost(host);
 }
@@ -214,6 +218,10 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		}
 	});
 
+	if(!mUsername.empty() && !mPassword.empty()) {
+		mqtt_isnt.username_pw_set(mUsername.c_str(), mPassword.c_str());
+	}
+
 	auto err_no = mqtt_isnt.connect(mHost.c_str(), mPort);
 	if(err_no != MOSQ_ERR_SUCCESS && mFirstTimeMessage){
 		DS_LOG_ERROR_M("Unable to connect to the MQTT server. Error number is: " << err_no << ". Error string is: " << mosqpp::strerror(err_no), MQTT_LOG);
@@ -262,6 +270,11 @@ void MqttWatcher::MqttConnectionLoop::setInBound(const std::string& inBound){
 
 void MqttWatcher::MqttConnectionLoop::setOutBound(const std::string& outBound){
 	mTopicOutbound = outBound;
+}
+
+void MqttWatcher::MqttConnectionLoop::setUserPass(const std::string& user, const std::string& pass) {
+	mUsername = user;
+	mPassword = pass;
 }
 
 void MqttWatcher::MqttConnectionLoop::setHost(const std::string& host){

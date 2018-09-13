@@ -46,6 +46,7 @@ public:
 
 	void							setTopicInbound(const std::string&);
 	void							setTopicOutbound(const std::string&);
+	void							setUserPass(const std::string& user, const std::string& pass);
 	void							setHostString(const std::string&);
 	void							setPort(const int);
 
@@ -79,6 +80,7 @@ private:
 		virtual void				run();
 		void						setInBound(const std::string&);
 		void						setOutBound(const std::string&);
+		void						setUserPass(const std::string& user, const std::string& pass);
 		void						setHost(const std::string&);
 		void						setPort(const int);
 		const int					getPort(){ return mPort; };
@@ -88,6 +90,8 @@ private:
 		std::string					mHost;
 		std::string					mTopicInbound;
 		std::string					mTopicOutbound;
+		std::string					mUsername;
+		std::string					mPassword;
 		int							mPort;
 		std::string					mClientId;
 		const int					mRefreshRateMs;	// in milliseconds
