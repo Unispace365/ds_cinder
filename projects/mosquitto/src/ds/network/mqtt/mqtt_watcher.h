@@ -48,12 +48,17 @@ public:
 	void							setTopicOutbound(const std::string&);
 	void							setHostString(const std::string&);
 	void							setPort(const int);
+	void							setUserPass(const std::string& username, const std::string& pass);
 
 	// How long to wait to restart the connection
 	// Set to a negative number to never retry on connection failure
 	void							setRetryWaitTime(const float timeInSeconds){ mRetryWaitTime = timeInSeconds; }
 
 	bool							isConnected(){ return mLoop.mConnected; }
+
+	/// get notified when the connection status changes
+	/// called from the update loop
+	void							setConnectedCallback(std::function<void(const bool isConnected)> callback) { mConnectedCallback = callback; }
 
 protected:
 	virtual void					update(const ds::UpdateParams &) override;
@@ -79,6 +84,7 @@ private:
 		virtual void				run();
 		void						setInBound(const std::string&);
 		void						setOutBound(const std::string&);
+		void						setUserPass(const std::string& user, const std::string& pass);
 		void						setHost(const std::string&);
 		void						setPort(const int);
 		const int					getPort(){ return mPort; };
@@ -88,6 +94,8 @@ private:
 		std::string					mHost;
 		std::string					mTopicInbound;
 		std::string					mTopicOutbound;
+		std::string					mUserName;
+		std::string					mPassword;
 		int							mPort;
 		std::string					mClientId;
 		const int					mRefreshRateMs;	// in milliseconds
@@ -103,6 +111,8 @@ private:
 	Poco::Timestamp::TimeVal		mLastMessageTime;
 	float							mRetryWaitTime;
 	bool							mStarted;
+	bool							mConnectedStatus; // for sending a callback lambda
+	std::function<void(const bool)>	mConnectedCallback;
 
 };
 

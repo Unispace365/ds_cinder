@@ -21,8 +21,15 @@
 			layout_size_mode="flex"
 			layout_h_align="left"
 			text="$_rfid:mqtt:address"
-			b_pad="$_padding"
 			opacity="0.8"
+			/>	
+		<text name="connected_status"
+			font="mqtt:message"
+			font_size="14"
+			layout_size_mode="flex"
+			layout_h_align="left"
+			text="Initializing..."
+			b_pad="$_padding"
 			/>	
 			
 		<text name="mqtt_title"

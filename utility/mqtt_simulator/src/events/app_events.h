@@ -24,6 +24,11 @@ struct SendMqttMessageEvent : public ds::RegisteredEvent<SendMqttMessageEvent> {
 	std::string mMessage;
 };
 
+struct MqttConnectedEvent : public ds::RegisteredEvent<MqttConnectedEvent> {
+	MqttConnectedEvent(const bool connected) : mConnected(connected) {}
+	const bool mConnected;
+};
+
 } // !namespace downstream
 
 #endif // !_MQTT_SIMULATOR_APP_APPEVENTS_H_

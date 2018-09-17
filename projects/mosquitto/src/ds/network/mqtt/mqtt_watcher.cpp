@@ -42,6 +42,8 @@ MqttWatcher::MqttWatcher(
 	, mLoop(e, host, topic_inbound, topic_outband, refresh_rate, port, clientId)
 	, mRetryWaitTime(5.0f)
 	, mStarted(false)
+	, mConnectedStatus(false)
+	, mConnectedCallback(false)
 {
 	MqttSingleton::initilize_once();
 	mLastMessageTime = Poco::Timestamp().epochMicroseconds();
@@ -64,6 +66,13 @@ void MqttWatcher::update(const ds::UpdateParams &){
 			DS_LOG_INFO("Retrying connection to mqtt server. Connected = " << mLoop.mConnected);
 			startListening();
 			mLastMessageTime = Poco::Timestamp().epochMicroseconds();
+		}
+	}
+
+	if(mConnectedStatus != mLoop.mConnected) {
+		mConnectedStatus = mLoop.mConnected;
+		if(mConnectedCallback) {
+			mConnectedCallback(mConnectedStatus);
 		}
 	}
 
@@ -146,6 +155,10 @@ void MqttWatcher::setPort(const int port){
 	mLoop.setPort(port);
 }
 
+void MqttWatcher::setUserPass(const std::string& username, const std::string& pass) {
+	mLoop.setUserPass(username, pass);
+}
+
 /**
 * \class Loop
 */
@@ -198,6 +211,10 @@ void MqttWatcher::MqttConnectionLoop::run(){
 	id.append(std::to_string(std::rand()));
 
 	MosquittoReceiver mqtt_isnt(id);
+
+	if(!mUserName.empty() && !mPassword.empty()) {
+		mqtt_isnt.username_pw_set(mUserName.c_str(), mPassword.c_str());
+	}
 
 	mqtt_isnt.setConnectAction([this, id](int code){
 		DS_LOG_INFO_M("MQTT server connected, status code (0 is success): " << code << " client id: " << id, MQTT_LOG);
@@ -262,6 +279,11 @@ void MqttWatcher::MqttConnectionLoop::setInBound(const std::string& inBound){
 
 void MqttWatcher::MqttConnectionLoop::setOutBound(const std::string& outBound){
 	mTopicOutbound = outBound;
+}
+
+void MqttWatcher::MqttConnectionLoop::setUserPass(const std::string& user, const std::string& pass) {
+	mUserName = user;
+	mPassword = pass;
 }
 
 void MqttWatcher::MqttConnectionLoop::setHost(const std::string& host){

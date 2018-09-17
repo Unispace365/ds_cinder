@@ -33,9 +33,14 @@ void MqttService::initialize() {
 
 	mMqttWatcher.stopListening();
 	mMqttWatcher.setHostString(mEngine.getAppSettings().getString("rfid:mqtt:address", 0, ""));
+	mMqttWatcher.setUserPass(mEngine.getAppSettings().getString("rfid:mqtt:username", 0, ""), mEngine.getAppSettings().getString("rfid:mqtt:password", 0, ""));
 	mMqttWatcher.setTopicInbound(mInboundTopic);
 	mMqttWatcher.setTopicOutbound(mOutboundTopic);
 	mMqttWatcher.setPort(mEngine.getAppSettings().getInt("rfid:mqtt:port", 0, 1883));
+
+	mMqttWatcher.setConnectedCallback([this](const bool isConnected) {
+		mEngine.getNotifier().notify(MqttConnectedEvent(isConnected));
+	});
 
 	mMqttWatcher.clearInboundListeners();
 	mMqttWatcher.addInboundListener([this](const ds::net::MqttWatcher::MessageQueue& queue) {
