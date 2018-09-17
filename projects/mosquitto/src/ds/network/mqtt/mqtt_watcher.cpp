@@ -147,16 +147,16 @@ void MqttWatcher::setTopicOutbound(const std::string& outBound){
 	mLoop.setOutBound(outBound);
 }
 
+void MqttWatcher::setUserPass(const std::string& user, const std::string& pass) {
+	mLoop.setUserPass(user, pass);
+}
+
 void MqttWatcher::setHostString(const std::string& host){
 	mLoop.setHost(host);
 }
 
 void MqttWatcher::setPort(const int port){
 	mLoop.setPort(port);
-}
-
-void MqttWatcher::setUserPass(const std::string& username, const std::string& pass) {
-	mLoop.setUserPass(username, pass);
 }
 
 /**
@@ -212,10 +212,6 @@ void MqttWatcher::MqttConnectionLoop::run(){
 
 	MosquittoReceiver mqtt_isnt(id);
 
-	if(!mUserName.empty() && !mPassword.empty()) {
-		mqtt_isnt.username_pw_set(mUserName.c_str(), mPassword.c_str());
-	}
-
 	mqtt_isnt.setConnectAction([this, id](int code){
 		DS_LOG_INFO_M("MQTT server connected, status code (0 is success): " << code << " client id: " << id, MQTT_LOG);
 		mFirstTimeMessage = true;
@@ -230,6 +226,10 @@ void MqttWatcher::MqttConnectionLoop::run(){
 			mLoopInbound.push_back(msg);
 		}
 	});
+
+	if(!mUsername.empty() && !mPassword.empty()) {
+		mqtt_isnt.username_pw_set(mUsername.c_str(), mPassword.c_str());
+	}
 
 	auto err_no = mqtt_isnt.connect(mHost.c_str(), mPort);
 	if(err_no != MOSQ_ERR_SUCCESS && mFirstTimeMessage){
@@ -282,7 +282,7 @@ void MqttWatcher::MqttConnectionLoop::setOutBound(const std::string& outBound){
 }
 
 void MqttWatcher::MqttConnectionLoop::setUserPass(const std::string& user, const std::string& pass) {
-	mUserName = user;
+	mUsername = user;
 	mPassword = pass;
 }
 

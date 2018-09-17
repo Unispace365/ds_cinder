@@ -46,9 +46,9 @@ public:
 
 	void							setTopicInbound(const std::string&);
 	void							setTopicOutbound(const std::string&);
+	void							setUserPass(const std::string& user, const std::string& pass);
 	void							setHostString(const std::string&);
 	void							setPort(const int);
-	void							setUserPass(const std::string& username, const std::string& pass);
 
 	// How long to wait to restart the connection
 	// Set to a negative number to never retry on connection failure
@@ -94,7 +94,7 @@ private:
 		std::string					mHost;
 		std::string					mTopicInbound;
 		std::string					mTopicOutbound;
-		std::string					mUserName;
+		std::string					mUsername;
 		std::string					mPassword;
 		int							mPort;
 		std::string					mClientId;
