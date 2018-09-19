@@ -37,6 +37,10 @@ public:
 	/// Sets the list of items to display
 	void			setContentList(std::vector<ds::model::ContentModelRef> theContents);
 
+	/// Sets the list of items to display and keeps the scroll percent
+	void			setContentListMaintainPosition(ds::model::ContentModelRef parentModel);
+	void			setContentListMaintainPosition(std::vector<ds::model::ContentModelRef> theContents);
+
 	/// Sets the layout file for each item, MUST be fixed height
 	void			setItemLayoutFile(const std::string& itemLayout);
 
