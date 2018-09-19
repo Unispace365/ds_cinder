@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "smart_scroll_list.h"
 
+#include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/layout/smart_layout.h>
 
 namespace ds {
@@ -72,6 +73,18 @@ void SmartScrollList::setContentList(std::vector<ds::model::ContentModelRef> the
 	}
 
 	setContent(productIds);
+}
+
+
+void SmartScrollList::setContentListMaintainPosition(std::vector<ds::model::ContentModelRef> theContents) {
+	if(!getScrollArea()) return;
+	auto prePercent = getScrollArea()->getScrollPercent();
+	setContentList(theContents);
+	getScrollArea()->setScrollPercent(prePercent);
+}
+
+void SmartScrollList::setContentListMaintainPosition(ds::model::ContentModelRef parentModel) {
+	setContentListMaintainPosition(parentModel.getChildren());
 }
 
 void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
