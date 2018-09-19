@@ -93,6 +93,33 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 #ifdef CMS_URL
 ; Set DS_BASEURL if the cms url has been defined
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
+
+; Check if DS_BASEURL environment variable is already set. If not, request a reboot
+; Only checked if IS_PRODUCTION & CMS_URL are both set
+[Code]
+var
+  CmsUrl: String;
+  NeedsRestart: Boolean;
+
+function NeedRestart(): Boolean;
+begin
+	if NeedsRestart = True then begin
+		Result := True;
+	end else begin
+		Result := False;
+	end;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+	NeedsRestart := True;
+	if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'DS_BASEURL', CmsUrl) then begin
+		if CmsUrl = '{#CMS_URL}' then
+			NeedsRestart := False;
+	end;
+	Result := True;
+end;
+
 #endif
 
 #endif
