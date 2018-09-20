@@ -443,11 +443,15 @@ void Web::update(const ds::UpdateParams &p) {
 	if(mBuffer && mHasBuffer) {
 		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
 
-		ci::gl::Texture::Format fmt;
-		fmt.enableMipmapping(true);
-		//fmt.setMinFilter(GL_LINEAR);
-		//fmt.setMagFilter(GL_LINEAR);
-		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		if (mWebTexture && mWebTexture->getWidth() == mBrowserSize.x && mWebTexture->getHeight() == mBrowserSize.y) {
+			mWebTexture->update(mBuffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, mBrowserSize.x, mBrowserSize.y);
+		} else {
+			ci::gl::Texture::Format fmt;
+			fmt.enableMipmapping(true);
+			//fmt.setMinFilter(GL_LINEAR);
+			//fmt.setMagFilter(GL_LINEAR);
+			mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		}
 		mHasBuffer = false;
 	}
 
@@ -455,11 +459,15 @@ void Web::update(const ds::UpdateParams &p) {
 	if(mPopupBuffer && mHasPopupBuffer) {
 		DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
 
-		ci::gl::Texture::Format fmt;
-		fmt.enableMipmapping(true);
-		//fmt.setMinFilter(GL_LINEAR);
-		//fmt.setMagFilter(GL_LINEAR);
-		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
+		if (mPopupTexture && mPopupTexture->getWidth() == (int)mPopupSize.x && mPopupTexture->getHeight() == (int)mPopupSize.y) {
+			mPopupTexture->update(mPopupBuffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, (int)mPopupSize.x, (int)mPopupSize.y);
+		} else {
+			ci::gl::Texture::Format fmt;
+			fmt.enableMipmapping(true);
+			//fmt.setMinFilter(GL_LINEAR);
+			//fmt.setMagFilter(GL_LINEAR);
+			mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
+		}
 		mHasPopupBuffer = false;
 		mPopupReady = true;
 	}
