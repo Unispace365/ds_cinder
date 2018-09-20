@@ -47,3 +47,7 @@
 ; Add any additional files, settings, icons, registry, etc here
 ;[Files]
 ;Source: "src/*"; DestDir: "{app}/src"; Flags: recursesubdirs
+
+; -------- Run an app/script at the end of the installer
+;[Run]
+;Filename: "{app}\config_selector.bat"
