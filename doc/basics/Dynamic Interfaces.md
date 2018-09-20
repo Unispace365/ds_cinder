@@ -404,6 +404,7 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_video_loop**: Boolean, true, the default, loops the video, false will play the video once and stop
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
 * **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
+* **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
 
 XML : xml
 -------------------------------

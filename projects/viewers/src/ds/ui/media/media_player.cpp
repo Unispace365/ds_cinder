@@ -155,6 +155,18 @@ public:
 				mediaPlayer->setSettings(mvs);
 
 			});
+
+			e.registerSpritePropertySetter("media_player_standard_click", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer) {
+					DS_LOG_WARNING("Tried to set the property media_player_standard_click on a non-mediaPlayer sprite");
+					return;
+				}
+				if(ds::parseBoolean(theValue)) {
+					mediaPlayer->enableStandardClick();
+				}
+			});
 		});
 	}
 
