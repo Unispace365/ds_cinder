@@ -43,6 +43,7 @@ class VideoPlayer : public ds::ui::Sprite {
 
 	ds::ui::GstVideo* getVideo();
 
+	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(MediaViewerSettings& settings);
 
 	void setLetterbox(const bool doLetterBox);

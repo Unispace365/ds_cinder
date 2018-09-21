@@ -38,6 +38,7 @@ class StreamPlayer : public ds::ui::Sprite {
 	void			hideInterface();
 	VideoInterface* getVideoInterface() { return mVideoInterface; }
 
+	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
 	void setShowInterfaceAtStart(bool showInterfaceAtStart);

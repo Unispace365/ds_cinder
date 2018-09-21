@@ -42,6 +42,7 @@ class PDFPlayer : public ds::ui::Sprite {
 	void setGoodStatusCallback(std::function<void()> func) { mGoodStatusCallback = func; }
 	void setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
 
+	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
 	void setShowInterfaceAtStart(bool showInterfaceAtStart);

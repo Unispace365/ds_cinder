@@ -50,6 +50,7 @@ public:
 	void								setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
 	void								setVideoCompleteCallback(std::function<void()> func) { mVideoCompleteCallback = func; }
 
+	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(MediaViewerSettings& settings);
 
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos

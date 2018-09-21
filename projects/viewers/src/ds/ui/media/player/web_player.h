@@ -33,7 +33,7 @@ class WebPlayer : public ds::ui::Sprite {
 	ds::ui::Web*  getWeb();
 	WebInterface* getWebInterface();  // may be nullptr if embedInterface is false
 
-	/// UI params - replace with MediaViewerSettings?
+	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
 	void setWebViewSize(const ci::vec2 webSize);
