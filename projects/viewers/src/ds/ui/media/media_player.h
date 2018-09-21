@@ -24,7 +24,7 @@ class MediaInterface;
  *
  *			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
  *					that has a children vector of resources of the thumbnails set, and the children need to have the correct
- *parentIndex (i.e. page number) set.
+ *					parentIndex (i.e. page number) set.
  */
 class MediaPlayer : public ds::ui::Sprite {
   public:

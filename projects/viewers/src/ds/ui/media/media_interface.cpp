@@ -18,7 +18,7 @@
 namespace ds {
 namespace ui {
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroudnColor)
+MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroundColor)
   : ds::ui::Sprite(eng, sizey.x, sizey.y)
   , mBackground(nullptr)
   , mIdling(nullptr)
@@ -33,7 +33,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 
 	mBackground = new ds::ui::Sprite(mEngine);
 	mBackground->setTransparent(false);
-	mBackground->setColor(backgroudnColor);
+	mBackground->setColor(backgroundColor);
 	mBackground->setOpacity(backOpacccy);
 	addChildPtr(mBackground);
 

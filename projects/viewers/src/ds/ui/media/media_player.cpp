@@ -40,127 +40,118 @@ class Init {
 
 			e.registerSpritePropertySetter(
 				"media_player_src", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
-					ds::Resource theResource;
-					int			 mediaType = ds::Resource::parseTypeFromFilename(theValue);
-					if (mediaType == ds::Resource::WEB_TYPE) {
-						theResource = ds::Resource(theValue, mediaType);
+					if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+						ds::Resource theResource;
+						int			 mediaType = ds::Resource::parseTypeFromFilename(theValue);
+						if (mediaType == ds::Resource::WEB_TYPE) {
+							theResource = ds::Resource(theValue, mediaType);
+						} else {
+							std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
+							theResource			= ds::Resource(absPath);
+						}
+						mediaPlayer->loadMedia(theResource, true);
 					} else {
-						std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
-						theResource			= ds::Resource(absPath);
-					}
-
-					ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-					if (!mediaPlayer) {
 						DS_LOG_WARNING("Tried to set the property media_player_src on a non-mediaPlayer sprite");
 						return;
 					}
-
-					mediaPlayer->loadMedia(theResource, true);
 				});
 
 			e.registerSpritePropertySetter("media_player_auto_start", [](ds::ui::Sprite& theSprite, const std::string& theValue,
 																		 const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs					 = mediaPlayer->getSettings();
+					mvs.mVideoAutoPlayFirstFrame = !ds::parseBoolean(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_auto_start on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs					 = mediaPlayer->getSettings();
-				mvs.mVideoAutoPlayFirstFrame = !ds::parseBoolean(theValue);
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter(
 				"media_player_show_interface",
 				[](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
-					ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-					if (!mediaPlayer) {
+					if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+						auto& mvs				  = mediaPlayer->getSettings();
+						mvs.mShowInterfaceAtStart = ds::parseBoolean(theValue);
+						mediaPlayer->setSettings(mvs);
+					} else {
 						DS_LOG_WARNING("Tried to set the property media_player_show_interface on a non-mediaPlayer sprite");
 						return;
 					}
-
-					auto& mvs				  = mediaPlayer->getSettings();
-					mvs.mShowInterfaceAtStart = ds::parseBoolean(theValue);
-					mediaPlayer->setSettings(mvs);
 				});
 
 			e.registerSpritePropertySetter("media_player_web_size", [](ds::ui::Sprite& theSprite, const std::string& theValue,
 																	   const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs			= mediaPlayer->getSettings();
+					mvs.mWebDefaultSize = ci::vec2(ds::parseVector(theValue));
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_web_size on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs			= mediaPlayer->getSettings();
-				mvs.mWebDefaultSize = ci::vec2(ds::parseVector(theValue));
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter("media_player_letterbox", [](ds::ui::Sprite& theSprite, const std::string& theValue,
 																		const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs	  = mediaPlayer->getSettings();
+					mvs.mLetterBox = ds::parseBoolean(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_letterbox on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs	  = mediaPlayer->getSettings();
-				mvs.mLetterBox = ds::parseBoolean(theValue);
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter("media_player_video_volume", [](ds::ui::Sprite& theSprite, const std::string& theValue,
 																		   const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs		 = mediaPlayer->getSettings();
+					mvs.mVideoVolume = ds::string_to_float(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_video_volume on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs		 = mediaPlayer->getSettings();
-				mvs.mVideoVolume = ds::string_to_float(theValue);
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter("media_player_video_loop", [](ds::ui::Sprite& theSprite, const std::string& theValue,
 																		 const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs	  = mediaPlayer->getSettings();
+					mvs.mVideoLoop = ds::parseBoolean(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_video_loop on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs	  = mediaPlayer->getSettings();
-				mvs.mVideoLoop = ds::parseBoolean(theValue);
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter("media_player_video_reset_on_complete", [](ds::ui::Sprite&	theSprite,
 																					  const std::string& theValue,
 																					  const std::string& fileReferrer) {
-				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-				if (!mediaPlayer) {
+				if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs				  = mediaPlayer->getSettings();
+					mvs.mVideoResetOnComplete = ds::parseBoolean(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
 					DS_LOG_WARNING("Tried to set the property media_player_video_reset_on_complete on a non-mediaPlayer sprite");
 					return;
 				}
-
-				auto& mvs				  = mediaPlayer->getSettings();
-				mvs.mVideoResetOnComplete = ds::parseBoolean(theValue);
-				mediaPlayer->setSettings(mvs);
 			});
 
 			e.registerSpritePropertySetter(
 				"media_player_standard_click",
 				[](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
-					ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
-					if (!mediaPlayer) {
+					if (auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+						if (ds::parseBoolean(theValue)) {
+							mediaPlayer->enableStandardClick();
+						}
+					} else {
 						DS_LOG_WARNING("Tried to set the property media_player_standard_click on a non-mediaPlayer sprite");
 						return;
-					}
-					if (ds::parseBoolean(theValue)) {
-						mediaPlayer->enableStandardClick();
 					}
 				});
 		});
@@ -243,9 +234,7 @@ void MediaPlayer::initialize() {
 
 	mContentAspectRatio = 1.0f;
 
-	float contentWidth  = 1.0f;
-	float contentHeight = 1.0f;
-	bool  showThumbnail = true;
+	bool showThumbnail = true;
 
 	if (mediaType == ds::Resource::IMAGE_TYPE) {
 		initializeImage();
@@ -325,6 +314,7 @@ void MediaPlayer::initializeImage() {
 }
 
 void MediaPlayer::initializeVideo() {
+	// Depends on base initialize to check already initialized case
 	mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mVideoPlayer);
 
@@ -354,6 +344,7 @@ void MediaPlayer::initializeVideo() {
 }
 
 void MediaPlayer::initializeVideoPanoramic() {
+	// Depends on base initialize to check already initialized case
 	mPanoramicPlayer = new PanoramicVideoPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mPanoramicPlayer);
 
@@ -388,6 +379,7 @@ void MediaPlayer::initializeVideoPanoramic() {
 }
 
 void MediaPlayer::initializeVideoStream() {
+	// Depends on base initialize to check already initialized case
 	mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mStreamPlayer);
 
@@ -410,6 +402,7 @@ void MediaPlayer::initializeVideoStream() {
 }
 
 void MediaPlayer::initializePdf() {
+	// Depends on base initialize to check already initialized case
 	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
 	addChildPtr(mPDFPlayer);
 
@@ -444,6 +437,7 @@ void MediaPlayer::initializePdf() {
 }
 
 void MediaPlayer::initializeWeb() {
+	// Depends on base initialize to check already initialized case
 	mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mWebPlayer);
 	mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
