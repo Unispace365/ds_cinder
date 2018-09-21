@@ -12,28 +12,26 @@ class Engine;
 namespace gstreamer {
 
 /**
-* \class ds::gstreamer::GstVideoService
-* \brief Setup gstreamer paths and other initialization
-*/
-class GstVideoService : public ds::EngineService {
-public:
+ * \class ds::gstreamer::GstVideoService
+ * \brief Setup gstreamer paths and other initialization
+ */
+class GstVideoService final : public ds::EngineService {
+  public:
 	GstVideoService(ds::Engine&);
 	~GstVideoService();
 
-	bool					getValidInstall();
-	const std::string&		getErrorMessage();
+	bool			   getValidInstall();
+	const std::string& getErrorMessage();
 
-	virtual void			start();
+	virtual void start();
 
-private:
-	bool					mValidInstall;
-	std::string				mErrorMessage;
-	ds::Engine&				mEngine;
-
-
+  private:
+	bool		mValidInstall;
+	std::string mErrorMessage;
+	ds::Engine& mEngine;
 };
 
-} // namespace gstreamer
-} // namespace ds
+}  // namespace gstreamer
+}  // namespace ds
 
-#endif 
+#endif
