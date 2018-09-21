@@ -112,7 +112,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 
 	if (sprI) {
 		if (cache) {
-			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F);
+			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
 		} else {
 			sprI->setImageResource(imageResource);
 		}
