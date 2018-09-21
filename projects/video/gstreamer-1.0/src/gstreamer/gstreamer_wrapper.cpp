@@ -29,7 +29,7 @@ GStreamerWrapper::GStreamerWrapper()
   , mNetClock(NULL)
   , mBaseTime(0)
   , mRunningTime(0)
-  , mplayFromPause(false)
+  , mPlayFromPause(false)
   , mSeekTime(0)
   , mNewLoop(false)
   , mLivePipeline(false)
@@ -103,7 +103,7 @@ void GStreamerWrapper::parseFilename(const std::string& theFile) {
 		strFilename.find("http://", 0) == std::string::npos) {
 		strFilename = "file:///" + strFilename;
 	}
-	mstrFilename = strFilename;
+	mFilename = strFilename;
 }
 
 void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeight) {
@@ -143,9 +143,9 @@ guint64 GStreamerWrapper::getNetClockTime() {
 }
 
 
-bool GStreamerWrapper::isPlayFromPause() { return mplayFromPause; }
+bool GStreamerWrapper::isPlayFromPause() { return mPlayFromPause; }
 
-void GStreamerWrapper::clearPlayFromPause() { mplayFromPause = false; }
+void GStreamerWrapper::clearPlayFromPause() { mPlayFromPause = false; }
 
 bool GStreamerWrapper::isNewLoop() { return mNewLoop; }
 
@@ -201,7 +201,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	mGstBus = gst_pipeline_get_bus(GST_PIPELINE(mGstPipeline));
 
 	// Open Uri
-	g_object_set(mGstPipeline, "uri", mstrFilename.c_str(), NULL);
+	g_object_set(mGstPipeline, "uri", mFilename.c_str(), NULL);
 
 	// VIDEO SINK
 	// Extract and Config Video Sink
@@ -842,7 +842,7 @@ void GStreamerWrapper::play() {
 			if (mServer) {
 				if (getState() == PAUSED) {
 					std::cout << "Playing from pause" << std::endl;
-					mplayFromPause = true;
+					mPlayFromPause = true;
 
 					uint64_t baseTime = getPipelineTime();
 					setPipelineBaseTime(baseTime);
@@ -974,10 +974,8 @@ void GStreamerWrapper::setTimePositionInNs(gint64 iTargetTimeInNs) {
 
 
 void GStreamerWrapper::setPosition(double fPos) {
-	if (fPos < 0.0)
-		fPos = 0.0;
-	else if (fPos > 1.0)
-		fPos = 1.0;
+	if (fPos < 0.0) fPos = 0.0;
+	else if (fPos > 1.0) fPos = 1.0;
 
 
 	mCurrentTimeInMs	= fPos * mCurrentTimeInMs;
@@ -992,7 +990,7 @@ bool GStreamerWrapper::hasVideo() { return mContentType == VIDEO_AND_AUDIO || mC
 
 bool GStreamerWrapper::hasAudio() { return mContentType == VIDEO_AND_AUDIO || mContentType == AUDIO; }
 
-std::string GStreamerWrapper::getFileName() { return mstrFilename; }
+std::string GStreamerWrapper::getFileName() { return mFilename; }
 
 unsigned char* GStreamerWrapper::getVideo() {
 	std::lock_guard<std::mutex> lock(mVideoMutex);
@@ -1311,7 +1309,6 @@ void GStreamerWrapper::handleGStMessage() {
 					} break;
 
 					case GST_MESSAGE_STATE_CHANGED: {
-						// retrieveVideoInfo();
 						GstState oldState;
 						GstState newState;
 						GstState pendingState;
@@ -1396,9 +1393,6 @@ void GStreamerWrapper::handleGStMessage() {
 
 							case BIDIRECTIONAL_LOOP:
 								DS_LOG_WARNING("Gst bi-directional looping not implemented!");
-								// mPlayDirection = (PlayDirection)-mPlayDirection;
-								// stop();
-								// play();
 								break;
 
 							default:

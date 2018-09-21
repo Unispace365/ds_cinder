@@ -19,29 +19,12 @@
 namespace gstwrapper {
 
 // Enumeration to describe the current state of the wrapper
-enum PlayState
-{
-	GSTREAM_INIT_FAIL,
-	NOT_INITIALIZED,
-	OPENED,
-	PLAYING,
-	PAUSED,
-	STOPPED
-};
-	
-enum GstPlayState
-{
-	STATE_NULL,
-	STATE_READY,
-	STATE_PAUSED,
-	STATE_PLAYING
-};
+enum PlayState { GSTREAM_INIT_FAIL, NOT_INITIALIZED, OPENED, PLAYING, PAUSED, STOPPED };
+
+enum GstPlayState { STATE_NULL, STATE_READY, STATE_PAUSED, STATE_PLAYING };
 
 // Enumeration to describe the play direction of the loaded file
-enum PlayDirection {
-	FORWARD = 1,
-	BACKWARD = -1
-};
+enum PlayDirection { FORWARD = 1, BACKWARD = -1 };
 
 /*
 Enumeration to describe how the wrapper should behave once the end of a file has been reached
@@ -49,24 +32,15 @@ NO_LOOP --> simply stop
 LOOP --> seek back to the start of the file and play again
 BIDIRECTIONAL_LOOP --> play the file again from the position where the stream ended and change the play direction
 */
-enum LoopMode {
-	NO_LOOP,
-	LOOP,
-	BIDIRECTIONAL_LOOP
-};
+enum LoopMode { NO_LOOP, LOOP, BIDIRECTIONAL_LOOP };
 
 /*
-Enumeration to describe what kind of file has been loaded, which is important to know which buffers (video / audio) contain information or not
-VIDEO_AND_AUDIO --> loaded file contains both at least one video and one audio stream
-VIDEO --> loaded file contains at least one video stream but no audio streams
-AUDIO --> loaded file contains at least one audio stream but no video streams
+Enumeration to describe what kind of file has been loaded, which is important to know which buffers (video / audio) contain
+information or not VIDEO_AND_AUDIO --> loaded file contains both at least one video and one audio stream VIDEO --> loaded file
+contains at least one video stream but no audio streams AUDIO --> loaded file contains at least one audio stream but no video
+streams
 */
-enum ContentType {
-	NONE,
-	VIDEO_AND_AUDIO,
-	VIDEO,
-	AUDIO
-};
+enum ContentType { NONE, VIDEO_AND_AUDIO, VIDEO, AUDIO };
 
 /*
 class GStreamerWrapper
@@ -656,73 +630,80 @@ class GStreamerWrapper {
 
   protected:
 	bool		   mAudioBufferWanted;
-	size_t		   mAudioBufferSize;	   /* Size of the audio buffer */
-	unsigned char* mAudioBuffer;		   /* Stores the audio data */
-	int			   mAudioWidth;			   /* Width of the audio data (8, 16, 24 or 32) */
-	bool		   mIsAudioSigned;		   /* Flag that tracks if the audio buffer is signed or not */
-	int			   mAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
-	int			   mNumAudioChannels;	  /* Number of audio channels */
-	int			   mAudioSampleRate;	   /* Audio sample rate */
-	GstBus*		   mGstBus;				   /* The pipeline's bus, needed to track messages that are passed while streaming */
-	GstMessage*	mGstMessage;			   /* Message gathered from the bus */
+	size_t		   mAudioBufferSize;		///<  Size of the audio buffer
+	unsigned char* mAudioBuffer;			///<  Stores the audio data
+	int			   mAudioWidth;				///<  Width of the audio data (8, 16, 24 or 32)
+	bool		   mIsAudioSigned;			///<  Flag that tracks if the audio buffer is signed or not
+	int			   mAudioDecodeBufferSize;  ///<  Size of the audio buffer without the channels and audio width
+	int			   mNumAudioChannels;		///<  Number of audio channels
+	int			   mAudioSampleRate;		///<  Audio sample rate
+	GstBus*		   mGstBus;					///<  The pipeline's bus, needed to track messages that are passed while streaming
+	GstMessage*	mGstMessage;				///<  Message gathered from the bus
 	gint64		   mPendingSeekTime;
-	GstPlayState   mCurrentGstState;	/* the current state of Gstreamer */
-	bool		   mStopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
-	float		   mSpeed;				/* The current playback speed */
-	gint64		   mDurationInNs;		/* Duration of media file in nanoseconds */
-	LoopMode	   mLoopMode;			/* The current loop mode */
+	GstPlayState   mCurrentGstState;	 ///<  the current state of Gstreamer
+	bool		   mStopOnLoopComplete;  ///<  Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS
+	float		   mSpeed;				 ///<  The current playback speed
+	gint64		   mDurationInNs;		 ///<  Duration of media file in nanoseconds
+	LoopMode	   mLoopMode;			 ///<  The current loop mode
+
 	std::function<void(GStreamerWrapper*)>  mVideoCompleteCallback;
 	std::function<void(const std::string&)> mErrorMessageCallback;
-	GstElement*								mGstPipeline; /* The main GStreamer pipeline */
-	bool									mPendingSeek;
-	GstElement*			  mGstAudioSink;	 /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
-	GstElement*			  mGstPanorama;		 /* Audio Panning element */
-	GstElement*			  mGstConverter;	 /* Audio adapter - used for converting stereo to mono if enabled*/
-	GstElement*			  mGstVolumeElement; /* Allows streaming to change the volume output */
-	std::vector<gpointer> mGstObjects;		 /*Collector for releasing upon close()*/
+
+	GstElement*			  mGstPipeline;  ///<  The main GStreamer pipeline
+	bool				  mPendingSeek;
+	GstElement*			  mGstAudioSink;	  ///<  Audio sink that contains the raw audio buffer. Gathered from the pipeline
+	GstElement*			  mGstPanorama;		  ///<  Audio Panning element
+	GstElement*			  mGstConverter;	  ///<  Audio adapter - used for converting stereo to mono if enabled
+	GstElement*			  mGstVolumeElement;  ///<  Allows streaming to change the volume output
+	std::vector<gpointer> mGstObjects;		  ///< Collector for releasing upon close()
 
   private:
 	std::mutex					 mVideoMutex;
 	std::unique_lock<std::mutex> mVideoLock;
-	bool						 mFileIsOpen;	  /* Flag that tracks if a file has been opened or not */
-	std::atomic<bool>			 mIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
-	std::string					 mstrFilename;	 /* Stores filepath of the opened media file */
-	std::string					 mstrCodecName;
-	int							 mCurrentVideoStream; /* Index of the current video stream */
-	int							 mNumVideoStreams;	/* Number of available video streams */
-	int							 mCurrentAudioStream; /* Index of the current audio stream */
-	int							 mNumAudioStreams;	/* Number of available audio streams */
-	int							 mWidth;			  /* Video width */
-	int							 mHeight;			  /* Video height */
-	int							 mBitrate;			  /* Video bitrate */
-	float						 mVolume;			  /* Volume of the pipeline */
-	float						 mPan;				  /* Pan the audio channels for the pipeline */
-	float						 mFps;				  /* Frames per second of the video */
-	double						 mCurrentTimeInMs;	/* Current time position in milliseconds */
-	double						 mDurationInMs;		  /* Media duration in milliseconds */
-	gint64						 mCurrentFrameNumber; /* Current frame number */
-	gint64						 mNumberOfFrames;	 /* Total number of frames in media file */
-	mutable gint64				 mCurrentTimeInNs;	/* Current time position in nanoseconds */
-	PlayState					 mCurrentPlayState;   /* The current state of the wrapper */
-	PlayDirection				 mPlayDirection;	  /* The current playback direction */
-	ContentType mContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
-	unsigned char* mVideoBuffer;	 /* Stores the video pixels */
-	size_t		   mVideoBufferSize; /* Number of bytes in mVideoBuffer */
-	GstElement*	mGstVideoSink;	/* Video sink that contains the raw video buffer. Gathered from the pipeline */
+	std::atomic<bool>			 mIsNewVideoFrame;  ///<  Flag that tracks if there is actually a new frame or not
+	bool						 mFileIsOpen;		///<  Flag that tracks if a file has been opened or not
+
+	std::string mFilename;  ///<  Stores filepath of the opened media file
+	std::string mCodecName;
+
+	int			   mCurrentVideoStream;  ///<  Index of the current video stream
+	int			   mNumVideoStreams;	 ///<  Number of available video streams
+	int			   mCurrentAudioStream;  ///<  Index of the current audio stream
+	int			   mNumAudioStreams;	 ///<  Number of available audio streams
+	int			   mWidth;				 ///<  Video width
+	int			   mHeight;				 ///<  Video height
+	int			   mBitrate;			 ///<  Video bitrate
+	float		   mVolume;				 ///<  Volume of the pipeline
+	float		   mPan;				 ///<  Pan the audio channels for the pipeline
+	float		   mFps;				 ///<  Frames per second of the video
+	double		   mCurrentTimeInMs;	 ///<  Current time position in milliseconds
+	double		   mDurationInMs;		 ///<  Media duration in milliseconds
+	gint64		   mCurrentFrameNumber;  ///<  Current frame number
+	gint64		   mNumberOfFrames;		 ///<  Total number of frames in media file
+	mutable gint64 mCurrentTimeInNs;	 ///<  Current time position in nanoseconds
+	PlayState	  mCurrentPlayState;	///<  The current state of the wrapper
+	PlayDirection  mPlayDirection;		 ///<  The current playback direction
+	ContentType mContentType;  ///<  Describes whether the currently loaded media file contains only video / audio streams or both
+
+	unsigned char* mVideoBuffer;	  ///<  Stores the video pixels
+	size_t		   mVideoBufferSize;  ///<  Number of bytes in mVideoBuffer
+
+	GstElement* mGstVideoSink;  ///<  Video sink that contains the raw video buffer. Gathered from the pipeline
 	GstAppSinkCallbacks
-		mGstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
+		mGstVideoSinkCallbacks;  ///<  Stores references to the callback methods for video preroll, new video buffer and video eos
 	GstAppSinkCallbacks
-									mGstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
-	bool							mStartPlaying;   /* Play the video as soon as it's loaded */
-	bool							mCustomPipeline; /* Has a custom pipeline for audio */
-	std::vector<ds::GstAudioDevice> mAudioDevices;   /* Which audio devices to use for playback. */
-	bool mLivePipeline; /* The video is playing live over the network which disallows seeking and a few other things (previously
-							mStreaming) */
-	bool		mFullPipeline; /* This was launched from a gst_parse_launch command */
+		mGstAudioSinkCallbacks;  ///<  Stores references to the callback methods for audio preroll, new audio buffer and audio eos
+
+	bool							mStartPlaying;	///<  Play the video as soon as it's loaded
+	bool							mCustomPipeline;  ///<  Has a custom pipeline for audio
+	std::vector<ds::GstAudioDevice> mAudioDevices;	///<  Which audio devices to use for playback.
+	bool mLivePipeline;			///<  The video is playing live over the network which disallows seeking and a few other things
+								///<  (previously mStreaming)
+	bool		mFullPipeline;  ///<  This was launched from a gst_parse_launch command
 	bool		mAutoRestartStream;
 	std::string mStreamPipeline;
-	gint64		mStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to
-										display it) */
+	gint64 mStreamingLatency;  ///< Latency in streaming live pipelines (how long to wait between getting the data and trying to
+							   ///< display it)
 
 	bool mValidInstall;
 
@@ -737,9 +718,8 @@ class GStreamerWrapper {
 	guint64   mRunningTime;
 	GstClock* mNetClock;
 	uint64_t  mStartTime;
-	bool	  mplayFromPause;
-	// bool					misFastSeeking;
-	bool mNewLoop;
+	bool	  mPlayFromPause;
+	bool	  mNewLoop;
 
 	bool mStreamNeedsRestart;
 	int  mStreamRestartCount;
