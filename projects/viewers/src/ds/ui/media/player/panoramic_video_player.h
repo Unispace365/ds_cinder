@@ -17,6 +17,7 @@ class GstVideo;
 class PanoramicVideo;
 class VideoInterface;
 class MediaInterface;
+struct MediaViewerSettings;
 
 /**
 * \class PanoramicVideoPlayer
@@ -48,6 +49,8 @@ public:
 	void								setGoodStatusCallback(std::function<void()> func) { mGoodStatusCallback = func; }
 	void								setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
 	void								setVideoCompleteCallback(std::function<void()> func) { mVideoCompleteCallback = func; }
+
+	void setMediaViewerSettings(MediaViewerSettings& settings);
 
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
 	void								setPan(const float newPan);

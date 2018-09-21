@@ -14,6 +14,7 @@
 
 #include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/media_interface_builder.h"
+#include "ds/ui/media/media_viewer_settings.h"
 
 namespace ds {
 namespace ui {
@@ -227,6 +228,17 @@ void PanoramicVideoPlayer::toggleMute() {
 			mVideo->setMute(true);
 		}
 	}
+}
+
+void PanoramicVideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings){
+	setPan(settings.mVideoPanning);
+	setVolume(settings.mVideoVolume);
+	setAutoSynchronize(settings.mVideoAutoSync);
+	setPlayableInstances(settings.mVideoPlayableInstances);
+	setAutoPlayFirstFrame(settings.mVideoAutoPlayFirstFrame);
+	setVideoLoop(settings.mVideoLoop);
+	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
+	setAudioDevices(settings.mVideoAudioDevices);
 }
 
 void PanoramicVideoPlayer::setPan(const float newPan) {

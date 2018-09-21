@@ -326,17 +326,7 @@ void MediaPlayer::initializeVideo() {
 		if (mStatusCallback) mStatusCallback(true);
 	});
 
-	mVideoPlayer->setPan(mMediaViewerSettings.mVideoPanning);
-	mVideoPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
-	mVideoPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
-	mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
-	mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
-	mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
-	mVideoPlayer->setResetOnVideoComplete(mMediaViewerSettings.mVideoResetOnComplete);
-	mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-	mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
-	mVideoPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
-
+	mVideoPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mVideoPlayer->setMedia(mResource.getPortableFilePath());
 
 	mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
@@ -356,15 +346,7 @@ void MediaPlayer::initializeVideoPanoramic() {
 		if (mStatusCallback) mStatusCallback(true);
 	});
 
-	mPanoramicPlayer->setPan(mMediaViewerSettings.mVideoPanning);
-	mPanoramicPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
-	mPanoramicPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
-	mPanoramicPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
-	mPanoramicPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
-	mPanoramicPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
-	mPanoramicPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-	mPanoramicPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
-
+	mPanoramicPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPanoramicPlayer->setMedia(mResource.getPortableFilePath());
 
 	if (!mMediaViewerSettings.mPanoramicVideoInteractive) {
@@ -391,10 +373,7 @@ void MediaPlayer::initializeVideoStream() {
 		if (mStatusCallback) mStatusCallback(true);
 	});
 
-	mStreamPlayer->setVolume(mMediaViewerSettings.mVideoVolume);
-	mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-	mStreamPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
-	mStreamPlayer->setStreamLatency(mMediaViewerSettings.mVideoStreamingLatency);
+	mStreamPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mStreamPlayer->setResource(mResource);
 
 	mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
@@ -406,8 +385,7 @@ void MediaPlayer::initializePdf() {
 	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
 	addChildPtr(mPDFPlayer);
 
-	mPDFPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
-	mPDFPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+	mPDFPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPDFPlayer->setResource(mResource);
 
 	mPDFPlayer->setErrorCallback([this](const std::string& msg) {
@@ -440,14 +418,7 @@ void MediaPlayer::initializeWeb() {
 	// Depends on base initialize to check already initialized case
 	mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mWebPlayer);
-	mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
-	mWebPlayer->setLetterbox(mMediaViewerSettings.mLetterBox);
-	mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard,
-								  mMediaViewerSettings.mWebKeyboardAbove);
-	mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
-	mWebPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-	mWebPlayer->setStartInteractable(mMediaViewerSettings.mWebStartTouchable);
-
+	mWebPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 	if (mWebPlayer->getWeb()) {
@@ -570,9 +541,7 @@ void MediaPlayer::playContent() {
 
 void MediaPlayer::pauseContent() {
 	if (mVideoPlayer) mVideoPlayer->pause();
-
 	if (mPanoramicPlayer) mPanoramicPlayer->pause();
-
 	if (mStreamPlayer) mStreamPlayer->pause();
 }
 
