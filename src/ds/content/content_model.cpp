@@ -529,17 +529,26 @@ ds::model::ContentModelRef ContentModelRef::getDescendant(const std::string& chi
 		}
 	}
 
-	return ds::model::ContentModelRef();
+	return ContentModelRef();
 }
 
-std::vector<ds::model::ContentModelRef> ContentModelRef::getChildrenWithLabel(const std::string& label) {
-	std::vector<ds::model::ContentModelRef> childrenWithLabel;
+std::vector<ContentModelRef> ContentModelRef::getChildrenWithLabel(const std::string& label) {
+	std::vector<ContentModelRef> childrenWithLabel;
 	for(auto it : getChildren()) {
 		if(it.getLabel() == label) {
 			childrenWithLabel.push_back(it);
 		}
 	}
 	return childrenWithLabel;
+}
+
+ContentModelRef ContentModelRef::findChildByPropertyValue(const std::string& propertyName, const std::string& propertyValue){
+	for(auto it : getChildren()) {
+		if(it.getPropertyString(propertyName) == propertyValue) {
+			return it;
+		}
+	}
+	return ContentModelRef();
 }
 
 bool ContentModelRef::hasChild(const std::string& name) const {
