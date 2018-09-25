@@ -87,7 +87,7 @@ void ExampleThing::setData(){
     auto slidesTableModel = mEngine.mContent.getChildByName("sqlite.slides");
 	
 	/// simple validation
-	if(slidesTableModel.empty()){
+	if(!slidesTableModel){ // or: if (slidesTableModel.empty())
 		DS_LOG_WARNING("Slides table is empty!");
 		return;
 	}
