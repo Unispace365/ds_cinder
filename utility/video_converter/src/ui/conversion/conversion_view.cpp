@@ -49,7 +49,8 @@ ConversionView::ConversionView(ds::ui::SpriteEngine& eng)
 	auto widthField = getSprite<ds::ui::EntryField>("entry_field");
 	if(widthField) {
 		widthField->setCurrentText(L"iw:ih");
-		mEngine.registerEntryField(widthField);
+		widthField->autoRegisterOnFocus(true);
+		widthField->focus();
 		widthField->setNativeKeyboardCallback([this](ci::app::KeyEvent& event)->bool {
 			if(event.getCode() == ci::app::KeyEvent::KEY_RETURN) {
 				startConversion();
