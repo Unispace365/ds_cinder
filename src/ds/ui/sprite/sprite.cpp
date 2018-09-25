@@ -993,7 +993,7 @@ Sprite* Sprite::getHit(const ci::vec3 &point) {
 	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
 //	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
 	//Scale could be negative for quickly flipping an image/texture.
-		if (mScale.x == 0.0f || mScale.y == 0.0f || mScale.z <= 0.0f) {
+		if (mScale.x == 0.0f || mScale.y == 0.0f /*|| mScale.z <= 0.0f*/) {
 			return nullptr;
 	}
 	if(getClipping()) {
