@@ -48,7 +48,8 @@ void PerspectiveLayout::updateCam(const ci::mat4 &transform) {
 	mCam.setWorldUp(ci::vec3(0.0f, 1.0f, 0.0f));
 
 	// Needs to be in screeen space,
-	mViewport = ci::Rectf(ci::vec2(getGlobalPosition()), ci::vec2(getSize()));
+    auto gp = ci::vec2(getGlobalPosition());
+	mViewport = ci::Rectf(gp, gp+ci::vec2(getSize()*getScale()));
 
 	mVpSize  = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
 	mVpPos   = ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
