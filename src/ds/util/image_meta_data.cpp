@@ -175,7 +175,7 @@ public:
 		}
 	}
 
-	ci::vec2			getSize(const std::string& fn) {
+	ci::vec2 getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		// Note: for the actual path, use the expanded fn.
 
