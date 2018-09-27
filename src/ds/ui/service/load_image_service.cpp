@@ -249,6 +249,8 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 					// we need to wait on a fence before alerting the primary thread that the Texture is ready
 					auto fence = ci::gl::Sync::create();
 
+#define NO_CLIENT_SYNC 
+#ifdef NO_CLIENT_SYNC
 					// Switch fence sync.
 					// wait sync sends a command to the gpu to wait until this operation is complete to display
 					// client wait sync stops the CPU until the GPU command queue is ready (i think)
@@ -257,27 +259,28 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 					glFlush();
 					fence->waitSync();
 
-					/*
+#else
 					int numWaits = 0;
 					GLenum syncReturn;
 					do {
 						numWaits++;
 						syncReturn = fence->clientWaitSync(GL_SYNC_FLUSH_COMMANDS_BIT, std::chrono::duration_cast<std::chrono::nanoseconds>(1ms).count());  // 1ms to nanoseconds
 					} while (syncReturn == GL_TIMEOUT_EXPIRED);
-					std::cout << "waited " << numWaits << " times for gl fence" << std::endl;
+				//	std::cout << "waited " << numWaits << " times for gl fence" << std::endl;
 
 					if (syncReturn == GL_WAIT_FAILED) {
 						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << syncReturn);
 					} else {
-					*/
+#endif
 
 						nextImage.mTexture = tex;
                         nextImage.mLoading = false;
 
 						std::lock_guard<std::mutex> lock(mLoadedMutex);
 						mLoadedRequests.emplace_back(nextImage);
-
-					//}
+#ifndef NO_CLIENT_SYNC
+					}
+#endif
 				}
 			} else {
 				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " "

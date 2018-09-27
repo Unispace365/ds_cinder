@@ -164,6 +164,9 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 							auto theResource = theNode.getProperty(theProp).getResource();
 							if(theResource.empty()) {
 								theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
+							} else if(theResource.getType() == ds::Resource::IMAGE_TYPE) {
+								ds::ImageMetaData metaData;
+								metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()), ci::vec2(theResource.getWidth(), theResource.getHeight()));
 							}
 							if(!theResource.empty()) {
 								ds::ui::XmlImporter::setSpriteProperty(

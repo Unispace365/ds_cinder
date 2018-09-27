@@ -434,8 +434,8 @@ bool Image::getMetaData(ImageMetaData& d) const {
 	}
 
 	if(fn.empty()) return false;
-	ImageMetaData			atts(fn);
-	d = atts;
+
+	d = ImageMetaData(fn);
 	return !d.empty();
 }
 
