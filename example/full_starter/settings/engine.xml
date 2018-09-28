@@ -60,7 +60,7 @@
 	<setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data. Specify multiple locations separated by a semicolon" default="%APP%/data/model/content_model.xml"/>
 	<setting name="content:use_wrangler" value="true" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
 	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
-	<setting name="auto_refresh_directories" value="%APP%" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
+	<setting name="auto_refresh_directories" value="%APP%/data;%APP%/settings" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>
