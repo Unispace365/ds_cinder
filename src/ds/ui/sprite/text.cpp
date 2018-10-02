@@ -676,17 +676,18 @@ bool Text::measurePangoText() {
 			DS_LOG_INFO("Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
 			DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height); */
 
-			// If the sprite is h_aligned to 'center' or 'right', the layout will manage the alignment
-			// This fixes the case where text_align is competing with the h_align
-			if (mLayoutHAlign != 0) {
-				mRenderOffset = ci::vec2(0.f);
-			}
-
 			// Set the final width/height for the texture
 			mPixelWidth = extentRect.width;
 			mPixelHeight = extentRect.height;
 
-			setSize((float)mPixelWidth, (float)mPixelHeight);
+			// This is required to not break combinations of layout align & text align
+			// NOTE: This could cause issues with certain usages of shrink_to_children combined w/ text
+			if (extentRect.width < mResizeLimitWidth) {
+				setSize(mResizeLimitWidth, (float)mPixelHeight);
+			} else {
+				setSize((float)mPixelWidth, (float)mPixelHeight);
+			}
+
 
 			mNeedsMeasuring = false;
 
