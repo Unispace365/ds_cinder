@@ -222,6 +222,12 @@ private:
 	int 						mPixelWidth;
 	int							mPixelHeight;
 
+	/// Offsets for rendering to cairo surface
+	int							mPixelOffsetX;
+	int							mPixelOffsetY;
+	/// Offset for rendering to the screen
+	ci::vec2					mRenderOffset;
+
 	/// Pango references
 	PangoContext*				mPangoContext;
 	PangoLayout*				mPangoLayout;
