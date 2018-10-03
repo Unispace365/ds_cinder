@@ -651,27 +651,38 @@ bool Text::measurePangoText() {
 			PangoRectangle inkRect = PangoRectangle();
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 
-			// Instead of making the image textue larger, we will offset the drawing to the correct position
-			mRenderOffset = ci::vec2(std::min(extentRect.x, inkRect.x), std::min(extentRect.y, inkRect.y));
+			// The offset for rendering to the cairo surface
+			mPixelOffsetX = -extentRect.x;
+			mPixelOffsetY = -extentRect.y;
 
-			// Offset to apply before rendering to cairo surface
-			mPixelOffsetX = -std::min(extentRect.x, inkRect.x);
-			mPixelOffsetY = -std::min(extentRect.y, inkRect.y);
+			// Instead of making the image textue larger, we will offset the drawing to the correct position
+			mRenderOffset = ci::vec2(extentRect.x, extentRect.y);
+
+			// To account for the case where the inkRect goes outside of the extentRect:
+			//   move the cairo & render offsets appropriately by opposite amounts
+			if (inkRect.x < extentRect.x) {
+				mRenderOffset.x -= extentRect.x - inkRect.x;
+				mPixelOffsetX += extentRect.x - inkRect.x;
+			}
+
+			if (inkRect.y < extentRect.y) {
+				mRenderOffset.y -= extentRect.y - inkRect.y;
+				mPixelOffsetY += extentRect.y - inkRect.y;
+			}
 
 			if((extentRect.width == 0 || extentRect.height == 0) && !mText.empty()){
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes. Text: " << getTextAsString());
 			}
 			
-			/* DS_LOG_INFO("the Text: " << getTextAsString());
-			DS_LOG_INFO("Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
-			DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height); */
+			// DS_LOG_INFO("the Text: " << getTextAsString());
+			// DS_LOG_INFO("\nInk rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
+			// DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << "\n");
 
-			// Set the final width/height for the texture. the 'ink rect' can be larger than the 'extent rect' :eyeroll:
+			// Set the final width/height for the texture, handling the case where inkRect is larger than extentRect
 			mPixelWidth = std::max(extentRect.width, inkRect.width);
 			mPixelHeight = std::max(extentRect.height, inkRect.height);
 
 			// This is required to not break combinations of layout align & text align
-			// NOTE: This could cause issues with certain usages of shrink_to_children combined w/ text
 			if (extentRect.width < (int)mResizeLimitWidth) {
 				setSize(mResizeLimitWidth, (float)mPixelHeight);
 			} else {
