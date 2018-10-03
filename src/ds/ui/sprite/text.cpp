@@ -652,37 +652,27 @@ bool Text::measurePangoText() {
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 
 			// Instead of making the image textue larger, we will offset the drawing to the correct position
-			mRenderOffset = ci::vec2(extentRect.x, extentRect.y);
+			mRenderOffset = ci::vec2(std::min(extentRect.x, inkRect.x), std::min(extentRect.y, inkRect.y));
 
-			// NOTE!! The ink rect can have a negative position, which can cause clipping.
-			// This ensures that the text all gets drawn within the bounds of the texture
-			if (inkRect.x < 0) {
-				extentRect.x += inkRect.x-extentRect.x;
-			}
-			if (inkRect.y < 0) {
-				extentRect.y += inkRect.y-extentRect.y;
-			}
+			// Offset to apply before rendering to cairo surface
+			mPixelOffsetX = -std::min(extentRect.x, inkRect.x);
+			mPixelOffsetY = -std::min(extentRect.y, inkRect.y);
 
-			mPixelOffsetX = -extentRect.x;
-			mPixelOffsetY = -extentRect.y;
-
-			// TODO: output a warning, and / or do a better job detecting and fixing issues or something
 			if((extentRect.width == 0 || extentRect.height == 0) && !mText.empty()){
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes. Text: " << getTextAsString());
 			}
-
 			
 			/* DS_LOG_INFO("the Text: " << getTextAsString());
 			DS_LOG_INFO("Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
 			DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height); */
 
-			// Set the final width/height for the texture
-			mPixelWidth = extentRect.width;
-			mPixelHeight = extentRect.height;
+			// Set the final width/height for the texture. the 'ink rect' can be larger than the 'extent rect' :eyeroll:
+			mPixelWidth = std::max(extentRect.width, inkRect.width);
+			mPixelHeight = std::max(extentRect.height, inkRect.height);
 
 			// This is required to not break combinations of layout align & text align
 			// NOTE: This could cause issues with certain usages of shrink_to_children combined w/ text
-			if (extentRect.width < mResizeLimitWidth) {
+			if (extentRect.width < (int)mResizeLimitWidth) {
 				setSize(mResizeLimitWidth, (float)mPixelHeight);
 			} else {
 				setSize((float)mPixelWidth, (float)mPixelHeight);
