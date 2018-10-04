@@ -93,9 +93,13 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 #ifdef CMS_URL
 ; Set DS_BASEURL if the cms url has been defined
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
+#endif
+#endif
 
 ; Check if DS_BASEURL environment variable is already set. If not, request a reboot
 ; Only checked if IS_PRODUCTION & CMS_URL are both set
+#ifdef IS_PRODUCTION
+#ifdef CMS_URL
 [Code]
 var
   CmsUrl: String;
@@ -103,23 +107,21 @@ var
 
 function NeedRestart(): Boolean;
 begin
-	if NeedsRestart = True then begin
-		Result := True;
-	end else begin
-		Result := False;
-	end;
+    if (CmsUrl = '{#CMS_URL}') then
+        Result := True;
+    Result := False;
 end;
 
 function InitializeSetup(): Boolean;
 begin
-	NeedsRestart := True;
-	if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'DS_BASEURL', CmsUrl) then begin
-		if CmsUrl = '{#CMS_URL}' then
-			NeedsRestart := False;
-	end;
-	Result := True;
+  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'DS_BASEURL', CmsUrl)
+  Log(CmsUrl);
+
+  Result := True;
 end;
 
+[Files]
+; ^ This is a hack so that comments in the project installer after the include
+;   don't break the code block :eyeroll:
 #endif
-
 #endif
