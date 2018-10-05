@@ -9,6 +9,9 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/util/string_util.h>
 #include <ds/ui/scroll/smart_scroll_list.h>
+#include <ds/ui/button/image_button.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/sprite_button.h>
 
 
 namespace ds {
@@ -128,6 +131,25 @@ void SmartLayout::setSpriteTapFn(const std::string&											  spriteName,
 	if (spr && tapCallback) {
 		spr->enable(true);
 		spr->setTapCallback(tapCallback);
+	}
+}
+
+void SmartLayout::setSpriteClickFn(const std::string& spriteName, const std::function<void()>& clickCallback) {
+	if(!clickCallback) return;
+	auto ib = getSprite<ds::ui::ImageButton>(spriteName);
+	if(ib) {
+		ib->setClickFn(clickCallback);
+		return;
+	}
+	auto lb = getSprite<ds::ui::LayoutButton>(spriteName);
+	if(lb) {
+		lb->setClickFn(clickCallback);
+		return;
+	}
+	auto sb = getSprite<ds::ui::SpriteButton>(spriteName);
+	if(sb) {
+		sb->setClickFn(clickCallback);
+		return;
 	}
 }
 
