@@ -72,6 +72,10 @@ void  ScrollArea::enableScrolling(bool enable){
 	}
 }
 
+void ScrollArea::stopScrollMomentum() {
+	mSpriteMomentum.deactivate();
+}
+
 void ScrollArea::onSizeChanged(){
 	const float newWidth = getWidth();
 	const float newHeight = getHeight();
