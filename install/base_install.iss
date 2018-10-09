@@ -22,7 +22,11 @@ UninstallDisplayIcon={app}\{#APP_EXE}
 
 ; For a lighter-weight install, disable all the wizard pages
 DisableDirPage=yes
+#ifdef USE_EXTRAS
+DisableFinishedPage=no
+#else
 DisableFinishedPage=yes
+#endif
 DisableProgramGroupPage=yes
 DisableReadyMemo=yes
 DisableReadyPage=yes
@@ -52,10 +56,20 @@ Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 
 Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
 Source: "{#GST}/bin/*"; DestDir: "{app}/dll"
-Source: "{#GST}/lib/gstreamer-1.0/*"; DestDir: "{app}/dll/gst_plugins"
+Source: "{#GST}/lib/gstreamer-1.0/*"; Excludes:"*.la,*.a,{#APP_EXE}"; DestDir: "{app}/dll/gst_plugins"
+#endif
+
+#ifdef USE_EXTRAS
+Source: "{#DS_PLATFORM}/install/extras_installer.exe"; DestDir: "{app}"
+#endif
+
+#ifdef USE_EXTRAS
+[Run]
+Filename: "{app}\extras_installer.exe"; Description: "Install Extra Apps (Notepad++, 7zip, Google Chrome)"; Flags: postinstall skipifsilent unchecked
 #endif
 
 [Icons]
