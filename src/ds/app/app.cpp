@@ -534,7 +534,7 @@ void App::quit() {
 	if(mEngine.getEngineSettings().getBool("apphost:exit_on_quit", 0, true)) {
 		DS_LOG_INFO("Requesting Apphost to exit...");
 		ds::net::HttpsRequest httpsRequest = ds::net::HttpsRequest(mEngine);
-		httpsRequest.makeGetRequest("http://localhost:7800/api/exit");
+		httpsRequest.makeSyncGetRequest("http://localhost:7800/api/exit");
 	}
 
 	DS_LOG_INFO("App shutting down");

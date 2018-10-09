@@ -16,6 +16,24 @@ HttpsRequest::HttpsRequest(ds::ui::SpriteEngine& eng)
 	mRequests.setReplyHandler([this](HttpsRequest::IndividualRequest& q){onRequestComplete(q); });
 }
 
+void HttpsRequest::makeSyncGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify, const bool isDownloadMedia, const std::string& downloadfile) {
+	if(url.empty()){
+		DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
+		return;
+	}
+
+	DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+
+	IndividualRequest req;
+	req.mInput = url;
+	req.mVerifyHost = hostVerify;
+	req.mVerifyPeers = peerVerify;
+	req.mIsGet = true;
+	req.mVerboseOutput = mVerbose;
+	req.mIsDownloadMedia = isDownloadMedia;
+	req.mDownloadFile = downloadfile;
+	req.run();
+}
 
 void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify, const bool isDownloadMedia, const std::string& downloadfile){
 	if(url.empty()){
@@ -36,6 +54,24 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 	});
 }
 
+void HttpsRequest::makeSyncPostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers, const bool isDownloadMedia, const std::string& downloadfile){
+	if(url.empty()){
+		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
+		return;
+	}
+
+	DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url=" << url << " postData=" << postData <<  " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+
+	IndividualRequest req;
+	req.mInput = url;
+	req.mVerifyHost = hostVerify;
+	req.mVerifyPeers = peerVerify;
+	req.mIsGet = false;
+	req.mVerboseOutput = mVerbose;
+	req.mIsDownloadMedia = isDownloadMedia;
+	req.mDownloadFile = downloadfile;
+	req.run();
+}
 
 void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers, const bool isDownloadMedia, const std::string& downloadfile){
 	if(url.empty()){
