@@ -28,7 +28,7 @@
           "Args": "",
           "StartDelay": 1000,
           "RestartDelay": 10000,
-          "EnableMonitor": true,
+          "EnableMonitor": false,
           "MemoryLimit": 10000
         }
       ]
