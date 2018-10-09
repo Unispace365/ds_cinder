@@ -69,6 +69,7 @@ Sprite Types
 * **pdf** = ds::ui::Pdf (if the pdf project is included)
 * **video** = ds::ui::GstVideo (if the gstreamer-1.0 project is included)
 * **media_player** = ds::ui::MediaPlayer (if the viewers project is included)
+* **media_slideshow** = ds::ui::MediaSlideshow (if the viewers project is included)
 * **xml** = Load another xml interface. See details below.
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 

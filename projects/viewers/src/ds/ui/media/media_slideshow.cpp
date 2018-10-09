@@ -18,6 +18,38 @@
 
 #include "ds/ui/media/interface/web_interface.h"
 
+namespace {
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+			e.registerSpriteImporter("media_slideshow", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
+				return new ds::ui::MediaSlideshow(enginey);
+			});
+
+		/*
+
+			e.registerSpritePropertySetter("media_player_video_reset_on_complete", [](ds::ui::Sprite&	theSprite,
+																					  const std::string& theValue,
+																					  const std::string& fileReferrer) {
+				if(auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
+					auto& mvs = mediaPlayer->getSettings();
+					mvs.mVideoResetOnComplete = ds::parseBoolean(theValue);
+					mediaPlayer->setSettings(mvs);
+				} else {
+					DS_LOG_WARNING("Tried to set the property media_player_video_reset_on_complete on a non-mediaPlayer sprite");
+					return;
+				}
+			});
+			*/
+		
+		});
+	}
+};
+
+Init INIT;
+}  // namespace
+
 
 namespace ds {
 namespace ui {
