@@ -19,7 +19,7 @@
           "Path": "%PROGRAMFILES%/Downstream/full_starter/full_starter.exe",
           "Args": "",
           "StartDelay": 1000,
-          "RestartDelay": 10000,		  
+          "RestartDelay": 10000,
           "EnableMonitor": true,
           "MemoryLimit": 10000
         },
