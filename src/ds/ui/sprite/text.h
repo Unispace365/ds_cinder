@@ -83,7 +83,7 @@ public:
 	float						getResizeLimitHeight() const;
 	Text&						setResizeLimit(const float width = 0, const float height = 0);
 
-	///
+	/// Should this sprite shrink to the bounds of the texture (as opposed to shrinking to the resize_limit)
 	bool						getShrinkToBounds() const;
 	void						setShrinkToBounds(const bool shrinkToBounds = false);
 

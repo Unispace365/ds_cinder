@@ -257,6 +257,7 @@ Text Parameters : text
     1. "left": The default, normal text
     2. "center": Center-aligns the layout.
     3. "right": Align rows of text to the right side of the resize_limit
+* **shrink_to_bounds**: If text has 'resize_limit' set, this will set the sprite size to the size of the text texture, rather than the full resize_limit.
 
 Image Parameters : image
 -------------------------

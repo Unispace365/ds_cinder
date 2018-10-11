@@ -272,9 +272,9 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
-		/*if(mResizeLimitHeight < 1){
+		if(mResizeLimitHeight < 1){
 			mResizeLimitHeight = -1.0f;
-		}*/
+		}
 		mNeedsMeasuring = true;
 
 		markAsDirty(LAYOUT_DIRTY);
