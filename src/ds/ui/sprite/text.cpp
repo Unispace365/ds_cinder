@@ -105,6 +105,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mNeedsTextRender(false)
 	, mNeedsFontOptionUpdate(false)
 	, mProbablyHasMarkup(false)
+	, mShrinkToBounds(false)
 	, mTextFont("Sans")
 	, mTextSize(12.0)
 	, mTextColor(ci::Color::white())
@@ -271,15 +272,28 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
-		if(mResizeLimitHeight < 1){
+		/*if(mResizeLimitHeight < 1){
 			mResizeLimitHeight = -1.0f;
-		}
+		}*/
 		mNeedsMeasuring = true;
 
 		markAsDirty(LAYOUT_DIRTY);
 	}
 
 	return *this;
+}
+
+bool Text::getShrinkToBounds() const {
+	return mShrinkToBounds;
+}
+
+void Text::setShrinkToBounds(const bool shrinkToBounds /* = false */) {
+	if(mShrinkToBounds == shrinkToBounds) return;
+
+	mShrinkToBounds = shrinkToBounds;
+	mNeedsMeasuring = true;
+
+	markAsDirty(LAYOUT_DIRTY);
 }
 
 void Text::setTextColor(const ci::Color& color) {
@@ -684,7 +698,12 @@ bool Text::measurePangoText() {
 
 			// This is required to not break combinations of layout align & text align
 			if (extentRect.width < (int)mResizeLimitWidth) {
-				setSize(mResizeLimitWidth, (float)mPixelHeight);
+				if(!mShrinkToBounds){
+					setSize(mResizeLimitWidth, (float)mPixelHeight);
+				}else{
+					mRenderOffset.x -= extentRect.x;
+					setSize((float)mPixelWidth, (float)mPixelHeight);
+				}
 			} else {
 				setSize((float)mPixelWidth, (float)mPixelHeight);
 			}

@@ -83,6 +83,10 @@ public:
 	float						getResizeLimitHeight() const;
 	Text&						setResizeLimit(const float width = 0, const float height = 0);
 
+	///
+	bool						getShrinkToBounds() const;
+	void						setShrinkToBounds(const bool shrinkToBounds = false);
+
 	/// This is a convenience that can set all the text attributes at once
 	void						setTextStyle(std::string font = "Sans", double size = 12.0f, ci::ColorA color = ci::Color::black(), Alignment::Enum alignment = Alignment::kLeft); 
 
@@ -191,6 +195,7 @@ private:
 	std::string					mText;
 	std::string					mProcessedText; // stores text after newline filtering
 	bool						mProbablyHasMarkup;
+	bool						mShrinkToBounds;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
 

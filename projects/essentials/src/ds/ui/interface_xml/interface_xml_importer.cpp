@@ -756,6 +756,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if (property == "shrink_to_bounds") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			text->setShrinkToBounds(parseBoolean(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
 	}
 
 	// Image properties
