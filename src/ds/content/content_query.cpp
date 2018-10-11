@@ -320,9 +320,19 @@ void ContentQuery::updateResourceCache() {
 
 void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::model::ContentModelRef tableDescription, const std::string& dbPath, std::unordered_map<int, ds::Resource>& allResources, const int depth, const int parentModelId) {
 
-	std::string theTable = tableDescription.getPropertyValue("name");
+	std::string theTable = tableDescription.getPropertyValue("table_name");
+	std::string theTableAlias = tableDescription.getPropertyValue("name");
+
+	if(theTable.empty() && !theTableAlias.empty()) {
+		// If only "name" is provided, use it as both the alias and SQL table name
+		theTable = theTableAlias;
+	}else if(!theTable.empty() && theTableAlias.empty()) {
+		// If for some reason the user only provieds "table_name", use it for both as well
+		theTableAlias = theTable;
+	}
+
 	int thisId = mTableId++;
-	ds::model::ContentModelRef tableModel = ds::model::ContentModelRef(theTable, thisId, "SQLite Table");
+	ds::model::ContentModelRef tableModel = ds::model::ContentModelRef(theTableAlias, thisId, "SQLite Table");
 
 	if(theTable.empty()) {
 		if(tableDescription.getName() != "model" && tableDescription.getName() != "meta") {
@@ -419,7 +429,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 						bool parsedMetadata = false;
 
 						auto columnCount = sqlite3_data_count(statement);
-						ds::model::ContentModelRef thisRow = ds::model::ContentModelRef(theTable, id, theTable + " row");
+						ds::model::ContentModelRef thisRow = ds::model::ContentModelRef(theTableAlias, id, theTable + " row");
 						id++;
 
 						for(int i = 0; i < columnCount; i++) {

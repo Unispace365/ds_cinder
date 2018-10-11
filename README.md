@@ -6,6 +6,8 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 ## Getting Started
 
+> Doxygen documentation http://update.downstreamdev.com/ds/doc/ds_cinder/
+
 ### Windows
 
 **Install Visual Studio 2015**

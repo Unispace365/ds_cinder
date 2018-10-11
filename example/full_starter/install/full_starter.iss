@@ -37,6 +37,8 @@
 ;#define SKIP_APP_ICON
 
 ; Optionally install notepad++, chrome & 7zip after install
+; If the installer needs to reboot to pick up environment variables, the install step won't be
+; shown.
 ; #define USE_EXTRAS
 
 ; -------- Required include of the base install

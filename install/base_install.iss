@@ -121,15 +121,18 @@ var
 
 function NeedRestart(): Boolean;
 begin
-    if (CmsUrl = '{#CMS_URL}') then
-        Result := True;
-    Result := False;
+	Log('====== Testing needs restart ======')
+	Log(ExpandConstant('{#CMS_URL}'))
+	Log(CmsUrl);
+	Log('======   end needs restart   ======')
+    if CompareText(CmsUrl, ExpandConstant('{#CMS_URL}')) = 0 then
+        Result := False;
+    Result := True;
 end;
 
 function InitializeSetup(): Boolean;
 begin
   RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'DS_BASEURL', CmsUrl)
-  Log(CmsUrl);
 
   Result := True;
 end;

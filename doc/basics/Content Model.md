@@ -150,6 +150,25 @@ Produces a SQL statement of:
 
 If you want to specify the entire statement yourself, just use the select parameter and skip everything else.
 
+### Table Aliases
+
+* If only `name` is provided, it's used as both the SQL table name & name alias
+* If both `name` & `table_name` are used, the data is queried from `table_name`, but saved as `name`.
+
+```XML
+<table name="list_slides"
+	table_name="slides"
+	where="slidetype = 'list'"
+    />
+
+<table name="picture_slides"
+	table_name="slides"
+	where="slidetype = 'picture'"
+    />
+
+<table name="slides" />
+```
+
 ### Field hinting
 
 * **resources**: A comma-space separate list of columns that map to the resources table. Example: "primary_image, thumbnail_image". These automatically get mapped to ds::Resource values
