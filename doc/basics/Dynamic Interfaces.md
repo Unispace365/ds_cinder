@@ -252,7 +252,8 @@ Text Parameters : text
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
 * **font_leading**: The multiplier of font_size to use for line height (only when text consists of multiple lines)
 * **font_letter_spacing**: Set the letter spacing in pts (0.0 = normal, 1.0 = 1pt extra letter spacing, etc.)
-* **resize_limit**: If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500"
+* **text_ellipses**: Sets the ellipses mode of the text. Possible values: none, start, middle, end. Default=none. Use this with resize_limit to change what happens if the text gets too long. 
+* **resize_limit**: If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500" Note: the text_ellipses value must be something other than "none" for the height limit to take effect. Set the y value to a negative number to show that number of lines. For instance, -2 will show two lines of text per paragraph before adding an ellipses.
 * **text_align**: Set the alignment of the Text Sprite
     1. "left": The default, normal text
     2. "center": Center-aligns the layout.

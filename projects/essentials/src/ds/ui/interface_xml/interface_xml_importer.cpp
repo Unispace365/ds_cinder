@@ -705,15 +705,36 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property == "text_lowercase") {
+	} else if(property == "text_lowercase") {
 		auto text = dynamic_cast<Text*>(&sprite);
-		if (text) {
+		if(text) {
 			auto lowerText = value;
 			std::transform(lowerText.begin(), lowerText.end(), lowerText.begin(), ::tolower);
 			text->setText(lowerText);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
-																	<< "_ on sprite of type: " << typeid(sprite).name());
+						   << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "text_ellipses"){
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			EllipsizeMode theMode = EllipsizeMode::kEllipsizeNone;
+			if(value == "start"){
+				theMode = EllipsizeMode::kEllipsizeStart;
+			} else if(value == "middle") {
+				theMode = EllipsizeMode::kEllipsizeMiddle;
+			} else if(value == "end") {
+				theMode = EllipsizeMode::kEllipsizeEnd;
+			} else if(value == "none") {
+				theMode = EllipsizeMode::kEllipsizeNone;
+			} else {
+				DS_LOG_WARNING("XmlImporter: text_ellipses mode not recognized: " << value << " valid values: start, middle, end, none");
+			}
+		
+			text->setEllipsizeMode(theMode);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+						   << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if (property == "markdown") {
 		auto text = dynamic_cast<Text*>(&sprite);

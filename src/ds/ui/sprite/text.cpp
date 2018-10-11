@@ -111,7 +111,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
 	, mResizeLimitWidth(-1.0f)
-	, mResizeLimitHeight(-1.0f)
+	, mResizeLimitHeight(0.0f)
 	, mLeading(1.0f)
 	, mLetterSpacing(0.0f)
 	, mTextAlignment(Alignment::kLeft)
@@ -271,9 +271,9 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
-		if(mResizeLimitHeight < 1){
+	/*	if(mResizeLimitHeight < 1){
 			mResizeLimitHeight = -1.0f;
-		}
+		}*/
 		mNeedsMeasuring = true;
 
 		markAsDirty(LAYOUT_DIRTY);
@@ -564,7 +564,11 @@ bool Text::measurePangoText() {
 			const int lastPixelHeight = mPixelHeight;
 
 			pango_layout_set_width(mPangoLayout, (int)mResizeLimitWidth * PANGO_SCALE);
-			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
+			if(mResizeLimitHeight < 0) {
+				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight);
+			} else {
+				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
+			}
 
 			// Pango separates alignment and justification... I prefer a simpler API here to handling certain edge cases.
 			if(mTextAlignment == Alignment::kJustify) {
