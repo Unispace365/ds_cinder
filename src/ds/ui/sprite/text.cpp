@@ -112,7 +112,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
 	, mResizeLimitWidth(-1.0f)
-	, mResizeLimitHeight(0.0f)
+	, mResizeLimitHeight(-1.0f)
 	, mLeading(1.0f)
 	, mLetterSpacing(0.0f)
 	, mTextAlignment(Alignment::kLeft)
@@ -272,9 +272,10 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
-	/*	if(mResizeLimitHeight < 1){
+		/// prevent a situation where a default value of 0.0f only shows 1 line of text
+		if(mResizeLimitHeight == 0.0f){
 			mResizeLimitHeight = -1.0f;
-		}*/
+		}
 		mNeedsMeasuring = true;
 
 		markAsDirty(LAYOUT_DIRTY);

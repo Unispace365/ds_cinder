@@ -81,7 +81,7 @@ public:
 	/// Resize limit is the amount of width the text will wrap at and the height that text will no longer be rendered
 	float						getResizeLimitWidth() const;
 	float						getResizeLimitHeight() const;
-	Text&						setResizeLimit(const float width = 0, const float height = 0);
+	Text&						setResizeLimit(const float width = 0, const float height = -1.0f);
 
 	/// Should this sprite shrink to the bounds of the texture (as opposed to shrinking to the resize_limit)
 	bool						getShrinkToBounds() const;
