@@ -592,6 +592,11 @@ void ContentModelRef::setChildren(std::vector<ds::model::ContentModelRef> childr
 	mData->mChildren = children;
 }
 
+void ContentModelRef::clearChildren() {
+	if(!mData) return;
+	mData->mChildren.clear();
+}
+
 void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
 	if(empty() || !mData) {
 		DS_LOG_INFO(indent << "Empty ContentModel.");

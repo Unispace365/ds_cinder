@@ -213,6 +213,9 @@ class ContentModelRef {
 	/// Replaces all children
 	void setChildren(std::vector<ds::model::ContentModelRef> children);
 
+	/// Removes all children
+	void clearChildren();
+
 	/// Logs this, it's properties, and all it's children recursively
 	void printTree(const bool verbose, const std::string& indent = "");
 
