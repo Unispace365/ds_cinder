@@ -104,6 +104,9 @@ public:
 	/** If enabled (the default), will send this panel to the front on any user input. Otherwise leaves the order alone */
 	void							setAutoKeepInFront(const bool autoBringToFront){ mAutoSendToFront = autoBringToFront; }
 
+	/** The panel was dragged or it's bounds checked. This is very loose, and might be called from the update loop and multiple times per actual position change */
+	void							setPositionUpdatedCallback(std::function<void()> posUpdateCallback);
+
 protected:
 	virtual void					onUpdateServer(const ds::UpdateParams &updateParams);
 
@@ -148,6 +151,7 @@ protected:
 	ci::Rectf						mBoundingArea;
 
 	std::function<void()>			mLayoutCallback;
+	std::function<void()>			mPositionUpdateCallback;
 
 private:
 
