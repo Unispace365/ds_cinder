@@ -576,6 +576,8 @@ class GStreamerWrapper {
 	*/
 	static GstFlowReturn onNewBufferFromAudioSource(GstAppSink* appsink, void* listener);
 
+	/// internal buffer handling
+	void handleVideoBuffer(GstSample* videoSinkSample);
 	/*
 	Non-static method that is called inside "onNewPrerollFromVideoSource()" in order to handle
 	member variables that are non-static. Here the unsigned char array with the pixel data is actually filled
@@ -638,7 +640,7 @@ class GStreamerWrapper {
 	int			   mNumAudioChannels;		///<  Number of audio channels
 	int			   mAudioSampleRate;		///<  Audio sample rate
 	GstBus*		   mGstBus;					///<  The pipeline's bus, needed to track messages that are passed while streaming
-	GstMessage*	mGstMessage;				///<  Message gathered from the bus
+	GstMessage*	   mGstMessage;				///<  Message gathered from the bus
 	gint64		   mPendingSeekTime;
 	GstPlayState   mCurrentGstState;	 ///<  the current state of Gstreamer
 	bool		   mStopOnLoopComplete;  ///<  Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS
@@ -681,10 +683,12 @@ class GStreamerWrapper {
 	gint64		   mCurrentFrameNumber;  ///<  Current frame number
 	gint64		   mNumberOfFrames;		 ///<  Total number of frames in media file
 	mutable gint64 mCurrentTimeInNs;	 ///<  Current time position in nanoseconds
-	PlayState	  mCurrentPlayState;	///<  The current state of the wrapper
+	PlayState	   mCurrentPlayState;	///<  The current state of the wrapper
 	PlayDirection  mPlayDirection;		 ///<  The current playback direction
-	ContentType mContentType;  ///<  Describes whether the currently loaded media file contains only video / audio streams or both
+	ContentType    mContentType;  ///<  Describes whether the currently loaded media file contains only video / audio streams or both
 
+	GstMapInfo     mVideoMapInfo;     ///<  Internal storage of the gst buffer
+	GstBuffer*     mVideoGstBuffer;   ///<  Internal gst video buffer
 	unsigned char* mVideoBuffer;	  ///<  Stores the video pixels
 	size_t		   mVideoBufferSize;  ///<  Number of bytes in mVideoBuffer
 
