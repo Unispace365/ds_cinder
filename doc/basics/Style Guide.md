@@ -38,23 +38,24 @@ auto good = AppMode::NONE; // No conflicts, and it's always clear what you are r
 * Always use curly braces for conditions and loops, with the exception of single line ifs like:
 	`if(!thing) return;`.
 * Prefer `for(auto x : y)` whenever possible, and use descriptive iterator names (not just 'it')
+* I like the `if(auto x = getSprite("my_sweet_child")){ ... }` structure when possible, since it limits the scope
+	of the variable to the if block. Helps prevent checking if a pointer is null but still having a
+	null pointer in scope somewhere further along.
 
 ---
 
-## EXCEPTIONS
+## Exceptions
 Google doesn't allow them.  We don't really have a choice, since libraries we consume can throw
-exceptions.
+exceptions. Try to be aware of functions that can throw execptions, and try to catch them as close
+as possible to the call-site.
 
 
-## FILE NAMES
-they use .cc, we're using .cpp / .h
+## File Names, Locations, and Includes
+We're using .cpp / .h
 
+Follow the existing pattern set up in ds_cinder and the full_starter project. All source & header
+files are in the `src/` tree, and paired files should be in the same directory.
 
-## FILE LOCATIONS
-Currently src and header are being stuffed in the same folder.  It's a little weird to me, although less maintenance.  Little more standard to have separate src/ and include/ directories.  Opinions?
-
-
-## HEADERS
 When including paths, use forward slash for linux compatibility.  Admittedly, this is annoying, since VisualStudio defaults to backslash and apparently there's no way to change that currently.
 
 When including ds_cinder/cinder/etc headers in your app, use angled includes: `#include <ds/thing.h>`
@@ -62,27 +63,47 @@ For includes within your app, use quoted includes: `#include "events/my_events.h
 
 
 
-## NAMING
-### VARIABLE NAMES
-We use camelCase for variables
+## Naming
+### Variable Names
+We use camelCase for local variables. Toss a 'y' on the end if it shadows an existing name, or if ya
+just wanna be cute. 
 
 Class & struct member variables are prefixed with an 'm' to differentiate them from local variables & functions.
 `int mLongMemberVariable;`
 
 
-### FUNCTION NAMES
-Function names are camelCase. Avoid adding free (non-member) functions to the root `ds::` namespace
+### Function Names
+Function names are camelCase. Avoid adding free (non-member) functions to the root `ds::` namespace.
 
-### CLASS NAMES
+### Class Names
 Class names are MixedCase.
 
-### GENERAL NAMES
+### Namespace Names
+We use lower_snake_case for namespace names, and don't indent namespace blocks. Avoid using
+acronyms, but try to keep namespaces short and non-tedious.
+
+```cpp
+namespace my_cool_app {
+class NotIndentedHere{...};
+} // ! End my_cool_app
+```
+
+### Header Guards
+```cpp
+#pragma once
+#ifndef NAMESPACENAME_FOLDER_SUBFOLDER_FILE_NAME
+#define NAMESPACENAME_FOLDER_SUBFOLDER_FILE_NAME
+// CODE GOES HERE
+#endif
+```
+
+### General Names
 Avoid long strings of capitals
 
 Prefer: `JciApp`
 instead of: `JCIApp`
 
-## SPACING
+## Spacing
 The current convention is to run the entire function signature together, i.e.
 ```cpp
 void aFunctionThatIsBoring(void);
@@ -92,21 +113,17 @@ some_error_type aFunctionThatHasInfo(const int);
 	
 I prefer aligning the spaces on everything:
 ```cpp
-	void				aFunctionThatIsBoring(void);
-	int					aFunctionThatLooksLikeItMightDoSomething(const int);
-	some_error_type		aFunctionThatHasInfo(const int);
+void				aFunctionThatIsBoring(void);
+int					aFunctionThatLooksLikeItMightDoSomething(const int);
+some_error_type		aFunctionThatHasInfo(const int);
 ```
 
-I tend to be pretty extreme with this, aligning the tab location on all variables defined in a function, etc.  I don't
-really care what people do but I think this is a lot easier to read and gives code an obvious structure.  For example,
-in the functions of my code you can generally just scan vertically down a column to see all local variables that are defined.
+It's up to you how pedantic you want to be about this in application code. When working on existing
+projects or ds_cinder, try to maintain consistency with the existing formatting. Or if you're
+feeling extra saucy, reformat the file to be consistent.
 
 
-## PUBLIC / PRIVATE SCOPE
-I tend to mutliply define public and private in classes, in blocks that make sense, because it can be confusing to look at a long file and know the scope of what you're looking at.  For example, I usually have separate scope-declared sections for static variables, static functions, variables, functions, etc.  I don't care if other people do, but I find it helpful.
-
-
-## CONSTRUCTOR INITIALIZER LISTS
+## Constructor Initializer Lists
 Each initializer on its own line, with leading delimiters:
 
 ```cpp
@@ -115,8 +132,26 @@ Class::Class()
 	, var(1)
 ```
 
-## COMMENTS / DOXYGEN
-Use three slashes for doxygen comments, and the backslash form for doxygen commands:
+Avoid (or at least use caution) when initializing members using other members as input:
+```cpp
+class Classy {
+public:
+	// !!!! This will not produce the correct result!!!!
+	// Members are initialized in the order they are declared in the class, not the order of
+	// initialization
+	Classy(): b(5), a(b+10){};
+private:
+int a;
+int b;
+};
+```
+
+Personally I also prefer to assign member variables default values in the header. It helps avoid
+needing to duplicate all the initializers for every constructor. It also reduces the likelihood of
+forgetting to initialize pointers to nullptr.
+
+## Comments / Doxygen
+Use three slashes for doxygen comments, and the backslash form for doxygen commands.
 ```cpp
 /// Does the thing, this is the 'breif' description.
 /// A longer winded explanation of the thing. What does it do?
