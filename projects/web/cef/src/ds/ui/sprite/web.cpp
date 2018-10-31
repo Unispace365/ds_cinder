@@ -84,6 +84,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
 	, mAllowClicks(true)
+	, mSecondClickOnUp(true)
 	, mBrowserId(-1)
 	, mBuffer(nullptr)
 	, mHasBuffer(false)
@@ -770,7 +771,9 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 
 			if(!mIsDragging){// && touchInfo.mStartPoint != touchInfo.mCurrentGlobalPoint) {
 				// send another click
-				sendTouchToService(xPos, yPos, 0, 0, 1);
+				if(mSecondClickOnUp) {
+					sendTouchToService(xPos, yPos, 0, 0, 1);
+				}
 				//sendTouchToService(xPos, yPos, 0, 1, 1);
 				sendTouchToService(xPos, yPos, 0, 2, 1);
 			} else {
