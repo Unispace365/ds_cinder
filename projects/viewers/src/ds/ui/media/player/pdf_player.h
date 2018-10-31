@@ -67,6 +67,7 @@ class PDFPlayer : public ds::ui::Sprite {
 	PDFInterface*							mPdfInterface;
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
+	bool									mInterfaceBelowMedia;
 	bool									mLetterbox;
 	bool									mAutoCachePrevNext;
 	std::function<void(void)>				mGoodStatusCallback;

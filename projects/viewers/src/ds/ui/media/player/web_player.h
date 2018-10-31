@@ -58,6 +58,7 @@ class WebPlayer : public ds::ui::Sprite {
 	bool mKeyboardAbove;
 	bool mAllowTouchToggle;
 	bool mStartInteractable;
+	bool mInterfaceBelowMedia;
 };
 
 }  // namespace ui

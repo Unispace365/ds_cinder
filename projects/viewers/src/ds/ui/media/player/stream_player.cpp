@@ -27,6 +27,7 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mShowInterfaceAtStart(true)
   , mIsPlaying(false)
   , mLetterbox(true)
+  , mInterfaceBelowMedia(false)
   , mVolume(1.0f) {
 	mLayoutFixedAspect = true;
 }
@@ -118,7 +119,8 @@ void StreamPlayer::layout() {
 
 		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if (yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -140,6 +142,7 @@ void StreamPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setLetterbox(settings.mLetterBox);
 	setStreamLatency(settings.mVideoStreamingLatency);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void StreamPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }

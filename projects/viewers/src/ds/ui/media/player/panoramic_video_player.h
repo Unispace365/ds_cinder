@@ -100,6 +100,7 @@ protected:
 	std::vector<std::string>					mPlayableInstances;
 	std::vector<GstAudioDevice>					mAudioDevices;
 	bool										mLooping;
+	bool										mInterfaceBelowMedia;
 };
 
 } // namespace ui

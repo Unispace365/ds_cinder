@@ -28,6 +28,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cacheP
   , mPDFNextHolder(nullptr)
   , mPDFPrevHolder(nullptr)
   , mEmbedInterface(embedInterface)
+  , mInterfaceBelowMedia(false)
   , mShowInterfaceAtStart(true)
   , mLetterbox(true)
   , mAutoCachePrevNext(cachePrevNext)
@@ -279,6 +280,7 @@ void PDFPlayer::layout() {
 		float yPos = h - mPdfInterface->getHeight() - 50.0f;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
 		if (yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = h;
 		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -299,6 +301,7 @@ void PDFPlayer::hideInterface() {
 void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
