@@ -103,15 +103,20 @@ std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index, c
 }
 
 std::string KeyValueStore::getString(const std::string& key, const size_t index) const {
-	return get_value<std::string>(mString, key, index);
+	try {
+		return get_value<std::string>(mString, key, index);
+	} catch (std::exception const&) {
+	}
+	return "";
 }
 
 std::string KeyValueStore::getString(const std::string& key, const size_t index, const std::string& notFound) const {
-	try {
-		return getString(key, index);
-	} catch (std::exception const&) {
+	std::string found = getString(key, index);
+	if(!found.empty()) {
+		return found;
+	} else {
+		return notFound;
 	}
-	return notFound;
 }
 
 void KeyValueStore::setColorA(const std::string& key, const ci::ColorA& value, const size_t index) {
