@@ -32,6 +32,10 @@ void LayoutSprite::runLayout(){
 		runFlowLayout(false);
 	} else if(mLayoutType == kLayoutSize){
 		runSizeLayout();
+	} else if(mLayoutType == kLayoutVWrap){
+		runFlowLayout(true, true);
+	} else if(mLayoutType == kLayoutHWrap){
+		runFlowLayout(false, true);
 	}
 
 	onLayoutUpdate();
@@ -97,7 +101,7 @@ void LayoutSprite::runSizeLayout(){
 
 }
 
-void LayoutSprite::runFlowLayout(const bool vertical){
+void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false*/){
 	bool hasFills = false;
 	int numStretches = 0;
 	float totalSize = 0.0f;
@@ -205,6 +209,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 	float leftOver = 0.0f;
 	float perStretch = 0.0f;
 	float offset = 0.0f;	
+	float wrapOffset = 0.0f;
 	
 	if(numStretches > 0){
 		leftOver = maxSize - totalSize;
@@ -244,6 +249,23 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			}
 		} 
 
+		// WIP WRAP
+		if(wrap){
+			if(!vertical){
+				const auto widdy = chillin->mLayoutLPad + chillin->getScaleWidth() + chillin->mLayoutRPad;
+				if(offset+widdy > getWidth() && widdy < getWidth()){
+					offset = 0.0f;
+					wrapOffset += getHeight() + mSpacing;
+				}
+			}else{
+				const auto hiddy = chillin->mLayoutTPad + chillin->getScaleHeight() + chillin->mLayoutBPad;
+				if(offset+hiddy > getHeight() && hiddy < getHeight()){
+					offset = 0.0f;
+					wrapOffset += getWidth() + mSpacing;
+				}
+			}
+		}
+
 		// calculate position of child to respect its alignment
 		float xPos = 0.0f;
 		float yPos = 0.0f;
@@ -270,6 +292,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		// finally set the position of the child
 		ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
 		ci::vec2 totalOffset = ci::vec2(chillin->mLayoutFudge) + childCenter;
+		if(wrap){
+			if(vertical)
+			totalOffset += (vertical)
+				? ci::vec2(wrapOffset, 0.f)
+				: ci::vec2(0.f, wrapOffset);
+
+		}
 		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y, chillin->mLayoutFudge.z);	
 		
 		// move along through the layout
@@ -279,6 +308,14 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			offset += chillin->mLayoutLPad + chillin->getScaleWidth() + chillin->mLayoutRPad;
 		}
 		offset += mSpacing;
+	}
+
+	if(wrap && wrapOffset > 0.f){
+		if(vertical){
+			setSize(wrapOffset+getWidth(), getHeight());
+		}else{
+			setSize(getWidth(), wrapOffset+getHeight());
+		}
 	}
 
 	// finally set the position and size of any fill children
@@ -386,6 +423,8 @@ std::string LayoutSprite::getLayoutTypeString(const ds::ui::LayoutSprite::Layout
 	std::string sizeString = "none";
 	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow)	sizeString = "vert";
 	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow) sizeString = "horiz";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutVWrap)	sizeString = "vert_wrap";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHWrap) sizeString = "horiz_wrap";
 	else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize)	sizeString = "size";
 	return sizeString;
 }

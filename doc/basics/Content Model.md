@@ -228,6 +228,23 @@ There is one theme per slide, and the "slides" table has a "slide_theme_id" colu
 </table>
 ```
 
+**child_local_map**: A pair of column names in the from "child_foreign_key_column:parent_column",
+children are attached to parents where the value (as a string) of the "child_foreign_key_column"
+matches the value in this parents "parent_column".
+
+Use case: a goofball cms is using UUID strings as "ids".
+
+```XML
+<table name="slides"
+	label="title"
+	>
+	<table name="slide_items"
+		child_local_map="slide_id:id"
+		label="name"
+		/>
+</table>
+```
+
 When these get queried, you'll get a data structure like this:
 
 ```XML

@@ -105,6 +105,7 @@ Sprite Parameters
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
 * **model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
+* **each_model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 
 
 Variables
@@ -221,7 +222,11 @@ Layout Parameters : valid for any sprite if the parent is a layout
 * **layout_type**: For a LayoutSprite only (has no effect on children).
     1. vert: (Default) lays out all children in a vertical (top to bottom) flow.
     2. horiz: Lays out children horizontally (left to right)
-    3. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
+    3. vert_wrap: Lays out children horizontally (left to right), and wrapping when sprites overflow
+	   its height.
+    4. horiz_wrap: Lays out children horizontally (left to right), and wrapping when sprites overflow
+	   its width.
+    5. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
     4. <any other value>: None, does no layout of children.
 * **layout_spacing**: For LayoutSprite only, a float that sets the spacing between all elements. layout_spacing="10.0"
 * **shrink_to_children**: For LayoutSprite's only, determines how the sprite adjusts to its children.
@@ -556,10 +561,13 @@ Supply a delay in seconds for the start of the tween. Default is 0.0 seconds.
 When calling tweenAnimateOn(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
 
 
-ContentModel : model in a SmartLayout
+ContentModel & SmartLayout
 =========================
 
 If you're using ds::model::ContentModelRef for your data model and queries (see Content Model doc) and SmartLayouts for your layouts, you can apply the content models in the XML itself. You'll do this with the **model** property. **Note:** the sprite **must** be named for this value to be read.
+
+`model` Property
+----------------
 
 * **model**: String, colon-separated sprite parameters, semi-colon and space separated for multiple settings.
 
@@ -606,6 +614,37 @@ addChildPtr(mySlide);
 </layout>
 ```
 
+`each_model` Property
+---------------------
+
+`each_model` generates smart layouts for each child of a ContentModelRef, applies that child content
+model and adds them to the sprite.
+This will always clear any children of that sprite!
+
+* **each_model**: String, colon-separated xml name & model to iterate
+
+**Syntax**: {xml layout}:{model}
+
+**Example**: 
+
+```XML
+<!-- slideshow.xml -->
+<layout name="slides"
+	each_model="single_slide.xml:slides"/>
+		<!-- A warning will be thrown if you add any children in XML to a
+		     sprite with each_model. And the property won't be set! -->
+```
+
+```XML
+<!-- single_slide.xml -->
+<layout name="root" shrink_to_children="both">
+	<text name="the_title"
+		font="slide:title"
+		model="color:theme->title_color; text:this->title"
+		/>
+</layout>
+```
+
 Caveats
 -----------------------
 Setting the model runs when you call setContentModel() on the SmartLayout. This means that it will be applied after all the other properties on the sprite. Expressions and parameters are evaluated both before and after the model is processed, so this could be valid: model="text:this->$_title_column_name", assuming "title_column_name" is in app_settings.xml. Additionally, you can put expressions and parameters into the content model itself, and they will be evaluated normally. The same limitations apply (e.g. no nested expressions).
@@ -621,5 +660,4 @@ Setting the model runs when you call setContentModel() on the SmartLayout. This 
 	model="text_update:this->title; text_update:this->name; text_update:this->label"
 	/>
 ```
-
 

@@ -4,14 +4,14 @@
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/ui/interface_xml/interface_xml_importer.h>
-#include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/sprite/text.h>
-#include <ds/util/string_util.h>
-#include <ds/ui/scroll/smart_scroll_list.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/button/sprite_button.h>
+#include <ds/ui/interface_xml/interface_xml_importer.h>
+#include <ds/ui/scroll/smart_scroll_list.h>
+#include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/text.h>
+#include <ds/util/string_util.h>
 
 
 namespace ds {
@@ -30,14 +30,11 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 }
 
 SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine)
-	: ds::ui::LayoutSprite(engine)
-	, mLayoutFile("")
-	, mInitialized(false)
-	, mNeedsLayout(false)
-	, mEventClient(engine)
-{
-
-}
+  : ds::ui::LayoutSprite(engine)
+  , mLayoutFile("")
+  , mInitialized(false)
+  , mNeedsLayout(false)
+  , mEventClient(engine) {}
 
 void SmartLayout::setLayoutFile(const std::string& xmlLayoutFile, const std::string xmlFileLocation,
 								const bool loadImmediately) {
@@ -61,9 +58,7 @@ void SmartLayout::initialize() {
 	mInitialized = true;
 }
 
-bool SmartLayout::hasSprite(const std::string& spriteName) { 
-	return mSpriteMap.find(spriteName) != mSpriteMap.end(); 
-}
+bool SmartLayout::hasSprite(const std::string& spriteName) { return mSpriteMap.find(spriteName) != mSpriteMap.end(); }
 
 ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	auto findy = mSpriteMap.find(spriteName);
@@ -115,7 +110,8 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 
 	if (sprI) {
 		if (cache) {
-			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F);// | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
+			sprI->setImageResource(imageResource,
+								   ds::ui::Image::IMG_CACHE_F);  // | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
 		} else {
 			sprI->setImageResource(imageResource);
 		}
@@ -135,19 +131,19 @@ void SmartLayout::setSpriteTapFn(const std::string&											  spriteName,
 }
 
 void SmartLayout::setSpriteClickFn(const std::string& spriteName, const std::function<void()>& clickCallback) {
-	if(!clickCallback) return;
+	if (!clickCallback) return;
 	auto ib = getSprite<ds::ui::ImageButton>(spriteName);
-	if(ib) {
+	if (ib) {
 		ib->setClickFn(clickCallback);
 		return;
 	}
 	auto lb = getSprite<ds::ui::LayoutButton>(spriteName);
-	if(lb) {
+	if (lb) {
 		lb->setClickFn(clickCallback);
 		return;
 	}
 	auto sb = getSprite<ds::ui::SpriteButton>(spriteName);
-	if(sb) {
+	if (sb) {
 		sb->setClickFn(clickCallback);
 		return;
 	}
@@ -155,67 +151,100 @@ void SmartLayout::setSpriteClickFn(const std::string& spriteName, const std::fun
 
 void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 	mContentModel = theData;
-	for (auto it : mSpriteMap) {
-		auto theModel = it.second->getUserData().getString("model");
+	for (auto child : mSpriteMap) {
+		// Handle model
+		auto theModel = child.second->getUserData().getString("model");
 		if (!theModel.empty()) {
-			auto models = ds::split(theModel, "; ", true);
-			for (auto mit : models) {
-				auto keyVals = ds::split(mit, ":", true);
-				if (keyVals.size() == 2) {
-					auto childProps = ds::split(keyVals[1], "->", true);
-					if (childProps.size() == 2) {
-						auto		sprPropToSet = keyVals[0];
-						auto		theChild	 = childProps[0];
-						auto		theProp		 = childProps[1];
-						std::string actualValue  = "";
-
-						ds::model::ContentModelRef theNode = theData;
-						if(theChild != "this") {
-							theNode = theData.getChildByName(theChild);
-						}
-						if(sprPropToSet == "smart_scroll_children") {
-							auto ssl = getSprite<SmartScrollList>(it.first);
-							if(ssl) {
-								ssl->setContentList(theNode);
-							}
-						} else if (sprPropToSet == "resource") {
-							setSpriteImage(it.first, theNode.getProperty(theProp).getResource());
-						} else if (sprPropToSet == "resource_cache") {
-							setSpriteImage(it.first, theNode.getProperty(theProp).getResource(), true);
-						} else if(sprPropToSet == "media_player_src") {
-							auto theResource = theNode.getProperty(theProp).getResource();
-							if(theResource.empty()) {
-								theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
-							} else if(theResource.getType() == ds::Resource::IMAGE_TYPE) {
-								ds::ImageMetaData metaData;
-								metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()), ci::vec2(theResource.getWidth(), theResource.getHeight()));
-							}
-							if(!theResource.empty()) {
-								ds::ui::XmlImporter::setSpriteProperty(
-									*it.second, "media_player_src", theResource.getAbsoluteFilePath());
-							}
-
-						} else {
-							actualValue = theNode.getPropertyString(theProp);
-
-							ds::ui::XmlImporter::setSpriteProperty(*it.second, sprPropToSet, actualValue);
-						}
-
-					} else {
-						DS_LOG_WARNING(
-								"SmartLayout::setData() Invalid syntax for child / property mapping: " << theModel);
-					}
-				} else {
-					DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << theModel);
-				}
+			applyModelToSprite(child.second, child.first, theModel);
+		}else{
+			auto eachModel = child.second->getUserData().getString("each_model");
+			if (!eachModel.empty()) {
+				applyEachModelToSprite(child.second, eachModel);
 			}
 		}
 	}
 
 	runLayout();
 
-	if(mContentUpdatedCallback) { mContentUpdatedCallback(); }
+	if (mContentUpdatedCallback) {
+		mContentUpdatedCallback();
+	}
 }
+
+void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& childName, const std::string& model) {
+	if (!child) return;
+
+	auto models = ds::split(model, "; ", true);
+	for (auto mit : models) {
+		auto keyVals = ds::split(mit, ":", true);
+		if (keyVals.size() == 2) {
+			auto childProps = ds::split(keyVals[1], "->", true);
+			if (childProps.size() == 2) {
+				auto		sprPropToSet = keyVals[0];
+				auto		theChild	 = childProps[0];
+				auto		theProp		 = childProps[1];
+				std::string actualValue  = "";
+
+				ds::model::ContentModelRef theNode = mContentModel;
+				if (theChild != "this") {
+					theNode = mContentModel.getChildByName(theChild);
+				}
+				if (sprPropToSet == "smart_scroll_children") {
+					if (auto ssl = dynamic_cast<SmartScrollList*>(child)) {
+						ssl->setContentList(theNode);
+					}
+				} else if (sprPropToSet == "resource") {
+					setSpriteImage(childName, theNode.getProperty(theProp).getResource());
+				} else if (sprPropToSet == "resource_cache") {
+					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), true);
+				} else if (sprPropToSet == "media_player_src") {
+					auto theResource = theNode.getProperty(theProp).getResource();
+					if (theResource.empty()) {
+						theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
+					} else if (theResource.getType() == ds::Resource::IMAGE_TYPE) {
+						ds::ImageMetaData metaData;
+						metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()),
+									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
+					}
+					if (!theResource.empty()) {
+						ds::ui::XmlImporter::setSpriteProperty(*child, "media_player_src",
+															   theResource.getAbsoluteFilePath());
+					}
+
+				} else {
+					actualValue = theNode.getPropertyString(theProp);
+
+					ds::ui::XmlImporter::setSpriteProperty(*child, sprPropToSet, actualValue);
+				}
+
+			} else {
+				DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << model);
+			}
+		} else {
+			DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << model);
+		}
+	}
+}
+
+void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::string& eachModel) {
+	if (!child) return;
+
+	auto pairy = ds::split(eachModel, ":");
+	if (pairy.size() == 2) {
+		child->clearChildren();
+
+		auto myModel = mContentModel;
+		if (pairy[1] != "this") {
+			myModel = mContentModel.getChildByName(pairy[1]);
+		}
+		for (auto baby : myModel.getChildren()) {
+			auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
+			child->addChildPtr(babySprite);
+			babySprite->setContentModel(baby);
+		}
+	}
+}
+
 
 void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild) {
 	ds::ui::Sprite* spr = getSprite(spriteName);

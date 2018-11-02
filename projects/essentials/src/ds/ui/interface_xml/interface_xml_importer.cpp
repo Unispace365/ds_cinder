@@ -576,6 +576,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutVFlow);
 			} else if (layoutType == "horiz") {
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutHFlow);
+			} else if (layoutType == "vert_wrap") {
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutVWrap);
+			} else if (layoutType == "horiz_wrap") {
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutHWrap);
 			} else if (layoutType == "size") {
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutSize);
 			} else {
@@ -1148,6 +1152,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Setting the model of a sprite without a name may not produce any results. model=" << value);
 		}
 		ud.setString(property, value);
+	}
+	else if (property == "each_model"){
+		if (!sprite.getChildren().empty()) {
+			DS_LOG_WARNING("Setting each_model on a sprite with children is invalid! each_model will not be set!");
+		}else{
+			sprite.getUserData().setString(property, value);
+		}
 	}
 	// fallback to engine-registered properites last
 	else if (engine.setRegisteredSpriteProperty(property, sprite, value, referer)) {

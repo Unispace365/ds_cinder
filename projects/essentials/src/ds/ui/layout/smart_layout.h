@@ -116,6 +116,11 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	sMap					   mSpriteMap;
 	ds::model::ContentModelRef mContentModel;
 	std::function<void()>		mContentUpdatedCallback;
+
+  private:
+	void applyModelToSprite(ds::ui::Sprite* child, const std::string& childName, const std::string& model);
+
+	void applyEachModelToSprite(ds::ui::Sprite* child, const std::string& eachModel);
 };
 
 }  // namespace ui
