@@ -10,7 +10,7 @@
 
 /// if this is defined, will create and copy video buffers from gstreamer using memcopy
 /// undefined will use the buffers directly in creating the textures
-//#define BUFFERS_COPIED 1
+#define BUFFERS_COPIED 1
 
 namespace gstwrapper {
 
