@@ -29,7 +29,9 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mKeyboardAbove(true)
   , mAllowTouchToggle(true)
   , mStartInteractable(false)
-  , mLetterbox(true) {
+  , mLetterbox(true)
+  , mInterfaceBelowMedia(false)
+{
 
 	mLayoutFixedAspect = true;
 	enable(false);
@@ -44,6 +46,7 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setAllowTouchToggle(settings.mWebAllowTouchToggle);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setStartInteractable(settings.mWebStartTouchable);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
@@ -153,6 +156,7 @@ void WebPlayer::layout() {
 		float yPos = getHeight() - mWebInterface->getHeight() - 50.0f;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if (yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
 }

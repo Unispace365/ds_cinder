@@ -25,6 +25,7 @@ PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool
 	, mPanoramicVideo(nullptr)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mInterfaceBelowMedia(false)
 	, mShowInterfaceAtStart(true)
 	, mAutoSyncronize(true)
 	, mAutoPlayFirstFrame(true)
@@ -160,6 +161,7 @@ void PanoramicVideoPlayer::layout() {
 		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
 		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -239,6 +241,7 @@ void PanoramicVideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings)
 	setVideoLoop(settings.mVideoLoop);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setAudioDevices(settings.mVideoAudioDevices);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void PanoramicVideoPlayer::setPan(const float newPan) {

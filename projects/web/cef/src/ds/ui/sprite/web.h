@@ -152,6 +152,9 @@ public:
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void										setAllowClicks(const bool doAllowClicks);
 
+	/// Sends a second mouse down when releasing, which fixes some websites, but breaks others. The default is on
+	void										setSecondClickOnUp(const bool secondClick) { mSecondClickOnUp = secondClick; }
+
 	/// Deletes any cookies matching url (leave blank for all urls) and matching the cookieName (leave blank for all cookies from that url)
 	void										deleteCookies(const std::string& url, const std::string& cookieName);
 
@@ -243,6 +246,7 @@ private:
 	double										mZoom;
 	bool										mNeedsZoomCheck;
 
+	bool										mSecondClickOnUp;
 	ci::vec3									mPreviousTouchPos;
 	bool										mAllowClicks;
 	bool										mClickDown;

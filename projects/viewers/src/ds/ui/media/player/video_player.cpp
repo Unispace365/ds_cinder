@@ -32,6 +32,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mVolume(1.0f)
   , mLooping(true)
   , mResetOnVideoComplete(true)
+  , mInterfaceBelowMedia(false)
   , mLetterbox(true) {
 	mLayoutFixedAspect = true;
 }
@@ -148,7 +149,8 @@ void VideoPlayer::layout() {
 		mVideoInterface->setSize(getWidth() / 2.0f, mVideoInterface->getHeight());
 		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if (yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -203,6 +205,7 @@ void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setAudioDevices(settings.mVideoAudioDevices);
 	setLetterbox(settings.mLetterBox);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void VideoPlayer::setLetterbox(const bool doLetterBox) {

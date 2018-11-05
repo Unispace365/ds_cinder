@@ -101,6 +101,7 @@ class VideoPlayer : public ds::ui::Sprite {
 	std::vector<std::string>	mPlayableInstances;
 	std::vector<GstAudioDevice> mAudioDevices;
 	bool						mLooping;
+	bool						mInterfaceBelowMedia;
 };
 
 }  // namespace ui
