@@ -649,10 +649,10 @@ Caveats
 -----------------------
 Setting the model runs when you call setContentModel() on the SmartLayout. This means that it will be applied after all the other properties on the sprite. Expressions and parameters are evaluated both before and after the model is processed, so this could be valid: model="text:this->$_title_column_name", assuming "title_column_name" is in app_settings.xml. Additionally, you can put expressions and parameters into the content model itself, and they will be evaluated normally. The same limitations apply (e.g. no nested expressions).
 
-**name**: Must have a value for the sprite to have a model applied
-**resource and resource_cache**: These currently only apply to Images
-**media_player_src**: Tried to find an existing resource or looks it up on disk, but can apply to all media player types
-**text_update**: Very handy if you only want to overwrite the text if it exists. This is great if you have a text field with generic info that could show an error message if it's available. Or you could have one layout file for several different tables and only apply the title field text if it exists:
+- **name**: Must have a value for the sprite to have a model applied
+- **resource and resource_cache**: These currently only apply to Images
+- **media_player_src**: Tried to find an existing resource or looks it up on disk, but can apply to all media player types
+- **text_update**: Very handy if you only want to overwrite the text if it exists. This is great if you have a text field with generic info that could show an error message if it's available. Or you could have one layout file for several different tables and only apply the title field text if it exists:
 
 ```XML
 <text name="the_title"
