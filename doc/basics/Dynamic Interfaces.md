@@ -651,7 +651,7 @@ Setting the model runs when you call setContentModel() on the SmartLayout. This 
 
 - **name**: Must have a value for the sprite to have a model applied
 - **resource and resource_cache**: These currently only apply to Images
-- **media_player_src**: Tried to find an existing resource or looks it up on disk, but can apply to all media player types
+- **media_player_src**: Tries to find an existing resource or looks it up on disk, but can apply to all media player types
 - **text_update**: Very handy if you only want to overwrite the text if it exists. This is great if you have a text field with generic info that could show an error message if it's available. Or you could have one layout file for several different tables and only apply the title field text if it exists:
 
 ```XML
