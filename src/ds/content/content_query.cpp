@@ -32,21 +32,40 @@ void ContentQuery::run() {
 	mAllResources.clear();
 
 	auto metaNode = metaData.getChildByName("meta");
-	if (!metaNode.empty() && !metaNode.getPropertyString("db_location").empty() &&
-		!metaNode.getPropertyString("resource_location").empty()) {
-		mResourceLocation =
-			ds::getNormalizedPath(ds::Environment::expand(metaNode.getPropertyString("resource_location")));
-		try {
-			Poco::Path p = Poco::Path(mResourceLocation);
-			p.append(metaNode.getPropertyString("db_location"));
-			mCmsDatabase = ds::getNormalizedPath(p);
-		} catch (std::exception& e) {
-			DS_LOG_WARNING("Exception parsing data model path " << e.what());
-			return;
+	if (!metaNode.empty()){
+		// Handle custom db & resource locations from meta node
+		auto dbLoc = metaNode.getPropertyString("db_location");
+		auto resLoc = metaNode.getPropertyString("resource_location");
+		if(!dbLoc.empty() && !resLoc.empty()) {
+			mResourceLocation =
+				ds::getNormalizedPath(ds::Environment::expand(resLoc));
+			try {
+				Poco::Path p = Poco::Path(mResourceLocation);
+				p.append(dbLoc);
+				mCmsDatabase = ds::getNormalizedPath(p);
+			} catch (std::exception& e) {
+				DS_LOG_WARNING("Exception parsing data model path " << e.what());
+				return;
+			}
+
+			mData.setProperty("cms_database", mCmsDatabase);
+		}
+	}
+
+	// Customize resources query / resources table names
+	auto resourceNode = metaData.getChildByName("resources");
+	if(!resourceNode.empty()){
+		for(auto kv : mResourceRemap){
+			auto newVal = resourceNode.getPropertyString(kv.first);
+			if(!newVal.empty()) mResourceRemap[kv.first] = newVal;
 		}
 
-		mData.setProperty("cms_database", mCmsDatabase);
+		if(!resourceNode.getPropertyString("check_updated").empty()){
+			mCheckUpdatedResources = resourceNode.getPropertyBool("check_updated");
+		}
 	}
+
+
 
 	if (mCmsDatabase.empty()) {
 		DS_LOG_VERBOSE(3, "ContentQuery: no sqlite database location specified.");
@@ -94,8 +113,7 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 	/// find the highest depth
 	int maxDepth = 0;
 	for (auto it : tablesParent.getChildren()) {
-		int thisDepth = it.getPropertyInt("depth");
-		if (thisDepth > maxDepth) maxDepth = thisDepth;
+		maxDepth = std::max(maxDepth, it.getPropertyInt("depth"));
 	}
 
 	/// work backwards through depth levels assigning children to parents
@@ -148,10 +166,10 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 							parChild.addChild(row);
 						}
 					}
-				}  // End of this table's rows
-			}	  // End of this depth check
-		}		   // End of tables in this for loop
-	}			   // End of depth for loop
+				} // End of this table's rows
+			} // End of this depth check
+		} // End of tables in this for loop
+	} // End of depth for loop
 
 	/// assign top level to the final output
 	for (auto it : tablesParent.getChildren()) {
@@ -225,26 +243,31 @@ void ContentQuery::updateResourceCache() {
 	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache");
 	ds::query::Result recResult;
 
-	std::string recyQuery =
-		"SELECT"
-		" resourcesid"		   // 0
-		", resourcestype"	  // 1
-		", resourcesduration"  // 2
-		", resourceswight"	 // 3
-		", resourcesheight"	// 4
-		", resourcesfilename"  // 5
-		", resourcespath"	  // 6
-		", resourcesthumbid"   // 7
-		", updated_at "		   // 8
-		" FROM Resources ";
-	if (!mLastUpdatedResource.empty()) {
-		recyQuery.append("WHERE updated_at > '");
-		recyQuery.append(mLastUpdatedResource);
-		recyQuery.append("' ");
+	auto resQuery = std::string("SELECT");
+	resQuery.append(" " + mResourceRemap["id"]);			   // 0
+		resQuery.append(", " + mResourceRemap["type"]);		   // 1
+		resQuery.append(", " + mResourceRemap["duration"]);	   // 2
+		resQuery.append(", " + mResourceRemap["width"]);	   // 3
+		resQuery.append(", " + mResourceRemap["height"]);	   // 4
+		resQuery.append(", " + mResourceRemap["filename"]);	   // 5
+		resQuery.append(", " + mResourceRemap["path"]);		   // 6
+		resQuery.append(", " + mResourceRemap["thumb"]);	   // 7
+
+	if(mCheckUpdatedResources){
+		resQuery.append(", " + mResourceRemap["updated"]);	   // 8
 	}
 
-	recyQuery.append("ORDER BY updated_at ASC");
+	resQuery.append(" FROM " + mResourceRemap["table_name"] + " ");
 
+	if (mCheckUpdatedResources && !mLastUpdatedResource.empty()) {
+		resQuery.append("WHERE " + mResourceRemap["updated"] + " > '");
+		resQuery.append(mLastUpdatedResource);
+		resQuery.append("' ");
+	}
+
+	if(mCheckUpdatedResources){
+		resQuery.append("ORDER BY "+ mResourceRemap["updated"] +" ASC");
+	}
 
 	/// Lets do the query!
 	sqlite3* db = NULL;
@@ -256,11 +279,11 @@ void ContentQuery::updateResourceCache() {
 	if (sqliteResultCode == SQLITE_OK) {
 		sqlite3_busy_timeout(db, 1500);
 		sqlite3_stmt* statement;
-		const int	 err = sqlite3_prepare_v2(db, recyQuery.c_str(), -1, &statement, 0);
+		const int	 err = sqlite3_prepare_v2(db, resQuery.c_str(), -1, &statement, 0);
 		if (err != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			DS_LOG_ERROR("ContentQuery::updateResourceQuery::rawSelect SQL error code="
-						 << err << " message=" << sqlite3_errstr(err) << " on select=" << recyQuery << std::endl);
+					<< err << " message=" << sqlite3_errstr(err) << " on select=" << resQuery << std::endl);
 
 		} else {
 
@@ -275,16 +298,16 @@ void ContentQuery::updateResourceCache() {
 					std::string thePath = getSqliteString(statement, 6);
 
 					mAllResources[thisId] = ds::Resource(thisId,  // db id
-														 ds::Resource::makeTypeFromString(getSqliteString(
-															 statement, 1)),  // type (image, video, pdf) as int
-														 sqlite3_column_double(statement, 2),		  // duration
-														 (float)sqlite3_column_double(statement, 3),  // width
-														 (float)sqlite3_column_double(statement, 4),  // height
-														 getSqliteString(statement, 5),				  // filename
-														 thePath,									  // path
-														 sqlite3_column_int(statement, 7),			  // thumbnail id
-														 ""  // full filepath (set in a second)
-					);
+							ds::Resource::makeTypeFromString(getSqliteString(
+									statement, 1)),  // type (image, video, pdf) as int
+							sqlite3_column_double(statement, 2),		  // duration
+							(float)sqlite3_column_double(statement, 3),  // width
+							(float)sqlite3_column_double(statement, 4),  // height
+							getSqliteString(statement, 5),				  // filename
+							thePath,									  // path
+							sqlite3_column_int(statement, 7),			  // thumbnail id
+							""  // full filepath (set in a second)
+							);
 
 					auto& reccy = mAllResources[thisId];
 					if (reccy.getType() == ds::Resource::WEB_TYPE) {
@@ -305,7 +328,9 @@ void ContentQuery::updateResourceCache() {
 						reccy.setLocalFilePath(ret, false);
 					}
 
-					mLastUpdatedResource = getSqliteString(statement, 8);
+					if(mCheckUpdatedResources){
+						mLastUpdatedResource = getSqliteString(statement, 8);
+					}
 
 				} else {
 					sqlite3_finalize(statement);
@@ -315,7 +340,7 @@ void ContentQuery::updateResourceCache() {
 		}
 	} else {
 		DS_LOG_ERROR("ContentQuery:updateResourceQuery Unable to access the database "
-					 << mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
+				<< mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 	}
 
 	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache lastUpdated=" << mLastUpdatedResource);

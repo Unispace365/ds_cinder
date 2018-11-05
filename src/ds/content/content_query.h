@@ -34,6 +34,22 @@ public:
 
 	std::string								mLastUpdatedResource;
 	std::unordered_map<int, ds::Resource>	mAllResources;
+
+	bool mCheckUpdatedResources = true;
+	std::unordered_map<std::string, std::string> mResourceRemap =
+	{
+		{"table_name", "resources"},
+		{"id", "resourcesid"},
+		{"type", "resourcestype"},
+		{"duration", "resourcesduration"},
+		{"width", "resourceswidth"},
+		{"height", "resourcesheight"},
+		{"filename", "resourcesfilename"},
+		{"path", "resourcespath"},
+		{"thumb", "resourcesthumbid"},
+		{"updated", "updated_at"}
+	};
+
 	std::string								mCmsDatabase;
 	std::string								mResourceLocation;
 	std::string								mXmlDataModel;

@@ -261,6 +261,43 @@ When these get queried, you'll get a data structure like this:
 				etc.
 ```
 
+Meta Node & Advanced Options
+============================
+
+Meta Node Properties
+--------------------
+- **resource_location**: Overrides the resource_location from engine.xml
+- **db_location**: Overrides the db_location from engine.xml
+- **use_resources**: Should this content model query resources?
+
+```xml
+<meta
+	resource_location="%LOCAL%/cms_place/"
+	db_location="db/db.sqlite"
+	use_resources="true"
+	/>
+```
+
+Custom Resource Query Properties
+--------------------------------
+Useful for working with non-conforming databases. Any unused properties will have their default
+value applied.
+
+- **table_name**: Overrides default resources table name
+- **check_updated**: Boolean, should the app only query resources that have updated since last
+	check? (defaults is true)
+- Override default column names:
+	- **id**: default=`resourcesid`
+	- **type**: default=`resourcestype`
+	- **duration**: default=`resourcesduration`
+	- **width**: default=`resourceswidth`
+	- **height**: default=`resourcesheight`
+	- **filename**: default=`resourcesfilename`
+	- **path**: default=`resourcespath`
+	- **thumb**: default=`resourcesthumbid`
+	- **updated**: default=`updated_at`
+
+
 
 Applying to a layout file
 ===========================
