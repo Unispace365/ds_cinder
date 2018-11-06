@@ -138,18 +138,18 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 				std::function<bool(ds::model::ContentModelRef&, ds::model::ContentModelRef&)> isMatchFn;
 
 				if (!childLocalId.empty()) {
-					isMatchFn = [&childLocalId](ds::model::ContentModelRef& parChild, ds::model::ContentModelRef& row) {
+					isMatchFn = [childLocalId](ds::model::ContentModelRef& parChild, ds::model::ContentModelRef& row) {
 						return parChild.getId() == row.getPropertyInt(childLocalId);
 					};
 				} else if (!parentForeignId.empty()) {
-					isMatchFn = [&parentForeignId](ds::model::ContentModelRef& parChild,
+					isMatchFn = [parentForeignId](ds::model::ContentModelRef& parChild,
 												   ds::model::ContentModelRef& row) {
 						return parChild.getPropertyInt(parentForeignId) == row.getId();
 					};
 				} else if (!childLocalMap.empty()) {
 					auto mapChildTo = ds::split(childLocalMap, ":", true);
 					if (mapChildTo.size() == 2) {
-						isMatchFn = [&mapChildTo](ds::model::ContentModelRef& parChild,
+						isMatchFn = [mapChildTo](ds::model::ContentModelRef& parChild,
 												  ds::model::ContentModelRef& row) {
 							return parChild.getPropertyString(mapChildTo[1]) == row.getPropertyString(mapChildTo[0]);
 						};
