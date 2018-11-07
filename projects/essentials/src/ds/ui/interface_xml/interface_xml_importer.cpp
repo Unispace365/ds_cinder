@@ -701,35 +701,43 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property.find("text_utc_") != std::string::npos) {
+	} else if (property == "text_utc_parse") {
 		if (auto text = dynamic_cast<Text*>(&sprite)) {
 			if (!value.empty()) {
+				text->getUserData().setString("utc_parse_fmt", value);
+			}
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property == "text_utc_format") {
+		if (auto text = dynamic_cast<Text*>(&sprite)) {
+			if (!value.empty()) {
+				text->getUserData().setString("utc_out_fmt", value);
+			}
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property == "text_utc") {
+		if (auto text = dynamic_cast<Text*>(&sprite)) {
+			if (!value.empty()) {
+				auto parseFmt = text->getUserData().getString("utc_parse_fmt");
+				auto outFmt = text->getUserData().getString("utc_out_fmt");
+
+				if(outFmt.empty()){
+					outFmt = std::string("%Y-%m-%d %H:%M:%S");
+				}
+
+				const bool isNow = (value == "now");
 				Poco::DateTime date;
 				int tzd = 0;
-				const auto fmt = std::string("%Y-%m-%d %H:%M:%S");
-				if (!Poco::DateTimeParser::tryParse(fmt, value, date, tzd)) {
-					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with format '" << fmt);
-				} else {
-					std::string reformedDate;
-					if(property == "text_utc_time"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%H:%M:%S");
-					} else if(property == "text_utc_date"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%Y-%m-%d");
-					} else if(property == "text_utc_day"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%d");
-					} else if(property == "text_utc_month"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%m");
-					} else if(property == "text_utc_year"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%Y");
-					} else if(property == "text_utc_hour"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%H");
-					} else if(property == "text_utc_minute"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%M");
-					} else if(property == "text_utc_second"){
-						reformedDate = Poco::DateTimeFormatter::format(date, "%S");
-					} else {
-						reformedDate = value;
-					}
+				if (!isNow && parseFmt.empty() && !Poco::DateTimeParser::tryParse(value, date, tzd)) {
+					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with poco default format");
+				} else if(!isNow && !parseFmt.empty() && !Poco::DateTimeParser::tryParse(parseFmt, value, date, tzd)) {
+					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with fmt '"<< parseFmt << "'");
+				}else {
+					std::string reformedDate = Poco::DateTimeFormatter::format(date, outFmt);
 					text->setText(reformedDate);
 				}
 

@@ -254,10 +254,10 @@ Text Parameters
 * **text_update**: Set the text content show on the screen, but only if there is content. See ContentModel section below. text="" // does nothing, text="Hey" // set's the text
 * **text_uppercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as HELLO WORLD
 * **text_lowercase**: Set the content show on the screen. text_uppercase="Hello World" shows up as hello world
-* UTC date handlers (Fall back to literal values if parsing fails):
-	* **text_utc_time**: Converts value from utc time stamp to HH:MM:SS
-	* **text_utc_date**: Converts value from utc time stamp to YYYY-M-D
-	* **text_utc_{day, month, year, hour, minute}**: Extracts single component from UTC time stamp
+* Date/Time Handlers (Note: parse & format options must come before text_utc in the layout)
+	* **text_utc_parse**: Date format to parse (default: "%H:%M:%S %d-%m-%Y")
+	* **text_utc_format**: Output date format to convert to (default: "%H:%M:%S %d-%m-%Y")
+	* **text_utc**: The time/date string OR "now" (example: "11:42:00 14-02-2018")
 * **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
