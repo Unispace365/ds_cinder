@@ -730,17 +730,24 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				}
 
 				const bool isNow = (value == "now");
+				bool didParse = false;
 				Poco::DateTime date;
 				int tzd = 0;
-				if (!isNow && parseFmt.empty() && !Poco::DateTimeParser::tryParse(value, date, tzd)) {
-					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with poco default format");
-				} else if(!isNow && !parseFmt.empty() && !Poco::DateTimeParser::tryParse(parseFmt, value, date, tzd)) {
-					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with fmt '"<< parseFmt << "'");
-				}else {
-					std::string reformedDate = Poco::DateTimeFormatter::format(date, outFmt);
-					text->setText(reformedDate);
+				if(!isNow && !parseFmt.empty()){
+					didParse = Poco::DateTimeParser::tryParse(parseFmt, value, date, tzd);
 				}
 
+				if(!isNow && !didParse){
+					didParse = Poco::DateTimeParser::tryParse(value, date, tzd);
+				}
+
+				if(isNow || didParse){
+					std::string reformedDate = Poco::DateTimeFormatter::format(date, outFmt);
+					text->setText(reformedDate);
+				}else{
+					DS_LOG_WARNING("Unable to parse value '" << value << "' as date! parse_fmt='" << parseFmt << "' & out_fmt='"<<outFmt << "'");
+					text->setText(value);
+				}
 			}
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
