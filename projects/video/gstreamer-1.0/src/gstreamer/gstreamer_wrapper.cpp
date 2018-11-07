@@ -901,7 +901,7 @@ void GStreamerWrapper::stop() {
 		mCurrentPlayState = STOPPED;
 
 #ifdef BUFFERS_COPIED
-		mVideoBuffer = NULL;
+		//mVideoBuffer = NULL;
 #else 
 		if(mVideoGstBuffer) {
 			gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
