@@ -49,6 +49,8 @@
 #include <boost/regex.hpp>
 
 #include <Poco/Path.h>
+#include <Poco/DateTimeParser.h>
+#include <Poco/DateTimeFormatter.h>
 
 #include <fstream>
 #include <iostream>
@@ -694,6 +696,43 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		if (text) {
 			if (!value.empty()) {
 				text->setText(value);
+			}
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property.find("text_utc_") != std::string::npos) {
+		if (auto text = dynamic_cast<Text*>(&sprite)) {
+			if (!value.empty()) {
+				Poco::DateTime date;
+				int tzd = 0;
+				const auto fmt = std::string("%Y-%m-%d %H:%M:%S");
+				if (!Poco::DateTimeParser::tryParse(fmt, value, date, tzd)) {
+					DS_LOG_WARNING("Unable to parse value '" << value << "' as date with format '" << fmt);
+				} else {
+					std::string reformedDate;
+					if(property == "text_utc_time"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%H:%M:%S");
+					} else if(property == "text_utc_date"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%Y-%m-%d");
+					} else if(property == "text_utc_day"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%d");
+					} else if(property == "text_utc_month"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%m");
+					} else if(property == "text_utc_year"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%Y");
+					} else if(property == "text_utc_hour"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%H");
+					} else if(property == "text_utc_minute"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%M");
+					} else if(property == "text_utc_second"){
+						reformedDate = Poco::DateTimeFormatter::format(date, "%S");
+					} else {
+						reformedDate = value;
+					}
+					text->setText(reformedDate);
+				}
+
 			}
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
