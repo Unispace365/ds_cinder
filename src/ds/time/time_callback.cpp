@@ -8,7 +8,7 @@ namespace time {
 
 
 Callback::Callback(ds::ui::SpriteEngine& eng) 
-	: ds::AutoUpdate(eng)
+	: ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mRunning(false)
 	, mRepeated(false)
 	, mDelay(0.0)
@@ -16,7 +16,7 @@ Callback::Callback(ds::ui::SpriteEngine& eng)
 {}
 
 Callback::Callback(ds::ui::SpriteEngine& eng, std::function<void()> func, const double secondsDelay)
-	: ds::AutoUpdate(eng)
+	: ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mRunning(false)
 	, mRepeated(true)
 	, mDelay(0.0)
