@@ -601,6 +601,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("m2ts") != std::string::npos
 			  || extensionay.find("mod") != std::string::npos
 			  || extensionay.find("mpe") != std::string::npos
+			  || extensionay.find("ogg") != std::string::npos
 			  || extensionay.find("ogv") != std::string::npos
 			  || extensionay.find("mpeg") != std::string::npos
 			  || extensionay.find("mts") != std::string::npos
