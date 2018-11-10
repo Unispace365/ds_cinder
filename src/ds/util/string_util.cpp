@@ -758,4 +758,37 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 	tokenize(input, '\n', f);
 }
 
+std::vector<std::pair<int, std::string>> extractPairs(const std::string& value, const std::string& leftDelim, const std::string& rightDelim){
+	std::vector<std::pair<int, std::string>> output;
+
+	const auto ldLen = leftDelim.length();
+	const auto rdLen = rightDelim.length();
+
+	auto leftMatch = value.find(leftDelim);
+	auto rightMatch = value.find(rightDelim, leftMatch);
+	size_t lastMatch = 0;
+
+	while (leftMatch != std::string::npos && rightMatch != std::string::npos) {
+		if (leftMatch != lastMatch) {
+			std::string thing = value.substr(lastMatch, leftMatch - lastMatch);
+			output.push_back(std::make_pair(0, thing));
+		}
+
+		std::string thing = value.substr(leftMatch + ldLen, rightMatch - (leftMatch + ldLen));
+		output.push_back(std::make_pair(1, thing));
+
+
+		lastMatch = rightMatch + rdLen;
+		leftMatch = value.find(leftDelim, rightMatch);
+		rightMatch = value.find(rightDelim, leftMatch);
+	}
+
+	if (lastMatch < value.length()) {
+		std::string thing = value.substr(lastMatch);
+		output.push_back(std::make_pair(0, thing));
+	}
+
+	return output;
+}
+
 } // namespace ds 

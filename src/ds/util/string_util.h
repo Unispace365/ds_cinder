@@ -127,6 +127,8 @@ bool parseBoolean(const std::string &s);
 /// The inverse of parseBoolean
 std::string unparseBoolean(const bool b);
 
+std::vector<std::pair<int, std::string>> extractPairs(const std::string& value, const std::string& leftDelim, const std::string& rightDelim);
+
 } // namespace ds
 
 #endif // DS_UTIL_STRINGUTIL_H_

@@ -293,52 +293,40 @@ std::string XmlImporter::parseExpression(const std::string& theExpr) {
 }
 
 std::string XmlImporter::parseAllExpressions(const std::string& value) {
-
+	// Do we have any wrapeped expressions?
 	auto exprFindy = value.find("#expr{");
 
-	if (exprFindy != std::string::npos) {
-
-		auto theReplacement = value;
-		while (exprFindy != std::string::npos) {
-
-
-			std::string beforeReplace = theReplacement.substr(0, exprFindy);
-
-
-			std::string exprAndAfter = theReplacement.substr(exprFindy);
-
-			auto bracketOpen  = exprAndAfter.find("{");
-			auto bracketClose = exprAndAfter.find("}");
-			if (bracketClose < bracketOpen || bracketClose == std::string::npos) {
-				DS_LOG_WARNING("XmlImporter::parseAllExpressions() syntax error with brackets in " << value);
-				return beforeReplace + "0.0";
-			}
-
-			std::string theExpr   = exprAndAfter.substr(bracketOpen + 1, bracketClose - bracketOpen - 1);
-			std::string afterExpr = exprAndAfter.substr(bracketClose + 1);
-
-			theExpr = parseExpression(theExpr);
-
-			theReplacement = beforeReplace + theExpr + afterExpr;
-
-			exprFindy = theReplacement.find("#expr{");
-		}
-
-		DS_LOG_VERBOSE(3, "XmlImporter::parseAllExpressions from " << value << " into " << theReplacement);
-
-		return theReplacement;
-
-		auto beforeString = value.substr(0, exprFindy);
-
-	} else {
+	if (exprFindy == std::string::npos) {
+		//Or maybe we just are an expression?
 		auto findy = value.find("#expr");
 		if (findy != std::string::npos) {
 			auto theExpr = value.substr(findy + 5);
 			return parseExpression(theExpr);
 		}
+		return value;
 	}
 
-	return value;
+	std::string finalValue;
+
+	// Splits value string into a vector of (int, string) pairs
+	// anything between '#expr{' and '}' will be a pair of (1, str),
+	// and non-expr parts of the string will be pairs of (0, str)
+	for (const auto elemPair : ds::extractPairs(value, "#expr{", "}")) {
+		bool isExpr = elemPair.first;
+		const std::string& val = elemPair.second;
+		if (isExpr) {
+			finalValue.append(parseExpression(val));
+		} else {
+			finalValue.append(val);
+		}
+	}
+
+	// I don't think this should ever happen, but just in case we'll try to recurse?
+	exprFindy = finalValue.find("#expr{");
+	if (exprFindy != std::string::npos) {
+		finalValue = parseAllExpressions(finalValue);
+	}
+	return finalValue;
 }
 
 std::string XmlImporter::replaceVariables(const std::string& value) {
@@ -696,6 +684,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		if (text) {
 			if (!value.empty()) {
 				text->setText(value);
+			}
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property == "text_model_format") {
+		if (auto text = dynamic_cast<Text*>(&sprite)) {
+			if (!value.empty()) {
+				text->getUserData().setString("model_format", value);
 			}
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
@@ -1209,10 +1206,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	}
 	else if (property == "each_model"){
 		if (!sprite.getChildren().empty()) {
-			DS_LOG_WARNING("Setting each_model on a sprite with children is invalid! each_model will not be set!");
-		}else{
-			sprite.getUserData().setString(property, value);
+			DS_LOG_WARNING("Setting each_model on a sprite with children is risky, things might go wrong here! (Ignore for smart_scroll_list)");
 		}
+		sprite.getUserData().setString(property, value);
 	}
 	// fallback to engine-registered properites last
 	else if (engine.setRegisteredSpriteProperty(property, sprite, value, referer)) {

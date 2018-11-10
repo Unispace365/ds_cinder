@@ -94,16 +94,6 @@ class SmartLayout : public ds::ui::LayoutSprite {
 
 	void setContentUpdatedCallback(std::function<void()> func) { mContentUpdatedCallback = func; }
 
-	// Build => Run Animations on children
-	// this->addAnimation(name, duration, delay).size(elementName, to, delay=0).opacity(elementName, to,
-	// delay=0).finishFn(callback);
-	// this->addAnimationScript(name, file-or-string)
-	// this->runAnimation(name)
-
-	// Run Animations on children immediately
-	// this->animate(duration, delay)
-	// this->animate(file-or-string)
-
   protected:
 	using sMap = std::map<std::string, ds::ui::Sprite*>;
 

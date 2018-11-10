@@ -271,6 +271,9 @@ Text Parameters
     2. "center": Center-aligns the layout.
     3. "right": Align rows of text to the right side of the resize_limit
 * **shrink_to_bounds**: If text has 'resize_limit' set, this will set the sprite size to the size of the text texture, rather than the full resize_limit.
+* **text_model_format**: Allows combining of plain text, data from a content model, and text
+	post-processing functions. Requires being in a smart layout, and having setContentModel called.
+	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.
 
 Image Parameters
 -------------------------
@@ -621,12 +624,37 @@ addChildPtr(mySlide);
 </layout>
 ```
 
+`text_model` & `text_model_format`
+----------------------------------
+When a content model is applied, any text sprite with both `text_model_format` & `text_model` set
+will have the string in `text_model_format` post processed. First any values in '{...}' are replaced
+with the corresponding property from the model. Then, any values in 'fn(...)' are processed.
+
+Available Functions (See projects/essentials/src/ds/ui/util/text_model.cpp for details & adding
+addional functions):
+* fn(upper,{...}) - Convert string to uppercase
+* fn(lower,{...}) - Convert string to lowercase
+* fn(utc_format,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT.
+	See the [Poco DateTimeFormatter](https://pocoproject.org/docs/Poco.DateTimeFormatter.html#9945)
+	docs for valid format options.
+
+```XML
+	<text name="the_title"
+		font="slide:title"
+		text_model_format="{title} is the name of this slide. It was updated at fn(utc_format,{updated_at},%d-%m-%Y %H:%M)"
+		model="text_model:this"
+		/>
+```
+
+
+
 `each_model` Property
 ---------------------
 
 `each_model` generates smart layouts for each child of a ContentModelRef, applies that child content
 model and adds them to the sprite.
-This will always clear any children of that sprite!
+For all sprite types other than smart_scroll_list, this will clear/release all children every time a
+content model is applied. Which means it's a bad idea to have children (especially named children!)
 
 * **each_model**: String, colon-separated xml name & model to iterate
 

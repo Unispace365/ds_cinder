@@ -11,6 +11,7 @@
 #include <ds/ui/scroll/smart_scroll_list.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/ui/util/text_model.h>
 #include <ds/util/string_util.h>
 
 
@@ -156,11 +157,14 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 		auto theModel = child.second->getUserData().getString("model");
 		if (!theModel.empty()) {
 			applyModelToSprite(child.second, child.first, theModel);
-		}else{
-			auto eachModel = child.second->getUserData().getString("each_model");
-			if (!eachModel.empty()) {
-				applyEachModelToSprite(child.second, eachModel);
-			}
+			continue;
+		}
+
+		// Handle each_model
+		auto eachModel = child.second->getUserData().getString("each_model");
+		if (!eachModel.empty()) {
+			applyEachModelToSprite(child.second, eachModel);
+			continue;
 		}
 	}
 
@@ -174,26 +178,39 @@ void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
 void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& childName, const std::string& model) {
 	if (!child) return;
 
-	auto models = ds::split(model, "; ", true);
-	for (auto mit : models) {
+	for (auto mit : ds::split(model, "; ", true)) {
 		auto keyVals = ds::split(mit, ":", true);
 		if (keyVals.size() == 2) {
 			auto childProps = ds::split(keyVals[1], "->", true);
-			if (childProps.size() == 2) {
+
+			if (childProps.empty() || childProps.size() > 2) {
+				DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << model);
+				continue;
+			}
+
+			// Get the right content model
+			ds::model::ContentModelRef theNode = mContentModel;
+			if (childProps[0] != "this") {
+				theNode = mContentModel.getChildByName(childProps[0]);
+			}
+
+
+			if (childProps.size() == 1) {  // Handle model types that only require a model & not a property
+				auto sprPropToSet = keyVals[0];
+				if (sprPropToSet == "text_model") {
+					auto fmt = child->getUserData().getString("model_format");
+
+					std::string formattedModel = ds::ui::processTextModel(fmt, theNode);
+
+
+					ds::ui::XmlImporter::setSpriteProperty(*child, "text", formattedModel);
+				}
+			} else if (childProps.size() == 2) {  // Handle 'model->property' models
 				auto		sprPropToSet = keyVals[0];
-				auto		theChild	 = childProps[0];
 				auto		theProp		 = childProps[1];
 				std::string actualValue  = "";
 
-				ds::model::ContentModelRef theNode = mContentModel;
-				if (theChild != "this") {
-					theNode = mContentModel.getChildByName(theChild);
-				}
-				if (sprPropToSet == "smart_scroll_children") {
-					if (auto ssl = dynamic_cast<SmartScrollList*>(child)) {
-						ssl->setContentList(theNode);
-					}
-				} else if (sprPropToSet == "resource") {
+				if (sprPropToSet == "resource") {
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource());
 				} else if (sprPropToSet == "resource_cache") {
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), true);
@@ -216,9 +233,6 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 
 					ds::ui::XmlImporter::setSpriteProperty(*child, sprPropToSet, actualValue);
 				}
-
-			} else {
-				DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << model);
 			}
 		} else {
 			DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for prop / model mapping: " << model);
@@ -231,16 +245,26 @@ void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::strin
 
 	auto pairy = ds::split(eachModel, ":");
 	if (pairy.size() == 2) {
-		child->clearChildren();
 
-		auto myModel = mContentModel;
+		auto theNode = mContentModel;
 		if (pairy[1] != "this") {
-			myModel = mContentModel.getChildByName(pairy[1]);
+			theNode = mContentModel.getChildByName(pairy[1]);
 		}
-		for (auto baby : myModel.getChildren()) {
-			auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
-			child->addChildPtr(babySprite);
-			babySprite->setContentModel(baby);
+
+		if (auto smartScroller = dynamic_cast<ds::ui::SmartScrollList*>(child)) {
+			smartScroller->setItemLayoutFile(pairy[0]);
+			smartScroller->setContentList(theNode);
+		} else {
+			if (theNode.getChildren().empty()) return;
+
+			child->clearChildren();
+
+			for (auto baby : theNode.getChildren()) {
+				auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
+				child->addChildPtr(babySprite);
+				babySprite->setContentModel(baby);
+				mNeedsLayout = true;
+			}
 		}
 	}
 }

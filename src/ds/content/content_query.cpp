@@ -365,7 +365,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 	ds::model::ContentModelRef tableModel = ds::model::ContentModelRef(theTableAlias, thisId, "SQLite Table");
 
 	if (theTable.empty()) {
-		if (tableDescription.getName() != "model" && tableDescription.getName() != "meta") {
+		if (tableDescription.getName() != "model" && tableDescription.getName() != "meta" && tableDescription.getName() != "resources") {
 			DS_LOG_WARNING("ContentQuery::getDataFromTable() No table name specified in datamodel query");
 		}
 

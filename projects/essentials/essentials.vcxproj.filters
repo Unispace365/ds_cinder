@@ -153,6 +153,9 @@
     <ClCompile Include="src\ds\ui\scroll\smart_scroll_list.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\util\text_model.cpp">
+      <Filter>src\ds\ui\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -259,6 +262,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\smart_scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\util\text_model.h">
+      <Filter>src\ds\ui\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
