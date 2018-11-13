@@ -91,15 +91,19 @@ float KeyValueStore::getFloat(const std::string& key, const size_t index, const 
 }
 
 std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index) const {
-	return get_value<std::int32_t>(mInt, key, index);
+	try {
+		return get_value<std::int32_t>(mInt, key, index);
+	} catch (std::exception const&) {
+		return 0;
+	}
 }
 
 std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index, const std::int32_t notFound) const {
-	try {
-		return getInt(key, index);
-	} catch (std::exception const&) {
+	int32_t out = getInt(key, index);
+	if (out == 0) {
+		out = notFound;
 	}
-	return notFound;
+	return out;
 }
 
 std::string KeyValueStore::getString(const std::string& key, const size_t index) const {
