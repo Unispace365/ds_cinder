@@ -33,6 +33,9 @@ namespace SoftKeyboardBuilder {
 	/// Includes function keys, home/end, page up/dn, arrow keys
 	SoftKeyboard*			buildFullKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 
+	/// Doesn't include numbers, shift, enter, ', \. Only includes letters, space, and delete
+	SoftKeyboard*			buildSimplifiedKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
+	
 	/// Number entry with an "enter" button at the bottom
 	SoftKeyboard*			buildPinPadKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 	/// Number entry with a "delete" key at the bottom

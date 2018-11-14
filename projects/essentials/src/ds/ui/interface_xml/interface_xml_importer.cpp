@@ -1673,6 +1673,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 			spriddy = SoftKeyboardBuilder::buildPinCodeKeyboard(engine, sks);
 		} else if (keyboardType == "extended") {
 			spriddy = SoftKeyboardBuilder::buildExtendedKeyboard(engine, sks);
+		} else if (keyboardType == "simplified") {
+			spriddy = SoftKeyboardBuilder::buildSimplifiedKeyboard(engine, sks);
 		} else {
 			spriddy = SoftKeyboardBuilder::buildStandardKeyboard(engine, sks);
 		}
