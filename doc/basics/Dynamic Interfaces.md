@@ -86,6 +86,7 @@ Add dynamic variables to any sprite parameter. Variables are pulled from app_set
 		size="$_world_size"
 		pad_all="$_padding"
 		animate_on="$_default:anim"
+		animate_off="$_default:anim"
 		/>
 </interface>
 ```
@@ -191,10 +192,12 @@ Sprite Parameters
 * **transparent**: A boolean of wheather the sprite should draw or not. This works only locally. For base sprite, this will draw a rectangle (if the sprite has a size)
 * **visible**: A boolean of the visibilty flag. Doesn't affect the draw status, but does turn off this sprite and any children if hidden. True = show(), false = hide()
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
+* **animate_on**: Supply a script to run when tweenAnimateOff() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
 * **model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 * **each_model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
+* **each_model_limit**: Only create child sprites for the first N ContentModel children.
 * Parameters for sprites within layouts:
 	* **t_pad**: Padding on the top part of this sprite in the layout
 	* **b_pad**: Padding on the bottom part of this sprite in the layout
@@ -568,7 +571,7 @@ Supply a delay in seconds for the start of the tween. Default is 0.0 seconds.
     delay:0.4;
 
 **Cascading delays:**
-When calling tweenAnimateOn(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
+When calling tweenAnimateOn()/tweenAnimateOff(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
 
 
 ContentModel & SmartLayout
@@ -645,7 +648,6 @@ addional functions):
 		model="text_model:this"
 		/>
 ```
-
 
 
 `each_model` Property

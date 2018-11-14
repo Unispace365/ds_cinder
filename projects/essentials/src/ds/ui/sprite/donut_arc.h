@@ -51,7 +51,7 @@ protected:
 	float		mDonutWidth;
 	float		mPercent;
 	float		mDrawPercent;
-	float		mIsAntiClock;
+	bool		mIsAntiClock;
 };
 
 } // namespace ui

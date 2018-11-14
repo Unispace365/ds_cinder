@@ -19,7 +19,7 @@ std::string processTextModel(const std::string& format, ds::model::ContentModelR
 
 	// any section within '{}' will be replaced with the value from the content model
 	for (const auto& elemPair : paired) {
-		const bool		   isInside = elemPair.first;
+		const bool		   isInside = static_cast<bool>(elemPair.first);
 		const std::string& theStr   = elemPair.second;
 
 		if (isInside) {
@@ -34,7 +34,7 @@ std::string processTextModel(const std::string& format, ds::model::ContentModelR
 	paired = ds::extractPairs(output, "fn(", ")");
 	output = "";
 	for (const auto& elemPair : paired) {
-		const bool		   isInside = elemPair.first;
+		const bool		   isInside = static_cast<bool>(elemPair.first);
 		const std::string& theStr   = elemPair.second;
 
 		if (isInside) {

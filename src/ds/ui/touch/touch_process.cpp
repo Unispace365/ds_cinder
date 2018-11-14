@@ -258,7 +258,7 @@ void TouchProcess::initializeTouchPoints()
 		return;
 	}
 
-	int potentialFarthestIndexes[2];
+	int potentialFarthestIndexes[2] = { 0, 0 };
 	float potentialFarthestDistance = 0.0f;
 
 	for ( auto it = mFingers.begin(), it2 = mFingers.end(); it != it2; ++it )

@@ -18,6 +18,9 @@ class ContentModelRef;
 namespace ui {
 
 
+/// Process a string:
+///   Values inside '{'..'}' will be replaced with the corresponding property from the content model
+///   Then anything within 'fn('..')' will try to find a corresponding 'function' and replace
 std::string processTextModel(const std::string& format, ds::model::ContentModelRef& model);
 
 std::string processTextFunction(std::vector<std::string>& fnSplit);

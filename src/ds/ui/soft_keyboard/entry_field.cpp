@@ -237,7 +237,7 @@ void EntryField::resetCurrentText() {
 
 void EntryField::pasteText(const std::wstring& insertText) {
 	if(insertText.empty()) return;
-	int postCursorIndex = mCursorIndex + static_cast<int>(insertText.size());
+	int postCursorIndex = static_cast<int>(mCursorIndex + insertText.size());
 	std::wstring preText = mCurrentText.substr(0, mCursorIndex);
 	std::wstring postText = mCurrentText.substr(mCursorIndex);
 	std::wstringstream wss;

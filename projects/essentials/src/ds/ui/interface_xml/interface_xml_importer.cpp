@@ -312,7 +312,7 @@ std::string XmlImporter::parseAllExpressions(const std::string& value) {
 	// anything between '#expr{' and '}' will be a pair of (1, str),
 	// and non-expr parts of the string will be pairs of (0, str)
 	for (const auto elemPair : ds::extractPairs(value, "#expr{", "}")) {
-		bool isExpr = elemPair.first;
+		bool isExpr = static_cast<bool>(elemPair.first);
 		const std::string& val = elemPair.second;
 		if (isExpr) {
 			finalValue.append(parseExpression(val));
@@ -484,6 +484,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		(isVisible) ? sprite.show() : sprite.hide();
 	} else if (property == "animate_on") {
 		sprite.setAnimateOnScript(value);
+	} else if (property == "animate_off") {
+		sprite.setAnimateOffScript(value);
 	} else if (property == "corner_radius") {
 		sprite.setCornerRadius(ds::string_to_float(value));
 	} else if (property == "t_pad") {
@@ -1209,6 +1211,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Setting each_model on a sprite with children is risky, things might go wrong here! (Ignore for smart_scroll_list)");
 		}
 		sprite.getUserData().setString(property, value);
+	} else if (property == "each_model_limit"){
+		sprite.getUserData().setInt(property, ds::string_to_int(value));
 	}
 	// fallback to engine-registered properites last
 	else if (engine.setRegisteredSpriteProperty(property, sprite, value, referer)) {

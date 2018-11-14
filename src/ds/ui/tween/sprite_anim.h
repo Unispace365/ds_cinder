@@ -133,11 +133,29 @@ public:
 
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
-	void									tweenAnimateOn(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f);
+	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param deltaDelay	Extra delay to add for each animation
+	/// \param finishFn		Optional callback to be run when all animations complete
+	/// \return Duration of the entire animation (including any recursion)
+	float									tweenAnimateOn(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f, const std::function<void(void)>& finishFn = nullptr);
+
+	/// Runs any script set as the animate off script. Optionally runs through any children sprites and runs those as well.
+	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
+	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param deltaDelay	Extra delay to add for each animation
+	/// \param finishFn		Optional callback to be run when all animations complete
+	/// \return Duration of the entire animation (including any recursion)
+	float									tweenAnimateOff(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f, const std::function<void(void)>& finishFn = nullptr);
 
 	/// Sets the script to use in the above tweenAnimateOn() function
 	void									setAnimateOnScript(const std::string& animateOnScript);
+	/// Gets the script to use in the above tweenAnimateOn() function
 	const std::string&						getAnimateOnScript(){ return mAnimateOnScript; }
+
+	/// Sets the script to use in the above tweenAnimateOff() function
+	void									setAnimateOffScript(const std::string& animateOffScript);
+	/// Gets the script to use in the above tweenAnimateOff() function
+	const std::string&						getAnimateOffScript(){ return mAnimateOffScript; }
 
 	/// Sets the targets for animate on. This only applies to fade, grow and slide. The intent here is to make tweenAnimateOn() reliable through multiple calls at any time.
 	void									setAnimateOnTargets();
@@ -160,7 +178,12 @@ public:
 			fade: tweens the opacity to the cached opacity and starts at the supplied value
 		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
 		*/
-	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+	float									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+	float									runAnimationOffScript(const std::string& animScript, const float addedDelay = 0.0f);
+
+	/// Can run animation scripts from current values to animateOnTargets OR from targets to
+	///  current/off state
+	float									runReversibleAnimationScript(const std::string& animScript, const float addedDelay = 0.f, const bool isReverse = false);
 
 	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);
 	void									parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays);
@@ -183,6 +206,8 @@ private:
 	Sprite&									mOwner;
 	SpriteEngine&							mEngine;
 
+	std::string								mAnimateOffScript;
+
 	std::string								mAnimateOnScript;
 	bool									mAnimateOnTargetsSet;
 	ci::vec3								mAnimateOnScaleTarget;
@@ -199,6 +224,9 @@ private:
 	ci::TweenRef<ci::Color>					mInternalColorCinderTweenRef;
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
+
+	/// CueRef for animate on/off finshedCallback
+	ci::CueRef			mAnimScriptCueRef;
 
 	/// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
 	/// Cleared automatically on destruction

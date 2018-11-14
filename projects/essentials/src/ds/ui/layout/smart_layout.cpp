@@ -259,7 +259,12 @@ void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::strin
 
 			child->clearChildren();
 
+			int limit = child->getUserData().getInt("each_model_limit", 0, 0);
+			if (limit == 0) limit = -1;
+
 			for (auto baby : theNode.getChildren()) {
+				if(limit-- == 0) break;
+
 				auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
 				child->addChildPtr(babySprite);
 				babySprite->setContentModel(baby);

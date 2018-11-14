@@ -22,6 +22,7 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
 	, mAnimateOnScript("")
+	, mAnimateOffScript("")
 	, mNormalizedTweenValue(0.0f)
 	, mInternalColorCinderTweenRef(nullptr)
 	, mInternalScaleCinderTweenRef(nullptr)
@@ -31,6 +32,7 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mInternalOpacityCinderTweenRef(nullptr)
 	, mInternalNormalizedCinderTweenRef(nullptr)
 	, mDelayedCallCueRef(nullptr)
+	, mAnimScriptCueRef(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
@@ -42,6 +44,7 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalOpacityCinderTweenRef = nullptr;
 	mInternalNormalizedCinderTweenRef = nullptr;
 	mDelayedCallCueRef = nullptr;
+	mAnimScriptCueRef = nullptr;
 	mMultiDelayedCallCueRefs.clear();
 }
 
@@ -333,6 +336,7 @@ void SpriteAnimatable::animNormalizedStop(){
 }
 
 void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const bool recursive){
+	// Complete all my tweens
 	completeTweenColor(callFinishFunctions);
 	completeTweenOpacity(callFinishFunctions);
 	completeTweenPosition(callFinishFunctions);
@@ -341,30 +345,43 @@ void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const b
 	completeTweenSize(callFinishFunctions);
 	completeTweenNormalized(callFinishFunctions);
 
+	// Complete my babies tweenies
 	if(recursive){
-		const std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
-		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
-			Sprite*		s(*it);
-			if(s) {
-				s->completeAllTweens(callFinishFunctions, true);
+		for(auto child : mOwner.mChildren) {
+			if(child) {
+				child->completeAllTweens(callFinishFunctions, true);
 			}
 		}
+	}
+
+	// If we have an animateOn/Off callback, clear it or call it
+	if(mAnimScriptCueRef){
+		if(callFinishFunctions) { mAnimScriptCueRef->complete(); }
+		else { mAnimScriptCueRef->removeSelf(); }
 	}
 }
 
-void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, const float deltaDelay){
+float SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, const float deltaDelay, const std::function<void(void)>& finishFn){
+	if(mAnimScriptCueRef) mAnimScriptCueRef->removeSelf();
+
 	float thisDelay = delay;
-	runAnimationScript(mAnimateOnScript, thisDelay);
+	float total = delay;
+	total = std::max(total, runAnimationScript(mAnimateOnScript, thisDelay));
 	if(recursive){
-		const std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
-		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
-			Sprite*		s(*it);
-			if(s) {
+		for(auto it = begin(mOwner.mChildren); it != end(mOwner.mChildren); ++it) {
+			auto child = *it;
+			if(child) {
 				thisDelay += deltaDelay;
-				s->tweenAnimateOn(true, thisDelay, deltaDelay);
+				total = std::max(total, child->tweenAnimateOn(true, thisDelay, deltaDelay));
 			}
 		}
 	}
+	if(finishFn){
+		auto& timeline = mEngine.getTweenline().getTimeline();
+		mAnimScriptCueRef = timeline.add(finishFn, timeline.getCurrentTime()+total);
+	}
+
+	return total;
 }
 
 void SpriteAnimatable::setAnimateOnScript(const std::string& animateOnScript){
@@ -388,29 +405,66 @@ void SpriteAnimatable::clearAnimateOnTargets(const bool recursive){
 	mAnimateOnTargetsSet = false;
 	if(recursive){
 		const auto chillins = mOwner.getChildren();
-		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
-			Sprite*		s(*it);
-			if(s) {
-				s->clearAnimateOnTargets(recursive);
+		for(auto child : mOwner.mChildren) {
+			if(child) {
+				child->clearAnimateOnTargets(recursive);
 			}
 		}
 	}
 }
 
-void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){
-	if (animScript.empty()) return;
+float SpriteAnimatable::tweenAnimateOff(const bool recursive, const float delay, const float deltaDelay, const std::function<void(void)>& finishFn){
+	if(mAnimScriptCueRef) mAnimScriptCueRef->removeSelf();
+
+	float thisDelay = delay;
+	float total = delay;
+	if(recursive){
+		for(auto rit = rbegin(mOwner.mChildren); rit != rend(mOwner.mChildren); ++rit) {
+			auto child = *rit;
+			if(child) {
+				thisDelay += deltaDelay;
+				total = std::max(total, child->tweenAnimateOff(true, thisDelay, deltaDelay));
+			}
+		}
+	}
+	total = std::max(total, runAnimationOffScript(mAnimateOffScript, thisDelay+deltaDelay));
+
+	if(finishFn){
+		auto& timeline = mEngine.getTweenline().getTimeline();
+		mAnimScriptCueRef = timeline.add(finishFn, timeline.getCurrentTime()+total);
+	}
+
+	return total;
+}
+
+void SpriteAnimatable::setAnimateOffScript(const std::string& animateOffScript){
+	mAnimateOffScript = animateOffScript;
+}
+
+float SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){
+	return runReversibleAnimationScript(animScript, addedDelay, false);
+}
+
+float SpriteAnimatable::runAnimationOffScript(const std::string& animScript, const float addedDelay){
+	return runReversibleAnimationScript(animScript, addedDelay, true);
+}
+
+float SpriteAnimatable::runReversibleAnimationScript(const std::string& animScript, const float addedDelay, const bool isReverse){
+	if (animScript.empty()) addedDelay;
 
 	// find all the commands in the string
 	std::vector<std::string> commands = ds::split(animScript, "; ", true);
 
-	if (commands.empty()) return;
+	if (commands.empty()) addedDelay;
 
 	// set default parameters, if they're not supplied by the string
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = mEngine.getAnimDur();
 	float delayey = addedDelay;
-	if (!&mOwner)
-		return;
+
+	// I'm 98% sure this can never return true.
+	// if (!&mOwner)
+	// 	return 0.f;
 	ci::vec3 currentPos = mOwner.getPosition();
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
@@ -498,35 +552,67 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 		else if (animType == "shift"){
 			tweenPosition(currentPos + dest, dur, delayey, easing);
 		}
-		else if (animType == "slide"){
-			setAnimateOnTargetsIfNeeded();
-			mOwner.setPosition(mAnimateOnPositionTarget + dest);
-			tweenPosition(mAnimateOnPositionTarget, dur, delayey, easing);
 
-		}
-		else if (animType == "fade"){
-			setAnimateOnTargetsIfNeeded();
-			if (dest.x == 0.0f){
-				mOwner.setOpacity(0.0f);
-			}
-			else {
-				mOwner.setOpacity(mAnimateOnOpacityTarget + dest.x);
-			}
-			tweenOpacity(mAnimateOnOpacityTarget, dur, delayey, easing);
+		if(!isReverse){
+			if (animType == "slide") {
+				setAnimateOnTargetsIfNeeded();
+				mOwner.setPosition(mAnimateOnPositionTarget + dest);
+				tweenPosition(mAnimateOnPositionTarget, dur, delayey, easing);
 
-		}
-		else if (animType == "grow"){
-			setAnimateOnTargetsIfNeeded();
-			if (dest.x == 0.0f && dest.y == 0.0f){
-				mOwner.setScale(0.0f);
 			}
-			else {
-				mOwner.setScale(mAnimateOnScaleTarget + dest);
+			else if (animType == "fade") {
+				setAnimateOnTargetsIfNeeded();
+				if (dest.x == 0.0f) {
+					mOwner.setOpacity(0.0f);
+				}
+				else {
+					mOwner.setOpacity(mAnimateOnOpacityTarget + dest.x);
+				}
+				tweenOpacity(mAnimateOnOpacityTarget, dur, delayey, easing);
+
 			}
-			tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
+			else if (animType == "grow") {
+				setAnimateOnTargetsIfNeeded();
+				if (dest.x == 0.0f && dest.y == 0.0f) {
+					mOwner.setScale(0.0f);
+				}
+				else {
+					mOwner.setScale(mAnimateOnScaleTarget + dest);
+				}
+				tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
+			}
+		}else{
+			if (animType == "slide"){
+				setAnimateOnTargetsIfNeeded();
+				mOwner.setPosition(mAnimateOnPositionTarget);
+				tweenPosition(mAnimateOnPositionTarget + dest, dur, delayey, easing);
+
+			}
+			else if (animType == "fade"){
+				setAnimateOnTargetsIfNeeded();
+				mOwner.setOpacity(mAnimateOnOpacityTarget);
+				if (dest.x == 0.0f){
+					tweenOpacity(0.f, dur, delayey, easing);
+				}
+				else {
+					tweenOpacity(mAnimateOnOpacityTarget + dest.x, dur, delayey, easing);
+				}
+
+			}
+			else if (animType == "grow"){
+				setAnimateOnTargetsIfNeeded();
+				mOwner.setScale(mAnimateOnScaleTarget);
+				if (dest.x == 0.0f && dest.y == 0.0f){
+					tweenScale(ci::vec3( 0.f ), dur, delayey, easing);
+				}
+				else {
+					tweenScale(mAnimateOnScaleTarget + dest, dur, delayey, easing);
+				}
+			}
 		}
 	}
 	
+	return dur+delayey;
 }
 
 void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay /*= 0.0f*/)
@@ -600,54 +686,38 @@ void SpriteAnimatable::parseMultiScripts(const std::vector<std::string> animScri
 }
 
 ci::EaseFn SpriteAnimatable::getEasingByString(const std::string& inString){
-	static std::map<std::string, ci::EaseFn> easings;
-	if(easings.empty()){
-		easings["none"] = ci::easeNone;
-		easings["inQuad"] = ci::easeInQuad;
-		easings["outQuad"] = ci::easeOutQuad;
-		easings["inOutQuad"] = ci::easeInOutQuad;
-		easings["inCubic"] = ci::easeInCubic;
-		easings["outCubic"] = ci::easeOutCubic;
-		easings["inOutCubic"] = ci::easeInOutCubic;
-		easings["inQuart"] = ci::easeInQuart;
-		easings["outQuart"] = ci::easeOutQuart;
-		easings["inOutQuart"] = ci::easeInOutQuart;
-		easings["inQuint"] = ci::easeInQuint;
-		easings["outQuint"] = ci::easeOutQuint;
-		easings["inOutQuint"] = ci::easeInOutQuint;
-		easings["inSine"] = ci::easeInSine;
-		easings["outSine"] = ci::easeOutSine;
-		easings["inOutSine"] = ci::easeInOutSine;
-		easings["inExpo"] = ci::easeInExpo;
-		easings["outExpo"] = ci::easeOutExpo;
-		easings["inOutExpo"] = ci::easeInOutExpo;
-		easings["inCirc"] = ci::easeInCirc;
-		easings["outCirc"] = ci::easeOutCirc;
-		easings["inOutCirc"] = ci::easeInOutCirc;
-
-		// These easings require instantiation with a default parameter
-		easings["inBounce"] = ci::EaseInBounce();
-		easings["outBounce"] = ci::EaseOutBounce();
-		easings["inOutBounce"] = ci::EaseInOutBounce();
-		easings["inBack"] = ci::EaseInBack();
-		easings["outBack"] = ci::EaseOutBack();
-		easings["inOutBack"] = ci::EaseInOutBack();
-		easings["inAtan"] = ci::EaseInAtan();
-		easings["outAtan"] = ci::EaseOutAtan();
-		easings["inOutAtan"] = ci::EaseInOutAtan();
-
-		// note: elastic easings require a parameter to be instantiated, so can't be used by this lookup method :(
-		//easings["inElastic"] = ci::EaseInElastic();
-		//easings["outElastic"] = ci::EaseOutElastic();
-		//easings["inOutElastic"] = ci::EaseInOutElastic();
-	}
-
-	auto fit = easings.find(inString);
-	if(fit != easings.end()){
-		return fit->second;
-	}
-
-	return ci::easeNone;
+	if(inString == "none") { return ci::easeNone; }
+	if(inString == "inQuad") { return ci::easeInQuad; }
+	if(inString == "outQuad") { return ci::easeOutQuad; }
+	if(inString == "inOutQuad") { return ci::easeInOutQuad; }
+	if(inString == "inCubic") { return ci::easeInCubic; }
+	if(inString == "outCubic") { return ci::easeOutCubic; }
+	if(inString == "inOutCubic") { return ci::easeInOutCubic; }
+	if(inString == "inQuart") { return ci::easeInQuart; }
+	if(inString == "outQuart") { return ci::easeOutQuart; }
+	if(inString == "inOutQuart") { return ci::easeInOutQuart; }
+	if(inString == "inQuint") { return ci::easeInQuint; }
+	if(inString == "outQuint") { return ci::easeOutQuint; }
+	if(inString == "inOutQuint") { return ci::easeInOutQuint; }
+	if(inString == "inSine") { return ci::easeInSine; }
+	if(inString == "outSine") { return ci::easeOutSine; }
+	if(inString == "inOutSine") { return ci::easeInOutSine; }
+	if(inString == "inExpo") { return ci::easeInExpo; }
+	if(inString == "outExpo") { return ci::easeOutExpo; }
+	if(inString == "inOutExpo") { return ci::easeInOutExpo; }
+	if(inString == "inCirc") { return ci::easeInCirc; }
+	if(inString == "outCirc") { return ci::easeOutCirc; }
+	if(inString == "inOutCirc") { return ci::easeInOutCirc; }
+	if(inString == "inBounce") { return ci::EaseInBounce(); }
+	if(inString == "outBounce") { return ci::EaseOutBounce(); }
+	if(inString == "inOutBounce") { return ci::EaseInOutBounce(); }
+	if(inString == "inBack") { return ci::EaseInBack(); }
+	if(inString == "outBack") { return ci::EaseOutBack(); }
+	if(inString == "inOutBack") { return ci::EaseInOutBack(); }
+	if(inString == "inAtan") { return ci::EaseInAtan(); }
+	if(inString == "outAtan") { return ci::EaseOutAtan(); }
+	if(inString == "inOutAtan") { return ci::EaseInOutAtan(); }
+	else { return ci::easeNone; }
 }
 
 } // namespace ui
