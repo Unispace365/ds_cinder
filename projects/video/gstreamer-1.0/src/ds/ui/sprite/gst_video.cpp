@@ -1360,6 +1360,19 @@ void GstVideo::setAudioDeviceVolume(GstAudioDevice& deviceWithVolume) {
 
 void GstVideo::setAudioDevicePan(GstAudioDevice& deviceWithPan) { mGstreamerWrapper->setAudioDevicePan(deviceWithPan); }
 
+
+void GstVideo::setSpeed(const float speed){
+	if(mGstreamerWrapper) mGstreamerWrapper->setSpeed(speed);
+	else {
+		DS_LOG_WARNING("Unable to set video speed, no GstreamerWrapper");
+	}
+}
+
+float GstVideo::getSpeed() const {
+	if(mGstreamerWrapper) return mGstreamerWrapper->getSpeed();
+	else return 1.f;
+}
+
 GstVideo::Status::Status(int code) { mCode = code; }
 
 bool GstVideo::Status::operator==(int status) const { return mCode == status; }
