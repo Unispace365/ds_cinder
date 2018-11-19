@@ -7,8 +7,8 @@
 namespace ds {
 namespace ui {
 
-SmartScrollList::SmartScrollList(ds::ui::SpriteEngine& eng, const std::string& itemLayoutFile)
-	: ScrollList(eng)
+SmartScrollList::SmartScrollList(ds::ui::SpriteEngine& eng, const std::string& itemLayoutFile, const bool vertical)
+	: ScrollList(eng, vertical)
 	, mContentItemTapped(nullptr)
 {
 
@@ -97,10 +97,14 @@ void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
 	/// grab the height from the item, then get rid of it
 	ds::ui::SmartLayout* tempItem = new ds::ui::SmartLayout(mEngine, itemLayout);
 	tempItem->runLayout();
-	float itemHeight = tempItem->getHeight();
+	auto itemSize = tempItem->getSize();
 	tempItem->release();
 
-	setLayoutParams(0.0f, 0.0f, itemHeight);
+	if (isVerticalScroll()) {
+		setLayoutParams(0.0f, 0.0f, itemSize.y);
+	} else {
+		setLayoutParams(0.0f, 0.0f, itemSize.x);
+	}
 
 	setCreateItemCallback([this, itemLayout]()->ds::ui::Sprite* {
 		return new SmartLayout(mEngine, itemLayout);

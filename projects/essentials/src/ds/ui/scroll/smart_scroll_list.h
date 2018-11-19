@@ -22,7 +22,7 @@ class SmartLayout;
 **/
 class SmartScrollList : public ScrollList {
 public:
-	SmartScrollList(ds::ui::SpriteEngine& eng, const std::string& itemLayoutFile = "");
+	SmartScrollList(ds::ui::SpriteEngine& eng, const std::string& itemLayoutFile = "", const bool vertical = true);
 
 	/// Callback when an item in the list is tapped. 
 	/// The SmartLayout is the item, the model is the ContentModelRef from that item

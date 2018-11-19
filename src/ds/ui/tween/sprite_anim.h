@@ -134,6 +134,7 @@ public:
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
 	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param delay		Delay before starting animation
 	/// \param deltaDelay	Extra delay to add for each animation
 	/// \param finishFn		Optional callback to be run when all animations complete
 	/// \return Duration of the entire animation (including any recursion)
@@ -142,6 +143,7 @@ public:
 	/// Runs any script set as the animate off script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
 	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param delay		Delay before starting animation
 	/// \param deltaDelay	Extra delay to add for each animation
 	/// \param finishFn		Optional callback to be run when all animations complete
 	/// \return Duration of the entire animation (including any recursion)
@@ -181,8 +183,7 @@ public:
 	float									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
 	float									runAnimationOffScript(const std::string& animScript, const float addedDelay = 0.0f);
 
-	/// Can run animation scripts from current values to animateOnTargets OR from targets to
-	///  current/off state
+	/// Run an animation script from current values to animateOnTargets OR from targets to  current/off state (reversible)
 	float									runReversibleAnimationScript(const std::string& animScript, const float addedDelay = 0.f, const bool isReverse = false);
 
 	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);

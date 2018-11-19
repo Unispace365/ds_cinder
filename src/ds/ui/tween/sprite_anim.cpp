@@ -356,8 +356,9 @@ void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const b
 
 	// If we have an animateOn/Off callback, clear it or call it
 	if(mAnimScriptCueRef){
-		if(callFinishFunctions) { mAnimScriptCueRef->complete(); }
-		else { mAnimScriptCueRef->removeSelf(); }
+		if(callFinishFunctions) { mAnimScriptCueRef->getFn()(); }
+
+		mAnimScriptCueRef->removeSelf();
 	}
 }
 
@@ -422,8 +423,8 @@ float SpriteAnimatable::tweenAnimateOff(const bool recursive, const float delay,
 		for(auto rit = rbegin(mOwner.mChildren); rit != rend(mOwner.mChildren); ++rit) {
 			auto child = *rit;
 			if(child) {
-				thisDelay += deltaDelay;
 				total = std::max(total, child->tweenAnimateOff(true, thisDelay, deltaDelay));
+				thisDelay += deltaDelay;
 			}
 		}
 	}
@@ -450,12 +451,12 @@ float SpriteAnimatable::runAnimationOffScript(const std::string& animScript, con
 }
 
 float SpriteAnimatable::runReversibleAnimationScript(const std::string& animScript, const float addedDelay, const bool isReverse){
-	if (animScript.empty()) addedDelay;
+	if (animScript.empty()) return 0.f;
 
 	// find all the commands in the string
 	std::vector<std::string> commands = ds::split(animScript, "; ", true);
 
-	if (commands.empty()) addedDelay;
+	if (commands.empty()) return 0.f;
 
 	// set default parameters, if they're not supplied by the string
 	ci::EaseFn easing = ci::EaseInOutCubic();
@@ -583,13 +584,13 @@ float SpriteAnimatable::runReversibleAnimationScript(const std::string& animScri
 			}
 		}else{
 			if (animType == "slide"){
-				setAnimateOnTargetsIfNeeded();
+				//setAnimateOnTargetsIfNeeded();
 				mOwner.setPosition(mAnimateOnPositionTarget);
 				tweenPosition(mAnimateOnPositionTarget + dest, dur, delayey, easing);
 
 			}
 			else if (animType == "fade"){
-				setAnimateOnTargetsIfNeeded();
+				//setAnimateOnTargetsIfNeeded();
 				mOwner.setOpacity(mAnimateOnOpacityTarget);
 				if (dest.x == 0.0f){
 					tweenOpacity(0.f, dur, delayey, easing);
@@ -600,7 +601,7 @@ float SpriteAnimatable::runReversibleAnimationScript(const std::string& animScri
 
 			}
 			else if (animType == "grow"){
-				setAnimateOnTargetsIfNeeded();
+				//setAnimateOnTargetsIfNeeded();
 				mOwner.setScale(mAnimateOnScaleTarget);
 				if (dest.x == 0.0f && dest.y == 0.0f){
 					tweenScale(ci::vec3( 0.f ), dur, delayey, easing);

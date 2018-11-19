@@ -1574,8 +1574,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if (type == "centered_scroll_area") {
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
-	} else if (type == "smart_scroll_list") {
+	} else if (type == "smart_scroll_list" || type == "smart_scroll_list_vertical") {
 		spriddy = new ds::ui::SmartScrollList(engine, value);
+	} else if (type == "smart_scroll_list_horizontal") {
+		spriddy = new ds::ui::SmartScrollList(engine, value, false);
 	} else if (type == "control_check_box") {
 		spriddy = new ds::ui::ControlCheckBox(engine);
 	} else if (type == "control_slider" || type == "control_slider_horizontal") {

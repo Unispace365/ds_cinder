@@ -356,6 +356,8 @@ Scroll List Parameters
 
 Smart Scroll List Parameters
 --------------------------------------
+* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal
+	layout.
 * **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
 
 EntryField and SoftKeyboard Parameters
