@@ -25,7 +25,7 @@ std::string processTextModel(const std::string& format, ds::model::ContentModelR
 
 std::string processTextFunction(std::vector<std::string>& fnSplit);
 
-std::string utcFormat(const std::string& value, const std::string& outFmt, const std::string& parseFmt = "");
+std::string utcFormat(const std::string& value, const std::string& outFmt, const std::string& parseFmt = "", const bool isLocal = false);
 
 }  // namespace ui
 }  // namespace ui
