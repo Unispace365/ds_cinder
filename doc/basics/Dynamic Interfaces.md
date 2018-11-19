@@ -639,7 +639,8 @@ Available Functions (See projects/essentials/src/ds/ui/util/text_model.cpp for d
 addional functions):
 * fn(upper,{...}) - Convert string to uppercase
 * fn(lower,{...}) - Convert string to lowercase
-* fn(utc_format,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT.
+* fn(utc,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT.
+* fn(utc_local,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT for local timezone.
 	See the [Poco DateTimeFormatter](https://pocoproject.org/docs/Poco.DateTimeFormatter.html#9945)
 	docs for valid format options.
 
