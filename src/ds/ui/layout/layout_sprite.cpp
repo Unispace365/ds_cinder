@@ -19,6 +19,7 @@ LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
 	, mShrinkToChildren(kShrinkNone)
 	, mOverallAlign(0)
 	, mLayoutUpdatedFunction(nullptr)
+	, mSkipHiddenChildren(false)
 {
 
 }
@@ -57,6 +58,7 @@ void LayoutSprite::runSizeLayout(){
 	// If children should ignore the size, don't add a layout size and set them to fixed.
 	// Otherwise, stretch and flex both "gracefully" match sprites to the size of this layout
 	for(auto chillin : mChildren){
+		if(mSkipHiddenChildren && !chillin->visible()) continue;
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
@@ -114,7 +116,10 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 	// Also run recursive layouts on any non-stretch layouts and size any flexible items
 	int spacedChildren = 0;
 
-	for(auto chillin : mChildren){
+	for(auto chillin : mChildren) {
+
+		if(mSkipHiddenChildren && !chillin->visible()) continue;
+
 		if(chillin->mLayoutUserType == kFillSize){
 			hasFills = true;
 		} else {
@@ -224,7 +229,10 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 
 	// now that we know the offset and per stretch size, go through the children again, set position for all fixed, flex, and stretch children 
 	// and set the size of any stretch children
-	for(auto chillin : mChildren){
+	for(auto chillin : mChildren) {
+
+		if(mSkipHiddenChildren && !chillin->visible()) continue;
+
 		if(chillin->mLayoutUserType == kFillSize) {
 			continue;
 		}
@@ -319,7 +327,10 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 
 	// finally set the position and size of any fill children
 	if(hasFills){
-		for(auto chillin : mChildren){
+		for(auto chillin : mChildren) {
+
+			if(mSkipHiddenChildren && !chillin->visible()) continue;
+
 			if(chillin->mLayoutUserType == kFillSize){
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;

@@ -65,6 +65,10 @@ public:
 	const ShrinkType&		getShrinkToChildren() { return mShrinkToChildren; }
 	void					setShrinkToChildren(const ShrinkType& shrink) { mShrinkToChildren = shrink; }
 
+	/// If a child is hidden (hide() not setTransparent(false)) will be completely ignored in layouts. Default = false
+	const bool				getSkipHiddenChildren() { return mSkipHiddenChildren; }
+	void					setSkipHiddenChildren(const bool skipHidden) { mSkipHiddenChildren = skipHidden; }
+
 	/// Helper functions for constructing xml sheets for layouts
 	static std::string		getLayoutSizeModeString(const int sizeMode);
 	static std::string		getLayoutVAlignString(const int vAlign);
@@ -87,6 +91,7 @@ protected:
 	LayoutType				mLayoutType;
 	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 	ShrinkType				mShrinkToChildren;
+	bool					mSkipHiddenChildren;
 
 };
 
