@@ -106,6 +106,13 @@ void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
 		setLayoutParams(0.0f, 0.0f, itemSize.x);
 	}
 
+	// If the layout file might have changed, any reserve or current sprites could be invalid.
+	clearItems();
+	for(auto res : mReserveItems){
+		if(res) res->release();
+	}
+	mReserveItems.clear();
+
 	setCreateItemCallback([this, itemLayout]()->ds::ui::Sprite* {
 		return new SmartLayout(mEngine, itemLayout);
 	});
