@@ -55,6 +55,15 @@
 				model="text_model:this"
 				animate_on="$_default:anim"
 				/>
+				
+		<layout name="forecast"
+			layout_type="horiz"
+			shrink_to_children="both"
+			layout_h_align="center"
+			layout_spacing="30"
+			each_model="forecast.xml:forecast"
+			each_model_limit="10"
+			/>
 	</layout>
 	
 	

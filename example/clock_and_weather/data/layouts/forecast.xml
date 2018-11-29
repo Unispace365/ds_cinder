@@ -1,0 +1,61 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			overall_alignment="center"
+			shrink_to_children="both"
+			layout_spacing="5"
+		>
+		<text name="emoji"
+				text_align="center"
+				layout_h_align="center"
+				font="weather:conditions"
+				font_size="60"
+				text_model_format="{weather_emoji}"
+				model="text_model:this"
+				animate_on="$_default:anim"
+				/>
+		<text name="temp"
+				text_align="center"
+				layout_h_align="center"
+				font="weather:temp"
+				font_size="24"
+				text_model_format="{temperature_string}"
+				model="text_model:this"
+				animate_on="$_default:anim"
+				
+				/>
+		<text name="status"
+				text_align="center"
+				layout_h_align="center"
+				font="weather:conditions"
+				text_model_format="fn(upper,{weather_name})"
+				model="text_model:this"
+				animate_on="$_default:anim"
+				/>
+				
+		<text name="time"
+				text_align="center"
+				layout_h_align="center"
+				font="weather:conditions"
+				text_model_format="fn(utc_local,{time_from},%h:%M %a)"
+				model="text_model:this"
+				color="orange"
+				animate_on="$_default:anim"
+				/>
+		<!--
+		<text name="details"
+				text_align="center"
+				layout_h_align="center"
+				font="weather:details"
+				text_model_format="<b>WIND:</b>		{wind_speed}{wind_speed_unit} {wind_code} {wind_name}<br><b>PRECIP:</b> 	{precip_mode}<br><b>CLOUDS:</b>	{cloud_percent}%<br><b>HUMIDITY:</b>	{humidity}{humidity_unit}<br><b>VISIBILITY:</b>	{visibility_miles} miles<br><b>PRESSURE:</b>	{pressure} {pressure_unit}"
+				model="text_model:this"
+				animate_on="$_default:anim"
+				/>
+		-->
+	</layout>
+	
+	
+</interface>
+
+

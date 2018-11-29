@@ -6,6 +6,7 @@
 #include <ds/debug/logger.h>
 
 namespace ds {
+namespace weather {
 
 WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 	: mEngine(eng)
@@ -14,13 +15,13 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 	, mForecastRequest(eng)
 {
 
+	/*
 	ds::model::ContentModelRef currentWeather = ds::model::ContentModelRef("current_weather");
 	mEngine.mContent.addChild(currentWeather);
 
 	ds::model::ContentModelRef weatherForecast = ds::model::ContentModelRef("weather_forecast");
 	mEngine.mContent.addChild(weatherForecast);
 
-	/*
 	mEventClient.listenToEvents<SendMqttMessageEvent>([this](const SendMqttMessageEvent& e) {
 	mMqttWatcher.sendOutboundMessage(e.mMessage);
 	});
@@ -34,7 +35,7 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 			//std::cout << "got a reply " << std::endl << reply << std::endl;
 
 			try {
-				auto currentWeather = ds::model::ContentModelRef("current_weather");
+				auto currentWeather = ds::model::ContentModelRef(mSettings.mName);
 
 				ds::model::ContentModelRef conditions = ds::model::ContentModelRef("conditions");
 
@@ -66,6 +67,9 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 				addAttributeParam(sun, currentWeather, "set", "sun_set");
 				addAttributeParam(upda, currentWeather, "value", "updated_at");
 
+				addAttributeParam(upda, conditions, "value", "time_from");
+				addAttributeParam(upda, conditions, "value", "time_to");
+
 				addAttributeParam(temp, conditions, "value", "temperature");
 				addAttributeParam(temp, conditions, "min", "temperature_min");
 				addAttributeParam(temp, conditions, "max", "temperature_max");
@@ -73,10 +77,10 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 
 				std::wstring tempString = conditions.getPropertyWString("temperature");
 				auto theAmount = conditions.getPropertyFloat("temperature");
-				if(mUnit == "imperial") {
+				if(mSettings.mUnits == "imperial") {
 					int roundedAmount = (int)roundf(theAmount);
 					tempString = std::to_wstring(roundedAmount) + L"°F";
-				} else if(mUnit == "metric") {
+				} else if(mSettings.mUnits == "metric") {
 					tempString += L"°C";
 				} else {
 					tempString += L"°K";
@@ -94,7 +98,7 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 				addAttributeParam(wspe, conditions, "name", "wind_name");
 
 				std::string windSpeedUnit = "m/s";
-				if(mUnit == "imperial") {
+				if(mSettings.mUnits == "imperial") {
 					windSpeedUnit = "mph";
 				}
 				conditions.setProperty("wind_speed_unit", windSpeedUnit);
@@ -131,17 +135,25 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 				currentWeather.addChild(conditions);
 				//currentWeather.printTree(true);
 
+				bool found = false;
 				std::vector<ds::model::ContentModelRef> allChillins;
 				for(auto it : mEngine.mContent.getChildren()) {
-					if(it.getName() == "current_weather") {
+					if(it.getName() == mSettings.mName) {
+						found = true;
 						allChillins.emplace_back(currentWeather);
 					} else {
 						allChillins.emplace_back(it);
 					}
 				}
+
+				if(!found) {
+					allChillins.emplace_back(currentWeather);
+				}
+
 				mEngine.mContent.setChildren(allChillins);
 
-				mEngine.getNotifier().notify(WeatherCurrentUpdatedEvent());
+				std::string forecastQuery = "http://api.openweathermap.org/data/2.5/forecast?" + mSettings.mQuery + "&APPID=" + mSettings.mApiKey + "&mode=xml&units=" + mSettings.mUnits;
+				mForecastRequest.makeGetRequest(forecastQuery);
 
 			} catch(std::exception& e) {
 				DS_LOG_WARNING("WeatherService: current forecast error parsing xml: " << e.what());
@@ -155,10 +167,110 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 			DS_LOG_WARNING("WeatherService forecast request: got an invalid response. httpCode=" << httpCode << " reply: " << reply);
 		} else {
 
+			ci::XmlTree basey = ci::XmlTree(reply);
+			ci::XmlTree rooty = basey.getChild("weatherdata");
+			ci::XmlTree forecast = rooty.getChild("forecast");
 
-			mEngine.getNotifier().notify(WeatherForecastUpdatedEvent());
+			auto& baseThing = mEngine.mContent.getChildByName(mSettings.mName);
+			std::vector<ds::model::ContentModelRef> childrens;
+			std::vector<ds::model::ContentModelRef> conditions;
+			childrens.emplace_back(baseThing.getChild(0));
+			ds::model::ContentModelRef theForecast = ds::model::ContentModelRef("forecast");
+
+			for(auto it = forecast.getChildren().begin(); it != forecast.getChildren().end(); ++it) {
+				auto aForecast = parseForecastItem(*it->get());
+				conditions.emplace_back(aForecast);
+			}
+			theForecast.setChildren(conditions);
+			childrens.emplace_back(theForecast);
+			baseThing.setChildren(childrens);
+			//baseThing.printTree(true);
+
+			mEngine.getNotifier().notify(WeatherUpdatedEvent());
 		}
 	});
+}
+
+ds::model::ContentModelRef WeatherService::parseForecastItem(ci::XmlTree item) {
+	ds::model::ContentModelRef conditions = ds::model::ContentModelRef("forecast");
+
+	addAttributeParam(item, conditions, "from", "time_from");
+	addAttributeParam(item, conditions, "to", "time_to");
+
+	ci::XmlTree weat = item.getChild("symbol");
+	ci::XmlTree prec = item.getChild("precipitation");
+	ci::XmlTree wdir = item.getChild("windDirection");
+	ci::XmlTree wspe = item.getChild("windSpeed");
+	ci::XmlTree temp = item.getChild("temperature");
+	ci::XmlTree pres = item.getChild("pressure");
+	ci::XmlTree humi = item.getChild("humidity");
+	ci::XmlTree clou = item.getChild("clouds");
+
+	addAttributeParam(temp, conditions, "value", "temperature");
+	addAttributeParam(temp, conditions, "min", "temperature_min");
+	addAttributeParam(temp, conditions, "max", "temperature_max");
+	addAttributeParam(temp, conditions, "unit", "temperature_unit");
+
+	std::wstring tempString = conditions.getPropertyWString("temperature");
+	auto theAmount = conditions.getPropertyFloat("temperature");
+	if(mSettings.mUnits == "imperial") {
+		int roundedAmount = (int)roundf(theAmount);
+		tempString = std::to_wstring(roundedAmount) + L"°F";
+	} else if(mSettings.mUnits == "metric") {
+		tempString += L"°C";
+	} else {
+		tempString += L"°K";
+	}
+	conditions.setProperty("temperature_string", tempString);
+
+
+	addAttributeParam(humi, conditions, "value", "humidity");
+	addAttributeParam(humi, conditions, "unit", "humidity_unit");
+
+	addAttributeParam(pres, conditions, "value", "pressure");
+	addAttributeParam(pres, conditions, "unit", "pressure_unit");
+
+	addAttributeParam(wspe, conditions, "mps", "wind_speed");
+	addAttributeParam(wspe, conditions, "name", "wind_name");
+
+	std::string windSpeedUnit = "m/s";
+	if(mSettings.mUnits == "imperial") {
+		windSpeedUnit = "mph";
+	}
+	conditions.setProperty("wind_speed_unit", windSpeedUnit);
+
+	addAttributeParam(wdir, conditions, "value", "wind_dir");
+	addAttributeParam(wdir, conditions, "code", "wind_code");
+	addAttributeParam(wdir, conditions, "name", "wind_dir_name");
+
+	addAttributeParam(clou, conditions, "all", "cloud_percent");
+	addAttributeParam(clou, conditions, "value", "cloud_name");
+
+	//addAttributeParam(visi, conditions, "value", "visibility_meters");
+	//conditions.setProperty("visibility_miles", (int)round(conditions.getPropertyDouble("visibility_meters") * 0.000621371));
+
+	addAttributeParam(prec, conditions, "type", "precip_mode");
+	addAttributeParam(prec, conditions, "value", "precip_value_mm");
+	conditions.setProperty("precip_value_in", conditions.getPropertyFloat("precip_value_mm") * 0.0393701f);
+	addAttributeParam(prec, conditions, "unit", "precip_unit");
+
+	addAttributeParam(weat, conditions, "number", "weather_code");
+	addAttributeParam(weat, conditions, "name", "weather_name");
+	addAttributeParam(weat, conditions, "var", "weather_icon");
+
+	auto wCode = conditions.getPropertyInt("weather_code");
+	auto wIcon = conditions.getPropertyString("weather_icon");
+
+	std::wstring weatherEmoji = L"🌥";
+	std::string iconPng = "";
+
+	mapWeatherImages(wCode, wIcon, iconPng, weatherEmoji);
+
+	conditions.setProperty("weather_emoji", weatherEmoji);
+	conditions.setProperty("weather_image", iconPng);
+	conditions.setProperty("weather_image_full", "%APP%/data/images/weather/" + iconPng + ".png");
+
+	return conditions;
 }
 
 void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon, std::string& iconPng, std::wstring& weatherEmoji) {
@@ -262,35 +374,30 @@ WeatherService::~WeatherService() {
 	mEngine.cancelTimedCallback(mCallbackId);
 }
 
-void WeatherService::initialize(const std::string& query, const std::string& apiKey, const std::string& units /*= "metric"*/, const double requeryTime /*= 60*/) {
-	mQuery = query;
-	mApiKey = apiKey;
-	mUnit = units;
-
+void WeatherService::initialize(WeatherSettings settings) {
+	mSettings = settings;
 	mEngine.cancelTimedCallback(mCallbackId);
 	getWeather();
 
-	if(requeryTime > 0) {
+	if(settings.mRequeryTime > 0) {
 		mCallbackId = mEngine.repeatedCallback([this] {
 			getWeather();
-		}, requeryTime);
+		}, settings.mRequeryTime);
 	}
 }
 
 void WeatherService::getWeather() {
-	if(mQuery.empty()) {
+	if(mSettings.mQuery.empty()) {
 		DS_LOG_WARNING("WeatherService: need a query string for weather service");
 	}
 
-	if(mApiKey.empty()) {
+	if(mSettings.mApiKey.empty()) {
 		DS_LOG_WARNING("WeatherService: need an api key for weather service. see https://openweathermap.org/api ");
 	}
 
-	std::string currentQuery = "http://api.openweathermap.org/data/2.5/weather?" + mQuery + "&APPID=" + mApiKey + "&mode=xml&units=" + mUnit;
+	std::string currentQuery = "http://api.openweathermap.org/data/2.5/weather?" + mSettings.mQuery + "&APPID=" + mSettings.mApiKey + "&mode=xml&units=" + mSettings.mUnits;
 	mCurrentRequest.makeGetRequest(currentQuery);
-
-	std::string forecastQuery = "http://api.openweathermap.org/data/2.5/forecast?" + mQuery + "&APPID=" + mApiKey + "&mode=xml&units=" + mUnit;
-	mForecastRequest.makeGetRequest(forecastQuery);
 }
 
+}
 }  // namespace ds

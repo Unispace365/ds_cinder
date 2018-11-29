@@ -25,7 +25,7 @@ StoryView::StoryView(ds::ui::SpriteEngine& eng)
 	listenToEvents<SomethingHappenedEvent>([this](const SomethingHappenedEvent& e) { 
 		setSpriteText("subtitle_message", "You hit the 'Something' button at " + std::to_string(e.mEventOrigin.x) + ", " + std::to_string(e.mEventOrigin.y)); 
 	});
-	listenToEvents<ds::WeatherCurrentUpdatedEvent>([this](const ds::WeatherCurrentUpdatedEvent& e) {
+	listenToEvents<ds::weather::WeatherUpdatedEvent>([this](auto e) {
 		callAfterDelay([this] {
 			completeAllTweens(false, true);
 			clearAnimateOnTargets(true);
