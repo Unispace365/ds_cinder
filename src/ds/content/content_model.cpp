@@ -255,6 +255,10 @@ const bool ContentModelRef::empty() const {
 	return false;
 }
 
+void ContentModelRef::clear() {
+	mData.reset(new Data());
+}
+
 ds::model::ContentModelRef ContentModelRef::duplicate() const {
 	if(empty()) {
 		return ds::model::ContentModelRef();

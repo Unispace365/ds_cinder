@@ -123,6 +123,9 @@ class ContentModelRef {
 
 	/// If this item has no data, value, name, id, properties or children
 	const bool empty() const;
+	
+	/// Removes all data (children, properties, name, id, etc). After calling this, empty() will return true
+	void clear();
 
 	/// Makes a copy of this content.
 	/// This make a brand new ContentModelRef with a different underlying data object, so you can modify the two independently
@@ -139,20 +142,20 @@ class ContentModelRef {
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
 	const ContentProperty getProperty(const std::string& propertyName);
-	const std::string	 getPropertyValue(const std::string& propertyName);
+	const std::string	  getPropertyValue(const std::string& propertyName);
 	bool				  getPropertyBool(const std::string& propertyName);
 	int					  getPropertyInt(const std::string& propertyName);
 	float				  getPropertyFloat(const std::string& propertyName);
 	double				  getPropertyDouble(const std::string& propertyName);
 	/// The Engine is supplied to look up named colors
-	const ci::Color	getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName);
-	const ci::ColorA   getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName);
-	const std::string  getPropertyString(const std::string& propertyName);
-	const std::wstring getPropertyWString(const std::string& propertyName);
-	const ci::vec2	 getPropertyVec2(const std::string& propertyName);
-	const ci::vec3	 getPropertyVec3(const std::string& propertyName);
-	const ci::Rectf	getPropertyRect(const std::string& propertyName);
-	ds::Resource	   getPropertyResource(const std::string& propertyName);
+	const ci::Color		  getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName);
+	const ci::ColorA      getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName);
+	const std::string     getPropertyString(const std::string& propertyName);
+	const std::wstring    getPropertyWString(const std::string& propertyName);
+	const ci::vec2		  getPropertyVec2(const std::string& propertyName);
+	const ci::vec3		  getPropertyVec3(const std::string& propertyName);
+	const ci::Rectf		  getPropertyRect(const std::string& propertyName);
+	ds::Resource	      getPropertyResource(const std::string& propertyName);
 
 	/// Set the property with a given name
 	void setProperty(const std::string& propertyName, ContentProperty& theProp);

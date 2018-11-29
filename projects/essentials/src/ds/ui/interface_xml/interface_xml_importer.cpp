@@ -621,6 +621,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Couldn't set shrink_to_children, as this sprite is not a LayoutSprite.");
 		}
+	} else if(property == "skip_hidden_children") {
+		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
+		if(layoutSprite) {
+			layoutSprite->setSkipHiddenChildren(parseBoolean(value));
+		} else {
+			DS_LOG_WARNING("Couldn't set skip_hidden_children, as this sprite is not a LayoutSprite.");
+		}
 	}
 
 	// Text specific attributes

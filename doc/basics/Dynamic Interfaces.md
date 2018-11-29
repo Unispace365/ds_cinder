@@ -240,6 +240,7 @@ Layout Parameters
     2. width: Adjusts the width of this sprite to its children (for vertical, the widest child, for horiz, the total width of the children, plus spacing)
     3. height: Adjusts the height of this sprite to its children (for vertical, the total height of the children, for horiz, the tallest child)
     4. both or true: Both width and height
+* **skip_hidden_children**: For LayoutSprite, when true, will ignore hidden children when calculating layouts, including padding. Default=false. Note that this is hide() on the child sprite and not setTransparent(false)
 * **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
 
 Perspective Layout Parameters
@@ -684,6 +685,37 @@ content model is applied. Which means it's a bad idea to have children (especial
 		/>
 </layout>
 ```
+
+`visible_if_exists` Property
+----------------------------
+
+A model property that can hide children if a ContentModel node or a property doesn't exist. 
+For ContentModels, use the syntax visible_if_exists:{node}, which will test node.empty()
+For properties, this checks if the property string is empty. For instance, visible_if_exists:this->title will check node.getPropertyString("title").empty();
+
+This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
+
+Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	model="visible_if_exists:this"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_exists:this->title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
 
 Caveats
 -----------------------

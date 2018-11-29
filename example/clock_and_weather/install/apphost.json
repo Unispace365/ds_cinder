@@ -1,0 +1,38 @@
+{
+  "PreventSleep": true,
+  "Kiosk": true,
+  "RestartApps": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "RestartSystem": {
+    "Enabled": false,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "Profiles": [
+    {
+      "Name": "clock_and_weather",
+      "Apps": [
+        {
+          "Path": "%PROGRAMFILES%/Downstream/clock_and_weather/clock_and_weather.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        },
+        {
+          "Path": "%PROGRAMFILES%/Downstream/clock_and_weather/DSNode/DSNode.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": false,
+          "MemoryLimit": 10000
+        }
+      ]
+    }
+  ]
+}
+
