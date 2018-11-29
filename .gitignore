@@ -57,3 +57,5 @@ projects/**/lib*.a
 
 .clang-format
 .fontconfig
+/example/clock_and_weather/settings/3840x2160/app_settings.xml
+/example/clock_and_weather/settings/3840x2160/engine.xml

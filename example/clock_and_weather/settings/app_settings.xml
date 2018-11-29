@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<setting name="padding" value="20" type="float" />	
+	
+	<setting name="line:opacity" value="0.5" type="float" />
+	<setting name="line:size" value="1.0, 1.0" type="vec2" />
+	
+	<setting name="default:delay" value="0.01" />
+	<setting name="default:anim" value="fade; slide:100, 0; ease:outQuint; delay:$_default:delay" />
+	
+	<setting name="weather:refresh_time" value="300" comment="seconds between refreshing weather" />
+	<setting name="weather:query" value="zip=97202,us" comment="the query string for openweathermaps api" />
+	<setting name="weather:unit" value="imperial" comment="standard (kelvin), metric (C) or imperial (F)" />
+	<setting name="weather:api_key" value="" />
+</settings>
+
+

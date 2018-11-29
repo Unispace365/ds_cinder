@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="sample:config:name" value="Noto Sans Bold" type="string" comment=" Font names are installed in the root app class on startup	 Sample Text "/>
+	<setting name="sample:config:size" value="16" type="float"/>
+	<setting name="sample:config:leading" value="1.0" type="float"/>
+	<setting name="sample:config:color" value="white" type="color"/>
+	
+	<setting name="media_viewer:title:name" value="Arial" type="string"/>
+	<setting name="media_viewer:title:size" value="16" type="float"/>
+	<setting name="media_viewer:title:leading" value="1.0" type="float"/>
+	<setting name="media_viewer:title:color" value="white" type="color"/>
+	
+	<setting name="weather:temp:name" value="Noto Sans Bold" type="string"/>
+	<setting name="weather:temp:size" value="48" type="float"/>
+	<setting name="weather:temp:leading" value="1.0" type="float"/>
+	<setting name="weather:temp:color" value="white" type="color"/>
+	
+	<setting name="weather:conditions:name" value="Noto Sans Ultra-Light" type="string"/>
+	<setting name="weather:conditions:size" value="18" type="float"/>
+	<setting name="weather:conditions:leading" value="1.0" type="float"/>
+	<setting name="weather:conditions:color" value="white" type="color"/>
+	
+	<setting name="weather:details:name" value="Noto Sans Ultra-Light" type="string"/>
+	<setting name="weather:details:size" value="12" type="float"/>
+	<setting name="weather:details:leading" value="1.0" type="float"/>
+	<setting name="weather:details:color" value="white" type="color"/>
+	
+	<setting name="weather:updated:name" value="Noto Sans Ultra-Light" type="string"/>
+	<setting name="weather:updated:size" value="9" type="float"/>
+	<setting name="weather:updated:leading" value="1.0" type="float"/>
+	<setting name="weather:updated:color" value="white" type="color"/>
+	
+	<setting name="app:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="app:title:size" value="48" type="float"/>
+	<setting name="app:title:leading" value="1.0" type="float"/>
+	<setting name="app:title:color" value="white" type="color"/>
+</settings>
+
+
