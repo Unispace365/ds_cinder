@@ -257,6 +257,9 @@ void App::setup() {
 }
 
 void App::resetupServer() {
+	// Just as an added precaution, shouldn't be reqired
+	mEngine.getTweenline().getTimeline().clear();
+
 	mEngine.clearAllSprites(true);
 	loadAppSettings();
 	mEngine.reloadSettings();

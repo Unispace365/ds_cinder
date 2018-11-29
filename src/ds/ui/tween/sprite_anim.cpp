@@ -43,8 +43,14 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalSizeCinderTweenRef = nullptr;
 	mInternalOpacityCinderTweenRef = nullptr;
 	mInternalNormalizedCinderTweenRef = nullptr;
+
+	// This get's deleted in the Sprite destructor for some reason
 	mDelayedCallCueRef = nullptr;
+
+	// Need to explicitly remove to avoid crashes on app-refresh
+	if(mAnimScriptCueRef) mAnimScriptCueRef->removeSelf();
 	mAnimScriptCueRef = nullptr;
+
 	mMultiDelayedCallCueRefs.clear();
 }
 
@@ -432,7 +438,7 @@ float SpriteAnimatable::tweenAnimateOff(const bool recursive, const float delay,
 
 	if(finishFn){
 		auto& timeline = mEngine.getTweenline().getTimeline();
-		mAnimScriptCueRef = timeline.add(finishFn, timeline.getCurrentTime()+total);
+		mAnimScriptCueRef = timeline.add(finishFn, timeline.getCurrentTime()+total+0.005f);
 	}
 
 	return total;
