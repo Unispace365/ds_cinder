@@ -86,6 +86,7 @@ Add dynamic variables to any sprite parameter. Variables are pulled from app_set
 		size="$_world_size"
 		pad_all="$_padding"
 		animate_on="$_default:anim"
+		animate_off="$_default:anim"
 		/>
 </interface>
 ```
@@ -191,10 +192,12 @@ Sprite Parameters
 * **transparent**: A boolean of wheather the sprite should draw or not. This works only locally. For base sprite, this will draw a rectangle (if the sprite has a size)
 * **visible**: A boolean of the visibilty flag. Doesn't affect the draw status, but does turn off this sprite and any children if hidden. True = show(), false = hide()
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
+* **animate_on**: Supply a script to run when tweenAnimateOff() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
 * **model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 * **each_model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
+* **each_model_limit**: Only create child sprites for the first N ContentModel children.
 * Parameters for sprites within layouts:
 	* **t_pad**: Padding on the top part of this sprite in the layout
 	* **b_pad**: Padding on the bottom part of this sprite in the layout
@@ -237,6 +240,7 @@ Layout Parameters
     2. width: Adjusts the width of this sprite to its children (for vertical, the widest child, for horiz, the total width of the children, plus spacing)
     3. height: Adjusts the height of this sprite to its children (for vertical, the total height of the children, for horiz, the tallest child)
     4. both or true: Both width and height
+* **skip_hidden_children**: For LayoutSprite, when true, will ignore hidden children when calculating layouts, including padding. Default=false. Note that this is hide() on the child sprite and not setTransparent(false)
 * **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
 
 Perspective Layout Parameters
@@ -353,6 +357,8 @@ Scroll List Parameters
 
 Smart Scroll List Parameters
 --------------------------------------
+* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal
+	layout.
 * **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
 
 EntryField and SoftKeyboard Parameters
@@ -568,7 +574,7 @@ Supply a delay in seconds for the start of the tween. Default is 0.0 seconds.
     delay:0.4;
 
 **Cascading delays:**
-When calling tweenAnimateOn(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
+When calling tweenAnimateOn()/tweenAnimateOff(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation.
 
 
 ContentModel & SmartLayout
@@ -634,7 +640,8 @@ Available Functions (See projects/essentials/src/ds/ui/util/text_model.cpp for d
 addional functions):
 * fn(upper,{...}) - Convert string to uppercase
 * fn(lower,{...}) - Convert string to lowercase
-* fn(utc_format,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT.
+* fn(utc,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT.
+* fn(utc_local,{...},FMT[,optionalParseFmt]) - Attempt to parse string {...} as a date/time, and convert it into FMT for local timezone.
 	See the [Poco DateTimeFormatter](https://pocoproject.org/docs/Poco.DateTimeFormatter.html#9945)
 	docs for valid format options.
 
@@ -645,7 +652,6 @@ addional functions):
 		model="text_model:this"
 		/>
 ```
-
 
 
 `each_model` Property
@@ -679,6 +685,37 @@ content model is applied. Which means it's a bad idea to have children (especial
 		/>
 </layout>
 ```
+
+`visible_if_exists` Property
+----------------------------
+
+A model property that can hide children if a ContentModel node or a property doesn't exist. 
+For ContentModels, use the syntax visible_if_exists:{node}, which will test node.empty()
+For properties, this checks if the property string is empty. For instance, visible_if_exists:this->title will check node.getPropertyString("title").empty();
+
+This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
+
+Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	model="visible_if_exists:this"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_exists:this->title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
 
 Caveats
 -----------------------

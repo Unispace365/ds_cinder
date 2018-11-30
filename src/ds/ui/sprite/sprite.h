@@ -717,6 +717,7 @@ namespace ui {
 		friend class        TouchManager;
 		friend class        TouchProcess;
 		friend class		ds::gl::ClipPlaneState;
+		friend class		SpriteAnimatable;
 
 		void				swipe(const ci::vec3 &swipeVector);
 		bool				tapInfo(const TapInfo&);

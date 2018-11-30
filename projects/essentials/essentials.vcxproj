@@ -25,6 +25,7 @@
     <ClCompile Include="src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
     <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
+    <ClCompile Include="src\ds\service\weather_service.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
     <ClCompile Include="src\ds\touch\view_dragger.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="src\ds\math\fpconfig.hh" />
     <ClInclude Include="src\ds\query\content\generic_content_model.h" />
     <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
+    <ClInclude Include="src\ds\service\weather_service.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
     <ClInclude Include="src\ds\touch\view_dragger.h" />

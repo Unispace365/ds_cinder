@@ -53,7 +53,7 @@ void PerspectiveLayout::updateCam(const ci::mat4 &transform) {
 
 	mVpSize  = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
 	mVpPos   = ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
-	mVpPos.y = screenSize.y - (mVpPos.y + mVpSize.y);
+	mVpPos.y = static_cast<int>(screenSize.y - (mVpPos.y + mVpSize.y));
 }
 
 void PerspectiveLayout::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParams &drawParams) {

@@ -202,8 +202,13 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 
 					std::string formattedModel = ds::ui::processTextModel(fmt, theNode);
 
-
 					ds::ui::XmlImporter::setSpriteProperty(*child, "text", formattedModel);
+				} else if(sprPropToSet == "visible_if_exists") {
+					if(theNode.empty()) {
+						child->hide();
+					} else {
+						child->show();
+					}
 				}
 			} else if (childProps.size() == 2) {  // Handle 'model->property' models
 				auto		sprPropToSet = keyVals[0];
@@ -214,20 +219,25 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource());
 				} else if (sprPropToSet == "resource_cache") {
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), true);
-				} else if (sprPropToSet == "media_player_src") {
+				} else if(sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();
-					if (theResource.empty()) {
+					if(theResource.empty()) {
 						theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
-					} else if (theResource.getType() == ds::Resource::IMAGE_TYPE) {
+					} else if(theResource.getType() == ds::Resource::IMAGE_TYPE) {
 						ds::ImageMetaData metaData;
 						metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()),
 									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
 					}
-					if (!theResource.empty()) {
+					if(!theResource.empty()) {
 						ds::ui::XmlImporter::setSpriteProperty(*child, "media_player_src",
 															   theResource.getAbsoluteFilePath());
 					}
-
+				} else if(sprPropToSet == "visible_if_exists"){
+					if(theNode.getPropertyString(theProp).empty()) {
+						child->hide();
+					} else {
+						child->show();
+					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);
 
@@ -259,7 +269,12 @@ void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::strin
 
 			child->clearChildren();
 
+			int limit = child->getUserData().getInt("each_model_limit", 0, 0);
+			if (limit == 0) limit = -1;
+
 			for (auto baby : theNode.getChildren()) {
+				if(limit-- == 0) break;
+
 				auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
 				child->addChildPtr(babySprite);
 				babySprite->setContentModel(baby);

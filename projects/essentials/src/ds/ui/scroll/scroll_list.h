@@ -80,6 +80,8 @@ class ScrollArea;
 		/// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
 		virtual void				layout();
 
+		bool isVerticalScroll() const { return mVerticalScrolling; }
+
 	protected:
 
 		/// We only create enough sprites that are onscreen at one time.

@@ -108,8 +108,10 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	std::function<void()>		mContentUpdatedCallback;
 
   private:
+	/// Apply a single model to a given sprite child
 	void applyModelToSprite(ds::ui::Sprite* child, const std::string& childName, const std::string& model);
 
+	/// Creates child sprites for each child of a ContentModelRef
 	void applyEachModelToSprite(ds::ui::Sprite* child, const std::string& eachModel);
 };
 

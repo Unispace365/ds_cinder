@@ -29,6 +29,8 @@ mTextSprite->setText(ds::ui::markdown_to_pango(theSourceText));
 * **Bold text**
 * *italic text*
 * _**bold and italic**_
+  * second level list
+  * and another item
 * Sometimes you want just a ^`little` bit of `code`
 
 Superscript test for the 1^st time
