@@ -16,6 +16,9 @@
     <ClCompile Include="..\src\ui\clock\clock_view.cpp">
       <Filter>src\ui\clock</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\background\background_view.cpp">
+      <Filter>src\ui\background</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\events\app_events.h">
@@ -35,6 +38,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ui\clock\clock_view.h">
       <Filter>src\ui\clock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\background\background_view.h">
+      <Filter>src\ui\background</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +67,9 @@
     </Filter>
     <Filter Include="src\ui\clock">
       <UniqueIdentifier>{ab3ddd82-7f29-45f8-9eba-9eb78c6af7df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\background">
+      <UniqueIdentifier>{c09c6360-39b7-4291-93ff-e00bd9c882e4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

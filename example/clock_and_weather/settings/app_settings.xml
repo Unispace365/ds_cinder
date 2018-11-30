@@ -9,6 +9,8 @@
 	<setting name="default:delay" value="0.01" />
 	<setting name="default:anim" value="fade; slide:100, 0; ease:outQuint; delay:$_default:delay" />
 	
+	<setting name="background:cylce_time" value="10" comment="Number of seconds to cycle through the backgrounds. Put media in the backgrounds folder" />
+	
 	<setting name="clock:time_format" value="%h:%M %a" comment="Poco DateTimeFormatter string for the clock part" />
 	<setting name="clock:date_format" value="%W, %B %e, %Y" comment="Poco DateTimeFormatter string for the date part" />
 	

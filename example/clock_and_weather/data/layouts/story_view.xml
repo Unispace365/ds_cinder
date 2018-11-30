@@ -7,10 +7,7 @@
 			size="$_world_size"
 		>
 		
-		<image src="%APP%/data/images/background.jpg"
-			layout_size_mode="fill"
-			opacity="0.5"/>
-			
+		<background_view	/>
 		<clock_view
 			layout_h_align="center"
 			layout_v_align="middle"
