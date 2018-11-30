@@ -1,41 +1,28 @@
 <interface>
 
-		<layout name="root_layout"
-				layout_type="vert"
-				overall_alignment="center"
-				enable="true"
-				size="$_world_size"
-			>
+	<layout name="root_layout"
+			layout_type="horiz"
+			overall_alignment="center"
+			enable="true"
+			size="$_world_size"
+		>
+		
+		<image src="%APP%/data/images/background.jpg"
+			layout_size_mode="fill"
+			opacity="0.5"/>
 			
-			<sprite name="background"
-				color="dark_blue"
-				opacity="0.1"
-				layout_size_mode="fill"
-				/>
+		<clock_view
+			layout_h_align="center"
+			layout_v_align="middle"
+			pad_all="100" 
+			/>
+		<weather_view  
+			layout_h_align="center"
+			layout_v_align="middle"
+		/>
 			
-			<layout name="header_layout"
-				layout_type="vert"
-				layout_size_mode="flex"
-				layout_spacing="$_padding"
-				pad_all="$_padding"
-				shrink_to_children="both"
-				layout_h_align="center"
-			>
 			
-					
-				<weather_view  
-					layout_h_align="center"
-				/>
-				
-				
-				
-				<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
-					<property name="the_button" on_click_event="RequestAppExitEvent" 	layout_h_align="center" />
-					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="50, 23" />
-					<property name="high_label" text="Quit" />
-				</xml>
-			</layout>
-		</layout>
+	</layout>
 	
 	
 </interface>

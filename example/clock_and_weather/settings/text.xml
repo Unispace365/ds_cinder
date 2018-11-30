@@ -10,30 +10,46 @@
 	<setting name="media_viewer:title:leading" value="1.0" type="float"/>
 	<setting name="media_viewer:title:color" value="white" type="color"/>
 	
-	<setting name="weather:temp:name" value="Noto Sans Bold" type="string"/>
-	<setting name="weather:temp:size" value="48" type="float"/>
+	<setting name="weather:temp:name" value="BrownPro Light" type="string"/>
+	<setting name="weather:temp:size" value="256" type="float"/>
 	<setting name="weather:temp:leading" value="1.0" type="float"/>
 	<setting name="weather:temp:color" value="white" type="color"/>
 	
-	<setting name="weather:conditions:name" value="Noto Sans Ultra-Light" type="string"/>
-	<setting name="weather:conditions:size" value="18" type="float"/>
+	<setting name="weather:emoji:name" value="BrownPro Light" type="string"/>
+	<setting name="weather:emoji:size" value="320" type="float"/>
+	<setting name="weather:emoji:leading" value="1.0" type="float"/>
+	<setting name="weather:emoji:color" value="white" type="color"/>
+	
+	<setting name="weather:conditions:name" value="BrownPro Light" type="string"/>
+	<setting name="weather:conditions:size" value="72" type="float"/>
 	<setting name="weather:conditions:leading" value="1.0" type="float"/>
 	<setting name="weather:conditions:color" value="white" type="color"/>
 	
-	<setting name="weather:details:name" value="Noto Sans Ultra-Light" type="string"/>
-	<setting name="weather:details:size" value="12" type="float"/>
+	<setting name="weather:details:name" value="BrownPro Light" type="string"/>
+	<setting name="weather:details:size" value="24" type="float"/>
 	<setting name="weather:details:leading" value="1.0" type="float"/>
 	<setting name="weather:details:color" value="white" type="color"/>
 	
-	<setting name="weather:updated:name" value="Noto Sans Ultra-Light" type="string"/>
-	<setting name="weather:updated:size" value="9" type="float"/>
+	<setting name="weather:updated:name" value="BrownPro Light" type="string"/>
+	<setting name="weather:updated:size" value="16" type="float"/>
 	<setting name="weather:updated:leading" value="1.0" type="float"/>
 	<setting name="weather:updated:color" value="white" type="color"/>
 	
-	<setting name="app:title:name" value="Noto Sans Bold" type="string"/>
-	<setting name="app:title:size" value="48" type="float"/>
-	<setting name="app:title:leading" value="1.0" type="float"/>
-	<setting name="app:title:color" value="white" type="color"/>
+	<setting name="weather:hour:name" value="BrownPro Bold" type="string"/>
+	<setting name="weather:hour:size" value="16" type="float"/>
+	<setting name="weather:hour:leading" value="1.0" type="float"/>
+	<setting name="weather:hour:color" value="white" type="color"/>
+	
+	<setting name="time:name" value="BrownPro Light" type="string"/>
+	<setting name="time:size" value="256" type="float"/>
+	<setting name="time:leading" value="1.0" type="float"/>
+	<setting name="time:color" value="white" type="color"/>
+	
+	<setting name="date:name" value="BrownPro Light" type="string"/>
+	<setting name="date:size" value="72" type="float"/>
+	<setting name="date:leading" value="1.0" type="float"/>
+	<setting name="date:color" value="white" type="color"/>
+	
 </settings>
 
 

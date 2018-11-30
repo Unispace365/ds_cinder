@@ -158,6 +158,7 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\ui\clock\clock_view.cpp" />
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
     <ClCompile Include="..\src\ui\weather\weather_view.cpp" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="..\src\app\clock_and_weather_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
     <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\ui\clock\clock_view.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
     <ClInclude Include="..\src\ui\weather\weather_view.h" />
   </ItemGroup>

@@ -13,6 +13,9 @@
     <ClCompile Include="..\src\ui\weather\weather_view.cpp">
       <Filter>src\ui\weather</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\clock\clock_view.cpp">
+      <Filter>src\ui\clock</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\events\app_events.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ui\weather\weather_view.h">
       <Filter>src\ui\weather</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\clock\clock_view.h">
+      <Filter>src\ui\clock</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -52,6 +58,9 @@
     </Filter>
     <Filter Include="src\ui\weather">
       <UniqueIdentifier>{ec5f64c1-d29a-4353-a305-06398ead6a49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\clock">
+      <UniqueIdentifier>{ab3ddd82-7f29-45f8-9eba-9eb78c6af7df}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

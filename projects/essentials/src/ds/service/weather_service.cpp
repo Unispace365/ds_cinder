@@ -77,11 +77,11 @@ WeatherService::WeatherService(ds::ui::SpriteEngine& eng)
 
 				std::wstring tempString = conditions.getPropertyWString("temperature");
 				auto theAmount = conditions.getPropertyFloat("temperature");
+				int roundedAmount = (int)roundf(theAmount);
 				if(mSettings.mUnits == "imperial") {
-					int roundedAmount = (int)roundf(theAmount);
 					tempString = std::to_wstring(roundedAmount) + L"°F";
 				} else if(mSettings.mUnits == "metric") {
-					tempString += L"°C";
+					tempString = std::to_wstring(roundedAmount) + L"°C";
 				} else {
 					tempString += L"°K";
 				}
@@ -213,11 +213,11 @@ ds::model::ContentModelRef WeatherService::parseForecastItem(ci::XmlTree item) {
 
 	std::wstring tempString = conditions.getPropertyWString("temperature");
 	auto theAmount = conditions.getPropertyFloat("temperature");
+	int roundedAmount = (int)roundf(theAmount);
 	if(mSettings.mUnits == "imperial") {
-		int roundedAmount = (int)roundf(theAmount);
 		tempString = std::to_wstring(roundedAmount) + L"°F";
 	} else if(mSettings.mUnits == "metric") {
-		tempString += L"°C";
+		tempString = std::to_wstring(roundedAmount) + L"°C";
 	} else {
 		tempString += L"°K";
 	}

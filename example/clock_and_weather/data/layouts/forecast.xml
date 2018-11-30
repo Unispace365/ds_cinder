@@ -9,11 +9,12 @@
 		<text name="emoji"
 				text_align="center"
 				layout_h_align="center"
-				font="weather:conditions"
+				font="weather:emoji"
 				font_size="60"
 				text_model_format="{weather_emoji}"
 				model="text_model:this"
 				animate_on="$_default:anim"
+				b_pad="-20"
 				/>
 		<text name="temp"
 				text_align="center"
@@ -25,6 +26,8 @@
 				animate_on="$_default:anim"
 				
 				/>
+				
+				<!--
 		<text name="status"
 				text_align="center"
 				layout_h_align="center"
@@ -33,14 +36,13 @@
 				model="text_model:this"
 				animate_on="$_default:anim"
 				/>
-				
+				-->
 		<text name="time"
 				text_align="center"
 				layout_h_align="center"
-				font="weather:conditions"
+				font="weather:hour"
 				text_model_format="fn(utc_local,{time_from},%h:%M %a)"
 				model="text_model:this"
-				color="orange"
 				animate_on="$_default:anim"
 				/>
 		<!--
