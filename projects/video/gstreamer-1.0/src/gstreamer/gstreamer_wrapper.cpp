@@ -250,6 +250,10 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
 		gst_caps_unref(caps);
 
+		auto videoFlip = gst_element_factory_make("videoflip", "autoflipper");
+		g_object_set(videoFlip, "video-direction", 8, (void*)NULL);
+		g_object_set(mGstPipeline, "video-filter", videoFlip, (void*)NULL);
+
 		// Set the configured video appsink to the main pipeline
 		g_object_set(mGstPipeline, "video-sink", mGstVideoSink, (void*)NULL);
 
