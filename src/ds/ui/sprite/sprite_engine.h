@@ -3,16 +3,20 @@
 #define DS_UI_SPRITE_SPRITEENGINE_H_
 #include <list>
 #include <unordered_map>
+#include <memory>
+
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
 #include <cinder/Xml.h>
 #include <cinder/app/Window.h>
+
 #include "ds/app/app_defs.h"
+#include "ds/debug/logger.h"
 #include "ds/time/time_callback.h"
 #include "ds/thread/work_manager.h"
 #include "ds/content/content_model.h"
-#include <memory>
+
 
 namespace ds {
 class AutoUpdateList;
@@ -209,6 +213,21 @@ public:
 
 	/** Register a callback to set the property of a sprite during import by an outside caller (like an xml importer) */
 	void							registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func);
+
+	template<class DERIVED_SPRITE>
+	void registerSpritePropertySetter(const std::string& property, std::function<void(DERIVED_SPRITE&, const std::string&, const std::string&)> setter) {
+		static_assert(std::is_base_of<ds::ui::Sprite, DERIVED_SPRITE>::value,
+			"DERIVED_SPRITE must be derived from ds::ui::Sprite");
+
+		registerSpritePropertySetter(property, [setter, property](ds::ui::Sprite& sp, const std::string& value, const std::string& fileReferrer){
+			if (auto derived = dynamic_cast<DERIVED_SPRITE*>(&sp)) {
+				setter(*derived, value, fileReferrer);
+			}
+			else {
+				DS_LOG_WARNING("Tried to set the property " << property << " for something other than: " << typeid(DERIVED_SPRITE).name());
+			}
+		});
+	}
 
 	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to look up files. See ds/util/file_meta_data.h for relative path finding */
 	bool							setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer = "");

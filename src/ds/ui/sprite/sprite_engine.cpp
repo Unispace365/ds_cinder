@@ -6,7 +6,6 @@
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
-#include "ds/debug/logger.h"
 #include "ds/debug/computer_info.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/metrics/metrics_service.h"

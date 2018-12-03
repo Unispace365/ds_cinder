@@ -209,6 +209,12 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->show();
 					}
+				} else if(sprPropToSet == "hidden_if_exists") {
+					if(theNode.empty()) {
+						child->show();
+					} else {
+						child->hide();
+					}
 				}
 			} else if (childProps.size() == 2) {  // Handle 'model->property' models
 				auto		sprPropToSet = keyVals[0];
@@ -237,6 +243,12 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 						child->hide();
 					} else {
 						child->show();
+					}
+				} else if(sprPropToSet == "hidden_if_exists"){
+					if(theNode.getPropertyString(theProp).empty()) {
+						child->show();
+					} else {
+						child->hide();
 					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);

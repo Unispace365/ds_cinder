@@ -686,10 +686,10 @@ content model is applied. Which means it's a bad idea to have children (especial
 </layout>
 ```
 
-`visible_if_exists` Property
+`visible_if_exists` & `hidden_if_exists` Property
 ----------------------------
 
-A model property that can hide children if a ContentModel node or a property doesn't exist. 
+A model property that can hide/show children depending on if a ContentModel node or a property exists.
 For ContentModels, use the syntax visible_if_exists:{node}, which will test node.empty()
 For properties, this checks if the property string is empty. For instance, visible_if_exists:this->title will check node.getPropertyString("title").empty();
 
