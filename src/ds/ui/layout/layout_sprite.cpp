@@ -300,7 +300,7 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 		ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
 		ci::vec2 totalOffset = ci::vec2(chillin->mLayoutFudge) + childCenter;
 		if(wrap){
-			if(vertical)
+		//	if(vertical)
 			totalOffset += (vertical)
 				? ci::vec2(wrapOffset, 0.f)
 				: ci::vec2(0.f, wrapOffset);

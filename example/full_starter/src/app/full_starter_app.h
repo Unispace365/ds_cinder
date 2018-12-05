@@ -6,7 +6,6 @@
 #include <ds/app/event_client.h>
 
 namespace fullstarter {
-class AllData;
 
 class FullStarterApp : public ds::App {
 public:
