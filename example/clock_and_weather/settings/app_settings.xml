@@ -9,6 +9,11 @@
 	<setting name="default:delay" value="0.01" />
 	<setting name="default:anim" value="fade; slide:100, 0; ease:outQuint; delay:$_default:delay" />
 	
+	<setting name="background:cylce_time" value="10" comment="Number of seconds to cycle through the backgrounds. Put media in the backgrounds folder" />
+	
+	<setting name="clock:time_format" value="%h:%M %a" comment="Poco DateTimeFormatter string for the clock part" />
+	<setting name="clock:date_format" value="%W, %B %e, %Y" comment="Poco DateTimeFormatter string for the date part" />
+	
 	<setting name="weather:refresh_time" value="300" comment="seconds between refreshing weather" />
 	<setting name="weather:query" value="zip=97202,us" comment="the query string for openweathermaps api" />
 	<setting name="weather:unit" value="imperial" comment="standard (kelvin), metric (C) or imperial (F)" />

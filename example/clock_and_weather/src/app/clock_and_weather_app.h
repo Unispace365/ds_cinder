@@ -22,7 +22,7 @@ private:
 	// App events can be handled here
 	ds::EventClient		mEventClient;
 
-	ds::WeatherService	mWeatherService;
+	ds::weather::WeatherService	mWeatherService;
 };
 
 } // !namespace downstream

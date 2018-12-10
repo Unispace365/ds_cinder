@@ -6,29 +6,41 @@
 			shrink_to_children="both"
 			layout_spacing="5"
 		>
+		<!--
 		<image name="icon"
 				layout_h_align="center"
 				model="src:conditions->weather_image_full"
 				animate_on="$_default:anim"
 			/>
-		<text name="emoji"
-				text_align="center"
-				layout_h_align="center"
-				font="weather:conditions"
-				font_size="50"
-				text_model_format="{weather_emoji}"
-				model="text_model:conditions"
-				animate_on="$_default:anim"
-				/>
-		<text name="temp"
-				text_align="center"
-				layout_h_align="center"
-				font="weather:temp"
-				text_model_format="{temperature_string}"
-				model="text_model:conditions"
-				animate_on="$_default:anim"
-				
-				/>
+		-->
+		<layout name="blerg"
+			layout_type="horiz"
+			overall_alignment="center"
+			shrink_to_children="both"
+			layout_h_align="center"
+			layout_spacing="30"
+		>
+			<text name="emoji"
+					text_align="center"
+					layout_h_align="center"
+					layout_v_align="middle"
+					font="weather:emoji"
+					b_pad="-50"
+					text_model_format="{weather_emoji}"
+					model="text_model:conditions"
+					animate_on="$_default:anim"
+					/>
+			<text name="temp"
+					text_align="center"
+					layout_h_align="center"
+					layout_v_align="middle"
+					font="weather:temp"
+					text_model_format="{temperature_string}"
+					model="text_model:conditions"
+					animate_on="$_default:anim"
+					
+					/>
+		</layout>
 		<text name="status"
 				text_align="center"
 				layout_h_align="center"
@@ -42,7 +54,7 @@
 				text_align="center"
 				layout_h_align="center"
 				font="weather:details"
-				text_model_format="<b>WIND:</b>		{wind_speed}{wind_speed_unit} {wind_code} {wind_name}<br><b>PRECIP:</b> 	{precip_mode}<br><b>CLOUDS:</b>	{cloud_percent}%<br><b>HUMIDITY:</b>	{humidity}{humidity_unit}<br><b>VISIBILITY:</b>	{visibility_miles} miles<br><b>PRESSURE:</b>	{pressure} {pressure_unit}"
+				text_model_format="<b>WIND:</b>		{wind_speed}{wind_speed_unit} {wind_code} {wind_name}<br><b>PRECIP:</b>	 	{precip_mode}<br><b>CLOUDS:</b>	{cloud_percent}%<br><b>HUMIDITY:</b>	{humidity}{humidity_unit}<br><b>VISIBILITY:</b>	{visibility_miles} miles<br><b>PRESSURE:</b>	{pressure} {pressure_unit}"
 				model="text_model:conditions"
 				animate_on="$_default:anim"
 				/>
@@ -54,7 +66,18 @@
 				text_model_format="updated at fn(utc_local,{updated_at},%h:%M %a %W)"
 				model="text_model:this"
 				animate_on="$_default:anim"
+				t_pad="10"
+				b_pad="50"
 				/>
+				
+		<layout name="forecast"
+			layout_type="horiz"
+			shrink_to_children="both"
+			layout_h_align="center"
+			layout_spacing="30"
+			each_model="forecast.xml:forecast"
+			each_model_limit="10"
+			/>
 	</layout>
 	
 	

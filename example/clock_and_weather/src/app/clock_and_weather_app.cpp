@@ -39,7 +39,7 @@ void clock_and_weather_app::setupServer(){
 	auto apiKey = mEngine.getAppSettings().getString("weather:api_key", 0, "");
 	auto unity = mEngine.getAppSettings().getString("weather:unit", 0, "metric"); 
 	auto timey = mEngine.getAppSettings().getDouble("weather:refresh_time", 0, 60);
-	mWeatherService.initialize(queryString, apiKey, unity, timey);
+	mWeatherService.initialize(ds::weather::WeatherSettings("portland_weather", queryString, apiKey, unity, timey));
 
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting

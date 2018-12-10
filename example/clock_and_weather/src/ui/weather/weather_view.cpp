@@ -51,12 +51,12 @@ WeatherView::WeatherView(ds::ui::SpriteEngine& eng)
 	: ds::ui::SmartLayout(eng, "weather_view.xml")
 {
 
-	listenToEvents<ds::WeatherCurrentUpdatedEvent>([this](const ds::WeatherCurrentUpdatedEvent& e) { 
+	listenToEvents<ds::weather::WeatherUpdatedEvent>([this](auto e) { 
 		completeAllTweens(false, true);
-		setContentModel(mEngine.mContent.getChildByName("current_weather"));
+		setContentModel(mEngine.mContent.getChildByName("portland_weather"));
 	});
 
-	setContentModel(mEngine.mContent.getChildByName("current_weather"));
+	setContentModel(mEngine.mContent.getChildByName("portland_weather"));
 }
 
 

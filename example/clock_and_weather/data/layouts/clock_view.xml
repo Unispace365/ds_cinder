@@ -1,0 +1,28 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			overall_alignment="center"
+			shrink_to_children="both"
+			layout_spacing="5"
+		>
+		<text name="time"
+				text_align="center"
+				layout_h_align="center"
+				font="time"
+				animate_on="$_default:anim"
+				
+				/>
+		<text name="date"
+				text_align="center"
+				layout_h_align="center"
+				font="date"
+				animate_on="$_default:anim"
+				
+				/>
+	</layout>
+	
+	
+</interface>
+
+
