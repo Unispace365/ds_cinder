@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::PerspCameraParams
+ * \class PerspCameraParams
  */
 PerspCameraParams::PerspCameraParams()
 		: mFov(60.0f)

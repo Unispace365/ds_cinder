@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<setting name="padding" value="20" type="float" />	
+	
+	<setting name="line:opacity" value="0.5" type="float" />
+	<setting name="line:size" value="1.0, 1.0" type="vec2" />
+	
+	<setting name="default:delay" value="0.01" />
+	<setting name="default:anim" value="fade; slide:$_world_width, 0; ease:outQuint; delay:$_default:delay" />
+	
+</settings>
+
+

@@ -59,7 +59,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::sprite::Web static
+ * Web static
  */
 void Web::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
@@ -70,19 +70,21 @@ void Web::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class ds::ui::sprite::Web
+ * Web
  */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: IEntryField(engine)
 	, mService(engine.getService<ds::web::WebCefService>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
+	, mDragScrollingDirection(true)
 	, mIsDragging(false)
 	, mClickDown(false)
 	, mPageScrollCount(0)
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
 	, mAllowClicks(true)
+	, mSecondClickOnUp(true)
 	, mBrowserId(-1)
 	, mBuffer(nullptr)
 	, mHasBuffer(false)
@@ -180,19 +182,22 @@ Web::~Web() {
 		mCallbacksCue->removeSelf();
 	}
 
-	{
-		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
-	//	std::lock_guard<std::mutex> lock(mMutex);
-		if(mBuffer){
-			delete mBuffer;
-			mBuffer = nullptr;
-		}
-
-		if(mPopupBuffer) {
-			delete mPopupBuffer;
-			mPopupBuffer = nullptr;
-		}
-	}
+	mHasCallbacks = false;
+	mHasDocCallback = false;
+	mDocumentReadyFn = nullptr;
+	mHasErrorCallback = false;
+	mErrorCallback = nullptr;
+	mHasAddressCallback = false;
+	mAddressChangedCallback = nullptr;
+	mHasTitleCallback = false;
+	mTitleChangedCallback = nullptr;
+	mHasFullCallback = false;
+	mFullscreenCallback = nullptr;
+	mHasLoadingCallback = false;
+	mLoadingUpdatedCallback = nullptr;
+	mHasAuthCallback = false;
+	mAuthRequestCallback = nullptr;
+	
 }
 
 void Web::setWebTransparent(const bool isTransparent){
@@ -233,7 +238,7 @@ void Web::initializeBrowser(){
 		mHasTitleCallback = true;
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -272,9 +277,10 @@ void Web::initializeBrowser(){
 		// verify the buffer exists and is the correct size
 		// TODO: Add ability to redraw only the changed rectangles (which is what comes from CEF)
 		// Would be much more performant, especially for large browsers with small ui changes (like blinking cursors)
-		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
+
+		if(buffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
 			mHasBuffer = true;
-			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
+			mBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
 		}
 	};
 
@@ -282,21 +288,9 @@ void Web::initializeBrowser(){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		// resize buffer if needed
-		if( mPopupBuffer && (bufferWidth != mPopupSize.x || bufferHeight != mPopupSize.y)) {
-			delete mPopupBuffer;
-			mPopupBuffer = nullptr;
-		}
-
-		// create the buffer if needed
-		if(!mPopupBuffer) {
-			mPopupBuffer = new unsigned char[bufferWidth * bufferHeight * 4];
-		}  
-
-		// if everything went ok
-		if(mPopupBuffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
+		if(buffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
 			mHasPopupBuffer = true;
-			memcpy(mPopupBuffer, buffer, bufferWidth * bufferHeight * 4);
+			mPopupBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
 		}
 	};
 
@@ -306,7 +300,6 @@ void Web::initializeBrowser(){
 		mHasPopupBuffer = false;
 		
 		if(mPopupSize.x != widthy || mPopupSize.y != heighty) {
-			delete mPopupBuffer;
 			mPopupBuffer = nullptr;
 			mPopupReady = false;
 		}
@@ -452,8 +445,9 @@ void Web::update(const ds::UpdateParams &p) {
 		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
 
 		ci::gl::Texture::Format fmt;
-		fmt.setMinFilter(GL_LINEAR);
-		fmt.setMagFilter(GL_LINEAR);
+		fmt.enableMipmapping(true);
+		//fmt.setMinFilter(GL_LINEAR);
+		//fmt.setMagFilter(GL_LINEAR);
 		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
@@ -463,8 +457,9 @@ void Web::update(const ds::UpdateParams &p) {
 		DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
 
 		ci::gl::Texture::Format fmt;
-		fmt.setMinFilter(GL_LINEAR);
-		fmt.setMagFilter(GL_LINEAR);
+		fmt.enableMipmapping(true);
+		//fmt.setMinFilter(GL_LINEAR);
+		//fmt.setMagFilter(GL_LINEAR);
 		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, (int)mPopupSize.x, (int)mPopupSize.y, fmt);
 		mHasPopupBuffer = false;
 		mPopupReady = true;
@@ -485,14 +480,7 @@ void Web::onSizeChanged() {
 		}
 
 		mBrowserSize = newBrowserSize;
-
-		if(mBuffer){
-			delete mBuffer;
-			mBuffer = nullptr;
-		}
-		const int bufferSize = theWid * theHid * 4;
-		mBuffer = new unsigned char[bufferSize];
-
+		mBuffer = nullptr; // buffer memory is managed by CEF
 		mHasBuffer = false;
 	}
 
@@ -732,6 +720,12 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
+	// in case the global to local failed, use the global point
+	if(xPos < -10000000 || yPos < -10000000) {
+		xPos = (int)(touchInfo.mCurrentGlobalPoint.x / getScale().x);
+		yPos = (int)(touchInfo.mCurrentGlobalPoint.y / getScale().y);
+	}
+
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
 		if(mAllowClicks){
 			// send a move at first, since a lot of sites have stuff with mouse overs
@@ -761,6 +755,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 				}
 
 				float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
+				if (!mDragScrollingDirection) yDelta = -yDelta;
 				sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));
 			}
 
@@ -776,7 +771,9 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 
 			if(!mIsDragging){// && touchInfo.mStartPoint != touchInfo.mCurrentGlobalPoint) {
 				// send another click
-				sendTouchToService(xPos, yPos, 0, 0, 1);
+				if(mSecondClickOnUp) {
+					sendTouchToService(xPos, yPos, 0, 0, 1);
+				}
 				//sendTouchToService(xPos, yPos, 0, 1, 1);
 				sendTouchToService(xPos, yPos, 0, 2, 1);
 			} else {
@@ -920,12 +917,8 @@ ci::vec2 Web::getDocumentScroll() {
 	return ci::vec2(0.0f, 0.0f);
 }
 
-void Web::executeJavascript(const std::string& theScript){
-	/* TODO
-	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
-	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
-	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
-	*/
+void Web::executeJavascript(const std::string& theScript, const std::string& debugUrl /*= ""*/) {
+	mService.executeJavascript(mBrowserId, theScript, debugUrl);
 }
 
 void Web::writeAttributesTo(ds::DataBuffer &buf) {

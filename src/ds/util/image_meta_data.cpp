@@ -154,7 +154,11 @@ public:
 	ImageAttsCache() {
 	}
 
-	void				add(const std::string& filePath, const ci::vec2 size){
+	void clear() {
+		mCache.clear();
+	}
+
+	void add(const std::string& filePath, const ci::vec2 size){
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
@@ -171,7 +175,7 @@ public:
 		}
 	}
 
-	ci::vec2			getSize(const std::string& fn) {
+	ci::vec2 getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		// Note: for the actual path, use the expanded fn.
 
@@ -219,7 +223,8 @@ private:
 			FileMetaData		meta(fn);
 			const int			w = meta.findValueType<int>("w", -1),
 								h = meta.findValueType<int>("h", -1);
-			if (w > 0 && h > 0) {
+			if(w > 0 && h > 0) {
+				DS_LOG_VERBOSE(7, "ImageAttsCache got filename image size " << w << "x" << h << " for " << fn);
 				return ImageAtts(ci::vec2(static_cast<float>(w), static_cast<float>(h)));
 			}
 		} catch (std::exception const&) {
@@ -229,7 +234,8 @@ private:
 		try {
 			ImageAtts			atts;
 			const int			format = get_format(fn);
-			if (format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
+			if(format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
+				DS_LOG_VERBOSE(7, "ImageAttsCache got png image size " << atts.mSize.x<< "x" << atts.mSize.y << " for " << fn);
 				return atts;
 			}
 		} catch (std::exception const& e) {
@@ -240,12 +246,14 @@ private:
 		int outW = 0;
 		int outH = 0;
 		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
+			DS_LOG_VERBOSE(7, "ImageAttsCache got exif image size " << outW << "x" << outH << " for " << fn);
 			return ImageAtts(ci::vec2(static_cast<float>(outW), static_cast<float>(outH)));
 		}
 
 		// 4. Load the whole damn image in and get that.
 		ImageAtts			atts;
 		super_slow_image_atts(fn, atts.mSize);
+		DS_LOG_VERBOSE(7, "ImageAttsCache got super slow image size " << atts.mSize.x << "x" << atts.mSize.y << " for " << fn);
 		return atts;
 	}
 
@@ -256,7 +264,7 @@ ImageAttsCache			CACHE;
 }
 
 /**
- * \class ds::ImageMetaData
+ * \class ImageMetaData
  */
 ImageMetaData::ImageMetaData()
 		: mSize(0.0f, 0.0f) {
@@ -265,6 +273,10 @@ ImageMetaData::ImageMetaData()
 ImageMetaData::ImageMetaData(const std::string& filename)
 		: mSize(0.0f, 0.0f) {
 	mSize = CACHE.getSize(filename);
+}
+
+void ImageMetaData::clearMetadataCache() {
+	CACHE.clear();
 }
 
 bool ImageMetaData::empty() const {

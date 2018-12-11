@@ -1,384 +1,317 @@
 #include "stdafx.h"
 
-#include "ds/ui/service/load_image_service.h"
+#include "load_image_service.h"
 
-#include <cinder/ImageIo.h>
-#include "ds/app/environment.h"
-#include "ds/debug/debug_defines.h"
-#include "ds/debug/logger.h"
-#include "ds/ui/sprite/image.h"
-#include "Poco/File.h"
+#include <chrono>
 
-namespace {
-const ds::BitMask	LOAD_IMAGE_LOG_M = ds::Logger::newModule("load_image");
-// A mask of all the image flags that impact the key.
-const int			IMAGE_FLAGS_KEY_MASK(ds::ui::Image::IMG_CACHE_F);
-}
+#include <ds/debug/logger.h>
+#include <ds/util/file_meta_data.h>
+
 
 namespace ds {
 namespace ui {
 
-/**
- * \class ds::ui::ImageKey
- */
-ImageKey::ImageKey()
-		: mFlags(0) {
-}
-
-ImageKey::ImageKey(const std::string& filename, const std::string& ip_key, const std::string& ip_params, const int flags)
-		: mFilename(filename)
-		, mIpKey(ip_key)
-		, mIpParams(ip_params)
-		, mFlags(flags&IMAGE_FLAGS_KEY_MASK) {
-}
-
-bool ImageKey::operator==(const ImageKey& o) const {
-	if (this == &o) return true;
-	return mFilename == o.mFilename && mIpKey == o.mIpKey && mIpParams == o.mIpParams && mFlags == o.mFlags;
-}
-
-void ImageKey::clear() {
-	mFilename.clear();
-	mIpKey.clear();
-	mIpParams.clear();
-	mFlags = 0;
-}
-
-/**
- * \class ds::ui::ImageKey
- */
-ImageToken::ImageToken(LoadImageService& _srv)
-		: mSrv(_srv) {
-	init();
-}
-
-ImageToken::~ImageToken() {
-	release();
-}
-
-bool ImageToken::empty() const {
-	return !mAcquired;
-}
-
-bool ImageToken::canAcquire() const {
-	return !mAcquired && !mError;
-}
-
-void ImageToken::acquire(	const std::string& _filename, const std::string& ip_key,
-							const std::string& ip_params, const int flags) {
-	if (mAcquired) return;
-
-	if (_filename.empty()) {
-		mError = true;
-//		DS_LOG_WARNING_M("ImageToken: Unable to load image resource (no filename)", LOAD_IMAGE_LOG_M);
-		return;
-	}
-	const ImageKey			key(_filename, ip_key, ip_params, flags);
-	mAcquired = mSrv.acquire(key, flags);
-	if (mAcquired) {
-		mKey = key;
-	}
-}
-
-void ImageToken::release() {
-	if (mAcquired) mSrv.release(mKey);
-	init();
-}
-
-ci::gl::TextureRef ImageToken::getImage(float& fade) {
-	if (!mAcquired) return nullptr;
-
-	if(!mTextureRef) {
-		return (mTextureRef = mSrv.getImage(mKey, fade));
-	}
-
-	fade = 1;
-	return mTextureRef;
-}
-
-const ci::gl::TextureRef ImageToken::peekImage(const std::string& filename) const {
-	return mSrv.peekImage(mKey);
-}
-
-void ImageToken::init() {
-	mKey.clear();
-	mAcquired = false;
-	mError = false;
-	mTextureRef = nullptr;
-}
-
-/* DS::LOAD-IMAGE-SERVICE
- ******************************************************************/
-LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList& list)
-		: mFunctions(list) 
-		, mLoadThreads(eng, [](){return new ds::ui::LoadImageService::ImageLoadThread(); })
-		, mMaxSimultaneousLoads(1)
-		, mMaxLoadTries(128)
-		, mLoadsInProgress(0)
+LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
+  : ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
+  , mShouldQuit(false) 
+  , mTextureOnMainThread(false)
 {
-
-	mLoadThreads.setReplyHandler([this](ds::ui::LoadImageService::ImageLoadThread& q){ 
-		onLoadComplete(q); 
-	});
+	mEngine.getEngineSettings().getSetting("load_image:create_texture_on_main_thread", 0, ds::cfg::SETTING_TYPE_BOOL, "True will create the gl texture on the main thread. Only use if you have issues with delayed image loading, typically in fullscreen", "false");
+	mTextureOnMainThread = mEngine.getEngineSettings().getBool("load_image:create_texture_on_main_thread", 0, false);
 }
 
-LoadImageService::~LoadImageService(){
-	clear();
-}
-
-bool LoadImageService::acquire(const ImageKey& key, const int flags) {
-	ImageHolder&		h = mImageResource[key];
-
-	// We have to test multiple conditions here -- if our refs fall below 1 AND we have no
-	// current image, then we need to load one in.  But if the refs are > 0, then there's
-	// either an image or one's being loaded.  And if there's an image but the refs are < 1,
-	// then it's being cached.
-	if((!h.mTextureRef) && h.mRefs < 1) {
-		// There's no image, so push on an operation to start one
-		auto oppy = ImageOperation(key, flags, mFunctions.find(key.mIpKey));
-		mOperationsQueue.push_back(oppy);
-		advanceQueue();
+void LoadImageService::initialize() {
+	const int numThreads = mEngine.getEngineSettings().getInt("load_image:threads");
+	if (numThreads != mThreads.size()) {
+		stopThreads();
 	}
 
-	h.mRefs++;
-	if((flags&Image::IMG_CACHE_F) != 0) h.mFlags |= Image::IMG_CACHE_F;
-	if((flags&Image::IMG_ENABLE_MIPMAP_F) != 0) h.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
+	mEngine.timedCallback(
+			[this, numThreads] {
+				while (mThreads.size() < (size_t)numThreads) {
+					ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
 
-	return true;
+					auto aThread = std::make_shared<std::thread>(
+							[this, backgroundCtx]() { loadImagesThreadFn(backgroundCtx); });
+					mThreads.emplace_back(aThread);
+				}
+			},
+			0.1);
 }
 
-void LoadImageService::advanceQueue(){
-	if(mLoadsInProgress >= mMaxSimultaneousLoads){
-		return;
-	}
-
-	if(mOperationsQueue.empty()) return;
-
-	auto oppy = mOperationsQueue.front();
-	oppy.mNumberTries++;
-	mOperationsQueue.erase(mOperationsQueue.begin());
-
-	mLoadsInProgress++;
-	mLoadThreads.start([this, oppy](ImageLoadThread& ilt){ ilt.mOutput = oppy; });
+void LoadImageService::clearCache() {
+	mInUseImages.clear();
+	ImageMetaData::clearMetadataCache();
 }
 
-void LoadImageService::release(const ImageKey& key) {
-	// Note:  As far as I can tell, find() always throws an error if the map is empty.
-	// Further, I can't even seem to catch the error, so really not sure what's going on there.
-	if (mImageResource.empty()) {
-	//	DS_LOG_WARNING_M("LoadImageService::release() called on empty map", LOAD_IMAGE_LOG_M);
-		return;
-	}
-
-	auto			it = mImageResource.find(key);
-	if (it != mImageResource.end()) {
-		ImageHolder&		h = it->second;
-		h.mRefs--;
-		// If I'm caching this image, never release it
-		if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
-			mImageResource.erase(key);
-		}
-	} else {
-		DS_LOG_WARNING_M("LoadImageService::release() called on filename that doesn't exist (" << key.mFilename << ")", LOAD_IMAGE_LOG_M);
+void LoadImageService::logCache() {
+	DS_LOG_INFO("Load Image Service, number of in use images:" << mInUseImages.size());
+	for (auto it : mInUseImages) {
+		DS_LOG_INFO("Image, refs=" << it.second.mRefs << " err=" << it.second.mError << " flags=" << it.second.mFlags
+								   << " path=" << it.second.mFilePath);
 	}
 }
 
-ci::gl::TextureRef LoadImageService::getImage(const ImageKey& key, float& fade) {
+void LoadImageService::stopThreads() {
+	mShouldQuit = true;
 
-	if (mImageResource.empty()) return nullptr;
-	ImageHolder& h = mImageResource[key];
-	fade = 1;
-	return h.mTextureRef;
-}
-
-const ci::gl::TextureRef LoadImageService::peekImage(const ImageKey& key) const {
-	if (mImageResource.empty()) return nullptr;
-	auto it = mImageResource.find(key);
-	if (it != mImageResource.end()) {
-		const ImageHolder&		h = it->second;
-		return h.mTextureRef;
-	}
-	return nullptr;
-}
-
-bool LoadImageService::peekToken(const ImageKey& key, int* flags) const {
-	if (mImageResource.empty()) return false;
-	auto it = mImageResource.find(key);
-	if (it != mImageResource.end()) {
-		const ImageHolder&		h = it->second;
-		if (flags) *flags = h.mFlags;
-		return true;
-	}
-	return false;
-}
-
-void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
-
-	mLoadsInProgress--;
-
-	// if something went wrong (out of memory? no file? try again)
-	if(loadThread.mError){
-		if(loadThread.mOutput.mNumberTries >= mMaxLoadTries){
-			DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
-			loadThread.mOutput.clear();
-		} else {
-			mOperationsQueue.push_back(loadThread.mOutput);
-		}
-		advanceQueue();
-		return;
+	for (auto it : mThreads) {
+		it->join();
 	}
 
-	ImageOperation&			out = loadThread.mOutput;
-	ImageHolder&			h = mImageResource[out.mKey];
-	if(h.mTextureRef) {
-		// This isn't an error any more, and is just fine. Really the problem is that we spent a bunch of time loading the same image twice
-		//DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
-	} else {
-		ci::gl::Texture::Format	fmt;
-		if((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
-			fmt.enableMipmapping(true);
-			fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-		} 
-		h.mTextureRef = ci::gl::Texture::create(out.mSurface, fmt);
+	mThreads.clear();
+	mShouldQuit = false;
+}
+LoadImageService::~LoadImageService() {
+	mCallbacks.clear();
 
-		// If we ran out of memory, try again! why not!
-		if(glGetError() == GL_OUT_OF_MEMORY) {
-			if(out.mNumberTries < 2){
-				DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
-			}
-			if(h.mTextureRef) h.mTextureRef = nullptr;
+	stopThreads();
+}
 
-			if(out.mNumberTries >= mMaxLoadTries){
-				DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
-				loadThread.mOutput.clear();
-				out.clear();
+void LoadImageService::update(const ds::UpdateParams&) {
+
+	// grab any completed image loads and clear the shared vector
+	std::vector<ImageLoadRequest> newCompletedRequests;
+	{
+		std::lock_guard<std::mutex> lock(mLoadedMutex);
+		newCompletedRequests = mLoadedRequests;
+		mLoadedRequests.clear();
+	}
+
+	// cache or track completed loads
+	for (auto& it : newCompletedRequests) {
+		if (mTextureOnMainThread || (it.mTexture && it.mTexture->getId() > 0)) {
+			auto findy = mInUseImages.find(it.mFilePath);
+			if (findy == mInUseImages.end()) {
+				DS_LOG_VERBOSE(3, "Image loaded after no one was left to care!" << it.mFilePath);
 			} else {
-				mOperationsQueue.push_back(out);
-			}
-			advanceQueue();
-			return;
-		}
 
-		DS_REPORT_GL_ERRORS();
-	}
-	out.clear();
-	loadThread.mOutput.clear();
+				/// This is a fallback in case gl fencing for thread creation stalls
+				if(mTextureOnMainThread) {
+					ci::gl::Texture::Format fmt;
+					if((it.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
+						fmt.enableMipmapping(true);
+						fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+					}
 
-	advanceQueue();
-}
+					it.mTexture = ci::gl::Texture::create(it.mImageSourceRef, fmt);
+					if(!it.mTexture || it.mTexture->getId() < 1) {
+						DS_LOG_WARNING("LoadImageService: couldn't load an image texture on the main thread for " << it.mFilePath);
+					}
 
-void LoadImageService::clear()
-{
-	mImageResource.clear();
-}
+					it.mImageSourceRef = nullptr;
+				}
 
-
-LoadImageService::ImageLoadThread::ImageLoadThread(){
-
-}
-void LoadImageService::ImageLoadThread::run(){
-
-	mError = true;
-	try {
-
-		// If there's a function, then require this image have an alpha channel, because
-		// who knows what the function will need. Otherwise let cinder do its thing.
-		boost::tribool						alpha = boost::logic::indeterminate;
-		if(!mOutput.mIpFunction.empty())	alpha = boost::tribool(true);
-
-		const std::string					fn = ds::Environment::expand(mOutput.mKey.mFilename);
-		const Poco::File file(fn);
-
-		if(file.exists()) {
-			mOutput.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
-			if(mOutput.mSurface.getData()) {
-				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
-				mError = false;
+				mInUseImages[it.mFilePath] = it;
 			}
 		} else {
-			if(mOutput.mNumberTries < 2){
-				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed. File does not exist: " << mOutput.mKey.mFilename, LOAD_IMAGE_LOG_M);
-			}
-			mError = true;
+			DS_LOG_WARNING("LoadImgeService failed for file: " << it.mFilePath)
+			continue;
 		}
-	} catch(std::exception const& ex) {
+		DS_LOG_VERBOSE(5, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError
+																<< " refs=" << it.mRefs);
+
+		auto filecallbacks = mCallbacks.find(it.mFilePath);
+		if (filecallbacks != mCallbacks.end()) {
+			for (auto cit : filecallbacks->second) {
+				cit.second(it.mTexture, it.mError, it.mErrorMsg);
+			}
+
+			mCallbacks.erase(filecallbacks);
+		}
+	}
+
+	newCompletedRequests.clear();
+}
+
+void LoadImageService::acquire(const std::string& filePath, const int flags, void* requester,
+							   LoadedCallback loadedCallback) {
+	if (filePath.empty()) {
+		DS_LOG_VERBOSE(6, "LoadImageService got a blank file path.");
+		return;
+	}
+
+	if (!loadedCallback) {
+		DS_LOG_ERROR("LoadImageService We need a callback for after the thing has been loaded");
+		return;
+	}
+
+    // Check if this has already been loaded or requested.
+
+	// See if this has already been loaded
+	auto& inFind = mInUseImages.find(filePath);
+	if (inFind != mInUseImages.end()) {
+        // Increment the ref counter
+		inFind->second.mRefs++;
+
+        // If this image has already loaded, fire the callback immediately 
+        if(inFind->second.mLoading == false){
+            DS_LOG_VERBOSE(4,
+                           "LoadImageService using an in-use image for " << filePath << " refs=" << inFind->second.mRefs);
+            loadedCallback(inFind->second.mTexture, inFind->second.mError, inFind->second.mErrorMsg);
+            return;
+        }
+	}else{
+        mInUseImages[filePath] = ImageLoadRequest(filePath, flags);
+        mInUseImages[filePath].mLoading = true; // Indicates that this request has been added to the loading queue
+    }
+
+    // Add callback
+	mCallbacks[filePath][requester] = loadedCallback;
+
+	// ok, this image isn't cached and it's not currently in use/loading, start a new load request
+	{
+		std::lock_guard<std::mutex> lock(mRequestsMutex);
+        mRequests.push_back(mInUseImages[filePath]);
+	}
+}
+
+
+void LoadImageService::release(const std::string& filePath, void* referrer) {
+	if (filePath.empty()) return;
+
+	/// Remove the callback for this path and referrer
+	auto findy = mCallbacks.find(filePath);
+	if (findy != mCallbacks.end()) {
+		auto refFindy = findy->second.find(referrer);
+		if (refFindy != findy->second.end()) {
+			findy->second.erase(refFindy);
+		}
+	}
+
+	auto inFind = mInUseImages.find(filePath);
+	if (inFind != mInUseImages.end()) {
+		inFind->second.mRefs--;
+		if (inFind->second.mRefs < 1 && (inFind->second.mFlags & Image::IMG_CACHE_F) == 0) {
+			mInUseImages.erase(filePath);
+			DS_LOG_VERBOSE(4, "LoadImageService no more refs for " << filePath);
+		}
+	}
+}
+
+void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
+    // Allow using 10ms vs std::chrono::milliseconds(10)
+    using namespace std::chrono_literals;
+
+	DS_LOG_VERBOSE(1, "Starting load thread " << std::this_thread::get_id());
+	ci::ThreadSetup threadSetup;
+
+	/// Make the shared context current
+	context->makeCurrent();
+
+	while (!mShouldQuit) {
+		ImageLoadRequest nextImage;
+        bool gotRequest = false;
+
+		{
+			std::lock_guard<std::mutex> lock(mRequestsMutex);
+            if(!mRequests.empty()){
+                // Get first request from the queue
+                nextImage = mRequests.front();
+                mRequests.erase(mRequests.begin());
+                gotRequest = true;
+            }
+		}
+
+		// there was no filepaths, so wait and try again in a little bit (the time is a guess)
+		if (!gotRequest) {
+			std::this_thread::sleep_for(4ms);
+			continue;
+		}
 
 		try {
-			// If there's a function, then require this image have an alpha channel, because
-			// who knows what the function will need. Otherwise let cinder do its thing.
-			boost::tribool						alpha = boost::logic::indeterminate;
-			if(!mOutput.mIpFunction.empty())	alpha = boost::tribool(true);
+			auto isr = ci::loadImage(nextImage.mFilePath);
 
-			// Try to load from a url path instead of locally
-			mOutput.mSurface = ci::Surface8u(ci::loadImage(ci::loadUrl(mOutput.mKey.mFilename)), ci::SurfaceConstraintsDefault(), alpha);
-			if(mOutput.mSurface.getData()) {
-				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
-				mError = false;
-			} else {
-				if(mOutput.mNumberTries < 2) {
-					DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+
+			/// once we have the surface in main-thread mode, bail out
+			if(mTextureOnMainThread && isr) {
+				nextImage.mImageSourceRef = isr;
+				nextImage.mLoading = false;
+				std::lock_guard<std::mutex> lock(mLoadedMutex);
+				mLoadedRequests.emplace_back(nextImage);
+				continue;
+			}
+
+			// TODO: re-implement url loading
+			//		isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
+
+			ci::gl::Texture::Format fmt;
+			if ((nextImage.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
+				fmt.enableMipmapping(true);
+				fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+			}
+
+			auto tex = ci::gl::Texture::create(isr, fmt);
+
+
+			if (tex->getId() > 0) {
+				{
+					// we need to wait on a fence before alerting the primary thread that the Texture is ready
+					auto fence = ci::gl::Sync::create();
+
+#define NO_CLIENT_SYNC 
+#ifdef NO_CLIENT_SYNC
+					// Switch fence sync.
+					// wait sync sends a command to the gpu to wait until this operation is complete to display
+					// client wait sync stops the CPU until the GPU command queue is ready (i think)
+					// In some modes, namely true fullscreen, the client wait sync waits indefinitely, in practice it's been 15 seconds+
+					// This method might be introducing some hitching, but doesn't have the same indefinite waiting 
+					glFlush();
+					fence->waitSync();
+
+#else
+					int numWaits = 0;
+					GLenum syncReturn;
+					do {
+						numWaits++;
+						syncReturn = fence->clientWaitSync(GL_SYNC_FLUSH_COMMANDS_BIT, std::chrono::duration_cast<std::chrono::nanoseconds>(1ms).count());  // 1ms to nanoseconds
+					} while (syncReturn == GL_TIMEOUT_EXPIRED);
+				//	std::cout << "waited " << numWaits << " times for gl fence" << std::endl;
+
+					if (syncReturn == GL_WAIT_FAILED) {
+						DS_LOG_WARNING("LoadImageService fence wait didn't work! " << syncReturn);
+					} else {
+#endif
+
+						nextImage.mTexture = tex;
+                        nextImage.mLoading = false;
+
+						std::lock_guard<std::mutex> lock(mLoadedMutex);
+						mLoadedRequests.emplace_back(nextImage);
+#ifndef NO_CLIENT_SYNC
+					}
+#endif
 				}
-				mError = true;
+			} else {
+				DS_LOG_VERBOSE(6, "Invalid texture, retrying for image " << nextImage.mFilePath << " "
+																		 << std::this_thread::get_id());
+				{
+					std::lock_guard<std::mutex> lock(mRequestsMutex);
+                    mRequests.push_back(nextImage);
+				}
 			}
-		} catch(ci::StreamExc& streamEx) {
-			if(mOutput.mNumberTries < 2) {
-				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() ci::StreamException (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+
+		} catch (std::exception& exc) {
+			nextImage.mError = true;
+			if (false && exc.what()) {
+				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath << " what: " << exc.what());
+				nextImage.mErrorMsg = exc.what();
+			} else {
+				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath);
+				nextImage.mErrorMsg = "Unknown load issue.";
 			}
-			mError = true;
-		} catch(std::exception const& extwo){
-			if(mOutput.mNumberTries < 2){
-				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+
+
+			/// Send the error back out
+			{
+				std::lock_guard<std::mutex> lock(mLoadedMutex);
+				mLoadedRequests.emplace_back(nextImage);
 			}
-			mError = true;
-		}
+		}  // end of try / catch
+	}	  // end of while loop
 
-		if(mError){
-			if(mOutput.mNumberTries < 2){
-				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
-			}
-			mError = true;
-		}
-	}
+	DS_LOG_VERBOSE(1, "Exiting load thread " << std::this_thread::get_id());
 }
 
-
-/**
- * \class ds::ui::LoadImageService::holder
- */
-LoadImageService::ImageHolder::ImageHolder()
-		: mRefs(0)
-		, mError(false)
-		, mFlags(0) {
-}
-
-/**
- * \class ds::ui::LoadImageService::op
- */
-LoadImageService::ImageOperation::ImageOperation()
-		: mFlags(0)
-		, mNumberTries(0)
-{
-}
-
-LoadImageService::ImageOperation::ImageOperation(const ImageOperation& o) {
-	*this = o;
-}
-
-LoadImageService::ImageOperation::ImageOperation(const ImageKey& key, const int flags, const ds::ui::ip::FunctionRef& fn)
-		: mKey(key)
-		, mFlags(flags)
-		, mIpFunction(fn)
-		, mNumberTries(0)
-{
-}
-
-void LoadImageService::ImageOperation::clear() {
-	mKey.clear();
-	mSurface = ci::Surface8u();
-	mFlags = 0;
-	mIpFunction.clear();
-	mNumberTries = 0;
-}
-
-} // namespace ui
-} // namespace ds
+}  // namespace ui
+}  // namespace ds

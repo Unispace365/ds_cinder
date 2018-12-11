@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::RunnableClient
+ * \class RunnableClient
  * \brief Handle simple runnable operations.  Clients are responsible for recycling
  * any runnables supplied to run() (and received back fromt eh result handler), if
  * they want to.  Otherwise, the object is memory managed.

@@ -12,7 +12,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::DelayedMomentum
+* \class DelayedMomentum
 * A helper class to have sprites move with momentum in 2d.
 * This has more of a 'pull' feel than the regular momentum. This is intended for during the drag phase, and not so much after it.
 * Currently single-direction only.

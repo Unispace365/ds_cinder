@@ -10,7 +10,7 @@ namespace ds{
 namespace debug{
 
 /**
- * \class ds::MultiTapActionFactory
+ * \class MultiTapActionFactory
  */
 float MultiTapActionFactory::getLimit() const {
 	return ci::randFloat(0.01f, 0.5f);
@@ -25,7 +25,7 @@ BaseAction* MultiTapActionFactory::build(std::vector<int> &freeList, ds::ui::Spr
 }
 
 /**
- * \class ds::MultiTapAction
+ * \class MultiTapAction
  */
 MultiTapAction::MultiTapAction(std::vector<int> &freeList, ds::ui::SpriteEngine &world, const ci::Rectf& frame)
 	: BaseAction(freeList, world, frame)

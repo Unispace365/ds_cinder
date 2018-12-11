@@ -18,8 +18,6 @@
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "ds/metrics/metrics_service.h"
-#include "ds/ui/ip/ip_defs.h"
-#include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
 #include "ds/util/file_meta_data.h"
@@ -63,6 +61,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mLoadImageService(*this)
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
@@ -101,12 +100,6 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleHelpRequest::NAME(), [this]()->ds::Event* {return new ds::EngineStatsView::ToggleHelpRequest(); });
 
 	setupEngine();
-
-
-	// For now, install some default image processing functions here, for convenience. These are
-	// so lightweight it probably makes sense just to have them always available for clients instead
-	// of requiring some sort of configuration.
-	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
@@ -173,6 +166,8 @@ void Engine::setupSrcDstRects(){
 	ci::app::getWindow()->setPos(mData.mDstRect.getUpperLeft());
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
 
+	mData.mOriginalSrcRect = mData.mSrcRect;
+
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 }
 
@@ -180,12 +175,13 @@ void Engine::setupAutoSpan() {
 	bool autoSpan = mSettings.getBool("span_all_displays");
 	if(autoSpan && ci::app::getWindow()) {
 		ci::app::getWindow()->spanAllDisplays();
-		auto theX = ci::app::getWindow()->getPos().x;
-		auto theY = ci::app::getWindow()->getPos().y;
-		mData.mWorldSize.x = ci::app::getWindow()->getWidth();
-		mData.mWorldSize.y = ci::app::getWindow()->getHeight();
+		auto theX = static_cast<float>(ci::app::getWindow()->getPos().x);
+		auto theY = static_cast<float>(ci::app::getWindow()->getPos().y);
+		mData.mWorldSize.x = static_cast<float>(ci::app::getWindow()->getWidth());
+		mData.mWorldSize.y = static_cast<float>(ci::app::getWindow()->getHeight());
 		mData.mSrcRect = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
 		mData.mDstRect = ci::Rectf(theX, theY, theX + mData.mWorldSize.x, theY + mData.mWorldSize.y);
+		mData.mOriginalSrcRect = mData.mSrcRect;
 
 		mSettings.getSetting("screen:mode", 0).mRawValue = "borderless";
 		mSettings.getSetting("world_dimensions", 0).mRawValue = ds::unparseVector(mData.mWorldSize);
@@ -213,8 +209,13 @@ void Engine::setupWindowMode(){
 	if(newMode == "borderless"){
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(true);
-	} else if(newMode.find("full") != std::string::npos){
-		ci::app::getWindow()->setFullScreen(true);
+	} else if(newMode.find("full") != std::string::npos) {
+		/// setting fullscreen immediately causes some weirdness
+		static bool firstSet = true;
+		if(!firstSet) {
+			ci::app::getWindow()->setFullScreen(true);
+		}
+		firstSet = false;
 	} else {
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(false);
@@ -596,6 +597,21 @@ void Engine::setupTouch(ds::App& app) {
 		}
 	}
 
+	mTuioInputs.clear();
+	auto& theSettings = getSettings("tuio_inputs");
+	const int numInputs = theSettings.getInt("tuio_input:number", 0, 0);
+	for(int i = 0; i < numInputs; i++) {
+		const int       tuioPort = theSettings.getInt("tuio_input:port", i, 0);
+		const int       idOffset = theSettings.getInt("tuio_input:id_offset", i, 32);
+		const ci::vec2  touchScale = theSettings.getVec2("tuio_input:scale", i, ci::vec2());
+		const ci::vec2  touchOffset = theSettings.getVec2("tuio_input:offset", i, ci::vec2());
+		const float     touchRotation = theSettings.getFloat("tuio_input:rotation", i, 0.0f);
+		const ci::Rectf filterRect = theSettings.getRect("tuio_input:filter_rect", i, ci::Rectf());
+		mTuioInputs.push_back(std::make_shared<ds::ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
+														  idOffset, filterRect));
+	}
+
+
 #ifdef _WIN32
 	if(mDsApp.getWindow()) {
 		auto hwnd = (HWND)mDsApp.getWindow()->getNative();
@@ -750,10 +766,6 @@ void Engine::addService(const std::string& str, ds::EngineService& service) {
 		}
 		mData.mServices[str] = &service;
 	}
-}
-
-void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
-	mIpFunctions.add(key, fn);
 }
 
 void Engine::loadSettings(const std::string& name, const std::string& filename) {
@@ -1073,6 +1085,8 @@ void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 }
 
 ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) const {
+	if(mTouchManager.getInputMode() != ds::ui::TouchManager::kInputNormal) return e;
+
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
 	// hopefully it always will be.
@@ -1266,7 +1280,7 @@ bool Engine::getRotateTouchesDefault(){
 }
 
 /**
- * \class ds::Engine::Channel
+ * \class Channel
  */
 Engine::Channel::Channel() {
 }

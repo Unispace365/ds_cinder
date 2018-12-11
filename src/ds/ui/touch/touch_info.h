@@ -31,7 +31,7 @@ struct TouchInfo
 	float		mCurrentScale;
 	float		mCurrentAngle;
 
-	// This touch is being removed from it's previous owner if true
+	/// This touch is being removed from it's previous owner if true
 	bool		mPassedTouch;
 };
 

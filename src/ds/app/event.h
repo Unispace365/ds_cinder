@@ -13,7 +13,7 @@ class Sprite;
 extern const std::string demangleTypeName(const std::string& n);
 
 /**
- * \class ds::Event
+ * \class Event
  * \brief Abstract message class. Ignore this, and derive from RegisteredEvent.
  *
  * EXAMPLE DECLARATION of an event class:
@@ -77,16 +77,16 @@ const T* const Event::as() const
 
 
 /**
-* \class ds::event::RegisteredEvent
+* \class RegisteredEvent
 * \brief All events should derive from this class, to be properly
 * registered with the system.
 */
 template<class Derived>
 class RegisteredEvent : public Event {
 public:
-	// Unique identifier for this message
+	/// Unique identifier for this message
 	static size_t					WHAT() { return sENTRY.getWhat(); }
-	// Unique channel name for this message
+	/// Unique channel name for this message
 	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 
 	static const std::string		NAME() { return demangleTypeName(typeid(Derived).name()); }

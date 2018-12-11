@@ -50,7 +50,7 @@ namespace {
 					keepRunning = false;
 				}
 				if (keepRunning) {
-					Poco::Thread::sleep(100);
+					Poco::Thread::sleep(1);
 				}
 			}
 		}
@@ -131,7 +131,7 @@ namespace {
 }
 
 /**
- * \class ds::TcpServer
+ * \class TcpServer
  */
 TcpServer::TcpServer(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address,
 						const std::string& wakeup, const std::string &terminator)
@@ -184,7 +184,7 @@ void TcpServer::update(const ds::UpdateParams&) {
 }
 
 /**
- * \class ds::TcpServer::SendBucket
+ * \class SendBucket
  */
 TcpServer::SendBucket::SendBucket() {
 }

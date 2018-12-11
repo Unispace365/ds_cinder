@@ -10,7 +10,7 @@ namespace physics {
 class SpriteBody;
 
 /**
- * \class ds::physics::BodyBuilder
+ * \class BodyBuilder
  * \brief Used to supply parameters when creating a body.
  */
 class BodyBuilder {
@@ -37,7 +37,7 @@ protected:
 };
 
 /**
- * \class ds::physics::BodyBuilderBox
+ * \class BodyBuilderBox
  * \brief Create a box shape.
  */
 class BodyBuilderBox : public BodyBuilder {
@@ -51,7 +51,7 @@ public:
 };
 
 /**
- * \class ds::physics::BodyBuilderCircle
+ * \class BodyBuilderCircle
  * \brief Create a circle shape.
  */
 class BodyBuilderCircle : public BodyBuilder {
@@ -65,7 +65,7 @@ public:
 
 
 /**
- * \class ds::physics::BodyBuilderPolygon
+ * \class BodyBuilderPolygon
  * \brief Create an arbitrary polygon. See the box2d manual for specifics on polygon shapes
  */
 class BodyBuilderPolygon : public BodyBuilder {

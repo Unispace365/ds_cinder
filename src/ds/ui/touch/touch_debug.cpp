@@ -36,7 +36,7 @@ void TouchDebug::mouseDown(const ci::app::MouseEvent& e) {
 		}
 	} else if(e.isControlDown()) {
 			mTwoTouching = true;
-			int offset = mEngine.getMinTouchDistance() * 2;
+			int offset = static_cast<int>(mEngine.getMinTouchDistance() * 2.f);
 			if(e.isShiftDown()) offset *= 2;
 			mTwoTouchDown = e.getPos() + ci::ivec2(offset);
 

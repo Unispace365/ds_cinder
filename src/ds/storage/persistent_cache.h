@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::PersistentCache
+ * \class PersistentCache
  * \brief Abstract persistent storage. Define a data format, then add and query.
  * I am thread safe (meaning I block on all calls).
  */
@@ -36,14 +36,14 @@ public:
 	class Field;
 	class Row;
 
-	// Location will be relative to user/documents/downstream/cache. Location
-	// should be a folder -- the file will be named and generated.
-	// Version is currently unused, but maintain it for the future.
-	// For convenience you can use field list like this: PersistentCache::FieldList().addString("query")
+	/// Location will be relative to user/documents/downstream/cache. Location
+	/// should be a folder -- the file will be named and generated.
+	/// Version is currently unused, but maintain it for the future.
+	/// For convenience you can use field list like this: PersistentCache::FieldList().addString("query")
 	PersistentCache(const std::string& location, const int version, const FieldList&);
 
 	Row								fetchOne(const std::string& field_name, const std::string& value) const;
-	// If the row has an ID, this is an update operation, otherwise this is a create.
+	/// If the row has an ID, this is an update operation, otherwise this is a create.
 	void							setValues(const Row&);
 
 private:
@@ -75,7 +75,7 @@ public:
 		int64_t						getInt(const size_t) const;
 		const std::string&			getString(const size_t) const;
 
-		// For building
+		/// For building
 		Row&						addFloat(const double);
 		Row&						addInt(const int64_t);
 		Row&						addString(const std::string&);

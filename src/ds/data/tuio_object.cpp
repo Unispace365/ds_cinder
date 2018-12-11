@@ -5,7 +5,7 @@
 namespace ds {
 
 /**
- * \class ds::TuioObject
+ * \class TuioObject
  */
 TuioObject::TuioObject()
 		: mObjectId(-1)

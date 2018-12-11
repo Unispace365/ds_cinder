@@ -9,7 +9,7 @@ namespace ds {
 class ContentWrangler;
 
 /**
- * \class ds::EngineStandalone
+ * \class EngineStandalone
  * The Standalone engine contains all behaviour found in both the client
  * and server, and no communication pipe replicating sprite changes.
  */
@@ -17,8 +17,6 @@ class EngineStandalone : public Engine {
 public:
 	EngineStandalone(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
-
-	virtual ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
 
 	virtual void					installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
 													const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -39,7 +37,6 @@ private:
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
-	ui::LoadImageService			mLoadImageService;
 	ContentWrangler*				mContentWrangler;
 };
 

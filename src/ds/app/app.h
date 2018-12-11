@@ -17,7 +17,7 @@ class TuioObject;
 class Engine;
 
 /**
- * \class ds::EngineSettingsPreloader
+ * \class EngineSettingsPreloader
  * Load engine settings first, then setup ci::app settings accordingly,
  * before Cinder's App instantiation and Window creation
  */
@@ -37,7 +37,7 @@ protected:
 };
 
 /**
- * \class ds::App
+ * \class App
  * Handle the main app setup.
  */
 class App : public EngineSettingsPreloader, public cinder::app::App {
@@ -45,20 +45,20 @@ private:
 	const bool			mEnvironmentInitialized;
 
 public:
-	// This is used for external projects to perform some initialization
-	// on app startup time. It's intended to be called by clients from a
-	// static initializer.
-	// Note that throwing an exception in the function will exit the app.
+	/// This is used for external projects to perform some initialization
+	/// on app startup time. It's intended to be called by clients from a
+	/// static initializer.
+	/// Note that throwing an exception in the function will exit the app.
 	static void AddStartup(const std::function<void(ds::Engine&)>&);
 
-	// Called just before the main app setupServer() virtual function
+	/// Called just before the main app setupServer() virtual function
 	static void AddServerSetup(const std::function<void(ds::Engine&)>&);
 
-	// Apps can provide a list of root sprites by chaining commands to a RootList.
-	// For example, if you want a single perspective root, do this:
-	// App(ds::RootList().persp())
-	// See RootList class for full use. By default, you get a single
-	// orthogonal root.
+	/// Apps can provide a list of root sprites by chaining commands to a RootList.
+	/// For example, if you want a single perspective root, do this:
+	/// App(ds::RootList().persp())
+	/// See RootList class for full use. By default, you get a single
+	/// orthogonal root.
 	App(const RootList& = RootList());
 	~App();
 
@@ -67,14 +67,14 @@ public:
 	virtual void				mouseDrag( ci::app::MouseEvent event );
 	virtual void				mouseUp(   ci::app::MouseEvent event );	
 
-	// These are called from the boost thread
-	// These events are sent to the engine to be queued for the next update
-	// NOTE: do not call these from your client app. use the inject functions on SpriteEngine to put touch events into the system
+	/// These are called from the boost thread
+	/// These events are sent to the engine to be queued for the next update
+	/// NOTE: do not call these from your client app. use the inject functions on SpriteEngine to put touch events into the system
 	virtual void				touchesBegan(ci::app::TouchEvent event) final;
 	virtual void				touchesMoved(ci::app::TouchEvent event) final;
 	virtual void				touchesEnded(ci::app::TouchEvent event) final;
 
-	// These are safe to override
+	/// These are safe to override
 	virtual void				onTouchesBegan(ds::ui::TouchEvent event){};
 	virtual void				onTouchesMoved(ds::ui::TouchEvent event){};
 	virtual void				onTouchesEnded(ds::ui::TouchEvent event){};
@@ -85,8 +85,8 @@ public:
 	virtual void				onTouchesMoved(ci::app::TouchEvent event) final {};
 	virtual void				onTouchesEnded(ci::app::TouchEvent event) final {};
 
-	// To receive TUIO Objects, the engine must have this setting:
-	//	<text name="touch:tuio:receive_objects" value="true" />
+	/// To receive TUIO Objects, the engine must have this setting:
+	///	\code <text name="touch:tuio:receive_objects" value="true" /> \endcode
 	virtual void				tuioObjectBegan(const TuioObject&);
 	virtual void				tuioObjectMoved(const TuioObject&);
 	virtual void				tuioObjectEnded(const TuioObject&);
@@ -110,20 +110,20 @@ public:
 	void						resetupServer();
 	void						preServerSetup();
 
-	// This is where client applications would setup the initial UI.
+	/// This is where client applications would setup the initial UI.
 	virtual void				setupServer() {}
 	virtual void				update();
 	virtual void				draw();
 	virtual void				quit();
 	virtual void				shutdown();
 
-	// Triggered by F8 key, saves a transparent png on the desktop
+	/// Triggered by F8 key, saves a transparent png on the desktop
 	void						saveTransparentScreenshot();
 
-	// Kills RoC, dsnode, then this app
+	/// Kills RoC, dsnode, then this app
 	void						killSupportingApps();
 
-	// Logs all sprites to disk for deep debuggin
+	/// Logs all sprites to disk for deep debuggin
 	void						writeSpriteHierarchy();
 
 	/// Show sprites that are enabled
@@ -145,9 +145,9 @@ private:
 	typedef ci::app::App   inherited;
 
 	friend class Environment;
-	// Path to the folder that contains the "data" folder
-	// (but not including "data", you still need to add that
-	// if it's what you want
+	/// Path to the folder that contains the "data" folder
+	/// (but not including "data", you still need to add that
+	/// if it's what you want
 	static const std::string&   envAppDataPath();
 	void						setupKeyPresses();
 	ds::keys::KeyManager		mKeyManager;
@@ -156,7 +156,7 @@ private:
 	bool						mMouseHidden;
 	Poco::Timestamp::TimeVal	mMouseMoveTime;
 
-	// When enabled, the arrow keys will move the camera.
+	/// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;
 	const bool					mArrowKeyCameraControl;
 };

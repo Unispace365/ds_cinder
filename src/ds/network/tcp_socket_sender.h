@@ -13,7 +13,7 @@ namespace ds {
 namespace net {
 
 /**
- * \class ds::net::TcpSocketSender
+ * \class TcpSocketSender
  * \brief Run a thread where I can send commands to a server.
  */
 class TcpSocketSender {

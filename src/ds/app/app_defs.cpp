@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::RootList
+ * \class RootList
  */
 RootList::RootList(const std::vector<int>* roots) {
 	if (roots) {
@@ -89,7 +89,7 @@ RootList& RootList::slave() {
 }
 
 /**
- * \class ds::RootList::Root
+ * \class Root
  */
 RootList::Root::Root()
 		: mType(kOrtho)

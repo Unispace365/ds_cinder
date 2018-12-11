@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::AutoUpdate
+ * \class AutoUpdate
  */
 AutoUpdate::AutoUpdate(ds::ui::SpriteEngine &e, const int mask)
 		: mEngine(e)

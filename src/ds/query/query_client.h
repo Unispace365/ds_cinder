@@ -13,7 +13,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::Client
+ * \class Client
  * \brief Handle SQLite queries. Use "query" in a thread to grab content from a sqlite database.
  */
 class Client : public ds::WorkClient {
@@ -78,12 +78,12 @@ class Client : public ds::WorkClient {
 	  public:
 		Request(const void* clientId);
 
-		// input
+		/// input
 		int                 mRunId;
 		std::string         mDatabase,
 							mQuery;
 
-		// output
+		/// output
 		ds::query::Result   mResult;
 		ds::query::Talkback mTalkback;
 

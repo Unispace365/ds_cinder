@@ -12,7 +12,7 @@ using namespace ds;
 static const std::string					WORK_THREAD_NAME("ds_work");
 
 /**
- * \class ds::WorkManager
+ * \class WorkManager
  */
 WorkManager::WorkManager()
 	: mPool(WORK_THREAD_NAME, 4, 16)		// Keep at least 4 threads running, because we use this for all async ops
@@ -169,7 +169,7 @@ WorkClient* WorkManager::findClientLocked(const void* clientId)
 }
 
 /**
- * \class ds::WorkManager::Loop
+ * \class Loop
  */
 WorkManager::Loop::Loop(WorkManager& qm)
 	: mManager(qm)

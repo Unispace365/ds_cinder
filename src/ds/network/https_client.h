@@ -12,7 +12,7 @@
 namespace ds {
 namespace net {
 /**
-* \class ds::net::HttpsRequest
+* \class HttpsRequest
 * Make very simple https requests
 * This uses Curl on the backend, whereas HttpRequest uses Poco (which doesn't support SSL)
 */
@@ -26,12 +26,17 @@ public:
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
 	void					makeGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
+	/// Same as makeGetRequest, but runs syncronously
+	void					makeSyncGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
 
 	/// The url is the full request url
 	/// The postData is something like name=jeeves&project=ds_cinder
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
 	void					makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true, const std::string& customrequest = "", std::vector<std::string> headers = std::vector<std::string>(), const bool isDownloadMedia = false, const std::string& downloadfile = "");
+	
+	/// Same as makePostRequest, but runs syncronously
+	void					makeSyncPostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true, const std::string& customrequest = "", std::vector<std::string> headers = std::vector<std::string>(), const bool isDownloadMedia = false, const std::string& downloadfile = "");
 
 	/// If errored == true, then something went wrong and the reply will have the error message
 	/// Otherwise it will be whatever was returned from the server

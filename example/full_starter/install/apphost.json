@@ -19,6 +19,7 @@
           "Path": "%PROGRAMFILES%/Downstream/full_starter/full_starter.exe",
           "Args": "",
           "StartDelay": 1000,
+          "RestartDelay": 10000,
           "EnableMonitor": true,
           "MemoryLimit": 10000
         },
@@ -26,7 +27,8 @@
           "Path": "%PROGRAMFILES%/Downstream/full_starter/DSNode/DSNode.exe",
           "Args": "",
           "StartDelay": 1000,
-          "EnableMonitor": true,
+          "RestartDelay": 10000,
+          "EnableMonitor": false,
           "MemoryLimit": 10000
         }
       ]

@@ -16,7 +16,7 @@
 namespace ds {
 
 /**
- * \class ds::ComputerInfo
+ * \class ComputerInfo
  * \brief Provide system metrics.
  */
 class ComputerInfo
@@ -28,7 +28,7 @@ public:
 		KILOBYTE,
 		NONE
 	};
-	// Determine which metrics are active.
+	/// Determine which metrics are active.
 	static const int		MAIN_ON = (1<<0);
 	static const int		VIDEO_ON = (1<<1);
 	static const int		ALL_ON = 0xffffffff;
@@ -41,7 +41,7 @@ public:
 
 	void				update();
 
-	// MAIN
+	/// MAIN
 	double				getTotalVirtualMemory() const;
 	double				getCurrentVirtualMemory() const;
 	double				getVirtualMemoryUsedByProcess() const;
@@ -50,7 +50,7 @@ public:
 	double				getPhysicalMemoryUsedByProcess() const;
 	double				getPercentUsageCPU() const;
 	int					getNumberOfProcessors() const;
-	// VIDEO
+	/// VIDEO
 	double				getTotalVideoMemory() const;
 	std::string			getVideoDriverVersion() const;
 	std::string			getVideoDriverVendor() const;
@@ -69,12 +69,12 @@ private:
 
 	int					mNumProcessors;
 	HANDLE				mProcessSelf;
-	// MAIN
+	/// MAIN
 	ULARGE_INTEGER		mLastCPU;
 	ULARGE_INTEGER		mLastSysCPU;
 	ULARGE_INTEGER		mLastUserCPU;
 	double				mPercentCPU;
-	// VIDEO
+	/// VIDEO
 	double				mTotalVideoMemory;
 	std::string			mVideoDriverVersion; // Long driver number, such as 21.21.13.6909
 	std::string			mVideoVendor; // Such as "NVIDIA"

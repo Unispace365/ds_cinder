@@ -10,7 +10,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::SqlDatabase
+ * \class SqlDatabase
  * \brief Handle an sqlite database connection.
  */
 class SqlDatabase
@@ -19,9 +19,9 @@ public:
 	SqlDatabase(const std::string& sDB, int flags, int *errorCode);
 	~SqlDatabase();
 
-	// Answer a hook to process a query results.  This could be
-	// cleaner, it started off as a modification to the ofx stuff.
-	// Client is responsible for finalizing the statement.
+	/// Answer a hook to process a query results.  This could be
+	/// cleaner, it started off as a modification to the ofx stuff.
+	/// Client is responsible for finalizing the statement.
 	sqlite3_stmt*			rawSelect(const std::string& rawSqlSelect);
 
 private:

@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::EventNotifier
+ * \class EventNotifier
  * \brief Holder for an event notifier.
  */
 class EventNotifier {
@@ -21,16 +21,16 @@ public:
 	void						removeListener(void *id);
 	void						removeRequestListener(void *id);
 
-	// Send an event to the system, for clients that don't need
-	// an EventClient (i.e. don't need to receive events)
+	/// Send an event to the system, for clients that don't need
+	/// an EventClient (i.e. don't need to receive events)
 	void						notify(const ds::Event&);
 
-	// Send an event to the system, for clients that don't need
-	// an EventClient (i.e. don't need to receive events)
+	/// Send an event to the system, for clients that don't need
+	/// an EventClient (i.e. don't need to receive events)
 	void						notify(const ds::Event*);
 
-	// Send an event to the system, looks up the event's name in the event registry.
-	// If the name does not match, will fail without warning in release, with a warning in debug
+	/// Send an event to the system, looks up the event's name in the event registry.
+	/// If the name does not match, will fail without warning in release, with a warning in debug
 	void						notify(const std::string& eventName);
 
 	/**

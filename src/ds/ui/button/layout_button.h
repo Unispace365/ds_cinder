@@ -9,7 +9,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::::LayoutButton
+* \class LayoutButton
 *	A convenience class that's basically a SpriteButton that also can Layout like a LayoutSprite.
 *	NOTE: changing the layout type of this sprite may make up/down weird
 *	This sprite is set to layoutNone, which passes the runLayout() recursive call down, but doesn't affect the size or position of it's children
@@ -19,7 +19,7 @@ class LayoutButton : public ds::ui::LayoutSprite {
 public:
 	LayoutButton(SpriteEngine& eng, const float widdy = 0.0f, const float hiddy = 0.0f);
 
-	// the amount of time the images take fading between themselves
+	/// the amount of time the images take fading between themselves
 	void							setAnimationDuration(const float dur){ mAnimDuration = dur; }
 
 	void							setClickFn(const std::function<void(void)>&);
@@ -40,14 +40,14 @@ private:
 	std::function<void(void)>		mClickFn;
 	std::function<void(const bool)>	mStateChangeFunction;
 
-	// VIEW
+	/// VIEW
 	ds::ui::LayoutSprite&			mDown;
 	ds::ui::LayoutSprite&			mUp;
 
-	// TOUCH
+	/// TOUCH
 	ds::ButtonBehaviour				mButtonBehaviour;
 
-	// SETTINGS
+	/// SETTINGS
 	float							mAnimDuration;
 
 

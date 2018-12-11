@@ -33,7 +33,7 @@ std::string			make_line(const std::string &key, const float v) {
 }
 
 /**
- * \class ds::EngineStatsView
+ * \class EngineStatsView
  */
 void EngineStatsView::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {ds::ui::Sprite::handleBlobFromClient(r);});
@@ -44,7 +44,7 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class ds::EngineStatsView
+ * \class EngineStatsView
  */
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	: ds::ui::Sprite(e)
@@ -99,7 +99,6 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground->setColor(0, 0, 0);
 	mBackground->setOpacity(0.75f);
 	addChildPtr(mBackground);
-	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 }
 
 void EngineStatsView::onUpdateServer(const ds::UpdateParams &p) {
@@ -115,6 +114,7 @@ void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 }
 
 void EngineStatsView::updateStats() {
+	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 	setPosition(mEngine.getSrcRect().x1, mEngine.getSrcRect().y1);
 	if(!mText && mBackground){
 		const float pad = 30.0f;

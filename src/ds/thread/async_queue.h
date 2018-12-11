@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::AsyncQueue
+ * \class AsyncQueue
  * \brief Thread-safe utility for clients to push entries on a queue, and other clients to pull them.
  * I do no memory management, so don't use pointers.
  */
@@ -18,11 +18,11 @@ class AsyncQueue {
 public:
 	AsyncQueue();
 
-	// Push can be called from any thread
+	/// Push can be called from any thread
 	void					push(const T&);
-	// Update must be called from a single main update thread (generally the UI thread).
-	// If there have been any messages added, it replies with them. Alternatively, if
-	// an update handler is provided, it runs each message on it.
+	/// Update must be called from a single main update thread (generally the UI thread).
+	/// If there have been any messages added, it replies with them. Alternatively, if
+	/// an update handler is provided, it runs each message on it.
 	const std::vector<T>*	update(const std::function<void(const T&)>& = nullptr);
 
 private:

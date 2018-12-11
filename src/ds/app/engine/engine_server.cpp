@@ -31,7 +31,7 @@ using namespace ci;
 using namespace ci::app;
 
 /**
- * \class ds::AbstractEngineServer
+ * \class AbstractEngineServer
  */
 AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& settings,
 											ds::EngineData& ed, const ds::RootList& roots, const int appMode)
@@ -41,6 +41,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& se
 	, mReceiver(mReceiveConnection, false)
 	, mBlobReader(mReceiver.getData(), *this)
 	, mState(nullptr)
+	, mContentWrangler(nullptr)
 {
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.
@@ -476,12 +477,11 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 }
 
 /**
- * \class ds::EngineServer
+ * \class EngineServer
  */
 EngineServer::EngineServer(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: AbstractEngineServer(app, settings, ed, roots, SERVER_MODE)
-	, mLoadImageService(*this, mIpFunctions)
 {
 }
 

@@ -22,14 +22,14 @@ namespace ds{
 template <class T>
 class RecycleArray
 {
-	// Exceptions
+	/// Exceptions
 public:
 	class is_empty : public std::exception { };
 	class bad_index : public std::exception { };
 
 public:
-	// Clients can optionally supply a factory that will initialize
-	// each element, although that only applies if T is a pointer.
+	/// Clients can optionally supply a factory that will initialize
+	/// each element, although that only applies if T is a pointer.
 	RecycleArray(const int growBy = 1);
 	RecycleArray(const RecycleArray &rhs);
 	virtual ~RecycleArray();
@@ -49,15 +49,15 @@ public:
 	int							find(const T&, const int startIndex = 0) const;
 
 	bool						add(const T&);
-	// Note:  This can cause a reorder!
+	/// Note:  This can cause a reorder!
 	bool						remove(const T&);
 	bool						removeAt(const int index);
 
-	// Treat like a list, and keep things ordered
+	/// Treat like a list, and keep things ordered
 	T							popFront();
 	T							popAt(const int index);
 
-	// Exchange data between the arrays
+	/// Exchange data between the arrays
 	void						swap(RecycleArray<T>&);
 
 	RecycleArray<T>&			operator=(const RecycleArray<T>&);
@@ -190,12 +190,12 @@ template <class T>
 bool RecycleArray<T>::remove(const T& t)
 {
 	if(mSize < 1) return false;
-	// Pop from last is easiest
+	/// Pop from last is easiest
 	if(mD[mSize - 1] == t) {
 		mSize--;
 		return true;
 	}
-	// Otherwise find and replace with last
+	/// Otherwise find and replace with last
 	for(int k = 0; k < mSize - 1; k++) {
 		if(mD[k] == t) {
 			mD[k] = mD[mSize - 1];

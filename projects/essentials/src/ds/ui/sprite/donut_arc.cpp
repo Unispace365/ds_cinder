@@ -46,6 +46,10 @@ void DonutArc::setAntiClock(const bool isAntiClock){
 	mIsAntiClock = isAntiClock;
 }
 
+bool DonutArc::getIsAntiClock() {
+	return mIsAntiClock;
+}
+
 void DonutArc::resetDrawPercent(){
 	mDrawPercent = 0.0f;
 }

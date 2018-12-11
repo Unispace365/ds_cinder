@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineRoot
+ * \class EngineRoot
  */
 ds::ui::Sprite* EngineRoot::make(ui::SpriteEngine& e, const ds::sprite_id_t id, const bool perspective)	{
 	return new ds::ui::Sprite(e, id, perspective);
@@ -27,7 +27,7 @@ const RootList::Root& EngineRoot::getBuilder() const {
 }
 
 /**
- * \class ds::OrthRoot
+ * \class OrthRoot
  */
 OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		: inherited(r, id)
@@ -127,7 +127,7 @@ void OrthRoot::setGlCamera() {
 }
 
 /**
- * \class ds::PerspRoot
+ * \class PerspRoot
  */
 PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p)
 		: inherited(r, id)

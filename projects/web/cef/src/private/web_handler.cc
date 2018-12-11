@@ -693,6 +693,29 @@ void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
 	}
 }
 
+void WebHandler::executeJavascript(const int browserId, const std::string& theJS, const std::string& sourceUrl) {
+	if(theJS.empty()) return;
+
+	CefRefPtr<CefFrame> mainFrame = nullptr;
+
+	{
+		// be sure this is locked with other requests to the browser list
+		// Grab the main frame in the lock, but call LoadURL outside the lock to avoid recursive locks
+		base::AutoLock lock_scope(mLock);
+
+		auto findy = mBrowserList.find(browserId);
+		if(findy != mBrowserList.end()) {
+			// This can be called on any thread
+			mainFrame = findy->second->GetMainFrame();
+		}
+	}
+
+	if(mainFrame) {
+		// This can be called on any thread
+		mainFrame->ExecuteJavaScript(CefString(theJS), CefString(sourceUrl), 0);
+	}
+}
+
 void WebHandler::requestBrowserResize(const int browserId, const ci::ivec2 newSize){
 	// be sure this is locked with other requests to the browser lists
 	{

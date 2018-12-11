@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::ResourceList
+ * \class ResourceList
  * \brief A caching collection of resources.
  */
 class ResourceList

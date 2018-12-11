@@ -90,7 +90,7 @@ private:
 	ci::ColorA					mBLColor;
 	ci::ColorA					mBRColor;
 
-	// Initialization
+	/// Initialization
 public:
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);

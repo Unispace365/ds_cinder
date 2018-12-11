@@ -10,33 +10,33 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::LayoutSprite
+* \class LayoutSprite
 *		A sprite that can run recursive flow layouts. Children can be normal sprites or other layouts.
 */
 class LayoutSprite : public ds::ui::Sprite  {
 public:
 	LayoutSprite(ds::ui::SpriteEngine& engine);
 
-	// None = No action taken on elements, but will run recursive layouts
-	// VFlow = Size elements based on their size settings, then position them, top-to-bottom
-	// HFlow = Same as VFlow, but horizontally from left-to-right
-	// Size = only adjust the size of the children, but do not position
-	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize } LayoutType;
+	/// None = No action taken on elements, but will run recursive layouts
+	/// VFlow = Size elements based on their size settings, then position them, top-to-bottom
+	/// HFlow = Same as VFlow, but horizontally from left-to-right
+	/// Size = only adjust the size of the children, but do not position
+	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize, kLayoutVWrap, kLayoutHWrap } LayoutType;
 
-	// FixedSize = Sprite sized to mLayoutSize (on Sprite.h), or left alone if it's not set
-	// FlexSize = Sprite is adjusted to fit the layout. For example, in a V layout, the text is resized to the width, and the height is calculated
-	// StretchSize = Sprite will fill to the rest of the available space. Multiple Stretch sprites will evenly split the remainder
-	// FillSize = Sprite isn't used in V/H layout calculations, but is sized to the whole layout (minus padding). Great for backgrounds of flex size layouts.
+	/// FixedSize = Sprite sized to mLayoutSize (on Sprite.h), or left alone if it's not set
+	/// FlexSize = Sprite is adjusted to fit the layout. For example, in a V layout, the text is resized to the width, and the height is calculated
+	/// StretchSize = Sprite will fill to the rest of the available space. Multiple Stretch sprites will evenly split the remainder
+	/// FillSize = Sprite isn't used in V/H layout calculations, but is sized to the whole layout (minus padding). Great for backgrounds of flex size layouts.
 	enum { kFixedSize = 0, kFlexSize, kStretchSize, kFillSize } SizeType;
 
 	typedef enum { kShrinkNone = 0, kShrinkWidth, kShrinkHeight, kShrinkBoth } ShrinkType;
 
-	// In VFlow layouts, adjusts the x-position during layout
+	/// In VFlow layouts, adjusts the x-position during layout
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
-	// In HFlow layouts, adjusts the y-position during layout
+	/// In HFlow layouts, adjusts the y-position during layout
 	enum { kTop = 0, kMiddle, kBottom } VAlignment;
 
-	// Fits the sprite supplied into the target area
+	/// Fits the sprite supplied into the target area
 	static void				fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const bool letterbox);
 
 	void					runLayout();
@@ -65,6 +65,10 @@ public:
 	const ShrinkType&		getShrinkToChildren() { return mShrinkToChildren; }
 	void					setShrinkToChildren(const ShrinkType& shrink) { mShrinkToChildren = shrink; }
 
+	/// If a child is hidden (hide() not setTransparent(false)) will be completely ignored in layouts. Default = false
+	const bool				getSkipHiddenChildren() { return mSkipHiddenChildren; }
+	void					setSkipHiddenChildren(const bool skipHidden) { mSkipHiddenChildren = skipHidden; }
+
 	/// Helper functions for constructing xml sheets for layouts
 	static std::string		getLayoutSizeModeString(const int sizeMode);
 	static std::string		getLayoutVAlignString(const int vAlign);
@@ -73,13 +77,13 @@ public:
 	static std::string		getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
 
 protected:
-	// See enum declaration for descriptions
-	// virtual in case you want to override with your own layout jimmies.
+	/// See enum declaration for descriptions
+	/// virtual in case you want to override with your own layout jimmies.
 	virtual void			runNoneLayout();
-	// virtual in case you want to override with your own layout jimmies.
+	/// virtual in case you want to override with your own layout jimmies.
 	virtual void			runSizeLayout();
-	// virtual in case you want to override with your own layout jimmies.
-	virtual void			runFlowLayout(const bool vertical);
+	/// virtual in case you want to override with your own layout jimmies.
+	virtual void			runFlowLayout(const bool vertical, const bool wrap = false);
 
 	std::function<void()>	mLayoutUpdatedFunction;
 
@@ -87,6 +91,7 @@ protected:
 	LayoutType				mLayoutType;
 	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 	ShrinkType				mShrinkToChildren;
+	bool					mSkipHiddenChildren;
 
 };
 

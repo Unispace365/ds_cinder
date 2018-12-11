@@ -72,6 +72,10 @@ void  ScrollArea::enableScrolling(bool enable){
 	}
 }
 
+void ScrollArea::stopScrollMomentum() {
+	mSpriteMomentum.deactivate();
+}
+
 void ScrollArea::onSizeChanged(){
 	const float newWidth = getWidth();
 	const float newHeight = getHeight();
@@ -323,6 +327,10 @@ void ScrollArea::setFadeHeight(const float fadeHeight){
 		mBottomFade->setSize(fadeWiddy, fadeHiddy);
 	}
 
+	onSizeChanged();
+}
+
+void ScrollArea::recalculateSizes() {
 	onSizeChanged();
 }
 

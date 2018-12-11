@@ -1,51 +1,30 @@
 #pragma once
 
+#include <gst/app/gstappsink.h>
+#include <gst/audio/audio.h>
 #include <gst/gst.h>
 #include <gst/gstbin.h>
-#include <gst/app/gstappsink.h>
-#include <gst/video/video.h>
-#include <gst/audio/audio.h>
 #include <gst/net/gstnettimeprovider.h>
+#include <gst/video/video.h>
 
-#ifdef DS_GST_GL
-#include <gst/gl/gstglcontext.h>
-#endif
 #include "gstreamer_audio_device.h"
 
-#include <mutex>
 #include <atomic>
-#include <string>
 #include <functional>
+#include <mutex>
+#include <string>
 #include <vector>
 
 
-namespace gstwrapper
-{
+namespace gstwrapper {
 
 // Enumeration to describe the current state of the wrapper
-enum PlayState
-{
-	GSTREAM_INIT_FAIL,
-	NOT_INITIALIZED,
-	OPENED,
-	PLAYING,
-	PAUSED,
-	STOPPED
-};
-	
-enum GstPlayState
-{
-	STATE_NULL,
-	STATE_READY,
-	STATE_PAUSED,
-	STATE_PLAYING
-};
+enum PlayState { GSTREAM_INIT_FAIL, NOT_INITIALIZED, OPENED, PLAYING, PAUSED, STOPPED };
+
+enum GstPlayState { STATE_NULL, STATE_READY, STATE_PAUSED, STATE_PLAYING };
 
 // Enumeration to describe the play direction of the loaded file
-enum PlayDirection {
-	FORWARD = 1,
-	BACKWARD = -1
-};
+enum PlayDirection { FORWARD = 1, BACKWARD = -1 };
 
 /*
 Enumeration to describe how the wrapper should behave once the end of a file has been reached
@@ -53,41 +32,34 @@ NO_LOOP --> simply stop
 LOOP --> seek back to the start of the file and play again
 BIDIRECTIONAL_LOOP --> play the file again from the position where the stream ended and change the play direction
 */
-enum LoopMode {
-	NO_LOOP,
-	LOOP,
-	BIDIRECTIONAL_LOOP
-};
+enum LoopMode { NO_LOOP, LOOP, BIDIRECTIONAL_LOOP };
 
 /*
-Enumeration to describe what kind of file has been loaded, which is important to know which buffers (video / audio) contain information or not
-VIDEO_AND_AUDIO --> loaded file contains both at least one video and one audio stream
-VIDEO --> loaded file contains at least one video stream but no audio streams
-AUDIO --> loaded file contains at least one audio stream but no video streams
+Enumeration to describe what kind of file has been loaded, which is important to know which buffers (video / audio) contain
+information or not VIDEO_AND_AUDIO --> loaded file contains both at least one video and one audio stream VIDEO --> loaded file
+contains at least one video stream but no audio streams AUDIO --> loaded file contains at least one audio stream but no video
+streams
 */
-enum ContentType {
-	NONE,
-	VIDEO_AND_AUDIO,
-	VIDEO,
-	AUDIO
-};
+enum ContentType { NONE, VIDEO_AND_AUDIO, VIDEO, AUDIO };
 
 /*
 class GStreamerWrapper
 
-Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with the file
-(play, stop, pause, seek, playing speed / direction, loop modes). Furthermore the user has direct access to both the video and audio buffers
-that are respectively stored in an unsigned char pointer. Also, various information regarding the media file can be queried (video size, audio
-channels, number of video / audio streams and so on)
+Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with
+the file (play, stop, pause, seek, playing speed / direction, loop modes). Furthermore the user has direct access to both the
+video and audio buffers that are respectively stored in an unsigned char pointer. Also, various information regarding the media
+file can be queried (video size, audio channels, number of video / audio streams and so on)
 
-This Wrapper is based on the GStreamer library, which means all the decoding and synchronization of the media files is done internally by that library.
+This Wrapper is based on the GStreamer library, which means all the decoding and synchronization of the media files is done
+internally by that library.
 */
-class GStreamerWrapper	{
-public:
+class GStreamerWrapper {
+  public:
 	// Constructor that initializes GStreamer
 	GStreamerWrapper();
 
-	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
+	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer
+	// references
 	virtual ~GStreamerWrapper();
 
 	typedef enum { kColorSpaceTransparent = 0, kColorSpaceSolid, kColorSpaceI420 } ColorSpace;
@@ -109,98 +81,102 @@ public:
 	audio codec of the operating system and play the sound synchronized to the video (or just play the sound if there is no video
 	data)
 
-	@ colorSpace: See the color space enum above. Transparent will output BGRA, solid will be BGR, and I420 will output raw I420 YUV and you'll have to colorspace convert yourself.
-			 
+	@ colorSpace: See the color space enum above. Transparent will output BGRA, solid will be BGR, and I420 will output raw I420
+	YUV and you'll have to colorspace convert yourself.
+
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, 
-								 const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, 
-								 const bool hasAudio = true, const double secondsDuration = -1);
+	bool open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer,
+			  const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudio = true,
+			  const double secondsDuration = -1);
 
 
 	/** you have to supply your own pipeline for streaming.
 		Streaming is also assumed to be YUV / I420 color space.
 		You must also have an appsink element named appsink0 for video output to work.
 		If you want to control volume, include a volume element named volume0 */
-	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight, const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
+	bool openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight,
+					const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
 
-	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer element from the supplied pipeline. 
-		This assumes the source is part of the pipeline.
+	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer element
+	   from the supplied pipeline. This assumes the source is part of the pipeline.
 		*/
-	bool					parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,
-										const int colorSpace, const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
-										const double secondsDuration = -1);
+	bool parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight, const int colorSpace,
+					 const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
+					 const double secondsDuration = -1);
 
 	/** Sets the playbin latency when streaming. May not work ok after the stream has started. */
-	void					setStreamingLatency(uint64_t latency_ns);
+	void setStreamingLatency(uint64_t latency_ns);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	*/
-	virtual void			close();
+	virtual void close();
 
 	/*
 	Updates the internal GStreamer messages that are passed during the streaming process. This method is also needed to detect
 	whether a stream is finished or not or if the stream encountered any errors
 	*/
-	void					update();
+	void update();
 
 	/*
 	Play the previously opened media file. Sets the wrapper's PlayState to PLAYING
 	*/
-	void					play();
+	void play();
 
 	/*
 	Stop the media file. If the file is played again it will start from either the beginning (PlayDirection = FORWARD) or the end
 	(PlayDirection = BACKWARD). Sets the wrapper's PlayState to STOPPED
 	*/
-	void					stop();
+	void stop();
 
 	/*
 	Pauses the media file. If the file is played again the file resumes from exactly the position where it was paused.
 	Sets the wrapper's PlayState to PAUSED
 	*/
-	void					pause();
+	void pause();
 
 	/*
 	Sets the current video stream
 
 	params:
-	@currentVideoStream: The index of the video stream. If the value is either negative or greater than the number of available video
-	streams nothing will happen
+	@currentVideoStream: The index of the video stream. If the value is either negative or greater than the number of available
+	video streams nothing will happen
 	*/
-	void					setCurrentVideoStream( int iCurrentVideoStream );
+	void setCurrentVideoStream(int iCurrentVideoStream);
 
 	/*
 	Sets the current audio stream. A media file might, for example, contain multiple languages.
 
 	params:
-	@currentAudioStream: The index of the audio stream. If the value is either negative or greater than the number of available audio
-	streams nothing will happen
+	@currentAudioStream: The index of the audio stream. If the value is either negative or greater than the number of available
+	audio streams nothing will happen
 	*/
-	void					setCurrentAudioStream( int iCurrentAudioStream );
+	void setCurrentAudioStream(int iCurrentAudioStream);
 
-	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
+	void setAutoRestartStream(bool autoRestart) { mAutoRestartStream = autoRestart; }
 
 	/*
 	Sets the playback speed of the opened media file.
 
 	params:
-	@fSpeed: Describes the new playback speed of the media file. 1.0f is the default playback speed. Negative values are converted to 0.0f, which means
-	this method does not change the playing direction, only the speed. If the playback direction should be changed, use the changeDirection() method instead
+	@fSpeed: Describes the new playback speed of the media file. 1.0f is the default playback speed. Negative values are converted
+	to 0.0f, which means this method does not change the playing direction, only the speed. If the playback direction should be
+	changed, use the changeDirection() method instead
 	*/
-	void					setSpeed( float fSpeed );
+	void setSpeed(float fSpeed);
 
 	/*
 	Sets the playback direction of the opened media file.
-	Note: The functionality of this method depends highly on the file format and encoding. For example, some video formats get stuck while playing them backwards
-	(happened with several .mp4 files) while other formats have no problem with it at all (tested some .mov files)
+	Note: The functionality of this method depends highly on the file format and encoding. For example, some video formats get
+	stuck while playing them backwards (happened with several .mp4 files) while other formats have no problem with it at all
+	(tested some .mov files)
 
 	params:
 	@direction: The new playback direction, possible values are FORWARD or BACKWARD
 	*/
-	void					setDirection( PlayDirection direction );
+	void setDirection(PlayDirection direction);
 
 	/*
 	Sets the loop mode of the wrapper, which decides how the wrapper should behave once it has reached the end of a stream.
@@ -211,7 +187,7 @@ public:
 	params:
 	@loopMode: The desired loop mode, possible values are NO_LOOP, LOOP and BIDIRECTIONAL_LOOP
 	*/
-	void					setLoopMode( LoopMode loopMode );
+	void setLoopMode(LoopMode loopMode);
 
 	/*
 	Seeks the media file to the desired frame
@@ -220,7 +196,7 @@ public:
 	@iTargetFrameNumber: The frame number of the media file where the wrapper should seek to. Negative values as well as values
 	that are greater than the number of frames are being ignored and nothing happens
 	*/
-	void					setFramePosition( gint64 iTargetFrameNumber );
+	void setFramePosition(gint64 iTargetFrameNumber);
 
 	/*
 	Seeks the media file to the position provided by the milliseconds parameter
@@ -229,7 +205,7 @@ public:
 	@dTargetTimeInMs: The desired position in milliseconds where the wrapper should seek to. Negative values as well as values
 	that are greater than the media duration in milliseconds are being ignored and nothing happens
 	*/
-	void					setTimePositionInMs( double dTargetTimeInMs );
+	void setTimePositionInMs(double dTargetTimeInMs);
 
 	/*
 	Seeks the media file to the position provided by the nanoseconds parameter
@@ -238,9 +214,9 @@ public:
 	@dTargetTimeInNs: The desired position in nanoseconds where the wrapper should seek to. Negative values as well as values
 	that are greater than the media duration in nanoseconds are being ignored and nothing happens
 	*/
-	void					setTimePositionInNs( gint64 iTargetTimeInNs );
+	void setTimePositionInNs(gint64 iTargetTimeInNs);
 
-	//void					scrubToPosition( double t, float speed);
+	// void					scrubToPosition( double t, float speed);
 	/*
 	Seeks the media file to the position provided by a percentage statement between 0 and 100 percent.
 	0 percent means the beginning of the file, 50 percent the middle and 100 percent the end of the file.
@@ -249,263 +225,266 @@ public:
 	@fPos: The percentage value between 0.0f (= 0 percent) and 1.0f (= 100 percent). Values that are negative or greater than 1.0f
 	are being clamped to 0.0f and 1.0f respectively
 	*/
-	void					setPosition(double fPos);
+	void setPosition(double fPos);
 
+
+	void setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
-	bool					hasVideo();
+	bool hasVideo();
 
 	/*
 	Returns true if the loaded media file contains at least one audio stream, false otherwise
 	*/
-	bool					hasAudio();
+	bool hasAudio();
 
 	/*
 	Returns the URI of the currently opened media. If no file has been opened yet an empty string is returned
 	*/
-	std::string				getFileName();
+	std::string getFileName();
 
 	/*
 	Returns an unsigned char pointer containing the pixel data for the currently decoded frame.
 	Returns NULL if there is either no video stream in the media file, no media file has been opened or something
 	went wrong while streaming
 	*/
-	unsigned char*			getVideo();
+	unsigned char* getVideo();
 
-	ci::gl::TextureRef		getVideoTexture();
-
-	size_t					getVideoBufferSize(){ return m_cVideoBufferSize; }
+	size_t getVideoBufferSize() { return mVideoBufferSize; }
 
 	/*
 	Returns the index of the current video stream
 	*/
-	int						getCurrentVideoStream();
+	int getCurrentVideoStream();
 
 	/*
 	Returns the number of available video streams
 	*/
-	int						getNumberOfVideoStreams();
+	int getNumberOfVideoStreams();
 
 	/*
 	Returns the index of the current audio stream
 	*/
-	int						getCurrentAudioStream();
+	int getCurrentAudioStream();
 
 	/*
 	Returns the number of available audio streams
 	*/
-	int						getNumberOfAudioStreams();
+	int getNumberOfAudioStreams();
 
 	/*
 	Returns the video width
 	*/
-	unsigned int			getWidth();
+	unsigned int getWidth();
 
 	/*
 	Returns the video height
 	*/
-	unsigned int			getHeight();
+	unsigned int getHeight();
 
 	/*
 	Returns the Frames Per Second of the current video
 	*/
-	float					getFps();
+	float getFps();
 
 	/*Get the current time from the pipeline clock*/
-	uint64_t				getPipelineTime();
+	uint64_t getPipelineTime();
 
-	void					setPipelineBaseTime(uint64_t base_time);
+	void setPipelineBaseTime(uint64_t base_time);
 	/*
-	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
+	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your
+	applications, so you don't unnecessary copy mem to textures
 	*/
-	bool					isNewVideoFrame();
+	bool isNewVideoFrame();
 
 
 	/*
 	Returns the current playback speed value
 	*/
-	float					getSpeed();
+	float getSpeed();
 
 	/*
 	Returns the current percentaged position of the stream which is a value between 0.0f (= 0 percent) and 1.0f (= 100 percent)
 	*/
-	double					getPosition() const;
+	double getPosition() const;
 
 	/*
 	Returns the current frame number of the stream
 	*/
-	gint64					getCurrentFrameNumber();
+	gint64 getCurrentFrameNumber();
 
 	/*
 	Returns the number of frames of the stream
 	*/
-	gint64					getNumberOfFrames();
+	gint64 getNumberOfFrames();
 
 	/*
 	Returns the current position of the stream in milliseconds
 	*/
-	double					getCurrentTimeInMs();
+	double getCurrentTimeInMs();
 
 	/*
 	Returns the duration of the stream in milliseconds
 	*/
-	double					getDurationInMs() const;
+	double getDurationInMs() const;
 
 	/*
 	Returns the current position of the stream in nanoseconds
 	*/
-	gint64					getCurrentTimeInNs() const;
+	gint64 getCurrentTimeInNs() const;
 
 	/*
 	Returns the duration of the stream in nanoseconds
 	*/
-	gint64					getDurationInNs();
+	gint64 getDurationInNs();
 
 	/*
 	Returns the current PlayState
 	*/
-	PlayState				getState() const;
+	PlayState getState() const;
 
 	/*
 	Returns the current playback direction
 	*/
-	PlayDirection			getDirection();
+	PlayDirection getDirection();
 
 	/*
 	Returns the current LoopMode
 	*/
-	LoopMode				getLoopMode();
+	LoopMode getLoopMode();
 
 	/*
 	Returns type of content of the loaded media file
 	*/
-	ContentType				getContentType();
+	ContentType getContentType();
 
 	/*
 	Sets the Pipeline volume
 
 	params:
-	@fVolume: The new volume value which will be immediately applied to the Pipeline. Any value between 0.0f and 1.0f are possible.
-	Negative values will be clamped to 0.0f and values greater than 1.0f to 1.0f.
+	@fVolume: The new volume value which will be immediately applied to the Pipeline. Any value between 0.0f and 1.0f are
+	possible. Negative values will be clamped to 0.0f and values greater than 1.0f to 1.0f.
 	*/
-	void					setVolume( float fVolume );
+	void setVolume(float fVolume);
 
 	/*
 	Sets the Pipeline pan
 
 	params:
 	@fPan: The new paning value which will be immediately applied to the Pipeline. Any value between -1.0f and 1.0f are possible.
-	-1.0 is full left, +1.0 is full right, 0 is equal left and right.  Values between -1.0 and 1.0 will proporitionaly scale the sound to the 
-	left and right speakers.
+	-1.0 is full left, +1.0 is full right, 0 is equal left and right.  Values between -1.0 and 1.0 will proporitionaly scale the
+	sound to the left and right speakers.
 	*/
-	void					setPan(float fPan);
+	void setPan(float fPan);
 
 
-
-	/* This is distinct from the generateAudioBuffer property on openMovie. That now means "apply some extra properties to audio so you can set the pan\
-		This means that an actual buffer for audio will be created and pumped out.*/
-	void					setAudioBufferWanted(const bool wantedAudioBuffer){ m_AudioBufferWanted = wantedAudioBuffer; }
+	/* This is distinct from the generateAudioBuffer property on openMovie. That now means "apply some extra properties to audio
+	   so you can set the pan\ This means that an actual buffer for audio will be created and pumped out.*/
+	void setAudioBufferWanted(const bool wantedAudioBuffer) { mAudioBufferWanted = wantedAudioBuffer; }
 
 	/*
 	Returns an unsigned char pointer containing a buffer to the currently decoded audio data
 	Returns NULL if there is either no audio stream in the media file, no file has been loaded or something went wrong
 	while streaming
 	*/
-	unsigned char*			getAudio();
+	unsigned char* getAudio();
 
 	/*
 	Returns true if the audio stream is signed, false otherwise
 	*/
-	bool					getIsAudioSigned();
+	bool getIsAudioSigned();
 
 	/*
 	Returns the number of available audio channels
 	*/
-	int						getNumOfAudioChannels();
+	int getNumOfAudioChannels();
 
 	/*
 	Returns the audio sample rate
 	*/
-	int						getAudioSampleRate();
+	int getAudioSampleRate();
 
 	/*
 	Returns the audio buffer size
 	*/
-	size_t					getAudioBufferSize();
+	size_t getAudioBufferSize();
 
 	/*
 	Returns the audio buffer size without the audio width and audio channels
 	*/
-	int						getAudioDecodeBufferSize();
+	int getAudioDecodeBufferSize();
 
 	/*
 	Returns the audio width (8, 16, 24 or 32)
 	*/
-	int						getAudioWidth();
+	int getAudioWidth();
 
 	/*
 	Returns the current volume value
 	*/
-	float					getCurrentVolume();
+	float getCurrentVolume();
 
 	/* Provides the initial setting for the baseclock of the server*/
-	gint64					getBaseTime();
+	gint64 getBaseTime();
 
-	//void setBaseTime(uint64_t base_time);
+	// void setBaseTime(uint64_t base_time);
 
 	void setSeekTime(uint64_t seek_time);
 	/* Provides the seek time when resuming from pause*/
-	gint64					getSeekTime();
+	gint64 getSeekTime();
 
 
 	/* Returns the time for resume playing from pause*/
-	gint64					getStartTime();
+	gint64 getStartTime();
 
 	/* set the time for resume playing from pause*/
-	void					setStartTime(uint64_t start_time);
+	void setStartTime(uint64_t start_time);
 
 	///*Set up seek to go fast*/
-	//bool					seekFast(gint64 iTargetTimeInNs);
+	// bool					seekFast(gint64 iTargetTimeInNs);
 
-	//bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
+	// bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
-	void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
+	void setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)>& func);
 
-	void					setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func);
+	void setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func);
 
 	/*
 	Set the pipeline to play as soon as the video is loaded.
 	*/
-	void					setStartPlaying(const bool startPlaying){ m_StartPlaying = startPlaying; }
+	void setStartPlaying(const bool startPlaying) { mStartPlaying = startPlaying; }
 
 	/*
 	Stop the pipeline at the end of the current loop (if looping) or on End of Stream.
 	This is a single shot, so as soon as the video get's stopped, it can be looped again.
 	*/
-	void					stopOnLoopComplete(){ m_StopOnLoopComplete = true; };
+	void stopOnLoopComplete() { mStopOnLoopComplete = true; };
 
 
-	//Custom pipeline function call (just for audio)
-	virtual void			setCustomFunction(){};
+	// Custom pipeline function call (just for audio)
+	virtual void setCustomFunction(){};
 
-	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
+	void enableCustomPipeline(bool enable) { mCustomPipeline = enable; }
 
-	/* Sets the available audio devices for output. Note that this overrides other audio output controls like panning or custom audio output. */
-	void					setAudioDevices(std::vector<ds::GstAudioDevice>& devices) { m_AudioDevices = devices; }
+	/* Sets the available audio devices for output. Note that this overrides other audio output controls like panning or custom
+	 * audio output. */
+	void setAudioDevices(std::vector<ds::GstAudioDevice>& devices) { mAudioDevices = devices; }
 
-	/* Set the volume of a specific audio device by device name and volume. You must have called setAudioDevice() above before loading the video for this to work.*/
-	void					setAudioDeviceVolume(ds::GstAudioDevice& theDevice);
-	/* Set the pan of a specific audio device by device name and pan. You must have called setAudioDevice() above before loading the video for this to work.*/
-	void					setAudioDevicePan(ds::GstAudioDevice& theDevice);
-	
+	/* Set the volume of a specific audio device by device name and volume. You must have called setAudioDevice() above before
+	 * loading the video for this to work.*/
+	void setAudioDeviceVolume(ds::GstAudioDevice& theDevice);
+	/* Set the pan of a specific audio device by device name and pan. You must have called setAudioDevice() above before loading
+	 * the video for this to work.*/
+	void setAudioDevicePan(ds::GstAudioDevice& theDevice);
+
 	/*
 	Here the GStreamer messages are read and processed. Needed for error checking while streaming and
 	detecting if a stream has reached the end
 	*/
-	virtual void			handleGStMessage();
+	virtual void handleGStMessage();
 
 	/*
 	Seeks to the desired position in the media file using nanoseconds
@@ -513,41 +492,43 @@ public:
 	params:
 	@iTargetTimeInNs: Time position in nanoseconds
 	*/
-	bool					seekFrame(gint64 iTargetTimeInNs);
+	bool seekFrame(gint64 iTargetTimeInNs);
 	/*
 	Retrieves all needed media information such as duration, video size and frame rate
 	*/
-	void					retrieveVideoInfo();
+	void retrieveVideoInfo();
 
 	/* Setup network clock from server */
-	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
-	
+	void setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
+
 	/* Setup network clock from client */
-	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
-	
+	void setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
+
 	/*Retrieve the current network clock time*/
-	guint64					getNetClockTime();
+	guint64 getNetClockTime();
 
 	/*Check if resuming from play.  May be able to use GST_STATE_CHANGE_PAUSED_TO_PLAYING of the GstStateChanged*/
-	bool					isPlayFromPause();
+	bool isPlayFromPause();
 
 	/*Clear the Pause to Play flag*/
-	void					clearPlayFromPause();
+	void clearPlayFromPause();
+	// void					fastSeek(float speed);
+	// bool					isFastSeeking();
 
 	/*Flag to indicate the video just looped*/
-	bool					isNewLoop();
+	bool isNewLoop();
 
 	/*clear flag to indicate if loop has started*/
-	void					clearNewLoop();
+	void clearNewLoop();
 
 	/* Returns a pointer to a GST_ELEMENT if it exists and gstreamer returns it correctly */
-	void *					getElementByName(const std::string& gst_element_name);
+	void* getElementByName(const std::string& gst_element_name);
 
-private:
+  private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
 	*/
-	bool					changeSpeedAndDirection( float fSpeed, PlayDirection direction );
+	bool changeSpeedAndDirection(float fSpeed, PlayDirection direction);
 
 	/*
 	GStreamer callback method that is called when the Pipeline is set to a paused state. Through the appsink
@@ -559,7 +540,7 @@ private:
 
 	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
 	*/
-	static GstFlowReturn	onNewPrerollFromVideoSource( GstAppSink* appsink, void* listener );
+	static GstFlowReturn onNewPrerollFromVideoSource(GstAppSink* appsink, void* listener);
 
 	/*
 	GStreamer callback method that is called when the Pipeline is set to a paused state. Through the appsink
@@ -571,7 +552,7 @@ private:
 
 	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
 	*/
-	static GstFlowReturn	onNewPrerollFromAudioSource( GstAppSink* appsink, void* listener );
+	static GstFlowReturn onNewPrerollFromAudioSource(GstAppSink* appsink, void* listener);
 
 	/*
 	GStreamer callback method that is called whenever there is a new video frame decoded. Through the appsink
@@ -582,7 +563,7 @@ private:
 
 	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
 	*/
-	static GstFlowReturn	onNewBufferFromVideoSource( GstAppSink* appsink, void* listener );
+	static GstFlowReturn onNewBufferFromVideoSource(GstAppSink* appsink, void* listener);
 
 	/*
 	GStreamer callback method that is called whenever there is a new chunk of audio data decoded. Through the appsink
@@ -593,8 +574,10 @@ private:
 
 	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
 	*/
-	static GstFlowReturn	onNewBufferFromAudioSource( GstAppSink* appsink, void* listener );
+	static GstFlowReturn onNewBufferFromAudioSource(GstAppSink* appsink, void* listener);
 
+	/// internal buffer handling
+	void handleVideoBuffer(GstSample* videoSinkSample);
 	/*
 	Non-static method that is called inside "onNewPrerollFromVideoSource()" in order to handle
 	member variables that are non-static. Here the unsigned char array with the pixel data is actually filled
@@ -603,7 +586,7 @@ private:
 	params:
 	@videoSinkBuffer: The buffer that was gathered from the video sink
 	*/
-	void					newVideoSinkPrerollCallback( GstSample* videoSinkBuffer );
+	void newVideoSinkPrerollCallback(GstSample* videoSinkBuffer);
 
 	/*
 	Non-static method that is called inside "onNewBufferFromVideoSource()" in order to handle
@@ -612,7 +595,7 @@ private:
 	params:
 	@videoSinkBuffer: The buffer that was gathered from the video sink
 	*/
-	void					newVideoSinkBufferCallback( GstSample* videoSinkBuffer );
+	void newVideoSinkBufferCallback(GstSample* videoSinkBuffer);
 
 	/*
 	Non-static method that is called inside "onNewPrerollFromAudioSource()" in order to handle
@@ -622,7 +605,7 @@ private:
 	params:
 	@audioSinkBuffer: The buffer that was gathered from the video sink
 	*/
-	virtual void			newAudioSinkPrerollCallback( GstSample* audioSinkBuffer );
+	virtual void newAudioSinkPrerollCallback(GstSample* audioSinkBuffer);
 
 	/*
 	Non-static method that is called inside "onNewBufferFromAudioSource()" in order to handle
@@ -631,133 +614,119 @@ private:
 	params:
 	@audioSinkBuffer: The buffer that was gathered from the audio sink
 	*/
-	virtual void			newAudioSinkBufferCallback( GstSample* audioSinkBuffer );
+	virtual void newAudioSinkBufferCallback(GstSample* audioSinkBuffer);
 
 	// Getting app callbacks for new sinks requires registereing EOS callbacks.
 	// However, we handle EoS events from the message bus, so these don't do anything, but don't delete them.
-	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
+	static void onEosFromVideoSource(GstAppSink* appsink, void* listener);
 
 	// Clears out member properties
-	void					resetProperties();
+	void resetProperties();
 
 	// Adds appropriate file:/// if needed
-	void					parseFilename(const std::string& filename);
+	void parseFilename(const std::string& filename);
 
 	// Makes sure videos widths are divisible by 4, for video blanking
-	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
-	void					enforceModEightWidth(const int videoWidth, const int videoHeight);
+	void enforceModFourWidth(const int videoWidth, const int videoHeight);
+	void enforceModEightWidth(const int videoWidth, const int videoHeight);
 
-protected:
+  protected:
+	bool		   mAudioBufferWanted;
+	size_t		   mAudioBufferSize;		///<  Size of the audio buffer
+	unsigned char* mAudioBuffer;			///<  Stores the audio data
+	int			   mAudioWidth;				///<  Width of the audio data (8, 16, 24 or 32)
+	bool		   mIsAudioSigned;			///<  Flag that tracks if the audio buffer is signed or not
+	int			   mAudioDecodeBufferSize;  ///<  Size of the audio buffer without the channels and audio width
+	int			   mNumAudioChannels;		///<  Number of audio channels
+	int			   mAudioSampleRate;		///<  Audio sample rate
+	GstBus*		   mGstBus;					///<  The pipeline's bus, needed to track messages that are passed while streaming
+	GstMessage*	   mGstMessage;				///<  Message gathered from the bus
+	gint64		   mPendingSeekTime;
+	GstPlayState   mCurrentGstState;	 ///<  the current state of Gstreamer
+	bool		   mStopOnLoopComplete;  ///<  Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS
+	float		   mSpeed;				 ///<  The current playback speed
+	gint64		   mDurationInNs;		 ///<  Duration of media file in nanoseconds
+	LoopMode	   mLoopMode;			 ///<  The current loop mode
 
-	bool					m_AudioBufferWanted;
-	size_t					m_iAudioBufferSize; /* Size of the audio buffer */
-	unsigned char*			m_cAudioBuffer; /* Stores the audio data */
-	int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
-	bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
-	int						m_iAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
-	int						m_iNumAudioChannels; /* Number of audio channels */
-	int						m_iAudioSampleRate; /* Audio sample rate */
-	GstBus*					m_GstBus; /* The pipeline's bus, needed to track messages that are passed while streaming */
-	GstMessage*				m_GstMessage; /* Message gathered from the bus */
-	gint64					m_PendingSeekTime;
-	GstPlayState			m_CurrentGstState; /* the current state of Gstreamer */
-	bool					m_StopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
-	float					m_fSpeed; /* The current playback speed */
-	gint64					m_iDurationInNs; /* Duration of media file in nanoseconds */
-	LoopMode				m_LoopMode; /* The current loop mode */
-	std::function < void(GStreamerWrapper*) >
-							mVideoCompleteCallback;
-	std::function<void(const std::string&)> m_ErrorMessageCallback;
-	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
-	bool					m_PendingSeek;
-	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
-	GstElement*				m_GstPanorama; /* Audio Panning element */
-	GstElement*				m_GstConverter; /* Audio adapter - used for converting stereo to mono if enabled*/
-	GstElement*				m_GstVolumeElement; /* Allows streaming to change the volume output */
-	std::vector<gpointer>	m_GstObjects;  /*Collector for releasing upon close()*/
+	std::function<void(GStreamerWrapper*)>  mVideoCompleteCallback;
+	std::function<void(const std::string&)> mErrorMessageCallback;
 
-private:
+	GstElement*			  mGstPipeline;  ///<  The main GStreamer pipeline
+	bool				  mPendingSeek;
+	GstElement*			  mGstAudioSink;	  ///<  Audio sink that contains the raw audio buffer. Gathered from the pipeline
+	GstElement*			  mGstPanorama;		  ///<  Audio Panning element
+	GstElement*			  mGstConverter;	  ///<  Audio adapter - used for converting stereo to mono if enabled
+	GstElement*			  mGstVolumeElement;  ///<  Allows streaming to change the volume output
+	std::vector<gpointer> mGstObjects;		  ///< Collector for releasing upon close()
 
-	std::mutex				m_VideoMutex;
-	std::unique_lock<std::mutex>						m_VideoLock;
-	bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
-	std::atomic<bool>		m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
-	std::string				m_strFilename; /* Stores filepath of the opened media file */
-	std::string				m_strCodecName;
-	int						m_iCurrentVideoStream; /* Index of the current video stream */
-	int						m_iNumVideoStreams; /* Number of available video streams */
-	int						m_iCurrentAudioStream; /* Index of the current audio stream */
-	int						m_iNumAudioStreams; /* Number of available audio streams */
-	int						m_iWidth; /* Video width */
-	int						m_iHeight; /* Video height */
-	int						m_iBitrate; /* Video bitrate */
-	float					m_fVolume; /* Volume of the pipeline */
-	float					m_fPan; /* Pan the audio channels for the pipeline */
-	float					m_fFps; /* Frames per second of the video */
-	double					m_dCurrentTimeInMs; /* Current time position in milliseconds */
-	double					m_dDurationInMs; /* Media duration in milliseconds */
-	gint64					m_iCurrentFrameNumber; /* Current frame number */
-	gint64					m_iNumberOfFrames; /* Total number of frames in media file */
-	mutable gint64			m_iCurrentTimeInNs; /* Current time position in nanoseconds */
-	PlayState				m_CurrentPlayState; /* The current state of the wrapper */
-	PlayDirection			m_PlayDirection; /* The current playback direction */
-	ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
-	unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
-	size_t					m_cVideoBufferSize; /* Number of bytes in m_cVideoBuffer */
-	GstElement*				m_GstVideoSink; /* Video sink that contains the raw video buffer. Gathered from the pipeline */
-	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
-	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
-	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
-	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
-	std::vector<ds::GstAudioDevice> m_AudioDevices; /* Which audio devices to use for playback. */
-	bool					m_LivePipeline; /* The video is playing live over the network which disallows seeking and a few other things (previously m_Streaming) */
-	bool					m_FullPipeline; /* This was launched from a gst_parse_launch command */
-	bool					m_AutoRestartStream;
-	std::string				m_StreamPipeline;
-	gint64					m_iStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to display it) */
+  private:
+	std::mutex					 mVideoMutex;
+	std::unique_lock<std::mutex> mVideoLock;
+	std::atomic<bool>			 mIsNewVideoFrame;  ///<  Flag that tracks if there is actually a new frame or not
+	bool						 mFileIsOpen;		///<  Flag that tracks if a file has been opened or not
 
-	bool					m_ValidInstall;
+	std::string mFilename;  ///<  Stores filepath of the opened media file
+	std::string mCodecName;
 
-	GstNetTimeProvider*		mClockProvider;
+	int			   mCurrentVideoStream;  ///<  Index of the current video stream
+	int			   mNumVideoStreams;	 ///<  Number of available video streams
+	int			   mCurrentAudioStream;  ///<  Index of the current audio stream
+	int			   mNumAudioStreams;	 ///<  Number of available audio streams
+	int			   mWidth;				 ///<  Video width
+	int			   mHeight;				 ///<  Video height
+	int			   mBitrate;			 ///<  Video bitrate
+	float		   mVolume;				 ///<  Volume of the pipeline
+	float		   mPan;				 ///<  Pan the audio channels for the pipeline
+	float		   mFps;				 ///<  Frames per second of the video
+	double		   mCurrentTimeInMs;	 ///<  Current time position in milliseconds
+	double		   mDurationInMs;		 ///<  Media duration in milliseconds
+	gint64		   mCurrentFrameNumber;  ///<  Current frame number
+	gint64		   mNumberOfFrames;		 ///<  Total number of frames in media file
+	mutable gint64 mCurrentTimeInNs;	 ///<  Current time position in nanoseconds
+	PlayState	   mCurrentPlayState;	///<  The current state of the wrapper
+	PlayDirection  mPlayDirection;		 ///<  The current playback direction
+	ContentType    mContentType;  ///<  Describes whether the currently loaded media file contains only video / audio streams or both
 
-	bool					mSyncedMode;
-	bool					mServer;
-	guint64					m_BaseTime;
-	guint64					m_SeekTime;
+	GstMapInfo     mVideoMapInfo;     ///<  Internal storage of the gst buffer
+	GstBuffer*     mVideoGstBuffer;   ///<  Internal gst video buffer
+	unsigned char* mVideoBuffer;	  ///<  Stores the video pixels
+	size_t		   mVideoBufferSize;  ///<  Number of bytes in mVideoBuffer
 
-	guint64					m_CurrentTime;
-	guint64					m_RunningTime;
-	GstClock*				m_NetClock;
-	uint64_t				m_StartTime;
-	bool					m_playFromPause;
-	//bool					m_isFastSeeking;
-	bool					m_newLoop;
+	GstElement* mGstVideoSink;  ///<  Video sink that contains the raw video buffer. Gathered from the pipeline
+	GstAppSinkCallbacks
+		mGstVideoSinkCallbacks;  ///<  Stores references to the callback methods for video preroll, new video buffer and video eos
+	GstAppSinkCallbacks
+		mGstAudioSinkCallbacks;  ///<  Stores references to the callback methods for audio preroll, new audio buffer and audio eos
 
-	bool					m_StreamNeedsRestart;
-	int						m_StreamRestartCount;
+	bool							mStartPlaying;	///<  Play the video as soon as it's loaded
+	bool							mCustomPipeline;  ///<  Has a custom pipeline for audio
+	std::vector<ds::GstAudioDevice> mAudioDevices;	///<  Which audio devices to use for playback.
+	bool mLivePipeline;			///<  The video is playing live over the network which disallows seeking and a few other things
+								///<  (previously mStreaming)
+	bool		mFullPipeline;  ///<  This was launched from a gst_parse_launch command
+	bool		mAutoRestartStream;
+	std::string mStreamPipeline;
+	gint64 mStreamingLatency;  ///< Latency in streaming live pipelines (how long to wait between getting the data and trying to
+							   ///< display it)
 
+	bool mValidInstall;
 
-	void createBuffer(GstSample* videoSinkSample);
+	GstNetTimeProvider* mClockProvider;
 
-	void								createTexture();
-	GLint								getTextureID(GstBuffer* newBuffer);
-	void                                resetGLVideoBuffers();
+	bool	mSyncedMode;
+	bool	mServer;
+	guint64 mBaseTime;
+	guint64 mSeekTime;
 
-#ifdef DS_GST_GL
-	ci::gl::TextureRef		m_GLTexture;
-	guint					m_CurTexId;
-	bool					m_UseGL;
+	guint64   mCurrentTime;
+	guint64   mRunningTime;
+	GstClock* mNetClock;
+	uint64_t  mStartTime;
+	bool	  mPlayFromPause;
+	bool	  mNewLoop;
 
+	bool mStreamNeedsRestart;
+	int  mStreamRestartCount;
 
-	std::shared_ptr<GstBuffer>          mCurrentBuffer;
-	std::shared_ptr<GstBuffer>          mNewBuffer;
-
-
-	public:
-		ci::gl::Context*			m_origContext;
-		ci::gl::ContextRef		m_ciGlContext;
-	GstGLContext*			m_GstGLContext;
-#endif
-
-}; //!class GStreamerWrapper
-}; //!namespace gstwrapper
+};  //! class GStreamerWrapper
+};  // namespace gstwrapper

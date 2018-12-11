@@ -10,7 +10,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::ResultBuilder
+ * \class ResultBuilder
  * \brief Internal class to handle translating abstract results to
  * local results.  Kind of weirdly designed -- it automatically
  * builds from the constructor.
@@ -32,14 +32,14 @@ public:
 
 	bool						isValid() const;
 
-	// Kinda weird, but all you do with this class is construct and build.
-	// Set columnNames to true if you want them in the result.
+	/// Kinda weird, but all you do with this class is construct and build.
+	/// Set columnNames to true if you want them in the result.
 	void						build(const bool columnNames = false);
 
 	virtual int					getColumnCount() const = 0;
 	virtual int					getColumnType(const int index) const = 0;
 	virtual std::string			getColumnName(const int index) = 0;
-	// Advance the row
+	/// Advance the row
 	virtual bool				hasNext() const = 0;
 	virtual bool				next() = 0;
 	virtual bool				getDouble(const int column, double&) = 0;

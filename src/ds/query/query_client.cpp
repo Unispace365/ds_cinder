@@ -47,7 +47,7 @@ bool Client::queryWrite(const std::string& database, const std::string& select,
 }
 
 /**
- * \class ds::query::Client
+ * \class Client
  */
 Client::Client(ui::SpriteEngine& e, const std::function<void(const Result&, Talkback&)>& h)
 	: inherited(e)

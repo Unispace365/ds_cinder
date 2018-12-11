@@ -46,7 +46,7 @@ Init				INIT;
 }
 
 /**
- * \class ds::physics::SpriteBody
+ * \class SpriteBody
  */
 SpriteBody::SpriteBody(ds::ui::Sprite& s, const int world_id)
 		: mWorld(s.getEngine().getService<ds::physics::Service>(SERVICE_NAME).getWorld(world_id))

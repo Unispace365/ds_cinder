@@ -33,6 +33,14 @@
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
 
+; Define to not create a normal app icon
+;#define SKIP_APP_ICON
+
+; Optionally install notepad++, chrome & 7zip after install
+; If the installer needs to reboot to pick up environment variables, the install step won't be
+; shown.
+; #define USE_EXTRAS
+
 ; -------- Required include of the base install
 ; This grabs the full installer script to actually build the thing
 ; Check that file if you have any problems or questions
@@ -44,3 +52,7 @@
 ; Add any additional files, settings, icons, registry, etc here
 ;[Files]
 ;Source: "src/*"; DestDir: "{app}/src"; Flags: recursesubdirs
+
+; -------- Run an app/script at the end of the installer
+;[Run]
+;Filename: "{app}\config_selector.bat"

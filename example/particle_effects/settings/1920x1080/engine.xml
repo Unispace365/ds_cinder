@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
+	
+	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
+	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render."/>
+	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect" comment="The output window size and position to render."/>
+	
+	<setting name="xml_importer:cache" value="false" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
+	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
+	
+	<setting name="logger:verbose_level" value="0" type="int" comment="How much verbose output to log. 0=nothing, 9=everything" default="0" min_value="0" max_value="9"/>
+	
+	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
+</settings>
+
+

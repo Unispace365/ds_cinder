@@ -93,7 +93,7 @@ const float CameraPick::calcHitDepth( const ci::vec3& hitWorldPos ) const {
 
 
 /**
- * \class ds::ScreenToWorld
+ * \class ScreenToWorld
  */
 ScreenToWorld::ScreenToWorld()
 {

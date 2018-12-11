@@ -30,11 +30,12 @@
 #include "ds/data/tuio_object.h"
 #include "ds/debug/auto_refresh.h"
 #include "ds/app/engine/engine_settings.h"
-#include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
+#include "ds/ui/service/load_image_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
+#include "ds/ui/touch/tuio_input.h"
 #include "ds/ui/tween/tweenline.h"
 #include "ds/app/camera_utils.h"
 
@@ -52,7 +53,7 @@ class Text;
 extern const ds::BitMask	ENGINE_LOG;
 
 /**
- * \class ds::Engine
+ * \class Engine
  * \brief Concrete implementation of the SpriteEngine. Contain all the
  * behind-the-scenes pieces necessary for running the app. NOTE: This
  * class should be internal to the framework. All clients should know
@@ -71,42 +72,40 @@ public:
 	virtual ds::EventNotifier&			getChannel(const std::string&);
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
-	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
-	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
+	virtual ds::ui::PangoFontService&	getPangoFontService() { return mPangoFontService; }
+	virtual ds::ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 
-	// I take ownership of any services added to me.
+	/// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
-	// Add the image processing function to my global pool
-	void								addIp(const std::string& key, const ds::ui::ip::FunctionRef&);
 
-	// Convenice to load a setting file into the mEngineCfg settings.
-	// @param name is the name that the system will use to refer to the settings.
-	// @param filename is the leaf path of the settings file (i.e. "data.xml").
-	// It will be loaded from all appropriate locations.
+	/// Convenice to load a setting file into the mEngineCfg settings.
+	/// \param name is the name that the system will use to refer to the settings.
+	/// \param filename is the leaf path of the settings file (i.e. "data.xml").
+	/// It will be loaded from all appropriate locations.
 	void								loadSettings(const std::string& name, const std::string& filename);
 
-	// @param name is the name that the system will use to refer to the settings.
-	// @param filename is the leaf path of the settings file (i.e. "data.xml").
-	// It will be saved ONLY in the user settings location.
+	/// \param name is the name that the system will use to refer to the settings.
+	/// \param filename is the leaf path of the settings file (i.e. "data.xml").
+	/// It will be saved ONLY in the user settings location.
 	void								saveSettings(const std::string& name, const std::string& filename);
 
-	// Convenice to append a setting file into the existing mEngineCfg settings.
-	// @param name is the name that the system will use to refer to the settings.
-	// @param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
-	// It will NOT be loaded from all appropriate locations.
+	/// Convenice to append a setting file into the existing mEngineCfg settings.
+	/// \param name is the name that the system will use to refer to the settings.
+	/// \param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
+	/// It will NOT be loaded from all appropriate locations.
 	void								appendSettings(const std::string& name, const std::string& filename);
 
-	// Convenice to load a text cfg file into a collection of cfg objects.
-	// @param filename is the leaf path of the settings file (i.e. "text.xml").
-	// It will be loaded from all appropriate locations.
+	/// Convenice to load a text cfg file into a collection of cfg objects.
+	/// \param filename is the leaf path of the settings file (i.e. "text.xml").
+	/// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
 
 	const ds::EngineData&				getEngineData() const		{ return mData; }
-	// only valid after setup() is called
+	/// only valid after setup() is called
 	size_t								getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);
-	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
+	/// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
 	void								prepareSettings(ci::app::AppBase::Settings&);
@@ -115,12 +114,12 @@ public:
 	void								hideSettingsEditor();
 	bool								isShowingSettingsEditor();
 
-	//called in app setup; loads settings files and what not.
+	/// Called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
 
 	/// It's been enough time since the last input and is in idle mode
-	bool								isIdling();
+	virtual bool						isIdling() override;
 
 	/// Checks if it's been enough time since the last input to go into idle. Will take effect if it's been enough time
 	void								checkIdle();
@@ -134,7 +133,7 @@ public:
 	/// Identical to stopIdling(), retained for backwards compatibility
 	virtual void						resetIdleTimeout();
 	
-	// Called during app construction, to register the sprites as blob handlers.
+	/// Called during app construction, to register the sprites as blob handlers.
 	virtual void						installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
 														const std::function<void(ds::BlobRegistry&)>& asClient) = 0;
 
@@ -154,13 +153,12 @@ public:
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
 	ci::app::MouseEvent					alteredMouseEvent(const ci::app::MouseEvent&) const;
 
-	// If you want to create touch events from your client app, use these functions.
-	// The touch events will use the same pathways that normal touches would.
-	// This is generally only recommended for debugging stuff (like automators) 
-	// or if you have an unusual input situation (like a kinect or something) and want to use touch
-	// These are separate functions from the touchesBegin, etc from above so the general
-	// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
-	// \param inWorldSpace If true, the app will not translate due to src/dst rect settings
+	/// If you want to create touch events from your client app, use these functions.
+	/// The touch events will use the same pathways that normal touches would.
+	/// This is generally only recommended for debugging stuff (like automators) 
+	/// or if you have an unusual input situation (like a kinect or something) and want to use touch
+	/// These are separate functions from the touchesBegin, etc from above so the general
+	/// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
 	virtual void						injectTouchesBegin(const ds::ui::TouchEvent&);
 	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
 	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
@@ -169,12 +167,12 @@ public:
 	virtual void						injectObjectsMoved(const ds::TuioObject&);
 	virtual void						injectObjectsEnded(const ds::TuioObject&);
 
-	// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
-	// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
+	/// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
+	/// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
 	void								registerForTuioObjects(ci::tuio::Client&);
 
-	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
-	// Sprites can still turn this off after creation
+	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	/// Sprites can still turn this off after creation
 	virtual bool						getRotateTouchesDefault();
 
 	virtual ds::ResourceList&			getResources();
@@ -194,9 +192,9 @@ public:
 	virtual float						getOrthoNearPlane(const size_t index) const;
 	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
 
-	// Can be used by apps to stop services before exiting.
-	// This will happen automatically, but some apps might want
-	// to make sure everything is stopped before they go away.
+	/// Can be used by apps to stop services before exiting.
+	/// This will happen automatically, but some apps might want
+	/// to make sure everything is stopped before they go away.
 	virtual void						stopServices();
 
 	void								setHideMouse(const bool doMouseHide);
@@ -215,10 +213,10 @@ public:
 	const bool							getTouchSmoothing();
 	void								setTouchSmoothFrames(const int smoothFrames);
 
-	// Utility to change touch mode
+	/// Utility to change touch mode
 	void								nextTouchMode();
 
-	// Debugging aid to write out the sprites
+	/// Debugging aid to write out the sprites
 	void								writeSprites(std::ostream&) const;
 
 	virtual ci::app::WindowRef			getWindow();
@@ -227,16 +225,16 @@ public:
 	void								showConsole();
 	void								hideConsole();
 
-	// Should only be used by the app class to record the average fps. 
-	// Allows for debug drawing of the fps
+	/// Should only be used by the app class to record the average fps. 
+	/// Allows for debug drawing of the fps
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
 	size_t								getNumberOfSprites() { return mSprites.size(); }
 
-	// -------------------------------------------------------------
-	// These functions are inlined, since they are called frequently
-	// -------------------------------------------------------------
+	/// -------------------------------------------------------------
+	/// These functions are inlined, since they are called frequently
+	/// -------------------------------------------------------------
 	/// Returns the list of current roots
 	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
 	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
@@ -257,7 +255,7 @@ public:
 protected:
 	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&, const int appMode);
 
-	// Conveniences for the subclases
+	/// Conveniences for the subclases
 	void								updateClient();
 	void								updateServer();
 	void								drawClient();
@@ -280,8 +278,6 @@ protected:
 										mSprites;
 	int									mTuioPort;
 
-	// All the installed image processing functions.
-	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
@@ -313,10 +309,9 @@ private:
 	ds::EngineSettings&					mSettings;
 	ds::cfg::SettingsEditor*			mSettingsEditor;
 	bool								mShowConsole;
-	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
-	// A cache of all the resources in the system
+	/// A cache of all the resources in the system
 	ResourceList						mResources;
 	ColorList							mColors;
 	FontList							mFonts;
@@ -327,16 +322,21 @@ private:
 	bool								mIdling;
 	float								mLastTouchTime;
 
+	/// The base tuio client
 	ci::tuio::Client					mTuio;
 	uint32_t							mTuioBeganRegistrationId;
 	uint32_t							mTuioMovedRegistrationId;
 	uint32_t							mTuioEndedRegistrationId;
 	bool								mTuioRegistered;
-	// Clients that will get update() called automatically at the start
-	// of each update cycle
+
+	/// Additional tuio inputs if configured
+	std::vector<std::shared_ptr<ds::ui::TuioInput>> mTuioInputs;
+
+	/// Clients that will get update() called automatically at the start
+	/// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;
 	AutoUpdateList						mAutoUpdateClient;
-	// Quick hack to get any ol' client participating in draw
+	/// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
 
 	AutoRefresh							mAutoRefresh;
@@ -353,7 +353,7 @@ private:
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseEndedEvents;
-	// Only used if the settings file has "tuio:receive_objects" set to true
+	/// Only used if the settings file has "tuio:receive_objects" set to true
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnded;
@@ -364,8 +364,9 @@ private:
 	ci::Color8u							mUniqueColor;
 	int									mCachedWindowW, mCachedWindowH;
 	ci::app::WindowRef					mCinderWindow;
+	ui::LoadImageService				mLoadImageService;
 
-	// Channels. A channel is simply a notifier, with an optional description.
+	/// Channels. A channel is simply a notifier, with an optional description.
 	class Channel {
 	public:
 		Channel();

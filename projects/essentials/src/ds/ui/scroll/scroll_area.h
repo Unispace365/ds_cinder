@@ -20,8 +20,11 @@ class ScrollArea : public ds::ui::Sprite {
 		// Sets the clippin' (visible) area of the scroll Area. 
 		void				setScrollSize(const float newWidth, const float newHeight);
 
-          //Temproarily enable/disable touches
+        //Temproarily enable/disable touches
 		void				enableScrolling(bool enable);
+
+		/// Stop any current momentum
+		void				stopScrollMomentum();
 
 		// Set the position of your sprite before you add it here.
 		// The scroll area will be sized after the new sprite is passed in.
@@ -37,6 +40,9 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTransparent);
 		void				setUseFades(const bool doFading);
 		void				setFadeHeight(const float fadeHeight);
+
+		/// recalculates the size of the scroller and fades
+		void				recalculateSizes();
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
 		void				setTweenCompleteCallback(const std::function<void(ScrollArea*)>& func);

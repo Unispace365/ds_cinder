@@ -27,7 +27,7 @@ extern const ds::BitMask	IMAGE_LOG;
 extern const ds::BitMask	VIDEO_LOG;
 
 /**
- * \class ds::Logger
+ * \class Logger
  * \brief Standard logging behaviour.
  * A run-time configurable logger that supports clients
  * supplying log level (INFO, WARN etc) and application-defined modules.
@@ -55,7 +55,7 @@ public:
 	static const int				LOG_FATAL = 3;
 	static const int				LOG_METRIC = 4;		// Used for capturing metric information
 	static const int				LOG_STARTUP = 100;	// Special code that will always log, regardless of the level.
-	// Verification that the given parameter is valid to log.
+	/// Verification that the given parameter is valid to log.
 	static bool						hasLevel(const int level);
 
 	/**

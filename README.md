@@ -6,6 +6,8 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 ## Getting Started
 
+> Doxygen documentation http://update.downstreamdev.com/ds/doc/ds_cinder/
+
 ### Windows
 
 **Install Visual Studio 2015**
@@ -44,15 +46,17 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 **Download and compile DS Cinder**
 
-1. Clone this repo with git or download this as a zip and unzip it
-2. Make another new environment variable
+1. Download and install git lfs (large file storage, one binary is too large for regular git) https://git-lfs.github.com/
+2. Clone this repo with git
+3. Run: git lfs fetch --all
+4. Make another new environment variable
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
     3. Under "Sytem variables", select "New..."
     4. Variable name: DS_PLATFORM_090
     5. Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
     6. Ok, Ok, Ok
-3. Open an example project in the example folder and compile
+5. Open an example project in the example folder and compile
   
 ## Getting to know ds_cinder
 

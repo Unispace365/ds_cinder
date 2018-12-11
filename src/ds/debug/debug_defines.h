@@ -11,11 +11,11 @@
 	#define DS_ASSERT(cnd)						if (!(cnd)) { Poco::Debugger::enter(); }
 	#define DS_ASSERT_MSG(cnd, msg)				if (!(cnd)) { Poco::Debugger::enter(msg); }
 	#define DS_VALIDATE(cnd, expr)				if (!(cnd)) { Poco::Debugger::enter(); expr; }
-	// Expr1 is meant to be some sort of error string. Only triggered in dbg.
+	/// Expr1 is meant to be some sort of error string. Only triggered in dbg.
 	#define DS_VALIDATE_2(cnd, expr1, expr2)	if (!(cnd)) { expr1; expr2; }
-	// Useful when throwing in some testing code that you want to make sure never gets into release
+	/// Useful when throwing in some testing code that you want to make sure never gets into release
 	#define DS_DBG_CODE(code)					code
-	// For when you want debug code in a header file
+	/// For when you want debug code in a header file
 	#define DS_DBG_HDR(code)					code
 #else
 	#define DS_ASSERT(cnd)						(void*)0

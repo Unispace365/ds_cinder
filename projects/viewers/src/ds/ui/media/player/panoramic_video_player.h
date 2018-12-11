@@ -17,9 +17,10 @@ class GstVideo;
 class PanoramicVideo;
 class VideoInterface;
 class MediaInterface;
+struct MediaViewerSettings;
 
 /**
-* \class ds::ui::PanoramicVideoPlayer
+* \class PanoramicVideoPlayer
 *			Creates a panoramicvideo and puts an interface on top of it.
 */
 class PanoramicVideoPlayer : public ds::ui::Sprite {
@@ -49,8 +50,14 @@ public:
 	void								setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
 	void								setVideoCompleteCallback(std::function<void()> func) { mVideoCompleteCallback = func; }
 
+	/// Sets all applicable settings from a MediaViewerSettings
+	void setMediaViewerSettings(MediaViewerSettings& settings);
+
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
 	void								setPan(const float newPan);
+
+	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
+	void								setVolume(const float volume);
 
 	/// See the function of the same name on GstVideo, Whether to synchronize across client/servers, default = true
 	void								setAutoSynchronize(const bool doSync);
@@ -86,12 +93,14 @@ protected:
 
 	/// Settings - these are kept locally here so the settings can be applied at any time
 	float										mPanning;
+	float										mVolume;
 	bool										mAutoSyncronize;
 	bool										mAutoPlayFirstFrame;
 	bool										mAllowOutOfBoundsMuted;
 	std::vector<std::string>					mPlayableInstances;
 	std::vector<GstAudioDevice>					mAudioDevices;
 	bool										mLooping;
+	bool										mInterfaceBelowMedia;
 };
 
 } // namespace ui

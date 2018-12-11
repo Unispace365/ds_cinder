@@ -28,12 +28,20 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
 		, mTouchFilterFunc(nullptr)
 		, mTouchMode(mode)
+		, mInputMode(kInputNormal)
 		, mCapture(nullptr)
 		, mRotationTranslatorPtr(new RotationTranslator())
 		, mRotationTranslator(*(mRotationTranslatorPtr.get()))
 		, mSmoothEnabled(true)
 		, mFramesToSmooth(8)
+		, mTransScaleFingId(-1)
 {
+}
+
+
+void TouchManager::setInputMode(const InputMode& theMode) {
+	mInputMode = theMode;
+	mTransScaleFingId = -1;
 }
 
 void TouchManager::setTouchMode(const TouchMode::Enum &m) {
@@ -82,6 +90,15 @@ void TouchManager::mouseTouchBegin(const ci::app::MouseEvent &event, int id){
 }
 
 void TouchManager::inputBegin(const int fingerId, const ci::vec2& touchPos){
+	if(mInputMode == kInputTranslate || mInputMode == kInputScale) {
+		if(mTransScaleFingId < 0) {
+			mTransScaleFingId = fingerId;
+			mTransScaleOrigin = touchPos;
+			mStartSrcRect = mEngine.getSrcRect();
+		}
+		return;
+	} 
+
 	mDiscardTouchMap[fingerId] = false;
 
 	ci::vec3 globalPoint = ci::vec3(touchPos, 0.0f);
@@ -169,6 +186,51 @@ void TouchManager::mouseTouchMoved(const ci::app::MouseEvent &event, int id){
 }
 
 void TouchManager::inputMoved(const int fingerId, const ci::vec2& touchPos){
+	if(mInputMode == kInputTranslate) {
+		if(mTransScaleFingId == fingerId) {
+			auto& engData = const_cast<ds::EngineData&>(mEngine.getEngineData());
+			auto delta = touchPos - mTransScaleOrigin;
+			mTransScaleOrigin = touchPos;
+			// todo: move this to the engine and combine with the key movement stuff
+			engData.mSrcRect.x1 -= delta.x;
+			engData.mSrcRect.x2 -= delta.x;
+			engData.mSrcRect.y1 -= delta.y;
+			engData.mSrcRect.y2 -= delta.y;
+			mEngine.markCameraDirty();
+		}
+		return;
+	} else if(mInputMode == kInputScale) {
+		if(mTransScaleFingId == fingerId) {
+			auto& engData = const_cast<ds::EngineData&>(mEngine.getEngineData());
+
+			auto delta = mTransScaleOrigin.x - touchPos.x;
+			mTransScaleOrigin = touchPos;
+			float aspecty = mStartSrcRect.getWidth() / mStartSrcRect.getHeight();
+			auto outputty = engData.mSrcRect;
+			outputty.x1 -= delta;
+			outputty.x2 += delta;
+			outputty.y1 -= delta / aspecty;
+			outputty.y2 += delta / aspecty;
+
+			if(outputty.x1 < outputty.x2 && outputty.y1 < outputty.y2) engData.mSrcRect = outputty;
+
+			/*
+			auto delta = 1.0f + (mTransScaleOrigin.x - touchPos.x) / 100.0f;
+			auto after = mStartSrcRect * delta;
+			float xD = mStartSrcRect.getWidth()- after.getWidth();
+			float yD = mStartSrcRect.getHeight() - after.getHeight();
+			engData.mSrcRect.x1 = mStartSrcRect.x1 + xD / 2.0f;
+			engData.mSrcRect.x2 = mStartSrcRect.x1 + after.getWidth() + xD / 2.0f;
+			engData.mSrcRect.y1 = mStartSrcRect.y1 + yD / 2.0f;
+			engData.mSrcRect.y2 = mStartSrcRect.y1 + after.getHeight() + yD / 2.0f;
+
+			std::cout << "Scale: " << " after:" << after << " srcRect:" << engData.mSrcRect << " xD:"  << xD << " yD:" << yD << std::endl;
+			*/
+			mEngine.markCameraDirty();
+			// do the thing
+		}
+		return;
+	}
 
 	ci::vec3 globalPoint = ci::vec3(touchPos, 0.0f);
 
@@ -251,6 +313,15 @@ void TouchManager::mouseTouchEnded(const ci::app::MouseEvent &event, int id){
 }
 
 void TouchManager::inputEnded(const int fingerId, const ci::vec2& touchPos){
+
+	if(mInputMode == kInputTranslate || mInputMode == kInputScale) {
+		if(fingerId == mTransScaleFingId) {
+			mTransScaleFingId = -1;
+			mTransScaleOrigin = touchPos;
+		}
+		return;
+	}
+
 	ci::vec3 globalPoint = ci::vec3(touchPos, 0.0f);
 
 	if(mSmoothEnabled){

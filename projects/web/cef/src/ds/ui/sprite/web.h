@@ -17,7 +17,7 @@ namespace web {
 
 namespace ui {
 /**
- * \class ds::ui::Web
+ * \class Web
  * \brief Display a web page using Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef
  *		  The process and threading model here is complex.
  *		  In short, on creation, this sprite will asynchronously request an underlying browser from CefWebService.
@@ -69,6 +69,7 @@ public:
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
 	void										setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
 	void										setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
+	void										setDragScrollingDirection(bool scrollsUp) { mDragScrollingDirection = scrollsUp; }
 
 	void										sendKeyDownEvent(const ci::app::KeyEvent &event);
 	void										sendKeyUpEvent(const ci::app::KeyEvent &event);
@@ -145,19 +146,14 @@ public:
 	ci::vec2									getDocumentSize();
 	ci::vec2									getDocumentScroll();
 
-	// Scripting.
-	// Send function to object with supplied args. For example, if you want to just invoke the global
-	// function "makeItHappen()" you'd call: RunJavaScript("window", "makeItHappen", ds::web::ScriptTree());
-	//ds::web::ScriptTree		runJavaScript(	const std::string& object, const std::string& function,
-	//										const ds::web::ScriptTree& args);
-	// Register a handler for a callback from javascript
-	//void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
-	//													const std::function<void(const ds::web::ScriptTree&)>&);
-
-	void										executeJavascript(const std::string& theScript);
+	/// Executes the script on the main frame of the loaded browser. Browser must exist already for this to work
+	void										executeJavascript(const std::string& theScript, const std::string& debugUrl = "");
 
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void										setAllowClicks(const bool doAllowClicks);
+
+	/// Sends a second mouse down when releasing, which fixes some websites, but breaks others. The default is on
+	void										setSecondClickOnUp(const bool secondClick) { mSecondClickOnUp = secondClick; }
 
 	/// Deletes any cookies matching url (leave blank for all urls) and matching the cookieName (leave blank for all cookies from that url)
 	void										deleteCookies(const std::string& url, const std::string& cookieName);
@@ -250,11 +246,13 @@ private:
 	double										mZoom;
 	bool										mNeedsZoomCheck;
 
+	bool										mSecondClickOnUp;
 	ci::vec3									mPreviousTouchPos;
 	bool										mAllowClicks;
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
+	bool										mDragScrollingDirection;
 	bool										mIsDragging;
 	// Cache the page size and scroll during touch events
 	ci::vec2									mPageSizeCache,

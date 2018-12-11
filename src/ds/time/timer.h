@@ -8,7 +8,7 @@ namespace ds {
 namespace time {
 
 /**
- * \class ds::time::Timer
+ * \class Timer
  * \brief Basic timer. I discovered at home that boost::timer is
  * completely non-portable across OSs (in terms of timing seconds;
  * it seems to be timing an abstract notion of CPU time), so use this.
@@ -20,8 +20,8 @@ public:
 	Timer(bool start);
 
 	void						restart();
-	// Restart with the supplied offset. If this value is positive,
-	// you will get negative elapsed values.
+	/// Restart with the supplied offset. If this value is positive,
+	/// you will get negative elapsed values.
 	void						stop();
 	void						restart(const double offset);
 	double						elapsed();

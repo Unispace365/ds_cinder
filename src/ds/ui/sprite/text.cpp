@@ -105,6 +105,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mNeedsTextRender(false)
 	, mNeedsFontOptionUpdate(false)
 	, mProbablyHasMarkup(false)
+	, mShrinkToBounds(false)
 	, mTextFont("Sans")
 	, mTextSize(12.0)
 	, mTextColor(ci::Color::white())
@@ -271,7 +272,8 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
-		if(mResizeLimitHeight < 1){
+		/// prevent a situation where a default value of 0.0f only shows 1 line of text
+		if(mResizeLimitHeight == 0.0f){
 			mResizeLimitHeight = -1.0f;
 		}
 		mNeedsMeasuring = true;
@@ -280,6 +282,19 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 	}
 
 	return *this;
+}
+
+bool Text::getShrinkToBounds() const {
+	return mShrinkToBounds;
+}
+
+void Text::setShrinkToBounds(const bool shrinkToBounds /* = false */) {
+	if(mShrinkToBounds == shrinkToBounds) return;
+
+	mShrinkToBounds = shrinkToBounds;
+	mNeedsMeasuring = true;
+
+	markAsDirty(LAYOUT_DIRTY);
 }
 
 void Text::setTextColor(const ci::Color& color) {
@@ -376,13 +391,11 @@ WrapMode Text::getWrapMode(){
 }
 
 void Text::onBuildRenderBatch(){
-
-
 	float preWidth = 0.0f;
 	float preHeight = 0.0f;
 	if(mTexture){
-		preWidth = mTexture->getWidth();
-		preHeight = mTexture->getHeight();
+		preWidth = static_cast<float>(mTexture->getWidth());
+		preHeight = static_cast<float>(mTexture->getHeight());
 	}
 
 	renderPangoText();
@@ -416,6 +429,9 @@ void Text::drawLocalClient(){
 
 		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 		ci::gl::ScopedTextureBind scopedTexture(mTexture);
+
+		ci::gl::ScopedModelMatrix scopedMat;
+		ci::gl::translate(mRenderOffset);
 
 		if(mRenderBatch){
 			mRenderBatch->draw();
@@ -563,7 +579,11 @@ bool Text::measurePangoText() {
 			const int lastPixelHeight = mPixelHeight;
 
 			pango_layout_set_width(mPangoLayout, (int)mResizeLimitWidth * PANGO_SCALE);
-			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
+			if(mResizeLimitHeight < 0) {
+				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight);
+			} else {
+				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
+			}
 
 			// Pango separates alignment and justification... I prefer a simpler API here to handling certain edge cases.
 			if(mTextAlignment == Alignment::kJustify) {
@@ -607,7 +627,7 @@ bool Text::measurePangoText() {
 			int newPixelWidth = 0;
 			int newPixelHeight = 0;
 			if(mProbablyHasMarkup){
-				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
+				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), static_cast<int>(mProcessedText.size()));
 
 				// check the pixel size, if it's empty, then we can try again without markup
 				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
@@ -615,7 +635,7 @@ bool Text::measurePangoText() {
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				if(hadMarkup){
-					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
+					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), static_cast<int>(mProcessedText.size()));
 				}
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
@@ -647,27 +667,52 @@ bool Text::measurePangoText() {
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle extentRect = PangoRectangle();
-			pango_layout_get_pixel_extents(mPangoLayout, NULL, &extentRect);
+			PangoRectangle inkRect = PangoRectangle();
+			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 
-			// TODO: output a warning, and / or do a better job detecting and fixing issues or something
+			// The offset for rendering to the cairo surface
+			mPixelOffsetX = -extentRect.x;
+			mPixelOffsetY = -extentRect.y;
+
+			// Instead of making the image textue larger, we will offset the drawing to the correct position
+			mRenderOffset = ci::vec2(extentRect.x, extentRect.y);
+
+			// To account for the case where the inkRect goes outside of the extentRect:
+			//   move the cairo & render offsets appropriately by opposite amounts
+			if (inkRect.x < extentRect.x) {
+				mRenderOffset.x -= extentRect.x - inkRect.x;
+				mPixelOffsetX += extentRect.x - inkRect.x;
+			}
+
+			if (inkRect.y < extentRect.y) {
+				mRenderOffset.y -= extentRect.y - inkRect.y;
+				mPixelOffsetY += extentRect.y - inkRect.y;
+			}
+
 			if((extentRect.width == 0 || extentRect.height == 0) && !mText.empty()){
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes. Text: " << getTextAsString());
 			}
+			
+			// DS_LOG_INFO("the Text: " << getTextAsString());
+			// DS_LOG_INFO("\nInk rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
+			// DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << "\n");
 
-			/*
-			std::cout << getTextAsString() << std::endl;
-			std::cout << "Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height << std::endl;
-			std::cout << "Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << std::endl;
-			std::cout << "Pixel size: " << newPixelWidth << " " << newPixelHeight << std::endl;
-			*/
+			// Set the final width/height for the texture, handling the case where inkRect is larger than extentRect
+			mPixelWidth = std::max(extentRect.width, inkRect.width);
+			mPixelHeight = std::max(extentRect.height, inkRect.height);
 
-			mPixelWidth = extentRect.width + extentRect.x;
-			// add the right side of the offset for center aligned
-			if(mTextAlignment == Alignment::kCenter) mPixelWidth += extentRect.x;
+			// This is required to not break combinations of layout align & text align
+			if (extentRect.width < (int)mResizeLimitWidth) {
+				if(!mShrinkToBounds){
+					setSize(mResizeLimitWidth, (float)mPixelHeight);
+				}else{
+					mRenderOffset.x -= extentRect.x;
+					setSize((float)mPixelWidth, (float)mPixelHeight);
+				}
+			} else {
+				setSize((float)mPixelWidth, (float)mPixelHeight);
+			}
 
-			mPixelHeight = extentRect.height + extentRect.y + extentRect.y;
-
-			setSize((float)mPixelWidth, (float)mPixelHeight);
 
 			mNeedsMeasuring = false;
 
@@ -681,25 +726,17 @@ bool Text::measurePangoText() {
 }
 
 void Text::renderPangoText(){
-	/// HACK
-	/// Some fonts clip some descenders and characters at the end of the text
-	/// So we make the surface and texture somewhat bigger than the size of the sprite
-	/// Yes, this means that it could fuck up some shaders.
-	/// I dunno what else to do. I couldn't seem to find any relevant docs or issues on stackoverflow
-	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
-	int extraTextureSize = (int)mTextSize;
-
 	if(mNeedsTextRender && mPixelWidth > 0 && mPixelHeight > 0) {
 		// Create appropriately sized cairo surface
 		const bool grayscale = false; // Not really supported
 		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
 
 
-		cairo_surface_t* cairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
+		cairo_surface_t* cairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
 
 		auto cairoSurfaceStatus = cairo_surface_status(cairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << mText);
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth << " h:" << mPixelHeight << " text:" << mText);
 			// make sure we don't render garbage
 			if(mTexture){
 				mTexture = nullptr;
@@ -731,6 +768,10 @@ void Text::renderPangoText(){
 
 			// Draw the text into the buffer
 			cairo_set_source_rgb(cairoContext, mTextColor.r, mTextColor.g, mTextColor.b);
+
+			// Move the layout into the correct position on the surface/context before drawing!
+			// This removes the need for additional texture padding & fixes clipping ascenders
+			cairo_translate(cairoContext, mPixelOffsetX, mPixelOffsetY);
 			pango_cairo_update_layout(cairoContext, mPangoLayout);
 			pango_cairo_show_layout(cairoContext, mPangoLayout);
 
@@ -740,9 +781,10 @@ void Text::renderPangoText(){
 			unsigned char *pixels = cairo_image_surface_get_data(cairoSurface);
 
 			ci::gl::Texture::Format format;
-			format.setMagFilter(GL_LINEAR);
-			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
+			format.enableMipmapping(true);
+			//format.setMagFilter(GL_NEAREST);
+			//format.setMinFilter(GL_NEAREST);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
 

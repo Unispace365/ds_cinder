@@ -15,7 +15,7 @@ const std::string		EMPTY_SZ("");
 }
 
 /**
- * \class ds::FileMetaData
+ * \class FileMetaData
  */
 FileMetaData::FileMetaData() {
 }

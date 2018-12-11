@@ -14,14 +14,14 @@ class SpriteEngine;
 } // namespace ui
 
 /**
- * \class ds::ImageRegistry
+ * \class ImageRegistry
  * Global registry of all objects that can generate images.
  */
 class ImageRegistry {
   public:
     ImageRegistry();
 
-    // Add a new blob handler.  I answer with the unique key assigned the handler.
+    /// Add a new blob handler.  I answer with the unique key assigned the handler.
     char										addGenerator(const std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>& factoryFn);
 		ds::ui::ImageGenerator*	makeGenerator(const char, ds::ui::SpriteEngine&);
 

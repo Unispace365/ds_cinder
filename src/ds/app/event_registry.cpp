@@ -32,7 +32,7 @@ namespace event {
 
 
 /**
- * \class ds::event::Registry
+ * \class Registry
  */
 Registry& Registry::get() {
 	static Registry	REGISTRY;
@@ -81,7 +81,7 @@ std::function<ds::Event*()>  Registry::getEventCreator(const std::string& eventN
 }
 
 /**
- * \class ds::event::Registry::Entry
+ * \class Entry
  */
 Registry::Entry::Entry(const std::string &name)
 		: mWhat(Registry::get().add(name))
@@ -148,7 +148,7 @@ static size_t register_event(const std::string& name) {
 }
 
 /**
- * \class ds::EventRegistry
+ * \class EventRegistry
  */
 const std::string& EventRegistry::getName(const size_t what) {
 	Poco::Mutex::ScopedLock   l(get_register_lock());

@@ -24,6 +24,7 @@ const std::string		VIDEO_TYPE_SZ("v");
 const std::string		VIDEO_STREAM_TYPE_SZ("vs");
 const std::string		WEB_TYPE_SZ("w");
 const std::string		ZIP_TYPE_SZ("z");
+const std::string		ERROR_TYPE_SZ("0");
 
 // This gets reduced to being a video type; here to support B&R CMSs, which
 // can't have audio files that are typed as video.
@@ -394,11 +395,25 @@ const std::wstring& Resource::getTypeName() const {
 	return ERROR_NAME_SZ;
 }
 
-void Resource::setLocalFilePath(const std::string& localPath) {
-	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE){
+const std::string& Resource::getTypeChar() const {
+	if(mType == FONT_TYPE) return FONT_TYPE_SZ;
+	else if(mType == IMAGE_TYPE) return IMAGE_TYPE_SZ;
+	else if(mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_TYPE_SZ;
+	else if(mType == PDF_TYPE) return PDF_TYPE_SZ;
+	else if(mType == VIDEO_TYPE) return VIDEO_TYPE_SZ;
+	else if(mType == ZIP_TYPE) return ZIP_TYPE_SZ;
+	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_TYPE_SZ;
+	else if(mType == WEB_TYPE) return WEB_TYPE_SZ;
+	return ERROR_TYPE_SZ;
+}
+
+void Resource::setLocalFilePath(const std::string& localPath, const bool normalizeThePath /*= true*/) {
+	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
 		mLocalFilePath = localPath;
-	} else {
+	} else if(normalizeThePath) {
 		mLocalFilePath = ds::getNormalizedPath(localPath);
+	} else {
+		mLocalFilePath = localPath;
 	}
 }
 
@@ -586,6 +601,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("m2ts") != std::string::npos
 			  || extensionay.find("mod") != std::string::npos
 			  || extensionay.find("mpe") != std::string::npos
+			  || extensionay.find("ogg") != std::string::npos
 			  || extensionay.find("ogv") != std::string::npos
 			  || extensionay.find("mpeg") != std::string::npos
 			  || extensionay.find("mts") != std::string::npos

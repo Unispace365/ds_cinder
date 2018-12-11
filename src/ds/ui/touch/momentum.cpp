@@ -7,7 +7,7 @@
 namespace ds {
 
 /**
- * \class ds::Momentum
+ * \class Momentum
  */
 Momentum::Momentum(ds::ui::SpriteEngine& engine)
 		: inherited(engine)

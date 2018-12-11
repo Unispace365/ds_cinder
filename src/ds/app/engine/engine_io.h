@@ -16,7 +16,7 @@ class BlobReader;
 class BlobRegistry;
 
 /**
- * \class ds::EngineSender
+ * \class EngineSender
  * Send data from a source to destination.
  */
 class EngineSender {
@@ -47,23 +47,23 @@ public:
 };
 
 /**
- * \class ds::EngineReceiver
+ * \class EngineReceiver
  * Receive data from a source.
  */
 class EngineReceiver {
 public:
 	EngineReceiver(ds::NetConnection&, const bool useChunker);
 
-	// A bit of a hack -- every state can be set to listen
-	// only for the header and command, or everything. This
-	// is used to stop me from receiving the entire world
-	// when I'm not ready.
+	/// A bit of a hack -- every state can be set to listen
+	/// only for the header and command, or everything. This
+	/// is used to stop me from receiving the entire world
+	/// when I'm not ready.
 	void						setHeaderAndCommandIds(const char header, const char command);
 	void						setHeaderAndCommandOnly(const bool = false);
 
 	ds::DataBuffer&				getData();
-	// Convenience for clients with a blob reader, automatically
-	// receive and handle the data. Answer true if there was data.
+	/// Convenience for clients with a blob reader, automatically
+	/// receive and handle the data. Answer true if there was data.
 	bool						receiveBlob();
 	bool						handleBlob(ds::BlobRegistry&, ds::BlobReader&, bool& morePacketsAvailable);
 	bool						hasLostConnection() const;
@@ -74,19 +74,19 @@ private:
 	ds::NetConnection&			mConnection;
 	std::string					mCompressionBufferRead;
 	std::string					mCompressionBufferWrite;
-	// The header and command blob IDs, used for filtering. The header
-	// and command are always processed, but anything else depends on the state
+	/// The header and command blob IDs, used for filtering. The header
+	/// and command are always processed, but anything else depends on the state
 	char						mHeaderId,
 								mCommandId;
 	bool						mHeaderAndCommandOnly;
 
-	// Track when I try to receive but don't have any data. If this happens
-	// enough, then my network connection has likely dropped.
+	/// Track when I try to receive but don't have any data. If this happens
+	/// enough, then my network connection has likely dropped.
 	int							mNoDataCount;
 
-	// Keep track of all the packets we receive.
-	// This is in case we're running slower than the server,
-	// in which case we can run through and update all the buffers at once and catch up
+	/// Keep track of all the packets we receive.
+	/// This is in case we're running slower than the server,
+	/// in which case we can run through and update all the buffers at once and catch up
 	std::vector<std::string>	mReceiveBuffers;
 	ds::net::DeChunker			mDechunker;
 	bool						mUseChunker;

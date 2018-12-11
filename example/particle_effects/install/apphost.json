@@ -1,0 +1,37 @@
+{
+  "PreventSleep": true,
+  "Kiosk": true,
+  "RestartApps": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "RestartSystem": {
+    "Enabled": false,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "Profiles": [
+    {
+      "Name": "particle_effects",
+      "Apps": [
+        {
+          "Path": "%PROGRAMFILES%/Downstream/particle_effects/particle_effects.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,	
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        },
+        {
+          "Path": "%PROGRAMFILES%/Downstream/particle_effects/DSNode/DSNode.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,	
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        }
+      ]
+    }
+  ]
+}

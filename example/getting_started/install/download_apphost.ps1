@@ -1,31 +1,31 @@
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$DsnodeVer = (Invoke-WebRequest -Uri 'http://update.downstreamdev.com/ds/dsapphost/version.txt').Content;
-Write-Host $DsnodeVer;
+$DsapphostVer = (Invoke-WebRequest -Uri 'http://update.downstreamdev.com/ds/dsapphost/version.txt').Content;
+Write-Host $DsapphostVer;
 
 
-$DsnodeUrl = "http://update.downstreamdev.com/ds/dsapphost/" + $DsnodeVer;
+$DsapphostUrl = "http://update.downstreamdev.com/ds/dsapphost/" + $DsapphostVer;
 $ThisCommand = $MyInvocation.MyCommand.Path;
 $ThisDir = (Get-Item $ThisCommand ).Directory.FullName;
-$TempFile = $ThisDir + "/dsnoder.zip";
-$DsnodeDir = $ThisDir + "/DSAppHost/";
+$TempFile = $ThisDir + "/Dsapphostr.zip";
+$DsapphostDir = $ThisDir + "/DSAppHost/";
 $OutputDir = $ThisDir;
 
-if (Test-Path $DsnodeDir -PathType Container){
-    Write-Host Removing old dsnode dir...;
-    Remove-Item $DsnodeDir -Recurse;
+if (Test-Path $DsapphostDir -PathType Container){
+    Write-Host Removing old Dsapphost dir...;
+    Remove-Item $DsapphostDir -Recurse;
 }
 
-Write-Host Downloading dsnode zip...;
-Invoke-WebRequest -Uri $DsnodeUrl -OutFile $TempFile;
+Write-Host Downloading Dsapphost zip...;
+Invoke-WebRequest -Uri $DsapphostUrl -OutFile $TempFile;
 
-Write-Host Extracting dsnode zip...
+Write-Host Extracting Dsapphost zip...
 [System.IO.Compression.ZipFile]::ExtractToDirectory($TempFile, $OutputDir);
 
 Write-Host Removing zip file...;
 Remove-Item $TempFile;
 
-if (Test-Path $DsnodeDir -PathType Container){
+if (Test-Path $DsapphostDir -PathType Container){
     Write-Host Success!;
 } else {
     Write-Host Uh oh, something went wrong!;

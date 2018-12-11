@@ -170,7 +170,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutTPad = 0.0f;
 	mLayoutRPad = 0.0f;
 	mLayoutLPad = 0.0f;
-	mLayoutFudge = ci::vec2();
+	mLayoutFudge = ci::vec3();
 	mLayoutSize = ci::vec2();
 	mLayoutHAlign = 0;
 	mLayoutVAlign = 0;
@@ -577,11 +577,11 @@ void Sprite::setRotation(const ci::vec3& rot) {
 	doSetRotation(rot);
 }
 
-void Sprite::setRotation(const ci::vec3 &rot, const float degree)
+void Sprite::setRotation(const ci::vec3 &axis, const float angle)
 {
-	doSetRotation(rot);
+	doSetRotation(axis);
 	mDoSpecialRotation = true;
-	mDegree = degree;
+	mDegree = angle;
 }
 
 void Sprite::doSetRotation(const ci::vec3& rot) {
@@ -993,7 +993,7 @@ Sprite* Sprite::getHit(const ci::vec3 &point) {
 	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
 //	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
 	//Scale could be negative for quickly flipping an image/texture.
-		if (mScale.x == 0.0f || mScale.y == 0.0f || mScale.z <= 0.0f) {
+		if (mScale.x == 0.0f || mScale.y == 0.0f /*|| mScale.z <= 0.0f*/) {
 			return nullptr;
 	}
 	if(getClipping()) {

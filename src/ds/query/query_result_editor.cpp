@@ -9,7 +9,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::ResultEditor
+ * \class ResultEditor
  */
 ResultEditor::ResultEditor(Result& qr, const bool append)
 		: mResult(qr)
@@ -49,7 +49,7 @@ ResultEditor& ResultEditor::startRow() {
 		// the design of SQLite -- any numeric fields with NULL values show up as text
 		// fields, but if the client is expecting a number, we want to default to zero
 		// still, not whatever happened to be there.
-		mRow->initialize(mResult.mCol.size());
+		mRow->initialize(static_cast<int>(mResult.mCol.size()));
 		mColIdx = 0;
 	} catch (std::exception&) {
 		mError = true;

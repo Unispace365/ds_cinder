@@ -9,7 +9,7 @@ namespace ui {
 class GstVideo;
 
 /**
-* \class ds::ui::VideoVolumeControl
+* \class VideoVolumeControl
 *			Control audio volume for a video
 */
 class VideoVolumeControl : public ds::ui::Sprite  {

@@ -11,11 +11,11 @@ class DataBuffer;
 // Server -> Client communication
 extern const char				CMD_SERVER_SEND_WORLD;		// The server is sending the entire world
 extern const char				CMD_CLIENT_STARTED_REPLY;	// The server has received a CLIENT_STARTED, and
-															// is supplying the client with a session ID.
+															/// is supplying the client with a session ID.
 
 // Client -> Server communication
 extern const char				CMD_CLIENT_STARTED;			// The client is notifying the server it's started,
-															// and is supplying the server with a global ID.
+															/// and is supplying the server with a global ID.
 
 extern const char				CMD_CLIENT_REQUEST_WORLD;	// The client is requesting the entire world
 
@@ -29,20 +29,20 @@ extern const char				ATT_FRAME;					// A frame number
 extern const char				ATT_ROOTS;					// A list of the roots being sent from the server
 
 /**
- * \class ds::EngineIoInfo
+ * \class EngineIoInfo
  * \brief Store information related to doing IO.
  */
 class EngineIoInfo {
 public:
 	EngineIoInfo(ds::Engine&);
 
-	// Clients create a GUID on startup, which gets converted to a
-	// much shorter sessionID by the server.
+	/// Clients create a GUID on startup, which gets converted to a
+	/// much shorter sessionID by the server.
 	std::string					mGlobalId;
 };
 
 /**
- * \class ds::ScopedClientAtts
+ * \class ScopedClientAtts
  * \brief Used during Sprite::writeClientAttributesTo() to add the
  * header and footer boilerplate to the buffer.
  */

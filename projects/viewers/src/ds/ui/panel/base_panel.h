@@ -78,6 +78,9 @@ public:
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the override class after this.*/
 	void							setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& absMax);
 
+	/** Calculate the size limits */
+	void							setSizeLimits();
+
 	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
 	void							setDefaultSize(const ci::vec2& defaultSize){ mDefaultSize = defaultSize; }
 
@@ -101,6 +104,9 @@ public:
 	/** If enabled (the default), will send this panel to the front on any user input. Otherwise leaves the order alone */
 	void							setAutoKeepInFront(const bool autoBringToFront){ mAutoSendToFront = autoBringToFront; }
 
+	/** The panel was dragged or it's bounds checked. This is very loose, and might be called from the update loop and multiple times per actual position change */
+	void							setPositionUpdatedCallback(std::function<void()> posUpdateCallback);
+
 protected:
 	virtual void					onUpdateServer(const ds::UpdateParams &updateParams);
 
@@ -118,7 +124,6 @@ protected:
 	virtual void					userInputReceived() override;
 
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
-	void							setSizeLimits();
 	
 	float							mContentAspectRatio;
 	float							mTopPad;
@@ -146,6 +151,7 @@ protected:
 	ci::Rectf						mBoundingArea;
 
 	std::function<void()>			mLayoutCallback;
+	std::function<void()>			mPositionUpdateCallback;
 
 private:
 

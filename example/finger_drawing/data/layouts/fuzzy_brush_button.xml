@@ -11,7 +11,6 @@
 
 		<image name="fuzzy"
 			src="%APP%/data/images/drawing/fuzzy.png"
-			radius="5"
 			color="white"
 			opacity="0.8"
 			center="0.5, 0.5"

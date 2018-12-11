@@ -17,7 +17,7 @@ Ok, sweet! Now we're set up to get notified of incoming events. So how do the ev
 
 By default, all events are global and are sent to all event clients, so use them carefully if your app contains multiple duplicate interfaces for multiple users. For instance, if you had 2 slide viewers in the above case, they would both have been notified of that event and updated their view (or something). One way to handle that is to have some interfaces use lambdas to communicate locally (perhaps from a tap callback?) or use parameters on the Event class. There are a few parameters you can use already on Events:
 
-````c++
+```cpp
 	SlideForwardRequest theRequest;
 	theRequest.mUserId = mPlacematIdOrContentIdOrSomething;
 	theRequest.mEventOrigin = getGlobalLocation();
@@ -30,7 +30,7 @@ By default, all events are global and are sent to all event clients, so use them
 			updateTheViewOrSomething();
 		}
 	});
-````
+```
 
 If you use a layout class to dispatch an event using **on_tap_event** or **on_click_event**, the sprite originator and origin will be automatically applied.
 

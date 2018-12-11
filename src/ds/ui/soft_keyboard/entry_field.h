@@ -4,6 +4,7 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/util/string_util.h>
 
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
@@ -75,6 +76,7 @@ public:
 
 	/// Get the current entered text string
 	const std::wstring					getCurrentText();
+	const std::string					getCurrentTextString() { return ds::utf8_from_wstr(getCurrentText()); }
 
 	/// Set the the current text string. Does not call any callbacks.
 	void								setCurrentText(const std::wstring& curTxtStr);
@@ -102,7 +104,7 @@ public:
 	/// Set a lambda function that's called just after onTextUpdated()
 	void								setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func);
 
-	/// Gets the index of the cursor position in the visible text string (might have weird results when using <span> tags in Text.
+	/// Gets the index of the cursor position in the visible text string (might have weird results when using `<span>` tags in Text.
 	size_t								getCursorIndex(){ return mCursorIndex; }
 	/// Set the index of the cursor. Will bounds check the cursor
 	void								setCursorIndex(const size_t index);

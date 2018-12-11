@@ -16,27 +16,27 @@ class LoadImageService;
 class SpriteEngine;
 
 /**
-* \class ds::ui::PangoFontService
+* \class PangoFontService
 * \brief Loads the fonts on this system and exposes them to Pango text sprites 
 */
 class PangoFontService  {
 
 private:
 	struct DsPangoFontFace {
-		// Normal, Bold, Oblique, Demi Bold Oblique, etc
+		/// Normal, Bold, Oblique, Demi Bold Oblique, etc
 		std::string mFaceName;
-		// The full face name, such as "Gill Sans MT Bold Oblique"
+		/// The full face name, such as "Gill Sans MT Bold Oblique"
 		std::string mDecription;
-		// Numerical identifier of weights, such as 400 for normal, 700 for bold
+		/// Numerical identifier of weights, such as 400 for normal, 700 for bold
 		std::string mWeight;
-		// Pango-reported hash
+		/// Pango-reported hash
 		unsigned int mHash;
 	};
 
 	struct DsPangoFontFamily {
-		// Family name is something like Arial
+		/// Family name is something like Arial
 		std::string mFamilyName;
-		// Faces are specific fonts inside a family
+		/// Faces are specific fonts inside a family
 		std::vector<DsPangoFontFace> mFaces;
 	};
 

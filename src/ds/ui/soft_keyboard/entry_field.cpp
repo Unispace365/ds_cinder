@@ -237,7 +237,7 @@ void EntryField::resetCurrentText() {
 
 void EntryField::pasteText(const std::wstring& insertText) {
 	if(insertText.empty()) return;
-	int postCursorIndex = mCursorIndex + insertText.size();
+	int postCursorIndex = static_cast<int>(mCursorIndex + insertText.size());
 	std::wstring preText = mCurrentText.substr(0, mCursorIndex);
 	std::wstring postText = mCurrentText.substr(mCursorIndex);
 	std::wstringstream wss;
@@ -300,7 +300,7 @@ void EntryField::cursorUpdated() {
 		if(mCursorIndex > getCurrentText().size()) {
 			mCursorIndex = getCurrentText().size();
 		}
-		ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
+		ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(static_cast<int>(mCursorIndex));
 		mCursor->setPosition(cursorPos.x + mEntryFieldSettings.mCursorOffset.x, cursorPos.y + mEntryFieldSettings.mCursorOffset.y);
 	}
 }

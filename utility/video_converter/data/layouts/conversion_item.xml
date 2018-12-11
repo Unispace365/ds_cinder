@@ -1,0 +1,101 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			animate_on="fade; ease:outQuint"
+			overall_alignment="center"
+			layout_size_mode="fixed"
+			size="$_conversion_item:width, $_conversion_item:height"
+		>
+		
+		
+		<sprite name="bottom_line"
+			layout_size_mode="flex"
+					size="$_line:size"
+					opacity="$_line:opacity"
+			color="white"
+			/>
+		
+		<sprite layout_size_mode="stretch" />
+		<layout name="icon_hodler"
+			layout_size_mode="stretch"
+			layout_type="horiz"
+			>
+			<image_button name="image_button"
+				src="%APP%/data/images/media_interface/close_normal.png"
+				scale="0.5, 0.5"
+				layout_v_align="middle"
+				down_image_color="grey"
+				/>
+			<layout name="text_layout"
+				l_pad="$_padding"
+				layout_type="vert"
+				layout_size_mode="stretch"
+				overall_alignment="center"
+				layout_spacing="0.0"
+				>
+				<text name="file"
+					font="app:item"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					animate_on="fade; slide:100; ease:outQuint"
+					b_pad="5.0"
+					/>
+			
+				<text name="path"
+					font="app:metadata"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					text="c:/"
+					animate_on="fade; slide:100; ease:outQuint"
+					/>			
+				<text name="metadata"
+					font="app:metadata"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					text="Checking..."
+					animate_on="fade; slide:100; ease:outQuint"
+					/>
+				<text name="status"
+					font="app:status"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					text="Checking..."
+					t_pad="15.0"
+					animate_on="fade; slide:100; ease:outQuint"
+					/>
+			</layout>
+			
+			<layout name="text_layout"
+					l_pad="$_padding"
+					layout_type="vert"
+					layout_size_mode="flex"
+					overall_alignment="center"
+					shrink_to_children="width"
+					layout_spacing="10.0"
+					>
+					
+				<xml name="play_output" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="center" opacity="0.3333"/>
+					<property name="high_icon" src="%APP%/data/images/media_interface/play.png" scale="1.0, 1.0" position="20, 23" />
+					<property name="high_label" text="Play Output" resize_limit="200"/>
+				</xml>
+				
+				<xml name="show_in_folder" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="center" opacity="0.3333"/>
+					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.0, 0.0" position="50, 23" />
+					<property name="high_label" text="Show In Folder" resize_limit="200" position="100, 8" />
+				</xml>
+			</layout>
+		</layout>
+		
+
+		<sprite layout_size_mode="stretch" />
+	
+	</layout>
+		
+	
+	
+</interface>
+
+

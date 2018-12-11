@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::WorkClient
+ * \class WorkClient
  */
 WorkClient::WorkClient(ui::SpriteEngine& e)
 	: mManager(e.getWorkManager())

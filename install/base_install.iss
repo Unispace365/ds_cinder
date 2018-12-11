@@ -22,7 +22,11 @@ UninstallDisplayIcon={app}\{#APP_EXE}
 
 ; For a lighter-weight install, disable all the wizard pages
 DisableDirPage=yes
+#ifdef USE_EXTRAS
+DisableFinishedPage=no
+#else
 DisableFinishedPage=yes
+#endif
 DisableProgramGroupPage=yes
 DisableReadyMemo=yes
 DisableReadyPage=yes
@@ -50,17 +54,32 @@ Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 #endif
 
-Source: "{#SYSTEMF}/system32/msvcr100.dll"; DestDir: "{app}"
-Source: "{#SYSTEMF}/system32/msvcr120.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
-Source: "{#GST}/bin/*"; DestDir: "{app}/dll"
-Source: "{#GST}/lib/gstreamer-1.0/*"; DestDir: "{app}/dll/gst_plugins"
+Source: "{#GST}/bin/*.dll"; DestDir: "{app}/dll"
+Source: "{#GST}/lib/gstreamer-1.0/*.dll"; DestDir: "{app}/dll/gst_plugins"
+#endif
+
+#ifdef USE_EXTRAS
+Source: "{#DS_PLATFORM}/install/extras_installer.exe"; DestDir: "{app}"
+#endif
+
+#ifdef USE_EXTRAS
+[Run]
+Filename: "{app}\extras_installer.exe"; Description: "Install Extra Apps (Notepad++, 7zip, Google Chrome)"; Flags: postinstall skipifsilent unchecked
 #endif
 
 [Icons]
-Name: "{group}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
-Name: "{commondesktop}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
+Name: "{group}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+#ifndef SKIP_APP_ICON
+Name: "{commondesktop}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+#endif
+#ifdef USE_APPHOST
+Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
+#endif
 
 ; In production will launch the app on system boot
 #ifdef IS_PRODUCTION
@@ -89,5 +108,37 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 ; Set DS_BASEURL if the cms url has been defined
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
 #endif
+#endif
 
+; Check if DS_BASEURL environment variable is already set. If not, request a reboot
+; Only checked if IS_PRODUCTION & CMS_URL are both set
+#ifdef IS_PRODUCTION
+#ifdef CMS_URL
+[Code]
+var
+  CmsUrl: String;
+  NeedsRestart: Boolean;
+
+function NeedRestart(): Boolean;
+begin
+	Log('====== Testing needs restart ======')
+	Log(ExpandConstant('{#CMS_URL}'))
+	Log(CmsUrl);
+	Log('======   end needs restart   ======')
+    if CompareText(CmsUrl, ExpandConstant('{#CMS_URL}')) = 0 then
+        Result := False;
+    Result := True;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'DS_BASEURL', CmsUrl)
+
+  Result := True;
+end;
+
+[Files]
+; ^ This is a hack so that comments in the project installer after the include
+;   don't break the code block :eyeroll:
+#endif
 #endif

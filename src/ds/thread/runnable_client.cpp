@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::RunnableClient
+ * \class RunnableClient
  */
 RunnableClient::RunnableClient(ui::SpriteEngine& e, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& h)
 	: inherited(e)
@@ -44,7 +44,7 @@ void RunnableClient::handleResult(std::unique_ptr<WorkRequest>& wr)
 }
 
 /**
- * \class ds::RunnableClient::Request
+ * \class Request
  */
 RunnableClient::Request::Request(const void* clientId)
 	: WorkRequest(clientId)

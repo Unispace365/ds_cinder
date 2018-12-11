@@ -13,7 +13,7 @@ class Sprite;
 class SpriteEngine;
 
 /**
- * \class ds::ui::SpriteAnim
+ * \class SpriteAnim
  * A utility to class to provide animation access to a single
  * sprite property.
  *
@@ -27,11 +27,11 @@ class SpriteEngine;
 template<typename T>
 class SpriteAnim {
   public:
-	SpriteAnim( // Provide access to the Anim<> object that holds the value we will animate
+	SpriteAnim( /// Provide access to the Anim<> object that holds the value we will animate
 				const std::function<ci::Anim<T>&(Sprite&)>& getAnim,
-				// Answer the current value of the property we will animate
+				/// Answer the current value of the property we will animate
 				const std::function<T(Sprite&)>& getStartValue,
-				// Assign the new property value
+				/// Assign the new property value
 				const std::function<void(const T&, Sprite&)>& assignValue)
 		: mGetAnim(getAnim)
 		, mGetStartValue(getStartValue)
@@ -51,7 +51,7 @@ class SpriteAnim {
 };
 
 /**
- * \class ds::ui::SpriteAnimatable
+ * \class SpriteAnimatable
  * Provide conveniences for the common properties that can
  * be animated on a sprite.
  */
@@ -133,11 +133,31 @@ public:
 
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
-	void									tweenAnimateOn(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f);
+	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param delay		Delay before starting animation
+	/// \param deltaDelay	Extra delay to add for each animation
+	/// \param finishFn		Optional callback to be run when all animations complete
+	/// \return Duration of the entire animation (including any recursion)
+	float									tweenAnimateOn(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f, const std::function<void(void)>& finishFn = nullptr);
+
+	/// Runs any script set as the animate off script. Optionally runs through any children sprites and runs those as well.
+	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
+	/// \param recursive	Should tweenAnimateOn be called recursively on children
+	/// \param delay		Delay before starting animation
+	/// \param deltaDelay	Extra delay to add for each animation
+	/// \param finishFn		Optional callback to be run when all animations complete
+	/// \return Duration of the entire animation (including any recursion)
+	float									tweenAnimateOff(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f, const std::function<void(void)>& finishFn = nullptr);
 
 	/// Sets the script to use in the above tweenAnimateOn() function
 	void									setAnimateOnScript(const std::string& animateOnScript);
+	/// Gets the script to use in the above tweenAnimateOn() function
 	const std::string&						getAnimateOnScript(){ return mAnimateOnScript; }
+
+	/// Sets the script to use in the above tweenAnimateOff() function
+	void									setAnimateOffScript(const std::string& animateOffScript);
+	/// Gets the script to use in the above tweenAnimateOff() function
+	const std::string&						getAnimateOffScript(){ return mAnimateOffScript; }
 
 	/// Sets the targets for animate on. This only applies to fade, grow and slide. The intent here is to make tweenAnimateOn() reliable through multiple calls at any time.
 	void									setAnimateOnTargets();
@@ -148,7 +168,7 @@ public:
 	void									clearAnimateOnTargets(const bool recursive = false);
 
 	/** Parse the string as a script to run a few animations.
-		Syntax: <type>:<valueX, valueY, valueZ>;
+		Syntax: `<type>:<valueX, valueY, valueZ>;`
 		Special params: 
 			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
 			duration: in seconds
@@ -160,7 +180,11 @@ public:
 			fade: tweens the opacity to the cached opacity and starts at the supplied value
 		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
 		*/
-	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+	float									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+	float									runAnimationOffScript(const std::string& animScript, const float addedDelay = 0.0f);
+
+	/// Run an animation script from current values to animateOnTargets OR from targets to  current/off state (reversible)
+	float									runReversibleAnimationScript(const std::string& animScript, const float addedDelay = 0.f, const bool isReverse = false);
 
 	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);
 	void									parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays);
@@ -183,6 +207,8 @@ private:
 	Sprite&									mOwner;
 	SpriteEngine&							mEngine;
 
+	std::string								mAnimateOffScript;
+
 	std::string								mAnimateOnScript;
 	bool									mAnimateOnTargetsSet;
 	ci::vec3								mAnimateOnScaleTarget;
@@ -200,9 +226,16 @@ private:
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
 
-	// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
-	// Cleared automatically on destruction
+	/// CueRef for animate on/off finshedCallback
+	ci::CueRef			mAnimScriptCueRef;
+
+	/// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
+	/// Cleared automatically on destruction
 	ci::CueRef			mDelayedCallCueRef;
+
+	/// Store multiple CueRefs from the cinder timeline in the case of a multi anim script
+	/// Cleared automatically on destruction;
+	std::vector<ci::CueRef> mMultiDelayedCallCueRefs;
 
 };
 

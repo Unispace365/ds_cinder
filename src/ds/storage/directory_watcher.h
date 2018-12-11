@@ -16,7 +16,7 @@
 namespace ds {
 
 /**
- * \class ds::DirectoryWatcher
+ * \class DirectoryWatcher
  */
 class DirectoryWatcher : public ds::AutoUpdate {
 // Change event
@@ -31,11 +31,11 @@ public:
 	DirectoryWatcher(ds::ui::SpriteEngine&);
 	~DirectoryWatcher();
 
-	// NOTE:  addPath is initialization only.  As soon as you start, don't use it.
-	// Why?  I guess I'm cheap that way.  It's not currently thread safe.
+	/// NOTE:  addPath is initialization only.  As soon as you start, don't use it.
+	/// Why?  I guess I'm cheap that way.  It's not currently thread safe.
 	void						addPath(const std::string& path);
 
-	// Must be called while the directory watcher is stopped
+	/// Must be called while the directory watcher is stopped
 	void						clearPaths();
 
 	void						start();
@@ -48,13 +48,13 @@ private:
 
 class Waiter : public Poco::Runnable {
 public:
-	// Directories I'm watching
+	/// Directories I'm watching
 	std::vector<std::string>	mPaths;
 
 public:
 	Waiter(const Poco::AtomicCounter&, ds::EventNotifier&);
 
-	// The platform implementation is responsible for suppling a run().
+	/// The platform implementation is responsible for suppling a run().
 	virtual void				run();
 	void						update();
 
@@ -67,10 +67,10 @@ private:
 	const Poco::AtomicCounter&	mStop;
 
 	std::vector<std::string>	mLocalPaths;
-	// Shared between worker and main threads.
+	/// Shared between worker and main threads.
 	Poco::Mutex					mLock;
 	std::vector<std::string>	mChangedPaths;
-	// Only call from the main thread
+	/// Only call from the main thread
 	ds::EventNotifier&			mNotifier;
 };
 
@@ -79,7 +79,7 @@ private:
 	Poco::Thread				mThread;
 	Waiter						mWaiter;
 
-	// The platform implementation is responsible for waking up the thread.
+	/// The platform implementation is responsible for waking up the thread.
 	void						wakeup();
 };
 

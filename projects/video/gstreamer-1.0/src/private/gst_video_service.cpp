@@ -3,10 +3,10 @@
 #include "private/gst_video_service.h"
 
 #include <ds/app/engine/engine.h>
-#include <ds/ui/sprite/gst_video.h>
 #include <ds/debug/logger.h>
-#include <ds/util/string_util.h>
+#include <ds/ui/sprite/gst_video.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/util/string_util.h>
 
 #include <gst/gst.h>
 #include "gst/gstplugin.h"
@@ -15,83 +15,69 @@
 namespace ds {
 namespace gstreamer {
 
-static ds::gstreamer::EnvCheck  ENV_CHECK;
+static ds::gstreamer::EnvCheck ENV_CHECK;
 
-GstVideoService::GstVideoService(ds::Engine& e) 
-	: mEngine(e)
-	, mValidInstall(false)
-{
-	mEngine.registerSpriteImporter("video", [this](ds::ui::SpriteEngine& engine)->ds::ui::Sprite*{
-		return new ds::ui::GstVideo(mEngine);
-	});
+GstVideoService::GstVideoService(ds::Engine& e)
+  : mEngine(e)
+  , mValidInstall(false) {
+	mEngine.registerSpriteImporter(
+		"video", [this](ds::ui::SpriteEngine& engine) -> ds::ui::Sprite* { return new ds::ui::GstVideo(mEngine); });
 
-	mEngine.registerSpritePropertySetter("video_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){
-		std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
-		ds::ui::GstVideo* gstVideo = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
-		if(!gstVideo){
-			DS_LOG_WARNING("Tried to set the property video_src on a non-GstVideo sprite");
-			return;
-		}
-
-		gstVideo->loadVideo(absPath);
-		
-	});
-
-	mEngine.registerSpritePropertySetter("stream_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){
-		auto streamTokens = ds::split(theValue, "; ", true);
-		ds::ui::GstVideo* gstVideo = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
-		if(!gstVideo){
-			DS_LOG_WARNING("Tried to set the property stream_src on a non-GstVideo sprite");
-			return;
-		}
-		if(streamTokens.size() < 3){
-			DS_LOG_WARNING("Not enough parameters to load a video stream from xml parameters.");
-		} else {
-			std::string pipeline = streamTokens[0];
-			const float widdy = ds::string_to_float(streamTokens[1]);
-			const float hiddy = ds::string_to_float(streamTokens[2]);
-			if(pipeline.empty() || widdy < 1 || hiddy < 1){
-				DS_LOG_WARNING("Incorrect parameters for xml-loaded video stream. pipeline=" << pipeline << ", w=" << widdy << ", h=" << hiddy);
-			} else {
-				gstVideo->startStream(pipeline, widdy, hiddy);
+	mEngine.registerSpritePropertySetter(
+		"video_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+			std::string		  absPath  = ds::filePathRelativeTo(fileReferrer, theValue);
+			ds::ui::GstVideo* gstVideo = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
+			if (!gstVideo) {
+				DS_LOG_WARNING("Tried to set the property video_src on a non-GstVideo sprite");
+				return;
 			}
-		}
-	});
 
-	// loop, and other stuff
+			gstVideo->loadVideo(absPath);
+		});
+
+	mEngine.registerSpritePropertySetter(
+		"stream_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
+			auto			  streamTokens = ds::split(theValue, "; ", true);
+			ds::ui::GstVideo* gstVideo	 = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
+			if (!gstVideo) {
+				DS_LOG_WARNING("Tried to set the property stream_src on a non-GstVideo sprite");
+				return;
+			}
+			if (streamTokens.size() < 3) {
+				DS_LOG_WARNING("Not enough parameters to load a video stream from xml parameters.");
+			} else {
+				std::string pipeline = streamTokens[0];
+				const float widdy	= ds::string_to_float(streamTokens[1]);
+				const float hiddy	= ds::string_to_float(streamTokens[2]);
+				if (pipeline.empty() || widdy < 1 || hiddy < 1) {
+					DS_LOG_WARNING("Incorrect parameters for xml-loaded video stream. pipeline=" << pipeline << ", w=" << widdy
+																								 << ", h=" << hiddy);
+				} else {
+					gstVideo->startStream(pipeline, widdy, hiddy);
+				}
+			}
+		});
 }
 
-GstVideoService::~GstVideoService() {
-}
+GstVideoService::~GstVideoService() {}
 
-bool GstVideoService::getValidInstall(){
-	return mValidInstall;
-}
+bool GstVideoService::getValidInstall() { return mValidInstall; }
 
-const std::string& GstVideoService::getErrorMessage(){
-	return mErrorMessage;
-}
+const std::string& GstVideoService::getErrorMessage() { return mErrorMessage; }
 
-void gstLogFunction(GstDebugCategory* category,
-					GstDebugLevel level,
-					const gchar *file,
-					const gchar *function,
-					gint line,
-					GObject *object,
-					GstDebugMessage *message,
-					gpointer user_data) {
-	DS_LOG_VERBOSE(3, "GST_DEBUG " << level << " "  << file << " " << function << " " << gst_debug_message_get(message) );
+void gstLogFunction(GstDebugCategory* category, GstDebugLevel level, const gchar* file, const gchar* function, gint line,
+					GObject* object, GstDebugMessage* message, gpointer user_data) {
+	DS_LOG_VERBOSE(3, "GST_DEBUG " << level << " " << file << " " << function << " " << gst_debug_message_get(message));
 }
 
 void GstVideoService::start() {
-	std::stringstream ss;
-	ss << GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO;
-	std::string gstVersion = ss.str();
+	auto gstVersion = std::string(std::to_string(GST_VERSION_MAJOR) + "." + std::to_string(GST_VERSION_MINOR) + "." +
+								  std::to_string(GST_VERSION_MICRO));
 
 #ifdef _WIN32
 	// Only need to add Gstreamer bin-path in Windows
 	// Add the primary dll's to the PATH variable
-	if(!ENV_CHECK.addGStreamerBinPath()){
+	if (!ENV_CHECK.addGStreamerBinPath()) {
 		DS_LOG_WARNING("Couldn't find a binary directory for GStreamer! Install GStreamer version " << gstVersion);
 		mValidInstall = false;
 		return;
@@ -100,8 +86,8 @@ void GstVideoService::start() {
 #endif
 	// Initialization must happen after we know about the bin path, or we'll get endless warnings about missing dll's
 	GError* pError;
-	int success = gst_init_check(NULL, NULL, &pError);
-	if(success == FALSE){
+	int		success = gst_init_check(NULL, NULL, &pError);
+	if (success == FALSE) {
 		std::stringstream errorStream;
 		errorStream << "GStreamerWrapper: failed to initialize GStreamer: " << pError->message;
 		std::string errorStr = errorStream.str();
@@ -111,11 +97,10 @@ void GstVideoService::start() {
 		return;
 	}
 
-	//gst_update_registry();
+	// gst_update_registry();
 
 	// Set the plugin path using GStreamer's registry
 	DS_LOG_INFO("Initialized GStreamer version " << gstVersion);
-
 
 	GstRegistry* registery;
 	registery = gst_registry_get();
@@ -146,20 +131,20 @@ void GstVideoService::start() {
 	g_list_free(list);
 	*/
 
-	//gst_registry_load
+	// gst_registry_load
 	auto playbinPlugin = gst_registry_find_plugin(registery, "videoconvert");
-	if(playbinPlugin){
+	if (playbinPlugin) {
 		std::string pluginVersion = gst_plugin_get_version(playbinPlugin);
-		if(pluginVersion != gstVersion){
-			DS_LOG_WARNING("Plugin version and compiled GStreamer version don't match. You have version " << pluginVersion << ". If you experience problems, install gstreamer " << gstVersion);
+		if (pluginVersion != gstVersion) {
+			DS_LOG_WARNING("Plugin version and compiled GStreamer version don't match. You have version "
+						   << pluginVersion << ". If you experience problems, install gstreamer " << gstVersion);
 		}
 		gst_object_unref(playbinPlugin);
 	}
 
-	if(ds::getLogger().hasVerboseLevel(3)) {
+	if (ds::getLogger().hasVerboseLevel(3)) {
 		gst_debug_set_active(true);
-		gst_debug_set_threshold_from_string("*:3", true); // 4 for gstreamer is the threshold for a TON of stuff
-		//gst_debug_set_threshold_from_string("gl*:8", true); // 4 for gstreamer is the threshold for a TON of stuff
+		gst_debug_set_threshold_from_string("*:3", true);  // 4 for gstreamer is the threshold for a TON of stuff
 		gst_debug_add_log_function(*gstLogFunction, NULL, NULL);
 	}
 
@@ -167,5 +152,5 @@ void GstVideoService::start() {
 }
 
 
-} // namespace web
-} // namespace ds
+}  // namespace gstreamer
+}  // namespace ds

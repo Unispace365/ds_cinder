@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::TouchTranslator
+ * \class TouchTranslator
  * \brief Translate coordinates from screen space to world space.
  */
 class TouchTranslator {

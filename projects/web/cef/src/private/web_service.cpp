@@ -43,7 +43,7 @@ WebCefService::WebCefService(ds::Engine& e)
 			return;
 		}
 
-		webby->setUrl(theValue);
+		webby->setUrl(ds::Environment::expand(theValue));
 	});
 
 
@@ -90,8 +90,8 @@ void WebCefService::start() {
 	// I couldn't actually get this working. You're supposed to copy the manifest.json and widevine dll's from your chrome directory
 	// But for whatever reason, Netflix and Hulu still complain about missing stuff.
 	// Version mismatch? I dunno. Anyways, this is here.
-	CefString thePath = CefString(ds::Environment::expand("%APP%").c_str());
-	CefRegisterWidevineCdm(thePath, NULL);
+	//CefString thePath = CefString(ds::Environment::expand("%APP%").c_str());
+	//CefRegisterWidevineCdm(thePath, NULL);
 
 #ifdef _WIN32
 	CefMainArgs main_args(GetModuleHandle(NULL));
@@ -143,6 +143,10 @@ void WebCefService::start() {
 	// This requires cefsimple.exe to be in the current working directory
 	const char* path = "cefsimple.exe";
 	CefString(&settings.browser_subprocess_path).FromASCII(path);
+
+	const std::string thePath = ds::Environment::expand("%LOCAL%/cache/browser_cache/");
+	const char* cachePath = thePath.c_str();
+	CefString(&settings.cache_path).FromASCII(cachePath);
 
 	CefInitialize(main_args, settings, mCefSimpleApp.get(), NULL);
 
@@ -249,6 +253,13 @@ void WebCefService::loadUrl(const int browserId, const std::string& newUrl){
 		handler->loadUrl(browserId, newUrl);
 	}
 
+}
+
+void WebCefService::executeJavascript(const int browserId, const std::string& theJS, const std::string& debugUrl) {
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler) {
+		handler->executeJavascript(browserId, theJS, debugUrl);
+	}
 }
 
 void WebCefService::requestBrowserResize(const int browserId, const ci::ivec2 newSize){

@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class ds::AutoDraw
+ * \class AutoDraw
  */
 AutoDraw::AutoDraw(ds::ui::SpriteEngine& se)
 		: mOwner(se.getService<AutoDrawService>("AUTODRAW")) {
@@ -28,7 +28,7 @@ AutoDraw::~AutoDraw() {
 }
 
 /**
- * \class ds::AutoDrawService
+ * \class AutoDrawService
  */
 AutoDrawService::AutoDrawService() {
 	mUpdate.reserve(16);

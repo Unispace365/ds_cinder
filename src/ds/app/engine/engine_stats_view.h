@@ -17,7 +17,7 @@ namespace ds {
 class Engine;
 
 /**
- * \class ds::EngineStatsView
+ * \class EngineStatsView
  * \brief Display basic stats.
  */
 class EngineStatsView : public ds::ui::Sprite {
@@ -39,7 +39,7 @@ public:
 private:
 	ds::Engine&					mEngine;
 	ds::EventClient				mEventClient;
-	// UI
+	/// UI
 	ds::ui::Sprite*				mBackground;
 	ds::ui::Text*				mText;
 	ds::ui::AppHostStatsView*	mAppHostStats;

@@ -15,7 +15,7 @@ namespace ds {
 namespace net {
 
 /**
- * \class ds::TcpClient
+ * \class TcpClient
  * \brief Feed clients information about changes on a TCP socket.
  */
 class TcpClient : public ds::AutoUpdate {
@@ -30,22 +30,22 @@ public:
 	};
 
 public:
-	// Utility function shared between client and server
+	/// Utility function shared between client and server
 	static void						sendBytes(Poco::Net::StreamSocket&, const std::string &data);
 
-	// If there's a terminator character, then I will split input by the terminator,
-	// and hold onto anything that's missing it.
+	/// If there's a terminator character, then I will split input by the terminator,
+	/// and hold onto anything that's missing it.
 	TcpClient(	ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&,
 				const Options& opt = Options(), const std::string &terminator = "");
 	~TcpClient();
 
 	void							add(const std::function<void(const std::string&)>&);
 
-	// Send data to the server
+	/// Send data to the server
 	void							send(const std::string& data);
 
 protected:
-	// Flush any change notifications from the calling thread.
+	/// Flush any change notifications from the calling thread.
 	virtual void					update(const ds::UpdateParams&);
 
 private:
@@ -68,8 +68,8 @@ private:
 
 		const Poco::Net::SocketAddress	mAddress;
 		const Options					mOptions;
-		// If there's a terminator char, I'll hold onto any incoming
-		// data without it.
+		/// If there's a terminator char, I'll hold onto any incoming
+		/// data without it.
 		const std::string				mTerminator;
 		std::string						mWaiting;
 	};

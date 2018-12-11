@@ -161,6 +161,7 @@ public:
 										   CefRefPtr<CefJSDialogCallback> callback,
 										   bool& suppress_message) {
 		suppress_message = true;
+		DS_LOG_INFO("JS Dialog: " << message_text.ToString() << " from: " << origin_url.ToString());
 		return false;
 	}
 
@@ -197,6 +198,9 @@ public:
 
 	// Loads a new URL in the specified browser's main frame
 	void 					loadUrl(const int browserId, const std::string& newUrl);
+
+	// Execute JavaScript on this browser
+	void 					executeJavascript(const int browserId, const std::string& theJS, const std::string& sourceUrl);
 
 	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
 	void 					requestBrowserResize(const int browserId, const ci::ivec2 newSize);

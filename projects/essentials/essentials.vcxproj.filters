@@ -58,6 +58,9 @@
     <Filter Include="src\ds\math\fparser">
       <UniqueIdentifier>{1005bb4f-54cb-421f-b9c2-a9924fc84764}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\service">
+      <UniqueIdentifier>{88b6017e-05b6-4efd-b55f-2a53fec74893}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -149,6 +152,15 @@
     </ClCompile>
     <ClCompile Include="src\ds\math\fparser.cc">
       <Filter>src\ds\math\fparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\smart_scroll_list.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\util\text_model.cpp">
+      <Filter>src\ds\ui\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\service\weather_service.cpp">
+      <Filter>src\ds\service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -253,6 +265,15 @@
     </ClInclude>
     <ClInclude Include="src\ds\math\fparser.hh">
       <Filter>src\ds\math\fparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\smart_scroll_list.h">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\util\text_model.h">
+      <Filter>src\ds\ui\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\service\weather_service.h">
+      <Filter>src\ds\service</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

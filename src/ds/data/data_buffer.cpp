@@ -92,7 +92,7 @@ void DataBuffer::add<std::string>(const std::string &s){
 
 template <>
 void DataBuffer::add<std::wstring>(const std::wstring &ws){
-	unsigned size = (ws.size())*sizeof(wchar_t);
+	unsigned size = (static_cast<unsigned int>(ws.size()))*sizeof(wchar_t);
 	add(size);
 	mStream.write((const char *)(ws.c_str()), size);
 }

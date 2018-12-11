@@ -30,6 +30,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mDefaultSize(engine.getWorldWidth(), engine.getWorldHeight())
 	, mLayoutCallback(nullptr)
 	, mAutoSendToFront(true)
+	, mPositionUpdateCallback(nullptr)
 {
 
 	mLayoutFixedAspect = true;
@@ -60,6 +61,8 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	}
 
 	if(mAnimating) return;
+
+	if(mPositionUpdateCallback) mPositionUpdateCallback();
 
 	activatePanel();
 
@@ -95,7 +98,8 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 }
 
 void BasePanel::onUpdateServer(const ds::UpdateParams &updateParams){
-	if(mMomentum.recentlyMoved() && !mAnimating){
+	if(mMomentum.recentlyMoved() && !mAnimating) {
+		if(mPositionUpdateCallback) mPositionUpdateCallback();
 		checkBounds();
 	}
 }
@@ -219,6 +223,8 @@ void BasePanel::setSizeLimits(){
 
 void BasePanel::checkBounds(const bool immediate) {
 
+	if(mPositionUpdateCallback) mPositionUpdateCallback();
+
 	if(mAnimating && !immediate) return;
 
 	// Constrain the bounding box of the sprite to mBoundingArea
@@ -329,6 +335,10 @@ void BasePanel::activatePanel() {
 		sendToFront();
 	}
 	onPanelActivated();
+}
+
+void BasePanel::setPositionUpdatedCallback(std::function<void()> posUpdateCallback) {
+	mPositionUpdateCallback = posUpdateCallback;
 }
 
 void BasePanel::tweenStarted(){

@@ -10,7 +10,7 @@
 namespace ds {
 
 /**
- * \class ds::SelectPicking
+ * \class SelectPicking
  * Useful reference:
  * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
  */
@@ -84,7 +84,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) 
 }
 
 /**
- * \class ds::SelectPicking::Hit
+ * \class Hit
  */
 SelectPicking::Hit::Hit()
 		: mId(-1)

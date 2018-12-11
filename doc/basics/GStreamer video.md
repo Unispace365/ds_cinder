@@ -87,22 +87,22 @@ Use this on a file (using the file:///[path] syntax) to display info about the f
 
 In ds_cinder, the most common use for GStreamer is to play video files located on your harddrive. If you just want raw video playback without a video interface (play/pause button, scrub bar, volume control), use the GstVideo sprite. This is the same as using ds::ui::Video. Create a new video sprite, load the video, hit play, add the sprite to a parent, and you're good to go:
 
-````
+```cpp
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->setLooping(true);
 	mVideo->loadVideo(mediaPath);
 	addChildPtr(mVideo);
-````
+```
 	
 ### VideoPlayer and VideoInterface
 
 VideoPlayer is a convenience that sets up a video for you and optionally adds a video interface (play/pause button, scrub bar, volume control). Use VideoPlayer if you are ONLY playing videos and want user control.
 
-````
+```cpp
 	mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mVideoPlayer);
 	mVideoPlayer->setMedia(absoluteMediaPath);
-````
+```
 
 ### MediaPlayer
 

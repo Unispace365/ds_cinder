@@ -22,19 +22,19 @@ public:
 	template <typename T>
 	bool canRead();
 
-	// function to add raw data no size added.
+	/// function to add raw data no size added.
 	void addRaw(const char *b, unsigned size);
-	// function to read raw data no size will be read.
+	/// function to read raw data no size will be read.
 	bool readRaw(char *b, unsigned size);
 
-	// will write size when writing data.
+	/// will write size when writing data.
 	void add(const char *b, unsigned size);
 	void add(const char *cs);
 	void add(const wchar_t *cs);
 	template <typename T>
 	void add(const T &t);
 
-	// will read size from buffer and only read if size is available.
+	/// will read size from buffer and only read if size is available.
 	bool read(char *b, unsigned size);
 	template <typename T>
 	T read();

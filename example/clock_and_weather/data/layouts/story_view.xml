@@ -1,0 +1,27 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="horiz"
+			overall_alignment="center"
+			enable="true"
+			size="$_world_size"
+		>
+		
+		<background_view	/>
+		<clock_view
+			layout_h_align="center"
+			layout_v_align="middle"
+			pad_all="100" 
+			/>
+		<weather_view  
+			layout_h_align="center"
+			layout_v_align="middle"
+		/>
+			
+			
+	</layout>
+	
+	
+</interface>
+
+

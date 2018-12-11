@@ -31,7 +31,7 @@ class World;
 extern const int		WORLD_CATEGORY_BIT;
 
 /**
- * \class ds::physics::SpriteBody
+ * \class SpriteBody
  * \brief This serves as the sprite entry point to the physics system.
  * Simply including this in a sprite subclass and calling create() is
  * enough to enable physics on a sprite.

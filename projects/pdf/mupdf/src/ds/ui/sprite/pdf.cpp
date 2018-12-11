@@ -46,7 +46,7 @@ const char			PDF_CURPAGE_ATT		= 81;
 }
 
 /**
- * \class ds::ui::sprite::Pdf static
+ * Pdf static
  */
 void Pdf::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
@@ -57,7 +57,7 @@ void Pdf::installAsClient(ds::BlobRegistry& registry) {
 }
 
 /**
- * \class ds::ui::sprite::Pdf
+ * Pdf
  */
 Pdf& Pdf::makePdf(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::Pdf>([&e]()->ds::ui::Pdf*{ return new ds::ui::Pdf(e); }, parent);
@@ -277,7 +277,7 @@ void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 }
 
 /**
- * \class ds::ui::sprite::Pdf
+ * \class Pdf
  */
 Pdf::ResHolder::ResHolder(ds::ui::SpriteEngine& e)
 	: mService(e.getService<ds::pdf::Service>("pdf"))

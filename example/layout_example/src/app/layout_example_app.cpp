@@ -227,5 +227,6 @@ void layout_example::fileDrop(ci::app::FileDropEvent event){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP(example::layout_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(example::layout_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })
 

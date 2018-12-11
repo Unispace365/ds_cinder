@@ -35,7 +35,7 @@ const std::string demangleTypeName(const std::string& n) {
 }
 
 /**
- * \class ds::Event
+ * \class Event
  */
 Event::Event()
 	: mWhat(0)

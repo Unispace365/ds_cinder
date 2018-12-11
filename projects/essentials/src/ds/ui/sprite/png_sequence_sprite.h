@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::PngSequenceSprite
+* \class PngSequenceSprite
 */
 class PngSequenceSprite : public ds::ui::Sprite {
 public:

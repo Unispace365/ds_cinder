@@ -8,7 +8,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::TouchEvent
+* \class TouchEvent
 * \brief Wraps ci::app::TouchEvent to provide additional data members
 */
 class TouchEvent : public ci::app::TouchEvent {

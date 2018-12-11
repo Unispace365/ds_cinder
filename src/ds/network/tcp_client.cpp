@@ -14,7 +14,7 @@ namespace ds {
 namespace net {
 
 /**
- * \class ds::TcpClient
+ * \class TcpClient
  */
 TcpClient::TcpClient(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address,
 						const Options& opt, const std::string &terminator)
@@ -122,7 +122,7 @@ void TcpClient::sendBytes(Poco::Net::StreamSocket &socket, const std::string &d)
 }
 
 /**
- * \class ds::NodeWatcher::Loop
+ * \class Loop
  */
 TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const Options& opt, const std::string &terminator)
 		: mAbort(false)
@@ -249,7 +249,7 @@ void TcpClient::Loop::update(const std::string& str) {
 }
 
 /**
- * \class ds::NodeWatcher::Options
+ * \class Options
  */
 TcpClient::Options::Options(const double poll_rate, const int receive_buffer_size, const int send_buffer_size)
 		: mPollRate(poll_rate)

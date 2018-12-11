@@ -26,40 +26,42 @@ namespace ui {
 
 
 /**
-* \class ds::ui::Text
-*	A sprite for displaying text. 
+*	\class Text
+*	\brief A sprite for displaying text.
 *	Uses Pango and Cairo for layout and rendering instead of the previous OGLFT implementation
 *	The current implementation requires fonts to be installed system-wide. (there seems to be a bug in fontconfig/pango loading a font from a file)
 *	You can specify some simple markup for pango text. See this page: http://www.gtk.org/api/2.6/pango/PangoMarkupFormat.html
-*		Basics: <markup> root document node (optional)
-				<span foreground='blue' style='italic'>Some blue italic text</span> (NOTE: you must use single 'quotes' and not double "quotes" like the documentation. Double quotes = nothing shows up)
-					Span attributes: 
-						font_desc (such as 'Sans Italic 12')
-						font_family or face (such as 'Arial' or 'Sans')
-						size ('xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' or 'smaller' or 'larger')
-						style (One of 'normal', 'oblique', 'italic')
-						weight (One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy', or a numeric weight like 400 for normal or 700 for bold)
-						variant ('normal' or 'smallcaps')
-						stretch (One of 'ultracondensed', 'extracondensed', 'condensed', 'semicondensed', 'normal', 'semiexpanded', 'expanded', 'extraexpanded', 'ultraexpanded')
-						foreground (An RGB color specification such as '#00FF00' or a color name such as 'red')
-						background (An RGB color specification such as '#00FF00' or a color name such as 'red')
-						underline (One of 'single', 'double', 'low', 'none')
-						underline_color (The color of underlines; an RGB color specification such as '#00FF00' or a color name such as 'red')
-						rise (Vertical displacement, in 10000ths of an em. Can be negative for subscript, positive for superscript.)
-						strikethrough ('true' or 'false' whether to strike through the text)
-						strikethrough_color (The color of strikethrough lines; an RGB color specification such as '#00FF00' or a color name such as 'red')
-						fallback ('true' or 'false' whether to enable fallback. If disabled, then characters will only be used from the closest matching font on the system. No fallback will be done to other fonts on the system that might contain the characters in the text. Fallback is enabled by default. Most applications should not disable fallback.)
-						lang (A language code, indicating the text language)
-						letter_spacing (in 1024ths of a point)
-				<b> bold
-				<big> bigger
-				<i> italic
-				<s> strikethrough
-				<sub> Subscript
-				<sup> Superscript
-				<small> smaller
-				<tt> monospace font
-				<u> underline
+*	\code
+*		Basics: `<markup>` root document node (optional)
+*				`<span foreground='blue' style='italic'>Some blue italic text</span>` (NOTE: you must use single 'quotes' and not double "quotes" like the documentation. Double quotes = nothing shows up)
+*					Span attributes: 
+*						font_desc (such as 'Sans Italic 12')
+*						font_family or face (such as 'Arial' or 'Sans')
+*						size ('xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' or 'smaller' or 'larger')
+*						style (One of 'normal', 'oblique', 'italic')
+*						weight (One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy', or a numeric weight like 400 for normal or 700 for bold)
+*						variant ('normal' or 'smallcaps')
+*						stretch (One of 'ultracondensed', 'extracondensed', 'condensed', 'semicondensed', 'normal', 'semiexpanded', 'expanded', 'extraexpanded', 'ultraexpanded')
+*						foreground (An RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						background (An RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						underline (One of 'single', 'double', 'low', 'none')
+*						underline_color (The color of underlines; an RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						rise (Vertical displacement, in 10000ths of an em. Can be negative for subscript, positive for superscript.)
+*						strikethrough ('true' or 'false' whether to strike through the text)
+*						strikethrough_color (The color of strikethrough lines; an RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						fallback ('true' or 'false' whether to enable fallback. If disabled, then characters will only be used from the closest matching font on the system. No fallback will be done to other fonts on the system that might contain the characters in the text. Fallback is enabled by default. Most applications should not disable fallback.)
+*						lang (A language code, indicating the text language)
+*						letter_spacing (in 1024ths of a point)
+*				`<b>` bold
+*				`<big>` bigger
+*				`<i>` italic
+*				`<s>` strikethrough
+*				`<sub>` Subscript
+*				`<sup>` Superscript
+*				`<small>` smaller
+*				`<tt>` monospace font
+*				`<u>` underline
+*	\endcode
 */
 
 class Text : public ds::ui::Sprite {
@@ -79,7 +81,11 @@ public:
 	/// Resize limit is the amount of width the text will wrap at and the height that text will no longer be rendered
 	float						getResizeLimitWidth() const;
 	float						getResizeLimitHeight() const;
-	Text&						setResizeLimit(const float width = 0, const float height = 0);
+	Text&						setResizeLimit(const float width = 0, const float height = -1.0f);
+
+	/// Should this sprite shrink to the bounds of the texture (as opposed to shrinking to the resize_limit)
+	bool						getShrinkToBounds() const;
+	void						setShrinkToBounds(const bool shrinkToBounds = false);
 
 	/// This is a convenience that can set all the text attributes at once
 	void						setTextStyle(std::string font = "Sans", double size = 12.0f, ci::ColorA color = ci::Color::black(), Alignment::Enum alignment = Alignment::kLeft); 
@@ -173,12 +179,12 @@ public:
 
 protected:
 
-	// puts the layout into pango, updates any layout stuff, and measures the result
-	// This is a pre-requisite for drawPangoText().
+	/// puts the layout into pango, updates any layout stuff, and measures the result
+	/// This is a pre-requisite for drawPangoText().
 	bool measurePangoText();
 
-	// Renders text into the texture.
-	// Returns true if the texture was actually updated, false if nothing had to change
+	/// Renders text into the texture.
+	/// Returns true if the texture was actually updated, false if nothing had to change
 	void renderPangoText();
 
 private:
@@ -189,6 +195,7 @@ private:
 	std::string					mText;
 	std::string					mProcessedText; // stores text after newline filtering
 	bool						mProbablyHasMarkup;
+	bool						mShrinkToBounds;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
 
@@ -204,23 +211,29 @@ private:
 	float						mLeading;
 	float						mLetterSpacing;
 
-	// Info about the text layout
+	/// Info about the text layout
 	bool						mWrappedText;
 	int							mNumberOfLines;
 
-	// Internal flags for state invalidation
-	// Used by measure and render methods
+	/// Internal flags for state invalidation
+	/// Used by measure and render methods
 	bool						mNeedsFontUpdate;
 	bool 						mNeedsMeasuring;
 	bool 						mNeedsTextRender;
 	bool 						mNeedsFontOptionUpdate;
 	bool 						mNeedsMarkupDetection;
 
-	// simply stored to check for change across renders
+	/// simply stored to check for change across renders
 	int 						mPixelWidth;
 	int							mPixelHeight;
 
-	// Pango references
+	/// Offsets for rendering to cairo surface
+	int							mPixelOffsetX;
+	int							mPixelOffsetY;
+	/// Offset for rendering to the screen
+	ci::vec2					mRenderOffset;
+
+	/// Pango references
 	PangoContext*				mPangoContext;
 	PangoLayout*				mPangoLayout;
 	cairo_font_options_t*		mCairoFontOptions;

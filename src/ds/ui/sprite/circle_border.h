@@ -15,7 +15,7 @@ namespace ui {
 		void						setBorderWidth(const float borderWidth);
 		const float					getBorderWidth(){ return mBorderWidth; }
 
-		// Initialization
+		/// Initialization
 		static void					installAsServer(ds::BlobRegistry&);
 		static void					installAsClient(ds::BlobRegistry&);
 

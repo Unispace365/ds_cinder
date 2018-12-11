@@ -26,7 +26,7 @@ std::string			make_filename(const std::string& location) {
 } // anonymous namespace
 
 /**
- * \class ds::PersistentCache
+ * \class PersistentCache
  */
 PersistentCache::PersistentCache(const std::string& location, const int version, const FieldList& list)
 		: mFilename(make_filename(location))
@@ -163,7 +163,7 @@ void PersistentCache::loadDatabase(const FieldList& list) {
 }
 
 /**
- * \class ds::PersistentCache::FieldList
+ * \class FieldList
  */
 PersistentCache::FieldList::FieldList() {
 }
@@ -184,7 +184,7 @@ PersistentCache::FieldList& PersistentCache::FieldList::addString(const std::str
 }
 
 /**
- * \class ds::PersistentCache::Field
+ * \class Field
  */
 PersistentCache::Field::Field() {
 }
@@ -196,7 +196,7 @@ PersistentCache::Field::Field(const double v1, const int64_t v2, const std::stri
 }
 
 /**
- * \class ds::PersistentCache::Row
+ * \class Row
  */
 PersistentCache::Row::Row()
 		: mId(0) {

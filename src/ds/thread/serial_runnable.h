@@ -43,14 +43,14 @@ public:
 	
 	void					setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 
-	// Start a new runnable, initializing it via the handler block.  Any previous, unfinished runs
-	// will be ignored.
-	// If waitForResult is true, this will be run synchronously, blocking until the operation is finished.
-	// This is useful for serial runnables that run through the life of an app, but during setup you
-	// want to run them once and guarantee data exists before the app begins.
-	// NOTE: Be careful with HandlerFunc; it might be evaluated at some later point. So if you
-	// pass in a lambda with captured variables, make sure to capture by value, not reference, or if
-	// you do, that the referenced item still exists for the life of the SerialRunnable.
+	/// Start a new runnable, initializing it via the handler block.  Any previous, unfinished runs
+	/// will be ignored.
+	/// If waitForResult is true, this will be run synchronously, blocking until the operation is finished.
+	/// This is useful for serial runnables that run through the life of an app, but during setup you
+	/// want to run them once and guarantee data exists before the app begins.
+	/// NOTE: Be careful with HandlerFunc; it might be evaluated at some later point. So if you
+	/// pass in a lambda with captured variables, make sure to capture by value, not reference, or if
+	/// you do, that the referenced item still exists for the life of the SerialRunnable.
 	bool					start(const HandlerFunc& = nullptr, const bool waitForResult = false);
 
 private:
@@ -66,7 +66,7 @@ private:
 	State					mState;
 	std::unique_ptr<T>		mCache;
 	HandlerFunc				mReplyHandler;
-	// If start comes in and I can't start yet, cache the start handler
+	/// If start comes in and I can't start yet, cache the start handler
 	HandlerFunc				mStartHandler;
 	bool					mNotifyWhenWaiting;
 };
@@ -79,7 +79,7 @@ SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(v
 		, mStartHandler(nullptr)
 		, mNotifyWhenWaiting(notifyWhenWaiting)
 {
-	// Create the single runnable
+	/// Create the single runnable
 	if(!alloc) {
 		DS_LOG_WARNING("Can't allocate serial runnable (no allocator)");
 		return;
@@ -95,7 +95,7 @@ SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(v
 
 template <class T>
 bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult) {
-	// Waiting for a result with an operation currently running is an error.
+	/// Waiting for a result with an operation currently running is an error.
 	if (waitForResult) {
 		if (!mCache) return false;
 
@@ -109,7 +109,7 @@ bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult) {
 
 	mStartHandler = f;
 
-	// If not waiting, then either start or indicate we need to start.
+	/// If not waiting, then either start or indicate we need to start.
 	if (mCache) {
 		mState = CACHED;
 		return send();

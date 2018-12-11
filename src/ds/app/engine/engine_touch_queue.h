@@ -11,7 +11,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineTouchQueue
+ * \class EngineTouchQueue
  * \brief A very specific class used to help the engine with touch processing. Touch
  * events arrive in a different thread, so this class is provided an external mutex
  * to control locking. Then, in the update, all those events get popped during a
@@ -27,12 +27,12 @@ public:
 
 	void					setAutoIdleReset(bool);
 
-	// Call this as new events arrive. I will handle locking
+	/// Call this as new events arrive. I will handle locking
 	void					incoming(const T&);
 
-	// When updating, first call this while the mutex is locked...
+	/// When updating, first call this while the mutex is locked...
 	void					lockedUpdate();
-	// ... then call this after the lock has been released.
+	/// ... then call this after the lock has been released.
 	void					update(const float currTime);
 
 private:
@@ -46,8 +46,8 @@ private:
 
 	bool					mAutoIdleReset;
 
-	// Incoming stores the events as they arrive, the
-	// Updating holds them temporarily for processing.
+	/// Incoming stores the events as they arrive, the
+	/// Updating holds them temporarily for processing.
 	std::vector<T>			mIncoming,
 							mUpdating;
 };

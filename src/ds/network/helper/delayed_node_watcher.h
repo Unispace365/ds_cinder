@@ -10,7 +10,7 @@
 namespace ds {
 
 /**
-* \class swisscom::DelayedNodeWatcher
+* \class DelayedNodeWatcher
 * \brief Wraps NodeWatcher to implement a delay on messages, so if many messages come down the pipe in quick succession, the query only happens after the end of the burst
 *			This prevents querying a lot of times unnecessarily.
 */

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="BrownPro Bold" value="%APP%/data/fonts/BrownPro-Bold.otf" type="string"/>
+	<setting name="BrownPro Light" value="%APP%/data/fonts/BrownPro-Light.otf" type="string"/>
+	<setting name="Noto Sans Bold" value="%APP%/data/fonts/NotoSans-Bold.ttf" type="string" comment=" Link together a font name and a font file "/>
+</settings>
+
+

@@ -19,6 +19,8 @@ struct MediaViewerSettings {
 	MediaViewerSettings()
 		: mDefaultBounds(0.0f, 0.0f)
 		, mShowInterfaceAtStart(true)
+		, mInterfaceBelowMedia(false)
+		, mLetterBox(true)
 		, mWebDefaultSize(0.0f, 0.0f)
 		, mWebKeyboardKeyScale(1.0f)
 		, mWebKeyboardAbove(true)
@@ -28,10 +30,12 @@ struct MediaViewerSettings {
 		, mCacheImages(false)
 		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
+		, mVideoVolume(1.0f)
 		, mVideoAutoSync(true)
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
+		, mVideoResetOnComplete(true)
 		, mVideoStreamingLatency(0.2)
 		, mPanoramicVideoInteractive(true)
 	{}
@@ -42,6 +46,12 @@ struct MediaViewerSettings {
 
 	/// Whether the interface should be visible immediately or not
 	bool						mShowInterfaceAtStart;
+
+	/// If true, puts the interface below (vertically) the media, otherwise floats on top on the lower third (the default)
+	bool						mInterfaceBelowMedia;
+
+	/// If true, centers and fits the content. If false, will expand the content so it fills the player (doesn't clip by default though)
+	bool						mLetterBox;
 
 	//--------------------Web Settings ---------------------------------------------//
 
@@ -73,6 +83,9 @@ struct MediaViewerSettings {
 	/// From -1.0f (left) to 1.0f (right). Default = 0.0f (center)
 	float						mVideoPanning;
 
+	/// The volume of the video's audio when it starts
+	float						mVideoVolume;
+
 	/// A list of clients to not load the video on
 	/// Default is empty, which loads everywhere
 	/// See GstVideo header for more info
@@ -91,6 +104,9 @@ struct MediaViewerSettings {
 
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
+
+	/// Whether to seek to 0.0 when the video finishes in non-loop mode; default=true
+	bool						mVideoResetOnComplete;
 
 	/// Ability to pan panoramic videos at start
 	bool						mPanoramicVideoInteractive;

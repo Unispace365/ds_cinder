@@ -266,7 +266,7 @@ void LineSprite::buildVbo() {
 	std::vector<uint16_t> indices;
 	indices.reserve(n * 4);
 
-	for (size_t i = 1; i < vertices.size() - 2; ++i) {
+	for (uint16_t i = 1; i < static_cast<uint16_t>(vertices.size()) - 2; ++i) {
 		indices.push_back(i - 1);
 		indices.push_back(i);
 		indices.push_back(i + 1);
@@ -277,7 +277,7 @@ void LineSprite::buildVbo() {
 	ci::gl::VboMesh::Layout layout;
 	layout.attrib(ci::geom::POSITION, 4);
 
-	mVboMesh = ci::gl::VboMesh::create(vertices.size(), GL_LINES_ADJACENCY_EXT, {layout}, indices.size());
+	mVboMesh = ci::gl::VboMesh::create(static_cast<uint32_t>(vertices.size()), GL_LINES_ADJACENCY_EXT, {layout}, static_cast<uint32_t>(indices.size()));
 	mVboMesh->bufferAttrib(ci::geom::POSITION, vertices.size() * sizeof(ci::vec4), vertices.data());
 	mVboMesh->bufferIndices(indices.size() * sizeof(uint16_t), indices.data());
 }

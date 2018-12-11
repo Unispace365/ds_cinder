@@ -88,7 +88,7 @@
 					<property name="icon" src="%APP%/data/images/drawing/marker.png" layout_fudge="1, 0"/>
 				</xml>
 				
-				<sprite name="space_space" size="22" />
+				<sprite name="space_space_space" size="22" />
 				
 				<xml name="small" src="%APP%/data/layouts/brush_size_button.xml" >
 					<property name="sizer" radius="3" />

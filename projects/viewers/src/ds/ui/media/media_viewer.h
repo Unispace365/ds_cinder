@@ -14,7 +14,7 @@ class MediaPlayer;
 class MediaInterface;
 
 /**
-* \class ds::MediaViewer
+* \class MediaViewer
 *			This is MediaPlayer in a BasePanel: plays the typical media types (Web / PDF / Video / Stream / Image) in a moveable/sizeable/bounds-checked panel.
 */
 class MediaViewer : public BasePanel  {

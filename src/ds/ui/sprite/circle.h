@@ -38,7 +38,7 @@ public:
 	virtual void				drawLocalClient();
 	virtual void				drawLocalServer();
 
-	// Initialization
+	/// Initialization
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
 

@@ -10,14 +10,14 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::::SpriteButton
+* \class SpriteButton
 *	A convenience class to create a button for some basic sprites
 */
 class SpriteButton : public ds::ui::Sprite {
 public:
 	SpriteButton(SpriteEngine& eng, const float widdy = 0.0f, const float hiddy = 0.0f);
 
-	// the amount of time the images take fading between themselves
+	/// the amount of time the images take fading between themselves
 	void						setAnimationDuration(const float dur){ mAnimDuration = dur; }
 
 	void						setClickFn(const std::function<void(void)>&);
@@ -39,14 +39,14 @@ private:
 	std::function<void(void)>	mClickFn;
 	std::function<void(const bool)>	mStateChangeFunction;
 
-	// VIEW
+	/// VIEW
 	ds::ui::Sprite&				mDown;
 	ds::ui::Sprite&				mUp;
 
-	// TOUCH
+	/// TOUCH
 	ds::ButtonBehaviour			mButtonBehaviour;
 
-	// SETTINGS
+	/// SETTINGS
 	float						mAnimDuration;
 
 

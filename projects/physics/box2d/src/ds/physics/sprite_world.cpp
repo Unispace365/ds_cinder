@@ -8,7 +8,7 @@ namespace ds {
 namespace physics {
 
 /**
- * \class ds::physics::SpriteWorld
+ * \class SpriteWorld
  */
 SpriteWorld::SpriteWorld(ds::ui::Sprite& s, const int world_id) {
 	s.getEngine().getService<ds::physics::Service>(SERVICE_NAME).createWorld(s, world_id);

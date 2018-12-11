@@ -26,11 +26,11 @@ public:
 	typedef std::function<void (T&)>	HandlerFunc;
 
 public:
-	// If T has a constructor without arguments, ignore the alloc. If you need
-	// to supply info to the constructor, supply a custom alloc.
+	/// If T has a constructor without arguments, ignore the alloc. If you need
+	/// to supply info to the constructor, supply a custom alloc.
 	ParallelRunnable(ui::SpriteEngine&, const std::function<T*(void)>& alloc = nullptr);
 	
-	// Start a new runnable, intializing it via the handler block.
+	/// Start a new runnable, intializing it via the handler block.
 	bool							start(const HandlerFunc& = nullptr);
 	void							setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 
@@ -54,7 +54,7 @@ ParallelRunnable<T>::ParallelRunnable(ui::SpriteEngine& se, const std::function<
 
 template <class T>
 bool ParallelRunnable<T>::start(const HandlerFunc& f) {
-	// Get a new T to run.  Try to take from the cache.
+	/// Get a new T to run.  Try to take from the cache.
 	std::unique_ptr<T>			up;
 	try {
 		if (mCache.size() > 0) {

@@ -15,7 +15,7 @@ class EntryField;
 class LayoutSprite;
 
 /**
-* \class ds:ui:::WebInterface
+* \class WebInterface
 *			Implements forward/back and refresh
 */
 class WebInterface : public MediaInterface  {
@@ -42,10 +42,12 @@ public:
 	void						cancelAuth();
 	void						authComplete();
 
+	void						showKeyboard(bool show);
+	void                        toggleKeyboard();
+
 protected:
 
 	virtual void				onLayout();
-	void						showKeyboard(bool show);
 
 	ds::ui::Web*				mLinkedWeb;
 

@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::RotationTranslator
+ * \class RotationTranslator
  */
 RotationTranslator::RotationTranslator() {
 }

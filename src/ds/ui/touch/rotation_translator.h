@@ -14,7 +14,7 @@ class Sprite;
 struct TouchInfo;
 
 /**
- * \class ds::ui::RotationTranslator
+ * \class RotationTranslator
  * \brief Utility to translate rotated sprite coords for the touch system.
  */
 class RotationTranslator {
@@ -28,9 +28,9 @@ public:
 private:
 	ci::mat4				buildRotationMatrix(ds::ui::Sprite*) const;
 
-	// Kind of a hack, but if the sprite has been set to account for
-	// rotation, then build a rotation matrix on the touch down. This
-	// is pretty fragile.
+	/// Kind of a hack, but if the sprite has been set to account for
+	/// rotation, then build a rotation matrix on the touch down. This
+	/// is pretty fragile.
     std::unordered_map<int, ci::mat4>	mMatrix;
 };
 

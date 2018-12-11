@@ -212,7 +212,7 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 	if(numAudio > 0){
 		entry.mAudioCodec = _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Codec"), MediaInfoDLL::Info_Text));
 
-		std::cout << "Number of audio channels: " << _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Channels"), MediaInfoDLL::Info_Text)) << std::endl;
+		//std::cout << "Number of audio channels: " << _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Channels"), MediaInfoDLL::Info_Text)) << std::endl;
 	}
 
 	// No video streams, but has at least one audio stream is a AUDIO_TYPE

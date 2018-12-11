@@ -9,7 +9,7 @@ class Sprite;
 namespace physics {
 
 /**
- * \class ds::physics::SpriteWorld
+ * \class SpriteWorld
  * \brief Construct a physics world attached to a sprite.
  * NOTE: Right now the sprite does not own the world, so if
  * the sprite gets deleted, CRASH.

@@ -13,7 +13,7 @@ namespace model{
 
 
 /**
-* \class ds::model::GenericContentRef
+* \class GenericContentRef
 *			Auto-generated data model for Content, but now manually-edited. 
 			This is For the xml_content_loader helper class, but can be repurposed if you like
 */

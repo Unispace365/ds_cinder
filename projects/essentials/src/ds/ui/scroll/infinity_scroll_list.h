@@ -18,29 +18,31 @@ namespace ds{
 
 			void								setContent(const std::vector<int>& dbIds);
 
-			// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
+			/// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
 			void								setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::vec3& cent)> &func);
 
-			// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
+			/// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
 			void								setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func);
 
-			// REQUIRED: When a sprite needs data assigned (coming onscreen for the first time for example). May need to cast the sprite to your custom type
+			/// REQUIRED: When a sprite needs data assigned (coming onscreen for the first time for example). May need to cast the sprite to your custom type
 			void								setDataCallback(const std::function<void(ds::ui::Sprite*, const int dbId) > &func);
 
-			// OPTIONAL: During animate on, you can call custom animation code here with delay (set member properties for delay if desired, defaults=0.0 seconds)
+			/// OPTIONAL: During animate on, you can call custom animation code here with delay (set member properties for delay if desired, defaults=0.0 seconds)
 			void								setAnimateOnCallback(const std::function<void(ds::ui::Sprite*, const float delay)>&func);
 
-			// OPTIONAL: If you want to show highlighted states you can react here
+			/// OPTIONAL: If you want to show highlighted states you can react here
 			void								setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func);
 
-			// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+			/// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
 			void								setScrollUpdatedCallback(const std::function<void(void)> &func);
 
-			// REQUIRED TO LOOK OK: 
-			// @param startPositionX Where to start the items horizontally
-			// @param startPositionY Where to start the items Vertically
-			// @param incremenetAmount How much distance between the start of one item and the start of the next item
-			// @param fill_from_top Whether to align to the bottom of the scroll area or the top. For instance, if there's not enough items to fill the whole space, will start filling and align to the bottom if this param is false.
+			/// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+			void								setItemPositionUpdatedCallback(const std::function<void(void)> &func);
+
+			/// REQUIRED TO LOOK OK: 
+			/// \param startPositionX Where to start the items horizontally
+			/// \param startPositionY Where to start the items Vertically
+			/// \param incremenetAmount How much distance between the start of one item and the start of the next item
 			void								setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount);
 
 			void								setTweenAnimationParams(const float duration, const float delay = 0.0f, const ci::EaseFn fn= ci::EaseNone());
@@ -48,21 +50,21 @@ namespace ds{
 			void								previousItem(const float duration = -1.0f);
 			void								turnOnStepSwipe();
 			
-			// Call this to initialize the list at a certain point
+			/// Call this to initialize the list at a certain point
 			void								initItemStart(int itemNum);
-			// Call this to jump to a certain item in the list
+			/// Call this to jump to a certain item in the list
 			void								jumpItem(int itemNum, const float duration = -1.0f);
 
-			// Returns the positions of items currently on screen
+			/// Returns the positions of items currently on screen
 			std::vector<int>					getOnScreenItemsPos();
 
 			void								enableScroll(bool isScrollable = true){ mScrollable = isScrollable; }
 
-			// Sets the minimum touch distance for handling scroll touch
+			/// Sets the minimum touch distance for handling scroll touch
 			void								setMinimumTouchDistance(float minDist){ mMinimumTouchDistance = minDist; }
 
 		protected:
-			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
+			/// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
 			struct ItemPlaceHolder	{
 
 				ItemPlaceHolder(const int dbId, float x = 0.0f, float y = 0.0f, ds::ui::Sprite *associatedSprite = nullptr, bool onScreen = false)
@@ -125,6 +127,7 @@ namespace ds{
 			std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
 			std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
 			std::function<void()>										mScrollUpdatedCallback;
+			std::function<void()>										mItemPosUpdatedCallback;
 
 			float								mMinimumTouchDistance;
 		};

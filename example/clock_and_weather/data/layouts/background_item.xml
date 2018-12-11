@@ -1,0 +1,28 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="fill"
+			overall_alignment="center"
+		>
+		<media_player name="the_media"
+			layout_size_mode="stretch"
+			media_player_auto_start="true"
+			media_player_show_interface="false"
+			media_player_video_loop="true"
+			media_player_video_volume="0"
+			media_player_letterbox="false"
+			layout_h_align="center"
+			layout_fixed_aspect="false"
+			animate_on="fade; duration:1.0; delay:1.0"
+			animate_off="fade; duration:1.0; delay:1.0"
+		/>
+		
+		
+			
+	</layout>
+	
+	
+</interface>
+
+

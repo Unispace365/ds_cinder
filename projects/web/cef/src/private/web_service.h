@@ -71,6 +71,9 @@ public:
 	// Asynchronously load the requested url. Notifications from WebCefCallbacks will happen when appropriate after this
 	void					loadUrl(const int browserId, const std::string& newUrl);
 
+	// Asynchronously execute Javascript. The url is for debugging callbacks
+	void					executeJavascript(const int browserId, const std::string& theJS, const std::string& debugUrl);
+
 	// Asynchronously resizes the browser. After the resize is complete, a new paint callback will come through at the correct size
 	void					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 

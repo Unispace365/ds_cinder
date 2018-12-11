@@ -64,18 +64,17 @@ namespace easyexif {
 //
 class EXIFInfo {
 public:
-	// Parsing function for an entire JPEG image buffer.
-	//
-	// PARAM 'data': A pointer to a JPEG image.
-	// PARAM 'length': The length of the JPEG image.
-	// RETURN:  PARSE_EXIF_SUCCESS (0) on succes with 'result' filled out
-	//          error code otherwise, as defined by the PARSE_EXIF_ERROR_* macros
+	/// Parsing function for an entire JPEG image buffer.
+	/// \param data		A pointer to a JPEG image.
+	/// \param length	The length of the JPEG image.
+	/// \return PARSE_EXIF_SUCCESS (0) on succes with 'result' filled out
+	///          error code otherwise, as defined by the PARSE_EXIF_ERROR_* macros
 	int parseFrom(const unsigned char *data, unsigned length);
 	int parseFrom(const std::string &data);
 
-	// Parsing function for an EXIF segment. This is used internally by parseFrom()
-	// but can be called for special cases where only the EXIF section is
-	// available (i.e., a blob starting with the bytes "Exif\0\0").
+	/// Parsing function for an EXIF segment. This is used internally by parseFrom()
+	/// but can be called for special cases where only the EXIF section is
+	/// available (i.e., a blob starting with the bytes "Exif\0\0").
 	int parseFromEXIFSegment(const unsigned char *buf, unsigned len);
 
 	// Set all data members to default values.

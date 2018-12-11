@@ -12,7 +12,7 @@ class SpriteEngine;
 namespace debug{
 
 /**
-* \class ds::debug::CallbackActionFactory
+* \class CallbackActionFactory
 */
 class CallbackActionFactory : public BaseActionFactory {
 public:
@@ -33,7 +33,7 @@ public:
 };
 
 /**
-* \class ds::CallbackAction
+* \class CallbackAction
 */
 class CallbackAction : public BaseAction
 {

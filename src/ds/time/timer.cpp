@@ -10,7 +10,7 @@ const double			RESOLUTION_D = static_cast<double>(Poco::Timestamp::resolution())
 }
 
 /**
- * \class ds::time::Timer
+ * \class Timer
  */
 Timer::Timer() {
 	restart();

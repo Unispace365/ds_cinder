@@ -6,7 +6,7 @@ namespace ds {
 namespace debug {
 
 /**
- * \class ds::debug::BaseActionFactory
+ * \class BaseActionFactory
  */
 BaseActionFactory::BaseActionFactory(){
 }
@@ -15,7 +15,7 @@ BaseActionFactory::~BaseActionFactory(){
 }
 
 /**
- * \class ds::debug::BaseAction
+ * \class BaseAction
  */
 BaseAction::BaseAction(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame)
 	: mFreeList(freeList)
@@ -43,7 +43,7 @@ void BaseAction::setup(float limit, int numberOfFingers){
 	release();
 
 	if((int)mFreeList.size() < mNumberOfFingers)
-		mNumberOfFingers = mFreeList.size();
+		mNumberOfFingers = static_cast<int>(mFreeList.size());
 
 	for(int i = 0; i < mNumberOfFingers; ++i)
 	{

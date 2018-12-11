@@ -14,52 +14,64 @@ namespace ui {
 class GstVideo;
 class VideoInterface;
 class MediaInterface;
+struct MediaViewerSettings;
 
 /**
-* \class ds::ui::VideoPlayer
-*			Creates a video and puts an interface on top of it.
-*/
-class StreamPlayer : public ds::ui::Sprite  {
-public:
+ * \class VideoPlayer
+ *			Creates a video and puts an interface on top of it.
+ */
+class StreamPlayer : public ds::ui::Sprite {
+  public:
 	StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
-	void								setResource(const ds::Resource& resource);
+	void setResource(const ds::Resource& resource);
 
-	void								layout();
+	void layout();
 
-	void								play();
-	void								pause();
-	void								stop();
-	void								toggleMute();
+	void play();
+	void pause();
+	void togglePlayPause();
+	void stop();
+	void toggleMute();
 
-	void								showInterface();
-	void								hideInterface();
-	VideoInterface*						getVideoInterface(){ return mVideoInterface; }
-	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
-	void								setAutoRestartStream(bool autoRestart);
+	void			showInterface();
+	void			hideInterface();
+	VideoInterface* getVideoInterface() { return mVideoInterface; }
 
-	void								setStreamLatency(const double latencyInSeconds);
+	/// Sets all applicable settings from a MediaViewerSettings
+	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
-	ds::ui::GstVideo*					getVideo();
+	void setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void setAutoRestartStream(bool autoRestart);
+	void setLetterbox(const bool doLetterbox);
 
-	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
-	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
+	void setStreamLatency(const double latencyInSeconds);
 
-protected:
-	virtual void						onUpdateServer(const ds::UpdateParams& updateParams) override;
-	virtual void						onSizeChanged() override;
-	VideoInterface*						mVideoInterface;
-	ds::ui::GstVideo*					mVideo;
-	bool								mIsPlaying;
-	bool								mEmbedInterface;
-	bool								mShowInterfaceAtStart;
-	double								mStreamLatency;
-	std::function<void(void)>					mGoodStatusCallback;
-	std::function<void(const std::string&)>		mErrorMsgCallback;
+	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
+	void setVolume(const float volume);
 
+	ds::ui::GstVideo* getVideo();
+
+	void setGoodStatusCallback(std::function<void()> func) { mGoodStatusCallback = func; }
+	void setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
+
+  protected:
+	virtual void							onUpdateServer(const ds::UpdateParams& updateParams) override;
+	virtual void							onSizeChanged() override;
+	VideoInterface*							mVideoInterface;
+	ds::ui::GstVideo*						mVideo;
+	float									mVolume;
+	bool									mIsPlaying;
+	bool									mEmbedInterface;
+	bool									mShowInterfaceAtStart;
+	bool									mInterfaceBelowMedia;
+	bool									mLetterbox;
+	double									mStreamLatency;
+	std::function<void(void)>				mGoodStatusCallback;
+	std::function<void(const std::string&)> mErrorMsgCallback;
 };
 
-} // namespace ui
-} // namespace ds
+}  // namespace ui
+}  // namespace ds
 
 #endif

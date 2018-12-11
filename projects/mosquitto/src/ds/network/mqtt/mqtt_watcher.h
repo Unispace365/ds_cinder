@@ -14,7 +14,7 @@ namespace net {
 
 
 /**
-* \class ds::MqttWatcher
+* \class MqttWatcher
 * \brief Listen and send messages on MQTT ( http://mqtt.org )
 */
 class MqttWatcher : public ds::AutoUpdate {
@@ -38,11 +38,15 @@ public:
 
 	void							startListening();
 	void							stopListening();
+	/// Removes all callback functions for inbound traffic
+	void							clearInboundListeners();
+	/// Sets a callback for when a message comes in on the specified topic
 	void							addInboundListener(const std::function<void(const MessageQueue&)>&);
 	void							sendOutboundMessage(const std::string&);
 
 	void							setTopicInbound(const std::string&);
 	void							setTopicOutbound(const std::string&);
+	void							setUserPass(const std::string& user, const std::string& pass);
 	void							setHostString(const std::string&);
 	void							setPort(const int);
 
@@ -51,6 +55,10 @@ public:
 	void							setRetryWaitTime(const float timeInSeconds){ mRetryWaitTime = timeInSeconds; }
 
 	bool							isConnected(){ return mLoop.mConnected; }
+
+	/// get notified when the connection status changes
+	/// called from the update loop
+	void							setConnectedCallback(std::function<void(const bool isConnected)> callback) { mConnectedCallback = callback; }
 
 protected:
 	virtual void					update(const ds::UpdateParams &) override;
@@ -76,6 +84,7 @@ private:
 		virtual void				run();
 		void						setInBound(const std::string&);
 		void						setOutBound(const std::string&);
+		void						setUserPass(const std::string& user, const std::string& pass);
 		void						setHost(const std::string&);
 		void						setPort(const int);
 		const int					getPort(){ return mPort; };
@@ -85,6 +94,8 @@ private:
 		std::string					mHost;
 		std::string					mTopicInbound;
 		std::string					mTopicOutbound;
+		std::string					mUsername;
+		std::string					mPassword;
 		int							mPort;
 		std::string					mClientId;
 		const int					mRefreshRateMs;	// in milliseconds
@@ -100,6 +111,8 @@ private:
 	Poco::Timestamp::TimeVal		mLastMessageTime;
 	float							mRetryWaitTime;
 	bool							mStarted;
+	bool							mConnectedStatus; // for sending a callback lambda
+	std::function<void(const bool)>	mConnectedCallback;
 
 };
 

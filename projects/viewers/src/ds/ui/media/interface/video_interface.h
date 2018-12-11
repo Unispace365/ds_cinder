@@ -13,7 +13,7 @@ class VideoScrubBar;
 class VideoVolumeControl;
 
 /**
-* \class ds::ui::VideoInterface
+* \class VideoInterface
 *			Implements play/pause, scrub bar, volume control
 */
 class VideoInterface : public MediaInterface  {

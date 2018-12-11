@@ -11,7 +11,7 @@ namespace ds {
 namespace physics {
 
 /**
- * \class ds::physics::BodyBuilder
+ * \class BodyBuilder
  */
 BodyBuilder::BodyBuilder(const SpriteBody& b)
 	: mDensity(1.0f)
@@ -35,7 +35,7 @@ BodyBuilder::~BodyBuilder()
 }
 
 /**
- * \class ds::physics::BodyBuilderBox
+ * \class BodyBuilderBox
  */
 BodyBuilderBox::BodyBuilderBox(const SpriteBody& sb)
 	: BodyBuilder(sb)
@@ -65,7 +65,7 @@ void BodyBuilderBox::createFixture(SpriteBody& body) const
 }
 
 /**
- * \class ds::physics::BodyBuilderCircle
+ * \class BodyBuilderCircle
  */
 BodyBuilderCircle::BodyBuilderCircle(const SpriteBody& sb)
 	: BodyBuilder(sb)
@@ -93,7 +93,7 @@ void BodyBuilderCircle::createFixture(SpriteBody& body) const
 
 
 /**
- * \class ds::physics::BodyBuilderPolygon
+ * \class BodyBuilderPolygon
  */
 BodyBuilderPolygon::BodyBuilderPolygon(const SpriteBody& sb)
 	: BodyBuilder(sb)

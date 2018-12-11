@@ -14,6 +14,7 @@
 
 #include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/media_interface_builder.h"
+#include "ds/ui/media/media_viewer_settings.h"
 
 namespace ds {
 namespace ui {
@@ -24,11 +25,13 @@ PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool
 	, mPanoramicVideo(nullptr)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mInterfaceBelowMedia(false)
 	, mShowInterfaceAtStart(true)
 	, mAutoSyncronize(true)
 	, mAutoPlayFirstFrame(true)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
+	, mVolume(1.0f)
 	, mLooping(true)
 {
 	mLayoutFixedAspect = true;
@@ -72,6 +75,7 @@ void PanoramicVideoPlayer::setMedia(const std::string mediaPath) {
 	});
 
 	setPan(mPanning);
+	setVolume(mVolume);
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
@@ -157,6 +161,7 @@ void PanoramicVideoPlayer::layout() {
 		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
 		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -227,12 +232,32 @@ void PanoramicVideoPlayer::toggleMute() {
 	}
 }
 
+void PanoramicVideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings){
+	setPan(settings.mVideoPanning);
+	setVolume(settings.mVideoVolume);
+	setAutoSynchronize(settings.mVideoAutoSync);
+	setPlayableInstances(settings.mVideoPlayableInstances);
+	setAutoPlayFirstFrame(settings.mVideoAutoPlayFirstFrame);
+	setVideoLoop(settings.mVideoLoop);
+	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
+	setAudioDevices(settings.mVideoAudioDevices);
+	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+}
+
 void PanoramicVideoPlayer::setPan(const float newPan) {
 	if(mVideo) {
 		mVideo->setPan(newPan);
 	}
 
 	mPanning = newPan;
+}
+
+void PanoramicVideoPlayer::setVolume(const float volume) {
+	if(mVideo) {
+		mVideo->setVolume(volume);
+	}
+
+	mVolume = volume;
 }
 
 void PanoramicVideoPlayer::setAutoSynchronize(const bool doSync) {

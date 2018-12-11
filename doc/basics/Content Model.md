@@ -12,11 +12,13 @@ Let's say you have a table in a sqlite db called "slides". (Check out the gettin
 	
 To tell ContentQuery to grab that table, you'd add an entry in data/model/content_model.xml:
 
-   	<table name="slides"/>
+```XML
+<table name="slides"/>
+```
 	
 ContentQuery would automatically get all the rows and columns from that table and make children and properties from them, respectively. Here's what the data structure would look like if we were to call mEngine.mContent.printTree(true, "") in the app:
 
-````
+```
 ContentModel id:0 name:root label:The root of all content
               prop:current_slide value:6
       ContentModel id:0 name:sqlite label:The root of all sqlite data
@@ -46,7 +48,7 @@ ContentModel id:0 name:root label:The root of all content
                     prop:resourceid value:0
                     prop:sort_order value:10
                     prop:title value:Environment Setup
-````
+```
 
 There's a few things to note here:
 
@@ -59,7 +61,7 @@ There's a few things to note here:
 
 To simplify the above:
 
-````
+```
 - root
 	- sqlite
 		- slides
@@ -67,7 +69,7 @@ To simplify the above:
 			- slides row
 			- slides row
 			etc.
-````
+```
 
 Now that the content is in the app, we'll want to access it. To get the slides table:
 
@@ -79,15 +81,40 @@ Now that the content is in the app, we'll want to access it. To get the slides t
 
 So we've got a reference to our slides table, and we want to do something with each slide:
 
-````
-	if(slidesTableModel.empty()){
+```cpp
+void ExampleThing::setData(){
+	/// get all the slides
+    auto slidesTableModel = mEngine.mContent.getChildByName("sqlite.slides");
+	
+	/// simple validation
+	if(!slidesTableModel){ // or: if (slidesTableModel.empty())
 		DS_LOG_WARNING("Slides table is empty!");
+		return;
 	}
 
+	/// Create a slide for each data model
 	for(auto it : slidesTableModel.getChildren()){
 		buildSlide(it);
 	}
-````
+	
+	/// layout everything
+	runLayout();
+	
+	/// animate everything
+	tweenAnimateOn(true, 0.0f, 0.05f);
+}
+	
+void ExampleThing::buildSlide(ds::model::ContentModelRef theSlide){
+	/// create a new smart layout
+	auto newSlide = ds::ui::SmartLayout(mEngine, "slide_layout.xml");
+	
+	/// apply the slide content model to the smart layout (see Dynamic Interfaces Content Model section for details)
+	newSlide->setContentModel(theSlide);
+	
+	/// Add the sprite to this layout
+	addChildPtr(newSlide);
+}
+```
 
 It's important to do sanity checks on the models, so if something doesn't show up in your app you know where to start looking.
 
@@ -97,10 +124,10 @@ The content_model.xml file can specify a bunch of things about your data model.
 
 ### Query control
 
-**select**: Overrides the default select statement with your own. The default is "SELECT * FROM ". Example: "SELECT id, name FROM "
-**where**: Add your own WHERE clause. The default is empty. Example: "approved=1"
-**sort**: Add your own ORDER BY clause. The default is empty. You can comma separate these. Example: "name ASC, date_added DESC"
-**limit**: Limit the number of entries. Example: "10"
+* **select**: Overrides the default select statement with your own. The default is "SELECT * FROM ". Example: "SELECT id, name FROM "
+* **where**: Add your own WHERE clause. The default is empty. Example: "approved=1"
+* **sort**: Add your own ORDER BY clause. The default is empty. You can comma separate these. Example: "name ASC, date_added DESC"
+* **limit**: Limit the number of entries. Example: "10"
 
 The app logic is like this:
 
@@ -108,14 +135,14 @@ The app logic is like this:
 
 The input of:
 
-````XML
-	<table name="posts"
-		select="SELECT p.imageid AS priamryimage FROM posts p INNER JOIN tile t ON p.tileid = t.id"
-		where="p.approvalstatus=1"
-		sort="p.created_at ASC"
-		limit="10"
-		/>
-````
+```XML
+<table name="posts"
+	select="SELECT p.imageid AS priamryimage FROM posts p INNER JOIN tile t ON p.tileid = t.id"
+	where="p.approvalstatus=1"
+	sort="p.created_at ASC"
+	limit="10"
+	/>
+```
 
 Produces a SQL statement of:
 
@@ -123,21 +150,40 @@ Produces a SQL statement of:
 
 If you want to specify the entire statement yourself, just use the select parameter and skip everything else.
 
+### Table Aliases
+
+* If only `name` is provided, it's used as both the SQL table name & name alias
+* If both `name` & `table_name` are used, the data is queried from `table_name`, but saved as `name`.
+
+```XML
+<table name="list_slides"
+	table_name="slides"
+	where="slidetype = 'list'"
+    />
+
+<table name="picture_slides"
+	table_name="slides"
+	where="slidetype = 'picture'"
+    />
+
+<table name="slides" />
+```
+
 ### Field hinting
 
-**resources**: A comma-space separate list of columns that map to the resources table. Example: "primary_image, thumbnail_image". These automatically get mapped to ds::Resource values
-**id**: The query automatically picks the primary key column to be the id, but if you want to override that you can specify an id field here. Example: "title_id"
-**name_field": The name for each item is inherited from it's parent, but if you want to override that specify a field here. Example: "title"
-**label_field": Labels are just a helpful field for humans. Specify a field to display here. Example: "subtitle"
+* **resources**: A comma-space separate list of columns that map to the resources table. Example: "primary_image, thumbnail_image". These automatically get mapped to ds::Resource values
+* **id**: The query automatically picks the primary key column to be the id, but if you want to override that you can specify an id field here. Example: "title_id"
+* **name_field**: The name for each item is inherited from it's parent, but if you want to override that specify a field here. Example: "title"
+* **label_field**: Labels are just a helpful field for humans. Specify a field to display here. Example: "subtitle"
 
-````XML
-	<table name="slides"
-		id="special_id"
-		name_field="title"
-		label_field="subtitle"
-		resources="primary_image, thumbnail_image"
-		/>
-````
+```XML
+<table name="slides"
+    id="special_id"
+    name_field="title"
+    label_field="subtitle"
+    resources="primary_image, thumbnail_image"
+    />
+```
 
 ### Parent-child relationships
 
@@ -147,44 +193,61 @@ Nest xml tables to indicate a relationship and specify what the foreign key is.
 
 In the below example, there are multiple slide_items for each slide. The slide_items table has a column "slide_id" that matches the primary key of the "slides" table. 
 
-````XML
-	<table name="slides"
-		sort="sort_order ASC"
-		resources="resourceid"
-		label="title"
-		>
-		<table name="slide_items"
-			child_local_id="slide_id"
-			label="name"
-			/>
-	</table>
-````
+```XML
+<table name="slides"
+	sort="sort_order ASC"
+	resources="resourceid"
+	label="title"
+	>
+	<table name="slide_items"
+		child_local_id="slide_id"
+		label="name"
+		/>
+</table>
+```
 
 
 **parent_foreign_id**: The column in the PARENT table that matches this primary key. This is for parents with a single child. Example: "slide_theme_id"
 
 There is one theme per slide, and the "slides" table has a "slide_theme_id" column.
 
-````XML
-	<table name="slides"
-		sort="sort_order ASC"
-		resources="resourceid"
-		label="title"
-		>
-		<table name="slide_theme"
-			parent_foreign_id="slide_theme_id"
-			label="name"
-			/>
-		<table name="slide_items"
-			child_local_id="slide_id"
-			label="name"
-			/>
-	</table>
-````
+```XML
+<table name="slides"
+	sort="sort_order ASC"
+	resources="resourceid"
+	label="title"
+	>
+	<table name="slide_theme"
+		parent_foreign_id="slide_theme_id"
+		label="name"
+		/>
+	<table name="slide_items"
+		child_local_id="slide_id"
+		label="name"
+		/>
+</table>
+```
+
+**child_local_map**: A pair of column names in the from "child_foreign_key_column:parent_column",
+children are attached to parents where the value (as a string) of the "child_foreign_key_column"
+matches the value in this parents "parent_column".
+
+Use case: a goofball cms is using UUID strings as "ids".
+
+```XML
+<table name="slides"
+	label="title"
+	>
+	<table name="slide_items"
+		child_local_map="slide_id:id"
+		label="name"
+		/>
+</table>
+```
 
 When these get queried, you'll get a data structure like this:
 
-````XML
+```XML
 - root
 	- sqlite
 		- slides
@@ -196,4 +259,47 @@ When these get queried, you'll get a data structure like this:
 				- slide_theme row
 				- slide_items row
 				etc.
-````
+```
+
+Meta Node & Advanced Options
+============================
+
+Meta Node Properties
+--------------------
+- **resource_location**: Overrides the resource_location from engine.xml
+- **db_location**: Overrides the db_location from engine.xml
+- **use_resources**: Should this content model query resources?
+
+```xml
+<meta
+	resource_location="%LOCAL%/cms_place/"
+	db_location="db/db.sqlite"
+	use_resources="true"
+	/>
+```
+
+Custom Resource Query Properties
+--------------------------------
+Useful for working with non-conforming databases. Any unused properties will have their default
+value applied.
+
+- **table_name**: Overrides default resources table name
+- **check_updated**: Boolean, should the app only query resources that have updated since last
+	check? (defaults is true)
+- Override default column names:
+	- **id**: default=`resourcesid`
+	- **type**: default=`resourcestype`
+	- **duration**: default=`resourcesduration`
+	- **width**: default=`resourceswidth`
+	- **height**: default=`resourcesheight`
+	- **filename**: default=`resourcesfilename`
+	- **path**: default=`resourcespath`
+	- **thumb**: default=`resourcesthumbid`
+	- **updated**: default=`updated_at`
+
+
+
+Applying to a layout file
+===========================
+
+See the Dynamic Interfaces document for more info.

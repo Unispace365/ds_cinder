@@ -15,6 +15,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/content/content_events.h"
+#include "ds/network/https_client.h"
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
@@ -25,17 +26,7 @@
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
-
-// For installing the image generators
-#include "ds/ui/image_source/image_file.h"
-#include "ds/ui/image_source/image_glsl.h"
-#include "ds/ui/image_source/image_resource.h"
-
-// For installing mesh caches
-#include "ds/ui/mesh_source/mesh_cache_service.h"
-
-// For installing the framework services
-#include "ds/ui/service/glsl_image_service.h"
+#include "ds/ui/touch/touch_manager.h"
 
 // For the screenshot
 #include <Poco/Timestamp.h>
@@ -132,7 +123,7 @@ void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
 }
 
 /**
- * \class ds::App
+ * \class App
  */
 App::App(const RootList& roots)
 	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
@@ -170,15 +161,6 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::Circle::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
 				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
-
-	// Initialize the engine image generator types.
-	ds::ui::ImageFile::install(mEngine.getImageRegistry());
-	ds::ui::ImageGlsl::install(mEngine.getImageRegistry());
-	ds::ui::ImageResource::install(mEngine.getImageRegistry());
-
-	// Install the framework services
-	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
-	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
 
 	// Run all the statically-created initialization code.
 	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();
@@ -237,9 +219,9 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 void App::loadAppSettings() {
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
-	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.loadSettings("fonts", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+	mEngine.getSettings("fonts").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
 		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
 	}, ds::cfg::SETTING_TYPE_STRING);
 
@@ -248,14 +230,16 @@ void App::loadAppSettings() {
 	mEngine.editColors().clear();
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+	mEngine.loadSettings("colors", "colors.xml");
+	mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
 		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 	}, ds::cfg::SETTING_TYPE_COLOR);
 
 	/* Settings */
-	mEngine.loadSettings("APP", "app_settings.xml");
+	mEngine.loadSettings("app_settings", "app_settings.xml");
 	mEngine.loadTextCfg("text.xml");
+
+	mEngine.loadSettings("tuio_inputs", "tuio_inputs.xml");
 }
 
 void App::setup() {
@@ -268,12 +252,18 @@ void App::setup() {
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
 #endif
+
+	mEngine.getLoadImageService().initialize();
 }
 
 void App::resetupServer() {
+	// Just as an added precaution, shouldn't be reqired
+	mEngine.getTweenline().getTimeline().clear();
+
 	mEngine.clearAllSprites(true);
 	loadAppSettings();
 	mEngine.reloadSettings();
+	mEngine.getLoadImageService().initialize();
 	//setupServer();
 }
 
@@ -434,7 +424,7 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Toggle always on top", [this] {ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
 	mKeyManager.registerKey("Toggle idling", [this] {mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); }, KeyEvent::KEY_i);
 	mKeyManager.registerKey("Toggle console", [this] {mEngine.toggleConsole(); }, KeyEvent::KEY_c);
-	mKeyManager.registerKey("Touch mode", [this] {mEngine.nextTouchMode(); }, KeyEvent::KEY_t);
+	mKeyManager.registerKey("Touch mode", [this] {mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
 	mKeyManager.registerKey("Take screenshot", [this] {saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
 	mKeyManager.registerKey("Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
 	mKeyManager.registerKey("Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
@@ -444,48 +434,80 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey("Settings editor", [this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(mEngineSettings); }, KeyEvent::KEY_e);
 	mKeyManager.registerKey("Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
 	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
-	mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
-	mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
-	mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
-	mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
-	mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
-	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
+mKeyManager.registerKey("Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
+mKeyManager.registerKey("Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
+mKeyManager.registerKey("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); }, ci::app::KeyEvent::KEY_n);
+mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
+mKeyManager.registerKey("Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
+mKeyManager.registerKey("Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
+mKeyManager.registerKey("Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
+mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
 
-	mKeyManager.registerKey("Move src rect left", [this] {
-		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_LEFT);
+mKeyManager.registerKey("Translate src rect input mode", [this] {
+	if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+	} else {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputTranslate);
+	}
+}, KeyEvent::KEY_t);
 
-	mKeyManager.registerKey("Move src rect right", [this] {
-		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_RIGHT);
+mKeyManager.registerKey("Scale src rect input mode", [this] {
+	if(mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+	} else {
+		mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputScale);
+	}
+}, KeyEvent::KEY_y);
 
-	mKeyManager.registerKey("Move src rect up", [this] {
-		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_UP);
 
-	mKeyManager.registerKey("Move src rect down", [this] {
-		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
-		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
-		mEngine.markCameraDirty();
-	}, KeyEvent::KEY_DOWN);
+mKeyManager.registerKey("Restore src rect", [this] {
+	mEngineData.mSrcRect = mEngineData.mOriginalSrcRect;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_BACKQUOTE);
+
+mKeyManager.registerKey("src rect 100% scale", [this] {
+	mEngineData.mSrcRect.x1 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f - mEngineData.mDstRect.getWidth() / 2.0f;
+	mEngineData.mSrcRect.x2 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f + mEngineData.mDstRect.getWidth() / 2.0f;
+	mEngineData.mSrcRect.y1 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f - mEngineData.mDstRect.getHeight() / 2.0f;
+	mEngineData.mSrcRect.y2 = mEngineData.mOriginalSrcRect.y1 + mEngineData.mOriginalSrcRect.getHeight() / 2.0f + mEngineData.mDstRect.getHeight() / 2.0f;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_1);
+
+mKeyManager.registerKey("Move src rect left", [this] {
+	mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+	mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_LEFT);
+
+mKeyManager.registerKey("Move src rect right", [this] {
+	mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+	mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_RIGHT);
+
+mKeyManager.registerKey("Move src rect up", [this] {
+	mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+	mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_UP);
+
+mKeyManager.registerKey("Move src rect down", [this] {
+	mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+	mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
+	mEngine.markCameraDirty();
+}, KeyEvent::KEY_DOWN);
 
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
 	DS_LOG_VERBOSE(3, "App::keyDown char=" << e.getChar() << " code=" << e.getCode());
 
-	if(!mAppKeysEnabled){
+	if(!mAppKeysEnabled) {
 		onKeyDown(e);
 		return;
 	}
 
-	if(mEngine.getRegisteredEntryField()){
+	if(mEngine.getRegisteredEntryField()) {
 		mEngine.getRegisteredEntryField()->keyPressed(e);
 		return;
 	}
@@ -511,7 +533,14 @@ void App::saveTransparentScreenshot() {
 	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
-void App::quit(){
+void App::quit() {
+	if(mEngine.getEngineSettings().getBool("apphost:exit_on_quit", 0, true)) {
+		DS_LOG_INFO("Requesting Apphost to exit...");
+		ds::net::HttpsRequest httpsRequest = ds::net::HttpsRequest(mEngine);
+		httpsRequest.makeSyncGetRequest("http://localhost:7800/api/exit");
+	}
+
+	DS_LOG_INFO("App shutting down");
 	ci::app::App::quit();
 }
 
@@ -520,7 +549,7 @@ void App::shutdown(){
 }
 
 /**
- * \class ds::EngineSettingsPreloader::Initializer
+ * \class Initializer
  */
 static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);

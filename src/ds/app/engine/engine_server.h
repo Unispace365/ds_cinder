@@ -7,13 +7,12 @@
 #include "ds/app/engine/engine_client_list.h"
 #include "ds/app/engine/engine_io.h"
 #include "ds/network/udp_connection.h"
-#include "ds/ui/service/load_image_service.h"
 
 namespace ds {
 class ContentWrangler;
 
 /**
- * \class ds::AbstractEngineServer
+ * \class AbstractEngineServer
  * The Server engine contains all app-side behaviour, but no rendering.
  * This class is getting a little messed up because one subclass needs
  * a GlThread and one needs a GlNoThread, so abstract pretty much everything
@@ -60,7 +59,7 @@ private:
 	ds::BlobReader					mBlobReader;
 	ContentWrangler*				mContentWrangler;
 
-	// STATES
+	/// STATES
 	class State {
 	public:
 		State();
@@ -120,7 +119,7 @@ private:
 
 
 /**
- * \class ds::EngineServer
+ * \class EngineServer
  * The Server engine contains all app-side behaviour, but no rendering.
  */
 class EngineServer : public AbstractEngineServer {
@@ -128,10 +127,6 @@ public:
 	EngineServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineServer();
 
-	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-
-private:
-	ui::LoadImageService			mLoadImageService;
 };
 
 } // namespace ds

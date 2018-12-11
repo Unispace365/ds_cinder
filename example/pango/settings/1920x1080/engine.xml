@@ -2,6 +2,6 @@
 <settings>
 	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment=" "/>
 	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
-	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect"/>
+	<setting name="dst_rect" value="0, 0, 1280, 720" type="rect"/>
 </settings>
 

@@ -32,26 +32,26 @@ namespace ds {
 template <class T>
 class TimedRunnable {
 public:
-	// Clients need to tell the time (in seconds) between runs.
-	// Clients also need to supply the instance of the class that gets run.
+	/// Clients need to tell the time (in seconds) between runs.
+	/// Clients also need to supply the instance of the class that gets run.
 	TimedRunnable(ui::SpriteEngine&, const double interval, T * payload);
 
 	void						update();
 	void						update(const Poco::Timestamp::TimeVal&);
-	// This will cause an update as soon as the payload is available
+	/// This will cause an update as soon as the payload is available
 	void						requestUpdate();
 
-	// Set the interval (in seconds) between updates.  This won't affect the current
-	// update, which will happen according to the pre-changed interval.
+	/// Set the interval (in seconds) between updates.  This won't affect the current
+	/// update, which will happen according to the pre-changed interval.
 	void								      setInterval(const double interval);
 	Poco::Timestamp::TimeVal  getIntervalMu() const;
 
-	// Set a callback when I'm about to start processing (called from update() thread).
+	/// Set a callback when I'm about to start processing (called from update() thread).
 	void						setOnStartFn(const std::function<void(T&)>&);
-	// Called when I receive the results of a change. Called in the thread calling update().
+	/// Called when I receive the results of a change. Called in the thread calling update().
 	void						setOnFinishedFn(const std::function<void(T&)>&);
 
-	// Answer 0 - 1, where 0 is the start of an update, and 1 is the next update.
+	/// Answer 0 - 1, where 0 is the start of an update, and 1 is the next update.
 	double						getProgress() const;
 	double						getProgress(const Poco::Timestamp::TimeVal&) const;
     
@@ -73,13 +73,13 @@ TimedRunnable<T>::TimedRunnable(ui::SpriteEngine& se, const double interval, T *
 		, mNextUpdate(0)
 		, mOnStartFn(nullptr)
 		, mOnFinishedFn(nullptr) {
-	// Make sure the class isn't implementing the deprecated finished() function.
-	// Clients need to set an onFinishedFn() instead.
+	/// Make sure the class isn't implementing the deprecated finished() function.
+	/// Clients need to set an onFinishedFn() instead.
 	static_assert(!(ds::dbg::has_finished_fn<T>::value), "TimedRunnable template class implements finished(); set onFinishedFn() instead" );
 
 	setInterval(interval);
 	mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
-	// The data I will send and receive
+	/// The data I will send and receive
 	mPayload = std::move(std::unique_ptr<T>(payload));
 }
 

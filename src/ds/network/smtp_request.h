@@ -12,7 +12,7 @@
 namespace ds {
 namespace net {
 /**
-* \class ds::net::SMTPRequest
+* \class SMTPRequest
 * Make SMTP requests to send an email. This uses Curl behind the scenes
 */
 
@@ -22,9 +22,9 @@ public:
 
 
 	/// The serverUrl is the SMTP SERVER url. format is smtp://mail.smtp.com:25 
-	// userInfo, first is email address for sender, second is email address for receiver, and following is email address for cc. format is "<example@email.com>"
-	// sInput is the content for the email, include from,to,cc,subject,content body. details see SMTP sample
-	// userpwd is the username and password for SMTP account. format is "user:pwd"
+	/// userInfo, first is email address for sender, second is email address for receiver, and following is email address for cc. format is "<example@email.com>"
+	/// sInput is the content for the email, include from,to,cc,subject,content body. details see SMTP sample
+	/// userpwd is the username and password for SMTP account. format is "user:pwd"
 
 
 	void					makePostRequest(const std::string serverUrl, const std::vector<std::string> userInfo, std::vector<std::string> sInput, std::string userpwd = "");

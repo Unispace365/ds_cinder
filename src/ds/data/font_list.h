@@ -11,7 +11,7 @@ class SpriteEngine;
 }
 
 /**
- * \class ds::FontList
+ * \class FontList
  * \brief A list of fonts. This is used purely for performance between
  * server and client -- upon startup, an app can cache any fonts it wants here,
  * and they will be given a simple int to be used to refer to them instead of
@@ -24,15 +24,15 @@ public:
 	void				clear();
 
 	/// Loads and registers a font to be used by the system. 
-	/// @filePath is the absolute path to the font file (otf or ttf generally). Something like c:/path/to/your/app/folder/data/fonts/notosans-bold.otf
-	/// @fontName is the Pango-recognized name of the font. This will be something like "Noto Sans Bold" or "Arial"
-	/// @shortName is the name for the font that you can set on a text sprite. mMyText->setFont("noto_sans_bold"). Note: this can be the same as the Pango fontName if you want. Defaults to shortName if blank
+	/// \param filePath is the absolute path to the font file (otf or ttf generally). Something like c:/path/to/your/app/folder/data/fonts/notosans-bold.otf
+	/// \param fontName is the Pango-recognized name of the font. This will be something like "Noto Sans Bold" or "Arial"
+	/// \param shortName is the name for the font that you can set on a text sprite. mMyText->setFont("noto_sans_bold"). Note: this can be the same as the Pango fontName if you want. Defaults to shortName if blank
 	void				installFont(const std::string& filePath, const std::string& fontName, const std::string& shortName = "");
 
 	/// Does the above, but doesn't load the font file. This is for fonts that are already installed on a system-level
 	void				registerFont(const std::string& fontName, const std::string& shortName);
 
-	// Answer > 0 for a valid ID. Name can either be the file path, font name, or short name. Jebus help you if you name fonts the same thing.
+	/// Answer > 0 for a valid ID. Name can either be the file path, font name, or short name. Jebus help you if you name fonts the same thing.
 	size_t				getIdFromName(const std::string&) const;
 	const std::string&	getFilePathFromId(const size_t id) const;
 

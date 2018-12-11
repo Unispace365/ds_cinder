@@ -33,7 +33,7 @@ struct UniformData
 };
 
 /*!
- * \class ds::gl::UniformVisitor
+ * \class UniformVisitor
  * \note This is a static visitor for common types that can be passed
  * as uniforms to a shader.
  * Use as: boost::apply_visitor( my_visitor, variant_val );
@@ -45,7 +45,7 @@ struct UniformData
 class UniformVisitor : public boost::static_visitor < void >
 {
 public:
-	// A typedef of all (20) Cinder supported uniforms.
+	/// A typedef of all (20) Cinder supported uniforms.
 	typedef boost::variant <
 		int, float, const int*, std::vector<float>,
 		ci::vec2, ci::ivec2, ci::vec3, ci::vec4,
@@ -58,7 +58,7 @@ public:
 	UniformVisitor() = delete;
 	UniformVisitor(ci::gl::GlslProgRef shader);
 
-	// Below all are uniform types, supported by Cinder.
+	/// Below all are uniform types, supported by Cinder.
 	void					operator()(int data);
 	void					operator()(const ci::ivec2 &data);
 	void					operator()(const int *data);
@@ -89,7 +89,7 @@ public:
 };
 
 /**
- * \class ds::gl::Uniform
+ * \class Uniform
  * Storage for GLSL uniform data. Will be used for network-replication.
  * \note ARRAYS ARE OF-COURSE NOT SENT DOWN OVER A NETWORK! Use custom
  * networking methods and send only hints down the network to what to
@@ -132,23 +132,23 @@ public:
 	bool			empty() const;
 	void			clear();
 
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setFloat(const std::string& name, const float);
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setFloats(const std::string& name, const std::vector<float>&);
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setInt(const std::string& name, const int);
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setMatrix44f(const std::string& name, const ci::mat4&);
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setVec2i(const std::string& name, const ci::ivec2&);
-	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
+	/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setVec4f(const std::string& name, const ci::vec4&);
 
 	void			applyTo(ci::gl::GlslProgRef) const;
 
 private:
-	// Internally handles inserting boost::variant's into a map for shaders to consume.
+	/// Internally handles inserting boost::variant's into a map for shaders to consume.
 	void			setInternal(const std::string&, const UniformVisitor::SupportedVariants&, const UniformData&);
 
 private:

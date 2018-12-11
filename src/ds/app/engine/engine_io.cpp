@@ -14,7 +14,7 @@
 namespace ds {
 
 /**
- * \class ds::EngineSender
+ * \class EngineSender
  */
 EngineSender::EngineSender(ds::NetConnection& con, const bool useChunker)
 		: mConnection(con) 
@@ -28,7 +28,7 @@ void EngineSender::setPacketNumber(unsigned int packetId){
 }
 
 /**
- * \class ds::EngineSender::AutoSend
+ * \class AutoSend
  */
 EngineSender::AutoSend::AutoSend(EngineSender& sender)
 		: mData(sender.mSendBuffer)
@@ -41,7 +41,7 @@ EngineSender::AutoSend::~AutoSend() {
 	if (!mSender.mConnection.initialized()) return;
 	if (mData.size() < 1) return;
 
-	const size_t size = mData.size();
+	const int size = static_cast<int>(mData.size());
 	mSender.mRawDataBuffer.setSize(size);
 	mData.readRaw(mSender.mRawDataBuffer.data(), size);
 	snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
@@ -65,7 +65,7 @@ EngineSender::AutoSend::~AutoSend() {
 }
 
 /**
- * \class ds::EngineReceiver
+ * \class EngineReceiver
  */
 EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
 		: mConnection(con)
@@ -135,7 +135,7 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 	mNoDataCount = 0;
 
 	mCurrentDataBuffer.clear(); 
-	mCurrentDataBuffer.addRaw(mReceiveBuffers.front().c_str(), mReceiveBuffers.front().size());
+	mCurrentDataBuffer.addRaw(mReceiveBuffers.front().c_str(), static_cast<unsigned int>(mReceiveBuffers.front().size()));
 	mReceiveBuffers.erase(mReceiveBuffers.begin());
 
 	morePacketsAvailable = !mReceiveBuffers.empty();

@@ -10,53 +10,58 @@ namespace ui {
 class Web;
 class WebInterface;
 class MediaInterface;
+struct MediaViewerSettings;
 
 /**
-* \class ds::ui::WebPlayer
-*			Creates a web sprite and puts an interface on top of it.
-*/
-class WebPlayer : public ds::ui::Sprite  {
-public:
+ * \class WebPlayer
+ *			Creates a web sprite and puts an interface on top of it.
+ */
+class WebPlayer : public ds::ui::Sprite {
+  public:
 	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
-	void								setMedia(const std::string mediaPath);
+	void setMedia(const std::string mediaPath);
 
-	virtual void						userInputReceived();
-	void								layout();
+	virtual void userInputReceived();
+	void		 layout();
 
-	void								showInterface();
-	void								hideInterface();
+	void showInterface();
+	void hideInterface();
 
-	void								sendClick(const ci::vec3& globalClickPos);
+	void sendClick(const ci::vec3& globalClickPos);
 
-	ds::ui::Web*						getWeb();
-	WebInterface*						getWebInterface(); // may be nullptr if embedInterface is false
+	ds::ui::Web*  getWeb();
+	WebInterface* getWebInterface();  // may be nullptr if embedInterface is false
 
-	/// UI params - replace with MediaViewerSettings?
-	void								setWebViewSize(const ci::vec2 webSize);
-	void								setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
-	void								setAllowTouchToggle(const bool allowTouchToggle);
-	void								setShowInterfaceAtStart(const bool showInterfaceAtStart);
-	void								setStartInteractable(const bool startInteractable);
+	/// Sets all applicable settings from a MediaViewerSettings
+	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
-protected:
+	void setWebViewSize(const ci::vec2 webSize);
+	void setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
+	void setAllowTouchToggle(const bool allowTouchToggle);
+	void setShowInterfaceAtStart(const bool showInterfaceAtStart);
+	void setStartInteractable(const bool startInteractable);
+	void setLetterbox(const bool doLetterbox);
 
-	virtual void						onSizeChanged();
-	ds::ui::Web*						mWeb;
-	WebInterface*						mWebInterface;
-	bool								mEmbedInterface;
-	bool								mShowInterfaceAtStart;
+  protected:
+	virtual void onSizeChanged();
 
-	ci::vec2							mWebSize;
-	float								mKeyboardKeyScale;
-	bool								mKeyboardAllow;
-	bool								mKeyboardAbove;
-	bool								mAllowTouchToggle;
-	bool								mStartInteractable;
+	ds::ui::Web*  mWeb;
+	WebInterface* mWebInterface;
+	ci::vec2	  mWebSize;
+	float		  mKeyboardKeyScale;
 
+	bool mEmbedInterface;
+	bool mShowInterfaceAtStart;
+	bool mLetterbox;
+	bool mKeyboardAllow;
+	bool mKeyboardAbove;
+	bool mAllowTouchToggle;
+	bool mStartInteractable;
+	bool mInterfaceBelowMedia;
 };
 
-} // namespace ui
-} // namespace ds
+}  // namespace ui
+}  // namespace ds
 
 #endif

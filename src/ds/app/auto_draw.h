@@ -14,7 +14,7 @@ class SpriteEngine;
 }
 
 /**
- * \class ds::AutoDraw
+ * \class AutoDraw
  * \brief Utility to let any class participate in drawing.
  */
 class AutoDraw {
@@ -33,7 +33,7 @@ private:
 };
 
 /**
- * \class ds::AutoDrawService
+ * \class AutoDrawService
  * Store a collection of auto draw objects.
  */
 class AutoDrawService : public EngineService {

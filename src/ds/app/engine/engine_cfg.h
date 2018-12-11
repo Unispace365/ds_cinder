@@ -10,33 +10,33 @@
 namespace ds {
 
 /**
- * \class ds::EngineCfg
+ * \class EngineCfg
  * \brief Store all the engine configuration info.
  */
 class EngineCfg {
 public:
 	EngineCfg(ds::cfg::Settings& engine_settings);
 
-	// Answer the requested settings file. In debug mode, throw
-	// if it doesn't exist. In release mode, just answer an empty one.
+	/// Answer the requested settings file. In debug mode, throw
+	/// if it doesn't exist. In release mode, just answer an empty one.
 	ds::cfg::Settings&				getSettings(const std::string& name);
 
-	// Get the settings in the list AFTER the one specified by the name
+	/// Get the settings in the list AFTER the one specified by the name
 	ds::cfg::Settings&				getNextSettings(const std::string& name);
 
-	// Answer the requested text cfg. 
-	// if it doesn't exist. In release mode, just answer an empty one.
+	/// Answer the requested text cfg. 
+	/// if it doesn't exist. In release mode, just answer an empty one.
 	bool							hasText(const std::string& name) const;
 	const ds::cfg::Text&			getText(const std::string& name) const;
 	const std::string&				getDefaultTextCfgName() const;
 	const ds::cfg::Text&			getDefaultTextCfg() const;
 	void							setText(const std::string& name, const ds::cfg::Text&);
 
-	// This is a relative operation, so each time you run it it will multiply the new scale
-	// Recommend reloading the text using loadText() before setting this a second time
+	/// This is a relative operation, so each time you run it it will multiply the new scale
+	/// Recommend reloading the text using loadText() before setting this a second time
 	void							applyTextScale(const float theScale);
 
-	// Answers true if settings with given key is already loaded
+	/// Answers true if settings with given key is already loaded
 	bool							hasSettings(const std::string& name) const;
 
 	/** Convenience to load a setting file into the mEngineCfg settings.
@@ -59,20 +59,21 @@ public:
 
 	/** Convenience to load a text cfg file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.
-		\param filename is the leaf path of the settings file (i.e. "text.xml"). */	
+		\param filename		the leaf path of the settings file (i.e. "text.xml").
+		\param engine		Reference to engine */	
 	void							loadText(const std::string& filename, ds::Engine& engine);
 
 private:
 	EngineCfg(const EngineCfg&);
-	// Make it easy for clients to access the engine settings.
+	/// Make it easy for clients to access the engine settings.
 	ds::cfg::Settings&				mEngineSettings;
 	std::map<std::string, ds::cfg::Settings>
 									mSettings;
 	std::unordered_map<std::string, ds::cfg::Text>
 									mTextCfg;
 
-	// Empty settings for when some are missing. Here because we're getting
-	// a shutdown crash with this as statics.
+	/// Empty settings for when some are missing. Here because we're getting
+	/// a shutdown crash with this as statics.
 	ds::cfg::Settings				mEmptySettings;
 	ds::cfg::Settings				mEditEmptySettings;
 	ds::cfg::Text					mEmptyTextCfg;

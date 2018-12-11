@@ -17,7 +17,7 @@ class Sprite;
 
 namespace debug {
 /**
-* \class ds::debug::Automator
+* \class Automator
 *  Creates a bunch of fake touch points to help find bugs in your app.
 *  Can also call arbitrary lambdas to load special hard-to-reach parts of your app via the callback action
 *

@@ -11,7 +11,7 @@ namespace ds {
 namespace query {
 
 /**
- * \class ds::query::SqlResultBuilder
+ * \class SqlResultBuilder
  */
 SqlResultBuilder::SqlResultBuilder(Result& qr, sqlite3_stmt* stmt)
 	: ResultBuilder(qr)

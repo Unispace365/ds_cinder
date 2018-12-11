@@ -14,7 +14,7 @@ class Pdf;
 class ThumbnailBar;
 
 /**
-* \class ds::ui::PDFInterface
+* \class PDFInterface
 *			Implements page up/down, page count
 *			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
 *					that has a children vector of resources of the thumbnails set, and the children need to have the correct parentIndex (i.e. page number) set.

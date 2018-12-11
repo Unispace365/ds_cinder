@@ -23,7 +23,7 @@ class Notifier
 	Notifier();
 
 	void clear();
-	// ? This is identical to clear, probably shouldn't have it
+	/// ? This is identical to clear, probably shouldn't have it
 	void removeAllListeners();
 
 	/* Notification mechanism where no response is expected
@@ -90,8 +90,8 @@ void Notifier<T>::addListener( void *id, const std::function<void(const T *)> &f
 template <typename T>
 void Notifier<T>::removeListener( void *id )
 {
-  // This is required, otherwise the app can hit an exception during shutdown
-  // if the map is empty but clients still exist.
+  /// This is required, otherwise the app can hit an exception during shutdown
+  /// if the map is empty but clients still exist.
   if (mFunctions.empty()) return;
   auto found = mFunctions.find(id);
   if ( found != mFunctions.end() )
@@ -127,8 +127,8 @@ void Notifier<T>::addRequestListener( void *id, const std::function<void(T&)> &f
 template <typename T>
 void Notifier<T>::removeRequestListener( void *id )
 {
-  // This is required, otherwise the app can hit an exception during shutdown
-  // if the map is empty but clients still exist.
+  /// This is required, otherwise the app can hit an exception during shutdown
+  /// if the map is empty but clients still exist.
   if (mRequestFn.empty()) return;
   auto found = mRequestFn.find(id);
   if ( found != mRequestFn.end() )

@@ -22,7 +22,9 @@ const std::map<std::string, ContentProperty>				EMPTY_PROPERTY_MAP;
 ContentProperty::ContentProperty()
 	: mName("")
 	, mValue("")
-	, mResource(EMPTY_RESOURCE)
+	, mIntValue(0)
+	, mDoubleValue(0)
+	, mResource(nullptr)
 {
 }
 
@@ -30,6 +32,14 @@ ContentProperty::ContentProperty(const std::string& name, const std::string& val
 	setValue(value);
 	setName(name);
 }
+
+ContentProperty::ContentProperty(const std::string& name, const std::string& value, const int& valueInt, const double& valueDouble) {
+	mName = name;
+	mValue = value;
+	mIntValue = valueInt;
+	mDoubleValue = valueDouble;
+}
+
 const std::string& ContentProperty::getName() const {
 	return mName;
 }
@@ -44,50 +54,73 @@ const std::string& ContentProperty::getValue() const {
 
 void ContentProperty::setValue(const std::string& value) {
 	mValue = value;
+	mIntValue = ds::string_to_int(value);
+	mDoubleValue = ds::string_to_double(value);
 }
 
 void ContentProperty::setValue(const std::wstring& value) {
 	mValue = ds::utf8_from_wstr(value);
+	mIntValue = ds::wstring_to_int(value);
+	mDoubleValue = ds::wstring_to_double(value);
 }
 
 void ContentProperty::setValue(const int& value) {
 	mValue = ds::value_to_string<int>(value);
+	mIntValue = value;
+	mDoubleValue = (double)mIntValue;
 }
 
 void ContentProperty::setValue(const double& value) {
 	mValue = ds::value_to_string<double>(value);
+	mIntValue = (int)round(value);
+	mDoubleValue = value;
 }
 
 void ContentProperty::setValue(const float& value) {
 	mValue = ds::value_to_string<float>(value);
+	mIntValue = (int)roundf(value);
+	mDoubleValue = (double)(value);
 }
 
 void ContentProperty::setValue(const ci::Color& value) {
 	mValue = ds::unparseColor(value);
+	mIntValue = 0;
+	mDoubleValue = 0.0;
 }
 
 void ContentProperty::setValue(const ci::ColorA& value) {
 	mValue = ds::unparseColor(value);
+	mIntValue = 0;
+	mDoubleValue = 0.0;
 }
 
 void ContentProperty::setValue(const ci::vec2& value) {
 	mValue = ds::unparseVector(value);
+	mIntValue = 0;
+	mDoubleValue = 0.0;
 }
 
 void ContentProperty::setValue(const ci::vec3& value) {
 	mValue = ds::unparseVector(value);
+	mIntValue = 0;
+	mDoubleValue = 0.0;
 }
 
 void ContentProperty::setValue(const ci::Rectf& value) {
 	mValue = ds::unparseRect(value);
+	mIntValue = 0;
+	mDoubleValue = 0.0;
 }
 
 ds::Resource ContentProperty::getResource() const {
-	return mResource;
+	if(mResource) return *mResource;
+	return EMPTY_RESOURCE;
 }
 
 void ContentProperty::setResource(const ds::Resource& resource) {
-	mResource = resource;
+	ds::Resource reccy = resource;
+	mResource = std::make_shared<ds::Resource>(reccy);
+	
 }
 
 bool ContentProperty::operator==(const ContentProperty& b) const {
@@ -99,15 +132,15 @@ bool ContentProperty::getBool() const {
 }
 
 int ContentProperty::getInt() const {
-	return ds::string_to_int(mValue);
+	return mIntValue;
 }
 
 float ContentProperty::getFloat() const {
-	return ds::string_to_float(mValue);
+	return (float)mDoubleValue;
 }
 
 double ContentProperty::getDouble() const {
-	return ds::string_to_double(mValue);
+	return mDoubleValue;
 }
 
 const ci::Color ContentProperty::getColor(ds::ui::SpriteEngine& eng) const {
@@ -220,6 +253,10 @@ const bool ContentModelRef::empty() const {
 	}
 
 	return false;
+}
+
+void ContentModelRef::clear() {
+	mData.reset(new Data());
 }
 
 ds::model::ContentModelRef ContentModelRef::duplicate() const {
@@ -352,7 +389,7 @@ ds::Resource ContentModelRef::getPropertyResource(const std::string& propertyNam
 	return getProperty(propertyName).getResource();
 }
 
-void ContentModelRef::setProperty(const std::string& propertyName, ContentProperty datamodel) {
+void ContentModelRef::setProperty(const std::string& propertyName, ContentProperty& datamodel) {
 	createData();
 
 	mData->mProperties[propertyName] = datamodel;
@@ -371,23 +408,17 @@ void ContentModelRef::setProperty(const std::string& propertyName, const std::ws
 }
 
 void ContentModelRef::setProperty(const std::string& propertyName, const int& value) {
-	ContentProperty dp;
-	dp.setName(propertyName);
-	dp.setValue(value);
+	ContentProperty dp(propertyName, std::to_string(value), value, (double)value);
 	setProperty(propertyName, dp);
 }
 
 void ContentModelRef::setProperty(const std::string& propertyName, const double& value) {
-	ContentProperty dp;
-	dp.setName(propertyName);
-	dp.setValue(value);
+	ContentProperty dp(propertyName, std::to_string(value), (int)round(value), value);
 	setProperty(propertyName, dp);
 }
 
 void ContentModelRef::setProperty(const std::string& propertyName, const float& value) {
-	ContentProperty dp;
-	dp.setName(propertyName);
-	dp.setValue(value);
+	ContentProperty dp(propertyName, std::to_string(value), (int)round(value), (double)value);
 	setProperty(propertyName, dp);
 }
 
@@ -426,6 +457,19 @@ void ContentModelRef::setProperty(const std::string& propertyName, const ci::Rec
 	setProperty(propertyName, dp);
 }
 
+void ContentModelRef::setPropertyResource(const std::string& propertyName, const ds::Resource& resource) {
+	createData();
+	auto findy = mData->mProperties.find(propertyName);
+	if(findy != mData->mProperties.end()) {
+		findy->second.setResource(resource);
+	} else {
+		ContentProperty dp;
+		dp.setName(propertyName);
+		dp.setResource(resource);
+		setProperty(propertyName, dp);
+	}
+}
+
 const std::vector<ContentModelRef>& ContentModelRef::getChildren() const {
 	if(!mData) return EMPTY_DATAMODELREF_VECTOR;
 	return  mData->mChildren;
@@ -453,8 +497,9 @@ ContentModelRef ContentModelRef::getChildById(const int id) {
 	return EMPTY_DATAMODEL;
 }
 
-ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
-	createData();
+ContentModelRef ContentModelRef::getChildByName(const std::string& childName) const {
+	if (!mData || mData->mChildren.empty())
+		return EMPTY_DATAMODEL;
 
 	if(childName.find(".") != std::string::npos) {
 		auto childrens = ds::split(childName, ".", true);
@@ -476,6 +521,44 @@ ContentModelRef ContentModelRef::getChildByName(const std::string& childName) {
 	return EMPTY_DATAMODEL;
 }
 
+ds::model::ContentModelRef ContentModelRef::getDescendant(const std::string& childName, const int childId) {
+	for(auto it : getChildren()) {
+		if(it.getId() == childId && it.getName() == childName) {
+			return it;
+		} else {
+			auto chillin = it.getDescendant(childName, childId);
+			if(!chillin.empty()) {
+				return chillin;
+			}
+		}
+	}
+
+	return ContentModelRef();
+}
+
+std::vector<ContentModelRef> ContentModelRef::getChildrenWithLabel(const std::string& label) {
+	std::vector<ContentModelRef> childrenWithLabel;
+	for(auto it : getChildren()) {
+		if(it.getLabel() == label) {
+			childrenWithLabel.push_back(it);
+		}
+	}
+	return childrenWithLabel;
+}
+
+ContentModelRef ContentModelRef::findChildByPropertyValue(const std::string& propertyName, const std::string& propertyValue){
+	for(auto it : getChildren()) {
+		if(it.getPropertyString(propertyName) == propertyValue) {
+			return it;
+		}
+	}
+	return ContentModelRef();
+}
+
+bool ContentModelRef::hasChild(const std::string& name) const {
+	return !getChildByName(name).empty();
+}
+
 void ContentModelRef::addChild(ContentModelRef datamodel) {
 	createData();
 
@@ -493,7 +576,7 @@ void ContentModelRef::addChild(ContentModelRef datamodel, const size_t index) {
 	}
 }
 
-bool ContentModelRef::hasChild(const std::string& name) {
+bool ContentModelRef::hasDirectChild(const std::string& name) const {
 	if(!mData || mData->mChildren.empty()) return false;
 
 	for(auto it : mData->mChildren) {
@@ -503,7 +586,7 @@ bool ContentModelRef::hasChild(const std::string& name) {
 	return false;
 }
 
-bool ContentModelRef::hasChildren() {
+bool ContentModelRef::hasChildren() const {
 	if(!mData) return false;
 	return !mData->mChildren.empty();
 }
@@ -511,6 +594,11 @@ bool ContentModelRef::hasChildren() {
 void ContentModelRef::setChildren(std::vector<ds::model::ContentModelRef> children) {
 	createData();
 	mData->mChildren = children;
+}
+
+void ContentModelRef::clearChildren() {
+	if(!mData) return;
+	mData->mChildren.clear();
 }
 
 void ContentModelRef::printTree(const bool verbose, const std::string& indent) {

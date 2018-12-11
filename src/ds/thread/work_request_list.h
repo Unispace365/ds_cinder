@@ -8,7 +8,7 @@
 namespace ds {
 
 /**
- * \class ds::WorkRequestList
+ * \class WorkRequestList
  * \brief Utility to manager a list of WorkRequests, so clients can easily reuse them.
  */
 template <typename T>
@@ -16,9 +16,9 @@ class WorkRequestList {
 public:
 	WorkRequestList(const void* clientId);
 
-	// Answer the next free item or create one, if I can
+	/// Answer the next free item or create one, if I can
 	std::unique_ptr<T>			next();
-	// Give ownership of the arg to the list.
+	/// Give ownership of the arg to the list.
 	void						push(std::unique_ptr<T>&);
 
 private:

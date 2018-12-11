@@ -322,8 +322,9 @@ void WebInterface::animateOff(){
 }
 
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
-	if(mLinkedWeb && !linkedWeb){
+	if(mLinkedWeb){
 		mLinkedWeb->setAuthCallback(nullptr);
+		mLinkedWeb->setLoadingUpdatedCallback(nullptr);
 	}
 
 	mLinkedWeb = linkedWeb;
@@ -514,6 +515,16 @@ void WebInterface::updateWidgets(){
 	}
 
 	layout();
+}
+
+void WebInterface::showKeyboard(bool show) {
+	mKeyboardShowing = show;
+	updateWidgets();
+}
+
+void WebInterface::toggleKeyboard() {
+	mKeyboardShowing = !mKeyboardShowing;
+	updateWidgets();
 }
 
 } // namespace ui

@@ -42,6 +42,8 @@ MqttWatcher::MqttWatcher(
 	, mLoop(e, host, topic_inbound, topic_outband, refresh_rate, port, clientId)
 	, mRetryWaitTime(5.0f)
 	, mStarted(false)
+	, mConnectedStatus(false)
+	, mConnectedCallback(false)
 {
 	MqttSingleton::initilize_once();
 	mLastMessageTime = Poco::Timestamp().epochMicroseconds();
@@ -64,6 +66,13 @@ void MqttWatcher::update(const ds::UpdateParams &){
 			DS_LOG_INFO("Retrying connection to mqtt server. Connected = " << mLoop.mConnected);
 			startListening();
 			mLastMessageTime = Poco::Timestamp().epochMicroseconds();
+		}
+	}
+
+	if(mConnectedStatus != mLoop.mConnected) {
+		mConnectedStatus = mLoop.mConnected;
+		if(mConnectedCallback) {
+			mConnectedCallback(mConnectedStatus);
 		}
 	}
 
@@ -106,6 +115,7 @@ void MqttWatcher::startListening(){
 	mStarted = true;
 	if(!mLoop.mConnected){
 		DS_LOG_INFO_M("Attempting to connect to the MQTT server at " << mLoop.getHost() << ":" << mLoop.getPort(), MQTT_LOG);
+
 		mLoopThread = std::thread( [this](){ mLoop.run(); } );
 		mLoop.mConnected = true;
 	}
@@ -123,6 +133,10 @@ void MqttWatcher::stopListening(){
 	}
 }
 
+void MqttWatcher::clearInboundListeners() {
+	mListeners.clear();
+}
+
 void MqttWatcher::setTopicInbound(const std::string& inBound){
 	std::lock_guard<std::mutex>	_lock(mLoop.mInboundMutex);
 	mLoop.setInBound(inBound);
@@ -131,6 +145,10 @@ void MqttWatcher::setTopicInbound(const std::string& inBound){
 void MqttWatcher::setTopicOutbound(const std::string& outBound){
 	std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
 	mLoop.setOutBound(outBound);
+}
+
+void MqttWatcher::setUserPass(const std::string& user, const std::string& pass) {
+	mLoop.setUserPass(user, pass);
 }
 
 void MqttWatcher::setHostString(const std::string& host){
@@ -142,7 +160,7 @@ void MqttWatcher::setPort(const int port){
 }
 
 /**
-* \class bmc::MqttWatcher::Loop
+* \class Loop
 */
 
 MqttWatcher::MqttConnectionLoop::MqttConnectionLoop (
@@ -209,6 +227,10 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		}
 	});
 
+	if(!mUsername.empty() && !mPassword.empty()) {
+		mqtt_isnt.username_pw_set(mUsername.c_str(), mPassword.c_str());
+	}
+
 	auto err_no = mqtt_isnt.connect(mHost.c_str(), mPort);
 	if(err_no != MOSQ_ERR_SUCCESS && mFirstTimeMessage){
 		DS_LOG_ERROR_M("Unable to connect to the MQTT server. Error number is: " << err_no << ". Error string is: " << mosqpp::strerror(err_no), MQTT_LOG);
@@ -230,13 +252,21 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		if(!mLoopOutbound.empty())	{
 			std::lock_guard<std::mutex>	_lock(mOutboundMutex);
 			while(!mLoopOutbound.empty()){
-				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), mLoopOutbound.back().message.size(), mLoopOutbound.back().message.data(), 1);
+				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), static_cast<int>(mLoopOutbound.back().message.size()), mLoopOutbound.back().message.data(), 1);
 				mLoopOutbound.pop_back();
 			}
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(mRefreshRateMs));
 	}
+
+	mqtt_isnt.setMessageAction(nullptr);
+	mqtt_isnt.unsubscribe(nullptr, mTopicInbound.c_str());
+	int disconnectReturn = mqtt_isnt.disconnect();
+	if(disconnectReturn != MOSQ_ERR_SUCCESS) {
+		DS_LOG_WARNING_M("MQTT disconnect errored with number: " << disconnectReturn << " Error string is: " << mosqpp::strerror(disconnectReturn), MQTT_LOG);
+	}
+
 	DS_LOG_INFO_M("MQTT Watcher loop is returning, setting connected to false.", MQTT_LOG);
 	mConnected = false;
 	//if(mFirstTimeMessage) std::cout << "MQTT watcher returned.";
@@ -249,6 +279,11 @@ void MqttWatcher::MqttConnectionLoop::setInBound(const std::string& inBound){
 
 void MqttWatcher::MqttConnectionLoop::setOutBound(const std::string& outBound){
 	mTopicOutbound = outBound;
+}
+
+void MqttWatcher::MqttConnectionLoop::setUserPass(const std::string& user, const std::string& pass) {
+	mUsername = user;
+	mPassword = pass;
 }
 
 void MqttWatcher::MqttConnectionLoop::setHost(const std::string& host){

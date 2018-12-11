@@ -28,7 +28,7 @@ char				CLIENT_INPUT_BLOB = 0;
 }
 
 /**
- * \class ds::EngineClient
+ * \class EngineClient
  */
 char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;
@@ -37,7 +37,6 @@ char EngineClient::getClientStatusBlob() {
 EngineClient::EngineClient(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: Engine(app, settings, ed, roots, CLIENT_MODE)
-		, mLoadImageService(*this, mIpFunctions)
 		, mSender(mSendConnection, false)
 		, mReceiver(mReceiveConnection, true)
 		, mBlobReader(mReceiver.getData(), *this)

@@ -54,7 +54,7 @@ void DirectoryWatcher::update(const ds::UpdateParams&) {
 }
 
 /**
- * \class ds::DirectoryWatcher::Waiter
+ * \class Waiter
  * \brief Handle waiting on directory changes and sending notices.
  */
 DirectoryWatcher::Waiter::Waiter(	const Poco::AtomicCounter& stop,

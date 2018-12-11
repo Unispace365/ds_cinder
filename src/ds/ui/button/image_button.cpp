@@ -10,7 +10,7 @@ namespace ds {
 namespace ui {
 
 /**
-* \class ds::ui::ImageButton
+* \class ImageButton
 */
 ImageButton& ImageButton::makeButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad, ds::ui::Sprite* parent) {
 	ImageButton*		b = new ImageButton(eng, downImage, upImage, touchPad);

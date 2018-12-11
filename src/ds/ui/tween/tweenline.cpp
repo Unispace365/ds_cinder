@@ -9,7 +9,7 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::Tweenline
+ * \class Tweenline
  */
 Tweenline::Tweenline(cinder::Timeline& tl)
   : mTimeline(tl)

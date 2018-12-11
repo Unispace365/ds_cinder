@@ -13,7 +13,7 @@ class Sprite;
 } // namespace ui
 
 /**
- * \class ds::Momentum
+ * \class Momentum
  * A helper class to have sprites move with momentum in 2d. 
  * This class supersedes drag_assist.
  * 
@@ -29,31 +29,31 @@ class Momentum : public ds::AutoUpdate {
 public:
 	Momentum(ds::ui::SpriteEngine& engine);
 
-	// Call activate to begin using momentum. 
-	// Use care not to call this more then once when starting, otherwise nothing will happen.
+	/// Call activate to begin using momentum. 
+	/// Use care not to call this more then once when starting, otherwise nothing will happen.
 	void						activate();
-	// Turn momentum off. Can be called as many times as you like.
-	// When not active, this class will continue to keep track of the parent,
-	// so you can reactivate whenever you like.
+	/// Turn momentum off. Can be called as many times as you like.
+	/// When not active, this class will continue to keep track of the parent,
+	/// so you can reactivate whenever you like.
 	void						deactivate();
-	// Friction is the coefficient of friction. 0.0 is no friction. 1.0 is a lot of friction
+	/// Friction is the coefficient of friction. 0.0 is no friction. 1.0 is a lot of friction
 	void						setFriction(const double newFriction){ mFriction = newFriction; }
-	// How 'heavy' the object feels.
+	/// How 'heavy' the object feels.
 	void						setMass(const double newMass){ mMass = newMass; }
-	// how small the velocity is when this class automatically deactivates.
+	/// how small the velocity is when this class automatically deactivates.
 	void						setDeactivationThreshold( const float newThresh ){ mDeactivateThreshold = newThresh; }
-	// How many frames of position data to keep for momentum smoothing.
-	// When fps = 60, 4-6 frames is a good choice
-	// fps = 30, 2-3 frames is good
-	// fps = 1000, 30-60 frames is good
+	/// How many frames of position data to keep for momentum smoothing.
+	/// When fps = 60, 4-6 frames is a good choice
+	/// fps = 30, 2-3 frames is good
+	/// fps = 1000, 30-60 frames is good
 	void						setNumberSmoothFrames(const int numFrames){ mNumSmoothFrames = numFrames; }
 
 	void						setMomentumParent(ds::ui::Sprite*);
 
-	// If the sprite moved on the last update, returns true. Otherwise false;
+	/// If the sprite moved on the last update, returns true. Otherwise false;
 	bool						recentlyMoved(){ return mMoved; }
 
-	// returns the current velocity
+	/// returns the current velocity
 	const ci::vec2&			getVelocity();
 
 protected:
