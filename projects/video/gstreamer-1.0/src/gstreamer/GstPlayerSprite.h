@@ -34,6 +34,7 @@ public:
 
 	// Loads a video from a file path.
 	GstPlayerSprite&			loadVideo(const std::string &filename);
+	GstPlayerSprite&			loadPipeline(const std::string &pipeline);
 
 	/// Playback control API 
 	virtual void		play();

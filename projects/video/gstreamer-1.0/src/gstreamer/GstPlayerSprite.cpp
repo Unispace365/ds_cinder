@@ -35,6 +35,21 @@ ds::ui::GstPlayerSprite& GstPlayerSprite::loadVideo(const std::string &filename)
 	return *this;
 }
 
+ds::ui::GstPlayerSprite& GstPlayerSprite::loadPipeline(const std::string &pipeline) {
+	if(!mGstPlayer) {
+		return *this;
+	}
+
+	gst::video::GstCustomPipelineData pipelineData;
+	pipelineData.pipeline = pipeline;
+	mGstPlayer->setCustomPipeline(pipelineData);
+
+	setSize(mGstPlayer->width(), mGstPlayer->height());
+
+	return *this;
+
+}
+
 void GstPlayerSprite::play() {
 	if(!mGstPlayer) return;
 	mGstPlayer->play();

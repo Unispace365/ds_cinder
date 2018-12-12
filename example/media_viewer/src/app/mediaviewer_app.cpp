@@ -30,7 +30,8 @@ MediaViewer::MediaViewer()
 	, mPlayerSprite(nullptr)
 {
 
-	mLastFilePath = "D:/content/sample_videos_2/56b52a791e7f7.mp4";
+	//mLastFilePath = "D:/content/sample_videos_2/51abba233fb16.mp4";
+	mLastFilePath = "D:/content/sample_videos_2/06_campus_09_26_4k.mp4";
 
 
 	/*fonts in use */
@@ -98,9 +99,12 @@ void MediaViewer::startGstPlayerSprite() {
 //	mPlayerSprite->loadVideo("d:/content/sample_videos_2/ds_tech.mp4");
 	//mPlayerSprite->loadVideo("d:/content/sample_videos_2/8k-maybe.mp4");
 	mPlayerSprite->loadVideo(mLastFilePath);
+	//mPlayerSprite->loadPipeline("uridecodebin uri=file:///d:/content/sample_videos_2/001_output.mp4 ! video/x-raw(memory:GLMemory), format=RGBA ! appsink name=videosink");
+	//mPlayerSprite->loadPipeline("filesrc location=d:/content/sample_videos_2/001_output.mp4 ! qtdemux ! h264parse ! nvdec ! glcolorconvert ! video/x-raw(memory:GLMemory), format=RGBA ! appsink name=videosink");
 	mPlayerSprite->enable(true);
 	mPlayerSprite->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
 	mPlayerSprite->play();
+	mPlayerSprite->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	mEngine.getRootSprite().addChildPtr(mPlayerSprite);
 }
 

@@ -447,6 +447,11 @@ void GstPlayer::resetBus()
 	mGstBus = nullptr;
 }
 
+
+static GstGLContext* create_gl_context(GstGLDisplay* display, GstGLContext* context, gpointer userData) {
+	return sGstAsyncContext;
+}
+
 void GstPlayer::setCustomPipeline(const GstCustomPipelineData &customPipeline)
 {
 	// Similar to loading and maybe merged at some point.
@@ -580,10 +585,6 @@ void GstPlayer::resetCustomPipeline()
 	}
 }
 
-static GstGLContext* create_gl_context(GstGLDisplay* display, GstGLContext* context, gpointer userData) {
-	return sGstAsyncContext;
-}
-
 void GstPlayer::constructPipeline()
 {
 	if(mGstData.pipeline) return;
@@ -624,12 +625,15 @@ void GstPlayer::constructPipeline()
 		gst_caps_unref(caps);
 	}
 
+	/*
+	*/
 	GstPad *pad = nullptr;
-
 	if(sUseGstGl) {
 #if defined( CINDER_GST_HAS_GL )
-		mGstData.glupload = gst_element_factory_make("glupload", "upload");
-		if(!mGstData.glupload) g_printerr("Failed to create GL upload element!\n");
+		auto nvDec = gst_element_factory_make("nvdec", "decoder0");
+
+		//mGstData.glupload = gst_element_factory_make("glupload", "upload");
+		//if(!mGstData.glupload) g_printerr("Failed to create GL upload element!\n");
 
 		mGstData.glcolorconvert = gst_element_factory_make("glcolorconvert", "convert");
 		if(!mGstData.glcolorconvert) g_printerr("Failed to create GL convert element!\n");
@@ -638,17 +642,23 @@ void GstPlayer::constructPipeline()
 #if defined( CINDER_LINUX_EGL_ONLY ) && defined( CINDER_GST_HAS_GL )
 		if(mGstData.rawCapsFilter) g_object_set(G_OBJECT(mGstData.rawCapsFilter), "caps", gst_caps_from_string("video/x-raw(memory:GLMemory)"), nullptr);
 #else
-		if(mGstData.rawCapsFilter) g_object_set(G_OBJECT(mGstData.rawCapsFilter), "caps", gst_caps_from_string("video/x-raw"), nullptr);
+		//if(mGstData.rawCapsFilter) g_object_set(G_OBJECT(mGstData.rawCapsFilter), "caps", gst_caps_from_string("video/x-raw"), nullptr);
+		if(mGstData.rawCapsFilter) g_object_set(G_OBJECT(mGstData.rawCapsFilter), "caps", gst_caps_from_string("video/x-raw(memory:GLMemory)"), nullptr);
 #endif
 		else g_printerr("Failed to create raw caps filter element!\n");
 
-		gst_bin_add_many(GST_BIN(mGstData.videoBin), mGstData.rawCapsFilter, mGstData.glupload, mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		//gst_bin_add_many(GST_BIN(mGstData.videoBin), mGstData.rawCapsFilter, mGstData.glupload, mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		//gst_bin_add_many(GST_BIN(mGstData.videoBin), mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		gst_bin_add_many(GST_BIN(mGstData.videoBin), nvDec, mGstData.glcolorconvert, mGstData.appSink, nullptr);
 
-		if(!gst_element_link_many(mGstData.rawCapsFilter, mGstData.glupload, mGstData.glcolorconvert, mGstData.appSink, nullptr)) {
-			g_printerr("Failed to link video elements...!\n");
-		}
+		//gst_element_link_many(mGstData.rawCapsFilter, mGstData.glupload, mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		//gst_element_link_many(mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		gst_element_link_many(nvDec, mGstData.glcolorconvert, mGstData.appSink, nullptr);
+		
 
-		pad = gst_element_get_static_pad(mGstData.rawCapsFilter, "sink");
+	//	pad = gst_element_get_static_pad(mGstData.rawCapsFilter, "sink");
+		pad = gst_element_get_static_pad(nvDec, "sink");
+	//	pad = gst_element_get_static_pad(mGstData.glcolorconvert, "sink");
 		gst_element_add_pad(mGstData.videoBin, gst_ghost_pad_new("sink", pad));
 
 		if(sEnableAsyncStateChange) {
@@ -661,13 +671,19 @@ void GstPlayer::constructPipeline()
 		pad = gst_element_get_static_pad(mGstData.appSink, "sink");
 		gst_element_add_pad(mGstData.videoBin, gst_ghost_pad_new("sink", pad));
 	}
-
 	if(pad) {
 		gst_object_unref(pad);
 		pad = nullptr;
 	}
 
 	g_object_set(G_OBJECT(mGstData.pipeline), "video-sink", mGstData.videoBin, nullptr);
+
+	/*
+	if(sEnableAsyncStateChange) {
+		g_signal_connect(sGstGLDisplay, "create-context", G_CALLBACK(create_gl_context), this, NULL);
+	}
+	g_object_set(G_OBJECT(mGstData.pipeline), "video-sink", mGstData.appSink, nullptr);
+	*/
 
 	addBusWatch(mGstData.pipeline);
 }
