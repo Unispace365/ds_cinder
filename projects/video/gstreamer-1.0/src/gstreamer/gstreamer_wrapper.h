@@ -687,8 +687,6 @@ class GStreamerWrapper {
 	PlayDirection  mPlayDirection;		 ///<  The current playback direction
 	ContentType    mContentType;  ///<  Describes whether the currently loaded media file contains only video / audio streams or both
 
-	GstMapInfo     mVideoMapInfo;     ///<  Internal storage of the gst buffer
-	GstBuffer*     mVideoGstBuffer;   ///<  Internal gst video buffer
 	unsigned char* mVideoBuffer;	  ///<  Stores the video pixels
 	size_t		   mVideoBufferSize;  ///<  Number of bytes in mVideoBuffer
 

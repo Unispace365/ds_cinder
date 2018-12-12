@@ -8,15 +8,11 @@
 
 #include "gst/net/gstnetclientclock.h"
 
-/// if this is defined, will create and copy video buffers from gstreamer using memcopy
-/// undefined will use the buffers directly in creating the textures
-#define BUFFERS_COPIED 1
 
 namespace gstwrapper {
 
 GStreamerWrapper::GStreamerWrapper()
   : mFileIsOpen(false)
-  , mVideoGstBuffer(NULL)
   , mVideoBuffer(NULL)
   , mAudioBuffer(NULL)
   , mGstPipeline(NULL)
@@ -243,9 +239,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 									   G_TYPE_INT, mHeight, NULL);
 		}
 
-#ifdef BUFFERS_COPIED
 		mVideoBuffer = new unsigned char[mVideoBufferSize];
-#endif
 
 		gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
 		gst_caps_unref(caps);
@@ -556,10 +550,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	// Set some fix caps for the video sink
 	// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
 	mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
-
-#ifdef BUFFERS_COPIED
 	mVideoBuffer	 = new unsigned char[mVideoBufferSize];
-#endif
 
 	// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 	g_object_set(mGstVideoSink, "emit-signals", false, (void*)NULL);
@@ -646,10 +637,7 @@ bool GStreamerWrapper::parseLaunch(const std::string& fullPipeline, const int vi
 		mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
 	}
 
-
-#ifdef BUFFERS_COPIED
 	mVideoBuffer = new unsigned char[mVideoBufferSize];
-#endif
 
 	mGstVideoSink	 = gst_bin_get_by_name(GST_BIN(mGstPipeline), videoSinkName.c_str());
 	mGstVolumeElement = gst_bin_get_by_name(GST_BIN(mGstPipeline), volumeElementName.c_str());
@@ -810,16 +798,8 @@ void GStreamerWrapper::close() {
 		mGstPanorama  = NULL;
 		mGstBus		  = NULL;
 
-#ifdef BUFFERS_COPIED
 		delete[] mVideoBuffer;
 		mVideoBuffer = NULL;
-#else
-		if(mVideoGstBuffer) {
-			gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-			gst_buffer_unref(mVideoGstBuffer);
-			mVideoGstBuffer = NULL;
-		}
-#endif
 
 		delete[] mAudioBuffer;
 		mAudioBuffer = NULL;
@@ -903,17 +883,6 @@ void GStreamerWrapper::stop() {
 
 		std::lock_guard<std::mutex> lock(mVideoMutex);
 		mCurrentPlayState = STOPPED;
-
-#ifdef BUFFERS_COPIED
-		//mVideoBuffer = NULL;
-#else 
-		if(mVideoGstBuffer) {
-			gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-			gst_buffer_unref(mVideoGstBuffer);
-			mVideoGstBuffer = NULL;
-		}
-#endif
-
 	}
 }
 
@@ -1030,14 +999,7 @@ std::string GStreamerWrapper::getFileName() { return mFilename; }
 unsigned char* GStreamerWrapper::getVideo() {
 	std::lock_guard<std::mutex> lock(mVideoMutex);
 	mIsNewVideoFrame = false;
-#ifdef BUFFERS_COPIED
 	return mVideoBuffer;
-#else 
-	if(mVideoGstBuffer) {
-		return mVideoMapInfo.data;
-	}
-	return NULL;
-#endif
 }
 
 int GStreamerWrapper::getCurrentVideoStream() { return mCurrentVideoStream; }
@@ -1361,14 +1323,6 @@ void GStreamerWrapper::handleGStMessage() {
 							mCurrentGstState = STATE_PLAYING;
 						} else if (newState == GST_STATE_NULL) {
 							mCurrentGstState = STATE_NULL;
-
-#ifndef BUFFERS_COPIED
-							if(mVideoGstBuffer) {
-								gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-								gst_buffer_unref(mVideoGstBuffer);
-								mVideoGstBuffer = NULL;
-							}
-#endif
 						} else if (newState == GST_STATE_PAUSED) {
 							mCurrentGstState = STATE_PAUSED;
 						} else if (newState == GST_STATE_READY) {
@@ -1507,7 +1461,6 @@ void GStreamerWrapper::handleVideoBuffer(GstSample* videoSinkSample) {
 	std::lock_guard<std::mutex> lock(mVideoMutex);
 
 	GstMapFlags flags = GST_MAP_READ;
-#ifdef BUFFERS_COPIED
 
 	if(!mVideoBuffer) return;
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);
@@ -1527,16 +1480,6 @@ void GStreamerWrapper::handleVideoBuffer(GstSample* videoSinkSample) {
 
 	memcpy((unsigned char*)mVideoBuffer, map.data, videoBufferSize);
 	gst_buffer_unmap(buff, &map);
-#else
-	if(mVideoGstBuffer) {
-		gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-		gst_buffer_unref(mVideoGstBuffer);
-		mVideoGstBuffer = nullptr;
-	}
-	mVideoGstBuffer = gst_sample_get_buffer(videoSinkSample);
-	gst_buffer_ref(mVideoGstBuffer);
-	gst_buffer_map(mVideoGstBuffer, &mVideoMapInfo, flags);
-#endif
 
 	if(!mPendingSeek) mIsNewVideoFrame = true;
 
