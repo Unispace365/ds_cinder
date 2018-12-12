@@ -62,6 +62,8 @@ void ContentQuery::run() {
 
 		if(!resourceNode.getPropertyString("check_updated").empty()){
 			mCheckUpdatedResources = resourceNode.getPropertyBool("check_updated");
+
+			mData.setProperty("merge_content", !mCheckUpdatedResources);
 		}
 	}
 

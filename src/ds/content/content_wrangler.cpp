@@ -49,38 +49,44 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 
 	if (auto match = mEngine.mContent.getChildByName(q.mData.getName())) {
 		using ModelVec = std::vector<ds::model::ContentModelRef>;
-		// Merge new tables with the existing data tables
-		ModelVec existingTables = match.getChildren();
 		ModelVec newTables      = q.mData.getChildren();
-		ModelVec mergedList;
 
-		for (auto tit : existingTables) {
+		if(mEngine.mContent.getChildByName("sqlite").getPropertyBool("merge_content")){
+			// Merge new tables with the existing data tables
+			ModelVec existingTables = match.getChildren();
+			ModelVec mergedList;
+			for (auto tit : existingTables) {
 
-			bool foundNewTable = false;
-			// look for updates to this table, and if there are, remove them from the new list
-			for (auto nit = newTables.begin(); nit < newTables.end(); nit++) {
-				if ((*nit).getId() == tit.getId()) {
-					mergedList.emplace_back((*nit));
-					foundNewTable = true;
-					// remove from the new list so when we add the remainders later, it's there
-					newTables.erase(nit);
-					break;
+				bool foundNewTable = false;
+				// look for updates to this table, and if there are, remove them from the new list
+				for (auto nit = newTables.begin(); nit < newTables.end(); nit++) {
+					if ((*nit).getId() == tit.getId()) {
+						mergedList.emplace_back((*nit));
+						foundNewTable = true;
+						// remove from the new list so when we add the remainders later, it's there
+						newTables.erase(nit);
+						break;
+					}
+				}
+
+				/// One of the existing tables didn't get updated, so add it to the merged list
+				if (!foundNewTable) {
+					mergedList.emplace_back(tit);
 				}
 			}
 
-			/// One of the existing tables didn't get updated, so add it to the merged list
-			if (!foundNewTable) {
-				mergedList.emplace_back(tit);
+			/// Add any new tables that weren't already in the existing list
+			for (auto nit : newTables) {
+				mergedList.emplace_back(nit);
 			}
-		}
 
-		/// Add any new tables that weren't already in the existing list
-		for (auto nit : newTables) {
-			mergedList.emplace_back(nit);
+			/// replace all children of the top-level node
+			match.setChildren(mergedList);
+		}else{
+			// Just straight up replace, no merge
+			match.clear();
+			match = q.mData;
 		}
-
-		/// replace all children of the top-level node
-		match.setChildren(mergedList);
 	} else {
 		mEngine.mContent.addChild(q.mData);
 	}
