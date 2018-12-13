@@ -65,6 +65,20 @@ class GstVideo : public Sprite {
 	// Sets the video sprite size. Internally just scales the texture
 	void setSize(float width, float height);
 
+	/// Will use GStreamer's OpenGL elements to upload the video to a texture.
+	/// Default is off. Once enabled, can't be disabled for this video sprite instance
+	/// Must be set before loading the video
+	/// Currently doesn't work on streams
+	void enableOpenGlMode();
+	bool isOpenGlMode() { return mOpenGlMode; }
+
+	/// If true, will use an NVidia CUDA decoder for video. 
+	/// Requires the nvdec plugin, an nvidia graphics card, and a compatible video
+	/// If all conditions are met, can greatly speed up playback, particularly on very large videos (4096 or 8192 pixels depending on GPU)
+	/// Must be set before loading the video
+	void setNVDecode(const bool nvDecode);
+	bool isNVDecode() { return mNVDecode; }
+
 	// Loads a video from a file path.
 	GstVideo& loadVideo(const std::string& filename);
 	// Loads a vodeo from a ds::Resource::Id
@@ -261,7 +275,8 @@ class GstVideo : public Sprite {
 	void setNetClock();
 	bool thisInstancePlayable();
 
-
+	bool mOpenGlMode = false;
+	bool mNVDecode = false;
 	ColorType mColorType;
 
 	ci::gl::TextureRef mFrameTexture;

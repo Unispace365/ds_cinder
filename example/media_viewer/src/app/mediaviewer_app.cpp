@@ -39,11 +39,12 @@ MediaViewer::MediaViewer()
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
 
+	registerKeyPress("Toggle NV decode", [this] { mNVDecode = !mNVDecode; std::cout << "Nvidia decode is " << mNVDecode << std::endl; }, ci::app::KeyEvent::KEY_COMMA);
+	registerKeyPress("Toggle GL Mode", [this] { mGlMode = !mGlMode; std::cout << "GL Mode is " << mGlMode << std::endl; }, ci::app::KeyEvent::KEY_PERIOD);
 	registerKeyPress("Test new video player", [this] { startGstPlayerSprite(); }, ci::app::KeyEvent::KEY_o);
 }
 
 void MediaViewer::setupServer(){
-
 	mPlayerSprite = nullptr;
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -181,7 +182,7 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 		newMedia.setPrimaryResource(ds::Resource((*it).string(), ds::Resource::parseTypeFromFilename((*it).string())));
 		newMedia.setTitle(ds::wstr_from_utf8(fileName));
 		newMedia.setBody((*it).wstring());
-		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth));
+		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth, mGlMode, mNVDecode));
 		locationy.x += incrementy;
 		locationy.y += incrementy;
 	}

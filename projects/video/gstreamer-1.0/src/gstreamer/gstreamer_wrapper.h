@@ -6,6 +6,7 @@
 #include <gst/gstbin.h>
 #include <gst/net/gstnettimeprovider.h>
 #include <gst/video/video.h>
+#include <gst/gl/gl.h>
 
 #include "gstreamer_audio_device.h"
 
@@ -227,8 +228,6 @@ class GStreamerWrapper {
 	*/
 	void setPosition(double fPos);
 
-
-	void setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
@@ -245,6 +244,19 @@ class GStreamerWrapper {
 	std::string getFileName();
 
 	/*
+	Enables OpenGL mode (cannot be disabled). Will use GStreamer elements and a separate context to upload frames to textures
+	Must be set before loading the video
+	getVideo() will return nullptr in this mode, use getVideoTexture() to get a texture ref
+	*/
+	void setOpenGlMode();
+
+	/*
+	Will use Nvidia CUDO decoder. Must be used with openGL mode, as it decodes frames directly into textures
+	Must be set for loading the video
+	*/
+	void setNVDecode(const bool nvDecode);
+
+	/*
 	Returns an unsigned char pointer containing the pixel data for the currently decoded frame.
 	Returns NULL if there is either no video stream in the media file, no media file has been opened or something
 	went wrong while streaming
@@ -253,6 +265,9 @@ class GStreamerWrapper {
 
 	size_t getVideoBufferSize() { return mVideoBufferSize; }
 
+	/* OpenGL mode only - returns a texture ref if there is video. Will be an empty ref otherwise*/
+	ci::gl::Texture2dRef getVideoTexture();
+	
 	/*
 	Returns the index of the current video stream
 	*/
@@ -647,6 +662,13 @@ class GStreamerWrapper {
 	float		   mSpeed;				 ///<  The current playback speed
 	gint64		   mDurationInNs;		 ///<  Duration of media file in nanoseconds
 	LoopMode	   mLoopMode;			 ///<  The current loop mode
+
+	bool		   mGlMode;				 ///<  If we're using GStreamer's openGL capabilities, outputs a texture instead of a buffer
+	bool		   mNVDecode;			 ///<  Uses NVidia CUDA to decode videos, support is limited
+
+	std::shared_ptr<GstBuffer> mCurrentBuffer;		 ///<  For GL Mode
+	std::shared_ptr<GstBuffer> mNewBuffer;			 ///<  For GL Mode
+	ci::gl::Texture2dRef       mVideoTexture;		 ///<  For GL Mode
 
 	std::function<void(GStreamerWrapper*)>  mVideoCompleteCallback;
 	std::function<void(const std::string&)> mErrorMessageCallback;

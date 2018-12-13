@@ -89,6 +89,15 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 		mVideo->setAutoStart(true);
 	}
 
+	if(mGlMode) {
+		mVideo->enableOpenGlMode();
+	}
+
+	if(mNVDecode) {
+		mVideo->setNVDecode(true);
+	}
+
+
 	mVideo->loadVideo(mediaPath);
 	if (mAutoPlayFirstFrame) {
 		mVideo->playAFrame(-1.0, [this]() { mVideo->setMute(false); });
@@ -206,6 +215,8 @@ void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 	setAudioDevices(settings.mVideoAudioDevices);
 	setLetterbox(settings.mLetterBox);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mNVDecode = settings.mVideoNVDecode;
+	mGlMode = settings.mVideoGlMode;
 }
 
 void VideoPlayer::setLetterbox(const bool doLetterBox) {

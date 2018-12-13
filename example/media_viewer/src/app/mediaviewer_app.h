@@ -45,7 +45,9 @@ private:
 
 	std::string			mLastFilePath;
 
-	void				touchEventToTouchInfo(ds::ui::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);
+	bool				mGlMode = true;
+	bool				mNVDecode = true;
+
 };
 
 } // !namespace mv

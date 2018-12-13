@@ -22,7 +22,7 @@ class ViewerController : public ds::ui::Sprite  {
 	public:
 		ViewerController(Globals& g);
 
-		void								addViewer(ds::model::MediaRef newMedia, const ci::vec3 location, const float startWidth);
+		void								addViewer(ds::model::MediaRef newMedia, const ci::vec3 location, const float startWidth, const bool openGl, const bool nvDecode);
 
 		// immediately releases the viewer with no animation
 		void								removeViewer(TitledMediaViewer* viewer);
@@ -35,12 +35,15 @@ class ViewerController : public ds::ui::Sprite  {
 		void								animateViewerOff(TitledMediaViewer* viewer, const float delayey);
 		void								createGridLayout(const ci::Rectf area, const int numItems, std::vector<ci::vec2>& positions);
 
+		virtual void						onUpdateServer(const ds::UpdateParams& updateParams);
+
 		typedef ds::ui::Sprite				inherited;
 		Globals&							mGlobals;
 
 		ds::EventClient						mEventClient;
 		
 		std::vector<TitledMediaViewer*>		mViewers;
+		ds::ui::Text*						mGstFps;
 
 	};
 

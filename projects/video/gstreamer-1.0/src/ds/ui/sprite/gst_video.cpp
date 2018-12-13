@@ -334,42 +334,50 @@ void GstVideo::updateVideoTexture() {
 				GSTREAMER_LOG);
 			unloadVideo();
 		} else {
-			int videoDepth = mVideoSize.x * 4;  // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
-			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
-			if (mColorType == kColorTypeSolid) {
-				videoDepth = mVideoSize.x * 3;
-				co		   = ci::SurfaceChannelOrder::BGR;
-			} else if (mColorType == kColorTypeShaderTransform) {
-				videoDepth = mVideoSize.x;
-				co		   = ci::SurfaceChannelOrder::CHAN_RED;
-			}
-
-			unsigned char* dat			 = nullptr;
-			Surface8u*	 video_surface = nullptr;
-
-			dat = mGstreamerWrapper->getVideo();
-
-			if (dat && mFrameTexture) {
-				if (mColorType == kColorTypeShaderTransform) {
-
-					if (mUFrameTexture && mVFrameTexture) {
-						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
-						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1,
-											   dat + mVideoSize.x * mVideoSize.y);
-						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1,
-											   dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
-
-						mFrameTexture->update(yChannel);
-						mUFrameTexture->update(uChannel);
-						mVFrameTexture->update(vChannel);
-					}
-
-				} else {
-					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
-					mFrameTexture->update(video_surface);
+			if(mOpenGlMode) {
+				mFrameTexture = mGstreamerWrapper->getVideoTexture();
+				if(mFrameTexture->getWidth() > 0) {
+					mDrawable = true;
 				}
 
-				mDrawable = true;
+			} else {
+				int videoDepth = mVideoSize.x * 4;  // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
+				ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
+				if(mColorType == kColorTypeSolid) {
+					videoDepth = mVideoSize.x * 3;
+					co = ci::SurfaceChannelOrder::BGR;
+				} else if(mColorType == kColorTypeShaderTransform) {
+					videoDepth = mVideoSize.x;
+					co = ci::SurfaceChannelOrder::CHAN_RED;
+				}
+
+				unsigned char* dat = nullptr;
+				Surface8u*	 video_surface = nullptr;
+
+				dat = mGstreamerWrapper->getVideo();
+
+				if(dat && mFrameTexture) {
+					if(mColorType == kColorTypeShaderTransform) {
+
+						if(mUFrameTexture && mVFrameTexture) {
+							ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+							ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1,
+												   dat + mVideoSize.x * mVideoSize.y);
+							ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1,
+												   dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
+
+							mFrameTexture->update(yChannel);
+							mUFrameTexture->update(uChannel);
+							mVFrameTexture->update(vChannel);
+						}
+
+					} else {
+						ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
+						mFrameTexture->update(video_surface);
+					}
+
+					mDrawable = true;
+				}
 			}
 
 			if (mPlaySingleFrame) {
@@ -400,22 +408,28 @@ void GstVideo::drawLocalClient() {
 	}
 
 	if (mFrameTexture && mDrawable) {
-		if (mColorType == kColorTypeShaderTransform) {
+		if(mOpenGlMode) {
+			ci::gl::draw(mFrameTexture);
+		} else if(mColorType == kColorTypeShaderTransform) {
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
 
-			if (mFrameTexture) mFrameTexture->bind(2);
-			if (mUFrameTexture) mUFrameTexture->bind(3);
-			if (mVFrameTexture) mVFrameTexture->bind(4);
+			if(mFrameTexture) mFrameTexture->bind(2);
+			if(mUFrameTexture) mUFrameTexture->bind(3);
+			if(mVFrameTexture) mVFrameTexture->bind(4);
 
 
-			if (mRenderBatch) {
+			if(mRenderBatch) {
 				mRenderBatch->draw();
-			} else if (getPerspective()) {
+			} else if(getPerspective()) {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 			}
+
+			if(mFrameTexture) mFrameTexture->unbind(2);
+			if(mUFrameTexture) mUFrameTexture->unbind(3);
+			if(mVFrameTexture) mVFrameTexture->unbind(4);
 
 		} else {
 			if (getPerspective()) {
@@ -429,15 +443,7 @@ void GstVideo::drawLocalClient() {
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 			}
-		}
-
-		if (mColorType == kColorTypeShaderTransform) {
-			if (mFrameTexture) mFrameTexture->unbind(2);
-			if (mUFrameTexture) mUFrameTexture->unbind(3);
-			if (mVFrameTexture) mVFrameTexture->unbind(4);
-
-		} else {
-			if (mFrameTexture) mFrameTexture->unbind();
+			if(mFrameTexture) mFrameTexture->unbind();
 		}
 
 		DS_LOG_VERBOSE(6, "GstVideo drawing video frame");
@@ -445,6 +451,16 @@ void GstVideo::drawLocalClient() {
 }
 
 void GstVideo::setSize(float width, float height) { setScale(width / getWidth(), height / getHeight()); }
+
+void GstVideo::enableOpenGlMode() {
+	mOpenGlMode = true;
+	mGstreamerWrapper->setOpenGlMode();
+}
+
+void GstVideo::setNVDecode(const bool nvDecode) {
+	mGstreamerWrapper->setNVDecode(nvDecode);
+	mNVDecode = nvDecode;
+}
 
 GstVideo& GstVideo::loadVideo(const std::string& filename) {
 	const std::string _filename(ds::Environment::expand(filename));
@@ -568,7 +584,7 @@ void GstVideo::doLoadVideo(const std::string& filename, const std::string& porta
 		mDrawable = false;
 
 		ColorType theColor = ColorType::kColorTypeTransparent;
-		if (colorSpace == "4:2:0") {
+		if (colorSpace == "4:2:0" && !mOpenGlMode) {
 			theColor = ColorType::kColorTypeShaderTransform;
 			std::string shaderName("yuv_colorspace_conversion");
 			mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);  // , true);
@@ -632,7 +648,7 @@ void GstVideo::doLoadVideo(const std::string& filename, const std::string& porta
 							 GSTREAMER_LOG);
 		}
 		return;
-	} else {
+	} else if(!mOpenGlMode) {
 		ci::gl::Texture::Format fmt;
 
 		if (mColorType == kColorTypeShaderTransform) {

@@ -19,12 +19,14 @@ public:
 
 class RequestMediaOpenEvent : public ds::RegisteredEvent < RequestMediaOpenEvent > {
 public: 
-	RequestMediaOpenEvent(ds::model::MediaRef media, const ci::vec3& location, const float startWidth)
-		: mMedia(media), mLocation(location), mStartWidth(startWidth){}
+	RequestMediaOpenEvent(ds::model::MediaRef media, const ci::vec3& location, const float startWidth, const bool glMode = false, const bool nvDecode = false)
+		: mMedia(media), mLocation(location), mStartWidth(startWidth), mOpenGl(glMode), mNVDecode(nvDecode){}
 
 	ds::model::MediaRef mMedia;
 	ci::vec3 mLocation;
 	const float mStartWidth;
+	const bool mOpenGl;
+	const bool mNVDecode;
 };
 
 class RequestCloseAllEvent : public ds::RegisteredEvent < RequestCloseAllEvent > {

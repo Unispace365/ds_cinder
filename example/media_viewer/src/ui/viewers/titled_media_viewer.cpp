@@ -45,7 +45,11 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	});
 }
 
-void TitledMediaViewer::setMedia(ds::model::MediaRef media) {
+void TitledMediaViewer::setMedia(ds::model::MediaRef media, const bool openGl, const bool nvDec) {
+	auto settings = getSettings();
+	settings.mVideoGlMode = openGl;
+	settings.mVideoNVDecode = nvDec;
+	setSettings(settings);
 	loadMedia(media.getPrimaryResource());
 
 	if(mTitle){

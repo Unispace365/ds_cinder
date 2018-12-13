@@ -22,7 +22,7 @@ public:
 	TitledMediaViewer(Globals& g);
 
 
-	void								setMedia(ds::model::MediaRef media);
+	void								setMedia(ds::model::MediaRef media, const bool openGl, const bool nvDec);
 	void								animateOn();
 	void								animateOff();
 
