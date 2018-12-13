@@ -110,6 +110,7 @@
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
@@ -117,8 +118,10 @@
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libiconv-2.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
 
@@ -128,6 +131,7 @@
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll;
@@ -135,7 +139,9 @@
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll;
 	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll
 	  </Inputs>
@@ -180,6 +186,7 @@
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
@@ -187,13 +194,32 @@
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libiconv-2.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
 
 		</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstapp-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll;$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll</Inputs>
+      <Inputs>
+	  $(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll; 
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstapp-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll;
+	  $(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll</Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
