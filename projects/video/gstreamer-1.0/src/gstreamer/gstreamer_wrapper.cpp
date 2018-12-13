@@ -7,16 +7,17 @@
 #include "ds/debug/logger.h"
 
 #include "gst/net/gstnetclientclock.h"
+#include <gst/gl/gl.h>
 
-/// if this is defined, will create and copy video buffers from gstreamer using memcopy
-/// undefined will use the buffers directly in creating the textures
-#define BUFFERS_COPIED 1
 
 namespace gstwrapper {
 
+static GstGLContext* mGlContext = nullptr; ///<  For GL Mode
+static GstGLDisplay* sGstGLDisplay = nullptr;
+static GstGLContext* sGstAsyncContext = nullptr;
+
 GStreamerWrapper::GStreamerWrapper()
   : mFileIsOpen(false)
-  , mVideoGstBuffer(NULL)
   , mVideoBuffer(NULL)
   , mAudioBuffer(NULL)
   , mGstPipeline(NULL)
@@ -43,7 +44,10 @@ GStreamerWrapper::GStreamerWrapper()
   , mServer(true)
   , mValidInstall(true)
   , mSyncedMode(false)
-  , mStreamNeedsRestart(false) {
+  , mStreamNeedsRestart(false)
+  , mGlMode(false)
+  , mNVDecode(false)
+{
 
 	mCurrentPlayState = NOT_INITIALIZED;
 }
@@ -164,11 +168,14 @@ void* GStreamerWrapper::getElementByName(const std::string& gst_element_name) {
 	return NULL;
 }
 
-
 static void deinterleave_new_pad(GstElement* element, GstPad* pad, gpointer data) {
 	gchar* padName = gst_pad_get_name(pad);
 	std::cout << "New pad created! " << padName << std::endl;
 	g_free(padName);
+}
+
+static GstGLContext* create_gl_context(GstGLDisplay* display, GstGLContext* context, gpointer userData) {
+	return sGstAsyncContext;
 }
 
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer,
@@ -211,51 +218,107 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// VIDEO SINK
 	// Extract and Config Video Sink
 	if (bGenerateVideoBuffer) {
+
 		// Create the video appsink and configure it
-		mGstVideoSink = gst_element_factory_make("appsink", "videosink");
-
-		// gst_app_sink_set_max_buffers( GST_APP_SINK( mGstVideoSink ), 2 );
-		// gst_app_sink_set_drop( GST_APP_SINK( mGstVideoSink ), true );
-		gst_base_sink_set_qos_enabled(GST_BASE_SINK(mGstVideoSink), true);
-		gst_base_sink_set_max_lateness(GST_BASE_SINK(mGstVideoSink),
-									   -1);  // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
-
-		// Set some fix caps for the video sink
+		GstElement* vbin = NULL;
 		GstCaps* caps;
+		if(mGlMode) {
+			mVideoBufferSize = 0;
 
-		if (colorSpace == kColorSpaceTransparent) {
-			mVideoBufferSize = 4 * mWidth * mHeight;
-			caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGRA", "width", G_TYPE_INT, mWidth, "height",
-									   G_TYPE_INT, mHeight, NULL);
+			vbin = gst_bin_new("cinder-vbin");
+			mGstVideoSink = gst_element_factory_make("appsink", "videosink");
 
-		} else if (colorSpace == kColorSpaceSolid) {
-			mVideoBufferSize = 3 * mWidth * mHeight;
+			//GstCaps* caps = gst_caps_new_simple("video/x-raw(memory:GLMemory)", "format", G_TYPE_STRING, "BGRA",
+			//																	"width", G_TYPE_INT, mWidth,
+			//																	"height", G_TYPE_INT, mHeight, NULL);
+			/// todo: format w/h
+			std::string theCaps = "video/x-raw(memory:GLMemory), format=RGBA, width=" + std::to_string(mWidth) + ", height=" + std::to_string(mHeight);
+			caps = gst_caps_from_string(theCaps.c_str());
+			gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
+			gst_caps_unref(caps);
 
-			caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGR", "width", G_TYPE_INT, mWidth, "height",
-									   G_TYPE_INT, mHeight, NULL);
+			GstPad *pad = nullptr;
 
-		} else if (colorSpace == kColorSpaceI420) {
-			// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
-			mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
+			/// Need gltransformation?
+			// nvdec uploads textures and provides it's own caps
+			if(mNVDecode) {
+				auto nvDec = gst_element_factory_make("nvdec", "decoder0");
+				auto glcolorconvert = gst_element_factory_make("glcolorconvert", "convert");
+				auto gltransform = gst_element_factory_make("gltransformation", "transform");
+
+				gst_bin_add_many(GST_BIN(vbin), nvDec, glcolorconvert, gltransform, mGstVideoSink, nullptr);
+				gst_element_link_many(nvDec, glcolorconvert, gltransform, mGstVideoSink, nullptr);
+				pad = gst_element_get_static_pad(nvDec, "sink");
+
+			} else {
+
+				auto glupload = gst_element_factory_make("glupload", "upload");
+				auto glcolorconvert = gst_element_factory_make("glcolorconvert", "convert");
+				auto rawCapsFilter = gst_element_factory_make("capsfilter", "rawcapsfilter");
+				if(rawCapsFilter) g_object_set(G_OBJECT(rawCapsFilter), "caps", gst_caps_from_string("video/x-raw"), nullptr);
+
+				gst_bin_add_many(GST_BIN(vbin), rawCapsFilter, glupload, glcolorconvert, mGstVideoSink, nullptr);
+				if(!gst_element_link_many(rawCapsFilter, glupload, glcolorconvert, mGstVideoSink, nullptr)) {
+					DS_LOG_WARNING("GstWrapper: Couldn't link opengl elements");
+				}
+				pad = gst_element_get_static_pad(rawCapsFilter, "sink");
+			}
+
+			gst_element_add_pad(vbin, gst_ghost_pad_new("sink", pad));
+
+			g_signal_connect(sGstGLDisplay, "create-context", G_CALLBACK(create_gl_context), this, NULL);
+
+			if(pad) {
+				gst_object_unref(pad);
+				pad = nullptr;
+			}
 
 
-			caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "I420", "width", G_TYPE_INT, mWidth, "height",
-									   G_TYPE_INT, mHeight, NULL);
+		} else {
+
+			mGstVideoSink = gst_element_factory_make("appsink", "videosink");
+			if(colorSpace == kColorSpaceTransparent) {
+				mVideoBufferSize = 4 * mWidth * mHeight;
+				caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGRA",
+										   "width", G_TYPE_INT, mWidth,
+										   "height", G_TYPE_INT, mHeight, NULL);
+
+			} else if(colorSpace == kColorSpaceSolid) {
+				mVideoBufferSize = 3 * mWidth * mHeight;
+
+				caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "BGR",
+										   "width", G_TYPE_INT, mWidth,
+										   "height", G_TYPE_INT, mHeight, NULL);
+
+			} else if(colorSpace == kColorSpaceI420) {
+				// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
+				mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
+
+
+				caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "I420",
+										   "width", G_TYPE_INT, mWidth,
+										   "height", G_TYPE_INT, mHeight, NULL);
+			}
+
+			mVideoBuffer = new unsigned char[mVideoBufferSize];
+			gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
+			gst_caps_unref(caps);
+
+			vbin = mGstVideoSink;
 		}
 
-#ifdef BUFFERS_COPIED
-		mVideoBuffer = new unsigned char[mVideoBufferSize];
-#endif
+		gst_app_sink_set_max_buffers(GST_APP_SINK(mGstVideoSink), 1);
+		gst_app_sink_set_drop(GST_APP_SINK(mGstVideoSink), true);
+		gst_base_sink_set_qos_enabled(GST_BASE_SINK(mGstVideoSink), true);
+		gst_base_sink_set_max_lateness(GST_BASE_SINK(mGstVideoSink), 20 * GST_MSECOND);
 
-		gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
-		gst_caps_unref(caps);
 
 		auto videoFlip = gst_element_factory_make("videoflip", "autoflipper");
 		g_object_set(videoFlip, "video-direction", 8, (void*)NULL);
 		g_object_set(mGstPipeline, "video-filter", videoFlip, (void*)NULL);
 
 		// Set the configured video appsink to the main pipeline
-		g_object_set(mGstPipeline, "video-sink", mGstVideoSink, (void*)NULL);
+		g_object_set(mGstPipeline, "video-sink", vbin, (void*)NULL);
 
 		// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 		g_object_set(mGstVideoSink, "emit-signals", false, "sync", true, "async", true, (void*)NULL);
@@ -556,10 +619,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	// Set some fix caps for the video sink
 	// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
 	mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
-
-#ifdef BUFFERS_COPIED
 	mVideoBuffer	 = new unsigned char[mVideoBufferSize];
-#endif
 
 	// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 	g_object_set(mGstVideoSink, "emit-signals", false, (void*)NULL);
@@ -646,10 +706,7 @@ bool GStreamerWrapper::parseLaunch(const std::string& fullPipeline, const int vi
 		mVideoBufferSize = (int)(1.5 * mWidth * mHeight);
 	}
 
-
-#ifdef BUFFERS_COPIED
 	mVideoBuffer = new unsigned char[mVideoBufferSize];
-#endif
 
 	mGstVideoSink	 = gst_bin_get_by_name(GST_BIN(mGstPipeline), videoSinkName.c_str());
 	mGstVolumeElement = gst_bin_get_by_name(GST_BIN(mGstPipeline), volumeElementName.c_str());
@@ -696,8 +753,8 @@ void GStreamerWrapper::setStreamingLatency(uint64_t latency_ns) {
 	g_object_set(mGstPipeline, "latency", mStreamingLatency, NULL);
 }
 
-void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock,
-										 std::uint64_t& clockBaseTime) {
+void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock,
+										 guint64& clockBaseTime) {
 	mSyncedMode = true;
 	mServer		= true;
 	DS_LOG_INFO("Setting IP Address to: " << addr.c_str() << " Port: " << port);
@@ -734,8 +791,8 @@ void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string&
 	setPipelineBaseTime(netClock);
 }
 
-void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock,
-										 std::uint64_t& baseTime) {
+void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock,
+										 guint64& baseTime) {
 	mSyncedMode = true;
 	mServer		= false;
 	DS_LOG_INFO("Setting IP Address to: " << addr.c_str() << " Port: " << port);
@@ -800,6 +857,23 @@ void GStreamerWrapper::close() {
 
 	if (hasClockProvider) gst_object_unref(mClockProvider);
 
+
+	if(mGlMode) {
+	//	gst_object_unref(mGlContext);
+	//	mGlContext = nullptr;
+		//gst_object_unref(sGstGLDisplay);
+		if(sGstAsyncContext) {
+		//	gst_object_unref(sGstAsyncContext);
+		}
+
+		if(mCurrentBuffer) {
+			mCurrentBuffer.reset();
+		}
+		if(mNewBuffer) {
+			mNewBuffer.reset();
+		}
+	}
+
 	// Cleanup member variables under mutex
 	{
 		std::lock_guard<std::mutex> lock(mVideoMutex);
@@ -810,16 +884,8 @@ void GStreamerWrapper::close() {
 		mGstPanorama  = NULL;
 		mGstBus		  = NULL;
 
-#ifdef BUFFERS_COPIED
 		delete[] mVideoBuffer;
 		mVideoBuffer = NULL;
-#else
-		if(mVideoGstBuffer) {
-			gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-			gst_buffer_unref(mVideoGstBuffer);
-			mVideoGstBuffer = NULL;
-		}
-#endif
 
 		delete[] mAudioBuffer;
 		mAudioBuffer = NULL;
@@ -903,17 +969,6 @@ void GStreamerWrapper::stop() {
 
 		std::lock_guard<std::mutex> lock(mVideoMutex);
 		mCurrentPlayState = STOPPED;
-
-#ifdef BUFFERS_COPIED
-		//mVideoBuffer = NULL;
-#else 
-		if(mVideoGstBuffer) {
-			gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-			gst_buffer_unref(mVideoGstBuffer);
-			mVideoGstBuffer = NULL;
-		}
-#endif
-
 	}
 }
 
@@ -1027,17 +1082,68 @@ bool GStreamerWrapper::hasAudio() { return mContentType == VIDEO_AND_AUDIO || mC
 
 std::string GStreamerWrapper::getFileName() { return mFilename; }
 
+
+void GStreamerWrapper::setOpenGlMode() {
+	if(mGlMode) return;
+	mGlMode = true;
+
+	if(!sGstGLDisplay) {
+		sGstGLDisplay = gst_gl_display_new();
+	} 
+
+	if(!mGlContext) {
+		ci::gl::env()->makeContextCurrent(nullptr);
+		auto platformData = std::dynamic_pointer_cast<ci::gl::PlatformDataMsw>(ci::gl::context()->getPlatformData());
+		mGlContext = gst_gl_context_new_wrapped(sGstGLDisplay, (guintptr)platformData->mGlrc, GST_GL_PLATFORM_WGL, GST_GL_API_OPENGL);
+
+		if(!sGstAsyncContext) {
+			sGstAsyncContext = gst_gl_context_new(sGstGLDisplay);
+			GError* err = NULL;
+			if(!gst_gl_context_create(sGstAsyncContext, mGlContext, &err) && err) {
+				DS_LOG_WARNING("GstGL: Context not created with error " << err->code << " " << err->domain << " " << err->message);
+			}
+		} 
+
+		ci::gl::context()->makeCurrent();
+	}
+
+	/// keep refs to everything so gstreamer doesn't dispose of them, cause we never will need to set these up again
+	gst_object_ref(mGlContext);
+	gst_object_ref(sGstAsyncContext);
+	gst_object_ref(sGstGLDisplay);
+}
+
+void GStreamerWrapper::setNVDecode(const bool nvDecode) {
+	mNVDecode = nvDecode;
+}
+
 unsigned char* GStreamerWrapper::getVideo() {
 	std::lock_guard<std::mutex> lock(mVideoMutex);
 	mIsNewVideoFrame = false;
-#ifdef BUFFERS_COPIED
 	return mVideoBuffer;
-#else 
-	if(mVideoGstBuffer) {
-		return mVideoMapInfo.data;
+}
+
+ci::gl::Texture2dRef GStreamerWrapper::getVideoTexture(){
+	if(mGlMode && mIsNewVideoFrame) {
+		{
+			std::lock_guard<std::mutex> guard(mVideoMutex);
+			std::swap(mCurrentBuffer, mNewBuffer);
+		}
+
+		GLint id = 0;
+		GstMemory *mem = gst_buffer_peek_memory(mCurrentBuffer.get(), 0);
+		id = ((GstGLMemory *)mem)->tex_id;
+
+		if(gst_is_gl_memory(mem) && id != 0) {
+			mVideoTexture = ci::gl::Texture::create(GL_TEXTURE_2D, id, mWidth, mHeight, true);
+			mVideoTexture->setTopDown();
+		} else {
+
+		}
+
+		mIsNewVideoFrame = false;
 	}
-	return NULL;
-#endif
+	return mVideoTexture;
 }
 
 int GStreamerWrapper::getCurrentVideoStream() { return mCurrentVideoStream; }
@@ -1361,14 +1467,6 @@ void GStreamerWrapper::handleGStMessage() {
 							mCurrentGstState = STATE_PLAYING;
 						} else if (newState == GST_STATE_NULL) {
 							mCurrentGstState = STATE_NULL;
-
-#ifndef BUFFERS_COPIED
-							if(mVideoGstBuffer) {
-								gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-								gst_buffer_unref(mVideoGstBuffer);
-								mVideoGstBuffer = NULL;
-							}
-#endif
 						} else if (newState == GST_STATE_PAUSED) {
 							mCurrentGstState = STATE_PAUSED;
 						} else if (newState == GST_STATE_READY) {
@@ -1449,6 +1547,38 @@ void GStreamerWrapper::handleGStMessage() {
 								break;
 						}
 						break;
+					case GST_MESSAGE_NEED_CONTEXT: {
+						const gchar *context_type = nullptr;
+						gst_message_parse_context_type(mGstMessage, &context_type);
+
+						DS_LOG_VERBOSE(4, "Need context %s from element " << context_type << " " << GST_ELEMENT_NAME(GST_MESSAGE_SRC(mGstMessage)));
+
+						GstContext* context = nullptr;
+						if(g_strcmp0(context_type, GST_GL_DISPLAY_CONTEXT_TYPE) == 0) {
+							context = gst_context_new(GST_GL_DISPLAY_CONTEXT_TYPE, TRUE);
+							gst_context_set_gl_display(context, sGstGLDisplay);
+							gst_element_set_context(GST_ELEMENT(mGstMessage->src), context);
+						} else if(g_strcmp0(context_type, "gst.gl.app_context") == 0) {
+							context = gst_context_new("gst.gl.app_context", TRUE);
+							GstStructure *s = gst_context_writable_structure(context);
+
+#ifdef GST_TYPE_GL_CONTEXT
+							if(sGstAsyncContext) {
+								gst_structure_set(s, "context", GST_TYPE_GL_CONTEXT, sGstAsyncContext, nullptr);
+							}
+#else 
+							if(sGstAsyncContext) {
+								gst_structure_set(s, "context", GST_GL_TYPE_CONTEXT, sGstAsyncContext, nullptr);
+							}
+#endif
+							gst_element_set_context(GST_ELEMENT(mGstMessage->src), context);
+						}
+
+						if(context) {
+							gst_context_unref(context);
+						}
+						break;
+					}
 
 					case GST_MESSAGE_TAG:
 						break;
@@ -1506,39 +1636,50 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource(GstAppSink* appsink, 
 void GStreamerWrapper::handleVideoBuffer(GstSample* videoSinkSample) {
 	std::lock_guard<std::mutex> lock(mVideoMutex);
 
+	if(mGlMode) {
+		mNewBuffer = std::shared_ptr<GstBuffer>(gst_buffer_ref(gst_sample_get_buffer(videoSinkSample)), &gst_buffer_unref);
+		if(!mPendingSeek) mIsNewVideoFrame = true;
+		return;
+	}
+
 	GstMapFlags flags = GST_MAP_READ;
-#ifdef BUFFERS_COPIED
 
 	if(!mVideoBuffer) return;
+
+	GstVideoInfo info;
+	GstCaps* currentCaps = gst_sample_get_caps(videoSinkSample);
+	gboolean success = gst_video_info_from_caps(&info, currentCaps);
+	if(info.width != mWidth || info.height != mHeight) {
+		DS_LOG_WARNING("RUH ROH! " << mWidth << " " << info.width);
+	}
+
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);
 	GstMapInfo  map;
 	gst_buffer_map(buff, &map, flags);
 
 	size_t videoBufferSize = map.size;
 
+	bool errored = false;
 	// sanity check on buffer size, in case something weird happened.
-	// In practice, this can fuck up the look of the video, but it plays and doesn't crash
 	if(mVideoBufferSize != videoBufferSize) {
 
-		mVideoBufferSize = videoBufferSize;
 		delete[] mVideoBuffer;
-		mVideoBuffer = new unsigned char[mVideoBufferSize];
+		mVideoBuffer = nullptr;
+		if(videoBufferSize > mVideoBufferSize) {
+			mVideoBufferSize = videoBufferSize;
+			mVideoBuffer = new unsigned char[mVideoBufferSize];
+		} else {
+			DS_LOG_WARNING("Unexpected buffer size returned!");
+			errored = true;
+		}
 	}
 
-	memcpy((unsigned char*)mVideoBuffer, map.data, videoBufferSize);
-	gst_buffer_unmap(buff, &map);
-#else
-	if(mVideoGstBuffer) {
-		gst_buffer_unmap(mVideoGstBuffer, &mVideoMapInfo);
-		gst_buffer_unref(mVideoGstBuffer);
-		mVideoGstBuffer = nullptr;
-	}
-	mVideoGstBuffer = gst_sample_get_buffer(videoSinkSample);
-	gst_buffer_ref(mVideoGstBuffer);
-	gst_buffer_map(mVideoGstBuffer, &mVideoMapInfo, flags);
-#endif
+	if(!errored) {
+		memcpy((unsigned char*)mVideoBuffer, map.data, videoBufferSize);
+		gst_buffer_unmap(buff, &map);
 
-	if(!mPendingSeek) mIsNewVideoFrame = true;
+		if(!mPendingSeek) mIsNewVideoFrame = true;
+	}
 
 }
 

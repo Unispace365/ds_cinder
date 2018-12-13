@@ -5,6 +5,8 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/media/player/video_player.h>
+#include <ds/ui/sprite/video.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -18,12 +20,17 @@ ViewerController::ViewerController(Globals& g)
 	, mGlobals(g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
+	mGstFps = new ds::ui::Text(mEngine);
+	mGstFps->setPosition(500.0f, 50.0f);
+	mGstFps->setFont("Arial Bold");
+	mGstFps->setFontSize(21.0);
+	addChildPtr(mGstFps);
 }
 
 void ViewerController::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
 		const RequestMediaOpenEvent& e((const RequestMediaOpenEvent&)in_e);
-		addViewer(e.mMedia, e.mLocation, e.mStartWidth);
+		addViewer(e.mMedia, e.mLocation, e.mStartWidth, e.mOpenGl, e.mNVDecode);
 	} else if(in_e.mWhat == RequestCloseAllEvent::WHAT()){
 		const float deltaAnim = mGlobals.getAnimDur() / (float)mViewers.size();
 		float delayey = 0.0f;
@@ -36,11 +43,11 @@ void ViewerController::onAppEvent(const ds::Event& in_e){
 	}
 }
 
-void ViewerController::addViewer(ds::model::MediaRef newMedia, const ci::vec3 location, const float startWidth) {
+void ViewerController::addViewer(ds::model::MediaRef newMedia, const ci::vec3 location, const float startWidth, const bool openGl, const bool nvDecode) {
 	TitledMediaViewer* tmv = new TitledMediaViewer(mGlobals);
 	addChildPtr(tmv);
 	mViewers.push_back(tmv);
-	tmv->setMedia(newMedia);
+	tmv->setMedia(newMedia, openGl, nvDecode);
 	tmv->setPosition(location);
 	tmv->setViewerWidth(startWidth);
 	tmv->animateOn();
@@ -122,6 +129,32 @@ void ViewerController::createGridLayout(const ci::Rectf area, const int numItems
 		}
 
 	}
+}
+
+
+void ViewerController::onUpdateServer(const ds::UpdateParams& updateParams) {
+	if(!mGstFps) return;
+	std::string theFps;
+	for (auto it : mViewers){
+		auto theP = dynamic_cast<ds::ui::VideoPlayer*>(it->getPlayer());
+		if(theP) {
+			auto theVid = theP->getVideo();
+			if(theVid) {
+				if(theVid->isNVDecode()) {
+					theFps.append("CUDA decoder: ");
+				} else if(theVid->isOpenGlMode()) {
+					theFps.append("OpenGL Elements: ");
+				} else {
+					theFps.append("Current: ");
+				}
+				theFps.append(std::to_string(theVid->getVideoPlayingFramerate()));
+				theFps.append("fps<br>");	
+			}
+		}
+	}
+
+	mGstFps->setText(theFps);
+
 }
 
 void ViewerController::layoutViewers() {

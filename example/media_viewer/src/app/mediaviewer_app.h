@@ -39,7 +39,11 @@ private:
 	ds::ui::Sprite*		mStreamerParent;
 	ds::ui::GstVideo*	mStreamer;
 
-	void				touchEventToTouchInfo(ds::ui::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);
+	std::string			mLastFilePath;
+
+	bool				mGlMode = true;
+	bool				mNVDecode = true;
+
 };
 
 } // !namespace mv

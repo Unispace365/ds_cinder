@@ -17,6 +17,7 @@
 #include "events/app_events.h"
 #include "ui/viewers/viewer_controller.h"
 
+
 namespace mv {
 
 MediaViewer::MediaViewer()
@@ -28,15 +29,20 @@ MediaViewer::MediaViewer()
 	, mStreamerParent(nullptr)
 {
 
+	//mLastFilePath = "D:/content/sample_videos_2/51abba233fb16.mp4";
+	mLastFilePath = "D:/content/sample_videos_2/06_campus_09_26_4k.mp4";
+
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
+
+	registerKeyPress("Toggle NV decode", [this] { mNVDecode = !mNVDecode; std::cout << "Nvidia decode is " << mNVDecode << std::endl; }, ci::app::KeyEvent::KEY_COMMA);
+	registerKeyPress("Toggle GL Mode", [this] { mGlMode = !mGlMode; std::cout << "GL Mode is " << mGlMode << std::endl; }, ci::app::KeyEvent::KEY_PERIOD);
 }
 
 void MediaViewer::setupServer(){
-
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -81,6 +87,7 @@ void MediaViewer::setupServer(){
 	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti){ mTouchMenu->handleTouchInfo(ti); });
 
 }
+
 
 
 void MediaViewer::onKeyDown(ci::app::KeyEvent event){
@@ -149,11 +156,13 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 		std::string fileName = pathy.getFileName();
 		fileName = fileName.substr(0, fileName.length() - 4);
 
+		mLastFilePath = (*it).string();
+
 		ds::model::MediaRef newMedia = ds::model::MediaRef();
 		newMedia.setPrimaryResource(ds::Resource((*it).string(), ds::Resource::parseTypeFromFilename((*it).string())));
 		newMedia.setTitle(ds::wstr_from_utf8(fileName));
 		newMedia.setBody((*it).wstring());
-		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth));
+		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth, mGlMode, mNVDecode));
 		locationy.x += incrementy;
 		locationy.y += incrementy;
 	}

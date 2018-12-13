@@ -37,6 +37,8 @@ struct MediaViewerSettings {
 		, mVideoLoop(true)
 		, mVideoResetOnComplete(true)
 		, mVideoStreamingLatency(0.2)
+		, mVideoGlMode(false)
+		, mVideoNVDecode(false)
 		, mPanoramicVideoInteractive(true)
 	{}
 
@@ -107,6 +109,12 @@ struct MediaViewerSettings {
 
 	/// Whether to seek to 0.0 when the video finishes in non-loop mode; default=true
 	bool						mVideoResetOnComplete;
+
+	/// Enables OpenGL mode in GStreamer
+	bool						mVideoGlMode;
+
+	/// Enables NVidia Cuda decoding, requires nvdec plugin and GlMode to be on
+	bool						mVideoNVDecode;
 
 	/// Ability to pan panoramic videos at start
 	bool						mPanoramicVideoInteractive;
