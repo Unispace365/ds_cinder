@@ -43,6 +43,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 5. Note: the version numbers will be different if you've selected something else. You want both the "devel" and regular installers, and the x86_64 versions
 6. Install both msi installers with the "complete" option
 7. If you have any Visual Studio windows open, close them now so they can get the new environment variables set by the gstreamer installers
+8. See the [gstreamer read me](https://github.com/Downstream/ds_cinder/blob/develop/projects/video/gstreamer-1.0/README.md) for more info
 
 **Download and compile DS Cinder**
 
