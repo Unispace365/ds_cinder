@@ -13,7 +13,6 @@
 
 #include <ds/ui/sprite/gst_video.h>
 
-#include "gstreamer/GstPlayerSprite.h"
 namespace mv {
 class AllData;
 
@@ -24,7 +23,6 @@ public:
 	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 
-	void startGstPlayerSprite();
 	void				fileDrop(ci::app::FileDropEvent event) override;
 private:
 	typedef ds::App		inherited;
@@ -40,8 +38,6 @@ private:
 
 	ds::ui::Sprite*		mStreamerParent;
 	ds::ui::GstVideo*	mStreamer;
-
-	ds::ui::GstPlayerSprite*	mPlayerSprite;
 
 	std::string			mLastFilePath;
 

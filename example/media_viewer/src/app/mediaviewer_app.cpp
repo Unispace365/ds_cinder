@@ -27,7 +27,6 @@ MediaViewer::MediaViewer()
 	, mTouchMenu(nullptr)
 	, mStreamer(nullptr)
 	, mStreamerParent(nullptr)
-	, mPlayerSprite(nullptr)
 {
 
 	//mLastFilePath = "D:/content/sample_videos_2/51abba233fb16.mp4";
@@ -41,11 +40,10 @@ MediaViewer::MediaViewer()
 
 	registerKeyPress("Toggle NV decode", [this] { mNVDecode = !mNVDecode; std::cout << "Nvidia decode is " << mNVDecode << std::endl; }, ci::app::KeyEvent::KEY_COMMA);
 	registerKeyPress("Toggle GL Mode", [this] { mGlMode = !mGlMode; std::cout << "GL Mode is " << mGlMode << std::endl; }, ci::app::KeyEvent::KEY_PERIOD);
-	registerKeyPress("Test new video player", [this] { startGstPlayerSprite(); }, ci::app::KeyEvent::KEY_o);
 }
 
 void MediaViewer::setupServer(){
-	mPlayerSprite = nullptr;
+
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
@@ -90,24 +88,6 @@ void MediaViewer::setupServer(){
 
 }
 
-void MediaViewer::startGstPlayerSprite() {
-	if(mPlayerSprite) {
-	//	mPlayerSprite->release();
-	//	mPlayerSprite = nullptr;
-	}
-
-	mPlayerSprite = new ds::ui::GstPlayerSprite(mEngine);
-//	mPlayerSprite->loadVideo("d:/content/sample_videos_2/ds_tech.mp4");
-	//mPlayerSprite->loadVideo("d:/content/sample_videos_2/8k-maybe.mp4");
-	mPlayerSprite->loadVideo(mLastFilePath);
-	//mPlayerSprite->loadPipeline("uridecodebin uri=file:///d:/content/sample_videos_2/001_output.mp4 ! video/x-raw(memory:GLMemory), format=RGBA ! appsink name=videosink");
-	//mPlayerSprite->loadPipeline("filesrc location=d:/content/sample_videos_2/001_output.mp4 ! qtdemux ! h264parse ! nvdec ! glcolorconvert ! video/x-raw(memory:GLMemory), format=RGBA ! appsink name=videosink");
-	mPlayerSprite->enable(true);
-	mPlayerSprite->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
-	mPlayerSprite->play();
-	mPlayerSprite->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	mEngine.getRootSprite().addChildPtr(mPlayerSprite);
-}
 
 
 void MediaViewer::onKeyDown(ci::app::KeyEvent event){
