@@ -117,12 +117,19 @@ public:
 	std::string			mKeyTabDnImage;
 
 	bool				mEmailMode;
+
+	/// Graphic keys uses sprite graphics instead of images
 	bool				mGraphicKeys;
+	/// The type of graphic style  kBorder, kSolid, kCircularBorder, kCircularSolid
 	GraphicType			mGraphicType;
+	/// The size of keys when it's graphical
 	float				mGraphicKeySize;
+	/// Rounded corner radius when it's Border or Solid (doesn't apply to circular)
 	float				mGraphicRoundedCornerRadius;
+	/// How wide the border graphic is when not a Solid type
 	float				mGraphicBorderWidth;
 
+	/// For image keys, scales the images up or down
 	float				mKeyScale;
 };
 

@@ -397,6 +397,11 @@ type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; ke
 * **key_touch_padding**: Float amount between each key in pixels. Default: 4.0
 * **key_initial_position**: Vector x/y of the start position of the first key when creating the keys. Default: 0, 0
 * **key_scale**: The amount the keyboard is scaled as a single float. Default: 1.0
+* **graphic_keys**: True uses sprite graphics instead of images for keys. Default: false
+* **graphic_type**: Values: border (the default), solid, circular_border, circular_solid
+* **graphic_key_size**: Float value for the size of graphic keys
+* **graphic_corner_radius**: For non-circular key types, the corner radius
+* **graphic_border_width**: For border types, the width of the line on the border
 * See soft_keyboard_settings.h for the default text configs and key images.
 
 Web Parameters

@@ -1675,6 +1675,26 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					}
 				} else if (paramType == "email_mode") {
 					sks.mEmailMode = parseBoolean(paramValue);
+				} else if(paramType == "graphic_keys") {
+					sks.mGraphicKeys = parseBoolean(paramValue);
+				} else if(paramType == "graphic_type") {
+					if(paramValue == "solid") {
+						sks.mGraphicType = SoftKeyboardSettings::kSolid;
+					} else if(paramValue == "circular_border") {
+						sks.mGraphicType = SoftKeyboardSettings::kCircularBorder;
+					} else if(paramValue == "circular_solid") {
+						sks.mGraphicType = SoftKeyboardSettings::kCircularSolid;
+					} else {
+						sks.mGraphicType = SoftKeyboardSettings::kBorder;
+					}
+				} else if(paramType == "graphic_key_size") {
+					sks.mGraphicKeySize = ds::string_to_float(paramValue);
+				} else if(paramType == "graphic_corner_radius") {
+					sks.mGraphicRoundedCornerRadius = ds::string_to_float(paramValue);
+				} else if(paramType == "graphic_border_width") {
+					sks.mGraphicBorderWidth = ds::string_to_float(paramValue);
+				} else {
+					DS_LOG_WARNING("SoftKeyboard interface setting not recognized: " << paramType);
 				}
 			}
 		}
