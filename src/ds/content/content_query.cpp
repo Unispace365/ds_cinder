@@ -61,12 +61,12 @@ void ContentQuery::run() {
 			if(!newVal.empty()) mResourceRemap[kv.first] = newVal;
 		}
 
-		if(resourceNode.getPropertyString("check_updated").empty()){
-			mData.setProperty("merge_content", true);
-		}else{
+		if(!resourceNode.getPropertyString("check_updated").empty()){
 			mCheckUpdatedResources = resourceNode.getPropertyBool("check_updated");
 			mData.setProperty("merge_content", !mCheckUpdatedResources);
 		}
+	}else{
+		mData.setProperty("merge_content", true);
 	}
 
 
