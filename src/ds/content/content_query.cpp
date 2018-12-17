@@ -16,7 +16,8 @@
 namespace ds {
 
 ContentQuery::ContentQuery()
-  : mTableId(0) {}
+  : mTableId(0)
+  , mCheckUpdatedResources(true) {}
 
 void ContentQuery::run() {
 	mData = ds::model::ContentModelRef("sqlite", 0, "The root of all sqlite data");
@@ -60,9 +61,10 @@ void ContentQuery::run() {
 			if(!newVal.empty()) mResourceRemap[kv.first] = newVal;
 		}
 
-		if(!resourceNode.getPropertyString("check_updated").empty()){
+		if(resourceNode.getPropertyString("check_updated").empty()){
+			mData.setProperty("merge_content", true);
+		}else{
 			mCheckUpdatedResources = resourceNode.getPropertyBool("check_updated");
-
 			mData.setProperty("merge_content", !mCheckUpdatedResources);
 		}
 	}
