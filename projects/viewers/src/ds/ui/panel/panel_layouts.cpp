@@ -27,7 +27,7 @@ bool sortByBigness(PanelPackage& a, PanelPackage& b){
 float adjustSizes(std::vector<PanelPackage>& packages, const float fractionalAmount, const float padding){
 	float piecemealArea = 0.0f;
 	for(auto it = packages.begin(); it < packages.end(); ++it){
-		float tw = (float)(*it).mPackSize.x * fractionalAmount;
+		float tw = (float)(*it).mPackSize.x * fractionalAmount - padding;
 		float th = tw / (*it).mAsepectRatio;
 		tw += padding;
 		th += padding;
@@ -84,7 +84,7 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	adjustSizes(thePackages, 1.0f, padding);
 
 	while(piecemealArea < totalAreaAmount * 0.75){
-		piecemealArea = adjustSizes(thePackages, 1.05f, padding);
+		piecemealArea = adjustSizes(thePackages, 1.1f, padding);
 	}
 
 	while(piecemealArea > totalAreaAmount * 0.9f){
