@@ -6,6 +6,12 @@
 #include <gst/gstbin.h>
 #include <gst/net/gstnettimeprovider.h>
 #include <gst/video/video.h>
+
+/// These are to fix compile errors in gstreamer 1.12.x
+#define GST_USE_UNSTABLE_API
+struct EGLImageTargetTexture2D {};
+struct GLeglImageOES {};
+
 #include <gst/gl/gl.h>
 
 #include "gstreamer_audio_device.h"
