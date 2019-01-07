@@ -81,7 +81,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 		mTitle->setText(mMenuItemModel.mTitle);
 		ci::vec2 titleSize = ci::vec2(mTitle->getWidth(), mTitle->getHeight());
 		mTitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, titlePositiony);
-		mTitle->setOpacity(0.5f);
+		mTitle->setOpacity(mMenuConfig.mItemTitleOpacity);
 		mClippy->addChildPtr(mTitle);
 		subtitlePositiony += (titleSize.y * 1.1f);
 	}
@@ -90,7 +90,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 		mSubtitle->setText(mMenuItemModel.mSubtitle);
 		ci::vec2 titleSize = ci::vec2(mSubtitle->getWidth(), mSubtitle->getHeight());
 		mSubtitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, subtitlePositiony);
-		mSubtitle->setOpacity(0.5f);
+		mSubtitle->setOpacity(mMenuConfig.mItemSubtitleOpacity);
 		mClippy->addChildPtr(mSubtitle);
 	}
 
@@ -190,10 +190,10 @@ void MenuItem::highlight(){
 void MenuItem::unhighlight(){
 	if(mHighlighted){
 		if(mTitle){
-			mTitle->tweenOpacity(0.5f, mMenuConfig.mAnimationDuration);
+			mTitle->tweenOpacity(mMenuConfig.mItemTitleOpacity, mMenuConfig.mAnimationDuration);
 		}
 		if(mSubtitle){
-			mSubtitle->tweenOpacity(0.5f, mMenuConfig.mAnimationDuration);
+			mSubtitle->tweenOpacity(mMenuConfig.mItemSubtitleOpacity, mMenuConfig.mAnimationDuration);
 		}
 		if(mIcon && mIconGlow && !mIconsMatch) {
 			mIcon->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration);

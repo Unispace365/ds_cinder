@@ -43,8 +43,8 @@ public:
 
 		TouchMenuConfig() 
 			: mAnimationDuration(0.35f)
-			, mItemIconHeight(150.0f), mItemTitlePad(20.0f), mItemTitleYPositionPercent(0.5f), mItemSize(250.0f, 250.0f)
-			, mItemTitleTextConfig(""), mItemSubtitleTextConfig("")
+			, mItemIconHeight(150.0f), mItemTitlePad(20.0f), mItemTitleYPositionPercent(0.5f), mItemSize(250.0f, 250.0f), mItemTitleOpacity(0.5f)
+			, mItemTitleTextConfig(""), mItemSubtitleTextConfig(""), mItemSubtitleOpacity(0.5f)
 			, mClusterRadius(280.0f), mClusterPositionOffset(-90.0f)
 			, mClusterSizeThreshold(1000.0f), mClusterDistanceThreshold(1000.0f)
 			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f)
@@ -59,6 +59,8 @@ public:
 		float								mItemIconHeight;			// The height of the icon for each menu item, in pixels
 		float								mItemTitlePad;				// Distance between the icon and the title in each menu item
 		float								mItemTitleYPositionPercent; // Vertical Position of the title, as a percentage of the height of the menu item
+		float								mItemTitleOpacity;			// Opacity of the title, defaults to 0.5
+		float								mItemSubtitleOpacity;		// Opacity of the subtitle, defaults to 0.5
 		ci::vec2							mItemSize;					// size of each menu item
 		std::string							mItemTitleTextConfig;		// The text config for the title of the menu item
 		std::string							mItemSubtitleTextConfig;	// The text config for the subtitle of the menu item
