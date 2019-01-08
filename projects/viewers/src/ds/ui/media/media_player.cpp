@@ -243,7 +243,11 @@ void MediaPlayer::initializeThumbnail() {
 
 void MediaPlayer::initializeImage() {
 	// Depends on base initialize to check already initialized case
-	int flags = Image::IMG_ENABLE_MIPMAP_F;
+	int flags = 0;
+	if(mMediaViewerSettings.mMipMapImages) {
+		flags = Image::IMG_ENABLE_MIPMAP_F;
+	}
+	   
 	if (mMediaViewerSettings.mCacheImages) {
 		flags |= Image::IMG_CACHE_F;
 	}

@@ -28,6 +28,7 @@ struct MediaViewerSettings {
 		, mWebAllowTouchToggle(true)
 		, mWebStartTouchable(false)
 		, mCacheImages(false)
+		, mMipMapImages(true)
 		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
 		, mVideoVolume(1.0f)
@@ -74,6 +75,9 @@ struct MediaViewerSettings {
 
 	/// whether to cache the primary and thumb images. Default = false
 	bool						mCacheImages;
+
+	/// whether to mipmap primary images. Default = true;
+	bool						mMipMapImages;
 
 	//--------------------PDF Settings ---------------------------------------------//
 
