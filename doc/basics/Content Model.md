@@ -4,7 +4,7 @@
 
 The "VC" stands for very cool. New, as of March 2018.
 
-ContentModel greatly simplifies defining a data model and pulling it out of a sqlite database. There's a simple XML descriptor that describes which tables your interested in, links Resources, builds hierarchies, and allows control of the SQL queries. ContentModel is string-based, so any type of data can be stored in it, and it can be applied to layout files at runtime.
+ContentModel greatly simplifies defining a data model and pulling it out of a sqlite database. There's a simple XML descriptor that describes which tables you're interested in, links Resources, builds hierarchies, and allows control of the SQL queries. ContentModel is string-based, so any type of data can be stored in it, and it can be applied to layout files at runtime.
 
 Let's say you have a table in a sqlite db called "slides". (Check out the getting_started example db for a real-life example.)
 
@@ -266,9 +266,10 @@ Meta Node & Advanced Options
 
 Meta Node Properties
 --------------------
+Use the `meta` tag to override default general properties of the content query.
 - **resource_location**: Overrides the resource_location from engine.xml
 - **db_location**: Overrides the db_location from engine.xml
-- **use_resources**: Should this content model query resources?
+- **use_resources**: Should this content model query resources? (default is true)
 
 ```xml
 <meta
@@ -280,12 +281,11 @@ Meta Node Properties
 
 Custom Resource Query Properties
 --------------------------------
-Useful for working with non-conforming databases. Any unused properties will have their default
-value applied.
+Use the `resources` tag to override the resources table name and column names. This is useful for working with non-conforming databases. Any unused properties will have their default value applied.
 
-- **table_name**: Overrides default resources table name
+- **table_name**: Overrides default resources table name (default is `resources`)
 - **check_updated**: Boolean, should the app only query resources that have updated since last
-	check? (defaults is true)
+	check? (default is `true`)
 - Override default column names:
 	- **id**: default=`resourcesid`
 	- **type**: default=`resourcestype`
@@ -297,7 +297,15 @@ value applied.
 	- **thumb**: default=`resourcesthumbid`
 	- **updated**: default=`updated_at`
 
-
+```xml
+<resources
+	table_name="ResourcesTable"
+	check_updated="false"
+	id="id"
+	type="type"
+	...
+	/>
+```
 
 Applying to a layout file
 ===========================
