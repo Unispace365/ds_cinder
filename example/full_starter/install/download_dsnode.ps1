@@ -1,6 +1,6 @@
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$DsnodeVer = (Invoke-WebRequest -Uri 'http://update.downstreamdev.com/ds/dsnode/version.txt').Content;
+$DsnodeVer = (Invoke-WebRequest -UseBasicParsing -Uri 'http://update.downstreamdev.com/ds/dsnode/version.txt').Content;
 Write-Host $DsnodeVer;
 
 

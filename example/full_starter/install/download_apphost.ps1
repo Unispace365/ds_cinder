@@ -1,6 +1,6 @@
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$DsapphostVer = (Invoke-WebRequest -Uri 'http://update.downstreamdev.com/ds/dsapphost/version.txt').Content;
+$DsapphostVer = (Invoke-WebRequest -UseBasicParsing -Uri 'http://update.downstreamdev.com/ds/dsapphost/version.txt').Content;
 Write-Host $DsapphostVer;
 
 
