@@ -41,7 +41,7 @@ auto INIT = []() {
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				ds::Resource theResource;
 				int			 mediaType = ds::Resource::parseTypeFromFilename(theValue);
-				if (mediaType == ds::Resource::WEB_TYPE) {
+				if(mediaType == ds::Resource::WEB_TYPE || mediaType == ds::Resource::VIDEO_STREAM_TYPE){
 					theResource = ds::Resource(theValue, mediaType);
 				} else {
 					std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);

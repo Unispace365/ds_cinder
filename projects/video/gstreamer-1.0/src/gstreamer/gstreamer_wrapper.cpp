@@ -312,7 +312,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(mGstVideoSink), true);
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(mGstVideoSink), 20 * GST_MSECOND);
 
-
+		// auto-rotate videos with a rotation flag (such as iPhone videos)
 		auto videoFlip = gst_element_factory_make("videoflip", "autoflipper");
 		g_object_set(videoFlip, "video-direction", 8, (void*)NULL);
 		g_object_set(mGstPipeline, "video-filter", videoFlip, (void*)NULL);
