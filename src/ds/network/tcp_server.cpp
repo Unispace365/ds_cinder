@@ -170,7 +170,10 @@ TcpServer::TcpServer(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& a
 }
 
 TcpServer::~TcpServer() {
-	(*mStopped) = true;
+	{
+		Poco::ScopedLock<Poco::Mutex> stopLock(mStopMutex);
+		*mStopped = true;
+	}
 
 	try {
 		mServer.stop();
