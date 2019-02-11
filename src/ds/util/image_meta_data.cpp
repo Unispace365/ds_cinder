@@ -23,6 +23,7 @@ namespace {
 // Should have universal formats somewhere
 const int					FORMAT_UNKNOWN = 0;
 const int					FORMAT_PNG = 1;
+const int					FORMAT_JPG = 2;
 
 // Storage object
 const std::string			PATH_SZ("q");
@@ -35,6 +36,7 @@ int							get_format(const std::string& filename) {
 	std::string				ext = path.getExtension();
 	Poco::toLowerInPlace(ext);
 	if (ext == "png") return FORMAT_PNG;
+	if (ext == "jpg" || ext == "jpeg") return FORMAT_JPG;
 	return FORMAT_UNKNOWN;
 }
 
@@ -74,6 +76,77 @@ bool						get_format_png(const std::string& filename, ci::vec2& outSize) {
 	outSize.y = static_cast<float>(height);
 	return true;
 }
+
+bool						get_format_jpg(const std::string& filename, ci::vec2& outSize) {
+	std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
+	if (!file.is_open() || !file) return false;
+
+	char buf[4] = {0, 0, 0, 0};
+	unsigned char* ubuf = (unsigned char*)buf;
+	unsigned char marker;
+
+	// Read until we find a marker
+	const auto nextMarker = [&file, &buf, &ubuf, &marker]() {
+		int discardedBytes = 0;
+		file.read(buf, 1);
+		while (ubuf[0] != 0xFF) {
+			discardedBytes++;
+			file.read(buf, 1);
+		}
+		do {
+			file.read(buf, 1);
+		} while (ubuf[0] == 0xFF);
+		marker = ubuf[0];
+		return discardedBytes;
+	};
+
+	const auto readWord = [&file, &buf]() -> unsigned {
+		file.read(buf, 2);
+		return ((unsigned char)(buf[0]) << 8) + (unsigned char)(buf[1]);
+	};
+
+	// Check Header
+	unsigned header;
+	if ((header = readWord()) != 0x0000ffd8)
+		return false;
+
+	// Read until we find a SOF (Start of Frame) marker
+	while(!file.eof()) {
+		if (nextMarker() != 0)
+			return false;
+
+		if ( ((marker & 0xf0) == 0xc0)
+		  && ((marker & 0x0f) != 0x04)
+		  && ((marker & 0x0f) != 0x08)
+		  && ((marker & 0x0f) != 0x0c))
+		{
+			// Skip length, precision bytes
+			file.seekg(3, std::ios_base::cur);
+			const unsigned height = readWord();
+			const unsigned width = readWord();
+			// Sanity check dimensions
+			if (width < 1 || width > 20000 || height < 1 || height > 20000) {
+				return false;
+			}
+			outSize.x = static_cast<float>(width);
+			outSize.y = static_cast<float>(height);
+			return true;
+		}
+		else if (marker == 0xDA || marker == 0xD9) {
+			return false;
+		}
+		else {
+			// Skip this segment
+			auto length = readWord();
+			if (length < 2)
+				return false;
+			file.seekg(length-2, std::ios_base::cur);
+		}
+	}
+
+	return false;
+}
+
 
 // A horrible fallback when no meta info has been supplied about the image size.
 void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) {
@@ -236,6 +309,10 @@ private:
 			const int			format = get_format(fn);
 			if(format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
 				DS_LOG_VERBOSE(7, "ImageAttsCache got png image size " << atts.mSize.x<< "x" << atts.mSize.y << " for " << fn);
+				return atts;
+			}
+			if(format == FORMAT_JPG && get_format_jpg(fn, atts.mSize)) {
+				DS_LOG_VERBOSE(7, "ImageAttsCache got jpg image size " << atts.mSize.x << "x" << atts.mSize.y << " for " << fn);
 				return atts;
 			}
 		} catch (std::exception const& e) {
