@@ -4,9 +4,11 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
+#include <Poco/ScopedLock.h>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "tcp_client.h"
+
 
 namespace ds {
 namespace net {
@@ -17,6 +19,7 @@ namespace {
 		EchoConnection(	const Poco::Net::StreamSocket& s,
 						std::shared_ptr<TcpServer::SendBucket>& b,
 						std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
+						Poco::Mutex& stopMutex,
 						std::shared_ptr<bool>& st,
 						const std::string& wakeup,
 						const std::string &terminator)
@@ -24,6 +27,7 @@ namespace {
 				, mBucket(b)
 				, mSendQueue(b->startQueue())
 				, mReceiveQueue(rq)
+				, mStopMutex(stopMutex)
 				, mSt(st)
 				, mTerminator(terminator) {
 			if (mSendQueue && !wakeup.empty()) mSendQueue->push(wakeup);
@@ -34,6 +38,8 @@ namespace {
 		}
 		
 		void run() {
+			DS_LOG_INFO("TCPServerConnection connection thread starting: " << Poco::Thread::current());
+
 			Poco::Net::StreamSocket&		ss = socket();
 			ss.setNoDelay(true);
 			ss.setBlocking(false);
@@ -43,7 +49,14 @@ namespace {
 				try {
 					sendTo(ss);
 					receiveFrom(ss);
+					bool stopped = false;
+					{
+						Poco::ScopedLock<Poco::Mutex> stopLock(mStopMutex);
+						stopped = *mSt;
+					}
+					keepRunning = !stopped;
 				} catch (Poco::TimeoutException const&) {
+					Poco::ScopedLock<Poco::Mutex> stopLock(mStopMutex);
 					const bool				stopped = *mSt;
 					if (stopped) keepRunning = false;
 				} catch (std::exception const&) {
@@ -53,6 +66,7 @@ namespace {
 					Poco::Thread::sleep(1);
 				}
 			}
+			DS_LOG_INFO("TCPServerConnection connection thread has completed: " << Poco::Thread::current() );
 		}
 
 	private:
@@ -102,6 +116,7 @@ namespace {
 		std::shared_ptr<TcpServer::SendBucket>			mBucket;
 		ds::AsyncQueue<std::string>*					mSendQueue;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
+		Poco::Mutex&									mStopMutex;
 		std::shared_ptr<bool>							mSt;
 		const std::string								mTerminator;
 		std::string										mWaiting;
@@ -110,20 +125,22 @@ namespace {
 	class ConnectionFactory: public Poco::Net::TCPServerConnectionFactory {
 	public:
 		ConnectionFactory(	std::shared_ptr<TcpServer::SendBucket>& b, std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
-							std::shared_ptr<bool>& st, const std::string& wakeup, const std::string &terminator)
+							Poco::Mutex& stopMutex, std::shared_ptr<bool>& st, const std::string& wakeup, const std::string &terminator)
 				: mBucket(b)
 				, mReceiveQueue(rq)
+				, mStopMutex(stopMutex)
 				, mSt(st)
 				, mWakeup(wakeup)
 				, mTerminator(terminator) {
 		}
 
 		Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket) {
-			return new EchoConnection(socket, mBucket, mReceiveQueue, mSt, mWakeup, mTerminator);
+			return new EchoConnection(socket, mBucket, mReceiveQueue, mStopMutex, mSt, mWakeup, mTerminator);
 		}
 
 		std::shared_ptr<TcpServer::SendBucket>			mBucket;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
+		Poco::Mutex&									mStopMutex;
 		std::shared_ptr<bool>							mSt;
 		const std::string								mWakeup;
 		const std::string								mTerminator;
@@ -140,7 +157,7 @@ TcpServer::TcpServer(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& a
 		, mStopped(new bool(false))
 		, mBucket(new SendBucket())
 		, mReceiveQueue(new ds::AsyncQueue<std::string>())
-		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped, wakeup, terminator), Poco::Net::ServerSocket(address)) {
+		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopMutex, mStopped, wakeup, terminator), Poco::Net::ServerSocket(address)) {
 	if (!mStopped) DS_LOG_WARNING("TcpServer failed making mStopped");
 	if(!mBucket) DS_LOG_WARNING("TcpServer failed making mBucket");
 	if(!mReceiveQueue) DS_LOG_WARNING("TcpServer failed making mReceiveQueue");
@@ -157,7 +174,8 @@ TcpServer::~TcpServer() {
 
 	try {
 		mServer.stop();
-	} catch (std::exception const&) {
+	} catch (std::exception const& e) {
+		DS_LOG_WARNING("TCPServer Error: " << e.what() );
 	}
 }
 
