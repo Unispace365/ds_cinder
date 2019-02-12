@@ -610,7 +610,7 @@ void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
 
 			for(auto it : mData->mProperties) {
 				if(!it.second.getResource().empty()) {
-					DS_LOG_INFO(indent << "          resource:" << it.second.getResource().getAbsoluteFilePath());
+					DS_LOG_INFO(indent << "          resource:" << it.first << " value:" << it.second.getResource().getAbsoluteFilePath());
 				} else {
 					DS_LOG_INFO(indent << "          prop:" << it.first << " value:" << it.second.getValue());
 				}
