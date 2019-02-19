@@ -649,7 +649,7 @@ bool Text::measurePangoText() {
 				}
 
 				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
-				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing) * PANGO_SCALE));
+				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing * PANGO_SCALE)));
 
 				// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
 				//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
