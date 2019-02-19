@@ -22,6 +22,7 @@
 		<text name="slide_body"
 			font="slide:body"
 			layout_h_align="center"
+			text_align="center"
 			resize_limit="#expr{$_world_width / 2.0}"
 			model="text:this->body"
 			/>

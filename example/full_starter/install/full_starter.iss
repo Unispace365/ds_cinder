@@ -33,8 +33,8 @@
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
 
-; Define to not create a normal app icon
-;#define SKIP_APP_ICON
+; Define to not create a normal app icon (and only uses DsAppHost icon)
+#define SKIP_APP_ICON
 
 ; Optionally install notepad++, chrome & 7zip after install
 ; If the installer needs to reboot to pick up environment variables, the install step won't be
