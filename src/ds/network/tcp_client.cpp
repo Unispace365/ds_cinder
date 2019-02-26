@@ -190,8 +190,10 @@ void TcpClient::Loop::run() {
 	}
 
 	try {
-//		mSocket.shutdown();
-	} catch (std::exception&) {
+		mSocket.close();
+		//mSocket.shutdown();
+	} catch (std::exception& e) {
+		DS_LOG_WARNING("Failed to close TcpClient socket: " << e.what() );
 	}	
 }
 
