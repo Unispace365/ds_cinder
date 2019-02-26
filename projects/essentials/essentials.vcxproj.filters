@@ -147,12 +147,6 @@
     <ClCompile Include="src\ds\ui\sprite\line.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\math\fpoptimizer.cc">
-      <Filter>src\ds\math\fparser</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\math\fparser.cc">
-      <Filter>src\ds\math\fparser</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\smart_scroll_list.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
@@ -253,18 +247,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\layout\smart_layout.h">
       <Filter>src\ds\ui\layout</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\math\fparser_gmpint.hh">
-      <Filter>src\ds\math\fparser</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\math\fparser_mpfr.hh">
-      <Filter>src\ds\math\fparser</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\math\fpconfig.hh">
-      <Filter>src\ds\math\fparser</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\math\fparser.hh">
-      <Filter>src\ds\math\fparser</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\smart_scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>

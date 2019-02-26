@@ -16,7 +16,7 @@
 #include "ds/time/time_callback.h"
 #include "ds/thread/work_manager.h"
 #include "ds/content/content_model.h"
-
+#include "ds/cfg/settings_variables.h"
 
 namespace ds {
 class AutoUpdateList;

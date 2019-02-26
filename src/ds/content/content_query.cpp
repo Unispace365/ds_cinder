@@ -195,7 +195,13 @@ ds::model::ContentModelRef ContentQuery::readXml() {
 	ci::XmlTree xml;
 
 	try {
-		xml = ci::XmlTree(cinder::loadFile(filePath));
+		auto theFile = cinder::loadFile(filePath);
+		std::string theContent = std::string((char*)theFile->getBuffer()->getData(), theFile->getBuffer()->getSize());
+
+		std::string value = ds::cfg::SettingsVariables::replaceVariables(theContent);
+		value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+
+		xml = ci::XmlTree(value);
 	} catch (ci::XmlTree::Exception& e) {
 		DS_LOG_WARNING("ContentQuery readXml() doc not loaded! " << e.what());
 		return output;
