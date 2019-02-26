@@ -162,6 +162,11 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 						// Nothing to do here!
 						continue;
 					}
+				} else {
+					DS_LOG_WARNING("ContentQuery::assembleModels() child table model has no parent-child relationship configuration.\n"
+						<< "  Must use one of: [child_local_id, parent_foreign_id, child_local_map].\n"
+						<< "  Table name: "  << it.getName() );
+					continue;
 				}
 
 				for (auto row : it.getChildren()) {

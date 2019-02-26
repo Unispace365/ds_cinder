@@ -24,6 +24,7 @@
 		<text name="slide_body"
 			font="slide:body"
 			layout_h_align="center"
+			shrink_to_bounds="true"
 			layout_size_mode="flex"
 			model="text:this->body"
 			/>

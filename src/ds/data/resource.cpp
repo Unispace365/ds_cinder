@@ -588,6 +588,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("avi") != std::string::npos
 			  || extensionay.find("wmv") != std::string::npos
 			  || extensionay.find("flv") != std::string::npos
+			  || extensionay.find("m2v") != std::string::npos
 			  || extensionay.find("m4v") != std::string::npos
 			  || extensionay.find("mpg") != std::string::npos
 			  || extensionay.find("mkv") != std::string::npos

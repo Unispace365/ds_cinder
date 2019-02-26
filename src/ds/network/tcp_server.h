@@ -50,6 +50,7 @@ private:
 	const Poco::Net::SocketAddress	mAddress;
 	/// These shared_ptr objects are shared with each connection I create.
 	/// Connections might exist past the life of this class.
+	Poco::Mutex						mStopMutex;
 	std::shared_ptr<bool>			mStopped;
 	std::shared_ptr<SendBucket>		mBucket;
 	std::shared_ptr<ds::AsyncQueue<std::string>>

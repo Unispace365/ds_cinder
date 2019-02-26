@@ -23,6 +23,7 @@
 	
 		<text name="slide_body"
 			font="slide:body"
+			shrink_to_bounds="true"
 			layout_h_align="center"
 			layout_size_mode="flex"
 			model="text:this->body"
