@@ -68,18 +68,6 @@ class XmlImporter {
 	/// the opposite of loading an xml to a sprite
 	static ci::XmlTree createXmlFromSprite(ds::ui::Sprite& sprite);
 
-	/// Parses the value if it starts with \#expression, evaluates it, and returns the value as a string
-	static std::string parseExpression(const std::string& value);
-	static std::string parseAllExpressions(const std::string& value);
-
-	/// Replaces any values starting with $_ with any variables that are found.
-	/// Runs until no more variables are found, so be careful with circular references!
-	static std::string replaceVariables(const std::string& value);
-	static std::string replaceSingleVariable(const std::string& value);
-
-	/// Add a variable to use when replacing variables in layouts
-	static void addVariable(const std::string& varName, const std::string& varValue);
-
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 
 	static void dispatchStringEvents(const std::string& str, ds::ui::Sprite* bs, const ci::vec3& globalPos);

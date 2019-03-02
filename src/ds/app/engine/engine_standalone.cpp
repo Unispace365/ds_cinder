@@ -41,12 +41,13 @@ void EngineStandalone::setup(ds::App& app) {
 	if(!mContentWrangler) {
 		mContentWrangler = new ContentWrangler(*this);
 	}
-	if(mContentWrangler) {
-		mContentWrangler->initialize();
-	}
 
 	app.preServerSetup();
 	app.setupServer();
+
+	if(mContentWrangler) {
+		mContentWrangler->initialize();
+	}
 
 }
 

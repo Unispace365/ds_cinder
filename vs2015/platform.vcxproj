@@ -46,6 +46,7 @@
     <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings_editor.h" />
+    <ClInclude Include="..\src\ds\cfg\settings_variables.h" />
     <ClInclude Include="..\src\ds\content\content_events.h" />
     <ClInclude Include="..\src\ds\content\content_model.h" />
     <ClInclude Include="..\src\ds\content\content_query.h" />
@@ -68,6 +69,12 @@
     <ClInclude Include="..\src\ds\debug\key_manager.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
+    <ClInclude Include="..\src\ds\math\extrasrc\fpaux.hh" />
+    <ClInclude Include="..\src\ds\math\extrasrc\fptypes.hh" />
+    <ClInclude Include="..\src\ds\math\fparser.hh" />
+    <ClInclude Include="..\src\ds\math\fparser_gmpint.hh" />
+    <ClInclude Include="..\src\ds\math\fparser_mpfr.hh" />
+    <ClInclude Include="..\src\ds\math\fpconfig.hh" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\metrics\metrics_service.h" />
@@ -241,6 +248,7 @@
     <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp" />
+    <ClCompile Include="..\src\ds\cfg\settings_variables.cpp" />
     <ClCompile Include="..\src\ds\content\content_model.cpp" />
     <ClCompile Include="..\src\ds\content\content_query.cpp" />
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
@@ -263,6 +271,8 @@
     <ClCompile Include="..\src\ds\debug\key_manager.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
+    <ClCompile Include="..\src\ds\math\fparser.cc" />
+    <ClCompile Include="..\src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\metrics\metrics_service.cpp" />
     <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp" />
@@ -383,6 +393,10 @@
     <ClCompile Include="..\src\ds\util\image_meta_data.cpp" />
     <ClCompile Include="..\src\ds\util\string_util.cpp" />
     <ClCompile Include="..\src\tuio\TuioClient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\ds\math\extrasrc\fp_identifier_parser.inc" />
+    <None Include="..\src\ds\math\extrasrc\fp_opcode_add.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D66469E5-B8D3-4356-A386-C7C54306B6DC}</ProjectGuid>

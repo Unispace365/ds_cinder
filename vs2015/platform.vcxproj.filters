@@ -118,6 +118,9 @@
     <Filter Include="src\ds\network\curl">
       <UniqueIdentifier>{d030141c-261f-4064-b52a-ae0320b31a46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\math\extrasrc">
+      <UniqueIdentifier>{92591042-2bbc-4223-b5f5-a834d2713105}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -708,6 +711,27 @@
     <ClInclude Include="..\src\ds\ui\touch\tuio_input.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\settings_variables.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\fparser_gmpint.hh">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\fparser_mpfr.hh">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\fpconfig.hh">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\fparser.hh">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\extrasrc\fpaux.hh">
+      <Filter>src\ds\math\extrasrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\extrasrc\fptypes.hh">
+      <Filter>src\ds\math\extrasrc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1169,5 +1193,22 @@
     <ClCompile Include="..\src\ds\ui\touch\tuio_input.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\settings_variables.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\math\fpoptimizer.cc">
+      <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\math\fparser.cc">
+      <Filter>src\ds\math</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\ds\math\extrasrc\fp_opcode_add.inc">
+      <Filter>src\ds\math\extrasrc</Filter>
+    </None>
+    <None Include="..\src\ds\math\extrasrc\fp_identifier_parser.inc">
+      <Filter>src\ds\math\extrasrc</Filter>
+    </None>
   </ItemGroup>
 </Project>
