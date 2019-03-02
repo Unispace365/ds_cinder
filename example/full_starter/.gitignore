@@ -50,3 +50,5 @@ Release/
 /vs2015/QuotaManager-journal
 /settings/configuration.xml
 /inspector.pak
+/install/DSNode
+/install/DsAppHost
