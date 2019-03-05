@@ -50,6 +50,7 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setScrollerTouchedCallback(const std::function<void()>& func); // just lets you know some interaction happened with the scroller
 
 		const ci::vec2		getScrollerPosition();
+		void				setScrollerPosition(ci::vec2);
 		void				resetScrollerPosition();
 
 		// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 == the bottom (fully scrolled through the list)
