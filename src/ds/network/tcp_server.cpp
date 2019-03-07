@@ -66,7 +66,8 @@ namespace {
 					Poco::Thread::sleep(1);
 				}
 			}
-			DS_LOG_INFO("TCPServerConnection connection thread has completed: " << Poco::Thread::current() );
+			// This crashed trying to log
+			//DS_LOG_INFO("TCPServerConnection connection thread has completed: " << Poco::Thread::current() );
 		}
 
 	private:
