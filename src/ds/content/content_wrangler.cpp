@@ -60,7 +60,7 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 				bool foundNewTable = false;
 				// look for updates to this table, and if there are, remove them from the new list
 				for (auto nit = newTables.begin(); nit < newTables.end(); nit++) {
-					if ((*nit).getId() == tit.getId()) {
+					if ((*nit).getName() == tit.getName()) {
 						mergedList.emplace_back((*nit));
 						foundNewTable = true;
 						// remove from the new list so when we add the remainders later, it's there
