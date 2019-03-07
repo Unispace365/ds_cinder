@@ -429,6 +429,16 @@ const ci::vec2 ScrollArea::getScrollerPosition(){
 	return ci::vec2();
 }
 
+void ScrollArea::setScrollerPosition(ci::vec2 pos)
+{
+	if (mScroller)
+	{
+		mScroller->animStop();
+		mScroller->setPosition(pos);
+	}
+	checkBounds();
+}
+
 void ScrollArea::resetScrollerPosition() {
 	if(mScroller){
 		mScroller->animStop();
