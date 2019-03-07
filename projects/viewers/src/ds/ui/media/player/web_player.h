@@ -38,10 +38,12 @@ class WebPlayer : public ds::ui::Sprite {
 
 	void setWebViewSize(const ci::vec2 webSize);
 	void setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
+	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func);
 	void setAllowTouchToggle(const bool allowTouchToggle);
 	void setShowInterfaceAtStart(const bool showInterfaceAtStart);
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
+
 
   protected:
 	virtual void onSizeChanged();
@@ -50,6 +52,7 @@ class WebPlayer : public ds::ui::Sprite {
 	WebInterface* mWebInterface;
 	ci::vec2	  mWebSize;
 	float		  mKeyboardKeyScale;
+	std::function<void(bool)>	mKeyboardStatusCallback = nullptr;
 
 	bool mEmbedInterface;
 	bool mShowInterfaceAtStart;

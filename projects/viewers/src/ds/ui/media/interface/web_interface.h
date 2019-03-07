@@ -30,6 +30,7 @@ public:
 	void						setKeyboardKeyScale(const float newKeyScale);
 	void						setKeyboardAllow(const bool keyboardAllowed);
 	void						setKeyboardAbove(const bool kerboardAbove);
+	void						setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
 	
@@ -57,6 +58,7 @@ protected:
 	bool						mKeyboardAllowed;
 	bool						mKeyboardAbove;
 	bool						mKeyboardAutoDisablesTimeout;
+	std::function<void(bool)>	mKeyboardStatusCallback = nullptr;
 
 	float						mKeyboardKeyScale;
 

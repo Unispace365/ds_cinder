@@ -57,8 +57,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mKeyboardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png", "%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mKeyboardButton);
 	mKeyboardButton->setClickFn([this](){
-		mKeyboardShowing = !mKeyboardShowing;
-		updateWidgets();
+		toggleKeyboard();
 	});
 
 	mKeyboardButton->getNormalImage().setColor(buttonColor);
@@ -273,8 +272,7 @@ void WebInterface::startAuthCallback(const std::string& host, const std::string&
 	});
 
 	mAuthorizing = true;
-	mKeyboardShowing = true;
-	updateWidgets();
+	showKeyboard(true);
 
 	mAuthLayout->setOpacity(0.0f);
 	mAuthLayout->tweenOpacity(1.0f, mAnimateDuration);
@@ -316,8 +314,7 @@ void WebInterface::animateOff(){
 
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
 		hide();
-		mKeyboardShowing = false;
-		updateWidgets();
+		showKeyboard(false);
 	});
 }
 
@@ -520,11 +517,11 @@ void WebInterface::updateWidgets(){
 void WebInterface::showKeyboard(bool show) {
 	mKeyboardShowing = show;
 	updateWidgets();
+	if(mKeyboardStatusCallback) mKeyboardStatusCallback(mKeyboardShowing);
 }
 
 void WebInterface::toggleKeyboard() {
-	mKeyboardShowing = !mKeyboardShowing;
-	updateWidgets();
+	showKeyboard(!mKeyboardShowing);
 }
 
 } // namespace ui

@@ -67,6 +67,11 @@ void WebPlayer::setKeyboardParams(const float keyboardKeyScale, const bool keybo
 	}
 }
 
+
+void WebPlayer::setKeyboardStateCallback(std::function<void(const bool onscreen)> func) {
+	mKeyboardStatusCallback = func;
+}
+
 void WebPlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 	mAllowTouchToggle = allowTouchToggle;
 	if (mWebInterface) {
@@ -126,6 +131,9 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 		if (mWebInterface) {
 			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
+			mWebInterface->setKeyboardStateCallback([this](const bool onscreen) {
+				if(mKeyboardStatusCallback) { mKeyboardStatusCallback(onscreen); }
+			});
 			mWebInterface->sendToFront();
 		}
 	}
