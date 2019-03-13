@@ -1181,7 +1181,10 @@ double GStreamerWrapper::getDurationInMs() const { return mDurationInMs; }
 
 gint64 GStreamerWrapper::getCurrentTimeInNs() const {
 	GstFormat gstFormat = GST_FORMAT_TIME;
-	gst_element_query_position(GST_ELEMENT(mGstPipeline), gstFormat, &mCurrentTimeInNs);
+	gint64 newTime = mCurrentTimeInNs;
+	if(gst_element_query_position(GST_ELEMENT(mGstPipeline), gstFormat, &newTime)) {
+		mCurrentTimeInNs = newTime;
+	}
 	return mCurrentTimeInNs;
 }
 
