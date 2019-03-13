@@ -23,6 +23,16 @@ public:
 	void						linkVideo(ds::ui::GstVideo* linkedVideo);
 
 	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
+	
+	ds::ui::ImageButton*		getPlayButton();
+	ds::ui::ImageButton*		getPauseButton();
+
+	ds::ui::Sprite*				getScrubBarBackground();
+	ds::ui::Sprite*				getScrubBarProgress();
+
+	void						addNubToScrubBar(ds::ui::Sprite* newNub);
+
+	void						setBackgroundColor(ci::ColorA newColor);
 protected:
 
 	virtual void				onLayout();

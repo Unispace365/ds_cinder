@@ -20,6 +20,11 @@ public:
 	virtual void			onUpdateServer(const ds::UpdateParams& p) override;
 	void					layout();
 
+	ds::ui::Sprite*			getBacker();
+	ds::ui::Sprite*			getProgress();
+
+	void					addNub(ds::ui::Sprite* nub);
+	
 protected:
 	virtual void			onSizeChanged();
 
@@ -27,7 +32,7 @@ protected:
 	ds::ui::Sprite*			mBacker;
 	ds::ui::Sprite*			mProgress;
 
-
+	ds::ui::Sprite*			mNub = nullptr;
 };
 
 } // namespace ui
