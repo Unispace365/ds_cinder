@@ -69,6 +69,7 @@ void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 		if(progress < 0.0f) progress = 0.0f;
 		if(progress > 1.0f) progress = 1.0f;
 		mProgress->setSize(progress * getWidth(), mProgress->getHeight());
+		if (mNub) mNub->setPosition(progress * getWidth(), mNub->getPosition().y);
 
 		if(mLinkedVideo->getIsStreaming()){
 			hide();
@@ -89,5 +90,22 @@ void VideoScrubBar::onSizeChanged(){
 	layout();
 }
 
+ds::ui::Sprite* VideoScrubBar::getBacker() {
+	return mBacker;
+}
+
+ds::ui::Sprite* VideoScrubBar::getProgress() {
+	return mProgress;
+}
+
+void VideoScrubBar::addNub(ds::ui::Sprite* nub) {
+	if (mNub) {
+		auto n = mNub;
+		n->release();
+		mNub = nullptr;
+	}
+	mNub = nub;
+	addChildPtr(mNub);
+}
 } // namespace ui
 } // namespace ds
