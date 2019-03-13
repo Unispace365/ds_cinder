@@ -75,6 +75,30 @@ void VideoInterface::linkVideo(ds::ui::GstVideo* vid){
 	}
 }
 
+ds::ui::ImageButton* VideoInterface::getPlayButton() {
+	return mPlayButton;
+}
+
+ds::ui::ImageButton* VideoInterface::getPauseButton() {
+	return mPauseButton;
+}
+
+ds::ui::Sprite* VideoInterface::getScrubBarBackground() {
+	return mScrubBar->getBacker();
+}
+
+ds::ui::Sprite* VideoInterface::getScrubBarProgress() {
+	return mScrubBar->getProgress();
+}
+
+void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
+	mScrubBar->addNub(newNub);
+}
+
+void VideoInterface::setBackgroundColor(ci::ColorA newColor) {
+	mBackground->setColorA(newColor);
+}
+
 void VideoInterface::onUpdateServer(const ds::UpdateParams& p){
 	MediaInterface::onUpdateServer(p);
 
