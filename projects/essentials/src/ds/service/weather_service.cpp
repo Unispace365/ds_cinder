@@ -317,7 +317,7 @@ void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon
 		iconPng = "light_drizzle";
 		weatherEmoji = L"🌧";
 		break;
-	case 500: case 501: case 520: case 522: case 531:
+	case 500: case 501: case 520: case 521: case 522: case 531:
 		iconPng = "light_rain";
 		weatherEmoji = L"🌧";
 		break;
@@ -357,6 +357,18 @@ void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon
 		} else if(wIcon == "11d" || wIcon == "11n") {
 			iconPng = "stormy";
 			weatherEmoji = L"🌩";
+		} else if(wCode >= 200 && wCode < 300) {
+			iconPng = "heavy_storms";
+			weatherEmoji = L"🌩";
+		} else if(wCode >= 300 && wCode < 600) {
+			iconPng = "light_rain";
+			weatherEmoji = L"🌧";
+		} else if(wCode >= 600 && wCode < 700) {
+			iconPng = "freezing";
+			weatherEmoji = L"❄";
+		} else if(wCode >= 700 && wCode < 800) {
+			iconPng = "foggy";
+			weatherEmoji = L"🌫";
 		}
 	}
 
