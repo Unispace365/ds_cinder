@@ -124,7 +124,12 @@ void ContentProperty::setResource(const ds::Resource& resource) {
 }
 
 bool ContentProperty::operator==(const ContentProperty& b) const {
-	return mName == b.mName && mValue == b.mValue && mResource == b.mResource;
+	// If both resource shared pointers == null, match
+	// If neither are null, do a full resource compare
+	bool resourcesComparable = (mResource.get() != nullptr && b.mResource.get() != nullptr);
+	bool sameResource = (mResource.get() == b.mResource.get()) || (resourcesComparable && (*mResource == *b.mResource));
+
+	return mName == b.mName && mValue == b.mValue && sameResource;
 }
 
 bool ContentProperty::getBool() const {
