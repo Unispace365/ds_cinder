@@ -8,6 +8,7 @@
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
+#include <ds/ui/sprite/pdf.h>
 #include <ds/ui/sprite/video.h>
 
 namespace ds {
@@ -18,6 +19,7 @@ VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, con
 	, mBacker(nullptr)
 	, mProgress(nullptr)
 	, mLinkedVideo(nullptr)
+	, mLinkedPdf(nullptr)
 {
 
 	// 	setTransparent(false);
@@ -30,13 +32,18 @@ VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, con
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){
 		// seek to the relative position, or something
-		if(!getParent() || !mLinkedVideo) return;
+		if(!getParent()) return;
+
 		ci::vec3 loccy = globalToLocal(ti.mCurrentGlobalPoint);
 		double newPercent = (double)(loccy.x / getWidth());
 		if(newPercent < 0.0) newPercent = 0.0;
 		if(newPercent > 1.0) newPercent = 1.0;
-
-		mLinkedVideo->seekPosition(newPercent);
+		if(mLinkedVideo) {
+			mLinkedVideo->seekPosition(newPercent);
+		}
+		if(mLinkedPdf) {
+			mLinkedPdf->setPageNum((int)roundf(newPercent * ((float)mLinkedPdf->getPageCount() + 1.0f)));
+		}
 	});
 
 	mBacker = new ds::ui::Sprite(mEngine, widdyWamWamWozzle, buttHeight / 2.0f);
@@ -62,14 +69,15 @@ void VideoScrubBar::linkVideo(ds::ui::GstVideo* vid){
 	mLinkedVideo = vid;
 }
 
+void VideoScrubBar::linkPdf(ds::ui::Pdf* linkedPdf) {
+	mLinkedPdf = linkedPdf;
+}
+
 void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 	if(mLinkedVideo && mProgress){
 		// update scrub bar
-		float progress = (float)mLinkedVideo->getCurrentPosition();
-		if(progress < 0.0f) progress = 0.0f;
-		if(progress > 1.0f) progress = 1.0f;
-		mProgress->setSize(progress * getWidth(), mProgress->getHeight());
-		if (mNub) mNub->setPosition(progress * getWidth(), mNub->getPosition().y);
+		setProgressPercent((float)mLinkedVideo->getCurrentPosition());
+		
 
 		if(mLinkedVideo->getIsStreaming()){
 			hide();
@@ -77,6 +85,23 @@ void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 			show();
 		}
 	}
+
+	if(mLinkedPdf && mProgress) {
+		auto curPage = (float)mLinkedPdf->getPageNum();
+		auto pageCount = (float)mLinkedPdf->getPageCount();
+		float theProgress = 1.0f;
+		if(pageCount > 1) theProgress = (curPage - 1) / (pageCount - 1);
+		setProgressPercent(theProgress);
+	}
+}
+
+void VideoScrubBar::setProgressPercent(const float theProgress) {
+	float progress = theProgress;
+	if(progress < 0.0f) progress = 0.0f;
+	if(progress > 1.0f) progress = 1.0f;
+	mProgress->setSize(progress * getWidth(), mProgress->getHeight());
+	if(mNub) mNub->setPosition(progress * getWidth(), mNub->getPosition().y);
+
 }
 
 // don't change the size in layout
