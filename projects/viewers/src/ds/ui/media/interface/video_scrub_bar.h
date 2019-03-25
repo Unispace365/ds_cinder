@@ -7,16 +7,18 @@
 namespace ds {
 namespace ui {
 class GstVideo;
+class Pdf;
 
 /**
 * \class VideoScrubBar
-*			Seeking / playback info for  a video
+*			Seeking / playback info for a video *And now PDFs*
 */
 class VideoScrubBar : public ds::ui::Sprite  {
 public:
 	VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float buttHeight, const ci::Color interfaceColor);
 
 	void					linkVideo(ds::ui::GstVideo* linkedVideo);
+	void					linkPdf(ds::ui::Pdf* linkedPdf);
 	virtual void			onUpdateServer(const ds::UpdateParams& p) override;
 	void					layout();
 
@@ -27,8 +29,10 @@ public:
 	
 protected:
 	virtual void			onSizeChanged();
+	void					setProgressPercent(const float theProgress);
 
 	ds::ui::GstVideo*		mLinkedVideo;
+	ds::ui::Pdf*			mLinkedPdf;
 	ds::ui::Sprite*			mBacker;
 	ds::ui::Sprite*			mProgress;
 
