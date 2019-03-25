@@ -12,6 +12,7 @@
 #include <ds/ui/sprite/pdf.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/ui/media/interface/video_scrub_bar.h>
 
 #include <ds/ui/media/interface/thumbnail_bar.h>
 
@@ -29,6 +30,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	, mShowingThumbs(false)
 	, mThumbnailBar(nullptr)
 	, mLinkedEnabled(false)
+	, mScrubBar(nullptr)
+	, mInitialHeight(sizey.y)
 {
 	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png", "%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
@@ -119,6 +122,11 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mThumbsButton->getHighImage().setColor(buttonColor / 2.0f);
 	mThumbsButton->setScale(sizey.y / mThumbsButton->getHeight());
 
+
+	mScrubBar = new ds::ui::VideoScrubBar(mEngine, sizey.y, buttonHeight, buttonColor);
+	addChildPtr(mScrubBar);
+	mScrubBar->hide();
+
 	updateWidgets();
 	const float padding = sizey.y / 4.0f;
 
@@ -144,6 +152,10 @@ void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceRes
 		*/
 	}
 
+	if(mScrubBar) {
+		mScrubBar->linkPdf(linkedPDF);
+	}
+
 	if(mThumbnailBar){
 		mThumbnailBar->setData(mSourceResource);
 	}
@@ -161,7 +173,7 @@ void PDFInterface::onUpdateServer(const ds::UpdateParams& updateParams){
 // Layout is called when the size is changed, so don't change the size in the layout
 void PDFInterface::onLayout(){
 	const float w = getWidth();
-	const float h = getHeight();
+	const float h = mInitialHeight;
 	const float padding = h / 4.0f;
 	if(mUpButton && mDownButton && mPageCounter && mThumbsButton){
 
@@ -175,28 +187,36 @@ void PDFInterface::onLayout(){
 		if(mThumbsButton->visible()){
 			componentsWidth += padding + mThumbsButton->getScaleWidth();
 		}
+		float yFudge = 0.0f;
+		if(mScrubBar && mScrubBar->visible()) {
+			yFudge = padding / 2.0f;
+			mScrubBar->setSize(mMaxWidth - padding * 2.0f, mScrubBar->getHeight());
+			mScrubBar->setPosition(w / 2.0f - mScrubBar->getWidth() / 2.0f, h * 1.5f - mScrubBar->getHeight() / 2.0f);
+		}
 
 		float margin = ((w - componentsWidth) * 0.5f);
 		float xp = margin;
 
 		if(mThumbsButton->visible()){
-			mThumbsButton->setPosition(xp, (h * 0.5f) - (mThumbsButton->getScaleHeight() * 0.5f));
+			mThumbsButton->setPosition(xp, (h * 0.5f) - (mThumbsButton->getScaleHeight() * 0.5f) + yFudge);
 			xp += mThumbsButton->getScaleWidth() + padding;
 		}
 
-		mUpButton->setPosition(xp, (h * 0.5f) - (mUpButton->getScaleHeight() * 0.5f));
+		mUpButton->setPosition(xp, (h * 0.5f) - (mUpButton->getScaleHeight() * 0.5f) + yFudge);
 		xp += mUpButton->getScaleWidth() + padding;
 
-		mPageCounter->setPosition(xp, (h * 0.5f) - (mPageCounter->getHeight() * 0.6f));
+		mPageCounter->setPosition(xp, (h * 0.5f) - (mPageCounter->getHeight() * 0.6f) + yFudge);
 		xp += mPageCounter->getScaleWidth() + padding;
 
-		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f));
+		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f) + yFudge);
 		xp += mDownButton->getScaleWidth() + padding;
 
-		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f));
+		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f) + yFudge);
 		xp += mTouchToggle->getScaleWidth() + padding;
+
 		
 	}
+
 
 	if(mThumbnailBar){
 		mThumbnailBar->setSize(w, h * 2.0f);
@@ -215,11 +235,21 @@ void PDFInterface::updateWidgets(){
 		mPageCounter->setText(wss.str());
 	}
 
-	if(mThumbsButton){
+	if(mThumbsButton && mScrubBar){
 		if(mSourceResource.getChildrenResources().size() < 2){
 			mThumbsButton->hide();
+			if(mLinkedPDF && mLinkedPDF->getPageCount() > 1) {
+				mScrubBar->show();
+				if(getHeight() < mInitialHeight * 2.0f) {
+					setSize(getWidth(), mInitialHeight * 2.0f);
+				}
+			}
 		} else {
 			mThumbsButton->show();
+			mScrubBar->hide();
+			if(getHeight() > mInitialHeight) {
+				setSize(getWidth(), mInitialHeight);
+			}
 		}
 	}
 
@@ -244,10 +274,8 @@ void PDFInterface::updateWidgets(){
 	layout();
 }
 
-void PDFInterface::setPageFont(std::string fontName, float fontSize)
-{
-	if (mPageCounter)
-	{
+void PDFInterface::setPageFont(std::string fontName, float fontSize){
+	if (mPageCounter){
 		mPageCounter->setFont(fontName);
 		mPageCounter->setFontSize(fontSize);
 	}

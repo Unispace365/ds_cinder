@@ -12,6 +12,7 @@ class ImageButton;
 class Text;
 class Pdf;
 class ThumbnailBar;
+class VideoScrubBar;
 
 /**
 * \class PDFInterface
@@ -40,6 +41,8 @@ protected:
 	ds::ui::Text*				mPageCounter;
 	ds::ui::ImageButton*		mTouchToggle;
 	ds::ui::ImageButton*		mThumbsButton;
+	ds::ui::VideoScrubBar*		mScrubBar;
+	float						mInitialHeight;
 
 	ds::ui::ThumbnailBar*		mThumbnailBar;
 	bool						mShowingThumbs;
