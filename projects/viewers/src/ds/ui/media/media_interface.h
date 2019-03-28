@@ -35,10 +35,12 @@ class MediaInterface : public ds::ui::Sprite {
 	/// allows the interface to be shown at all (rare edge case when you temporarily want to hide this)
 	void setAllowDisplay(const bool canDisplay) { mCanDisplay = canDisplay; }
 
+	/// Conveniences to set the background color
 	void setBackgroundColorA(const ci::ColorA backgroundColor);
-
 	void setBackgroundColor(ci::ColorA newColor);
 	void setBackgroundColor(ci::Color newColor);
+
+	ds::ui::Sprite* getBackground() { return mBackground; }
 
   protected:
 	float			mAnimateDuration;
