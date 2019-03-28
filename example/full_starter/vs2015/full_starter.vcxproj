@@ -158,12 +158,14 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\ui\story\story_controller.cpp" />
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\full_starter_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
     <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\ui\story\story_controller.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
   </ItemGroup>
   <ItemGroup>

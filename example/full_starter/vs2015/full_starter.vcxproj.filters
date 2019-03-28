@@ -10,6 +10,9 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\story\story_controller.cpp">
+      <Filter>src\ui\story</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\events\app_events.h">
@@ -23,6 +26,9 @@
     </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\story\story_controller.h">
+      <Filter>src\ui\story</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

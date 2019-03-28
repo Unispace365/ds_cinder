@@ -13,14 +13,6 @@ namespace fullstarter {
 class StoryView : public ds::ui::SmartLayout  {
 public:
 	StoryView(ds::ui::SpriteEngine& eng);
-
-private:
-
-	void								animateOn();
-	void								animateOff();
-
-	void								setData();
-
 };
 
 } // namespace fullstarter

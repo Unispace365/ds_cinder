@@ -14,53 +14,33 @@ namespace fullstarter {
 StoryView::StoryView(ds::ui::SpriteEngine& eng)
 	: ds::ui::SmartLayout(eng, "story_view.xml")
 {
+	/// link a button to an action in the app
+	setSpriteClickFn("idle_button.the_button", [this] {
+		if(mEngine.isIdling()) {
+			userInputReceived();
+		} else {
+			mEngine.startIdling();
+		}
+	});
 
-	hide();
-	setOpacity(0.0f);
-		
-	listenToEvents<ds::app::IdleStartedEvent>([this](const ds::app::IdleStartedEvent& e) { animateOff(); });
-	listenToEvents<ds::app::IdleEndedEvent>([this](const ds::app::IdleEndedEvent& e) { animateOn(); });
-	listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) { setData(); });
+	// called when setContentModel() is called on SmartLayout
+	setContentUpdatedCallback([this] {
+		/// Most model application happens in the layout file with the "model" property
+		/// You can manually apply properties to items
+		setSpriteImage("primary_image", getContentModel().getPropertyResource("resourceid"));
+
+		completeAllTweens(false, true);
+		clearAnimateOnTargets(true);
+		runLayout();
+		tweenAnimateOn(true, 0.0f, 0.05f);
+	});
+
+	/// an event happened somewhere else in the app, respond to it
 	listenToEvents<SomethingHappenedEvent>([this](const SomethingHappenedEvent& e) { 
 		setSpriteText("subtitle_message", "You hit the 'Something' button at " + std::to_string(e.mEventOrigin.x) + ", " + std::to_string(e.mEventOrigin.y)); 
 	});
 
 }
-
-void StoryView::setData() {
-	// update view to match new content
-	// See story_query from where this content is sourced from
-	// In a real case, you'd likely have a single story ref for this instance and use that data
-	if(!mEngine.mContent.getChildren().empty()){
-
-		/// Uses the "model" property on any xml-loaded children to map to this data model
-		auto storyRef = mEngine.mContent.getChildByName("sqlite.sample_data.sample_data");
-		setContentModel(storyRef);
-		
-		/// You can also manually apply properties to items
-		setSpriteImage("primary_image", storyRef.getPropertyResource("resourceid"));
-		
-	}
-
-	completeAllTweens(false, true);
-	clearAnimateOnTargets(true);
-	runLayout();
-	tweenAnimateOn(true, 0.0f, 0.05f);
-}
-
-
-void StoryView::animateOn(){
-	show();
-	tweenOpacity(1.0f, mEngine.getAnimDur());
-
-	// Recursively animate on any children, including the primary layout
-	tweenAnimateOn(true, 0.0f, 0.05f);
-}
-
-void StoryView::animateOff(){
-	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
-}
-
 
 
 } // namespace fullstarter

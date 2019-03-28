@@ -9,7 +9,7 @@
 #include <cinder/app/RendererGl.h>
 
 #include "events/app_events.h"
-#include "ui/story/story_view.h"
+#include "ui/story/story_controller.h"
 
 namespace fullstarter {
 
@@ -30,7 +30,7 @@ FullStarterApp::FullStarterApp()
 
 void FullStarterApp::setupServer(){
 	// add sprites
-	mEngine.getRootSprite().addChildPtr(new StoryView(mEngine));
+	mEngine.getRootSprite().addChildPtr(new StoryController(mEngine));
 
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting

@@ -5,13 +5,18 @@
 	<setting name="sample:config:leading" value="1.0" type="float"/>
 	<setting name="sample:config:color" value="white" type="color"/>
 	
-	<setting name="media_viewer:title:name" value="Noto Sans Bold" type="string"/>
+	<setting name="media_viewer:title:name" value="Noto Sans Thin" type="string"/>
 	<setting name="media_viewer:title:size" value="16" type="float"/>
 	<setting name="media_viewer:title:leading" value="1.0" type="float"/>
 	<setting name="media_viewer:title:color" value="white" type="color"/>
 	
-	<setting name="app:title:name" value="Noto Sans Bold" type="string"/>
-	<setting name="app:title:size" value="48" type="float"/>
+	<setting name="story:title:name" value="Noto Sans Thin" type="string"/>
+	<setting name="story:title:size" value="36" type="float"/>
+	<setting name="story:title:leading" value="1.0" type="float"/>
+	<setting name="story:title:color" value="white" type="color"/>
+	
+	<setting name="app:title:name" value="Noto Sans Thin" type="string"/>
+	<setting name="app:title:size" value="72" type="float"/>
 	<setting name="app:title:leading" value="1.0" type="float"/>
 	<setting name="app:title:color" value="white" type="color"/>
 </settings>
