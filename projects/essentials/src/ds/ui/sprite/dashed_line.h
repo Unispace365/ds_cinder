@@ -29,14 +29,14 @@ public:
 protected:
 	virtual void			onSizeChanged();
 	void					rebuildLine();
-	bool					mClosed;
-
-	std::vector<ci::Path2d> mSegments;
 
 	bool					mPointsAreDirty;
 	float					mSpaceIncrement;
 	float					mDashLength;
 
+	ci::gl::BatchRef		mBatchRef;
+	ci::gl::GlslProgRef		mGlsl;
+	int						mTotalDashesSize;
 
 	virtual void			drawLocalClient();
 	virtual void			drawLocalServer();
