@@ -84,19 +84,22 @@ ds::ui::ImageButton* VideoInterface::getPauseButton() {
 }
 
 ds::ui::Sprite* VideoInterface::getScrubBarBackground() {
+	if(!mScrubBar) return nullptr;
 	return mScrubBar->getBacker();
 }
 
 ds::ui::Sprite* VideoInterface::getScrubBarProgress() {
+	if(!mScrubBar) return nullptr;
 	return mScrubBar->getProgress();
 }
 
-void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
-	mScrubBar->addNub(newNub);
+ds::ui::VideoVolumeControl* VideoInterface::getVolumeControl() {
+	return mVolumeControl;
 }
 
-void VideoInterface::setBackgroundColor(ci::ColorA newColor) {
-	mBackground->setColorA(newColor);
+void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
+	if(!mScrubBar) return;
+	mScrubBar->addNub(newNub);
 }
 
 void VideoInterface::onUpdateServer(const ds::UpdateParams& p){

@@ -46,6 +46,13 @@ public:
 	void						showKeyboard(bool show);
 	void                        toggleKeyboard();
 
+
+	ds::ui::ImageButton*		getKeyboardButton() { return mKeyboardButton; }
+	ds::ui::ImageButton*		getBackButton() { return mBackButton; }
+	ds::ui::ImageButton*		getForwardButton() { return mForwardButton; }
+	ds::ui::ImageButton*		getRefreshButton() { return mRefreshButton; }
+	ds::ui::ImageButton*		getTouchToggleButton() { return mTouchToggle; }
+
 protected:
 
 	virtual void				onLayout();

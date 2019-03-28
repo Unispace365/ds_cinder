@@ -69,9 +69,16 @@ void MediaInterface::layout() {
 	}
 }
 
-
 void MediaInterface::setBackgroundColorA(const ci::ColorA backgroundColor) {
 	if (mBackground) mBackground->setColorA(backgroundColor);
+}
+
+void MediaInterface::setBackgroundColor(ci::ColorA newColor) {
+	if(mBackground) mBackground->setColorA(newColor);
+}
+
+void MediaInterface::setBackgroundColor(ci::Color newColor) {
+	if(mBackground) mBackground->setColor(newColor);
 }
 
 void MediaInterface::animateOn() {

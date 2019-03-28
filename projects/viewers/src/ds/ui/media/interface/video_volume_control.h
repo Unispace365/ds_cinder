@@ -19,6 +19,9 @@ public:
 	void							linkVideo(ds::ui::GstVideo* linkedVideo);
 	void							setVolume(const float v);
 
+	// do not release the bars here, this is to modify their values
+	std::vector<ds::ui::Sprite*>&	getBars() { return mBars; }
+
 protected:
 	virtual void					onUpdateServer(const ds::UpdateParams& updateParams) override;
 

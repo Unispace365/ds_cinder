@@ -22,7 +22,7 @@ namespace ui {
 namespace MediaInterfaceBuilder {
 
 
-MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite) {
+MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite,const ci::Color buttonColor, const ci::Color backgroundColor) {
 	MediaInterface* outputMi = nullptr;
 
 	if (!parentSprite || !mediaPlayer) {
@@ -39,7 +39,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 	ds::ui::VideoPlayer* vidPlayer = dynamic_cast<ds::ui::VideoPlayer*>(mediaPlayer);
 	if (vidPlayer) {
 		ds::ui::VideoInterface* vi =
-			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(vidPlayer->getVideo());
 		outputMi = vi;
@@ -48,7 +48,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 	ds::ui::PanoramicVideoPlayer* pvidPlayer = dynamic_cast<ds::ui::PanoramicVideoPlayer*>(mediaPlayer);
 	if (pvidPlayer) {
 		ds::ui::VideoInterface* vi =
-			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(pvidPlayer->getVideo());
 		outputMi = vi;
@@ -57,7 +57,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 	ds::ui::StreamPlayer* streamPlayer = dynamic_cast<ds::ui::StreamPlayer*>(mediaPlayer);
 	if (streamPlayer) {
 		ds::ui::VideoInterface* vi =
-			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+			new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(streamPlayer->getVideo());
 		outputMi = vi;
@@ -66,7 +66,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 	ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 	if (webPlayer) {
 		ds::ui::WebInterface* wi =
-			new WebInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+			new WebInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 		parentSprite->addChildPtr(wi);
 		wi->linkWeb(webPlayer->getWeb());
 		outputMi = wi;
@@ -75,7 +75,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 	ds::ui::PDFPlayer* pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mediaPlayer);
 	if (pdfPlayer) {
 		ds::ui::PDFInterface* pi =
-			new PDFInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+			new PDFInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 		parentSprite->addChildPtr(pi);
 		pi->linkPDF(pdfPlayer->getPDF(), pdfPlayer->getResource());
 		outputMi = pi;

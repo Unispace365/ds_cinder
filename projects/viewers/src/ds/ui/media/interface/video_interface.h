@@ -30,9 +30,9 @@ public:
 	ds::ui::Sprite*				getScrubBarBackground();
 	ds::ui::Sprite*				getScrubBarProgress();
 
-	void						addNubToScrubBar(ds::ui::Sprite* newNub);
+	VideoVolumeControl*			getVolumeControl();
 
-	void						setBackgroundColor(ci::ColorA newColor);
+	void						addNubToScrubBar(ds::ui::Sprite* newNub);
 protected:
 
 	virtual void				onLayout();

@@ -281,5 +281,20 @@ void PDFInterface::setPageFont(std::string fontName, float fontSize){
 	}
 }
 
+ds::ui::Sprite* PDFInterface::getScrubBarBackground() {
+	if(!mScrubBar) return nullptr;
+	return mScrubBar->getBacker();
+}
+
+ds::ui::Sprite* PDFInterface::getScrubBarProgress() {
+	if(!mScrubBar) return nullptr;
+	return mScrubBar->getProgress();
+}
+
+void PDFInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
+	if(!mScrubBar) return;
+	mScrubBar->addNub(newNub);
+}
+
 } // namespace ui
 } // namespace ds

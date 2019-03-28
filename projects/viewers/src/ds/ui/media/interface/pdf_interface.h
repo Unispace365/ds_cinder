@@ -28,6 +28,18 @@ public:
 	void						updateWidgets();
 	void						setPageFont(std::string fontName, float fontSize);
 
+	/// For visual customization - don't release these sprites from here
+	void						addNubToScrubBar(ds::ui::Sprite* newNub);
+	ds::ui::ImageButton*		getUpButton() { return mUpButton; }
+	ds::ui::ImageButton*		getDownButton() { return mDownButton; }
+	ds::ui::ImageButton*		getTouchToggle() { return mTouchToggle; }
+	ds::ui::ImageButton*		getThumbsButton() { return mThumbsButton; }
+	ds::ui::VideoScrubBar*		getScrubBar() { return mScrubBar; }
+	ds::ui::Sprite*				getScrubBarProgress();
+	ds::ui::Text*				getPageCounter() { return mPageCounter; }
+	ds::ui::Sprite*				getScrubBarBackground();
+
+
 protected:
 	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;
 	virtual void				onLayout();

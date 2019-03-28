@@ -37,6 +37,9 @@ class MediaInterface : public ds::ui::Sprite {
 
 	void setBackgroundColorA(const ci::ColorA backgroundColor);
 
+	void setBackgroundColor(ci::ColorA newColor);
+	void setBackgroundColor(ci::Color newColor);
+
   protected:
 	float			mAnimateDuration;
 	ds::ui::Sprite* mBackground;

@@ -18,7 +18,7 @@ namespace MediaInterfaceBuilder {
 
 /// Builds and links the appropriate kind of interface.
 /// mediaPlayer MUST be a PdfPlayer, VideoPlayer, or WebPlayer
-MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite);
+MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite, const ci::Color buttonColor = ci::Color::white(), const ci::Color backgroundColor = ci::Color::black());
 
 };  // namespace MediaInterfaceBuilder
 
