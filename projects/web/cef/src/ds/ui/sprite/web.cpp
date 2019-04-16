@@ -634,10 +634,10 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 	}
 }
 
-void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
+void Web::sendKeyDownEvent(const ci::app::KeyEvent &event, const bool isCharacter) {
 	DS_LOG_VERBOSE(3, "Web: send key down " << event.getChar() << " code: " << event.getCode());
 
-	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown(), isCharacter);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		mKeyPresses.push_back(WebKeyboardInput(0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
@@ -648,7 +648,7 @@ void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
 void Web::sendKeyUpEvent(const ci::app::KeyEvent &event) {
 	DS_LOG_VERBOSE(3, "Web: send key up " << event.getChar() << " code: " << event.getCode());
 
-	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown(), true);
 
 	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		mKeyPresses.push_back(WebKeyboardInput(2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
@@ -1000,7 +1000,7 @@ void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 			bool isAlt = buf.read<bool>();
 
 			if(mBrowserId > -1){
-				mService.sendKeyEvent(mBrowserId, state, nativ, chary, isShif, isCntrl, isAlt);
+				mService.sendKeyEvent(mBrowserId, state, nativ, chary, isShif, isCntrl, isAlt, true);
 			}
 		}
 

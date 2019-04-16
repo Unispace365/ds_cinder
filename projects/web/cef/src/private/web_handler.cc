@@ -569,7 +569,7 @@ void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int
 	}
 }
 
-void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown){
+void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter){
 	// be sure this is locked with other requests to the browser list
 	base::AutoLock lock_scope(mLock);
 
@@ -647,7 +647,7 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 
 
 		if(state == 0){
-			if(isChar){
+			if(isCharacter && isChar){
 				keyEvent.type = KEYEVENT_CHAR;
 			} else {
 				keyEvent.type = KEYEVENT_KEYDOWN;

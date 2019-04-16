@@ -66,7 +66,8 @@ public:
 	// windows_key_code: the VK_### Key code
 	// Character: If there's a character associated with this key press. If this is a special key (enter, shift, delete, whatevs) there won't be a char
 	// ShiftDown/CntrlDown/AltDown: If the modifier key is depressed (cheer up, modifier key!)
-	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown);
+	// isCharacter will force the key event to be keyDown instead of a character (if this is a charcter)
+	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter);
 
 	// Asynchronously load the requested url. Notifications from WebCefCallbacks will happen when appropriate after this
 	void					loadUrl(const int browserId, const std::string& newUrl);

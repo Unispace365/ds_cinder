@@ -240,10 +240,10 @@ void WebCefService::sendMouseWheelEvent(const int browserId, const int x, const 
 	}
 }
 
-void WebCefService::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown){
+void WebCefService::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){
-		handler->sendKeyEvent(browserId, state, windows_key_code, character, shiftDown, cntrlDown, cntrlDown);
+		handler->sendKeyEvent(browserId, state, windows_key_code, character, shiftDown, cntrlDown, cntrlDown, isCharacter);
 	}
 }
 
