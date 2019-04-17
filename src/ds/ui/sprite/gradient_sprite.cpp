@@ -53,7 +53,7 @@ Gradient& Gradient::makeV(SpriteEngine& e, const ci::ColorA& y1, const ci::Color
 Gradient::Gradient(	ds::ui::SpriteEngine& e,
 					const ci::ColorA& tlColor, const ci::ColorA& trColor,
 					const ci::ColorA& brColor, const ci::ColorA& blColor)
-		: inherited(e)
+		: ds::ui::Sprite(e)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -137,7 +137,7 @@ void Gradient::onBuildRenderBatch() {
 }
 
 void Gradient::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	writeGradientColor(TL_DIRTY, mTLColor, TL_ATT, buf);
 	writeGradientColor(TR_DIRTY, mTRColor, TR_ATT, buf);
@@ -155,7 +155,7 @@ void Gradient::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	} else if (attributeId == BR_ATT) {
 		mBRColor = buf.read<ci::ColorA>();
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 
@@ -189,6 +189,38 @@ ci::ColorA& Gradient::getColorBL(){
 
 ci::ColorA& Gradient::getColorBR(){
 	return mBRColor;
+}
+
+void Gradient::tweenColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor, const ci::ColorA& brColor, const ci::ColorA& blColor, 
+							  const float duration, const float delay, ci::EaseFn easeFunction, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
+
+	auto tlOpts = mEngine.getTweenline().getTimeline().apply(&mTLAnim, mTLColor, tlColor, duration, easeFunction);
+	tlOpts.updateFn([this, updateFn]() { 
+		setGradientColor(TL_DIRTY, mTLAnim.value(), mTLColor);
+		if(updateFn) updateFn(); });
+	if(finishFn) tlOpts.finishFn(finishFn);
+	tlOpts.delay(delay);
+
+	auto trOpts = mEngine.getTweenline().getTimeline().apply(&mTRAnim, mTRColor, trColor, duration, easeFunction);
+	trOpts.updateFn([this, updateFn]() { 
+		setGradientColor(TR_DIRTY, mTRAnim.value(), mTRColor);
+		if(updateFn) updateFn(); });
+	if(finishFn) trOpts.finishFn(finishFn);
+	trOpts.delay(delay);
+
+	auto brOpts = mEngine.getTweenline().getTimeline().apply(&mBRAnim, mBRColor, brColor, duration, easeFunction);
+	brOpts.updateFn([this, updateFn]() { 
+		setGradientColor(BR_DIRTY,mBRAnim.value(), mBRColor); 
+		if(updateFn) updateFn(); });
+	if(finishFn) brOpts.finishFn(finishFn);
+	brOpts.delay(delay);
+
+	auto blOpts = mEngine.getTweenline().getTimeline().apply(&mBLAnim, mBLColor, blColor, duration, easeFunction);
+	blOpts.updateFn([this, updateFn]() { 
+		setGradientColor(BL_DIRTY, mBLAnim.value(), mBLColor); 
+		if(updateFn) updateFn(); });
+	if(finishFn) blOpts.finishFn(finishFn);
+	blOpts.delay(delay);
 }
 
 } // using namespace ui

@@ -73,6 +73,11 @@ public:
 	/** \return The Bottom Right color of the Gradient */
 	ci::ColorA&					getColorBR();
 
+	void						tweenColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor, const ci::ColorA& brColor, const ci::ColorA& blColor,
+											   const float duration, const float delay = 0.0f, ci::EaseFn easeFunction = ci::easeNone,
+											   const std::function<void(void)>& finishFn = nullptr ,
+											   const std::function<void(void)>& updateFn = nullptr);
+
 protected:
 	virtual void				drawLocalClient();
 	virtual void				writeAttributesTo(ds::DataBuffer&);
@@ -84,11 +89,15 @@ private:
 	void						setGradientColor(const DirtyState&, const ci::ColorA& src, ci::ColorA& dst);
 	void						writeGradientColor(const DirtyState&, const ci::ColorA& src, const char att, ds::DataBuffer&) const;
 
-	typedef ds::ui::Sprite		inherited;
 	ci::ColorA					mTLColor;
 	ci::ColorA					mTRColor;
 	ci::ColorA					mBLColor;
 	ci::ColorA					mBRColor;
+
+	ci::Anim<ci::ColorA>		mTLAnim;
+	ci::Anim<ci::ColorA>		mTRAnim;
+	ci::Anim<ci::ColorA>		mBLAnim;
+	ci::Anim<ci::ColorA>		mBRAnim;
 
 	/// Initialization
 public:
