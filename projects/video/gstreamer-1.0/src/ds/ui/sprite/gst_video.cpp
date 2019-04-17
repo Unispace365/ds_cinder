@@ -149,6 +149,7 @@ const DirtyState& mSeekDirty	 = newUniqueDirtyState();
 const DirtyState& mInstancesDirty = newUniqueDirtyState();
 const DirtyState& mDoSyncDirty	= newUniqueDirtyState();
 
+static int NUM_VIDEOS = 0;
 }  // namespace
 
 GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
@@ -217,6 +218,9 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	setTransparent(false);
 	setUseShaderTexture(true);
+
+	NUM_VIDEOS++;
+	DS_LOG_VERBOSE(4, "Adding a video, number: " << NUM_VIDEOS);
 }
 
 GstVideo::~GstVideo() {
@@ -224,6 +228,8 @@ GstVideo::~GstVideo() {
 		delete mGstreamerWrapper;
 		mGstreamerWrapper = nullptr;
 	}
+	NUM_VIDEOS--;
+	DS_LOG_VERBOSE(4, "Removing a video, number: " << NUM_VIDEOS);
 }
 
 void GstVideo::generateAudioBuffer(bool enableAudioBuffer) { mGenerateAudioBuffer = enableAudioBuffer; }
