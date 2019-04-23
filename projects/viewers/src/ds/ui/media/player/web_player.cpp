@@ -12,6 +12,7 @@
 #include <ds/ui/sprite/web.h>
 
 #include "ds/ui/media/interface/web_interface.h"
+#include "ds/ui/media/interface/web_youtube_interface.h"
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
@@ -22,6 +23,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   : ds::ui::Sprite(eng)
   , mWeb(nullptr)
   , mWebInterface(nullptr)
+  , mWebYoutubeInterface(nullptr)
   , mEmbedInterface(embedInterface)
   , mShowInterfaceAtStart(true)
   , mKeyboardKeyScale(1.0f)
@@ -31,6 +33,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mStartInteractable(false)
   , mLetterbox(true)
   , mInterfaceBelowMedia(false)
+  , mIsYoutube(false)
 {
 
 	mLayoutFixedAspect = true;
@@ -83,12 +86,17 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	static const float fractionalWidthForContent = 0.6f;
 
 	if (mWeb) {
-		mWeb->release();
-		mWeb = nullptr;
 
 		if (mWebInterface) {
 			mWebInterface->linkWeb(nullptr);
 		}
+		if (mWebYoutubeInterface)
+		{
+			mWebYoutubeInterface->linkWeb(nullptr);
+		}
+
+		mWeb->release();
+		mWeb = nullptr;
 	}
 
 	mWeb = new ds::ui::Web(mEngine);
@@ -99,6 +107,10 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
 		if (mWebInterface) {
 			mWebInterface->updateWidgets();
+		}
+		if (mWebYoutubeInterface)
+		{
+			mWebYoutubeInterface->updateWidgets();
 		}
 	});
 
@@ -125,8 +137,17 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 		mWebInterface->release();
 		mWebInterface = nullptr;
 	}
+	if (mWebYoutubeInterface)
+	{
+		mWebYoutubeInterface->release();
+		mWebYoutubeInterface = nullptr;
+	}
+
 	if (mEmbedInterface) {
-		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		if(!mIsYoutube)
+			mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		else
+			mWebYoutubeInterface = dynamic_cast<WebYoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
 		if (mWebInterface) {
 			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
@@ -135,6 +156,11 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 				if(mKeyboardStatusCallback) { mKeyboardStatusCallback(onscreen); }
 			});
 			mWebInterface->sendToFront();
+		}
+		if (mWebYoutubeInterface)
+		{
+			setAllowTouchToggle(mAllowTouchToggle);
+			mWebYoutubeInterface->sendToFront();
 		}
 	}
 
@@ -145,6 +171,16 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 		} else {
 			mWebInterface->setOpacity(0.0f);
 			mWebInterface->hide();
+		}
+	}
+
+	if (mWebYoutubeInterface) {
+		if (mShowInterfaceAtStart) {
+			mWebYoutubeInterface->show();
+		}
+		else {
+			mWebYoutubeInterface->setOpacity(0.0f);
+			mWebYoutubeInterface->hide();
 		}
 	}
 
@@ -167,6 +203,16 @@ void WebPlayer::layout() {
 		if(mInterfaceBelowMedia) yPos = getHeight();
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
+
+	if (mWebYoutubeInterface && mEmbedInterface) {
+		mWebYoutubeInterface->setSize(getWidth() * 2.0f / 3.0f, mWebYoutubeInterface->getHeight());
+
+		float yPos = getHeight() - mWebYoutubeInterface->getHeight() - 50.0f;
+		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if (yPos + mWebYoutubeInterface->getHeight() > getHeight()) yPos = getHeight() - mWebYoutubeInterface->getHeight();
+		if (mInterfaceBelowMedia) yPos = getHeight();
+		mWebYoutubeInterface->setPosition(getWidth() / 2.0f - mWebYoutubeInterface->getWidth() / 2.0f, yPos);
+	}
 }
 
 void WebPlayer::userInputReceived() {
@@ -178,11 +224,18 @@ void WebPlayer::showInterface() {
 	if (mWebInterface) {
 		mWebInterface->animateOn();
 	}
+	if (mWebYoutubeInterface) {
+		mWebYoutubeInterface->animateOn();
+	}
+
 }
 
 void WebPlayer::hideInterface() {
 	if (mWebInterface) {
 		mWebInterface->startIdling();
+	}
+	if (mWebYoutubeInterface) {
+		mWebYoutubeInterface->startIdling();
 	}
 }
 
@@ -195,6 +248,12 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 	layout();
 }
 
+void WebPlayer::setIsYoutube(const bool isYoutube)
+{
+	mIsYoutube = isYoutube;
+	setMedia(mWeb->getUrl());
+}
+
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
 	if (mWeb) {
 		mWeb->sendMouseClick(globalClickPos);
@@ -204,7 +263,9 @@ void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
 ds::ui::Web* WebPlayer::getWeb() { return mWeb; }
 
 
-ds::ui::WebInterface* WebPlayer::getWebInterface() { return mWebInterface; }
-
+ds::ui::WebInterface* WebPlayer::getWebInterface()
+{
+	return mWebInterface;
+}
 }  // namespace ui
 }  // namespace ds

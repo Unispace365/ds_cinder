@@ -109,6 +109,9 @@
       <Filter>src\ds\ui\media\player</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\stdafx.cpp" />
+    <ClCompile Include="src\ds\ui\media\interface\web_youtube_interface.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -190,5 +193,8 @@
       <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="src\ds\ui\media\interface\web_youtube_interface.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
