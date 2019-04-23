@@ -71,7 +71,8 @@ public:
 	void										setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
 	void										setDragScrollingDirection(bool scrollsUp) { mDragScrollingDirection = scrollsUp; }
 
-	void										sendKeyDownEvent(const ci::app::KeyEvent &event);
+	/// If the isCharacter flag is false, will send a key down event instead
+	void										sendKeyDownEvent(const ci::app::KeyEvent &event, const bool isCharacter = true);
 	void										sendKeyUpEvent(const ci::app::KeyEvent &event);
 
 	// This web sprite handles touch-to-mouse events by default.

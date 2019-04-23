@@ -194,7 +194,7 @@ public:
 	void 					sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
 
 	// Sends a key event to the browser
-	void 					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown);
+	void 					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter);
 
 	// Loads a new URL in the specified browser's main frame
 	void 					loadUrl(const int browserId, const std::string& newUrl);
