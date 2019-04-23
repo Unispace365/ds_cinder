@@ -59,3 +59,4 @@ projects/**/lib*.a
 .fontconfig
 /example/clock_and_weather/settings/3840x2160/app_settings.xml
 /example/clock_and_weather/settings/3840x2160/engine.xml
+/vs2015/platform.sln

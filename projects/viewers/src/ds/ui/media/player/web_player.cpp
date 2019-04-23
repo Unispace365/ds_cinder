@@ -255,7 +255,7 @@ void WebPlayer::setIsYoutube(const bool isYoutube)
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
-	if (mWeb) {
+	if (mWeb && !mIsYoutube) {
 		mWeb->sendMouseClick(globalClickPos);
 	}
 }
