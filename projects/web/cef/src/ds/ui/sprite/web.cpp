@@ -683,6 +683,11 @@ void Web::sendMouseClick(const ci::vec3& globalClickPoint) {
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
+	if (xPos < -10000000 || yPos < -10000000) {
+		xPos = (int)(globalClickPoint.x / getScale().x);
+		yPos = (int)(globalClickPoint.y / getScale().y);
+	}
+
 	sendTouchToService(xPos, yPos, 0, 0, 1);
 //	sendTouchToService(xPos, yPos, 0, 1, 1);
 	sendTouchToService(xPos, yPos, 0, 2, 1);
