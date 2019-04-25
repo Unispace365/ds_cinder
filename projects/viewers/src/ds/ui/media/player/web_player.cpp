@@ -54,6 +54,12 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
 	mWebSize = webSize;
+	if (mIsYoutube)
+	{
+		mWebSize.x *= 1.003f;
+		mWebSize.y *= 1.004f;
+	}
+		
 	if (mWeb) {
 		mWeb->setSize(mWebSize.x, mWebSize.y);
 	}
@@ -173,7 +179,7 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 			mWebInterface->hide();
 		}
 	}
-
+	 
 	if (mWebYoutubeInterface) {
 		if (mShowInterfaceAtStart) {
 			mWebYoutubeInterface->show();
