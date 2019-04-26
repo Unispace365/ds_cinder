@@ -22,12 +22,13 @@ namespace ds {
 		WebYoutubeInterface::WebYoutubeInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 			: MediaInterface(eng, sizey, backgroundColor)
 			, mLinkedWeb(nullptr)
-			, mBackButton(nullptr)
-			, mForwardButton(nullptr)
+			, mBackTimeButton(nullptr)
+			, mBackPageButton(nullptr)
+			, mForwardTimeButton(nullptr)
+			, mForwardPageButton(nullptr)
 			, mTouchToggle(nullptr)
 			, mAbleToTouchToggle(true)
 			, mWebLocked(false)
-			, mIsPlaying(false)
 			, mButtonHolder(nullptr)
 			, mPlayButton(nullptr)
 			, mIsFirstStart(true)
@@ -40,9 +41,9 @@ namespace ds {
 				mButtonHolder->setSize(sizey);
 
 
-				if (mBackButton = mButtonHolder->getSprite<ds::ui::ImageButton>("backTo_button"))
+				if (mBackTimeButton = mButtonHolder->getSprite<ds::ui::ImageButton>("backTo_button"))
 				{
-					mBackButton->setClickFn([this]() {
+					mBackTimeButton->setClickFn([this]() {
 						if (mLinkedWeb) {
 							//mLinkedWeb->goBack();
 							auto code = ci::app::KeyEvent::KEY_LEFT;
@@ -70,14 +71,14 @@ namespace ds {
 
 							else
 							{
-								mLinkedWeb->setAllowClicks(true);
+								//mLinkedWeb->setAllowClicks(true);
 								mLinkedWeb->sendMouseClick(localToGlobal(mPlayButton->getPosition()));
-								mLinkedWeb->setAllowClicks(false);
+								//mLinkedWeb->setAllowClicks(false);
 								mIsFirstStart = false;
-								mIsPlaying = true;
+								//mIsPlaying = true;
 							}
 
-							if (mIsPlaying)
+							/*if (mIsPlaying)
 							{
 								mPlayButton->getHighImage().setImageFile("%APP%/data/images/media_interface/pause.png", ds::ui::Image::IMG_CACHE_F);
 								mPlayButton->getNormalImage().setImageFile("%APP%/data/images/media_interface/pause.png", ds::ui::Image::IMG_CACHE_F);
@@ -88,7 +89,7 @@ namespace ds {
 								mPlayButton->getHighImage().setImageFile("%APP%/data/images/media_interface/play.png", ds::ui::Image::IMG_CACHE_F);
 								mPlayButton->getNormalImage().setImageFile("%APP%/data/images/media_interface/play.png", ds::ui::Image::IMG_CACHE_F);
 								mIsPlaying = true;
-							}
+							}*/
 
 
 							updateWidgets();
@@ -96,9 +97,9 @@ namespace ds {
 					});
 				}
 
-				if (mForwardButton = mButtonHolder->getSprite<ds::ui::ImageButton>("nextTo_button"))
+				if (mForwardTimeButton = mButtonHolder->getSprite<ds::ui::ImageButton>("nextTo_button"))
 				{
-					mForwardButton->setClickFn([this]() {
+					mForwardTimeButton->setClickFn([this]() {
 						if (mLinkedWeb) {
 							//mLinkedWeb->goForward();
 
@@ -106,6 +107,26 @@ namespace ds {
 							ci::app::KeyEvent event(mEngine.getWindow(), code, code, '>', 0, code);
 							mLinkedWeb->sendKeyDownEvent(event);
 							mLinkedWeb->sendKeyUpEvent(event);
+							updateWidgets();
+						}
+					});
+				}
+
+				if (mForwardPageButton = mButtonHolder->getSprite<ds::ui::ImageButton>("next_button"))
+				{
+					mForwardPageButton->setClickFn([this]() {
+						if (mLinkedWeb) {
+							mLinkedWeb->goForward();
+							updateWidgets();
+						}
+					});
+				}
+
+				if (mBackPageButton = mButtonHolder->getSprite<ds::ui::ImageButton>("back_button"))
+				{
+					mBackPageButton->setClickFn([this]() {
+						if (mLinkedWeb) {
+							mLinkedWeb->goBack();
 							updateWidgets();
 						}
 					});
@@ -140,10 +161,12 @@ namespace ds {
 
 			mMinWidth = (
 				padding * 4.0f +
-				mBackButton->getScaleWidth() + padding +
-				mForwardButton->getScaleWidth() + padding +
+				mBackTimeButton->getScaleWidth() + padding +
+				mForwardTimeButton->getScaleWidth() + padding +
+				mBackPageButton->getScaleWidth() + padding +
+				mForwardPageButton->getScaleWidth() + padding +
 				mPlayButton->getScaleWidth() + padding +
-				mTouchToggle->getScaleWidth() + padding * 4.0f
+				mTouchToggle->getScaleWidth() + padding * 2.0f
 				);
 			mMaxWidth = mMinWidth;
 
@@ -194,15 +217,17 @@ namespace ds {
 		void WebYoutubeInterface::onLayout() {
 			const float w = getWidth();
 			const float h = getHeight();
-			if (mBackButton && mForwardButton && mTouchToggle) {
+			if (mBackTimeButton && mForwardTimeButton && mTouchToggle && mPlayButton && mForwardPageButton && mBackPageButton) {
 				const float padding = h / 4.0f;
 
 				float componentsWidth = (
 					padding * 4.0f +
-					mBackButton->getScaleWidth() + padding +
-					mForwardButton->getScaleWidth() + padding +
+					mBackTimeButton->getScaleWidth() + padding +
+					mForwardTimeButton->getScaleWidth() + padding +
+					mForwardPageButton->getScaleWidth() + padding +
+					mBackPageButton->getScaleWidth() + padding +
 					mPlayButton->getScaleWidth() + padding +
-					mTouchToggle->getScaleWidth() + padding * 4.0f
+					mTouchToggle->getScaleWidth() + padding * 2.0f
 					);
 
 				if (!mAbleToTouchToggle) {
@@ -221,29 +246,49 @@ namespace ds {
 		}
 
 		void WebYoutubeInterface::updateWidgets() {
-			if (mLinkedWeb && mForwardButton && mBackButton && mTouchToggle) {
+			if (mBackTimeButton && mForwardTimeButton && mTouchToggle && mPlayButton && mForwardPageButton && mBackPageButton && mLinkedWeb) {
 				// TODO: settings / config for disabled opacity / color
 
 				if (mLinkedWeb->isEnabled()) {
+					if (mLinkedWeb->canGoBack()) {
+						mBackPageButton->enable(true);
+						mBackPageButton->setOpacity(1.0f);
+					}
+					else {
+						mBackPageButton->enable(false);
+						mBackPageButton->setOpacity(0.25f);
+					}
+					if (mLinkedWeb->canGoForward()) {
+						mForwardPageButton->enable(true);
+						mForwardPageButton->setOpacity(1.0f);
+					}
+					else {
+						mForwardPageButton->enable(false);
+						mForwardPageButton->setOpacity(0.25f);
+					}
+
+
 					if (!mWebLocked) {
 						mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 						mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 						mWebLocked = true;
 
-						if (mForwardButton)
+						mLinkedWeb->setAllowClicks(true);
+
+						if (mForwardTimeButton)
 						{
-							mForwardButton->enable(true);
-							mForwardButton->setOpacity(1.0f);
+							mForwardTimeButton->enable(true);
+							mForwardTimeButton->setOpacity(1.0f);
 						}
 						if (mPlayButton)
 						{
 							mPlayButton->enable(true);
 							mPlayButton->setOpacity(1.0f);
 						}
-						if (mBackButton)
+						if (mBackTimeButton)
 						{
-							mBackButton->enable(true);
-							mBackButton->setOpacity(1.0f);
+							mBackTimeButton->enable(true);
+							mBackTimeButton->setOpacity(1.0f);
 						}
 					}
 				}
@@ -252,21 +297,22 @@ namespace ds {
 						mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 						mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 						mWebLocked = false;
+						mLinkedWeb->setAllowClicks(false);
 
-						if (mForwardButton)
+						if (mForwardTimeButton)
 						{
-							mForwardButton->enable(false);
-							mForwardButton->setOpacity(0.25f);
+							mForwardTimeButton->enable(false);
+							mForwardTimeButton->setOpacity(0.25f);
 						}
 						if (mPlayButton)
 						{
 							mPlayButton->enable(false);
 							mPlayButton->setOpacity(0.25f);
 						}
-						if (mBackButton)
+						if (mBackTimeButton)
 						{
-							mBackButton->enable(false);
-							mBackButton->setOpacity(0.25f);
+							mBackTimeButton->enable(false);
+							mBackTimeButton->setOpacity(0.25f);
 						}
 					}
 				}
