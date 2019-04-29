@@ -182,6 +182,16 @@ Web::~Web() {
 		mCallbacksCue->removeSelf();
 	}
 
+	if(mBuffer) {
+		delete mBuffer;
+		mBuffer = nullptr;
+	}
+
+	if(mPopupBuffer) {
+		delete mPopupBuffer;
+		mPopupBuffer = nullptr;
+	}
+
 	mHasCallbacks = false;
 	mHasDocCallback = false;
 	mDocumentReadyFn = nullptr;
@@ -278,9 +288,9 @@ void Web::initializeBrowser(){
 		// TODO: Add ability to redraw only the changed rectangles (which is what comes from CEF)
 		// Would be much more performant, especially for large browsers with small ui changes (like blinking cursors)
 
-		if(buffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
+		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y) {
 			mHasBuffer = true;
-			mBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
+			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
 	};
 
@@ -288,9 +298,21 @@ void Web::initializeBrowser(){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if(buffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
+		// resize buffer if needed
+		if(mPopupBuffer && (bufferWidth != mPopupSize.x || bufferHeight != mPopupSize.y)) {
+			delete mPopupBuffer;
+			mPopupBuffer = nullptr;
+		}
+
+		// create the buffer if needed
+		if(!mPopupBuffer) {
+			mPopupBuffer = new unsigned char[bufferWidth * bufferHeight * 4];
+		}
+
+		// if everything went ok
+		if(mPopupBuffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
 			mHasPopupBuffer = true;
-			mPopupBuffer = const_cast<unsigned char*>(static_cast<const unsigned char*>(buffer));
+			memcpy(mPopupBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
 	};
 
@@ -300,6 +322,7 @@ void Web::initializeBrowser(){
 		mHasPopupBuffer = false;
 		
 		if(mPopupSize.x != widthy || mPopupSize.y != heighty) {
+			delete mPopupBuffer;
 			mPopupBuffer = nullptr;
 			mPopupReady = false;
 		}
@@ -480,7 +503,12 @@ void Web::onSizeChanged() {
 		}
 
 		mBrowserSize = newBrowserSize;
-		mBuffer = nullptr; // buffer memory is managed by CEF
+		if(mBuffer) {
+			delete mBuffer;
+			mBuffer = nullptr;
+		}
+		const int bufferSize = theWid * theHid * 4;
+		mBuffer = new unsigned char[bufferSize];
 		mHasBuffer = false;
 	}
 
