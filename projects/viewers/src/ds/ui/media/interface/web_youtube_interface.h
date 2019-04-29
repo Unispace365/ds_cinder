@@ -28,8 +28,8 @@ public:
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
 
-	ds::ui::ImageButton*		getBackButton() { return mBackButton; }
-	ds::ui::ImageButton*		getForwardButton() { return mForwardButton; }
+	ds::ui::ImageButton*		getBackButton() { return mBackPageButton; }
+	ds::ui::ImageButton*		getForwardButton() { return mForwardPageButton; }
 	ds::ui::ImageButton*		getTouchToggleButton() { return mTouchToggle; }
 
 protected:
@@ -41,13 +41,15 @@ protected:
 	bool						mAbleToTouchToggle;
 	bool						mWebLocked;
 
-	ds::ui::ImageButton*		mBackButton;
-	ds::ui::ImageButton*		mForwardButton;
+	ds::ui::ImageButton*		mBackTimeButton;
+	ds::ui::ImageButton*		mBackPageButton;
+	ds::ui::ImageButton*		mForwardTimeButton;
+	ds::ui::ImageButton*		mForwardPageButton;
 	ds::ui::ImageButton*		mTouchToggle;
 	ds::ui::ImageButton*		mPlayButton;
 
 	ds::ui::SmartLayout*		mButtonHolder;
-	bool						mIsPlaying;
+	//bool						mIsPlaying;
 	bool						mIsFirstStart;
 
 };
