@@ -71,11 +71,10 @@ namespace ds {
 
 							else
 							{
-								//mLinkedWeb->setAllowClicks(true);
+								mLinkedWeb->setAllowClicks(true);
 								mLinkedWeb->sendMouseClick(localToGlobal(mPlayButton->getPosition()));
-								//mLinkedWeb->setAllowClicks(false);
+								mLinkedWeb->setAllowClicks(false);
 								mIsFirstStart = false;
-								//mIsPlaying = true;
 							}
 
 							/*if (mIsPlaying)
@@ -249,47 +248,29 @@ namespace ds {
 			if (mBackTimeButton && mForwardTimeButton && mTouchToggle && mPlayButton && mForwardPageButton && mBackPageButton && mLinkedWeb) {
 				// TODO: settings / config for disabled opacity / color
 
+				if (mLinkedWeb->canGoBack()) {
+					mBackPageButton->enable(true);
+					mBackPageButton->setOpacity(1.0f);
+				}
+				else {
+					mBackPageButton->enable(false);
+					mBackPageButton->setOpacity(0.25f);
+				}
+				if (mLinkedWeb->canGoForward()) {
+					mForwardPageButton->enable(true);
+					mForwardPageButton->setOpacity(1.0f);
+				}
+				else {
+					mForwardPageButton->enable(false);
+					mForwardPageButton->setOpacity(0.25f);
+				}
+
 				if (mLinkedWeb->isEnabled()) {
-					if (mLinkedWeb->canGoBack()) {
-						mBackPageButton->enable(true);
-						mBackPageButton->setOpacity(1.0f);
-					}
-					else {
-						mBackPageButton->enable(false);
-						mBackPageButton->setOpacity(0.25f);
-					}
-					if (mLinkedWeb->canGoForward()) {
-						mForwardPageButton->enable(true);
-						mForwardPageButton->setOpacity(1.0f);
-					}
-					else {
-						mForwardPageButton->enable(false);
-						mForwardPageButton->setOpacity(0.25f);
-					}
-
-
 					if (!mWebLocked) {
 						mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 						mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 						mWebLocked = true;
-
 						mLinkedWeb->setAllowClicks(true);
-
-						if (mForwardTimeButton)
-						{
-							mForwardTimeButton->enable(true);
-							mForwardTimeButton->setOpacity(1.0f);
-						}
-						if (mPlayButton)
-						{
-							mPlayButton->enable(true);
-							mPlayButton->setOpacity(1.0f);
-						}
-						if (mBackTimeButton)
-						{
-							mBackTimeButton->enable(true);
-							mBackTimeButton->setOpacity(1.0f);
-						}
 					}
 				}
 				else {
@@ -298,22 +279,6 @@ namespace ds {
 						mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 						mWebLocked = false;
 						mLinkedWeb->setAllowClicks(false);
-
-						if (mForwardTimeButton)
-						{
-							mForwardTimeButton->enable(false);
-							mForwardTimeButton->setOpacity(0.25f);
-						}
-						if (mPlayButton)
-						{
-							mPlayButton->enable(false);
-							mPlayButton->setOpacity(0.25f);
-						}
-						if (mBackTimeButton)
-						{
-							mBackTimeButton->enable(false);
-							mBackTimeButton->setOpacity(0.25f);
-						}
 					}
 				}
 			}
