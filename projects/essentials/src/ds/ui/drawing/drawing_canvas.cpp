@@ -177,16 +177,22 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
 		auto localPoint = globalToLocal(ti.mCurrentGlobalPoint);
 		auto prevPoint = globalToLocal(ti.mCurrentGlobalPoint - ti.mDeltaPoint);
+		
 		if(ti.mPhase == ds::ui::TouchInfo::Added){
-			//TODO: make sure it is necessary to make_pair
 			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(localPoint), ci::vec2(localPoint)));
 			renderLine(localPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
+			mCurrentLine.clear();
+			mCurrentLine.push_back(ci::vec2(localPoint));
 		}
 		if(ti.mPhase == ds::ui::TouchInfo::Moved){
 			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(prevPoint), ci::vec2(localPoint)) );
 			renderLine(prevPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
+			mCurrentLine.push_back(ci::vec2(localPoint));
+		}
+		if (ti.mNumberFingers <= 0) {
+			if (mCompleteLineCallback) mCompleteLineCallback(mCurrentLine);
 		}
 		// Don't let the queue get too large if there are no clients connected
 		while (mSerializedPointsQueue.size() > MAX_SERIALIZED_POINTS)
@@ -258,6 +264,10 @@ void DrawingCanvas::clearCanvas() {
 void DrawingCanvas::setEraseMode(const bool eraseMode){
 	mEraseMode = eraseMode;
 	markAsDirty(sEraseModeDirty);
+}
+
+bool DrawingCanvas::getEraseMode() {
+	return mEraseMode;
 }
 
 void DrawingCanvas::drawLocalClient(){
