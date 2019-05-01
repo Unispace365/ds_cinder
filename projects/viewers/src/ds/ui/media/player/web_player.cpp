@@ -273,5 +273,9 @@ ds::ui::WebInterface* WebPlayer::getWebInterface()
 {
 	return mWebInterface;
 }
+WebYoutubeInterface * WebPlayer::getWebYoutubeInterface()
+{
+	return mWebYoutubeInterface;
+}
 }  // namespace ui
 }  // namespace ds

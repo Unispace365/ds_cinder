@@ -33,6 +33,7 @@ class WebPlayer : public ds::ui::Sprite {
 
 	ds::ui::Web*  getWeb();
 	WebInterface* getWebInterface();  // may be nullptr if embedInterface is false
+	WebYoutubeInterface* getWebYoutubeInterface();  // may be nullptr if embedInterface is false
 	bool		  getIsYoutube() { return mIsYoutube; }
 
 	/// Sets all applicable settings from a MediaViewerSettings

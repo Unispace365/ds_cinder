@@ -187,6 +187,17 @@ namespace ds {
 			}
 		}
 
+		void WebYoutubeInterface::playYutube()
+		{
+			if (mLinkedWeb && mPlayButton)
+			{			
+				mLinkedWeb->setAllowClicks(true);
+				mLinkedWeb->sendMouseClick(localToGlobal(mPlayButton->getPosition()));
+				mLinkedWeb->setAllowClicks(false);
+				mIsFirstStart = false;
+			}
+		}
+
 		void WebYoutubeInterface::animateOff() {
 			mIdling = false;
 

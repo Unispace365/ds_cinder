@@ -27,6 +27,7 @@ public:
 	void						updateWidgets();
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
+	void						playYutube();
 
 	ds::ui::ImageButton*		getBackButton() { return mBackPageButton; }
 	ds::ui::ImageButton*		getForwardButton() { return mForwardPageButton; }
