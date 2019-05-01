@@ -38,7 +38,6 @@
     <ProjectGuid>{EDC54D75-EC44-4587-8A0F-141FA45CE652}</ProjectGuid>
     <RootNamespace>BasicTweenApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
