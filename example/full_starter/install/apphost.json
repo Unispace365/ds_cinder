@@ -7,7 +7,7 @@
     "Minute": 0
   },
   "RestartSystem": {
-    "Enabled": false,
+    "Enabled": true,
     "Hour": 1,
     "Minute": 0
   },

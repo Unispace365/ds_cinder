@@ -15,20 +15,20 @@
 ;  - Adds env variable for Pango / Cario backend
 ;  - Starts the app on system boot
 ;  - Disables Windows Error Reporting UI
-#define IS_PRODUCTION
+;#define IS_PRODUCTION
 
 ; If your app doesn't use gstreamer videos, you can comment this out by adding a semicolon to the beginning of the line
 ; Alternatively, you can install GStreamer manually on the destination machine, though this is much more convenient
-#define USE_GSTREAMER
+;#define USE_GSTREAMER
 
 ; App runs inside apphost
 ; Automatically add the apphost.json config file to the correct destination directory
 ; If IS_PRODUCTION is defined, will start apphost on system boot
-#define USE_APPHOST
+;#define USE_APPHOST
 
 ; Uses DsNode to connect to a DsCMS
 ; If USE_APPHOST is also defined, will run dsnode inside Apphost
-#define USE_DSNODE
+;#define USE_DSNODE
 
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""        

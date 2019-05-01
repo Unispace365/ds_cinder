@@ -297,6 +297,10 @@ void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon
 	*/
 
 	switch(wCode) {
+	case 800:
+		iconPng = "clear_day";
+		weatherEmoji = L"☀";
+		break;
 	case 511:
 		iconPng = "freezing";
 		weatherEmoji = L"❄";
@@ -335,7 +339,7 @@ void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon
 			weatherEmoji = L"🌙";
 		} else if(wIcon == "02d" || wIcon == "02n") {
 			iconPng = "cloudy";
-			weatherEmoji = L"☁";
+			weatherEmoji = L"☁️";
 		} else if(wIcon == "50d") {
 			iconPng = "foggy";
 			weatherEmoji = L"🌫";
@@ -369,6 +373,9 @@ void WeatherService::mapWeatherImages(const int& wCode, const std::string& wIcon
 		} else if(wCode >= 700 && wCode < 800) {
 			iconPng = "foggy";
 			weatherEmoji = L"🌫";
+		} else if(wCode > 800 && wCode < 900) {
+			iconPng = "cloudy";
+			weatherEmoji = L"☁️";
 		}
 	}
 
