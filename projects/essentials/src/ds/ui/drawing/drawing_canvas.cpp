@@ -184,12 +184,15 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 			markAsDirty(sPointsQueueDirty);
 			mCurrentLine.clear();
 			mCurrentLine.push_back(ci::vec2(localPoint));
+			mTapHolding = true;
+			startImageHoldTimer(mEngine.getElapsedTimeSeconds(), ti);
 		}
 		if(ti.mPhase == ds::ui::TouchInfo::Moved){
 			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(prevPoint), ci::vec2(localPoint)) );
 			renderLine(prevPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
 			mCurrentLine.push_back(ci::vec2(localPoint));
+			mTapHolding = false;
 		}
 		if (ti.mNumberFingers <= 0) {
 			if (mCompleteLineCallback) mCompleteLineCallback(mCurrentLine);
@@ -198,6 +201,19 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 		while (mSerializedPointsQueue.size() > MAX_SERIALIZED_POINTS)
 			mSerializedPointsQueue.pop_front();
 	});
+}
+
+void DrawingCanvas::startImageHoldTimer(double startTime, const ds::ui::TouchInfo & ti) {
+	if (!mTapHolding) {
+		return;
+	}
+	if (mEngine.getElapsedTimeSeconds() - startTime >= mEngine.getAppSettings().getFloat("touch:hold_time", 0, 2)) {
+		if (mCompleteLineCallback) mCompleteLineCallback(mCurrentLine);
+		if (mTapHoldCallback) mTapHoldCallback(ti);
+		return;
+	}
+
+	callAfterDelay([this, startTime, ti]() {startImageHoldTimer(startTime, ti); }, 0.1f);
 }
 
 void DrawingCanvas::setBrushColor(const ci::ColorA& brushColor){
