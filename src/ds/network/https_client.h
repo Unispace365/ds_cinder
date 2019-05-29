@@ -26,6 +26,7 @@ public:
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
 	void					makeGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
+	void					makeGetRequest(const std::string& url, std::vector<std::string> headers, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
 	/// Same as makeGetRequest, but runs syncronously
 	void					makeSyncGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
 

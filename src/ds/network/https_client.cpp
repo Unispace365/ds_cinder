@@ -54,6 +54,26 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 	});
 }
 
+void HttpsRequest::makeGetRequest(const std::string& url, std::vector<std::string> headers, const bool peerVerify, const bool hostVerify, const bool isDownloadMedia, const std::string& downloadfile) {
+	if (url.empty()) {
+		DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
+		return;
+	}
+
+	DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+
+	mRequests.start([this, url, peerVerify, hostVerify, headers, isDownloadMedia, downloadfile](IndividualRequest& q) {
+		q.mInput = url;
+		q.mVerifyHost = hostVerify;
+		q.mVerifyPeers = peerVerify;
+		q.mIsGet = true;
+		q.mVerboseOutput = mVerbose;
+		q.mHeaders = headers;
+		q.mIsDownloadMedia = isDownloadMedia;
+		q.mDownloadFile = downloadfile;
+	});
+}
+
 void HttpsRequest::makeSyncPostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers, const bool isDownloadMedia, const std::string& downloadfile){
 	if(url.empty()){
 		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
@@ -211,14 +231,14 @@ void HttpsRequest::IndividualRequest::run(){
 
 		struct curl_slist *headers = NULL;
 		CURLcode res;
-		if(!mIsGet){
-			if(!mHeaders.empty()){
-				for(auto it : mHeaders){
-					headers = curl_slist_append(headers, it.c_str());
-				}
-				auto optSet = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		
+		if(!mHeaders.empty()){
+			for(auto it : mHeaders){
+				headers = curl_slist_append(headers, it.c_str());
 			}
-
+			auto optSet = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		}
+		if (!mIsGet) {
 			/* Allows custom request types, like DELETE*/
 			if(!mCustomRequest.empty()){
 				curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, mCustomRequest.c_str());
