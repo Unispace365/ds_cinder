@@ -91,13 +91,13 @@ void WebPlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 void WebPlayer::setMedia(const std::string mediaPath) {
 	static const float fractionalWidthForContent = 0.6f;
 
-	if (mWeb) {
+	if(mWeb) {
 
-		if (mWebInterface) {
+		if(mWebInterface) {
 			mWebInterface->linkWeb(nullptr);
 		}
-		if (mWebYoutubeInterface)
-		{
+
+		if(mWebYoutubeInterface) {
 			mWebYoutubeInterface->linkWeb(nullptr);
 		}
 
@@ -111,11 +111,10 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	mWeb->setDrawWhileLoading(true);
 
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
-		if (mWebInterface) {
+		if(mWebInterface) {
 			mWebInterface->updateWidgets();
 		}
-		if (mWebYoutubeInterface)
-		{
+		if(mWebYoutubeInterface) {
 			mWebYoutubeInterface->updateWidgets();
 		}
 	});
@@ -123,7 +122,7 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	float targetW = mWebSize.x;
 	float targetH = mWebSize.y;
 
-	if ((targetW == 0.0f) || (targetH == 0.0f)) {
+	if((targetW == 0.0f) || (targetH == 0.0f)) {
 		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
 		targetH = mEngine.getWorldHeight();
 	}
@@ -133,29 +132,30 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
 
-	if (mStartInteractable) {
+	if(mStartInteractable) {
 		mWeb->enable(true);
 	} else {
 		mWeb->enable(false);
 	}
 
-	if (mWebInterface) {
+	if(mWebInterface) {
 		mWebInterface->release();
 		mWebInterface = nullptr;
 	}
-	if (mWebYoutubeInterface)
-	{
+
+	if(mWebYoutubeInterface) {
 		mWebYoutubeInterface->release();
 		mWebYoutubeInterface = nullptr;
 	}
 
-	if (mEmbedInterface) {
-		if(!mIsYoutube)
+	if(mEmbedInterface) {
+		if(!mIsYoutube) {
 			mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
-		else
+		} else {
 			mWebYoutubeInterface = dynamic_cast<WebYoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		}
 
-		if (mWebInterface) {
+		if(mWebInterface) {
 			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebInterface->setKeyboardStateCallback([this](const bool onscreen) {
@@ -163,28 +163,27 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 			});
 			mWebInterface->sendToFront();
 		}
-		if (mWebYoutubeInterface)
-		{
+
+		if(mWebYoutubeInterface) {
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebYoutubeInterface->sendToFront();
 		}
 	}
 
 
-	if (mWebInterface) {
-		if (mShowInterfaceAtStart) {
+	if(mWebInterface) {
+		if(mShowInterfaceAtStart) {
 			mWebInterface->show();
 		} else {
 			mWebInterface->setOpacity(0.0f);
 			mWebInterface->hide();
 		}
 	}
-	 
-	if (mWebYoutubeInterface) {
-		if (mShowInterfaceAtStart) {
+
+	if(mWebYoutubeInterface) {
+		if(mShowInterfaceAtStart) {
 			mWebYoutubeInterface->show();
-		}
-		else {
+		} else {
 			mWebYoutubeInterface->setOpacity(0.0f);
 			mWebYoutubeInterface->hide();
 		}
@@ -196,27 +195,27 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 void WebPlayer::onSizeChanged() { layout(); }
 
 void WebPlayer::layout() {
-	if (mWeb) {
+	if(mWeb) {
 		fitInside(mWeb, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mLetterbox);
 	}
 
-	if (mWebInterface && mEmbedInterface) {
+	if(mWebInterface && mEmbedInterface) {
 		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
 
 		float yPos = getHeight() - mWebInterface->getHeight() - 50.0f;
-		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if (yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
+		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if(yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
 		if(mInterfaceBelowMedia) yPos = getHeight();
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
 
-	if (mWebYoutubeInterface && mEmbedInterface) {
+	if(mWebYoutubeInterface && mEmbedInterface) {
 		mWebYoutubeInterface->setSize(getWidth() * 2.0f / 3.0f, mWebYoutubeInterface->getHeight());
 
 		float yPos = getHeight() - mWebYoutubeInterface->getHeight() - 50.0f;
-		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if (yPos + mWebYoutubeInterface->getHeight() > getHeight()) yPos = getHeight() - mWebYoutubeInterface->getHeight();
-		if (mInterfaceBelowMedia) yPos = getHeight();
+		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if(yPos + mWebYoutubeInterface->getHeight() > getHeight()) yPos = getHeight() - mWebYoutubeInterface->getHeight();
+		if(mInterfaceBelowMedia) yPos = getHeight();
 		mWebYoutubeInterface->setPosition(getWidth() / 2.0f - mWebYoutubeInterface->getWidth() / 2.0f, yPos);
 	}
 }
@@ -227,20 +226,20 @@ void WebPlayer::userInputReceived() {
 }
 
 void WebPlayer::showInterface() {
-	if (mWebInterface) {
+	if(mWebInterface) {
 		mWebInterface->animateOn();
 	}
-	if (mWebYoutubeInterface) {
+	if(mWebYoutubeInterface) {
 		mWebYoutubeInterface->animateOn();
 	}
 
 }
 
 void WebPlayer::hideInterface() {
-	if (mWebInterface) {
+	if(mWebInterface) {
 		mWebInterface->startIdling();
 	}
-	if (mWebYoutubeInterface) {
+	if(mWebYoutubeInterface) {
 		mWebYoutubeInterface->startIdling();
 	}
 }
@@ -254,8 +253,7 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 	layout();
 }
 
-void WebPlayer::setIsYoutube(const bool isYoutube)
-{
+void WebPlayer::setIsYoutube(const bool isYoutube){
 	mIsYoutube = isYoutube;
 	setMedia(mWeb->getUrl());
 }
@@ -269,12 +267,11 @@ void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
 ds::ui::Web* WebPlayer::getWeb() { return mWeb; }
 
 
-ds::ui::WebInterface* WebPlayer::getWebInterface()
-{
+ds::ui::WebInterface* WebPlayer::getWebInterface(){
 	return mWebInterface;
 }
-WebYoutubeInterface * WebPlayer::getWebYoutubeInterface()
-{
+
+WebYoutubeInterface * WebPlayer::getWebYoutubeInterface(){
 	return mWebYoutubeInterface;
 }
 }  // namespace ui

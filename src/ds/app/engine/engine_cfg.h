@@ -8,6 +8,7 @@
 #include "ds/cfg/settings.h"
 
 namespace ds {
+class Engine;
 
 /**
  * \class EngineCfg
