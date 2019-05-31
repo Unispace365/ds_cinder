@@ -95,11 +95,15 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		sprI->setImageFile(ds::Environment::expand(imagePath));
+		if(cache) {
+			sprI->setImageFile(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
+		} else {
+			sprI->setImageFile(ds::Environment::expand(imagePath));
+		}
 		mNeedsLayout = true;
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
