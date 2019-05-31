@@ -26,7 +26,7 @@ public:
 	DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath="");
 
 	void								setCompleteLineCallback(std::function<void(std::vector<ci::vec2> line)> func) { mCompleteLineCallback = func; }
-	void								setTapHoldCallback(std::function<void(const ds::ui::TouchInfo & ti)> func) { mTapHoldCallback = func; }
+	void								setTouchHoldCallback(std::function<void(const ci::vec3& startPosition)> func) { mTouchHoldCallback = func; }
 
 	/// The color and opacity are mixed together, though these setters may overwrite others' settings
 	void								setBrushColor(const ci::ColorA& brushColor);
@@ -69,10 +69,12 @@ protected:
 	PointsQueue							mSerializedPointsQueue;
 	std::vector<ci::vec2>				mCurrentLine;
 
-	std::function<void(std::vector<ci::vec2> line)>				mCompleteLineCallback;
-	std::function<void(const ds::ui::TouchInfo & ti)>			mTapHoldCallback;
-	void								startImageHoldTimer(double startTime, const ds::ui::TouchInfo & ti);
-	bool								mTapHolding = false;
+	std::function<void(std::vector<ci::vec2> line)>	mCompleteLineCallback;
+	std::function<void(const ci::vec3& startPos)>	mTouchHoldCallback;
+	double								mTouchHoldStartTime;
+	ci::vec3							mTouchHoldStartPos;
+	bool								mTouchHolding = false;
+	virtual void						onUpdateServer(const ds::UpdateParams& updateParams);
 
 	virtual void						drawLocalClient() override;
 	virtual void						writeAttributesTo(DataBuffer&) override;
