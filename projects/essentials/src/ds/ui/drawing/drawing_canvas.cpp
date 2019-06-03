@@ -214,6 +214,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 
 
 void DrawingCanvas::onUpdateServer(const ds::UpdateParams& updateParams) {
+	if (!isEnabled()) mTouchHolding = false;
 	if(mTouchHolding
 	   && mTouchHoldCallback
 	   && mEngine.getElapsedTimeSeconds() - mTouchHoldStartTime >= mEngine.getAppSettings().getDouble("touch:hold_time", 0, 2.0)) {
