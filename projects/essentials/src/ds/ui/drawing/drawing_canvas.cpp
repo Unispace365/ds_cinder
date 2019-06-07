@@ -140,6 +140,7 @@ void DrawingCanvas::installAsServer(ds::BlobRegistry& registry) {
 void DrawingCanvas::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<DrawingCanvas>(r); });
 }
+
 // -- Client/Server Stuff ----------------------------
 
 
@@ -266,6 +267,19 @@ void DrawingCanvas::setBrushImage(const std::string& imagePath) {
 	}
 }
 
+ci::gl::Texture2dRef DrawingCanvas::getBrushImageTexture() {
+	if(mBrushImage) {
+		return mBrushImage->getImageTexture();
+	}
+
+	return ci::gl::Texture2dRef();
+}
+
+ci::gl::FboRef DrawingCanvas::getDrawingFbo() {
+	createFbo();
+	return mFbo;
+}
+
 void DrawingCanvas::clearCanvas() {
 
 	DS_LOG_VERBOSE(3, "DrawingCanvas: clearCanvas");
@@ -347,6 +361,22 @@ void DrawingCanvas::drawLocalClient(){
 	}
 }
 
+void DrawingCanvas::createFbo() {
+	auto w = getWidth();
+	auto h = getHeight();
+	if(!mFbo || mFbo->getWidth() != w || mFbo->getHeight() != h) {
+		ci::gl::Texture2d::Format textFormat;
+		textFormat.setMinFilter(GL_LINEAR);
+		textFormat.setMagFilter(GL_LINEAR);
+		textFormat.setInternalFormat(GL_RGBA32F);
+
+		ci::gl::Fbo::Format format;
+		//format.setSamples(4); // NOTE: don't anti-alias, it causes some weird shit at the edges
+		format.attachment(GL_COLOR_ATTACHMENT0, ci::gl::Texture2d::create(w, h, textFormat));
+		mFbo = ci::gl::Fbo::create(w, h, format);
+	}
+}
+
 void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 
 	if(!mBrushImage) {
@@ -383,17 +413,7 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 	int w = (int)floorf(getWidth());
 	int h = (int)floorf(getHeight());
 
-	if(!mFbo || mFbo->getWidth() != w || mFbo->getHeight() != h) {
-		ci::gl::Texture2d::Format textFormat;
-		textFormat.setMinFilter(GL_LINEAR);
-		textFormat.setMagFilter(GL_LINEAR);
-		textFormat.setInternalFormat(GL_RGBA32F);
-
-		ci::gl::Fbo::Format format;
-		//format.setSamples(4); // NOTE: don't anti-alias, it causes some weird shit at the edges
-		format.attachment(GL_COLOR_ATTACHMENT0, ci::gl::Texture2d::create(w, h, textFormat));
-		mFbo = ci::gl::Fbo::create(w, h, format);
-	}
+	createFbo();
 
 	{
 		ci::gl::pushMatrices();

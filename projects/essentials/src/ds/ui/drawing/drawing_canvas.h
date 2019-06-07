@@ -62,6 +62,10 @@ public:
 	static void							installAsServer( ds::BlobRegistry& );
 	static void							installAsClient( ds::BlobRegistry& );
 
+	// For custom external drawing - use with caution
+	ci::gl::Texture2dRef				getBrushImageTexture();
+	ci::gl::FboRef						getDrawingFbo();
+	ds::ui::SpriteShader&				getPointShader() { return mPointShader; }
 
 protected:
 	// Queue to store points as they're drawn.  This gets serialized to clients.
@@ -78,6 +82,7 @@ protected:
 	virtual void						onUpdateServer(const ds::UpdateParams& updateParams);
 
 	virtual void						drawLocalClient() override;
+	void								createFbo();
 	virtual void						writeAttributesTo(DataBuffer&) override;
 	virtual void						readAttributeFrom(const char, DataBuffer&) override;
 
