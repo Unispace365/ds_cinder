@@ -10,7 +10,7 @@
 
 #include "ds/ui/soft_keyboard/soft_keyboard_button.h"
 
-namespace ds{
+namespace ds {
 namespace ui {
 
 EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& settings)
@@ -321,7 +321,9 @@ void EntryField::blinkCursor() {
 	mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this] {
 		mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mBlinkRate, 0.0f, ci::easeNone, [this] {
 			mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this] {
-				blinkCursor();
+				mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mBlinkRate, 0.0f, ci::easeNone, [this] {
+					blinkCursor();
+				});
 			});
 		});
 	});
