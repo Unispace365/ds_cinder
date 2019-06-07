@@ -78,6 +78,9 @@ public:
 	const std::wstring					getCurrentText();
 	const std::string					getCurrentTextString() { return ds::utf8_from_wstr(getCurrentText()); }
 
+	/// In case you want to do more formatting, etc. Use with caution, do not release
+	ds::ui::Text*						getTextSprite() { return mTextSprite; }
+
 	/// Set the the current text string. Does not call any callbacks.
 	void								setCurrentText(const std::wstring& curTxtStr);
 
