@@ -193,19 +193,31 @@ void SpriteShader::loadShadersFromFile(){
 		auto found = GlslProgs.find(mName);
 		if(found == GlslProgs.end()) {
 			std::string vertLocation = (mLocation + "/" + mName + ".vert");
+			std::string geomLocation = (mLocation + "/" + mName + ".geom");
 			std::string fragLocation = (mLocation + "/" + mName + ".frag");
+
 			Poco::File vertFile = Poco::File(vertLocation);
+			Poco::File geomFile = Poco::File(geomLocation);
 			Poco::File fragFile = Poco::File(fragLocation);
 			bool exist = false;
+			bool geomExists = false;
 			try{
 				if(vertFile.exists() && fragFile.exists()){
 					exist = true;
 				} 
+				if(geomFile.exists())
+					geomExists = true;
 			} catch(std::exception&){
 				// swallow these, cause shaders could be loaded otherwise
 			}
 			if(exist){
-				mShader = ci::gl::GlslProg::create(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()));
+				if(geomExists) {
+					mShader = ci::gl::GlslProg::create(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()), ci::loadFile(geomLocation.c_str()));
+				}
+				else { 
+					mShader = ci::gl::GlslProg::create(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()));
+				}
+
 				GlslProgs[mName] = mShader;
 			}
 		} else {
