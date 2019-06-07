@@ -182,8 +182,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(localPoint), ci::vec2(localPoint)));
 			renderLine(localPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
-			mCurrentLine.clear();
-			mCurrentLine.push_back(ci::vec2(localPoint));
+			mCurrentLine.push_back(std::make_pair(ci::vec2(localPoint), ci::vec2(localPoint)));
 
 			if(ti.mNumberFingers == 1) {
 				mTouchHolding = true;
@@ -197,18 +196,22 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(prevPoint), ci::vec2(localPoint)) );
 			renderLine(prevPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
-			mCurrentLine.push_back(ci::vec2(localPoint));
+			mCurrentLine.push_back(std::make_pair(ci::vec2(prevPoint), ci::vec2(localPoint)));
 
 			if(glm::distance(ti.mCurrentGlobalPoint, mTouchHoldStartPos) > mEngine.getMinTapDistance()) {
 				mTouchHolding = false;
 			}
 		}
 		if (ti.mNumberFingers <= 0) {
-			if (mCompleteLineCallback) mCompleteLineCallback(mCurrentLine);
+			if(mCompleteLineCallback && !mCurrentLine.empty()) {
+				mCompleteLineCallback(mCurrentLine);
+				mCurrentLine.clear();
+			}
 		}
 		// Don't let the queue get too large if there are no clients connected
-		while (mSerializedPointsQueue.size() > MAX_SERIALIZED_POINTS)
+		while(mSerializedPointsQueue.size() > MAX_SERIALIZED_POINTS) {
 			mSerializedPointsQueue.pop_front();
+		}
 	});
 }
 
@@ -431,7 +434,6 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 
 		ci::gl::popMatrices();
 	}
-
 
 	DS_REPORT_GL_ERRORS();
 }

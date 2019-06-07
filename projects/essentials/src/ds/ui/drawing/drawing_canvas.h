@@ -25,7 +25,7 @@ class DrawingCanvas
 public:
 	DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath="");
 
-	void								setCompleteLineCallback(std::function<void(std::vector<ci::vec2> line)> func) { mCompleteLineCallback = func; }
+	void								setCompleteLineCallback(std::function<void(std::vector<std::pair<ci::vec2, ci::vec2>> line)> func) { mCompleteLineCallback = func; }
 	void								setTouchHoldCallback(std::function<void(const ci::vec3& startPosition)> func) { mTouchHoldCallback = func; }
 
 	/// The color and opacity are mixed together, though these setters may overwrite others' settings
@@ -67,9 +67,10 @@ protected:
 	// Queue to store points as they're drawn.  This gets serialized to clients.
 	typedef std::deque< std::pair<ci::vec2, ci::vec2> > PointsQueue;
 	PointsQueue							mSerializedPointsQueue;
-	std::vector<ci::vec2>				mCurrentLine;
 
-	std::function<void(std::vector<ci::vec2> line)>	mCompleteLineCallback;
+	std::vector<std::pair<ci::vec2, ci::vec2>>							 mCurrentLine;
+	std::function<void(std::vector<std::pair<ci::vec2, ci::vec2>> line)> mCompleteLineCallback;
+
 	std::function<void(const ci::vec3& startPos)>	mTouchHoldCallback;
 	double								mTouchHoldStartTime;
 	ci::vec3							mTouchHoldStartPos;
