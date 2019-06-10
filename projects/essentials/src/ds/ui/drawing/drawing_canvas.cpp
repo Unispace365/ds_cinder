@@ -204,6 +204,11 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 			}
 		}
 		if (ti.mNumberFingers <= 0) {
+			if (mTouchHolding
+				&& glm::distance(ti.mCurrentGlobalPoint, mTouchHoldStartPos) <= mEngine.getMinTapDistance()
+				&& mEngine.getElapsedTimeSeconds() - mTouchHoldStartTime < mEngine.getAppSettings().getDouble("touch:hold_time", 0, 2.0)) {
+				mTouchHolding = false;
+			}
 			if(mCompleteLineCallback && !mCurrentLine.empty()) {
 				mCompleteLineCallback(mCurrentLine);
 				mCurrentLine.clear();
@@ -222,6 +227,10 @@ void DrawingCanvas::onUpdateServer(const ds::UpdateParams& updateParams) {
 	if(mTouchHolding
 	   && mTouchHoldCallback
 	   && mEngine.getElapsedTimeSeconds() - mTouchHoldStartTime >= mEngine.getAppSettings().getDouble("touch:hold_time", 0, 2.0)) {
+		if (mCompleteLineCallback && !mCurrentLine.empty()) {
+			mCompleteLineCallback(mCurrentLine);
+			mCurrentLine.clear();
+		}
 		mTouchHoldCallback(mTouchHoldStartPos);
 	}
 }
