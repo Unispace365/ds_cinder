@@ -371,8 +371,8 @@ void DrawingCanvas::drawLocalClient(){
 }
 
 void DrawingCanvas::createFbo() {
-	auto w = getWidth();
-	auto h = getHeight();
+	auto w = (int)floorf(getWidth());
+	auto h = (int)floorf(getHeight());
 	if(!mFbo || mFbo->getWidth() != w || mFbo->getHeight() != h) {
 		ci::gl::Texture2d::Format textFormat;
 		textFormat.setMinFilter(GL_LINEAR);
