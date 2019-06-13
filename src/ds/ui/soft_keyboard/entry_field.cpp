@@ -18,7 +18,7 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	, mCursor(nullptr)
 	, mTextSprite(nullptr)
 	, mInFocus(false)
-	, mAutoRegisterOnFocus(false)
+	, mAutoRegisterOnFocus(true)
 	, mCursorIndex(0)
 {
 	mTextSprite = new ds::ui::Text(engine);

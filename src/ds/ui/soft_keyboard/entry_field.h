@@ -71,7 +71,7 @@ public:
 	bool								getIsInFocus(){ return mInFocus; }
 
 	/// If true, when you call "focus", it will register this field in the main engine class to grab keyboard input
-	/// Default is false
+	/// Default is true
 	void								autoRegisterOnFocus(const bool doAutoRegister);
 
 	/// Get the current entered text string
