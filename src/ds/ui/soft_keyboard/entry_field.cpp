@@ -40,6 +40,10 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	setEntryFieldSettings(settings);
 }
 
+EntryField::~EntryField() {
+	unfocus();
+}
+
 void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings) {
 	mEntryFieldSettings = newSettings;
 

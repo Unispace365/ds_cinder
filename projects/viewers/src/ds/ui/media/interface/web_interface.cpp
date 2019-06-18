@@ -5,6 +5,7 @@
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/app/engine/engine_events.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
@@ -45,6 +46,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	, mAuthLayout(nullptr)
 	, mPasswordField(nullptr)
 	, mAuthorizing(false)
+	, mEventClient(mEngine)
 {
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
@@ -53,6 +55,14 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
 	addChildPtr(mKeyboardArea);
+
+	mEventClient.listenToEvents<ds::app::EntryFieldRegisteredEvent>([this](auto&) {
+		auto newEntryField = mEngine.getRegisteredEntryField();
+		if(newEntryField && newEntryField != mLinkedWeb) {
+			mKeyboardShowing = false;
+			updateWidgets();
+		}
+	});
 
 	mKeyboardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png", "%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mKeyboardButton);

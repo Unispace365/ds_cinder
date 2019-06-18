@@ -22,20 +22,16 @@ public:
 };
 
 /// Someone began interacting with the app
-class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
-public: IdleEndedEvent() {}
-};
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {};
 
 /// It's been `<idle seconds>` since someone last interacted with the app
-class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
-public: IdleStartedEvent() {}
-};
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {};
 
 /// A request for the app to exit completely
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {
-public:
-	RequestAppExitEvent() {};
-};
+struct RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {};
+
+/// A new entry field has been registered in the engine
+struct EntryFieldRegisteredEvent : public ds::RegisteredEvent<EntryFieldRegisteredEvent> {};
 }
 } // !namespace ds
 

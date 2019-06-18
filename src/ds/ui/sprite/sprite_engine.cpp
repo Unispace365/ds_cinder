@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include <cinder/app/App.h>
 #include "ds/app/engine/engine_data.h"
+#include "ds/app/engine/engine_events.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/computer_info.h"
@@ -240,8 +241,9 @@ bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, 
 	return true;
 }
 
-void SpriteEngine::registerEntryField(IEntryField* entryField){
+void SpriteEngine::registerEntryField(IEntryField* entryField){	
 	mRegisteredEntryField = entryField;
+	getNotifier().notify(ds::app::EntryFieldRegisteredEvent());
 }
 
 ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){

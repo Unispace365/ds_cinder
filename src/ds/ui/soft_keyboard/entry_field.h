@@ -59,6 +59,7 @@ class EntryField : public IEntryField {
 public:
 
 	EntryField(ds::ui::SpriteEngine&, EntryFieldSettings& settings);
+	~EntryField();
 
 	/// This field will be in "focus", making the cursor blink and look like this is activated
 	/// Does no checking about the number of fields in focus, and any number could be in focus at once (multiple user scenario)

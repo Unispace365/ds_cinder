@@ -3,6 +3,7 @@
 #define DS_UI_MEDIA_VIEWER_WEB_INTERFACE
 
 #include "ds/ui/media/media_interface.h"
+#include "ds/app/event_client.h"
 
 namespace ds {
 namespace ui {
@@ -56,6 +57,8 @@ public:
 protected:
 
 	virtual void				onLayout();
+
+	ds::EventClient				mEventClient;
 
 	ds::ui::Web*				mLinkedWeb;
 
