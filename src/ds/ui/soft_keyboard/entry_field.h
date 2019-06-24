@@ -25,8 +25,9 @@ public:
 		, mCursorColor(1.0f, 1.0f, 1.0f)
 		, mBlinkRate(0.5f)
 		, mAnimationRate(0.3f)
-		, mPasswordMode(false)
 		, mTextOffset(0.0f, 0.0f)
+		, mPasswordMode(false)
+		, mSearchMode(false)
 	{}
 
 	std::string mTextConfig;
@@ -35,7 +36,8 @@ public:
 	ci::vec2	mCursorSize;
 	ci::Color	mCursorColor;
 	ci::vec2	mCursorOffset; 
-	bool		mPasswordMode;
+	bool		mPasswordMode; // characters show as stars
+	bool		mSearchMode; // enter key sends a text updated callback but doesn't insert text
 	float		mBlinkRate;
 	float		mAnimationRate;
 };
@@ -93,6 +95,7 @@ public:
 
 	/// Settings can be set at any time to update graphic properties
 	void								setEntryFieldSettings(EntryFieldSettings& newSettings);
+	EntryFieldSettings					getEntryFieldSettings();
 
 	/// Handles key input like a keyboard would
 	virtual void						keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) override;

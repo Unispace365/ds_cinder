@@ -63,6 +63,11 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings) {
 	textUpdated();
 }
 
+
+ds::ui::EntryFieldSettings EntryField::getEntryFieldSettings() {
+	return mEntryFieldSettings;
+}
+
 void EntryField::onSizeChanged() {
 	if(mTextSprite) {
 		//mTextSprite->setResizeLimit(getWidth(), getHeight());
@@ -100,6 +105,14 @@ void EntryField::applyText(const std::wstring& theStr) {
 void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
 	std::wstring currentCharacter = keyCharacter;
 	std::wstring currentFullText = getCurrentText();
+
+	if(mEntryFieldSettings.mSearchMode && keyType == SoftKeyboardDefs::kEnter) {
+		textUpdated();
+		if(mKeyPressedFunction) {
+			mKeyPressedFunction(keyCharacter, keyType);
+		}
+		return;
+	}
 
 	/// Arrow keys
 	if(keyType == SoftKeyboardDefs::kArrow) {
