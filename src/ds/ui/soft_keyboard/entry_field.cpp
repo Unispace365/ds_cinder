@@ -220,6 +220,8 @@ void EntryField::keyPressed(ci::app::KeyEvent& keyEvent) {
 		setCursorIndex(0);
 	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_END || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEDOWN) {
 		setCursorIndex(getCurrentText().size());
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RETURN){
+		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kEnter);
 	} else {
 		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kLetter);
 	}
