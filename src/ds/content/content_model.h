@@ -206,6 +206,9 @@ class ContentModelRef {
 	void addChild(ContentModelRef datamodel);
 	void addChild(ContentModelRef datamodel, const size_t index);
 
+	/// If there's a direct descendant with the name, replaces it, adds it if it doesn't exist
+	void replaceChild(ds::model::ContentModelRef datamodel);
+
 	/// Is there a child with this name?
 	bool hasChild(const std::string& name) const;
 	bool hasDirectChild(const std::string& name) const;

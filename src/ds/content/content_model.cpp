@@ -581,6 +581,20 @@ void ContentModelRef::addChild(ContentModelRef datamodel, const size_t index) {
 	}
 }
 
+void ContentModelRef::replaceChild(ds::model::ContentModelRef datamodel) {
+	createData();
+
+	auto name = datamodel.getName();
+	std::vector<ds::model::ContentModelRef> allChillins;
+	for(auto it : mData->mChildren) {
+		if(it.getName() == name) continue;
+		allChillins.emplace_back(it);
+	}
+	allChillins.emplace_back(datamodel);
+
+	setChildren(allChillins);
+}
+
 bool ContentModelRef::hasDirectChild(const std::string& name) const {
 	if(!mData || mData->mChildren.empty()) return false;
 
