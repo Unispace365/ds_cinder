@@ -420,6 +420,8 @@ Video Parameters
 If you have the video project included, you can create video sprites.
 * **video_src**: Relative or absolute path to the video. For example: video_src="%APP%/data/test/test.mp4" or video_src="c:/test.mp4"
 * **stream_src**: A pipeline for a live stream source or the URI of a stream. Example: stream_src="rtsp://192.168.1.37:5015/Stream1"
+* **video_gl_mode**: Accepts only "true". Will enable openGL elements in GStreamer. This is required to be on when using nvdecode
+* **video_nvdecode**: Boolean. if true, will use the nvdec NVidia CUDA video decoder for video playback. See the readme in the video project for details.
 
 Media Player Parameters
 -------------------------------
@@ -435,6 +437,8 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
 * **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 * **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
+* **media_player_video_gl_mode**: Accepts only "true". Will enable openGL elements in GStreamer. This is required to be on when using nvdecode
+* **media_player_video_nvdecode**: Boolean. if true, will use the nvdec NVidia CUDA video decoder for video playback. See the readme in the video project for details.
 
 XML Parameters
 -------------------------------

@@ -112,7 +112,23 @@ auto INIT = []() {
 				if (ds::parseBoolean(theValue)) {
 					mediaPlayer.enableStandardClick();
 				}
-			});
+		});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_video_gl_mode",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+			auto& mvs = mediaPlayer.getSettings();
+			mvs.mVideoGlMode = ds::parseBoolean(theValue);
+			mediaPlayer.setSettings(mvs);
+		});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_video_nvdecode",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+			auto& mvs = mediaPlayer.getSettings();
+			mvs.mVideoNVDecode = ds::parseBoolean(theValue);
+			mediaPlayer.setSettings(mvs);
+		});
 	});
 	return true;
 }();

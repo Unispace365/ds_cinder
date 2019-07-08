@@ -344,6 +344,7 @@ void GstVideo::updateVideoTexture() {
 				mFrameTexture = mGstreamerWrapper->getVideoTexture();
 				if(mFrameTexture->getWidth() > 0) {
 					mDrawable = true;
+					mNeedsBatchUpdate = true;
 				}
 
 			} else {
@@ -415,7 +416,18 @@ void GstVideo::drawLocalClient() {
 
 	if (mFrameTexture && mDrawable) {
 		if(mOpenGlMode) {
-			ci::gl::draw(mFrameTexture);
+			if(mSpriteShader.getName() == "base") {
+				ci::gl::draw(mFrameTexture);
+			} else {
+				if(mFrameTexture) mFrameTexture->bind(0);
+
+				if(mRenderBatch) {
+					mRenderBatch->draw();
+				} else {
+					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+				}
+				if(mFrameTexture) mFrameTexture->unbind();
+			}
 		} else if(mColorType == kColorTypeShaderTransform) {
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();

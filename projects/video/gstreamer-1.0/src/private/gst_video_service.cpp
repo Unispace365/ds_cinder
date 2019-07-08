@@ -56,7 +56,22 @@ GstVideoService::GstVideoService(ds::Engine& e)
 					gstVideo->startStream(pipeline, widdy, hiddy);
 				}
 			}
-		});
+	});
+
+
+	mEngine.registerSpritePropertySetter<ds::ui::GstVideo>(
+		"video_gl_mode",
+		[](ds::ui::GstVideo& video, const std::string& theValue, const std::string& fileReferrer) {
+		if(ds::parseBoolean(theValue)) {
+			video.enableOpenGlMode();
+		}
+	});
+
+	mEngine.registerSpritePropertySetter<ds::ui::GstVideo>(
+		"video_nvdecode",
+		[](ds::ui::GstVideo& video, const std::string& theValue, const std::string& fileReferrer) {
+		video.setNVDecode(ds::parseBoolean(theValue));
+	});
 }
 
 GstVideoService::~GstVideoService() {}
