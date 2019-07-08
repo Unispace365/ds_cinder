@@ -195,6 +195,7 @@ Sprite Parameters
 * **animate_on**: Supply a script to run when tweenAnimateOff() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 * **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
+* **shader**: A path to a shader frag and vert. For instance, supply %APP%/data/shaders/alpha_video if you have alpha_video.frag and alpha_video.vert in that location
 * **model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 * **each_model**: Apply ContentModelRef properties to sprite properties. See the Content Model section below.
 * **each_model_limit**: Only create child sprites for the first N ContentModel children.

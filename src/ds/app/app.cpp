@@ -261,6 +261,7 @@ void App::resetupServer() {
 	mEngine.getTweenline().getTimeline().clear();
 
 	mEngine.clearAllSprites(true);
+	ds::ui::SpriteShader::clearShaderCache();
 	loadAppSettings();
 	mEngine.reloadSettings();
 	mEngine.getLoadImageService().initialize();
