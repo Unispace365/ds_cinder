@@ -342,7 +342,7 @@ void GstVideo::updateVideoTexture() {
 		} else {
 			if(mOpenGlMode) {
 				mFrameTexture = mGstreamerWrapper->getVideoTexture();
-				if(mFrameTexture->getWidth() > 0) {
+				if(mFrameTexture && mFrameTexture->getWidth() > 0) {
 					mDrawable = true;
 					mNeedsBatchUpdate = true;
 				}

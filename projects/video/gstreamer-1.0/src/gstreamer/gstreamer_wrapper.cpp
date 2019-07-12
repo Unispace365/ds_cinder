@@ -1034,14 +1034,14 @@ void GStreamerWrapper::setSpeed(float fSpeed) {
 void GStreamerWrapper::setDirection(PlayDirection direction) {
 	if (mLivePipeline) return;
 
-	if (mPlayDirection != direction) {
-		mPlayDirection = direction;
-		changeSpeedAndDirection(mSpeed, mPlayDirection);
-	}
+if(mPlayDirection != direction) {
+	mPlayDirection = direction;
+	changeSpeedAndDirection(mSpeed, mPlayDirection);
+}
 }
 
 void GStreamerWrapper::setLoopMode(LoopMode loopMode) {
-	if (mLivePipeline) return;
+	if(mLivePipeline) return;
 
 	mLoopMode = loopMode;
 }
@@ -1064,13 +1064,13 @@ void GStreamerWrapper::setTimePositionInNs(gint64 iTargetTimeInNs) {
 
 
 void GStreamerWrapper::setPosition(double fPos) {
-	if (fPos < 0.0) fPos = 0.0;
-	else if (fPos > 1.0) fPos = 1.0;
+	if(fPos < 0.0) fPos = 0.0;
+	else if(fPos > 1.0) fPos = 1.0;
 
 
-	mCurrentTimeInMs	= fPos * mCurrentTimeInMs;
+	mCurrentTimeInMs = fPos * mCurrentTimeInMs;
 	mCurrentFrameNumber = (gint64)(fPos * mNumberOfFrames);
-	mCurrentTimeInNs	= (gint64)(fPos * mDurationInNs);
+	mCurrentTimeInNs = (gint64)(fPos * mDurationInNs);
 
 	seekFrame(mCurrentTimeInNs);
 }
@@ -1089,7 +1089,7 @@ void GStreamerWrapper::setOpenGlMode() {
 
 	if(!sGstGLDisplay) {
 		sGstGLDisplay = gst_gl_display_new();
-	} 
+	}
 
 	if(!mGlContext) {
 		ci::gl::env()->makeContextCurrent(nullptr);
@@ -1099,12 +1099,13 @@ void GStreamerWrapper::setOpenGlMode() {
 		if(!sGstAsyncContext) {
 			sGstAsyncContext = gst_gl_context_new(sGstGLDisplay);
 			GError* err = NULL;
+			//DS_LOG_INFO("Creating a new gst GL context");
 			if(!gst_gl_context_create(sGstAsyncContext, mGlContext, &err) && err) {
 				DS_LOG_WARNING("GstGL: Context not created with error " << err->code << " " << err->domain << " " << err->message);
 			}
-		} 
+		}
 
-		ci::gl::context()->makeCurrent();
+		ci::gl::context()->makeCurrent(true);
 	}
 
 	/// keep refs to everything so gstreamer doesn't dispose of them, cause we never will need to set these up again
@@ -1123,7 +1124,7 @@ unsigned char* GStreamerWrapper::getVideo() {
 	return mVideoBuffer;
 }
 
-ci::gl::Texture2dRef GStreamerWrapper::getVideoTexture(){
+ci::gl::Texture2dRef GStreamerWrapper::getVideoTexture() {
 	if(mGlMode && mIsNewVideoFrame) {
 		{
 			std::lock_guard<std::mutex> guard(mVideoMutex);
@@ -1132,9 +1133,36 @@ ci::gl::Texture2dRef GStreamerWrapper::getVideoTexture(){
 
 		GLint id = 0;
 		GstMemory *mem = gst_buffer_peek_memory(mCurrentBuffer.get(), 0);
-		id = ((GstGLMemory *)mem)->tex_id;
+		
+		if(gst_is_gl_memory(mem)) {
+			id = ((GstGLMemory *)mem)->tex_id;
+			auto glMem = ((GstGLMemory *)mem);
+			if(glMem && glMem->mem.query && glMem->mem.query->context) {
+				std::string theName = glMem->mem.query->context->parent.name;
+				DS_LOG_INFO("The context name=" << theName);
+				if(theName != "glcontextwgl0") {
+					DS_LOG_WARNING("This openGL context is a problem!");
+					// This is a temporary solution to a big problem
+					// The context that's getting set in GStreamer is the wrong GL context
+					// So we detect it and just restart the video until it's correct
+					// But what we should do is figure out why GStreamer is getting the wrong context sometimes
+					open(mFilename, true, false, kColorSpaceTransparent, mWidth, mHeight, true);
+					return mVideoTexture;
+				}
+			} else {
+				//DS_LOG_INFO("Couldn't figure out the name! " << glMem);
+				if(glMem) {
+					DS_LOG_INFO("no name 2: " << glMem->mem.query);
+					if(glMem->mem.query) {
+						DS_LOG_INFO("no name 3: " << glMem->mem.query->context);
+					}
+				}
 
-		if(gst_is_gl_memory(mem) && id != 0) {
+				open(mFilename, true, false, kColorSpaceTransparent, mWidth, mHeight, true);
+				return mVideoTexture;
+			}
+
+
 			mVideoTexture = ci::gl::Texture::create(GL_TEXTURE_2D, id, mWidth, mHeight, true);
 			mVideoTexture->setTopDown();
 		} else {
