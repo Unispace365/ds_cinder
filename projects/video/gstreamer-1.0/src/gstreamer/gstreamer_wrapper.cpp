@@ -1139,9 +1139,9 @@ ci::gl::Texture2dRef GStreamerWrapper::getVideoTexture() {
 			auto glMem = ((GstGLMemory *)mem);
 			if(glMem && glMem->mem.query && glMem->mem.query->context) {
 				std::string theName = glMem->mem.query->context->parent.name;
-				DS_LOG_INFO("The context name=" << theName);
+				//DS_LOG_INFO("The context name=" << theName);
 				if(theName != "glcontextwgl0") {
-					DS_LOG_WARNING("This openGL context is a problem!");
+					DS_LOG_WARNING("This openGL context is a problem! " << theName);
 					// This is a temporary solution to a big problem
 					// The context that's getting set in GStreamer is the wrong GL context
 					// So we detect it and just restart the video until it's correct

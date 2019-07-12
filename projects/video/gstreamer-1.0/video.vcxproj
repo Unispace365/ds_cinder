@@ -124,6 +124,7 @@
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
+		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
 		</Command>
       <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll</Inputs>
@@ -160,7 +161,6 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
     </Link>
- 
     <CustomBuildStep>
       <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying GST DLLs to output directory
@@ -183,6 +183,7 @@
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
+		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" "$(SolutionDir)\$(Configuration)"
 		if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
 		</Command>
       <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll</Inputs>
