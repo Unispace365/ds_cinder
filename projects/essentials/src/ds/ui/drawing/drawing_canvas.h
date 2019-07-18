@@ -25,6 +25,7 @@ class DrawingCanvas
 public:
 	DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath="");
 
+	void								setRenderLineCallback(std::function<void(std::pair<ci::vec2, ci::vec2>)> func) { mRenderLineCallback = func; }
 	void								setCompleteLineCallback(std::function<void(std::vector<std::pair<ci::vec2, ci::vec2>> line)> func) { mCompleteLineCallback = func; }
 	void								setTouchHoldCallback(std::function<void(const ci::vec3& startPosition)> func) { mTouchHoldCallback = func; }
 
@@ -73,6 +74,7 @@ protected:
 	PointsQueue							mSerializedPointsQueue;
 
 	std::vector<std::pair<ci::vec2, ci::vec2>>							 mCurrentLine;
+	std::function<void(std::pair<ci::vec2, ci::vec2>line)>				 mRenderLineCallback;
 	std::function<void(std::vector<std::pair<ci::vec2, ci::vec2>> line)> mCompleteLineCallback;
 
 	std::function<void(const ci::vec3& startPos)>	mTouchHoldCallback;

@@ -393,6 +393,10 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end) {
 		return;
 	}
 
+	if(mRenderLineCallback) {
+		mRenderLineCallback(std::make_pair(ci::vec2(start), ci::vec2(end)));
+	}
+
 	DS_LOG_VERBOSE(5, "DrawingCanvas: renderLine start=" << start << " end=" << end);
 
 	ci::gl::Texture2dRef brushTexture = mBrushImage->getImageTexture();
