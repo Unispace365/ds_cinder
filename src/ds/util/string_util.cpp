@@ -713,6 +713,16 @@ ci::vec3 parseVector(const std::string &s){
 	return v;
 }
 
+ci::dvec3 parseDVector(const std::string& s){
+	auto tokens = ds::split(s, ", ", true);
+	ci::dvec3 v;
+	v.x = tokens.size() > 0 ? ds::string_to_double(tokens[0]) : 0.0;
+	v.y = tokens.size() > 1 ? ds::string_to_double(tokens[1]) : 0.0;
+	v.z = tokens.size() > 2 ? ds::string_to_double(tokens[2]) : 0.0;
+
+	return v;
+}
+
 ci::Rectf parseRect(const std::string &s){
 	auto tokens = ds::split(s, ", ", true);
 	ci::Rectf v;

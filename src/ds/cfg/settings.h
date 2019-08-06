@@ -62,6 +62,7 @@ public:
 		const std::wstring				getWString() const;
 
 		const ci::vec2					getVec2() const;
+		const ci::dvec2					getDVec2() const;
 		const ci::vec3					getVec3() const;
 		const cinder::Rectf				getRect() const;
 
@@ -163,6 +164,11 @@ public:
 	/// \code <setting name="the_name" value="140, 100" type="vec2" />  \endcode
 	const ci::vec2						getVec2(const std::string& name, const int index = 0);
 	const ci::vec2						getVec2(const std::string& name, const int index, const ci::vec2& defaultValue);
+
+	/// dvec2 format value="X, Y" the space after the comma is required. Y defaults to 0.0 if it's not present
+	/// \code <setting name="the_name" value="140, 100" type="vec2" /> \endcode
+	const ci::dvec2						getDVec2(const std::string& name, const int index = 0);
+	const ci::dvec2						getDVec2(const std::string& name, const int index, const ci::dvec2& defaultValue);
 
 	/// vec3 format value="X, Y, Z" The space after the commas are required. Y and Z default to 0.0 if not present
 	/// \code <setting name="the_name" value="-1.0, -1000.0, 50" type="vec3" />  \endcode

@@ -144,6 +144,10 @@ const ci::vec2 Settings::Setting::getVec2() const {
 	return ci::vec2(parseVector(mRawValue));
 }
 
+const ci::dvec2 Settings::Setting::getDVec2() const {
+	return ci::dvec2(parseDVector(mRawValue));
+}
+
 const ci::vec3 Settings::Setting::getVec3() const {
 	return parseVector(mRawValue);
 }
@@ -341,6 +345,16 @@ const ci::vec2 Settings::getVec2(const std::string& name, const int index){
 
 const ci::vec2 Settings::getVec2(const std::string& name, const int index, const ci::vec2& defaultValue){
 	return getSetting(name, index, ds::unparseVector(defaultValue)).getVec2();
+}
+
+const ci::dvec2 Settings::getDVec2(const std::string& name, const int index)
+{
+	return getSetting(name, index).getDVec2();
+}
+
+const ci::dvec2	Settings::getDVec2(const std::string& name, const int index, const ci::dvec2& defaultValue)
+{
+	return getSetting(name, index, ds::unparseVector(defaultValue)).getDVec2();
 }
 
 const ci::vec3 Settings::getVec3(const std::string& name, const int index){

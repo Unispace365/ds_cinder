@@ -107,6 +107,10 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 /// Defaults parameters to 0 if they don't exist.
 ci::vec3 parseVector(const std::string &s);
 
+/// Parses a string into a 3d vector of double. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::dvec3 parseDVector(const std::string& s);
+
 /// Parses a string into a rectangle. Example: size="400, 400, 0, 0", where it's "L, T, W, H" the space after the comma is required to read the second and third token.
 /// Defaults parameters to 0 if they don't exist.
 ci::Rectf parseRect(const std::string &s);
