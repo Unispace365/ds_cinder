@@ -418,7 +418,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			GstElement* thisConvert  = gst_element_factory_make("audioconvert", NULL);
 			GstElement* thisPanorama = gst_element_factory_make("audiopanorama", mAudioDevices[i].mPanoramaName.c_str());
 			GstElement* thisVolume   = gst_element_factory_make("volume", mAudioDevices[i].mVolumeName.c_str());
-			GstElement* thisSink	 = gst_element_factory_make("directsoundsink", NULL);
+			GstElement* thisSink	 = gst_element_factory_make("autoaudiosink", NULL);
 			g_object_set(thisVolume, "volume", mAudioDevices[i].mVolume, NULL);
 			g_object_set(thisSink, "device", mAudioDevices[i].mDeviceGuid.c_str(),
 						 NULL);  // , "volume", mAudioDevices[i].mVolume, NULL);
@@ -448,49 +448,49 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 #endif
 
 		if (bGenerateAudioBuffer) {
-		if (mCustomPipeline) {
-			setCustomFunction();
-		} else if (hasAudioTrack) {
+			if (mCustomPipeline) {
+				setCustomFunction();
+			} else if (hasAudioTrack) {
 
-			/*
-			//Add components for sub-pipeline
+				/*
+				//Add components for sub-pipeline
 
-			mGstConverter = gst_element_factory_make("audioconvert", "convert");
-			mGstPanorama = gst_element_factory_make("audiopanorama", "pan");
-			mGstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
-			g_object_set(mGstAudioSink, "sync", true, (void*)NULL);
+				mGstConverter = gst_element_factory_make("audioconvert", "convert");
+				mGstPanorama = gst_element_factory_make("audiopanorama", "pan");
+				mGstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
+				g_object_set(mGstAudioSink, "sync", true, (void*)NULL);
 
-			GstElement* bin = gst_bin_new("converter_sink_bin");
+				GstElement* bin = gst_bin_new("converter_sink_bin");
 
-			//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
-			gst_bin_add_many(GST_BIN(bin), mGstConverter, mGstPanorama, mGstAudioSink, NULL);
-			gboolean link_ok = gst_element_link_many(mGstConverter, mGstPanorama, mGstAudioSink, NULL);
+				//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
+				gst_bin_add_many(GST_BIN(bin), mGstConverter, mGstPanorama, mGstAudioSink, NULL);
+				gboolean link_ok = gst_element_link_many(mGstConverter, mGstPanorama, mGstAudioSink, NULL);
 
-			//Set pan value
-			g_object_set(mGstPanorama, "panorama", mPan, NULL);
+				//Set pan value
+				g_object_set(mGstPanorama, "panorama", mPan, NULL);
 
-			//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
-			GstPad *pad = gst_element_get_static_pad(mGstConverter, "sink");
-			GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
-			gst_pad_set_active(ghost_pad, TRUE);
-			gst_element_add_pad(bin, ghost_pad);
+				//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
+				GstPad *pad = gst_element_get_static_pad(mGstConverter, "sink");
+				GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
+				gst_pad_set_active(ghost_pad, TRUE);
+				gst_element_add_pad(bin, ghost_pad);
 
-			//Set 'bin' pipeline as audio sink
-			g_object_set(mGstPipeline, "audio-sink", bin, (void*)NULL);
+				//Set 'bin' pipeline as audio sink
+				g_object_set(mGstPipeline, "audio-sink", bin, (void*)NULL);
 
-			gst_object_unref(pad);
-			*/
+				gst_object_unref(pad);
+				*/
 
-			mGstPanorama = gst_element_factory_make("audiopanorama", "pan");
-			g_object_set(mGstPanorama, "panorama", mPan, NULL);
-			g_object_set(mGstPipeline, "audio-filter", mGstPanorama, NULL);
+				mGstPanorama = gst_element_factory_make("audiopanorama", "pan");
+				g_object_set(mGstPanorama, "panorama", mPan, NULL);
+				g_object_set(mGstPipeline, "audio-filter", mGstPanorama, NULL);
 
 
-			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
-			g_object_set(mGstPipeline, "audio-sink", thisSink, NULL);
-		}
+				GstElement* thisSink = gst_element_factory_make("autoaudiosink", NULL);
+				g_object_set(mGstPipeline, "audio-sink", thisSink, NULL);
+			}
 	} else {
-		GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+		GstElement* thisSink = gst_element_factory_make("autoaudiosink", NULL);
 		g_object_set(mGstPipeline, "audio-sink", thisSink, NULL);
 	}
 
