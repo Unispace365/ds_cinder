@@ -115,6 +115,14 @@ auto INIT = []() {
 		});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_cache_images",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				if (ds::parseBoolean(theValue)) {
+					mediaPlayer.setCacheImages(true);
+				}
+		});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_video_gl_mode",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 			auto& mvs = mediaPlayer.getSettings();
