@@ -478,24 +478,28 @@ void App::setupKeyPresses() {
 	}, KeyEvent::KEY_1);
 
 	mKeyManager.registerKey("Move src rect left", [this] {
+		if(mArrowKeyCameraStep < 0) return;
 		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
 		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
 		mEngine.markCameraDirty();
 	}, KeyEvent::KEY_LEFT);
 
 	mKeyManager.registerKey("Move src rect right", [this] {
+		if(mArrowKeyCameraStep < 0) return;
 		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
 		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
 		mEngine.markCameraDirty();
 	}, KeyEvent::KEY_RIGHT);
 
 	mKeyManager.registerKey("Move src rect up", [this] {
+		if(mArrowKeyCameraStep < 0) return;
 		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
 		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
 		mEngine.markCameraDirty();
 	}, KeyEvent::KEY_UP);
 
 	mKeyManager.registerKey("Move src rect down", [this] {
+		if(mArrowKeyCameraStep < 0) return;
 		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
 		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
 		mEngine.markCameraDirty();
