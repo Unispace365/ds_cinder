@@ -418,7 +418,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			GstElement* thisConvert  = gst_element_factory_make("audioconvert", NULL);
 			GstElement* thisPanorama = gst_element_factory_make("audiopanorama", mAudioDevices[i].mPanoramaName.c_str());
 			GstElement* thisVolume   = gst_element_factory_make("volume", mAudioDevices[i].mVolumeName.c_str());
-			GstElement* thisSink	 = gst_element_factory_make("autoaudiosink", NULL);
+			GstElement* thisSink	 = gst_element_factory_make("directaudiosink", NULL);
 			g_object_set(thisVolume, "volume", mAudioDevices[i].mVolume, NULL);
 			g_object_set(thisSink, "device", mAudioDevices[i].mDeviceGuid.c_str(),
 						 NULL);  // , "volume", mAudioDevices[i].mVolume, NULL);
@@ -457,7 +457,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 				mGstConverter = gst_element_factory_make("audioconvert", "convert");
 				mGstPanorama = gst_element_factory_make("audiopanorama", "pan");
-				mGstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
+				mGstAudioSink	= gst_element_factory_make("directaudiosink", NULL);
 				g_object_set(mGstAudioSink, "sync", true, (void*)NULL);
 
 				GstElement* bin = gst_bin_new("converter_sink_bin");
@@ -486,11 +486,11 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 				g_object_set(mGstPipeline, "audio-filter", mGstPanorama, NULL);
 
 
-				GstElement* thisSink = gst_element_factory_make("autoaudiosink", NULL);
+				GstElement* thisSink = gst_element_factory_make("directaudiosink", NULL);
 				g_object_set(mGstPipeline, "audio-sink", thisSink, NULL);
 			}
 	} else {
-		GstElement* thisSink = gst_element_factory_make("autoaudiosink", NULL);
+		GstElement* thisSink = gst_element_factory_make("directaudiosink", NULL);
 		g_object_set(mGstPipeline, "audio-sink", thisSink, NULL);
 	}
 
@@ -589,7 +589,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		// Set the configured video appsink to the main pipeline
 		g_object_set(mGstPipeline, "video-sink", mGstVideoSink, (void*)NULL);
 
-		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+		GstElement* audioSink = gst_element_factory_make("directaudiosink", NULL);
 		g_object_set(audioSink, "sync", true, (void*)NULL);
 		g_object_set(mGstPipeline, "audio-sink", audioSink, NULL);
 
