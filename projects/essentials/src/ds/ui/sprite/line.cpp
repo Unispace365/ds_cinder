@@ -250,11 +250,20 @@ void LineSprite::buildVbo() {
 
 	// first, add an adjacency vertex at the beginning
 	vertices.push_back(ci::vec4(2.0f * ci::vec3(localPoints[0], 0) - ci::vec3(localPoints[1], 0), 0));
+	// find the total length of the line for vec4 calculations
+	float totalLength = 0.f;
+	for (size_t i = 1; i < localPoints.size(); i++) {
+		totalLength += glm::distance(localPoints[i-1], localPoints[i]);
+	}
 	// next, add all 2D points as 3D vertices
-	float index = 0.0f;
-	for (const auto& p : localPoints) {
-		vertices.push_back(ci::vec4(p, 0, index / (float)localPoints.size()));
-		index += 1.0f;
+	float currentLength = 0.f;
+	bool first = true;
+	ci::vec2 prevP;
+	for (size_t i = 0; i < localPoints.size(); i++) {
+		const ci::vec2& p = localPoints[i];
+		if (i != 0) currentLength += glm::distance(p, prevP);
+		prevP = p;
+		vertices.push_back(ci::vec4(p, 0, currentLength / totalLength));
 	}
 
 	// next, add an adjacency vertex at the end
