@@ -257,7 +257,6 @@ void LineSprite::buildVbo() {
 	}
 	// next, add all 2D points as 3D vertices
 	float currentLength = 0.f;
-	bool first = true;
 	ci::vec2 prevP;
 	for (size_t i = 0; i < localPoints.size(); i++) {
 		const ci::vec2& p = localPoints[i];
