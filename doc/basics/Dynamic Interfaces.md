@@ -315,10 +315,10 @@ Button Parameters
 
 Gradient Parameters
 ---------------------------
-* **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="ffffff"
-* **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="ffffff"
-* **colorLeft**: A color value to set the TL and BL colors of the gradient to. colorLeft="ffffff"
-* **colorRight**: A color value to set the TR and BR colors of the gradient to. colorRight="ffffff"
+* **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="#ffffff"
+* **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="#ffffff"
+* **colorLeft**: A color value to set the TL and BL colors of the gradient to. colorLeft="#ffffff"
+* **colorRight**: A color value to set the TR and BR colors of the gradient to. colorRight="#ffffff"
 * **gradientColors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
 
 Circle Parameters
