@@ -170,13 +170,7 @@ LineSprite::LineSprite(ds::ui::SpriteEngine& eng, const std::vector<ci::vec2>& p
   , mLineWidth(1.0f)
   , mMiterLimit(0.5f)
   , mSmoothSpline(false) {
-	// Load shaders
-	try {
-		mShader = ci::gl::GlslProg::create(lineVert, lineFrag, lineGeom);
-	} catch (const std::exception& e) {
-		DS_LOG_ERROR("Could not compile shader for LineSprite! Error: " << e.what());
-		return;
-	}
+
 
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -290,9 +284,25 @@ void LineSprite::buildVbo() {
 	mVboMesh->bufferIndices(indices.size() * sizeof(uint16_t), indices.data());
 }
 
+void LineSprite::loadShaders() {
+	try {
+		mShader = ci::gl::GlslProg::create(lineVert, lineFrag, lineGeom);
+	}
+	catch (const std::exception& e) {
+		DS_LOG_ERROR("Could not compile shader for LineSprite! Error: " << e.what());
+		return;
+	}
+}
+
 void LineSprite::buildRenderBatch() {
 	if (!mNeedsBatchUpdate) return;
 	mNeedsBatchUpdate = false;
+
+	// Load shaders
+	if (!mShader) {
+		loadShaders();
+	}
+
 
 	if ((mSmoothSpline && mPoints.size() > 2) || (!mSmoothSpline && mPoints.size() > 1)) {
 		buildVbo();

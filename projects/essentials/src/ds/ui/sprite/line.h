@@ -23,7 +23,7 @@ namespace ui {
 	- Sprites can be animated using the SpriteAnimatable functions to gracefully change size, position, opacity, scale,
  color, and rotation.
 	- Sprites can clip their children along their bounds using setClipping(true)	 */
-class LineSprite final : public ds::ui::Sprite {
+class LineSprite : public ds::ui::Sprite {
   public:
 	LineSprite(ds::ui::SpriteEngine& eng, const std::vector<ci::vec2>& points = std::vector<ci::vec2>());
 
@@ -76,8 +76,11 @@ class LineSprite final : public ds::ui::Sprite {
 	virtual void readAttributeFrom(const char attributeId, ds::DataBuffer&);
 	virtual void buildRenderBatch();
 	virtual void onBuildRenderBatch();
+	virtual void loadShaders();
 
 	virtual bool getInnerHit(const ci::vec3& pos) const;
+
+	ci::gl::GlslProgRef mShader;
 
   private:
 	void buildVbo();
@@ -89,8 +92,6 @@ class LineSprite final : public ds::ui::Sprite {
 
 	ci::gl::BatchRef	  mBatch;
 	std::vector<ci::vec2> mPoints;
-
-	ci::gl::GlslProgRef mShader;
 	ci::gl::VboMeshRef  mVboMesh;
 };
 
