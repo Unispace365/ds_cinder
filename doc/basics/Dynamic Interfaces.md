@@ -426,6 +426,9 @@ If you have the video project included, you can create video sprites.
 Media Player Parameters
 -------------------------------
 If you have the viewers project included, you can create media players. Media players are a simple way to view Images, PDFs, Videos, and Web sites. Media Players created this way automatically have an embedded interface (to flip through pages or control videos). Media types are deduced by file extension. MediaPlayer sprites need to be enabled or accept some user input for the interface to re-appear.
+
+*Please Note*: The order of attributes matters. The attribute *media_player_src* must come last for the layout to respect the other options.
+
 * **media_player_src**: Relative or absolute path to the media. For example:
 
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
