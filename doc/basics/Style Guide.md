@@ -1,6 +1,6 @@
 # C++ Style Guide
 
-We're loosely following the [Google Style Guide](http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml)
+We're loosely following the [Google Style Guide](https://google.github.io/styleguide/cppguide.html)
 as a starting point, with the changes noted below.
 
 ## Misc Best Practices
