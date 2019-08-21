@@ -35,10 +35,15 @@ auto good = AppMode::NONE; // No conflicts, and it's always clear what you are r
 ```
 
 ### Ifs and Loops
-* Always use curly braces for conditions and loops, with the exception of single line ifs like:
-	`if(!thing) return;`.
+* Always use curly braces for conditions and loops:
+```cpp
+if(!thing){
+	return;`.
+}
+```
+
 * Prefer `for(auto x : y)` whenever possible, and use descriptive iterator names (not just 'it')
-* I like the `if(auto x = getSprite("my_sweet_child")){ ... }` structure when possible, since it limits the scope
+* Use `if(auto x = getSprite("my_sweet_child")){ ... }` structure when possible, since it limits the scope
 	of the variable to the if block. Helps prevent checking if a pointer is null but still having a
 	null pointer in scope somewhere further along.
 
@@ -47,7 +52,7 @@ auto good = AppMode::NONE; // No conflicts, and it's always clear what you are r
 ## Exceptions
 Google doesn't allow them.  We don't really have a choice, since libraries we consume can throw
 exceptions. Try to be aware of functions that can throw execptions, and try to catch them as close
-as possible to the call-site.
+as possible to the call-site. Do not add any exception throws, as they can easily cause release crashes. Try to catch all possible exceptions in included libraries.
 
 
 ## File Names, Locations, and Includes
@@ -66,7 +71,7 @@ For includes within your app, use quoted includes: `#include "events/my_events.h
 ## Naming
 ### Variable Names
 We use camelCase for local variables. Toss a 'y' on the end if it shadows an existing name, or if ya
-just wanna be cute. 
+just wanna be cute. For example: float advancy = getAdvanceAmount();
 
 Class & struct member variables are prefixed with an 'm' to differentiate them from local variables & functions.
 `int mLongMemberVariable;`
@@ -89,12 +94,10 @@ class NotIndentedHere{...};
 ```
 
 ### Header Guards
+Google has #ifdef guards around all classes, and we're moving to only using "#pragma once" for less code per header.
 ```cpp
 #pragma once
-#ifndef NAMESPACENAME_FOLDER_SUBFOLDER_FILE_NAME
-#define NAMESPACENAME_FOLDER_SUBFOLDER_FILE_NAME
 // CODE GOES HERE
-#endif
 ```
 
 ### General Names
@@ -111,7 +114,7 @@ int aFunctionThatLooksLikeItMightDoSomething(const int);
 some_error_type aFunctionThatHasInfo(const int);
 ```
 	
-I prefer aligning the spaces on everything:
+You can align the spaces on everything:
 ```cpp
 void				aFunctionThatIsBoring(void);
 int					aFunctionThatLooksLikeItMightDoSomething(const int);
@@ -146,7 +149,7 @@ int b;
 };
 ```
 
-Personally I also prefer to assign member variables default values in the header. It helps avoid
+Prefer to assign member variables default values in the header. It helps avoid
 needing to duplicate all the initializers for every constructor. It also reduces the likelihood of
 forgetting to initialize pointers to nullptr.
 
