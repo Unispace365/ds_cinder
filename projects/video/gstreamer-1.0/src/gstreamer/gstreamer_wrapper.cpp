@@ -758,17 +758,22 @@ void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string&
 	mSyncedMode = true;
 	mServer		= true;
 	DS_LOG_INFO("Setting IP Address to: " << addr.c_str() << " Port: " << port);
+	/*
 	if (mClockProvider) {
-		gst_object_unref(mClockProvider);
+		gst_object_unref(mClockProvider); // this was causing a crash sometimes
 		mClockProvider = nullptr;
 	}
+	*/
 
-	// apply pipeline clock to itself, to make sure we're on charge
-	auto clock = gst_system_clock_obtain();
-	mNetClock  = clock;
-	gst_pipeline_use_clock(GST_PIPELINE(mGstPipeline), clock);
-	mClockProvider = gst_net_time_provider_new(clock, addr.c_str(), port);
-	gst_clock_set_timeout(mNetClock, 10);
+	if(!mClockProvider) {
+		// apply pipeline clock to itself, to make sure we're on charge
+		auto clock = gst_system_clock_obtain();
+		mNetClock = clock;
+		gst_pipeline_use_clock(GST_PIPELINE(mGstPipeline), clock);
+
+		mClockProvider = gst_net_time_provider_new(clock, addr.c_str(), port);
+		gst_clock_set_timeout(mNetClock, 10);
+	}
 
 	if (!mClockProvider) {
 		DS_LOG_WARNING("Could not instantiate the GST server network clock.");
@@ -855,7 +860,7 @@ void GStreamerWrapper::close() {
 
 	if (hasGstBus) gst_object_unref(mGstBus);
 
-	if (hasClockProvider) gst_object_unref(mClockProvider);
+	//if (hasClockProvider) gst_object_unref(mClockProvider);
 
 
 	if(mGlMode) {
@@ -931,7 +936,6 @@ void GStreamerWrapper::play() {
 
 			if (mServer) {
 				if (getState() == PAUSED) {
-					std::cout << "Playing from pause" << std::endl;
 					mPlayFromPause = true;
 
 					uint64_t baseTime = getPipelineTime();
