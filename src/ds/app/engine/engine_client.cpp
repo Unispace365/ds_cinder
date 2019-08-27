@@ -285,15 +285,28 @@ void EngineClient::setState(State& s) {
 }
 
 void EngineClient::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
-	sendMouseTouch(0, e.getPos());
+	if(mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+		sendMouseTouch(0, e.getPos());
+	} else {
+		mTouchManager.mouseTouchBegin(e, id);
+	}
 }
 
-void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
-	sendMouseTouch(1, e.getPos());
+void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id) {
+	if(mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+		sendMouseTouch(1, e.getPos());
+	} else {
+		mTouchManager.mouseTouchMoved(e, id);
+	}
 }
 
-void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
-	sendMouseTouch(2, e.getPos());
+void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id) {
+	if(mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+		sendMouseTouch(2, e.getPos());
+	} else {
+		mTouchManager.mouseTouchEnded(e, id);
+		DS_LOG_INFO("Src rect:" << ds::unparseRect(getSrcRect()) << " Dst rect:" << ds::unparseRect(getDstRect()));
+	}
 }
 
 void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos){	

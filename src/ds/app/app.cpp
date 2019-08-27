@@ -265,7 +265,6 @@ void App::resetupServer() {
 	loadAppSettings();
 	mEngine.reloadSettings();
 	mEngine.getLoadImageService().initialize();
-	//setupServer();
 }
 
 void App::preServerSetup() {
