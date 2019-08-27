@@ -356,8 +356,9 @@ void EngineClient::RunningState::update(EngineClient &e) {
 	const size_t count(e.getRootCount());
 	for (int k=0; k<count; ++k) {
 		if(!e.getRootBuilder(k).mSyncronize) continue;
-		ui::Sprite&	s(e.getRootSprite(k));
-		s.writeClientTo(buf);
+		auto s = e.getRootSpritePtr(k);
+		if(!s) continue;
+		s->writeClientTo(buf);
 	}
 
 	//DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);

@@ -63,7 +63,6 @@ class LineSprite final : public ds::ui::Sprite {
 	float getMiterLimit() { return mMiterLimit; }
 
 	virtual void drawLocalClient();
-	virtual void onUpdateServer(const ds::UpdateParams& updateParams);
 
 	// Initialization
 	static void installAsServer(ds::BlobRegistry&);

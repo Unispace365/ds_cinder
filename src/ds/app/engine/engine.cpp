@@ -799,6 +799,17 @@ ui::Sprite& Engine::getRootSprite(const size_t index) {
 	return *s;
 }
 
+ds::ui::Sprite* Engine::getRootSpritePtr(const size_t index /*= 0*/) {
+	if(index < 0 || index >= mRoots.size()) {
+		DS_LOG_WARNING("Engine::getRootSprite() on invalid index " << index);
+		return mRoots.front()->getSprite();
+	}
+	ui::Sprite*		s = mRoots[index]->getSprite();
+	if(!s) DS_LOG_WARNING("Engine::getRootSprite() on null sprite");
+	return s;
+
+}
+
 const RootList::Root& Engine::getRootBuilder(const size_t index){
 	if(index < 0 || index >= mRoots.size()){
 		DS_LOG_WARNING("Engine::getRootBuilder() on invalid index " << index);

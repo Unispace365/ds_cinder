@@ -60,7 +60,6 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& se
 		DS_LOG_ERROR_M("EngineServer() initializing connection: " << e.what(), ds::ENGINE_LOG);
 	}
 
-	setState(mSendWorldState);
 }
 
 AbstractEngineServer::~AbstractEngineServer() {
@@ -82,6 +81,8 @@ void AbstractEngineServer::setup(ds::App& app) {
 	if(mContentWrangler) {
 		mContentWrangler->initialize();
 	}
+
+	setState(mSendWorldState);
 
 	app.preServerSetup();
 	app.setupServer();

@@ -352,8 +352,6 @@ bool LineSprite::getInnerHit(const ci::vec3& pos) const {
 	return false;
 }
 
-void LineSprite::onUpdateServer(const ds::UpdateParams& updateParams) {}
-
 void LineSprite::drawLocalClient() {
 	if (mRenderBatch && ((mSmoothSpline && mPoints.size() > 2) || (!mSmoothSpline && mPoints.size() > 1))) {
 		clip_plane::passClipPlanesToShader(mShader);
