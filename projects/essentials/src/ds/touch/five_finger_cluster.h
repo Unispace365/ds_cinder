@@ -49,6 +49,9 @@ public:
 	// How far a touch can be away from any other touch to be counted as part of it's cluster.
 	void							setMinClusterSeparation(const float minSeparation){ mMinClusterSeparation = minSeparation; }
 
+	// The size of the bounding box for individual touches to still be considered "triggerable"
+	void							setBoundingBoxSize(const float boundingBoxSize) { mBoundingBoxSize = boundingBoxSize; }
+
 	void							parseTouch(const ds::ui::TouchInfo& ti);
 
 	// gets called when all fingers are released and it's triggerable
