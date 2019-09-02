@@ -80,6 +80,11 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 		ind++;
 	}
 
+	if(thePackages.empty()) {
+		DS_LOG_WARNING("Bin pack failed with no packages!");
+		return false;
+	}
+
 	// be sure padding gets added
 	adjustSizes(thePackages, 1.0f, padding);
 
