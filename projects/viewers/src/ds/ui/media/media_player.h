@@ -127,6 +127,10 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// ratio was
 	const float getContentAspectRatio() { return mContentAspectRatio; }
 
+	/// Use to override the content aspect ratio for custom layouts
+	/// NOTE: this is very rarely used. In a vast majority of cases, loading the media will automatically set this value
+	void setContentAspectRatio(const float newRatio) { mContentAspectRatio = newRatio; }
+
   protected:
 	/// override to do any custom layout functions
 	virtual void onLayout(){};
