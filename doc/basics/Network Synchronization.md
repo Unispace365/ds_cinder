@@ -58,7 +58,7 @@ You'll also want to check your src_rect and dst_rect on the client and server. S
 
 ## Creating a custom sprite
 
-There's a number of steps to take render your own sprite on a client:
+There's a number of steps to take to render your own sprite on a client:
 
 1. Install the Sprite on startup
 2. Register the client and server functions
@@ -110,7 +110,7 @@ In the implementation of CustomSprite:
 
 A couple important points to note here: 
 
-* The base sprite handleBlobeFromClient() and handleBlobFromServer() should always be used in those callbacks. The base sprite functions route the messages to the correct sprites
+* The base sprite handleBlobFromClient() and handleBlobFromServer() should always be used in those callbacks. The base sprite functions route the messages to the correct sprites
 * In the installAsClient() piece, the CustomSprite type is specified in the template for handleBlobFromServer(). That bit is how the client can instantiate your CustomSprite on the client side
 * In the constructor, the blob type is applied to the base sprite property of mBlobType, so the sprite knows about this specific type
 * Dirty state and attributes are declared in the anonymous namespace. 
