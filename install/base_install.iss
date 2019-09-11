@@ -117,18 +117,6 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 [Code]
 var
   CmsUrl: String;
-  NeedsRestart: Boolean;
-
-function NeedRestart(): Boolean;
-begin
-	Log('====== Testing needs restart ======')
-	Log(ExpandConstant('{#CMS_URL}'))
-	Log(CmsUrl);
-	Log('======   end needs restart   ======')
-    if CompareText(CmsUrl, ExpandConstant('{#CMS_URL}')) = 0 then
-        Result := False;
-    Result := True;
-end;
 
 function InitializeSetup(): Boolean;
 begin
