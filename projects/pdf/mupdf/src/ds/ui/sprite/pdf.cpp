@@ -68,7 +68,7 @@ ci::Surface8uRef Pdf::renderPage(const std::string& path) {
 }
 
 Pdf::Pdf(ds::ui::SpriteEngine& e)
-	: ds::ui::Sprite(e)
+	: ds::ui::IPdf(e)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
 		, mHolder(e) 
