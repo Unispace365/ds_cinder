@@ -27,6 +27,7 @@ public:
 			e.getAppSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, theSetting.mRawValue);
 			});
+			e.getAppSettings().replaceSettingVariablesAndExpressions();
 		});
 	}
 	void doNothing() {}

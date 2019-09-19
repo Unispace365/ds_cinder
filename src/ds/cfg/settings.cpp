@@ -487,5 +487,16 @@ void Settings::printAllSettings(){
 	
 }
 
+void Settings::replaceSettingVariablesAndExpressions() {
+	for (auto& it : mSettings) {
+		auto& theVec = it.second;
+		for (auto& theSetting : theVec) {
+			std::string value = ds::cfg::SettingsVariables::replaceVariables(theSetting.mRawValue);
+			value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+			theSetting.mRawValue = value;
+		}
+	}
+}
+
 } // namespace cfg
 } // namespace ds
