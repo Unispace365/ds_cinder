@@ -215,6 +215,8 @@ public:
 	/// This vector may change at any time, so careful here
 	std::vector<Setting>&				getReadSortedSettings();
 
+	/// Goes through each setting to replace variables and parse expressions
+	void								replaceSettingVariablesAndExpressions();
 
 	class SettingsEditedEvent : public ds::RegisteredEvent<SettingsEditedEvent> {
 	public:
