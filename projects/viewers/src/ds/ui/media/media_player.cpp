@@ -367,7 +367,7 @@ void MediaPlayer::initializeVideoStream() {
 
 void MediaPlayer::initializePdf() {
 	// Depends on base initialize to check already initialized case
-	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
+	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mPDFPlayer);
 
 	mPDFPlayer->setMediaViewerSettings(mMediaViewerSettings);

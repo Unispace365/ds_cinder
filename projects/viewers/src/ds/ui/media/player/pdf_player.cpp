@@ -19,7 +19,7 @@
 namespace ds {
 namespace ui {
 
-PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cachePrevNext)
+PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
   : ds::ui::IPdf(eng)
   , mPdfInterface(nullptr)
   , mEmbedInterface(embedInterface)
@@ -169,7 +169,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 			newPdf->hide();
 		}
 
-		if(mShowingLinks) {
+		if(mShowingLinks && mCanShowLinks) {
 			newPdf->showLinks();
 		} else {
 			newPdf->hideLinks();
@@ -256,6 +256,8 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mCanShowLinks = settings.mPdfCanShowLinks;
+	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }
 
 void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
@@ -266,6 +268,7 @@ void PDFPlayer::setLetterbox(const bool doLetterbox) {
 }
 
 void PDFPlayer::showLinks() {
+	if(!mCanShowLinks) return;
 	mShowingLinks = true;
 	for (auto it : mPages){
 		it.second->showLinks();

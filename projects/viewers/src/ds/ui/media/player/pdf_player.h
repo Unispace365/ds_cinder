@@ -21,7 +21,7 @@ struct MediaViewerSettings;
  */
 class PDFPlayer : public ds::ui::IPdf {
   public:
-	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true, bool cachePrevNext = true);
+	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
 
 	void setMedia(const std::string mediaPath);
 	void setResource(const ds::Resource mediaResource);
@@ -93,6 +93,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	bool									mInterfaceBelowMedia;
 	bool									mLetterbox;
 	bool									mShowingLinks = false;
+	bool									mCanShowLinks = true;
 
 	std::function<void(void)>				mPageChangeCallback;
 	std::function<void(void)>				mGoodStatusCallback;
