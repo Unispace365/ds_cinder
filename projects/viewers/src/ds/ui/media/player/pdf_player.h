@@ -68,7 +68,10 @@ class PDFPlayer : public ds::ui::IPdf {
 	void setSizeChangedCallback(std::function<void(const ci::vec2& size)> func) { mSizeChangedCallback = func; }
 	void setLetterbox(const bool doLetterbox);
 
-	virtual void				setPageChangeCallback(std::function<void()> func) override { mPageChangeCallback = func; }
+	virtual void setPageChangeCallback(std::function<void()> func) override { mPageChangeCallback = func; }
+
+	virtual void showLinks();
+	virtual void hideLinks();
 
   protected:
 	virtual void	onSizeChanged();
@@ -89,6 +92,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	bool									mShowInterfaceAtStart;
 	bool									mInterfaceBelowMedia;
 	bool									mLetterbox;
+	bool									mShowingLinks = false;
 
 	std::function<void(void)>				mPageChangeCallback;
 	std::function<void(void)>				mGoodStatusCallback;

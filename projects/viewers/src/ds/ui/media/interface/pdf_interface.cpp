@@ -75,8 +75,10 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		if(mLinkedPDF){
 			if(mLinkedPDF->isEnabled()){
 				mLinkedPDF->enable(false);
+				mLinkedPDF->hideLinks();
 			} else {
 				mLinkedPDF->enable(true);
+				mLinkedPDF->showLinks();
 			}
 			updateWidgets();
 		}

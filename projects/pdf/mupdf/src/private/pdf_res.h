@@ -8,6 +8,7 @@
 
 #include <ds/thread/gl_thread.h>
 #include <ds/ui/sprite/pdf.h>
+#include <ds/ui/sprite/pdf_link.h>
 
 namespace ds {
 namespace pdf {
@@ -27,7 +28,24 @@ public:
 private:
 	virtual ~PdfRes();
 
+
 public:
+	// Store my pixel data, color space is RGBA, 8 bits per pixel.
+	struct Pixels {
+		Pixels();
+		~Pixels();
+
+		bool				empty() const;
+		bool				setSize(const int w, const int h);
+		void				clearPixels();
+		void				deleteData();
+		unsigned char*		mData;
+		int					mDataSize;
+		int					mW, mH;
+	};
+
+	
+
 	bool loadPDF(const std::string &theFileName);
 
 	/// Returns true if the pixels were updated on this pass
@@ -35,6 +53,8 @@ public:
 
 	ci::Surface8uRef		getSurface(){ return mSurface; }
 	void					clearSurface();
+
+	std::vector<PdfLinkInfo> getLinks();
 
 	float					getWidth() const;
 	float					getHeight() const;
@@ -61,25 +81,9 @@ private:
 		float		mScale;
 		// NOTE: These items are not part of the equality test
 		ci::ivec2	mPageSize;
+		std::vector<PdfLinkInfo>	mLinks;
 	};
 
-public:
-	// Store my pixel data, color space is RGBA, 8 bits per pixel.
-	class Pixels {
-	public:
-		Pixels();
-		~Pixels();
-
-		bool				empty() const;
-		bool				setSize(const int w, const int h);
-		void				clearPixels();
-		void				deleteData();
-		unsigned char*		mData;
-		int					mDataSize;
-		int					mW, mH;
-	};
-
-private:
 	bool						needsUpdate();
 
 	mutable std::mutex			mMutex;

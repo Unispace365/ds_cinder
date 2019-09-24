@@ -5,6 +5,7 @@
 #include <cinder/Surface.h>
 #include <ds/ui/sprite/sprite.h>
 #include "ds/data/resource.h"
+#include "pdf_link.h"
 namespace ds {
 namespace pdf {
 class PdfRes;
@@ -32,6 +33,16 @@ public:
 
 	/** Called when the page has been requested to change (so you can update UI or whatever) */
 	virtual void				setPageChangeCallback(std::function<void()> func) = 0;
+
+	/** When the page renders, will show any links as enabled sprites and send clicked callbacks if they are tapped */
+	virtual void				showLinks() {};
+
+	/** Hides any links that were previously shown from showLinks() */
+	virtual void				hideLinks() {};
+
+	/** When an internal link has been clicked. Requires links to be shown */
+	virtual void				setLinkClickedCallback(std::function<void(ds::pdf::PdfLinkInfo info)> func) { mLinkClickedCallback = func; };
+	std::function<void(ds::pdf::PdfLinkInfo)> mLinkClickedCallback;
 };
 
 /**
@@ -69,6 +80,15 @@ public:
 
 	/** Called when the page has been requested to change (so you can update UI or whatever) */
 	virtual void				setPageChangeCallback(std::function<void()> func) override { mPageChangeCallback = func; }
+
+	/** When the page renders, will show any links as enabled sprites and send clicked callbacks if they are tapped */
+	void						showLinks();
+
+	/** Hides any links that were previously shown from showLinks() */
+	void						hideLinks();
+
+	/** When an internal link has been clicked. Requires links to be shown */
+	void						setLinkClickedCallback(std::function<void(ds::pdf::PdfLinkInfo info)> func) { mLinkClickedCallback = func; };
 	// END OF IPDF API
 
 	/** Called when a page has finished drawing. This may also be called if the PDF is re-scaled and redraws again. Expect this to be called many times */
@@ -121,6 +141,7 @@ private:
 		ci::ivec2				getPageSize() const;
 		void					goToNextPage();
 		void					goToPreviousPage();
+		std::vector<pdf::PdfLinkInfo> getLinks();
 
 	private:
 		ds::pdf::Service&		mService;
@@ -132,6 +153,11 @@ private:
 
 	// For clients to detect scale changes and re-render
 	ci::vec3					mPrevScale;
+
+	void						createLinks();
+	void						destroyLinks();
+	std::vector<pdf::PdfLink*>	mLinks;
+	bool						mShowingLinks;
 
 	std::function<void()>		mPageLoadedCallback;
 	std::function<void()>		mPageChangeCallback;

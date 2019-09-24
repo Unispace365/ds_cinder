@@ -31,13 +31,13 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cacheP
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	// set some callbacks in case we are ever enabled
-	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+	setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
 		int count = getPageCount();
 		int zeroIndexNextWrapped = (getPageNum() % count);
 		setPageNum(zeroIndexNextWrapped + 1);
 	});
 
-	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
+	setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
 		int diff = 0;
 
 		if(delta.x < -20.0f) {
@@ -169,6 +169,20 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 			newPdf->hide();
 		}
 
+		if(mShowingLinks) {
+			newPdf->showLinks();
+		} else {
+			newPdf->hideLinks();
+		}
+
+		newPdf->setLinkClickedCallback([this](ds::pdf::PdfLinkInfo info) {
+			if(info.mPageDest > 0) {
+				setPageNum(info.mPageDest);
+			} else if(mLinkClickedCallback) {
+				mLinkClickedCallback(info);
+			}
+		});
+
 		addChildPtr(newPdf);
 		mPages[thePage] = newPdf;
 
@@ -249,6 +263,20 @@ void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterf
 void PDFPlayer::setLetterbox(const bool doLetterbox) {
 	mLetterbox = doLetterbox;
 	layout();
+}
+
+void PDFPlayer::showLinks() {
+	mShowingLinks = true;
+	for (auto it : mPages){
+		it.second->showLinks();
+	}
+}
+
+void PDFPlayer::hideLinks() {
+	mShowingLinks = false;
+	for(auto it : mPages) {
+		it.second->hideLinks();
+	}
 }
 
 void PDFPlayer::setPageNum(const int pageNum) {
