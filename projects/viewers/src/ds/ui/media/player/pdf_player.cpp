@@ -121,7 +121,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 
 	mPages.clear();
 
-	mCurrentPage = 0;
+	mCurrentPage = 1;
 	mLoadingCount = 0;
 	
 	if(mPdfInterface) {
@@ -141,6 +141,10 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 		//	std::cout << "Page loaded: " << thePage << std::endl;
 			if(mGoodStatusCallback) mGoodStatusCallback();
 			loadNextPage();
+
+			if(mPdfInterface) {
+				mPdfInterface->updateWidgets();
+			}
 		});
 
 		if(firsty) {
@@ -170,9 +174,6 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 
 		thePage++;
 	}
-
-
-	mCurrentPage = 0;
 
 	if (mPdfInterface) {
 		mPdfInterface->release();

@@ -83,13 +83,13 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	// set some callbacks in case we are ever enabled
-	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos){
+	setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos){
 		int count = getPageCount();
 		int zeroIndexNextWrapped = (getPageNum() % count);
 		setPageNum(zeroIndexNextWrapped + 1);
 	});
 
-	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta){
+	setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta){
 		int diff = 0;
 
 		if(delta.x < -20.0f){
