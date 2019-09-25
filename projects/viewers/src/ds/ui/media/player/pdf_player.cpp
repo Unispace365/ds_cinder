@@ -30,6 +30,9 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	enable(false);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
+	// in case we haven't loaded pages fast enough, show white
+	setTransparent(false);
+
 	// set some callbacks in case we are ever enabled
 	setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
 		int count = getPageCount();
@@ -67,10 +70,12 @@ void PDFPlayer::loadNextPage() {
 		return;
 	}
 
-	// only load 10 pages ahead, cause we don't know how many pdfs could be onscreen at once
-	if(mLoadedPage > mCurrentPage + 10) {
+	
+	// only load a few pages ahead, cause we don't know how many pdfs could be onscreen at once
+	if(mLoadedPage > mCurrentPage + 4) {
 		return;
 	}
+	
 
 	mLoadedPage++;
 
@@ -81,8 +86,6 @@ void PDFPlayer::loadNextPage() {
 		// tried out looping around, but just skip it
 //		mLoadedPage = 1;
 	}
-
-	//std::cout << "Loading or resizing page " << mLoadedPage << std::endl;
 	
 	auto findy = mPages.find(mLoadedPage);
 	if(findy != mPages.end()) {
@@ -102,7 +105,6 @@ void PDFPlayer::loadNextPage() {
 
 		/// if the pdf didn't change scale, it won't re-render, so just move ahead
 		if(thePdf->getScale().x == preW) {
-			//std::cout << "The PDF was already this size" << std::endl;
 			loadNextPage();
 		}
 	}
@@ -138,7 +140,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 		auto newPdf = new ds::ui::Pdf(mEngine);
 
 		newPdf->setPageLoadedCallback([this, thePage] {
-		//	std::cout << "Page loaded: " << thePage << std::endl;
+			//std::cout << "Page loaded: " << thePage << std::endl;
 			if(mGoodStatusCallback) mGoodStatusCallback();
 			loadNextPage();
 
@@ -228,6 +230,7 @@ void PDFPlayer::layout() {
 
 	mLoadedPage = mCurrentPage - 1;
 	mLoadingCount = 0;
+
 	loadNextPage();
 
 	if (mPdfInterface) {
