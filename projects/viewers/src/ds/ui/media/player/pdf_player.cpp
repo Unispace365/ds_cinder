@@ -72,11 +72,10 @@ void PDFPlayer::loadNextPage() {
 
 	
 	// only load a few pages ahead, cause we don't know how many pdfs could be onscreen at once
-	if(mLoadedPage > mCurrentPage + 4) {
+	if(mLoadedPage > mCurrentPage + mRenderAheadPages) {
 		return;
 	}
 	
-
 	mLoadedPage++;
 
 	// don't loop around when loading

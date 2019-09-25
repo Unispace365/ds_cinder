@@ -86,6 +86,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	int			mLoadedPage = 0;
 	int			mLoadingCount = 0;
 	int			mNumPages = 0;
+	int			mRenderAheadPages = 3;
 
 	PDFInterface*							mPdfInterface;
 	bool									mEmbedInterface;
