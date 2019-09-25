@@ -2,14 +2,14 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 
 
-$FFmpegUrl = "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-20180905-ad9b4ec-win64-static.zip";
+$FFmpegUrl = "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-20190711-2601eef-win64-static.zip";
 $ThisCommand = $MyInvocation.MyCommand.Path;
 $ThisDir = (Get-Item $ThisCommand ).Directory.FullName;
 $TempFile = $ThisDir + "/ffmpeg.zip";
 $DebugDir = $ThisDir + "/vs2015/Debug/";
 $ReleaseDir = $ThisDir + "/vs2015/Release/";
-$SourceDir = $ThisDir + "/ffmpeg-20180905-ad9b4ec-win64-static/bin/ffmpeg.exe";
-$FfmpegDir = $ThisDir + "/ffmpeg-20180905-ad9b4ec-win64-static/";
+$SourceDir = $ThisDir + "/ffmpeg-20190711-2601eef-win64-static/bin/ffmpeg.exe";
+$FfmpegDir = $ThisDir + "/ffmpeg-20190711-2601eef-win64-static/";
 $OutputDir = $ThisDir;
 
 
