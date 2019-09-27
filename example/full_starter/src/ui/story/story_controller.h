@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _FULLSTARTER_APP_UI_STORY_STORY_CONTROLLER_H_
-#define _FULLSTARTER_APP_UI_STORY_STORY_CONTROLLER_H_
 
 #include <ds/ui/layout/smart_layout.h>
 
@@ -25,4 +23,3 @@ public:
 
 } // namespace fullstarter
 
-#endif

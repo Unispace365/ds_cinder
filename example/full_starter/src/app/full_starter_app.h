@@ -1,5 +1,4 @@
-#ifndef _FULLSTARTER_APP_H_
-#define _FULLSTARTER_APP_H_
+#pragma once
 
 #include <cinder/app/App.h>
 #include <ds/app/app.h>
@@ -22,5 +21,3 @@ private:
 };
 
 } // !namespace fullstarter
-
-#endif // !_FULLSTARTER_APP_H_
