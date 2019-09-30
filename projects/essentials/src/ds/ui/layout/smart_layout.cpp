@@ -100,11 +100,16 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 
 	if (sprI) {
 		if(cache) {
-			sprI->setImageFile(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
+			sprI->setImageFile(imagePath, ds::ui::Image::IMG_CACHE_F);
 		} else {
-			sprI->setImageFile(ds::Environment::expand(imagePath));
+			sprI->setImageFile(imagePath);
 		}
-		mNeedsLayout = true;
+
+		sprI->setStatusCallback([this](const ds::ui::Image::Status &status) {
+			if (status.mCode == ds::ui::Image::Status::STATUS_LOADED) {
+				mNeedsLayout = true;
+			}
+		});
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}

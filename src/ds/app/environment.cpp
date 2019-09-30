@@ -90,7 +90,12 @@ std::string Environment::expand(const std::string& _path) {
 	boost::replace_all(p, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
 	boost::replace_all(p, "%DOCUMENTS%", DOCUMENTS);
 	// This can result in double path separators, so flatten
-	return Poco::Path(p).toString();
+	std::string expandedPath = Poco::Path(p).toString();
+	if (ds::safeFileExistsCheck(expandedPath)) {
+		return expandedPath;
+	}
+
+	return p;
 }
 
 

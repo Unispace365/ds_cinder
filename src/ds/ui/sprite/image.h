@@ -39,7 +39,7 @@ public:
 	virtual ~Image();
 
 	/** Loads an image based on the filename.
-	* \param filename is the absolute file path to the resource.
+	* \param filename is the image file path to the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
 	*/
 	void						setImageFile(const std::string& filename, const int flags = 0);
