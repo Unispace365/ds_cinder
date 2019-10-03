@@ -703,6 +703,22 @@ void tokenize(const std::string& input, const char delim, const std::function<vo
 	}
 }
 
+void to_lowercase(std::wstring& str) {
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+}
+
+void to_lowercase(std::string& str) {
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+}
+
+void to_uppercase(std::string& str) {
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
+void to_uppercase(std::wstring& str) {
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
 ci::vec3 parseVector(const std::string &s){
 	auto tokens = ds::split(s, ", ", true);
 	ci::vec3 v;

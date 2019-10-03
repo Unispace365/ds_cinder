@@ -102,6 +102,10 @@ void saveStringToFile( const std::wstring &filename, const std::wstring &src );
 void tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>&);
 void tokenize(const std::string& input, const std::function<void(const std::string&)>&);
 
+void to_lowercase(std::string& str);
+void to_lowercase(std::wstring& str);
+void to_uppercase(std::string& str);
+void to_uppercase(std::wstring& str);
 
 /// Parses a string into a 3d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
 /// Defaults parameters to 0 if they don't exist.
