@@ -481,6 +481,25 @@ struct CefMouseEventTraits {
 ///
 typedef CefStructBase<CefMouseEventTraits> CefMouseEvent;
 
+struct CefTouchEventTraits {
+  typedef cef_touch_event_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    *target = *src;
+  }
+};
+
+///
+// Class representing a touch event.
+///
+typedef CefStructBase<CefTouchEventTraits> CefTouchEvent;
+
 struct CefPopupFeaturesTraits {
   typedef cef_popup_features_t struct_type;
 
@@ -524,7 +543,9 @@ struct CefSettingsTraits {
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->browser_subprocess_path);
     cef_string_clear(&s->framework_dir_path);
+    cef_string_clear(&s->main_bundle_path);
     cef_string_clear(&s->cache_path);
+    cef_string_clear(&s->root_cache_path);
     cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
     cef_string_clear(&s->product_version);
@@ -534,18 +555,20 @@ struct CefSettingsTraits {
     cef_string_clear(&s->resources_dir_path);
     cef_string_clear(&s->locales_dir_path);
     cef_string_clear(&s->accept_language_list);
+    cef_string_clear(&s->application_client_id_for_file_scanning);
   }
 
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    target->single_process = src->single_process;
     target->no_sandbox = src->no_sandbox;
     cef_string_set(src->browser_subprocess_path.str,
                    src->browser_subprocess_path.length,
                    &target->browser_subprocess_path, copy);
     cef_string_set(src->framework_dir_path.str, src->framework_dir_path.length,
                    &target->framework_dir_path, copy);
+    cef_string_set(src->main_bundle_path.str, src->main_bundle_path.length,
+                   &target->main_bundle_path, copy);
     target->multi_threaded_message_loop = src->multi_threaded_message_loop;
     target->external_message_pump = src->external_message_pump;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
@@ -553,6 +576,8 @@ struct CefSettingsTraits {
 
     cef_string_set(src->cache_path.str, src->cache_path.length,
                    &target->cache_path, copy);
+    cef_string_set(src->root_cache_path.str, src->root_cache_path.length,
+                   &target->root_cache_path, copy);
     cef_string_set(src->user_data_path.str, src->user_data_path.length,
                    &target->user_data_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
@@ -585,6 +610,9 @@ struct CefSettingsTraits {
     cef_string_set(src->accept_language_list.str,
                    src->accept_language_list.length,
                    &target->accept_language_list, copy);
+    cef_string_set(src->application_client_id_for_file_scanning.str,
+                   src->application_client_id_for_file_scanning.length,
+                   &target->application_client_id_for_file_scanning, copy);
   }
 };
 
@@ -831,37 +859,6 @@ struct CefCookieTraits {
 // Class representing a cookie.
 ///
 typedef CefStructBase<CefCookieTraits> CefCookie;
-
-struct CefGeopositionTraits {
-  typedef cef_geoposition_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {
-    cef_string_clear(&s->error_message);
-  }
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->latitude = src->latitude;
-    target->longitude = src->longitude;
-    target->altitude = src->altitude;
-    target->accuracy = src->accuracy;
-    target->altitude_accuracy = src->altitude_accuracy;
-    target->heading = src->heading;
-    target->speed = src->speed;
-    target->timestamp = src->timestamp;
-    target->error_code = src->error_code;
-    cef_string_set(src->error_message.str, src->error_message.length,
-                   &target->error_message, copy);
-  }
-};
-
-///
-// Class representing a geoposition.
-///
-typedef CefStructBase<CefGeopositionTraits> CefGeoposition;
 
 struct CefCursorInfoTraits {
   typedef cef_cursor_info_t struct_type;

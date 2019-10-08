@@ -25,7 +25,6 @@ class WebHandler : public CefClient,
 	public CefLifeSpanHandler,
 	public CefLoadHandler,
 	public CefRenderHandler,
-	public CefGeolocationHandler,
 	public CefJSDialogHandler,
 	public CefFocusHandler,
 	public CefKeyboardHandler,
@@ -49,9 +48,6 @@ public:
 		return this;
 	}
 	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
 		return this;
 	}
 	virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE{
@@ -78,6 +74,7 @@ public:
 	virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
 	virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 	virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+
 	virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
 							   CefRefPtr<CefFrame> frame,
 							   const CefString& target_url,
@@ -88,7 +85,8 @@ public:
 							   CefWindowInfo& windowInfo,
 							   CefRefPtr<CefClient>& client,
 							   CefBrowserSettings& settings,
-							   bool* no_javascript_access);
+							   CefRefPtr<CefDictionaryValue>& extra_info,
+							   bool* no_javascript_access) OVERRIDE;
 
 	// CefLoadHandler methods:
 	virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -103,7 +101,7 @@ public:
 									  bool canGoForward) OVERRIDE;
 
 	// CefRenderHandler methods:
-	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+	virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
 	virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
 								int viewX,
 								int viewY,
@@ -121,7 +119,7 @@ public:
 	virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
 								CefCursorHandle cursor,
 								CursorType type,
-								const CefCursorInfo& custom_cursor_info);
+								const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
 	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
 							   CefRefPtr<CefDragData> drag_data,
@@ -130,26 +128,15 @@ public:
 		return true;
 	}
 	virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
-		const CefString& value);
+		const CefString& value) OVERRIDE;
 	virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
-		FocusSource source);
+		FocusSource source) OVERRIDE;
 	virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser,
-							 bool next);
+							 bool next) OVERRIDE;
 
 	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
 							const CefKeyEvent& event,
-							CefEventHandle os_event);
-
-	// CefGeolocationHandler methods:
-	// returning true allows access immediately
-	virtual bool OnRequestGeolocationPermission(
-		CefRefPtr<CefBrowser> browser,
-		const CefString& requesting_url,
-		int request_id,
-		CefRefPtr<CefGeolocationCallback> callback) {
-		callback->Continue(true);
-		return true;
-	}
+							CefEventHandle os_event) OVERRIDE;
 
 	// CefJSDialogHandler
 	// TODO: Callback to UI and optionally handle
@@ -166,7 +153,7 @@ public:
 	}
 
 	virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-									CefRefPtr<CefFrame> frame,
+									const CefString& origin_url,
 									bool isProxy,
 									const CefString& host,
 									int port,
