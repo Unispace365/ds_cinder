@@ -75,8 +75,10 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		if(mLinkedPDF){
 			if(mLinkedPDF->isEnabled()){
 				mLinkedPDF->enable(false);
+				mLinkedPDF->hideLinks();
 			} else {
 				mLinkedPDF->enable(true);
+				mLinkedPDF->showLinks();
 			}
 			updateWidgets();
 		}
@@ -141,7 +143,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 }
 
-void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource){
+void PDFInterface::linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource){
 	mLinkedPDF = linkedPDF;
 	mSourceResource = sourceResource;
 	if(mLinkedPDF){
