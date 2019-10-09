@@ -353,6 +353,7 @@ void ContentQuery::updateResourceCache() {
 				}
 			}
 		}
+		sqlite3_close_v2(db);
 	} else {
 		DS_LOG_ERROR("ContentQuery:updateResourceQuery Unable to access the database "
 				<< mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
@@ -558,6 +559,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 					}
 				}
 			}
+			sqlite3_close_v2(db);
 		} else {
 			DS_LOG_ERROR("ContentQuery: Unable to access the database " << dbPath << " (SQLite error "
 																		<< sqliteResultCode << ")." << std::endl);
@@ -619,7 +621,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, cons
 
 			// parentModel.addChild("tables", thisTable);
 		}
-
+		sqlite3_close_v2(db);
 	} else {
 		DS_LOG_ERROR("ContentQuery: Unable to access the database " << dbPath << " (SQLite error " << sqliteResultCode
 																	<< ")." << std::endl);
