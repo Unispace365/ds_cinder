@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a366d32d99f319bec553d0f3cee2c98fd6ab4501$
+// $hash=c1afd088ce7dd292c2d4e057bac6050e8da00880$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_EXTENSION_HANDLER_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefExtensionHandlerCppToC
                                  cef_extension_handler_t> {
  public:
   CefExtensionHandlerCppToC();
+  virtual ~CefExtensionHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_EXTENSION_HANDLER_CPPTOC_H_

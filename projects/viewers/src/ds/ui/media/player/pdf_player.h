@@ -4,10 +4,10 @@
 
 #include <ds/data/resource.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/ui/sprite/pdf.h>
 
 namespace ds {
 namespace ui {
-class Pdf;
 class MediaInterface;
 class PDFInterface;
 struct MediaViewerSettings;
@@ -19,9 +19,9 @@ struct MediaViewerSettings;
  *					that has a children vector of resources of the thumbnails set, and the children need to have the correct parentIndex
  *(i.e. page number) set.
  */
-class PDFPlayer : public ds::ui::Sprite {
+class PDFPlayer : public ds::ui::IPdf {
   public:
-	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true, bool cachePrevNext = true);
+	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
 
 	void setMedia(const std::string mediaPath);
 	void setResource(const ds::Resource mediaResource);
@@ -34,10 +34,29 @@ class PDFPlayer : public ds::ui::Sprite {
 	void		  hideInterface();
 	PDFInterface* getPDFInterface() { return mPdfInterface; }
 
-	ds::ui::Pdf* getPDF();
+	/// This is provided primarily for backwards-compatibility
+	/// In the past, there used to only be 1 pdf sprite associated with each player
+	/// Now, we use this to load a series of pages
+	/// So you can use this sprite as the interface for the underlying pdf functions
+	ds::ui::IPdf* getPDF() {return this;}
 
+	/// For legacy uses - this is the same as goToNextPage()
 	void nextPage();
+	/// For legacy uses - this is the same as goToPreviousPage()
 	void prevPage();
+
+	// PDF API
+	/** Displays the page given, from 1 to getPageCount() */
+	virtual void				setPageNum(const int pageNum) override;
+	/** Returns the page currently being displayed, 1-indexed (page 1 is the first page, there is no page 0) */
+	virtual int					getPageNum() const override;
+	/** Returns the number of pages in this document. PDF's are 1-indexed, so the number returned from this function can be set as the last page */
+	virtual int					getPageCount() const override;
+
+	/** Advance the current page by 1, does not wrap */
+	virtual void				goToNextPage() override;
+	/** Decrement the current page by 1, does not wrap */
+	virtual void				goToPreviousPage() override;
 
 	void setGoodStatusCallback(std::function<void()> func) { mGoodStatusCallback = func; }
 	void setErrorCallback(std::function<void(const std::string&)> func) { mErrorMsgCallback = func; }
@@ -49,27 +68,35 @@ class PDFPlayer : public ds::ui::Sprite {
 	void setSizeChangedCallback(std::function<void(const ci::vec2& size)> func) { mSizeChangedCallback = func; }
 	void setLetterbox(const bool doLetterbox);
 
+	virtual void setPageChangeCallback(std::function<void()> func) override { mPageChangeCallback = func; }
+
+	virtual void showLinks();
+	virtual void hideLinks();
+
   protected:
 	virtual void	onSizeChanged();
-	void			loadNextAndPrevPages();
-	ds::ui::Pdf*	mPDF;
-	ds::ui::Sprite* mPDFNextHolder;
-	ds::ui::Sprite* mPDFPrevHolder;
-	ds::Resource	mSourceResource;
 
-	bool		 mFirstPageLoaded;
-	int			 mCurrentPage;  // for displaying the next/back thing
-	ds::ui::Pdf* mPDFNext;
-	ds::ui::Pdf* mPDFPrev;
-	bool		 mNextReady;
-	bool		 mPrevReady;
+	void loadNextPage();
+
+	std::map<int, ds::ui::Pdf*> mPages;
+	ds::Resource	mSourceResource;
+	std::string		mResourceFilename;
+
+	int			mCurrentPage = 0;
+	int			mLoadedPage = 0;
+	int			mLoadingCount = 0;
+	int			mNumPages = 0;
+	int			mRenderAheadPages = 3;
 
 	PDFInterface*							mPdfInterface;
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
 	bool									mInterfaceBelowMedia;
 	bool									mLetterbox;
-	bool									mAutoCachePrevNext;
+	bool									mShowingLinks = false;
+	bool									mCanShowLinks = true;
+
+	std::function<void(void)>				mPageChangeCallback;
 	std::function<void(void)>				mGoodStatusCallback;
 	std::function<void(const ci::vec2&)>	mSizeChangedCallback;
 	std::function<void(const std::string&)> mErrorMsgCallback;

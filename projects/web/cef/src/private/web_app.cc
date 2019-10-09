@@ -104,7 +104,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);
 		// Create the first browser window.
-		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
+		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL, NULL);
 	} else {
 		DS_LOG_WARNING("No handler exists when trying to create a browser!");
 	}

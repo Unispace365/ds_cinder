@@ -10,7 +10,7 @@ namespace ui {
 
 class ImageButton;
 class Text;
-class Pdf;
+class IPdf;
 class ThumbnailBar;
 class VideoScrubBar;
 
@@ -24,7 +24,7 @@ class PDFInterface : public MediaInterface  {
 public:
 	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
-	void						linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource);
+	void						linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource);
 	void						updateWidgets();
 	void						setPageFont(std::string fontName, float fontSize);
 
@@ -44,7 +44,7 @@ protected:
 	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;
 	virtual void				onLayout();
 
-	ds::ui::Pdf*				mLinkedPDF;
+	ds::ui::IPdf*				mLinkedPDF;
 	ds::Resource				mSourceResource;
 	bool						mLinkedEnabled;
 

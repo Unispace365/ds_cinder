@@ -728,14 +728,14 @@
     <ClCompile Include="src\private\web_service.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
-    <ClCompile Include="src\private\web_handler.cc">
-      <Filter>src\private</Filter>
-    </ClCompile>
     <ClCompile Include="src\private\web_app.cc">
       <Filter>src\private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\stdafx.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\web_handler.cpp">
+      <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

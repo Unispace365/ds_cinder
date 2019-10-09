@@ -245,7 +245,7 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\web.cpp" />
     <ClCompile Include="src\private\web_app.cc" />
-    <ClCompile Include="src\private\web_handler.cc" />
+    <ClCompile Include="src\private\web_handler.cpp" />
     <ClCompile Include="src\private\web_service.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
