@@ -1519,6 +1519,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		}
 		if (keyboardType == "lowercase") {
 			spriddy = SoftKeyboardBuilder::buildLowercaseKeyboard(engine, sks);
+		} else if (keyboardType == "uppercase") {
+			spriddy = SoftKeyboardBuilder::buildUppercaseKeyboard(engine, sks);
 		} else if (keyboardType == "pinpad") {
 			spriddy = SoftKeyboardBuilder::buildPinPadKeyboard(engine, sks);
 		} else if (keyboardType == "pincode") {
