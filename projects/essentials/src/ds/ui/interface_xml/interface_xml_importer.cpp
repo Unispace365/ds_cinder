@@ -1092,6 +1092,14 @@ void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* 
 					eventy->mUserSize = parseVector(paramValue);
 				}
 			}
+			else {
+				if (tokens[i] == "click_data") {
+					auto click_data = bs->getUserData().getString("_click_data", 0, "");
+					if (!click_data.empty()) {
+						eventy->mUserStringData = click_data;
+					}
+				}
+			}
 		}
 		eventy->mSpriteOriginator = bs;
 		eventy->mEventOrigin	  = globalPos;
