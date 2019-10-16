@@ -1090,11 +1090,8 @@ void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* 
 					eventy->mUserId = ds::string_to_int(paramValue);
 				} else if (paramType == "user_size") {
 					eventy->mUserSize = parseVector(paramValue);
-				}
-			}
-			else {
-				if (tokens[i] == "click_data") {
-					auto click_data = bs->getUserData().getString("_click_data", 0, "");
+				} else if (paramType == "user_data") {
+					auto click_data = bs->getUserData().getString(paramValue, 0, "");
 					if (!click_data.empty()) {
 						eventy->mUserStringData = click_data;
 					}
