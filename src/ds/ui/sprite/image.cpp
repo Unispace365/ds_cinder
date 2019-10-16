@@ -224,9 +224,37 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 		}
 	});
 
-	if(mCircleCropCentered) {
+	if (mCircleCropCentered) {
 		circleCropAutoCenter();
 	}
+}
+
+void Image::setImageUrl(const std::string& url, const int flags) {
+	if (mFilename == url && mFlags == flags) {
+		return;
+	}
+
+	mEngine.getLoadImageService().release(mFilename, this);
+
+	mFilename = "";
+	mFlags = flags;
+
+	imageChanged();
+
+	mEngine.getLoadImageService().acquire(url, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
+		mTextureRef = tex;
+		if (error) {
+			mErrorMsg = errorMsg;
+			setStatus(Status::STATUS_EMPTY);
+		} else {
+			checkStatus();
+
+			// hold off on circle cropping until image is loaded as there is no meta data
+			if (mCircleCropCentered) {
+				circleCropAutoCenter();
+			}
+		}
+	});
 }
 
 void Image::setImageResource(const ds::Resource& r, const int flags) {

@@ -13,6 +13,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/util/text_model.h>
 #include <ds/util/string_util.h>
+#include <ds/util/file_meta_data.h>
 
 
 namespace ds {
@@ -99,17 +100,23 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if(cache) {
-			sprI->setImageFile(imagePath, ds::ui::Image::IMG_CACHE_F);
+		const auto expandedPath = ds::Environment::expand(imagePath);
+		const auto flags = cache ? ds::ui::Image::IMG_CACHE_F : 0;
+
+		if (ds::safeFileExistsCheck(expandedPath)) {
+			sprI->setImageFile(expandedPath, flags);
 		} else {
-			sprI->setImageFile(imagePath);
+			// path does not exist, attempt to load as url
+			sprI->setImageUrl(imagePath, flags);
+
+			// url does not contain meta data, so layout once image has been loaded
+			sprI->setStatusCallback([this](const ds::ui::Image::Status &status) {
+				if (status.mCode == ds::ui::Image::Status::STATUS_LOADED)
+					mNeedsLayout = true;
+			});
 		}
 
-		sprI->setStatusCallback([this](const ds::ui::Image::Status &status) {
-			if (status.mCode == ds::ui::Image::Status::STATUS_LOADED) {
-				mNeedsLayout = true;
-			}
-		});
+		mNeedsLayout = true;
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
