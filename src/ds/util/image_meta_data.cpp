@@ -152,55 +152,50 @@ bool						get_format_jpg(const std::string& filename, ci::vec2& outSize) {
 void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) {
 	try {
 		if (filename.empty()) return;
-		// Just load the image to get the dimensions -- this will incur what is
-		// unnecessarily overhead in one situation (I am in client/server mode),
-		// but is otherwise the right thing to do.
-		const Poco::File file(filename);
 
-		if(!ds::safeFileExistsCheck(filename)){
-			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
-			return;
-		}
+		// check to see if path exists
+		if (ds::safeFileExistsCheck(filename)) {
+			// Just load the image to get the dimensions -- this will incur what is
+			// unnecessarily overhead in one situation (I am in client/server mode),
+			// but is otherwise the right thing to do.
 
-		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
+			DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
 
-		auto s = ci::Surface8u(ci::loadImage(filename));
-		if(s.getData()) {
-			outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
-		} else {
-			DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
-			outSize = ci::vec2();
-		}
-	} catch (std::exception const& ex) {
-		bool errored = true;
-
-		// try to load it from the web
-		try {
-			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
-			if(s.getData()) {
+			auto s = ci::Surface8u(ci::loadImage(filename));
+			if (s.getData()) {
 				outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
-				errored = false;
 			} else {
 				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
 				outSize = ci::vec2();
 			}
-		} catch(ci::StreamExc&){
-			DS_LOG_WARNING_M("ImageMetaData stream exception loading file from url (" << filename << ")", GENERAL_LOG);
-			
-		} catch(std::exception const& extwo){
-			if(extwo.what()) {
-				DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
-			} else {
-				DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ")", GENERAL_LOG);
+		} else if (filename.find("http") == 0) {
+			// try to load it from the web
+			try {
+				auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
+				if (s.getData()) {
+					outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+				} else {
+					DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
+					outSize = ci::vec2();
+				}
+			} catch (ci::StreamExc&) {
+				DS_LOG_WARNING_M("ImageMetaData stream exception loading file from url (" << filename << ")", GENERAL_LOG);
+			} catch (std::exception const& extwo) {
+				if (extwo.what()) {
+					DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
+				} else {
+					DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ")", GENERAL_LOG);
+				}
 			}
-		}
-
-		if(errored){
-			if(ex.what()) {
-				DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
-			} else {
-				DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ")", GENERAL_LOG);
-			}
+		} else {
+			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
+			return;
+		} 
+	} catch (std::exception const& ex) {
+		if(ex.what()) {
+			DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+		} else {
+			DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ")", GENERAL_LOG);
 		}
 	}
 }
@@ -319,10 +314,10 @@ private:
 			DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
 		}
 
-		// 3. let's see if there's exif data
+		// 3. let's see if there's exif data if path exists
 		int outW = 0;
 		int outH = 0;
-		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
+		if (ds::safeFileExistsCheck(fn) && ds::ExifHelper::getImageSize(fn, outW, outH)){
 			DS_LOG_VERBOSE(7, "ImageAttsCache got exif image size " << outW << "x" << outH << " for " << fn);
 			return ImageAtts(ci::vec2(static_cast<float>(outW), static_cast<float>(outH)));
 		}

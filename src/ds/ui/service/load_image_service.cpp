@@ -220,8 +220,13 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		}
 
 		try {
-			auto isr = ci::loadImage(nextImage.mFilePath);
+			ci::ImageSourceRef isr;
 
+			try {
+				isr = ci::loadImage(nextImage.mFilePath);
+			} catch (std::exception excp) {
+				isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
+			}
 
 			/// once we have the surface in main-thread mode, bail out
 			if(mTextureOnMainThread && isr) {
@@ -231,9 +236,6 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				mLoadedRequests.emplace_back(nextImage);
 				continue;
 			}
-
-			// TODO: re-implement url loading
-			//		isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
 
 			ci::gl::Texture::Format fmt;
 			if ((nextImage.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
