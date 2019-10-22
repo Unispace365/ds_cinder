@@ -254,6 +254,11 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->hide();
 					}
+				} else if (sprPropToSet.find("_",0)==0) {
+					auto click_data = theNode.getPropertyString(theProp);
+					if (!click_data.empty()) {
+						child->getUserData().setString(sprPropToSet, click_data);
+					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);
 

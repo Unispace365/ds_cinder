@@ -146,10 +146,14 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
 * **Custom event parameters:** You can apply certain parameters to each event dispatched from a layout xml: Data, Id, and UserSize. Pass these properties to the event like so:
 
         RequestCustomEvent; data:myCustomStringData; id:1234; user_size:400, 300, 1;
+	data can also be set from the sprite's userData cache by using the user_data parameter and a key to a string in the userData collection:
+
+         RequestCustomEvent; user_data:keyInUserData; id:1234; user_size:400, 300, 1;
+	This can be combined with the model property's ability to set model data in the userData cache. See the ContentModel and SmartLayout section for details.
 
 * **Multiple events:** Send multiple events from the same button press by wrapping each event in brackets and separating them by commas. Do not use spaces between events. Example:
 
-        on_tap_event="{RequestCloseAllEvent},{RequestMediaOpenEvent; data:%APP%/data/temp/test.pdf; user_size:900},{RequestLayoutEvent}"
+        on_tap_event="{RequestCloseAllEvent},{RequestMediaOpenEvent; data:%APP%/data/temp/test.pdf; user_size:900},{RequestLayoutEvent; user_data:data_key}"
 
 * **Handling events:** The app will need to handle the events like normal using an event client and handling the app event. The parameters described above are automatically applied to the Event by the xml importer and you can access them through the event:
 
@@ -601,7 +605,10 @@ If you're using ds::model::ContentModelRef for your data model and queries (see 
 
 * **model**: String, colon-separated sprite parameters, semi-colon and space separated for multiple settings.
 
-**Syntax**: {sprite property}:{content model reference}->{content model property}.
+**Syntax**:  
+{sprite property}:{content model reference}->{content model property}.  
+or
+{_userData key}:{content model reference}->{content model property}. 
 
 **Example**: 
 
@@ -612,7 +619,9 @@ If you're using ds::model::ContentModelRef for your data model and queries (see 
 	/>
 ```
 
-When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking. 
+When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking.  
+
+You can also set a key in the userData cache by beginning the key name with and underscore. The underscore is part of the key so if you retrieve it elsewhere be sure to include it. this is intended to be used with on_click_event and on_tap_event, but it may have other uses.
 
 The second part of the syntax is the **content model reference**. Typically you'll use the "this" value, which indicates the current ContentModelRef for this SmartLayout. You can also access any level of children that can be accessed through mContentModel.getChildByName(""), such as "slide.theme" or "sqlite.settings".
 
@@ -643,6 +652,18 @@ addChildPtr(mySlide);
 		/>
 </layout>
 ```
+Connecting the model and events
+---------------------------
+An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache. 
+
+```XML
+<layout_button name="button"
+    model="_type:this->sensor_type"
+    on_click_event="{SelectSensorEvent; user_data:_type}"
+/>
+```
+
+in this example this->sensor_type is being stored in the layout_button's userData cache with the key '_type' and when the on_click_event is fired, it will look up that value in the cache and send a SelectSensorEvent with the value stored in the cache in it's Data property.
 
 `text_model` & `text_model_format`
 ----------------------------------
