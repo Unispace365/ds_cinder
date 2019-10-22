@@ -69,9 +69,9 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteFont(const std::string& spriteName, const std::string& textCfgName);
 
 	/// Set the image file for an Image sprite with name of spriteName. Image path is automatically expanded
-	void setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache = false, bool useMetaData = true);
+	void setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache = false, bool skipMetaData = false);
 	/// Set the image resource for an Image sprite with name of spriteName.
-	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache = false, bool useMetaData = true);
+	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache = false, bool skipMetaData = false);
 
 	/// Set the tap function on a sprite named spriteName
 	void setSpriteTapFn(const std::string&											 spriteName,

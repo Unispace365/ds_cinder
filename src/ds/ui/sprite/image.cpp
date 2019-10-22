@@ -202,7 +202,7 @@ Image::~Image() {
 	mEngine.getLoadImageService().release(mFilename, this);
 }
 
-void Image::setImageFile(const std::string& filename, const int flags, const bool useMetaData) {
+void Image::setImageFile(const std::string& filename, const int flags) {
 	if(mFilename == filename && mFlags == flags) {
 		return;
 	}
@@ -217,9 +217,9 @@ void Image::setImageFile(const std::string& filename, const int flags, const boo
 
 	mFlags = flags;
 
-	imageChanged(useMetaData);
+	imageChanged();
 
-	mEngine.getLoadImageService().acquire(mFilename, flags, this, [this, useMetaData](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
+	mEngine.getLoadImageService().acquire(mFilename, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
 		mTextureRef = tex;
 		if(error) {
 			mErrorMsg = errorMsg;
@@ -227,7 +227,7 @@ void Image::setImageFile(const std::string& filename, const int flags, const boo
 		} else {
 			checkStatus();
 
-			if (!useMetaData && mCircleCropCentered) {
+			if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
 				circleCropAutoCenter();
 			}
 		}
@@ -238,19 +238,19 @@ void Image::setImageFile(const std::string& filename, const int flags, const boo
 	}
 }
 
-void Image::setImageResource(const ds::Resource& r, const int flags, const bool useMetaData) {
+void Image::setImageResource(const ds::Resource& r, const int flags) {
 	mResource = r;
 
-	setImageFile(r.getAbsoluteFilePath(), flags, useMetaData);
+	setImageFile(r.getAbsoluteFilePath(), flags);
 }
 
-void Image::setImageResource(const ds::Resource::Id& rid, const int flags, const bool useMetaData) {
+void Image::setImageResource(const ds::Resource::Id& rid, const int flags) {
 	if(!rid.empty()) {
 		mEngine.getResources().get(rid, mResource);
 	}
 
 	if(!mResource.empty()) {
-		setImageResource(mResource, flags, useMetaData);
+		setImageResource(mResource, flags);
 	} else {
 		DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << rid.mValue);
 	}
@@ -286,7 +286,7 @@ void Image::clearImage() {
 	mTextureRef = nullptr;
 	mFilename = "";
 	mResource = ds::Resource();
-	imageChanged(false);
+	imageChanged();
 }
 
 void Image::setSize(float width, float height) {
@@ -357,14 +357,14 @@ bool Image::isLoadedPrimary() const {
 	return isLoaded();
 }
 
-void Image::imageChanged(bool useMetaData) {
+void Image::imageChanged() {
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
 	// Make my size match
 	ImageMetaData		d;
-	if(useMetaData && getMetaData(d) && !d.empty()) {
+	if(!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
 		// Metadata not found, reset all internal states

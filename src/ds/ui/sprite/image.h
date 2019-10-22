@@ -24,6 +24,8 @@ public:
 	static const int			IMG_PRELOAD_F = (1<<1);
 	/// Enable mipmapping. This only applies to an image source, so being here is weird.
 	static const int			IMG_ENABLE_MIPMAP_F = (1<<2);
+	/// Skip using metadata to size image sprite before loading
+	static const int			IMG_SKIP_METADATA_F = (1<<3);
 
 	
 	static Image&				makeImage(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
@@ -41,23 +43,20 @@ public:
 	/** Loads an image based on the filename.
 	* \param filename is the file path or url to the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
-	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	void						setImageFile(const std::string& filename, const int flags = 0, const bool useMetaData = true);
+	void						setImageFile(const std::string& filename, const int flags = 0);
 
 	/** Loads an image based on the resource.
 	* \param resource is the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
-	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0, const bool useMetaData = true);
+	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0);
 
 	/** Loads an image based on the resource id.
 	* \param resourceId is the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
-	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0, const bool useMetaData = true);
+	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
 
 	/// Returns the absolute image path, even if the image was set by resource 
 	const std::string&			getImageFilename() { return mFilename; }
@@ -128,7 +127,7 @@ protected:
 
 private:
 	void						checkStatus();
-	void						imageChanged(const bool useMetaData = true);
+	void						imageChanged();
 	void						setStatus(const int);
 	void						doOnImageLoaded();
 	void						doOnImageUnloaded();
