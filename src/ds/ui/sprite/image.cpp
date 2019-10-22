@@ -358,6 +358,8 @@ bool Image::isLoadedPrimary() const {
 }
 
 void Image::imageChanged() {
+	if (mEngine.getMode() == mEngine.CLIENT_MODE) return;
+
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
