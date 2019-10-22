@@ -652,6 +652,18 @@ addChildPtr(mySlide);
 		/>
 </layout>
 ```
+Connecting the model and events
+---------------------------
+An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache. 
+
+```XML
+<layout_button name="button"
+    model="_type:this->sensor_type"
+    on_click_event="{SelectSensorEvent; user_data:_type}"
+/>
+```
+
+in this example this->sensor_type is being stored in the layout_button's userData cache with the key '_type' and when the on_click_event is fired, it will look up that value in the cache and send a SelectSensorEvent with the value stored in the cache in it's Data property.
 
 `text_model` & `text_model_format`
 ----------------------------------
