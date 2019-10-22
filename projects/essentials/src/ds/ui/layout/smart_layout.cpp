@@ -13,6 +13,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/util/text_model.h>
 #include <ds/util/string_util.h>
+#include <ds/util/file_meta_data.h>
 
 
 namespace ds {
@@ -95,32 +96,46 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache, bool skipMetaData) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if(cache) {
-			sprI->setImageFile(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
+		int flags = 0;
+		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
+		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+
+		sprI->setImageFile(imagePath, flags);
+
+		if (skipMetaData) {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
+				mNeedsLayout = true;
+			});
 		} else {
-			sprI->setImageFile(ds::Environment::expand(imagePath));
+			mNeedsLayout = true;
 		}
-		mNeedsLayout = true;
+		
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache, bool skipMetaData) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if (cache) {
-			sprI->setImageResource(imageResource,
-								   ds::ui::Image::IMG_CACHE_F);  // | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
+		int flags = 0;
+		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
+		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+
+		sprI->setImageResource(imageResource, flags);
+
+		if (skipMetaData) {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
+				mNeedsLayout = true;
+			});
 		} else {
-			sprI->setImageResource(imageResource);
+			mNeedsLayout = true;
 		}
-		mNeedsLayout = true;
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
@@ -253,6 +268,11 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 						child->show();
 					} else {
 						child->hide();
+					}
+				} else if (sprPropToSet.find("_",0)==0) {
+					auto click_data = theNode.getPropertyString(theProp);
+					if (!click_data.empty()) {
+						child->getUserData().setString(sprPropToSet, click_data);
 					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);

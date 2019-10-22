@@ -209,7 +209,12 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 
 	mEngine.getLoadImageService().release(mFilename, this);
 
-	mFilename = ds::Environment::expand(filename);
+	if (filename.find("http") == 0) {
+		mFilename = filename;
+	} else {
+		mFilename = ds::Environment::expand(filename);
+	}
+
 	mFlags = flags;
 
 	imageChanged();
@@ -221,10 +226,14 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 			setStatus(Status::STATUS_EMPTY);
 		} else {
 			checkStatus();
+
+			if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
+				circleCropAutoCenter();
+			}
 		}
 	});
 
-	if(mCircleCropCentered) {
+	if (mCircleCropCentered) {
 		circleCropAutoCenter();
 	}
 }
@@ -349,13 +358,15 @@ bool Image::isLoadedPrimary() const {
 }
 
 void Image::imageChanged() {
+	if (mEngine.getMode() == mEngine.CLIENT_MODE) return;
+
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
 	// Make my size match
 	ImageMetaData		d;
-	if(getMetaData(d) && !d.empty()) {
+	if(!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
 		// Metadata not found, reset all internal states
