@@ -96,31 +96,35 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache, bool useMetaData) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if (cache) {
-			sprI->setImageFile(imagePath, ds::ui::Image::IMG_CACHE_F);
-		} else {
-			sprI->setImageFile(imagePath);
+		if (!useMetaData) {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
+				mNeedsLayout = true;
+			});
 		}
+		const int flags = cache ? ds::ui::Image::IMG_CACHE_F : 0;
+		sprI->setImageFile(imagePath, flags, useMetaData);
 		mNeedsLayout = true;
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache, bool useMetaData) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		if (cache) {
-			sprI->setImageResource(imageResource,
-								   ds::ui::Image::IMG_CACHE_F);  // | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
-		} else {
-			sprI->setImageResource(imageResource);
+		if (!useMetaData) {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
+				mNeedsLayout = true;
+			});
 		}
+
+		const int flags = cache ? ds::ui::Image::IMG_CACHE_F : 0;
+		sprI->setImageResource(imageResource, flags, useMetaData);
 		mNeedsLayout = true;
 	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);

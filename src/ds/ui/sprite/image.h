@@ -41,20 +41,23 @@ public:
 	/** Loads an image based on the filename.
 	* \param filename is the file path or url to the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	void						setImageFile(const std::string& filename, const int flags = 0);
+	void						setImageFile(const std::string& filename, const int flags = 0, const bool useMetaData = true);
 
 	/** Loads an image based on the resource.
 	* \param resource is the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0);
+	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0, const bool useMetaData = true);
 
 	/** Loads an image based on the resource id.
 	* \param resourceId is the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
+	* \param useMetaData flag will resize sprite based on metadata, otherwise will wait to size until image texture has loaded
 	*/
-	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
+	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0, const bool useMetaData = true);
 
 	/// Returns the absolute image path, even if the image was set by resource 
 	const std::string&			getImageFilename() { return mFilename; }
@@ -125,7 +128,7 @@ protected:
 
 private:
 	void						checkStatus();
-	void						imageChanged();
+	void						imageChanged(const bool useMetaData = true);
 	void						setStatus(const int);
 	void						doOnImageLoaded();
 	void						doOnImageUnloaded();
