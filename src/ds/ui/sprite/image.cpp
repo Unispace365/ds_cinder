@@ -394,7 +394,6 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 	if (mDirty.has(IMG_CROP_DIRTY)) {
 		buf.add(IMG_CROP_ATT);
 		buf.add(mCircleCropped);
-		buf.add(mCircleCropCentered);
 		buf.add(mShaderExtraData.x);
 		buf.add(mShaderExtraData.y);
 		buf.add(mShaderExtraData.z);
@@ -422,8 +421,6 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	} else if (attributeId == IMG_CROP_ATT) {
 		mCircleCropped = buf.read<bool>();
 		setCircleCrop(mCircleCropped);
-		mCircleCropCentered = buf.read<bool>();
-		if (mCircleCropCentered) circleCropAutoCenter();
 		mShaderExtraData.x = buf.read<float>();
 		mShaderExtraData.y = buf.read<float>();
 		mShaderExtraData.z = buf.read<float>();
