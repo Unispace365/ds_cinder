@@ -1090,6 +1090,11 @@ void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* 
 					eventy->mUserId = ds::string_to_int(paramValue);
 				} else if (paramType == "user_size") {
 					eventy->mUserSize = parseVector(paramValue);
+				} else if (paramType == "user_data") {
+					auto click_data = bs->getUserData().getString(paramValue, 0, "");
+					if (!click_data.empty()) {
+						eventy->mUserStringData = click_data;
+					}
 				}
 			}
 		}
@@ -1519,6 +1524,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		}
 		if (keyboardType == "lowercase") {
 			spriddy = SoftKeyboardBuilder::buildLowercaseKeyboard(engine, sks);
+		} else if (keyboardType == "uppercase") {
+			spriddy = SoftKeyboardBuilder::buildUppercaseKeyboard(engine, sks);
 		} else if (keyboardType == "pinpad") {
 			spriddy = SoftKeyboardBuilder::buildPinPadKeyboard(engine, sks);
 		} else if (keyboardType == "pincode") {

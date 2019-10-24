@@ -24,6 +24,8 @@ public:
 	static const int			IMG_PRELOAD_F = (1<<1);
 	/// Enable mipmapping. This only applies to an image source, so being here is weird.
 	static const int			IMG_ENABLE_MIPMAP_F = (1<<2);
+	/// Skip using metadata to size image sprite before loading
+	static const int			IMG_SKIP_METADATA_F = (1<<3);
 
 	
 	static Image&				makeImage(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
@@ -39,7 +41,7 @@ public:
 	virtual ~Image();
 
 	/** Loads an image based on the filename.
-	* \param filename is the absolute file path to the resource.
+	* \param filename is the file path or url to the resource.
 	* \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
 	*/
 	void						setImageFile(const std::string& filename, const int flags = 0);
@@ -62,7 +64,7 @@ public:
 	/// Returns the ds::Resource if it was set as a full resource or as an id. 
 	ds::Resource				getImageResource() { return mResource; }
 
-	/// Returns the loaded image, if not loaded returns an emptry ref (nullptr) 
+	/// Returns the loaded image, if not loaded returns an empty ref (nullptr) 
 	const ci::gl::TextureRef	getImageTexture() {	return mTextureRef; }
 
 	/// Clears the image from this sprite. Removes a reference in the image store if not cached 
