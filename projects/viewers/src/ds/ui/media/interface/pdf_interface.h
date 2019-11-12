@@ -39,6 +39,9 @@ public:
 	ds::ui::Text*				getPageCounter() { return mPageCounter; }
 	ds::ui::Sprite*				getScrubBarBackground();
 
+	void						toggleTouch(); // what the "touch lock" does
+	void						startTouch(); // pdf is tappable to go forwards/back
+	void						stopTouch(); // pdf is not tappable
 
 protected:
 	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;

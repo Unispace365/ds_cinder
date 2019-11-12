@@ -120,14 +120,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mTouchToggle = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/touch_unlocked.png", "%APP%/data/images/media_interface/touch_unlocked.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mTouchToggle);
 	mTouchToggle->setClickFn([this](){
-		if(mLinkedWeb){
-			if(mLinkedWeb->isEnabled()){
-				mLinkedWeb->enable(false);
-			} else {
-				mLinkedWeb->enable(true);
-			}
-			updateWidgets();
-		}
+		toggleTouch();
 	});
 
 	mTouchToggle->getNormalImage().setColor(buttonColor);
@@ -532,6 +525,32 @@ void WebInterface::showKeyboard(bool show) {
 
 void WebInterface::toggleKeyboard() {
 	showKeyboard(!mKeyboardShowing);
+}
+
+void WebInterface::toggleTouch() {
+	if(mLinkedWeb) {
+		if(mLinkedWeb->isEnabled()) {
+			stopTouch();
+		} else {
+			startTouch();
+		}
+	}
+}
+
+void WebInterface::startTouch() {
+	if(mLinkedWeb) {
+		mLinkedWeb->enable(true);
+	}
+	updateWidgets();
+
+}
+
+void WebInterface::stopTouch() {
+	if(mLinkedWeb) {
+		mLinkedWeb->enable(false);
+	}
+	updateWidgets();
+
 }
 
 } // namespace ui
