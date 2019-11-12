@@ -150,12 +150,6 @@
     <ClInclude Include="include\cef_frame.h">
       <Filter>cef</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_geolocation.h">
-      <Filter>cef</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cef_geolocation_handler.h">
-      <Filter>cef</Filter>
-    </ClInclude>
     <ClInclude Include="include\cef_image.h">
       <Filter>cef</Filter>
     </ClInclude>
