@@ -280,6 +280,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		//Need to manual flip image.  The flip() function of the ci::Texture element doesn't work with shaders.
 		ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
 		ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
+		ci::gl::clear(ci::ColorA(0.f, 0.f, 0.f, 0.f), true);
 	}
 
 	mSpriteShader.loadShaders();	
