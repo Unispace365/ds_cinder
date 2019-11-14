@@ -7,6 +7,18 @@
 namespace ds {
 namespace ui {
 namespace {
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+			e.installSprite([](ds::BlobRegistry& r) {ds::ui::LineSprite::installAsServer(r); },
+				            [](ds::BlobRegistry& r) {ds::ui::LineSprite::installAsClient(r); });
+		});
+	}
+};
+
+Init INIT;
+
 char BLOB_TYPE = 0;
 
 const DirtyState& POINTS_DIRTY		= INTERNAL_A_DIRTY;
@@ -232,6 +244,34 @@ void LineSprite::setMiterLimit(const float miterLimit) {
 	markAsDirty(MITER_LIMIT_DIRTY);
 }
 
+ci::vec2 LineSprite::getPointAtPercentage(float percentage) {
+	if (mPoints.empty()) return ci::vec2(0.f);
+	// handle our edge cases
+	if (percentage <= 0.f) return mPoints[0];
+	if (percentage >= 1.f) return mPoints[mPoints.size() - 1];
+	// get our target percentage length, then iterate
+	auto percentageLength = mLineLength * percentage;
+	auto currentSumLength = 0.f;
+	std::vector<ci::vec2> pointsToInterpolate;
+	for (size_t index = 1; index < mPoints.size(); index++) {
+		auto thisPoint = mPoints[index];
+		auto prevPoint = mPoints[index - 1];
+		currentSumLength += glm::distance(thisPoint, prevPoint);
+		// if the percentage length and the current summed length match,
+		// congrats, we found a point directly in our point set and don't need to interpolate.
+		if (percentageLength == currentSumLength) return thisPoint;
+		if (currentSumLength > percentageLength) {
+			pointsToInterpolate = { prevPoint, thisPoint };
+			break;
+		}
+	}
+	// now we interpolate between our two points surrounding our percentage
+	auto distance = glm::distance(pointsToInterpolate[1], pointsToInterpolate[0]);
+	auto targetDistance = distance - (currentSumLength - percentageLength);
+	auto normalizedDirection = glm::normalize(pointsToInterpolate[1] - pointsToInterpolate[0]);
+	return normalizedDirection * targetDistance + pointsToInterpolate[0];
+}
+
 void LineSprite::buildVbo() {
 	auto localPoints = mPoints;
 	if (mSmoothSpline) {
@@ -251,9 +291,9 @@ void LineSprite::buildVbo() {
 	// first, add an adjacency vertex at the beginning
 	vertices.push_back(ci::vec4(2.0f * ci::vec3(localPoints[0], 0) - ci::vec3(localPoints[1], 0), 0));
 	// find the total length of the line for vec4 calculations
-	float totalLength = 0.f;
+	mLineLength = 0.f;
 	for (size_t i = 1; i < localPoints.size(); i++) {
-		totalLength += glm::distance(localPoints[i-1], localPoints[i]);
+		mLineLength += glm::distance(localPoints[i-1], localPoints[i]);
 	}
 	// next, add all 2D points as 3D vertices
 	float currentLength = 0.f;
@@ -262,7 +302,7 @@ void LineSprite::buildVbo() {
 		const ci::vec2& p = localPoints[i];
 		if (i != 0) currentLength += glm::distance(p, prevP);
 		prevP = p;
-		vertices.push_back(ci::vec4(p, 0, currentLength / totalLength));
+		vertices.push_back(ci::vec4(p, 0, currentLength / mLineLength));
 	}
 
 	// next, add an adjacency vertex at the end
