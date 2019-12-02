@@ -107,7 +107,6 @@ public:
 	virtual void				prepareSettings( ci::app::AppBase::Settings* );
 	void						loadAppSettings();
 	virtual void				setup();
-	void						resetTheWindow();
 	void						resetupServer();
 	void						preServerSetup();
 
@@ -152,6 +151,7 @@ private:
 	static const std::string&   envAppDataPath();
 	void						setupKeyPresses();
 	void						resetupServerOnDisplayChange();
+	void						resetTheWindow();
 	bool						mSetupOnDisplayChange;
 	ds::keys::KeyManager		mKeyManager;
 	ds::ui::TouchDebug			mTouchDebug;
