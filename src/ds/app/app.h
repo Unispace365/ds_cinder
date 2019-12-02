@@ -150,6 +150,9 @@ private:
 	/// if it's what you want
 	static const std::string&   envAppDataPath();
 	void						setupKeyPresses();
+	void						resetupServerOnDisplayChange();
+	void						resetTheWindow();
+	bool						mSetupOnDisplayChange;
 	ds::keys::KeyManager		mKeyManager;
 	ds::ui::TouchDebug			mTouchDebug;
 	bool						mAppKeysEnabled;

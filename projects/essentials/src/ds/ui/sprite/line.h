@@ -61,6 +61,8 @@ class LineSprite final : public ds::ui::Sprite {
 	void setMiterLimit(const float miterLimit);
 	/// \brief Get current miter limit
 	float getMiterLimit() { return mMiterLimit; }
+	/// \brief Get the point at a certain percentage on the line.
+	ci::vec2 getPointAtPercentage(float percentage);
 
 	virtual void drawLocalClient();
 
@@ -85,6 +87,7 @@ class LineSprite final : public ds::ui::Sprite {
 	float mMiterLimit;
 	float mLineWidth;
 	float mLineStart, mLineEnd;
+	float mLineLength;
 
 	ci::gl::BatchRef	  mBatch;
 	std::vector<ci::vec2> mPoints;
