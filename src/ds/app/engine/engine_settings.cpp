@@ -187,6 +187,7 @@ void EngineSettings::setDefaults(){
 	getSetting("idle_time", 0, ds::cfg::SETTING_TYPE_DOUBLE, "Seconds before idle happens. 300 = 5 minutes.", "300", "0", "1000");
 	getSetting("system:never_sleep", 0, ds::cfg::SETTING_TYPE_BOOL, "Prevent the system from sleeping or powering off the screen", "true");
 	getSetting("apphost:exit_on_quit", 0, ds::cfg::SETTING_TYPE_BOOL, "Exit apphost when quitting the app", "true");
+	getSetting("resetup_server_on_display_change", 0, ds::cfg::SETTING_TYPE_BOOL, "Resetup the server when the display changes", "false");
 
 	getSetting("RENDER SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("frame_rate", 0, ds::cfg::SETTING_TYPE_INT, "Attempt to run the app at this rate", "60", "1", "1000");
