@@ -298,9 +298,13 @@ void App::update() {
 
 	DS_LOG_VERBOSE(9, "App::Update fps=" << getAverageFps());
 
-	if (mEngine.getEngineSettings().getBool("resetup_server_on_display_change", 0, false) && !mSetupOnDisplayChange) {
+	auto shouldResetup = mEngine.getEngineSettings().getBool("resetup_server_on_display_change", 0, true);
+	if (shouldResetup && !mSetupOnDisplayChange) {
 		mSetupOnDisplayChange = true;
 		resetupServerOnDisplayChange();
+	}
+	else if (!shouldResetup && mSetupOnDisplayChange) {
+		mSetupOnDisplayChange = false;
 	}
 
 	if (mEngine.getHideMouse() && !mMouseHidden) {
