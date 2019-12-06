@@ -131,6 +131,7 @@ App::App(const RootList& roots)
 	, mEnvironmentInitialized(ds::Environment::initialize())
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
+	, mSetupOnDisplayChange(false)
 	, mTouchDebug(mEngine)
 	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
@@ -256,6 +257,18 @@ void App::setup() {
 	mEngine.getLoadImageService().initialize();
 }
 
+void App::resetupServerOnDisplayChange() {
+	getSignalDisplayChanged().connect(std::bind(&App::resetTheWindow, this));
+	getSignalDisplayConnected().connect(std::bind(&App::resetTheWindow, this));
+	getSignalDisplayDisconnected().connect(std::bind(&App::resetTheWindow, this));
+}
+
+void App::resetTheWindow() {
+	if (!mSetupOnDisplayChange) return;
+	DS_LOG_INFO("Display setup changed, resetting server");
+	resetupServer();
+}
+
 void App::resetupServer() {
 	// Just as an added precaution, shouldn't be reqired
 	mEngine.getTweenline().getTimeline().clear();
@@ -284,6 +297,11 @@ void App::update() {
 	mEngine.setAverageFps(getAverageFps());
 
 	DS_LOG_VERBOSE(9, "App::Update fps=" << getAverageFps());
+
+	if (mEngine.getEngineSettings().getBool("resetup_server_on_display_change", 0, false) && !mSetupOnDisplayChange) {
+		mSetupOnDisplayChange = true;
+		resetupServerOnDisplayChange();
+	}
 
 	if (mEngine.getHideMouse() && !mMouseHidden) {
 		mMouseHidden = true;
