@@ -45,6 +45,10 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	//command_line->AppendSwitch("disable-gpu");
 	//command_line->AppendSwitch("disable-gpu-compositing");
 
+	command_line->AppendSwitch("enable-media-stream");
+	command_line->AppendSwitch("enable-speech-input");
+	command_line->AppendSwitch("enable-usermedia-screen-capture");
+
 	// Some docs online say to use these two, but I had bad results with these
 	//command_line->AppendSwitch("disable-surfaces");
 	//command_line->AppendSwitch("enable-begin-frame-scheduling");
