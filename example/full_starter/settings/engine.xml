@@ -21,7 +21,7 @@
 	<setting name="idle_time" value="300" type="double" comment="Seconds before idle happens. 300 = 5 minutes." default="300" min_value="0" max_value="1000"/>
 	<setting name="system:never_sleep" value="true" type="bool" comment="Prevent the system from sleeping or powering off the screen" default="true"/>
 	<setting name="apphost:exit_on_quit" value="true" type="bool" comment="Exit apphost when quitting the app" default="true" />
-	<setting name="resetup_server_on_display_change" value="false" type="bool" comment="Resetup the server when the display changes" default="false" />
+	<setting name="resetup_server_on_display_change" value="true" type="bool" comment="Resetup the server when the display changes" default="false" />
 	<setting name="RENDER SETTINGS" value="" type="section_header"/>
 	<setting name="frame_rate" value="60" type="int" comment="Attempt to run the app at this rate" default="60" min_value="1" max_value="1000"/>
 	<setting name="vertical_sync" value="true" type="bool" comment="Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card" default="true"/>
