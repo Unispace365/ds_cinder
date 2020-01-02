@@ -85,6 +85,7 @@
 	* Set the project subsystem in the linker settings to WINDOWS (if it's not already) This ensures that a console window doesn't pop up during runtime
 	* Remove everything in cefsimple_win.cc and replace with this source code:
 
+````c++
 	#include <windows.h>
 	#include <include/cef_app.h>
 	int CALLBACK WinMain(
@@ -96,6 +97,7 @@
 		CefMainArgs main_args;
 		return CefExecuteProcess(main_args, NULL, NULL);
 	}
+```
 	* Recompile just cefsimple
 - Move cefsimple.exe and all other lib, .h, .cc, .cpp, .dll files required from the new binary distribution to the cef_web project. Use the existing files as a guide.
 - If all goes well, web sites should work fine and dandy and video playback should be working (use downstream.com's video sections to test)
