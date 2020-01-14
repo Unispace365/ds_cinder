@@ -116,7 +116,7 @@
 	<!-- RESOURCE SETTINGS -->
 	<!----------------------->
 	<!-- resource location and database for cms content
-	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\cms\example\" />
+	<text name="resource_location" value="%DOCUMENTS%\downstream\cms\example\" />
 	<text name="resource_db" value="db\production.sqlite3" /> -->
 
 
