@@ -1,0 +1,16 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="size"
+			overall_alignment="top"
+			size="$_world_size"
+		>
+		
+	
+		
+	</layout>
+
+
+</interface>
+
+

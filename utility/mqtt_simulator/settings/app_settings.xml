@@ -3,13 +3,21 @@
 
 	<setting name="padding" value="40" type="float" />	
 	
+	<setting name="rfid:mqtt:address" value="corelogic.downstreamlabs.com"  />
+	<setting name="rfid:mqtt:port" value="1883"  />
+	<setting name="rfid:mqtt:inbound_route" value="+/#"  />
+	<setting name="rfid:mqtt:outbound_route" value="room_control/start/map1"  />
+	<setting name="rfid:mqtt:username" value="downstream"  />
+	<setting name="rfid:mqtt:password" value="d0wnstr34m"  />
+	
+	<!--
 	<setting name="rfid:mqtt:address" value="vdc-prd-app-1"  />
 	<setting name="rfid:mqtt:port" value="1883"  />
 	<setting name="rfid:mqtt:inbound_route" value="vmware-prod/#"  />
 	<setting name="rfid:mqtt:outbound_route" value="vmware-prod/"  />
 	<setting name="rfid:mqtt:username" value="downstream" />
 	<setting name="rfid:mqtt:password" value="d0wnstr34m" />
-	
+	-->
 </settings>
 
 
