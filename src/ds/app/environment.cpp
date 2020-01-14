@@ -16,6 +16,9 @@
 
 #ifdef CINDER_MSW
 #include "cinder/Clipboard.h"
+#include <windows.h>
+#include <KnownFolders.h>
+#include <Shlobj.h>
 #else
 #include "glfw/glfw3.h"
 #include "glfw/glfw3native.h"
@@ -43,8 +46,31 @@ bool Environment::initialize() {
 		return true;
 	sInitialized = true;
 
-	Poco::Path			p(Poco::Path::home());
-	p.append("Documents");
+	std::string homePath = Poco::Path::home();
+
+	/// In windows, the user can change the documents directory. 
+	/// To maintain consistency with other things (like DsNode), we have to get the actual documents directory
+	/// Also if the user sets up windows with OneDrive, the documents directory will be USER/OneDrive/Documents instead of USER/Documents
+	/// This should account for that
+#ifdef CINDER_MSW
+	PWSTR   ppszPath;    // variable to receive the path memory block pointer.
+
+	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &ppszPath);
+
+	std::wstring myPath;
+	if(SUCCEEDED(hr)) {
+		myPath = ppszPath;      // make a local copy of the path
+	}
+
+	CoTaskMemFree(ppszPath);
+	homePath = ds::utf8_from_wstr(myPath);
+#else 
+	Poco::Path newPath(homePath);
+	newPath.append("Documents");
+	homePath = newPath.toString();
+#endif
+
+	Poco::Path p(homePath);
 	DOCUMENTS = p.toString();
 
 	p.append("downstream");
