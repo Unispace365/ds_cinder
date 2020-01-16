@@ -626,23 +626,26 @@ void Engine::setupTouch(ds::App& app) {
 
 void Engine::startTuio(ds::App& app) {
 	mTuioObjectsMoved.setAutoIdleReset(false);
-	if (!mTuioRegistered) {
-		if (!mTuio) mTuio = new ci::tuio::Client();
+	if (!mTuio) mTuio = new ci::tuio::Client();
 
+	if (!mTuioRegistered) {
 		mTuioBeganRegistrationId = mTuio->registerTouchesBegan(&app, &ds::App::touchesBegan);
 		mTuioMovedRegistrationId = mTuio->registerTouchesMoved(&app, &ds::App::touchesMoved);
 		mTuioEndedRegistrationId = mTuio->registerTouchesEnded(&app, &ds::App::touchesEnded);
 		mTuioRegistered = true;
 
 		registerForTuioObjects(*mTuio);
+	}
+
+	if (!mTuio->isConnected()){
 		try {
 			mTuio->connect(mTuioPort);
 			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
 		} catch (std::exception ex) {
 			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
-}
 		}
 	}
+}
 
 void Engine::stopTuio() {
 	if (mTuioRegistered && mTuio) {
@@ -652,6 +655,7 @@ void Engine::stopTuio() {
 		mTuioRegistered = false;
 		try {
 			mTuio->disconnect();
+			delete mTuio;
 			mTuio = nullptr;
 		} catch (std::exception e) {
 			DS_LOG_WARNING("TUIO could not disconnect" << e.what());
