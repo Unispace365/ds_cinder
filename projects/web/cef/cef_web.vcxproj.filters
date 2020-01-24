@@ -255,9 +255,6 @@
     <ClInclude Include="include\base\cef_thread_checker.h">
       <Filter>cef\base</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\cef_thread_collision_warner.h">
-      <Filter>cef\base</Filter>
-    </ClInclude>
     <ClInclude Include="include\base\cef_trace_event.h">
       <Filter>cef\base</Filter>
     </ClInclude>
@@ -442,12 +439,6 @@
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_frame_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_geolocation_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_geolocation_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_image_capi.h">
