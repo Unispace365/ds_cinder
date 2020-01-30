@@ -11,6 +11,9 @@
 #include <cinder/Rand.h>
 #include "snappy.h"
 
+#include <thread>
+#include <chrono>
+
 #include "ds/debug/computer_info.h"
 
 namespace ds {
@@ -110,7 +113,22 @@ void EngineClient::update() {
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
 
 	// Don't change state or take any action if there's no data waiting
-	if(!mReceiver.receiveBlob()) return;
+	bool foundBlob = false;
+	int waitCount = 0;
+	while(!foundBlob) {
+		if(mReceiver.receiveBlob()) {
+			foundBlob = true;
+		}
+		waitCount++;
+		if(waitCount > 10) break;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	if(!foundBlob) {
+		DS_LOG_VERBOSE(3, "No blob received for this update");
+		return;
+	}
 
 	// Run through all the blobs we just 
 	while(true) {

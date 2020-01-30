@@ -119,7 +119,7 @@ bool EngineReceiver::receiveBlob() {
 
 	if(mReceiveBuffers.empty()) {
 		++mNoDataCount;
-		//return false;
+		return false;
 	}
 
 	return true;
