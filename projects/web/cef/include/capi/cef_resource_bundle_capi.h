@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=48daeee5c2103ec69535dc0376255878c3d69e9b$
+// $hash=b9577b495df3990284d4e4a3db2824196175dc91$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_CAPI_H_
@@ -48,7 +48,7 @@ extern "C" {
 
 ///
 // Structure used for retrieving resources from the resource bundle (*.pak)
-// files loaded by CEF during startup or via the cef_resource_bundle_tHandler
+// files loaded by CEF during startup or via the cef_resource_bundle_handler_t
 // returned from cef_app_t::GetResourceBundleHandler. See CefSettings for
 // additional options related to resource bundle loading. The functions of this
 // structure may be called on any thread unless otherwise indicated.

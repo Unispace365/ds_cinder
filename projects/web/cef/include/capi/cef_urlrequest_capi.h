@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=77ac3a2aaea32b649185a58e4c2bbb13b7fe0540$
+// $hash=63d875f5a922dd2c2e1efaaf0ddaa20475f79ef8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
@@ -195,7 +195,7 @@ typedef struct _cef_urlrequest_client_t {
   // the request and call cef_auth_callback_t::cont() when the authentication
   // information is available. If the request has an associated browser/frame
   // then returning false (0) will result in a call to GetAuthCredentials on the
-  // cef_request_tHandler associated with that browser, if any. Otherwise,
+  // cef_request_handler_t associated with that browser, if any. Otherwise,
   // returning false (0) will cancel the request immediately. This function will
   // only be called for requests initiated from the browser process.
   ///

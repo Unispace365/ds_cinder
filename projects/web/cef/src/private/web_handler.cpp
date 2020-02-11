@@ -303,7 +303,8 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 		" with error \"" << getErrorStringForError(errorCode) << "\" (" << errorCode <<
 		").</h2></body></html>";
 	// This can be called on any thread
-	frame->LoadString(ss.str(), failedUrl);
+	// TODO: update this
+	//frame->LoadString(ss.str(), failedUrl);
 }
 
 
