@@ -391,6 +391,9 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	if(findy != mWebCallbacks.end()){
 		if(type == PaintElementType::PET_VIEW) {
 			if(findy->second.mPaintCallback) {
+				//void * newBuffer = new unsigned char[width * height * 4];
+				//memcpy(newBuffer, buffer, width * height * 4);
+				//findy->second.mPaintCallback(newBuffer, width, height);
 				findy->second.mPaintCallback(buffer, width, height);
 			}
 		} else if(type == PaintElementType::PET_POPUP) {
