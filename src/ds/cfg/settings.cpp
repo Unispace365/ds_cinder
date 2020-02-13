@@ -157,6 +157,24 @@ std::vector<std::string> Settings::Setting::getPossibleValues() const{
 	return possibles;
 }
 
+void Settings::Setting::replaceSettingVariablesAndExpressions()
+{
+
+	auto testValue = mRawValue;
+	std::string value = ds::cfg::SettingsVariables::replaceVariables(testValue);
+	value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+	if (value != mRawValue) {
+		//save the originalRawValue
+		mOriginalValue = mRawValue;
+		mRawValue = value;
+	} else if(!mOriginalValue.empty())
+	{
+		std::string value = ds::cfg::SettingsVariables::replaceVariables(mOriginalValue);
+		value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+		mRawValue = value;
+	}
+}
+
 Settings::Settings()
 	: mReadIndex(1)
 {
@@ -244,7 +262,7 @@ void Settings::writeTo(const std::string& filename){
 		ci::XmlTree settingNode;
 		settingNode.setTag("setting");
 		settingNode.setAttribute("name", sit.mName);
-		settingNode.setAttribute("value", sit.mRawValue);
+		settingNode.setAttribute("value", sit.mOriginalValue.empty()?sit.mRawValue:sit.mOriginalValue);
 		if(!sit.mType.empty()) settingNode.setAttribute("type", sit.mType);
 		if(!sit.mComment.empty()) settingNode.setAttribute("comment", sit.mComment);
 		if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
@@ -491,9 +509,7 @@ void Settings::replaceSettingVariablesAndExpressions() {
 	for (auto& it : mSettings) {
 		auto& theVec = it.second;
 		for (auto& theSetting : theVec) {
-			std::string value = ds::cfg::SettingsVariables::replaceVariables(theSetting.mRawValue);
-			value = ds::cfg::SettingsVariables::parseAllExpressions(value);
-			theSetting.mRawValue = value;
+			theSetting.replaceSettingVariablesAndExpressions();
 		}
 	}
 }
