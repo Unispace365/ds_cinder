@@ -26,6 +26,8 @@ public:
 	
 	ds::ui::ImageButton*		getPlayButton();
 	ds::ui::ImageButton*		getPauseButton();
+	ds::ui::ImageButton*		getLoopButton();
+	ds::ui::ImageButton*		getUnLoopButton();
 
 	ds::ui::Sprite*				getScrubBarBackground();
 	ds::ui::Sprite*				getScrubBarProgress();
@@ -41,6 +43,9 @@ protected:
 
 	ds::ui::ImageButton*		mPlayButton;
 	ds::ui::ImageButton*		mPauseButton;
+
+	ds::ui::ImageButton*		mLoopButton;
+	ds::ui::ImageButton*		mUnLoopButton;
 
 	VideoScrubBar*				mScrubBar;
 	VideoVolumeControl*			mVolumeControl;
