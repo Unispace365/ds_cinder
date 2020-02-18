@@ -51,7 +51,11 @@ void EditorItem::setSetting(Settings::Setting* theSetting){
 
 	if(!mSettingName || !mSettingValue || !theSetting) return;
 	mOriginalSettingName = theSetting->mName;
-
+	mHasOriginalValue = !theSetting->mOriginalValue.empty();
+	if(mHasOriginalValue)
+	{
+		DS_LOG_INFO("HAS ORIGINAL VALUE");
+	}
 	if(theSetting->mType == ds::cfg::SETTING_TYPE_SECTION_HEADER){
 		mSettingName->setFontSize(16.0f);
 		mSettingName->mLayoutTPad = 10.0f;
@@ -65,10 +69,18 @@ void EditorItem::setSetting(Settings::Setting* theSetting){
 	}
 
 	mSettingName->setText(theSetting->mName);
+	
+		
 	if(theSetting->mRawValue.empty() && theSetting->mType != ds::cfg::SETTING_TYPE_SECTION_HEADER){
 		mSettingValue->setText("<span style='italic'>empty</span>");
 	} else {
-		mSettingValue->setText(theSetting->mRawValue);
+		auto ss = std::stringstream();
+		ss << theSetting->mRawValue;
+		if(!theSetting->mOriginalValue.empty())
+		{
+			ss << " (" << theSetting->mOriginalValue << ")";
+		}
+		mSettingValue->setText(ss.str());
 	}
 	//mSettingComment->setText(theSetting->mComment);
 }
