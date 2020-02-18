@@ -194,7 +194,8 @@ Client::Client()
 	: mHandlerObject( new ProfileHandler<Object>() ),
 	  mHandlerCursor( new ProfileHandler<Cursor>() ),
 	  mHandlerCursor25d( new ProfileHandler<Cursor25d>() ),
-	  mPastFrameThreshold( DEFAULT_PAST_FRAME_THRESHOLD )
+	  mPastFrameThreshold( DEFAULT_PAST_FRAME_THRESHOLD ),
+	  mConnected(false)
 {
 }
 

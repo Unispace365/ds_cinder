@@ -119,6 +119,8 @@ public:
 	/// Called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
+	void								startTuio(ds::App&);
+	void								stopTuio();
 
 	/// It's been enough time since the last input and is in idle mode
 	virtual bool						isIdling() override;
@@ -325,7 +327,7 @@ private:
 	float								mLastTouchTime;
 
 	/// The base tuio client
-	ci::tuio::Client					mTuio;
+	ci::tuio::Client*					mTuio;
 	uint32_t							mTuioBeganRegistrationId;
 	uint32_t							mTuioMovedRegistrationId;
 	uint32_t							mTuioEndedRegistrationId;
