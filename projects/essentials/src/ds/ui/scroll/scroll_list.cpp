@@ -23,7 +23,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mSpecialLayout(false)
 	, mTargetRow(0)
 	, mTargetColumn(0)
-	, mGapping(0)
+	, mMatrixPadding(0)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
@@ -165,21 +165,40 @@ void ScrollList::layoutItemsGrid(){
 		(*it).mX = xp;
 		(*it).mY = yp;
 
-		xp += mGridIncrement.x;
-		if(xp > getWidth() - mGridIncrement.x){
-			xp = mStartPositionX;
-			yp += mGridIncrement.y;
-			justwrapped = true;
+		if(mVerticalScrolling) {
+			xp += mGridIncrement.x;
+			if(xp > getWidth() - mGridIncrement.x) {
+				xp = mStartPositionX;
+				yp += mGridIncrement.y;
+				justwrapped = true;
+			} else {
+				justwrapped = false;
+			}
 		} else {
-			justwrapped = false;
+			yp += mGridIncrement.y;
+			if(yp > getHeight() - mGridIncrement.y) {
+				yp = mStartPositionY;
+				xp += mGridIncrement.x;
+				justwrapped = true;
+			} else {
+				justwrapped = false;
+			}
 		}
 	}
 
 	if(!justwrapped){
-		yp += mGridIncrement.y;
+		if(mVerticalScrolling) {
+			yp += mGridIncrement.y;
+		} else {
+			xp += mGridIncrement.x;
+		}
 	}
 	if(mScrollableHolder){
-		mScrollableHolder->setSize(getWidth(), yp);
+		if(mVerticalScrolling) {
+			mScrollableHolder->setSize(getWidth(), yp);
+		} else {
+			mScrollableHolder->setSize(xp, getHeight());
+		}
 	}
 }
 
@@ -188,7 +207,7 @@ void ScrollList::setMatrixLayout(const bool doSpcial, const int targetRow, const
 	mSpecialLayout = doSpcial;
 	mTargetRow = targetRow;
 	mTargetColumn = targetColumn;
-	mGapping = gapping;
+	mMatrixPadding = gapping;
 	layout();
 }
 
@@ -208,40 +227,38 @@ void ScrollList::layoutItemsMatrix()
 		if (mTargetRow == 0)	return;
 	}
 	int index = 1;
-	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
 		(*it).mX = xp;
 		(*it).mY = yp;
 
-		if (mVerticalScrolling){
+		if(mVerticalScrolling) {
 			int count = index % mTargetColumn;
-			if (count == 0){
-				if (isPerspective){
+			if(count == 0) {
+				if(isPerspective) {
 					yp -= mIncrementAmount;
-				}
-				else {
+				} else {
 					yp += mIncrementAmount;
 				}
 				xp = mStartPositionX;
-			}
-			else{
-				xp += mGapping;
+			} else {
+				xp += mMatrixPadding;
 			}
 
-		}
-		else {
+		} else {
 			int count = index % mTargetRow;
-			if (count == 0){
+			if(count == 0) {
 				xp += mIncrementAmount;
 				yp = mStartPositionY;
-			}
-			else {
-				if (index == mItemPlaceHolders.size())
+			} else {
+				if(index == mItemPlaceHolders.size()) {
 					xp += mIncrementAmount;
-				yp += mGapping;
+				}
+				yp += mMatrixPadding;
 			}
 		}
 		index++;
 	}
+
 	if (mVerticalScrolling){
 		mScrollableHolder->setSize(getWidth(), totalHeight);
 	}

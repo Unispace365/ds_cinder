@@ -68,14 +68,13 @@ class ScrollArea;
 		/// calls a function for each sprite that's currently onscreen and in reserve
 		void						forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> function);
 
-		/// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
-		/// NOTE: not tested yet for perspective OR horizontal scrolling
+		/// Makes a grid that goes left-to-right, then top-to-bottom with a set advance increment between the columns and rows
 		void						setGridLayout(const bool doGrid, const ci::vec2& gridIncrement);
 
-		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
-		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
-		/// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
-		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
+		/// Makes a grid targetting a specific number of rows or columns
+		/// If using a vertical scroll list, use targetColumn; if using a horizontal scroll list, use targetRow
+		/// Padding will be the spacing between the items
+		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float padding);
 
 		/// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
 		virtual void				layout();
@@ -151,8 +150,7 @@ class ScrollArea;
 
 		int									mTargetRow;
 		int									mTargetColumn;
-		float								mGapping;
-		bool								mFillColumnFirst;
+		float								mMatrixPadding;
 	};
 }
 }
