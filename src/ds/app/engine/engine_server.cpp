@@ -335,7 +335,7 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 
 	// this receive call pulls everything it can off the wire and caches it
 	// if there was an error decoding the chunks, then go back to sending a full world
-	if(!engine.mReceiver.receiveBlob()){
+	if(!engine.mReceiver.receiveBlob(false)){
 		engine.mReceiver.clearLostConnection();
 		engine.setState(engine.mSendWorldState);
 		return;
