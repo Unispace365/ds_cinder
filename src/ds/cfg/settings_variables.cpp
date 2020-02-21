@@ -98,7 +98,10 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 
 	// I don't think this should ever happen, but just in case we'll try to recurse?
 	exprFindy = finalValue.find("#expr{");
-	if(exprFindy != std::string::npos) {
+	auto endFindy = finalValue.find("}");
+	if(exprFindy != std::string::npos && endFindy == std::string::npos) {
+		DS_LOG_WARNING("Syntax error parsing expression: missing } in " << value);
+	} else if(exprFindy != std::string::npos) {
 		finalValue = parseAllExpressions(finalValue);
 	}
 	return finalValue;

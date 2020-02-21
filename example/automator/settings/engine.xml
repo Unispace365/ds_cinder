@@ -45,8 +45,8 @@
 	<setting name="touch:swipe:minimum_velocity" value="800.0" type="float" comment="The velocity a swipe needs to exceed to count as a swipe" default="800.0" min_value="1.0" max_value="2400"/>
 	<setting name="touch:swipe:maximum_time" value="0.5" type="float" comment="How long a swipe can last to be counted as a swipe" default="0.5" min_value="0.0" max_value="3.0"/>
 	<setting name="RESOURCE SETTINGS " value="" type="section_header"/>
-	<setting name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" type="string" comment="Resource location and database for cms content"/>
-	<setting name="resource_db" value="db\northeastern.sqlite" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
+	<setting name="resource_location" value="%DOCUMENTS%\downstream\example\" type="string" comment="Resource location and database for cms content"/>
+	<setting name="resource_db" value="db\db.sqlite" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
 	<setting name="configuration_folder:allow_expand_override" value="false" type="bool" comment="Allows you to place any relative file in a configuration folder. For instance, you could have a layout file specific to a particular configuration." default="false"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
 	<setting name="LOGGER" value="" type="section_header"/>
