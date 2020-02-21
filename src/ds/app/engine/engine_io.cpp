@@ -90,7 +90,7 @@ ds::DataBuffer& EngineReceiver::getData() {
 	return mCurrentDataBuffer;
 }
 
-bool EngineReceiver::receiveBlob() {
+bool EngineReceiver::receiveBlob(const bool strict) {
 	std::string recvBuffer;
 
 	if(mUseChunker){
@@ -119,7 +119,9 @@ bool EngineReceiver::receiveBlob() {
 
 	if(mReceiveBuffers.empty()) {
 		++mNoDataCount;
-		return false;
+		if(strict) {
+			return false;
+		}
 	}
 
 	return true;
