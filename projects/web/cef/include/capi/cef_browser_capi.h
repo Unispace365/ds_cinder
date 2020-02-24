@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=623d324a1ef5637353ae74761fdc04eac4d99716$
+// $hash=ba4033eaf40a8ee24408b89b78496bf1381e7e6b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -829,7 +829,7 @@ typedef struct _cef_browser_host_t {
 
   ///
   // Returns the extension hosted in this browser or NULL if no extension is
-  // hosted. See cef_request_tContext::LoadExtension for details.
+  // hosted. See cef_request_context_t::LoadExtension for details.
   ///
   struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
       struct _cef_browser_host_t* self);
@@ -837,7 +837,7 @@ typedef struct _cef_browser_host_t {
   ///
   // Returns true (1) if this browser is hosting an extension background script.
   // Background hosts do not have a window and are not displayable. See
-  // cef_request_tContext::LoadExtension for details.
+  // cef_request_context_t::LoadExtension for details.
   ///
   int(CEF_CALLBACK* is_background_host)(struct _cef_browser_host_t* self);
 

@@ -95,7 +95,10 @@ public:
 	void						setPageLoadedCallback(std::function<void()> func){ mPageLoadedCallback = func; }
 
 	/** Calls back if the pdf could not be loaded for whatever reason */
-	void						setLoadErrorCallback(std::function<void(const std::string& errorMsg)> func){ mErrorCallback = func; };
+	void						setLoadErrorCallback(std::function<void(const std::string& errorMsg)> func) { mErrorCallback = func; };
+
+	/** Returns the current texture for the current page (might not exist so use with caution **/
+	ci::gl::TextureRef			getTextureRef() { return mTexture; }
 
 #ifdef _DEBUG
 	virtual void				writeState(std::ostream&, const size_t tab) const;
@@ -107,7 +110,6 @@ protected:
 	
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
-
 private:
 
 	// STATE

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d3a339e3f85077d971e5814eb5a164a87c647810$
+// $hash=e758d8c53334b91bce818cc6e9f84915778d7827$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
@@ -87,7 +87,7 @@ typedef struct _cef_request_context_handler_t {
   // |plugin_policy| to PLUGIN_POLICY_DISABLED may be cached when
   // |top_origin_url| is NULL. To purge the plugin list cache and potentially
   // trigger new calls to this function call
-  // cef_request_tContext::PurgePluginListCache.
+  // cef_request_context_t::PurgePluginListCache.
   ///
   int(CEF_CALLBACK* on_before_plugin_load)(
       struct _cef_request_context_handler_t* self,
@@ -113,7 +113,7 @@ typedef struct _cef_request_context_handler_t {
   // handling return NULL. To specify a handler for the resource return a
   // cef_resource_request_handler_t object. This function will not be called if
   // the client associated with |browser| returns a non-NULL value from
-  // cef_request_tHandler::GetResourceRequestHandler for the same request
+  // cef_request_handler_t::GetResourceRequestHandler for the same request
   // (identified by cef_request_t::GetIdentifier).
   ///
   struct _cef_resource_request_handler_t*(

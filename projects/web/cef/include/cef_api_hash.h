@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,7 +34,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e1836e5dade0a6f19f058dbfd55df881f454d1e3$
+// $hash=06d0c1ccfa43926a01cbeb3ec95ff2a001fd0b45$
 //
 
 #ifndef CEF_INCLUDE_API_HASH_H_
@@ -47,13 +47,13 @@
 // way that may cause binary incompatibility with other builds. The universal
 // hash value will change if any platform is affected whereas the platform hash
 // values will change only if that particular platform is affected.
-#define CEF_API_HASH_UNIVERSAL "14afb7265af06a50b900ddd775adc235dc34ec77"
+#define CEF_API_HASH_UNIVERSAL "3ad9591f7024619a1e2fd796c7ad51ae3a34abbb"
 #if defined(OS_WIN)
-#define CEF_API_HASH_PLATFORM "228f8ff0c24b688aa36db6f0bf88b0c301738c1a"
+#define CEF_API_HASH_PLATFORM "3b8e38ae40c1a930227c6277c39dbc24081ccec1"
 #elif defined(OS_MACOSX)
-#define CEF_API_HASH_PLATFORM "dd1c23009c1356fcb066f195af3da9fcf3175799"
+#define CEF_API_HASH_PLATFORM "4a77f1908fabccdb01a2d3bdbede5ca09fbaa394"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_PLATFORM "ebc0f044eab1238ff313ad4496dd2ff22bd261ec"
+#define CEF_API_HASH_PLATFORM "434da6be7db70fd90c4265118ac47ace4073c6ae"
 #endif
 
 #ifdef __cplusplus

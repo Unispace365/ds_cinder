@@ -536,10 +536,8 @@ NET_ERROR(CERTIFICATE_TRANSPARENCY_REQUIRED, -214)
 // https://g.co/chrome/symantecpkicerts
 NET_ERROR(CERT_SYMANTEC_LEGACY, -215)
 
-// The certificate presented on a QUIC connection does not chain to a known root
-// and the origin connected to is not on a list of domains where unknown roots
-// are allowed.
-NET_ERROR(QUIC_CERT_ROOT_NOT_KNOWN, -216)
+// -216 was QUIC_CERT_ROOT_NOT_KNOWN which has been renumbered to not be in the
+// certificate error range.
 
 // Add new certificate error codes here.
 //
@@ -781,6 +779,11 @@ NET_ERROR(HTTP2_PUSHED_RESPONSE_DOES_NOT_MATCH, -378)
 // response back as success.
 NET_ERROR(HTTP_RESPONSE_CODE_FAILURE, -379)
 
+// The certificate presented on a QUIC connection does not chain to a known root
+// and the origin connected to is not on a list of domains where unknown roots
+// are allowed.
+NET_ERROR(QUIC_CERT_ROOT_NOT_KNOWN, -380)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
@@ -950,7 +953,10 @@ NET_ERROR(DNS_SERVER_FAILED, -802)
 // DNS transaction timed out.
 NET_ERROR(DNS_TIMED_OUT, -803)
 
-// The entry was not found in cache, for cache-only lookups.
+// The entry was not found in cache or other local sources, for lookups where
+// only local sources were queried.
+// TODO(ericorth): Consider renaming to DNS_LOCAL_MISS or something like that as
+// the cache is not necessarily queried either.
 NET_ERROR(DNS_CACHE_MISS, -804)
 
 // Suffix search list rules prevent resolution of the given host name.

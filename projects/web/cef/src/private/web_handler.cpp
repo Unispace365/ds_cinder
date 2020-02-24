@@ -303,7 +303,8 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 		" with error \"" << getErrorStringForError(errorCode) << "\" (" << errorCode <<
 		").</h2></body></html>";
 	// This can be called on any thread
-	frame->LoadString(ss.str(), failedUrl);
+	// TODO: update this
+	//frame->LoadString(ss.str(), failedUrl);
 }
 
 
@@ -390,6 +391,9 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	if(findy != mWebCallbacks.end()){
 		if(type == PaintElementType::PET_VIEW) {
 			if(findy->second.mPaintCallback) {
+				//void * newBuffer = new unsigned char[width * height * 4];
+				//memcpy(newBuffer, buffer, width * height * 4);
+				//findy->second.mPaintCallback(newBuffer, width, height);
 				findy->second.mPaintCallback(buffer, width, height);
 			}
 		} else if(type == PaintElementType::PET_POPUP) {

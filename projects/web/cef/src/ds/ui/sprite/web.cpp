@@ -290,6 +290,7 @@ void Web::initializeBrowser(){
 
 		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y) {
 			mHasBuffer = true;
+			//mBuffer = (unsigned char *)buffer;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
 	};
