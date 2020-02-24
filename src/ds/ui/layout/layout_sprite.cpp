@@ -214,6 +214,7 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 	float perStretch = 0.0f;
 	float offset = 0.0f;	
 	float wrapOffset = 0.0f;
+	float biggest = 0.0f;
 	
 	if(numStretches > 0){
 		leftOver = maxSize - totalSize;
@@ -262,13 +263,21 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				const auto widdy = chillin->mLayoutLPad + chillin->getScaleWidth() + chillin->mLayoutRPad;
 				if(offset+widdy > getWidth() && widdy < getWidth()){
 					offset = 0.0f;
-					wrapOffset += getHeight() + mSpacing;
+					wrapOffset += biggest + mSpacing;
+					biggest = chillin->mLayoutTPad + chillin->getScaleHeight() + chillin->mLayoutBPad;
+				} else
+				{
+					biggest = std::max(biggest, chillin->mLayoutTPad + chillin->getScaleHeight() + chillin->mLayoutBPad);
 				}
 			}else{
 				const auto hiddy = chillin->mLayoutTPad + chillin->getScaleHeight() + chillin->mLayoutBPad;
 				if(offset+hiddy > getHeight() && hiddy < getHeight()){
 					offset = 0.0f;
-					wrapOffset += getWidth() + mSpacing;
+					wrapOffset += biggest + mSpacing;
+					biggest = chillin->mLayoutLPad + chillin->getScaleWidth() + chillin->mLayoutRPad;
+				} else
+				{
+					biggest = std::max(biggest, chillin->mLayoutLPad + chillin->getScaleWidth() + chillin->mLayoutRPad);
 				}
 			}
 		}

@@ -1,0 +1,40 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="200, 45"
+		center="0.5, 0.5"
+		animate_on="$_default:anim"
+		layout_type="vert"
+		>
+
+		<sprite name="background" 
+			attach_state="normal"
+			layout_size_mode="fill"
+			color="white"
+			opacity="0.1"
+			corner_radius="5"
+			/>
+			
+		<sprite name="down_color" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="red"
+			corner_radius="5"
+			/>	
+			
+		<text 
+			name="high_label"
+			font="media_viewer:title"
+			layout_size_mode="fill"
+			color="white"
+			text_align="center"
+			/>			
+		
+	</sprite_button>
+		
+	
+	
+		
+</interface>
+
+

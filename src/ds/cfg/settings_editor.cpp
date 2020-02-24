@@ -207,14 +207,24 @@ void SettingsEditor::editProperty(EditorItem* ei){
 
 		mEditView->setSettingUpdatedCallback([this](Settings::Setting* theSetting){
 			if(!theSetting) return;
-			for (auto it : mSettingItems){
-				if(it->getSettingName() == theSetting->mName && mSettingsLayout && mPrimaryLayout){
-					auto yPos = mSettingsLayout->getPosition().y;
-					it->setSetting(theSetting);
-					mPrimaryLayout->runLayout();
-					mSettingsLayout->setPosition(mSettingsLayout->getPosition().x, yPos);
 
-					break;
+			//if we are in the appSettings we need to update the settingsVariables
+			if(mCurrentSettings == &(mEngine.getAppSettings()))
+			{
+				ds::cfg::SettingsVariables::addVariable(theSetting->mName, theSetting->mRawValue);
+			}
+			
+			mCurrentSettings->replaceSettingVariablesAndExpressions();
+			if (mSettingsLayout && mPrimaryLayout) {
+				for (auto it : mSettingItems) {
+					DS_LOG_INFO("ITEM "<<it->getSettingName()<<" : isDerived"<<it->isDerived() )
+					if (it->getSettingName() == theSetting->mName || it->isDerived()) {
+						auto& update_setting = mCurrentSettings->getSetting(it->getSettingName(), 0);//We'll need to handle indexes at some point.
+						auto yPos = mSettingsLayout->getPosition().y;
+						it->setSetting(&update_setting);
+						mPrimaryLayout->runLayout();
+						mSettingsLayout->setPosition(mSettingsLayout->getPosition().x, yPos);
+					}
 				}
 			}
 		});

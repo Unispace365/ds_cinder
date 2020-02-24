@@ -17,8 +17,13 @@ public:
 	void					setSetting(Settings::Setting* theSetting);
 	const std::string&		getSettingName();
 	bool					getIsHeader(){ return mIsHeader; }
+	bool					isDerived()
+	{
+		return mHasOriginalValue;
+	}
 protected:
 	bool					mIsHeader;
+	bool					mHasOriginalValue; //this setting is derived either from another or an expr (or both).
 	std::string				mOriginalSettingName; // somehow gotta handle indexes?
 
 	ds::ui::Text*			mSettingName;

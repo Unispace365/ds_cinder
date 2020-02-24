@@ -65,7 +65,9 @@ public:
 		const ci::vec3					getVec3() const;
 		const cinder::Rectf				getRect() const;
 
-		std::vector<std::string>		getPossibleValues() const; 
+		std::vector<std::string>		getPossibleValues() const;
+		/// Goes through each setting to replace variables and parse expressions
+		void							replaceSettingVariablesAndExpressions();
 
 
 		/// \code <setting name="the_name" value="sample" type="string" comment="Detailed description" default="null" /> \endcode
@@ -76,6 +78,9 @@ public:
 
 		/// The raw value attribute is saved as a string and type converted when got
 		std::string						mRawValue;
+
+		/// The raw value attribute is saved as a string and type converted when got
+		std::string						mOriginalValue;
 
 		/// A helpful description of this setting for any GUI settings editors or just reading the xml
 		std::string						mComment;

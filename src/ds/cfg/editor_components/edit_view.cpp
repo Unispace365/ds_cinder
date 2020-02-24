@@ -100,6 +100,9 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 void EditView::applySetting(const bool notify){
 	if(mTheSetting && mEntryEditor){
 		mTheSetting->mRawValue = ds::utf8_from_wstr(mEntryEditor->getCurrentText());
+		mTheSetting->mOriginalValue.clear();
+		
+		mTheSetting->replaceSettingVariablesAndExpressions();
 	}
 	if(mSettingUpdatedCalback){
 		mSettingUpdatedCalback(mTheSetting);
@@ -302,8 +305,12 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			updateValue(line);
 			//mEngine.getNotifier().notify(Settings::SettingsEditedEvent("", ""));
 		});
-
-		mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
+		if (mTheSetting->mOriginalValue.empty()) {
+			mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
+		} else
+		{
+			mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mOriginalValue));
+		}
 		mEntryEditor->show();
 		mKeyboard->show();
 
