@@ -109,6 +109,7 @@ Sprite::Sprite(SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.
 	, mIdleTimer(engine)
 	, mLastWidth(width)
 	, mLastHeight(height)
+	, mLastDepth(0.f)
 	, mPerspective(false)
 	, mUseDepthBuffer(false)
 	, mShaderTexture(nullptr)
@@ -125,8 +126,9 @@ Sprite::Sprite(SpriteEngine& engine, const ds::sprite_id_t id, const bool perspe
 	, mTouchProcess(engine, *this)
 	, mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
 	, mIdleTimer(engine)
-	, mLastWidth(0)
-	, mLastHeight(0)
+	, mLastWidth(0.f)
+	, mLastHeight(0.f)
+	, mLastDepth(0.f)
 	, mPerspective(perspective)
 	, mUseDepthBuffer(false)
 	, mShaderTexture(nullptr)
@@ -136,8 +138,9 @@ Sprite::Sprite(SpriteEngine& engine, const ds::sprite_id_t id, const bool perspe
 
 void Sprite::init(const ds::sprite_id_t id) {
 	mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
-	mWidth = 0;
-	mHeight = 0;
+	mWidth = 0.f;
+	mHeight = 0.f;
+	mDepth = 1.f;
 	mCenter = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotation = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotationOrderZYX = false;
@@ -150,7 +153,6 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mCheckBounds = false;
 	mBoundsNeedChecking = true;
 	mInBounds = true;
-	mDepth = 1.0f;
 	mDragDestination = nullptr;
 	mBlobType = BLOB_TYPE;
 	mBlendMode = NORMAL;
@@ -1768,7 +1770,7 @@ void Sprite::computeClippingBounds(){
 
 void Sprite::dimensionalStateChanged(){
 	markClippingDirty();
-	if (mLastWidth != mWidth || mLastHeight != mHeight && mLastDepth != mDepth) {
+	if (mLastWidth != mWidth || mLastHeight != mHeight || mLastDepth != mDepth) {
 		mLastWidth = mWidth;
 		mLastHeight = mHeight;
 		mLastDepth = mDepth;
