@@ -1768,9 +1768,10 @@ void Sprite::computeClippingBounds(){
 
 void Sprite::dimensionalStateChanged(){
 	markClippingDirty();
-	if (mLastWidth != mWidth || mLastHeight != mHeight) {
+	if (mLastWidth != mWidth || mLastHeight != mHeight && mLastDepth != mDepth) {
 		mLastWidth = mWidth;
 		mLastHeight = mHeight;
+		mLastDepth = mDepth;
 		onSizeChanged();
 	}
 
