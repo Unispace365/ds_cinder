@@ -109,7 +109,7 @@ void PDFPlayer::loadNextPage() {
 	}
 }
 
-void PDFPlayer::setResource(const ds::Resource mediaResource) {
+void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 
 	mSourceResource	= mediaResource;
 	mResourceFilename = mSourceResource.getAbsoluteFilePath();

@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_MEDIA_SLIDESHOW
-#define DS_UI_MEDIA_MEDIA_SLIDESHOW
-
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/data/resource.h>
@@ -76,4 +73,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif

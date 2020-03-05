@@ -628,6 +628,9 @@ namespace ui {
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 		void					setBaseShader(const std::string &vertShaderString, const std::string& fragShaderString, const std::string &shadername, bool applyToChildren = false);
 
+		/// Set the resource content for a sprite. This is a base function that should be overridden by anything that can take a Resource (Image, Video, PDF, etc)
+		virtual void			setResource(const ds::Resource&);
+
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();

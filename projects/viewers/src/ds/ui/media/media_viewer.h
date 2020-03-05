@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_MEDIA_VIEWER
-#define DS_UI_MEDIA_MEDIA_VIEWER
-
 
 #include "ds/ui/panel/base_panel.h"
 #include <ds/ui/sprite/image.h>
@@ -29,6 +26,9 @@ public:
 	// unloads any current media
 	void					loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void					loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
+
+	/// Support the base sprite setting function, which is the same as loadMedia and initialize immediately
+	virtual void			setResource(const ds::Resource& reccy) { loadMedia(reccy); }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
 	ds::Resource			getResource();
@@ -101,5 +101,3 @@ private:
 
 } // namespace ui
 } // namespace ds
-
-#endif

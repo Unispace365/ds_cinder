@@ -506,11 +506,8 @@ GstVideo& GstVideo::setResourceId(const ds::Resource::Id& resourceId) {
 	return *this;
 }
 
-GstVideo& GstVideo::setResource(const ds::Resource& resource) {
-	if (resource.getType() == ds::Resource::VIDEO_TYPE) {
-		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
-		loadVideo(resource.getPortableFilePath());
-	} else if (resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+void GstVideo::setResource(const ds::Resource& resource) {
+	if (resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
 		std::string path = resource.getAbsoluteFilePath();
 		float wid = resource.getWidth();
 		float hid = resource.getHeight();
@@ -522,8 +519,11 @@ GstVideo& GstVideo::setResource(const ds::Resource& resource) {
 		}
 
 		startStream(path, wid, hid);
+	} else {
+		DS_LOG_VERBOSE(1, "Trying to load a resource on video that's maybe not a video: " << resource.getAbsoluteFilePath());
+		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
+		loadVideo(resource.getPortableFilePath());
 	}
-	return *this;
 }
 
 void GstVideo::setAutoRestartStream(bool autoRestart) {

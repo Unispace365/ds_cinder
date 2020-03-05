@@ -55,6 +55,9 @@ public:
 	void										loadUrl(const std::wstring &url);
 	void										loadUrl(const std::string &url);
 
+	/// Loads a url based on the resource absolute file name
+	virtual void								setResource(const ds::Resource& resource) override;
+
 	// setURL is identical to loadUrl. No exceptions will be thrown from any set or load url function.
 	// load/set url are all kept around for compatibility with the old APIs
 	void										setUrl(const std::string&);

@@ -1649,6 +1649,10 @@ void Sprite::setBaseShader(const std::string &vertShader, const std::string& fra
 	}
 }
 
+void Sprite::setResource(const ds::Resource&) {
+	DS_LOG_WARNING("Set resource hasn't been implemented for this sprite type. Sprite name=" << ds::utf8_from_wstr(getSpriteName(true)));
+}
+
 void Sprite::setupFinalRenderBuffer(){
 	if(mOutputFbo){
 		mOutputFbo = nullptr;

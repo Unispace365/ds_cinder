@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VIEWERS_MEDIA_MEDIA_INTERFACE_BUILDER
-#define VIEWERS_MEDIA_MEDIA_INTERFACE_BUILDER
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -24,5 +22,3 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 }  // namespace ui
 }  // namespace ds
-
-#endif

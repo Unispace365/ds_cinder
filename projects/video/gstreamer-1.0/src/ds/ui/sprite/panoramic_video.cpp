@@ -216,7 +216,12 @@ void PanoramicVideo::onSizeChanged() {
 	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
 }
 
-void PanoramicVideo::loadVideo(const std::string& path){
+void PanoramicVideo::loadVideo(const std::string& path) {
+	setResource(ds::Resource(path));
+}
+
+void PanoramicVideo::setResource(const ds::Resource& resource) {
+
 	if(mVideoSprite){
 		mVideoSprite->release();
 		mVideoSprite = nullptr;
@@ -235,7 +240,7 @@ void PanoramicVideo::loadVideo(const std::string& path){
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->setAutoSynchronize(mAutoSync);
-	video_sprite->loadVideo(path);
+	video_sprite->setResource(resource);
 	video_sprite->setFinalRenderToTexture(true);
 
 	resetCamera();
