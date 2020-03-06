@@ -20,7 +20,7 @@
 			>
 			
 				<sprite name="background"
-					color="black"
+					color="#FF111111"
 					layout_size_mode="fill"
 					
 					/>
@@ -31,7 +31,7 @@
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
 					blend_mode="normal"
 					color="white"
-					font_color="white"
+					font_color="#FF121212"
 					resize_limit="1200"
 					layout_fudge="0.0"
 					t_pad="100"
@@ -65,7 +65,8 @@
 						t_pad="20"
 						l_pad="100"
 						resize_limit="800"
-						font_color="white"
+						font_color="#FFFF0000"
+						preserve_span_colors="true"
 						text="This text should be in Noto Sans Bold. If it's displaying as a weird serif font, then you need to install Noto Sans Bold on your computer. Press the 'p' key to list all installed fonts and what their settable font names are."
 						/>
 					
@@ -77,7 +78,6 @@
 					font_leading="1.0"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:1.0"
 					blend_mode="normal"
-					color="white"
 					font_color="white"
 					l_pad="300"
 					r_pad="300"
@@ -85,6 +85,7 @@
 					layout_size_mode="flex"
 					blend_mode="normal"
 					text_align="justify"
+					preserve_span_colors="true"
 					text="<span font='Arial Italic'><span foreground='white' font='HelveticaNeueLT Std UltLt Ext'>Hello,</span> and Welcome to the <span font='Edwardian Script ITC'>markup</span> text <span style='italic'>area</span> where many <span foreground='orange' size='xx-large'>fun</span> things are <span letter_spacing='40000'>happening</span> because of the span elements in the text field!</span><span size='xx-small' font='Consolas'><br><br>Tap on this text area to highlight characters.<br><br>After this text, there will be some auto-added random numbers to test the re-layout abilities of the text sprite.</span><br><br>"
 					/>
 				<text name="message c"
