@@ -574,6 +574,10 @@ void Web::loadUrl(const std::string &url) {
 	}
 }
 
+void Web::setResource(const ds::Resource& resource) {
+	loadUrl(resource.getAbsoluteFilePath());
+}
+
 void Web::setUrl(const std::string& url) {
 	loadUrl(url);
 }

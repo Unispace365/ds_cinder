@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VIEWERS_UI_MEDIA_MEDIA_VIEWER_SETTINGS
-#define VIEWERS_UI_MEDIA_MEDIA_VIEWER_SETTINGS
 
 #include <string>
 #include <cinder/Vector.h>
@@ -139,4 +137,3 @@ struct MediaViewerSettings {
 } // namespace ui
 } // namespace ds
 
-#endif

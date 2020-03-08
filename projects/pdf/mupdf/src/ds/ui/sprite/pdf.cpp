@@ -140,6 +140,10 @@ Pdf &Pdf::setResourceId(const ds::Resource::Id &resourceId) {
 	return *this;
 }
 
+void Pdf::setResource(const ds::Resource& resource) {
+	setResourceFilename(resource.getAbsoluteFilePath());
+}
+
 void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
 	mPageSizeChangeFn = fn;
 }

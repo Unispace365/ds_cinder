@@ -84,7 +84,7 @@ class GstVideo : public Sprite {
 	// Loads a vodeo from a ds::Resource::Id
 	GstVideo& setResourceId(const ds::Resource::Id& resource_id);
 	// Loads a vodeo from a ds::Resource
-	GstVideo& setResource(const ds::Resource& resource);
+	virtual void setResource(const ds::Resource& resource) override;
 
 	/// If video streaming fails, will automatically try to reconnect (default=true)
 	void setAutoRestartStream(bool autoRestart);

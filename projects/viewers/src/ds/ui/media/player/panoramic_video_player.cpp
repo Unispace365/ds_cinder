@@ -38,12 +38,17 @@ PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool
 }
 
 void PanoramicVideoPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath));
+}
+
+void PanoramicVideoPlayer::setResource(const ds::Resource& resource) {
+
 	clear();
 
 	mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine);
 	addChildPtr(mPanoramicVideo);
 	mPanoramicVideo->setSize(1920.0f, 1080.0f);
-	mPanoramicVideo->loadVideo(mediaPath);
+	mPanoramicVideo->loadVideo(resource.getAbsoluteFilePath());
 	mVideo = mPanoramicVideo->getVideo();
 
 	if(!mVideo) {

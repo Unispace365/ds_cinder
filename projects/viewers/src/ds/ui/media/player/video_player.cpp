@@ -38,6 +38,10 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 }
 
 void VideoPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath));
+}
+
+void VideoPlayer::setResource(const ds::Resource& resource) {
 	clear();
 
 	mVideo = new ds::ui::GstVideo(mEngine);
@@ -97,8 +101,8 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 		mVideo->setNVDecode(true);
 	}
 
+	mVideo->setResource(resource);
 
-	mVideo->loadVideo(mediaPath);
 	if (mAutoPlayFirstFrame) {
 		mVideo->playAFrame(-1.0, [this]() { mVideo->setMute(false); });
 	}

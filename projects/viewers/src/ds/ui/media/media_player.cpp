@@ -312,7 +312,7 @@ void MediaPlayer::initializeVideo() {
 	});
 
 	mVideoPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mVideoPlayer->setMedia(mResource.getPortableFilePath());
+	mVideoPlayer->setResource(mResource);
 
 	mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 	setSizeAll(mVideoPlayer->getSize());
@@ -332,7 +332,7 @@ void MediaPlayer::initializeVideoPanoramic() {
 	});
 
 	mPanoramicPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mPanoramicPlayer->setMedia(mResource.getPortableFilePath());
+	mPanoramicPlayer->setResource(mResource);
 
 	if (!mMediaViewerSettings.mPanoramicVideoInteractive) {
 		auto pvs = mPanoramicPlayer->getPanoramicVideo();
@@ -404,7 +404,7 @@ void MediaPlayer::initializeWeb() {
 	mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mWebPlayer);
 	mWebPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
+	mWebPlayer->setResource(mResource);
 
 	if (mWebPlayer->getWeb()) {
 		mWebPlayer->getWeb()->setDocumentReadyFn([this] {

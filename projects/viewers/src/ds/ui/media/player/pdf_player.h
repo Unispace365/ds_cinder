@@ -24,7 +24,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
 
 	void setMedia(const std::string mediaPath);
-	void setResource(const ds::Resource mediaResource);
+	virtual void setResource(const ds::Resource& mediaResource) override;
 
 	ds::Resource& getResource() { return mSourceResource; }
 

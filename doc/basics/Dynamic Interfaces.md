@@ -283,6 +283,7 @@ Text Parameters
 * **text_model_format**: Allows combining of plain text, data from a content model, and text
 	post-processing functions. Requires being in a smart layout, and having setContentModel called.
 	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.
+* **preserve_span_colors**: If the text contains a <span> tag with any color info, you **must** turn this on to see it. Otherwise the text will only render as the color from this sprite. This is due to pre-multiplication of the alpha channel, which we ignore for better font rendering, particularly for thinner fonts.
 
 Image Parameters
 -------------------------

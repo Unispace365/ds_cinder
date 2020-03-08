@@ -89,6 +89,11 @@ void WebPlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 }
 
 void WebPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath, ds::Resource::WEB_TYPE));
+}
+
+void WebPlayer::setResource(const ds::Resource& resource) {
+
 	static const float fractionalWidthForContent = 0.6f;
 
 	if(mWeb) {
@@ -130,7 +135,7 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
-	mWeb->setUrl(mediaPath);
+	mWeb->setResource(resource);
 
 	if(mStartInteractable) {
 		mWeb->enable(true);
