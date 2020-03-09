@@ -127,6 +127,11 @@ public:
 							   int x, int y) OVERRIDE{
 		return true;
 	}
+
+
+	virtual void OnVirtualKeyboardRequested(CefRefPtr<CefBrowser> browser,
+		TextInputMode input_mode);
+
 	virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
 		const CefString& value) OVERRIDE;
 	virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,

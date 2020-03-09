@@ -11,6 +11,7 @@
 
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
+#include "include/cef_parser.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -270,6 +271,12 @@ std::string getErrorStringForError(const int errorCode){
 	return "Unknown Error";
 }
 
+std::string GetDataURI(const std::string& data, const std::string& mime_type) {
+	return "data:" + mime_type + ";base64," +
+		CefURIEncode(CefBase64Encode(data.data(), data.size()), false)
+		.ToString();
+}
+
 void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								CefRefPtr<CefFrame> frame,
 								ErrorCode errorCode,
@@ -295,16 +302,26 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 		}
 	}
 
-
-	// Display a load error message.
+	// make a small page to load with some super fancy css
 	std::stringstream ss;
-	ss << "<html><body bgcolor=\"white\">"
-		"<h2>Failed to load URL " << std::string(failedUrl) <<
-		" with error \"" << getErrorStringForError(errorCode) << "\" (" << errorCode <<
-		").</h2></body></html>";
-	// This can be called on any thread
-	// TODO: update this
-	//frame->LoadString(ss.str(), failedUrl);
+	ss << "<html><head><title>Page failed to load</title></head><style>"
+		".container {position: absolute;top: 50%;left: 50%;-moz-transform: translateX(-50%) translateY(-50%);"
+		"-webkit-transform: translateX(-50%) translateY(-50%);"
+		"transform: translateX(-50%) translateY(-50%);"
+		"font-family: Arial, Helvetica, sans-serif;"
+		"color:#eeeeee;font-size:xx-large}.small{font-size:medium}"
+		"</style><body bgcolor=\"#121212\">"
+		"<div class=container><span>"
+		"<h1>Sorry!</h1>"
+		"<h3>Page failed to load</h3>"
+		"<b>URL: </b>";
+	ss << failedUrl
+	   << "<br/><b>Error:</b> " << getErrorStringForError(errorCode) 
+		<< "<br/><br/><span class=small>" << errorText << " (" << errorCode << ")</span>";
+
+
+	ss << "</span></div></body></html>";
+	frame->LoadURL(GetDataURI(ss.str(), "text/html"));
 }
 
 
@@ -407,6 +424,13 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 void WebHandler::OnCursorChange(CefRefPtr<CefBrowser> browser, CefCursorHandle cursor, CursorType type, const CefCursorInfo& custom_cursor_info){
 	// This is when it changes from a hand to a pointer, to a directional arrow, etc.
 //	std::cout << "On Cursor change : " << type << std::endl;
+}
+
+
+void WebHandler::OnVirtualKeyboardRequested(CefRefPtr<CefBrowser> browser, TextInputMode input_mode) {
+	// throw up a keyboard based on teh input mode
+	// or really, send a callback to the other part of the app to pop it up
+	//std::cout << "OnVirtualKeyboardRequested " << input_mode << std::endl;
 }
 
 void WebHandler::OnStatusMessage(CefRefPtr<CefBrowser> browser, const CefString& value){
