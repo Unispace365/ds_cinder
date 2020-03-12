@@ -115,7 +115,7 @@ void ConversionItem::startConversion() {
 		commandLine << "-c:v prores_ks -profile:v 4 -pix_fmt yuva444p10le ";
 	} else {
 		outPath.append("_h264.mp4");
-		commandLine << "-c:v libx264 -profile:v high -level 4.2 -pix_fmt yuv420p ";
+		commandLine << "-c:v libx264 -preset slow -crf 18 -profile:v high -level 4.2 -pix_fmt yuv420p ";
 	}
 		
 	commandLine << "\"" << outPath << "\"";
