@@ -116,7 +116,7 @@ void EngineClient::update() {
 	bool foundBlob = false;
 	int waitCount = 0;
 	while(!foundBlob) {
-		if(mReceiver.receiveBlob()) {
+		if(mReceiver.receiveBlob(true)) {
 			foundBlob = true;
 		}
 		waitCount++;

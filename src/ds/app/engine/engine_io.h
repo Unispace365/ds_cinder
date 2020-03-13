@@ -64,7 +64,8 @@ public:
 	ds::DataBuffer&				getData();
 	/// Convenience for clients with a blob reader, automatically
 	/// receive and handle the data. Answer true if there was data.
-	bool						receiveBlob();
+	/// If strict, then will return false if there's no data, otherwise will only return false on error
+	bool						receiveBlob(const bool strict);
 	bool						handleBlob(ds::BlobRegistry&, ds::BlobReader&, bool& morePacketsAvailable);
 	bool						hasLostConnection() const;
 	void						clearLostConnection();
