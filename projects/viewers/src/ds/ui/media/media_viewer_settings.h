@@ -26,6 +26,7 @@ struct MediaViewerSettings {
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
 		, mWebStartTouchable(false)
+		, mWebNativeTouches(true)
 		, mCacheImages(false)
 		, mMipMapImages(true)
 		, mPdfCanShowLinks(true)
@@ -69,6 +70,8 @@ struct MediaViewerSettings {
 	bool						mWebKeyboardAbove;
 	// If true, the website will load interactable. Default = false
 	bool						mWebStartTouchable;
+	// If true, web sprites will send native touch events to the browser. Default = true
+	bool						mWebNativeTouches;
 
 	//--------------------Image Settings -------------------------------------------//
 

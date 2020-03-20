@@ -49,6 +49,7 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setAllowTouchToggle(settings.mWebAllowTouchToggle);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setStartInteractable(settings.mWebStartTouchable);
+	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
@@ -114,6 +115,8 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	mWeb->setDragScrolling(true);
 	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
+
+	mWeb->setNativeTouchInput(mNativeTouches);
 
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
 		if(mWebInterface) {
@@ -261,6 +264,14 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 void WebPlayer::setIsYoutube(const bool isYoutube){
 	mIsYoutube = isYoutube;
 	setMedia(mWeb->getUrl());
+}
+
+
+void WebPlayer::setNativeTouches(const bool isNative) {
+	mNativeTouches = isNative;
+	if(mWeb){
+		mWeb->setNativeTouchInput(mNativeTouches);
+	}
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {

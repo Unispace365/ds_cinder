@@ -244,6 +244,13 @@ void WebCefService::sendMouseWheelEvent(const int browserId, const int x, const 
 	}
 }
 
+void WebCefService::sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase) {
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if (handler) {
+		handler->sendTouchEvent(browserId, touchId, x, y, phase);
+	}
+}
+
 void WebCefService::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){

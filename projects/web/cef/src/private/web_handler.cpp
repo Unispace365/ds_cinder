@@ -597,6 +597,38 @@ void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int
 	}
 }
 
+void WebHandler::sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase) {
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
+	if (mBrowserList.empty()) return;
+
+	auto findy = mBrowserList.find(browserId);
+	if (findy != mBrowserList.end()) {
+		auto browserHost = findy->second->GetHost();
+		CefTouchEvent touchEvent;
+		touchEvent.id = touchId;
+		touchEvent.x = x;
+		touchEvent.y = y;
+
+		if (phase == 0) {
+			touchEvent.type = CEF_TET_PRESSED;
+		} else if (phase == 1) {
+			touchEvent.type = CEF_TET_MOVED;
+		} else {
+			touchEvent.type = CEF_TET_RELEASED;
+		}
+
+
+		// This can be called on any thread
+		browserHost->SendTouchEvent(touchEvent);
+	} else if (browserId >= 0) {
+		DS_LOG_WARNING("Browser not found in list to sendMouseWheel to! BrowserId=" << browserId);
+	}
+
+}
+
+
 void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter){
 	// be sure this is locked with other requests to the browser list
 	base::AutoLock lock_scope(mLock);

@@ -69,6 +69,11 @@ public:
 	std::string									getCurrentUrl();
 
 	// -------- Input Controls -------------------------------- //
+	// If this is on (the default), will send the touch events directly to Chromium, which will handle them natively
+	// This affects the internal touch handling if this sprite is enabled for touch input and doesn't affect the sendMouseEvents below
+	void										setNativeTouchInput(const bool doNativeTouch) { mNativeTouchInput = doNativeTouch; }
+
+	// These are only considered if this sprite is enabled and setNativeTouchInput(false) has been called
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
 	void										setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
 	void										setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
@@ -171,9 +176,6 @@ public:
 	virtual void								onUpdateServer(const ds::UpdateParams&) override;
 	virtual void								drawLocalClient() override;
 
-	// DEPRECATED - there's no loading icon anymore
-	void										setLoadingIconOpacity(const float opacity){}
-
 protected:
 	virtual void								onSizeChanged();
 	virtual void								writeAttributesTo(ds::DataBuffer&);
@@ -250,6 +252,7 @@ private:
 	double										mZoom;
 	bool										mNeedsZoomCheck;
 
+	bool										mNativeTouchInput;
 	bool										mSecondClickOnUp;
 	ci::vec3									mPreviousTouchPos;
 	bool										mAllowClicks;

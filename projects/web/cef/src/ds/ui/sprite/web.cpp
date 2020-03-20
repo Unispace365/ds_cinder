@@ -111,6 +111,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mIsFullscreen(false)
 	, mNeedsInitialized(false)
 	, mCallbacksCue(nullptr)
+	, mNativeTouchInput(true)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -751,6 +752,24 @@ void Web::sendTouchToService(const int xp, const int yp, const int btn, const in
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
+	if (mNativeTouchInput) {
+		ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
+		int xPos = (int)roundf(pos.x);
+		int yPos = (int)roundf(pos.y);
+
+		// in case the global to local failed, use the global point
+		if (xPos < -10000000 || yPos < -10000000) {
+			xPos = (int)(touchInfo.mCurrentGlobalPoint.x / getScale().x);
+			yPos = (int)(touchInfo.mCurrentGlobalPoint.y / getScale().y);
+		}
+
+		int phasey = 0;
+		if (touchInfo.mPhase == ds::ui::TouchInfo::Moved) phasey = 1;
+		if (touchInfo.mPhase == ds::ui::TouchInfo::Removed) phasey = 2;
+		mService.sendTouchEvent(mBrowserId, touchInfo.mFingerId, xPos, yPos, phasey);
+		return;
+	}
+
 	if(touchInfo.mFingerIndex != 0)
 		return;
 

@@ -188,6 +188,9 @@ public:
 	// Sends a key event to the browser
 	void 					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter);
 
+	// Sends a touch event
+	void					sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase);
+
 	// Loads a new URL in the specified browser's main frame
 	void 					loadUrl(const int browserId, const std::string& newUrl);
 

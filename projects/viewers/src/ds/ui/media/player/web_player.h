@@ -45,7 +45,7 @@ class WebPlayer : public ds::ui::Sprite {
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
 	void setIsYoutube(const bool isYoutube);
-
+	void setNativeTouches(const bool isNative);
 
   protected:
 	virtual void onSizeChanged();
@@ -66,6 +66,7 @@ class WebPlayer : public ds::ui::Sprite {
 	bool mStartInteractable;
 	bool mInterfaceBelowMedia;
 	bool mIsYoutube;
+	bool mNativeTouches;
 };
 
 }  // namespace ui
