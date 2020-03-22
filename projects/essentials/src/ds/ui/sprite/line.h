@@ -23,7 +23,7 @@ namespace ui {
 	- Sprites can be animated using the SpriteAnimatable functions to gracefully change size, position, opacity, scale,
  color, and rotation.
 	- Sprites can clip their children along their bounds using setClipping(true)	 */
-class LineSprite final : public ds::ui::Sprite {
+class LineSprite : public ds::ui::Sprite {
   public:
 	LineSprite(ds::ui::SpriteEngine& eng, const std::vector<ci::vec2>& points = std::vector<ci::vec2>());
 
