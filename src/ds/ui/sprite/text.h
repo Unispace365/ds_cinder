@@ -82,6 +82,7 @@ public:
 	float						getResizeLimitWidth() const;
 	float						getResizeLimitHeight() const;
 	Text&						setResizeLimit(const float width = 0, const float height = -1.0f);
+	Text&						setFitToResizeLimit(const bool fitToResize);
 
 	/// Should this sprite shrink to the bounds of the texture (as opposed to shrinking to the resize_limit)
 	bool						getShrinkToBounds() const;
@@ -162,6 +163,7 @@ public:
 
 	virtual void				onUpdateClient(const UpdateParams &updateParams) override;
 	virtual void				onUpdateServer(const UpdateParams&) override;
+	
 	void						drawLocalClient();
 
 	/// Text is rendered into this texture
@@ -178,7 +180,8 @@ public:
 	virtual	void				onBuildRenderBatch() override;
 
 protected:
-
+	//picks a font size that fits the whole text inside resize limit rect;
+	bool sizeToFit();
 	/// puts the layout into pango, updates any layout stuff, and measures the result
 	/// This is a pre-requisite for drawPangoText().
 	bool measurePangoText();
@@ -198,6 +201,12 @@ private:
 	bool						mShrinkToBounds;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
+	//fit
+	bool						mFitToResizeLimit;
+	bool						mNeedsMaxResizeFontSizeUpdate;
+	bool						mNeedsRefit;
+	int							mMaxResizeFontSize;
+	
 
 	double						mTextSize;
 	std::string					mTextFont;
@@ -218,10 +227,12 @@ private:
 	/// Internal flags for state invalidation
 	/// Used by measure and render methods
 	bool						mNeedsFontUpdate;
+	bool						mNeedsFontSizeUpdate;
 	bool 						mNeedsMeasuring;
 	bool 						mNeedsTextRender;
 	bool 						mNeedsFontOptionUpdate;
 	bool 						mNeedsMarkupDetection;
+	
 
 	/// simply stored to check for change across renders
 	int 						mPixelWidth;

@@ -484,6 +484,18 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
+	}
+	else if (property == "fit_to_limit") {
+		// Try to set the fit to resize limit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			auto v = parseBoolean(value);
+			text->setFitToResizeLimit(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
 	} else if (property == "text_align") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
