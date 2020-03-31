@@ -485,11 +485,35 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if (property == "fit_font_sizes") {
+		// Try to set the fit to resize limit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			std::regex e3(",+");
+			auto itr = std::sregex_token_iterator(value.begin(), value.end(), e3, -1);
+			std::vector<double> size_values;
+			double font_value;
+
+			for (; itr != std::sregex_token_iterator(); ++itr) {
+				if (ds::string_to_value<double>(itr->str(), font_value))
+				{
+					size_values.push_back(font_value);
+				}
+			}
+			
+
+			text->setFitFontSizes(size_values);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
 	else if (property == "fit_to_limit") {
 		// Try to set the fit to resize limit
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			auto v = parseBoolean(value);
+			bool v = parseBoolean(value);
 			text->setFitToResizeLimit(v);
 		}
 		else {
@@ -630,6 +654,32 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 						   << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property == "text_wrap") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			WrapMode theMode = WrapMode::kWrapModeWordChar;
+			if (value == "false" || value=="off") {
+				theMode = WrapMode::kWrapModeOff;
+			}
+			else if (value == "word") {
+				theMode = WrapMode::kWrapModeWord;
+			}
+			else if (value == "char") {
+				theMode = WrapMode::kWrapModeChar;
+			}
+			else if (value == "word_char" || value=="wordchar") {
+				theMode = WrapMode::kWrapModeWordChar;
+			}
+			else {
+				DS_LOG_WARNING("XmlImporter: text_wrap mode not recognized: " << value << " valid values: start, middle, end, none");
+			}
+
+			text->setWrapMode(theMode);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if (property == "markdown") {
 		auto text = dynamic_cast<Text*>(&sprite);
