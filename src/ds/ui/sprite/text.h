@@ -113,6 +113,11 @@ public:
 
 	double						getFontSize(){ return mTextSize; }
 	void						setFontSize(double fontSize);
+	
+	void						setFitMaxFontSize(double fontSize);
+	void						setFitMinFontSize(double fontSize);
+	double						getFitMaxFontSize() { return mFitMaxTextSize; }
+	double						getFitMinFontSize() { return mFitMinTextSize; }
 
 	Alignment::Enum				getAlignment();
 	void						setAlignment(Alignment::Enum alignment);
@@ -164,7 +169,8 @@ public:
 
 	virtual void				onUpdateClient(const UpdateParams &updateParams) override;
 	virtual void				onUpdateServer(const UpdateParams&) override;
-	
+	bool sizeToFit();
+
 	void						drawLocalClient();
 
 	/// Text is rendered into this texture
@@ -179,6 +185,7 @@ public:
 	static void					installAsClient(ds::BlobRegistry&);
 
 	virtual	void				onBuildRenderBatch() override;
+	void						showDebug(bool show) { mDebugOutput = show; mNeedsRefit = true; mNeedsMeasuring = true; }
 
 protected:
 	//picks a font size that fits the whole text inside resize limit rect;
@@ -251,6 +258,10 @@ private:
 	PangoLayout*				mPangoLayout;
 	cairo_font_options_t*		mCairoFontOptions;
 	std::vector<double>			mFontSizes;
+	double						mFitMaxTextSize;
+	double						mFitMinTextSize;
+	double						mFitCurrentTextSize;
+	bool						mDebugOutput = false;
 };
 }
 } // namespace kp::pango

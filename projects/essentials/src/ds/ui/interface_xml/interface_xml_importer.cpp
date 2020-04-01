@@ -509,6 +509,43 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				<< "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if (property == "fit_max_font_size") {
+		// Try to set the max font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			double v = ds::string_to_double(value);
+			text->setFitMaxFontSize(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_min_font_size") {
+		// Try to set the min font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			double v = ds::string_to_double(value);
+			text->setFitMinFontSize(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_font_maxmin") {
+		// Try to set the max and min font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			ci::vec3 v = parseVector(value);
+			text->setFitMaxFontSize(v.x);
+			text->setFitMinFontSize(v.y);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
 	else if (property == "fit_to_limit") {
 		// Try to set the fit to resize limit
 		auto text = dynamic_cast<Text*>(&sprite);
@@ -520,7 +557,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 				<< "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property == "text_align") {
+	}
+	else if (property == "text_align") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
 			std::string alignString = value;
