@@ -283,6 +283,16 @@ Text Parameters
 * **text_model_format**: Allows combining of plain text, data from a content model, and text
 	post-processing functions. Requires being in a smart layout, and having setContentModel called.
 	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.
+* **fit_to_limit**: The font size is calculated so that all of of the text fits in the resize_limit rectangle with the largest possible font. (true or false)
+* **fit_font_maxmin**: a 2 element vector of font sizes. If fit_to_limit is true, the calculated font will not be larger than the first element and will not be smaller than the second element.
+* **fit_max_font_size**: If fit_to_limit is true, the calculated font will not be larger than this value. the same as the first element of **fit_font_maxmin**
+* **fit_min_font_size**: If fit_to_limit is true, the calculated font will not be smaller than this value. the same as the second element of **fit_font_maxmin**
+* **fit_font_sizes**: a list of font sizes. If fit_to_limit is true, the calculated font will come from this list. Fit font maxmin is respected so size above max or below min will not be used.
+* **text_wrap**: Controls how the text will break when a line is to long.
+    1. "off" or "false" turns of text wrapping.
+	1. "word" break on word boundries.
+	1. "char" break on any character.
+	1. "wordchar" try to break on word boundries and then on a character is that doesn't work.
 
 Image Parameters
 -------------------------
