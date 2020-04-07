@@ -78,6 +78,7 @@
     <ClInclude Include="src\ds\ui\sprite\line.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
+    <ClInclude Include="src\ds\ui\util\target_utils.h" />
     <ClInclude Include="src\ds\ui\util\text_model.h" />
     <ClInclude Include="src\ds\ui\util\ui_utils.h" />
   </ItemGroup>

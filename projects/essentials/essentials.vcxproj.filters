@@ -257,5 +257,8 @@
     <ClInclude Include="src\ds\service\weather_service.h">
       <Filter>src\ds\service</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\util\target_utils.h">
+      <Filter>src\ds\ui\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

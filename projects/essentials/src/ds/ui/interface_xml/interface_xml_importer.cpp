@@ -1587,6 +1587,16 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	std::string value  = node->getValue();
 	auto&		engine = parent->getEngine();
 
+	std::string layout_target = engine.getEngineSettings().getString("xml_importer:target");
+	//if the node has a target attribute it should honor that.
+	if (node->hasAttribute("target"))
+	{
+		if (node->getAttributeValue<std::string>("target") != layout_target)
+		{
+			return true;
+		}
+	}
+
 	DS_LOG_VERBOSE(6, "XmlImporter: readSprite type=" << type << " value=" << value);
 
 	if (type == "xml") {
@@ -1615,6 +1625,16 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		// Use child nodes of the "xml" node to set children properties
 		BOOST_FOREACH (auto& newNode, node->getChildren()) {
 			if (newNode->getTag() == "property") {
+
+				//if the property node has a target attribute it should honor that.
+				if (newNode->hasAttribute("target"))
+				{
+					if (newNode->getAttributeValue<std::string>("target") != layout_target)
+					{
+						continue;
+					}
+				}
+				
 				std::string		  childSpriteName = newNode->getAttributeValue<std::string>("name", "");
 				std::stringstream ss;
 				ss << spriteName << "." << childSpriteName;
@@ -1670,7 +1690,13 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			return false;
 		}
 
-		BOOST_FOREACH (auto& sprite, node->getChildren()) { readSprite(spriddy, sprite, false); }
+		BOOST_FOREACH (auto& sprite, node->getChildren())
+		{
+			if(sprite->getTag() != "override")
+			{
+				readSprite(spriddy, sprite, false);
+			}
+		}
 
 		std::string linkValue = node->getAttributeValue<std::string>("sprite_link", "");
 
@@ -1715,9 +1741,30 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 		// Apply stylesheet(s)
 		BOOST_FOREACH (auto stylesheet, mStylesheets) { applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes); }
-
+		
 		// Set properties from xml attributes, overwriting those from the stylesheet(s)
-		BOOST_FOREACH (auto& attr, node->getAttributes()) { setSpriteProperty(*spriddy, attr, mXmlFile); }
+		BOOST_FOREACH (auto& attr, node->getAttributes()) { if(attr.getName() != "target") setSpriteProperty(*spriddy, attr, mXmlFile); }
+
+		//apply the overrides
+		BOOST_FOREACH(auto& override_, node->getChildren())
+		{
+			if (override_->getTag() == "override")
+			{
+				if (override_->hasAttribute("target"))
+				{
+					if (override_->getAttributeValue<std::string>("target") != layout_target)
+					{
+						continue;
+					}
+				}
+				for(auto& attr: override_->getAttributes())
+				{
+					if (attr.getName() != "target") {
+						setSpriteProperty(*spriddy, attr, mXmlFile);
+					}
+				}
+			}
+		}
 
 		// Put sprite in named sprites map
 		if (sprite_name != "") {
