@@ -49,7 +49,7 @@ void layout_example::setupServer(){
 
 	if(mEngine.getWidth() < mEngine.getHeight())
 	{
-		target = "portait";
+		target = "portrait";
 	}
 	
 	ds::ui::setLayoutTarget(mEngine, target);

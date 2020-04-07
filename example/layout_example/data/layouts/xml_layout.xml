@@ -1,0 +1,6 @@
+<interface>
+<text name="sample_text"
+				text="This is the default text"
+				font="sample:config"
+				/>
+</interface>
