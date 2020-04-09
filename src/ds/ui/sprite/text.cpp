@@ -493,6 +493,11 @@ ci::Rectf Text::getRectForCharacterIndex(const int characterIndex){
 	return outputRect;
 }
 
+void Text::setConfig(const std::string& cfgName){
+	setConfigName(cfgName);
+	mEngine.getTextCfg(mCfgName).configure(*this);
+}
+
 bool Text::getTextWrapped(){
 	// calculate current state if needed
 	measurePangoText();

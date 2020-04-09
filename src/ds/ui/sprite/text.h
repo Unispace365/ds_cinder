@@ -156,7 +156,9 @@ public:
 	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
 	int							getCharacterIndexForPosition(const ci::vec2& localPosition);
 
-	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
+	void						setConfig(const std::string& cfgName);
+
+	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName;}
 	const std::string			getConfigName(){ return mCfgName; }
 	const std::string			getFontFileName(){ return mTextFont; }
 
