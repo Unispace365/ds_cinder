@@ -523,6 +523,10 @@ const ci::vec3 Sprite::getGlobalPosition() const{
 }
 
 
+const ci::vec3 Sprite::getGlobalCenterPosition() const {
+	return getGlobalPosition() + getLocalCenterPosition();
+}
+
 ci::vec3 Sprite::getCenterPosition() const {
 	return mPosition + getLocalCenterPosition();
 }

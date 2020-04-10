@@ -239,6 +239,11 @@ namespace ui {
 			\return The 3d vector of the world-space position, in pixels. */
 		const ci::vec3			getGlobalPosition() const;
 
+		/** Get the center position of the Sprite in global space. This is a convenience that's getGlobalPostion() + getLocalCenterPosition();
+		Returns ci::vec3::zero() + getLocalCenterPosition() if this sprite has no parent.
+		\return The 3d vector of the center of this sprite world-space position, in pixels. */
+		const ci::vec3			getGlobalCenterPosition() const;
+
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
 		void					move(const ci::vec3 &delta);
