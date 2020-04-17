@@ -1,0 +1,30 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			overall_alignment="top"
+			size="$_world_size"
+		>
+		
+	
+		<sprite name="background"
+			color="#222222"
+			layout_size_mode="fill"
+			/>
+			
+		<text name="app_title"
+			font="app:title"
+			layout_size_mode="flex"
+			pad_all="#expr $_padding * 2.0"
+			layout_h_align="center"
+			animate_on="$_default:anim"
+			text="Text Resize Example"
+			/>
+				
+		
+	</layout>
+
+
+</interface>
+
+
