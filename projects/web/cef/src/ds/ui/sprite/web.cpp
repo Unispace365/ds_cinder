@@ -291,7 +291,6 @@ void Web::initializeBrowser(){
 
 		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y) {
 			mHasBuffer = true;
-			//mBuffer = (unsigned char *)buffer;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
 	};
@@ -470,7 +469,7 @@ void Web::update(const ds::UpdateParams &p) {
 		DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
 
 		ci::gl::Texture::Format fmt;
-		fmt.enableMipmapping(true);
+	//	fmt.enableMipmapping(true);
 		//fmt.setMinFilter(GL_LINEAR);
 		//fmt.setMagFilter(GL_LINEAR);
 		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
