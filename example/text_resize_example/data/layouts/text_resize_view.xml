@@ -1,0 +1,54 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="horiz"
+			enable="true"
+			size="$_world_size"
+			animate_off="position:0, $_world_height; ease:inQuint"
+		>
+		<layout name="free_layout_box" pad_all="20" layout_v_align="middle" layout_type="size" height="#expr $_world_height * 0.65" width="#expr $_world_width * 0.5">
+			<sprite name="backdrop" layout_size_mode="fill" color="#20ffffff"/>
+			<sprite name="text_box_limit" position="10, 10"  size="10, 10" color="#ff208080" />
+			<sprite name="text_box_size" position="10, 10"  size="10, 10" color="#aa802020" />
+			<text name="text_box" 
+				text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin interdum risus sit amet ligula sollicitudin aliquet at a metus. Nunc orci ipsum, sodales ut tincidunt a, dignissim eu lectus. Aliquam erat volutpat. Nunc a iaculis mauris. Ut dignissim mauris a lacus imperdiet, eget malesuada ante consequat. Duis vel commodo diam. Etiam lacinia sodales ligula, in pulvinar dolor euismod iaculis." 
+				fit_to_limit="true" resize_limit="200, 200" position="10, 10" size="200, 200" />
+			<sprite name="dragbox" position="210, 210" center="0.5, 0.5" size="10, 10" color="#ffffffff" />
+		</layout>
+		<layout name="controls" layout_type="vert" layout_v_align="middle" overall_alignment="top"  height="#expr $_world_height * 0.65" width="#expr $_world_width * 0.5">
+			<layout layout_type="vert" shrink_to_children="both">
+				<text text="Text" font="ctrl:label" shrink_to_bounds="true"/>
+				<entry_field enable="true" name="text_entry" b_pad="10" size="500, 400" color="#ff000000"/>
+				
+				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">
+				<control_check_box name="do_fit_limit" layout_v_align="middle"/>
+					<text text="fit_to_limit" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
+				</layout>
+				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">
+				<control_check_box name="do_fit_font_sizes" layout_v_align="middle"/>
+					<text text="fit_font_sizes" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
+				<entry_field enable="true" name="sizes_entry" b_pad="10" size="500, 40" color="#ff000000" layout_v_align="middle"/>
+				</layout>
+				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">
+				<control_check_box name="do_fit_font_maxmin" layout_v_align="middle"/>
+					<text text="fit_font_size_range" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
+				<entry_field enable="true" name="maxmin_entry" b_pad="10" size="500, 40" color="#ff000000" layout_v_align="middle"/>
+				</layout>
+				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">
+				<control_check_box name="do_wrap" layout_v_align="middle"/>
+					<text text="text_wrap (off,char,word,charword)" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
+				<entry_field enable="true" name="text_wrap_entry" b_pad="10" size="300, 40" color="#ff000000" layout_v_align="middle"/>
+				</layout>
+				<layout_button name="view_button" size="200, 50" layout_type="vert" overall_alignment="middle">
+					<border layout_size_mode="fill" color="#ffffffff" border_width="2"/>
+					<sprite layout_size_mode="fill" color="#ff808080" attach_state="high"/>
+					<text text="VIEW" layout_h_align="center"/>
+				</layout_button>
+			</layout>
+		</layout>
+	</layout>
+
+
+</interface>
+
+
