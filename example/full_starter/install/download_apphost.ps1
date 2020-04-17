@@ -1,5 +1,15 @@
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
+Add-Type -Language CSharp "
+namespace System.Net {
+public static class Util {
+public static void Init() {
+ServicePointManager.ServerCertificateValidationCallback = null;
+ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, errs) => true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+}}}"
+[System.Net.Util]::Init()
+
 $DsapphostVer = (Invoke-WebRequest -UseBasicParsing -Uri 'http://update.downstreamdev.com/ds/dsapphost/version.txt').Content;
 Write-Host $DsapphostVer;
 
