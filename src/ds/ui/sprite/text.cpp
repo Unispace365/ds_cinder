@@ -561,12 +561,10 @@ int Text::getNumberOfLines(){
 
 
 void Text::onUpdateClient(const UpdateParams&){
-	//sizeToFit();
 	measurePangoText();
 }
 
 void Text::onUpdateServer(const UpdateParams&){
-	//sizeToFit();
 	measurePangoText();
 	
 }

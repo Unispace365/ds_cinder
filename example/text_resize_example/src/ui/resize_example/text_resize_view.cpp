@@ -25,6 +25,7 @@ TextResizeView::TextResizeView(ds::ui::SpriteEngine& eng)
 		}
 	});
 
+
 	mTextSprite = getSprite<ds::ui::Text>("text_box");
 	mTextBoxBack = getSprite("text_box_size");
 	mResizeHandle = getSprite("dragbox");
@@ -43,6 +44,17 @@ TextResizeView::TextResizeView(ds::ui::SpriteEngine& eng)
 	
 	auto textInput = getSprite<ds::ui::EntryField>("text_entry");
 	if (mTextSprite && textInput && fonts_input && use_fit_chkbox && use_fit_fonts_chkbox && use_wrap_chxbox) {
+
+		setTapCallback([=](Sprite* sp, const ci::vec3& ti) {
+			fonts_input->unfocus();
+			textInput->unfocus();
+			wrap_input->unfocus();
+			maxmin_input->unfocus();
+			fonts_input->enable(true);
+			textInput->enable(true);
+			wrap_input->enable(true);
+			maxmin_input->enable(true);
+		});
 
 		textInput->setCurrentText(mTextSprite->getText());
 		
@@ -127,8 +139,8 @@ TextResizeView::TextResizeView(ds::ui::SpriteEngine& eng)
 					}
 				}
 				if (size_values.size() >= 2) {
-					mTextSprite->setFitMaxFontSize(size_values[0]);
-					mTextSprite->setFitMinFontSize(size_values[1]);
+					mTextSprite->setFitMaxFontSize(size_values[1]);
+					mTextSprite->setFitMinFontSize(size_values[0]);
 				}
 			}
 			else

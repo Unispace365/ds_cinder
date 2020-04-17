@@ -31,7 +31,7 @@
 				</layout>
 				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">
 				<control_check_box name="do_fit_font_maxmin" layout_v_align="middle"/>
-					<text text="fit_font_maxmin" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
+					<text text="fit_font_size_range" font="ctrl:label" shrink_to_bounds="true" layout_v_align="middle" r_pad="10"/>
 				<entry_field enable="true" name="maxmin_entry" b_pad="10" size="500, 40" color="#ff000000" layout_v_align="middle"/>
 				</layout>
 				<layout layout_type="horiz" shrink_to_children="both" t_pad="10">

@@ -533,13 +533,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				<< "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
-	else if (property == "fit_font_maxmin") {
+	else if (property == "fit_font_size_range") {
 		// Try to set the max and min font size for fit
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
 			ci::vec3 v = parseVector(value);
-			text->setFitMaxFontSize(v.x);
-			text->setFitMinFontSize(v.y);
+			text->setFitMinFontSize(v.x);
+			text->setFitMaxFontSize(v.y);
 		}
 		else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property

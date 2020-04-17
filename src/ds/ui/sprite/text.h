@@ -169,7 +169,6 @@ public:
 
 	virtual void				onUpdateClient(const UpdateParams &updateParams) override;
 	virtual void				onUpdateServer(const UpdateParams&) override;
-	bool sizeToFit();
 
 	void						drawLocalClient();
 
