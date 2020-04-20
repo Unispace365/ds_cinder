@@ -916,7 +916,7 @@ namespace ui {
 		ci::ColorA			mServerColor;
 		/// This to make onSizeChanged() more efficient -- it can get
 		/// triggered as a result of position changes, which shouldn't affect it.
-		float				mLastWidth, mLastHeight;
+		float				mLastWidth, mLastHeight, mLastDepth;
 
 		/// Total hack needed in certain cases where you're using a perspective camera.
 		/// This is used by the picking to let the touch system know that the sprite
