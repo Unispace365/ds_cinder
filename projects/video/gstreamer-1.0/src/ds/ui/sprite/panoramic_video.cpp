@@ -203,7 +203,7 @@ void PanoramicVideo::drawLocalClient(){
 
 void PanoramicVideo::resetCamera(){
 	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
-	mCamera.setWorldUp(ci::vec3(0.0f, -1.0f, 0.0f));
+	mCamera.setWorldUp(ci::vec3(0.0f, 1.0f, 0.0f));
 	mCamera.setEyePoint(ci::vec3());
 	mCamera.setPivotDistance(200.0f);
 	mXRot = 0.0f;
