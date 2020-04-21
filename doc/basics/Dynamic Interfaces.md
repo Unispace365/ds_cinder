@@ -283,6 +283,7 @@ Text Parameters
 * **text_model_format**: Allows combining of plain text, data from a content model, and text
 	post-processing functions. Requires being in a smart layout, and having setContentModel called.
 	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.
+* **preserve_span_colors**: If the text contains a <span> tag with any color info, you **must** turn this on to see it. Otherwise the text will only render as the color from this sprite. This is due to pre-multiplication of the alpha channel, which we ignore for better font rendering, particularly for thinner fonts.
 * **fit_to_limit**: The font size is calculated so that all of of the text fits in the resize_limit rectangle with the largest possible font. (true or false)
 * **fit_font_size_range**: a 2 element vector of font sizes. If fit_to_limit is true, the calculated font will not be smaller than the first element and will not be larger than the second element. Example: fit_font_size_range="12, 72"
 * **fit_max_font_size**: If fit_to_limit is true, the calculated font will not be larger than this value. the same as the second element of **fit_font_size_range**

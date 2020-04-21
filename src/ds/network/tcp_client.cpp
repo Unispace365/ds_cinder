@@ -55,7 +55,8 @@ void TcpClient::send(const std::string& data) {
 	try {
 		Poco::Mutex::ScopedLock	l(mLoop.mMutex);
 		mLoop.mSendData.push_back(data);
-	} catch (std::exception const&) {
+	} catch (std::exception const& ex) {
+		DS_LOG_VERBOSE(1, "Warning: Tcp connection failed to send: " << ex.what());
 	}
 }
 

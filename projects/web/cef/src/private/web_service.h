@@ -61,6 +61,13 @@ public:
 	// yDelta: pixels scrolled in vertical direction
 	void					sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
 
+
+	// browser id was returned from the createBrowser callback, 
+	// x / y in pixels from top/left in browser space
+	// id is the unique id of the touch point, can be anything other than -1. Up to 16 touch points are tracked
+	// phase is the same as "state" from send mouse: 0 = down, 1 = move, 2 = release
+	void					sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase);
+
 	// browser id was returned from the createBrowser callback, 
 	// state: 0 = down, 1 = move, 2 = release
 	// windows_key_code: the VK_### Key code

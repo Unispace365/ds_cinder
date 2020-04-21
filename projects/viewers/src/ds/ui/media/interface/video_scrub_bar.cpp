@@ -69,7 +69,7 @@ void VideoScrubBar::linkVideo(ds::ui::GstVideo* vid){
 	mLinkedVideo = vid;
 }
 
-void VideoScrubBar::linkPdf(ds::ui::Pdf* linkedPdf) {
+void VideoScrubBar::linkPdf(ds::ui::IPdf* linkedPdf) {
 	mLinkedPdf = linkedPdf;
 }
 

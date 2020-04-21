@@ -50,7 +50,6 @@ protected:
 	ds::ui::ImageButton*		mPlayButton;
 
 	ds::ui::SmartLayout*		mButtonHolder;
-	//bool						mIsPlaying;
 	bool						mIsFirstStart;
 
 };

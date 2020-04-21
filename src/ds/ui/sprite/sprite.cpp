@@ -525,6 +525,10 @@ const ci::vec3 Sprite::getGlobalPosition() const{
 }
 
 
+const ci::vec3 Sprite::getGlobalCenterPosition() const {
+	return getGlobalPosition() + getLocalCenterPosition();
+}
+
 ci::vec3 Sprite::getCenterPosition() const {
 	return mPosition + getLocalCenterPosition();
 }
@@ -1649,6 +1653,10 @@ void Sprite::setBaseShader(const std::string &vertShader, const std::string& fra
 			(*it)->setBaseShader(vertShader, fragShader, shadername, applyToChildren);
 		}
 	}
+}
+
+void Sprite::setResource(const ds::Resource&) {
+	DS_LOG_WARNING("Set resource hasn't been implemented for this sprite type. Sprite name=" << ds::utf8_from_wstr(getSpriteName(true)));
 }
 
 void Sprite::setupFinalRenderBuffer(){

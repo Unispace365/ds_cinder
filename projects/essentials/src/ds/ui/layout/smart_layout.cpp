@@ -241,7 +241,7 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 				std::string actualValue  = "";
 
 				if (sprPropToSet == "resource") {
-					setSpriteImage(childName, theNode.getProperty(theProp).getResource());
+					child->setResource(theNode.getProperty(theProp).getResource());
 				} else if (sprPropToSet == "resource_cache") {
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), true);
 				} else if(sprPropToSet == "media_player_src") {
@@ -253,9 +253,9 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 						metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()),
 									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
 					}
+
 					if(!theResource.empty()) {
-						ds::ui::XmlImporter::setSpriteProperty(*child, "media_player_src",
-															   theResource.getAbsoluteFilePath());
+						child->setResource(theResource);
 					}
 				} else if(sprPropToSet == "visible_if_exists"){
 					if(theNode.getPropertyString(theProp).empty()) {

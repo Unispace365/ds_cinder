@@ -42,13 +42,13 @@ namespace ui {
 *						weight (One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy', or a numeric weight like 400 for normal or 700 for bold)
 *						variant ('normal' or 'smallcaps')
 *						stretch (One of 'ultracondensed', 'extracondensed', 'condensed', 'semicondensed', 'normal', 'semiexpanded', 'expanded', 'extraexpanded', 'ultraexpanded')
-*						foreground (An RGB color specification such as '\#00FF00' or a color name such as 'red')
-*						background (An RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						foreground (An RGB color specification such as '\#00FF00' or a color name such as 'red') NOTE: you must turn on setPreserveSpanColors(true)
+*						background (An RGB color specification such as '\#00FF00' or a color name such as 'red') NOTE: you must turn on setPreserveSpanColors(true)
 *						underline (One of 'single', 'double', 'low', 'none')
-*						underline_color (The color of underlines; an RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						underline_color (The color of underlines; an RGB color specification such as '\#00FF00' or a color name such as 'red') NOTE: you must turn on setPreserveSpanColors(true)
 *						rise (Vertical displacement, in 10000ths of an em. Can be negative for subscript, positive for superscript.)
 *						strikethrough ('true' or 'false' whether to strike through the text)
-*						strikethrough_color (The color of strikethrough lines; an RGB color specification such as '\#00FF00' or a color name such as 'red')
+*						strikethrough_color (The color of strikethrough lines; an RGB color specification such as '\#00FF00' or a color name such as 'red') NOTE: you must turn on setPreserveSpanColors(true)
 *						fallback ('true' or 'false' whether to enable fallback. If disabled, then characters will only be used from the closest matching font on the system. No fallback will be done to other fonts on the system that might contain the characters in the text. Fallback is enabled by default. Most applications should not disable fallback.)
 *						lang (A language code, indicating the text language)
 *						letter_spacing (in 1024ths of a point)
@@ -167,6 +167,13 @@ public:
 	const std::string			getConfigName(){ return mCfgName; }
 	const std::string			getFontFileName(){ return mTextFont; }
 
+	/// By default, we render text using the color from this sprite with the alpha values from pango
+	/// If you turn this on, we also use the colors from pango and multiply in the color from this sprite
+	/// This is for instances where you're using a color in a span tag in the markup
+	/// The default is that this is false, which renders text a little more cleanly.
+	void						setPreserveSpanColors(const bool preserve);
+	const bool					setPreserveSpanColors() { return mPreserveSpanColors; }
+
 	virtual void				onUpdateClient(const UpdateParams &updateParams) override;
 	virtual void				onUpdateServer(const UpdateParams&) override;
 
@@ -221,6 +228,7 @@ private:
 	ci::Color					mTextColor;
 	bool						mDefaultTextItalicsEnabled;
 	bool						mDefaultTextSmallCapsEnabled;
+	bool						mPreserveSpanColors;
 	Alignment::Enum				mTextAlignment;
 	TextWeight					mDefaultTextWeight;
 	EllipsizeMode				mEllipsizeMode;

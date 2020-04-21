@@ -1,10 +1,9 @@
 #pragma once
-#ifndef VIEWERS_UI_MEDIA_MEDIA_VIEWER_SETTINGS
-#define VIEWERS_UI_MEDIA_MEDIA_VIEWER_SETTINGS
 
 #include <string>
 #include <cinder/Vector.h>
 #include <cinder/Color.h>
+#include "ds/ui/sprite/pdf_link.h"
 #include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
@@ -27,9 +26,10 @@ struct MediaViewerSettings {
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
 		, mWebStartTouchable(false)
+		, mWebNativeTouches(true)
 		, mCacheImages(false)
 		, mMipMapImages(true)
-		, mPdfCacheNextPrev(true)
+		, mPdfCanShowLinks(true)
 		, mVideoPanning(0.0f)
 		, mVideoVolume(1.0f)
 		, mVideoAutoSync(true)
@@ -70,6 +70,8 @@ struct MediaViewerSettings {
 	bool						mWebKeyboardAbove;
 	// If true, the website will load interactable. Default = false
 	bool						mWebStartTouchable;
+	// If true, web sprites will send native touch events to the browser. Default = true
+	bool						mWebNativeTouches;
 
 	//--------------------Image Settings -------------------------------------------//
 
@@ -81,8 +83,11 @@ struct MediaViewerSettings {
 
 	//--------------------PDF Settings ---------------------------------------------//
 
-	/// whether to auto cache the next/previous pdf page. default = true
-	bool						mPdfCacheNextPrev;
+	/// When the PDF gets touch-toggled, show any internal PDF links. default = true
+	bool						mPdfCanShowLinks;
+
+	/// Called back when a PDF link is tapped
+	std::function<void(ds::pdf::PdfLinkInfo)> mPdfLinkTappedCallback;
 
 	//--------------------Video Settings -------------------------------------------//
 
@@ -135,4 +140,3 @@ struct MediaViewerSettings {
 } // namespace ui
 } // namespace ds
 
-#endif

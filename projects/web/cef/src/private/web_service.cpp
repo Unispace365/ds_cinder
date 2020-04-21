@@ -107,8 +107,12 @@ void WebCefService::start() {
 	// There's no sandboxing for IO requests
 	settings.no_sandbox = true;
 
+	// probably want to persist cookies
+	//settings.persist_session_cookies = true;
+
 	// Single process could be used for debugging, but it's much slower and not-production ready
-	settings.single_process = false;
+	// No longer supported
+	//settings.single_process = false;
 
 	// CEF handles threading for the message loop (required for performance, otherwise slow apps can become deadlocked)
 	settings.multi_threaded_message_loop = true;
@@ -237,6 +241,13 @@ void WebCefService::sendMouseWheelEvent(const int browserId, const int x, const 
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){
 		handler->sendMouseWheelEvent(browserId, x, y, xDelta, yDelta);
+	}
+}
+
+void WebCefService::sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase) {
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if (handler) {
+		handler->sendTouchEvent(browserId, touchId, x, y, phase);
 	}
 }
 

@@ -1,0 +1,24 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			enable="true"
+			size="$_world_size"
+			overall_alignment="center"
+			l_pad="#expr $_padding * 2.0"
+			animate_off="position:0, $_world_height; ease:inQuint"
+		>
+		
+			<text name="subtitle_message"
+				font="media_viewer:title"
+				layout_size_mode="flex"
+				l_pad="#expr $_padding * 2.0"
+				animate_on="$_default:anim"
+				text="Drop a file on this window to open a media viewer"
+				/>
+	</layout>
+
+
+</interface>
+
+

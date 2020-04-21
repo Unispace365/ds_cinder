@@ -14,7 +14,7 @@
 	  $(DS_PLATFORM_090)\projects\web\cef\src\private</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);libcef.dll.lib;libcef_dll_wrapper.lib;web_cef.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);libcef.lib;libcef_dll_wrapper.lib;web_cef.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\web\cef\lib64\release;$(DS_PLATFORM_090)\projects\web\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

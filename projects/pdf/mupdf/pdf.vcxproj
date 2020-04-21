@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\stdafx.h" />
     <ClInclude Include="src\ds\ui\sprite\pdf.h" />
+    <ClInclude Include="src\ds\ui\sprite\pdf_link.h" />
     <ClInclude Include="src\private\pdf_res.h" />
     <ClInclude Include="src\private\pdf_service.h" />
   </ItemGroup>
@@ -22,6 +23,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\pdf.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\pdf_link.cpp" />
     <ClCompile Include="src\private\pdf_res.cpp" />
     <ClCompile Include="src\private\pdf_service.cpp" />
   </ItemGroup>

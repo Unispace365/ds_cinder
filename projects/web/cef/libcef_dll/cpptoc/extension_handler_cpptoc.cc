@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=05b6fa7134b9e58dcef8262b0b726e4afd6e3512$
+// $hash=d0c1c8abd44f5503d79c4f332ff9dd37223911b5$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ namespace {
 void CEF_CALLBACK extension_handler_on_extension_load_failed(
     struct _cef_extension_handler_t* self,
     cef_errorcode_t result) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -38,6 +41,8 @@ void CEF_CALLBACK extension_handler_on_extension_load_failed(
 void CEF_CALLBACK
 extension_handler_on_extension_loaded(struct _cef_extension_handler_t* self,
                                       cef_extension_t* extension) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,6 +61,8 @@ extension_handler_on_extension_loaded(struct _cef_extension_handler_t* self,
 void CEF_CALLBACK
 extension_handler_on_extension_unloaded(struct _cef_extension_handler_t* self,
                                         cef_extension_t* extension) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,6 +84,8 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
     const cef_string_t* url,
     cef_client_t** client,
     struct _cef_browser_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -144,6 +153,8 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
                                     cef_window_info_t* windowInfo,
                                     cef_client_t** client,
                                     struct _cef_browser_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -224,6 +235,8 @@ extension_handler_get_active_browser(struct _cef_extension_handler_t* self,
                                      cef_extension_t* extension,
                                      cef_browser_t* browser,
                                      int include_incognito) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -254,6 +267,8 @@ extension_handler_can_access_browser(struct _cef_extension_handler_t* self,
                                      cef_browser_t* browser,
                                      int include_incognito,
                                      cef_browser_t* target_browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -287,6 +302,8 @@ int CEF_CALLBACK extension_handler_get_extension_resource(
     cef_browser_t* browser,
     const cef_string_t* file,
     cef_get_extension_resource_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -336,6 +353,12 @@ CefExtensionHandlerCppToC::CefExtensionHandlerCppToC() {
       extension_handler_get_extension_resource;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefExtensionHandlerCppToC::~CefExtensionHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
     CefExtensionHandlerCppToC,
@@ -345,14 +368,6 @@ CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefExtensionHandlerCppToC,
-                                         CefExtensionHandler,
-                                         cef_extension_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefExtensionHandlerCppToC,

@@ -23,10 +23,11 @@ VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 	, mLinkedVideo(nullptr)
 	, mPlayButton(nullptr)
 	, mPauseButton(nullptr)
+	, mLoopButton(nullptr)
+	, mUnLoopButton(nullptr)
 	, mScrubBar(nullptr)
 	, mVolumeControl(nullptr)
 {
-
 
 
 	mScrubBar = new VideoScrubBar(mEngine, sizey.y, buttonHeight, buttonColor);
@@ -58,8 +59,34 @@ VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 	mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
 	mPauseButton->setScale(sizey.y / mPauseButton->getHeight());
 
+
+	mLoopButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/loop.png", "%APP%/data/images/media_interface/loop.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mLoopButton);
+	mLoopButton->setClickFn([this]() {
+		if(mLinkedVideo) {
+			mLinkedVideo->setLooping(false);
+		}
+	});
+
+	mLoopButton->getNormalImage().setColor(buttonColor);
+	mLoopButton->getHighImage().setColor(buttonColor / 2.0f);
+	mLoopButton->setScale(sizey.y / mLoopButton->getHeight());
+
+
+	mUnLoopButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/loop-straight.png", "%APP%/data/images/media_interface/loop-straight.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mUnLoopButton);
+	mUnLoopButton->setClickFn([this]() {
+		if(mLinkedVideo) {
+			mLinkedVideo->setLooping(true);
+		}
+	});
+
+	mUnLoopButton->getNormalImage().setColor(buttonColor);
+	mUnLoopButton->getHighImage().setColor(buttonColor / 2.0f);
+	mUnLoopButton->setScale(sizey.y / mUnLoopButton->getHeight());
+
 	const float padding = sizey.y / 2.0f; // config?
-	mMinWidth = mPlayButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 3 + sizey.y * 4.0f; // last sizey is for the scrub bar
+	mMinWidth = mPlayButton->getScaleWidth() + mLoopButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 3 + sizey.y * 4.0f; // last sizey is for the scrub bar
 	mMaxWidth = 10000.0f; // WHOOOOOOOO
 
 	layout();
@@ -81,6 +108,14 @@ ds::ui::ImageButton* VideoInterface::getPlayButton() {
 
 ds::ui::ImageButton* VideoInterface::getPauseButton() {
 	return mPauseButton;
+}
+
+ds::ui::ImageButton* VideoInterface::getLoopButton() {
+	return mLoopButton;
+}
+
+ds::ui::ImageButton* VideoInterface::getUnLoopButton() {
+	return mUnLoopButton;
 }
 
 ds::ui::Sprite* VideoInterface::getScrubBarBackground() {
@@ -105,10 +140,13 @@ void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
 void VideoInterface::onUpdateServer(const ds::UpdateParams& p){
 	MediaInterface::onUpdateServer(p);
 
-	if(mLinkedVideo && mPauseButton && mPlayButton){
+	if(mLinkedVideo && mPauseButton && mPlayButton && mLoopButton && mUnLoopButton){
 		if(mLinkedVideo->getIsStreaming()){
 			mPlayButton->hide();
 			mPauseButton->hide();
+			mUnLoopButton->hide();
+			mLoopButton->hide();
+
 		} else {
 			if(mLinkedVideo->getIsPlaying()){
 				mPauseButton->show();
@@ -116,6 +154,14 @@ void VideoInterface::onUpdateServer(const ds::UpdateParams& p){
 			} else {
 				mPauseButton->hide();
 				mPlayButton->show();
+			}
+
+			if(mLinkedVideo->getIsLooping()) {
+				mUnLoopButton->hide();
+				mLoopButton->show();
+			} else {
+				mUnLoopButton->show();
+				mLoopButton->hide();
 			}
 		}
 	}
@@ -148,6 +194,12 @@ void VideoInterface::onLayout(){
 	if(mVolumeControl){
 		mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding, h / 2.0f - mVolumeControl->getHeight() / 2.0f);
 		spaceLeft -= mVolumeControl->getScaleWidth() + padding* 2.0f;
+	}
+
+	if(mLoopButton && mUnLoopButton && mVolumeControl) {
+		mLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding * 2.0f - mLoopButton->getScaleWidth(), h / 2.0f - mLoopButton->getScaleHeight() / 2.0f);
+		mUnLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding * 2.0f - mUnLoopButton->getScaleWidth(), h / 2.0f - mUnLoopButton->getScaleHeight() / 2.0f);
+		spaceLeft -= mLoopButton->getScaleWidth() + padding;
 	}
 
 	if(mScrubBar){
