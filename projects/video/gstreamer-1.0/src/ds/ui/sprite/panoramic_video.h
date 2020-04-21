@@ -72,6 +72,9 @@ private:
 	float				mPanning;
 	std::vector<std::string> mPlayableInstances;
 	bool				mAutoSync;
+	std::string			mSphereVertexShader;
+	std::string			mSphereFragmentShader;
+	ci::gl::GlslProgRef	mShader;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);
