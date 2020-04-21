@@ -45,6 +45,7 @@ enum class EllipsizeMode : int {
 enum class WrapMode : int {
 	kWrapModeWord = 0, // Wraps only on word boundaries
 	kWrapModeChar = 1, // Wraps on each character
+	kWrapModeOff = 2, //Turns of word wrap
 	kWrapModeWordChar  // Wraps on words, and falls back to char if it doesn't fit 
 };
 
