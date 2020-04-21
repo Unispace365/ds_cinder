@@ -49,6 +49,7 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setAllowTouchToggle(settings.mWebAllowTouchToggle);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setStartInteractable(settings.mWebStartTouchable);
+	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
@@ -89,6 +90,11 @@ void WebPlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 }
 
 void WebPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath, ds::Resource::WEB_TYPE));
+}
+
+void WebPlayer::setResource(const ds::Resource& resource) {
+
 	static const float fractionalWidthForContent = 0.6f;
 
 	if(mWeb) {
@@ -110,6 +116,8 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
 
+	mWeb->setNativeTouchInput(mNativeTouches);
+
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
 		if(mWebInterface) {
 			mWebInterface->updateWidgets();
@@ -130,7 +138,7 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
-	mWeb->setUrl(mediaPath);
+	mWeb->setResource(resource);
 
 	if(mStartInteractable) {
 		mWeb->enable(true);
@@ -256,6 +264,14 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 void WebPlayer::setIsYoutube(const bool isYoutube){
 	mIsYoutube = isYoutube;
 	setMedia(mWeb->getUrl());
+}
+
+
+void WebPlayer::setNativeTouches(const bool isNative) {
+	mNativeTouches = isNative;
+	if(mWeb){
+		mWeb->setNativeTouchInput(mNativeTouches);
+	}
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {

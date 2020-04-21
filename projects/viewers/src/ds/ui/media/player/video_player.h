@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIDEO_PLAYER_VIDEO_PLAYER
-#define DS_UI_MEDIA_VIDEO_PLAYER_VIDEO_PLAYER
 
 
 #include <ds/ui/sprite/sprite.h>
@@ -25,6 +23,7 @@ class VideoPlayer : public ds::ui::Sprite {
   public:
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
+	virtual void setResource(const ds::Resource& resource) override;
 	void setMedia(const std::string mediaPath);
 	void clear();
 
@@ -109,4 +108,3 @@ class VideoPlayer : public ds::ui::Sprite {
 }  // namespace ui
 }  // namespace ds
 
-#endif

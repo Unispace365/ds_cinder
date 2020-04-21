@@ -118,6 +118,7 @@ public:
 		fz_rect bounds;
 		fz_bound_page(&ctx, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
+
 		mWidth = ceilf(bounds.x1 - bounds.x0);
 		mHeight = ceilf(bounds.y1 - bounds.y0);
 //		mWidth = page.mediabox.x1;
@@ -165,11 +166,46 @@ public:
 				// we will use to render the page.
 				fz_rect			rect;
 				fz_bound_page(&ctx, &page, &rect);
+				
 
 				mWidth = static_cast<float>(mPageSize.x);
 				mHeight = static_cast<float>(mPageSize.y);
 				mScaledWidth = static_cast<int>(mScale * mWidth);
 				mScaledHeight = static_cast<int>(mScale * mHeight);
+
+
+				/// load links!
+				mLinks.clear();
+				auto linky = fz_load_links(&ctx, &page);
+				if(linky) {
+					while(true) {
+						ds::pdf::PdfLinkInfo this_link;
+						this_link.mRawUri = linky->uri;
+						this_link.mRect = ci::Rectf(linky->rect.x0 / mWidth, linky->rect.y0 / mHeight, linky->rect.x1 / mWidth, linky->rect.y1 / mHeight);
+
+						if(this_link.mRawUri.find("#") == 0) {
+							auto pageNum = this_link.mRawUri.substr(1);
+							auto findy = pageNum.find(",");
+							if(findy != std::string::npos) {
+								pageNum = pageNum.substr(0, findy);
+								this_link.mPageDest = ds::string_to_int(pageNum);
+							}
+						} else {
+							this_link.mUrl = this_link.mRawUri;
+						}
+
+						std::cout << "Found link in page: " << this_link.mPageDest << " " << this_link.mRawUri << " " << this_link.mRect << " " << this_link.mUrl << std::endl;
+
+						mLinks.emplace_back(this_link);
+
+						if(linky->next) {
+							linky = linky->next;
+						} else {
+							break;
+						}
+					}
+				}
+
 
 				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
 				const float		rotation = 1.0f;
@@ -223,6 +259,7 @@ public:
 		return mPageSize.x > 0 && mPageSize.y > 0;
 	}
 
+	std::vector<ds::pdf::PdfLinkInfo>	mLinks;
 	ds::pdf::PdfRes::Pixels&	mPixels;
 	int							mScaledWidth,
 								mScaledHeight;
@@ -315,6 +352,10 @@ void PdfRes::clearSurface() {
 	mSurfacePixels.clearPixels();
 }
 
+std::vector<ds::pdf::PdfLinkInfo> PdfRes::getLinks() {
+	return mState.mLinks;
+}
+
 float PdfRes::getWidth() const {
 	if (mSurface) return mSurface->getWidth();
 	return (float)mState.mWidth;
@@ -388,6 +429,7 @@ bool PdfRes::update() {
 			}
 		}
 		mState.mPageSize = mDrawState.mPageSize;
+		mState.mLinks = mDrawState.mLinks;
 	}
 
 	return pixelsWereUpdated;
@@ -484,7 +526,7 @@ void PdfRes::_redrawPage() {
 		return;
 	}
 	drawState.mPageSize = draw.getPageSize();
-	
+	drawState.mLinks = draw.mLinks;
 
 	std::lock_guard<decltype(mMutex)>			l(mMutex);
 	mPixelsChanged = true;

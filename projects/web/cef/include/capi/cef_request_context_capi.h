@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=81e857497b1f5e1732af7fca2250edf78c0e5415$
+// $hash=2b01472d9b9a8cc9d1b2e669c91c2849bdb162e9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -44,17 +44,17 @@
 #include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_extension_capi.h"
 #include "include/capi/cef_extension_handler_capi.h"
-#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+struct _cef_request_context_handler_t;
 struct _cef_scheme_handler_factory_t;
 
 ///
-// Callback structure for cef_request_tContext::ResolveHost.
+// Callback structure for cef_request_context_t::ResolveHost.
 ///
 typedef struct _cef_resolve_callback_t {
   ///
@@ -130,14 +130,11 @@ typedef struct _cef_request_context_t {
       struct _cef_request_context_t* self);
 
   ///
-  // Returns the default cookie manager for this object. This will be the global
-  // cookie manager if this object is the global request context. Otherwise,
-  // this will be the default cookie manager used when this request context does
-  // not receive a value via cef_request_tContextHandler::get_cookie_manager().
-  // If |callback| is non-NULL it will be executed asnychronously on the IO
-  // thread after the manager's storage has been initialized.
+  // Returns the cookie manager for this object. If |callback| is non-NULL it
+  // will be executed asnychronously on the IO thread after the manager's
+  // storage has been initialized.
   ///
-  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_default_cookie_manager)(
+  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_cookie_manager)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
 
@@ -171,7 +168,7 @@ typedef struct _cef_request_context_t {
   // Tells all renderer processes associated with this context to throw away
   // their plugin list cache. If |reload_pages| is true (1) they will also
   // reload all pages with plugins.
-  // cef_request_tContextHandler::OnBeforePluginLoad may be called to rebuild
+  // cef_request_context_handler_t::OnBeforePluginLoad may be called to rebuild
   // the plugin list cache.
   ///
   void(CEF_CALLBACK* purge_plugin_list_cache)(
@@ -231,13 +228,22 @@ typedef struct _cef_request_context_t {
 
   ///
   // Clears all certificate exceptions that were added as part of handling
-  // cef_request_tHandler::on_certificate_error(). If you call this it is
+  // cef_request_handler_t::on_certificate_error(). If you call this it is
   // recommended that you also call close_all_connections() or you risk not
   // being prompted again for server certificates if you reconnect quickly. If
   // |callback| is non-NULL it will be executed on the UI thread after
   // completion.
   ///
   void(CEF_CALLBACK* clear_certificate_exceptions)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
+
+  ///
+  // Clears all HTTP authentication credentials that were added as part of
+  // handling GetAuthCredentials. If |callback| is non-NULL it will be executed
+  // on the UI thread after completion.
+  ///
+  void(CEF_CALLBACK* clear_http_auth_credentials)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
 
@@ -260,24 +266,13 @@ typedef struct _cef_request_context_t {
                                    struct _cef_resolve_callback_t* callback);
 
   ///
-  // Attempts to resolve |origin| to a list of associated IP addresses using
-  // cached data. |resolved_ips| will be populated with the list of resolved IP
-  // addresses or NULL if no cached data is available. Returns ERR_NONE on
-  // success. This function must be called on the browser process IO thread.
-  ///
-  cef_errorcode_t(CEF_CALLBACK* resolve_host_cached)(
-      struct _cef_request_context_t* self,
-      const cef_string_t* origin,
-      cef_string_list_t resolved_ips);
-
-  ///
   // Load an extension.
   //
   // If extension resources will be read from disk using the default load
   // implementation then |root_directory| should be the absolute path to the
   // extension resources directory and |manifest| should be NULL. If extension
-  // resources will be provided by the client (e.g. via cef_request_tHandler
-  // and/or cef_extension_tHandler) then |root_directory| should be a path
+  // resources will be provided by the client (e.g. via cef_request_handler_t
+  // and/or cef_extension_handler_t) then |root_directory| should be a path
   // component unique to the extension (if not absolute this will be internally
   // prefixed with the PK_DIR_RESOURCES path) and |manifest| should contain the
   // contents that would otherwise be read from the "manifest.json" file on
@@ -286,17 +281,17 @@ typedef struct _cef_request_context_t {
   // The loaded extension will be accessible in all contexts sharing the same
   // storage (HasExtension returns true (1)). However, only the context on which
   // this function was called is considered the loader (DidLoadExtension returns
-  // true (1)) and only the loader will receive cef_request_tContextHandler
+  // true (1)) and only the loader will receive cef_request_context_handler_t
   // callbacks for the extension.
   //
-  // cef_extension_tHandler::OnExtensionLoaded will be called on load success or
-  // cef_extension_tHandler::OnExtensionLoadFailed will be called on load
+  // cef_extension_handler_t::OnExtensionLoaded will be called on load success
+  // or cef_extension_handler_t::OnExtensionLoadFailed will be called on load
   // failure.
   //
   // If the extension specifies a background script via the "background"
-  // manifest key then cef_extension_tHandler::OnBeforeBackgroundBrowser will be
-  // called to create the background browser. See that function for additional
-  // information about background scripts.
+  // manifest key then cef_extension_handler_t::OnBeforeBackgroundBrowser will
+  // be called to create the background browser. See that function for
+  // additional information about background scripts.
   //
   // For visible extension views the client application should evaluate the
   // manifest to determine the correct extension URL to load and then pass that

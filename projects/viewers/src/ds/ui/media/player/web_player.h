@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIEWER_WEB_PLAYER
-#define DS_UI_MEDIA_VIEWER_WEB_PLAYER
-
 
 #include <ds/ui/sprite/sprite.h>
 
@@ -21,6 +18,7 @@ class WebPlayer : public ds::ui::Sprite {
   public:
 	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
+	virtual void setResource(const ds::Resource& resource) override;
 	void setMedia(const std::string mediaPath);
 
 	virtual void userInputReceived();
@@ -47,7 +45,7 @@ class WebPlayer : public ds::ui::Sprite {
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
 	void setIsYoutube(const bool isYoutube);
-
+	void setNativeTouches(const bool isNative);
 
   protected:
 	virtual void onSizeChanged();
@@ -68,9 +66,9 @@ class WebPlayer : public ds::ui::Sprite {
 	bool mStartInteractable;
 	bool mInterfaceBelowMedia;
 	bool mIsYoutube;
+	bool mNativeTouches;
 };
 
 }  // namespace ui
 }  // namespace ds
 
-#endif

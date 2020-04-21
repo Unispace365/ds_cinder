@@ -31,7 +31,6 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mInternalSizeCinderTweenRef(nullptr)
 	, mInternalOpacityCinderTweenRef(nullptr)
 	, mInternalNormalizedCinderTweenRef(nullptr)
-	, mDelayedCallCueRef(nullptr)
 	, mAnimScriptCueRef(nullptr)
 {}
 
@@ -291,11 +290,6 @@ void SpriteAnimatable::animStop() {
 	animColorStop();
 	animNormalizedStop();
 
-	if (mDelayedCallCueRef){
-		mDelayedCallCueRef->removeSelf();
-		mDelayedCallCueRef = nullptr;
-	}
-
 	if (!mMultiDelayedCallCueRefs.empty()) {
 		for (auto cue : mMultiDelayedCallCueRefs) {
 			if (!cue) continue;
@@ -523,7 +517,7 @@ float SpriteAnimatable::runReversibleAnimationScript(const std::string& animScri
 	{
 		std::string animType = it->first;
 		ci::vec3 dest = it->second;
-		if (animType == "center" && &mOwner){
+		if (animType == "center"){
 			auto currentCenter = mOwner.getCenter();
 			if (ci::vec2(currentCenter) == ci::vec2(dest))
 				break;

@@ -24,13 +24,13 @@
 namespace {
 // Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites
 // requires a custom shader that multiplies in the rest of the opacity setting
-const std::string opacityFrag =
+const std::string opacityPremultFrag =
 "uniform sampler2D	tex0;\n"
 "uniform bool		useTexture;\n"	// dummy, Engine always sends this anyway
 "uniform bool       preMultiply;\n" // dummy, Engine always sends this anyway
-"in vec4			Color;\n"
+"in vec4		    Color;\n"
 "in vec2			TexCoord0;\n"
-"out vec4			oColor;\n"
+"out vec4		    oColor;\n"
 "void main()\n"
 "{\n"
 "    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
@@ -40,9 +40,29 @@ const std::string opacityFrag =
 "    // Undo the pango premultiplication\n"
 "    oColor.rgb /= oColor.a;\n"
 "    // Now do the normal colorize/optional premultiplication\n"
-"    oColor *= Color;\n"
+"    oColor.a *= Color.a;\n"
 "    if (preMultiply)\n"
 "        oColor.rgb *= oColor.a;\n"
+"}\n";
+
+const std::string opacityFrag =
+"uniform sampler2D	tex0;\n"
+"uniform bool		useTexture;\n"	// dummy, Engine always sends this anyway
+"uniform bool       preMultiply;\n" // dummy, Engine always sends this anyway
+"in vec4			Color;\n"
+"in vec2			TexCoord0;\n"
+"out vec4	    	oColor;\n"
+"void main()\n"
+"{\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    if (useTexture) {\n"
+"        oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
+"    }\n"
+"    oColor.a = oColor.r;"
+"    oColor.r = Color.r;"
+"    oColor.g = Color.g;"
+"    oColor.b = Color.b;"
+"    oColor.a *= Color.a;"
 "}\n";
 
 const std::string vertShader =
@@ -52,11 +72,11 @@ const std::string vertShader =
 "uniform vec4		uClipPlane1;\n"
 "uniform vec4		uClipPlane2;\n"
 "uniform vec4		uClipPlane3;\n"
-"in vec4			ciPosition;\n" 
+"in vec4			ciPosition;\n"
 "in vec4			ciColor;\n"
 "in vec2			ciTexCoord0;\n"
 "out vec2			TexCoord0;\n"
-"out vec4			Color;\n"
+"out vec4		    Color;\n"
 "void main()\n"
 "{\n"
 "	gl_Position = ciModelViewProjection * ciPosition;\n"
@@ -69,6 +89,7 @@ const std::string vertShader =
 "}\n";
 
 std::string shaderNameOpaccy = "pango_text_opacity";
+std::string shaderNamePreser = "pango_text_preserve_colors";
 }
 
 namespace ds {
@@ -111,6 +132,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mNeedsFontOptionUpdate(false)
 	, mProbablyHasMarkup(false)
 	, mShrinkToBounds(false)
+	, mPreserveSpanColors(false)
 	, mTextFont("Sans")
 	, mTextSize(12.0)
 	, mFitMaxTextSize(0)
@@ -481,7 +503,7 @@ void Text::onBuildRenderBatch(){
 
 void Text::drawLocalClient(){
 	if(mTexture && !mText.empty()){
-		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		ci::gl::color(mTextColor.r, mTextColor.g, mTextColor.b, mDrawOpacity);
 		ci::gl::ScopedTextureBind scopedTexture(mTexture);
 
 		ci::gl::ScopedModelMatrix scopedMat;
@@ -564,6 +586,15 @@ int Text::getNumberOfLines(){
 	return mNumberOfLines;
 }
 
+void Text::setPreserveSpanColors(const bool preserve) {
+	mPreserveSpanColors = preserve;
+	if(mPreserveSpanColors) {
+		mSpriteShader.setShaders(vertShader, opacityPremultFrag, shaderNamePreser);
+	} else {
+		mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
+	}
+	mSpriteShader.loadShaders();
+}
 
 void Text::onUpdateClient(const UpdateParams&){
 	measurePangoText();
@@ -879,7 +910,7 @@ bool Text::measurePangoText() {
 			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_DEFAULT);
 			cairo_font_options_set_hint_metrics(mCairoFontOptions, CAIRO_HINT_METRICS_ON);
-			cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
+			cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_BGR);
 
 			pango_cairo_context_set_font_options(mPangoContext, mCairoFontOptions);
 
@@ -1034,7 +1065,7 @@ bool Text::measurePangoText() {
 			}
 			
 			 //DS_LOG_INFO("the Text: " << getTextAsString());
-			 //DS_LOG_INFO("\nInk rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
+			 //DS_LOG_INFO("Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height);
 			 //DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << "\n");
 
 			// Set the final width/height for the texture, handling the case where inkRect is larger than extentRect
@@ -1067,14 +1098,11 @@ bool Text::measurePangoText() {
 
 void Text::renderPangoText(){
 	if(mNeedsTextRender && mPixelWidth > 0 && mPixelHeight > 0) {
-		
-		// Create appropriately sized cairo surface
-		const bool grayscale = false; // Not really supported
-		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
 
+		_cairo_format cairoFormat = mPreserveSpanColors ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_A8;
 
 		cairo_surface_t* cairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
-
+		
 		auto cairoSurfaceStatus = cairo_surface_status(cairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
 			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth << " h:" << mPixelHeight << " text:" << mText);
@@ -1123,15 +1151,25 @@ void Text::renderPangoText(){
 
 			ci::gl::Texture::Format format;
 			format.enableMipmapping(true);
-			//format.setMagFilter(GL_NEAREST);
-			//format.setMinFilter(GL_NEAREST);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
+
+			if(mPreserveSpanColors) {
+				mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
+			} else {
+				auto imgWitdh = mPixelWidth;
+				if(imgWitdh % 4 != 0) {
+					imgWitdh += 4 - imgWitdh % 4;
+
+				}
+				format.setInternalFormat(GL_RED);
+				format.setDataType(GL_UNSIGNED_BYTE);
+				mTexture = ci::gl::Texture::create(pixels, GL_RED, imgWitdh, mPixelHeight, format);
+			}
+
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
 
 			cairo_destroy(cairoContext);			
 		}
-
 
 		if(cairoSurface) {
 			cairo_surface_destroy(cairoSurface);

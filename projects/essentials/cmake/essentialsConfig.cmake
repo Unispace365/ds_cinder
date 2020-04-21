@@ -3,43 +3,44 @@ if( NOT TARGET essentials )
 	get_filename_component( DS_CINDER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE )
 
 	list( APPEND ESSENTIALS_SRC_FILES
-		${ESSENTIALS_SRC_PATH}/ds/touch/delayed_momentum.cpp
-		${ESSENTIALS_SRC_PATH}/ds/touch/view_dragger.cpp
-		${ESSENTIALS_SRC_PATH}/ds/touch/touch_debug.cpp
-		${ESSENTIALS_SRC_PATH}/ds/touch/five_finger_cluster.cpp
-		${ESSENTIALS_SRC_PATH}/ds/network/smtp_request.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/base_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/callback_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/drag_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/multifinger_tap_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/tap_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/debug/automator/automator.cpp
 		${ESSENTIALS_SRC_PATH}/ds/network/helper/delayed_node_watcher.cpp
 		${ESSENTIALS_SRC_PATH}/ds/network/https_client.cpp
+		${ESSENTIALS_SRC_PATH}/ds/network/smtp_request.cpp
 		${ESSENTIALS_SRC_PATH}/ds/query/content/generic_content_model.cpp
 		${ESSENTIALS_SRC_PATH}/ds/query/content/xml_content_loader.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/interface_xml/interface_xml_importer.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/interface_xml/stylesheet_parser.cpp
+		${ESSENTIALS_SRC_PATH}/ds/touch/delayed_momentum.cpp
+		${ESSENTIALS_SRC_PATH}/ds/touch/five_finger_cluster.cpp
+		${ESSENTIALS_SRC_PATH}/ds/touch/touch_debug.cpp
+		${ESSENTIALS_SRC_PATH}/ds/touch/view_dragger.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/button/image_button.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/button/layout_button.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/button/sprite_button.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/button/image_button.cpp
-		#${ESSENTIALS_SRC_PATH}/ds/ui/layout/layout_sprite.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/sprite/png_sequence_sprite.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/menu_item.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/cluster_view.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/menu/touch_menu.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/control/control_slider.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/drawing/drawing_canvas.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/interface_xml/interface_xml_importer.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/interface_xml/stylesheet_parser.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/layout/smart_layout.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/cluster_view.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/menu_item.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/menu/touch_menu.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/centered_scroll_area.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/infinity_scroll_list.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/scroll_area.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/centered_scroll_area.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/scroll_bar.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/scroll/scroll_list.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard_defs.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/entry_field.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard_builder.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard_button.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/entry_field.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/control/control_slider.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/automator.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/callback_action.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/multifinger_tap_action.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/base_action.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/drag_action.cpp
-		${ESSENTIALS_SRC_PATH}/ds/debug/automator/actions/tap_action.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/soft_keyboard/soft_keyboard_defs.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/sprite/donut_arc.cpp
+		${ESSENTIALS_SRC_PATH}/ds/ui/sprite/png_sequence_sprite.cpp
 	)
 
 	add_library( essentials ${ESSENTIALS_SRC_FILES} )
