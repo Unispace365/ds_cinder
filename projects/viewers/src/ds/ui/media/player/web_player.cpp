@@ -92,7 +92,7 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	static const float fractionalWidthForContent = 0.6f;
 
 	if(resource.getType() == ds::Resource::YOUTUBE_TYPE){
-	//	setIsYoutube(true);
+		setIsYoutube(true);
 	}
 
 	if (mWeb) {
@@ -138,7 +138,7 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	addChildPtr(mWeb);
 
 	if (mIsYoutube) {
-		mWeb->loadUrl("https://www.youtube.com/embed/oHg5SJYRHA0?autoplay=1");
+		mWeb->loadUrl("https://www.youtube.com/embed/" + resource.getFileName() + "?autoplay=1");
 
 	} else {
 		mWeb->setResource(resource);
