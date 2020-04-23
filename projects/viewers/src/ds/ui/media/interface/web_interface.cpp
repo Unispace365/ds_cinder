@@ -447,8 +447,13 @@ void WebInterface::updateWidgets(){
 			if(!mKeyboard){
 				ds::ui::SoftKeyboardSettings sks;
 				sks.mKeyScale = mKeyboardKeyScale;
+				sks.mGraphicKeys = true;
+				sks.mGraphicType = ds::ui::SoftKeyboardSettings::kBorder;
+				sks.mGraphicRoundedCornerRadius = 5;
 				mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
 				mKeyboardArea->addChildPtr(mKeyboard);
+
+				mKeyboardArea->setColor(mBackground->getColor());
 
 				const float keyW = mKeyboard->getScaleWidth();
 				const float keyH = mKeyboard->getScaleHeight();
