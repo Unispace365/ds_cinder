@@ -1587,11 +1587,11 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	std::string value  = node->getValue();
 	auto&		engine = parent->getEngine();
 
-	std::string layout_target = engine.getEngineSettings().getString("xml_importer:target");
+	std::string layout_target = engine.getLayoutTarget();
 	//if the node has a target attribute it should honor that.
 	if (node->hasAttribute("target"))
 	{
-		if (node->getAttributeValue<std::string>("target") != layout_target)
+		if (engine.hasLayoutTarget(node->getAttributeValue<std::string>("target")))
 		{
 			return true;
 		}

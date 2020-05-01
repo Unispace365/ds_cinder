@@ -20,7 +20,7 @@
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
 #include <ds/ui/layout/smart_layout.h>
-#include <ds/ui/util/target_utils.h>
+
 #include <ds/app/engine/engine_events.h>
 namespace example {
 
@@ -52,7 +52,7 @@ void layout_example::setupServer(){
 		target = "portrait";
 	}
 	
-	ds::ui::setLayoutTarget(mEngine, target);
+	mEngine.setLayoutTarget(target);
 
 	
 

@@ -149,6 +149,32 @@ float SpriteEngine::getFrameRate() const {
 	return mData.mFrameRate;
 }
 
+void SpriteEngine::setLayoutTarget(std::string target,int index)
+{
+
+	ds::cfg::Settings::Setting& setting = getEngineSettings().getSetting("xml_importer:target", index);
+	setting.mRawValue = target;
+
+}
+bool SpriteEngine::hasLayoutTarget(std::string target)
+{
+	if (target.empty()) return false;
+	auto target_count = getEngineSettings().countSetting("xml_importer:target");
+	for(int i=0;i<target_count;i++)
+	{
+		auto set_target = getEngineSettings().getString("xml_importer:target", i);
+		if(set_target == target)
+		{
+			return true;
+		}
+	}
+}
+
+std::string SpriteEngine::getLayoutTarget(int index)
+{
+	return getEngineSettings().getString("xml_importer:target", index);
+}
+
 
 const std::string& SpriteEngine::getCmsURL() const {
 	return mData.mCmsURL;

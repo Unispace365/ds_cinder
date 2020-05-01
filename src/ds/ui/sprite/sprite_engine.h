@@ -131,6 +131,17 @@ public:
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
 
+	/// convenience function for getting and setting the target;
+
+	/** Sets a layout target. */
+	void setLayoutTarget(std::string target,int index=0);
+
+	/** Checks if a layout target is set. returns true is set. checking for an empty string always returns false */
+	bool hasLayoutTarget(std::string);
+
+	/** Gets a layout target*/
+	std::string getLayoutTarget(int index=0);
+	
 	/// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
 	const std::string&				getCmsURL() const;
 
