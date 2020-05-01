@@ -52,7 +52,7 @@ void layout_example::setupServer(){
 		target = "portrait";
 	}
 	
-	mEngine.setLayoutTarget(target);
+	//mEngine.setLayoutTarget(target);
 
 	
 

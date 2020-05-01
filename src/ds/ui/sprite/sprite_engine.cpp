@@ -159,15 +159,31 @@ void SpriteEngine::setLayoutTarget(std::string target,int index)
 bool SpriteEngine::hasLayoutTarget(std::string target)
 {
 	if (target.empty()) return false;
-	auto target_count = getEngineSettings().countSetting("xml_importer:target");
-	for(int i=0;i<target_count;i++)
-	{
-		auto set_target = getEngineSettings().getString("xml_importer:target", i);
-		if(set_target == target)
+	std::regex regex{ "(\s*,\s*)" };
+
+	auto end = std::sregex_token_iterator();
+	auto target_itr = std::sregex_token_iterator(target.begin(), target.end(), regex, -1);
+
+	while (target_itr != end) {
+		auto target_count = getEngineSettings().countSetting("xml_importer:target");
+		for (int i = 0; i < target_count; i++)
 		{
-			return true;
+
+			auto set_target = getEngineSettings().getString("xml_importer:target", i);
+			auto set_itr = std::sregex_token_iterator(set_target.begin(), set_target.end(), regex, -1);
+			while (set_itr != end) {
+				auto set_value = set_itr->str();
+				auto target_value = target_itr->str();
+				if (set_value == target_value)
+				{
+					return true;
+				}
+				++set_itr;
+			}
 		}
+		target_itr++;
 	}
+	return false;
 }
 
 std::string SpriteEngine::getLayoutTarget(int index)

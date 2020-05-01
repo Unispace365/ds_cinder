@@ -71,7 +71,7 @@
 			animate_on="opacity:1.0; slide:100; duration:0.5; delay:0.8">
 			<override layout_size_mode="fixed" width="450" r_pad="0" layout_v_align="middle" target="landscape"/>
 			<xml name="xml_test" src="xml_layout.xml">
-			<property name="sample_text" resize_limit="400" text="This is the landscape setting. Try changing to landscape in engine.xml" target="landscape" />
+			<property name="sample_text" resize_limit="400" text="This is the landscape setting. Try changing to portrait in engine.xml" target="landscape" />
 			<property name="sample_text" resize_limit="300" text="This is the portrait setting. Try changing to landscape in engine.xml" target="portrait"/>
 			</xml>
 		</layout>

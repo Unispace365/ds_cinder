@@ -40,14 +40,6 @@ Parameter Types
 * **Blend**: Valid values: normal, multiply, screen, add, subtract, lighten, darken. Default = normal.
 * **Float**: Specify the number with the decimal. The trailing "f" is unneccasary. For instance, opacity="0.5" not opacity="0.5f"
 
-`target` parameter && `<override>` elements
---------------------------
-**target** adding a `target="`*`value`*`"` parameter to an element will cause the importer to attempt to match the value to the value in `xml_importer:target` engine setting. 
-If the values match, then the tag is processed as normal. **If the tag does not match then the element will be ignored. as if it was not in the file. This includes any children**
-  
-The `<override>` element can be added as a child to another element and it will add/replace the properties on that element. 
-Note that it cannot remove a property. This is only really useful with the `target` property set on the `<override>` element, allowing for Layouts to morph based on different hardware (or other conditions).
-
 Sprite Types
 --------------------------
 Xml Element Name                                                      | DsCinder Class Name
@@ -117,7 +109,6 @@ Variables are replaced first before expressions (see below), and parsed recursiv
 * **world_size**: The equivalent of "mEngine.getWorldWidth(), mEngine.getWorldHeight()"
 * **anim_dur**: The equivalent of mEngine.getAnimDur()
 
-
 Expressions
 --------------------
 
@@ -140,6 +131,39 @@ Syntax Rules:
 * If you start a line with #expr (with no brackets), the entire rest of the line is evaluated as an expression
 * pi is automatically defined
 
+`target` parameter && `<override>` elements
+--------------------------
+**target** adding a `target="`*`value`*`"` parameter to an element will cause the importer to attempt to match the value to the value in `xml_importer:target` engine setting. 
+If the values match, then the tag is processed as normal. **If the tag does not match then the element will be ignored. as if it was not in the file. This includes any children**
+  
+The `<override>` element can be added as a child to another element and it will add/replace the properties on that element. 
+Note that it cannot remove a property. This is only really useful with the `target` property set on the `<override>` element, allowing for Layouts to morph based on different hardware (or other conditions).
+
+Example:
+```xml
+engine.xml
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	...
+	<setting name="xml_importer:target" value="landscape, 3x3" type="string" default="true"/>
+	...
+</settings>
+
+myLayout.xml
+<interface>
+	<layout name="example_shown" layout_type="vert" target="landscape">
+		<override layout_type="vert_wrap" target="3x3"/>
+		<override layout_size_mode="flex" target="5x4"/>
+		... 
+	</layout>
+	<layout name="example_not_shown" layout_type="horiz" target="portrait">
+		<override layout_type="vert" target="3x3"/>
+		... 
+	</layout>
+</interface>
+```
+
+in this example the "example_shown" layout is included and it's layout_type is overridden, but its layout_size_mode is not. the "example_not_shown" is skipped entirely.
 
 Events
 --------------------------------------------------------
