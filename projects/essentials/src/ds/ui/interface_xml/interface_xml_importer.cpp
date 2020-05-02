@@ -484,7 +484,81 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} else if (property == "text_align") {
+	}
+	else if (property == "fit_font_sizes") {
+		// Try to set the fit to resize limit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			std::regex e3(",+");
+			auto itr = std::sregex_token_iterator(value.begin(), value.end(), e3, -1);
+			std::vector<double> size_values;
+			double font_value;
+
+			for (; itr != std::sregex_token_iterator(); ++itr) {
+				if (ds::string_to_value<double>(itr->str(), font_value))
+				{
+					size_values.push_back(font_value);
+				}
+			}
+			
+
+			text->setFitFontSizes(size_values);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_max_font_size") {
+		// Try to set the max font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			double v = ds::string_to_double(value);
+			text->setFitMaxFontSize(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_min_font_size") {
+		// Try to set the min font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			double v = ds::string_to_double(value);
+			text->setFitMinFontSize(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_font_size_range") {
+		// Try to set the max and min font size for fit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			ci::vec3 v = parseVector(value);
+			text->setFitMinFontSize(v.x);
+			text->setFitMaxFontSize(v.y);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "fit_to_limit") {
+		// Try to set the fit to resize limit
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			bool v = parseBoolean(value);
+			text->setFitToResizeLimit(v);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if (property == "text_align") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
 			std::string alignString = value;
@@ -619,6 +693,32 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 						   << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if (property == "text_wrap") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			WrapMode theMode = WrapMode::kWrapModeWordChar;
+			if (value == "false" || value=="off") {
+				theMode = WrapMode::kWrapModeOff;
+			}
+			else if (value == "word") {
+				theMode = WrapMode::kWrapModeWord;
+			}
+			else if (value == "char") {
+				theMode = WrapMode::kWrapModeChar;
+			}
+			else if (value == "word_char" || value=="wordchar") {
+				theMode = WrapMode::kWrapModeWordChar;
+			}
+			else {
+				DS_LOG_WARNING("XmlImporter: text_wrap mode not recognized: " << value << " valid values: start, middle, end, none");
+			}
+
+			text->setWrapMode(theMode);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+				<< "_ on sprite of type: " << typeid(sprite).name());
+		}
 	} else if (property == "markdown") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
@@ -659,6 +759,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "preserve_span_colors") {
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text) {
+			text->setPreserveSpanColors(parseBoolean(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+						   << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if (property == "shrink_to_bounds") {
 		auto text = dynamic_cast<Text*>(&sprite);

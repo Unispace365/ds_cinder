@@ -40,10 +40,17 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	//command_line->AppendSwitch(CefString("disable-extensions"));
 
 	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
+
+	command_line->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
+
 	//command_line->AppendSwitch("enable-gpu");
 	//command_line->AppendSwitch("enable-gpu-compositing");
 	//command_line->AppendSwitch("disable-gpu");
 	//command_line->AppendSwitch("disable-gpu-compositing");
+
+	command_line->AppendSwitch("enable-media-stream");
+	command_line->AppendSwitch("enable-speech-input");
+	command_line->AppendSwitch("enable-usermedia-screen-capture");
 
 	// Some docs online say to use these two, but I had bad results with these
 	//command_line->AppendSwitch("disable-surfaces");
@@ -104,7 +111,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);
 		// Create the first browser window.
-		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
+		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL, NULL);
 	} else {
 		DS_LOG_WARNING("No handler exists when trying to create a browser!");
 	}

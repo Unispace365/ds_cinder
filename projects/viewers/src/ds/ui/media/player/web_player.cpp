@@ -49,17 +49,12 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setAllowTouchToggle(settings.mWebAllowTouchToggle);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	setStartInteractable(settings.mWebStartTouchable);
+	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
 	mWebSize = webSize;
-	if (mIsYoutube)
-	{
-		mWebSize.x *= 1.003f;
-		mWebSize.y *= 1.004f;
-	}
-		
 	if (mWeb) {
 		mWeb->setSize(mWebSize.x, mWebSize.y);
 	}
@@ -89,15 +84,24 @@ void WebPlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 }
 
 void WebPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath, ds::Resource::WEB_TYPE));
+}
+
+void WebPlayer::setResource(const ds::Resource& resource) {
+
 	static const float fractionalWidthForContent = 0.6f;
 
-	if(mWeb) {
+	if(resource.getType() == ds::Resource::YOUTUBE_TYPE){
+		setIsYoutube(true);
+	}
 
-		if(mWebInterface) {
+	if (mWeb) {
+
+		if (mWebInterface) {
 			mWebInterface->linkWeb(nullptr);
 		}
 
-		if(mWebYoutubeInterface) {
+		if (mWebYoutubeInterface) {
 			mWebYoutubeInterface->linkWeb(nullptr);
 		}
 
@@ -110,11 +114,13 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
 
+	mWeb->setNativeTouchInput(mNativeTouches);
+
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
-		if(mWebInterface) {
+		if (mWebInterface) {
 			mWebInterface->updateWidgets();
 		}
-		if(mWebYoutubeInterface) {
+		if (mWebYoutubeInterface) {
 			mWebYoutubeInterface->updateWidgets();
 		}
 	});
@@ -122,7 +128,7 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	float targetW = mWebSize.x;
 	float targetH = mWebSize.y;
 
-	if((targetW == 0.0f) || (targetH == 0.0f)) {
+	if ((targetW == 0.0f) || (targetH == 0.0f)) {
 		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
 		targetH = mEngine.getWorldHeight();
 	}
@@ -130,49 +136,57 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
-	mWeb->setUrl(mediaPath);
 
-	if(mStartInteractable) {
+	if (mIsYoutube) {
+		mWeb->loadUrl("https://www.youtube.com/embed/" + resource.getFileName() + "?autoplay=1");
+
+	} else {
+		mWeb->setResource(resource);
+	}
+
+	if (mStartInteractable) {
 		mWeb->enable(true);
 	} else {
 		mWeb->enable(false);
 	}
 
-	if(mWebInterface) {
+	if (mWebInterface) {
 		mWebInterface->release();
 		mWebInterface = nullptr;
 	}
 
-	if(mWebYoutubeInterface) {
+	if (mWebYoutubeInterface) {
 		mWebYoutubeInterface->release();
 		mWebYoutubeInterface = nullptr;
 	}
 
-	if(mEmbedInterface) {
-		if(!mIsYoutube) {
+	if (mEmbedInterface) {
+		if (!mIsYoutube) {
 			mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 		} else {
 			mWebYoutubeInterface = dynamic_cast<WebYoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 		}
 
-		if(mWebInterface) {
+		if (mWebInterface) {
 			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebInterface->setKeyboardStateCallback([this](const bool onscreen) {
-				if(mKeyboardStatusCallback) { mKeyboardStatusCallback(onscreen); }
+				if (mKeyboardStatusCallback) {
+					mKeyboardStatusCallback(onscreen);
+				}
 			});
 			mWebInterface->sendToFront();
 		}
 
-		if(mWebYoutubeInterface) {
+		if (mWebYoutubeInterface) {
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebYoutubeInterface->sendToFront();
 		}
 	}
 
 
-	if(mWebInterface) {
-		if(mShowInterfaceAtStart) {
+	if (mWebInterface) {
+		if (mShowInterfaceAtStart) {
 			mWebInterface->show();
 		} else {
 			mWebInterface->setOpacity(0.0f);
@@ -180,8 +194,8 @@ void WebPlayer::setMedia(const std::string mediaPath) {
 		}
 	}
 
-	if(mWebYoutubeInterface) {
-		if(mShowInterfaceAtStart) {
+	if (mWebYoutubeInterface) {
+		if (mShowInterfaceAtStart) {
 			mWebYoutubeInterface->show();
 		} else {
 			mWebYoutubeInterface->setOpacity(0.0f);
@@ -255,7 +269,14 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 
 void WebPlayer::setIsYoutube(const bool isYoutube){
 	mIsYoutube = isYoutube;
-	setMedia(mWeb->getUrl());
+}
+
+
+void WebPlayer::setNativeTouches(const bool isNative) {
+	mNativeTouches = isNative;
+	if(mWeb){
+		mWeb->setNativeTouchInput(mNativeTouches);
+	}
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {

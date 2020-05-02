@@ -8,6 +8,7 @@
 			sort="id ASC"		
 			limit="1"
 			label_field="title"
+			where="enabled=1"
 		/>
 </model>
 

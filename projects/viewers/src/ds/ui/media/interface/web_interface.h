@@ -47,6 +47,10 @@ public:
 	void						showKeyboard(bool show);
 	void                        toggleKeyboard();
 
+	void						toggleTouch(); // what the "touch lock" does
+	void						startTouch(); // web is tappable 
+	void						stopTouch(); // web is not tappable
+
 
 	ds::ui::ImageButton*		getKeyboardButton() { return mKeyboardButton; }
 	ds::ui::ImageButton*		getBackButton() { return mBackButton; }

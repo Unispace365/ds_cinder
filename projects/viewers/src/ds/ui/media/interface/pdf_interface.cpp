@@ -72,14 +72,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mTouchToggle = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/touch_unlocked.png", "%APP%/data/images/media_interface/touch_unlocked.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mTouchToggle);
 	mTouchToggle->setClickFn([this](){
-		if(mLinkedPDF){
-			if(mLinkedPDF->isEnabled()){
-				mLinkedPDF->enable(false);
-			} else {
-				mLinkedPDF->enable(true);
-			}
-			updateWidgets();
-		}
+		toggleTouch();
 	});
 
 	mTouchToggle->getNormalImage().setColor(buttonColor);
@@ -141,7 +134,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 }
 
-void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource){
+void PDFInterface::linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource){
 	mLinkedPDF = linkedPDF;
 	mSourceResource = sourceResource;
 	if(mLinkedPDF){
@@ -284,6 +277,33 @@ void PDFInterface::setPageFont(std::string fontName, float fontSize){
 ds::ui::Sprite* PDFInterface::getScrubBarBackground() {
 	if(!mScrubBar) return nullptr;
 	return mScrubBar->getBacker();
+}
+
+void PDFInterface::toggleTouch() {
+	if(mLinkedPDF) {
+		if(mLinkedPDF->isEnabled()) {
+			stopTouch();
+		} else {
+			startTouch();
+		}
+	}
+}
+
+void PDFInterface::startTouch() {
+	if(mLinkedPDF) {
+		mLinkedPDF->enable(true);
+		mLinkedPDF->showLinks();
+	}
+	updateWidgets();
+}
+
+
+void PDFInterface::stopTouch() {
+	if(mLinkedPDF) {
+		mLinkedPDF->enable(false);
+		mLinkedPDF->hideLinks();
+	}
+	updateWidgets();
 }
 
 ds::ui::Sprite* PDFInterface::getScrubBarProgress() {

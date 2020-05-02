@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_MEDIA_PLAYER
-#define DS_UI_MEDIA_MEDIA_PLAYER
 
 #include <ds/ui/media/player/web_player.h>
 #include <ds/ui/sprite/image.h>
@@ -38,6 +36,9 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// Unloads any current media. If initialize immediately is true, it will deduce the media type and load the media
 	void loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
+
+	/// Support the base sprite setting function, which is the same as loadMedia and initialize immediately
+	virtual void setResource(const ds::Resource& reccy) { loadMedia(reccy); }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
 	const ds::Resource& getResource() { return mResource; }
@@ -173,5 +174,3 @@ class MediaPlayer : public ds::ui::Sprite {
 
 }  // namespace ui
 }  // namespace ds
-
-#endif

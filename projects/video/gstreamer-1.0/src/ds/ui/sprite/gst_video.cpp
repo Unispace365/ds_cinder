@@ -506,15 +506,24 @@ GstVideo& GstVideo::setResourceId(const ds::Resource::Id& resourceId) {
 	return *this;
 }
 
-GstVideo& GstVideo::setResource(const ds::Resource& resource) {
-	if (resource.getType() == ds::Resource::VIDEO_TYPE) {
+void GstVideo::setResource(const ds::Resource& resource) {
+	if (resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+		std::string path = resource.getAbsoluteFilePath();
+		float wid = resource.getWidth();
+		float hid = resource.getHeight();
+		
+		if(wid < 16.0f || hid < 16.0f) {
+			DS_LOG_WARNING("GstVideo: video stream is less than 16 pixels on a side, increasing to 1080p");
+			wid = 1920.0f;
+			hid = 1080.0f;
+		}
+
+		startStream(path, wid, hid);
+	} else {
+		DS_LOG_VERBOSE(1, "Trying to load a resource on video that's maybe not a video: " << resource.getAbsoluteFilePath());
 		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 		loadVideo(resource.getPortableFilePath());
-	} else if (resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
-		std::string path = resource.getAbsoluteFilePath();
-		startStream(path, resource.getWidth(), resource.getHeight());
 	}
-	return *this;
 }
 
 void GstVideo::setAutoRestartStream(bool autoRestart) {

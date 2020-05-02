@@ -58,6 +58,12 @@ public:
 	*/
 	void						setImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
 
+	/** Loads an image based on the resource.
+	*   This is here as a convenience to support the sprite base class
+	*   This is effectively setImageResource(resource, 0);
+	*/
+	virtual void setResource(const ds::Resource& resource) override { setImageResource(resource); }
+
 	/// Returns the absolute image path, even if the image was set by resource 
 	const std::string&			getImageFilename() { return mFilename; }
 

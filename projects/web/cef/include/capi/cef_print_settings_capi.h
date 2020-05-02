@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5b26ebd2d8e1e65a25fa0c08317b8994887c0498$
+// $hash=8f7d7993691e07f4a8a42d63522c751cfba3c168$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PRINT_SETTINGS_CAPI_H_
@@ -66,12 +66,6 @@ typedef struct _cef_print_settings_t {
   // expose read-only objects.
   ///
   int(CEF_CALLBACK* is_read_only)(struct _cef_print_settings_t* self);
-
-  ///
-  // Returns a writable copy of this object.
-  ///
-  struct _cef_print_settings_t*(CEF_CALLBACK* copy)(
-      struct _cef_print_settings_t* self);
 
   ///
   // Set the page orientation.

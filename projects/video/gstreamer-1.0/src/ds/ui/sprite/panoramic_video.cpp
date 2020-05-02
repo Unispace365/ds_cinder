@@ -67,6 +67,49 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	setUseShaderTexture(true);
 	setTransparent(true);
 
+	mSphereVertexShader = R"vert(
+#version 150
+uniform mat4	ciModelViewProjection;
+uniform mat3	ciNormalMatrix;
+
+in vec4		ciPosition;
+in vec2		ciTexCoord0;
+in vec3		ciNormal;
+in vec4		ciColor;
+
+out lowp vec4	Color;
+out lowp vec2   TexCoord0;
+
+void main( void )
+{
+    gl_Position = ciModelViewProjection * ciPosition;
+    TexCoord0 = ciTexCoord0;
+    Color = ciColor;
+
+}
+)vert";
+
+	mSphereFragmentShader = R"frag(
+#version 150
+
+uniform sampler2D tex0;
+
+in vec4 Color;
+in vec2 TexCoord0;
+
+out vec4 oColor;
+
+
+void main() {
+    vec2 flippedTexCoord0 = vec2(TexCoord0.x, 1-TexCoord0.y);
+    vec4 diffuseColor = texture2D(tex0, flippedTexCoord0);
+	diffuseColor = diffuseColor * Color;
+    oColor = diffuseColor;
+}
+)frag";
+
+
+	mShader = ci::gl::GlslProg::create(mSphereVertexShader, mSphereFragmentShader);
 	mSphereVbo = ci::gl::VboMesh::create(ci::geom::Sphere().subdivisions(120).radius(200.0f));
 
 	resetCamera();
@@ -186,7 +229,8 @@ void PanoramicVideo::drawLocalClient(){
 
 		// might have to figure this out for client/server
 		ci::gl::ScopedViewport newViewport(newViewportBounds.getX1(), newViewportBounds.getY1(), newViewportBounds.getWidth(), newViewportBounds.getHeight());
-
+		ci::gl::ScopedGlslProg sShader();
+		mShader->bind();
 		videoTexture->bind();
 
 		ci::gl::ScopedMatrices matricies;
@@ -216,7 +260,12 @@ void PanoramicVideo::onSizeChanged() {
 	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
 }
 
-void PanoramicVideo::loadVideo(const std::string& path){
+void PanoramicVideo::loadVideo(const std::string& path) {
+	setResource(ds::Resource(path));
+}
+
+void PanoramicVideo::setResource(const ds::Resource& resource) {
+
 	if(mVideoSprite){
 		mVideoSprite->release();
 		mVideoSprite = nullptr;
@@ -235,7 +284,7 @@ void PanoramicVideo::loadVideo(const std::string& path){
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->setAutoSynchronize(mAutoSync);
-	video_sprite->loadVideo(path);
+	video_sprite->setResource(resource);
 	video_sprite->setFinalRenderToTexture(true);
 
 	resetCamera();

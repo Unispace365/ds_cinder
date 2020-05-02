@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_MEDIA_INTERFACE
-#define DS_UI_MEDIA_MEDIA_INTERFACE
-
 
 #include <ds/ui/sprite/sprite.h>
 
@@ -58,4 +55,3 @@ class MediaInterface : public ds::ui::Sprite {
 }  // namespace ui
 }  // namespace ds
 
-#endif

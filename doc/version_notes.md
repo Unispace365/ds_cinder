@@ -1,4 +1,17 @@
 -----------------------------
+DS Cinder Version 105.0.0
+-----------------------------
+
+- Supports Cinder 0.9.1
+- Generic data model ds::model::ContentModelRef
+- Auto query support to the generic data model
+- Smart layout binding for generic data models
+- Lots of incremental changes and fixes
+- 64bit only
+- Linux not really supported for now
+- Keyboard manager: press h to show all keys
+
+-----------------------------
 DS Cinder Version 104.0.0
 -----------------------------
 

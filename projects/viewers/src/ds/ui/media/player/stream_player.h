@@ -24,7 +24,7 @@ class StreamPlayer : public ds::ui::Sprite {
   public:
 	StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
-	void setResource(const ds::Resource& resource);
+	virtual void setResource(const ds::Resource& resource) override;
 
 	void layout();
 

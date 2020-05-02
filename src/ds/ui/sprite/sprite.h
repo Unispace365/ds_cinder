@@ -239,6 +239,11 @@ namespace ui {
 			\return The 3d vector of the world-space position, in pixels. */
 		const ci::vec3			getGlobalPosition() const;
 
+		/** Get the center position of the Sprite in global space. This is a convenience that's getGlobalPostion() + getLocalCenterPosition();
+		Returns ci::vec3::zero() + getLocalCenterPosition() if this sprite has no parent.
+		\return The 3d vector of the center of this sprite world-space position, in pixels. */
+		const ci::vec3			getGlobalCenterPosition() const;
+
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
 		void					move(const ci::vec3 &delta);
@@ -628,6 +633,9 @@ namespace ui {
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 		void					setBaseShader(const std::string &vertShaderString, const std::string& fragShaderString, const std::string &shadername, bool applyToChildren = false);
 
+		/// Set the resource content for a sprite. This is a base function that should be overridden by anything that can take a Resource (Image, Video, PDF, etc)
+		virtual void			setResource(const ds::Resource&);
+
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();
@@ -916,7 +924,7 @@ namespace ui {
 		ci::ColorA			mServerColor;
 		/// This to make onSizeChanged() more efficient -- it can get
 		/// triggered as a result of position changes, which shouldn't affect it.
-		float				mLastWidth, mLastHeight;
+		float				mLastWidth, mLastHeight, mLastDepth;
 
 		/// Total hack needed in certain cases where you're using a perspective camera.
 		/// This is used by the picking to let the touch system know that the sprite
