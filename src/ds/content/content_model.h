@@ -222,6 +222,21 @@ class ContentModelRef {
 	/// Removes all children
 	void clearChildren();
 
+	/// Adds a reference map with the corresponding string name
+	void setReferences(const std::string& referenceName, std::map<int, ds::model::ContentModelRef>& reference);
+
+	/// Gets a map of all the references for the given name. If you need to modify the map, make a copy and set it again using setReference
+	const std::map<int, ds::model::ContentModelRef>& getReferences(const std::string& referenceName);
+
+	/// Returns a content model from a specific reference by the reference name and the node id
+	ds::model::ContentModelRef getReference(const std::string& referenceName, const int nodeId);
+
+	/// Clears the reference map at the specified name
+	void clearReferences(const std::string& name);
+
+	/// Removes all references
+	void clearAllReferences();
+
 	/// Logs this, it's properties, and all it's children recursively
 	void printTree(const bool verbose, const std::string& indent = "");
 
