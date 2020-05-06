@@ -9,13 +9,14 @@
 namespace ds {
 namespace model {
 namespace {
-const int							EMPTY_INT = 0;
-const std::string					EMPTY_STRING;
-const ds::Resource					EMPTY_RESOURCE;
-const std::vector<ContentModelRef>		EMPTY_DATAMODELREF_VECTOR;
-const ContentModelRef										EMPTY_DATAMODEL;
-const ContentProperty										EMPTY_PROPERTY;
-const std::map<std::string, ContentProperty>				EMPTY_PROPERTY_MAP;
+const int										EMPTY_INT = 0;
+const std::string								EMPTY_STRING;
+const ds::Resource								EMPTY_RESOURCE;
+const std::vector<ContentModelRef>				EMPTY_DATAMODELREF_VECTOR;
+const ContentModelRef							EMPTY_DATAMODEL;
+const ContentProperty							EMPTY_PROPERTY;
+const std::map<std::string, ContentProperty>	EMPTY_PROPERTY_MAP;
+const std::map<int, ContentModelRef>			EMPTY_REFERENCE;
 
 }
 
@@ -193,6 +194,7 @@ public:
 	int mId;
 	std::map<std::string, ContentProperty> mProperties;
 	std::vector<ContentModelRef> mChildren;
+	std::map<std::string, std::map<int, ContentModelRef>> mReferences;
 
 };
 
@@ -253,6 +255,7 @@ const bool ContentModelRef::empty() const {
 	   && mData->mUserData == nullptr
 	   && mData->mChildren.empty()
 	   && mData->mProperties.empty()
+	   && mData->mReferences.empty()
 	   ) {
 		return true;
 	}
@@ -314,6 +317,9 @@ bool ContentModelRef::operator==(const ContentModelRef& b) const {
 			return false;
 		}
 		if(!map_compare(mData->mChildren, b.mData->mChildren)) {
+			return false;
+		}
+		if (!map_compare(mData->mReferences, b.mData->mReferences)) {
 			return false;
 		}
 		return true;
@@ -618,6 +624,52 @@ void ContentModelRef::setChildren(std::vector<ds::model::ContentModelRef> childr
 void ContentModelRef::clearChildren() {
 	if(!mData) return;
 	mData->mChildren.clear();
+}
+
+
+void ContentModelRef::setReferences(const std::string& referenceName, std::map<int, ds::model::ContentModelRef>& reference) {
+	createData();
+	mData->mReferences[referenceName] = reference;
+
+}
+
+const std::map<int, ds::model::ContentModelRef>& ContentModelRef::getReferences(const std::string& name) {
+	if (!mData) return EMPTY_REFERENCE;
+	auto findy = mData->mReferences.find(name);
+	if(findy != mData->mReferences.end()){
+		return findy->second;
+	}
+
+	return EMPTY_REFERENCE;
+}
+
+
+ds::model::ContentModelRef ContentModelRef::getReference(const std::string& referenceName, const int nodeId) {
+	if (!mData) return EMPTY_DATAMODEL;
+	auto theReference = getReferences(referenceName);
+	if(theReference.empty()) return EMPTY_DATAMODEL;
+
+	auto findy = theReference.find(nodeId);
+	if (findy != theReference.end()) {
+		return findy->second;
+	}
+
+	return EMPTY_DATAMODEL;
+}
+
+
+void ContentModelRef::clearReferences(const std::string& name) {
+	if (!mData) return;
+	auto findy = mData->mReferences.find(name);
+	if (findy != mData->mReferences.end()) {
+		mData->mReferences.erase(name);
+	}
+}
+
+
+void ContentModelRef::clearAllReferences() {
+	if (!mData) return;
+	mData->mReferences.clear();
 }
 
 void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
