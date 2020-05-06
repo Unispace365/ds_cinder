@@ -198,6 +198,7 @@ void EngineSettings::setDefaults(){
 	getSetting("platform:mute", 0, ds::cfg::SETTING_TYPE_BOOL, "Mutes all video sound if true", "false");
 	getSetting("animation:duration", 0, ds::cfg::SETTING_TYPE_FLOAT, "Standard duration for animations", "0.35", "0.0", "10.0");
 	getSetting("load_image:threads", 0, ds::cfg::SETTING_TYPE_INT, "Number of threads to spawn for image loading", "1", "0", "32");
+	getSetting("font_scale", 0, ds::cfg::SETTING_TYPE_FLOAT, "text sprites with scale font values by this amount", "1.3333333333333", "0.001", "1000.0");
 
 	getSetting("TOUCH SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("touch:mode", 0, ds::cfg::SETTING_TYPE_STRING, "Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All.", "SystemAndMouse", "", "", "Tuio, TuioAndMouse, System, SystemAndMouse, All");
