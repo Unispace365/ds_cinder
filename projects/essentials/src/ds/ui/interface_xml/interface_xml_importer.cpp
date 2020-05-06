@@ -9,7 +9,6 @@
 #include <ds/app/environment.h>
 #include <ds/app/event.h>
 #include <ds/app/event_registry.h>
-#include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
 #include <ds/cfg/settings_variables.h>
 #include <ds/debug/logger.h>
@@ -163,14 +162,10 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml) {
 	ds::ui::Text* txt = dynamic_cast<ds::ui::Text*>(&sp);
 	if (txt) {
 		if (!txt->getText().empty()) xml.setAttribute("text", txt->getTextAsString());
-		if (txt->getConfigName().empty()) {
-			xml.setAttribute("font_name", txt->getFontFileName());
-			xml.setAttribute("font_size", txt->getFontSize());
+		if (txt->getTextStyle().mName.empty()) {
+			xml.setAttribute("text_style", txt->getTextStyle().mName);
 		} else {
-			xml.setAttribute("font", txt->getConfigName());
-		}
-
-		if (txt->getConfigName().empty()) {
+			xml.setAttribute("font", txt->getTextStyle().mFont);
 			xml.setAttribute("font_leading", txt->getLeading());
 		}
 
@@ -454,12 +449,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		// Try to set the font
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			auto cfg = text->getEngine().getEngineCfg().getText(value);
-			cfg.configure(*text);
+			text->setTextStyle(text->getEngine().getTextStyle(value));
 		} else {
 			auto controlBox = dynamic_cast<ControlCheckBox*>(&sprite);
 			if (controlBox) {
-				controlBox->setLabelTextConfig(value);
+				controlBox->setLabelTextStyle(value);
 			} else {
 				DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																		<< "_ on sprite of type: " << typeid(sprite).name());
@@ -468,7 +462,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	} else if (property == "font_name") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			text->setFont(value, text->getFontSize());
+			text->setFont(value);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());

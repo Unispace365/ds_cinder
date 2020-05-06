@@ -1,11 +1,9 @@
 #pragma once
-#ifndef DS_APP_ENGINE_ENGINECFG_H_
-#define DS_APP_ENGINE_ENGINECFG_H_
 
 #include <map>
 #include <unordered_map>
-#include "ds/cfg/cfg_text.h"
 #include "ds/cfg/settings.h"
+#include "ds/ui/sprite/text_defs.h"
 
 namespace ds {
 class Engine;
@@ -27,15 +25,15 @@ public:
 
 	/// Answer the requested text cfg. 
 	/// if it doesn't exist. In release mode, just answer an empty one.
-	bool							hasText(const std::string& name) const;
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	const std::string&				getDefaultTextCfgName() const;
-	const ds::cfg::Text&			getDefaultTextCfg() const;
-	void							setText(const std::string& name, const ds::cfg::Text&);
+	bool							hasTextStyle(const std::string& name) const;
+	const ds::ui::TextStyle&		getTextStyle(const std::string& name) const;
+	const ds::ui::TextStyle&		getDefaultTextStyle() const;
+	void							setTextStyle(const std::string& name, const ds::ui::TextStyle&);
 
+	/// DEPRECATED: use the setting in styles.xml
 	/// This is a relative operation, so each time you run it it will multiply the new scale
 	/// Recommend reloading the text using loadText() before setting this a second time
-	void							applyTextScale(const float theScale);
+	///void							applyTextScale(const float theScale);
 
 	/// Answers true if settings with given key is already loaded
 	bool							hasSettings(const std::string& name) const;
@@ -70,16 +68,15 @@ private:
 	ds::cfg::Settings&				mEngineSettings;
 	std::map<std::string, ds::cfg::Settings>
 									mSettings;
-	std::unordered_map<std::string, ds::cfg::Text>
-									mTextCfg;
+	std::unordered_map<std::string, ds::ui::TextStyle>
+									mTextStyles;
+	ds::ui::TextStyle				mDefaultTextStyle;
 
 	/// Empty settings for when some are missing. Here because we're getting
 	/// a shutdown crash with this as statics.
 	ds::cfg::Settings				mEmptySettings;
 	ds::cfg::Settings				mEditEmptySettings;
-	ds::cfg::Text					mEmptyTextCfg;
 };
 
 } // namespace ds
 
-#endif // DS_APP_ENGINE_ENGINECFG_H_

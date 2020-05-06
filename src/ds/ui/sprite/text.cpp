@@ -133,19 +133,8 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mProbablyHasMarkup(false)
 	, mShrinkToBounds(false)
 	, mPreserveSpanColors(false)
-	, mTextFont("Sans")
-	, mTextSize(12.0)
-	, mFitMaxTextSize(0)
-	, mFitMinTextSize(0)
-	, mTextColor(ci::Color::white())
-	, mDefaultTextItalicsEnabled(false)
-	, mDefaultTextSmallCapsEnabled(false)
 	, mResizeLimitWidth(-1.0f)
 	, mResizeLimitHeight(-1.0f)
-	, mLeading(1.0f)
-	, mLetterSpacing(0.0f)
-	, mTextAlignment(Alignment::kLeft)
-	, mDefaultTextWeight(TextWeight::kNormal)
 	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
 	, mWrapMode(WrapMode::kWrapModeWordChar)
 	, mPixelWidth(-1)
@@ -242,13 +231,30 @@ void Text::setTextStyle(std::string font, double size, ci::ColorA color, Alignme
 	setAlignment(alignment);
 }
 
+void Text::setTextStyle(ds::ui::TextStyle theStyle) {
+	mStyle.mName = theStyle.mName;
+	setFont(theStyle.mFont);
+	setFontSize(theStyle.mSize);
+	setFitFontSizes(theStyle.mFitSizes);
+	setFitMaxFontSize(theStyle.mFitMaxTextSize);
+	setFitMinFontSize(theStyle.mFitMinTextSize);
+	setLeading(theStyle.mLeading);
+	setLetterSpacing(theStyle.mLetterSpacing);
+	setColorA(theStyle.mColor);
+	setAlignment(theStyle.mAlignment);
+}
+
+void Text::setTextStyle(std::string styleName) {
+	setTextStyle(mEngine.getEngineCfg().getTextStyle(styleName));
+}
+
 Alignment::Enum Text::getAlignment() {
-	return mTextAlignment;
+	return mStyle.mAlignment;
 }
 
 void Text::setAlignment(Alignment::Enum alignment) {
-	if(mTextAlignment != alignment) {
-		mTextAlignment = alignment;
+	if(mStyle.mAlignment != alignment) {
+		mStyle.mAlignment = alignment;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 		mNeedsRefit = true;
@@ -256,13 +262,13 @@ void Text::setAlignment(Alignment::Enum alignment) {
 	}
 }
 
-float Text::getLeading() const {
-	return mLeading;
+double Text::getLeading() const {
+	return mStyle.mLeading;
 }
 
-Text& Text::setLeading(const float leading) {
-	if(mLeading != leading) {
-		mLeading = leading;
+Text& Text::setLeading(const double leading) {
+	if(mStyle.mLeading != leading) {
+		mStyle.mLeading = leading;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 		mNeedsRefit = true;
@@ -271,13 +277,13 @@ Text& Text::setLeading(const float leading) {
 	return *this;
 }
 
-float Text::getLetterSpacing() const {
-	return mLetterSpacing;
+double Text::getLetterSpacing() const {
+	return mStyle.mLetterSpacing;
 }
 
-Text& Text::setLetterSpacing(const float letterSpacing) {
-	if(mLetterSpacing != letterSpacing) {
-		mLetterSpacing = letterSpacing;
+Text& Text::setLetterSpacing(const double letterSpacing) {
+	if(mStyle.mLetterSpacing != letterSpacing) {
+		mStyle.mLetterSpacing = letterSpacing;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 		mNeedsRefit = true;
@@ -315,23 +321,21 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 	return *this;
 }
 
-Text& Text::setFitFontSizes(std::vector<double> font_sizes)
-{
-		mFontSizes = font_sizes;
-		mNeedsRefit = true;
-		mNeedsMeasuring = true;
-		return *this;
+Text& Text::setFitFontSizes(std::vector<double> font_sizes) {
+	mStyle.mFitSizes = font_sizes;
+	mNeedsRefit = true;
+	mNeedsMeasuring = true;
+	return *this;
 }
 
-Text& Text::setFitToResizeLimit(const bool fitToResize)
-{
+Text& Text::setFitToResizeLimit(const bool fitToResize) {
 	if (mFitToResizeLimit != fitToResize) {
 
 		mNeedsFontSizeUpdate = true;
 		mNeedsMeasuring = true;
 		mFitToResizeLimit = fitToResize;
 		mNeedsRefit = true;
-		
+
 		mNeedsMaxResizeFontSizeUpdate = true;
 		markAsDirty(LAYOUT_DIRTY);
 	}
@@ -353,8 +357,8 @@ void Text::setShrinkToBounds(const bool shrinkToBounds /* = false */) {
 }
 
 void Text::setTextColor(const ci::Color& color) {
-	if(mTextColor != color) {
-		mTextColor = color;
+	if(mStyle.mColor != color) {
+		mStyle.mColor = color;
 		mNeedsTextRender = true;
 
 		markAsDirty(FONT_DIRTY);
@@ -362,8 +366,8 @@ void Text::setTextColor(const ci::Color& color) {
 }
 
 void Text::setFontSize(double size) {
-	if(mTextSize != size) {
-		mTextSize = size;
+	if(mStyle.mSize != size) {
+		mStyle.mSize = size;
 		mNeedsFontSizeUpdate = true;
 		mNeedsMeasuring = true;
 
@@ -371,19 +375,17 @@ void Text::setFontSize(double size) {
 	}
 }
 
-void Text::setFitMaxFontSize(double fontSize)
-{
-	if (mFitMaxTextSize != fontSize) {
-		mFitMaxTextSize = fontSize;
+void Text::setFitMaxFontSize(double fontSize){
+	if (mStyle.mFitMaxTextSize != fontSize) {
+		mStyle.mFitMaxTextSize = fontSize;
 		mNeedsMeasuring = true;
 		mNeedsRefit = true;
 	}
 }
 
-void Text::setFitMinFontSize(double fontSize)
-{
-	if (mFitMinTextSize != fontSize) {
-		mFitMinTextSize = fontSize;
+void Text::setFitMinFontSize(double fontSize){
+	if (mStyle.mFitMinTextSize != fontSize) {
+		mStyle.mFitMinTextSize = fontSize;
 		mNeedsMeasuring = true;
 		mNeedsRefit = true;
 	}
@@ -402,28 +404,20 @@ void Text::setColorA(const ci::ColorA& c){
 	setOpacity(c.a);
 }
 
-Text& Text::setFont(const std::string& font, const double fontSize) {
-	if(mTextFont != font || mTextSize != fontSize) {
-		mTextFont = mEngine.getFonts().getFontNameForShortName(font);
-
-		mTextSize = fontSize;
+Text& Text::setFont(const std::string& font) {
+	if (mStyle.mFont != font) {
+		mStyle.mFont = mEngine.getFonts().getFontNameForShortName(font);
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
 		mNeedsRefit = true;
 		mNeedsMaxResizeFontSizeUpdate = true;
 		markAsDirty(FONT_DIRTY);
-
-		/*
-		if(!mEngine.getPangoFontService().getFamilyExists(mTextFont) && !mEngine.getPangoFontService().getFaceExists(mTextFont)){
-			DS_LOG_WARNING("Text: Family or face not found: " << mTextFont);
-		}
-		*/
 	}
 	return *this;
 }
 
-Text& Text::setFont(const std::string& name){
-	return setFont(name, mTextSize);
+std::string Text::getFont() {
+	return mStyle.mFont;
 }
 
 float Text::getWidth() const {
@@ -503,7 +497,7 @@ void Text::onBuildRenderBatch(){
 
 void Text::drawLocalClient(){
 	if(mTexture && !mText.empty()){
-		ci::gl::color(mTextColor.r, mTextColor.g, mTextColor.b, mDrawOpacity);
+		ci::gl::color(mStyle.mColor.r, mStyle.mColor.g, mStyle.mColor.b, mDrawOpacity);
 		ci::gl::ScopedTextureBind scopedTexture(mTexture);
 
 		ci::gl::ScopedModelMatrix scopedMat;
@@ -601,12 +595,10 @@ void Text::onUpdateServer(const UpdateParams&){
 }
 
 
-void Text::findFitFontSize()
-{
+void Text::findFitFontSize(){
 	
 	if (mFitToResizeLimit && mNeedsRefit) {
-		if(mFontSizes.size()>0)
-		{
+		if(mStyle.mFitSizes.size()>0)		{
 			findFitFontSizeFromArray();
 			return;
 		}
@@ -622,14 +614,13 @@ void Text::findFitFontSize()
 		if (constFontDescription) {
 			fontDescription = pango_font_description_copy(constFontDescription);
 		}
-
 		
 		if (fontDescription) {
 			auto _setFontSize = [this, fontDescription](double size)
 			{
 				pango_font_description_set_absolute_size(fontDescription, size * 1.3333333333333 * 1024.0);
 				pango_layout_set_font_description(mPangoLayout, fontDescription);
-				pango_layout_set_spacing(mPangoLayout, (int)(size * (mLeading - 1.0f)) * PANGO_SCALE);
+				pango_layout_set_spacing(mPangoLayout, (int)(size * (mStyle.mLeading - 1.0f)) * PANGO_SCALE);
 			};
 			//handle height;
 
@@ -644,8 +635,7 @@ void Text::findFitFontSize()
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 			double h = std::max(extentRect.height, inkRect.height);
 			
-			while (h < mResizeLimitHeight)
-			{
+			while (h < mResizeLimitHeight){
 
 				//we are not over the limit so we set the font to the current value plus our increment
 				_setFontSize(fs+increment);
@@ -681,8 +671,8 @@ void Text::findFitFontSize()
 			}
 
 			auto height_fs = set_fs-1.5;
-			height_fs = mFitMaxTextSize > 0 ? std::min(mFitMaxTextSize, height_fs) : height_fs;
-			height_fs = std::max(mFitMinTextSize, height_fs);
+			height_fs = mStyle.mFitMaxTextSize > 0 ? std::min(mStyle.mFitMaxTextSize, height_fs) : height_fs;
+			height_fs = std::max(mStyle.mFitMinTextSize, height_fs);
 			fs = height_fs;
 			_setFontSize(fs);
 
@@ -722,14 +712,13 @@ void Text::findFitFontSize()
 
 				//pick the smaller one;
 				fs = std::min(height_fs, fs);
-				fs = mFitMaxTextSize > 0 ? std::min(mFitMaxTextSize, fs) : fs;
-				fs = std::max(mFitMinTextSize, fs);
+				fs = mStyle.mFitMaxTextSize > 0 ? std::min(mStyle.mFitMaxTextSize, fs) : fs;
+				fs = std::max(mStyle.mFitMinTextSize, fs);
 
 				_setFontSize(fs);
 			}
 			pango_font_description_free(fontDescription);
 			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
-			//if (mDebugOutput) DS_LOG_INFO("Final Font Size overall:" << fs);
 
 			mFitCurrentTextSize = fs;
 			mNeedsRefit = false;
@@ -740,9 +729,10 @@ void Text::findFitFontSize()
 	}
 }
 
-void Text::findFitFontSizeFromArray()
-{
+void Text::findFitFontSizeFromArray(){
 	if (mFitToResizeLimit && mNeedsRefit) {
+
+		if (mStyle.mFitSizes.empty()) return;
 
 		//------------------------------------
 		double fs = 5;
@@ -763,29 +753,29 @@ void Text::findFitFontSizeFromArray()
 			{
 				pango_font_description_set_absolute_size(fontDescription, size * 1.3333333333333 * 1024.0);
 				pango_layout_set_font_description(mPangoLayout, fontDescription);
-				pango_layout_set_spacing(mPangoLayout, (int)(size * (mLeading - 1.0f)) * PANGO_SCALE);
+				pango_layout_set_spacing(mPangoLayout, (int)(size * (mStyle.mLeading - 1.0f)) * PANGO_SCALE);
 			};
 
 			//set the height to a big as it goes so we can measure accurately. 
 			pango_layout_set_height(mPangoLayout, INT_MAX);
 			
 			//sort the font sizes (default small to large)
-			std::sort(mFontSizes.begin(), mFontSizes.end());
+			std::sort(mStyle.mFitSizes.begin(), mStyle.mFitSizes.end());
 			
 			//handle height;
-			fs = mFontSizes[idx];
+			fs = mStyle.mFitSizes[idx];
 			_setFontSize(fs);
 
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 			double h = std::max(extentRect.height, inkRect.height);
 			while (h < mResizeLimitHeight)
 			{
-				if(idx>=mFontSizes.size()-1)
+				if(idx>= mStyle.mFitSizes.size()-1)
 				{
 					break;
 				}
 				
-				fs = mFontSizes[++idx];
+				fs = mStyle.mFitSizes[++idx];
 				//set font
 				_setFontSize(fs);
 
@@ -802,16 +792,16 @@ void Text::findFitFontSizeFromArray()
 			}
 			
 			//fs = getFontSize() - 1.5;
-			auto height_fs = mFontSizes[idx];
-			height_fs = mFitMaxTextSize > 0 ? std::min(mFitMaxTextSize, height_fs) : height_fs;
-			height_fs = std::max(mFitMinTextSize, height_fs);
+			auto height_fs = mStyle.mFitSizes[idx];
+			height_fs = mStyle.mFitMaxTextSize > 0 ? std::min(mStyle.mFitMaxTextSize, height_fs) : height_fs;
+			height_fs = std::max(mStyle.mFitMinTextSize, height_fs);
 			
 			_setFontSize(height_fs);
 
 			if (mWrapMode == WrapMode::kWrapModeOff || mWrapMode == WrapMode::kWrapModeWord) {
 				//handle width;
 				idx = 0;
-				fs = mFontSizes[idx];
+				fs = mStyle.mFitSizes[idx];
 
 				_setFontSize(fs);
 
@@ -820,12 +810,12 @@ void Text::findFitFontSizeFromArray()
 				while (w < mResizeLimitWidth)
 				{
 
-					if (idx >= mFontSizes.size() - 1)
+					if (idx >= mStyle.mFitSizes.size() - 1)
 					{
 						break;
 					}
 
-					fs = mFontSizes[++idx];
+					fs = mStyle.mFitSizes[++idx];
 					//set font
 					_setFontSize(fs);
 
@@ -840,11 +830,11 @@ void Text::findFitFontSizeFromArray()
 					}
 
 				}
-				fs = mFontSizes[idx];
+				fs = mStyle.mFitSizes[idx];
 				//pick the smaller one;
 				fs = std::min(height_fs, fs);
-				fs = mFitMaxTextSize > 0 ? std::min(mFitMaxTextSize, fs) : fs;
-				fs = std::max(mFitMinTextSize, fs);
+				fs = mStyle.mFitMaxTextSize > 0 ? std::min(mStyle.mFitMaxTextSize, fs) : fs;
+				fs = std::max(mStyle.mFitMinTextSize, fs);
 				
 				_setFontSize(fs);
 			}
@@ -863,7 +853,7 @@ bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 		
 		
-		if(mText.empty() || mTextSize <= 0.0f){
+		if(mText.empty() || mStyle.mSize <= 0.0f){
 			if(mWidth > 0.0f || mHeight > 0.0f){
 				setSize(0.0f, 0.0f);
 			}
@@ -873,7 +863,7 @@ bool Text::measurePangoText() {
 			return false;
 		}
 
-		double textSize = mTextSize;
+		double textSize = mStyle.mSize;
 		if(mFitToResizeLimit && mFitCurrentTextSize>0)
 		{
 			textSize = mFitCurrentTextSize;
@@ -912,9 +902,9 @@ bool Text::measurePangoText() {
 			mNeedsFontOptionUpdate = false;
 		}
 
-		if(mNeedsFontUpdate || mNeedsFontSizeUpdate) {
+		if (mNeedsFontUpdate || mNeedsFontSizeUpdate) {
 
-			PangoFontDescription* fontDescription = pango_font_description_from_string(mTextFont.c_str());// +" " + std::to_string(textSize)).c_str());
+			PangoFontDescription* fontDescription = pango_font_description_from_string(mStyle.mFont.c_str());// +" " + std::to_string(textSize)).c_str());
 			pango_font_description_set_absolute_size(fontDescription, textSize * 1.3333333333333 * 1024.0);
 			pango_layout_set_font_description(mPangoLayout, fontDescription);
 			if (mNeedsFontUpdate) {
@@ -926,9 +916,6 @@ bool Text::measurePangoText() {
 			mNeedsFontSizeUpdate = false;
 		}
 
-		
-
-
 		// If the text or the bounds change
 		if(mNeedsMeasuring) {
 			const int lastPixelWidth = mPixelWidth;
@@ -936,10 +923,10 @@ bool Text::measurePangoText() {
 
 			if (mWrapMode != WrapMode::kWrapModeOff) {
 				pango_layout_set_width(mPangoLayout, (int)mResizeLimitWidth * PANGO_SCALE);
-			} else
-			{
+			} else	{
 				pango_layout_set_width(mPangoLayout, -1);
 			}
+
 			if(mResizeLimitHeight < 0) {
 				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight);
 			} else {
@@ -947,16 +934,16 @@ bool Text::measurePangoText() {
 			}
 
 			// Pango separates alignment and justification... I prefer a simpler API here to handling certain edge cases.
-			if(mTextAlignment == Alignment::kJustify) {
+			if(mStyle.mAlignment == Alignment::kJustify) {
 				pango_layout_set_justify(mPangoLayout, true);
 				pango_layout_set_alignment(mPangoLayout, PANGO_ALIGN_LEFT);
 			} else {
 				PangoAlignment aligny = PANGO_ALIGN_LEFT;
-				if(mTextAlignment == Alignment::kCenter){
+				if(mStyle.mAlignment == Alignment::kCenter){
 					aligny = PANGO_ALIGN_CENTER;
-				} else if(mTextAlignment == Alignment::kRight){
+				} else if(mStyle.mAlignment == Alignment::kRight){
 					aligny = PANGO_ALIGN_RIGHT;
-				} else if(mTextAlignment == Alignment::kJustify){ // handled above, but just to be safe
+				} else if(mStyle.mAlignment == Alignment::kJustify){ // handled above, but just to be safe
 					aligny = PANGO_ALIGN_LEFT;
 				}
 
@@ -982,7 +969,7 @@ bool Text::measurePangoText() {
 			}
 
 			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
-			pango_layout_set_spacing(mPangoLayout, (int)(textSize * (mLeading - 1.0f)) * PANGO_SCALE);
+			pango_layout_set_spacing(mPangoLayout, (int)(textSize * (mStyle.mLeading - 1.0f)) * PANGO_SCALE);
 
 			// Set text, use the fastest method depending on what we found in the text
 			int newPixelWidth = 0;
@@ -1001,7 +988,7 @@ bool Text::measurePangoText() {
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 
-			if(mLetterSpacing != 0.0f) {
+			if(mStyle.mLetterSpacing != 0.0f) {
 				auto attrs = pango_layout_get_attributes(mPangoLayout);
 				bool createdNew = false;
 				if(attrs == nullptr) {
@@ -1010,7 +997,7 @@ bool Text::measurePangoText() {
 				}
 
 				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
-				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing * PANGO_SCALE)));
+				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mStyle.mLetterSpacing * PANGO_SCALE)));
 
 				// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
 				//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
@@ -1131,7 +1118,7 @@ void Text::renderPangoText(){
 		if(cairoContext) {
 
 			// Draw the text into the buffer
-			cairo_set_source_rgb(cairoContext, mTextColor.r, mTextColor.g, mTextColor.b);
+			cairo_set_source_rgb(cairoContext, mStyle.mColor.r, mStyle.mColor.g, mStyle.mColor.b);
 
 			// Move the layout into the correct position on the surface/context before drawing!
 			// This removes the need for additional texture padding & fixes clipping ascenders
@@ -1145,7 +1132,7 @@ void Text::renderPangoText(){
 			unsigned char *pixels = cairo_image_surface_get_data(cairoSurface);
 
 			ci::gl::Texture::Format format;
-			format.enableMipmapping(true);
+		//	format.enableMipmapping(true);
 
 			if(mPreserveSpanColors) {
 				mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
@@ -1182,20 +1169,20 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 
 	if(mDirty.has(FONT_DIRTY)) {
 		buf.add(FONTNAME_ATT);
-		buf.add(mTextFont);
-		buf.add(mTextSize);
-		buf.add(mLeading);
-		buf.add(mLetterSpacing);
-		buf.add(mTextColor);
-		buf.add((int)mTextAlignment);
+		buf.add(mStyle.mFont);
+		buf.add(mStyle.mSize);
+		buf.add(mStyle.mLeading);
+		buf.add(mStyle.mLetterSpacing);
+		buf.add(mStyle.mColor);
+		buf.add((int)mStyle.mAlignment);
 	}
 	if(mDirty.has(LAYOUT_DIRTY)) {
 		buf.add(LAYOUT_ATT);
 		buf.add(mResizeLimitWidth);
 		buf.add(mResizeLimitHeight);
 		buf.add(mFitToResizeLimit);
-		buf.add((int)mFontSizes.size());
-		for (auto font_size : mFontSizes) {
+		buf.add((int)mStyle.mFitSizes.size());
+		for (auto font_size : mStyle.mFitSizes) {
 			buf.add(font_size);
 		}
 	}
@@ -1213,7 +1200,8 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		ci::Color fontColor = buf.read<ci::Color>();
 		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
 
-		setFont(fontName, fontSize);
+		setFont(fontName);
+		setFontSize(fontSize);
 		setLeading(leading);
 		setLetterSpacing(letterSpacing);
 		setTextColor(fontColor);

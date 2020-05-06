@@ -68,11 +68,15 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	}
 
 	if(!mMenuConfig.mItemTitleTextConfig.empty()){
-		mTitle = mEngine.getEngineCfg().getText(mMenuConfig.mItemTitleTextConfig).create(mEngine, this);
+		mTitle = new ds::ui::Text(mEngine);
+		addChildPtr(mTitle);
+		mTitle->setTextStyle(mMenuConfig.mItemTitleTextConfig);
 	}
 
-	if(!mMenuConfig.mItemSubtitleTextConfig.empty()){
-		mSubtitle = mEngine.getEngineCfg().getText(mMenuConfig.mItemSubtitleTextConfig).create(mEngine, this);
+	if (!mMenuConfig.mItemSubtitleTextConfig.empty()) {
+		mSubtitle = new ds::ui::Text(mEngine);
+		addChildPtr(mSubtitle);
+		mSubtitle->setTextStyle(mMenuConfig.mItemSubtitleTextConfig);
 	}
 
 	float titlePositiony = thisSize.y * titleYPercent;

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_SPRITE_TEXTDEFS_H
-#define DS_UI_SPRITE_TEXTDEFS_H
 
 #include <string>
 
@@ -18,22 +16,6 @@ namespace Alignment {
 	Alignment::Enum	fromString(const std::string&);
 }
 
-
-enum class TextWeight : int {
-	kThin = 100,
-	kUltraLight = 200,
-	kLight = 300,
-	kSemilight = 350,
-	kBook = 380,
-	kNormal = 400,
-	kMedium = 500,
-	kSemibold = 600,
-	kBold = 700,
-	kUltrabold = 800,
-	kHeavy = 900,
-	kUltraHeavy = 1000
-};
-
 enum class EllipsizeMode : int {
 	kEllipsizeNone = 0, // Doesn't add ellipses
 	kEllipsizeStart = 1, // Adds ellipses to the beginning of the text if it doesn't fit in the resize limit
@@ -49,7 +31,27 @@ enum class WrapMode : int {
 	kWrapModeWordChar  // Wraps on words, and falls back to char if it doesn't fit 
 };
 
+
+/**
+* \class TextStyle
+* Store config settings for a text style
+*/
+struct TextStyle{
+	TextStyle();
+	TextStyle(const std::string& font, const std::string& configName, const double size, const double leading,
+		const double letterSpacing, const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
+
+	std::string				mName;
+	std::string				mFont;
+	double					mSize;
+	std::vector<double>		mFitSizes;
+	double					mFitMaxTextSize;
+	double					mFitMinTextSize;
+	double					mLeading;
+	double					mLetterSpacing;
+	ci::ColorA	  			mColor;
+	ds::ui::Alignment::Enum	mAlignment;
+};
+
 } // namespace ui
 } // namespace ds
-
-#endif // DS_UI_SPRITE_TEXTDEFS_H
