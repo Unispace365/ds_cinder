@@ -43,8 +43,8 @@ public:
 	void				setPlayableInstances(const std::vector<std::string> instances);
 	void				setAutoSyncronize(const bool doSync); // synchronize across client/server
 
-	void setTappedCallback(std::function<void(void)> cb){
-		mTappedCb = cb;
+	void setPanoTappedCallback(std::function<void(void)> cb){
+		mPanoTappedCb = cb;
 	}
 
 protected:
@@ -80,7 +80,7 @@ private:
 	std::string			mSphereFragmentShader;
 	ci::gl::GlslProgRef	mShader;
 
-	std::function<void(void)> mTappedCb = nullptr;
+	std::function<void(void)> mPanoTappedCb = nullptr;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);

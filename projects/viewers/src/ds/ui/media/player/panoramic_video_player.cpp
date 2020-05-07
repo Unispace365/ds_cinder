@@ -79,11 +79,8 @@ void PanoramicVideoPlayer::setResource(const ds::Resource& resource) {
 		}
 	});
 
-	mPanoramicVideo->setTappedCallback([this]{
-		if(mVideoInterface && !mVideoInterface->visible()){
-			mVideoInterface->setOpacity(1.0f);
-			mVideoInterface->show();
-		}
+	mPanoramicVideo->setPanoTappedCallback([this]{
+		showInterface();
 	});
 
 	setPan(mPanning);

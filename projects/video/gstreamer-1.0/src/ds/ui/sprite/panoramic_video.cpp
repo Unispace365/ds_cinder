@@ -120,9 +120,10 @@ void main() {
 		handleDrag(ci::vec2(ti.mDeltaPoint));		
 
 		// Handle tapping
-		auto dist = glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint);
-		if(mTappedCb && ti.mPhase == ds::ui::TouchInfo::Removed && dist < mEngine.getMinTapDistance()){
-			mTappedCb();
+		if(mPanoTappedCb && ti.mPhase == ds::ui::TouchInfo::Removed){
+			if(glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) < mEngine.getMinTapDistance()){
+				mPanoTappedCb();
+			}
 		}
 	});
 }
