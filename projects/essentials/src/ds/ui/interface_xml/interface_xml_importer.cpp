@@ -483,20 +483,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		// Try to set the fit to resize limit
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			std::regex e3(",+");
-			auto itr = std::sregex_token_iterator(value.begin(), value.end(), e3, -1);
-			std::vector<double> size_values;
-			double font_value;
-
-			for (; itr != std::sregex_token_iterator(); ++itr) {
-				if (ds::string_to_value<double>(itr->str(), font_value))
-				{
-					size_values.push_back(font_value);
-				}
-			}
-			
-
-			text->setFitFontSizes(size_values);
+			text->setFitFontSizes(TextStyle::getSizesFromString(value));
 		}
 		else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
@@ -555,16 +542,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	else if (property == "text_align") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			std::string alignString = value;
-			if (alignString == "right") {
-				text->setAlignment(ds::ui::Alignment::kRight);
-			} else if (alignString == "center") {
-				text->setAlignment(ds::ui::Alignment::kCenter);
-			} else if (alignString == "justify") {
-				text->setAlignment(ds::ui::Alignment::kJustify);
-			} else {
-				text->setAlignment(ds::ui::Alignment::kLeft);
-			}
+			text->setAlignment(Alignment::fromString(value));
 		}
 
 	} else if (property == "text") {
@@ -725,7 +703,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		// Try to set the font size
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			text->setFontSize(ds::string_to_float(value));
+			text->setFontSize(ds::string_to_double(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
@@ -733,7 +711,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	} else if (property == "font_leading") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			text->setLeading(ds::string_to_float(value));
+			text->setLeading(ds::string_to_double(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());
@@ -741,7 +719,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	} else if (property == "font_letter_spacing") {
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
-			text->setLetterSpacing(ds::string_to_float(value));
+			text->setLetterSpacing(ds::string_to_double(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property
 																	<< "_ on sprite of type: " << typeid(sprite).name());

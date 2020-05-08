@@ -51,7 +51,6 @@ ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) {
 	return it->second;
 }
 
-
 ds::cfg::Settings& EngineCfg::getNextSettings(const std::string& name){
 	if(mSettings.empty() || name.empty()){
 		DS_LOG_WARNING("EngineCfg::getNextSettings() could not fulfill your request. Bummer.");
@@ -81,28 +80,37 @@ ds::cfg::Settings& EngineCfg::getNextSettings(const std::string& name){
 }
 
 bool EngineCfg::hasTextStyle(const std::string& name) const {
-	if (name.empty()) return false;
-	if (mTextStyles.empty()) return false;
+	if (name.empty() || mTextStyles.empty()) return false;
+
 	auto it = mTextStyles.find(name);
-	if (it == mTextStyles.end()) return  false;
+	if (it == mTextStyles.end()) return false;
+
 	return true;
 }
 
 const ds::ui::TextStyle& EngineCfg::getTextStyle(const std::string& name) const {
+
 	if (name.empty()) {
 		DS_LOG_WARNING("EngineCfg::getTextStyle() on empty name");
 		return mDefaultTextStyle;
 	}
+
 	if (mTextStyles.empty()) {
 		DS_LOG_WARNING("EngineCfg::getTextStyle() but there are no styles loaded (key=" << name << ")");
 		return mDefaultTextStyle;
 	}
+
 	auto it = mTextStyles.find(name);
 	if (it == mTextStyles.end()) {
 		DS_LOG_WARNING("EngineCfg::getTextStyle() style " << name << " does not exist, using the default text style.");
 		return mDefaultTextStyle;
 	}
+
 	return it->second;
+}
+
+void EngineCfg::setDefaultTextStyle(const ds::ui::TextStyle& theStyle) {
+	mDefaultTextStyle = theStyle;
 }
 
 const ds::ui::TextStyle& EngineCfg::getDefaultTextStyle() const{
@@ -111,6 +119,11 @@ const ds::ui::TextStyle& EngineCfg::getDefaultTextStyle() const{
 
 void EngineCfg::setTextStyle(const std::string& name, const ds::ui::TextStyle& t) {
 	mTextStyles[name] = t;
+	if (name == "default") setDefaultTextStyle(t);
+}
+
+void EngineCfg::clearTextStyles() {
+	mTextStyles.clear();
 }
 
 bool EngineCfg::hasSettings(const std::string& name) const {
@@ -148,7 +161,6 @@ void EngineCfg::appendSettings(const std::string& name, const std::string& filen
 }
 
 void EngineCfg::loadText(const std::string& filename, Engine& engine) {
-	// detect if there's style.xml!
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextStyles, engine);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextStyles, engine);
 	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
@@ -158,7 +170,6 @@ void EngineCfg::loadText(const std::string& filename, Engine& engine) {
 		read_text_cfg(local, mTextStyles, engine);
 	}
 
-	// TODO!
 	if(!mTextStyles.empty()){
 		for(auto it = mTextStyles.begin(); it != mTextStyles.end(); ++it){
 			mDefaultTextStyle = it->second;

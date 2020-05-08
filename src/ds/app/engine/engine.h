@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_APP_ENGINE_ENGINE_H_
-#define DS_APP_ENGINE_ENGINE_H_
 
 #include <memory>
 #include <unordered_map>
@@ -79,7 +77,7 @@ public:
 	/// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
 
-	/// Convenice to load a setting file into the mEngineCfg settings.
+	/// Convenience to load a setting file into the mEngineCfg settings.
 	/// \param name is the name that the system will use to refer to the settings.
 	/// \param filename is the leaf path of the settings file (i.e. "data.xml").
 	/// It will be loaded from all appropriate locations.
@@ -90,13 +88,13 @@ public:
 	/// It will be saved ONLY in the user settings location.
 	void								saveSettings(const std::string& name, const std::string& filename);
 
-	/// Convenice to append a setting file into the existing mEngineCfg settings.
+	/// Convenience to append a setting file into the existing mEngineCfg settings.
 	/// \param name is the name that the system will use to refer to the settings.
 	/// \param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
 	/// It will NOT be loaded from all appropriate locations.
 	void								appendSettings(const std::string& name, const std::string& filename);
 
-	/// Convenice to load a text cfg file into a collection of cfg objects.
+	/// Convenience to load a text cfg file into a collection of cfg objects.
 	/// \param filename is the leaf path of the settings file (i.e. "text.xml").
 	/// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
@@ -391,4 +389,3 @@ private:
 
 } // namespace ds
 
-#endif // DS_APP_ENGINE_ENGINE_H_

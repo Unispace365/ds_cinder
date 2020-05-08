@@ -61,4 +61,14 @@ const ci::ColorA& ColorList::getColorFromName(const std::wstring& namey) const {
 	return getColorFromName(ds::utf8_from_wstr(namey));
 }
 
+
+std::string ColorList::getNameFromColor(const ci::ColorA& theColor) const {
+	if (mData.empty()) return EMPTY_SZ;
+	for (auto it : mData) {
+		if (it.second.mColor == theColor) return it.second.mShortName;
+	}
+
+	return EMPTY_SZ;
+}
+
 } // namespace ds

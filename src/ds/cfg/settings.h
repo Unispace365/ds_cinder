@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_CFG_SETTINGS_MANAGER_H_
-#define DS_CFG_SETTINGS_MANAGER_H_
 
 #include <map>
 #include <vector>
@@ -15,6 +13,7 @@ class XmlTree;
 }
 
 namespace ds {
+class App;
 namespace ui {
 class SpriteEngine;
 }
@@ -33,6 +32,7 @@ extern const std::string&				SETTING_TYPE_VEC2;
 extern const std::string&				SETTING_TYPE_VEC3;
 extern const std::string&				SETTING_TYPE_RECT;
 extern const std::string&				SETTING_TYPE_SECTION_HEADER; // A meta type of setting for ui display
+extern const std::string&				SETTING_TYPE_TEXT_STYLE; // A semicolon-separated list of text style info (e.g. font:Arial; size:20)
 
 /**
 * \class Settings
@@ -232,6 +232,8 @@ public:
 	};
 
 protected:
+	friend class ds::App;
+
 	/// The first vector is all settings
 	/// The pair is to match the name of the setting
 	/// The inner vector is for a series of settings with the same name (to support the index calls in the getSetting() calls)
@@ -242,7 +244,7 @@ protected:
 	std::vector<Setting>												mSortedSettings; // rebuilt every call of getReadSortedIndex()
 
 	/// Used in the read function
-	void								directReadFrom(const std::string& filename, const bool clear); \
+	void								directReadFrom(const std::string& filename, const bool clear); 
 
 
 
@@ -250,5 +252,3 @@ protected:
 
 } // namespace cfg
 } // namespace ds
-
-#endif // DS_CFG_SETTINGS_H_

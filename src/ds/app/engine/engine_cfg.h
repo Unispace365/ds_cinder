@@ -23,12 +23,25 @@ public:
 	/// Get the settings in the list AFTER the one specified by the name
 	ds::cfg::Settings&				getNextSettings(const std::string& name);
 
-	/// Answer the requested text cfg. 
-	/// if it doesn't exist. In release mode, just answer an empty one.
+	/// Is there a text style with this name?
 	bool							hasTextStyle(const std::string& name) const;
+
+	/// Returns a text style with the specfied name, or the default style if it can't be found
 	const ds::ui::TextStyle&		getTextStyle(const std::string& name) const;
-	const ds::ui::TextStyle&		getDefaultTextStyle() const;
+
+	/// Sets a text style with a name. If the name is "default", it will replace the default text style
 	void							setTextStyle(const std::string& name, const ds::ui::TextStyle&);
+
+	/// Sets a text style to be used if one with a specified name can't be found
+	void							setDefaultTextStyle(const ds::ui::TextStyle&);
+	/// Returns the text style to be used if a specific named one can't be found
+	const ds::ui::TextStyle&		getDefaultTextStyle() const;
+
+	/// Gets a reference to the map of all text styles (use with caution!)
+	std::unordered_map<std::string, ds::ui::TextStyle>& getAllTextStyles() { return mTextStyles; }
+
+	/// Clears all loaded text styles (except the default), use with cation!
+	void							clearTextStyles();
 
 	/// DEPRECATED: use the setting in styles.xml
 	/// This is a relative operation, so each time you run it it will multiply the new scale
@@ -56,7 +69,7 @@ public:
 		\param filename is the FULL path of the settings file (i.e. "C:/projects/settings/data.xml"). */
 	void							appendSettings(const std::string& name, const std::string& filename);
 
-	/** Convenience to load a text cfg file into a collection of cfg objects.
+	/** Convenience to load a text style file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.
 		\param filename		the leaf path of the settings file (i.e. "text.xml").
 		\param engine		Reference to engine */	
