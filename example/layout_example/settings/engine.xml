@@ -9,6 +9,7 @@
 	<setting name="platform:architecture" value="" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
 	<setting name="platform:guid" value="example" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
+	<setting name="xml_importer:target" value="portrait, 3x3" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
 	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
 	<setting name="world_dimensions" value="2500, 1400" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>

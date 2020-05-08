@@ -174,6 +174,7 @@ void EngineSettings::setDefaults(){
 	getSetting("platform:architecture", 0, ds::cfg::SETTING_TYPE_STRING, "If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive.", "standalone", "", "", "standalone, client, server, clientserver");
 	getSetting("platform:guid", 0, ds::cfg::SETTING_TYPE_STRING, "Unique identifier for network traffic (appended by additional unique values).", "Downstream");
 	getSetting("xml_importer:cache", 0, ds::cfg::SETTING_TYPE_BOOL, "If the xml importer should cache xml content or reload from disk each time", "true");
+	getSetting("xml_importer:target", 0, ds::cfg::SETTING_TYPE_STRING, "target for xml importer target properties to match", "default");
 
 	getSetting("WINDOW SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("span_all_displays", 0, ds::cfg::SETTING_TYPE_BOOL, "Automatically spans displays and overrides world size, src/dst rect and screen:mode", "false");
@@ -188,6 +189,7 @@ void EngineSettings::setDefaults(){
 	getSetting("system:never_sleep", 0, ds::cfg::SETTING_TYPE_BOOL, "Prevent the system from sleeping or powering off the screen", "true");
 	getSetting("apphost:exit_on_quit", 0, ds::cfg::SETTING_TYPE_BOOL, "Exit apphost when quitting the app", "true");
 	getSetting("resetup_server_on_display_change", 0, ds::cfg::SETTING_TYPE_BOOL, "Resetup the server when the display changes", "true");
+	
 
 	getSetting("RENDER SETTINGS", 0, ds::cfg::SETTING_TYPE_SECTION_HEADER, "");
 	getSetting("frame_rate", 0, ds::cfg::SETTING_TYPE_INT, "Attempt to run the app at this rate", "60", "1", "1000");

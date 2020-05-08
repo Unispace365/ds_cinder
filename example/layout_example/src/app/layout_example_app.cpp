@@ -21,6 +21,7 @@
 
 #include <ds/ui/layout/smart_layout.h>
 
+#include <ds/app/engine/engine_events.h>
 namespace example {
 
 layout_example::layout_example()
@@ -38,12 +39,22 @@ void layout_example::setupServer(){
 
 
 	/* Settings */
-	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
+	mEngine.loadSettings(SETTINGS_LAYOUT, " layout.xml");
 	mEngine.loadTextCfg("text.xml");
 
 	mGlobals.initialize();
 	mQueryHandler.runInitialQueries();
 
+	std::string target = "landscape";
+
+	if(mEngine.getWidth() < mEngine.getHeight())
+	{
+		target = "portrait";
+	}
+	
+	//mEngine.setLayoutTarget(target);
+
+	
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
@@ -203,6 +214,7 @@ void layout_example::setupServer(){
 	sl->listenToEvents<IdleEndedEvent>([sl](const IdleEndedEvent& e){ sl->setSpriteText("event_text", "Not Idling!"); });
 	rootSprite.addChildPtr(sl);
 	sl->tweenAnimateOn(true, 0.75f, 0.1f);
+	rootLayout->runLayout();
 }
 
 
