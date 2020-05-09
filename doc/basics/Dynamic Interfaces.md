@@ -268,7 +268,8 @@ Text Parameters
 	* **text_utc_format**: Output date format to convert to (default: "%H:%M:%S %d-%m-%Y")
 	* **text_utc**: The time/date string OR "now" (example: "11:42:00 14-02-2018")
 * **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
-* **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
+* **text_style**: The text style name or settings string. Set in settings/styles.xml. The text style sets the font name, size, leading and color. text_style="sample:config". Or you can use the full style syntax of text_style="font:Arial; size:20; leading:1.2; letter_spacing:5.0; align:center; fit_sizes:12, 24, 36, 40"
+* **font**: The text style name. Set in settings/styles.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
 * **font_leading**: The multiplier of font_size to use for line height (only when text consists of multiple lines)

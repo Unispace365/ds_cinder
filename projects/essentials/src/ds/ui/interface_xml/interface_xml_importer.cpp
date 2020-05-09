@@ -445,7 +445,29 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	}
 
 	// Text specific attributes
-	else if (property == "font") {
+	else if (property == "text_style") {
+		// Try to set the font
+		auto text = dynamic_cast<Text*>(&sprite);
+		if (text) {
+			if (engine.getEngineCfg().hasTextStyle(value)) {
+				text->setTextStyle(value);
+			} else {
+				text->setTextStyle(TextStyle::textStyleFromSetting(engine, value));
+			}
+		} else {
+			auto controlBox = dynamic_cast<ControlCheckBox*>(&sprite);
+			if (controlBox) {
+				if (engine.getEngineCfg().hasTextStyle(value)) {
+					controlBox->setLabelTextStyle(value);
+				} else {
+					controlBox->setLabelTextStyle(TextStyle::textStyleFromSetting(engine, value));
+				}
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property
+					<< "_ on sprite of type: " << typeid(sprite).name());
+			}
+		}
+	} else if (property == "font") {
 		// Try to set the font
 		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
