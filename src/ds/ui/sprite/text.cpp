@@ -145,7 +145,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mPangoLayout(nullptr)
 	, mCairoFontOptions(nullptr)
 	, mFitCurrentTextSize(0)
-	, mEngineFontScale(1.3333333333333)
+	, mEngineFontScale(4.0/3.0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -154,7 +154,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	mSpriteShader.loadShaders();
 
-	mEngineFontScale = mEngine.getEngineSettings().getFloat("font_scale",0, 1.3333333333333);
+	mEngineFontScale = mEngine.getEngineSettings().getFloat("font_scale",0, 4.0 / 3.0);
 	
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");

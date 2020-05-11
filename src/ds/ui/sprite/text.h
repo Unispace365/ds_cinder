@@ -252,6 +252,7 @@ protected:
 	bool						mPreserveSpanColors;
 	EllipsizeMode				mEllipsizeMode;
 	WrapMode					mWrapMode;
+	double						mEngineFontScale;
 
 	// Resize options
 	bool						mShrinkToBounds;
