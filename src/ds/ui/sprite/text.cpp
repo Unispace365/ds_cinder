@@ -145,6 +145,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mPangoLayout(nullptr)
 	, mCairoFontOptions(nullptr)
 	, mFitCurrentTextSize(0)
+	, mEngineFontScale(1.3333333333333)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -153,6 +154,8 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	mSpriteShader.loadShaders();
 
+	mEngineFontScale = mEngine.getEngineSettings().getFloat("font_scale",0, 1.3333333333333);
+	
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
 		return;
@@ -618,7 +621,7 @@ void Text::findFitFontSize(){
 		if (fontDescription) {
 			auto _setFontSize = [this, fontDescription](double size)
 			{
-				pango_font_description_set_absolute_size(fontDescription, size * 1.3333333333333 * 1024.0);
+				pango_font_description_set_absolute_size(fontDescription, size * mEngineFontScale * 1024.0);
 				pango_layout_set_font_description(mPangoLayout, fontDescription);
 				pango_layout_set_spacing(mPangoLayout, (int)(size * (mStyle.mLeading - 1.0f)) * PANGO_SCALE);
 			};
@@ -751,7 +754,7 @@ void Text::findFitFontSizeFromArray(){
 		if (fontDescription) {
 			auto _setFontSize = [this, fontDescription](double size)
 			{
-				pango_font_description_set_absolute_size(fontDescription, size * 1.3333333333333 * 1024.0);
+				pango_font_description_set_absolute_size(fontDescription, size * mEngineFontScale * 1024.0);
 				pango_layout_set_font_description(mPangoLayout, fontDescription);
 				pango_layout_set_spacing(mPangoLayout, (int)(size * (mStyle.mLeading - 1.0f)) * PANGO_SCALE);
 			};
@@ -905,7 +908,7 @@ bool Text::measurePangoText() {
 		if (mNeedsFontUpdate || mNeedsFontSizeUpdate) {
 
 			PangoFontDescription* fontDescription = pango_font_description_from_string(mStyle.mFont.c_str());// +" " + std::to_string(textSize)).c_str());
-			pango_font_description_set_absolute_size(fontDescription, textSize * 1.3333333333333 * 1024.0);
+			pango_font_description_set_absolute_size(fontDescription, textSize * mEngineFontScale * 1024.0);
 			pango_layout_set_font_description(mPangoLayout, fontDescription);
 			if (mNeedsFontUpdate) {
 				pango_font_map_load_font(mEngine.getPangoFontService().getPangoFontMap(), mPangoContext, fontDescription);
