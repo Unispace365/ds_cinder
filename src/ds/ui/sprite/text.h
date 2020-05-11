@@ -237,6 +237,7 @@ private:
 	WrapMode					mWrapMode;
 	float						mLeading;
 	float						mLetterSpacing;
+	float						mEngineFontScale;
 
 	/// Info about the text layout
 	bool						mWrappedText;
