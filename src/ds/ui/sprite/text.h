@@ -113,6 +113,7 @@ public:
 
 	double						getFontSize(){ return mTextSize; }
 	void						setFontSize(double fontSize);
+	double						getFitFontSize() { return mFitCurrentTextSize; }
 	
 	void						setFitMaxFontSize(double fontSize);
 	void						setFitMinFontSize(double fontSize);
@@ -206,6 +207,9 @@ protected:
 	/// Renders text into the texture.
 	/// Returns true if the texture was actually updated, false if nothing had to change
 	void renderPangoText();
+	//pango references;
+	PangoContext*				mPangoContext;
+	PangoLayout*				mPangoLayout;
 
 private:
 	ci::gl::TextureRef			mTexture;
@@ -264,14 +268,14 @@ private:
 	ci::vec2					mRenderOffset;
 
 	/// Pango references
-	PangoContext*				mPangoContext;
-	PangoLayout*				mPangoLayout;
+	
 	cairo_font_options_t*		mCairoFontOptions;
 	std::vector<double>			mFontSizes;
 	double						mFitMaxTextSize;
 	double						mFitMinTextSize;
 	double						mFitCurrentTextSize;
 	bool						mDebugOutput = false;
+	
 };
 }
 } // namespace kp::pango
