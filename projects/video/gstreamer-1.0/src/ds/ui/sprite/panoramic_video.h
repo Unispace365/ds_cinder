@@ -43,6 +43,10 @@ public:
 	void				setPlayableInstances(const std::vector<std::string> instances);
 	void				setAutoSyncronize(const bool doSync); // synchronize across client/server
 
+	void setPanoTappedCallback(std::function<void(void)> cb){
+		mPanoTappedCb = cb;
+	}
+
 protected:
 	// These are our only chances in client mode to catch the video.
 	virtual void		onChildAdded(ds::ui::Sprite& child) override;
@@ -75,6 +79,8 @@ private:
 	std::string			mSphereVertexShader;
 	std::string			mSphereFragmentShader;
 	ci::gl::GlslProgRef	mShader;
+
+	std::function<void(void)> mPanoTappedCb = nullptr;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);

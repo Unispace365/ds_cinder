@@ -489,7 +489,10 @@ void Sprite::setPosition(const ci::vec3 &pos) {
 	doSetPosition(pos);
 }
 
-bool Sprite::getInnerHit(const ci::vec3&) const {
+bool Sprite::getInnerHit(const ci::vec3& p) const {
+	if (mInnerHitFunction) {
+		return mInnerHitFunction(p);
+	}
 	return true;
 }
 
@@ -2002,6 +2005,10 @@ float Sprite::getCornerRadius() const{
 
 void Sprite::setTouchScaleMode(bool doSizeScale){
 	mTouchScaleSizeMode = doSizeScale;
+}
+
+void Sprite::setInnerHitFunction(std::function<const bool(const ci::vec3&)> func) {
+	mInnerHitFunction = func;
 }
 
 void Sprite::readClientFrom(ds::DataBuffer& buf){

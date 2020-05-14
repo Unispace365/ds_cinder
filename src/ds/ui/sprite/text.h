@@ -113,6 +113,7 @@ public:
 
 	double						getFontSize(){ return mTextSize; }
 	void						setFontSize(double fontSize);
+	double						getFitFontSize() { return mFitCurrentTextSize; }
 	
 	void						setFitMaxFontSize(double fontSize);
 	void						setFitMinFontSize(double fontSize);
@@ -163,7 +164,9 @@ public:
 	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
 	int							getCharacterIndexForPosition(const ci::vec2& localPosition);
 
-	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
+	void						setConfig(const std::string& cfgName);
+
+	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName;}
 	const std::string			getConfigName(){ return mCfgName; }
 	const std::string			getFontFileName(){ return mTextFont; }
 
@@ -204,6 +207,9 @@ protected:
 	/// Renders text into the texture.
 	/// Returns true if the texture was actually updated, false if nothing had to change
 	void renderPangoText();
+	//pango references;
+	PangoContext*				mPangoContext;
+	PangoLayout*				mPangoLayout;
 
 private:
 	ci::gl::TextureRef			mTexture;
@@ -235,6 +241,7 @@ private:
 	WrapMode					mWrapMode;
 	float						mLeading;
 	float						mLetterSpacing;
+	float						mEngineFontScale;
 
 	/// Info about the text layout
 	bool						mWrappedText;
@@ -261,14 +268,14 @@ private:
 	ci::vec2					mRenderOffset;
 
 	/// Pango references
-	PangoContext*				mPangoContext;
-	PangoLayout*				mPangoLayout;
+	
 	cairo_font_options_t*		mCairoFontOptions;
 	std::vector<double>			mFontSizes;
 	double						mFitMaxTextSize;
 	double						mFitMinTextSize;
 	double						mFitCurrentTextSize;
 	bool						mDebugOutput = false;
+	
 };
 }
 } // namespace kp::pango

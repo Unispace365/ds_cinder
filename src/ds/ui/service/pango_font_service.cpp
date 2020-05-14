@@ -85,7 +85,7 @@ void PangoFontService::loadFamiliesAndFaces(){
 
 			DsPangoFontFace dpff;
 			dpff.mDecription = description_string;
-			dpff.mWeight = weight;
+			dpff.mWeight = std::to_string(weight);
 			dpff.mFaceName = face_name;
 			dpff.mHash = hash;
 

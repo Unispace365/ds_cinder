@@ -118,6 +118,13 @@ void main() {
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
 		handleDrag(ci::vec2(ti.mDeltaPoint));		
+
+		// Handle tapping
+		if(mPanoTappedCb && ti.mPhase == ds::ui::TouchInfo::Removed){
+			if(glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) < mEngine.getMinTapDistance()){
+				mPanoTappedCb();
+			}
+		}
 	});
 }
 

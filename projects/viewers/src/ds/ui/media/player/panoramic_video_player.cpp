@@ -79,6 +79,10 @@ void PanoramicVideoPlayer::setResource(const ds::Resource& resource) {
 		}
 	});
 
+	mPanoramicVideo->setPanoTappedCallback([this]{
+		showInterface();
+	});
+
 	setPan(mPanning);
 	setVolume(mVolume);
 	setAutoSynchronize(mAutoSyncronize);
