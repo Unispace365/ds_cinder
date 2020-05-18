@@ -159,6 +159,7 @@ class ContentModelRef {
 
 	/// Set the property with a given name
 	void setProperty(const std::string& propertyName, ContentProperty& theProp);
+	void setProperty(const std::string& propertyName, char* value); // for constants as properties, eg mModel.setProperty("sample", "value"); in c++
 	void setProperty(const std::string& propertyName, const std::string& value);
 	void setProperty(const std::string& propertyName, const std::wstring& value);
 	void setProperty(const std::string& propertyName, const int& value);
@@ -170,6 +171,33 @@ class ContentModelRef {
 	void setProperty(const std::string& propertyName, const ci::vec3& value);
 	void setProperty(const std::string& propertyName, const ci::Rectf& value);
 	void setPropertyResource(const std::string& propertyName, const ds::Resource& resource);
+
+	/// property lists are stored separately from regular properties
+	const std::vector<ContentProperty>&	getPropertyList(const std::string& propertyName);
+	std::vector<bool>				getPropertyListBool(const std::string& propertyName);
+	std::vector<int>				getPropertyListInt(const std::string& propertyName);
+	std::vector<float>				getPropertyListFloat(const std::string& propertyName);
+	std::vector<double>				getPropertyListDouble(const std::string& propertyName);
+	std::vector<ci::Color>			getPropertyListColor(ds::ui::SpriteEngine&, const std::string& propertyName);
+	std::vector<ci::ColorA>			getPropertyListColorA(ds::ui::SpriteEngine&, const std::string& propertyName);
+	std::vector<std::string>		getPropertyListString(const std::string& propertyName);
+	std::vector<std::wstring>		getPropertyListWString(const std::string& propertyName);
+	std::vector<ci::vec2>			getPropertyListVec2(const std::string& propertyName);
+	std::vector<ci::vec3>			getPropertyListVec3(const std::string& propertyName);
+	std::vector<ci::Rectf>			getPropertyListRect(const std::string& propertyName);
+
+	/// Returns the list as a delimiter-separated string
+	std::string						getPropertyListAsString(const std::string& propertyName, const std::string& delimiter = "; ");
+
+	/// Adds this to a property list
+	void addPropertyToList(const std::string& propertyListName, const std::string& value);
+
+	/// Replaces a property list 
+	void setPropertyList(const std::string& propertyListName, const std::vector<std::string>& value);
+	void setPropertyList(const std::string& propertyListName, const std::vector<ContentProperty>& value);
+
+	/// Clears the list for a specific property
+	void clearPropertyList(const std::string& propertyName);
 
 	/// Gets all of the children
 	/// Don't modify the children here, use the other functions
