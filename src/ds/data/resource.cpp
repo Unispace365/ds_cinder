@@ -23,6 +23,7 @@ const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
 const std::string		VIDEO_STREAM_TYPE_SZ("vs");
 const std::string		WEB_TYPE_SZ("w");
+const std::string		YOUTUBE_TYPE_SZ("y");
 const std::string		ZIP_TYPE_SZ("z");
 const std::string		ERROR_TYPE_SZ("0");
 
@@ -39,6 +40,7 @@ const std::wstring		PDF_NAME_SZ(L"pdf");
 const std::wstring		VIDEO_NAME_SZ(L"video");
 const std::wstring		VIDEO_STREAM_NAME_SZ(L"video stream");
 const std::wstring		WEB_NAME_SZ(L"web");
+const std::wstring		YOUTUBE_NAME_SZ(L"youtube");
 const std::wstring		ZIP_NAME_SZ(L"zip");
 const std::wstring		ERROR_NAME_SZ(L"error");
 }
@@ -392,6 +394,7 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == ZIP_TYPE) return ZIP_NAME_SZ;
 	else if (mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
+	else if (mType == YOUTUBE_TYPE) return YOUTUBE_NAME_SZ;
 	return ERROR_NAME_SZ;
 }
 
@@ -404,6 +407,7 @@ const std::string& Resource::getTypeChar() const {
 	else if(mType == ZIP_TYPE) return ZIP_TYPE_SZ;
 	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_TYPE_SZ;
 	else if(mType == WEB_TYPE) return WEB_TYPE_SZ;
+	else if(mType == YOUTUBE_TYPE) return YOUTUBE_TYPE_SZ;
 	return ERROR_TYPE_SZ;
 }
 
@@ -533,6 +537,7 @@ const int Resource::makeTypeFromString(const std::string& typeChar){
 	else if(VIDEO_STREAM_TYPE_SZ == typeChar) return VIDEO_STREAM_TYPE;
 	else if(WEB_TYPE_SZ == typeChar) return WEB_TYPE;
 	else if(ZIP_TYPE_SZ == typeChar) return ZIP_TYPE;
+	else if(YOUTUBE_TYPE_SZ == typeChar) return YOUTUBE_TYPE;
 	else if(AUDIO_TYPE_SZ == typeChar) return VIDEO_TYPE;
 	else return ERROR_TYPE;
 }

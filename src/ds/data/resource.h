@@ -104,6 +104,7 @@ public:
 	static const int		VIDEO_STREAM_TYPE		= 7;
 	static const int		ZIP_TYPE				= 8;
 	static const int		VIDEO_PANORAMIC_TYPE	= 9;
+	static const int		YOUTUBE_TYPE			= 10;
 
 public:
 	/// Mainly for debugging

@@ -147,32 +147,34 @@ namespace ds {
 namespace ui {
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
-  : ds::ui::Sprite(eng)
-  , mEmbedInterface(embedInterface) {
+	: ds::ui::Sprite(eng)
+	, mEmbedInterface(embedInterface) {
 	setDefaultProperties();
 }
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface)
-  : ds::ui::Sprite(eng)
-  , mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
-  , mEmbedInterface(embedInterface) {
+	: ds::ui::Sprite(eng)
+	, mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
+	, mEmbedInterface(embedInterface) {
 	setDefaultProperties();
 }
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const ds::Resource& resource, const bool embedInterface)
-  : ds::ui::Sprite(eng)
-  , mResource(resource)
-  , mEmbedInterface(embedInterface) {
+	: ds::ui::Sprite(eng)
+	, mResource(resource)
+	, mEmbedInterface(embedInterface) {
 	setDefaultProperties();
 }
 
 
-void MediaPlayer::setSettings(const MediaViewerSettings& newSettings) { mMediaViewerSettings = newSettings; }
+void MediaPlayer::setSettings(const MediaViewerSettings& newSettings) {
+	mMediaViewerSettings = newSettings;
+}
 
 void MediaPlayer::setDefaultProperties() {
-	mAnimDuration		= 0.35f;
+	mAnimDuration = 0.35f;
 	mContentAspectRatio = 1.0;
-	mLayoutFixedAspect  = true;
+	mLayoutFixedAspect = true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
@@ -196,7 +198,9 @@ void MediaPlayer::setDefaultBounds(const float defaultWidth, const float default
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaPlayer::setWebViewSize(const ci::vec2 webSize) { mMediaViewerSettings.mWebDefaultSize = webSize; }
+void MediaPlayer::setWebViewSize(const ci::vec2 webSize) {
+	mMediaViewerSettings.mWebDefaultSize = webSize;
+}
 
 void MediaPlayer::initialize() {
 	if (mInitialized) return;
@@ -205,7 +209,7 @@ void MediaPlayer::initialize() {
 	if (mediaType == ds::Resource::ERROR_TYPE || mediaType == ds::Resource::FONT_TYPE) {
 		if (!mResource.empty()) {
 			DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. "
-						   << mResource.getAbsoluteFilePath());
+				<< mResource.getAbsoluteFilePath());
 		}
 		return;
 	}
@@ -228,7 +232,9 @@ void MediaPlayer::initialize() {
 	} else if (mediaType == ds::Resource::PDF_TYPE) {
 		initializePdf();
 		showThumbnail = false;
-	} else if (mediaType == ds::Resource::WEB_TYPE) {
+	} else if (mediaType == ds::Resource::WEB_TYPE
+		|| mediaType == ds::Resource::YOUTUBE_TYPE
+		) {
 		initializeWeb();
 	} else {
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. "

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIEWER_WEB_YOUTUBE_INTERFACE
-#define DS_UI_MEDIA_VIEWER_WEB_YOUTUBE_INTERFACE
 
 #include "ds/ui/media/media_interface.h"
 
@@ -35,6 +33,7 @@ public:
 
 protected:
 
+	void						setupButton(ds::ui::ImageButton* bs, ci::Color buttonColor, float height);
 	virtual void				onLayout();
 
 	ds::ui::Web*				mLinkedWeb;
@@ -49,7 +48,6 @@ protected:
 	ds::ui::ImageButton*		mTouchToggle;
 	ds::ui::ImageButton*		mPlayButton;
 
-	ds::ui::SmartLayout*		mButtonHolder;
 	bool						mIsFirstStart;
 
 };
@@ -57,4 +55,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif
