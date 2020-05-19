@@ -15,8 +15,21 @@ const ds::Resource								EMPTY_RESOURCE;
 const std::vector<ContentModelRef>				EMPTY_DATAMODELREF_VECTOR;
 const ContentModelRef							EMPTY_DATAMODEL;
 const ContentProperty							EMPTY_PROPERTY;
+const std::vector<ContentProperty>				EMPTY_PROPERTY_LIST;
 const std::map<std::string, ContentProperty>	EMPTY_PROPERTY_MAP;
 const std::map<int, ContentModelRef>			EMPTY_REFERENCE;
+
+const std::vector<bool>							EMPTY_BOOL_LIST;
+const std::vector<int>							EMPTY_INT_LIST;
+const std::vector<float>						EMPTY_FLOAT_LIST;
+const std::vector<double>						EMPTY_DOUBLE_LIST;
+const std::vector<std::string>					EMPTY_STRING_LIST;
+const std::vector<std::wstring>					EMPTY_WSTRING_LIST;
+const std::vector<ci::Color>					EMPTY_COLOR_LIST;
+const std::vector<ci::ColorA>					EMPTY_COLORA_LIST;
+const std::vector<ci::vec2>						EMPTY_VEC2_LIST;
+const std::vector<ci::vec3>						EMPTY_VEC3_LIST;
+const std::vector<ci::Rectf>					EMPTY_RECTF_LIST;
 
 }
 
@@ -193,6 +206,7 @@ public:
 	void * mUserData;
 	int mId;
 	std::map<std::string, ContentProperty> mProperties;
+	std::map<std::string, std::vector<ContentProperty>> mPropertyLists;
 	std::vector<ContentModelRef> mChildren;
 	std::map<std::string, std::map<int, ContentModelRef>> mReferences;
 
@@ -249,13 +263,14 @@ void ContentModelRef::setUserData(void * userData) {
 
 const bool ContentModelRef::empty() const {
 	if(!mData) return true;
-	if(mData->mId == EMPTY_INT
-	   && mData->mName == EMPTY_STRING
-	   && mData->mLabel == EMPTY_STRING
-	   && mData->mUserData == nullptr
-	   && mData->mChildren.empty()
-	   && mData->mProperties.empty()
-	   && mData->mReferences.empty()
+	if (mData->mId == EMPTY_INT
+		&& mData->mName == EMPTY_STRING
+		&& mData->mLabel == EMPTY_STRING
+		&& mData->mUserData == nullptr
+		&& mData->mChildren.empty()
+		&& mData->mProperties.empty()
+		&& mData->mReferences.empty()
+		&& mData->mPropertyLists.empty()
 	   ) {
 		return true;
 	}
@@ -286,6 +301,9 @@ ds::model::ContentModelRef ContentModelRef::duplicate() const {
 	}	
 	newModel.setChildren(newChildren);
 
+	newModel.mData->mReferences = mData->mReferences;
+	newModel.mData->mPropertyLists = mData->mPropertyLists;
+
 	return newModel;
 }
 
@@ -314,6 +332,9 @@ bool ContentModelRef::operator==(const ContentModelRef& b) const {
 	   && mData->mChildren.size() == b.mData->mChildren.size()
 	   ) {
 		if(!map_compare(mData->mProperties, b.mData->mProperties)) {
+			return false;
+		}
+		if (!map_compare(mData->mPropertyLists, b.mData->mPropertyLists)) {
 			return false;
 		}
 		if(!map_compare(mData->mChildren, b.mData->mChildren)) {
@@ -468,6 +489,11 @@ void ContentModelRef::setProperty(const std::string& propertyName, const ci::Rec
 	setProperty(propertyName, dp);
 }
 
+
+void ContentModelRef::setProperty(const std::string& propertyName, char* value) {
+	setProperty(propertyName, std::string(value));
+}
+
 void ContentModelRef::setPropertyResource(const std::string& propertyName, const ds::Resource& resource) {
 	createData();
 	auto findy = mData->mProperties.find(propertyName);
@@ -478,6 +504,218 @@ void ContentModelRef::setPropertyResource(const std::string& propertyName, const
 		dp.setName(propertyName);
 		dp.setResource(resource);
 		setProperty(propertyName, dp);
+	}
+}
+
+const std::vector<ds::model::ContentProperty>& ContentModelRef::getPropertyList(const std::string& propertyName) {
+	if (!mData) return EMPTY_PROPERTY_LIST;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		return findy->second;
+	}
+
+	return EMPTY_PROPERTY_LIST;
+}
+
+std::vector<bool> ContentModelRef::getPropertyListBool(const std::string& propertyName) {
+	if (!mData) return EMPTY_BOOL_LIST;
+
+	std::vector<bool> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getBool());
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<int> ContentModelRef::getPropertyListInt(const std::string& propertyName) {
+	if (!mData) return EMPTY_INT_LIST;
+
+	std::vector<int> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getInt());
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<float> ContentModelRef::getPropertyListFloat(const std::string& propertyName) {
+	if (!mData) return EMPTY_FLOAT_LIST;
+
+	std::vector<float> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getFloat());
+		}
+	}
+
+	return returnList;	
+}
+
+std::vector<double> ContentModelRef::getPropertyListDouble(const std::string& propertyName) {
+	if (!mData) return EMPTY_DOUBLE_LIST;
+
+	std::vector<double> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getDouble());
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<ci::Color> ContentModelRef::getPropertyListColor(ds::ui::SpriteEngine& e, const std::string& propertyName) {
+	if (!mData) return EMPTY_COLOR_LIST;
+
+	std::vector<ci::Color> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getColor(e));
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<ci::ColorA> ContentModelRef::getPropertyListColorA(ds::ui::SpriteEngine& e, const std::string& propertyName) {
+	if (!mData) return EMPTY_COLORA_LIST;
+
+	std::vector<ci::ColorA> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getColorA(e));
+		}
+	}
+
+	return returnList;
+
+}
+
+std::vector<std::string> ContentModelRef::getPropertyListString(const std::string& propertyName) {
+	if (!mData) return EMPTY_STRING_LIST;
+
+	std::vector<std::string> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getString());
+		}
+	}
+
+	return returnList;	
+}
+
+std::vector<std::wstring> ContentModelRef::getPropertyListWString(const std::string& propertyName) {
+	if (!mData) return EMPTY_WSTRING_LIST;
+
+	std::vector<std::wstring> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getWString());
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<ci::vec2> ContentModelRef::getPropertyListVec2(const std::string& propertyName) {
+	if (!mData) return EMPTY_VEC2_LIST;
+
+	std::vector<ci::vec2> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getVec2());
+		}
+	}
+
+	return returnList;
+}
+
+std::vector<ci::vec3> ContentModelRef::getPropertyListVec3(const std::string& propertyName) {
+	if (!mData) return EMPTY_VEC3_LIST;
+
+	std::vector<ci::vec3> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getVec3());
+		}
+	}
+
+	return returnList;	
+}
+
+std::vector<ci::Rectf> ContentModelRef::getPropertyListRect(const std::string& propertyName) {
+	if (!mData) return EMPTY_RECTF_LIST;
+
+	std::vector<ci::Rectf> returnList;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnList.emplace_back(it.getRect());
+		}
+	}
+
+	return returnList;
+}
+
+std::string ContentModelRef::getPropertyListAsString(const std::string& propertyName, const std::string& delimiter) {
+	if (!mData) return EMPTY_STRING;
+
+	std::string returnString;
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		for (auto it : findy->second) {
+			returnString.append(it.getValue());
+			returnString.append(delimiter);
+		}
+	}
+
+	return returnString;
+}
+
+void ContentModelRef::addPropertyToList(const std::string& propertyListName, const std::string& value) {
+	createData();
+
+	mData->mPropertyLists[propertyListName].emplace_back(ContentProperty(propertyListName, value));
+}
+
+void ContentModelRef::setPropertyList(const std::string& propertyListName, const std::vector<std::string>& value) {
+	createData();
+
+	std::vector<ContentProperty> propertyList;
+	for (auto it : value) {
+		propertyList.emplace_back(ContentProperty(propertyListName, it));
+	}
+
+	mData->mPropertyLists[propertyListName] = propertyList;
+}
+
+void ContentModelRef::setPropertyList(const std::string& propertyListName, const std::vector<ContentProperty>& value) {
+	createData();
+
+	mData->mPropertyLists[propertyListName] = value;
+}
+
+void ContentModelRef::clearPropertyList(const std::string& propertyName) {
+	if (!mData) return;
+
+	auto findy = mData->mPropertyLists.find(propertyName);
+	if (findy != mData->mPropertyLists.end()) {
+		findy->second.clear();
 	}
 }
 
@@ -685,6 +923,13 @@ void ContentModelRef::printTree(const bool verbose, const std::string& indent) {
 				} else {
 					DS_LOG_INFO(indent << "          prop:" << it.first << " value:" << it.second.getValue());
 				}
+			}
+
+			for (auto it : mData->mPropertyLists) {
+				for (auto pit : it.second) {
+					DS_LOG_INFO(indent << "          prop list:" << it.first << " value:" << pit.getValue());
+				}
+				
 			}
 		}
 
