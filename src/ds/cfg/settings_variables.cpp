@@ -107,7 +107,7 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 	return finalValue;
 }
 
-std::string SettingsVariables::replaceVariables(const std::string& value) {
+std::string SettingsVariables::replaceVariables(const std::string& value,SettingMap& local_map) {
 	if(value.find("$_") != std::string::npos) {
 		/// keep track of parses, cause it could get circular
 		unsigned int numTries = 0;
@@ -116,7 +116,7 @@ std::string SettingsVariables::replaceVariables(const std::string& value) {
 		int  maxTries = 100000;
 		while(numTries < maxTries) {
 
-			auto newReplacement = replaceSingleVariable(theReplacement);
+			auto newReplacement = replaceSingleVariable(theReplacement,local_map);
 
 			/// nothing was replaced, we're done
 			if(newReplacement == theReplacement) {
@@ -143,7 +143,7 @@ std::string SettingsVariables::replaceVariables(const std::string& value) {
 	return value;
 }
 
-std::string SettingsVariables::replaceSingleVariable(const std::string& value) {
+std::string SettingsVariables::replaceSingleVariable(const std::string& value,SettingMap& local_map) {
 
 	auto theStart = value.find("$_");
 
@@ -178,8 +178,13 @@ std::string SettingsVariables::replaceSingleVariable(const std::string& value) {
 	// std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" << paramName <<
 	// std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd << std::endl;
 
-	auto findy = VARIABLE_MAP.find(paramName);
-	if(findy != VARIABLE_MAP.end()) {
+	SettingMap& combined_map = VARIABLE_MAP;
+	if (local_map.size()>0) {
+		combined_map = local_map;
+	}
+	
+	auto findy = combined_map.find(paramName);
+	if(findy != combined_map.end()) {
 		std::string replacement = findy->second;
 
 		return beforeString + replacement + endString;
@@ -200,6 +205,12 @@ void SettingsVariables::addVariable(const std::string& varName, const std::strin
 	VARIABLE_MAP[varName] = varValue;
 }
 
+
+SettingMap SettingsVariables::insertAppToLocal(SettingMap& local_map) {
+	auto ret_val = SettingMap(local_map);
+	ret_val.insert(VARIABLE_MAP.cbegin(), VARIABLE_MAP.cend());
+	return ret_val;
+}
 
 
 
