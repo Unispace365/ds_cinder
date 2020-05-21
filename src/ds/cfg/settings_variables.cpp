@@ -107,7 +107,7 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 	return finalValue;
 }
 
-std::string SettingsVariables::replaceVariables(const std::string& value,SettingMap& local_map) {
+std::string SettingsVariables::replaceVariables(const std::string& value,VariableMap& local_map) {
 	if(value.find("$_") != std::string::npos) {
 		/// keep track of parses, cause it could get circular
 		unsigned int numTries = 0;
@@ -143,7 +143,7 @@ std::string SettingsVariables::replaceVariables(const std::string& value,Setting
 	return value;
 }
 
-std::string SettingsVariables::replaceSingleVariable(const std::string& value,SettingMap& local_map) {
+std::string SettingsVariables::replaceSingleVariable(const std::string& value,VariableMap& local_map) {
 
 	auto theStart = value.find("$_");
 
@@ -178,7 +178,7 @@ std::string SettingsVariables::replaceSingleVariable(const std::string& value,Se
 	// std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" << paramName <<
 	// std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd << std::endl;
 
-	SettingMap& combined_map = VARIABLE_MAP;
+	VariableMap& combined_map = VARIABLE_MAP;
 	if (local_map.size()>0) {
 		combined_map = local_map;
 	}
@@ -206,8 +206,8 @@ void SettingsVariables::addVariable(const std::string& varName, const std::strin
 }
 
 
-SettingMap SettingsVariables::insertAppToLocal(SettingMap& local_map) {
-	auto ret_val = SettingMap(local_map);
+VariableMap SettingsVariables::insertAppToLocal(VariableMap& local_map) {
+	auto ret_val = VariableMap(local_map);
 	ret_val.insert(VARIABLE_MAP.cbegin(), VARIABLE_MAP.cend());
 	return ret_val;
 }

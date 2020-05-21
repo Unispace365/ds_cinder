@@ -40,10 +40,10 @@ class XmlImporter {
 	// to the parent, saving you a sprite
 	static bool loadXMLto(ds::ui::Sprite* parent, const std::string& xmlFile, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
 	static bool loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& xmldata, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
 
 	/// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads
 	/// associated with importing stuff
@@ -52,9 +52,9 @@ class XmlImporter {
 	/// If true, will automatically cache xml interfaces after the first time they're loaded
 	static void setAutoCache(const bool doCaching);
 
-	static void setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer = "", ds::cfg::SettingMap& localMap = ds::cfg::SettingMap());
+	static void setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer = "", ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
 	static void setSpriteProperty(ds::ui::Sprite& sprite, const std::string& property, const std::string& value,
-								  const std::string& referer = "",ds::cfg::SettingMap& localMap = ds::cfg::SettingMap());
+								  const std::string& referer = "",ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
 
 	static std::string getSpriteTypeForSprite(ds::ui::Sprite* sp);
 
@@ -84,12 +84,12 @@ class XmlImporter {
 	  , mNamePrefix(namePrefix) {}
 	~XmlImporter();
 
-	bool load(ci::XmlTree&, const bool mergeFirstSprite, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+	bool load(ci::XmlTree&, const bool mergeFirstSprite, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
 
 	bool readSprite(ds::ui::Sprite*, std::unique_ptr<ci::XmlTree>&, const bool mergeFirstSprite);
 
 	NamedSpriteMap&			 mNamedSpriteMap;
-	ds::cfg::SettingMap		 mCombinedSettings;
+	ds::cfg::VariableMap		 mCombinedSettings;
 	std::string				 mXmlFile;
 	std::string				 mNamePrefix;
 	ds::ui::Sprite*			 mTargetSprite;
