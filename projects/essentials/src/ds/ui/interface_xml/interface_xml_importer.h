@@ -40,10 +40,10 @@ class XmlImporter {
 	// to the parent, saving you a sprite
 	static bool loadXMLto(ds::ui::Sprite* parent, const std::string& xmlFile, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::SettingMap override_map = ds::cfg::SettingMap(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
 	static bool loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& xmldata, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::SettingMap override_map = ds::cfg::SettingMap(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
 
 	/// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads
 	/// associated with importing stuff
@@ -84,7 +84,7 @@ class XmlImporter {
 	  , mNamePrefix(namePrefix) {}
 	~XmlImporter();
 
-	bool load(ci::XmlTree&, const bool mergeFirstSprite, ds::cfg::SettingMap override_map = ds::cfg::SettingMap(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
+	bool load(ci::XmlTree&, const bool mergeFirstSprite, ds::cfg::Settings& override_map = ds::cfg::Settings(), ds::cfg::SettingMap local_map = ds::cfg::SettingMap());
 
 	bool readSprite(ds::ui::Sprite*, std::unique_ptr<ci::XmlTree>&, const bool mergeFirstSprite);
 

@@ -28,6 +28,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/cfg/settings.h"
 
 namespace ds {
 namespace gl { class ClipPlaneState; }
@@ -701,6 +702,13 @@ namespace ui {
 		/// Set the name of this sprite. No guarantee of uniqueness
 		void					setSpriteName(const std::wstring& name);
 
+		// attempts to get the settings used for the layout that this
+		// sprite is part of. The sprite need not have been created in
+		// the layout for this to work, but on of its ancestor sprite needs to have been.
+		// if this sprite or no ancestor was created via layout, then this will return nullptr
+		ds::cfg::Settings* getLayoutSettings();
+		void setLayoutSettings(ds::cfg::Settings& settings);
+
 		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault is true.
 		const std::wstring		getSpriteName(const bool useDefault = true) const;
 
@@ -935,6 +943,9 @@ namespace ui {
 
 		/// For debugging, and in a super-duper pinch, in production. 
 		std::wstring		mSpriteName;
+
+		///if this sprite was an interface root (or <xml> root) then this will hold the settings; null otherwise;
+		ds::cfg::Settings*	mSettings = nullptr;
 
 	public:
 #ifdef _DEBUG

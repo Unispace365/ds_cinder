@@ -1286,7 +1286,7 @@ void XmlImporter::setAutoCache(const bool doCaching) {
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::SettingMap override_map, ds::cfg::SettingMap local_map) {
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::SettingMap local_map) {
 	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto filename=" << filename << " prefix=" << prefixName);
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
@@ -1323,7 +1323,7 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& preloadData, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::SettingMap override_map, ds::cfg::SettingMap local_map) {
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::SettingMap local_map) {
 	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
@@ -1339,26 +1339,27 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& preloadData,
 }
 
 
-bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::SettingMap override_map, ds::cfg::SettingMap local_map) {
+bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::SettingMap local_map) {
 	if (!xml.hasChild("interface")) {
 		DS_LOG_WARNING("No interface found in xml file: " << mXmlFile);
 		return false;
 	}
-
+	
 	auto   interface = xml.getChild("interface");
 	ds::cfg::SettingMap new_local_map;
+	auto settings = ds::cfg::Settings();
 	if (interface.hasChild("settings")) {
-		auto settings = new ds::cfg::Settings();
-		settings->readFrom(interface, mXmlFile, true);
-		settings->forEachSetting([&new_local_map, &local_map](const ds::cfg::Settings::Setting& theSetting) {
-			if (!theSetting.mName.empty()) {
-				new_local_map[theSetting.mName] = theSetting.mRawValue;
-			}
-		});
+		settings.readFrom(interface, mXmlFile, true);
 	}
-
-	override_map.insert(new_local_map.begin(), new_local_map.end());
-	new_local_map = override_map;
+	settings.mergeSettings(override_map);
+	settings.replaceSettingVariablesAndExpressions();
+	settings.forEachSetting([&new_local_map, &local_map](const ds::cfg::Settings::Setting& theSetting) {
+		if (!theSetting.mName.empty()) {
+			new_local_map[theSetting.mName] = theSetting.mRawValue;
+		}
+	});
+	
+	mTargetSprite->setLayoutSettings(settings);
 
 	if (local_map.size() > 0) {
 		new_local_map.insert(local_map.begin(), local_map.end());
@@ -1753,18 +1754,11 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 		//get xml settings override
-		ds::cfg::SettingMap override_map;
+		ds::cfg::Settings override_map;
 		if (node->hasChild("settings")) {
-			auto settings = new ds::cfg::Settings();
 			std::stringstream ss;
 			ss << mXmlFile << ":xml:" << spriteName;
-			settings->readFrom(*node, ss.str(), true);
-		
-			settings->forEachSetting([&override_map](const ds::cfg::Settings::Setting& theSetting) {
-				if (!theSetting.mName.empty()) {
-					override_map[theSetting.mName] = theSetting.mRawValue;
-				}
-			});
+			override_map.readFrom(*node, ss.str(), true);
 		}
 
 
@@ -1808,6 +1802,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 					DS_LOG_WARNING("XmlImporter: Recursive XML: Couldn't find a child with the name "
 								   << childSpriteName << " to apply properties to");
 				}
+			}
+			else if (newNode->getTag() == "setting") {
+				//we skip the settings.
 			} else {
 				DS_LOG_WARNING("XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname="
 							   << newNode->getTag());

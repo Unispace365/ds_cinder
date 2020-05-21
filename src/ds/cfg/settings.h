@@ -103,6 +103,8 @@ public:
 		/// an id that's auto-assigned to this setting to determine overall sort order
 		unsigned int					mReadIndex;
 	};
+	/// static method to merge settings
+	void mergeSettings(Settings& mergeIn);
 
 	/// The name of these settings (e.g. engine, layout, text, etc)
 	void								setName(const std::string& theType){ mName = theType; }

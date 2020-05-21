@@ -181,6 +181,11 @@ Settings::Settings()
 	initialize_types();
 }
 
+void Settings::mergeSettings(Settings & mergeIn)
+{
+	merge_settings(mSettings, mergeIn.mSettings);
+}
+
 void Settings::readFrom(const std::string& filename, const bool append){
 	if(!append) {
 		directReadFrom(filename, true);
