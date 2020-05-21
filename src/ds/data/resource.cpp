@@ -18,10 +18,10 @@
 namespace {
 const std::string		FONT_TYPE_SZ("f");
 const std::string		IMAGE_TYPE_SZ("i");
-const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
+const std::string		IMAGE_SEQUENCE_TYPE_SZ("is");
 const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
-const std::string		VIDEO_STREAM_TYPE_SZ("vs");
+const std::string		VIDEO_STREAM_TYPE_SZ("s");
 const std::string		WEB_TYPE_SZ("w");
 const std::string		YOUTUBE_TYPE_SZ("y");
 const std::string		ZIP_TYPE_SZ("z");
