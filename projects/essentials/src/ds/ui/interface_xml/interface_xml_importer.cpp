@@ -1861,7 +1861,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			{
 				if (override_->hasAttribute("target"))
 				{
-					if (engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target")))
+					if (!engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target")))
 					{
 						continue;
 					}
