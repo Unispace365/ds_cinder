@@ -159,7 +159,7 @@ void SpriteEngine::setLayoutTarget(std::string target,int index)
 bool SpriteEngine::hasLayoutTarget(std::string target)
 {
 	if (target.empty()) return false;
-	std::regex regex{ "(\s*,\s*)" };
+	std::regex regex{ "(\\s*,\\s*)" };
 
 	auto end = std::sregex_token_iterator();
 	auto target_itr = std::sregex_token_iterator(target.begin(), target.end(), regex, -1);
