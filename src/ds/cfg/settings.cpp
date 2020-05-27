@@ -181,6 +181,11 @@ Settings::Settings()
 	initialize_types();
 }
 
+void Settings::mergeSettings(Settings & mergeIn)
+{
+	merge_settings(mSettings, mergeIn.mSettings);
+}
+
 void Settings::readFrom(const std::string& filename, const bool append){
 	if(!append) {
 		directReadFrom(filename, true);
@@ -189,6 +194,18 @@ void Settings::readFrom(const std::string& filename, const bool append){
 
 	Settings		s;
 	s.directReadFrom(filename, false);
+
+	merge_settings(mSettings, s.mSettings);
+}
+
+void Settings::readFrom(ci::XmlTree& tree, const std::string& filename, const bool append) {
+	if (!append) {
+		directReadFromXml(tree,filename, true);
+		return;
+	}
+
+	Settings		s;
+	s.directReadFromXml(tree, filename, false);
 
 	merge_settings(mSettings, s.mSettings);
 }
@@ -213,9 +230,17 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll){
 		return;
 	}
 
+	directReadFromXml(xml, filename, clearAll);
+}
+
+void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& referenceFilename,  const bool clearAll) {
+	if (clearAll) clear();
+
+	ci::XmlTree& xml = tree;
+	
 	auto xmlEnd = xml.end();
-	for(auto it = xml.begin("settings/setting"); it != xmlEnd; ++it){
-		if(!it->hasAttribute("name")){
+	for (auto it = xml.begin("settings/setting"); it != xmlEnd; ++it) {
+		if (!it->hasAttribute("name")) {
 			DS_LOG_WARNING("Missing a name attribute for a setting!");
 			continue;
 		}
@@ -226,24 +251,25 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll){
 		theSetting.mName = theName;
 		theSetting.mReadIndex = mReadIndex;
 		mReadIndex += SETTINGS_INCREMENT; // leave space for other settings to be inserted
-		if(it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
-		if(it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
-		if(it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
-		if(it->hasAttribute("min_value"))	theSetting.mMinValue = it->getAttributeValue<std::string>("min_value");
-		if(it->hasAttribute("max_value"))	theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
-		if(it->hasAttribute("type"))		theSetting.mType = it->getAttributeValue<std::string>("type");
-		if(it->hasAttribute("possibles"))	theSetting.mPossibleValues = it->getAttributeValue<std::string>("possibles");
+		if (it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
+		if (it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
+		if (it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
+		if (it->hasAttribute("min_value"))	theSetting.mMinValue = it->getAttributeValue<std::string>("min_value");
+		if (it->hasAttribute("max_value"))	theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
+		if (it->hasAttribute("type"))		theSetting.mType = it->getAttributeValue<std::string>("type");
+		if (it->hasAttribute("possibles"))	theSetting.mPossibleValues = it->getAttributeValue<std::string>("possibles");
 
-		if(!validateType(theSetting.mType)){
-			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType << " source: " << filename);
+		if (!validateType(theSetting.mType)) {
+			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType << " source: " << referenceFilename);
 		}
 
-		theSetting.mSource = filename;
+		theSetting.mSource = referenceFilename;
 
 		auto settingIndex = getSettingIndex(theName);
-		if(settingIndex > -1 && !mSettings.empty()){
+		if (settingIndex > -1 && !mSettings.empty()) {
 			mSettings[settingIndex].second.push_back(theSetting);
-		} else {
+		}
+		else {
 			std::vector<Setting> newSettingVec;
 			newSettingVec.push_back(theSetting);
 			mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(theName, newSettingVec));

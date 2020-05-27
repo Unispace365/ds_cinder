@@ -241,13 +241,13 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite) {
 	return newXml;
 }
 
-void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer) {
+void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer,ds::cfg::VariableMap& local_map) {
 	std::string property = attr.getName();
-	setSpriteProperty(sprite, property, attr.getValue(), referer);
+	setSpriteProperty(sprite, property, attr.getValue(), referer, local_map);
 }
 
 void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& property, const std::string& theValue,
-									const std::string& referer) {
+									const std::string& referer,ds::cfg::VariableMap& local_map) {
 	// Cache the engine for all our color calls
 	ds::ui::SpriteEngine& engine = sprite.getEngine();
 
@@ -258,8 +258,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	// It seems like it'd be slow, but in practice, it's relatively fast.
 	// The slower parts of this are the actual functions that are called (particularly text setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
-
-	std::string value = ds::cfg::SettingsVariables::replaceVariables(theValue);
+	if (local_map.size() > 0) {
+		auto x = local_map;
+	}
+	std::string value = ds::cfg::SettingsVariables::replaceVariables(theValue,local_map);
 	value			  = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
 	if (property == "name") {
@@ -1284,7 +1286,7 @@ void XmlImporter::setAutoCache(const bool doCaching) {
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
 	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto filename=" << filename << " prefix=" << prefixName);
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
@@ -1317,11 +1319,11 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild,override_map,local_map);
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& preloadData, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
 	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
@@ -1333,29 +1335,75 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& preloadData,
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild,override_map,local_map);
 }
 
 
-bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild) {
+bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
 	if (!xml.hasChild("interface")) {
 		DS_LOG_WARNING("No interface found in xml file: " << mXmlFile);
 		return false;
 	}
-
+	
 	auto   interface = xml.getChild("interface");
+	ds::cfg::VariableMap new_local_map;
+	
+	//if this file has a settings block grab it. 
+	//then we merge with the incomming override_map, 
+	//which should be an empty map in all cases except if
+	//this file is being loaded by an <xml> tag
+	auto settings = ds::cfg::Settings();
+	if (interface.hasChild("settings")) {
+		settings.readFrom(interface, mXmlFile, true);
+	}
+
+	settings.mergeSettings(override_map);
+	settings.replaceSettingVariablesAndExpressions();
+
+	//covert the setting into a variable map.
+	settings.forEachSetting([&new_local_map, &local_map](const ds::cfg::Settings::Setting& theSetting) {
+		if (!theSetting.mName.empty()) {
+			new_local_map[theSetting.mName] = theSetting.mRawValue;
+		}
+	});
+	
+	//give the target sprite the settings so that they can be referenced later.
+	mTargetSprite->setLayoutSettings(settings);
+
+	//combine the current variable map with the new one.
+	if (local_map.size() > 0) {
+		new_local_map.insert(local_map.begin(), local_map.end());
+		mCombinedSettings = new_local_map;
+	}
+	else {
+		mCombinedSettings = ds::cfg::SettingsVariables::insertAppToLocal(new_local_map);
+	}
+	
+	
 	auto&  sprites   = interface.getChildren();
+	size_t count = 0;
+	/*
 	size_t count	 = sprites.size();
 	if (count < 1) {
 		DS_LOG_WARNING("No sprites found in xml file: " << mXmlFile);
 		return false;
 	}
+	*/
 
 	bool mergeFirst = mergeFirstChild;
 
+	count = 0;
 	BOOST_FOREACH (auto& xmlNode, sprites) {
-		readSprite(mTargetSprite, xmlNode, mergeFirst);
-		mergeFirst = false;
+		if (xmlNode->getTag() != "settings") {
+			readSprite(mTargetSprite, xmlNode, mergeFirst);
+			mergeFirst = false;
+			count++;
+		}
+	}
+
+	if (count < 1) {
+		DS_LOG_WARNING("No sprites found in xml file: " << mXmlFile);
+		return false;
 	}
 
 	for (auto it : mSpriteLinks) {
@@ -1706,7 +1754,6 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	}
 
 	DS_LOG_VERBOSE(6, "XmlImporter: readSprite type=" << type << " value=" << value);
-
 	if (type == "xml") {
 		std::string xmlPath = filePathRelativeTo(mXmlFile, node->getAttributeValue<std::string>("src", ""));
 		if (xmlPath.empty()) {
@@ -1726,7 +1773,18 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			spriteName = ss.str();
 		}
 
-		if (!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName, mergeFirstSprite)) {
+		//get xml settings override
+		//these need to be merged with the settings file
+		//in the incomming xml doc. with these taking precedent.
+		ds::cfg::Settings override_map;
+		if (node->hasChild("settings")) {
+			std::stringstream ss;
+			ss << mXmlFile << ":xml:" << spriteName;
+			override_map.readFrom(*node, ss.str(), true);
+		}
+
+
+		if (!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName, mergeFirstSprite, override_map, mCombinedSettings)) {
 			return false;
 		}
 
@@ -1760,12 +1818,15 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 				if (spriddy) {
 					BOOST_FOREACH (auto& attr, newNode->getAttributes()) {
 						if (attr.getName() == "name") continue;  // don't overwrite the name
-						setSpriteProperty(*spriddy, attr, xmlPath);
+						setSpriteProperty(*spriddy, attr, xmlPath,mCombinedSettings);
 					}
 				} else {
 					DS_LOG_WARNING("XmlImporter: Recursive XML: Couldn't find a child with the name "
 								   << childSpriteName << " to apply properties to");
 				}
+			}
+			else if (newNode->getTag() == "setting") {
+				//we skip the settings.
 			} else {
 				DS_LOG_WARNING("XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname="
 							   << newNode->getTag());
@@ -1852,7 +1913,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		BOOST_FOREACH (auto stylesheet, mStylesheets) { applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes); }
 		
 		// Set properties from xml attributes, overwriting those from the stylesheet(s)
-		BOOST_FOREACH (auto& attr, node->getAttributes()) { if(attr.getName() != "target") setSpriteProperty(*spriddy, attr, mXmlFile); }
+		BOOST_FOREACH (auto& attr, node->getAttributes()) { if(attr.getName() != "target") setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings); }
 
 		//apply the overrides
 		BOOST_FOREACH(auto& override_, node->getChildren())
@@ -1869,7 +1930,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 				for(auto& attr: override_->getAttributes())
 				{
 					if (attr.getName() != "target") {
-						setSpriteProperty(*spriddy, attr, mXmlFile);
+						setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings);
 					}
 				}
 			}

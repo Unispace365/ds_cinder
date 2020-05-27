@@ -103,6 +103,8 @@ public:
 		/// an id that's auto-assigned to this setting to determine overall sort order
 		unsigned int					mReadIndex;
 	};
+	/// static method to merge settings
+	void mergeSettings(Settings& mergeIn);
 
 	/// The name of these settings (e.g. engine, layout, text, etc)
 	void								setName(const std::string& theType){ mName = theType; }
@@ -111,6 +113,7 @@ public:
 	/// TODO: add ability to load all settings locations right from here
 	/// Read from an xml from the full file path. If append is true, will merge with any existing settings
 	void								readFrom(const std::string& fullFilePath, const bool append = true);
+	void								readFrom(ci::XmlTree& tree, const std::string& fullFilePath, const bool append = true);
 
 	/// Writes the current settings out the file path
 	void								writeTo(const std::string&fullFilePath);
@@ -242,8 +245,8 @@ protected:
 	std::vector<Setting>												mSortedSettings; // rebuilt every call of getReadSortedIndex()
 
 	/// Used in the read function
-	void								directReadFrom(const std::string& filename, const bool clear); \
-
+	void								directReadFrom(const std::string& filename, const bool clear); 
+	void								directReadFromXml(ci::XmlTree& tree, const std::string& referenceFilename ,const bool clear); 
 
 
 };

@@ -24,6 +24,7 @@
 
 //#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <ds/cfg/settings_variables.h>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -1975,6 +1976,23 @@ void Sprite::setPerspective( const bool perspective ){
   for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 	(*it)->setPerspective(perspective);
   }
+}
+
+ds::cfg::Settings* Sprite::getLayoutSettings()
+{
+	if (mParent != nullptr && mSettings == nullptr) {
+		return mParent->getLayoutSettings();
+	}
+	return mSettings;
+}
+
+void Sprite::setLayoutSettings(ds::cfg::Settings& settings) {
+	if (mSettings != nullptr) {
+		delete mSettings;
+		mSettings = nullptr;
+	}
+
+	mSettings = new ds::cfg::Settings(settings);
 }
 
 void Sprite::setIsInScreenCoordsHack(const bool b){
