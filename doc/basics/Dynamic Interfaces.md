@@ -78,7 +78,7 @@ Xml Element Name                                                      | DsCinder
 Variables
 ----------------------
 
-Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
+Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically or from a `<settings>` block in the xml. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
 
 ```xml
 <interface>
@@ -108,6 +108,30 @@ Variables are replaced first before expressions (see below), and parsed recursiv
 * **world_height**: The equivalent of mEngine.getWorldHeight()
 * **world_size**: The equivalent of "mEngine.getWorldWidth(), mEngine.getWorldHeight()"
 * **anim_dur**: The equivalent of mEngine.getAnimDur()
+
+### Layout `<settings>` block
+
+```xml
+<interface>
+	<settings>
+		<setting name="main_color" value="#ffaeaeff"/>
+		<setting name="secondary_color" value="#ffffffff"/>
+	</settings>
+	<layout name="example"
+		size="$_world_size"
+		pad_all="$_padding"
+		animate_on="$_default:anim"
+		animate_off="$_default:anim"
+		>
+		<sprite size="100, 100" color="$_main_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+</interface>
+```
+
+A layout file can have a settings block. the settings in that block exist only in that file and do not propagate back to the main app settings. If a layout setting and an app setting have the same name, the layout settings takes priority.
+
+`<xml>` sprite type can also have a child <settings> block. See [xml](#XML-Parameters) sprite for more details.
 
 Expressions
 --------------------
@@ -502,11 +526,20 @@ Properties:
 * You can set the properties of any loaded child from the parent with a "property" tag.
 * Children are given a dot naming scheme, and calling properties uses names relative to the child's interface.
 
+Settings:
+* you can set the settings of the loaded layout with a `<settings>` block. These take precedence over the same setting in the loaded xml or in app settings.
+* If the loading layout has a settings block it is also applied to the incomming layout but it has a lower precedence than the incoming layout. the settings order with first used at top:
+	* `<xml>` sprite settings
+	* loaded layout file settings
+	* loading layout settings
+	* app settings
+
 Example:
 
 **menu_view.xml:**
 
 ```xml
+<interface>
 <layout name="layout" >
 	<xml name="home" src="%APP%/data/layouts/menu_button.xml" >
 		<!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
@@ -515,6 +548,10 @@ Example:
 		<property name="high_icon" src="%APP%/data/images/icons/home_down.png" />
 	</xml>
    <xml name="map" src="%APP%/data/layouts/menu_button.xml" >
+		<settings>
+			<setting name="gradient1" value="green" />
+			<setting name="gradient2" value="blue_green"/>
+		</settings>
 		<!-- you can't have any normal children here,
 			 only set properties of the children of the parent xml interface -->
 		<property name="normal_icon" src="%APP%/data/images/icons/map_up.png" />
@@ -522,17 +559,24 @@ Example:
 		<property name="down_gradient" opacity="0.5" animate_on="fade" />
 	</xml>
 </layout>
+</interface>
 ```
 
 **menu_button.xml:**
 
 ```xml
+<interface>
+<settings>
+	<setting name="gradient1" value="red_orange" />
+	<setting name="gradient2" value="orange"/>
+</settings>
 <sprite_button name="the_button" size="80, 80">
 	<gradient name="down_gradient" attach_state="high" size="80, 80"
-			  gradientColors="red_orange, red_orange, red_orange, orange"/>
+			  gradientColors="$_gradient1, $_gradient1, $_gradient1, $_gradient2"/>
 	<image attach_state="normal" name="normal_icon"/>
 	<image attach_state="high" name="high_icon" />
 </sprite_button>
+</interface>
 ```
 
 **In c++:**
