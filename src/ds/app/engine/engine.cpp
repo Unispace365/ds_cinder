@@ -9,11 +9,13 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
+
 #ifdef _WIN32
 #include <Winuser.h>
 #include <VersionHelpers.h>
 #include "ds/debug/console.h"
 #endif
+
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -24,6 +26,7 @@
 
 #include <cinder/Display.h>
 #include <boost/algorithm/string.hpp>
+#include <cinder/tuio/Tuio.h>
 
 #include "engine_events.h"
 
@@ -107,7 +110,9 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 }
 
 Engine::~Engine() {
-	if (mTuio) mTuio->disconnect();
+	if (mTuioUdpSocket) {
+		mTuioUdpSocket->close();
+	}
 
 	// Important to do this here before the auto update list is destructed.
 	// so any autoupdate services get removed.
@@ -626,37 +631,62 @@ void Engine::setupTouch(ds::App& app) {
 
 void Engine::startTuio(ds::App& app) {
 	mTuioObjectsMoved.setAutoIdleReset(false);
-	if (!mTuio) mTuio = new ci::tuio::Client();
+	if (!mTuioUdpSocket) 
+		mTuioUdpSocket = std::make_shared<ci::osc::ReceiverUdp>( mTuioPort );
+	if (!mTuio)
+		mTuio = std::make_shared<ci::tuio::Receiver>( mTuioUdpSocket.get() );
+
+	//typedef void (ds::App::*AppTouchFn)(ci::app::TouchEvent event);
+	const auto makeCallback = [&app](const auto func) {
+		return [&app, func](const ci::tuio::Cursor2d& tuioCursor) {
+			const auto& window = ci::app::getWindow();
+			const auto event  = ci::app::TouchEvent(window, { tuioCursor.convertToTouch(window) });
+			/// Call named method: `func` on App instance: `app`
+			((app).*(func))(event);
+		};
+	};
 
 	if (!mTuioRegistered) {
-		mTuioBeganRegistrationId = mTuio->registerTouchesBegan(&app, &ds::App::touchesBegan);
-		mTuioMovedRegistrationId = mTuio->registerTouchesMoved(&app, &ds::App::touchesMoved);
-		mTuioEndedRegistrationId = mTuio->registerTouchesEnded(&app, &ds::App::touchesEnded);
-		mTuioRegistered = true;
-
+		mTuio->setAddedFn<ci::tuio::Cursor2d>(   makeCallback(&ds::App::touchesBegan) );
+		mTuio->setUpdatedFn<ci::tuio::Cursor2d>( makeCallback(&ds::App::touchesMoved) );
+		mTuio->setRemovedFn<ci::tuio::Cursor2d>( makeCallback(&ds::App::touchesEnded) );
 		registerForTuioObjects(*mTuio);
+
+		mTuioRegistered = true;
 	}
 
-	if (!mTuio->isConnected()){
-		try {
-			mTuio->connect(mTuioPort);
-			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
-		} catch (std::exception ex) {
-			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
-		}
+	// TODO: Previously, we had a way to determine 
+	// if the socket was already open, and selectively bind again..
+	try {
+		mTuioUdpSocket->bind();
+		DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
 	}
+	catch (const ci::Exception &ex) {
+		DS_LOG_WARNING("TUIO receiver could not be started on port " << mTuioPort
+			<< ". The most common cause is that the port is already bound by another app."
+			<< "  Exception: " << ex.what()
+		);
+	}
+
+	// And listen for messages.
+	mTuioUdpSocket->listen([](asio::error_code ec, asio::ip::udp::endpoint ep) {
+		if (ec) {
+			DS_LOG_WARNING( "TUIO error on listener: " << ec.message() << " Error Value: " << ec.value() );
+			return false;
+		}
+		return true;
+	});
 }
 
 void Engine::stopTuio() {
-	if (mTuioRegistered && mTuio) {
-		mTuio->unregisterTouchesBegan(mTuioBeganRegistrationId);
-		mTuio->unregisterTouchesMoved(mTuioMovedRegistrationId);
-		mTuio->unregisterTouchesEnded(mTuioEndedRegistrationId);
+	if (mTuioRegistered && mTuio && mTuioUdpSocket) {
+		mTuio->clear<ci::tuio::Cursor2d>();
+		mTuio->clear<ci::tuio::Object2d>();
 		mTuioRegistered = false;
 		try {
-			mTuio->disconnect();
-			delete mTuio;
 			mTuio = nullptr;
+			mTuioUdpSocket->close();
+			mTuioUdpSocket = nullptr;
 		} catch (std::exception e) {
 			DS_LOG_WARNING("TUIO could not disconnect" << e.what());
 		}
@@ -1001,11 +1031,18 @@ void Engine::clearAllSprites(const bool clearDebug) {
 	}
 }
 
-void Engine::registerForTuioObjects(ci::tuio::Client& client) {
+void Engine::registerForTuioObjects(ci::tuio::Receiver& tuioReceiver) {
 	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
-		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
-		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
-		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		const auto makeHandler = [this] (auto& eventQueue) {
+			return [this, &eventQueue](const auto& o) {
+				eventQueue.incoming(ds::TuioObject(o.getClassId(), o.getPosition(), o.getAngle(),
+						o.getVelocity(), o.getRotationVelocity()
+				));
+			};
+		};
+		tuioReceiver.setAddedFn  <ci::tuio::Object2d>( makeHandler(mTuioObjectsBegin) );
+		tuioReceiver.setUpdatedFn<ci::tuio::Object2d>( makeHandler(mTuioObjectsMoved) );
+		tuioReceiver.setRemovedFn<ci::tuio::Object2d>( makeHandler(mTuioObjectsEnded) );
 	}
 }
 
@@ -1090,7 +1127,7 @@ void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
 	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-ci::tuio::Client &Engine::getTuioClient() {
+ci::tuio::Receiver &Engine::getTuioClient() {
 	return *mTuio;
 }
 
