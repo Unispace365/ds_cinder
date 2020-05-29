@@ -460,14 +460,21 @@ void App::touchesBegan(ci::app::TouchEvent e) {
 	if(mEngine.getAutoHideMouse()) {
 		mEngine.setHideMouse(true);
 	}
+
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesBegin(e);
 }
 
 void App::touchesMoved(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesMoved(e);
 }
 
 void App::touchesEnded(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesEnded(e);
 }
 
