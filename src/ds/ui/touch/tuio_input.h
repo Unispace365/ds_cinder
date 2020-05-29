@@ -3,7 +3,17 @@
 #define _DS_UI_TOUCH_TUIO_INPUT_H_
 
 #include <ds/ui/sprite/sprite_engine.h>
-#include <tuio/TuioClient.h>
+
+namespace cinder {
+namespace osc {
+class ReceiverUdp;
+}
+namespace tuio {
+class Receiver;
+//typename Cursor2d;
+}
+}
+
 
 namespace ds {
 namespace ui {
@@ -23,14 +33,18 @@ protected:
 	ci::vec2 transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
 
 private:
-	ds::ui::TouchEvent convertTouchEvent(ci::app::TouchEvent& e, const bool isAdd);
 	ds::ui::SpriteEngine& mEngine;
-	ci::tuio::Client      mTuioClient;
+
+	std::shared_ptr<ci::osc::ReceiverUdp>
+			  mTuioUdpSocket;
+	std::shared_ptr<ci::tuio::Receiver>
+			  mTuioReceiver;
 
 	int       mFingerIdOffset;
 	glm::mat4 mTransform;
 	ci::Rectf mAllowedRect;
 };
+
 
 } // ! namespace ui
 }  // !namespace ds
