@@ -264,58 +264,38 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 				auto		sprPropToSet = keyVals[0];
 				auto		theProp		 = childProps[1];
 				std::string actualValue  = "";
-
-
-
 				
 				if (sprPropToSet.rfind( "resource",0)==0) {
-					bool cache = false;
-					bool mipmap = false;
-					bool skipmeta = false;
-					bool preload = false;
-					bool error = false;
-					if (sprPropToSet.find("_") != std::string::npos)
-					{
-						std::regex flagregex("_{1}");
-						auto itr = std::sregex_token_iterator(sprPropToSet.begin(), sprPropToSet.end(), flagregex, -1);
-						++itr; //skip "resource"
-						for (; itr != std::sregex_token_iterator(); ++itr) {
-							if (itr->str() == "cache" || itr->str() == "c")
-							{
-								cache = true;
+
+					int  flags = 0;
+					if (sprPropToSet.find("_") != std::string::npos) {
+
+						auto theFlags = ds::split(sprPropToSet, "_", true);
+						for (auto val : theFlags) {
+
+							if (val == "cache" || val == "c") {
+								flags |= ds::ui::Image::IMG_CACHE_F;
+
 							}
-							else if (itr->str() == "mipmap" || itr->str() == "m")
-							{
-									mipmap = true;
+							else if (val == "mipmap" || val == "m") {
+								flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+
 							}
-							else if (itr->str() == "preload" || itr->str() == "p")
-							{
-								preload = true;
+							else if (val == "preload" || val == "p") {
+								flags |= ds::ui::Image::IMG_PRELOAD_F;
+
 							}
-							else if (itr->str() == "skipmeta" || itr->str() == "s")
-							{
-								skipmeta = true;
+							else if (val == "skipmeta" || val == "s") {
+								flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
+
 							}
-							else
-							{
-								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << itr->str()
-												<< "_ on sprite of type: " << typeid(child).name());
+							else if (val != "resource" ) {
+								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << val
+									<< "_ on sprite of type: " << typeid(child).name());
 							}
-						}
-						if ((cache | mipmap | preload | skipmeta) == false)
-						{
-							DS_LOG_WARNING("Malformed src/filename flags to attribute: _" << sprPropToSet 
-								<< "_ on sprite of type: " << typeid(child).name());
 						}
 					}
 
-					int  flags = 0;
-					if (cache) flags |= ds::ui::Image::IMG_CACHE_F;
-					if (mipmap) flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
-					if (preload) flags |= ds::ui::Image::IMG_PRELOAD_F;
-					if (skipmeta) flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
-
-					
 					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
 				} else if(sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();

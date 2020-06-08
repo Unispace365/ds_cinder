@@ -796,51 +796,34 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	else if (property.rfind("filename",0)==0 || property.rfind("src",0) == 0) {
 		//else if (property == "filename" || property == "src" || property == "filename_cache" || property == "src_cache") {
 
-		bool cache = false;
-		bool mipmap = false;
-		bool skipmeta = false;
-		bool preload = false;
-		bool error = false;
-		if(property.find("_")!= std::string::npos)
-		{
-			std::regex flagregex("_+");
-			auto itr = std::sregex_token_iterator(property.begin(), property.end(), flagregex, -1);
-			++itr; //skip src or filename;
-			for (; itr != std::sregex_token_iterator(); ++itr) {
-				auto val = itr->str();
-				if (itr->str() == "cache" || itr->str()== "c")
-				{
-					cache = true;
-				} else 
-				if(itr->str() == "mipmap" || itr->str()=="m")
-				{
-					mipmap = true;
-				} else
-				if (itr->str() == "preload" || itr->str() == "p")
-				{
-					preload = true;
-				} else
-				if (itr->str() == "skipmeta" || itr->str() == "s")
-				{
-					skipmeta = true;
-				} else
-				{
-					DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << itr->str()
+		int  flags = 0;
+		if (property.find("_") != std::string::npos) {
+
+			auto theFlags = ds::split(property, "_", true);
+			for (auto val : theFlags) {
+
+				if (val == "cache" || val == "c") {
+					flags |= ds::ui::Image::IMG_CACHE_F;
+
+				}
+				else if (val == "mipmap" || val == "m") {
+					flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+
+				}
+				else if (val == "preload" ||val== "p") {
+					flags |= ds::ui::Image::IMG_PRELOAD_F;
+
+				}
+				else if (val == "skipmeta" ||val == "s") {
+					flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
+
+				}
+				else if (val != "filename" && val != "src") {
+					DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << val
 						<< "_ on sprite of type: " << typeid(sprite).name());
 				}
 			}
-			if((cache | mipmap | preload | skipmeta) == false)
-			{
-				DS_LOG_WARNING("Malformed src/filename flags to attribute: _" << property
-					<< "_ on sprite of type: " << typeid(sprite).name());
-			}
 		}
-	
-		int  flags  = 0;
-		if (cache) flags |= ds::ui::Image::IMG_CACHE_F;
-		if (mipmap) flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
-		if (preload) flags |= ds::ui::Image::IMG_PRELOAD_F;
-		if (skipmeta) flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
 		
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto image = dynamic_cast<Image*>(&sprite);
