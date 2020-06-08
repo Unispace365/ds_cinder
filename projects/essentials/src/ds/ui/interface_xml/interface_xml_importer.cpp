@@ -792,11 +792,41 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		} else if (layBtn) {
 			layBtn->setClickFn([layBtn, value] { dispatchStringEvents(value, layBtn, layBtn->getGlobalPosition()); });
 		}
-	} else if (property == "filename" || property == "src" || property == "filename_cache" || property == "src_cache") {
+	}
+	else if (property.rfind("filename",0)==0 || property.rfind("src",0) == 0) {
+		//else if (property == "filename" || property == "src" || property == "filename_cache" || property == "src_cache") {
+
+		int  flags = 0;
+		if (property.find("_") != std::string::npos) {
+
+			auto theFlags = ds::split(property, "_", true);
+			for (auto val : theFlags) {
+
+				if (val == "cache" || val == "c") {
+					flags |= ds::ui::Image::IMG_CACHE_F;
+
+				}
+				else if (val == "mipmap" || val == "m") {
+					flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+
+				}
+				else if (val == "preload" ||val== "p") {
+					flags |= ds::ui::Image::IMG_PRELOAD_F;
+
+				}
+				else if (val == "skipmeta" ||val == "s") {
+					flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
+
+				}
+				else if (val != "filename" && val != "src") {
+					DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << val
+						<< "_ on sprite of type: " << typeid(sprite).name());
+				}
+			}
+		}
+		
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
-		auto image  = dynamic_cast<Image*>(&sprite);
-		int  flags  = 0;
-		if (property == "filename_cache" || property == "src_cache") flags = ds::ui::Image::IMG_CACHE_F;
+		auto image = dynamic_cast<Image*>(&sprite);
 		std::string filePath = value;
 		if (!value.empty()) filePath = filePathRelativeTo(referer, value);
 		if (image) {
