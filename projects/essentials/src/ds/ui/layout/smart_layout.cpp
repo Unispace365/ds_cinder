@@ -97,35 +97,58 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 }
 
 void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache, bool skipMetaData) {
-	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
-
-	if (sprI) {
+	
 		int flags = 0;
 		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
 		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
 
+		setSpriteImage(spriteName, imagePath, flags);
+}
+
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, int flags) {
+	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
+
+	if (sprI) {
+		
+		bool cache =  flags & ds::ui::Image::IMG_CACHE_F;
+		bool skipMetaData =  flags & ds::ui::Image::IMG_SKIP_METADATA_F;
+		bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+		bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
+		
 		sprI->setImageFile(imagePath, flags);
 
 		if (skipMetaData) {
 			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
 				mNeedsLayout = true;
 			});
-		} else {
+		}
+		else {
 			mNeedsLayout = true;
 		}
-		
-	} else {
+
+	}
+	else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
 void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache, bool skipMetaData) {
-	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
-
-	if (sprI) {
+	
 		int flags = 0;
 		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
 		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+
+		setSpriteImage(spriteName, imageResource, flags);
+}
+
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, int flags) {
+	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
+
+	if (sprI) {
+		bool cache = flags & ds::ui::Image::IMG_CACHE_F;
+		bool skipMetaData = flags & ds::ui::Image::IMG_SKIP_METADATA_F;
+		bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+		bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
 
 		sprI->setImageResource(imageResource, flags);
 
@@ -133,10 +156,12 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
 				mNeedsLayout = true;
 			});
-		} else {
+		}
+		else {
 			mNeedsLayout = true;
 		}
-	} else {
+	}
+	else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
@@ -240,10 +265,58 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 				auto		theProp		 = childProps[1];
 				std::string actualValue  = "";
 
-				if (sprPropToSet == "resource") {
-					child->setResource(theNode.getProperty(theProp).getResource());
-				} else if (sprPropToSet == "resource_cache") {
-					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), true);
+
+
+				
+				if (sprPropToSet.rfind( "resource",0)==0) {
+					bool cache = false;
+					bool mipmap = false;
+					bool skipmeta = false;
+					bool preload = false;
+					bool error = false;
+					if (sprPropToSet.find("_") != std::string::npos)
+					{
+						std::regex flagregex("_{1}");
+						auto itr = std::sregex_token_iterator(sprPropToSet.begin(), sprPropToSet.end(), flagregex, -1);
+						++itr; //skip "resource"
+						for (; itr != std::sregex_token_iterator(); ++itr) {
+							if (itr->str() == "cache" || itr->str() == "c")
+							{
+								cache = true;
+							}
+							else if (itr->str() == "mipmap" || itr->str() == "m")
+							{
+									mipmap = true;
+							}
+							else if (itr->str() == "preload" || itr->str() == "p")
+							{
+								preload = true;
+							}
+							else if (itr->str() == "skipmeta" || itr->str() == "s")
+							{
+								skipmeta = true;
+							}
+							else
+							{
+								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << itr->str()
+												<< "_ on sprite of type: " << typeid(child).name());
+							}
+						}
+						if ((cache | mipmap | preload | skipmeta) == false)
+						{
+							DS_LOG_WARNING("Malformed src/filename flags to attribute: _" << sprPropToSet 
+								<< "_ on sprite of type: " << typeid(child).name());
+						}
+					}
+
+					int  flags = 0;
+					if (cache) flags |= ds::ui::Image::IMG_CACHE_F;
+					if (mipmap) flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+					if (preload) flags |= ds::ui::Image::IMG_PRELOAD_F;
+					if (skipmeta) flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
+
+					
+					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
 				} else if(sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();
 					if(theResource.empty()) {
@@ -269,7 +342,7 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->hide();
 					}
-				} else if (sprPropToSet.find("_",0)==0) {
+				} else if (sprPropToSet.rfind("_",0)==0) {
 					auto click_data = theNode.getPropertyString(theProp);
 					if (!click_data.empty()) {
 						child->getUserData().setString(sprPropToSet, click_data);

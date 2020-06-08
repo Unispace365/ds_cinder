@@ -353,8 +353,17 @@ Text Parameters
 
 Image Parameters
 -------------------------
-* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
-* **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png". Image loading flags can be added to the property name seperated by underscores (_). For example filename_cache with cause the ds::ui::Image::IMG_CACHE_F flag to be passed to the loade, while filename_mipmap_cache will cause both ds::ui::Image::IMG_CACHE_F and ds::ui::Image::IMG_MIPMAP to be passed.
+	* **_cache** OR **_c**: include the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+	* **_mipmap** OR **_m**: include the ds::ui::Image::IMG_MIPMAP flag, which generates mipmaps for the given image.
+	* **_preload** OR **_p**: include the ds::ui::Image::IMG_PRELOAD flag, which preloads the image.
+	* **_skipmeta** OR **_s**: include the ds::ui::Image::IMG_SKIP_METADATA flag, which skips metadata loading.
+
+These flags can also be applied the the resource property when working with a model:  
+```xml
+		model="resource_mipmap:this->img_resource"
+```
+	
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 * **auto_circle_crop**: Boolean. If true, centers the crop in the middle of the image and always makes it a circle, persists through image file changes.
 
