@@ -295,8 +295,13 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 							}
 						}
 					}
-
-					setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
+					if(flags==0)
+					{
+						child->setResource(theNode.getProperty(theProp).getResource());
+					}
+					else {
+						setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
+					}
 				} else if(sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();
 					if(theResource.empty()) {
