@@ -1855,7 +1855,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 								   << childSpriteName << " to apply properties to");
 				}
 			}
-			else if (newNode->getTag() == "setting") {
+			else if (newNode->getTag() == "settings") {
 				//we skip the settings.
 			} else {
 				DS_LOG_WARNING("XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname="
