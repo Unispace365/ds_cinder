@@ -1777,7 +1777,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	//if the node has a target attribute it should honor that.
 	if (node->hasAttribute("target"))
 	{
-		if (engine.hasLayoutTarget(node->getAttributeValue<std::string>("target")))
+		if (!engine.hasLayoutTarget(node->getAttributeValue<std::string>("target")))
 		{
 			return true;
 		}
