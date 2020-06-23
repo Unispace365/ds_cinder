@@ -259,15 +259,15 @@ struct SprProps {
 };
 
 void logAttributionWarning(SprProps& p){
-	DS_LOG_WARNING("XmlImporter: incompatible attribute " << p.property << " on sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " of type: " << typeid(p.sprite).name() << " from: " << p.referer);
+	DS_LOG_WARNING("XmlImporter: incompatible attribute \'" << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
 void logNotFoundWarning(SprProps& p) {
-	DS_LOG_WARNING("XmlImporter: Property not found: " << p.property << " on sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " of type: " << typeid(p.sprite).name() << " from: " << p.referer);
+	DS_LOG_WARNING("XmlImporter: Property not found \'" << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
 void logInvalidValue(SprProps& p, std::string validValues) {
-	DS_LOG_WARNING("XmlImporter: invalid value of " << p.value << " for property " << p.property << ", allowed values are " << validValues << ". From sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " of type: " << typeid(p.sprite).name() << " from: " << p.referer);
+	DS_LOG_WARNING("XmlImporter: invalid value of \'" << p.value << "\' for property \'" << p.property << "\', allowed values are " << validValues << ". From sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
 void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& property, const std::string& theValue,
@@ -408,24 +408,24 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			const auto alignMode = p.value;
 			if (alignMode == "top") {
 				p.sprite.mLayoutVAlign = LayoutSprite::kTop;
-			} else if (alignMode == "middle") {
+			} else if (alignMode == "middle" || alignMode == "center") {
 				p.sprite.mLayoutVAlign = LayoutSprite::kMiddle;
 			} else if (alignMode == "bottom") {
 				p.sprite.mLayoutVAlign = LayoutSprite::kBottom;
 			} else {
-				logInvalidValue(p, "top, middle, bottom");
+				logInvalidValue(p, "top, middle, center, bottom");
 			}
 		};
 		propertyMap["layout_h_align"] = [](SprProps& p) {
 			const auto alignMode = p.value;
 			if (alignMode == "left") {
 				p.sprite.mLayoutHAlign = LayoutSprite::kLeft;
-			} else if (alignMode == "center") {
+			} else if (alignMode == "middle" || alignMode == "center") {
 				p.sprite.mLayoutHAlign = LayoutSprite::kCenter;
 			} else if (alignMode == "right") {
 				p.sprite.mLayoutHAlign = LayoutSprite::kRight;
 			} else {
-				logInvalidValue(p, "left, center, right");
+				logInvalidValue(p, "left, middle, center, right");
 			}
 		};
 		propertyMap["layout_fudge"] = [](SprProps& p) {
