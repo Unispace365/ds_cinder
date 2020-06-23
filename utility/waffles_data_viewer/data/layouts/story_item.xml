@@ -1,0 +1,43 @@
+<interface>
+
+	<layout name="layout"
+			layout_type="horiz"
+			layout_size_mode="fixed"
+			enable="true"
+			multitouch="info"
+			size="400, 25"
+		>
+		
+		<sprite name="normal"
+			layout_size_mode="fill"
+			color="#444444"
+			/>
+		<sprite name="highlight"
+			layout_size_mode="fill"
+			color="#333333"
+			visible="false"
+			/>
+			
+		<text name="name"
+			font="viewer:body"
+			layout_v_align="middle"
+			model="text:this->name"
+			l_pad="10"
+			/>
+		<image name="next_button"
+			src_cache="%APP%/data/images/media_interface/next.png"
+			layout_size_mode="flex"
+			pad_all="5"
+			/>
+		<sprite layout_size_mode="stretch" />
+		<image_button name="info_button"
+			src_cache="%APP%/data/images/media_interface/info.png"
+			layout_size_mode="flex"
+			btn_touch_padding="3"
+			down_image_color="#AAAAAA"
+			/>
+		
+	</layout>
+	
+</interface>
+

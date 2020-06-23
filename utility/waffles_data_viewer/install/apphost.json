@@ -1,0 +1,38 @@
+{
+  "PreventSleep": true,
+  "Kiosk": true,
+  "RestartApps": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "RestartSystem": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "Profiles": [
+    {
+      "Name": "waffles_data_viewer",
+      "Apps": [
+        {
+          "Path": "%PROGRAMFILES%/Downstream/waffles_data_viewer/waffles_data_viewer.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        },
+        {
+          "Path": "%PROGRAMFILES%/Downstream/waffles_data_viewer/DSNode/DSNode.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": false,
+          "MemoryLimit": 10000
+        }
+      ]
+    }
+  ]
+}
+
