@@ -439,12 +439,13 @@ void MediaPlayer::uninitialize() {
 	if (mPrimaryImage) mPrimaryImage->release();
 	if (mWebPlayer) mWebPlayer->release();
 
-	mThumbnailImage  = nullptr;
-	mVideoPlayer	 = nullptr;
+	mThumbnailImage = nullptr;
+	mVideoPlayer = nullptr;
+	mStreamPlayer = nullptr;
 	mPanoramicPlayer = nullptr;
-	mPDFPlayer		 = nullptr;
-	mPrimaryImage	= nullptr;
-	mWebPlayer		 = nullptr;
+	mPDFPlayer = nullptr;
+	mPrimaryImage = nullptr;
+	mWebPlayer = nullptr;
 
 	mInitialized = false;
 }
