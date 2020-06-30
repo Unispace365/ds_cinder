@@ -245,6 +245,8 @@ void StoryController::buildBreadCrumbs(std::vector<std::string>& theNames, ds::m
 void StoryController::showInfoPage(ds::model::ContentModelRef theInfo) {
 	std::vector<ds::model::ContentModelRef> fakeModels;
 
+	/// TODO: organize these better by what's a base waffles node property and what's a field property
+
 	for (auto it : theInfo.getProperties()) {
 		ds::model::ContentModelRef aModel;
 		aModel.setProperty("property_name", it.first);
@@ -255,6 +257,31 @@ void StoryController::showInfoPage(ds::model::ContentModelRef theInfo) {
 		fakeModels.emplace_back(aModel);
 	}
 
+	for (auto it : theInfo.getAllPropertyLists()) {
+		ds::model::ContentModelRef aModel;
+		aModel.setProperty("property_name", it.first);
+		std::string theValue = "{";
+		for (auto tit : it.second) {
+			theValue.append(tit.getString());
+			theValue.append(", ");
+		}
+
+		// slice off the last comma and space
+		if(theValue.size() > 1){
+			theValue = theValue.substr(0, theValue.size() - 2);
+		}
+
+		theValue.append("}");
+		aModel.setProperty("property_value", theValue);
+
+		fakeModels.emplace_back(aModel);
+	}
+
+	std::sort(fakeModels.begin(), fakeModels.end(), []( ds::model::ContentModelRef& a, ds::model::ContentModelRef& b) -> bool {
+		if (a.getPropertyString("name") < b.getPropertyString("name")) return true;
+		return false;
+	});
+
 
 	auto fileListInfo = getSprite<ds::ui::SmartScrollList>("specific_info");
 	if(fileListInfo){
@@ -262,7 +289,7 @@ void StoryController::showInfoPage(ds::model::ContentModelRef theInfo) {
 	}
 
 	setSpriteText("info_title", theInfo.getPropertyString("name"));
-	setSpriteText("info_kind", theInfo.getPropertyString("kind"));
+	setSpriteText("info_kind", std::to_string(theInfo.getId()) + " " + theInfo.getPropertyString("kind"));
 
 
 	auto theMP = getSprite<ds::ui::MediaPlayer>("the_media");

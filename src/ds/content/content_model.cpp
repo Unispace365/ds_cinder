@@ -9,27 +9,28 @@
 namespace ds {
 namespace model {
 namespace {
-const int										EMPTY_INT = 0;
-const std::string								EMPTY_STRING;
-const ds::Resource								EMPTY_RESOURCE;
-const std::vector<ContentModelRef>				EMPTY_DATAMODELREF_VECTOR;
-const ContentModelRef							EMPTY_DATAMODEL;
-const ContentProperty							EMPTY_PROPERTY;
-const std::vector<ContentProperty>				EMPTY_PROPERTY_LIST;
-const std::map<std::string, ContentProperty>	EMPTY_PROPERTY_MAP;
-const std::map<int, ContentModelRef>			EMPTY_REFERENCE;
+const int													EMPTY_INT = 0;
+const std::string											EMPTY_STRING;
+const ds::Resource											EMPTY_RESOURCE;
+const std::vector<ContentModelRef>							EMPTY_DATAMODELREF_VECTOR;
+const ContentModelRef										EMPTY_DATAMODEL;
+const ContentProperty										EMPTY_PROPERTY;
+const std::vector<ContentProperty>							EMPTY_PROPERTY_LIST;
+const std::map<std::string, ContentProperty>				EMPTY_PROPERTY_MAP;
+const std::map<std::string, std::vector<ContentProperty>>	EMPTY_PROPERTY_LIST_MAP;
+const std::map<int, ContentModelRef>						EMPTY_REFERENCE;
 
-const std::vector<bool>							EMPTY_BOOL_LIST;
-const std::vector<int>							EMPTY_INT_LIST;
-const std::vector<float>						EMPTY_FLOAT_LIST;
-const std::vector<double>						EMPTY_DOUBLE_LIST;
-const std::vector<std::string>					EMPTY_STRING_LIST;
-const std::vector<std::wstring>					EMPTY_WSTRING_LIST;
-const std::vector<ci::Color>					EMPTY_COLOR_LIST;
-const std::vector<ci::ColorA>					EMPTY_COLORA_LIST;
-const std::vector<ci::vec2>						EMPTY_VEC2_LIST;
-const std::vector<ci::vec3>						EMPTY_VEC3_LIST;
-const std::vector<ci::Rectf>					EMPTY_RECTF_LIST;
+const std::vector<bool>				EMPTY_BOOL_LIST;
+const std::vector<int>				EMPTY_INT_LIST;
+const std::vector<float>			EMPTY_FLOAT_LIST;
+const std::vector<double>			EMPTY_DOUBLE_LIST;
+const std::vector<std::string>		EMPTY_STRING_LIST;
+const std::vector<std::wstring>		EMPTY_WSTRING_LIST;
+const std::vector<ci::Color>		EMPTY_COLOR_LIST;
+const std::vector<ci::ColorA>		EMPTY_COLORA_LIST;
+const std::vector<ci::vec2>			EMPTY_VEC2_LIST;
+const std::vector<ci::vec3>			EMPTY_VEC3_LIST;
+const std::vector<ci::Rectf>		EMPTY_RECTF_LIST;
 
 }
 
@@ -505,6 +506,12 @@ void ContentModelRef::setPropertyResource(const std::string& propertyName, const
 		dp.setResource(resource);
 		setProperty(propertyName, dp);
 	}
+}
+
+
+const std::map<std::string, std::vector<ContentProperty>>& ContentModelRef::getAllPropertyLists() {
+	if (!mData) return EMPTY_PROPERTY_LIST_MAP;
+	return mData->mPropertyLists;
 }
 
 const std::vector<ds::model::ContentProperty>& ContentModelRef::getPropertyList(const std::string& propertyName) {

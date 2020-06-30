@@ -17,12 +17,19 @@
 			color="#333333"
 			visible="false"
 			/>
-			
+		<text name="id"
+			font="viewer:body"
+			layout_v_align="middle"
+			model="text:this->id"
+			l_pad="5"
+			opacity="0.5"
+			resize_limit="30"
+			/>
 		<text name="name"
 			font="viewer:body"
 			layout_v_align="middle"
 			model="text:this->name"
-			l_pad="10"
+			l_pad="5"
 			/>
 		<image name="next_button"
 			src_cache="%APP%/data/images/media_interface/next.png"

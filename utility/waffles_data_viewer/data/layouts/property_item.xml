@@ -40,7 +40,8 @@
 				font="viewer:value"
 				layout_v_align="middle"
 				model="text:this->property_value"
-				layout_size_mode="stretch"
+				resize_limit="340, 1"
+				text_ellipses="end"
 				l_pad="10"
 				/>
 				

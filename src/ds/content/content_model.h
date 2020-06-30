@@ -173,6 +173,7 @@ class ContentModelRef {
 	void setPropertyResource(const std::string& propertyName, const ds::Resource& resource);
 
 	/// property lists are stored separately from regular properties
+	const std::map<std::string, std::vector<ContentProperty>>& getAllPropertyLists();
 	const std::vector<ContentProperty>&	getPropertyList(const std::string& propertyName);
 	std::vector<bool>				getPropertyListBool(const std::string& propertyName);
 	std::vector<int>				getPropertyListInt(const std::string& propertyName);
