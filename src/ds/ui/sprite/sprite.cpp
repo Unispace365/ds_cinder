@@ -290,10 +290,15 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				shaderBase->bind();
 				DS_REPORT_GL_ERRORS();
 				shaderBase->uniform("tex0", 0);
-				shaderBase->uniform("useTexture", mUseShaderTexture);
-				shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
 
 				int uniformLoc = 0;
+
+				if (shaderBase->findUniform("useTexture", &uniformLoc)) {
+					shaderBase->uniform("useTexture", mUseShaderTexture);
+				}
+				if (shaderBase->findUniform("preMultiply", &uniformLoc)) {
+					shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
+				}
 				if(shaderBase->findUniform("extent", &uniformLoc)){
 					shaderBase->uniform("extent", ci::vec2(getWidth(), getHeight()));
 				}
