@@ -12,6 +12,9 @@ void applyBlendingMode(const BlendMode &blendMode){
 	if(blendMode == NORMAL) {
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	} else if(blendMode == PREMULTIPLY) {
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	} else if(blendMode == MULTIPLY) {
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
@@ -46,6 +49,8 @@ ds::ui::BlendMode getBlendModeByString(const std::string& blendString){
 	std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
 	if(lowerString == "add"){
 		return ADD;
+	} else if(lowerString == "premultiply"){
+		return PREMULTIPLY;
 	} else if(lowerString == "subtract"){
 		return SUBTRACT;
 	} else if(lowerString == "multiply"){
@@ -70,6 +75,8 @@ ds::ui::BlendMode getBlendModeByString(const std::string& blendString){
 const std::string getStringForBlendMode(const BlendMode& blendMode){
 	if(blendMode == NORMAL) {
 		return "normal";
+	} else if(blendMode == PREMULTIPLY) {
+		return "premultiply";
 	} else if(blendMode == MULTIPLY) {
 		return "multiply";
 	} else if(blendMode == SCREEN) {
@@ -94,6 +101,8 @@ const std::string getStringForBlendMode(const BlendMode& blendMode){
 bool premultiplyAlpha(const BlendMode &blendMode){
 	if(blendMode == NORMAL) {
 		return false;
+	} else if(blendMode == PREMULTIPLY) {
+		return true;
 	} else if(blendMode == MULTIPLY) {
 		return true;
 	} else if(blendMode == SCREEN) {

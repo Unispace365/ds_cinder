@@ -626,7 +626,7 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		///	Determines if the final render will be to the display or a texture.
-		void					setFinalRenderToTexture(bool render_to_texture);
+		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format = ci::gl::Fbo::Format());
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
@@ -843,6 +843,7 @@ namespace ui {
 
 		ci::gl::TextureRef		mShaderTexture;
 		ci::gl::FboRef			mOutputFbo;
+		ci::gl::Fbo::Format		mFboFormat;
 		bool					mIsRenderFinalToTexture;
 
 		ci::vec4				mShaderExtraData;
