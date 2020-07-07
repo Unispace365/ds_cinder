@@ -1677,9 +1677,8 @@ void Sprite::setupFinalRenderBuffer(){
 	   getWidth() > 1.0f &&
 	   getHeight() > 1.0f
 	   ){
-		ci::gl::Fbo::Format  format;
 		//mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
-		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
+		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
 	} else {
 		mOutputFbo = nullptr;
 	}
@@ -1693,10 +1692,11 @@ void Sprite::setShaderExtraData(const ci::vec4& data){
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture){
+void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
 	if (render_to_texture == mIsRenderFinalToTexture) return;
 	mIsRenderFinalToTexture = render_to_texture;
 
+	mFboFormat = format;
 	setupFinalRenderBuffer();
 
 }
