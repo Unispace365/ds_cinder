@@ -200,6 +200,8 @@ protected:
 	//picks a font size that fits the whole text inside resize limit rect;
 	void findFitFontSize();
 	void findFitFontSizeFromArray();
+	/// Pulls out <ol> and <ul> tags and creates the lists, returns true if there are more lists to parse
+	bool parseLists();
 	/// puts the layout into pango, updates any layout stuff, and measures the result
 	/// This is a pre-requisite for drawPangoText().
 	bool measurePangoText();

@@ -858,6 +858,64 @@ void Text::findFitFontSizeFromArray()
 	}
 }
 
+bool Text::parseLists(){
+	if(mProcessedText.empty()){
+		return false;
+	}
+
+	bool isOrdered = true;
+
+	auto firstInstance = mProcessedText.find("<ol>");
+
+	if(firstInstance == std::string::npos){
+		isOrdered = false;
+		firstInstance = mProcessedText.find("<ul>");
+	}
+
+	if(firstInstance == std::string::npos){
+		return false;
+	}
+
+	size_t listEnd = std::string::npos;
+
+	if(isOrdered){
+		listEnd = mProcessedText.find("</ol>");
+	} else {
+		listEnd = mProcessedText.find("</ul>");
+	}
+
+	if(listEnd == std::string::npos){
+		DS_LOG_WARNING("Text: Found an opening ordered list tag but no closing tag!");
+		return false;
+	}
+
+	std::string beforeText = mProcessedText.substr(0, firstInstance);
+	std::string theList = mProcessedText.substr(firstInstance + 4, listEnd - firstInstance - 4); // the minus four is to remove the tags
+	std::string afterText = mProcessedText.substr(listEnd + 5);
+
+	if(isOrdered){
+		int listNumber = 1;
+
+		size_t itemPos = theList.find("<li>");
+		while(itemPos != std::string::npos){
+			theList = theList.replace(itemPos, 4, "\t" + std::to_string(listNumber) + ". ");
+			listNumber++;
+			ds::replace(theList, "</li>", "");
+			itemPos = theList.find("<li>");
+		}
+
+	} else {
+		ds::replace(theList, "<li>", "\t" + ds::utf8_from_wstr(L"• "));
+		ds::replace(theList, "</li>", "");
+	}
+
+	beforeText.append("\n");
+	theList.append("\n");
+
+	mProcessedText = beforeText + theList + afterText;
+	return true;
+}
+
 bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsMarkupDetection) {
 		
@@ -892,7 +950,15 @@ bool Text::measurePangoText() {
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos)) || mProcessedText.find("&amp;") != std::wstring::npos;
+			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || mProcessedText.find("&amp;") != std::string::npos;
+
+			// parse any lists
+			if (mProbablyHasMarkup) {
+				bool hasMoreLists = true;
+				while(hasMoreLists){
+					hasMoreLists = parseLists();
+				}
+			}
 
 			mNeedsMarkupDetection = false;
 		}
