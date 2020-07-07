@@ -1677,7 +1677,6 @@ void Sprite::setupFinalRenderBuffer(){
 	   getWidth() > 1.0f &&
 	   getHeight() > 1.0f
 	   ){
-		//mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
 		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
 	} else {
 		mOutputFbo = nullptr;
