@@ -950,13 +950,18 @@ bool Text::measurePangoText() {
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || mProcessedText.find("&amp;") != std::string::npos;
+			bool hasAmps = mProcessedText.find("&amp;") != std::string::npos;
+			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || hasAmps;
 
 			// parse any lists
 			if (mProbablyHasMarkup) {
 				bool hasMoreLists = true;
 				while(hasMoreLists){
 					hasMoreLists = parseLists();
+				}
+
+				if(!hasAmps && mProcessedText.find("&") != std::string::npos){
+					ds::replace(mProcessedText, "&", "&amp;");
 				}
 			}
 
