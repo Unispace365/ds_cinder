@@ -67,6 +67,7 @@ class WebPlayer : public ds::ui::Sprite {
 	bool mInterfaceBelowMedia;
 	bool mIsYoutube;
 	bool mNativeTouches;
+	bool mAutoStart;
 };
 
 }  // namespace ui

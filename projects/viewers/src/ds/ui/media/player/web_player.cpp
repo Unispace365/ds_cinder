@@ -38,8 +38,6 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 
 	mLayoutFixedAspect = true;
 	enable(false);
-	setTransparent(false);
-	setColor(ci::Color::white());
 }
 
 void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
@@ -51,6 +49,7 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
@@ -138,9 +137,15 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	addChildPtr(mWeb);
 
 	if (mIsYoutube) {
-		mWeb->loadUrl("https://www.youtube.com/embed/" + resource.getFileName() + "?autoplay=1");
+		std::string url = "https://www.youtube.com/embed/" + resource.getFileName();
+		if(mAutoStart){
+			url.append("?autoplay=1");
+		}
+		mWeb->loadUrl(url);
 
 	} else {
+		setTransparent(false);
+		setColor(ci::Color::white());
 		mWeb->setResource(resource);
 	}
 
