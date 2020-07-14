@@ -146,6 +146,9 @@ public:
 	/// The number of lines in the text layout
 	int							getNumberOfLines();
 
+	/// If an ordered or unordered list was detected in the current text
+	bool						getHasLists();
+
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
@@ -248,6 +251,7 @@ private:
 	/// Info about the text layout
 	bool						mWrappedText;
 	int							mNumberOfLines;
+	bool						mHasLists;
 
 	/// Internal flags for state invalidation
 	/// Used by measure and render methods

@@ -146,6 +146,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mPixelHeight(-1)
 	, mNumberOfLines(0)
 	, mWrappedText(false)
+	, mHasLists(false)
 	, mPangoContext(nullptr)
 	, mPangoLayout(nullptr)
 	, mCairoFontOptions(nullptr)
@@ -580,6 +581,12 @@ int Text::getNumberOfLines(){
 	return mNumberOfLines;
 }
 
+
+bool Text::getHasLists() {
+	measurePangoText();
+	return mHasLists;
+}
+
 void Text::setPreserveSpanColors(const bool preserve) {
 	mPreserveSpanColors = preserve;
 	if(mPreserveSpanColors) {
@@ -898,19 +905,16 @@ bool Text::parseLists(){
 
 		size_t itemPos = theList.find("<li>");
 		while(itemPos != std::string::npos){
-			theList = theList.replace(itemPos, 4, "\t" + std::to_string(listNumber) + ". ");
+			theList = theList.replace(itemPos, 4, std::to_string(listNumber) + ". ");
 			listNumber++;
 			ds::replace(theList, "</li>", "");
 			itemPos = theList.find("<li>");
 		}
 
 	} else {
-		ds::replace(theList, "<li>", "\t" + ds::utf8_from_wstr(L"• "));
+		ds::replace(theList, "<li>", ds::utf8_from_wstr(L"• "));
 		ds::replace(theList, "</li>", "");
 	}
-
-	beforeText.append("\n");
-	theList.append("\n");
 
 	mProcessedText = beforeText + theList + afterText;
 	return true;
@@ -955,9 +959,13 @@ bool Text::measurePangoText() {
 
 			// parse any lists
 			if (mProbablyHasMarkup) {
+				mHasLists = false;
 				bool hasMoreLists = true;
 				while(hasMoreLists){
 					hasMoreLists = parseLists();
+					if(hasMoreLists){
+						mHasLists = true;
+					}
 				}
 
 				if(!hasAmps && mProcessedText.find("&") != std::string::npos){
