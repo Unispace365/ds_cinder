@@ -75,6 +75,14 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_web_start_interactive",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+			auto& mvs = mediaPlayer.getSettings();
+			mvs.mWebStartTouchable = ds::parseBoolean(theValue);
+			mediaPlayer.setSettings(mvs);
+		});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_letterbox",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				auto& mvs	  = mediaPlayer.getSettings();
