@@ -26,6 +26,8 @@ namespace {
 // requires a custom shader that multiplies in the rest of the opacity setting
 const std::string opacityPremultFrag =
 "uniform sampler2D	tex0;\n"
+"uniform bool        useTexture;\n"    // dummy, Engine always sends this anyway
+"uniform bool       preMultiply;\n" // dummy, Engine always sends this anyway
 "in vec4		    Color;\n"
 "in vec2			TexCoord0;\n"
 "out vec4		    oColor;\n"
@@ -38,7 +40,7 @@ const std::string opacityPremultFrag =
 "    // Undo the pango premultiplication\n"
 "    oColor.rgb /= oColor.a;\n"
 "    // Now do the normal colorize/optional premultiplication\n"
-"    oColor.a *= Color.a;\n"
+"    oColor *= Color;\n"
 "    if (preMultiply)\n"
 "        oColor.rgb *= oColor.a;\n"
 "}\n";
@@ -51,9 +53,7 @@ const std::string opacityFrag =
 "void main()\n"
 "{\n"
 "    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    if (useTexture) {\n"
-"        oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
-"    }\n"
+"    oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
 "    oColor.a = oColor.r;\n"
 "    oColor.r = Color.r;\n"
 "    oColor.g = Color.g;\n"
