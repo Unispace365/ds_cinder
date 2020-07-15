@@ -29,7 +29,7 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	if(mBackground){
 		addChild(*mBackground);
 		mBackground->setCenter(0.5f, 0.5f);
-		mBackground->setPosition(0.0f, 0.0f);
+		mBackground->setPosition(mMenuConfig.mBackgroundOffset);
 		mBackground->setColor(mMenuConfig.mBackgroundColor);
 		mBackground->setScale(0.0f, 0.0f, 0.0f);
 		mBackground->setOpacity(0.0f);

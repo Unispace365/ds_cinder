@@ -146,6 +146,9 @@ public:
 	/// The number of lines in the text layout
 	int							getNumberOfLines();
 
+	/// If an ordered or unordered list was detected in the current text
+	bool						getHasLists();
+
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
@@ -200,6 +203,8 @@ protected:
 	//picks a font size that fits the whole text inside resize limit rect;
 	void findFitFontSize();
 	void findFitFontSizeFromArray();
+	/// Pulls out <ol> and <ul> tags and creates the lists, returns true if there are more lists to parse
+	bool parseLists();
 	/// puts the layout into pango, updates any layout stuff, and measures the result
 	/// This is a pre-requisite for drawPangoText().
 	bool measurePangoText();
@@ -246,6 +251,7 @@ private:
 	/// Info about the text layout
 	bool						mWrappedText;
 	int							mNumberOfLines;
+	bool						mHasLists;
 
 	/// Internal flags for state invalidation
 	/// Used by measure and render methods

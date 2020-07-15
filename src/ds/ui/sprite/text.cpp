@@ -26,6 +26,8 @@ namespace {
 // requires a custom shader that multiplies in the rest of the opacity setting
 const std::string opacityPremultFrag =
 "uniform sampler2D	tex0;\n"
+"uniform bool        useTexture;\n"    // dummy, Engine always sends this anyway
+"uniform bool       preMultiply;\n" // dummy, Engine always sends this anyway
 "in vec4		    Color;\n"
 "in vec2			TexCoord0;\n"
 "out vec4		    oColor;\n"
@@ -38,7 +40,7 @@ const std::string opacityPremultFrag =
 "    // Undo the pango premultiplication\n"
 "    oColor.rgb /= oColor.a;\n"
 "    // Now do the normal colorize/optional premultiplication\n"
-"    oColor.a *= Color.a;\n"
+"    oColor *= Color;\n"
 "    if (preMultiply)\n"
 "        oColor.rgb *= oColor.a;\n"
 "}\n";
@@ -146,6 +148,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mPixelHeight(-1)
 	, mNumberOfLines(0)
 	, mWrappedText(false)
+	, mHasLists(false)
 	, mPangoContext(nullptr)
 	, mPangoLayout(nullptr)
 	, mCairoFontOptions(nullptr)
@@ -580,6 +583,12 @@ int Text::getNumberOfLines(){
 	return mNumberOfLines;
 }
 
+
+bool Text::getHasLists() {
+	measurePangoText();
+	return mHasLists;
+}
+
 void Text::setPreserveSpanColors(const bool preserve) {
 	mPreserveSpanColors = preserve;
 	if(mPreserveSpanColors) {
@@ -858,6 +867,61 @@ void Text::findFitFontSizeFromArray()
 	}
 }
 
+bool Text::parseLists(){
+	if(mProcessedText.empty()){
+		return false;
+	}
+
+	bool isOrdered = true;
+
+	auto firstInstance = mProcessedText.find("<ol>");
+
+	if(firstInstance == std::string::npos){
+		isOrdered = false;
+		firstInstance = mProcessedText.find("<ul>");
+	}
+
+	if(firstInstance == std::string::npos){
+		return false;
+	}
+
+	size_t listEnd = std::string::npos;
+
+	if(isOrdered){
+		listEnd = mProcessedText.find("</ol>");
+	} else {
+		listEnd = mProcessedText.find("</ul>");
+	}
+
+	if(listEnd == std::string::npos){
+		DS_LOG_WARNING("Text: Found an opening ordered list tag but no closing tag!");
+		return false;
+	}
+
+	std::string beforeText = mProcessedText.substr(0, firstInstance);
+	std::string theList = mProcessedText.substr(firstInstance + 4, listEnd - firstInstance - 4); // the minus four is to remove the tags
+	std::string afterText = mProcessedText.substr(listEnd + 5);
+
+	if(isOrdered){
+		int listNumber = 1;
+
+		size_t itemPos = theList.find("<li>");
+		while(itemPos != std::string::npos){
+			theList = theList.replace(itemPos, 4, std::to_string(listNumber) + ". ");
+			listNumber++;
+			ds::replace(theList, "</li>", "");
+			itemPos = theList.find("<li>");
+		}
+
+	} else {
+		ds::replace(theList, "<li>", ds::utf8_from_wstr(L"• "));
+		ds::replace(theList, "</li>", "");
+	}
+
+	mProcessedText = beforeText + theList + afterText;
+	return true;
+}
+
 bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsMarkupDetection) {
 		
@@ -892,7 +956,24 @@ bool Text::measurePangoText() {
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos)) || mProcessedText.find("&amp;") != std::wstring::npos;
+			bool hasAmps = mProcessedText.find("&amp;") != std::string::npos;
+			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || hasAmps;
+
+			// parse any lists
+			if (mProbablyHasMarkup) {
+				mHasLists = false;
+				bool hasMoreLists = true;
+				while(hasMoreLists){
+					hasMoreLists = parseLists();
+					if(hasMoreLists){
+						mHasLists = true;
+					}
+				}
+
+				if(!hasAmps && mProcessedText.find("&") != std::string::npos){
+					ds::replace(mProcessedText, "&", "&amp;");
+				}
+			}
 
 			mNeedsMarkupDetection = false;
 		}
