@@ -1038,10 +1038,10 @@ void GStreamerWrapper::setSpeed(float fSpeed) {
 void GStreamerWrapper::setDirection(PlayDirection direction) {
 	if (mLivePipeline) return;
 
-if(mPlayDirection != direction) {
-	mPlayDirection = direction;
-	changeSpeedAndDirection(mSpeed, mPlayDirection);
-}
+	if (mPlayDirection != direction) {
+		mPlayDirection = direction;
+		changeSpeedAndDirection(mSpeed, mPlayDirection);
+	}
 }
 
 void GStreamerWrapper::setLoopMode(LoopMode loopMode) {

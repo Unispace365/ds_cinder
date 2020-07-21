@@ -1416,6 +1416,26 @@ float GstVideo::getSpeed() const {
 	else return 1.f;
 }
 
+void GstVideo::setPlayDirection(const bool forwards) {
+	if (mGstreamerWrapper) {
+		if (forwards) {
+			mGstreamerWrapper->setDirection(PlayDirection::FORWARD);
+		} else {
+			mGstreamerWrapper->setDirection(PlayDirection::BACKWARD);
+		}
+	} else {
+		DS_LOG_WARNING("Unable to set video direction, no GstreamerWrapper");
+	}
+
+}
+
+bool GstVideo::getPlayDirection() {
+	if (mGstreamerWrapper) {
+		return mGstreamerWrapper->getDirection() == PlayDirection::FORWARD;
+	}
+	return true;
+}
+
 GstVideo::Status::Status(int code) { mCode = code; }
 
 bool GstVideo::Status::operator==(int status) const { return mCode == status; }
