@@ -69,6 +69,7 @@ private:
 	float						mFrameTime;
 	double						mLastFrameTime;
 	std::vector<ds::ui::Image*>	mFrames;
+	ds::ui::Image*				mVisibleFrame = nullptr;
 
 };
 

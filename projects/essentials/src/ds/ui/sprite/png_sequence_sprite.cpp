@@ -20,7 +20,10 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 	mLayoutFixedAspect = true;
 	setImages(imageFiles);
 
-	mFrames[0]->show();
+	if (!mFrames.empty()) {
+		mVisibleFrame = mFrames.front();
+		mVisibleFrame->show();
+	}
 	mLastFrameTime = ci::app::getElapsedSeconds();
 }
 
@@ -37,6 +40,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 }
 
 void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
+	mVisibleFrame = nullptr;
 	int i=0;
 	for(auto it = imageFiles.begin(); it < imageFiles.end(); ++it){
 		bool created_new_frames = false;
@@ -97,13 +101,12 @@ void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
 	if(frameIndex < 0 || frameIndex > mNumFrames - 1) return;
 	mCurrentFrameIndex = frameIndex;
 
-	for(int i = 0; i < mNumFrames; i++){
-		if(i == mCurrentFrameIndex){
-			mFrames[i]->show();
-		} else {
-			mFrames[i]->hide();
-		}
+	if (mVisibleFrame) {
+		mVisibleFrame->hide();
 	}
+
+	mVisibleFrame = mFrames[mCurrentFrameIndex];
+	mVisibleFrame->show();
 }
 
 const int PngSequenceSprite::getCurrentFrameIndex()const{
@@ -177,7 +180,13 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 			}
 
 			// show the new frame
-			mFrames[mCurrentFrameIndex]->show();
+
+			if (mVisibleFrame) {
+				mVisibleFrame->hide();
+			}
+
+			mVisibleFrame = mFrames[mCurrentFrameIndex];
+			mVisibleFrame->show();
 		}
 
 	}
