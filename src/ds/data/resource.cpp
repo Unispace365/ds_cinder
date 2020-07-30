@@ -412,7 +412,19 @@ const std::string& Resource::getTypeChar() const {
 }
 
 void Resource::setLocalFilePath(const std::string& localPath, const bool normalizeThePath /*= true*/) {
-	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
+	if(mType == YOUTUBE_TYPE){
+		// we're assuming the link type here is like https://www.youtube.com/watch?v=GP55q2lBqbY
+		// TODO: parse the video url better!
+		std::string theUrlPrefix = "https://www.youtube.com/watch?v=";
+		if(localPath.find(theUrlPrefix) == 0){
+			mLocalFilePath = localPath.substr(theUrlPrefix.size());
+			mFileName = mLocalFilePath;
+		} else {
+			// maybe this is already the video id?
+			mLocalFilePath = localPath;
+			mFileName = mLocalFilePath;
+		} 
+	} else if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
 		mLocalFilePath = localPath;
 	} else if(normalizeThePath) {
 		mLocalFilePath = ds::getNormalizedPath(localPath);
@@ -548,6 +560,10 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 	// any checks throws a runtime exception
 	if(newMedia.empty()){
 		return ds::Resource::ERROR_TYPE;
+	}
+
+	if(newMedia.find("https://www.youtube.com/") == 0){
+		return ds::Resource::YOUTUBE_TYPE;
 	}
 
 	auto htmlFind = newMedia.find(".html");

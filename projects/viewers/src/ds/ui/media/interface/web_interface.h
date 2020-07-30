@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIEWER_WEB_INTERFACE
-#define DS_UI_MEDIA_VIEWER_WEB_INTERFACE
 
 #include "ds/ui/media/media_interface.h"
 #include "ds/app/event_client.h"
@@ -95,4 +93,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif

@@ -11,6 +11,7 @@ class PanoramicVideoPlayer;
 class VideoPlayer;
 class PDFPlayer;
 class StreamPlayer;
+class YouTubePlayer;
 class MediaInterface;
 
 /**
@@ -145,6 +146,7 @@ class MediaPlayer : public ds::ui::Sprite {
 	void initializeVideoStream();
 	void initializePdf();
 	void initializeWeb();
+	void initializeYouTube();
 
 	MediaViewerSettings mMediaViewerSettings;
 
@@ -158,7 +160,8 @@ class MediaPlayer : public ds::ui::Sprite {
 	StreamPlayer*		  mStreamPlayer	= nullptr;
 	VideoPlayer*		  mVideoPlayer	 = nullptr;
 	PanoramicVideoPlayer* mPanoramicPlayer = nullptr;
-	WebPlayer*			  mWebPlayer	   = nullptr;
+	WebPlayer*			  mWebPlayer = nullptr;
+	YouTubePlayer*		  mYouTubePlayer = nullptr;
 	Image*				  mThumbnailImage  = nullptr;
 	Image*				  mPrimaryImage	= nullptr;
 

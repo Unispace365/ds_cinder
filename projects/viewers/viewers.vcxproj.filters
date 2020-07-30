@@ -109,7 +109,10 @@
       <Filter>src\ds\ui\media\player</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\stdafx.cpp" />
-    <ClCompile Include="src\ds\ui\media\interface\web_youtube_interface.cpp">
+    <ClCompile Include="src\ds\ui\media\player\youtube_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\youtube_interface.cpp">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClCompile>
   </ItemGroup>
@@ -193,7 +196,10 @@
       <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\ds\ui\media\interface\web_youtube_interface.h">
+    <ClInclude Include="src\ds\ui\media\player\youtube_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\youtube_interface.h">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClInclude>
   </ItemGroup>
