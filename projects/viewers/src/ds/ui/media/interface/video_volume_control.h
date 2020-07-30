@@ -1,12 +1,11 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIDEO_INTERFACE_VIDEO_VOLUME_CONTROL
-#define DS_UI_MEDIA_VIDEO_INTERFACE_VIDEO_VOLUME_CONTROL
 
 #include "ds/ui/media/media_interface.h"
 
 namespace ds {
 namespace ui { 
 class GstVideo;
+class YouTubeWeb;
 
 /**
 * \class VideoVolumeControl
@@ -17,6 +16,7 @@ public:
 	VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize = 50.0f, const float buttHeight = 25.0f, const ci::Color interfaceColor = ci::Color::white());
 
 	void							linkVideo(ds::ui::GstVideo* linkedVideo);
+	void							linkYouTube(ds::ui::YouTubeWeb* linkedYouTube);
 	void							setVolume(const float v);
 
 	// do not release the bars here, this is to modify their values
@@ -26,6 +26,7 @@ protected:
 	virtual void					onUpdateServer(const ds::UpdateParams& updateParams) override;
 
 	ds::ui::GstVideo*				mLinkedVideo;
+	ds::ui::YouTubeWeb*				mLinkedYouTube;
 
 	std::vector<ds::ui::Sprite*>	mBars;
 	float							mOffOpacity;
@@ -36,4 +37,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif

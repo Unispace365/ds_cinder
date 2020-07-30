@@ -41,6 +41,7 @@ struct MediaViewerSettings {
 		, mVideoGlMode(false)
 		, mVideoNVDecode(false)
 		, mPanoramicVideoInteractive(true)
+		, mYouTubeSize(1920.0f, 1080.0f)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -72,6 +73,12 @@ struct MediaViewerSettings {
 	bool						mWebStartTouchable;
 	// If true, web sprites will send native touch events to the browser. Default = true
 	bool						mWebNativeTouches;
+
+
+	//--------------------YouTube Settings ------------------------------------------//
+	// Note that some video and web settings are used for youtube as well (autoplay, volume, start touchable, native touches)
+	ci::vec2					mYouTubeSize;
+
 
 	//--------------------Image Settings -------------------------------------------//
 

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIDEO_INTERFACE_VIDEO_SCRUB_BAR
-#define DS_UI_MEDIA_VIDEO_INTERFACE_VIDEO_SCRUB_BAR
 
 #include "ds/ui/media/media_interface.h"
 
@@ -8,10 +6,11 @@ namespace ds {
 namespace ui {
 class GstVideo;
 class IPdf;
+class YouTubeWeb;
 
 /**
 * \class VideoScrubBar
-*			Seeking / playback info for a video *And now PDFs*
+*			Seeking / playback info for a video *And now PDFs* *And now YouTubes*
 */
 class VideoScrubBar : public ds::ui::Sprite  {
 public:
@@ -19,6 +18,7 @@ public:
 
 	void					linkVideo(ds::ui::GstVideo* linkedVideo);
 	void					linkPdf(ds::ui::IPdf* linkedPdf);
+	void					linkYouTube(ds::ui::YouTubeWeb* linkedYouTube);
 	virtual void			onUpdateServer(const ds::UpdateParams& p) override;
 	void					layout();
 
@@ -33,6 +33,7 @@ protected:
 
 	ds::ui::GstVideo*		mLinkedVideo;
 	ds::ui::IPdf*			mLinkedPdf;
+	ds::ui::YouTubeWeb*		mLinkedYouTube;
 	ds::ui::Sprite*			mBacker;
 	ds::ui::Sprite*			mProgress;
 
@@ -42,4 +43,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif

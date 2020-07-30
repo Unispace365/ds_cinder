@@ -63,6 +63,11 @@ void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	}
 }
 
+bool WebHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser, cef_log_severity_t level, const CefString& message, const CefString& source, int line) {
+	DS_LOG_VERBOSE(1, "Web console: " << message.ToString() << " source: " << source.ToString() << " line: " << line);
+	return false;
+}
+
 void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
 	// be sure this is locked with other requests to the browser lists
 	base::AutoLock lock_scope(mLock);

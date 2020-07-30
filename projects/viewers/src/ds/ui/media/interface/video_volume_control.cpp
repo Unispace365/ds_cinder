@@ -9,6 +9,7 @@
 #include <ds/util/string_util.h>
 
 #include <ds/ui/sprite/video.h>
+#include <ds/ui/media/player/youtube_player.h>
 
 namespace ds {
 namespace ui {
@@ -16,6 +17,7 @@ namespace ui {
 VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize, const float buttHeight, const ci::Color interfaceColor)
 	: ds::ui::Sprite(eng, theSize * 1.5f, theSize)
 	, mLinkedVideo(nullptr)
+	, mLinkedYouTube(nullptr)
 	, mOffOpacity(0.2f)
 {
 	//setTransparent(false);
@@ -60,12 +62,21 @@ void VideoVolumeControl::linkVideo(ds::ui::GstVideo* vid){
 	mLinkedVideo = vid;
 }
 
+
+void VideoVolumeControl::linkYouTube(ds::ui::YouTubeWeb* linkedYouTube) {
+	mLinkedYouTube = linkedYouTube;
+}
+
 void VideoVolumeControl::setVolume(const float v){
 	if(mLinkedVideo){
 		if(mLinkedVideo->getIsMuted() && v > 0.0f){
 			mLinkedVideo->setMute(false);
 		}
 		mLinkedVideo->setVolume(v);
+	}
+
+	if (mLinkedYouTube) {
+		mLinkedYouTube->setVolume(v);
 	}
 }
 
@@ -77,6 +88,11 @@ void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams){
 			vol = 0.0f;
 		}
 	}
+
+	if (mLinkedYouTube) {
+		vol = mLinkedYouTube->getVolume();
+	}
+
 	for(int k = 0; k < mBars.size(); ++k) {
 		const float		bar_v = static_cast<float>(k + 1) / static_cast<float>(mBars.size());
 		if(vol >= bar_v) {
