@@ -56,6 +56,8 @@ public:
 	ds::ui::ImageButton*		getRefreshButton() { return mRefreshButton; }
 	ds::ui::ImageButton*		getTouchToggleButton() { return mTouchToggle; }
 
+	ds::ui::SoftKeyboard*		getSoftKeyboard() { return mKeyboard; }
+
 protected:
 
 	virtual void				onLayout();
