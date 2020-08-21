@@ -46,6 +46,8 @@ private:
 	void											handleInvalidateComplete();
 	void											cancelTappableMode();
 
+	void											pulseBackground(const bool bigger);
+
 	std::vector<int>								mLineIds;
 	std::vector<int>								mContainerLineIds;
 

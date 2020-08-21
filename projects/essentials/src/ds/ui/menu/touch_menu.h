@@ -47,7 +47,7 @@ public:
 			, mItemTitleTextConfig(""), mItemSubtitleTextConfig(""), mItemSubtitleOpacity(0.5f)
 			, mClusterRadius(280.0f), mClusterPositionOffset(-90.0f)
 			, mClusterSizeThreshold(1000.0f), mClusterDistanceThreshold(1000.0f)
-			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f), mBackgroundOffset(0.0f, 0.0f)
+			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f), mBackgroundOffset(0.0f, 0.0f), mBackgroundPulseAmount(1.0f)
 			, mAnimationStyle(kAnimateUp)
 			, mDoClipping(true)
 			, mActivatedCallback(nullptr)
@@ -76,6 +76,7 @@ public:
 		float								mBackgroundOpacity;			// Max opacity for the background image when the cluster is active
 		float								mBackgroundScale;			// Scale of the background image when cluster is active
 		ci::vec2							mBackgroundOffset;			// Position of the background image when cluster is active
+		float								mBackgroundPulseAmount;
 
 		typedef enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial } ClusterAnimation;
 
