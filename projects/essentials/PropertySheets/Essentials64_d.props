@@ -7,10 +7,11 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\essentials\src</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-		<AdditionalDependencies>essentials_d.lib;%(AdditionalDependencies);</AdditionalDependencies>
-		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\essentials\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>essentials_d.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\essentials\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

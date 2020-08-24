@@ -10,7 +10,7 @@
 /// These are to fix compile errors in gstreamer 1.12.x
 #define GST_USE_UNSTABLE_API
 struct EGLImageTargetTexture2D {};
-struct GLeglImageOES {};
+//struct GLeglImageOES {};
 
 #include <gst/gl/gl.h>
 

@@ -18,7 +18,7 @@ in the file COPYING.
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <algorithm>
 #include <map>
 #include <cmath>

@@ -70,7 +70,7 @@ class Client {
 	CallbackId	registerCursorAdded( std::function<void (Cursor)> callback );
 	//! Registers an async callback which fires when a new cursor is added
 	template<typename T>
-	CallbackId	registerCursorAdded( T *obj, void (T::*cb)(Cursor) ) { return registerCursorAdded( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerCursorAdded( T *obj, void (T::*cb)(Cursor) ) { return registerCursorAdded( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerCursorAdded
 	void		unregisterCursorAdded( CallbackId id );
 
@@ -78,7 +78,7 @@ class Client {
 	CallbackId	registerCursorUpdated( std::function<void (Cursor)> callback );
 	//! Registers an async callback which fires when a cursor is updated
 	template<typename T>
-	CallbackId	registerCursorUpdated( T *obj, void (T::*cb)(Cursor) ) { return registerCursorUpdated( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerCursorUpdated( T *obj, void (T::*cb)(Cursor) ) { return registerCursorUpdated( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerCursorUpdated
 	void		unregisterCursorUpdated( CallbackId id );
 
@@ -86,7 +86,7 @@ class Client {
 	CallbackId	registerCursorRemoved( std::function<void (Cursor)> callback );
 	//! Registers an async callback which fires when a cursor is removed
 	template<typename T>
-	CallbackId	registerCursorRemoved( T *obj, void (T::*cb)(Cursor) ) { return registerCursorRemoved( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerCursorRemoved( T *obj, void (T::*cb)(Cursor) ) { return registerCursorRemoved( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerCursorRemoved
 	void		unregisterCursorRemoved( CallbackId id );
 
@@ -94,7 +94,7 @@ class Client {
 	CallbackId	registerObjectAdded( std::function<void (Object)> callback );
 	//! Registers an async callback which fires when a new object is added
 	template<typename T>
-	CallbackId	registerObjectAdded( T *obj, void (T::*cb)(Object) ) { return registerObjectAdded( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerObjectAdded( T *obj, void (T::*cb)(Object) ) { return registerObjectAdded( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerObjectAdded
 	void		unregisterObjectAdded( CallbackId id );
 
@@ -102,7 +102,7 @@ class Client {
 	CallbackId	registerObjectUpdated( std::function<void (Object)> callback );
 	//! Registers an async callback which fires when an object is updated
 	template<typename T>
-	CallbackId	registerObjectUpdated( T *obj, void (T::*cb)(Object) ) { return registerObjectUpdated( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerObjectUpdated( T *obj, void (T::*cb)(Object) ) { return registerObjectUpdated( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerObjectUpdated
 	void		unregisterObjectUpdated( CallbackId id );
 
@@ -110,7 +110,7 @@ class Client {
 	CallbackId	registerObjectRemoved( std::function<void (Object)> callback );
 	//! Registers an async callback which fires when an object is removed
 	template<typename T>
-	CallbackId	registerObjectRemoved( T *obj, void (T::*cb)(Object) ) { return registerObjectRemoved( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerObjectRemoved( T *obj, void (T::*cb)(Object) ) { return registerObjectRemoved( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerObjectRemoved
 	void		unregisterObjectRemoved( CallbackId id );
 			
@@ -118,7 +118,7 @@ class Client {
 	CallbackId	registerOscMessageReceived( std::function<void (const osc::Message*)> callback );
 	//! Registers an async callback which fires when an OSC message not handled by the TuioClient is received
 	template<typename T>
-	CallbackId	registerOscMessageReceived( T *obj, void (T::*cb)(const osc::Message*) ) { return registerOscMessageReceived( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerOscMessageReceived( T *obj, void (T::*cb)(const osc::Message*) ) { return registerOscMessageReceived( std::bind(  cb , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerOscMessageReceived
 	void		unregisterOscMessageReceived( CallbackId id );
 	
@@ -126,7 +126,7 @@ class Client {
 	CallbackId		registerTouchesBegan( std::function<void (app::TouchEvent)> callback );
 	//! Registers an async callback for touchesBegan events, derived from \c 2Dcur messages. Returns a unique identifier which can be used as a parameter to unregisterTouchesBegan().
 	template<typename T>
-	CallbackId		registerTouchesBegan( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesBegan( std::bind1st( std::mem_fun( callback ), obj ) ); }
+	CallbackId		registerTouchesBegan( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesBegan( std::bind(  callback , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerTouchesBegan
 	void			unregisterTouchesBegan( CallbackId id );
 
@@ -134,7 +134,7 @@ class Client {
 	CallbackId		registerTouchesMoved( std::function<void (app::TouchEvent)> callback );
 	//! Registers an async callback for touchesMoved events, derived from \c 2Dcur messages. Returns a unique identifier which can be used as a parameter to unregisterTouchesMoved().
 	template<typename T>
-	CallbackId		registerTouchesMoved( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesMoved( std::bind1st( std::mem_fun( callback ), obj ) ); }
+	CallbackId		registerTouchesMoved( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesMoved( std::bind(  callback , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerTouchesMoved
 	void			unregisterTouchesMoved( CallbackId id );
 
@@ -142,7 +142,7 @@ class Client {
 	CallbackId		registerTouchesEnded( std::function<void (app::TouchEvent)> callback );
 	//! Registers an async callback for touchesEnded events, derived from \c 2Dcur messages. Returns a unique identifier which can be used as a parameter to unregisterTouchesEnded().
 	template<typename T>
-	CallbackId		registerTouchesEnded( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesEnded( std::bind1st( std::mem_fun( callback ), obj ) ); }
+	CallbackId		registerTouchesEnded( T *obj, void (T::*callback)(app::TouchEvent) ) { return registerTouchesEnded( std::bind(  callback , obj, std::placeholders::_1 ) ); }
 	//! Unregisters an async callback previously registered with registerTouchesEnded
 	void			unregisterTouchesEnded( CallbackId id );
 

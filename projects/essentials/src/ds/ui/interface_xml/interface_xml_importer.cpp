@@ -43,11 +43,13 @@
 #include <ds/util/file_meta_data.h>
 #include <ds/util/markdown_to_pango.h>
 #include <ds/util/string_util.h>
+#include <cinder/Xml.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/foreach.hpp>
-#include <boost/regex.hpp>
+//#include <boost/regex.hpp>
+#include <regex>
 
 #include <Poco/Path.h>
 #include <Poco/DateTimeParser.h>
@@ -442,8 +444,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			p.sprite.mLayoutFixedAspect = parseBoolean(p.value);
 		};
 		propertyMap["shader"] = [](SprProps& p) {
-			using namespace boost::filesystem;
-			boost::filesystem::path fullShaderPath(filePathRelativeTo(p.referer, p.value));
+			using namespace std::filesystem;
+			std::filesystem::path fullShaderPath(filePathRelativeTo(p.referer, p.value));
 			p.sprite.setBaseShader(fullShaderPath.parent_path().string(), fullShaderPath.filename().string());
 
 		};

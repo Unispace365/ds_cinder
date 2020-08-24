@@ -4,7 +4,7 @@
 
 #include <Poco/Path.h>
 #include <Poco/File.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
@@ -93,10 +93,13 @@ std::string filePathRelativeTo(const std::string &base, const std::string &relat
 		return ds::Environment::expand(relative);
 	}
 
-	using namespace boost::filesystem;
-	boost::system::error_code e;
-	std::string ret = canonical(path(relative), path(base).parent_path(), e).string();
-	if(e.value() != boost::system::errc::success) {
+	using namespace std::filesystem;
+	std::error_code e;
+	auto cpath = current_path();
+	current_path(path(base).parent_path());
+	std::string ret = std::filesystem::canonical(path(relative), e).string();
+	current_path(cpath);
+	if(e) {
 		DS_LOG_WARNING("Trying to use bad relative file path: " << relative << ": " << e.message());
 	}
 	return ret;

@@ -28,7 +28,7 @@
 
 #include "cinder/Cinder.h"
 #include "cinder/Function.h"
-
+#include <functional>
 #include "OscMessage.h"
 #include "OscArg.h"
 
@@ -47,7 +47,7 @@ class Listener {
 	CallbackId	registerMessageReceived( std::function<void (const osc::Message*)> callback );
 	//! Registers an asynchronous callback which fires whenever a new message is received.
 	template<typename T>
-	CallbackId	registerMessageReceived( T *obj, void (T::*cb)(const osc::Message*) ) { return registerMessageReceived( std::bind1st( std::mem_fun( cb ), obj ) ); }
+	CallbackId	registerMessageReceived( T *obj, void (T::*cb)(const osc::Message*) ) { return registerMessageReceived( std::bind( cb, obj,std::placeholders::_1 ) ); }
 	//! Unregisters an asynchronous callback previously registered with registerMessageReceived()
 	void		unregisterMessageReceived( CallbackId id );
 
