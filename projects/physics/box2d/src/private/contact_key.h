@@ -42,7 +42,7 @@ public:
 // Make the resource ID available for hashing functions
 namespace std {
 	template<>
-	struct hash<ds::physics::ContactKey> : public unary_function<ds::physics::ContactKey, size_t> {
+	struct hash<ds::physics::ContactKey>  {
 		size_t operator()(const ds::physics::ContactKey& key) const {
 			return (size_t)( (size_t)key.mSprite + (size_t)key.mFixture);
 		}

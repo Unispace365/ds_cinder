@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "viewers", "%DS_PLATFORM_090
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ds_mosquitto", "..\..\..\projects\mosquitto\ds_mosquitto.vcxproj", "{26C6A0CB-E8CF-4C0F-BAA8-4C6E374BE2C4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physics", "..\..\..\projects\physics\box2d\physics.vcxproj", "{B6E770B8-6ECC-478B-AB10-F6B01F65B433}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -74,6 +76,10 @@ Global
 		{26C6A0CB-E8CF-4C0F-BAA8-4C6E374BE2C4}.Debug|x64.Build.0 = Debug|x64
 		{26C6A0CB-E8CF-4C0F-BAA8-4C6E374BE2C4}.Release|x64.ActiveCfg = Release|x64
 		{26C6A0CB-E8CF-4C0F-BAA8-4C6E374BE2C4}.Release|x64.Build.0 = Release|x64
+		{B6E770B8-6ECC-478B-AB10-F6B01F65B433}.Debug|x64.ActiveCfg = Debug|x64
+		{B6E770B8-6ECC-478B-AB10-F6B01F65B433}.Debug|x64.Build.0 = Debug|x64
+		{B6E770B8-6ECC-478B-AB10-F6B01F65B433}.Release|x64.ActiveCfg = Release|x64
+		{B6E770B8-6ECC-478B-AB10-F6B01F65B433}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
