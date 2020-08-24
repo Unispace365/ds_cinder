@@ -8,7 +8,7 @@ extern "C" {
 #include "mupdf/fitz.h"
 #include "mupdf/pdf.h"
 #include "mupdf/fitz/pixmap.h"
-#include "mupdf/fitz/colorspace.h"
+//#include "mupdf/fitz/colorspace.h"
 #include "mupdf/fitz/context.h"
 }
 
@@ -116,8 +116,8 @@ public:
 
 	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
 		fz_rect bounds;
-		fz_bound_page(&ctx, &page, &bounds);
-		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
+		bounds = fz_bound_page(&ctx, &page);
+		if (fz_is_empty_rect(bounds) || fz_is_infinite_rect(bounds)) return false;
 
 		mWidth = ceilf(bounds.x1 - bounds.x0);
 		mHeight = ceilf(bounds.y1 - bounds.y0);
@@ -165,7 +165,7 @@ public:
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
-				fz_bound_page(&ctx, &page, &rect);
+				rect = fz_bound_page(&ctx, &page);
 				
 
 				mWidth = static_cast<float>(mPageSize.x);
@@ -210,9 +210,9 @@ public:
 				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
 				const float		rotation = 1.0f;
 				fz_matrix		transform = fz_identity;
-				fz_scale(&transform, zoom, zoom);
+				transform = fz_scale(zoom, zoom);
 
-				fz_transform_rect(&rect, &transform);
+				rect = fz_transform_rect(rect, transform);
 
 				// Create a blank pixmap to hold the result of rendering. The
 				// pixmap bounds used here are the same as the transformed page
@@ -223,13 +223,13 @@ public:
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
 
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.mData);
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, nullptr, 0, w * 3, mPixels.mData);
 
 					if(pixmap){
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
-						fz_device* device = fz_new_draw_device(&ctx, &transform, pixmap);
+						fz_device* device = fz_new_draw_device(&ctx, transform, pixmap);
 						if(device){
-							fz_run_page(&ctx, &page, device, &fz_identity, NULL);
+							fz_run_page(&ctx, &page, device, fz_identity, nullptr);
 							ans = true;
 							fz_close_device(&ctx, device);
 							fz_drop_device(&ctx, device);
@@ -252,8 +252,8 @@ public:
 
 	virtual bool	getPageSize(fz_context& ctx, fz_page& page) {
 		fz_rect bounds;
-		fz_bound_page(&ctx, &page, &bounds);
-		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
+		bounds = fz_bound_page(&ctx, &page);
+		if (fz_is_empty_rect(bounds) || fz_is_infinite_rect(bounds)) return false;
 		mPageSize.x = ceilf(bounds.x1 - bounds.x0);
 		mPageSize.y = ceilf(bounds.y1 - bounds.y0);
 		return mPageSize.x > 0 && mPageSize.y > 0;
