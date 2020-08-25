@@ -43,17 +43,18 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 1. Download and install git lfs (large file storage, one binary is too large for regular git) https://git-lfs.github.com/
 2. Clone this repo with git
-2. enter the ds_cinder directory
-3. Run: 'git lfs fetch --all'
-3. Run: 'git submodule init' & 'git submodule update --recursive' to create & update the Cinder submodule.
-4. Make another new environment variable
+3. enter the ds_cinder directory
+4. Run: 'git lfs fetch --all'
+5. Run: 'git submodule init' & 'git submodule update --recursive' to create & update the Cinder submodule.
+6. Make another new environment variable
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
     3. Under "Sytem variables", select "New..."
     4. Variable name: DS_PLATFORM_093
     5. Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
     6. Ok, Ok, Ok
-5. Open an example project in the example folder and compile
+7. Open the Cinder project in visual studio (ds_cinder/Cinder/proj/vc2019/Cinder.sln) and compile for Debug-x64 & Release-x64
+8. Open an example project in the example folder and compile
 
 ## Getting to know ds_cinder
 
