@@ -65,7 +65,7 @@ void YouTubeWeb::setMedia(const std::string& mediaPath) {
 void YouTubeWeb::setVideoId(const std::string& videoId) {
 	mPlaying = false;
 	//std::string url = "https://www.youtube.com/embed/" + resource.getFileName();
-	std::string url = ds::Environment::expand("%APP%/data/html/youtube.html?v=" + videoId + "&a=" + ds::unparseBoolean(mAutoStart));
+	std::string url = ds::Environment::expand("%APP%/data/html/youtube.html?v=" + videoId + "&a=" + std::to_string(mAutoStart));
 
 	loadUrl(url);
 }
@@ -142,6 +142,7 @@ void YouTubePlayer::setMediaViewerSettings(const MediaViewerSettings& settings) 
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
+	mVolume = settings.mVideoVolume;
 }
 
 
@@ -186,7 +187,7 @@ void YouTubePlayer::setResource(const ds::Resource& resource) {
 			mYoutubeInterface->updateWidgets();
 		}
 	});
-
+	mYouTubeWeb->setAutoStart(mAutoStart);
 	mYouTubeWeb->setResource(resource);
 
 	float targetW = mYouTubeSize.x;
