@@ -10,29 +10,23 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 ### Windows
 
-**Install Visual Studio 2015**
+**Install Visual Studio 2019**
 
 1. Download here: https://www.visualstudio.com/vs/older-downloads/
 2. Install it!
 
-**Download Cinder 0.9.1**
+**Install Boost**
 
-1. https://libcinder.org/download 
-2. Download Visual C++ 2013 edition
-3. Unzip the downloaded folder
+1. Go to https://boost.org
+2. DS Cinder currently uses [version 1.74.0 ](https://www.boost.org/users/history/version_1_74_0.html)
+3. You can download the binary package installer from here: [boost 1.74.0 for vs2019](https://sourceforge.net/projects/boost/files/boost-binaries/1.74.0/boost_1_74_0-msvc-14.2-64.exe/download)
 4. Make a new environment variable
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
     3. Under "Sytem variables", select "New..."
-    4. Variable name: CINDER_090
-    5. Variable value: the path of the unzipped cinder 0.9.1 directory (e.g D:\my_code\cinder_0.9.1_vc2013)
+    4. Variable name: BOOST_PATH
+    5. Variable value: the path of the installed boost (e.g C:\local\boost_1_74_0)
     6. Ok, Ok, Ok
-5. Open Visual Studio 2015 and open cinder.sln in cinder_0.9.1_vc2013/proj/vc2013
-6. You should be prompted to update the compiler version. If not, right-click the cinder project and upgrade the compiler version
-7. Go to the Build menu > Configuration manager. Select "Debug" for configuration and "x64" for platform at the top and close
-8. Build using F7 or Build menu > Build solution
-9. After the build completes, go back to step 7 and Select "Release" and "x64", then do step 8 again
-10. You can close the Visual Studio window at this point
 
 **Install Gstreamer (if you're planning to play videos)**
 
@@ -49,7 +43,9 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 1. Download and install git lfs (large file storage, one binary is too large for regular git) https://git-lfs.github.com/
 2. Clone this repo with git
-3. Run: git lfs fetch --all
+2. enter the ds_cinder directory
+3. Run: 'git lfs fetch --all'
+3. Run: 'git submodule update --recursive' to update the Cinder submodule.
 4. Make another new environment variable
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
@@ -58,7 +54,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
     5. Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
     6. Ok, Ok, Ok
 5. Open an example project in the example folder and compile
-  
+
 ## Getting to know ds_cinder
 
 Start with the "getting_started" example - it has a handy guide for basic concepts in ds_cinder. It also has a good number of common ds_cinder components in the app so you can mess with the pieces and see what's what.
