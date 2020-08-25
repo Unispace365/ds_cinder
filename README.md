@@ -45,7 +45,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 2. Clone this repo with git
 2. enter the ds_cinder directory
 3. Run: 'git lfs fetch --all'
-3. Run: 'git submodule update --recursive' to update the Cinder submodule.
+3. Run: 'git submodule init' & 'git submodule update --recursive' to create & update the Cinder submodule.
 4. Make another new environment variable
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
