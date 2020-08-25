@@ -19,11 +19,11 @@
     <ClCompile Include="..\src\AutomatorApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(DS_PLATFORM_090)\src\stdafx.cpp">
+    <ClCompile Include="$(DS_PLATFORM_093)\src\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(DS_PLATFORM_090)\src\stdafx.h" />
+    <ClInclude Include="$(DS_PLATFORM_093)\src\stdafx.h" />
   </ItemGroup>
 </Project>

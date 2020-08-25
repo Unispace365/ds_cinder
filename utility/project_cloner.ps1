@@ -84,7 +84,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 }
 
 
-$DsCinder = (Get-ChildItem Env:\DS_PLATFORM_090).Value;
+$DsCinder = (Get-ChildItem Env:\DS_PLATFORM_093).Value;
 $FullStarter = $DsCinder + "\example\full_starter\";
 $ThisCommand = $MyInvocation.MyCommand.Path;
 $ThisDir = (get-item $ThisCommand ).Directory.FullName;

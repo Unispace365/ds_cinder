@@ -266,12 +266,12 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64.props" />
     <Import Project="PropertySheets\Web_CEF64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
     <Import Project="PropertySheets\Web_CEF64_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -317,9 +317,9 @@
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_093)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -357,9 +357,9 @@
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_093)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
     </CustomBuildStep>
     <PostBuildEvent>

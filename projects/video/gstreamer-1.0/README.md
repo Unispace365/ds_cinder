@@ -5,9 +5,9 @@ Adding Gstreamer to your project
 * Get gstreamer-1.0-devel-x86_64-1.14.4.msi and gstreamer-1.0-x86_64-1.14.4.msi
 * Install both with the "complete" option
 * You should have gotten an environment variable for GSTREAMER_1_0_ROOT_x86_64 added for you. If not, add an environment variable for Gstreamer: GSTREAMER_1_0_ROOT_x86_64 that points to the base gstreamer install, e.g. c:/gstreamer/1.0/x86_64/
-* Add the video visual studio project to your solution (make sure the sln uses environment variables DS_PLATFORM_090 to point to the video project)
-* Add the property sheets using the property manager for both debug and release. Property sheets are in DS_PLATFORM_090/projects/video/gstreamer-1.0/PropertySheets.
-* After you've added the project and property sheets, ensure that they are loaded relative to the DS_PLATFORM_090 variable by editing your solution and project files in a text editor.
+* Add the video visual studio project to your solution (make sure the sln uses environment variables DS_PLATFORM_093 to point to the video project)
+* Add the property sheets using the property manager for both debug and release. Property sheets are in DS_PLATFORM_093/projects/video/gstreamer-1.0/PropertySheets.
+* After you've added the project and property sheets, ensure that they are loaded relative to the DS_PLATFORM_093 variable by editing your solution and project files in a text editor.
 * You may need to restart visual studio and/or your machine after adding environment variables, and maybe clean the solution as well.
 * Create a Gstreamer video sprite and hit play on that suckah!
 * Note that cloning a new project from the project cloner utility will come with the solution / project sheet additions noted above

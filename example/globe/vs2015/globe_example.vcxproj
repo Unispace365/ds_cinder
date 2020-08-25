@@ -32,13 +32,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -147,7 +147,7 @@
     <ClInclude Include="..\src\ui\population\population_view.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2015\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_093)\vs2015\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

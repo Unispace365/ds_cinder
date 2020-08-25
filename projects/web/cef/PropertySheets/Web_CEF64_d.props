@@ -7,16 +7,16 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);
-	  $(DS_PLATFORM_090)\projects\web\cef\src;
-	  $(DS_PLATFORM_090)\projects\web\cef\include;
-	  $(DS_PLATFORM_090)\projects\web\cef;
-	  $(DS_PLATFORM_090)\projects\web\cef\src\private\client;
-	  $(DS_PLATFORM_090)\projects\web\cef\src\private</AdditionalIncludeDirectories>
+	  $(DS_PLATFORM_093)\projects\web\cef\src;
+	  $(DS_PLATFORM_093)\projects\web\cef\include;
+	  $(DS_PLATFORM_093)\projects\web\cef;
+	  $(DS_PLATFORM_093)\projects\web\cef\src\private\client;
+	  $(DS_PLATFORM_093)\projects\web\cef\src\private</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);libcef.lib;libcef_dll_wrapper.lib;web_cef_d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\web\cef\lib64\debug;$(DS_PLATFORM_090)\projects\web\lib64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_093)\projects\web\cef\lib64\debug;$(DS_PLATFORM_093)\projects\web\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

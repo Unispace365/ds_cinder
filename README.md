@@ -50,7 +50,7 @@ DS Cinder is a framework for interactive applications built on top of the fantas
     1. Open the Start menu and type "Advanced System Settings"
     2. Click "Environment Variables"
     3. Under "Sytem variables", select "New..."
-    4. Variable name: DS_PLATFORM_090
+    4. Variable name: DS_PLATFORM_093
     5. Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
     6. Ok, Ok, Ok
 5. Open an example project in the example folder and compile

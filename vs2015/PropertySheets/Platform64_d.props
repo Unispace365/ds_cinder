@@ -6,11 +6,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0602;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\src;$(DS_PLATFORM_090)\Cinder\include;$(BOOST_PATH);$(DS_PLATFORM_090)\src\osc\;$(DS_PLATFORM_090)\src\tuio\;$(DS_PLATFORM_090)\lib\poco\include;$(DS_PLATFORM_090)\src;$(DS_PLATFORM_090)\src\gtk;$(DS_PLATFORM_090)\src\gtk\cairo;$(DS_PLATFORM_090)\src\gtk\pango-1.0;$(DS_PLATFORM_090)\src\gtk\glib-2.0;$(DS_PLATFORM_090)\lib\snappy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(DS_PLATFORM_093)\Cinder\include;$(BOOST_PATH);$(DS_PLATFORM_093)\src\osc\;$(DS_PLATFORM_093)\src\tuio\;$(DS_PLATFORM_093)\lib\poco\include;$(DS_PLATFORM_093)\src;$(DS_PLATFORM_093)\src\gtk;$(DS_PLATFORM_093)\src\gtk\cairo;$(DS_PLATFORM_093)\src\gtk\pango-1.0;$(DS_PLATFORM_093)\src\gtk\glib-2.0;$(DS_PLATFORM_093)\lib\snappy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(DS_PLATFORM_090)\Cinder\lib;$(DS_PLATFORM_090)\Cinder\lib\msw\x64;$(DS_PLATFORM_090)\Cinder\lib\msw\x64\Debug\v142;$(DS_PLATFORM_090)\lib\poco\lib\x64;$(DS_PLATFORM_090)\lib;$(DS_PLATFORM_090)\lib\gtk\lib64;$(DS_PLATFORM_090)\lib\snappy\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DS_PLATFORM_093)\Cinder\lib;$(DS_PLATFORM_093)\Cinder\lib\msw\x64;$(DS_PLATFORM_093)\Cinder\lib\msw\x64\Debug\v142;$(DS_PLATFORM_093)\lib\poco\lib\x64;$(DS_PLATFORM_093)\lib;$(DS_PLATFORM_093)\lib\gtk\lib64;$(DS_PLATFORM_093)\lib\snappy\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
 	  cinder.lib;
 	  glu32.lib;

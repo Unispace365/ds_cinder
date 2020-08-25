@@ -471,9 +471,9 @@
       <Message>Copying Pango resources to output directory</Message>
       <Command>echo Copying Pango resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_093)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
     </CustomBuildStep>
     <Lib>
@@ -514,9 +514,9 @@
       <Message>Copying Pango resources to output directory</Message>
       <Command>echo Copying Pango resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_093)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

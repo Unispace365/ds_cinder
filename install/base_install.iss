@@ -4,7 +4,7 @@
 
 #define GST GetEnv('GSTREAMER_1_0_ROOT_X86_64')
 #define SYSTEMF GetEnv('SYSTEMROOT')
-#define DS_PLATFORM GetEnv('DS_PLATFORM_090')
+#define DS_PLATFORM GetEnv('DS_PLATFORM_093')
 
 [Setup]
 AppName={#APP_DISPLAY_NAME}
