@@ -8,6 +8,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/debug/logger.h>
+#include <ds/util/color_util.h>
 #include <ds/util/string_util.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/ui/scroll/scroll_area.h>
@@ -21,6 +22,26 @@ public:
 		ds::App::AddStartup([](ds::Engine& e) {
 			e.registerSpriteImporter("thumbnail_bar", [](ds::ui::SpriteEngine& enginey)->ds::ui::Sprite*{
 				return new ds::ui::ThumbnailBar(enginey);
+			});
+
+			e.registerSpritePropertySetter<ds::ui::ThumbnailBar>("thumbnail_bar_scroll_fade_colors", [](ds::ui::ThumbnailBar& bar, const std::string& theValue, const std::string& fileReferrer){
+				if(!bar.getScrollList()){
+					DS_LOG_WARNING("ThumbnailBar: no scroll list when trying to set thumbnail_bar_scroll_fade_colors");
+					return;
+				}
+				auto scrollArea = bar.getScrollList()->getScrollArea();
+				auto colors = ds::split(theValue, ", ", true);
+				if (colors.size() > 1) {
+					auto colorOne = ds::parseColor(colors[0], bar.getEngine());
+					auto colorTwo = ds::parseColor(colors[1], bar.getEngine());
+					if (scrollArea) {
+						scrollArea->setFadeColors(colorOne, colorTwo);
+					} else {
+						DS_LOG_WARNING("ThumbnailBar: no scroll area when trying to set thumbnail_bar_scroll_fade_colors");
+					}
+				} else {
+					DS_LOG_WARNING("ThumbnailBar: Not enough colors when trying to set thumbnail_bar_scroll_fade_colors")
+				}
 			});
 
 		});
