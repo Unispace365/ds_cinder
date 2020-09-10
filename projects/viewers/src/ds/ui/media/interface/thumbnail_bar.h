@@ -29,6 +29,8 @@ public:
 
 	void								setHighlightColor(const ci::Color& highlightColor);
 	void								setHighlightedItem(const int itemIndex);
+
+	ds::ui::ScrollList*					getScrollList() { return mFileList; }
 protected:
 
 	virtual void						onSizeChanged();
