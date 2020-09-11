@@ -45,6 +45,10 @@ class SmartLayout : public ds::ui::LayoutSprite {
 		return dynamic_cast<T*>(getSprite(spriteName));
 	}
 
+	/// If spriteName exisits, calls spriteGenerator function to return a sprite. Otherwise logs an
+	/// error
+	void tryAddChild(const std::string spriteName, std::function<ds::ui::Sprite*(void)> spriteGenerator);
+
 	/// Adds newChild to the sprite with spriteName
 	void addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild);
 

@@ -379,7 +379,18 @@ void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::strin
 }
 
 
+void SmartLayout::tryAddChild(const std::string spriteName, std::function<ds::ui::Sprite*(void)> spriteGenerator) {
+	ds::ui::Sprite* spr = getSprite(spriteName);
+	if (spr && spriteGenerator) {
+		spr->addChildPtr(spriteGenerator());
+		mNeedsLayout = true;
+	} else {
+		DS_LOG_WARNING("Failed to add child to " << spriteName);
+	}
+}
+
 void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild) {
+	DS_LOG_WARNING("SmartLayout::addSpriteChild depricated. Use SmartLayout::tryAddChild instead.");
 	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && newChild) {
 		spr->addChildPtr(newChild);
