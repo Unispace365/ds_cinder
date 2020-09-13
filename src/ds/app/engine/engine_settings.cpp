@@ -261,6 +261,7 @@ void EngineSettings::setDefaults(){
 
 void EngineSettings::setConfigurationOverride(std::string overrideFolder) {
 	CONFIGURATION_OVERRIDE_FOLDER = overrideFolder;
+	CONFIGURATION_FOLDER = overrideFolder;
 }
 
 const std::string& EngineSettings::getConfigurationFolder() {
