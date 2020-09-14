@@ -78,7 +78,7 @@ Xml Element Name                                                      | DsCinder
 Variables
 ----------------------
 
-Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
+Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically or from a `<settings>` block in the xml. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
 
 ```xml
 <interface>
@@ -108,6 +108,30 @@ Variables are replaced first before expressions (see below), and parsed recursiv
 * **world_height**: The equivalent of mEngine.getWorldHeight()
 * **world_size**: The equivalent of "mEngine.getWorldWidth(), mEngine.getWorldHeight()"
 * **anim_dur**: The equivalent of mEngine.getAnimDur()
+
+### Layout `<settings>` block
+
+```xml
+<interface>
+	<settings>
+		<setting name="main_color" value="#ffaeaeff"/>
+		<setting name="secondary_color" value="#ffffffff"/>
+	</settings>
+	<layout name="example"
+		size="$_world_size"
+		pad_all="$_padding"
+		animate_on="$_default:anim"
+		animate_off="$_default:anim"
+		>
+		<sprite size="100, 100" color="$_main_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+</interface>
+```
+
+A layout file can have a settings block. the settings in that block exist only in that file and do not propagate back to the main app settings. If a layout setting and an app setting have the same name, the layout settings takes priority.
+
+`<xml>` sprite type can also have a child <settings> block. See [xml](#XML-Parameters) sprite for more details.
 
 Expressions
 --------------------
@@ -213,7 +237,7 @@ Sprite Parameters
 * **scale**: 3d vector of the scale in x, y, z. Scale is from 0.0 (nothing) to 1.0 (100%), not bounded. scale="1, 1, 1" or scale="0.5, 0.5, 1"
 * **center**: Center is where the anchor of the sprite is calculated from (for scaling and rotation) and is a percentage from 0.0 (top/left) to 1.0 (bottom/right), not bounded. center="0, 0.5, 1"
 * **clipping**: Boolean of whether to clip it's children.
-* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken. Default = normal.
+* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply. Default = normal.
 * **enable**: Boolean of whether to handle touch input or not.
 * **multitouch**: String of multitouch mode. Possible values:
     * info = MULTITOUCH_INFO_ONLY
@@ -330,8 +354,17 @@ Text Parameters
 
 Image Parameters
 -------------------------
-* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
-* **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png". Image loading flags can be added to the property name seperated by underscores (_). For example filename_cache with cause the ds::ui::Image::IMG_CACHE_F flag to be passed to the loade, while filename_mipmap_cache will cause both ds::ui::Image::IMG_CACHE_F and ds::ui::Image::IMG_MIPMAP to be passed.
+	* **_cache** OR **_c**: include the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+	* **_mipmap** OR **_m**: include the ds::ui::Image::IMG_MIPMAP flag, which generates mipmaps for the given image.
+	* **_preload** OR **_p**: include the ds::ui::Image::IMG_PRELOAD flag, which preloads the image.
+	* **_skipmeta** OR **_s**: include the ds::ui::Image::IMG_SKIP_METADATA flag, which skips metadata loading.
+
+These flags can also be applied the the resource property when working with a model:  
+```xml
+		model="resource_mipmap:this->img_resource"
+```
+	
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 * **auto_circle_crop**: Boolean. If true, centers the crop in the middle of the image and always makes it a circle, persists through image file changes.
 
@@ -363,11 +396,11 @@ Button Parameters
 
 Gradient Parameters
 ---------------------------
-* **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="#ffffff"
-* **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="#ffffff"
-* **colorLeft**: A color value to set the TL and BL colors of the gradient to. colorLeft="#ffffff"
-* **colorRight**: A color value to set the TR and BR colors of the gradient to. colorRight="#ffffff"
-* **gradientColors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
+* **color_top**: A color value to set the TL and TR colors of the gradient to. colorTop="#ffffff"
+* **color_bot**: A color value to set the BL and BR colors of the gradient to. colorBot="#ffffff"
+* **color_left**: A color value to set the TL and BL colors of the gradient to. colorLeft="#ffffff"
+* **color_right**: A color value to set the TR and BR colors of the gradient to. colorRight="#ffffff"
+* **gradient_colors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
 
 Circle Parameters
 ---------------------------
@@ -480,9 +513,10 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_src**: Relative or absolute path to the media. For example:
 
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
-* **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop
+* **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop. Also applies to YouTube links
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
+* **media_player_web_start_interactive**: Boolean, enables touching the web view immediately upon creation
 * **media_player_video_volume**: Float, sets the volume of videos when they start
 * **media_player_video_loop**: Boolean, true, the default, loops the video, false will play the video once and stop
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
@@ -503,11 +537,20 @@ Properties:
 * You can set the properties of any loaded child from the parent with a "property" tag.
 * Children are given a dot naming scheme, and calling properties uses names relative to the child's interface.
 
+Settings:
+* you can set the settings of the loaded layout with a `<settings>` block. These take precedence over the same setting in the loaded xml or in app settings.
+* If the loading layout has a settings block it is also applied to the incomming layout but it has a lower precedence than the incoming layout. the settings order with first used at top:
+	* `<xml>` sprite settings
+	* loaded layout file settings
+	* loading layout settings
+	* app settings
+
 Example:
 
 **menu_view.xml:**
 
 ```xml
+<interface>
 <layout name="layout" >
 	<xml name="home" src="%APP%/data/layouts/menu_button.xml" >
 		<!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
@@ -516,6 +559,10 @@ Example:
 		<property name="high_icon" src="%APP%/data/images/icons/home_down.png" />
 	</xml>
    <xml name="map" src="%APP%/data/layouts/menu_button.xml" >
+		<settings>
+			<setting name="gradient1" value="green" />
+			<setting name="gradient2" value="blue_green"/>
+		</settings>
 		<!-- you can't have any normal children here,
 			 only set properties of the children of the parent xml interface -->
 		<property name="normal_icon" src="%APP%/data/images/icons/map_up.png" />
@@ -523,17 +570,24 @@ Example:
 		<property name="down_gradient" opacity="0.5" animate_on="fade" />
 	</xml>
 </layout>
+</interface>
 ```
 
 **menu_button.xml:**
 
 ```xml
+<interface>
+<settings>
+	<setting name="gradient1" value="red_orange" />
+	<setting name="gradient2" value="orange"/>
+</settings>
 <sprite_button name="the_button" size="80, 80">
 	<gradient name="down_gradient" attach_state="high" size="80, 80"
-			  gradientColors="red_orange, red_orange, red_orange, orange"/>
+			  gradientColors="$_gradient1, $_gradient1, $_gradient1, $_gradient2"/>
 	<image attach_state="normal" name="normal_icon"/>
 	<image attach_state="high" name="high_icon" />
 </sprite_button>
+</interface>
 ```
 
 **In c++:**

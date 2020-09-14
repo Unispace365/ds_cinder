@@ -1,0 +1,139 @@
+<interface>
+
+<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="flex"
+		size="$_world_size"
+	>
+	
+	<layout name="no_items"
+		layout_size_mode="fill"
+		layout_type="vert"
+		overall_alignment="center"
+		>
+		
+		<text name="no_items_text"
+			font="info:title"
+			layout_h_align="center"
+			text="Oh no! Nothing found - be sure to set a resource location in engine.xml"
+			/>
+	</layout>
+	<layout 
+		pad_all="20"
+		layout_spacing="20"
+		layout_size_mode="fill"
+		>
+		
+		
+		<text name="bread_crumbs"
+			font="story:title"
+			enable="true"
+			/>
+	
+		<text name="current_title"
+			font="title"
+			model="text:this->name"
+			/>
+			
+		<layout
+			layout_type="horiz"
+			shrink_to_children="both"
+			layout_spacing="10"
+			>
+			<xml name="back_button" src="%APP%/data/layouts/label_button.xml" >
+				<property name="normal_label" text="Back" />
+				<property name="high_label" text="Back" />			
+			</xml>
+			<xml name="top_button" src="%APP%/data/layouts/label_button.xml" >
+				<property name="normal_label" text="Top" />
+				<property name="high_label" text="Top" />			
+			</xml>
+		</layout>
+		
+		<layout name="the_scrolls"
+				layout_type="horiz"
+				layout_size_mode="stretch"
+				>
+			
+			<layout name="scroller_layout"
+					layout_type="horiz"
+					layout_size_mode="stretch"
+					shrink_to_children="width"
+				>
+					<smart_scroll_list name="scroll_list"
+								scroll_fade_colors="#22000000, #00000000"
+								scroll_list_animate="0, 0.0025"
+								layout_size_mode="flex"
+								size="400, 300"
+								smart_scroll_item_layout="story_item.xml"
+								scroll_list_layout="0, 0, 27"
+									/>
+					<scroll_bar name="scroll_bar"
+								layout_size_mode="flex"
+								size="50, 200"
+								/>
+			</layout>
+			
+			<layout name="info"
+				layout_type="vert"
+				layout_size_mode="flex"
+				size="600, 600"
+				>
+				
+				<text name="info_title"
+					font="info:title"
+					/>
+				<text name="info_kind"
+					font="info:kind"
+					b_pad="10"
+					/>
+				<layout name="right_scroller"
+						layout_type="horiz"
+						layout_size_mode="stretch"
+					>
+						<smart_scroll_list name="specific_info"
+									scroll_fade_colors="#22000000, #00000000"
+									scroll_list_animate="0, 0.0025"
+									layout_size_mode="stretch"
+									smart_scroll_item_layout="property_item.xml"
+									scroll_list_layout="0, 0, 31"
+										/>
+						<scroll_bar name="scroll_bar_info"
+									layout_size_mode="flex"
+									size="50, 200"
+									/>
+				</layout>
+			</layout>
+			<layout name="media_layout"
+				layout_type="vert"
+				layout_size_mode="stretch"
+				>
+				
+				<media_player name="the_media"
+					media_player_auto_start="true"
+					media_player_video_volume="0"
+					media_player_show_interface="true"
+					media_player_standard_click="true"
+					media_player_video_loop="true"
+					media_player_video_reset_on_complete="false"
+					media_player_web_size="1920, 1920"
+					media_player_letterbox="true"
+					layout_fixed_aspect="false"
+					layout_size_mode="stretch"
+					enable="true"
+					/>
+					
+					<text name="resource_info"
+						font="info:resource"
+						layout_size_mode="flex"
+						pad_all="10"
+						enable="true"
+						/>
+			</layout>				
+		</layout>
+	</layout>	
+</layout>
+
+
+</interface>
+

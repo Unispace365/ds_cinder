@@ -29,6 +29,8 @@
 #include "ds/ui/sprite/circle_border.h"
 #include "ds/ui/touch/touch_manager.h"
 
+#include "ds/util/file_meta_data.h"
+
 // For the screenshot
 #include <Poco/Timestamp.h>
 #include <Poco/Path.h>
@@ -336,7 +338,31 @@ void App::loadAppSettings() {
 		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
 	}, ds::cfg::SETTING_TYPE_STRING);
 
+	if (ds::safeFileExistsCheck(ds::Environment::expand("%APP%/settings/fonts.xml"), false)) {
+		mEngine.loadSettings("fonts", "fonts.xml");
+		mEngine.editFonts().clear();
+		mEngine.getSettings("fonts").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+			mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
+		}, ds::cfg::SETTING_TYPE_STRING);
+	} else if(ds::safeFileExistsCheck(ds::Environment::expand("%APP%/data/fonts/"), true)) {
+		try {
+			auto fontsFolder = Poco::File(ds::Environment::expand("%APP%/data/fonts/"));
+			std::vector<Poco::File> chillins;
+			fontsFolder.list(chillins);
+			auto& editFonts = mEngine.editFonts();
+			for (auto it : chillins) {
+				auto strPath = it.path();
+				Poco::Path thePath = Poco::Path(strPath);
+				editFonts.installFont(it.path(), thePath.getFileName(), thePath.getFileName());
+			}
+		} catch(std::exception& e){
+			DS_LOG_WARNING("Exception loading fonts: " << e.what());
+		}
+	}
 
+
+	// Colors
+	// After registration, colors can be called by name from settings files or in the app
 	mEngine.editColors().clear();
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");

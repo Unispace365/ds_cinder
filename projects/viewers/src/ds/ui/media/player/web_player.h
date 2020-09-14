@@ -6,7 +6,6 @@ namespace ds {
 namespace ui {
 class Web;
 class WebInterface;
-class WebYoutubeInterface;
 class MediaInterface;
 struct MediaViewerSettings;
 
@@ -31,8 +30,6 @@ class WebPlayer : public ds::ui::Sprite {
 
 	ds::ui::Web*  getWeb();
 	WebInterface* getWebInterface();  // may be nullptr if embedInterface is false
-	WebYoutubeInterface* getWebYoutubeInterface();  // may be nullptr if embedInterface is false
-	bool		  getIsYoutube() { return mIsYoutube; }
 
 	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
@@ -44,7 +41,6 @@ class WebPlayer : public ds::ui::Sprite {
 	void setShowInterfaceAtStart(const bool showInterfaceAtStart);
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
-	void setIsYoutube(const bool isYoutube);
 	void setNativeTouches(const bool isNative);
 
   protected:
@@ -52,7 +48,6 @@ class WebPlayer : public ds::ui::Sprite {
 
 	ds::ui::Web*  mWeb;
 	WebInterface* mWebInterface;
-	WebYoutubeInterface* mWebYoutubeInterface;
 	ci::vec2	  mWebSize;
 	float		  mKeyboardKeyScale;
 	std::function<void(bool)>	mKeyboardStatusCallback = nullptr;
@@ -65,8 +60,8 @@ class WebPlayer : public ds::ui::Sprite {
 	bool mAllowTouchToggle;
 	bool mStartInteractable;
 	bool mInterfaceBelowMedia;
-	bool mIsYoutube;
 	bool mNativeTouches;
+	bool mAutoStart;
 };
 
 }  // namespace ui

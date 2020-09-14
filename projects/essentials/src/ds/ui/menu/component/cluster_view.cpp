@@ -29,7 +29,7 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	if(mBackground){
 		addChild(*mBackground);
 		mBackground->setCenter(0.5f, 0.5f);
-		mBackground->setPosition(0.0f, 0.0f);
+		mBackground->setPosition(mMenuConfig.mBackgroundOffset);
 		mBackground->setColor(mMenuConfig.mBackgroundColor);
 		mBackground->setScale(0.0f, 0.0f, 0.0f);
 		mBackground->setOpacity(0.0f);
@@ -255,9 +255,17 @@ void ClusterView::activate(){
 		float bgOpacity = mMenuConfig.mBackgroundOpacity;
 		float bgScale = mMenuConfig.mBackgroundScale;
 		mBackground->animStop();
-		mBackground->tweenScale(ci::vec3(bgScale, bgScale, 1.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutCubic);
+		mBackground->tweenScale(ci::vec3(bgScale, bgScale, 1.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic, [this] { pulseBackground(true); });
 		mBackground->tweenOpacity(bgOpacity, mMenuConfig.mAnimationDuration);
 	}
+}
+
+void ClusterView::pulseBackground(const bool bigger) {
+
+	float destScale = mMenuConfig.mBackgroundScale;
+	if (bigger) destScale = destScale * mMenuConfig.mBackgroundPulseAmount;
+
+	mBackground->tweenScale(ci::vec3(destScale, destScale, 1.0f), mMenuConfig.mAnimationDuration * 2.0f, 0.0f, ci::easeOutCubic, [this, bigger] { pulseBackground(!bigger); });
 }
 
 void ClusterView::deactivate(){

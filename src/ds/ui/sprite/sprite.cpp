@@ -24,6 +24,7 @@
 
 //#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <ds/cfg/settings_variables.h>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -202,6 +203,8 @@ Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
 
+	mEngine.clearFingersForSprite(this);
+
 	mEngine.removeFromDragDestinationList(this);
 
 	// We only want to request a delete for the sprite at the head of a tree,
@@ -289,10 +292,15 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				shaderBase->bind();
 				DS_REPORT_GL_ERRORS();
 				shaderBase->uniform("tex0", 0);
-				shaderBase->uniform("useTexture", mUseShaderTexture);
-				shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
 
 				int uniformLoc = 0;
+
+				if (shaderBase->findUniform("useTexture", &uniformLoc)) {
+					shaderBase->uniform("useTexture", mUseShaderTexture);
+				}
+				if (shaderBase->findUniform("preMultiply", &uniformLoc)) {
+					shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
+				}
 				if(shaderBase->findUniform("extent", &uniformLoc)){
 					shaderBase->uniform("extent", ci::vec2(getWidth(), getHeight()));
 				}
@@ -489,7 +497,10 @@ void Sprite::setPosition(const ci::vec3 &pos) {
 	doSetPosition(pos);
 }
 
-bool Sprite::getInnerHit(const ci::vec3&) const {
+bool Sprite::getInnerHit(const ci::vec3& p) const {
+	if (mInnerHitFunction) {
+		return mInnerHitFunction(p);
+	}
 	return true;
 }
 
@@ -1668,9 +1679,7 @@ void Sprite::setupFinalRenderBuffer(){
 	   getWidth() > 1.0f &&
 	   getHeight() > 1.0f
 	   ){
-		ci::gl::Fbo::Format  format;
-		//mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
-		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
+		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
 	} else {
 		mOutputFbo = nullptr;
 	}
@@ -1684,10 +1693,11 @@ void Sprite::setShaderExtraData(const ci::vec4& data){
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture){
+void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
 	if (render_to_texture == mIsRenderFinalToTexture) return;
 	mIsRenderFinalToTexture = render_to_texture;
 
+	mFboFormat = format;
 	setupFinalRenderBuffer();
 
 }
@@ -1974,6 +1984,23 @@ void Sprite::setPerspective( const bool perspective ){
   }
 }
 
+ds::cfg::Settings* Sprite::getLayoutSettings()
+{
+	if (mParent != nullptr && mSettings == nullptr) {
+		return mParent->getLayoutSettings();
+	}
+	return mSettings;
+}
+
+void Sprite::setLayoutSettings(ds::cfg::Settings& settings) {
+	if (mSettings != nullptr) {
+		delete mSettings;
+		mSettings = nullptr;
+	}
+
+	mSettings = new ds::cfg::Settings(settings);
+}
+
 void Sprite::setIsInScreenCoordsHack(const bool b){
 	mIsInScreenCoordsHack = b;
 }
@@ -2002,6 +2029,10 @@ float Sprite::getCornerRadius() const{
 
 void Sprite::setTouchScaleMode(bool doSizeScale){
 	mTouchScaleSizeMode = doSizeScale;
+}
+
+void Sprite::setInnerHitFunction(std::function<const bool(const ci::vec3&)> func) {
+	mInnerHitFunction = func;
 }
 
 void Sprite::readClientFrom(ds::DataBuffer& buf){

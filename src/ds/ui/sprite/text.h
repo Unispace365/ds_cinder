@@ -127,6 +127,8 @@ public:
 	/// Set a vector of font sizes to select from if using "fit to resize limit", which will size the text to fit the area
 	Text&						setFitFontSizes(std::vector<double> font_sizes);
 	/// Set the maximum for the font size when fitting to the resize limit
+	double						getFitFontSize() { return mFitCurrentTextSize; }
+	
 	void						setFitMaxFontSize(double fontSize);
 	/// Set the minimum for the font size when fitting to the resize limit
 	void						setFitMinFontSize(double fontSize);
@@ -180,6 +182,10 @@ public:
 	/// The number of lines in the text layout
 	int							getNumberOfLines();
 
+	/// If an ordered or unordered list was detected in the current text
+	bool						getHasLists();
+
+
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
 	/// Note that this position is fudged by 25% vertically to get the top-left corner of most characters in most fonts. 
@@ -227,6 +233,8 @@ protected:
 	void						findFitFontSize();
 	void 						findFitFontSizeFromArray();
 
+	/// Pulls out <ol> and <ul> tags and creates the lists, returns true if there are more lists to parse
+	bool parseLists();
 	/// puts the layout into pango, updates any layout stuff, and measures the result
 	/// This is a pre-requisite for drawPangoText().
 	/// Returns true if the text was updated and needs a rendering
@@ -234,6 +242,9 @@ protected:
 
 	/// Renders text into the texture.
 	void 						renderPangoText();
+	//pango references;
+	PangoContext*				mPangoContext;
+	PangoLayout*				mPangoLayout;
 
 	/// The GL texture of the text after it's rendered
 	ci::gl::TextureRef			mTexture;
@@ -268,6 +279,7 @@ protected:
 	/// Info about the text layout
 	bool						mWrappedText;
 	int							mNumberOfLines;
+	bool						mHasLists;
 
 	/// Internal flags for state invalidation
 	/// Used by measure and render methods
@@ -289,9 +301,9 @@ protected:
 	ci::vec2					mRenderOffset;
 
 	/// Pango and cairo references
-	PangoContext*				mPangoContext;
-	PangoLayout*				mPangoLayout;
+	
 	cairo_font_options_t*		mCairoFontOptions;
+	
 };
 }
 } // namespace kp::pango

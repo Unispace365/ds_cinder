@@ -18,11 +18,12 @@
 namespace {
 const std::string		FONT_TYPE_SZ("f");
 const std::string		IMAGE_TYPE_SZ("i");
-const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
+const std::string		IMAGE_SEQUENCE_TYPE_SZ("is");
 const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
-const std::string		VIDEO_STREAM_TYPE_SZ("vs");
+const std::string		VIDEO_STREAM_TYPE_SZ("s");
 const std::string		WEB_TYPE_SZ("w");
+const std::string		YOUTUBE_TYPE_SZ("y");
 const std::string		ZIP_TYPE_SZ("z");
 const std::string		ERROR_TYPE_SZ("0");
 
@@ -39,6 +40,7 @@ const std::wstring		PDF_NAME_SZ(L"pdf");
 const std::wstring		VIDEO_NAME_SZ(L"video");
 const std::wstring		VIDEO_STREAM_NAME_SZ(L"video stream");
 const std::wstring		WEB_NAME_SZ(L"web");
+const std::wstring		YOUTUBE_NAME_SZ(L"youtube");
 const std::wstring		ZIP_NAME_SZ(L"zip");
 const std::wstring		ERROR_NAME_SZ(L"error");
 }
@@ -392,6 +394,7 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == ZIP_TYPE) return ZIP_NAME_SZ;
 	else if (mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
+	else if (mType == YOUTUBE_TYPE) return YOUTUBE_NAME_SZ;
 	return ERROR_NAME_SZ;
 }
 
@@ -404,11 +407,24 @@ const std::string& Resource::getTypeChar() const {
 	else if(mType == ZIP_TYPE) return ZIP_TYPE_SZ;
 	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_TYPE_SZ;
 	else if(mType == WEB_TYPE) return WEB_TYPE_SZ;
+	else if(mType == YOUTUBE_TYPE) return YOUTUBE_TYPE_SZ;
 	return ERROR_TYPE_SZ;
 }
 
 void Resource::setLocalFilePath(const std::string& localPath, const bool normalizeThePath /*= true*/) {
-	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
+	if(mType == YOUTUBE_TYPE){
+		// we're assuming the link type here is like https://www.youtube.com/watch?v=GP55q2lBqbY
+		// TODO: parse the video url better!
+		std::string theUrlPrefix = "https://www.youtube.com/watch?v=";
+		if(localPath.find(theUrlPrefix) == 0){
+			mLocalFilePath = localPath.substr(theUrlPrefix.size());
+			mFileName = mLocalFilePath;
+		} else {
+			// maybe this is already the video id?
+			mLocalFilePath = localPath;
+			mFileName = mLocalFilePath;
+		} 
+	} else if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE) {
 		mLocalFilePath = localPath;
 	} else if(normalizeThePath) {
 		mLocalFilePath = ds::getNormalizedPath(localPath);
@@ -533,6 +549,7 @@ const int Resource::makeTypeFromString(const std::string& typeChar){
 	else if(VIDEO_STREAM_TYPE_SZ == typeChar) return VIDEO_STREAM_TYPE;
 	else if(WEB_TYPE_SZ == typeChar) return WEB_TYPE;
 	else if(ZIP_TYPE_SZ == typeChar) return ZIP_TYPE;
+	else if(YOUTUBE_TYPE_SZ == typeChar) return YOUTUBE_TYPE;
 	else if(AUDIO_TYPE_SZ == typeChar) return VIDEO_TYPE;
 	else return ERROR_TYPE;
 }
@@ -543,6 +560,10 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 	// any checks throws a runtime exception
 	if(newMedia.empty()){
 		return ds::Resource::ERROR_TYPE;
+	}
+
+	if(newMedia.find("https://www.youtube.com/") == 0){
+		return ds::Resource::YOUTUBE_TYPE;
 	}
 
 	auto htmlFind = newMedia.find(".html");

@@ -28,6 +28,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/cfg/settings.h"
 
 namespace ds {
 namespace gl { class ClipPlaneState; }
@@ -591,6 +592,8 @@ namespace ui {
 			MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect */
 		void					setTouchScaleMode(bool doSizeScale);
 
+		void					setInnerHitFunction(std::function<const bool(const ci::vec3&)> func);
+
 		/** Calls a function after the delay in seconds. Only one function is active at a time, so if you set this twice, the first delayed call will be ignored.
 			Also see src/ds/time_callback or mEngine.timedCallback() or mEngine.repeatedCallback() for a generic timed callback*/
 		void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
@@ -623,7 +626,7 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		///	Determines if the final render will be to the display or a texture.
-		void					setFinalRenderToTexture(bool render_to_texture);
+		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format = ci::gl::Fbo::Format());
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
@@ -685,26 +688,28 @@ namespace ui {
 		 */
 		void					passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
-		/** A hack needed by the engine, which constructs root types before the blobs are assigned. */
+		/// A hack needed by the engine, which constructs root types before the blobs are assigned. 
 		void					postAppSetup();
 
-		/** Mark this sprite to be a debug sprite layer.
-			The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
-			Client apps don't generally need to set this flag, as it happens automagically.
-			*/
+		/// Mark this sprite to be a debug sprite layer.
+		///	The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
+		///	Client apps don't generally need to set this flag, as it happens automagically.	
 		void					setDrawDebug(const bool doDebug);
 
-		/** If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled.
-		*/
+		/// If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled. 		
 		bool					getDrawDebug();
 
-		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness.
-		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		/// Set the name of this sprite. No guarantee of uniqueness
 		void					setSpriteName(const std::wstring& name);
 
-		/**For debugging uses. Will return the sprite's name if no name has been set via setSpriteName.
-		Not recommended for sprite lookup, as there is no guarantee of uniqueness.
-		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		// attempts to get the settings used for the layout that this
+		// sprite is part of. The sprite need not have been created in
+		// the layout for this to work, but on of its ancestor sprite needs to have been.
+		// if this sprite or no ancestor was created via layout, then this will return nullptr
+		ds::cfg::Settings* getLayoutSettings();
+		void setLayoutSettings(ds::cfg::Settings& settings);
+
+		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault is true.
 		const std::wstring		getSpriteName(const bool useDefault = true) const;
 
 		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
@@ -838,6 +843,7 @@ namespace ui {
 
 		ci::gl::TextureRef		mShaderTexture;
 		ci::gl::FboRef			mOutputFbo;
+		ci::gl::Fbo::Format		mFboFormat;
 		bool					mIsRenderFinalToTexture;
 
 		ci::vec4				mShaderExtraData;
@@ -863,6 +869,7 @@ namespace ui {
 		std::function<void(Sprite *, const ci::vec3 &)> mTapCallback;
 		std::function<void(Sprite *, const ci::vec3 &)> mDoubleTapCallback;
 		std::function<void(Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;
+		std::function<bool(const ci::vec3&)> mInnerHitFunction;
 
 		bool				mMultiTouchEnabled;
 		BitMask				mMultiTouchConstraints;
@@ -937,6 +944,9 @@ namespace ui {
 
 		/// For debugging, and in a super-duper pinch, in production. 
 		std::wstring		mSpriteName;
+
+		///if this sprite was an interface root (or <xml> root) then this will hold the settings; null otherwise;
+		ds::cfg::Settings*	mSettings = nullptr;
 
 	public:
 #ifdef _DEBUG

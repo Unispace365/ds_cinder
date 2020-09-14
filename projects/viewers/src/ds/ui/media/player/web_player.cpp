@@ -12,7 +12,6 @@
 #include <ds/ui/sprite/web.h>
 
 #include "ds/ui/media/interface/web_interface.h"
-#include "ds/ui/media/interface/web_youtube_interface.h"
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
@@ -23,7 +22,6 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   : ds::ui::Sprite(eng)
   , mWeb(nullptr)
   , mWebInterface(nullptr)
-  , mWebYoutubeInterface(nullptr)
   , mEmbedInterface(embedInterface)
   , mShowInterfaceAtStart(true)
   , mKeyboardKeyScale(1.0f)
@@ -33,13 +31,10 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mStartInteractable(false)
   , mLetterbox(true)
   , mInterfaceBelowMedia(false)
-  , mIsYoutube(false)
 {
 
 	mLayoutFixedAspect = true;
 	enable(false);
-	setTransparent(false);
-	setColor(ci::Color::white());
 }
 
 void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
@@ -51,16 +46,11 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
 	mWebSize = webSize;
-	if (mIsYoutube)
-	{
-		mWebSize.x *= 1.003f;
-		mWebSize.y *= 1.004f;
-	}
-		
 	if (mWeb) {
 		mWeb->setSize(mWebSize.x, mWebSize.y);
 	}
@@ -97,14 +87,9 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 
 	static const float fractionalWidthForContent = 0.6f;
 
-	if(mWeb) {
-
-		if(mWebInterface) {
+	if (mWeb) {
+		if (mWebInterface) {
 			mWebInterface->linkWeb(nullptr);
-		}
-
-		if(mWebYoutubeInterface) {
-			mWebYoutubeInterface->linkWeb(nullptr);
 		}
 
 		mWeb->release();
@@ -119,18 +104,15 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	mWeb->setNativeTouchInput(mNativeTouches);
 
 	mWeb->setAddressChangedFn([this](const std::string& addy) {
-		if(mWebInterface) {
+		if (mWebInterface) {
 			mWebInterface->updateWidgets();
-		}
-		if(mWebYoutubeInterface) {
-			mWebYoutubeInterface->updateWidgets();
 		}
 	});
 
 	float targetW = mWebSize.x;
 	float targetH = mWebSize.y;
 
-	if((targetW == 0.0f) || (targetH == 0.0f)) {
+	if ((targetW == 0.0f) || (targetH == 0.0f)) {
 		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
 		targetH = mEngine.getWorldHeight();
 	}
@@ -138,62 +120,43 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
-	mWeb->setResource(resource);
 
-	if(mStartInteractable) {
+	setTransparent(false);
+	setColor(ci::Color::white());
+	mWeb->setResource(resource);	
+
+	if (mStartInteractable) {
 		mWeb->enable(true);
 	} else {
 		mWeb->enable(false);
 	}
 
-	if(mWebInterface) {
+	if (mWebInterface) {
 		mWebInterface->release();
 		mWebInterface = nullptr;
 	}
+	if (mEmbedInterface) {
+		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
-	if(mWebYoutubeInterface) {
-		mWebYoutubeInterface->release();
-		mWebYoutubeInterface = nullptr;
-	}
-
-	if(mEmbedInterface) {
-		if(!mIsYoutube) {
-			mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
-		} else {
-			mWebYoutubeInterface = dynamic_cast<WebYoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
-		}
-
-		if(mWebInterface) {
+		if (mWebInterface) {
 			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebInterface->setKeyboardStateCallback([this](const bool onscreen) {
-				if(mKeyboardStatusCallback) { mKeyboardStatusCallback(onscreen); }
+				if (mKeyboardStatusCallback) {
+					mKeyboardStatusCallback(onscreen);
+				}
 			});
 			mWebInterface->sendToFront();
-		}
-
-		if(mWebYoutubeInterface) {
-			setAllowTouchToggle(mAllowTouchToggle);
-			mWebYoutubeInterface->sendToFront();
 		}
 	}
 
 
-	if(mWebInterface) {
-		if(mShowInterfaceAtStart) {
+	if (mWebInterface) {
+		if (mShowInterfaceAtStart) {
 			mWebInterface->show();
 		} else {
 			mWebInterface->setOpacity(0.0f);
 			mWebInterface->hide();
-		}
-	}
-
-	if(mWebYoutubeInterface) {
-		if(mShowInterfaceAtStart) {
-			mWebYoutubeInterface->show();
-		} else {
-			mWebYoutubeInterface->setOpacity(0.0f);
-			mWebYoutubeInterface->hide();
 		}
 	}
 
@@ -216,16 +179,6 @@ void WebPlayer::layout() {
 		if(mInterfaceBelowMedia) yPos = getHeight();
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
-
-	if(mWebYoutubeInterface && mEmbedInterface) {
-		mWebYoutubeInterface->setSize(getWidth() * 2.0f / 3.0f, mWebYoutubeInterface->getHeight());
-
-		float yPos = getHeight() - mWebYoutubeInterface->getHeight() - 50.0f;
-		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if(yPos + mWebYoutubeInterface->getHeight() > getHeight()) yPos = getHeight() - mWebYoutubeInterface->getHeight();
-		if(mInterfaceBelowMedia) yPos = getHeight();
-		mWebYoutubeInterface->setPosition(getWidth() / 2.0f - mWebYoutubeInterface->getWidth() / 2.0f, yPos);
-	}
 }
 
 void WebPlayer::userInputReceived() {
@@ -237,18 +190,11 @@ void WebPlayer::showInterface() {
 	if(mWebInterface) {
 		mWebInterface->animateOn();
 	}
-	if(mWebYoutubeInterface) {
-		mWebYoutubeInterface->animateOn();
-	}
-
 }
 
 void WebPlayer::hideInterface() {
 	if(mWebInterface) {
 		mWebInterface->startIdling();
-	}
-	if(mWebYoutubeInterface) {
-		mWebYoutubeInterface->startIdling();
 	}
 }
 
@@ -261,12 +207,6 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 	layout();
 }
 
-void WebPlayer::setIsYoutube(const bool isYoutube){
-	mIsYoutube = isYoutube;
-	setMedia(mWeb->getUrl());
-}
-
-
 void WebPlayer::setNativeTouches(const bool isNative) {
 	mNativeTouches = isNative;
 	if(mWeb){
@@ -275,7 +215,7 @@ void WebPlayer::setNativeTouches(const bool isNative) {
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
-	if (mWeb && !mIsYoutube) {
+	if (mWeb) {
 		mWeb->sendMouseClick(globalClickPos);
 	}
 }
@@ -285,10 +225,6 @@ ds::ui::Web* WebPlayer::getWeb() { return mWeb; }
 
 ds::ui::WebInterface* WebPlayer::getWebInterface(){
 	return mWebInterface;
-}
-
-WebYoutubeInterface * WebPlayer::getWebYoutubeInterface(){
-	return mWebYoutubeInterface;
 }
 }  // namespace ui
 }  // namespace ds

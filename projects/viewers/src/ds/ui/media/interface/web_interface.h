@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIEWER_WEB_INTERFACE
-#define DS_UI_MEDIA_VIEWER_WEB_INTERFACE
 
 #include "ds/ui/media/media_interface.h"
 #include "ds/app/event_client.h"
@@ -58,6 +56,8 @@ public:
 	ds::ui::ImageButton*		getRefreshButton() { return mRefreshButton; }
 	ds::ui::ImageButton*		getTouchToggleButton() { return mTouchToggle; }
 
+	ds::ui::SoftKeyboard*		getSoftKeyboard() { return mKeyboard; }
+
 protected:
 
 	virtual void				onLayout();
@@ -95,4 +95,3 @@ protected:
 } // namespace ui
 } // namespace ds
 
-#endif

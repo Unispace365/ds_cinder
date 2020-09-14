@@ -235,6 +235,10 @@ class GstVideo : public Sprite {
 	void setSpeed(const float speed);
 	float getSpeed() const;
 
+	/// Sets the playback direction. true = forwards, false = backwards
+	void setPlayDirection(const bool forwards);
+	bool getPlayDirection();
+
 	/// Have at the raw video and data.
 	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this
 	/// If you're like "Hey, I just want to show a video" then you are in the wrong place
