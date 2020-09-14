@@ -531,7 +531,7 @@ ci::vec2 Text::getPositionForCharacterIndex(const int characterIndex){
 	measurePangoText();
 
 	ci::vec2 outputPos = ci::vec2();
-	if(mPangoLayout && !mText.empty()){
+	if(mPangoLayout){// && !mText.empty()){
 		PangoRectangle outputRectangle;
 		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);
 
