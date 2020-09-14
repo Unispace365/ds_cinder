@@ -1906,6 +1906,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					efs.mPasswordMode = parseBoolean(paramValue);
 				} else if (paramType == "text_offset") {
 					efs.mTextOffset = ci::vec2(parseVector(paramValue));
+				} else if (paramType == "search_mode") {
+					efs.mSearchMode = parseBoolean(paramValue);
+				} else if (paramType == "auto_resize") {
+					efs.mAutoResize = parseBoolean(paramValue);
 				}
 			}
 		}

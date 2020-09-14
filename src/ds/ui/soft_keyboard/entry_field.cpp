@@ -47,13 +47,13 @@ EntryField::~EntryField() {
 void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings) {
 	mEntryFieldSettings = newSettings;
 
-	setSize(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
-
 	if(mTextSprite) {
 		mTextSprite->setResizeLimit(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
 		mTextSprite->setTextStyle(newSettings.mTextConfig);
 		mTextSprite->setPosition(mEntryFieldSettings.mTextOffset);
 	}
+
+	setSize(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
 
 	if(mCursor) {
 		mCursor->setColor(newSettings.mCursorColor);
@@ -69,8 +69,8 @@ ds::ui::EntryFieldSettings EntryField::getEntryFieldSettings() {
 }
 
 void EntryField::onSizeChanged() {
-	if(mTextSprite) {
-		//mTextSprite->setResizeLimit(getWidth(), getHeight());
+	if(mTextSprite && mEntryFieldSettings.mAutoResize) {
+		mTextSprite->setResizeLimit(getWidth(), getHeight());
 	}
 }
 
