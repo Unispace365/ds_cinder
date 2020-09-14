@@ -732,6 +732,9 @@
     <ClInclude Include="..\src\ds\math\extrasrc\fptypes.hh">
       <Filter>src\ds\math\extrasrc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1201,6 +1204,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\math\fparser.cc">
       <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

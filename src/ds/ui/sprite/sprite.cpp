@@ -21,10 +21,14 @@
 #include "cinder/ImageIo.h"
 #include <cinder/Ray.h>
 #include <cinder/Rand.h>
+#include <numeric>
 
 //#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <ds/cfg/settings_variables.h>
+
+#include "util/flexbox_parser.h"
+
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -195,7 +199,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mClippingBoundsDirty = false;
 	mOutputFbo = nullptr;
 	mIsRenderFinalToTexture = false;
-
+	mFlexboxNode = YGNodeNew();
 	dimensionalStateChanged();
 }
 
@@ -677,6 +681,8 @@ void Sprite::addChild(Sprite &child){
 	}
 
 	mChildren.push_back(&child);
+	YGNodeInsertChild(mFlexboxNode, child.mFlexboxNode, mFlexboxNode->getChildren().size());
+
 	child.setParent(this);
 	child.setPerspective(mPerspective);
 	child.setDrawSorted(getDrawSorted());
@@ -693,6 +699,7 @@ void Sprite::removeChild(Sprite &child){
 
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	if(found != mChildren.end()) mChildren.erase(found);
+	YGNodeRemoveChild(mFlexboxNode, child.mFlexboxNode);
 	if(child.getParent() == this) {
 		child.setParent(nullptr);
 		child.setPerspective(false);
@@ -1980,6 +1987,64 @@ void Sprite::setPerspective( const bool perspective ){
   for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 	(*it)->setPerspective(perspective);
   }
+}
+
+void Sprite::setFlexboxFromStyleString(std::string style)
+{
+	
+	
+	auto settings = ds::split(style, ";", true);
+	for (auto setting : settings) {
+		auto key_value = ds::split(setting, ":", true);
+		auto [key,unused] = FlexboxParser::cleanValue(key_value[0]);
+		auto valueItr = ++key_value.begin();
+
+		std::string value = "--empty--";
+		if (valueItr != key_value.end()) {
+			value = std::accumulate(valueItr, key_value.end(), std::string(""));
+		}
+		//DS_LOG_INFO(key << " = '" << value << "'");
+		auto success = FlexboxParser::parseProperty(key, value, mFlexboxNode);
+		
+	}
+	mFlexboxNode->setDirty(true);
+	
+}
+
+void Sprite::setFlexboxAutoSizes()
+{
+	//the default of auto is to size to its children.
+	//if there are no children we will size to the sprite.
+	if (mFlexboxNode->getChildren().size() == 0) {
+		if (YGNodeStyleGetWidth(mFlexboxNode).unit == YGUnitAuto &&
+			(YGNodeStyleGetMinWidth(mFlexboxNode).unit == YGUnitAuto || YGNodeStyleGetMinWidth(mFlexboxNode).unit == YGUnitUndefined) &&
+			(YGNodeStyleGetMaxWidth(mFlexboxNode).unit == YGUnitAuto || YGNodeStyleGetMaxWidth(mFlexboxNode).unit == YGUnitUndefined)
+			) {
+			YGNodeStyleSetWidth(mFlexboxNode, getScaleWidth());
+		}
+
+		if (YGNodeStyleGetHeight(mFlexboxNode).unit == YGUnitAuto &&
+			(YGNodeStyleGetMinHeight(mFlexboxNode).unit == YGUnitAuto || YGNodeStyleGetMinHeight(mFlexboxNode).unit == YGUnitUndefined) &&
+			(YGNodeStyleGetMaxHeight(mFlexboxNode).unit == YGUnitAuto || YGNodeStyleGetMaxHeight(mFlexboxNode).unit == YGUnitUndefined)
+			) {
+			YGNodeStyleSetHeight(mFlexboxNode, getScaleHeight());
+		}
+	}
+}
+
+void Sprite::setSpriteFromFlexbox()
+{
+	//position and size
+	auto layout = mFlexboxNode->getLayout();
+	auto x = YGNodeLayoutGetLeft(mFlexboxNode);
+	auto y = YGNodeLayoutGetTop(mFlexboxNode);
+	auto w = YGNodeLayoutGetWidth(mFlexboxNode);
+	auto h = YGNodeLayoutGetHeight(mFlexboxNode);
+	auto bt = YGNodeLayoutGetBorder(mFlexboxNode, YGEdgeTop);
+	
+	setPosition(x, y);
+	setSize(w, h);
+
 }
 
 ds::cfg::Settings* Sprite::getLayoutSettings()

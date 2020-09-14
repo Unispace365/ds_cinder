@@ -1,0 +1,38 @@
+{
+  "PreventSleep": true,
+  "Kiosk": true,
+  "RestartApps": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "RestartSystem": {
+    "Enabled": true,
+    "Hour": 1,
+    "Minute": 0
+  },
+  "Profiles": [
+    {
+      "Name": "flexbox",
+      "Apps": [
+        {
+          "Path": "%PROGRAMFILES%/Downstream/flexbox/flexbox.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": true,
+          "MemoryLimit": 10000
+        },
+        {
+          "Path": "%PROGRAMFILES%/Downstream/flexbox/DSNode/DSNode.exe",
+          "Args": "",
+          "StartDelay": 1000,
+          "RestartDelay": 10000,
+          "EnableMonitor": false,
+          "MemoryLimit": 10000
+        }
+      ]
+    }
+  ]
+}
+

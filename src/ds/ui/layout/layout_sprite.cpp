@@ -37,6 +37,8 @@ void LayoutSprite::runLayout(){
 		runFlowLayout(true, true);
 	} else if(mLayoutType == kLayoutHWrap){
 		runFlowLayout(false, true);
+	}else if (mLayoutType == kLayoutFlex) {
+		runFlexLayout();
 	}
 
 	onLayoutUpdate();
@@ -365,6 +367,35 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
 				ci::vec2 totalOffset = ci::vec2(chillin->mLayoutFudge) + childCenter + centerOffset;
 				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y, chillin->mLayoutFudge.z);
+			}
+		}
+	}
+}
+
+void LayoutSprite::runFlexLayout(bool calculate)
+{
+	for (auto chillin : mChildren) {
+		chillin->setFlexboxAutoSizes();
+	}
+
+	if (calculate) {
+		
+		if (mFlexboxNode->getOwner()==nullptr) {
+			YGNodeCalculateLayout(mFlexboxNode, YGUndefined, YGUndefined, YGNodeStyleGetDirection(mFlexboxNode));
+			setSpriteFromFlexbox();
+			//node->setDirty(false);
+		}
+	}
+	
+	
+	for (auto chillin : mChildren) {
+		chillin->setSpriteFromFlexbox();
+		if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+			if (ls->getLayoutType() != kLayoutFlex) {
+				ls->runLayout();
+			}
+			else {
+				ls->runFlexLayout(false);
 			}
 		}
 	}

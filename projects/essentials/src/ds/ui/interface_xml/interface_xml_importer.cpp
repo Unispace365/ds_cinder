@@ -450,6 +450,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 
 		};
 
+		propertyMap["flex_style"] = [](SprProps& p) {
+			p.sprite.setFlexboxFromStyleString(p.value);
+		};
+
 		// LayoutpSprite specific (the other layout stuff could apply to any sprite)
 		propertyMap["layout_type"] = [](SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
@@ -465,6 +469,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutHWrap);
 				} else if (layoutType == "size") {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutSize);
+				} else if (layoutType == "flex") {
+					layoutSprite->setLayoutType(LayoutSprite::kLayoutFlex);
 				} else {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutNone);
 				} 

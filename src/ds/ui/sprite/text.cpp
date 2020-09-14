@@ -498,6 +498,12 @@ void Text::onBuildRenderBatch(){
 	
 }
 
+void Text::setFlexboxAutoSizes()
+{
+	measurePangoText();
+	Sprite::setFlexboxAutoSizes();
+}
+
 void Text::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 		ci::gl::color(mTextColor.r, mTextColor.g, mTextColor.b, mDrawOpacity);

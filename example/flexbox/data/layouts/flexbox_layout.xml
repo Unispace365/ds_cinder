@@ -1,0 +1,85 @@
+<interface>
+
+    <layout name="flex_layout"
+			layout_type="flex"
+			flex_style="
+            direction: ltr;
+            width: $_world_width;
+            height: $_world_height;
+            flex-direction: row;
+            align-items: flex-begin;
+            justify-content: flex-begin;
+            "
+            color="#222222"
+			size="$_world_size"
+		>
+	<layout name="flex_layout"
+			layout_type="flex"
+			flex_style="
+            direction: ltr;
+            width: $_world_width;
+            height: $_world_height;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+            "
+            color="#222222"
+			size="$_world_size"
+		>
+		
+	
+		<sprite name="one"
+			color="#ff0000"
+			flex_style="
+            max-width: 50%;
+            max-height: 100px;
+            min-width: 10%;
+            min-height: 90px;
+            "
+			/>
+			
+            <sprite name="two"
+			color="#888888"
+			flex_style="
+            max-width: 50%;
+            max-height: 150px;
+            min-width: 10%;
+            min-height: 150px;
+            flex-grow: 1;
+            flex-shrink: 0;
+            "
+			/>
+
+            <sprite name="three"
+			color="#22aa22"
+			flex_style="
+            max-width: 50%;
+            max-height: 100px;
+            min-width: 10%;
+            min-height: 90px;
+            "
+			/>
+            </layout>
+		<text name="app_title"
+			font="app:title"
+            
+			flex_style="
+            flex-grow: 1;
+            flex-shrink: 0;
+            position-type: absolute;
+            "
+			_pad_all="#expr $_padding * 2.0"
+			_layout_h_align="center"
+			animate_on="$_default:anim"
+            shrink_to_bounds="true"
+            resize_limit="$_world_width"
+			text="sub-box"
+			/>
+				
+		
+	</layout>
+
+
+</interface>
+
+

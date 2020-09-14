@@ -198,6 +198,7 @@ public:
 
 	virtual	void				onBuildRenderBatch() override;
 	void						showDebug(bool show) { mDebugOutput = show; mNeedsRefit = true; mNeedsMeasuring = true; }
+	virtual void				setFlexboxAutoSizes();
 
 protected:
 	//picks a font size that fits the whole text inside resize limit rect;

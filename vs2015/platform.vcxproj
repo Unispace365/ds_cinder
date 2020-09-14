@@ -127,6 +127,7 @@
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h" />
     <ClInclude Include="..\src\ds\ui\touch\tuio_input.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
@@ -313,6 +314,7 @@
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\tuio_input.cpp" />
     <ClCompile Include="..\src\ds\util\date_util.cpp" />

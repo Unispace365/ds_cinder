@@ -29,6 +29,9 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/cfg/settings.h"
+#include "yoga/Yoga.h"
+#include "yoga/YGNode.h"
+#include "yoga/YGConfig.h"
 
 namespace ds {
 namespace gl { class ClipPlaneState; }
@@ -704,10 +707,15 @@ namespace ui {
 
 		// attempts to get the settings used for the layout that this
 		// sprite is part of. The sprite need not have been created in
-		// the layout for this to work, but on of its ancestor sprite needs to have been.
+		// the layout for this to work, but one of its ancestor sprite needs to have been.
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
 		ds::cfg::Settings* getLayoutSettings();
 		void setLayoutSettings(ds::cfg::Settings& settings);
+
+		//Flexbox
+		virtual void			setFlexboxFromStyleString(std::string style);
+		virtual void			setFlexboxAutoSizes();
+		virtual void			setSpriteFromFlexbox();
 
 		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault is true.
 		const std::wstring		getSpriteName(const bool useDefault = true) const;
@@ -731,6 +739,8 @@ namespace ui {
 		friend class        TouchProcess;
 		friend class		ds::gl::ClipPlaneState;
 		friend class		SpriteAnimatable;
+
+		
 
 		void				swipe(const ci::vec3 &swipeVector);
 		bool				tapInfo(const TapInfo&);
@@ -811,6 +821,8 @@ namespace ui {
 		mutable bool			mBoundsNeedChecking;
 		mutable bool			mInBounds;
 
+		
+
 
 		SpriteEngine&			mEngine;
 		/// The ID must always be assigned through setSpriteId(), which has some
@@ -862,6 +874,9 @@ namespace ui {
 		/// Class-unique key for this type.  Subclasses can replace.
 		char					mBlobType;
 		DirtyState				mDirty;
+
+		//flexbox
+		YGNodeRef					mFlexboxNode;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::vec3 &)> mSwipeCallback;
