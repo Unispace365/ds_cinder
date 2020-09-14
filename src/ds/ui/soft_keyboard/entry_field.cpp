@@ -22,6 +22,7 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	, mCursorIndex(0)
 {
 	mTextSprite = new ds::ui::Text(engine);
+	mTextSprite->setAllowMarkup(false);
 	addChildPtr(mTextSprite);
 
 	mCursor = new ds::ui::Sprite(engine);

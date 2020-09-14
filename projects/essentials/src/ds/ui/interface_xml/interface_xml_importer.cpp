@@ -539,7 +539,6 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-
 		propertyMap["text_style"] = [](SprProps& p) {
 			// Try to set the font
 			auto text = dynamic_cast<Text*>(&p.sprite);
@@ -782,6 +781,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				}
 
 				text->setWrapMode(theMode);
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["text_allow_markup"] = [](SprProps& p) {
+			auto text = dynamic_cast<Text*>(&p.sprite);
+			if (text) {
+				text->setAllowMarkup(parseBoolean(p.value));
 			} else {
 				logAttributionWarning(p);
 			}

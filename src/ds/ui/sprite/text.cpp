@@ -578,6 +578,17 @@ bool Text::getHasLists() {
 	return mHasLists;
 }
 
+
+void Text::setAllowMarkup(const bool allow) {
+	mAllowMarkup = allow;
+	mNeedsMarkupDetection = true;
+	mNeedsMeasuring = true;
+	mNeedsTextRender = true;
+	mNeedsRefit = true;
+	mNeedsMaxResizeFontSizeUpdate = true;
+	markAsDirty(TEXT_DIRTY);
+}
+
 void Text::setPreserveSpanColors(const bool preserve) {
 	mPreserveSpanColors = preserve;
 	if(mPreserveSpanColors) {
@@ -937,27 +948,32 @@ bool Text::measurePangoText() {
 			std::regex e("<br\\s?/?>", std::regex_constants::icase);
 			mProcessedText = std::regex_replace(mText, e, "\n");
 
-			// Let's also decide and flag if there's markup in this string
-			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
-			// there's no markup to bother with.
-			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			bool hasAmps = mProcessedText.find("&amp;") != std::string::npos;
-			mProbablyHasMarkup =  ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || hasAmps;
+			if (mAllowMarkup) {
+				// Let's also decide and flag if there's markup in this string
+				// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
+				// there's no markup to bother with.
+				// Be pretty liberal, there's more harm in false-postives than false-negatives
+				bool hasAmps = mProcessedText.find("&amp;") != std::string::npos;
+				mProbablyHasMarkup = ((mProcessedText.find("<") != std::string::npos) && (mProcessedText.find(">") != std::string::npos)) || hasAmps;
 
-			// parse any lists
-			if (mProbablyHasMarkup) {
-				mHasLists = false;
-				bool hasMoreLists = true;
-				while(hasMoreLists){
-					hasMoreLists = parseLists();
-					if(hasMoreLists){
-						mHasLists = true;
+				// parse any lists
+				if (mProbablyHasMarkup) {
+					mHasLists = false;
+					bool hasMoreLists = true;
+					while (hasMoreLists) {
+						hasMoreLists = parseLists();
+						if (hasMoreLists) {
+							mHasLists = true;
+						}
+					}
+
+					if (!hasAmps && mProcessedText.find("&") != std::string::npos) {
+						ds::replace(mProcessedText, "&", "&amp;");
 					}
 				}
-
-				if(!hasAmps && mProcessedText.find("&") != std::string::npos){
-					ds::replace(mProcessedText, "&", "&amp;");
-				}
+			} else {
+				hadMarkup = false;
+				mProbablyHasMarkup = false;
 			}
 
 			mNeedsMarkupDetection = false;

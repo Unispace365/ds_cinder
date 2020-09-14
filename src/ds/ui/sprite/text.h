@@ -185,6 +185,12 @@ public:
 	/// If an ordered or unordered list was detected in the current text
 	bool						getHasLists();
 
+	/// Sets the ability for the pango markup system to be used. 
+	/// Default is on
+	void						setAllowMarkup(const bool allow);
+
+	/// Returns if markup is allowed or not
+	bool						getAllowMarkup() { return mAllowMarkup; }
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
@@ -255,6 +261,7 @@ protected:
 	/// Stores text after newline filtering
 	std::string					mProcessedText; 
 	bool						mProbablyHasMarkup;
+	bool						mAllowMarkup;
 
 	/// See text_defs.h for definition of style params (font name, size, alignment, leading, letter spacing, fit sizes)
 	TextStyle					mStyle;
