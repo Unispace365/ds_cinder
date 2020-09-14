@@ -47,6 +47,7 @@ TextStyle::TextStyle()
 	, mLeading(1.0)
 	, mLetterSpacing(0.0)
 	, mColor(ci::ColorA::white())
+	, mColorName("white")
 	, mAlignment(Alignment::kLeft)
 	, mFitMinTextSize(0.0)
 	, mFitMaxTextSize(0.0) 
@@ -93,6 +94,7 @@ ds::ui::TextStyle TextStyle::textStyleFromSetting(ds::ui::SpriteEngine& engine, 
 
 		} else if (theKey == "color:") {
 			theStyle.mColor = parseColor(remainderStr, engine);
+			theStyle.mColorName = remainderStr;
 
 		} else if(theKey == "font:" || theKey == "font_name:") {
 			theStyle.mFont = remainderStr;

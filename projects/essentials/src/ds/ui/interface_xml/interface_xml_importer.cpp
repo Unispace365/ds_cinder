@@ -522,13 +522,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		propertyMap["font"] = [](SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
-				auto cfg = text->getEngine().getEngineCfg().getText(p.value);
-				cfg.configure(*text);
+				text->setTextStyle(text->getEngine().getTextStyle(p.value));
 			} else {
 				auto controlBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 				if (controlBox) {
-					controlBox->setLabelTextConfig(p.value);
-				} else {
+					controlBox->setLabelTextStyle(p.value);
 					logAttributionWarning(p);
 				}
 			}
@@ -536,29 +534,31 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		propertyMap["font_name"] = [](SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
-				text->setFont(p.value, text->getFontSize());
+				text->setFont(p.value);
 			} else {
 				logAttributionWarning(p);
 			}
+		};
 
-	// Text specific attributes
-	else if (property == "text_style") {
-		// Try to set the font
-		auto text = dynamic_cast<Text*>(&sprite);
-		if (text) {
-			if (engine.getEngineCfg().hasTextStyle(value)) {
-				text->setTextStyle(value);
-			} else {
-				text->setTextStyle(TextStyle::textStyleFromSetting(engine, value));
-			}
-		} else {
-			auto controlBox = dynamic_cast<ControlCheckBox*>(&sprite);
-			if (controlBox) {
-				if (engine.getEngineCfg().hasTextStyle(value)) {
-					controlBox->setLabelTextStyle(value);
+		propertyMap["text_style"] = [](SprProps& p) {
+			// Try to set the font
+			auto text = dynamic_cast<Text*>(&p.sprite);
+			if (text) {
+				if (p.engine.getEngineCfg().hasTextStyle(p.value)) {
+					text->setTextStyle(p.value);
 				} else {
-					controlBox->setLabelTextStyle(TextStyle::textStyleFromSetting(engine, value));
+					text->setTextStyle(TextStyle::textStyleFromSetting(p.engine, p.value));
 				}
+			} else {
+				auto controlBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
+				if (controlBox) {
+					if (p.engine.getEngineCfg().hasTextStyle(p.value)) {
+						controlBox->setLabelTextStyle(p.value);
+					} else {
+						controlBox->setLabelTextStyle(TextStyle::textStyleFromSetting(p.engine, p.value));
+					}
+				}
+			}
 		};
 		propertyMap["resize_limit"] = [](SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);

@@ -224,12 +224,6 @@ void App::loadAppSettings() {
 
 	bool hasLegacySettings = false;
 
-	// Fonts specify which font files to load (deprecated)
-	if (ds::Environment::hasSettings("fonts.xml")) {
-		hasLegacySettings = true;
-		mEngine.loadSettings("fonts", "fonts.xml");
-	}
-
 	// After registration, colors can be called by name from settings files or in the app (deprecated)
 	if (ds::Environment::hasSettings("colors.xml")) {
 		hasLegacySettings = true;
@@ -252,28 +246,14 @@ void App::loadAppSettings() {
 		hasLegacySettings = true;
 		mEngine.loadTextCfg("text.xml");
 	}
-
-
-	if(hasLegacySettings){
-
-	} else {
-
-	}
 	
-	mEngine.getSettings("styles").replaceSettingVariablesAndExpressions();
-
 
 	if (hasLegacySettings) {
 		mEngine.loadSettings("styles", "");
 		DS_LOG_INFO("---------------------------------------------");
-		DS_LOG_INFO("Detected a fonts.xml, colors.xml or text.xml file, merging into styles.xml.");
-		DS_LOG_INFO("Save styles.xml from the settings editor and deleting the old settings files.");
+		DS_LOG_INFO("Detected a colors.xml or text.xml file, merging into styles.xml.");
+		DS_LOG_INFO("Save styles.xml from the settings editor and delete the old settings files.");
 		DS_LOG_INFO("---------------------------------------------");
-
-
-		mEngine.getSettings("fonts").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
-			mEngine.getSettings("styles").addSetting(theSetting);				
-		});
 
 
 		mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
@@ -290,20 +270,13 @@ void App::loadAppSettings() {
 		}
 
 		int colorOrder = 1; 
-		int fontOrder = 1000000; // god help you if you have more than 1,000,000 color settings
-		int textOrder = 2000000; 
+		int textOrder = 2000000;  // god help you if you have more than 2,000,000 color settings
 
 		auto colorHeader = ds::cfg::Settings::Setting();
 		colorHeader.mName = "COLORS";
 		colorHeader.mType = ds::cfg::SETTING_TYPE_SECTION_HEADER;
 		colorHeader.mReadIndex = colorOrder;
 		mEngine.getSettings("styles").addSetting(colorHeader);
-
-		auto fontsHeader = ds::cfg::Settings::Setting();
-		fontsHeader.mName = "FONT FILES";
-		fontsHeader.mType = ds::cfg::SETTING_TYPE_SECTION_HEADER;
-		fontsHeader.mReadIndex = fontOrder;
-		mEngine.getSettings("styles").addSetting(fontsHeader);
 
 		auto textSTylesH = ds::cfg::Settings::Setting();
 		textSTylesH.mName = "TEXT STYLES";
@@ -315,22 +288,18 @@ void App::loadAppSettings() {
 
 		for (auto& sit : readSettings) {
 			for (auto& it : sit.second) {
-				// fonts
-				if (it.mType == ds::cfg::SETTING_TYPE_STRING) {
-					it.mReadIndex = fontOrder++;
-				} else if (it.mType == ds::cfg::SETTING_TYPE_COLOR) {
+				if (it.mType == ds::cfg::SETTING_TYPE_COLOR) {
 					it.mReadIndex = colorOrder++;
 				} else if (it.mType == ds::cfg::SETTING_TYPE_TEXT_STYLE) {
 					it.mReadIndex = textOrder++;
 				}
 			}
 		}
+	} else {
+		mEngine.loadSettings("styles", "styles.xml");
+	}
 
-		
-
-	} 
-
-	mEngine.loadSettings("styles", "styles.xml");
+	mEngine.getSettings("styles").replaceSettingVariablesAndExpressions();
 
 
 	mEngine.editFonts().clear();

@@ -87,6 +87,7 @@ struct TextStyle{
 
 	/// The default color of the font, can be overridden by <span> tags
 	ci::ColorA	  			mColor;
+	std::string				mColorName;
 
 	/// How the text aligns, left, center, right, justify
 	ds::ui::Alignment::Enum	mAlignment;

@@ -38,12 +38,12 @@ const ci::ColorA& ColorList::getColorFromName(const std::wstring& namey) const {
 
 
 std::string ColorList::getNameFromColor(const ci::ColorA& theColor) const {
-	if (mData.empty()) return EMPTY_SZ;
+	if (mData.empty()) return "";
 	for (auto it : mData) {
-		if (it.second.mColor == theColor) return it.second.mShortName;
+		if (it.second == theColor) return it.first;
 	}
 
-	return EMPTY_SZ;
+	return "";
 }
 
 } // namespace ds
