@@ -21,6 +21,8 @@ public:
 
 	/// Repeatedly callback
 	Callback(ds::ui::SpriteEngine& eng, std::function<void()> func, const double secondsDelay);
+
+	Callback(Callback&& cb);
 	
 	/// Waits the specified amount of time, calls the function, then stops
 	/// Returns an ID so you can cancel it later if you need to (if you're starting this from the engine)
