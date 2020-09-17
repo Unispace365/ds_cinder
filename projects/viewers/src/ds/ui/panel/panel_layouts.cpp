@@ -180,6 +180,10 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 		return false;
 	}
 
+	if(panels.empty()){
+		DS_LOG_VERBOSE(3, "RowPack: no panels set to arrange");
+	}
+
 	int numRows = inputRows;
 	if (numRows < 1) numRows = 1;
 
@@ -188,8 +192,8 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	ci::vec2 totalArea = ci::vec2(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
 	for (auto it : panels) {
-		float tw = it->getScaleWidth();
-		float th = it->getScaleHeight();
+		float tw = it->getWidth();
+		float th = it->getHeight();
 		if (tw < 1.0f || th < 1.0f) continue;
 
 		PanelPackage pp;
@@ -198,6 +202,11 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 		pp.mPanelIndex = ind;
 		thePackages.push_back(pp);
 		ind++;
+	}
+
+	if(thePackages.empty()){
+		DS_LOG_WARNING("Didn't find any valid panels to rowPack");
+		return false;
 	}
 
 	float rowHeight = totalAreaRect.getHeight() / numRows;
