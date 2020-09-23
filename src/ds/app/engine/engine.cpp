@@ -1322,7 +1322,6 @@ void Engine::checkIdle() {
 }
 
 bool Engine::isIdling(){
-	checkIdle();
 	return mIdling;
 }
 
