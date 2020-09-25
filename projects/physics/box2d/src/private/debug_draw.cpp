@@ -19,6 +19,11 @@ DebugDraw::DebugDraw(ds::ui::SpriteEngine& e, b2World& b2w, ds::physics::World &
 	SetFlags( b2Draw::e_shapeBit | b2Draw::e_jointBit );
 }
 
+
+DebugDraw::~DebugDraw() {
+	mB2World.SetDebugDraw(nullptr);
+}
+
 void DebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
 	ci::gl::color(color.r, color.g, color.b);
 	ci::gl::begin(GL_LINE_LOOP);
