@@ -83,6 +83,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	float subtitlePositiony = titlePositiony;
 	if(mTitle){
 		mTitle->setText(mMenuItemModel.mTitle);
+		mTitle->setResizeLimit(mMenuConfig.mItemTitleResizeLimit.x, mMenuConfig.mItemTitleResizeLimit.y);
 		ci::vec2 titleSize = ci::vec2(mTitle->getWidth(), mTitle->getHeight());
 		mTitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, titlePositiony);
 		mTitle->setOpacity(mMenuConfig.mItemTitleOpacity);
@@ -92,6 +93,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 
 	if(mSubtitle){
 		mSubtitle->setText(mMenuItemModel.mSubtitle);
+		mSubtitle->setResizeLimit(mMenuConfig.mItemTitleResizeLimit.x, mMenuConfig.mItemTitleResizeLimit.y);
 		ci::vec2 titleSize = ci::vec2(mSubtitle->getWidth(), mSubtitle->getHeight());
 		mSubtitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, subtitlePositiony);
 		mSubtitle->setOpacity(mMenuConfig.mItemSubtitleOpacity);
