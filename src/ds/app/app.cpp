@@ -299,7 +299,6 @@ void App::loadAppSettings() {
 		mEngine.loadSettings("styles", "styles.xml");
 	}
 
-	mEngine.getSettings("styles").replaceSettingVariablesAndExpressions();
 
 
 	mEngine.editFonts().clear();
@@ -328,23 +327,6 @@ void App::loadAppSettings() {
 			DS_LOG_WARNING("Exception loading fonts: " << e.what());
 		}
 	}
-
-
-	// Colors
-	// After registration, colors can be called by name from settings files or in the app
-	mEngine.editColors().clear();
-	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
-	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
-		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
-	}, ds::cfg::SETTING_TYPE_COLOR);
-
-	mEngine.getEngineCfg().clearTextStyles();
-	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
-		mEngine.getEngineCfg().setTextStyle(theSetting.mName, ds::ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString()));
-	}, ds::cfg::SETTING_TYPE_TEXT_STYLE);
-	
-
 
 	mEngine.loadSettings("tuio_inputs", "tuio_inputs.xml");
 }
@@ -390,6 +372,24 @@ void App::preServerSetup() {
 	for(auto it : get_setups()) {
 		it(mEngine);
 	}
+
+
+	/// NOTE: This happens here because the app settings occurs in the step above
+	mEngine.getSettings("styles").replaceSettingVariablesAndExpressions();
+
+	// Colors
+	// After registration, colors can be called by name from settings files or in the app
+	mEngine.editColors().clear();
+	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
+	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
+	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
+
+	mEngine.getEngineCfg().clearTextStyles();
+	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.getEngineCfg().setTextStyle(theSetting.mName, ds::ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString()));
+	}, ds::cfg::SETTING_TYPE_TEXT_STYLE);
 }
 
 void App::update() {
