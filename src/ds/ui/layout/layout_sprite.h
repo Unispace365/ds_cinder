@@ -94,6 +94,7 @@ protected:
 	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 	ShrinkType				mShrinkToChildren;
 	bool					mSkipHiddenChildren;
+	
 
 };
 

@@ -374,29 +374,45 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 
 void LayoutSprite::runFlexLayout(bool calculate)
 {
-	for (auto chillin : mChildren) {
-		chillin->setFlexboxAutoSizes();
-	}
+	//mParentYogaNode->clearChildren();
 
-	if (calculate) {
-		
-		if (mFlexboxNode->getOwner()==nullptr) {
-			YGNodeCalculateLayout(mFlexboxNode, YGUndefined, YGUndefined, YGNodeStyleGetDirection(mFlexboxNode));
-			setSpriteFromFlexbox();
-			//node->setDirty(false);
+	std::function<void(std::vector<ds::ui::Sprite*>)> setupAutosizeChildren = [this, &setupAutosizeChildren](std::vector<ds::ui::Sprite*> children) {
+		for (auto chillin : children) {
+			chillin->setFlexboxAutoSizes();
+			if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+				if (ls->getLayoutType() == kLayoutFlex) {
+					setupAutosizeChildren(ls->getChildren());
+				}
+			}
 		}
-	}
+	};
+
+	setupAutosizeChildren(mChildren);
+
 	
 	
-	for (auto chillin : mChildren) {
-		chillin->setSpriteFromFlexbox();
-		if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
-			if (ls->getLayoutType() != kLayoutFlex) {
-				ls->runLayout();
+	std::function<void(std::vector<ds::ui::Sprite*>)> updateChildren = [this,&updateChildren](std::vector<ds::ui::Sprite*> children) {
+		for (auto chillin : children) {
+			chillin->setSpriteFromFlexbox();
+			if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+				if (ls->getLayoutType() != kLayoutFlex) {
+					ls->runLayout();
+				}
+				else {
+					updateChildren(ls->getChildren());
+				}
+
 			}
-			else {
-				ls->runFlexLayout(false);
-			}
+		}
+	};
+	
+	if (calculate) {
+
+		if (mYogaNode->getOwner() == nullptr) {
+			YGNodeCalculateLayout(mYogaNode, getScaleWidth(), getScaleHeight(), YGNodeStyleGetDirection(mYogaNode));
+			setSpriteFromFlexbox();
+			updateChildren(mChildren);
+			//node->setDirty(false);
 		}
 	}
 }

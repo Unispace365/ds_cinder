@@ -377,7 +377,7 @@ namespace ds::ui {
 				return true;
 				}
 			},
-			{"position-top",
+			{"padding-top",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				
@@ -396,7 +396,7 @@ namespace ds::ui {
 				return true;
 				}
 			},
-			{"position-bottom",
+			{"padding-bottom",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				
@@ -415,7 +415,7 @@ namespace ds::ui {
 				return true;
 				}
 			},
-			{"position-left",
+			{"padding-left",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				
@@ -434,7 +434,7 @@ namespace ds::ui {
 				return true;
 				}
 			},
-			{"position-right",
+			{"padding-right",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				
@@ -667,7 +667,9 @@ namespace ds::ui {
 	bool FlexboxParser::parseProperty(std::string property, std::string value, YGNodeRef node) {
 
 		auto [cleanedValue, isPercent] = cleanValue(value);
-
+		if (cleanedValue == "flex-begin") {
+			cleanedValue = "flex-start";
+		}
 		if (parsers.find(property) != parsers.end()) {
 			return parsers[property](node, cleanedValue, isPercent);
 		}

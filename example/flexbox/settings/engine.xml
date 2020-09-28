@@ -17,7 +17,7 @@
 	<setting name="screen:title" value="" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
 	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window." default="false"/>
-	<setting name="console:show" value="false" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
+	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
 	<setting name="idle_time" value="300" type="double" comment="Seconds before idle happens. 300 = 5 minutes." default="300" min_value="0" max_value="1000"/>
 	<setting name="system:never_sleep" value="true" type="bool" comment="Prevent the system from sleeping or powering off the screen" default="true"/>
 	<setting name="apphost:exit_on_quit" value="true" type="bool" comment="Exit apphost when quitting the app" default="true" />

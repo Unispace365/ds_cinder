@@ -450,7 +450,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 
 		};
 
-		propertyMap["flex_style"] = [](SprProps& p) {
+		propertyMap["yoga_style"] = [](SprProps& p) {
 			p.sprite.setFlexboxFromStyleString(p.value);
 		};
 
@@ -469,7 +469,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutHWrap);
 				} else if (layoutType == "size") {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutSize);
-				} else if (layoutType == "flex") {
+				} else if (layoutType == "yoga") {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutFlex);
 				} else {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutNone);

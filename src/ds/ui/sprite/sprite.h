@@ -716,6 +716,8 @@ namespace ui {
 		virtual void			setFlexboxFromStyleString(std::string style);
 		virtual void			setFlexboxAutoSizes();
 		virtual void			setSpriteFromFlexbox();
+		
+		virtual YGNodeRef		getYogaNode() { return mYogaNode; }
 
 		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault is true.
 		const std::wstring		getSpriteName(const bool useDefault = true) const;
@@ -876,7 +878,7 @@ namespace ui {
 		DirtyState				mDirty;
 
 		//flexbox
-		YGNodeRef					mFlexboxNode;
+		YGNodeRef					mYogaNode;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::vec3 &)> mSwipeCallback;
