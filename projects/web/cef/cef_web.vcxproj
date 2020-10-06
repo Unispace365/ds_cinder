@@ -315,8 +315,8 @@
     <CustomBuildStep>
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
-		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
+		if not exist "$(SolutionDir)\$(Configuration)\cef" mkdir "$(SolutionDir)\$(Configuration)\cef"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)\cef"
 		</Command>
       <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
@@ -355,8 +355,8 @@
     <CustomBuildStep>
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
-		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)"
+		if not exist "$(SolutionDir)\$(Configuration)\cef" mkdir "$(SolutionDir)\$(Configuration)\cef"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime" "$(SolutionDir)\$(Configuration)\cef"
 		</Command>
       <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib64\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <assemblyIdentity type="win32" name="gtk" version="1.0.0.0" />
+	<file name="MediaInfo.dll" />
+	<file name="libbz2.dll" />
+	<file name="libcairo-2.dll" />
+	<file name="libcairo-gobject-2.dll" />
+	<file name="libexpat-1.dll" />
+	<file name="libffi-7.dll" />
+	<file name="libfontconfig-1.dll" />
+	<file name="libfreetype-6.dll" />
+	<file name="libfribidi-0.dll" />
+	<file name="libgcc_s_sjlj-1.dll" />
+	<file name="libgio-2.0-0.dll" />
+	<file name="libglib-2.0-0.dll" />
+	<file name="libgmodule-2.0-0.dll" />
+	<file name="libgobject-2.0-0.dll" />
+	<file name="libgstapp-1.0-0.dll" />
+	<file name="libgstbase-1.0-0.dll" />
+	<file name="libgstgl-1.0-0.dll" />
+	<file name="libgstnet-1.0-0.dll" />
+	<file name="libgstreamer-1.0-0.dll" />
+	<file name="libgstvideo-1.0-0.dll" />
+	<file name="libharfbuzz-0.dll" />
+	<file name="libiconv-2.dll" />
+	<file name="libintl-8.dll" />
+	<file name="liborc-0.4-0.dll" />
+	<file name="libpango-1.0-0.dll" />
+	<file name="libpangocairo-1.0-0.dll" />
+	<file name="libpangoft2-1.0-0.dll" />
+	<file name="libpangowin32-1.0-0.dll" />
+	<file name="libpixman-1-0.dll" />
+	<file name="libpng16-16.dll" />
+	<file name="libwinpthread-1.dll" />
+	<file name="libz.dll" />
+</assembly>

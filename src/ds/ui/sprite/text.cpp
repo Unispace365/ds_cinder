@@ -1,5 +1,10 @@
 #include "stdafx.h"
 
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep GStreamer dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gtk' version='1.0.0.0' type='win32'\"")
+#endif
+
 #include "text.h"
 
 #include "cairo/cairo.h"
@@ -19,6 +24,11 @@
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/util/string_util.h"
 #include <Poco/Stopwatch.h>
+
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep Pango/GTK dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gtk' version='1.0.0.0' type='win32'\"")
+#endif
 
 
 namespace {
