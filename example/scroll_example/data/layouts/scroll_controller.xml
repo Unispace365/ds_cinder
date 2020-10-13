@@ -7,7 +7,7 @@
 		
 	
 		<sprite name="background"
-			color="#222222"
+			color="#111111"
 			layout_size_mode="fill"
 			/>
 			
@@ -16,15 +16,15 @@
 			pad_all="$_ui:padding"
 			text="Scroll Example"
 			/>			
-			
-			
+		
 		<scroll_area name="gallery_scroll"
 					scroll_area_vert="false"
 					layout_size_mode="fixed"
 					size="2000, 200"
 					scroll_fade_colors="#FF222222, #00222222"
-					scroll_fade_size="140"
-					pad_all="$_ui:padding"
+					scroll_fade_size="200"
+					pad_all="#expr 1.0 * $_ui:padding"
+					scroll_shader_fade="true"
 					>					
 			<layout name="gallery"
 					layout_type="horiz"
@@ -66,10 +66,11 @@
 			l_pad="400"
 			>
 			<smart_scroll_list name="smart_scroll_list"
-						scroll_fade_colors="#FF222222, #00222222"
 						scroll_list_animate="0, 0.0025"
+						scroll_fade_size="200"
 						layout_size_mode="stretch"
 						smart_scroll_item_layout="scroll_item.xml"
+						scroll_shader_fade="true"
 									/>									
 									
 			<scroll_bar name="scroll_bar"

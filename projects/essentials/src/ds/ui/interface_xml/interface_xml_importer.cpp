@@ -1105,6 +1105,24 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
+		propertyMap["scroll_shader_fade"] = [](SprProps& p) {
+			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
+			ds::ui::ScrollArea* scrollArea = nullptr;
+			if (scrollList) {
+				scrollArea = scrollList->getScrollArea();
+			}
+
+			if (!scrollArea) {
+				scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&p.sprite);
+			}
+
+			if (scrollArea) {
+				auto fadesy = parseBoolean(p.value);
+				scrollArea->setUseShaderFade(fadesy);
+			} else {
+				logAttributionWarning(p);
+			}
+		};
 		propertyMap["smart_scroll_item_layout"] = [](SprProps& p) {
 			auto smartScrollList = dynamic_cast<ds::ui::SmartScrollList*>(&p.sprite);
 			if (smartScrollList) {
