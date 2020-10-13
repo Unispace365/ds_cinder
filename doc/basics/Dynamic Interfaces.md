@@ -444,6 +444,13 @@ Smart Scroll List Parameters
 	layout.
 * **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
 
+Scroll Bar Parameters
+--------------------------------------
+* **sprite_link** Add the name of a ScrollList or ScrollArea to control one of those areas
+* **scroll_bar_nub_color**: A color for the current-position indicator
+* **scroll_bar_background_color**: A color for the area in the back behind the nub
+* **scroll_bar_corner_radius**: Sets the corner radius of both the nub and the background
+
 EntryField and SoftKeyboard Parameters
 --------------------------------------
 EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:

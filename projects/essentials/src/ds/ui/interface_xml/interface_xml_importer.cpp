@@ -1114,6 +1114,32 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			}
 		};
 
+		propertyMap["scroll_bar_nub_color"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getNubSprite()) {
+				scrollBar->getNubSprite()->setColorA(parseColor(p.value, p.engine));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_background_color"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getBackgroundSprite()) {
+				scrollBar->getBackgroundSprite()->setColorA(parseColor(p.value, p.engine));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_corner_radius"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getBackgroundSprite() && scrollBar->getNubSprite()) {
+				scrollBar->getBackgroundSprite()->setCornerRadius(ds::string_to_float(p.value));
+				scrollBar->getNubSprite()->setCornerRadius(ds::string_to_float(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+
 		// Border sprite properties
 		propertyMap["border_width"] = [](SprProps& p) {
 			auto border = dynamic_cast<Border*>(&p.sprite);
@@ -1610,6 +1636,17 @@ bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Se
 							ef->keyPressed(character, keyType);
 						}
 					});
+				} else {
+					ScrollBar* sb = dynamic_cast<ScrollBar*>(it.first);
+					ScrollList* sl = dynamic_cast<ScrollList*>(findy->second);
+					ScrollArea* sa = dynamic_cast<ScrollArea*>(findy->second);
+					if(sb && sl){
+						sb->linkScrollList(sl);
+					}
+
+					if(sb && sa){
+						sb->linkScrollArea(sa);
+					}
 				}
 			}
 		}
