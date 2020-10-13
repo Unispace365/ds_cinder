@@ -44,6 +44,9 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// Are the frames advancing?
 	const bool					isPlaying() const;
 
+	/// \brief returns true if all images are loaded.
+	virtual bool				isLoaded() const;
+
 	// Jump to a specific frame. 
 	// Frame indices outside the range of the frames are ignored.
 	void						setCurrentFrameIndex(const int frameIndex);
@@ -59,18 +62,29 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// If there are no images, the size will be 0,0
 	void						sizeToFirstImage();
 
+	// Sets the callback that runs when an animation is done.
+	void                        setAnimationEndedCallback(const std::function<void()>& func);
+
+	// Sets the callback that is called when the images have all loaded.
+	void						setLoadedCallback(const std::function<void()>& func);
+
+
 private:
 	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
+	void                        runAnimationEndedCallback();
 
 	LoopStyle					mLoopStyle;
 	int							mCurrentFrameIndex;
 	int							mNumFrames;
 	bool						mPlaying;
+	bool					    mIsLoaded;
 	float						mFrameTime;
 	double						mLastFrameTime;
 	std::vector<ds::ui::Image*>	mFrames;
-	ds::ui::Image*				mVisibleFrame = nullptr;
+	ds::ui::Image* mVisibleFrame = nullptr;
 
+	std::function<void()>       mAnimationEndedCallback;
+	std::function<void()>       mLoadedCallback;
 };
 
 } // namespace ui
