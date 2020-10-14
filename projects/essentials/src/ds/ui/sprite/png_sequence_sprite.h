@@ -68,11 +68,16 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// Sets the callback that is called when the images have all loaded.
 	void						setLoadedCallback(const std::function<void()>& func);
 
+	/// Change image flags used for internal Image sprites.
+	/// Default is: ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F
+	void						setImageFlags(const int flags) { mImageFlags = flags;}
 
 private:
+	void						checkLoaded();
 	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 	void                        runAnimationEndedCallback();
 
+	int							mImageFlags =  ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F;
 	LoopStyle					mLoopStyle;
 	int							mCurrentFrameIndex;
 	int							mNumFrames;
