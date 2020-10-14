@@ -76,10 +76,10 @@ const std::string FadeVert =
 "    gl_Position = ciModelViewProjection * ciPosition;\n"
 "    TexCoord0 = ciTexCoord0;\n"
 "    Color = ciColor;\n"
-//"    gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
-//"    gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
-//"    gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
-//"    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
+"    gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"    gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"    gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
 "}\n";
 
 }
@@ -348,10 +348,17 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 		return;
 	}
 
+	forEachChild([this](auto& spr) {
+		spr.setBlendMode(ds::ui::FBO_IN);
+	}, true);
+
 	ci::mat4 preTrans = mTransformation;
 	mTransformation = ci::mat4();
+	ds::DrawParams dp;
+	dp.mParentOpacity = drawParams.mParentOpacity;
+	dp.mClippingParent = this;
 
-	ds::ui::Sprite::drawClient(ci::mat4(), drawParams);
+	ds::ui::Sprite::drawClient(ci::mat4(), dp);
 
 	mTransformation = preTrans;
 
@@ -362,6 +369,11 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 	ci::mat4 totalTransformation = transformMatrix * mTransformation;
 	ci::gl::pushModelMatrix();
 	ci::gl::multModelMatrix(totalTransformation);
+
+	if (getClipping()) { 
+		const ci::Rectf&	  clippingBounds = getClippingBounds(drawParams.mClippingParent);
+		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+	}
 
 	if (mShaderShader) {
 		mShaderShader->bind();
@@ -376,13 +388,21 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 		if (mBottomFade) {
 			mShaderShader->uniform("botOpacity", mBottomFade->getOpacity());
 		}
-		//ds::ui::clip_plane::passClipPlanesToShader(mShaderShader);
+
+		if (getClipping()) {
+			clip_plane::passClipPlanesToShader(mShaderShader);
+		}
 	}
 
 	ds::ui::applyBlendingMode(ds::ui::FBO_OUT);
 	ci::gl::color(1.0f, 1.0f, 1.0f, mDrawOpacity);
 	ci::gl::ScopedTextureBind scopedTexture(sourceTexture);
 	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, (float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
+
+
+	if (getClipping()) {
+		clip_plane::disableClipping();
+	}
 
 	ci::gl::popModelMatrix();
 }

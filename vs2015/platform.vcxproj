@@ -286,7 +286,6 @@
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp" />
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\params\camera_params.cpp" />
-    <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
     <ClCompile Include="..\src\ds\query\query_result.cpp" />

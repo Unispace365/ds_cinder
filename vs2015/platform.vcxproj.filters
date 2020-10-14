@@ -767,9 +767,6 @@
     <ClCompile Include="..\src\ds\util\string_util.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\params\draw_params.cpp">
-      <Filter>src\ds\params</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\params\update_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>

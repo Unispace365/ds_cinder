@@ -48,6 +48,7 @@ public:
 	void				setFadeHeight(const float fadeHeight);
 
 	/// Renders the scroller to a texture and uses a shader to fade off the top and bottom instead of gradients
+	/// CAVEATS! Any children cannot use blend modes; this scroll area cannot be inside of any clipping areas; this probably wont work with any rotated clipping children
 	void				setUseShaderFade(const bool shaderFade);
 
 	/// recalculates the size of the scroller and fades
