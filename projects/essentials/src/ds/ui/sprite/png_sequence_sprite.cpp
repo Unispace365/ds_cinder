@@ -59,7 +59,7 @@ void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
 	}
 	
 	// Create new empty frame sprites as needed
-	while(mFrames.size() <= mNumFrames){
+	while(mFrames.size() < mNumFrames){
 		ds::ui::Image* img = new ds::ui::Image(mEngine);
 		addChildPtr(img); // More idiomatic
 		img->hide();
