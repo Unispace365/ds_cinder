@@ -352,6 +352,7 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 		spr.setBlendMode(ds::ui::FBO_IN);
 	}, true);
 
+	buildTransform();
 	ci::mat4 preTrans = mTransformation;
 	mTransformation = ci::mat4();
 	ds::DrawParams dp;
