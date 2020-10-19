@@ -197,7 +197,7 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 	return mScroller;
 }
 
-void ScrollArea::checkBounds(){
+void ScrollArea::checkBounds(const bool immediate){
 	if(!mScroller) return;
 	bool doTween = true;
 	ci::vec3 tweenDestination = mScroller->getPosition();
@@ -263,14 +263,21 @@ void ScrollArea::checkBounds(){
 	}
 
 	if(doTween){
-		// respond after a delay, in case this call is cancelled in a swipe callback
-		mWillSnapAfterDelay = true;
-		callAfterDelay([this, doTween, tweenDestination](){
-			mWillSnapAfterDelay = false;
+		if (immediate) {
 			mSpriteMomentum.deactivate();
-			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ tweenComplete(); }, [this](){ scrollerTweenUpdated(); });
+			mScroller->setPosition(tweenDestination);
 			scrollerUpdated(ci::vec2(tweenDestination));
-		}, 0.0f);
+
+		} else {
+			// respond after a delay, in case this call is cancelled in a swipe callback
+			mWillSnapAfterDelay = true;
+			callAfterDelay([this, doTween, tweenDestination]() {
+				mWillSnapAfterDelay = false;
+				mSpriteMomentum.deactivate();
+				mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this]() { tweenComplete(); }, [this]() { scrollerTweenUpdated(); });
+				scrollerUpdated(ci::vec2(tweenDestination));
+			}, 0.0f);
+		}
 	} else {
 		// nothing special to do here
 		mScroller->animStop();

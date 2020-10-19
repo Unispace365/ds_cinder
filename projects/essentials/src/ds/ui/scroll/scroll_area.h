@@ -95,7 +95,9 @@ public:
 	void				setReturnAnimateTime(const float dur){ mReturnAnimateTime = dur; }
 
 	/// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
-	void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
+	void				handleTouchesRotated(const bool doRotated) { mHandleRotatedTouches = doRotated; }
+
+	void				checkBounds(const bool immediate = false);
 
 protected:
 	virtual void		onUpdateServer(const ds::UpdateParams& p) override;
@@ -103,7 +105,6 @@ protected:
 	void				scrollerUpdated(const ci::vec2 scrollPos);
 	void				scrollerTweenUpdated();
 	void				tweenComplete();
-	void				checkBounds();
 	void				handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 	virtual bool		callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination);
 	virtual void		drawClient(const ci::mat4 &transformMatrix, const ds::DrawParams &drawParams) override;
