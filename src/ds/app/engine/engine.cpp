@@ -9,6 +9,7 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
+#include "ds/ui/touch/tuio_input.h"
 
 #ifdef _WIN32
 #include <Winuser.h>
@@ -85,17 +86,11 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
-	, mTuio(nullptr)
-	, mTuioPort(0)
-	, mTuioBeganRegistrationId(0)
-	, mTuioMovedRegistrationId(0)
-	, mTuioEndedRegistrationId(0)
-	, mTuioRegistered(false)
+	, mTuioInput(std::make_shared<ds::ui::TuioInput>(*this, mTuioPort, ci::vec2(1), ci::vec2(0), 0.0f, 0, ci::Rectf(ci::vec2(0), ci::vec2(0))))
 	, mFonts(*this)
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 	, mAutoRefresh(*this)
 {
-
 
 	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(), [this]()->ds::Event* {return new ds::app::RequestAppExitEvent(); });
 	ds::event::Registry::get().addEventCreator(ds::app::IdleEndedEvent::NAME(), [this]()->ds::Event* {return new ds::app::IdleEndedEvent(); });
@@ -110,10 +105,6 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 }
 
 Engine::~Engine() {
-	if (mTuioUdpSocket) {
-		mTuioUdpSocket->close();
-	}
-
 	// Important to do this here before the auto update list is destructed.
 	// so any autoupdate services get removed.
 	mData.clearServices();
@@ -629,8 +620,6 @@ void Engine::setupTouch(ds::App& app) {
 
 	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
 	setTouchMode(mTouchMode);
-	int oldTuioPort = mTuioPort;
-	mTuioPort = mSettings.getInt("touch:tuio:port");
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
@@ -649,10 +638,11 @@ void Engine::setupTouch(ds::App& app) {
 		const ci::vec2  touchOffset = theSettings.getVec2("tuio_input:offset", i, ci::vec2());
 		const float     touchRotation = theSettings.getFloat("tuio_input:rotation", i, 0.0f);
 		const ci::Rectf filterRect = theSettings.getRect("tuio_input:filter_rect", i, ci::Rectf());
-		mTuioInputs.push_back(std::make_shared<ds::ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
-														  idOffset, filterRect));
+		auto tuioInput = std::make_shared<ds::ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
+			idOffset, filterRect);
+		tuioInput->start(true);
+		mTuioInputs.push_back(tuioInput);
 	}
-
 
 #ifdef _WIN32
 	if(mDsApp.getWindow()) {
@@ -691,67 +681,16 @@ void Engine::setupTouch(ds::App& app) {
 
 void Engine::startTuio(ds::App& app) {
 	mTuioObjectsMoved.setAutoIdleReset(false);
-	if (!mTuioUdpSocket) 
-		mTuioUdpSocket = std::make_shared<ci::osc::ReceiverUdp>( mTuioPort );
-	if (!mTuio)
-		mTuio = std::make_shared<ci::tuio::Receiver>( mTuioUdpSocket.get() );
 
-	//typedef void (ds::App::*AppTouchFn)(ci::app::TouchEvent event);
-	const auto makeCallback = [&app](const auto func) {
-		return [&app, func](const ci::tuio::Cursor2d& tuioCursor) {
-			const auto& window = ci::app::getWindow();
-			const auto event  = ci::app::TouchEvent(window, { tuioCursor.convertToTouch(window) });
-			/// Call named method: `func` on App instance: `app`
-			((app).*(func))(event);
-		};
-	};
-
-	if (!mTuioRegistered) {
-		mTuio->setAddedFn<ci::tuio::Cursor2d>(   makeCallback(&ds::App::touchesBegan) );
-		mTuio->setUpdatedFn<ci::tuio::Cursor2d>( makeCallback(&ds::App::touchesMoved) );
-		mTuio->setRemovedFn<ci::tuio::Cursor2d>( makeCallback(&ds::App::touchesEnded) );
-		registerForTuioObjects(*mTuio);
-
-		mTuioRegistered = true;
+	mTuioPort = mSettings.getInt("touch:tuio:port");
+	mTuioInput->start(false, mTuioPort);
+	if (auto tuioReceiver = mTuioInput->getReceiver()) {
+		registerForTuioObjects(tuioReceiver);
 	}
-
-	// TODO: Previously, we had a way to determine 
-	// if the socket was already open, and selectively bind again..
-	try {
-		mTuioUdpSocket->bind();
-		DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
-	}
-	catch (const ci::Exception &ex) {
-		DS_LOG_WARNING("TUIO receiver could not be started on port " << mTuioPort
-			<< ". The most common cause is that the port is already bound by another app."
-			<< "  Exception: " << ex.what()
-		);
-	}
-
-	// And listen for messages.
-	mTuioUdpSocket->listen([](asio::error_code ec, asio::ip::udp::endpoint ep) {
-		if (ec) {
-			DS_LOG_WARNING( "TUIO error on listener: " << ec.message() << " Error Value: " << ec.value() );
-			return false;
-		}
-		return true;
-	});
 }
 
 void Engine::stopTuio() {
-	if (mTuioRegistered && mTuio && mTuioUdpSocket) {
-		mTuio->clear<ci::tuio::Cursor2d>();
-		mTuio->clear<ci::tuio::Object2d>();
-		mTuioRegistered = false;
-		try {
-			mTuio = nullptr;
-			mTuioUdpSocket->close();
-			mTuioUdpSocket = nullptr;
-		} catch (std::exception e) {
-			DS_LOG_WARNING("TUIO could not disconnect" << e.what());
-		}
-		DS_LOG_INFO("TUIO disconnected");
-	}
+	mTuioInput->stop();
 }
 
 void Engine::clearRoots(){
@@ -1091,7 +1030,7 @@ void Engine::clearAllSprites(const bool clearDebug) {
 	}
 }
 
-void Engine::registerForTuioObjects(ci::tuio::Receiver& tuioReceiver) {
+void Engine::registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver> tuioReceiver) {
 	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
 		const auto makeHandler = [this] (auto& eventQueue) {
 			return [this, &eventQueue](const auto& o) {
@@ -1100,9 +1039,12 @@ void Engine::registerForTuioObjects(ci::tuio::Receiver& tuioReceiver) {
 				));
 			};
 		};
-		tuioReceiver.setAddedFn  <ci::tuio::Object2d>( makeHandler(mTuioObjectsBegin) );
-		tuioReceiver.setUpdatedFn<ci::tuio::Object2d>( makeHandler(mTuioObjectsMoved) );
-		tuioReceiver.setRemovedFn<ci::tuio::Object2d>( makeHandler(mTuioObjectsEnded) );
+
+		if (tuioReceiver) {
+			tuioReceiver->setAddedFn  <ci::tuio::Object2d>(makeHandler(mTuioObjectsBegin));
+			tuioReceiver->setUpdatedFn<ci::tuio::Object2d>(makeHandler(mTuioObjectsMoved));
+			tuioReceiver->setRemovedFn<ci::tuio::Object2d>(makeHandler(mTuioObjectsEnded));
+		}
 	}
 }
 
@@ -1187,8 +1129,11 @@ void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
 	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-ci::tuio::Receiver &Engine::getTuioClient() {
-	return *mTuio;
+std::shared_ptr<ci::tuio::Receiver>	Engine::getTuioClient(const int tuioIndex) {
+	if (tuioIndex >= 0 && tuioIndex < mTuioInputs.size())
+		return mTuioInputs[tuioIndex]->getReceiver();
+
+	return mTuioInput->getReceiver();
 }
 
 void Engine::mouseTouchBegin(const ci::app::MouseEvent &e, int id) {

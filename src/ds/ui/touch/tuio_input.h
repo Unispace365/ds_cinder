@@ -14,7 +14,6 @@ class Receiver;
 }
 }
 
-
 namespace ds {
 namespace ui {
 
@@ -29,20 +28,29 @@ public:
 			  const float rotty, const int fingerIdOffset, const ci::Rectf& allowedArea);
 	~TuioInput();
 
+	typedef std::shared_ptr<ci::osc::ReceiverUdp>
+									OscReceiverRef;
+	typedef std::shared_ptr<ci::tuio::Receiver>
+									TuioReceiverRef;
+	TuioReceiverRef					getReceiver() { return mTuioReceiver; }
+
+	void							start(const bool registerEvents=false, const int port=0);
+	void							stop();
+
 protected:
-	ci::vec2 transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
+	ci::vec2						transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
+	void							registerEvents();
 
 private:
-	ds::ui::SpriteEngine& mEngine;
+	ds::ui::SpriteEngine&			mEngine;
 
-	std::shared_ptr<ci::osc::ReceiverUdp>
-			  mTuioUdpSocket;
-	std::shared_ptr<ci::tuio::Receiver>
-			  mTuioReceiver;
+	int								mUdpPort;
+	int								mFingerIdOffset;
+	glm::mat4						mTransform;
+	ci::Rectf						mAllowedRect;
 
-	int       mFingerIdOffset;
-	glm::mat4 mTransform;
-	ci::Rectf mAllowedRect;
+	OscReceiverRef					mOscReceiver;
+	TuioReceiverRef					mTuioReceiver;
 };
 
 
