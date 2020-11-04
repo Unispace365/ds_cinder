@@ -362,7 +362,7 @@ const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::st
 }
 
 const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue){
-	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(engine);
+	return getSetting(name, index, ds::unparseColor(defaultValue)).getColorA(engine);
 }
 
 const std::string& Settings::getString(const std::string& name, const int index){

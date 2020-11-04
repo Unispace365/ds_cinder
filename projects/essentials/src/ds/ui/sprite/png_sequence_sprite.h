@@ -73,7 +73,7 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	void						setImageFlags(const int flags) { mImageFlags = flags;}
 
 private:
-	void checkLoaded();
+	void						checkLoaded();
 	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 	void                        runAnimationEndedCallback();
 
