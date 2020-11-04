@@ -431,18 +431,31 @@ Control Check Box Parameters
 
 Scroll List Parameters
 -------------------------------
-* **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
+* **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc) OR use smart_scroll_list
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
-* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: Set the size of the fade as a float.
+* **scroll_shader_fade**: **Also applicable to ScrollArea**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
+
+Scroll Area Parameters
+-------------------------------
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool)
+* **scroll_fade_colors**: **Also applicable to ScrollList**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+* **scroll_fade_size**: **Also applicable to ScrollList**. Set the size of the fade as a float.
+* **scroll_shader_fade**: **Also applicable to ScrollList**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
 
 Smart Scroll List Parameters
 --------------------------------------
-* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal
-	layout.
+* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal layout.
 * **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
+
+Scroll Bar Parameters
+--------------------------------------
+* **sprite_link** Add the name of a ScrollList or ScrollArea to control one of those areas
+* **scroll_bar_nub_color**: A color for the current-position indicator
+* **scroll_bar_background_color**: A color for the area in the back behind the nub
+* **scroll_bar_corner_radius**: Sets the corner radius of both the nub and the background
 
 EntryField and SoftKeyboard Parameters
 --------------------------------------

@@ -357,6 +357,7 @@ void Text::setShrinkToBounds(const bool shrinkToBounds /* = false */) {
 void Text::setTextColor(const ci::Color& color) {
 	if(mStyle.mColor != color) {
 		mStyle.mColor = color;
+		mColor = color;
 		mNeedsTextRender = true;
 
 		markAsDirty(FONT_DIRTY);
