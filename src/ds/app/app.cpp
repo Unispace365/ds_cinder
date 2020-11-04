@@ -335,8 +335,8 @@ void App::setup() {
 	inherited::setup();
 
 	mEngine.getPangoFontService().loadFonts();
-	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+	mEngine.setup(*this);
 
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
