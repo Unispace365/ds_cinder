@@ -494,7 +494,10 @@ void ScrollArea::setUseShaderFade(const bool shaderFade) {
 			mBottomFade->hide();
 		}
 		setBlendMode(ds::ui::FBO_IN);
-		setFinalRenderToTexture(true);
+
+		ci::gl::Fbo::Format  format;
+		format.setSamples(8);
+		setFinalRenderToTexture(true, format);
 
 		if(!mShaderShader){
 			try {
