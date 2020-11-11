@@ -14,7 +14,8 @@ class SmartLayout;
 *		Each item in the scroll list will be a SmartLayout
 *
 *	NOTES:
-*		- The itemLayout needs to be fixed height
+*		- The itemLayout needs to be fixed height for Grid and Matrix layouts
+*		- In order to account for varying heights (Vertical scroll) or widths (Horizontal scroll), you must call the `setVaryingSizeLayout` function
 *		- The item's root sprite needs to be enabled, but not the children
 *		- Add a sprite named "highlight" to have it's visibility toggled when the row is touched
 *		- Optionally add a scroll bar named "scroll_bar"
@@ -41,8 +42,11 @@ public:
 	void			setContentListMaintainPosition(ds::model::ContentModelRef parentModel);
 	void			setContentListMaintainPosition(std::vector<ds::model::ContentModelRef> theContents);
 
-	/// Sets the layout file for each item, MUST be fixed height
+	/// Sets the layout file for each item
 	void			setItemLayoutFile(const std::string& itemLayout);
+
+	/// Sets the list to account for varying heights (vertical scroll) or widths (horizontal scroll)
+	void			setVaryingSizeLayout(const bool doVarying) { mVaryingSizeLayout = doVarying; }
 
 protected:
 	std::function<void(SmartLayout*)> mContentItemUpdated;

@@ -21,6 +21,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mFillFromTop(true)
 	, mGridLayout(false)
 	, mSpecialLayout(false)
+	, mVaryingSizeLayout(false)
 	, mTargetRow(0)
 	, mTargetColumn(0)
 	, mMatrixPadding(0)
@@ -124,21 +125,20 @@ void ScrollList::layout(){
 
 void ScrollList::pushItemsTop(){
 	if (mVerticalScrolling){
+		if (mItemPlaceHolders.empty()) return;
 		float scrollHeight = mScrollableHolder->getHeight();
 		if(getPerspective()){
-			if(!mItemPlaceHolders.empty() &&
-			   mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - mIncrementAmount
-			   ){
-				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - mIncrementAmount;
+			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders[0].mSize.y : mIncrementAmount;
+			if(mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - incrementAmount){
+				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - incrementAmount;
 				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 					(*it).mY += delta;
 				}
 			}
 		} else {
-			if(!mItemPlaceHolders.empty() &&
-			   mItemPlaceHolders.back().mY < scrollHeight - mIncrementAmount
-			   ){
-				float delta = scrollHeight - mItemPlaceHolders.back().mY - mIncrementAmount;
+			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders.back().mSize.y : mIncrementAmount;
+			if(mItemPlaceHolders.back().mY < scrollHeight - incrementAmount){
+				float delta = scrollHeight - mItemPlaceHolders.back().mY - incrementAmount;
 				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 					(*it).mY += delta;
 				}
@@ -285,22 +285,46 @@ void ScrollList::layoutItems(){
 	const bool isPerspective = Sprite::getPerspective();
 	float totalHeight = yp;
 	if (mVerticalScrolling){
-		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		if (mVaryingSizeLayout) {
+			totalHeight += mStartPositionY * 2.f;
+			for (auto item : mItemPlaceHolders) {
+				totalHeight += item.mSize.y;
+			}
+		} else {
+			totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		}
 		if(isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
 	}
 
-	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
-		(*it).mX = xp;
-		(*it).mY = yp;
+	if (mVaryingSizeLayout) {
+		for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+			(*it).mX = xp;
+			(*it).mY = yp;
 
-		if(mVerticalScrolling){
-			if(isPerspective){
-				yp -= mIncrementAmount;
+			if (mVerticalScrolling) {
+				if (isPerspective) {
+					yp -= (*it).mSize.y;
+				} else {
+					yp += (*it).mSize.y;
+				}
 			} else {
-				yp += mIncrementAmount;
+				xp += (*it).mSize.x;
 			}
-		} else {
-			xp += mIncrementAmount;
+		}
+	} else {
+		for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+			(*it).mX = xp;
+			(*it).mY = yp;
+
+			if (mVerticalScrolling) {
+				if (isPerspective) {
+					yp -= mIncrementAmount;
+				} else {
+					yp += mIncrementAmount;
+				}
+			} else {
+				xp += mIncrementAmount;
+			}
 		}
 	}
 
@@ -346,8 +370,10 @@ void ScrollList::assignItems(){
 		float itemY = y + it->mY;
 		float itemX = x + it->mX;
 
-		if((mVerticalScrolling && ((itemY + mIncrementAmount > 0.0f) && (itemY < scrollHeight))) ||
-			(!mVerticalScrolling && ((itemX + mIncrementAmount > 0.0f) && (itemX < scrollWidth)))
+		const auto incrementAmount = mVaryingSizeLayout ? (mVerticalScrolling ? it->mSize.y : it->mSize.x) : mIncrementAmount;
+
+		if((mVerticalScrolling && ((itemY + incrementAmount > 0.0f) && (itemY < scrollHeight))) ||
+			(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))
 			){
 			if(it->mAssociatedSprite){
 				it->mAssociatedSprite->setPosition(it->mX, it->mY);

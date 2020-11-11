@@ -65,14 +65,49 @@ void SmartScrollList::setContentList(ds::model::ContentModelRef parentModel) {
 void SmartScrollList::setContentList(std::vector<ds::model::ContentModelRef> theContents) {
 	mContentMap.clear();
 	int itemId = 1;
-	std::vector<int> productIds;
-	for(auto it : theContents) {
-		productIds.emplace_back(itemId);
-		mContentMap[itemId] = it;
-		itemId++;
-	}
 
-	setContent(productIds);
+	if (mVaryingSizeLayout) {
+		clearItems();
+
+		for (auto it : theContents){
+			auto placeHolder = ItemPlaceHolder(itemId);
+
+			/// grab the height from the item, then get rid of it
+			if (auto tempItem = mCreateItemCallback()) {
+				ci::vec2 itemSize(0.f);
+				if (auto rpi = dynamic_cast<ds::ui::SmartLayout*>(tempItem)) {
+					rpi->setContentModel(it);
+					if (mContentItemUpdated) {
+						mContentItemUpdated(rpi);
+					}
+					itemSize = ci::vec2(rpi->getSize());
+				} else {
+					itemSize = ci::vec2(tempItem->getSize());
+				}
+				placeHolder.mSize = itemSize;
+				tempItem->release();
+			}
+
+			mContentMap[itemId] = it;
+			itemId++;
+
+			mItemPlaceHolders.push_back(placeHolder);
+		}
+
+		layout();
+		if (mScrollArea) {
+			mScrollArea->resetScrollerPosition();
+		}
+		animateItemsOn();
+	} else {
+		std::vector<int> productIds;
+		for (auto it : theContents) {
+			productIds.emplace_back(itemId);
+			mContentMap[itemId] = it;
+			itemId++;
+		}
+		setContent(productIds);
+	}
 }
 
 
@@ -92,7 +127,6 @@ void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
 		DS_LOG_WARNING("Can't set a blank layout for sub items in SmartScrollList");
 		return;
 	}
-
 
 	/// grab the height from the item, then get rid of it
 	ds::ui::SmartLayout* tempItem = new ds::ui::SmartLayout(mEngine, itemLayout);
