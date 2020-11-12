@@ -69,6 +69,9 @@ class ScrollArea : public ds::ui::Sprite {
 		// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
 		void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
 
+		// Temporarily disable the bound check, handy if you want to highlight an edge item at a specific position 
+		void				disableBoundCheck(const bool disable) { mSkipBoundCheck = disable; }
+
 	protected:
 		virtual void		onUpdateServer(const ds::UpdateParams& p) override;
 		virtual void		onSizeChanged() override;
@@ -93,6 +96,8 @@ class ScrollArea : public ds::ui::Sprite {
 		bool				mTopFadeActive;
 		bool				mBottomFadeActive;
 		bool				mHandleRotatedTouches;
+
+		bool				mSkipBoundCheck;
 
 		bool				mVertical;
 

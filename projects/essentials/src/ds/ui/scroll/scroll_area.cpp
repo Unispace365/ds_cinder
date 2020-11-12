@@ -27,6 +27,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mVertical(vertical)
 	, mScrollPercent(0.0f)
 	, mHandleRotatedTouches(false)
+	, mSkipBoundCheck(false)
 {
 
 	setSize(startWidth, startHeight);
@@ -117,7 +118,8 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 }
 
 void ScrollArea::checkBounds(){
-	if(!mScroller) return;
+	if(!mScroller || mSkipBoundCheck) return;
+
 	bool doTween = true;
 	ci::vec3 tweenDestination = mScroller->getPosition();
 
