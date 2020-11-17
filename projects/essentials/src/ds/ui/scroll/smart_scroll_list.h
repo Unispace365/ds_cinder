@@ -49,6 +49,8 @@ public:
 	void			setVaryingSizeLayout(const bool doVarying) { mVaryingSizeLayout = doVarying; }
 
 protected:
+	virtual void	layoutItems() override;
+
 	std::function<void(SmartLayout*)> mContentItemUpdated;
 	std::map<int, ds::model::ContentModelRef> mContentMap;
 	std::function<void(SmartLayout*, ds::model::ContentModelRef theModel)> mContentItemTapped;
