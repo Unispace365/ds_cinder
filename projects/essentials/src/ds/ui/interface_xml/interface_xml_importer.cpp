@@ -275,9 +275,6 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 
 	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << theValue << " referer=" << referer);
 
-	if (local_map.size() > 0) {
-		auto x = local_map;
-	}
 	std::string value = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
 	value = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
@@ -527,6 +524,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				auto controlBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 				if (controlBox) {
 					controlBox->setLabelTextStyle(p.value);
+				} else {
 					logAttributionWarning(p);
 				}
 			}
@@ -1153,6 +1151,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			if (scrollBar && scrollBar->getBackgroundSprite() && scrollBar->getNubSprite()) {
 				scrollBar->getBackgroundSprite()->setCornerRadius(ds::string_to_float(p.value));
 				scrollBar->getNubSprite()->setCornerRadius(ds::string_to_float(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_touch_padding"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar) {
+				scrollBar->setTouchPadding(ds::string_to_float(p.value));
 			} else {
 				logAttributionWarning(p);
 			}
