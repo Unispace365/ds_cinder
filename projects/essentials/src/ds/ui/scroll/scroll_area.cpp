@@ -508,6 +508,10 @@ void ScrollArea::setUseShaderFade(const bool shaderFade) {
 		}
 		
 	} else {
+		if (mTopFade && mBottomFade) {
+			mTopFade->show();
+			mBottomFade->show();
+		}
 		setBlendMode(ds::ui::NORMAL);
 		setFinalRenderToTexture(false);		
 	}
