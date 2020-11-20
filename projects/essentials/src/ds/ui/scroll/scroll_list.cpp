@@ -364,14 +364,10 @@ void ScrollList::assignItems(){
 	float scrollWidth = mScrollArea->getWidth();
 
 	if (mVaryingSizeLayout) {
-		float incrementedPosition;
-		bool previousSizeChanged = false;
+		float incrementedPosition = mVerticalScrolling ? mStartPositionY : mStartPositionX;
 		for (auto& it : mItemPlaceHolders) {
-			if (previousSizeChanged) {
-				previousSizeChanged = false;
-				if (mVerticalScrolling) it.mY = incrementedPosition;
-				else it.mX = incrementedPosition;
-			}
+			if (mVerticalScrolling) it.mY = incrementedPosition;
+			else it.mX = incrementedPosition;
 
 			float itemY = scrollPos.y + it.mY;
 			float itemX = scrollPos.x + it.mX;
@@ -415,11 +411,8 @@ void ScrollList::assignItems(){
 						ci::vec2 spSize = ci::vec2(sprite->getSize());
 						if (it.mSize != spSize) {
 							it.mSize = spSize;
-
-							previousSizeChanged = true;
-							if (mVerticalScrolling) incrementedPosition = it.mY + spSize.y;
-							else incrementedPosition = it.mX + spSize.x;
 						}
+
 						sprite->show();
 						it.mAssociatedSprite = sprite;
 					}
@@ -431,8 +424,20 @@ void ScrollList::assignItems(){
 					it.mAssociatedSprite = nullptr;
 				}
 			}
+
+			if (mVerticalScrolling) incrementedPosition = it.mY + it.mSize.y;
+			else incrementedPosition = it.mX + it.mSize.x;
 		}
 
+		if (mVerticalScrolling) {
+			if (mScrollableHolder->getHeight() != incrementedPosition) {
+				mScrollableHolder->setSize(getWidth(), incrementedPosition);
+				if (mScrollArea) mScrollArea->recalculateSizes();
+			}
+		} else if (mScrollableHolder->getWidth() != incrementedPosition) {
+			mScrollableHolder->setSize(incrementedPosition, getHeight());
+			if (mScrollArea) mScrollArea->recalculateSizes();
+		}
 	} else {
 		std::vector<int> needsSprite;
 
