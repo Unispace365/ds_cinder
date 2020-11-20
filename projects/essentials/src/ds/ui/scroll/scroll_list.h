@@ -104,7 +104,7 @@ class ScrollArea;
 			int							mDbId;
 			float						mX;
 			float						mY;
-			ci::vec2					mSize;
+			ci::vec2					mSize = ci::vec2(0.f);
 			ds::ui::Sprite*				mAssociatedSprite;
 		};
 
