@@ -235,7 +235,7 @@ void PDFPlayer::layout() {
 	if (mPdfInterface) {
 		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
 
-		float yPos = h - mPdfInterface->getHeight() - 50.0f;
+		float yPos = h - mPdfInterface->getHeight() - mInterfaceBottomPad;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
 		if (yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
 		if(mInterfaceBelowMedia) yPos = h;
@@ -258,6 +258,7 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 	mCanShowLinks = settings.mPdfCanShowLinks;
 	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }

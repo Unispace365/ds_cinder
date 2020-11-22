@@ -531,6 +531,7 @@ If you have the viewers project included, you can create media players. Media pl
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
 * **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop. Also applies to YouTube links
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
+* **media_player_interface_b_pad**: Float, how many pixels above the bottom of the media the interace should be. Default = 50 pixels.
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
 * **media_player_web_start_interactive**: Boolean, enables touching the web view immediately upon creation
 * **media_player_video_volume**: Float, sets the volume of videos when they start

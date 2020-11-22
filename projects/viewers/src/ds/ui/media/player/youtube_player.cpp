@@ -141,6 +141,7 @@ void YouTubePlayer::setMediaViewerSettings(const MediaViewerSettings& settings) 
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
 	mVolume = settings.mVideoVolume;
 }
@@ -247,7 +248,7 @@ void YouTubePlayer::layout() {
 	if (mYoutubeInterface && mEmbedInterface) {
 		mYoutubeInterface->setSize(getWidth() * 2.0f / 3.0f, mYoutubeInterface->getHeight());
 
-		float yPos = getHeight() - mYoutubeInterface->getHeight() - 50.0f;
+		float yPos = getHeight() - mYoutubeInterface->getHeight() - mInterfaceBottomPad;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if (yPos + mYoutubeInterface->getHeight() > getHeight()) yPos = getHeight() - mYoutubeInterface->getHeight();
 		if (mInterfaceBelowMedia) yPos = getHeight();
