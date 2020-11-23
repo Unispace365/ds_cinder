@@ -378,11 +378,6 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 	ci::gl::pushModelMatrix();
 	ci::gl::multModelMatrix(totalTransformation);
 
-	if (getClipping()) { 
-		const ci::Rectf&	  clippingBounds = getClippingBounds(drawParams.mClippingParent);
-		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
-	}
-
 	if (mShaderShader) {
 		mShaderShader->bind();
 		mShaderShader->uniform("textureSize", ci::vec2((float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
@@ -396,21 +391,12 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 		if (mBottomFade) {
 			mShaderShader->uniform("botOpacity", mBottomFade->getOpacity());
 		}
-
-		if (getClipping()) {
-			clip_plane::passClipPlanesToShader(mShaderShader);
-		}
 	}
 
 	ds::ui::applyBlendingMode(ds::ui::FBO_OUT);
 	ci::gl::color(1.0f, 1.0f, 1.0f, mDrawOpacity);
 	ci::gl::ScopedTextureBind scopedTexture(sourceTexture);
 	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, (float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
-
-
-	if (getClipping()) {
-		clip_plane::disableClipping();
-	}
 
 	ci::gl::popModelMatrix();
 }
