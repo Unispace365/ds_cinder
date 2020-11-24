@@ -192,13 +192,13 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	ci::vec2 totalArea = ci::vec2(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
 	for (auto it : panels) {
-		float tw = it->getWidth();
-		float th = it->getHeight();
-		if (tw < 1.0f || th < 1.0f) continue;
-
 		PanelPackage pp;
+		// a = w / h
+		// ah = w
+		// h = w / a
 		pp.mAsepectRatio = it->getContentAspectRatio();
-		pp.mTheSize = ci::vec2(it->getWidth(), it->getHeight());
+		if (pp.mAsepectRatio == 0.0f) pp.mAsepectRatio = 1.0f;
+		pp.mTheSize = ci::vec2(100.0f, 100.0f / pp.mAsepectRatio);
 		pp.mPanelIndex = ind;
 		thePackages.push_back(pp);
 		ind++;
