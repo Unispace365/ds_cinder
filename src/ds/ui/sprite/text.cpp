@@ -1288,9 +1288,9 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 
 		std::string fontName = buf.read<std::string>();
 		double fontSize = buf.read<double>();
-		float leading = buf.read<float>();
-		float letterSpacing = buf.read<float>();
-		ci::Color fontColor = buf.read<ci::Color>();
+		double leading = buf.read<double>();
+		double letterSpacing = buf.read<double>();
+		ci::ColorA fontColor = buf.read<ci::ColorA>();
 		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
 
 		setFont(fontName);
