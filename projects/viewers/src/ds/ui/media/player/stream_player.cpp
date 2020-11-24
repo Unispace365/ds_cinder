@@ -117,7 +117,7 @@ void StreamPlayer::layout() {
 	if (mVideoInterface && mEmbedInterface) {
 		mVideoInterface->setSize(getWidth() / 2.0f, mVideoInterface->getHeight());
 
-		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
+		float yPos = getHeight() - mVideoInterface->getHeight() - mInterfaceBottomPad;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
 		if(mInterfaceBelowMedia) yPos = getHeight();
@@ -143,6 +143,7 @@ void StreamPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setStreamLatency(settings.mVideoStreamingLatency);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 }
 
 void StreamPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }

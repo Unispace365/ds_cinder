@@ -275,9 +275,6 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 
 	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << theValue << " referer=" << referer);
 
-	if (local_map.size() > 0) {
-		auto x = local_map;
-	}
 	std::string value = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
 	value = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
@@ -527,6 +524,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				auto controlBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 				if (controlBox) {
 					controlBox->setLabelTextStyle(p.value);
+				} else {
 					logAttributionWarning(p);
 				}
 			}
@@ -1105,10 +1103,62 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
+		propertyMap["scroll_shader_fade"] = [](SprProps& p) {
+			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
+			ds::ui::ScrollArea* scrollArea = nullptr;
+			if (scrollList) {
+				scrollArea = scrollList->getScrollArea();
+			}
+
+			if (!scrollArea) {
+				scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&p.sprite);
+			}
+
+			if (scrollArea) {
+				auto fadesy = parseBoolean(p.value);
+				scrollArea->setUseShaderFade(fadesy);
+			} else {
+				logAttributionWarning(p);
+			}
+		};
 		propertyMap["smart_scroll_item_layout"] = [](SprProps& p) {
 			auto smartScrollList = dynamic_cast<ds::ui::SmartScrollList*>(&p.sprite);
 			if (smartScrollList) {
 				smartScrollList->setItemLayoutFile(p.value);
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+
+		propertyMap["scroll_bar_nub_color"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getNubSprite()) {
+				scrollBar->getNubSprite()->setColorA(parseColor(p.value, p.engine));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_background_color"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getBackgroundSprite()) {
+				scrollBar->getBackgroundSprite()->setColorA(parseColor(p.value, p.engine));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_corner_radius"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar && scrollBar->getBackgroundSprite() && scrollBar->getNubSprite()) {
+				scrollBar->getBackgroundSprite()->setCornerRadius(ds::string_to_float(p.value));
+				scrollBar->getNubSprite()->setCornerRadius(ds::string_to_float(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
+		propertyMap["scroll_bar_touch_padding"] = [](SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar) {
+				scrollBar->setTouchPadding(ds::string_to_float(p.value));
 			} else {
 				logAttributionWarning(p);
 			}
@@ -1610,6 +1660,17 @@ bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Se
 							ef->keyPressed(character, keyType);
 						}
 					});
+				} else {
+					ScrollBar* sb = dynamic_cast<ScrollBar*>(it.first);
+					ScrollList* sl = dynamic_cast<ScrollList*>(findy->second);
+					ScrollArea* sa = dynamic_cast<ScrollArea*>(findy->second);
+					if(sb && sl){
+						sb->linkScrollList(sl);
+					}
+
+					if(sb && sa){
+						sb->linkScrollArea(sa);
+					}
 				}
 			}
 		}

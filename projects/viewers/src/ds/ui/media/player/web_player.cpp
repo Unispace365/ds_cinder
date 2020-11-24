@@ -46,6 +46,7 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
 }
 
@@ -173,7 +174,7 @@ void WebPlayer::layout() {
 	if(mWebInterface && mEmbedInterface) {
 		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
 
-		float yPos = getHeight() - mWebInterface->getHeight() - 50.0f;
+		float yPos = getHeight() - mWebInterface->getHeight() - mInterfaceBottomPad;
 		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
 		if(yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
 		if(mInterfaceBelowMedia) yPos = getHeight();
