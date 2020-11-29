@@ -1759,7 +1759,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp) {
 }
 
 // NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
-ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value) {
+ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value, ds::cfg::VariableMap& local_map) {
 	DS_LOG_VERBOSE(4, "XmlImporter: createSpriteByType type=" << type << " value=" << value);
 
 	ds::ui::Sprite* spriddy = nullptr;
@@ -1840,8 +1840,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 			auto colony = it.find(":");
 			if (colony != std::string::npos) {
 				std::string paramType  = it.substr(0, colony);
-				std::string paramValue = it.substr(colony + 1);
-				if (paramType.empty() || paramValue.empty()) continue;
+				std::string theValue = it.substr(colony + 1);
+				if (paramType.empty() || theValue.empty()) continue;
+
+				std::string paramValue = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
+				paramValue = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
 
 				if (paramType == "type") {
 					keyboardType = paramValue;
@@ -1892,19 +1895,12 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				} else if (paramType == "img_up_none") {
 					if (parseBoolean(paramValue)) {
 						sks.mKeyLetterUpImage = "";
-						// sks.mKeyLetterDnImage = "";
 						sks.mKeyNumberUpImage = "";
-						// sks.mKeyNumberDnImage = "";
 						sks.mKeySpaceUpImage = "";
-						// sks.mKeySpaceDnImage = "";
 						sks.mKeyEnterUpImage = "";
-						// sks.mKeyEnterDnImage = "";
 						sks.mKeyDeleteUpImage = "";
-						// sks.mKeyDeleteDnImage = "";
 						sks.mKeyShiftUpImage = "";
-						// sks.mKeyShiftDnImage = "";
 						sks.mKeyTabUpImage = "";
-						// sks.mKeyTabDnImage = "";
 					}
 				} else if (paramType == "email_mode") {
 					sks.mEmailMode = parseBoolean(paramValue);
@@ -1952,10 +1948,13 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		for (auto it : tokens) {
 			auto colony = it.find(":");
 			if (colony != std::string::npos) {
-				std::string paramType  = it.substr(0, colony);
-				std::string paramValue = it.substr(colony + 1);
+				std::string paramType = it.substr(0, colony);
+				std::string theValue = it.substr(colony + 1);
+				if (paramType.empty() || theValue.empty()) continue;
 
-				if (paramType.empty() || paramValue.empty()) continue;
+				std::string paramValue = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
+				paramValue = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
+
 				if (paramType == "text_config") {
 					efs.mTextConfig = paramValue;
 				} else if (paramType == "cursor_size") {
