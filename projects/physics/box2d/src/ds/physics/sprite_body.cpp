@@ -5,8 +5,8 @@
 #include <ds/math/math_defs.h>
 
 #include "ds/physics/body_builder.h"
-#include "private/service.h"
-#include "private/world.h"
+#include "service.h"
+#include "world.h"
 
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"

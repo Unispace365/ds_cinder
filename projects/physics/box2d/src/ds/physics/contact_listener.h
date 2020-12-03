@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_PRIVATE_CONTACTLISTENER_H_
-#define DS_PHYSICS_PRIVATE_CONTACTLISTENER_H_
 
 #include <functional>
 #include <unordered_map>
@@ -74,4 +72,3 @@ private:
 } // namespace physics
 } // namespace ds
 
-#endif // DS_PHYSICS_PRIVATE_WORLD_H_

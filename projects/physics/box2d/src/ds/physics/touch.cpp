@@ -1,9 +1,9 @@
-#include "private/touch.h"
+#include "touch.h"
 
 #include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/physics/sprite_body.h>
-#include "private/world.h"
+#include "world.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/Joints/b2MouseJoint.h"
