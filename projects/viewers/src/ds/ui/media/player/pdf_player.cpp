@@ -235,11 +235,11 @@ void PDFPlayer::layout() {
 	if (mPdfInterface) {
 		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
 
-		float yPos = h - mPdfInterface->getHeight() - mInterfaceBottomPad;
+		float yPos = h - mPdfInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
-		if (yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
+		if (yPos + mPdfInterface->getScaleHeight() > h) yPos = h - mPdfInterface->getScaleHeight();
 		if(mInterfaceBelowMedia) yPos = h;
-		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, yPos);
+		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
 
