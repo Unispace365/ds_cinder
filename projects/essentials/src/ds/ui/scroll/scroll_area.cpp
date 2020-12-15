@@ -437,12 +437,12 @@ void ScrollArea::setUseFades(const bool doFading){
 		setScrollSize(getWidth(), getHeight());
 	} else {
 		if(mTopFade){
-			mTopFade->remove();
+			mTopFade->release();
 			mTopFade = nullptr;
 		}
 
 		if(mBottomFade){
-			mBottomFade->remove();
+			mBottomFade->release();
 			mBottomFade = nullptr;
 		}
 	}
