@@ -90,6 +90,7 @@ namespace ui{
 ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, const float startHeight, const bool vertical)
 	: Sprite(engine)
 	, mSpriteMomentum(engine)
+	, mAllowMomentum(true)
 	, mScroller(nullptr)
 	, mScrollable(false)
 	, mReturnAnimateTime(0.3f)
@@ -274,7 +275,8 @@ void ScrollArea::checkBounds(const bool immediate){
 			callAfterDelay([this, doTween, tweenDestination]() {
 				mWillSnapAfterDelay = false;
 				mSpriteMomentum.deactivate();
-				mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this]() { tweenComplete(); }, [this]() { scrollerTweenUpdated(); });
+				mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this]() {
+					tweenComplete(); }, [this]() { scrollerTweenUpdated(); });
 				scrollerUpdated(ci::vec2(tweenDestination));
 			}, 0.0f);
 		}
@@ -305,7 +307,7 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 	if(ti.mPhase == ds::ui::TouchInfo::Added){
 		mSpriteMomentum.deactivate();
 	} else if(ti.mPhase == ds::ui::TouchInfo::Removed && ti.mNumberFingers == 0){
-		mSpriteMomentum.activate();
+		if(mAllowMomentum) mSpriteMomentum.activate();
 		checkBounds();
 	} else if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mNumberFingers > 0){
 		auto deltaPoint = ti.mDeltaPoint;

@@ -1052,6 +1052,23 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
+		propertyMap["scroll_allow_momentum"] = [](SprProps& p) {
+			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
+			ds::ui::ScrollArea* scrollArea = nullptr;
+			if (scrollList) {
+				scrollArea = scrollList->getScrollArea();
+			}
+
+			if (!scrollArea) {
+				scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&p.sprite);
+			}
+
+			if (scrollArea) {
+				scrollArea->setAllowMomentum(ds::parseBoolean(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
 		propertyMap["scroll_fade_colors"] = [](SprProps& p) {
 			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			ds::ui::ScrollArea* scrollArea = nullptr;

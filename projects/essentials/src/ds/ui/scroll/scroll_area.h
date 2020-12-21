@@ -29,6 +29,9 @@ public:
 	/// Stop any current movement of the scrolling
 	void				stopScrollMomentum();
 
+	/// Allows the scroller to move with momentum (default is true).
+	void				setAllowMomentum(const bool allowMomentum) { mAllowMomentum = allowMomentum; }
+
 	/// Set the position of your sprite before you add it here.
 	/// The scroll area will be sized after the new sprite is passed in.
 	void				addSpriteToScroll(ds::ui::Sprite* bs);
@@ -112,6 +115,7 @@ protected:
 	Sprite*				mScroller;
 	bool				mScrollable;
 	Momentum			mSpriteMomentum;
+	bool				mAllowMomentum;
 	float				mReturnAnimateTime;
 	bool				mWillSnapAfterDelay;
 

@@ -444,6 +444,7 @@ Scroll Area Parameters
 * **scroll_fade_colors**: **Also applicable to ScrollList**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: **Also applicable to ScrollList**. Set the size of the fade as a float.
 * **scroll_shader_fade**: **Also applicable to ScrollList**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
+* **scroll_allow_momentum**: **Also applicable to ScrollList**. Allows the scroll area to move with momentum after the user has finished dragging. In some circumstances, this can cause undesired movement, like if you're getting callbacks from the scroll updating, you might get inconsistent values. Default=true
 
 Smart Scroll List Parameters
 --------------------------------------
