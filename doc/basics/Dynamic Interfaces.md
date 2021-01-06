@@ -485,6 +485,7 @@ type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; ke
 * **search_mode**: If true, will not add returns when the enter button is hit. Default: false
 * **password_mode**: If true, will show bullets instead of text. Default: false
 * **auto_resize**: If true, sizes the resize limit of the text to the size of the EntryField sprite, otherwise the field_size is assumed to be static. Default: false
+* **auto_expand**: If true, sizes the width of the text field to this EntryField, and sizes the height of the EntryField to the text. Basically it makes an entry field that expands vertically as you type. Disables auto_resize if this is enabled. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended, simplified, pinpad and pincode. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Simplified only has letters, space bar, and delete keys. Pinpad is like an ATM pin pad with an enter button. Pincode is a number entry keyboard with a back/delete button. Default: standard

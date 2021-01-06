@@ -1994,6 +1994,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					efs.mSearchMode = parseBoolean(paramValue);
 				} else if (paramType == "auto_resize") {
 					efs.mAutoResize = parseBoolean(paramValue);
+				} else if (paramType == "auto_expand") {
+					efs.mAutoExpand = parseBoolean(paramValue);
 				}
 			}
 		}
