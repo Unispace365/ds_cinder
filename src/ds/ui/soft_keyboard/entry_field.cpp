@@ -264,6 +264,14 @@ void EntryField::setCursorPosition(const ci::vec3& globalPos) {
 	cursorUpdated();
 }
 
+const ci::vec3 EntryField::getCursorPosition() {
+	if(mCursor){
+		return mCursor->getGlobalPosition();
+	}
+
+	return ci::vec3();
+}
+
 void EntryField::resetCurrentText() {
 	setCurrentText(L"");
 	if(mKeyPressedFunction) {

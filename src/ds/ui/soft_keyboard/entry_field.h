@@ -121,6 +121,9 @@ public:
 	/// Sets the position of the cursor based on the given global position
 	void								setCursorPosition(const ci::vec3& globalPos);
 
+	/// Gets the position of the cursor in global space
+	const ci::vec3						getCursorPosition();
+
 protected:
 
 	/// Override to know when this field gains focus.
