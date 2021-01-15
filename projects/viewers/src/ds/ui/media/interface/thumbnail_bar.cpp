@@ -171,12 +171,18 @@ void ThumbnailBar::setHighlightedItem(const int itemIndex){
 void ThumbnailBar::setImageSize(ds::ui::Image* img){
 	if(!img) return;
 
+	auto scale = std::min(mItemSize / img->getWidth(), getHeight() / img->getHeight());
+	img->setScale(scale);
+
+	/*
 	float imageAsp = img->getWidth() / img->getHeight();
 	if(imageAsp > mSourceAspect){
 		img->setScale(mItemSize / img->getWidth());
 	} else {
 		img->setScale((getHeight() - mPadding * 2.0f) / img->getHeight());
 	}
+	*/
+
 
 }
 
