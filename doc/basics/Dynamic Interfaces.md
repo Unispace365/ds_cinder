@@ -237,7 +237,7 @@ Sprite Parameters
 * **scale**: 3d vector of the scale in x, y, z. Scale is from 0.0 (nothing) to 1.0 (100%), not bounded. scale="1, 1, 1" or scale="0.5, 0.5, 1"
 * **center**: Center is where the anchor of the sprite is calculated from (for scaling and rotation) and is a percentage from 0.0 (top/left) to 1.0 (bottom/right), not bounded. center="0, 0.5, 1"
 * **clipping**: Boolean of whether to clip it's children.
-* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply. Default = normal.
+* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply, fbo_in, fbo_out, transparent_black. Default = normal.
 * **enable**: Boolean of whether to handle touch input or not.
 * **multitouch**: String of multitouch mode. Possible values:
     * info = MULTITOUCH_INFO_ONLY
