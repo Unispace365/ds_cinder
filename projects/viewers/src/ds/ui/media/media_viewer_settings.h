@@ -19,6 +19,7 @@ struct MediaViewerSettings {
 		: mDefaultBounds(0.0f, 0.0f)
 		, mShowInterfaceAtStart(true)
 		, mInterfaceBelowMedia(false)
+		, mInterfaceBottomPad(50.0f)
 		, mLetterBox(true)
 		, mWebDefaultSize(0.0f, 0.0f)
 		, mWebKeyboardKeyScale(1.0f)
@@ -41,6 +42,7 @@ struct MediaViewerSettings {
 		, mVideoGlMode(false)
 		, mVideoNVDecode(false)
 		, mPanoramicVideoInteractive(true)
+		, mYouTubeSize(1920.0f, 1080.0f)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -52,6 +54,9 @@ struct MediaViewerSettings {
 
 	/// If true, puts the interface below (vertically) the media, otherwise floats on top on the lower third (the default)
 	bool						mInterfaceBelowMedia;
+
+	/// If the interface is above the media, how far off the bottom should it be? Default = 50 pixels
+	float						mInterfaceBottomPad;
 
 	/// If true, centers and fits the content. If false, will expand the content so it fills the player (doesn't clip by default though)
 	bool						mLetterBox;
@@ -72,6 +77,12 @@ struct MediaViewerSettings {
 	bool						mWebStartTouchable;
 	// If true, web sprites will send native touch events to the browser. Default = true
 	bool						mWebNativeTouches;
+
+
+	//--------------------YouTube Settings ------------------------------------------//
+	// Note that some video and web settings are used for youtube as well (autoplay, volume, start touchable, native touches)
+	ci::vec2					mYouTubeSize;
+
 
 	//--------------------Image Settings -------------------------------------------//
 

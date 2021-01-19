@@ -12,11 +12,12 @@
 #include "ds/ui/media/player/stream_player.h"
 #include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/web_player.h"
+#include "ds/ui/media/player/youtube_player.h"
 
 #include "ds/ui/media/interface/pdf_interface.h"
 #include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/interface/web_interface.h"
-#include "ds/ui/media/interface/web_youtube_interface.h"
+#include "ds/ui/media/interface/youtube_interface.h"
 
 namespace ds {
 namespace ui {
@@ -66,22 +67,18 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 	if (webPlayer) {
+		ds::ui::WebInterface* wi = new WebInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
+		parentSprite->addChildPtr(wi);
+		wi->linkWeb(webPlayer->getWeb());
+		outputMi = wi;
+	}
 
-		if (!webPlayer->getIsYoutube())
-		{
-			ds::ui::WebInterface* wi = new WebInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
+	ds::ui::YouTubePlayer* ytPlayer = dynamic_cast<ds::ui::YouTubePlayer*>(mediaPlayer);
+	if(ytPlayer){
+			ds::ui::YoutubeInterface* wi = new YoutubeInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(wi);
-			wi->linkWeb(webPlayer->getWeb());
-			outputMi = wi;
-		}
-		else
-		{
-			ds::ui::WebYoutubeInterface* wi = new WebYoutubeInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, buttonColor, backgroundColor);
-			parentSprite->addChildPtr(wi);
-			wi->linkWeb(webPlayer->getWeb());
-			outputMi = wi;
-		}
-		
+			wi->linkYouTubeWeb(ytPlayer->getYouTubeWeb());
+			outputMi = wi;		
 	}
 
 	ds::ui::PDFPlayer* pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mediaPlayer);

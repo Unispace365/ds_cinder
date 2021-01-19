@@ -63,6 +63,11 @@ void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	}
 }
 
+bool WebHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser, cef_log_severity_t level, const CefString& message, const CefString& source, int line) {
+	DS_LOG_VERBOSE(1, "Web console: " << message.ToString() << " source: " << source.ToString() << " line: " << line);
+	return false;
+}
+
 void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
 	// be sure this is locked with other requests to the browser lists
 	base::AutoLock lock_scope(mLock);
@@ -451,6 +456,32 @@ bool WebHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& ev
 	return false;
 }
 
+//Disable context menu
+//Define below two functions to essentially do nothing, overwriting defaults
+//See change in simple_handler.h
+void WebHandler::OnBeforeContextMenu(
+	CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefFrame> frame,
+	CefRefPtr<CefContextMenuParams> params,
+	CefRefPtr<CefMenuModel> model) {
+	CEF_REQUIRE_UI_THREAD();
+
+	model->Clear();
+}
+
+bool WebHandler::OnContextMenuCommand(
+	CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefFrame> frame,
+	CefRefPtr<CefContextMenuParams> params,
+	int command_id,
+	EventFlags event_flags) {
+	CEF_REQUIRE_UI_THREAD();
+
+	std::cout << "Tried to open a context menu, but we're skipping that thing! " << std::endl;
+	//MessageBox(browser->GetHost()->GetWindowHandle(), L"The requested action is not supported", L"Unsupported Action", MB_OK | MB_ICONINFORMATION);
+	return false;
+}
+
 // This comes from the IO thread, so it needs to be locked with the main thread 
 bool WebHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser, const CefString& origin_url, bool isProxy, const CefString& host, int port, const CefString& realm, const CefString& scheme, CefRefPtr<CefAuthCallback> callback){
 	// be sure this is locked with other requests to the browser list
@@ -608,8 +639,8 @@ void WebHandler::sendTouchEvent(const int browserId, const int touchId, const in
 		auto browserHost = findy->second->GetHost();
 		CefTouchEvent touchEvent;
 		touchEvent.id = touchId;
-		touchEvent.x = x;
-		touchEvent.y = y;
+		touchEvent.x = (float)x;
+		touchEvent.y = (float)y;
 
 		if (phase == 0) {
 			touchEvent.type = CEF_TET_PRESSED;

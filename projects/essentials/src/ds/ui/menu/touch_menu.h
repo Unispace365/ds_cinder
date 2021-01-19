@@ -17,9 +17,6 @@ class ClusterView;
 * then loading a view when enough fingers are onscreen and close enough together (a ClusterView)
 * The ClusterView is where the actual five finger menu ui is created.
 *
-* TODO: add more "blingy" graphic support
-* TODO: add useage comments
-*
 * Note: Intended to be used in Ortho roots only
 */
 class TouchMenu : public ds::ui::Sprite {
@@ -45,9 +42,10 @@ public:
 			: mAnimationDuration(0.35f)
 			, mItemIconHeight(150.0f), mItemTitlePad(20.0f), mItemTitleYPositionPercent(0.5f), mItemSize(250.0f, 250.0f), mItemTitleOpacity(0.5f)
 			, mItemTitleTextConfig(""), mItemSubtitleTextConfig(""), mItemSubtitleOpacity(0.5f)
+			, mItemTitleResizeLimit(0.0f, 0.0f)
 			, mClusterRadius(280.0f), mClusterPositionOffset(-90.0f)
 			, mClusterSizeThreshold(1000.0f), mClusterDistanceThreshold(1000.0f)
-			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f), mBackgroundOffset(0.0f, 0.0f)
+			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f), mBackgroundOffset(0.0f, 0.0f), mBackgroundPulseAmount(1.0f)
 			, mAnimationStyle(kAnimateUp)
 			, mDoClipping(true)
 			, mActivatedCallback(nullptr)
@@ -61,6 +59,7 @@ public:
 		float								mItemTitleYPositionPercent; // Vertical Position of the title, as a percentage of the height of the menu item
 		float								mItemTitleOpacity;			// Opacity of the title, defaults to 0.5
 		float								mItemSubtitleOpacity;		// Opacity of the subtitle, defaults to 0.5
+		ci::vec2							mItemTitleResizeLimit;		// Resize limit for title and subtitle
 		ci::vec2							mItemSize;					// size of each menu item
 		std::string							mItemTitleTextConfig;		// The text config for the title of the menu item
 		std::string							mItemSubtitleTextConfig;	// The text config for the subtitle of the menu item
@@ -76,6 +75,7 @@ public:
 		float								mBackgroundOpacity;			// Max opacity for the background image when the cluster is active
 		float								mBackgroundScale;			// Scale of the background image when cluster is active
 		ci::vec2							mBackgroundOffset;			// Position of the background image when cluster is active
+		float								mBackgroundPulseAmount;
 
 		typedef enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial } ClusterAnimation;
 

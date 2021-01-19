@@ -28,7 +28,8 @@ class WebHandler : public CefClient,
 	public CefJSDialogHandler,
 	public CefFocusHandler,
 	public CefKeyboardHandler,
-	public CefRequestHandler
+	public CefRequestHandler,
+	public CefContextMenuHandler
 {
 public:
 	explicit WebHandler();
@@ -62,10 +63,20 @@ public:
 	virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE{
 		return this;
 	}
+	virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
+		return this;
+	}
 
 		// CefDisplayHandler methods:
 	virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
 		const CefString& title) OVERRIDE;
+
+
+	virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+		cef_log_severity_t level,
+		const CefString& message,
+		const CefString& source,
+		int line);
 
 	virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
 										bool fullscreen) OVERRIDE;
@@ -142,6 +153,17 @@ public:
 	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
 							const CefKeyEvent& event,
 							CefEventHandle os_event) OVERRIDE;
+
+	// CefContextMenuHandler methods
+	void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefContextMenuParams> params,
+		CefRefPtr<CefMenuModel> model) OVERRIDE;
+	bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefContextMenuParams> params,
+		int command_id,
+		EventFlags event_flags) OVERRIDE;
 
 	// CefJSDialogHandler
 	// TODO: Callback to UI and optionally handle

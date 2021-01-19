@@ -10,6 +10,7 @@
 
 #include <ds/ui/sprite/pdf.h>
 #include <ds/ui/sprite/video.h>
+#include <ds/ui/media/player/youtube_player.h>
 
 namespace ds {
 namespace ui {
@@ -20,6 +21,7 @@ VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, con
 	, mProgress(nullptr)
 	, mLinkedVideo(nullptr)
 	, mLinkedPdf(nullptr)
+	, mLinkedYouTube(nullptr)
 {
 
 	// 	setTransparent(false);
@@ -43,6 +45,9 @@ VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, con
 		}
 		if(mLinkedPdf) {
 			mLinkedPdf->setPageNum((int)roundf(newPercent * ((float)mLinkedPdf->getPageCount() + 1.0f)));
+		}
+		if(mLinkedYouTube){
+			mLinkedYouTube->seekPercent(newPercent);
 		}
 	});
 
@@ -73,8 +78,13 @@ void VideoScrubBar::linkPdf(ds::ui::IPdf* linkedPdf) {
 	mLinkedPdf = linkedPdf;
 }
 
+
+void VideoScrubBar::linkYouTube(ds::ui::YouTubeWeb* linkedYouTube) {
+	mLinkedYouTube = linkedYouTube;
+}
+
 void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
-	if(mLinkedVideo && mProgress){
+	if(mLinkedVideo){
 		// update scrub bar
 		setProgressPercent((float)mLinkedVideo->getCurrentPosition());
 		
@@ -86,12 +96,16 @@ void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 		}
 	}
 
-	if(mLinkedPdf && mProgress) {
+	if(mLinkedPdf) {
 		auto curPage = (float)mLinkedPdf->getPageNum();
 		auto pageCount = (float)mLinkedPdf->getPageCount();
 		float theProgress = 1.0f;
 		if(pageCount > 1) theProgress = (curPage - 1) / (pageCount - 1);
 		setProgressPercent(theProgress);
+	}
+
+	if (mLinkedYouTube) {
+		setProgressPercent(mLinkedYouTube->getCurrentPercent());
 	}
 }
 
@@ -99,7 +113,7 @@ void VideoScrubBar::setProgressPercent(const float theProgress) {
 	float progress = theProgress;
 	if(progress < 0.0f) progress = 0.0f;
 	if(progress > 1.0f) progress = 1.0f;
-	mProgress->setSize(progress * getWidth(), mProgress->getHeight());
+	if(mProgress) mProgress->setSize(progress * getWidth(), mProgress->getHeight());
 	if(mNub) mNub->setPosition(progress * getWidth(), mNub->getPosition().y);
 
 }

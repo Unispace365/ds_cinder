@@ -25,6 +25,12 @@ Callback::Callback(ds::ui::SpriteEngine& eng, std::function<void()> func, const 
 	repeatedCallback(func, secondsDelay);
 }
 
+Callback::Callback(Callback&& cb)
+: ds::AutoUpdate(cb.mEngine, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
+, mRunning(cb.mRunning), mRepeated(cb.mRepeated), mDelay(cb.mDelay), mCallback(cb.mCallback), mStart(cb.mStart), mId(cb.mId){
+
+}
+
 size_t Callback::timedCallback(std::function<void()> func, const double secondsCallback) {
 	mId = mEngine.mCallbackId++;
 	mRunning = true;

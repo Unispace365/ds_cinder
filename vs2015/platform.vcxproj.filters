@@ -360,9 +360,6 @@
     <ClInclude Include="..\src\ds\cfg\settings.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\cfg_text.h">
-      <Filter>src\ds\cfg</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\network\tcp_socket_sender.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
@@ -773,9 +770,6 @@
     <ClCompile Include="..\src\ds\util\string_util.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\params\draw_params.cpp">
-      <Filter>src\ds\params</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\params\update_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>
@@ -921,9 +915,6 @@
       <Filter>src\ds\network</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\settings.cpp">
-      <Filter>src\ds\cfg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp">

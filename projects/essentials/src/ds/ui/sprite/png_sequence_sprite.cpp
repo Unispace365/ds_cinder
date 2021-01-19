@@ -14,8 +14,11 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 	, mLoopStyle(Loop)
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
+	, mIsLoaded(false)
 	, mFrameTime(0.0f)
 	, mNumFrames(0)
+	, mAnimationEndedCallback(nullptr)
+	, mLoadedCallback(nullptr)
 {
 	mLayoutFixedAspect = true;
 	setImages(imageFiles);
@@ -32,6 +35,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 	, mLoopStyle(Loop)
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
+	, mIsLoaded(false)
 	, mFrameTime(0.0f)
 	, mNumFrames(0)
 {
@@ -40,34 +44,33 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 }
 
 void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
-	mVisibleFrame = nullptr;
-	int i=0;
-	for(auto it = imageFiles.begin(); it < imageFiles.end(); ++it){
-		bool created_new_frames = false;
-		while ( mFrames.size() < i+1 ) {
-			ds::ui::Image* img = new ds::ui::Image( mEngine, (*it), ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F );
-			addChild( *img );
-			img->hide();
-			mFrames.push_back( img );
-			created_new_frames = true;
-		}
-
-		if (!created_new_frames)
-			mFrames[i]->setImageFile( *it, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F );
-
-		i++;
-	}
-
 	mNumFrames = static_cast<int>(imageFiles.size());
 
-	// Hide all the old frames if there were previously more frames than there are now
-	for ( i=mNumFrames; i<mFrames.size(); i++ )
-		mFrames[i]->hide();
-
-	if( mNumFrames == 0 ){
+	if (mNumFrames == 0) {
 		DS_LOG_WARNING("Png Sequence didn't load any frames. Whoops.");
 		mPlaying = false;
-		return;
+	}
+
+	// Remove all the old frames that are no longer needed
+	while (mFrames.size() > mNumFrames) {
+		auto last_frame = mFrames.back();
+		last_frame->release();
+		mFrames.pop_back();
+	}
+	
+	// Create new empty frame sprites as needed
+	while(mFrames.size() < mNumFrames){
+		ds::ui::Image* img = new ds::ui::Image(mEngine);
+		addChildPtr(img); // More idiomatic
+		img->hide();
+		mFrames.push_back( img );
+	}
+
+	mVisibleFrame = nullptr;
+	int i = 0;
+	for (auto filename : imageFiles) {
+		mFrames[i]->setImageFile(filename, mImageFlags);
+		i++;
 	}
 }
 
@@ -97,8 +100,12 @@ const bool PngSequenceSprite::isPlaying()const{
 	return mPlaying;
 }
 
-void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
-	if(frameIndex < 0 || frameIndex > mNumFrames - 1) return;
+bool PngSequenceSprite::isLoaded() const {
+	return mIsLoaded;
+}
+
+void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex) {
+	if (frameIndex < 0 || frameIndex > mNumFrames - 1) return;
 	mCurrentFrameIndex = frameIndex;
 
 	if (mVisibleFrame) {
@@ -130,66 +137,84 @@ void PngSequenceSprite::sizeToFirstImage(){
 	}
 }
 
-void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
-	// Remove old (unused) Image sprites from the back of the frames if the count has changed...
-	while ( mFrames.size() > mNumFrames ) {
-		auto last_frame = mFrames.back();
-		last_frame->release();
-		mFrames.pop_back();
+void PngSequenceSprite::setAnimationEndedCallback(const std::function<void()>& func){
+	mAnimationEndedCallback = func;
+}
+
+void PngSequenceSprite::setLoadedCallback(const std::function<void()>& func){
+	mLoadedCallback = func;
+}
+
+void PngSequenceSprite::checkLoaded(){
+	if(!mIsLoaded){
+		for (auto frame : mFrames) {
+			if (!frame->isLoaded()) {
+				break;
+			}
+		}
+
+		mIsLoaded = true;
+		if (mLoadedCallback && mIsLoaded) {
+			mLoadedCallback();
+		}
 	}
+}
 
-	if(mPlaying 
+void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p) {
+	checkLoaded();
+
+	if (mPlaying
 	   && mNumFrames > 0
-	   && !mFrames.empty() 
-	   && mCurrentFrameIndex < mFrames.size() ){
+	   && !mFrames.empty()
+	   && mCurrentFrameIndex > -1 
+	   && mCurrentFrameIndex < mFrames.size()) {
 
-		bool advanceFrame(true);
+		bool advanceFrame = true;
 
-		if(mFrameTime > 0.0f){
+		if (mFrameTime > 0.0f) {
 			const double thisTime = ci::app::getElapsedSeconds();
 			const double deltaTime = thisTime - mLastFrameTime;
-			if(deltaTime > (double)mFrameTime){
+			if (deltaTime > (double)mFrameTime) {
 				advanceFrame = true;
 				mLastFrameTime = thisTime;
-			} else {
+			}
+			else {
 				advanceFrame = false;
 			}
 		}
 
-		bool doAdvance = advanceFrame && !mFrames.empty() && mCurrentFrameIndex > -1 && mCurrentFrameIndex < mFrames.size();
-	//	std::cout << doAdvance << " " << advanceFrame<< " "  << !mFrames.empty() << " " << mCurrentFrameIndex << " " << mFrames.size() << std::endl;
-		if(advanceFrame 
-		   && !mFrames.empty() 
-		   && mCurrentFrameIndex > -1 
-		   && mCurrentFrameIndex < mFrames.size()){
+		if(advanceFrame){
 			// hide the old frame
 			mFrames[mCurrentFrameIndex]->hide();
 
 			// advance the frame
 			mCurrentFrameIndex++;
+
+			// Check if we're at the end of a loop/once and act accordingly
 			if(mCurrentFrameIndex > mNumFrames - 1){
 				if(mLoopStyle == Loop){
 					mCurrentFrameIndex = 0;
-				} else if(mLoopStyle == Once){
-					mCurrentFrameIndex = mNumFrames - 1;
-					pause();
-				} else {
+				} else { // LoopStyle::Once is the default/fallback
 					mCurrentFrameIndex = mNumFrames - 1;
 					pause();
 				}
+
+				if(mAnimationEndedCallback){
+					mAnimationEndedCallback();// Call the callback if appropriate
+				}
 			}
 
-			// show the new frame
-
+			// Hide the previous frame
 			if (mVisibleFrame) {
 				mVisibleFrame->hide();
 			}
 
+			// Show the current frame
 			mVisibleFrame = mFrames[mCurrentFrameIndex];
 			mVisibleFrame->show();
 		}
-
 	}
 }
+
 } // namespace ui
 } // namespace ds
