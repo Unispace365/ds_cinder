@@ -15,11 +15,14 @@
 *.db
 *.opendb
 
+
 lib/platform*.lib
 obj/
 Debug/
 Release/
 logs/
+!lib/yoga/x64/debug
+!lib/yoga/x64/release
 
 /doc/doxygen/generated
 
