@@ -31,6 +31,7 @@ flexbox_app::flexbox_app()
 void flexbox_app::setupServer(){
 	// add sprites
 	mEngine.getRootSprite().addChildPtr(new StoryController(mEngine));
+	auto [n, y, z] = sc->getPosition();
 
 	// For this test app, we show the app to start with for simplicity
 	// In a real scenario, you'll probably want to start idled / attracting

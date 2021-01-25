@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -214,6 +214,7 @@
     <ClInclude Include="..\src\tuio\TuioCursor.h" />
     <ClInclude Include="..\src\tuio\TuioObject.h" />
     <ClInclude Include="..\src\tuio\TuioProfileBase.h" />
+    <ClInclude Include="glm_structured_binding.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\app.cpp" />
