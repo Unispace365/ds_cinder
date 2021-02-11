@@ -34,7 +34,7 @@ DisableStartupPrompt=yes
 DisableWelcomePage=yes
 
 [Files]
-Source: "vs2015/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "vs2015/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
 Source: "data/*"; DestDir: "{app}/data"; Flags: recursesubdirs
 
