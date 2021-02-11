@@ -185,7 +185,7 @@ void PDFInterface::onLayout(){
 		float yFudge = 0.0f;
 		if(mScrubBar && mScrubBar->visible()) {
 			yFudge = padding / 2.0f;
-			mScrubBar->setSize(mMaxWidth - padding * 2.0f, mScrubBar->getHeight());
+			mScrubBar->setSize(componentsWidth - padding * 2.0f, mScrubBar->getHeight());
 			mScrubBar->setPosition(w / 2.0f - mScrubBar->getWidth() / 2.0f, h * 1.5f - mScrubBar->getHeight() / 2.0f);
 		}
 
