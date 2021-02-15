@@ -63,6 +63,18 @@ Source: "{#GST}/bin/*.dll"; DestDir: "{app}/dll"
 Source: "{#GST}/lib/gstreamer-1.0/*.dll"; DestDir: "{app}/dll/gst_plugins"
 #endif
 
+#ifdef INSTALL_CONCRT140
+Source: "{#DS_PLATFORM}/install/concrt140.dll"; DestDir: "{syswow64}"; Flags: onlyifdoesntexist
+#endif
+
+#ifdef INSTALL_VCRUNTIME140
+Source: "{#DS_PLATFORM}/install/vcruntime140.dll"; DestDir: "{syswow64}"; Flags: onlyifdoesntexist
+#endif
+
+#ifdef INSTALL_MSVCP140
+Source: "{#DS_PLATFORM}/install/msvcp140.dll"; DestDir: "{syswow64}"; Flags: onlyifdoesntexist
+#endif
+
 #ifdef USE_EXTRAS
 Source: "{#DS_PLATFORM}/install/extras_installer.exe"; DestDir: "{app}"
 #endif
@@ -98,9 +110,10 @@ Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
 #endif
 
 [Registry]
-#ifdef IS_PRODUCTION
 ; Sets the environment variable for pango text to look goodly
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "PANGOCAIRO_BACKEND"; ValueData: "fontconfig"
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PANGOCAIRO_BACKEND"; ValueData: "fontconfig"; Flags: preservestringtype
+
+#ifdef IS_PRODUCTION
 ; Disable the "program not responding" if this app crashed
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueType: dword; ValueName: "DontShowUI"; ValueData: "1"
 
