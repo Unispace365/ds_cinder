@@ -56,9 +56,6 @@ Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 
 Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
-Source: "{#DS_PLATFORM}/install/concrt140.dll"; DestDir: "{app}"
-Source: "{#DS_PLATFORM}/install/vcruntime140.dll"; DestDir: "{app}"
-Source: "{#DS_PLATFORM}/install/msvcp140.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
