@@ -1613,7 +1613,7 @@ bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Se
 	//this file is being loaded by an <xml> tag
 	auto settings = ds::cfg::Settings();
 	if (interface.hasChild("settings")) {
-		settings.readFrom(interface, mXmlFile, true);
+		settings.readFrom(interface, mXmlFile, true,&(mTargetSprite->getEngine()));
 	}
 
 	settings.mergeSettings(override_map);
@@ -2055,7 +2055,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		if (node->hasChild("settings")) {
 			std::stringstream ss;
 			ss << mXmlFile << ":xml:" << spriteName;
-			override_map.readFrom(*node, ss.str(), true);
+			override_map.readFrom(*node, ss.str(), true, &(parent->getEngine()));
 		}
 
 
