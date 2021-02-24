@@ -433,6 +433,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		propertyMap["layout_fixed_aspect"] = [](SprProps& p) {
 			p.sprite.mLayoutFixedAspect = parseBoolean(p.value);
 		};
+		propertyMap["layout_fixed_aspect_mode"] = [](SprProps& p) {
+			const auto aspectMode = p.value;
+			if (aspectMode == "letterbox") {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectLetterbox;
+			}
+			else if (aspectMode == "fill" ) {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectFill;
+			}
+			else if (aspectMode == "default") {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectDefault;
+			}
+			else {
+				logInvalidValue(p, "letterbox, fill, default");
+			}
+		};
 		propertyMap["shader"] = [](SprProps& p) {
 			using namespace boost::filesystem;
 			boost::filesystem::path fullShaderPath(filePathRelativeTo(p.referer, p.value));

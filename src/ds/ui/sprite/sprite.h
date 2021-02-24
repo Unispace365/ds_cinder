@@ -722,6 +722,7 @@ namespace ui {
 		int						mLayoutHAlign;
 		int						mLayoutVAlign;
 		int						mLayoutUserType;
+		int						mLayoutFixedAspectMode=0;
 		bool					mLayoutFixedAspect;
 
 		bool					mExportWithXml;
