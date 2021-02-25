@@ -1014,13 +1014,13 @@ bool Text::measurePangoText() {
 			const int lastPixelWidth = mPixelWidth;
 			const int lastPixelHeight = mPixelHeight;
 
-			if (mWrapMode != WrapMode::kWrapModeOff) {
-				pango_layout_set_width(mPangoLayout, (int)mResizeLimitWidth * PANGO_SCALE);
-			} else	{
-				pango_layout_set_width(mPangoLayout, -1);
-			}
-
-			if(mResizeLimitHeight < 0) {
+			pango_layout_set_width(mPangoLayout, (int)mResizeLimitWidth * PANGO_SCALE);
+			if (mWrapMode == WrapMode::kWrapModeOff) {
+				if (mEllipsizeMode == EllipsizeMode::kEllipsizeNone) {
+					pango_layout_set_width(mPangoLayout, -1);
+				}
+				pango_layout_set_height(mPangoLayout, (int)0);
+			}else if(mResizeLimitHeight < 0) {
 				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight);
 			} else {
 				pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
