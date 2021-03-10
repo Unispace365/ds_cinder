@@ -15,6 +15,7 @@
 #include <ds/ui/media/interface/video_scrub_bar.h>
 
 #include <ds/ui/media/interface/thumbnail_bar.h>
+#include <ds/ui/layout/layout_sprite.h>
 
 namespace ds {
 namespace ui {
@@ -64,9 +65,13 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mDownButton->setScale(sizey.y / mDownButton->getHeight());
 
 	mPageCounter = new ds::ui::Text(mEngine);
+	mPageCounter->mLayoutVAlign = ds::ui::LayoutSprite::kMiddle;
+	
 	if (mPageCounter) {
 		addChildPtr(mPageCounter);
 		mPageCounter->setTextStyle("viewer:widget");
+		auto ts = mPageCounter->getTextStyle();
+		ts.mLeading = 0;
 		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
@@ -200,7 +205,7 @@ void PDFInterface::onLayout(){
 		mUpButton->setPosition(xp, (h * 0.5f) - (mUpButton->getScaleHeight() * 0.5f) + yFudge);
 		xp += mUpButton->getScaleWidth() + padding;
 
-		mPageCounter->setPosition(xp, (h * 0.5f) - (mPageCounter->getHeight() * 0.6f) + yFudge);
+		mPageCounter->setPosition(xp, (h * 0.5f) - (mPageCounter->getHeight() * 0.5f) + yFudge);
 		xp += mPageCounter->getScaleWidth() + padding;
 
 		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f) + yFudge);
