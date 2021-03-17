@@ -64,13 +64,20 @@ if( NOT TARGET essentials )
 	target_link_libraries( essentials PRIVATE ds-cinder-platform )
 
 	# pull in cinder's exported configuration
-	if( NOT TARGET cinder )
+	if(NOT WIN32)
+		if( NOT TARGET cinder )
+			include( "${CINDER_PATH}/proj/cmake/configure.cmake" )
+			find_package( cinder REQUIRED PATHS
+				"${CINDER_PATH}/${CINDER_LIB_DIRECTORY}"
+			)
+		endif()
+		target_link_libraries( essentials PUBLIC cinder )
+	else()
 		include( "${CINDER_PATH}/proj/cmake/configure.cmake" )
-		find_package( cinder REQUIRED PATHS
-			"${CINDER_PATH}/${CINDER_LIB_DIRECTORY}"
-		)
+		set( LIBCINDER_LIB_DIRECTORY "${CINDER_PATH}/${CINDER_LIB_DIRECTORY}v${MSVC_TOOLSET_VERSION}")
+		target_link_libraries( essentials PRIVATE "${LIBCINDER_LIB_DIRECTORY}/cinder.lib" )
+		target_include_directories( essentials PRIVATE "${CINDER_PATH}/include" )
 	endif()
-	target_link_libraries( essentials PUBLIC cinder )
 
 	# Make building wai faster using Cotire
 	include( cotire )

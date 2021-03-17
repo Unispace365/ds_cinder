@@ -28,10 +28,12 @@ list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_CMAKE_DIR} ${CMAKE_CURRENT_LIST_DIR}/
 # disable some warnings.  This translates into the -isystem flag passed to GCC,
 # which will make GCC ignore any warnings generated inside these "system"
 # headers
-
+set(BOOST_DIR $ENV{BOOST_PATH} CACHE PATH "Boost location defaults to BOOST_PATH enviornment variable")
 list( APPEND DS_CINDER_INCLUDE_SYSTEM_PUBLIC
 	${DS_CINDER_INC_DIR}/tuio
 	${DS_CINDER_INC_DIR}/osc
+	
+	${BOOST_DIR}
 )
 
 # *_INTERFACE includes get added to targets that depend on ds-cinder-platform.
@@ -48,6 +50,10 @@ ds_log_v( "DS_CINDER_INCLUDE_USER_INTERFACE: ${DS_CINDER_INCLUDE_USER_INTERFACE}
 # *_PRIVATE includes are used by ds-cinder-platform internally, user apps explicitly add these as needed.
 list( APPEND DS_CINDER_INCLUDE_USER_PRIVATE
 	${DS_CINDER_INC_DIR}
+	${DS_CINDER_INC_DIR}/gtk
+	${DS_CINDER_INC_DIR}/gtk/cairo
+	${DS_CINDER_INC_DIR}/gtk/pango-1.0
+	${DS_CINDER_INC_DIR}/gtk/glib-2.0
 	${CINDER_PATH}/include
 )
 

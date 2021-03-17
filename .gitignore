@@ -14,7 +14,7 @@
 *.pdb
 *.db
 *.opendb
-
+*.vs/
 
 lib/platform*.lib
 obj/
@@ -27,11 +27,14 @@ logs/
 
 /doc/doxygen/generated
 
+/lib/ds_cinder/
+
 projects/pdf/lib/
 projects/physics/lib/
 projects/video/lib/
 projects/web/lib/
 projects/viewers/lib/
+projects/mosquitto/lib/
 projects/essentials/lib/essentials_d.lib
 projects/essentials/lib/essentials.lib
 example/simple_video_player/MediaInfo.dll
@@ -55,7 +58,7 @@ example/simple_video_player/MediaInfo.dll
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
 *GPUCache/
-
+/out/
 /example/*/bin/
 projects/**/lib*.a
 

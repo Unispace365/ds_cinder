@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
 # Has something to do with  INTERFACE_LINK_LIBRARIES (NEW)
 # vs.
@@ -18,7 +18,10 @@ add_library(
 	ds-cinder-platform
 	${DS_CINDER_SRC_FILES}
 )
-
+set_target_properties(ds-cinder-platform PROPERTIES
+  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+target_compile_features(ds-cinder-platform PUBLIC cxx_std_17)
+target_compile_definitions(ds-cinder-platform PUBLIC UNICODE _UNICODE)
 
 # NOTE: These two lines aren't in the libcinder_target.cmake:
 target_include_directories( ds-cinder-platform BEFORE PUBLIC ${DS_CINDER_INCLUDE_USER_PUBLIC} )
@@ -34,17 +37,19 @@ target_link_libraries( ds-cinder-platform PUBLIC ${DS_CINDER_LIBS_DEPENDS}  )
 
 target_compile_definitions( ds-cinder-platform PUBLIC ${DS_CINDER_DEFINES} )
 
-# Enable C++14
-set( DS_CINDER_CXX_FLAGS "-std=c++14" )
 
-# Enable Warnings
-set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
-## Disable a ton of initialization order warning
-set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder" )
+# Enable UNICODE
+set( DS_CINDER_CXX_FLAGS "-DUNICODE -DNOMINMAX" )
 
-## Add colorized gcc output
-set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color" )
+if(NOT WIN32)
+	# Enable Warnings
+	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
+	## Disable a ton of initialization order warning
+	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder" )
 
+	## Add colorized gcc output
+	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color" )
+endif()
 # Disable Position-Independent-Executable (PIE)
 # Needed because Cinder's libboost libraries were not compiled 
 # using -fpic or fPIC
@@ -66,7 +71,7 @@ export( PACKAGE ds-cinder-platform )
 # This specific ds-cinder-platformConfig.cmake file will just hold a path to the above mention 
 # ds-cinder-platformTargets.cmake file which holds the actual info.
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/modules/ds-cinder-platformConfig.buildtree.cmake.in
-    "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/ds-cinder-platformConfig.cmake"
+    "${PROJECT_BINARY_DIR}/ds-cinder-platformConfig.cmake"
 )
 
 # Make building wai faster using Cotire

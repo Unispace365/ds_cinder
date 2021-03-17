@@ -7,12 +7,12 @@ if( NOT TARGET physics )
 		${PHYSICS_SRC_PATH}/ds/physics/collision.cpp
 		${PHYSICS_SRC_PATH}/ds/physics/sprite_body.cpp
 		${PHYSICS_SRC_PATH}/ds/physics/sprite_world.cpp
-		${PHYSICS_SRC_PATH}/private/contact_key.cpp
-		${PHYSICS_SRC_PATH}/private/contact_listener.cpp
-		${PHYSICS_SRC_PATH}/private/debug_draw.cpp
-		${PHYSICS_SRC_PATH}/private/service.cpp
-		${PHYSICS_SRC_PATH}/private/touch.cpp
-		${PHYSICS_SRC_PATH}/private/world.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/contact_key.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/contact_listener.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/debug_draw.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/service.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/touch.cpp
+		${PHYSICS_SRC_PATH}/ds/physics/world.cpp
 	)
 
 	# This project actually includes all the lib dependency's sources (Box2D)..
@@ -67,6 +67,9 @@ if( NOT TARGET physics )
 	)
 
 	add_library( physics ${PHYSICS_SRC_FILES} )
+	target_compile_features(physics PUBLIC cxx_std_17)
+	target_compile_definitions(physics PUBLIC UNICODE _UNICODE)
+	set_target_properties(physics PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 	# Place compiled library in project's lib directory
 	set_target_properties ( physics PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../lib )
@@ -91,13 +94,9 @@ if( NOT TARGET physics )
 
 
 	# pull in cinder's exported configuration
-	if( NOT TARGET cinder )
-		include( "${CINDER_PATH}/proj/cmake/configure.cmake" )
-		find_package( cinder REQUIRED PATHS
-			"${CINDER_PATH}/${CINDER_LIB_DIRECTORY}"
-		)
-	endif()
-	target_link_libraries( physics PUBLIC cinder )
+	set( LIBCINDER_LIB_DIRECTORY "${CINDER_PATH}/${CINDER_LIB_DIRECTORY}v${MSVC_TOOLSET_VERSION}")
+	target_link_libraries( mosquitto PRIVATE "${LIBCINDER_LIB_DIRECTORY}/cinder.lib" )
+	target_include_directories( mosquitto PRIVATE "${CINDER_PATH}/include" )
 
 	# Make building wai faster using Cotire
 	include( cotire )

@@ -1,8 +1,10 @@
-cmake_minimum_required( VERSION 3.0 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.18min FATAL_ERROR )
 #set( CMAKE_VERBOSE_MAKEFILE ON )
+
 
 # Project start
 project( ds-cinder-platform )
+
 
 get_filename_component( ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE )
 set( DS_CINDER_PATH    		"${CMAKE_CURRENT_SOURCE_DIR}" )
@@ -34,7 +36,7 @@ include( ${DS_CINDER_CMAKE_DIR}/libds-cinder-platform_configure.cmake )
 #		Setup a bunch of different source_groups...
 #		Set DS_CINDER_SRC_FILES
 include( ${DS_CINDER_CMAKE_DIR}/libds-cinder-platform_source_files.cmake )
-
+ds_log_i( "ROOT PATH: ${ROOT_PATH}")
 # 4. Platform-specific cmake stuff ( libs, etc...) (platform_linux.cmake)
 #		Mostly add platform(linux)-specific include dirs and libraries
 if( DS_CINDER_LINUX )
@@ -59,23 +61,25 @@ if( DS_CINDER_BUILD_EXAMPLES )
 endif()
 
 # 7. Configure/Build Projects
-foreach( projectComponent essentials mosquitto video pdf web viewers physics )
-	ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
-	get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
-	find_package( ${projectComponent} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
-	export( TARGETS ${projectComponent} FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Targets.cmake )
-	export( PACKAGE ${projectComponent} )
+foreach( projectComponent mosquitto video pdf web viewers physics )
+	
+		ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
+		get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
+		find_package( ${projectComponent} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
+		export( TARGETS ${projectComponent} FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Targets.cmake )
+		export( PACKAGE ${projectComponent} )
 
-	set( projectComponentConfigInFile ${DS_CINDER_PATH}/projects/${projectComponent}/cmake/${projectComponent}Config.buildtree.cmake.in )
-	if( EXISTS ${projectComponentConfigInFile} )
-		configure_file( 
-			${projectComponentConfigInFile}
-			${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Config.cmake 
-			@ONLY
-		)
-	else() 
-		ds_log_w( "Could not find project cmake export config file: ${projectComponentConfigInFile}" )
-	endif()
+		set( projectComponentConfigInFile ${DS_CINDER_PATH}/projects/${projectComponent}/cmake/${projectComponent}Config.buildtree.cmake.in )
+		if( EXISTS ${projectComponentConfigInFile} )
+			configure_file( 
+				${projectComponentConfigInFile}
+				${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Config.cmake 
+				@ONLY
+			)
+		else() 
+			ds_log_w( "Could not find project cmake export config file: ${projectComponentConfigInFile}" )
+		endif()
+	
 
 endforeach()
 
