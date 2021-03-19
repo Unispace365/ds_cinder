@@ -58,7 +58,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
         Write-Host "     Wrote" $OutputFileName;
     }
 
-    $FileList = Get-ChildItem -Path $DestDir -Include *.sln,*.vcxproj* -Recurse;
+    $FileList = Get-ChildItem -Path $DestDir -Include *.sln,*.vcxproj*,CmakeLists.txt -Recurse;
 
     foreach ($File in $FileList) {
         $OutputFile = $File.FullName;

@@ -41,19 +41,7 @@ target_compile_definitions( ds-cinder-platform PUBLIC ${DS_CINDER_DEFINES} )
 # Enable UNICODE
 set( DS_CINDER_CXX_FLAGS "-DUNICODE -DNOMINMAX" )
 
-if(NOT WIN32)
-	# Enable Warnings
-	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
-	## Disable a ton of initialization order warning
-	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder" )
 
-	## Add colorized gcc output
-	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color" )
-endif()
-# Disable Position-Independent-Executable (PIE)
-# Needed because Cinder's libboost libraries were not compiled 
-# using -fpic or fPIC
-target_link_libraries( ds-cinder-platform PUBLIC -no-pie )
 
 # TODO: it would be nice to the following, but we can't until min required cmake is 3.3
 #target_compile_options( ds-cinder-platform PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${DS_CINDER_CXX_FLAGS}> )
@@ -71,7 +59,7 @@ export( PACKAGE ds-cinder-platform )
 # This specific ds-cinder-platformConfig.cmake file will just hold a path to the above mention 
 # ds-cinder-platformTargets.cmake file which holds the actual info.
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/modules/ds-cinder-platformConfig.buildtree.cmake.in
-    "${PROJECT_BINARY_DIR}/ds-cinder-platformConfig.cmake"
+    "${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformConfig.cmake"
 )
 
 # Make building wai faster using Cotire

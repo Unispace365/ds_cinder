@@ -5,9 +5,7 @@ ds_log_v( "Building DsCinderPlatform for ${DS_CINDER_TARGET}" )
 set( DS_CINDER_SRC_DIR 	"${DS_CINDER_PATH}/src" )
 set( DS_CINDER_INC_DIR	"${DS_CINDER_PATH}/src" )
 
-if( NOT DS_CINDER_MSW )
-	add_definitions( -Wfatal-errors )
-endif()
+
 
 # Load cmake modules from our own cmake Modules path
 list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_CMAKE_DIR} ${CMAKE_CURRENT_LIST_DIR}/modules )

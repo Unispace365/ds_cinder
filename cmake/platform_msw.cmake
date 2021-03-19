@@ -1,14 +1,6 @@
 cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
-set( CMAKE_VERBOSE_MAKEFILE ON )
 
-# Add any linux-specific .cpp files...
-list( APPEND SRC_SET_DS_CINDER_LINUX
-)
-
-list( APPEND DS_CINDER_SRC_FILES
-	${SRC_SET_DS_CINDER_LINUX}
-)
 
 # Common libs for Linux.
 
@@ -19,7 +11,7 @@ if( TRUE )
 	ds_log_i("setting up POCO lib from ${POCO_LIB_DIRECTORY}")
 	list( APPEND DS_CINDER_INCLUDE_SYSTEM_PUBLIC "${POCO_LIB_DIRECTORY}/include" )
 	if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-	list( APPEND DS_CINDER_LIBS_DEPENDS
+		list( APPEND DS_CINDER_LIBS_DEPENDS
 			${POCO_LIB_DIRECTORY}/lib/${DS_CINDER_ARCH}/PocoNetmtd.lib
 			${POCO_LIB_DIRECTORY}/lib/${DS_CINDER_ARCH}/PocoFoundationmtd.lib
 			# TODO: Use Debug libs?
