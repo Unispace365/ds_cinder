@@ -5,7 +5,7 @@ project( full_starter )
 
 file(TO_CMAKE_PATH $ENV{DS_PLATFORM_093} ENV_DS_PLATFORM_093)
 file(TO_CMAKE_PATH $ENV{GSTREAMER_1_0_ROOT_x86_64} ENV_GSTREAMER_1_0_ROOT_x86_64)
-set(DS_CINDER_PACKAGE_PATH "${ENV_DS_PLATFORM_093}/lib/ds_cinder/${CMAKE_BUILD_TYPE}/")
+set(DS_CINDER_PACKAGE_PATH "${ENV_DS_PLATFORM_093}/out/build/${CMAKE_BUILD_TYPE}/lib/ds_cinder/configs")
 
 find_package( ds-cinder-platform PATHS "${DS_CINDER_PACKAGE_PATH}" )
 find_package( video PATHS "${DS_CINDER_PACKAGE_PATH}")

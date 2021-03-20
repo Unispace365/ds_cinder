@@ -1,5 +1,5 @@
 if( NOT TARGET ds-cinder-platform${DS_CINDER_LIB_SUFFIX} )
-	include( ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformTargets.cmake )
+	include( ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/targets/ds-cinder-platformTargets.cmake )
 	
 	message( "Pulling in files for ${CMAKE_BUILD_TYPE}")
 

@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.18min FATAL_ERROR )
-#set( CMAKE_VERBOSE_MAKEFILE ON )
+set( CMAKE_VERBOSE_MAKEFILE ON )
 
 
 # Project start
@@ -66,14 +66,14 @@ foreach( projectComponent mosquitto video pdf web viewers physics )
 		ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
 		get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
 		find_package( ${projectComponent} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
-		export( TARGETS ${projectComponent} FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Targets.cmake )
+		export( TARGETS ${projectComponent} FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/targets/${projectComponent}Targets.cmake )
 		export( PACKAGE ${projectComponent} )
 
 		set( projectComponentConfigInFile ${DS_CINDER_PATH}/projects/${projectComponent}/cmake/${projectComponent}Config.buildtree.cmake.in )
 		if( EXISTS ${projectComponentConfigInFile} )
 			configure_file( 
 				${projectComponentConfigInFile}
-				${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Config.cmake 
+				${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/configs/${projectComponent}Config.cmake 
 				@ONLY
 			)
 		else() 

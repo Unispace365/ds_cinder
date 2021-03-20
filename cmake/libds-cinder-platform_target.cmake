@@ -5,8 +5,8 @@ cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 # (IMPORTED_)?LINK_INTERFACE_LIBRARIES(_<CONFIG>) (Old)?vs  
 cmake_policy( SET CMP0022 NEW )
 
-set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY} )
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY} )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY} )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY} )
 
 ds_log_v( "CMAKE_ARCHIVE_OUTPUT_DIRECTORY: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" )
 
@@ -49,7 +49,7 @@ set( CMAKE_CXX_FLAGS "${DS_CINDER_CXX_FLAGS} ${CMAKE_CXX_FLAGS}" )
 target_compile_options( ds-cinder-platform INTERFACE ${DS_CINDER_CXX_FLAGS} )
 
 # This file will contain all dependencies, includes, definition, compiler flags and so on..
-export( TARGETS ds-cinder-platform FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformTargets.cmake )
+export( TARGETS ds-cinder-platform FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/targets/ds-cinder-platformTargets.cmake )
 
 # Register ds-cinder-platform with cmake user package registry
 export( PACKAGE ds-cinder-platform )
@@ -59,7 +59,7 @@ export( PACKAGE ds-cinder-platform )
 # This specific ds-cinder-platformConfig.cmake file will just hold a path to the above mention 
 # ds-cinder-platformTargets.cmake file which holds the actual info.
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/modules/ds-cinder-platformConfig.buildtree.cmake.in
-    "${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformConfig.cmake"
+    "${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/configs/ds-cinder-platformConfig.cmake"
 )
 
 # Make building wai faster using Cotire
