@@ -10,19 +10,67 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe"
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe",
+      "variables": [
+        {
+          "name": "WOOT_DIR",
+          "value": "c:/dev/",
+          "type": "PATH"
+        },
+        {
+          "name": "DS_CINDER_BUILD_EXAMPLES",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
     },
     {
       "name": "x64-Release",
       "generator": "Ninja",
       "configurationType": "Release",
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "buildRoot": "${projectDir}\\out\\build\\${configurationType}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "WOOT_DIR",
+          "value": "c:/dev/",
+          "type": "PATH"
+        },
+        {
+          "name": "DS_CINDER_BUILD_EXAMPLES",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "vs-x64-Debug",
+      "generator": "Visual Studio 16 2019 Win64",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\sln\\${configurationType}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe",
+      "variables": [
+        {
+          "name": "WOOT_DIR",
+          "value": "c:/dev/",
+          "type": "PATH"
+        },
+        {
+          "name": "DS_CINDER_BUILD_EXAMPLES",
+          "value": "FALSE",
+          "type": "BOOL"
+        }
+      ]
     }
   ]
 }

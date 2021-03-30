@@ -1,13 +1,11 @@
 cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
 # Project start
-project( full_starter )
+project( clock_and_weather )
 
 file(TO_CMAKE_PATH $ENV{DS_PLATFORM_093} ENV_DS_PLATFORM_093)
 file(TO_CMAKE_PATH $ENV{GSTREAMER_1_0_ROOT_x86_64} ENV_GSTREAMER_1_0_ROOT_x86_64)
 set(DS_CINDER_PACKAGE_PATH "${ENV_DS_PLATFORM_093}/out/build/${CMAKE_BUILD_TYPE}/lib/ds_cinder/configs")
-
-message(${DS_CINDER_PACKAGE_PATH})
 
 find_package( ds-cinder-platform PATHS "${DS_CINDER_PACKAGE_PATH}" )
 find_package( video PATHS "${DS_CINDER_PACKAGE_PATH}")
@@ -15,24 +13,29 @@ find_package( web PATHS "${DS_CINDER_PACKAGE_PATH}")
 find_package( pdf PATHS "${DS_CINDER_PACKAGE_PATH}" )
 find_package( viewers PATHS "${DS_CINDER_PACKAGE_PATH}")
 
-add_executable( full_starter WIN32 
-    src/stdafx.cpp
-    src/stdafx.h
-    src/app/full_starter_app.cpp
-    src/app/full_starter_app.h
+add_executable( clock_and_weather WIN32
+    src/app/clock_and_weather_app.cpp
+    src/app/clock_and_weather_app.h
     src/events/app_events.h
-    src/ui/story/story_controller.cpp
-    src/ui/story/story_controller.h
+    src/ui/background/background_view.cpp
+    src/ui/background/background_view.h
+    src/ui/clock/clock_view.cpp
+    src/ui/clock/clock_view.h
     src/ui/story/story_view.cpp
     src/ui/story/story_view.h
+    src/ui/weather/weather_view.cpp
+    src/ui/weather/weather_view.h
+    src/stdafx.cpp
+    src/stdafx.h
+
 )
 
-set_target_properties(full_starter PROPERTIES
+set_target_properties(clock_and_weather PROPERTIES
   MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-target_link_libraries( full_starter PUBLIC ds-cinder-platform video web pdf viewers)
+target_link_libraries( clock_and_weather PUBLIC ds-cinder-platform video web pdf viewers)
 
-target_include_directories( full_starter PRIVATE
+target_include_directories( clock_and_weather PRIVATE
     ds-cinder-platform
     viewers
     video
@@ -49,13 +52,13 @@ list(APPEND DS_DEPENDENCY_DLL_PATHS
 )
 
 add_custom_command(
-    TARGET full_starter
+    TARGET clock_and_weather
     POST_BUILD
     COMMAND cmake ARGS -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
     WORKING_DIRECTORY 
 )
 
-install(TARGETS full_starter RUNTIME DESTINATION ".")
+install(TARGETS clock_and_weather RUNTIME DESTINATION ".")
 install(CODE "set(DS_DEPENDENCY_DLL_PATHS \"${DS_DEPENDENCY_DLL_PATHS}\")")
 install(CODE "set(DS_OUT_DEPENDENCY_PATH \"${CMAKE_INSTALL_PREFIX}\")")
 install(CODE "set(DS_CEF_PATH \"${ENV_DS_PLATFORM_093}/projects/web/cef/lib64/runtime\")")
@@ -63,7 +66,7 @@ install(CODE "set(DS_FONTCONFIG_PATH \"${ENV_DS_PLATFORM_093}/lib/gtk/runtime64\
 install(CODE [[
     #find the dlls I need
     file(GET_RUNTIME_DEPENDENCIES
-        EXECUTABLES $<TARGET_FILE:full_starter>
+        EXECUTABLES $<TARGET_FILE:clock_and_weather>
         RESOLVED_DEPENDENCIES_VAR _r_deps
         UNRESOLVED_DEPENDENCIES_VAR _u_deps
         POST_EXCLUDE_REGEXES ^[Cc]:[/\\][Ww][Ii][Nn][Dd][Oo][Ww][Ss][/\\].*
@@ -115,6 +118,7 @@ install(CODE [[
   
   
 ]])
+
 
 
 

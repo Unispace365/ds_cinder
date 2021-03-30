@@ -1,13 +1,11 @@
 cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
 # Project start
-project( full_starter )
+project( pango )
 
 file(TO_CMAKE_PATH $ENV{DS_PLATFORM_093} ENV_DS_PLATFORM_093)
 file(TO_CMAKE_PATH $ENV{GSTREAMER_1_0_ROOT_x86_64} ENV_GSTREAMER_1_0_ROOT_x86_64)
 set(DS_CINDER_PACKAGE_PATH "${ENV_DS_PLATFORM_093}/out/build/${CMAKE_BUILD_TYPE}/lib/ds_cinder/configs")
-
-message(${DS_CINDER_PACKAGE_PATH})
 
 find_package( ds-cinder-platform PATHS "${DS_CINDER_PACKAGE_PATH}" )
 find_package( video PATHS "${DS_CINDER_PACKAGE_PATH}")
@@ -15,24 +13,32 @@ find_package( web PATHS "${DS_CINDER_PACKAGE_PATH}")
 find_package( pdf PATHS "${DS_CINDER_PACKAGE_PATH}" )
 find_package( viewers PATHS "${DS_CINDER_PACKAGE_PATH}")
 
-add_executable( full_starter WIN32 
-    src/stdafx.cpp
-    src/stdafx.h
-    src/app/full_starter_app.cpp
-    src/app/full_starter_app.h
+add_executable( pango WIN32
+    src/app/globals.cpp
+    src/app/globals.h
+    src/app/pango_app.cpp
+    src/app/pango_app.h
     src/events/app_events.h
-    src/ui/story/story_controller.cpp
-    src/ui/story/story_controller.h
+    src/model/generated/media_model.cpp
+    src/model/generated/media_model.h
+    src/model/generated/story_model.cpp
+    src/model/generated/story_model.h
+    src/model/all_data.h
+    src/query/query_handler.cpp
+    src/query/query_handler.h
+    src/query/story_query.cpp
+    src/query/story_query.h
     src/ui/story/story_view.cpp
     src/ui/story/story_view.h
+
 )
 
-set_target_properties(full_starter PROPERTIES
+set_target_properties(pango PROPERTIES
   MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-target_link_libraries( full_starter PUBLIC ds-cinder-platform video web pdf viewers)
+target_link_libraries( pango PUBLIC ds-cinder-platform video web pdf viewers)
 
-target_include_directories( full_starter PRIVATE
+target_include_directories( pango PRIVATE
     ds-cinder-platform
     viewers
     video
@@ -49,13 +55,13 @@ list(APPEND DS_DEPENDENCY_DLL_PATHS
 )
 
 add_custom_command(
-    TARGET full_starter
+    TARGET pango
     POST_BUILD
     COMMAND cmake ARGS -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
     WORKING_DIRECTORY 
 )
 
-install(TARGETS full_starter RUNTIME DESTINATION ".")
+install(TARGETS pango RUNTIME DESTINATION ".")
 install(CODE "set(DS_DEPENDENCY_DLL_PATHS \"${DS_DEPENDENCY_DLL_PATHS}\")")
 install(CODE "set(DS_OUT_DEPENDENCY_PATH \"${CMAKE_INSTALL_PREFIX}\")")
 install(CODE "set(DS_CEF_PATH \"${ENV_DS_PLATFORM_093}/projects/web/cef/lib64/runtime\")")
@@ -63,7 +69,7 @@ install(CODE "set(DS_FONTCONFIG_PATH \"${ENV_DS_PLATFORM_093}/lib/gtk/runtime64\
 install(CODE [[
     #find the dlls I need
     file(GET_RUNTIME_DEPENDENCIES
-        EXECUTABLES $<TARGET_FILE:full_starter>
+        EXECUTABLES $<TARGET_FILE:pango>
         RESOLVED_DEPENDENCIES_VAR _r_deps
         UNRESOLVED_DEPENDENCIES_VAR _u_deps
         POST_EXCLUDE_REGEXES ^[Cc]:[/\\][Ww][Ii][Nn][Dd][Oo][Ww][Ss][/\\].*
@@ -115,6 +121,7 @@ install(CODE [[
   
   
 ]])
+
 
 
 

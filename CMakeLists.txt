@@ -48,19 +48,9 @@ endif()
 # 5. TARGET <project> (lib<project)_target.cmake)
 include( ${DS_CINDER_CMAKE_DIR}/libds-cinder-platform_target.cmake )
 
-# 6. Build Examples?
-if( DS_CINDER_BUILD_EXAMPLES )
-	include( ${DS_CINDER_CMAKE_DIR}/modules/findCMakeDirs.cmake )
 
-	set( allExamples "" )
-	findCMakeDirs( allExamples "${DS_CINDER_CMAKE_DIR}/examples" "${DS_CINDER_SKIP_EXAMPLES}" )
-	foreach( exampleDir ${allExamples} )
-		ds_log_v( TRACE "adding example: ${exampleDir}" )
-		add_subdirectory( ${exampleDir} )
-	endforeach()
-endif()
 
-# 7. Configure/Build Projects
+# 6. Configure/Build Projects
 foreach( projectComponent mosquitto video pdf web viewers physics )
 	
 		ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
@@ -83,5 +73,10 @@ foreach( projectComponent mosquitto video pdf web viewers physics )
 
 endforeach()
 
+# 7. Build Examples?
+#if( DS_CINDER_BUILD_EXAMPLES )
+#	add_subdirectory(example)
+#	target_compile_options(ds-cinder-platform PRIVATE -k 100)
+#endif()
 
 # 8. Build Tests?
