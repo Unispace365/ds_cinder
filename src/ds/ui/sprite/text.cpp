@@ -1278,6 +1278,8 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 		for (auto font_size : mStyle.mFitSizes) {
 			buf.add(font_size);
 		}
+		buf.add(mStyle.mFitMinTextSize);
+		buf.add(mStyle.mFitMaxTextSize);
 	}
 }
 
@@ -1311,10 +1313,14 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 			auto font_size = buf.read<double>();
 			fontSizes.push_back(font_size);
 		}
+		double fontMinSize = buf.read<double>();
+		double fontMaxSize = buf.read<double>();
 		
 		setResizeLimit(rsw, rsh);
 		setFitToResizeLimit(fit);
 		setFitFontSizes(fontSizes);
+		setFitMinFontSize(fontMinSize);
+		setFitMaxFontSize(fontMaxSize);
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
