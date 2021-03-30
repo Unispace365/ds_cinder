@@ -192,13 +192,13 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	ci::vec2 totalArea = ci::vec2(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
 	for (auto it : panels) {
-		float tw = it->getWidth();
-		float th = it->getHeight();
-		if (tw < 1.0f || th < 1.0f) continue;
-
 		PanelPackage pp;
+		// a = w / h
+		// ah = w
+		// h = w / a
 		pp.mAsepectRatio = it->getContentAspectRatio();
-		pp.mTheSize = ci::vec2(it->getWidth(), it->getHeight());
+		if (pp.mAsepectRatio == 0.0f) pp.mAsepectRatio = 1.0f;
+		pp.mTheSize = ci::vec2(100.0f, 100.0f / pp.mAsepectRatio);
 		pp.mPanelIndex = ind;
 		thePackages.push_back(pp);
 		ind++;
@@ -236,7 +236,9 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	int curRow = 0;
 	for(auto it : thePackages){
 		float thisW = it.mAsepectRatio * rowHeight;
-		if(xp > widthPerRow && theRows.size() < numRows && it.mPanelIndex != thePackages.back().mPanelIndex){
+		if(xp > widthPerRow 
+			&& theRows.size() < numRows 
+			&& it.mPanelIndex != thePackages.back().mPanelIndex){
 			rowWidths.emplace_back(xp);
 			xp = 0.0f;
 			curRow++;
@@ -245,12 +247,18 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 		xp += thisW + padding;
 	}
 
-	rowWidths.emplace_back(xp);
+	if (rowWidths.size() < theRows.size()) {
+		rowWidths.emplace_back(xp);
+	} else {
+		rowWidths.back() += xp;
+	}
 
 	if(rowWidths.size() != theRows.size()){
 		DS_LOG_WARNING("Houston we have a big problemo");
 		return false;
 	}
+
+	float theBot = totalAreaRect.y1;
 
 	/// then determine where each panel will go
 	for (int i = 0; i < theRows.size(); i++) {
@@ -262,10 +270,32 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 			thisRowHeight = destWidth / thisAsp;
 		}
 
-		for (auto it : theRows[i]) {
-			auto tmv = panels[it.mPanelIndex];
-			ci::vec3 destination = ci::vec3(xp + totalAreaRect.x1, yp + totalAreaRect.y1, 0.0f);
+		for (auto& it : theRows[i]) {
+			ci::vec2 destination = ci::vec2(xp + totalAreaRect.x1, yp + totalAreaRect.y1);
+
+			float thisBot = destination.y + thisRowHeight;
+			if (thisBot > theBot) theBot = thisBot;
+
 			float destWidth = thisRowHeight * it.mAsepectRatio;
+			it.mTheSize = ci::vec2(destWidth, thisRowHeight);
+			it.mThePos = destination;
+
+			xp += destWidth + padding;
+
+		}
+
+		yp += thisRowHeight + padding;
+	}
+
+	// center vertically
+	float deltaDif = (totalAreaRect.getY2() - theBot) / 2.0f;
+	
+
+	for (auto row : theRows) {
+		for (auto it : row.second){
+			auto tmv = panels[it.mPanelIndex];
+			ci::vec3 destination = ci::vec3(it.mThePos.x, it.mThePos.y + deltaDif, 0.0f);
+			float destWidth = it.mTheSize.x;
 			if (animDur > 0.0f) {
 				tmv->tweenStarted();
 				tmv->tweenPosition(destination, animDur, 0.0f, ci::EaseInOutQuad(), [tmv] { tmv->tweenEnded(); });
@@ -274,12 +304,7 @@ bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 				tmv->setPosition(destination);
 				tmv->setViewerWidth(destWidth / tmv->getScale().x);
 			}
-
-			xp += destWidth + padding;
-
 		}
-
-		yp += thisRowHeight + padding;
 	}
 
 	return true;

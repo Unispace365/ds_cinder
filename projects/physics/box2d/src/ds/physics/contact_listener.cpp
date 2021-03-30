@@ -1,8 +1,8 @@
-#include "private/contact_listener.h"
+#include "contact_listener.h"
 
 #include <ds/ui/sprite/sprite.h>
 #include "ds/physics/collision.h"
-#include "private/world.h"
+#include "world.h"
 #include "Box2D/Dynamics/Contacts/b2Contact.h"
 
 namespace ds {

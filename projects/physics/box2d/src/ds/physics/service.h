@@ -27,7 +27,6 @@ public:
 	virtual void				start();
 	virtual void				stop();
 
-	// Throw if the world can't be created / doesn't exist.
 	void						createWorld(ds::ui::Sprite&, const int id);
 	World&						getWorld(const int id);
 

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_PRIVATE_CONTACTKEY_H_
-#define DS_PHYSICS_PRIVATE_CONTACTKEY_H_
 
 #include <functional>
 
@@ -48,5 +46,3 @@ namespace std {
 		}
 	};
 }
-
-#endif // DS_PHYSICS_PRIVATE_CONTACTKEY_H_

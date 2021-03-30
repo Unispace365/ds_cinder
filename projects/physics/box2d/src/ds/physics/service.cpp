@@ -1,9 +1,9 @@
-#include "private/service.h"
+#include "service.h"
 
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine.h>
 #include <ds/debug/logger.h>
-#include "private/world.h"
+#include "world.h"
 
 namespace ds {
 namespace physics {
@@ -46,10 +46,17 @@ void Service::stop() {
 }
 
 void Service::createWorld(ds::ui::Sprite& owner, const int id) {
+	auto found = mWorlds.find(id);
+	if (found != mWorlds.end()) {
+		//delete &found;
+		//mWorlds.erase(found);
+	}
+
 	std::unique_ptr<World>		up(new World(mEngine, owner));
 	World*						w(up.get());
 	if (!w) {
-		throw std::runtime_error("Can't create physics world");
+		DS_LOG_WARNING("PhysicsService: Can't create physics world");
+		return;
 	}
 	mWorlds[id] = std::move(up);
 }

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_PRIVATE_TOUCH_H_
-#define DS_PHYSICS_PRIVATE_TOUCH_H_
 
 #include <unordered_map>
 #include <ds/ui/touch/touch_info.h>
@@ -36,4 +34,3 @@ private:
 } // namespace physics
 } // namespace ds
 
-#endif // DS_PHYSICS_PRIVATE_TOUCH_H_

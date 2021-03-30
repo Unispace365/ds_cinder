@@ -237,7 +237,7 @@ Sprite Parameters
 * **scale**: 3d vector of the scale in x, y, z. Scale is from 0.0 (nothing) to 1.0 (100%), not bounded. scale="1, 1, 1" or scale="0.5, 0.5, 1"
 * **center**: Center is where the anchor of the sprite is calculated from (for scaling and rotation) and is a percentage from 0.0 (top/left) to 1.0 (bottom/right), not bounded. center="0, 0.5, 1"
 * **clipping**: Boolean of whether to clip it's children.
-* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply. Default = normal.
+* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply, fbo_in, fbo_out, transparent_black. Default = normal.
 * **enable**: Boolean of whether to handle touch input or not.
 * **multitouch**: String of multitouch mode. Possible values:
     * info = MULTITOUCH_INFO_ONLY
@@ -281,7 +281,11 @@ Sprite Parameters
 		1. left: (Default) Aligns the sprite to the left of the layout.
 		2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
 		3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
-	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0.
+	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout or a fill size mode in a vert or horiz type layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0. 
+	* **layout_fixed_aspect_mode**: allows for the overriding of layout based letterboxing. Currently doesn't affect flex sizing mode.
+		1. default. does nothing. reverts to logic above.
+		2. letterbox. Force sprite to letterbox.
+		3. fill. Force sprite to fill the space.
 
 Layout Parameters
 ------------------------------------------------------------
@@ -444,6 +448,7 @@ Scroll Area Parameters
 * **scroll_fade_colors**: **Also applicable to ScrollList**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: **Also applicable to ScrollList**. Set the size of the fade as a float.
 * **scroll_shader_fade**: **Also applicable to ScrollList**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
+* **scroll_allow_momentum**: **Also applicable to ScrollList**. Allows the scroll area to move with momentum after the user has finished dragging. In some circumstances, this can cause undesired movement, like if you're getting callbacks from the scroll updating, you might get inconsistent values. Default=true
 
 Smart Scroll List Parameters
 --------------------------------------
@@ -484,6 +489,7 @@ type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; ke
 * **search_mode**: If true, will not add returns when the enter button is hit. Default: false
 * **password_mode**: If true, will show bullets instead of text. Default: false
 * **auto_resize**: If true, sizes the resize limit of the text to the size of the EntryField sprite, otherwise the field_size is assumed to be static. Default: false
+* **auto_expand**: If true, sizes the width of the text field to this EntryField, and sizes the height of the EntryField to the text. Basically it makes an entry field that expands vertically as you type. Disables auto_resize if this is enabled. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended, simplified, pinpad and pincode. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Simplified only has letters, space bar, and delete keys. Pinpad is like an ATM pin pad with an enter button. Pincode is a number entry keyboard with a back/delete button. Default: standard

@@ -1,4 +1,4 @@
-#include "private/contact_key.h"
+#include "contact_key.h"
 
 namespace ds {
 namespace physics {

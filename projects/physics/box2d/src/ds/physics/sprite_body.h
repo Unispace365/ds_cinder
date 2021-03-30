@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_SPRITEBODY_H_
-#define DS_PHYSICS_SPRITEBODY_H_
 
 #include <vector>
 #include <functional>
@@ -139,5 +137,3 @@ private:
 
 } // namespace physics
 } // namespace ds
-
-#endif // DS_PHYSICS_SPRITEBODY_H_

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_PRIVATE_DEBUGDRAW_H_
-#define DS_PHYSICS_PRIVATE_DEBUGDRAW_H_
 
 #include "Box2D/Common/b2Draw.h"
 #include <ds/app/auto_draw.h>
@@ -37,5 +35,3 @@ private:
 
 } // namespace physics
 } // namespace ds
-
-#endif

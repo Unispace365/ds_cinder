@@ -1,4 +1,4 @@
-#include "private/world.h"
+#include "world.h"
 
 #include <cinder/CinderMath.h>
 #include <ds/app/auto_update.h>
@@ -8,8 +8,8 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/physics/collision.h>
 #include <ds/physics/sprite_body.h>
-#include "private/debug_draw.h"
-#include "private/service.h"
+#include "debug_draw.h"
+#include "service.h"
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
@@ -61,10 +61,16 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 		, mSettings()
 {
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
-	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
+	if (mWorld.get() == nullptr) {
+		DS_LOG_WARNING("ds::physics::World() can't create b2World");
+		return;
+	}
 	b2BodyDef		def;
 	mGround = mWorld->CreateBody(&def);
-	if (!mGround) throw std::runtime_error("ds::physics::World() can't create mGround");
+	if (!mGround) {
+		DS_LOG_WARNING("ds::physics::World() can't create mGround");
+		return;
+	}
 
 	ds::Environment::loadSettings("physics", "physics.xml", mSettings);
 	mTranslateToLocalSpace = mSettings.getBool("use_local_translation", 0, false);
@@ -311,29 +317,6 @@ void World::update(const ds::UpdateParams& p)
 			}
 		}
 	}
-#if 0
-	for ( b2Joint *j = mWorld->GetJointList(); j; j = j->GetNext() )
-	{
-		if ( j->IsActive() )
-		{
-			JointView *joint_view = reinterpret_cast<JointView *>( j->GetUserData() );
-			if ( joint_view )
-			{
-				joint_view->updateJoint();
-			}
-		}
-	}
-	///// Sort the nodes
-	//mNodeWindow->getSpriteListRef().sort( [](BaseSprite *a, BaseSprite *b)
-	//{
-	//	return ( a->getPosition().y < b->getPosition().y );
-	//});
-
-	//auto slist = mNodeWindow->getSpriteList();
-	//for ( auto i = slist.begin(), tend = slist.end(); i != tend; i++ ) {
-	//	(*i)->sendToFront();
-	//}
-#endif
 
 	mContactListener.report();
 }

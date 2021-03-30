@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DS_PHYSICS_PRIVATE_WORLD_H_
-#define DS_PHYSICS_PRIVATE_WORLD_H_
 
 #include <unordered_map>
 #include <cinder/Vector.h>
@@ -9,8 +7,8 @@
 #include <ds/app/engine/engine_service.h>
 #include <ds/cfg/settings.h>
 #include <ds/ui/touch/touch_info.h>
-#include "private/contact_listener.h"
-#include "private/touch.h"
+#include "contact_listener.h"
+#include "touch.h"
 
 #include "Box2D/Dynamics/b2World.h"
 #include "debug_draw.h"
@@ -118,5 +116,3 @@ private:
 
 } // namespace physics
 } // namespace ds
-
-#endif // DS_PHYSICS_PRIVATE_WORLD_H_
