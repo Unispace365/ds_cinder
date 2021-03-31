@@ -1292,6 +1292,7 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 		buf.add(mStyle.mFitMaxTextSize);
 		buf.add((int)mEllipsizeMode);
 		buf.add((int)mWrapMode);
+		buf.add(mShrinkToBounds);
 	}
 }
 
@@ -1329,6 +1330,7 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		double fontMaxSize = buf.read<double>();
 		auto ellipsesMode = (EllipsizeMode)(buf.read<int>());
 		auto wrapMode = (WrapMode)(buf.read<int>());
+		auto shrink = buf.read<bool>();
 		
 		setResizeLimit(rsw, rsh);
 		setFitToResizeLimit(fit);
@@ -1337,6 +1339,7 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		setFitMaxFontSize(fontMaxSize);
 		setEllipsizeMode(ellipsesMode);
 		setWrapMode(wrapMode);
+		setShrinkToBounds(shrink);
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
