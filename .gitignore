@@ -14,7 +14,9 @@
 *.pdb
 *.db
 *.opendb
+*.vs
 
+/**/out
 
 lib/platform*.lib
 obj/
