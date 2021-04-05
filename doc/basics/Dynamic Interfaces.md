@@ -281,7 +281,11 @@ Sprite Parameters
 		1. left: (Default) Aligns the sprite to the left of the layout.
 		2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
 		3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
-	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0.
+	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout or a fill size mode in a vert or horiz type layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0. 
+	* **layout_fixed_aspect_mode**: allows for the overriding of layout based letterboxing. Currently doesn't affect flex sizing mode.
+		1. default. does nothing. reverts to logic above.
+		2. letterbox. Force sprite to letterbox.
+		3. fill. Force sprite to fill the space.
 
 Layout Parameters
 ------------------------------------------------------------

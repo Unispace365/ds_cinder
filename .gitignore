@@ -22,6 +22,7 @@ lib/platform*.lib
 obj/
 Debug/
 Release/
+Release_Debug_Info/
 logs/
 !lib/yoga/x64/debug
 !lib/yoga/x64/release

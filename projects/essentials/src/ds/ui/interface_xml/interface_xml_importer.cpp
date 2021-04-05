@@ -435,6 +435,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		propertyMap["layout_fixed_aspect"] = [](SprProps& p) {
 			p.sprite.mLayoutFixedAspect = parseBoolean(p.value);
 		};
+		propertyMap["layout_fixed_aspect_mode"] = [](SprProps& p) {
+			const auto aspectMode = p.value;
+			if (aspectMode == "letterbox") {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectLetterbox;
+			}
+			else if (aspectMode == "fill" ) {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectFill;
+			}
+			else if (aspectMode == "default") {
+				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectDefault;
+			}
+			else {
+				logInvalidValue(p, "letterbox, fill, default");
+			}
+		};
 		propertyMap["shader"] = [](SprProps& p) {
 			using namespace std::filesystem;
 			std::filesystem::path fullShaderPath(filePathRelativeTo(p.referer, p.value));
@@ -1621,7 +1636,7 @@ bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Se
 	//this file is being loaded by an <xml> tag
 	auto settings = ds::cfg::Settings();
 	if (interface.hasChild("settings")) {
-		settings.readFrom(interface, mXmlFile, true);
+		settings.readFrom(interface, mXmlFile, true,&(mTargetSprite->getEngine()));
 	}
 
 	settings.mergeSettings(override_map);
@@ -2063,7 +2078,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		if (node->hasChild("settings")) {
 			std::stringstream ss;
 			ss << mXmlFile << ":xml:" << spriteName;
-			override_map.readFrom(*node, ss.str(), true);
+			override_map.readFrom(*node, ss.str(), true, &(parent->getEngine()));
 		}
 
 

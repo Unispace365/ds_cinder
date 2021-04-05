@@ -5,6 +5,8 @@
 
 #include <cinder/Camera.h>
 #include <cinder/gl/Fbo.h>
+#include <cinder/app/App.h>
+#include <cinder/app/TouchEvent.h>
 
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
@@ -14,14 +16,8 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
-
-#include <cinder/app/App.h>
-#include <cinder/app/TouchEvent.h>
-
-#include "TuioClient.h"
-
 #include "ds/app/engine/engine_touch_queue.h"
-#include <ds/app/event_client.h>
+#include "ds/app/event_client.h"
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -33,15 +29,23 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
-#include "ds/ui/touch/tuio_input.h"
+
 #include "ds/ui/tween/tweenline.h"
 #include "ds/app/camera_utils.h"
+
+namespace cinder { namespace tuio {
+class Receiver;
+} }
 
 namespace ds {
 class App;
 class AutoDrawService;
 class AutoUpdate;
 class EngineRoot;
+
+namespace ui {
+class TuioInput;
+}
 
 namespace cfg {
 class SettingsEditor;
@@ -146,7 +150,7 @@ public:
 	virtual void						spriteDeleted(const ds::sprite_id_t&);
 	virtual ci::Color8u					getUniqueColor();
 
-	ci::tuio::Client&					getTuioClient();
+	std::shared_ptr<ci::tuio::Receiver>	getTuioClient(const int tuioIndex=-1);
 	void								touchesBegin(const ds::ui::TouchEvent&);
 	void								touchesMoved(const ds::ui::TouchEvent&);
 	void								touchesEnded(const ds::ui::TouchEvent&);
@@ -169,9 +173,9 @@ public:
 	virtual void						injectObjectsMoved(const ds::TuioObject&);
 	virtual void						injectObjectsEnded(const ds::TuioObject&);
 
-	/// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
-	/// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
-	void								registerForTuioObjects(ci::tuio::Client&);
+	/// Register a tuio::Receiver to send TUIO objects events through the Engine.  Useful if your app needs
+	/// additional tuio::Receiver object listeners beyond the single tuio::Receiver provided by the Engine.
+	void								registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver>);
 
 	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	/// Sprites can still turn this off after creation
@@ -325,15 +329,11 @@ private:
 	bool								mIdling;
 	float								mLastTouchTime;
 
-	/// The base tuio client
-	ci::tuio::Client*					mTuio;
-	uint32_t							mTuioBeganRegistrationId;
-	uint32_t							mTuioMovedRegistrationId;
-	uint32_t							mTuioEndedRegistrationId;
-	bool								mTuioRegistered;
-
+	/// Main tuio input
+	std::shared_ptr<ds::ui::TuioInput>	mTuioInput;
 	/// Additional tuio inputs if configured
-	std::vector<std::shared_ptr<ds::ui::TuioInput>> mTuioInputs;
+	std::vector<std::shared_ptr<ds::ui::TuioInput>> 
+										mTuioInputs;
 
 	/// Clients that will get update() called automatically at the start
 	/// of each update cycle

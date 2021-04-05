@@ -335,8 +335,8 @@ void App::setup() {
 	inherited::setup();
 
 	mEngine.getPangoFontService().loadFonts();
-	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+	mEngine.setup(*this);
 
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
@@ -460,14 +460,21 @@ void App::touchesBegan(ci::app::TouchEvent e) {
 	if(mEngine.getAutoHideMouse()) {
 		mEngine.setHideMouse(true);
 	}
+
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesBegin(e);
 }
 
 void App::touchesMoved(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesMoved(e);
 }
 
 void App::touchesEnded(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesEnded(e);
 }
 
