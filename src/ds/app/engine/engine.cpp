@@ -105,6 +105,9 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 }
 
 Engine::~Engine() {
+	for(auto tuio : mTuioInputs){
+		tuio->stop();
+	}
 	// Important to do this here before the auto update list is destructed.
 	// so any autoupdate services get removed.
 	mData.clearServices();
