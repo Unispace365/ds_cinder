@@ -105,8 +105,14 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 }
 
 Engine::~Engine() {
+	if(mTuioInput){
+		mTuioInput->stop();
+		mTuioInput.reset();
+	}
+
 	for(auto tuio : mTuioInputs){
 		tuio->stop();
+		tuio.reset();
 	}
 	// Important to do this here before the auto update list is destructed.
 	// so any autoupdate services get removed.
