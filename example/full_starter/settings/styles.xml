@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
+	<setting name="COLORS" value="" type="section_header"/>
 	<setting name="pink" value="#fff0649e" type="color"/>
 	<setting name="salmon" value="#ffef3e63" type="color"/>
 	<setting name="maroon" value="#ff350709" type="color"/>
@@ -19,5 +20,10 @@
 	<setting name="bright_green" value="#ff1de9b6" type="color"/>
 	<setting name="dark_blue" value="#ff293139" type="color"/>
 	<setting name="light_blue" value="#ff53c2e8" type="color"/>
+	<setting name="TEXT STYLES" value="" type="section_header"/>
+	<setting name="sample:config" value="font:Noto Sans Bold; size:16.0" type="text_style"/>
+	<setting name="media_viewer:title" value="font:Noto Sans Thin; size:16.0" type="text_style"/>
+	<setting name="story:title" value="font:Noto Sans Thin; size:36.0" type="text_style"/>
+	<setting name="app:title" value="font:Noto Sans Thin; size:72.0" type="text_style"/>
 </settings>
 
