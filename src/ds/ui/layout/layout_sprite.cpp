@@ -408,12 +408,12 @@ void LayoutSprite::runFlexLayout(bool calculate)
 	
 	if (calculate) {
 
-		if (mYogaNode->getOwner() == nullptr) {
+		//if (mYogaNode->getOwner() == nullptr) {
 			YGNodeCalculateLayout(mYogaNode, getScaleWidth(), getScaleHeight(), YGNodeStyleGetDirection(mYogaNode));
 			setSpriteFromFlexbox();
 			updateChildren(mChildren);
 			//node->setDirty(false);
-		}
+		//}
 	}
 }
 

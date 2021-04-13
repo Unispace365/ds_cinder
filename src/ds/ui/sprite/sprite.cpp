@@ -272,8 +272,16 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	// If rendering to an FBO, no need to get the total transformation. Otherwise combine existing
 	// transform with the local transform
 	if (!mIsRenderFinalToTexture){
+		//we are not rendering to a FBO so whole transform enchalata
 		totalTransformation = trans * totalTransformation;
 	}
+	else if (!mFinalToTexture_UseLocalTransform) {
+		//possibly strip the local transform too. This may need to be more 
+		//granular (translation, rotation and scale) and moved to buildTransform();
+		totalTransformation = ci::mat4();
+	}
+
+
 
 	// Local anonymous lambda for the common aspects of drawing. Called differently below depending
 	// on the mIsRenderFinalToTexture state
@@ -281,6 +289,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		// ci::gl::ScopedModelMatrix sMm;//{ totalTransformation };
 		ci::gl::pushModelMatrix();
 		ci::gl::multModelMatrix(totalTransformation);
+		
 		mSpriteShader.loadShaders();
 
 		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
@@ -805,6 +814,15 @@ void Sprite::setSizeAll(float width, float height, float depth){
 	mWidth = width;
 	mHeight = height;
 	mDepth = depth;
+	/*auto ygw = YGNodeStyleGetWidth(mYogaNode);
+	auto ygh = YGNodeStyleGetHeight(mYogaNode);
+	
+	auto childCnt =YGNodeGetChildCount(mYogaNode);
+	if (childCnt == 0 && (ygw.value != mWidth || ygh.value != mHeight)) {
+		YGNodeStyleSetWidth(mYogaNode, mWidth);
+		YGNodeStyleSetHeight(mYogaNode, mHeight);
+		YGNodeMarkDirty(mYogaNode);
+	}*/
 	mUpdateTransform = true;
 	mNeedsBatchUpdate = true;
 	markAsDirty(SIZE_DIRTY);
@@ -1700,12 +1718,18 @@ void Sprite::setShaderExtraData(const ci::vec4& data){
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
+void Sprite::setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info) {
 	if (render_to_texture == mIsRenderFinalToTexture) return;
 	mIsRenderFinalToTexture = render_to_texture;
-
-	mFboFormat = format;
+	mFinalToTexture_UseLocalTransform = info.useLocalTransform;
+	mFboFormat = info.format;
 	setupFinalRenderBuffer();
+}
+
+void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
+	FinalRenderInfo info;
+	info.format = format;
+	setFinalRenderToTexture(render_to_texture, info);
 
 }
 
@@ -2063,6 +2087,7 @@ void Sprite::setFlexboxFromStyleString(std::string style)
 
 void Sprite::setFlexboxAutoSizes()
 {
+	return;
 	//the default of auto is to size to its children.
 	//if there are no children we will size to the sprite.
 	if (mYogaNode->getChildren().size() == 0) {
@@ -2071,6 +2096,7 @@ void Sprite::setFlexboxAutoSizes()
 			(YGNodeStyleGetMaxWidth(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMaxWidth(mYogaNode).unit == YGUnitUndefined)
 			) {
 			YGNodeStyleSetWidth(mYogaNode, getScaleWidth());
+			YGNodeMarkDirty(mYogaNode);
 		}
 
 		if (YGNodeStyleGetHeight(mYogaNode).unit == YGUnitAuto &&
@@ -2078,7 +2104,9 @@ void Sprite::setFlexboxAutoSizes()
 			(YGNodeStyleGetMaxHeight(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMaxHeight(mYogaNode).unit == YGUnitUndefined)
 			) {
 			YGNodeStyleSetHeight(mYogaNode, getScaleHeight());
+			YGNodeMarkDirty(mYogaNode);
 		}
+		
 	}
 }
 

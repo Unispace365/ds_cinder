@@ -66,6 +66,7 @@ public:
 	Text(ds::ui::SpriteEngine& engine);
 	~Text();
 
+	
 
 	/// Sets the actual text to be rendered as a std::string or std::wstring
 	/// Can be plain text or use markup (see top of header) such as <span weight='bold'>some bold text</span>
@@ -222,6 +223,8 @@ public:
 	/// Registers this class to be net-sync capable
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
+
+	
 
 protected:
 

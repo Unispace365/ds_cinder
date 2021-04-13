@@ -63,7 +63,10 @@ namespace ui {
 	class Sprite : public SpriteAnimatable
 	{
 	public:
-
+		struct FinalRenderInfo {
+			bool useLocalTransform = true;
+			ci::gl::Fbo::Format format = ci::gl::Fbo::Format();
+		};
 		/** Generic sprite creation function.
 			The variadic args will be passed in the same order to your Sprite's constructor.
 			\param engine The SpriteEngine for your app.
@@ -629,8 +632,13 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		///	Determines if the final render will be to the display or a texture.
-		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format = ci::gl::Fbo::Format());
+		
+		// Deprecate?
+		//[[deprecated("Use FinalRenderInfo.format and setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info)")]]
+		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format);
+		void					setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info = FinalRenderInfo());
 		bool					isFinalRenderToTexture();
+	
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
@@ -860,6 +868,7 @@ namespace ui {
 		ci::gl::FboRef			mOutputFbo;
 		ci::gl::Fbo::Format		mFboFormat;
 		bool					mIsRenderFinalToTexture;
+		bool					mFinalToTexture_UseLocalTransform;
 
 		ci::vec4				mShaderExtraData;
 

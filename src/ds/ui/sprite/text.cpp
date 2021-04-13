@@ -104,6 +104,14 @@ const char			TEXT_ATT = 81;
 const char			LAYOUT_ATT = 82;
 }
 
+YGSize yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+	YGSize retVal;
+	ds::ui::Text* spr = (ds::ui::Text*)YGNodeGetContext(node);
+	retVal.width = spr->getWidth();
+	retVal.height = spr->getHeight();
+	return retVal;
+}
+
 void Text::installAsServer(ds::BlobRegistry& registry)
 {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
@@ -182,6 +190,9 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setTransparent(false);
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
+	
+	YGNodeSetMeasureFunc(mYogaNode, yogaMeasureFunc);
+	YGNodeSetContext(mYogaNode, this);
 }
 
 Text::~Text() {
@@ -613,7 +624,7 @@ void Text::onUpdateClient(const UpdateParams&){
 
 void Text::onUpdateServer(const UpdateParams&){
 	measurePangoText();
-	
+	YGNodeMarkDirty(mYogaNode);
 }
 
 
@@ -1164,7 +1175,7 @@ bool Text::measurePangoText() {
 			} else {
 				setSize((float)mPixelWidth, (float)mPixelHeight);
 			}
-
+			YGNodeMarkDirty(mYogaNode);
 			
 			mNeedsMeasuring = false;
 			
@@ -1247,6 +1258,7 @@ void Text::renderPangoText(){
 			}
 
 			mTexture->setTopDown(true);
+			
 			mNeedsTextRender = false;
 
 			cairo_destroy(cairoContext);			
