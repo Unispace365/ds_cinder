@@ -70,9 +70,6 @@
     <Filter Include="src\ds\storage">
       <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\osc">
-      <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\tuio">
       <UniqueIdentifier>{9be7ff39-27e0-45e4-890a-65e91ab4e28e}</UniqueIdentifier>
     </Filter>
@@ -111,6 +108,9 @@
     </Filter>
     <Filter Include="src\ds\math\extrasrc">
       <UniqueIdentifier>{92591042-2bbc-4223-b5f5-a834d2713105}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tuio\osc">
+      <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -656,12 +656,12 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h">
       <Filter>src\ds\ui\sprite\util</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="$(DS_PLATFORM_093)\Cinder\blocks\TUIO\src\cinder\tuio\Tuio.h">
       <Filter>src\tuio</Filter>
     </ClInclude>
     <ClInclude Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.h">
-      <Filter>src\osc</Filter>
+      <Filter>src\tuio\osc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1093,12 +1093,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp">
       <Filter>src\ds\ui\sprite\util</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\TUIO\src\cinder\tuio\Tuio.cpp">
       <Filter>src\tuio</Filter>
     </ClCompile>
     <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.cpp">
-      <Filter>src\osc</Filter>
+      <Filter>src\tuio\osc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

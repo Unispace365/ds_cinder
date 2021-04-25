@@ -35,6 +35,14 @@
 namespace ds {
 namespace ui {
 
+YGSize yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+	YGSize retVal;
+	ds::ui::Text* spr = (ds::ui::Text*)YGNodeGetContext(node);
+	retVal.width = spr->getWidth();
+	retVal.height = spr->getHeight();
+	return retVal;
+}
+
 const char          SPRITE_ID_ATTRIBUTE = 1;
 
 namespace {
@@ -200,6 +208,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mOutputFbo = nullptr;
 	mIsRenderFinalToTexture = false;
 	mYogaNode = YGNodeNew();
+	YGNodeSetMeasureFunc(mYogaNode, yogaMeasureFunc);
+	YGNodeSetContext(mYogaNode, this);
 	dimensionalStateChanged();
 }
 
@@ -692,8 +702,16 @@ void Sprite::addChild(Sprite &child){
 	}
 
 	mChildren.push_back(&child);
+	//check if the node has a parent. ds_cinder allows moving a child with a parent
+	//but yoga does not. so we have to clear the parent first.
+	auto parent_node = YGNodeGetParent(child.mYogaNode);
+	if(parent_node){
+		YGNodeRemoveChild(parent_node, child.mYogaNode);
+	}
+	YGNodeSetMeasureFunc(mYogaNode, nullptr);
+	
 	YGNodeInsertChild(mYogaNode, child.mYogaNode, mYogaNode->getChildren().size());
-
+	
 	child.setParent(this);
 	child.setPerspective(mPerspective);
 	child.setDrawSorted(getDrawSorted());

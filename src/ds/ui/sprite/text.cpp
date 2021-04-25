@@ -104,13 +104,7 @@ const char			TEXT_ATT = 81;
 const char			LAYOUT_ATT = 82;
 }
 
-YGSize yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
-	YGSize retVal;
-	ds::ui::Text* spr = (ds::ui::Text*)YGNodeGetContext(node);
-	retVal.width = spr->getWidth();
-	retVal.height = spr->getHeight();
-	return retVal;
-}
+
 
 void Text::installAsServer(ds::BlobRegistry& registry)
 {
@@ -191,8 +185,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	
-	YGNodeSetMeasureFunc(mYogaNode, yogaMeasureFunc);
-	YGNodeSetContext(mYogaNode, this);
+	
 }
 
 Text::~Text() {
