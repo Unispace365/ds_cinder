@@ -91,7 +91,7 @@ protected:
 	virtual void			runFlowLayout(const bool vertical, const bool wrap = false);
 
 	virtual void			runFlexLayout(bool calculate=true);
-
+	virtual void			addChild(Sprite& child) override;
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;

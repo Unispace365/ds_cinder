@@ -417,6 +417,22 @@ void LayoutSprite::runFlexLayout(bool calculate)
 	}
 }
 
+void LayoutSprite::addChild(Sprite& child)
+{
+	//check if the node has a parent. ds_cinder allows moving a child with a parent
+	//but yoga does not. so we have to clear the parent first.
+	
+	auto parent_node = YGNodeGetParent(child.getYogaNode());
+	if (parent_node) {
+		YGNodeRemoveChild(parent_node, child.getYogaNode());
+	}
+	YGNodeSetMeasureFunc(mYogaNode, nullptr);
+
+	YGNodeInsertChild(mYogaNode, child.getYogaNode(), mYogaNode->getChildren().size());
+
+	Sprite::addChild(child);
+}
+
 void LayoutSprite::onLayoutUpdate(){
 	if(mLayoutUpdatedFunction){
 		mLayoutUpdatedFunction();

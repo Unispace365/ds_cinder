@@ -374,7 +374,7 @@ namespace ui {
 			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
 			If you have a pointer to a Sprite, you can use addChildPtr().
 			\param newChild The Sprite to be added as a child*/
-		void					addChild(Sprite& newChild);
+		virtual void					addChild(Sprite& newChild);
 
 		/** Adds a sprite as a child of this Sprite.
 			The child will be placed at it's position in this Sprite's coordinate space,
