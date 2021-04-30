@@ -66,6 +66,19 @@ void SpriteButton::showUp() {
 	}
 }
 
+YGSize SpriteButton::yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
+{
+	YGSize retVal;
+	ds::ui::SpriteButton* spr = this;
+	auto bb_h = spr->getHighSprite().getChildBoundingBox();
+	auto bb_n = spr->getNormalSprite().getChildBoundingBox();
+	bb_h.include(bb_n);
+	spr->setSize(bb_h.getSize());
+	retVal.width = spr->getWidth();
+	retVal.height = spr->getHeight();
+	return retVal;
+}
+
 void SpriteButton::onClicked() {
 	showUp();
 	if(mClickFn) mClickFn();

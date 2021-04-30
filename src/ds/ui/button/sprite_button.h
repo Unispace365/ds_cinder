@@ -32,6 +32,7 @@ public:
 	void						showUp();
 
 	const ButtonBehaviour::State getButtonState(){ return mButtonBehaviour.getState(); }
+	virtual	YGSize			yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
 
 private:
 	void						onClicked();

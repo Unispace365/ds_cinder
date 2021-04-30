@@ -35,12 +35,11 @@
 namespace ds {
 namespace ui {
 
-YGSize yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+YGSize _yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
 	YGSize retVal;
-	ds::ui::Text* spr = (ds::ui::Text*)YGNodeGetContext(node);
-	retVal.width = spr->getWidth();
-	retVal.height = spr->getHeight();
-	return retVal;
+	ds::ui::Sprite* spr = (ds::ui::Sprite*)YGNodeGetContext(node);
+	
+	return spr->yogaMeasureFunc(node, width, widthMode, height, heightMode);
 }
 
 const char          SPRITE_ID_ATTRIBUTE = 1;
@@ -208,7 +207,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mOutputFbo = nullptr;
 	mIsRenderFinalToTexture = false;
 	mYogaNode = YGNodeNew();
-	YGNodeSetMeasureFunc(mYogaNode, yogaMeasureFunc);
+	YGNodeSetMeasureFunc(mYogaNode, _yogaMeasureFunc);
 	YGNodeSetContext(mYogaNode, this);
 	dimensionalStateChanged();
 }
@@ -702,6 +701,7 @@ void Sprite::addChild(Sprite &child){
 	}
 
 	mChildren.push_back(&child);
+	/*
 	//check if the node has a parent. ds_cinder allows moving a child with a parent
 	//but yoga does not. so we have to clear the parent first.
 	auto parent_node = YGNodeGetParent(child.mYogaNode);
@@ -711,7 +711,7 @@ void Sprite::addChild(Sprite &child){
 	YGNodeSetMeasureFunc(mYogaNode, nullptr);
 	
 	YGNodeInsertChild(mYogaNode, child.mYogaNode, mYogaNode->getChildren().size());
-	
+	*/
 	child.setParent(this);
 	child.setPerspective(mPerspective);
 	child.setDrawSorted(getDrawSorted());
@@ -2099,6 +2099,9 @@ void Sprite::setFlexboxFromStyleString(std::string style)
 		auto success = FlexboxParser::parseProperty(key, value, mYogaNode);
 		
 	}
+	if (mYogaNode->getChildren().size() == 0) {
+		YGNodeSetMeasureFunc(mYogaNode, _yogaMeasureFunc);
+	}
 	mYogaNode->setDirty(true);
 	
 }
@@ -2281,6 +2284,15 @@ bool Sprite::getDrawDebug(){
 
 void Sprite::setSpriteName(const std::wstring& name){
 	mSpriteName = name;
+}
+
+YGSize Sprite::yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
+{
+	YGSize retVal;
+	
+	retVal.width = getWidth();
+	retVal.height = getHeight();
+	return retVal;
 }
 
 const std::wstring Sprite::getSpriteName(const bool useDefault) const {

@@ -6,6 +6,15 @@
 #define PARSER(x) 
 namespace ds::ui {
 	std::unordered_map < std::string, std::function<bool(YGNodeRef, std::string, bool)>> FlexboxParser::parsers({
+			{"ignore-children",
+			[](YGNodeRef node,std::string value,bool pct)->bool {
+				if (value == "true") {
+					
+					YGNodeRemoveAllChildren(node);
+				}
+				return true;
+				}
+			},
 			{"direction",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				if (value == "ltr") {
