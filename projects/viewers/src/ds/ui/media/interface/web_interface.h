@@ -49,6 +49,8 @@ public:
 	void						startTouch(); // web is tappable 
 	void						stopTouch(); // web is not tappable
 
+	bool isLocked(){ return mWebLocked; }
+
 
 	ds::ui::ImageButton*		getKeyboardButton() { return mKeyboardButton; }
 	ds::ui::ImageButton*		getBackButton() { return mBackButton; }
