@@ -40,6 +40,7 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/util/string_util.h>
+#include <ds/util/glm_structured_binding.h>
 
 // Poco
 #include <Poco/Foundation.h>

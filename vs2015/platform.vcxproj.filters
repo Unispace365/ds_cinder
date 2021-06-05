@@ -663,6 +663,9 @@
     <ClInclude Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.h">
       <Filter>src\tuio\osc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\glm_structured_binding.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">

@@ -136,6 +136,7 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h" />
     <ClInclude Include="..\src\ds\ui\touch\tuio_input.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
+    <ClInclude Include="..\src\ds\util\glm_structured_binding.h" />
     <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />
     <ClInclude Include="..\src\ds\util\sundown\autolink.h" />
     <ClInclude Include="..\src\ds\util\sundown\buffer.h" />
