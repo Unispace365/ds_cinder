@@ -376,6 +376,17 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				(*it)->drawClient(totalTransformation, dParams);
 			}
 		}
+		if ((mSpriteFlags & TRANSPARENT_F) == 0) {
+
+			ci::gl::pushModelMatrix();
+			ci::gl::multModelMatrix(totalTransformation);
+
+			DS_REPORT_GL_ERRORS();
+			drawPostLocalClient();
+			DS_REPORT_GL_ERRORS();
+			ci::gl::popModelMatrix();
+		}
+
 	};
 
 	if(mIsRenderFinalToTexture && mOutputFbo){
@@ -398,6 +409,8 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	if (!mIsRenderFinalToTexture && (mSpriteFlags&CLIP_F) != 0){
 		clip_plane::disableClipping();
 	}
+
+	
 }
 
 void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
@@ -464,6 +477,9 @@ void Sprite::drawLocalClient(){
 	} else {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 	}
+}
+
+void Sprite::drawPostLocalClient() {
 }
 
 void Sprite::drawLocalServer(){
@@ -1752,6 +1768,7 @@ void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format
 }
 
 bool Sprite::isFinalRenderToTexture(){
+	return mIsRenderFinalToTexture;
 	return mIsRenderFinalToTexture;
 }
 

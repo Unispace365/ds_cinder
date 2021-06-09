@@ -764,6 +764,7 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
+		virtual void		drawPostLocalClient();
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
