@@ -45,6 +45,7 @@ public:
 			, mItemTitleResizeLimit(0.0f, 0.0f)
 			, mClusterRadius(280.0f), mClusterPositionOffset(-90.0f)
 			, mClusterSizeThreshold(1000.0f), mClusterDistanceThreshold(1000.0f)
+			, mClusterMinTouchPoints(5)
 			, mBackgroundImage(""), mBackgroundColor(0.0f, 0.0f, 0.0f), mBackgroundOpacity(0.3f), mBackgroundScale(3.0f), mBackgroundOffset(0.0f, 0.0f), mBackgroundPulseAmount(1.0f)
 			, mAnimationStyle(kAnimateUp)
 			, mDoClipping(true)
@@ -69,6 +70,8 @@ public:
 
 		float								mClusterSizeThreshold;		// How large the cluster of fingers can be before it is invalidated
 		float								mClusterDistanceThreshold;	// How far from the start point the cluster can be dragged before it is invalidated
+
+		int									mClusterMinTouchPoints;		// The minimum number of touch points needed to register as a cluster, defaults to 5
 
 		std::string							mBackgroundImage;			// The path to an image 
 		ci::Color							mBackgroundColor;			// Color to set the background image

@@ -175,7 +175,7 @@ void ClusterView::setHighlight(ci::vec2 clusterCenter) {
 
 void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui::FiveFingerCluster::Cluster& cluster){
 	if(!mActive
-	   && cluster.mTouches.size() > 4
+	   && cluster.mTouches.size() >= mMenuConfig.mClusterMinTouchPoints
 	   && validateCluster(cluster, false)){
 		activate();
 		setPosition(cluster.mCurrentBoundingBox.getCenter().x, cluster.mCurrentBoundingBox.getCenter().y);
