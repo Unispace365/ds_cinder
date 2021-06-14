@@ -248,6 +248,9 @@ protected:
 
 	/// Renders text into the texture.
 	void 						renderPangoText();
+
+	void						resetPangoLayout();
+
 	//pango references;
 	PangoContext*				mPangoContext;
 	PangoLayout*				mPangoLayout;

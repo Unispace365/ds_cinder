@@ -221,6 +221,8 @@ void Text::setText(std::string text) {
 		mNeedsRefit = true;
 		mNeedsMaxResizeFontSizeUpdate = true;
 		markAsDirty(TEXT_DIRTY);
+
+		resetPangoLayout();
 	}
 }
 
@@ -1260,6 +1262,17 @@ void Text::renderPangoText(){
 			cairo_surface_destroy(cairoSurface);
 		}
 	} 
+}
+
+void Text::resetPangoLayout(){
+	g_object_unref(mPangoLayout);
+	mPangoLayout = pango_layout_new(mPangoContext);
+
+	mNeedsFontUpdate = true;
+	mNeedsMeasuring = true;
+	mNeedsRefit = true;
+	mNeedsMaxResizeFontSizeUpdate = true;
+	markAsDirty(FONT_DIRTY);
 }
 
 void Text::writeAttributesTo(ds::DataBuffer& buf){
