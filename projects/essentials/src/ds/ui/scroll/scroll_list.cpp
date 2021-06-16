@@ -21,6 +21,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mFillFromTop(true)
 	, mGridLayout(false)
 	, mSpecialLayout(false)
+	, mVaryingSizeLayout(false)
 	, mTargetRow(0)
 	, mTargetColumn(0)
 	, mMatrixPadding(0)
@@ -59,7 +60,9 @@ void ScrollList::setContent(const std::vector<int>& models){
 	clearItems();
 
 	for(auto it = models.begin(); it < models.end(); ++it){
-		mItemPlaceHolders.push_back(ItemPlaceHolder((*it)));
+		auto placeholder = ItemPlaceHolder((*it));
+		placeholder.mSize = ci::vec2(mIncrementAmount);
+		mItemPlaceHolders.push_back(placeholder);
 	}
 
 	layout();
@@ -124,21 +127,20 @@ void ScrollList::layout(){
 
 void ScrollList::pushItemsTop(){
 	if (mVerticalScrolling){
+		if (mItemPlaceHolders.empty()) return;
 		float scrollHeight = mScrollableHolder->getHeight();
 		if(getPerspective()){
-			if(!mItemPlaceHolders.empty() &&
-			   mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - mIncrementAmount
-			   ){
-				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - mIncrementAmount;
+			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders[0].mSize.y : mIncrementAmount;
+			if(mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - incrementAmount){
+				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - incrementAmount;
 				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 					(*it).mY += delta;
 				}
 			}
 		} else {
-			if(!mItemPlaceHolders.empty() &&
-			   mItemPlaceHolders.back().mY < scrollHeight - mIncrementAmount
-			   ){
-				float delta = scrollHeight - mItemPlaceHolders.back().mY - mIncrementAmount;
+			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders.back().mSize.y : mIncrementAmount;
+			if(mItemPlaceHolders.back().mY < scrollHeight - incrementAmount){
+				float delta = scrollHeight - mItemPlaceHolders.back().mY - incrementAmount;
 				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 					(*it).mY += delta;
 				}
@@ -284,23 +286,48 @@ void ScrollList::layoutItems(){
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
 	float totalHeight = yp;
+
 	if (mVerticalScrolling){
-		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		if (mVaryingSizeLayout) {
+			totalHeight += mStartPositionY * 2.f;
+			for (auto item : mItemPlaceHolders) {
+				totalHeight += item.mSize.y;
+			}
+		} else {
+			totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		}
 		if(isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
 	}
 
-	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
-		(*it).mX = xp;
-		(*it).mY = yp;
+	if (mVaryingSizeLayout) {
+		for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+			(*it).mX = xp;
+			(*it).mY = yp;
 
-		if(mVerticalScrolling){
-			if(isPerspective){
-				yp -= mIncrementAmount;
+			if (mVerticalScrolling) {
+				if (isPerspective) {
+					yp -= (*it).mSize.y;
+				} else {
+					yp += (*it).mSize.y;
+				}
 			} else {
-				yp += mIncrementAmount;
+				xp += (*it).mSize.x;
 			}
-		} else {
-			xp += mIncrementAmount;
+		}
+	} else {
+		for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+			(*it).mX = xp;
+			(*it).mY = yp;
+
+			if (mVerticalScrolling) {
+				if (isPerspective) {
+					yp -= mIncrementAmount;
+				} else {
+					yp += mIncrementAmount;
+				}
+			} else {
+				xp += mIncrementAmount;
+			}
 		}
 	}
 
@@ -332,70 +359,147 @@ void ScrollList::clearItems(){
 void ScrollList::assignItems(){
 	if(!mScrollArea || !mScrollableHolder) return;
 
-	float y = mScrollArea->getScrollerPosition().y;
-	float x = mScrollArea->getScrollerPosition().x;
+	ci::vec2 scrollPos = mScrollArea->getScrollerPosition();
 	float scrollHeight = mScrollArea->getHeight();
 	float scrollWidth = mScrollArea->getWidth();
 
+	if (mVaryingSizeLayout) {
+		float incrementedPosition = mVerticalScrolling ? mStartPositionY : mStartPositionX;
+		for (auto& it : mItemPlaceHolders) {
+			if (mVerticalScrolling) it.mY = incrementedPosition;
+			else it.mX = incrementedPosition;
 
-	std::vector<int> needsSprite;
+			float itemY = scrollPos.y + it.mY;
+			float itemX = scrollPos.x + it.mX;
 
-	// Look through all the placeholdser and find all the items that should be onscreen
-	// push the offscreen sprites into the reserve vector
-	for(auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it){
-		float itemY = y + it->mY;
-		float itemX = x + it->mX;
+			const auto incrementAmount = mVaryingSizeLayout ? (mVerticalScrolling ? it.mSize.y : it.mSize.x) : mIncrementAmount;
 
-		if((mVerticalScrolling && ((itemY + mIncrementAmount > 0.0f) && (itemY < scrollHeight))) ||
-			(!mVerticalScrolling && ((itemX + mIncrementAmount > 0.0f) && (itemX < scrollWidth)))
-			){
-			if(it->mAssociatedSprite){
-				it->mAssociatedSprite->setPosition(it->mX, it->mY);
-			} else {
-				needsSprite.push_back(static_cast<int>(it - mItemPlaceHolders.begin()));
-			}
-		} else {
-			if(it->mAssociatedSprite){
-				mReserveItems.push_back(it->mAssociatedSprite);
-			}
-			it->mAssociatedSprite = nullptr;
-		}
-	}
-
-	// give all the placeholders that need a sprite
-	for(auto it = needsSprite.begin(), it2 = needsSprite.end(); it != it2; ++it){
-		ds::ui::Sprite* sprite = nullptr;
-		if(!mReserveItems.empty()){
-			sprite = mReserveItems.back();
-			mReserveItems.pop_back();
-		} else {
-			if(mCreateItemCallback) sprite = mCreateItemCallback();
-			if(sprite){
-				sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){ handleItemTouchInfo(sp, ti); });
-				sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent){
-					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
-					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
-					if(timeDif < 0.2f){
-						DS_LOG_VERBOSE(2, "Too soon since the last touch to tap this list!");
-						return;
+			if ((mVerticalScrolling && ((itemY + incrementAmount > 0.0f) && (itemY < scrollHeight))) ||
+				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))
+				) {
+				if (it.mAssociatedSprite) {
+					it.mAssociatedSprite->setPosition(it.mX, it.mY);
+				} else {
+					/// create sprite
+					ds::ui::Sprite* sprite = nullptr;
+					if (!mReserveItems.empty()) {
+						sprite = mReserveItems.back();
+						mReserveItems.pop_back();
+					} else {
+						if (mCreateItemCallback) sprite = mCreateItemCallback();
+						if (sprite) {
+							sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleItemTouchInfo(sp, ti); });
+							sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent) {
+								Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
+								float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+								if (timeDif < 0.2f) {
+									DS_LOG_VERBOSE(2, "Too soon since the last touch to tap this list!");
+									return;
+								}
+								mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
+								if (mItemTappedCallback) mItemTappedCallback(sprite, cent);
+							});
+							mScrollableHolder->addChildPtr(sprite);
+						} else {
+							DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when we need them!!");
+						}
 					}
-					mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
-					if(mItemTappedCallback) mItemTappedCallback(sprite, cent);
-				});
-				mScrollableHolder->addChildPtr(sprite);
+
+					if (sprite) {
+						if (mSetDataCallback) mSetDataCallback(sprite, it.mDbId);
+						sprite->setPosition(it.mX, it.mY);
+						ci::vec2 spSize = ci::vec2(sprite->getSize());
+						if (it.mSize != spSize) {
+							it.mSize = spSize;
+						}
+
+						sprite->show();
+						it.mAssociatedSprite = sprite;
+					}
+				}
 			} else {
-				DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when we need them!!");
+				// item is offscreen, put any associated sprites in reserve
+				if (it.mAssociatedSprite) {
+					mReserveItems.push_back(it.mAssociatedSprite);
+					it.mAssociatedSprite = nullptr;
+				}
+			}
+
+			if (mVerticalScrolling) incrementedPosition = it.mY + it.mSize.y;
+			else incrementedPosition = it.mX + it.mSize.x;
+		}
+
+		if (mVerticalScrolling) {
+			if (mScrollableHolder->getHeight() != incrementedPosition) {
+				mScrollableHolder->setSize(getWidth(), incrementedPosition);
+				if (mScrollArea) mScrollArea->recalculateSizes();
+			}
+		} else if (mScrollableHolder->getWidth() != incrementedPosition) {
+			mScrollableHolder->setSize(incrementedPosition, getHeight());
+			if (mScrollArea) mScrollArea->recalculateSizes();
+		}
+	} else {
+		std::vector<int> needsSprite;
+
+		// Look through all the placeholdser and find all the items that should be onscreen
+		// push the offscreen sprites into the reserve vector
+		for (auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it) {
+			float itemY = scrollPos.y + it->mY;
+			float itemX = scrollPos.x + it->mX;
+
+			const auto incrementAmount = mVaryingSizeLayout ? (mVerticalScrolling ? it->mSize.y : it->mSize.x) : mIncrementAmount;
+
+			if ((mVerticalScrolling && ((itemY + incrementAmount > 0.0f) && (itemY < scrollHeight))) ||
+				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))
+				) {
+				if (it->mAssociatedSprite) {
+					it->mAssociatedSprite->setPosition(it->mX, it->mY);
+				} else {
+					needsSprite.push_back(static_cast<int>(it - mItemPlaceHolders.begin()));
+				}
+			} else {
+				if (it->mAssociatedSprite) {
+					mReserveItems.push_back(it->mAssociatedSprite);
+				}
+				it->mAssociatedSprite = nullptr;
 			}
 		}
 
-		auto &placeHolder = mItemPlaceHolders[*it];
+		// give all the placeholders that need a sprite
+		for (auto it = needsSprite.begin(), it2 = needsSprite.end(); it != it2; ++it) {
+			ds::ui::Sprite* sprite = nullptr;
+			if (!mReserveItems.empty()) {
+				sprite = mReserveItems.back();
+				mReserveItems.pop_back();
+			} else {
+				if (mCreateItemCallback) sprite = mCreateItemCallback();
+				if (sprite) {
+					sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleItemTouchInfo(sp, ti); });
+					sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent) {
+						Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
+						float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+						if (timeDif < 0.2f) {
+							DS_LOG_VERBOSE(2, "Too soon since the last touch to tap this list!");
+							return;
+						}
+						mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
+						if (mItemTappedCallback) mItemTappedCallback(sprite, cent);
+					});
+					mScrollableHolder->addChildPtr(sprite);
+				} else {
+					DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when we need them!!");
+				}
+			}
 
-		if(sprite){
+			auto &placeHolder = mItemPlaceHolders[*it];
 
-			if(mSetDataCallback) mSetDataCallback(sprite, placeHolder.mDbId);
-			sprite->setPosition(placeHolder.mX, placeHolder.mY);
-			sprite->show();
-			placeHolder.mAssociatedSprite = sprite;
+			if (sprite) {
+
+				if (mSetDataCallback) mSetDataCallback(sprite, placeHolder.mDbId);
+				sprite->setPosition(placeHolder.mX, placeHolder.mY);
+				sprite->show();
+				placeHolder.mAssociatedSprite = sprite;
+			}
 		}
 	}
 

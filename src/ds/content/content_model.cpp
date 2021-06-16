@@ -393,13 +393,15 @@ bool ContentModelRef::weakEqual(const ContentModelRef& b) const {
 
 //Predicate: this & b have equal size children and references
 bool ContentModelRef::equalChildrenAndReferences(const ContentModelRef& b, std::vector<std::pair<void*, void*>>& alreadyChecked) const {
-	auto* max = static_cast<void*>(std::max(mData.get(), b.mData.get()));
-	auto* min = static_cast<void*>(std::min(mData.get(), b.mData.get()));
-	if (std::find(alreadyChecked.begin(), alreadyChecked.end(), std::make_pair(min, max)) != alreadyChecked.end()) {
-		return true;
-	}
-
 	if (weakEqual(b)) {
+		if (!mData) return true;
+
+		auto* max = static_cast<void*>(std::max(mData.get(), b.mData.get()));
+		auto* min = static_cast<void*>(std::min(mData.get(), b.mData.get()));
+		if (std::find(alreadyChecked.begin(), alreadyChecked.end(), std::make_pair(min, max)) != alreadyChecked.end()) {
+			return true;
+		}
+
 		for (size_t i = 0; i < mData->mChildren.size(); ++i) {
 			if (!mData->mChildren.at(i).equalChildrenAndReferences(b.mData->mChildren.at(i), alreadyChecked))
 				return false;
