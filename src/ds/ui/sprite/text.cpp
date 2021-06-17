@@ -218,9 +218,6 @@ void Text::setText(std::string text) {
 			g_object_unref(mPangoLayout);
 			mPangoLayout = pango_layout_new(mPangoContext);
 			mNeedsFontUpdate = true;
-			mNeedsMeasuring = true;
-			mNeedsRefit = true;
-			mNeedsMaxResizeFontSizeUpdate = true;
 		}
 
 		mText = text;
