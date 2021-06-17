@@ -81,6 +81,8 @@ class GstVideo : public Sprite {
 
 	// Loads a video from a file path.
 	GstVideo& loadVideo(const std::string& filename);
+	// Loads a video from a url.
+	GstVideo& loadVideoUrl(const std::string& uri);
 	// Loads a vodeo from a ds::Resource::Id
 	GstVideo& setResourceId(const ds::Resource::Id& resource_id);
 	// Loads a vodeo from a ds::Resource
