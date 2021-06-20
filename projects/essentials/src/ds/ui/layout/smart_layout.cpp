@@ -225,7 +225,15 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 	for (auto mit : ds::split(model, "; ", true)) {
 		auto keyVals = ds::split(mit, ":", true);
 		if (keyVals.size() == 2) {
-			auto childProps = ds::split(keyVals[1], "->", true);
+			auto valueDefault = ds::split(keyVals[1],"|",true);
+			auto values = keyVals[1];
+			auto default = std::string("");
+			if (valueDefault.size()==2) {
+				values = valueDefault[0];
+				default = valueDefault[1];
+			}
+
+			auto childProps = ds::split(values, "->", true);
 
 			if (childProps.empty() || childProps.size() > 2) {
 				DS_LOG_WARNING("SmartLayout::setData() Invalid syntax for child / property mapping: " << model);
@@ -329,12 +337,17 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					}
 				} else if (sprPropToSet.rfind("_",0)==0) {
 					auto click_data = theNode.getPropertyString(theProp);
+					if (click_data.empty() && !default.empty()) {
+						click_data = default;
+					}
 					if (!click_data.empty()) {
 						child->getUserData().setString(sprPropToSet, click_data);
 					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);
-
+					if (actualValue.empty() && !default.empty()) {
+						actualValue = default;
+					}
 					ds::ui::XmlImporter::setSpriteProperty(*child, sprPropToSet, actualValue);
 				}
 			}

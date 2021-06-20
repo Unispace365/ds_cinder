@@ -748,6 +748,8 @@ The second part of the syntax is the **content model reference**. Typically you'
 
 After a pointer arrow, you'll specify the **content model property** to use. In general these will be the column names from a sqlite db. Since all data in ContentModelRef is stored as string and type converted when applied, you can apply any content model property to any sprite property, so it's up to you to make sure it makes sense. On the flip side, you could apply properties to a text field for quick debugging. For instance, if a color is not appearing correctly, you could apply the color property to a text field to check the value.
 
+You can add a default setting for most elements using the | character. Default setting don't make sense in all scenarios (such as text_model or visible_if_exists) and will not have any effect if it doesn't.
+
 Set multiple models separated by a **semi-colon and a space**.
 
 ```cpp
@@ -769,7 +771,7 @@ addChildPtr(mySlide);
 <layout name="root_layout" >
 	<text name="the_title"
 		font="slide:title"
-		model="color:theme->title_color; text:this->title"
+		model="color:theme->title_color; text:this->title; text-align:this->align|center"
 		/>
 </layout>
 ```
