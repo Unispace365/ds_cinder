@@ -45,6 +45,7 @@ public:
 	void					setReplyFunction(std::function<void(const bool errored, const std::string& reply, const long httpCode)> func){ mReplyFunction = func; }
 
 	void					setVerboseOutput(const bool verbose);
+	const std::string&		getLastRequestUrl() const { return mLastRequestUrl; }
 
 private:
 	class IndividualRequest : public Poco::Runnable {
@@ -76,6 +77,7 @@ private:
 	bool									mVerbose;
 	ds::ParallelRunnable<IndividualRequest>	mRequests;
 	std::function<void(const bool errored, const std::string&, const long)>	mReplyFunction;
+	std::string								mLastRequestUrl;
 };
 } // namespace net
 } // namespace ds

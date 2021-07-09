@@ -102,6 +102,9 @@ public:
 
 	void				checkBounds(const bool immediate = false);
 
+	// Temporarily disable the bound check, handy if you want to highlight an edge item at a specific position 
+	void				disableBoundCheck(const bool disable) { mSkipBoundCheck = disable; }
+
 protected:
 	virtual void		onUpdateServer(const ds::UpdateParams& p) override;
 	virtual void		onSizeChanged() override;
@@ -127,6 +130,8 @@ protected:
 	bool				mTopFadeActive;
 	bool				mBottomFadeActive;
 	bool				mHandleRotatedTouches;
+
+	bool				mSkipBoundCheck;
 
 	bool				mShaderFade;
 	ci::gl::GlslProgRef	mShaderShader;

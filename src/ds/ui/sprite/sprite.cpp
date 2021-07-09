@@ -28,7 +28,7 @@
 #include <ds/cfg/settings_variables.h>
 
 #include "util/flexbox_parser.h"
-
+#include <boost/format.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -2236,8 +2236,57 @@ void Sprite::write(std::ostream &s, const size_t tab) const {
 }
 
 void Sprite::writeState(std::ostream &s, const size_t tab) const {
-	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "CLASS NAME=" << typeid(this).name() << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
+	const auto indent = [tab, &s]() {
+		for (size_t k=0; k<tab; ++k) s << "  ";
+	};
+
+	const auto eraseAll = [](const std::string& s, const std::vector<std::string> list) {
+		std::string ret = s;
+		const auto eraseAllSubStr = [](std::string& s, const std::string& toErase) {
+			auto pos = std::string::npos;
+			while ((pos = s.find(toErase)) != std::string::npos) {
+				s.erase(pos, toErase.length());
+			}
+		};
+		std::for_each(list.begin(), list.end(), std::bind(eraseAllSubStr, std::ref(ret), std::placeholders::_1));
+		return ret;
+	};
+
+	const auto getNameStr = [this, eraseAll]{ 
+		//const auto smartLayout = dynamic_cast<ds::ui::SmartLayout*>
+		const auto typeName = eraseAll(typeid(*this).name(), {"class ", "ds::ui::"});
+		const auto spriteName = ds::utf8_from_wstr(this->getSpriteName());
+		const auto xmlStr = std::string("");
+		
+		return boost::format("%s%s%s")
+			% typeName
+			% (spriteName.empty() ? "" : std::string("#") + spriteName)
+			% xmlStr
+		;
+	};
+
+	indent();
+	const auto nameWidthFormat = (boost::format("%%-%ds") % (80 - tab*2)).str();
+	const auto nameStr = boost::format(nameWidthFormat) % getNameStr();
+
+	const auto pos = getPosition();
+	s	<< nameStr 
+		<< boost::format("  [%5.0f, %5.0f] @ (%6.1f, %6.1f)   opacity=%4.2f %s %s %s\n")
+			% getWidth() % getHeight()
+			% pos.s % pos.y
+			% getOpacity()
+			% (this->visible() 
+				? "        "
+				: "<HIDDEN>")
+			% (this->getClipping()
+				? "<CLIP>"
+				: "      ")
+			% (this->isEnabled()
+				? "<ENABLED>"
+				: "         ")
+			;
+	/*
+	s << "CLASS NAME= " << typeid(this).name() << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE opacity=" << mOpacity << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
@@ -2258,6 +2307,7 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE gl_inv_tx=" << mInverseGlobalTransform;
 	s << std::endl;
+	*/
 }
 
 #endif

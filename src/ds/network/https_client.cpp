@@ -121,6 +121,7 @@ void HttpsRequest::setVerboseOutput(const bool verbose){
 }
 
 void HttpsRequest::onRequestComplete(IndividualRequest& q){
+	mLastRequestUrl = q.mInput;
 	if(mReplyFunction){
 		if(q.mError){
 			mReplyFunction(true, q.mErrorMessage, q.mHttpStatus);
