@@ -16,7 +16,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/content/content_events.h"
-#include "ds/network/https_client.h"
+
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"

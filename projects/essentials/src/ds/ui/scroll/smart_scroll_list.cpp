@@ -65,13 +65,13 @@ void SmartScrollList::setContentList(ds::model::ContentModelRef parentModel) {
 void SmartScrollList::setContentList(std::vector<ds::model::ContentModelRef> theContents) {
 	mContentMap.clear();
 	int itemId = 1;
+
 	std::vector<int> productIds;
-	for(auto it : theContents) {
+	for (auto it : theContents) {
 		productIds.emplace_back(itemId);
 		mContentMap[itemId] = it;
 		itemId++;
 	}
-
 	setContent(productIds);
 }
 
@@ -92,7 +92,6 @@ void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
 		DS_LOG_WARNING("Can't set a blank layout for sub items in SmartScrollList");
 		return;
 	}
-
 
 	/// grab the height from the item, then get rid of it
 	ds::ui::SmartLayout* tempItem = new ds::ui::SmartLayout(mEngine, itemLayout);
@@ -117,6 +116,29 @@ void SmartScrollList::setItemLayoutFile(const std::string& itemLayout) {
 		return new SmartLayout(mEngine, itemLayout);
 	});
 
+}
+
+void SmartScrollList::layoutItems() {
+	if (mVaryingSizeLayout) {
+		float xp = mStartPositionX;
+		float yp = mStartPositionY;
+		float totalHeight = yp + mStartPositionY * 2.f;
+		for (auto& item : mItemPlaceHolders) {
+			item.mX = xp;
+			item.mY = yp;
+
+			if (item.mAssociatedSprite) {
+				item.mSize = ci::vec2(item.mAssociatedSprite->getSize());
+			}
+
+			totalHeight += item.mSize.y;
+			yp += item.mSize.y;
+		}
+
+		mScrollableHolder->setSize(getWidth(), totalHeight);
+	} else {
+		ScrollList::layoutItems();
+	}
 }
 
 }

@@ -104,6 +104,7 @@ class ScrollArea;
 			int							mDbId;
 			float						mX;
 			float						mY;
+			ci::vec2					mSize = ci::vec2(0.f);
 			ds::ui::Sprite*				mAssociatedSprite;
 		};
 
@@ -132,6 +133,7 @@ class ScrollArea;
 		bool								mFillFromTop;
 		bool								mGridLayout;
 		bool								mSpecialLayout;
+		bool								mVaryingSizeLayout;
 		ci::vec2							mGridIncrement;
 
 		/// for animate on

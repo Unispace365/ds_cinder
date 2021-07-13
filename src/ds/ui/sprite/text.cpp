@@ -1,5 +1,10 @@
 #include "stdafx.h"
 
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep GStreamer dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gtk' version='1.0.0.0' type='win32'\"")
+#endif
+
 #include "text.h"
 
 #include "cairo/cairo.h"
@@ -19,6 +24,11 @@
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/util/string_util.h"
 #include <Poco/Stopwatch.h>
+
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep Pango/GTK dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gtk' version='1.0.0.0' type='win32'\"")
+#endif
 
 
 namespace {
@@ -203,13 +213,20 @@ std::wstring Text::getText() const {
 }
 
 void Text::setText(std::string text) {
-	if(text != mText) {
+	if (text != mText) {
+		if (!mText.empty()) {
+			g_object_unref(mPangoLayout);
+			mPangoLayout = pango_layout_new(mPangoContext);
+			mNeedsFontUpdate = true;
+		}
+
 		mText = text;
 		mNeedsMarkupDetection = true;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 		mNeedsRefit = true;
 		mNeedsMaxResizeFontSizeUpdate = true;
+
 		markAsDirty(TEXT_DIRTY);
 	}
 }
