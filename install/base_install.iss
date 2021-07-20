@@ -34,12 +34,12 @@ DisableStartupPrompt=yes
 DisableWelcomePage=yes
 
 [Files]
-Source: "vs2015/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
 Source: "data/*"; DestDir: "{app}/data"; Flags: recursesubdirs
 
 ; Include the exe individually so it throws an error if it doesn't exist
-Source: "vs2015/Release/{#APP_EXE}"; DestDir: "{app}"
+Source: "vs2019/Release/{#APP_EXE}"; DestDir: "{app}"
 
 #ifdef USE_APPHOST
 Source: "install/DSAppHost/*"; DestDir: "{app}/DSAppHost/"; Flags: recursesubdirs
