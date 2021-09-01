@@ -106,7 +106,8 @@ private:
 
 	bool												mShouldQuit;
 
-	bool												mTextureOnMainThread;
+	bool												mTextureOnMainThread; 
+	bool												mCacheEverything;
 };
 
 }
