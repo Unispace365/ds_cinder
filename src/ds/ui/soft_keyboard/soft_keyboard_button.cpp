@@ -191,6 +191,12 @@ void SoftKeyboardButton::setShifted(const bool upper) {
 
 void SoftKeyboardButton::onClicked() {
 	showUp();
+	auto now = mEngine.getElapsedTimeSeconds();
+	if (now - mLastPressed < 0.1) {
+		return;
+	}
+	mLastPressed = now;
+	
 	if(mClickFn) mClickFn();
 }
 
