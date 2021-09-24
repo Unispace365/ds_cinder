@@ -6,9 +6,9 @@
 #include <string>
 
 #include "cinder/gl/gl.h"
-
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant.hpp>
+#include <variant>
+//#include <boost/variant/static_visitor.hpp>
+//#include <boost/variant/variant.hpp>
 
 namespace cinder {
 namespace gl {
@@ -42,11 +42,11 @@ struct UniformData
  * \see http://www.boost.org/doc/libs/1_57_0/doc/html/variant.html
  * \see <cinder/gl/GlslProg.h>. All overloads, match Cinder's uniform helper.
  */
-class UniformVisitor : public boost::static_visitor < void >
+class UniformVisitor 
 {
 public:
 	/// A typedef of all (20) Cinder supported uniforms.
-	typedef boost::variant <
+	typedef std::variant <
 		int, float, const int*, std::vector<float>,
 		ci::vec2, ci::ivec2, ci::vec3, ci::vec4,
 		const ci::vec2*, const ci::ivec2*, const ci::vec3*, const ci::vec4*,
