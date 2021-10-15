@@ -24,6 +24,9 @@ logs/
 
 /doc/doxygen/generated
 
+vs2015/x64/
+projects/**/x64/
+
 projects/pdf/lib/
 projects/physics/lib/
 projects/video/lib/
