@@ -13,11 +13,15 @@ namespace ui {
 
 LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng)
   : ds::AutoUpdate(eng, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
-  , mShouldQuit(false) 
-  , mTextureOnMainThread(false)
+	, mShouldQuit(false) 
+	, mTextureOnMainThread(false)
+	, mCacheEverything(false)
 {
 	mEngine.getEngineSettings().getSetting("load_image:create_texture_on_main_thread", 0, ds::cfg::SETTING_TYPE_BOOL, "True will create the gl texture on the main thread. Only use if you have issues with delayed image loading, typically in fullscreen", "false");
 	mTextureOnMainThread = mEngine.getEngineSettings().getBool("load_image:create_texture_on_main_thread", 0, false);
+
+	mEngine.getEngineSettings().getSetting("load_image:cache_everything", 0, ds::cfg::SETTING_TYPE_BOOL, "True will keep all images in GPU memory until the app exits. False only caches the images loaded with the cache flag", "false");
+	mCacheEverything = mEngine.getEngineSettings().getBool("load_image:cache_everything", 0, false);
 }
 
 void LoadImageService::initialize() {
@@ -178,6 +182,8 @@ void LoadImageService::release(const std::string& filePath, void* referrer) {
 			findy->second.erase(refFindy);
 		}
 	}
+
+	if(mCacheEverything) return;
 
 	auto inFind = mInUseImages.find(filePath);
 	if (inFind != mInUseImages.end()) {

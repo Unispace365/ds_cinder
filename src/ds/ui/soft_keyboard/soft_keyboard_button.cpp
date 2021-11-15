@@ -28,6 +28,7 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	, mUpImg(nullptr)
 	, mDownImg(nullptr)
 {
+	mLastPressed = 0;
 	mLayoutFixedAspect = true;
 	mText = new ds::ui::Text(mEngine);
 	addChildPtr(mText);
@@ -191,6 +192,12 @@ void SoftKeyboardButton::setShifted(const bool upper) {
 
 void SoftKeyboardButton::onClicked() {
 	showUp();
+	auto now = mEngine.getElapsedTimeSeconds();
+	if (now - mLastPressed < 0.1) {
+		return;
+	}
+	mLastPressed = now;
+	
 	if(mClickFn) mClickFn();
 }
 
