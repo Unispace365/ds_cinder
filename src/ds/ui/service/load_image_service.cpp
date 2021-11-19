@@ -162,7 +162,13 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 	// ok, this image isn't cached and it's not currently in use/loading, start a new load request
 	{
 		std::lock_guard<std::mutex> lock(mRequestsMutex);
-        mRequests.push_back(mInUseImages[filePath]);
+
+		// Skip if there's already a request for the same image file path
+		const auto it = std::find_if(mRequests.begin(), mRequests.end(), [&filePath](const auto& e) {
+			return e.mLoading == true && e.mFilePath == filePath;
+		});
+		if (it == mRequests.end())
+			mRequests.push_back(mInUseImages[filePath]);
 	}
 }
 
@@ -295,7 +301,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 
 		} catch (std::exception& exc) {
 			nextImage.mError = true;
-			if (false && exc.what()) {
+			if (exc.what()) {
 				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath << " what: " << exc.what());
 				nextImage.mErrorMsg = exc.what();
 			} else {
