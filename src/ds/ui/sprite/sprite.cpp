@@ -2094,7 +2094,7 @@ void Sprite::readClientFrom(ds::DataBuffer& buf){
 		}
 	}
 }
-#ifdef _DEBUG
+//#ifdef _DEBUG
 void Sprite::write(std::ostream &s, const size_t tab) const {
 	writeState(s, tab);
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
@@ -2178,7 +2178,7 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	*/
 }
 
-#endif
+//#endif
 
 void Sprite::doPropagateVisibilityChange(bool before, bool after){
 	if (before == after) return;
