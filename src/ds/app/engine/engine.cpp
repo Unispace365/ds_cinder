@@ -17,6 +17,7 @@
 #include "ds/debug/console.h"
 #endif
 
+#include "ds/ui/service/load_image_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -65,7 +66,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
-	, mLoadImageService(*this)
+	, mLoadImageService( new ui::LoadImageService(*this) )
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
