@@ -25,6 +25,9 @@ public:
 		: ci::osc::ReceiverUdp(port)
 	{}
 
+	~CustomOscReceiverUdp() {
+	}
+
 protected:
 	virtual void closeImpl() override {
 		asio::error_code ec;
@@ -33,6 +36,14 @@ protected:
 			DS_LOG_WARNING("Error cancelling Osc UDP socket: " << ec.message());
 		}
 		ci::osc::ReceiverUdp::closeImpl();
+
+		try {
+			mSocket.reset();
+		}
+		catch (const std::exception& e) {
+			DS_LOG_WARNING("Error deleting socket: " << e.what());
+		}
+
 	}
 };
 
