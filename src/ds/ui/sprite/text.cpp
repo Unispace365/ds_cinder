@@ -780,6 +780,7 @@ void Text::findFitFontSize(){
 }
 
 void Text::findFitFontSizeFromArray(){
+	//DS_LOG_INFO("****** Pick Array font size: ");
 	if (mFitToResizeLimit && mNeedsRefit) {
 
 		if (mStyle.mFitSizes.empty()) return;
@@ -815,31 +816,44 @@ void Text::findFitFontSizeFromArray(){
 			//handle height;
 			fs = mStyle.mFitSizes[idx];
 			_setFontSize(fs);
-
+			//DS_LOG_INFO("Start At font size: " << mStyle.mFitSizes[idx]);
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-			double h = std::max(extentRect.height, inkRect.height);
-			while (h < mResizeLimitHeight)
+
+			auto offsety = inkRect.y;
+			
+			//DS_LOG_INFO("offset: "<<offsety);
+			double h = std::max(extentRect.height, inkRect.height) + offsety;
+			double limit_h = mResizeLimitHeight;
+			while (h < limit_h)
 			{
 				if(idx>= mStyle.mFitSizes.size()-1)
 				{
+					//DS_LOG_INFO("Run out of sizes. ");
 					break;
 				}
 				
 				fs = mStyle.mFitSizes[++idx];
 				//set font
 				_setFontSize(fs);
+				//DS_LOG_INFO("At font size: " << fs);
 
 				//get height
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-				h = std::max(extentRect.height, inkRect.height);
+				h = std::max(extentRect.height, inkRect.height)+offsety;
 
-				if (h >= mResizeLimitHeight)
+				if (h >= limit_h)
 				{
+					//DS_LOG_INFO("Over limit rewinding idx");
 					idx--;
 					break;
 					
 				}
+				else {
+					//DS_LOG_INFO("Good With: h of " << h <<" and mResizeLimitHeight of " << mResizeLimitHeight);
+				}
 			}
+
+			//DS_LOG_INFO("Picked height font size: " << mStyle.mFitSizes[idx]);
 			
 			//fs = getFontSize() - 1.5;
 			auto height_fs = mStyle.mFitSizes[idx];
@@ -888,6 +902,7 @@ void Text::findFitFontSizeFromArray(){
 				
 				_setFontSize(fs);
 			}
+			//DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
 			pango_font_description_free(fontDescription);
 			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
 			mFitCurrentTextSize = fs;
