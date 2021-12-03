@@ -68,6 +68,26 @@ LoadImageService::~LoadImageService() {
 	stopThreads();
 }
 
+
+void LoadImageService::handleImageLoadRequest(ImageLoadRequest& request) {
+	const bool doMipMapping = ((request.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0);
+
+	ci::gl::Texture::Format fmt;
+	if (doMipMapping) {
+		fmt.enableMipmapping(true);
+		fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+	}
+
+	auto tex = ci::gl::Texture::create(request.mImageSourceRef, fmt);
+	if (!tex || tex->getId() < 1) {
+		DS_LOG_WARNING("LoadImageService: couldn't load an image texture on the main thread for " << request.mFilePath);
+	}
+
+	request.mTexture = tex;
+	request.mImageSourceRef = nullptr;
+}
+
+
 void LoadImageService::update(const ds::UpdateParams&) {
 
 	// grab any completed image loads and clear the shared vector
@@ -80,43 +100,36 @@ void LoadImageService::update(const ds::UpdateParams&) {
 
 	// cache or track completed loads
 	for (auto& it : newCompletedRequests) {
-		if (mTextureOnMainThread || (it.mTexture && it.mTexture->getId() > 0)) {
-			auto findy = mInUseImages.find(it.mFilePath);
-			if (findy == mInUseImages.end()) {
-				DS_LOG_VERBOSE(3, "Image loaded after no one was left to care!" << it.mFilePath);
-			} else {
-
-				/// This is a fallback in case gl fencing for thread creation stalls
-				if(mTextureOnMainThread) {
-					ci::gl::Texture::Format fmt;
-					if((it.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
-						fmt.enableMipmapping(true);
-						fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-					}
-
-					it.mTexture = ci::gl::Texture::create(it.mImageSourceRef, fmt);
-					if(!it.mTexture || it.mTexture->getId() < 1) {
-						DS_LOG_WARNING("LoadImageService: couldn't load an image texture on the main thread for " << it.mFilePath);
-					}
-
-					it.mImageSourceRef = nullptr;
-				}
-
-				mInUseImages[it.mFilePath] = it;
-			}
-		} else {
-			DS_LOG_WARNING("LoadImgeService failed for file: " << it.mFilePath)
+		auto findy = mInUseImages.find(it.mFilePath);
+		if (findy == mInUseImages.end()) {
+			DS_LOG_VERBOSE(3, "Image loaded after no one was left to care!" << it.mFilePath);
+			// Don't cache this image if its no longer used
 			continue;
 		}
-		DS_LOG_VERBOSE(5, "LoadImageService completed loading " << it.mTexture << " error=" << it.mError
-																<< " refs=" << it.mRefs);
 
+		// This is a fallback in case gl fencing for thread creation stalls
+		if (mTextureOnMainThread) {
+			handleImageLoadRequest(it);
+		}
+
+		if (it.mTexture && it.mTexture->getId() > 0) {
+			DS_LOG_VERBOSE(5, "LoadImageService completed loading " << it.mTexture 
+				<< " error=" << it.mError
+				<< " refs=" << it.mRefs
+			);
+		}
+		else {
+			DS_LOG_WARNING("LoadImageService failed for file: " << it.mFilePath);
+		}
+
+		mInUseImages[it.mFilePath] = it;
+
+		// Run the callbacks for the requested image path
 		auto filecallbacks = mCallbacks.find(it.mFilePath);
 		if (filecallbacks != mCallbacks.end()) {
 			for (auto cit : filecallbacks->second) {
 				cit.second(it.mTexture, it.mError, it.mErrorMsg);
 			}
-
 			mCallbacks.erase(filecallbacks);
 		}
 	}
