@@ -19,12 +19,14 @@ class PanoramicVideo : public ds::ui::Sprite
 {
 
 public:
-	PanoramicVideo(ds::ui::SpriteEngine&);
+	PanoramicVideo(ds::ui::SpriteEngine&, const bool textureInvertX = false);
 
 	virtual void		setResource(const ds::Resource& resource) override;
 	void				loadVideo(const std::string& videoPath);
 	ds::ui::Video*		getVideo() const;
 	void				resetCamera();
+	void setCameraRotation(ci::vec2 setter);
+	ci::vec2			getCameraRotation();
 
 
 	// Sets how fast dragging around is. Higher numbers are slower panning, lower numbers are faster
@@ -66,6 +68,7 @@ private:
 
 	bool				mInvertX;
 	bool				mInvertY;
+	bool				mTexInvertX;
 	float				mXSensitivity;
 	float				mYSensitivity;
 
@@ -78,6 +81,7 @@ private:
 	bool				mAutoSync;
 	std::string			mSphereVertexShader;
 	std::string			mSphereFragmentShader;
+	std::string			mSphereFragmentShaderInvertX;
 	ci::gl::GlslProgRef	mShader;
 
 	std::function<void(void)> mPanoTappedCb = nullptr;
