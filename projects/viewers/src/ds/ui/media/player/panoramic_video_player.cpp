@@ -19,12 +19,13 @@
 namespace ds {
 namespace ui {
 
-PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
+PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface, const bool textureInvertX)
 	: ds::ui::Sprite(eng)
 	, mVideo(nullptr)
 	, mPanoramicVideo(nullptr)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mTextureInvertX(textureInvertX)
 	, mInterfaceBelowMedia(false)
 	, mShowInterfaceAtStart(true)
 	, mAutoSyncronize(true)
@@ -45,7 +46,7 @@ void PanoramicVideoPlayer::setResource(const ds::Resource& resource) {
 
 	clear();
 
-	mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine);
+	mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine, mTextureInvertX);
 	addChildPtr(mPanoramicVideo);
 	mPanoramicVideo->setSize(1920.0f, 1080.0f);
 	mPanoramicVideo->loadVideo(resource.getAbsoluteFilePath());

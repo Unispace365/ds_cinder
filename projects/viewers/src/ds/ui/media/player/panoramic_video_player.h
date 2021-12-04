@@ -21,7 +21,7 @@ struct MediaViewerSettings;
 */
 class PanoramicVideoPlayer : public ds::ui::Sprite {
 public:
-	PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
+	PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true, const bool textureInvertX = false);
 
 	virtual void						setResource(const ds::Resource& resource) override;
 	void								setMedia(const std::string mediaPath);
@@ -84,6 +84,7 @@ protected:
 	ds::ui::GstVideo*							mVideo;
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
+	bool										mTextureInvertX;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(void)>					mVideoCompleteCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
