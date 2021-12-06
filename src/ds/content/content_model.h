@@ -53,6 +53,7 @@ class ContentProperty {
 	/// The name, value and resource are equal
 	bool operator==(const ContentProperty&) const;
 
+	bool empty() const;
 	/// ------- This value, type converted when called --------- //
 
 	bool   getBool() const;

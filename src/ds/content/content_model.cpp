@@ -147,6 +147,11 @@ bool ContentProperty::operator==(const ContentProperty& b) const {
 	return mName == b.mName && mValue == b.mValue && sameResource;
 }
 
+bool ContentProperty::empty() const
+{
+	return mName.empty();
+}
+
 bool ContentProperty::getBool() const {
 	return ds::parseBoolean(mValue);
 }
