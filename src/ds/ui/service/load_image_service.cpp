@@ -249,12 +249,26 @@ void LoadImageService::release(const std::string& filePath, void* referrer) {
 		}
 	}
 
+	bool wasRemoved = false;
 	auto inFind = mInUseImages.find(filePath);
 	if (inFind != mInUseImages.end()) {
 		inFind->second.mRefs--;
 		if (inFind->second.mRefs < 1 && (inFind->second.mFlags & Image::IMG_CACHE_F) == 0) {
 			mInUseImages.erase(filePath);
+			wasRemoved = true;
 			DS_LOG_VERBOSE(4, "LoadImageService no more refs for " << filePath);
+		}
+	}
+
+	// Also remove this from the pending mRequests queue so the background thread doesn't try to load it...
+	if (wasRemoved) {
+		std::lock_guard<std::mutex> lock(mRequestsMutex);
+		const auto requestFind = std::find_if(mRequests.begin(), mRequests.end(), [&filePath](const auto& e) {
+			return e.mFilePath == filePath;
+		});
+		if (requestFind != mRequests.end()) {
+			mRequests.erase(requestFind);
+			DS_LOG_VERBOSE(4, "LoadImageService: Removing request for: " << filePath);
 		}
 	}
 }
