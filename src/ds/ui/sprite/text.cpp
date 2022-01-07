@@ -528,6 +528,11 @@ void Text::drawLocalClient(){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
 			}
 		}
+		if (mFitToResizeLimit && mEngine.getEngineSettings().getBool("font:debug_fit_to_resize",0)) {
+			ci::gl::drawString(ci::toString(mFitCurrentTextSize), ci::vec2(0, 0), ci::ColorA(1, 0, 0, 1));
+			ci::gl::ScopedColor(ci::ColorA(1, 0, 0, 1));
+			ci::gl::drawStrokedRect(ci::Rectf(0, 0, mResizeLimitWidth, mResizeLimitHeight));
+		}
 	}
 }
 
@@ -754,9 +759,11 @@ void Text::findFitFontSize(){
 			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
 
 			mFitCurrentTextSize = fs;
+			mNeedsFontUpdate = true;
 			mNeedsRefit = false;
 			mNeedsMaxResizeFontSizeUpdate = false;
 			mNeedsTextRender = true;
+			mNeedsMeasuring = true;
 		}
 		//-----------------------------------------------------------
 	}
@@ -830,7 +837,7 @@ void Text::findFitFontSizeFromArray(){
 			height_fs = std::max(mStyle.mFitMinTextSize, height_fs);
 			
 			_setFontSize(height_fs);
-
+			fs = height_fs;
 			if (mWrapMode == WrapMode::kWrapModeOff || mWrapMode == WrapMode::kWrapModeWord) {
 				//handle width;
 				idx = 0;
@@ -874,9 +881,11 @@ void Text::findFitFontSizeFromArray(){
 			pango_font_description_free(fontDescription);
 			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
 			mFitCurrentTextSize = fs;
+			mNeedsFontUpdate = true;
 			mNeedsRefit = false;
 			mNeedsMaxResizeFontSizeUpdate = false;
 			mNeedsTextRender = true;
+			mNeedsMeasuring = true;
 		}
 		//-----------------------------------------------------------
 	}

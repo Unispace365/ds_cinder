@@ -28,6 +28,7 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	, mUpImg(nullptr)
 	, mDownImg(nullptr)
 {
+	mLastPressed = 0;
 	mLayoutFixedAspect = true;
 	mText = new ds::ui::Text(mEngine);
 	addChildPtr(mText);
