@@ -33,6 +33,8 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     Write-Host "Duplicating base project " $BaseDir " to " $DestDir;
 
+	New-Item -ItemType Directory -Force -Path $DestDir
+
     robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
 
     $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml,*.iss,*.ps1,*.json,README.md -Recurse;
@@ -80,7 +82,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     Write-Host "Clone finished.";
 
-	Start-Process $readmeLoc
+	# Start-Process $readmeLoc
 }
 
 

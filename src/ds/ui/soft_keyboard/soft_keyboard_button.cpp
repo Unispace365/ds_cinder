@@ -44,8 +44,6 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	mButtonBehaviour.setOnUpFn([this]() {showUp(); });
 
 	setSoftKeyboardSettings(settings);
-
-	mLastPressed = mEngine.getElapsedTimeSeconds();
 }
 
 const std::wstring& SoftKeyboardButton::getCharacter() {
