@@ -111,7 +111,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 	if (sprI) {
 		
 		//bool cache =  flags & ds::ui::Image::IMG_CACHE_F;
-		bool skipMetaData =  flags & ds::ui::Image::IMG_SKIP_METADATA_F;
+		bool skipMetaData =  bool(flags & ds::ui::Image::IMG_SKIP_METADATA_F);
 		//bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
 		//bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
 		
@@ -146,7 +146,7 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource ima
 
 	if (sprI) {
 		//bool cache = flags & ds::ui::Image::IMG_CACHE_F;
-		bool skipMetaData = flags & ds::ui::Image::IMG_SKIP_METADATA_F;
+		bool skipMetaData = bool(flags & ds::ui::Image::IMG_SKIP_METADATA_F);
 		//bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
 		//bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
 
