@@ -266,7 +266,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 			gst_element_add_pad(vbin, gst_ghost_pad_new("sink", pad));
 
-			g_signal_connect(sGstGLDisplay, "create-context", G_CALLBACK(create_gl_context), this, NULL);
+			g_signal_connect(sGstGLDisplay, "create-context", G_CALLBACK(create_gl_context), this/*, NULL*/);
 
 			if(pad) {
 				gst_object_unref(pad);
