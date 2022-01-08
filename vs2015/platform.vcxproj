@@ -444,8 +444,8 @@
 if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
 xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
 </Command>
-      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\gtk\libpango-1.0-0.dll</Outputs>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

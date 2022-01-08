@@ -1,5 +1,11 @@
 #include "stdafx.h"
 
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep GStreamer dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gstreamer' version='1.0.0.0' type='win32'\"")
+#endif
+
+
 #include "gst_video.h"
 
 #include <ds/app/app.h>

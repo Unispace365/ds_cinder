@@ -94,35 +94,27 @@
     <CustomBuildStep>
       <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying GStreamer/GTK DLLs to output directory
-if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
-xcopy /y "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\*.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libffi-7.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libfribidi-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libfribidi-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgmodule-2.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgobject-2.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstapp-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstapp-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstbase-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstgl-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstnet-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libgstvideo-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libiconv-2.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libiconv-2.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\liborc-0.4-0.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz-1.dll" "$(SolutionDir)\$(Configuration)\gtk"
-if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" xcopy /y "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" "$(SolutionDir)\$(Configuration)\gtk"</Command>
+if not exist "$(SolutionDir)\$(Configuration)\gstreamer" mkdir "$(SolutionDir)\$(Configuration)\gstreamer"
+xcopy /y "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll"                                               "$(SolutionDir)\$(Configuration)\gstreamer"
+xcopy /y "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\gstreamer.manifest"                                                              "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gio-2.0-0.dll"        xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gio-2.0-0.dll"       "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gmodule-2.0-0.dll"    xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gmodule-2.0-0.dll"   "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstapp-1.0-0.dll"     xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstapp-1.0-0.dll"    "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstbase-1.0-0.dll"    xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstbase-1.0-0.dll"   "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstgl-1.0-0.dll"      xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstgl-1.0-0.dll"     "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstnet-1.0-0.dll"     xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstnet-1.0-0.dll"    "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstreamer-1.0-0.dll"  xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstvideo-1.0-0.dll"   xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstvideo-1.0-0.dll"  "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\libiconv-2.dll"       xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\libiconv-2.dll"      "$(SolutionDir)\$(Configuration)\gstreamer"
+if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\orc-0.4-0.dll"        xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\orc-0.4-0.dll"       "$(SolutionDir)\$(Configuration)\gstreamer"</Command>
       <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\gtk\MediaInfo.dll</Outputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gstreamer\MediaInfo.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>src;.;$(GSTREAMER_1_0_ROOT_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_X86_64)\include;$(GSTREAMER_1_0_ROOT_X86_64)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -154,7 +146,7 @@ if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" xcopy /y "$(GSTREAMER_1_0_R
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>src;.;%(AdditionalIncludeDirectories);$(GSTREAMER_1_0_ROOT_X86_64)\include;$(GSTREAMER_1_0_ROOT_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_X86_64)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.;%(AdditionalIncludeDirectories);$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -191,7 +183,7 @@ if exist "$(GSTREAMER_1_0_ROOT_X86_64)\bin\libz.dll" xcopy /y "$(GSTREAMER_1_0_R
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>src;.;%(AdditionalIncludeDirectories);$(GSTREAMER_1_0_ROOT_X86_64)\include;$(GSTREAMER_1_0_ROOT_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_X86_64)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.;%(AdditionalIncludeDirectories);$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>

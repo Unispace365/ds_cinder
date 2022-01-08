@@ -25,11 +25,6 @@
 #include "ds/util/string_util.h"
 #include <Poco/Stopwatch.h>
 
-#ifdef _WIN32
-// Put a manifest dependency to the gtk/ directory so we can keep Pango/GTK dlls in their own directory
-#pragma comment(linker, "/manifestdependency:\"name='gtk' version='1.0.0.0' type='win32'\"")
-#endif
-
 
 namespace {
 // Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites

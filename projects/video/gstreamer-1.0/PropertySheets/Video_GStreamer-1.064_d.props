@@ -21,7 +21,7 @@
 		gstnet-1.0.lib;
 		gstgl-1.0.lib;
 		video_gstreamer-1.0_d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(GSTREAMER_1_0_ROOT_X86_64)\lib;$(DS_PLATFORM_090)\projects\video\lib64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib;$(DS_PLATFORM_090)\projects\video\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

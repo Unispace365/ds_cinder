@@ -15,10 +15,10 @@ Basically, it's good at doing media stuff. It can play back video and audio, as 
 You probably installed it already for ds_cinder, but if you haven't, get it:
 
 1. Go to https://gstreamer.freedesktop.org/data/pkg/windows/
-2. As of this writing, the 1.12.3 version is what you want. Even number minor versions (the 12 in this case) are the stable releases and the ones to use.
-3. Download gstreamer-1.0-devel-x86_64-1.12.3.msi
-4. Download gstreamer-1.0-x86_64-1.12.3.msi
-5. Note: the version numbers will be different if you've selected something else. You want both the "devel" and regular installers, and the x86_64 versions
+2. As of this writing, the 1.19.3 version is what you want. Even number minor versions are the stable releases, but we are currently using an unstable release (minor version 19), in order to get a bug-fixed updated version of cairo.
+3. Download gstreamer-1.0-devel-msvc-x86_64-1.19.3.msi
+4. Download gstreamer-1.0-msvc-x86_64-1.19.3.msi
+5. Note: the version numbers will be different if you've selected something else. You want both the "devel" and regular installers, and the msvc/x86_64 versions
 6. Install both msi installers with the "complete" option
 7. If you have any Visual Studio windows open, close them now so they can get the new environment variables set by the gstreamer installers
 
