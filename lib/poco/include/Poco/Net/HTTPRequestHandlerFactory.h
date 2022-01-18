@@ -1,8 +1,6 @@
 //
 // HTTPRequestHandlerFactory.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/HTTPRequestHandlerFactory.h#1 $
-//
 // Library: Net
 // Package: HTTPServer
 // Module:  HTTPRequestHandlerFactory
@@ -40,7 +38,7 @@ class Net_API HTTPRequestHandlerFactory
 	/// method.
 {
 public:
-	typedef Poco::SharedPtr<HTTPRequestHandlerFactory> Ptr;
+	using Ptr = Poco::SharedPtr<HTTPRequestHandlerFactory>;
 	
 	HTTPRequestHandlerFactory();
 		/// Creates the HTTPRequestHandlerFactory.
@@ -56,6 +54,11 @@ public:
 		/// The method should inspect the given HTTPServerRequest object (e.g., method
 		/// and URI) and create an appropriate HTTPRequestHandler object to handle the
 		/// request.
+		///
+		/// If the request contains a "Expect: 100-continue" header, it's possible
+		/// to prevent the server from sending the default 100 Continue response 
+		/// by setting the status of the response object that can be obtained through 
+		/// the request object (request.response()) to something other than 200 OK.
 
 protected:
 	Poco::BasicEvent<const bool> serverStopped;

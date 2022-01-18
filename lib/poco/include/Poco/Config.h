@@ -1,8 +1,6 @@
 //
 // Config.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Config.h#3 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Foundation
@@ -18,16 +16,6 @@
 
 #ifndef Foundation_Config_INCLUDED
 #define Foundation_Config_INCLUDED
-
-
-// Define to enable Windows Unicode (UTF-8) support
-// NOTE: As of POCO C++ Libraries release 1.6.0, compiling POCO
-// without POCO_WIN32_UTF8 defined on Windows is deprecated.
-#define POCO_WIN32_UTF8
-
-
-// Define to enable C++11 support
-// #define POCO_ENABLE_CPP11
 
 
 // Define to disable implicit linking
@@ -108,6 +96,9 @@
 // on platforms with no inotify.
 // #define POCO_NO_INOTIFY
 
+// Define to force the use of PollingDirectoryWatcher 
+// #define POCO_DW_FORCE_POLLING
+
 
 // Following are options to remove certain features
 // to reduce library/executable size for smaller
@@ -170,6 +161,33 @@
 // even if the _DEBUG variable is not set.
 // This allows the use of these macros in a release version.
 // #define POCO_LOG_DEBUG
+
+
+// OpenSSL on Windows
+//
+// Poco has its own OpenSSL build system.
+// See <https://github.com/pocoproject/openssl/blob/master/README.md>
+// for details.
+//
+// These options are Windows only.
+//
+// To disable the use of Poco-provided OpenSSL binaries,
+// define POCO_EXTERNAL_OPENSSL.
+//
+// Possible values:
+//   POCO_EXTERNAL_OPENSSL_SLPRO:
+//     Automatically link OpenSSL libraries from OpenSSL Windows installer provided
+//     by Shining Light Productions <http://slproweb.com/products/Win32OpenSSL.html>
+//     The (global) library search path must be set accordingly.
+//   POCO_EXTERNAL_OPENSSL_DEFAULT:
+//     Automatically link OpenSSL libraries from standard OpenSSL Windows build.
+//     The (global) library search path must be set accordingly.
+//   empty or other value:
+//     Do not link any OpenSSL libraries automatically. You will have to edit the
+//     Visual C++ project files for Crypto and NetSSL_OpenSSL.
+#ifndef POCO_EXTERNAL_OPENSSL
+	#define POCO_EXTERNAL_OPENSSL POCO_EXTERNAL_OPENSSL_SLPRO
+#endif
 
 
 // Define to prevent changing the suffix for shared libraries

@@ -113,10 +113,11 @@ void NodeWatcher::Loop::run() {
 
 	try	{
 
+		
+		//theSocket.setReuseAddress(true);
+		//theSocket.setReusePort(true);
+		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true, true);
 		theSocket.setBlocking(false);
-		theSocket.setReuseAddress(true);
-		theSocket.setReusePort(true);
-		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true);
 		theSocket.setReceiveTimeout(0);
 
 		while (true)		{

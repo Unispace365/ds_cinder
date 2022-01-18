@@ -112,6 +112,9 @@
     <Filter Include="src\tuio\osc">
       <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\content\service">
+      <UniqueIdentifier>{580833cb-7224-4971-8e92-49ac3f3bbaba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -666,6 +669,9 @@
     <ClInclude Include="..\src\ds\util\glm_structured_binding.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\content\service\sync_service.h">
+      <Filter>src\ds\content\service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1102,6 +1108,9 @@
     </ClCompile>
     <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.cpp">
       <Filter>src\tuio\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\service\sync_service.cpp">
+      <Filter>src\ds\content\service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

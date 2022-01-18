@@ -9,6 +9,10 @@
 	<setting name="platform:architecture" value="standalone" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
 	<setting name="platform:guid" value="full_starter_app" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
+	<setting name="run_downsync_as_subprocess" value="true" type="bool" comment="Will Attempt to run downsync from the %APP%/downsync folder" default="true"/>
+	<setting name="downsync_config_file" value="%APP%/downsync/config.staging.json5" type="string" comment="Downsync with attempt to use this config when run as a subprocess" default="true"/>
+	
+
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
 	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>
 	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
@@ -22,6 +26,7 @@
 	<setting name="system:never_sleep" value="true" type="bool" comment="Prevent the system from sleeping or powering off the screen" default="true"/>
 	<setting name="apphost:exit_on_quit" value="true" type="bool" comment="Exit apphost when quitting the app" default="true" />
 	<setting name="resetup_server_on_display_change" value="true" type="bool" comment="Resetup the server when the display changes" default="false" />
+	
 	<setting name="RENDER SETTINGS" value="" type="section_header"/>
 	<setting name="frame_rate" value="60" type="int" comment="Attempt to run the app at this rate" default="60" min_value="1" max_value="1000"/>
 	<setting name="vertical_sync" value="true" type="bool" comment="Attempts to align frame rate with the refresh rate of the monitor. Note that this could be overriden by the graphic card" default="true"/>
@@ -51,6 +56,7 @@
 	<setting name="touch:swipe:queue_size" value="4" type="int" comment="How many frames of touch swipe info to account for when calculating swipes" default="4" min_value="1" max_value="16"/>
 	<setting name="touch:swipe:minimum_velocity" value="800.0" type="float" comment="The velocity a swipe needs to exceed to count as a swipe" default="800.0" min_value="1.0" max_value="2400"/>
 	<setting name="touch:swipe:maximum_time" value="0.5" type="float" comment="How long a swipe can last to be counted as a swipe" default="0.5" min_value="0.0" max_value="3.0"/>
+	
 	<setting name="RESOURCE SETTINGS " value="" type="section_header"/>
 	<setting name="resource_location" value="%APP%/data/" type="string" comment="Resource location and database for cms content"/>
 	<setting name="resource_db" value="db.sqlite" type="string" comment="Path of the database relative to the resource_location. E.g. ../db/database.sqlite"/>
@@ -62,12 +68,14 @@
 	<setting name="content:use_wrangler" value="true" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
 	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
 	<setting name="auto_refresh_directories" value="%APP%/data;%APP%/settings" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
+	
 	<setting name="LOGGER" value="" type="section_header"/>
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>
 	<setting name="logger:async" value="true" type="string" comment="Whether to save logs on another thread or the main one." default="true"/>
 	<setting name="logger:file" value="%LOCAL%/logs/" type="string" comment="Filename and location" default="%LOCAL%/logs/"/>
 	<setting name="logger:verbose_level" value="0" type="int" comment="How much verbose output to log. 0=nothing, 9=everything" default="0" min_value="0" max_value="9"/>
+	
 	<setting name="METRICS" value="" type="section_header"/>
 	<setting name="metrics:active" value="true" type="bool" comment="Enable telegraf metrics sending" default="true"/>
 	<setting name="metrics:send_base_info" value="true" type="bool" comment="Send common engine info like fps and number of sprites" default="true"/>

@@ -56,6 +56,7 @@
     <ClInclude Include="..\src\ds\content\content_model.h" />
     <ClInclude Include="..\src\ds\content\content_query.h" />
     <ClInclude Include="..\src\ds\content\content_wrangler.h" />
+    <ClInclude Include="..\src\ds\content\service\sync_service.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="..\src\ds\content\content_model.cpp" />
     <ClCompile Include="..\src\ds\content\content_query.cpp" />
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
+    <ClCompile Include="..\src\ds\content\service\sync_service.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />

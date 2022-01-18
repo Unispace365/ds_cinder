@@ -6,6 +6,14 @@
 #define SYSTEMF GetEnv('SYSTEMROOT')
 #define DS_PLATFORM GetEnv('DS_PLATFORM_093')
 
+#ifdef USE_DSNODE
+#ifdef USE_DOWNSYNC
+#ifndef ALLOW_BOTH_DSNODE_DOWNSYNC
+#error "You should not define both USE_DSNODE and USE_DOWNSYNC"
+#endif
+#endif
+#endif
+
 [Setup]
 AppName={#APP_DISPLAY_NAME}
 AppVersion={#APP_VERS}
@@ -48,6 +56,10 @@ Source: "install/apphost.json"; DestDir: "{userdocs}\downstream\common\dsapphost
 
 #ifdef USE_DSNODE
 Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
+#endif
+
+#ifdef USE_DOWNSYNC
+Source: "install/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
 #endif
 
 #ifexist "README.md"

@@ -36,6 +36,7 @@
 #include <Poco/Path.h>
 #include <cinder/ip/Flip.h>
 #include <cinder/ImageIo.h>
+#include <cinder/CinderImGui.h>
 
 #ifndef _WIN32
 // For access to Linux native GLFW window calls
@@ -141,7 +142,7 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
-
+	
 	setupKeyPresses();
 
 	mEngineSettings.printStartupInfo();
@@ -343,6 +344,11 @@ void App::setup() {
 #endif
 
 	mEngine.getLoadImageService().initialize();
+	ImGui::Initialize();
+
+	if (mEngine.getEngineSettings().getBool("run_downsync_as_subprocess",0,true)) {
+		launchSyncService();
+	}
 }
 
 void App::resetupServerOnDisplayChange() {
@@ -436,6 +442,7 @@ void App::update() {
 
 void App::draw() {
 	mEngine.draw();
+	ImGui::Render();
 }
 void App::mouseDown(ci::app::MouseEvent e) {
 	mTouchDebug.mouseDown(e);
@@ -542,6 +549,20 @@ void App::debugEnabledSprites() {
 				if(!texty || (texty && texty->getSpriteName() != L"debug_text")) sprite.setTransparent(true);
 			}
 		}, true);
+	}
+}
+
+void App::launchSyncService()
+{
+	//fireup downsync
+	if (mSyncService == nullptr) {
+		mSyncService = new ds::content::SyncService(mEngine);
+		auto path = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_config_file", 0, "%APP%/downsync/config.staging.json5"));
+
+		mSyncService->initialize(path);
+		registerKeyPress(
+			"Toggle Downsync output", [this] { mSyncService->toggleOutput(); }, ci::app::KeyEvent::KEY_SLASH, true);
 	}
 }
 
