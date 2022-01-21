@@ -552,15 +552,49 @@ void App::debugEnabledSprites() {
 	}
 }
 
+#define CN_BUFSIZE 256
 void App::launchSyncService()
 {
 	//fireup downsync
 	if (mSyncService == nullptr) {
 		mSyncService = new ds::content::SyncService(mEngine);
-		auto path = ds::Environment::expand(
-			mEngine.getEngineSettings().getString("downsync_config_file", 0, "%APP%/downsync/config.staging.json5"));
+		ds::content::SyncSettings settings;
 
-		mSyncService->initialize(path);
+		settings.name = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_name", 0, ""));
+		if (settings.name == "%AUTO%") {
+			// make a buffer for the computer name
+			DWORD bufsize = CN_BUFSIZE;
+			char  computername_buffer[CN_BUFSIZE];
+			memset(computername_buffer, 0, CN_BUFSIZE);
+
+			// get the forrealz computer name.
+			GetComputerNameExA(COMPUTER_NAME_FORMAT::ComputerNameDnsHostname, computername_buffer, &bufsize);
+			settings.name = std::string(computername_buffer);
+		}
+		settings.server = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_server", 0, ""));
+		if (settings.server == "%AUTO%") {
+			settings.server = mEngine.getEngineSettings().getString("cms:url");
+		}
+
+		settings.token = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_token", 0, ""));
+		settings.directory = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_directory", 0, ""));
+		//optional settings
+		settings.interval = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_interval", 0, ""));
+		settings.rate_decay = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_rate_decay", 0, ""));
+		settings.rate_qty = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_rate_quantity", 0, ""));
+		settings.udp_port = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_upd_port", 0, ""));
+		settings.verbosity = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
+
+		mSyncService->initialize(settings);
 		registerKeyPress(
 			"Toggle Downsync output", [this] { mSyncService->toggleOutput(); }, ci::app::KeyEvent::KEY_SLASH, true);
 	}

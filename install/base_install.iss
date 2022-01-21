@@ -59,7 +59,8 @@ Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
 #endif
 
 #ifdef USE_DOWNSYNC
-Source: "install/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
+Source: "/downsync/downsync.exe"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
+Source: "/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
 #endif
 
 #ifexist "README.md"

@@ -30,7 +30,7 @@ namespace ds::content {
 		}
 	}
 
-	void SyncService::initialize(std::string path)
+	void SyncService::initialize(const SyncSettings& settings)
 	{
 
 		//create a job to hold the Sync Process (so it quits when we quit)
@@ -54,14 +54,50 @@ namespace ds::content {
 			mExit = false;
 		}
 
-		mPath = path;
-		mThreadObj = std::thread([this]() {
+		//mPath = path;
+		mThreadObj = std::thread([this,settings]() {
 			while (!mExit) {
 
 				//set up the process
 				Poco::Process::Args args;
-				args.push_back("-c");
-				args.push_back(mPath);
+				if (!settings.name.empty()) {
+					args.push_back("-n");
+					args.push_back(settings.name);
+				}
+				if (!settings.server.empty()) {
+					args.push_back("-s");
+					args.push_back(settings.server);
+				}
+				if (!settings.token.empty()) {
+					args.push_back("-t");
+					args.push_back(settings.token);
+				}
+				if (!settings.directory.empty()) {
+					args.push_back("-d");
+					args.push_back(settings.directory);
+				}
+				//optionals
+				if (!settings.interval.empty()) {
+					args.push_back("-interval");
+					args.push_back(settings.interval);
+				}
+				if (!settings.rate_decay.empty()) {
+					args.push_back("-rate-decay");
+					args.push_back(settings.rate_decay);
+				}
+				if (!settings.rate_qty.empty()) {
+					args.push_back("-rate-qty");
+					args.push_back(settings.rate_qty);
+				}
+				if (!settings.udp_port.empty()) {
+					args.push_back("-udp-port");
+					args.push_back(settings.udp_port);
+				}
+				if (!settings.verbosity.empty()) {
+					if(settings.verbosity=="v") args.push_back("-v");
+					if (settings.verbosity== "vv") args.push_back("-vv");
+					if (settings.verbosity== "vvv") args.push_back("-vvv");
+				}
 				auto sync_path = ds::Environment::expand("%APP%/downsync/downsync.exe");
 				
 				if (std::filesystem::exists(sync_path)) {

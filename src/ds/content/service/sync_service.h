@@ -13,7 +13,17 @@
 namespace ds::content {
 
 
-
+	struct SyncSettings {
+		std::string name="";
+		std::string server="";
+		std::string token="";
+		std::string directory="";
+		std::string interval="";
+		std::string rate_decay="";
+		std::string rate_qty="";
+		std::string udp_port="";
+		std::string verbosity="";
+	};
 
 	/**
 	* \class ds::content::SyncService
@@ -25,7 +35,7 @@ namespace ds::content {
 		SyncService(ds::ui::SpriteEngine&);
 		~SyncService();
 
-		void									initialize(std::string path);
+		void									initialize(const SyncSettings& settings);
 		void									toggleOutput() { mShowOutput = !mShowOutput; }
 		void									showOutput(bool show = true) { mShowOutput = show; }
 		// Inherited via AutoUpdate
