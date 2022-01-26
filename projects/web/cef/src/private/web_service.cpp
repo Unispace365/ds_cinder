@@ -148,7 +148,7 @@ void WebCefService::start() {
 	*/
 
 	// This requires cefsimple.exe to be in the current working directory
-	auto cef_dir = ci::app::Platform::get()->getExecutablePath().generic_string() + "/cef";
+	auto cef_dir = ci::app::Platform::get()->getExecutablePath().generic_string() + "/cef/";
 	CefString(&settings.resources_dir_path)		.FromString(cef_dir);
 	CefString(&settings.locales_dir_path)		.FromString(cef_dir + "locales");
 	const char* path = "cefsimple.exe";
