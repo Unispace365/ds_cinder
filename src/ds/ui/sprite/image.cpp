@@ -223,7 +223,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 		mTextureRef = tex;
 		if(error) {
 			mErrorMsg = errorMsg;
-			setStatus(Status::STATUS_EMPTY);
+			setStatus(Status::STATUS_ERRORED);
 		} else {
 			checkStatus();
 

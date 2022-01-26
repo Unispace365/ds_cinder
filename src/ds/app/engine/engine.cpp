@@ -17,6 +17,7 @@
 #include "ds/debug/console.h"
 #endif
 
+#include "ds/ui/service/load_image_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -65,7 +66,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
-	, mLoadImageService(*this)
+	, mLoadImageService( new ui::LoadImageService(*this) )
 	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mSettingsEditor(nullptr)
@@ -1281,13 +1282,13 @@ const bool Engine::getTouchSmoothing(){
 }
 
 void Engine::writeSprites(std::ostream &s) const {
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot*		er(it->get());
 		ds::ui::Sprite*	sprite(er ? er->getSprite() : nullptr);
 		if (sprite) sprite->write(s, 0);
 	}
-#endif
+//#endif
 }
 
 void Engine::checkIdle() {

@@ -1,5 +1,11 @@
 #include "stdafx.h"
 
+#ifdef _WIN32
+// Put a manifest dependency to the gtk/ directory so we can keep GStreamer dlls in their own directory
+#pragma comment(linker, "/manifestdependency:\"name='gstreamer' version='1.0.0.0' type='win32'\"")
+#endif
+
+
 #include "gst_video.h"
 
 #include <ds/app/app.h>
@@ -481,7 +487,7 @@ void GstVideo::setNVDecode(const bool nvDecode) {
 }
 
 GstVideo& GstVideo::loadVideo(const std::string& filename) {
-	const std::string _filename(ds::Environment::expand(filename));
+	const std::string _filename = (ds::Environment::expand(filename));
 
 	if (_filename.empty()) {
 		DS_LOG_WARNING_M("GstVideo::loadVideo received a blank filename. Cancelling load.", GSTREAMER_LOG);
@@ -489,6 +495,17 @@ GstVideo& GstVideo::loadVideo(const std::string& filename) {
 	}
 
 	doLoadVideo(_filename, filename);
+	markAsDirty(mPathDirty);
+	return *this;
+}
+
+GstVideo& GstVideo::loadVideoUrl(const std::string& filename) {
+	if (filename.empty()) {
+		DS_LOG_WARNING_M("GstVideo::loadVideoUrl received a blank url. Cancelling load.", GSTREAMER_LOG);
+		return *this;
+	}
+
+	doLoadVideo(filename, filename);
 	markAsDirty(mPathDirty);
 	return *this;
 }
@@ -507,7 +524,8 @@ GstVideo& GstVideo::setResourceId(const ds::Resource::Id& resourceId) {
 }
 
 void GstVideo::setResource(const ds::Resource& resource) {
-	if (resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+	const auto& resType = resource.getType();
+	if (resType == ds::Resource::VIDEO_STREAM_TYPE || resType == ds::Resource::WEB_TYPE) {
 		std::string path = resource.getAbsoluteFilePath();
 		float wid = resource.getWidth();
 		float hid = resource.getHeight();
@@ -518,7 +536,11 @@ void GstVideo::setResource(const ds::Resource& resource) {
 			hid = 1080.0f;
 		}
 
-		startStream(path, wid, hid);
+		if (resType == ds::Resource::VIDEO_STREAM_TYPE) {
+			startStream(path, wid, hid);
+		} else {
+			loadVideoUrl(path);
+		}
 	} else {
 		DS_LOG_VERBOSE(1, "Trying to load a resource on video that's maybe not a video: " << resource.getAbsoluteFilePath());
 		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);

@@ -2,7 +2,7 @@
 ; TODO: Registry for Windows updates
 ; TODO: Test all switches and functions
 
-#define GST GetEnv('GSTREAMER_1_0_ROOT_X86_64')
+#define GST GetEnv('GSTREAMER_1_0_ROOT_MSVC_X86_64')
 #define SYSTEMF GetEnv('SYSTEMROOT')
 #define DS_PLATFORM GetEnv('DS_PLATFORM_090')
 

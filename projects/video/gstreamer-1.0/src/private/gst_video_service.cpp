@@ -121,7 +121,7 @@ void GstVideoService::start() {
 	registery = gst_registry_get();
 
 	/* This is another method of setting the plugin path (instead of specifying GST_PLUGIN_PATH), but is a bit slower.
-	auto rootPathy = std::getenv("GSTREAMER_1_0_ROOT_X86");
+	auto rootPathy = std::getenv("GSTREAMER_1_0_ROOT_MSVC_X86_64");
 	if(rootPathy){
 	std::string fullPathy = std::string(rootPathy) + "\\lib\\gstreamer-1.0";
 	gboolean changed = gst_registry_scan_path(registery, fullPathy.c_str());
