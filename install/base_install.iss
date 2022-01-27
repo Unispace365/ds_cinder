@@ -111,6 +111,9 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 #endif
 #endif
 
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\*"
+
 ; Check if DS_BASEURL environment variable is already set. If not, request a reboot
 ; Only checked if IS_PRODUCTION & CMS_URL are both set
 #ifdef IS_PRODUCTION
