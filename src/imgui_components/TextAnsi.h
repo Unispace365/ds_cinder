@@ -1,3 +1,4 @@
+#pragma once
 #ifndef IMGUIANSICOLOR_HPP
 #define IMGUIANSICOLOR_HPP
 //https://gist.github.com/ddovod/be210315f285becc6b0e455b775286e1

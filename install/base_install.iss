@@ -14,6 +14,12 @@
 #endif
 #endif
 
+#define PROD_NAME ""
+#ifndef IS_PRODUCTION
+; NPI = Not Production Installer
+#define PROD_NAME "-NPI"
+#endif
+
 [Setup]
 AppName={#APP_DISPLAY_NAME}
 AppVersion={#APP_VERS}
@@ -23,7 +29,7 @@ ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={pf}\Downstream\{#APP_NAME}
 DefaultGroupName={#APP_DISPLAY_NAME}
 OutputDir=install/build
-OutputBaseFilename={#APP_NAME}-v{#APP_VERS}
+OutputBaseFilename={#APP_NAME}{#PROD_NAME}-v{#APP_VERS}
 SourceDir=../
 UninstallDisplayIcon={app}\{#APP_EXE}
 ; OutputManifestFile={#APP_NAME}_log.txt
