@@ -10,8 +10,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(DS_PLATFORM_093)\Cinder\lib;$(DS_PLATFORM_093)\Cinder\lib\msw\x64;$(DS_PLATFORM_093)\Cinder\lib\msw\x64\Debug\v142;$(DS_PLATFORM_093)\lib\poco\lib\x64;$(DS_PLATFORM_093)\lib\yoga\x64\debug;$(DS_PLATFORM_093)\lib;$(DS_PLATFORM_093)\lib\gtk\lib64;$(DS_PLATFORM_093)\lib\snappy\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cinder.lib;glu32.lib;glib-2.0.lib;gobject-2.0.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform64_d.lib;psapi.lib;snappy64_d.lib;cairo.lib;fontconfig.lib;pango-1.0.lib;pangocairo-1.0.lib;libcurl_a_debug.lib;yoga.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DS_PLATFORM_093)\Cinder\lib;$(DS_PLATFORM_093)\Cinder\lib\msw\x64;$(DS_PLATFORM_093)\Cinder\lib\msw\x64\Debug\v142;$(DS_PLATFORM_093)\lib\poco\lib\x64;$(DS_PLATFORM_093)\lib\pcre\lib\;$(DS_PLATFORM_093)\lib\yoga\x64\debug;$(DS_PLATFORM_093)\lib;$(DS_PLATFORM_093)\lib\gtk\lib64;$(DS_PLATFORM_093)\lib\snappy\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cinder.lib;glu32.lib;glib-2.0.lib;gobject-2.0.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform64_d.lib;psapi.lib;snappy64_d.lib;cairo.lib;fontconfig.lib;pango-1.0.lib;pangocairo-1.0.lib;libcurl_a_debug.lib;yoga.lib;pcred.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib; libboost_date_time-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_60.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
