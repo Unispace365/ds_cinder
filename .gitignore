@@ -55,7 +55,8 @@ example/simple_video_player/MediaInfo.dll
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
 *GPUCache/
-
+.vs/
+*.lastcodeanalysissucceeded
 /example/*/bin/
 projects/**/lib*.a
 
