@@ -1673,7 +1673,23 @@ void Sprite::setResource(const ds::Resource&) {
 }
 
 void Sprite::setupFinalRenderBuffer(){
-	if(mOutputFbo){
+	if(mIsRenderFinalToTexture){
+
+		if(mOutputFbo && mOutputFbo->getWidth() == (int)getWidth() && mOutputFbo->getHeight() == (int)getHeight()){
+			//Reuse
+			//DS_LOG_INFO("Reusing my FBO :)");
+		}else if( getWidth() > 1.0f && getHeight() > 1.0f){
+			mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
+			//DS_LOG_INFO("Just made an FBO :)");
+		}else{
+			mOutputFbo = nullptr;
+			//DS_LOG_INFO("FBO too small");
+		}
+	}else{
+		mOutputFbo = nullptr;
+	}
+
+	/*if(mOutputFbo){
 		mOutputFbo = nullptr;
 	}
 
@@ -1684,7 +1700,7 @@ void Sprite::setupFinalRenderBuffer(){
 		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
 	} else {
 		mOutputFbo = nullptr;
-	}
+	}*/
 }
 
 ds::gl::Uniform& Sprite::getUniform(){
