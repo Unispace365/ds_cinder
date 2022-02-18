@@ -31,9 +31,9 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 **Install Gstreamer (if you're planning to play videos)**
 
 1. Go to https://gstreamer.freedesktop.org/data/pkg/windows/
-2. As of this writing, the 1.14.4 version is what you want. Even-number minor versions (the "14" in this case) are the stable releases and the ones to use.
-3. Download gstreamer-1.0-devel-x86_64-1.14.4.msi
-4. Download gstreamer-1.0-x86_64-1.14.4.msi
+2. As of this writing, the 1.18.5 version is what you want. Even-number minor versions (the "18" in this case) are the stable releases and the ones to use.
+3. Download gstreamer-1.0-devel-msvc-x86_64-1.18.5.msi
+4. Download gstreamer-1.0-msvc-x86-1.18.5.msi
 5. Note: the version numbers will be different if you've selected something else. You want both the "devel" and regular installers, and the x86_64 versions
 6. Install both msi installers with the "complete" option
 7. If you have any Visual Studio windows open, close them now so they can get the new environment variables set by the gstreamer installers
