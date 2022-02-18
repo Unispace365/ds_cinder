@@ -1,4 +1,4 @@
-# DS Cinder - Transitioning to Cinder 0.9.3 / C++17 / Visual Studio 1019
+# DS Cinder - Transitioning to Cinder 0.9.3 / C++17 / Visual Studio 2019
 
 ## text.xml + colors.xml => styles.xml
 On the updated develop branch, the app now prefers styles.xml to the older pattern of a separate text.xml and
