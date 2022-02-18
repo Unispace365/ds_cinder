@@ -401,7 +401,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -443,6 +443,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'">
     <TargetName>$(ProjectName)64</TargetName>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <CustomBuildStep>
+      <Message>Copying Pango resources to output directory</Message>
+      <Command>echo Copying Pango resources files to the output directory
+if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
+xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
+</Command>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -471,12 +482,12 @@
     </Link>
     <CustomBuildStep>
       <Message>Copying Pango resources to output directory</Message>
-      <Command>echo Copying Pango resources files to Configuration folder
-		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_093)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
-		</Command>
-      <Inputs>$(DS_PLATFORM_093)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
+      <Command>echo Copying Pango resources files to the output directory
+if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
+xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
+</Command>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
     </CustomBuildStep>
     <Lib>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
@@ -514,12 +525,12 @@
     </Link>
     <CustomBuildStep>
       <Message>Copying Pango resources to output directory</Message>
-      <Command>echo Copying Pango resources files to Configuration folder
-		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_093)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
-		</Command>
-      <Inputs>$(DS_PLATFORM_093)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
+      <Command>echo Copying Pango resources files to the output directory
+if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
+xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
+</Command>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'">
@@ -553,12 +564,51 @@
     </Link>
     <CustomBuildStep>
       <Message>Copying Pango resources to output directory</Message>
-      <Command>echo Copying Pango resources files to Configuration folder
-		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)"
-		</Command>
-      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\libpango-1.0-0.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
+      <Command>echo Copying Pango resources files to the output directory
+if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
+xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
+</Command>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX;_CRT_SECURE_NO_WARNINGS;D_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateMapFile>false</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <CustomBuildStep>
+      <Message>Copying Pango resources to output directory</Message>
+      <Command>echo Copying Pango resources files to the output directory
+if not exist "$(SolutionDir)\$(Configuration)\gtk" mkdir "$(SolutionDir)\$(Configuration)\gtk"
+xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime64" "$(SolutionDir)\$(Configuration)\gtk"
+</Command>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime64\pango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\gtk\pango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

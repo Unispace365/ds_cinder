@@ -25,7 +25,6 @@
 #include "ds/debug/auto_refresh.h"
 #include "ds/app/engine/engine_settings.h"
 #include "ds/ui/service/pango_font_service.h"
-#include "ds/ui/service/load_image_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
@@ -45,6 +44,7 @@ class EngineRoot;
 
 namespace ui {
 class TuioInput;
+class LoadImageService;
 }
 
 namespace cfg {
@@ -75,7 +75,7 @@ public:
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
 	virtual ds::ui::PangoFontService&	getPangoFontService() { return mPangoFontService; }
-	virtual ds::ui::LoadImageService&	getLoadImageService() { return mLoadImageService; }
+	virtual ds::ui::LoadImageService&	getLoadImageService() { return *mLoadImageService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 
 	/// I take ownership of any services added to me.
@@ -367,7 +367,8 @@ private:
 	ci::Color8u							mUniqueColor;
 	int									mCachedWindowW, mCachedWindowH;
 	ci::app::WindowRef					mCinderWindow;
-	ui::LoadImageService				mLoadImageService;
+	std::shared_ptr<ui::LoadImageService>
+										mLoadImageService;
 
 	/// Channels. A channel is simply a notifier, with an optional description.
 	class Channel {

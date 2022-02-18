@@ -28,6 +28,7 @@ namespace ds::content {
 			mExit = true;
 			Poco::Process::kill(mProcessId);
 		}
+		mThreadObj.join();
 	}
 
 	void SyncService::initialize(const SyncSettings& settings)
@@ -121,6 +122,11 @@ namespace ds::content {
 					}
 
 					//mLock.unlock();
+				}
+				else {
+					DS_LOG_ERROR("SyncServicce (downsync): downsync.exe not found at " << sync_path);
+					mExit = true;
+					mStarted = false;
 				}
 
 				//start collecting downsync's output

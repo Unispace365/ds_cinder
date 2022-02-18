@@ -2,7 +2,7 @@
 ; TODO: Registry for Windows updates
 ; TODO: Test all switches and functions
 
-#define GST GetEnv('GSTREAMER_1_0_ROOT_X86_64')
+#define GST GetEnv('GSTREAMER_1_0_ROOT_MSVC_X86_64')
 #define SYSTEMF GetEnv('SYSTEMROOT')
 #define DS_PLATFORM GetEnv('DS_PLATFORM_093')
 
@@ -129,6 +129,9 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
 #endif
 #endif
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\*"
 
 ; Check if DS_BASEURL environment variable is already set. If not, request a reboot
 ; Only checked if IS_PRODUCTION & CMS_URL are both set

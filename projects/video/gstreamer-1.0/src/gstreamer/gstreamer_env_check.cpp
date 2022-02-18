@@ -68,11 +68,7 @@ bool EnvCheck::addGStreamerBinPath(){
 		addedLocalDlls = true;
 	} 
 
-#ifdef _WIN64
-	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86_64");
-#else 
-	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86");
-#endif
+	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_MSVC_X86_64");
 	std::string gstreamer_bin_path = gstreamer_path + "\\bin";
 	normalizePath(gstreamer_bin_path);
 

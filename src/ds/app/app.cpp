@@ -186,6 +186,8 @@ App::~App() {
 	mEngine.recordMetric("engine", "shutdown", 1);
 	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
 
+	if(mSyncService) delete mSyncService;
+
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 }

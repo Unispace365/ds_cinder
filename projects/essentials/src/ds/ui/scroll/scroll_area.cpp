@@ -402,6 +402,7 @@ void ScrollArea::drawClient(const ci::mat4 &transformMatrix, const ds::DrawParam
 	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, (float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
 
 	ci::gl::popModelMatrix();
+	ds::ui::applyBlendingMode(ds::ui::NORMAL);
 }
 void ScrollArea::setUseFades(const bool doFading){
 	if(doFading){
@@ -472,7 +473,7 @@ void ScrollArea::setFadeHeight(const float fadeHeight){
 	onSizeChanged();
 }
 
-void ScrollArea::setUseShaderFade(const bool shaderFade) {
+void ScrollArea::setUseShaderFade(const bool shaderFade, const int samples) {
 	mShaderFade = shaderFade;
 	if(mShaderFade){
 		if(!mTopFade || !mBottomFade){
@@ -485,7 +486,7 @@ void ScrollArea::setUseShaderFade(const bool shaderFade) {
 		setBlendMode(ds::ui::FBO_IN);
 
 		ci::gl::Fbo::Format  format;
-		format.setSamples(8);
+		format.setSamples(samples);
 		setFinalRenderToTexture(true, format);
 
 		if(!mShaderShader){

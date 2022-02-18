@@ -14,7 +14,7 @@
 
 #ifdef _WIN32
 // Put a manifest dependency to the cef/ directory so we can keep CEF dlls and executables their own directory
-#pragma comment(linker, "\"/manifestdependency:name='cef'       version='1.0.0.0' type='win32'\"")
+#pragma comment(linker, "/manifestdependency:\"name='cef'       version='1.0.0.0' type='win32'\"")
 #else
 // On linux, we need to shutdown CEF by posting a Quit task to the RunMessageLoop thread
 #include "include/base/cef_bind.h"
@@ -148,7 +148,7 @@ void WebCefService::start() {
 	*/
 
 	// This requires cefsimple.exe to be in the current working directory
-	auto cef_dir = ci::app::Platform::get()->getExecutablePath().generic_string() + "/";
+	auto cef_dir = ci::app::Platform::get()->getExecutablePath().generic_string() + "/cef/";
 	CefString(&settings.resources_dir_path)		.FromString(cef_dir);
 	CefString(&settings.locales_dir_path)		.FromString(cef_dir + "locales");
 	const char* path = "cefsimple.exe";
