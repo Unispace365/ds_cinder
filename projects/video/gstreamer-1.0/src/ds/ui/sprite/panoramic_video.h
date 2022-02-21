@@ -1,5 +1,4 @@
-#ifndef DELOITTE_PRESENTATION_SRC_DRONE_VIDEO_SPRITE_H_
-#define DELOITTE_PRESENTATION_SRC_DRONE_VIDEO_SPRITE_H_
+#pragma once
 
 #include <ds/ui/sprite/sprite.h>
 
@@ -94,5 +93,3 @@ public:
 };
 
 }} //!dlpr::view
-
-#endif //!DELOITTE_PRESENTATION_SRC_DRONE_VIDEO_SPRITE_H_

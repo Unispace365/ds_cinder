@@ -56,7 +56,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -72,7 +72,7 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -96,8 +96,8 @@
       <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying GStreamer/GTK DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)\gstreamer" mkdir "$(SolutionDir)\$(Configuration)\gstreamer"
-xcopy /y "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll"                                               "$(SolutionDir)\$(Configuration)\gstreamer"
-xcopy /y "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\gstreamer.manifest"                                                              "$(SolutionDir)\$(Configuration)\gstreamer"
+xcopy /y "$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll"                                               "$(SolutionDir)\$(Configuration)\gstreamer"
+xcopy /y "$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\gstreamer.manifest"                                                              "$(SolutionDir)\$(Configuration)\gstreamer"
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gio-2.0-0.dll"        xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gio-2.0-0.dll"       "$(SolutionDir)\$(Configuration)\gstreamer"
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gmodule-2.0-0.dll"    xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gmodule-2.0-0.dll"   "$(SolutionDir)\$(Configuration)\gstreamer"
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstapp-1.0-0.dll"     xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstapp-1.0-0.dll"    "$(SolutionDir)\$(Configuration)\gstreamer"
@@ -108,7 +108,7 @@ if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstreamer-1.0-0.dll"  xcopy /y "
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstvideo-1.0-0.dll"   xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\gstvideo-1.0-0.dll"  "$(SolutionDir)\$(Configuration)\gstreamer"
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\libiconv-2.dll"       xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\libiconv-2.dll"      "$(SolutionDir)\$(Configuration)\gstreamer"
 if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\orc-0.4-0.dll"        xcopy /y "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\orc-0.4-0.dll"       "$(SolutionDir)\$(Configuration)\gstreamer"</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\MediaInfoDLL\64_bit\MediaInfo.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\gstreamer\MediaInfo.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
