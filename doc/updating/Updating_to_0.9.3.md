@@ -1,5 +1,16 @@
 # DS Cinder - Transitioning to Cinder 0.9.3 / C++17 / Visual Studio 2019
 
+## Project level updates
+
+1. Update the environment variables in project + solution files
+    DS_PLATFORM_090 => DS_PLATFORM_093
+    CINDER_090 => DS_PLATFORM_090/Cinder
+2. Update the PlatformToolset to v142 (vs2019)
+3. Update WindowsTargetPlatformVersion to Windows 10 (Latest)
+4. Rename vs2015 folder to vs2019
+5. Delete x64 & Release & Debug folders fro vs2019 folder
+6. Do a clean build of your app
+
 ## text.xml + colors.xml => styles.xml
 On the updated develop branch, the app now prefers styles.xml to the older pattern of a separate text.xml and
 colors.xml. The easiest way to generate a matching sytle.xml for your existing project is to compile it with the updated
