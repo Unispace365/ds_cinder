@@ -456,7 +456,7 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		}  // end of try / catch
 	}	  // end of while loop
 
-	DS_LOG_VERBOSE(1, "Exiting load thread " << std::this_thread::get_id());
+	//DS_LOG_VERBOSE(1, "Exiting load thread " << std::this_thread::get_id());
 }
 
 }  // namespace ui
