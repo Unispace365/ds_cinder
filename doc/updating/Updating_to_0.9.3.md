@@ -1,5 +1,8 @@
 # DS Cinder - Transitioning to Cinder 0.9.3 / C++17 / Visual Studio 2019
 
+Follow the steps in the main readme first. This release contains updates to gstreamer/boost/etc. that need to be
+addressed before the project specific changes.
+
 ## Project level updates
 
 1. Update the environment variables in project + solution files
@@ -8,8 +11,12 @@
 2. Update the PlatformToolset to v142 (vs2019)
 3. Update WindowsTargetPlatformVersion to Windows 10 (Latest)
 4. Rename vs2015 folder to vs2019
-5. Delete x64 & Release & Debug folders fro vs2019 folder
-6. Do a clean build of your app
+5. Delete x64 & Release & Debug folders from the vs2019 folder
+6. Add NOMINMAX preprocessor definition
+    - In visual studio go to the project in the solution explorer and right click for properties
+    - For both Debug & Release builds go to C++ -> Preprocessor
+    - Edit "Preprocessor definitions" and add the line NOMINMAX
+7. Do a clean build of your app
 
 ## text.xml + colors.xml => styles.xml
 On the updated develop branch, the app now prefers styles.xml to the older pattern of a separate text.xml and
