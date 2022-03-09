@@ -68,7 +68,7 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
 * Pre-requisites
     * Visual Studio 2019 Community installed in the default location and up to date
     * Windows 10.0.19041 SDK installed in the default location. https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk Check this SDK version against the required version from the BranchesAndBuilding doc
-    * At least 8GB of RAM and 100+GB of free disk space.
+    * At least 16GB of RAM and 180+GB of free disk space.
     * Approximately 4 hours with a fast internet connection (25Mbps) and fast build machine (2.6Ghz+, 4+ logical cores).
     * Python 3 64bit installed in the default location and included in PATH
     * CMake
