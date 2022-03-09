@@ -426,9 +426,10 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	}
 }
 
-void WebHandler::OnCursorChange(CefRefPtr<CefBrowser> browser, CefCursorHandle cursor, CursorType type, const CefCursorInfo& custom_cursor_info){
+bool WebHandler::OnCursorChange(CefRefPtr<CefBrowser> browser, HCURSOR cursor, cef_cursor_type_t type, const CefCursorInfo& custom_cursor_info){
 	// This is when it changes from a hand to a pointer, to a directional arrow, etc.
 //	std::cout << "On Cursor change : " << type << std::endl;
+	return true;
 }
 
 

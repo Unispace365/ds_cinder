@@ -136,7 +136,11 @@
 #define CEF_INCLUDE_BASE_CEF_LOGGING_H_
 #pragma once
 
-#if defined(DCHECK)
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/logging.h"
+#include "base/notreached.h"
+#elif defined(DCHECK)
 // Do nothing if the macros provided by this header already exist.
 // This can happen in cases where Chromium code is used directly by the
 // client application. When using Chromium code directly always include
@@ -144,15 +148,12 @@
 
 // Always define the DCHECK_IS_ON macro which is used from other CEF headers.
 #if defined(NDEBUG) && !defined(DCHECK_ALWAYS_ON)
-#define DCHECK_IS_ON() 0
+#define DCHECK_IS_ON() false
 #else
-#define DCHECK_IS_ON() 1
+#define DCHECK_IS_ON() true
 #endif
 
-#elif defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/logging.h"
-#else  // !USING_CHROMIUM_INCLUDES
+#else  // !defined(DCHECK)
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -163,7 +164,6 @@
 #include <string>
 
 #include "include/base/cef_build.h"
-#include "include/base/cef_macros.h"
 #include "include/internal/cef_logging_internal.h"
 
 namespace cef {
@@ -201,21 +201,21 @@ const LogSeverity LOG_DFATAL = LOG_FATAL;
 // A few definitions of macros that don't generate much code. These are used
 // by LOG() and LOG_IF, etc. Since these are used all over our code, it's
 // better to have compact code for these operations.
-#define COMPACT_GOOGLE_LOG_EX_INFO(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_INFO, \
-                          ##__VA_ARGS__)
-#define COMPACT_GOOGLE_LOG_EX_WARNING(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_WARNING, \
-                          ##__VA_ARGS__)
-#define COMPACT_GOOGLE_LOG_EX_ERROR(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_ERROR, \
-                          ##__VA_ARGS__)
-#define COMPACT_GOOGLE_LOG_EX_FATAL(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_FATAL, \
-                          ##__VA_ARGS__)
-#define COMPACT_GOOGLE_LOG_EX_DFATAL(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_DFATAL, \
-                          ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_INFO(ClassName, ...)                        \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_INFO, \
+                            ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_WARNING(ClassName, ...)                        \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_WARNING, \
+                            ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_ERROR(ClassName, ...)                        \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_ERROR, \
+                            ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_FATAL(ClassName, ...)                        \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_FATAL, \
+                            ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_DFATAL(ClassName, ...)                        \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_DFATAL, \
+                            ##__VA_ARGS__)
 
 #define COMPACT_GOOGLE_LOG_INFO COMPACT_GOOGLE_LOG_EX_INFO(LogMessage)
 #define COMPACT_GOOGLE_LOG_WARNING COMPACT_GOOGLE_LOG_EX_WARNING(LogMessage)
@@ -553,12 +553,7 @@ const LogSeverity LOG_DCHECK = LOG_INFO;
 #define DCHECK_GE(val1, val2) DCHECK_OP(GE, >=, val1, val2)
 #define DCHECK_GT(val1, val2) DCHECK_OP(GT, >, val1, val2)
 
-#if defined(NDEBUG) && defined(OS_CHROMEOS)
-#define NOTREACHED() \
-  LOG(ERROR) << "NOTREACHED() hit in " << __FUNCTION__ << ". "
-#else
 #define NOTREACHED() DCHECK(false)
-#endif
 
 // Redefine the standard assert to use our nice log files
 #undef assert
@@ -586,6 +581,9 @@ class LogMessage {
              int line,
              LogSeverity severity,
              std::string* result);
+
+  LogMessage(const LogMessage&) = delete;
+  LogMessage& operator=(const LogMessage&) = delete;
 
   ~LogMessage();
 
@@ -618,8 +616,6 @@ class LogMessage {
 
   SaveLastError last_error_;
 #endif
-
-  DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 // A non-macro interface to the log facility; (useful
@@ -659,6 +655,9 @@ class Win32ErrorLogMessage {
                        LogSeverity severity,
                        SystemErrorCode err);
 
+  Win32ErrorLogMessage(const Win32ErrorLogMessage&) = delete;
+  Win32ErrorLogMessage& operator=(const Win32ErrorLogMessage&) = delete;
+
   // Appends the error message before destructing the encapsulated class.
   ~Win32ErrorLogMessage();
 
@@ -667,8 +666,6 @@ class Win32ErrorLogMessage {
  private:
   SystemErrorCode err_;
   LogMessage log_message_;
-
-  DISALLOW_COPY_AND_ASSIGN(Win32ErrorLogMessage);
 };
 #elif defined(OS_POSIX)
 // Appends a formatted system message of the errno type
@@ -679,6 +676,9 @@ class ErrnoLogMessage {
                   LogSeverity severity,
                   SystemErrorCode err);
 
+  ErrnoLogMessage(const ErrnoLogMessage&) = delete;
+  ErrnoLogMessage& operator=(const ErrnoLogMessage&) = delete;
+
   // Appends the error message before destructing the encapsulated class.
   ~ErrnoLogMessage();
 
@@ -687,8 +687,6 @@ class ErrnoLogMessage {
  private:
   SystemErrorCode err_;
   LogMessage log_message_;
-
-  DISALLOW_COPY_AND_ASSIGN(ErrnoLogMessage);
 };
 #endif  // OS_WIN
 

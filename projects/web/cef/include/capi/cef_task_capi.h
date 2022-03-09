@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=025daa5db3bf16029953da7703e3e5968bd97fe2$
+// $hash=2502258e69820d070a9f094d5e587a38e96cc930$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
@@ -122,7 +122,7 @@ typedef struct _cef_task_runner_t {
 // task runners. An NULL reference will be returned if this function is called
 // on an invalid thread.
 ///
-CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread();
+CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread(void);
 
 ///
 // Returns the task runner for the specified CEF thread.

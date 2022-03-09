@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d93b4ad0b71ffe0a05326b39c3ed0bdb26a73fac$
+// $hash=83cbe91e85d7ab2413f733b75457ce6689d3d0ae$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
@@ -131,7 +131,7 @@ CEF_EXPORT int cef_register_scheme_handler_factory(
 // ef_request_context_t::cef_request_context_get_global_context()->clear_scheme_
 // handler_factories().
 ///
-CEF_EXPORT int cef_clear_scheme_handler_factories();
+CEF_EXPORT int cef_clear_scheme_handler_factories(void);
 
 #ifdef __cplusplus
 }

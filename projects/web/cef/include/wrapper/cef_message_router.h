@@ -46,7 +46,7 @@
 // The below classes implement support for routing aynchronous messages between
 // JavaScript running in the renderer process and C++ running in the browser
 // process. An application interacts with the router by passing it data from
-// standard CEF C++ callbacks (OnBeforeBrowse, OnProcessMessageRecieved,
+// standard CEF C++ callbacks (OnBeforeBrowse, OnProcessMessageReceived,
 // OnContextCreated, etc). The renderer-side router supports generic JavaScript
 // callback registration and execution while the browser-side router supports
 // application-specific logic via one or more application-provided Handler
@@ -78,7 +78,7 @@
 // with an error code of -1.
 //
 // Queries can be either persistent or non-persistent. If the query is
-// persistent than the callbacks will remain registered until one of the
+// persistent then the callbacks will remain registered until one of the
 // following conditions are met:
 //
 // A. The query is canceled in JavaScript using the |window.cefQueryCancel|
@@ -245,7 +245,7 @@ class CefMessageRouterBrowserSide
   ///
   class Handler {
    public:
-    typedef CefMessageRouterBrowserSide::Callback Callback;
+    using Callback = CefMessageRouterBrowserSide::Callback;
 
     ///
     // Executed when a new query is received. |query_id| uniquely identifies the
