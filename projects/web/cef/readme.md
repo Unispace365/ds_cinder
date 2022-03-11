@@ -91,7 +91,11 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
 	* Open a command window there, make sure you have cmake on your path, and run: `cmake -G "Visual Studio 16 2019"`
     * Open cef.sln in Visual Studio 2019
     * Replace the contents of cefsimple/cefsimple/cefsimple_win.cc wit the contents of ds_cinder/projects/web/cef/build/cefsimple_win.cc
-    * Compile the whole solution in Debug and Release
+    * Build cefsimple in Debug & Release
+    * HORRIBLE HACK (after building cefsimple): edit the libcef_dll_wrapper project preprocessor definitions in debug
+      mode from `_HAS_ITERATOR_DEBUGGING=0` to `_HAS_ITERATOR_DEBUGGING=0`
+    * Then build the debug version of libcef_dll_wrapper. This prevents a mismatch in iterator debug levels that
+      prevents our apps from building.
 * Replace files in ds_cinder/projects/web/cef/ from the binary_distrib folder from the previous step
     * include/ with everything from include/
     * lib64/debug/libcef.lib from Debug/libcef.lib
