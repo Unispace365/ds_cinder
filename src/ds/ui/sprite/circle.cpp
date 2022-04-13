@@ -33,6 +33,99 @@ namespace {
 	const ds::BitMask   SPRITE_LOG = ds::Logger::newModule("circle sprite");
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Circle
+DsCircleGeom::DsCircleGeom()
+	: mRequestedSubdivisions(-1), mCenter(0, 0), mRadius(1.0f)
+{
+	updateVertexCounts();
+}
+
+DsCircleGeom& DsCircleGeom::subdivisions(int subdivs)
+{
+	mRequestedSubdivisions = subdivs;
+	updateVertexCounts();
+	return *this;
+}
+
+DsCircleGeom& DsCircleGeom::radius(float radius)
+{
+	mRadius = radius;
+	updateVertexCounts();
+	return *this;
+}
+
+// If numSegments<0, calculate based on radius
+void DsCircleGeom::updateVertexCounts()
+{
+	if (mRequestedSubdivisions <= 0)
+		mNumSubdivisions = (int)math<double>::floor(mRadius * float(M_PI * 2));
+	else
+		mNumSubdivisions = mRequestedSubdivisions;
+
+	if (mNumSubdivisions < 3) mNumSubdivisions = 3;
+	mNumVertices = mNumSubdivisions + 1 + 1;
+}
+
+size_t DsCircleGeom::getNumVertices() const
+{
+	return mNumVertices;
+}
+
+uint8_t	DsCircleGeom::getAttribDims(ci::geom::Attrib attr) const
+{
+	switch (attr) {
+	case ci::geom::Attrib::POSITION: return 2;
+	case ci::geom::Attrib::NORMAL: return 3;
+	case ci::geom::Attrib::TEX_COORD_0: return 2;
+	default:
+		return 0;
+	}
+}
+
+ci::geom::AttribSet DsCircleGeom::getAvailableAttribs() const
+{
+	return { ci::geom::Attrib::POSITION, ci::geom::Attrib::NORMAL, ci::geom::Attrib::TEX_COORD_0 };
+}
+
+void DsCircleGeom::loadInto(ci::geom::Target* target, const ci::geom::AttribSet&/*requestedAttribs*/) const
+{
+	std::vector<vec2> positions, texCoords;
+	std::vector<vec3> normals;
+
+	positions.reserve(mNumVertices);
+	texCoords.reserve(mNumVertices);
+	normals.reserve(mNumVertices);
+
+	// center
+	positions.emplace_back(mCenter);
+	texCoords.emplace_back(0.5f, 0.5f);
+	normals.emplace_back(0, 0, 1);
+
+	// iterate the segments
+	const float tDelta = 1 / (float)(mNumSubdivisions-1) * 2.0f * 3.14159f;
+	float t = 0;
+	for (int s = 0; s <= (mNumSubdivisions-1); s++) {
+		vec2 unit(math<float>::cos(t), math<float>::sin(t));
+		positions.emplace_back(mCenter + unit * mRadius);
+		texCoords.emplace_back(unit * 0.5f + vec2(0.5f));
+		normals.emplace_back(0, 0, 1);
+		t += tDelta;
+	}
+
+	vec2 unit(math<float>::cos(0), math<float>::sin(0));
+	positions.emplace_back(mCenter + unit * mRadius);
+	texCoords.emplace_back(unit * 0.5f + vec2(0.5f));
+	normals.emplace_back(0, 0, 1);
+
+	target->copyAttrib(ci::geom::Attrib::POSITION, 2, 0, (const float*)positions.data(), mNumVertices);
+	target->copyAttrib(ci::geom::Attrib::NORMAL, 3, 0, (const float*)normals.data(), mNumVertices);
+	target->copyAttrib(ci::geom::Attrib::TEX_COORD_0, 2, 0, (const float*)texCoords.data(), mNumVertices);
+}
+
+
+
 void Circle::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
 }
@@ -153,7 +246,7 @@ void Circle::onBuildRenderBatch() {
 	}
 	
 	if(mFilled){
-		auto theCircle = ci::geom::Circle().radius(mRadius).center(ci::vec2(mRadius, mRadius));
+		auto theCircle = DsCircleGeom().radius(mRadius).center(ci::vec2(mRadius, mRadius));
 		if(mNumberOfSegments > 1){
 			theCircle.subdivisions(mNumberOfSegments);
 		}
