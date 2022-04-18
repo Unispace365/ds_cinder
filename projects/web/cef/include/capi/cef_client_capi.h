@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,13 +33,14 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6a0312765614a697d56e87c8503afba8404bb08b$
+// $hash=8b099ca3b9cfbd41840cdf64586a0b884abaffae$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_audio_handler_capi.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
 #include "include/capi/cef_dialog_handler_capi.h"
@@ -48,10 +49,12 @@
 #include "include/capi/cef_drag_handler_capi.h"
 #include "include/capi/cef_find_handler_capi.h"
 #include "include/capi/cef_focus_handler_capi.h"
+#include "include/capi/cef_frame_handler_capi.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
 #include "include/capi/cef_keyboard_handler_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
 #include "include/capi/cef_load_handler_capi.h"
+#include "include/capi/cef_print_handler_capi.h"
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_render_handler_capi.h"
 #include "include/capi/cef_request_handler_capi.h"
@@ -68,6 +71,12 @@ typedef struct _cef_client_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  // Return the handler for audio rendering events.
+  ///
+  struct _cef_audio_handler_t*(CEF_CALLBACK* get_audio_handler)(
+      struct _cef_client_t* self);
 
   ///
   // Return the handler for context menus. If no handler is provided the default
@@ -115,6 +124,14 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
+  // Return the handler for events related to cef_frame_t lifespan. This
+  // function will be called once during cef_browser_t creation and the result
+  // will be cached for performance reasons.
+  ///
+  struct _cef_frame_handler_t*(CEF_CALLBACK* get_frame_handler)(
+      struct _cef_client_t* self);
+
+  ///
   // Return the handler for JavaScript dialogs. If no handler is provided the
   // default implementation will be used.
   ///
@@ -140,6 +157,13 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
+  // Return the handler for printing on Linux. If a print handler is not
+  // provided then printing will not be supported on the Linux platform.
+  ///
+  struct _cef_print_handler_t*(CEF_CALLBACK* get_print_handler)(
+      struct _cef_client_t* self);
+
+  ///
   // Return the handler for off-screen rendering events.
   ///
   struct _cef_render_handler_t*(CEF_CALLBACK* get_render_handler)(
@@ -153,8 +177,8 @@ typedef struct _cef_client_t {
 
   ///
   // Called when a new message is received from a different process. Return true
-  // (1) if the message was handled or false (0) otherwise. Do not keep a
-  // reference to or attempt to access the message outside of this callback.
+  // (1) if the message was handled or false (0) otherwise.  It is safe to keep
+  // a reference to |message| outside of this callback.
   ///
   int(CEF_CALLBACK* on_process_message_received)(
       struct _cef_client_t* self,

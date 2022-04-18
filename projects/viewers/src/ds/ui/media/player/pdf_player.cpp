@@ -33,8 +33,9 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	// in case we haven't loaded pages fast enough, show white
 	setTransparent(false);
 
+	setTouchMode(TouchMode::NORMAL);
 	// set some callbacks in case we are ever enabled
-	setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+	/*setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
 		int count = getPageCount();
 		int zeroIndexNextWrapped = (getPageNum() % count);
 		setPageNum(zeroIndexNextWrapped + 1);
@@ -54,9 +55,58 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 			int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
 			setPageNum(zeroIndexNextWrapped + 1);
 		}
-	});
+	});*/
 
 	mLayoutFixedAspect = true;
+}
+
+void PDFPlayer::setTouchMode(TouchMode mode){
+	if(mode == TouchMode::NORMAL){
+		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+
+		// set some callbacks in case we are ever enabled
+		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+			int count = getPageCount();
+			int zeroIndexNextWrapped = (getPageNum() % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		});
+
+		setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
+			int diff = 0;
+
+			if(delta.x < -20.0f) {
+				diff = 1;
+			} else if(delta.x > 20.0f) {
+				diff = -1;
+			}
+
+			if(diff != 0) {
+				int count = getPageCount();
+				int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
+				setPageNum(zeroIndexNextWrapped + 1);
+			}
+		});
+	}else if (mode == TouchMode::POS_SCALE){
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+
+		// set some callbacks in case we are ever enabled
+		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+			int count = getPageCount();
+			int zeroIndexNextWrapped = (getPageNum() % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		});
+
+		setSwipeCallback(nullptr);
+	}
+}
+
+
+void PDFPlayer::setNormalTouch(){
+	setTouchMode(TouchMode::NORMAL);
+}
+
+void PDFPlayer::setPosScaleTouch(){
+	setTouchMode(TouchMode::POS_SCALE);
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath) { setResource(ds::Resource(mediaPath)); }
@@ -235,11 +285,11 @@ void PDFPlayer::layout() {
 	if (mPdfInterface) {
 		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
 
-		float yPos = h - mPdfInterface->getHeight() - 50.0f;
+		float yPos = h - mPdfInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
-		if (yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
+		if (yPos + mPdfInterface->getScaleHeight() > h) yPos = h - mPdfInterface->getScaleHeight();
 		if(mInterfaceBelowMedia) yPos = h;
-		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, yPos);
+		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
 
@@ -258,6 +308,7 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 	mCanShowLinks = settings.mPdfCanShowLinks;
 	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }

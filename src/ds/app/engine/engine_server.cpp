@@ -319,7 +319,7 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		addHeader(send.mData, mFrame);
 
 		const size_t numRoots = engine.getRootCount();
-		for(int i = 0; i < numRoots - 1; i++){
+		for(int i = 0; i < numRoots; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
 			if(rooty.isDirty()){
@@ -465,7 +465,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 		send.mData.add(ds::TERMINATOR_CHAR);
 
 		const size_t numRoots = engine.getRootCount();
-		for(size_t i = 0; i < numRoots - 1; i++){
+		for(size_t i = 0; i < numRoots; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
 			rooty.markTreeAsDirty();

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <assemblyIdentity type="win32" name="gtk" version="1.0.0.0" />
+	<file name="bz2.dll" />
+	<file name="cairo-2.dll" />
+	<file name="ffi-7.dll" />
+	<file name="fontconfig-1.dll" />
+	<file name="fribidi-0.dll" />
+	<file name="glib-2.0-0.dll" />
+	<file name="gobject-2.0-0.dll" />
+	<file name="harfbuzz.dll" />
+	<file name="intl-8.dll" />
+	<file name="libexpat-1.dll" />
+	<file name="libfreetype-6.dll" />
+	<file name="libpng16-16.dll" />
+	<file name="pango-1.0-0.dll" />
+	<file name="pangocairo-1.0-0.dll" />
+	<file name="pangoft2-1.0-0.dll" />
+	<file name="pangowin32-1.0-0.dll" />
+	<file name="pixman-1-0.dll" />
+	<file name="z-1.dll" />
+</assembly>

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b8d7be1399d3426a3f872b12bc1438e041a16308$
+// $hash=e26be3efc18d8c79d019c02b1d73a7ec2866b142$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PRINT_HANDLER_CAPI_H_
@@ -148,6 +148,7 @@ typedef struct _cef_print_handler_t {
   ///
   cef_size_t(CEF_CALLBACK* get_pdf_paper_size)(
       struct _cef_print_handler_t* self,
+      struct _cef_browser_t* browser,
       int device_units_per_inch);
 } cef_print_handler_t;
 

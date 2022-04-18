@@ -18,14 +18,14 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     #$DestDir = $DsCinder + "\example\" + $NewName;
     $DestDir = $DestDir + "\" + $NewName;
     $SrcDir = $BaseDir + "src\";
-    $SlnDir = $BaseDir + "vs2015\";
-    $DebugDir = $BaseDir + "vs2015\Debug";
-    $ReleaseDir = $BaseDir + "vs2015\Release";
-    $IpchDir = $BaseDir + "vs2015\ipch";
-    $x64Dir = $BaseDir + "vs2015\x64";
+    $SlnDir = $BaseDir + "vs2019\";
+    $DebugDir = $BaseDir + "vs2019\Debug";
+    $ReleaseDir = $BaseDir + "vs2019\Release";
+    $IpchDir = $BaseDir + "vs2019\ipch";
+    $x64Dir = $BaseDir + "vs2019\x64";
     $logsDir = $BaseDir + "logs";
-    $gpuDir = $BaseDir + "vs2015\GPUCache";
-    $fcDir = $BaseDir + "vs2015\.fontconfig";
+    $gpuDir = $BaseDir + "vs2019\GPUCache";
+    $fcDir = $BaseDir + "vs2019\.fontconfig";
 	$readmeLoc = $DestDir + "\README.md"
 
     #Write-Host "Removing old stuff at the destination";
@@ -33,7 +33,9 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     Write-Host "Duplicating base project " $BaseDir " to " $DestDir;
 
-    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
+	New-Item -ItemType Directory -Force -Path $DestDir
+
+    robocopy "$BaseDir" "$DestDir" /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
 
     $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml,*.iss,*.ps1,*.json,README.md -Recurse;
 
@@ -80,12 +82,12 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     Write-Host "Clone finished.";
 
-	Start-Process $readmeLoc
+	# Start-Process $readmeLoc
 }
 
 
-$DsCinder = (Get-ChildItem Env:\DS_PLATFORM_090).Value;
-$FullStarter = $DsCinder + "\example\full_starter\";
+$DsCinder = (Get-ChildItem Env:\DS_PLATFORM_093).Value;
+$FullStarter = $DsCinder + "\example\full_starter";
 $ThisCommand = $MyInvocation.MyCommand.Path;
 $ThisDir = (get-item $ThisCommand ).Directory.FullName;
 $Source = $FullStarter;

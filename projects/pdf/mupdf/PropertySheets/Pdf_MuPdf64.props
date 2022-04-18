@@ -6,11 +6,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\pdf\mupdf\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_093)\projects\pdf\mupdf\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);libthirdparty.lib;libmupdf.lib;libfonts.lib;pdf_mupdf.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\pdf\mupdf\lib\MuPDF\lib64\release;$(DS_PLATFORM_090)\projects\pdf\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);libthirdparty.lib;libmupdf.lib;libresources.lib;pdf_mupdf.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_093)\projects\pdf\mupdf\lib\MuPDF\lib64\release;$(DS_PLATFORM_093)\projects\pdf\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

@@ -1,8 +1,6 @@
 //
 // Observer.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Observer.h#2 $
-//
 // Library: Foundation
 // Package: Notifications
 // Module:  NotificationCenter
@@ -72,7 +70,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	void notify(Notification* pNf) const
 	{
 		Poco::Mutex::ScopedLock lock(_mutex);
@@ -94,9 +92,9 @@ public:
 		return pObs && pObs->_pObject == _pObject && pObs->_method == _method;
 	}
 
-	bool accepts(Notification* pNf) const
+	bool accepts(Notification* pNf, const char* pName = 0) const
 	{
-		return dynamic_cast<N*>(pNf) != 0;
+		return dynamic_cast<N*>(pNf) && (!pName || pNf->name() == pName);
 	}
 	
 	AbstractObserver* clone() const

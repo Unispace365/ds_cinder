@@ -66,11 +66,11 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
     * Compiling CEF also compiles Chromium and all of it's third party libraries. This is mostly and automated process but be prepared to wait a while for the full compilation
     * There are pre-existing builds of CEF available, however they don't include proprietary codec support for h.264 and mp3 playback, so we have to compile the whole thing
 * Pre-requisites
-    * Visual Studio 2017 Community 15.7.1+ installed in the default location
-    * Windows 10.0.18362 SDK installed in the default location. https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk You must install this exact SDK version to avoid build issues.
-    * At least 8GB of RAM and 40GB of free disk space.
-    * Approximately 2 hours with a fast internet connection (25Mbps) and fast build machine (2.6Ghz+, 4+ logical cores).
-    * Python 2.7 (I used 2.7.17) 64bit installed in the default location and included in PATH
+    * Visual Studio 2019 Community installed in the default location and up to date
+    * Windows 10.0.19041 SDK installed in the default location. https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk Check this SDK version against the required version from the BranchesAndBuilding doc
+    * At least 16GB of RAM and 180+GB of free disk space.
+    * Approximately 4 hours with a fast internet connection (25Mbps) and fast build machine (2.6Ghz+, 4+ logical cores).
+    * Python 3 64bit installed in the default location and included in PATH
     * CMake
 * Compiling (use this guide instead of MasterBuildQuickStart or BranchesAndBuilding above)
     * Create the directory c:/code (the directory needs to be at the root level to avoid issues with path length down the road)
@@ -80,7 +80,6 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
         * Change --branch=3945 to the current supported release branch from BranchesAndBuilding
     * Run build_cef.bat from c:/code
     * NOTE: You might have to add c:/code/dt/ to your PATH
-    * NOTE: I had to manually install pywin32 using this command: "python -m pip install pywin32" See https://magpcss.org/ceforum/viewtopic.php?f=6&t=17258
 * Wait
     * More waiting
     * Deal with any compile issues
@@ -89,10 +88,14 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
 * Compile cefsimple and libcef_dll_wrapper
     * cefsimple is required for the multi-process model described above, and we use it as a bare-bones host of additional processes.
     * In c:/code/cg/chromium/src/cef/binary_distrib there should be a cef_binary_xxxxx_windows64 folder. If there's not, re-evaluate your life choices and the build steps above
-	* Open a command window there, make sure you have cmake on your path, and run: `cmake -G "Visual Studio 15 2017 Win64"`
-    * Open cef.sln in Visual Studio 2017
+	* Open a command window there, make sure you have cmake on your path, and run: `cmake -G "Visual Studio 16 2019"`
+    * Open cef.sln in Visual Studio 2019
     * Replace the contents of cefsimple/cefsimple/cefsimple_win.cc wit the contents of ds_cinder/projects/web/cef/build/cefsimple_win.cc
-    * Compile the whole solution in Debug and Release
+    * Build cefsimple in Debug & Release
+    * HORRIBLE HACK (after building cefsimple): edit the libcef_dll_wrapper project preprocessor definitions in debug
+      mode from `_HAS_ITERATOR_DEBUGGING=0` to `_HAS_ITERATOR_DEBUGGING=1`
+    * Then build the debug version of libcef_dll_wrapper. This prevents a mismatch in iterator debug levels that
+      prevents our apps from building.
 * Replace files in ds_cinder/projects/web/cef/ from the binary_distrib folder from the previous step
     * include/ with everything from include/
     * lib64/debug/libcef.lib from Debug/libcef.lib
@@ -101,7 +104,7 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
     * lib64/release/libcef_dll_wrapper.lib from libcef_dll_wrapper/Release/libcef_dll_wrapper.lib
     * lib64/runtime with everything from tests/cefsimple/Release/
 * Open a ds_cinder sample project that has web playback (cef_develop perhaps?), clean, build
-    * If there were significant changes in CEF, you'll need to evaulate those manually and resolve
+    * If there were significant changes in CEF, you'll need to evaluate those manually and resolve
     * Once compilation of the ds_cinder app succeeds and the app is running, do a few tests
         * Load https://www.whatismybrowser.com/ to verify the correct Chrome version from the branch you selected
         * Check that scrolling, touch, keyboard, reload, back, forward work

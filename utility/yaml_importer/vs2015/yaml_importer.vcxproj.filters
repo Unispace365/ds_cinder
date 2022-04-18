@@ -32,7 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />
-    <ResourceCompile Include="%DS_PLATFORM_090%\vs2015\FrameworkResources.rc" />
+    <ResourceCompile Include="%DS_PLATFORM_093%\vs2015\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">

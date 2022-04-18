@@ -29,6 +29,9 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/cfg/settings.h"
+#include "yoga/Yoga.h"
+#include "yoga/YGNode.h"
+#include "yoga/YGConfig.h"
 
 namespace ds {
 namespace gl { class ClipPlaneState; }
@@ -60,7 +63,10 @@ namespace ui {
 	class Sprite : public SpriteAnimatable
 	{
 	public:
-
+		struct FinalRenderInfo {
+			bool useLocalTransform = true;
+			ci::gl::Fbo::Format format = ci::gl::Fbo::Format();
+		};
 		/** Generic sprite creation function.
 			The variadic args will be passed in the same order to your Sprite's constructor.
 			\param engine The SpriteEngine for your app.
@@ -368,7 +374,7 @@ namespace ui {
 			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
 			If you have a pointer to a Sprite, you can use addChildPtr().
 			\param newChild The Sprite to be added as a child*/
-		void					addChild(Sprite& newChild);
+		virtual void					addChild(Sprite& newChild);
 
 		/** Adds a sprite as a child of this Sprite.
 			The child will be placed at it's position in this Sprite's coordinate space,
@@ -626,8 +632,13 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		///	Determines if the final render will be to the display or a texture.
-		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format = ci::gl::Fbo::Format());
+		
+		// Deprecate?
+		//[[deprecated("Use FinalRenderInfo.format and setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info)")]]
+		void					setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format);
+		void					setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info = FinalRenderInfo());
 		bool					isFinalRenderToTexture();
+	
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
@@ -704,11 +715,18 @@ namespace ui {
 
 		// attempts to get the settings used for the layout that this
 		// sprite is part of. The sprite need not have been created in
-		// the layout for this to work, but on of its ancestor sprite needs to have been.
+		// the layout for this to work, but one of its ancestor sprite needs to have been.
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
 		ds::cfg::Settings* getLayoutSettings();
 		void setLayoutSettings(ds::cfg::Settings& settings);
 
+		//Flexbox
+		virtual void			setFlexboxFromStyleString(std::string style);
+		virtual void			setFlexboxAutoSizes();
+		virtual void			setSpriteFromFlexbox();
+		
+		virtual YGNodeRef		getYogaNode() { return mYogaNode; }
+		virtual	YGSize			yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode);
 		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault is true.
 		const std::wstring		getSpriteName(const bool useDefault = true) const;
 
@@ -722,6 +740,7 @@ namespace ui {
 		int						mLayoutHAlign;
 		int						mLayoutVAlign;
 		int						mLayoutUserType;
+		int						mLayoutFixedAspectMode=0;
 		bool					mLayoutFixedAspect;
 
 		bool					mExportWithXml;
@@ -731,6 +750,8 @@ namespace ui {
 		friend class        TouchProcess;
 		friend class		ds::gl::ClipPlaneState;
 		friend class		SpriteAnimatable;
+
+		
 
 		void				swipe(const ci::vec3 &swipeVector);
 		bool				tapInfo(const TapInfo&);
@@ -743,6 +764,7 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
+		virtual void		drawPostLocalClient();
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -781,8 +803,8 @@ namespace ui {
 		virtual void		onBuildRenderBatch();	
 
 		/// Always access the bounds via this, which will build them if necessary
-		const ci::Rectf&	getClippingBounds();
-		void				computeClippingBounds();
+		const ci::Rectf&	getClippingBounds(ds::ui::Sprite* clippingParent = nullptr);
+		void				computeClippingBounds(ds::ui::Sprite* clippingParent = nullptr);
 
 		void				setSpriteId(const ds::sprite_id_t&);
 		/// Helper utility to set a flag
@@ -810,6 +832,8 @@ namespace ui {
 
 		mutable bool			mBoundsNeedChecking;
 		mutable bool			mInBounds;
+
+		
 
 
 		SpriteEngine&			mEngine;
@@ -845,6 +869,7 @@ namespace ui {
 		ci::gl::FboRef			mOutputFbo;
 		ci::gl::Fbo::Format		mFboFormat;
 		bool					mIsRenderFinalToTexture;
+		bool					mFinalToTexture_UseLocalTransform;
 
 		ci::vec4				mShaderExtraData;
 
@@ -862,6 +887,10 @@ namespace ui {
 		/// Class-unique key for this type.  Subclasses can replace.
 		char					mBlobType;
 		DirtyState				mDirty;
+
+		//flexbox
+		YGNodeRef					mYogaNode;
+		
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::vec3 &)> mSwipeCallback;
@@ -949,12 +978,12 @@ namespace ui {
 		ds::cfg::Settings*	mSettings = nullptr;
 
 	public:
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		/// Debugging aids to write out my state. write() calls writeState
 		/// on me and all my children.
 		void				write(std::ostream&, const size_t tab) const;
 		virtual void		writeState(std::ostream&, const size_t tab) const;
-#endif
+//#endif
 
 		static void			installAsServer(ds::BlobRegistry&);
 		static void			installAsClient(ds::BlobRegistry&);

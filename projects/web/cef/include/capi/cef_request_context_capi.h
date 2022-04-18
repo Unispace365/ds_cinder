@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2b01472d9b9a8cc9d1b2e669c91c2849bdb162e9$
+// $hash=dcff1eaa0563cfb48e0232bf78786bb0126c4255$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -44,6 +44,7 @@
 #include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_extension_capi.h"
 #include "include/capi/cef_extension_handler_capi.h"
+#include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -131,7 +132,7 @@ typedef struct _cef_request_context_t {
 
   ///
   // Returns the cookie manager for this object. If |callback| is non-NULL it
-  // will be executed asnychronously on the IO thread after the manager's
+  // will be executed asnychronously on the UI thread after the manager's
   // storage has been initialized.
   ///
   struct _cef_cookie_manager_t*(CEF_CALLBACK* get_cookie_manager)(
@@ -163,17 +164,6 @@ typedef struct _cef_request_context_t {
   ///
   int(CEF_CALLBACK* clear_scheme_handler_factories)(
       struct _cef_request_context_t* self);
-
-  ///
-  // Tells all renderer processes associated with this context to throw away
-  // their plugin list cache. If |reload_pages| is true (1) they will also
-  // reload all pages with plugins.
-  // cef_request_context_handler_t::OnBeforePluginLoad may be called to rebuild
-  // the plugin list cache.
-  ///
-  void(CEF_CALLBACK* purge_plugin_list_cache)(
-      struct _cef_request_context_t* self,
-      int reload_pages);
 
   ///
   // Returns true (1) if a preference with the specified |name| exists. This
@@ -353,12 +343,21 @@ typedef struct _cef_request_context_t {
   struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
       struct _cef_request_context_t* self,
       const cef_string_t* extension_id);
+
+  ///
+  // Returns the MediaRouter object associated with this context.  If |callback|
+  // is non-NULL it will be executed asnychronously on the UI thread after the
+  // manager's context has been initialized.
+  ///
+  struct _cef_media_router_t*(CEF_CALLBACK* get_media_router)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
 } cef_request_context_t;
 
 ///
 // Returns the global context object.
 ///
-CEF_EXPORT cef_request_context_t* cef_request_context_get_global_context();
+CEF_EXPORT cef_request_context_t* cef_request_context_get_global_context(void);
 
 ///
 // Creates a new context object with the specified |settings| and optional

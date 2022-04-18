@@ -86,11 +86,13 @@ bool UdpReceiver::connect(const std::string &ip, const std::string &portSz) {
 	try {
 		unsigned short port;
 		ds::string_to_value(portSz, port);
-		mSocket.setReceiveTimeout(0);
-
+		
+		
+		mSocket.bind(Poco::Net::SocketAddress(), true, true);
 		mSocket.setReuseAddress(true);
 		mSocket.setReusePort(true);
 		mSocket.connect(Poco::Net::SocketAddress(ip, port));
+		mSocket.setReceiveTimeout(0);
 		mSocket.setBlocking(false);
 		mSocket.setSendBufferSize(ds::NET_MAX_UDP_PACKET_SIZE);
 

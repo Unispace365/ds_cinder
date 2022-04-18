@@ -21,7 +21,7 @@ public:
 	/// VFlow = Size elements based on their size settings, then position them, top-to-bottom
 	/// HFlow = Same as VFlow, but horizontally from left-to-right
 	/// Size = only adjust the size of the children, but do not position
-	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize, kLayoutVWrap, kLayoutHWrap } LayoutType;
+	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize, kLayoutVWrap, kLayoutHWrap, kLayoutFlex } LayoutType;
 
 	/// FixedSize = Sprite sized to mLayoutSize (on Sprite.h), or left alone if it's not set
 	/// FlexSize = Sprite is adjusted to fit the layout. For example, in a V layout, the text is resized to the width, and the height is calculated
@@ -30,6 +30,11 @@ public:
 	enum { kFixedSize = 0, kFlexSize, kStretchSize, kFillSize } SizeType;
 
 	typedef enum { kShrinkNone = 0, kShrinkWidth, kShrinkHeight, kShrinkBoth } ShrinkType;
+
+	/// AspectDefault = fixed aspect is based on the layout. 
+	/// AspectFill = fixed aspect will always try to fill the target rect. This may result in overflow, so you may want to clip
+	/// AspectLetterbox = fixed aspect will letterbox the sprite. 
+	typedef enum { kAspectDefault = 0, kAspectFill, kAspectLetterbox } AspectMode;
 
 	/// In VFlow layouts, adjusts the x-position during layout
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
@@ -85,6 +90,8 @@ protected:
 	/// virtual in case you want to override with your own layout jimmies.
 	virtual void			runFlowLayout(const bool vertical, const bool wrap = false);
 
+	virtual void			runFlexLayout(bool calculate=true);
+	virtual void			addChild(Sprite& child) override;
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;
@@ -92,6 +99,7 @@ protected:
 	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 	ShrinkType				mShrinkToChildren;
 	bool					mSkipHiddenChildren;
+	
 
 };
 

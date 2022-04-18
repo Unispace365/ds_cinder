@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <assemblyIdentity type="win32" name="gstreamer" version="1.0.0.0" />
+	<!-- Gstreamer Deps -->
+	<file name="MediaInfo.dll" />
+	<file name="gio-2.0-0.dll" />
+	<file name="gmodule-2.0-0.dll" />
+	<file name="gstapp-1.0-0.dll" />
+	<file name="gstbase-1.0-0.dll" />
+	<file name="gstgl-1.0-0.dll" />
+	<file name="gstnet-1.0-0.dll" />
+	<file name="gstreamer-1.0-0.dll" />
+	<file name="gstvideo-1.0-0.dll" />
+	<file name="libiconv-2.dll" />
+	<file name="orc-0.4-0.dll" />
+</assembly>

@@ -37,6 +37,8 @@ void LayoutSprite::runLayout(){
 		runFlowLayout(true, true);
 	} else if(mLayoutType == kLayoutHWrap){
 		runFlowLayout(false, true);
+	}else if (mLayoutType == kLayoutFlex) {
+		runFlexLayout();
 	}
 
 	onLayoutUpdate();
@@ -370,6 +372,67 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 	}
 }
 
+void LayoutSprite::runFlexLayout(bool calculate)
+{
+	//mParentYogaNode->clearChildren();
+
+	std::function<void(std::vector<ds::ui::Sprite*>)> setupAutosizeChildren = [this, &setupAutosizeChildren](std::vector<ds::ui::Sprite*> children) {
+		for (auto chillin : children) {
+			chillin->setFlexboxAutoSizes();
+			if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+				if (ls->getLayoutType() == kLayoutFlex) {
+					setupAutosizeChildren(ls->getChildren());
+				}
+			}
+		}
+	};
+
+	setupAutosizeChildren(mChildren);
+
+	
+	
+	std::function<void(std::vector<ds::ui::Sprite*>)> updateChildren = [this,&updateChildren](std::vector<ds::ui::Sprite*> children) {
+		for (auto chillin : children) {
+			chillin->setSpriteFromFlexbox();
+			if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+				if (ls->getLayoutType() != kLayoutFlex) {
+					ls->runLayout();
+				}
+				else {
+					updateChildren(ls->getChildren());
+				}
+
+			}
+		}
+	};
+	
+	if (calculate) {
+
+		//if (mYogaNode->getOwner() == nullptr) {
+			YGNodeCalculateLayout(mYogaNode, getScaleWidth(), getScaleHeight(), YGNodeStyleGetDirection(mYogaNode));
+			setSpriteFromFlexbox();
+			updateChildren(mChildren);
+			//node->setDirty(false);
+		//}
+	}
+}
+
+void LayoutSprite::addChild(Sprite& child)
+{
+	//check if the node has a parent. ds_cinder allows moving a child with a parent
+	//but yoga does not. so we have to clear the parent first.
+	
+	auto parent_node = YGNodeGetParent(child.getYogaNode());
+	if (parent_node) {
+		YGNodeRemoveChild(parent_node, child.getYogaNode());
+	}
+	YGNodeSetMeasureFunc(mYogaNode, nullptr);
+
+	YGNodeInsertChild(mYogaNode, child.getYogaNode(), mYogaNode->getChildren().size());
+
+	Sprite::addChild(child);
+}
+
 void LayoutSprite::onLayoutUpdate(){
 	if(mLayoutUpdatedFunction){
 		mLayoutUpdatedFunction();
@@ -392,9 +455,17 @@ void LayoutSprite::fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const boo
 	// w = ah;
 	const float spriteAspect = sp->getWidth() / sp->getHeight();
 	const float areaAspect = area.getWidth() / area.getHeight();
+	bool finalLetterbox = letterbox;
 	float destScale = sp->getScale().x;
+	if (sp->mLayoutFixedAspectMode == kAspectFill) {
+		finalLetterbox = false;
+	}
+	else if (sp->mLayoutFixedAspectMode == kAspectLetterbox) {
+		finalLetterbox = true;
+	}
 
-	if(letterbox){
+
+	if(finalLetterbox){
 		// When letterboxing, if the sprite is narrower then the dest area, fill the height
 		if(spriteAspect < areaAspect){
 			destScale = area.getHeight() / sp->getHeight();

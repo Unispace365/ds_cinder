@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d6e91d55d41f729dca94ba5766f57849f29d0796$
+// $hash=34a6559587adbd0dc3143989a8c6e49e0664b43e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -101,8 +101,10 @@ typedef struct _cef_life_span_handler_t {
       int* no_javascript_access);
 
   ///
-  // Called after a new browser is created. This callback will be the first
-  // notification that references |browser|.
+  // Called after a new browser is created. It is now safe to begin performing
+  // actions with |browser|. cef_frame_handler_t callbacks related to initial
+  // main frame creation will arrive before this callback. See
+  // cef_frame_handler_t documentation for additional usage information.
   ///
   void(CEF_CALLBACK* on_after_created)(struct _cef_life_span_handler_t* self,
                                        struct _cef_browser_t* browser);
@@ -202,13 +204,14 @@ typedef struct _cef_life_span_handler_t {
   ///
   // Called just before a browser is destroyed. Release all references to the
   // browser object and do not attempt to execute any functions on the browser
-  // object (other than GetIdentifier or IsSame) after this callback returns.
-  // This callback will be the last notification that references |browser| on
-  // the UI thread. Any in-progress network requests associated with |browser|
-  // will be aborted when the browser is destroyed, and
+  // object (other than IsValid, GetIdentifier or IsSame) after this callback
+  // returns. cef_frame_handler_t callbacks related to final main frame
+  // destruction will arrive after this callback and cef_browser_t::IsValid will
+  // return false (0) at that time. Any in-progress network requests associated
+  // with |browser| will be aborted when the browser is destroyed, and
   // cef_resource_request_handler_t callbacks related to those requests may
-  // still arrive on the IO thread after this function is called. See do_close()
-  // documentation for additional usage information.
+  // still arrive on the IO thread after this callback. See cef_frame_handler_t
+  // and do_close() documentation for additional usage information.
   ///
   void(CEF_CALLBACK* on_before_close)(struct _cef_life_span_handler_t* self,
                                       struct _cef_browser_t* browser);

@@ -61,6 +61,8 @@ void Border::setBorderWidth(const float borderWidth) {
 }
 
 void Border::drawLocalClient() {
+	const float renderWidth = mBorderWidth * (mEngine.getDstRect().getWidth()/mEngine.getSrcRect().getWidth());
+
 	if(mCornerRadius < 1.0f
 	   && mRenderBatch && mLeftBatch && mRightBatch && mBotBatch
 	   ){
@@ -71,14 +73,14 @@ void Border::drawLocalClient() {
 		mBotBatch->draw();
 
 	} else if(mRenderBatch){
-		ci::gl::lineWidth(mBorderWidth);
+		ci::gl::lineWidth(renderWidth);
 		mRenderBatch->draw();
 
 	} else if(mCornerRadius > 1.0f){
-		ci::gl::lineWidth(mBorderWidth);
+		ci::gl::lineWidth(renderWidth);
 		ci::gl::drawStrokedRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
-		ci::gl::drawStrokedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mBorderWidth); 
+		ci::gl::drawStrokedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), renderWidth); 
 	} 
 
 }
@@ -102,6 +104,8 @@ void Border::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 }
 
 void Border::onBuildRenderBatch() {
+	const float renderWidth = mBorderWidth * (mEngine.getDstRect().getWidth()/mEngine.getSrcRect().getWidth());
+
 	const float w = getWidth();
 	const float h = getHeight();
 	auto rect = ci::Rectf(0.0f, 0.0f, w, h);
@@ -124,10 +128,10 @@ void Border::onBuildRenderBatch() {
 		Border goes on the inside when there's no corner radius
 		*/
 
-		ci::Rectf topRect = ci::Rectf(0.0f, 0.0f, w, mBorderWidth);
-		ci::Rectf botRect = ci::Rectf(0.0f, h - mBorderWidth, w, h);
-		ci::Rectf lefRect = ci::Rectf(0.0f, mBorderWidth, mBorderWidth, h - mBorderWidth);
-		ci::Rectf rigRect = ci::Rectf(w - mBorderWidth, mBorderWidth, w, h - mBorderWidth);
+		ci::Rectf topRect = ci::Rectf(0.0f, 0.0f, w, renderWidth);
+		ci::Rectf botRect = ci::Rectf(0.0f, h - renderWidth, w, h);
+		ci::Rectf lefRect = ci::Rectf(0.0f, renderWidth, renderWidth, h - renderWidth);
+		ci::Rectf rigRect = ci::Rectf(w - renderWidth, renderWidth, w, h - renderWidth);
 
 		auto topMesh = ci::gl::VboMesh::create(ci::geom::Rect(topRect));
 		auto botMesh = ci::gl::VboMesh::create(ci::geom::Rect(botRect));

@@ -121,6 +121,12 @@ NET_ERROR(BLOCKED_BY_RESPONSE, -27)
 // requests. Used for NetworkSecurityPolicy on Android.
 NET_ERROR(CLEARTEXT_NOT_PERMITTED, -29)
 
+// The request was blocked by a Content Security Policy
+NET_ERROR(BLOCKED_BY_CSP, -30)
+
+// The request was blocked because of no H/2 or QUIC session.
+NET_ERROR(H2_OR_QUIC_REQUIRED, -31)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 
@@ -174,12 +180,7 @@ NET_ERROR(SSL_RENEGOTIATION_REQUESTED, -114)
 // unsupported method.
 NET_ERROR(PROXY_AUTH_UNSUPPORTED, -115)
 
-// During SSL renegotiation (rehandshake), the server sent a certificate with
-// an error.
-//
-// Note: this error is not in the -2xx range so that it won't be handled as a
-// certificate error.
-NET_ERROR(CERT_ERROR_IN_SSL_RENEGOTIATION, -116)
+// Error -116 was removed (CERT_ERROR_IN_SSL_RENEGOTIATION)
 
 // The SSL handshake failed because of a bad or missing client certificate.
 NET_ERROR(BAD_SSL_CLIENT_AUTH_CERT, -117)
@@ -220,8 +221,7 @@ NET_ERROR(SSL_BAD_RECORD_MAC_ALERT, -126)
 // The proxy requested authentication (for tunnel establishment).
 NET_ERROR(PROXY_AUTH_REQUESTED, -127)
 
-// The SSL server attempted to use a weak ephemeral Diffie-Hellman key.
-NET_ERROR(SSL_WEAK_SERVER_EPHEMERAL_DH_KEY, -129)
+// Error -129 was removed (SSL_WEAK_SERVER_EPHEMERAL_DH_KEY).
 
 // Could not create a connection to the proxy server. An error occurred
 // either in resolving its name, or in connecting a socket to it.
@@ -425,6 +425,17 @@ NET_ERROR(TLS13_DOWNGRADE_DETECTED, -180)
 // negotiated TLS key exchange method.
 NET_ERROR(SSL_KEY_USAGE_INCOMPATIBLE, -181)
 
+// The ECHConfigList fetched over DNS cannot be parsed.
+NET_ERROR(INVALID_ECH_CONFIG_LIST, -182)
+
+// ECH was enabled, but the server was unable to decrypt the encrypted
+// ClientHello.
+NET_ERROR(ECH_NOT_NEGOTIATED, -183)
+
+// ECH was enabled, the server was unable to decrypt the encrypted ClientHello,
+// and additionally did not present a certificate valid for the public name.
+NET_ERROR(ECH_FALLBACK_CERTIFICATE_INVALID, -184)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.
@@ -539,13 +550,20 @@ NET_ERROR(CERT_SYMANTEC_LEGACY, -215)
 // -216 was QUIC_CERT_ROOT_NOT_KNOWN which has been renumbered to not be in the
 // certificate error range.
 
+// The certificate is known to be used for interception by an entity other
+// the device owner.
+NET_ERROR(CERT_KNOWN_INTERCEPTION_BLOCKED, -217)
+
+// -218 was SSL_OBSOLETE_VERSION which is not longer used. TLS 1.0/1.1 instead
+// cause SSL_VERSION_OR_CIPHER_MISMATCH now.
+
 // Add new certificate error codes here.
 //
 // Update the value of CERT_END whenever you add a new certificate error
 // code.
 
 // The value immediately past the last certificate error code.
-NET_ERROR(CERT_END, -217)
+NET_ERROR(CERT_END, -219)
 
 // The URL is invalid.
 NET_ERROR(INVALID_URL, -300)
@@ -784,6 +802,10 @@ NET_ERROR(HTTP_RESPONSE_CODE_FAILURE, -379)
 // are allowed.
 NET_ERROR(QUIC_CERT_ROOT_NOT_KNOWN, -380)
 
+// A GOAWAY frame has been received indicating that the request has not been
+// processed and is therefore safe to retry on a different connection.
+NET_ERROR(QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED, -381)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
@@ -850,8 +872,19 @@ NET_ERROR(ADD_USER_CERT_FAILED, -503)
 // An error occurred while handling a signed exchange.
 NET_ERROR(INVALID_SIGNED_EXCHANGE, -504)
 
-// An error occurred while handling a bundled-exchanges source.
-NET_ERROR(INVALID_BUNDLED_EXCHANGES, -505)
+// An error occurred while handling a Web Bundle source.
+NET_ERROR(INVALID_WEB_BUNDLE, -505)
+
+// A Trust Tokens protocol operation-executing request failed for one of a
+// number of reasons (precondition failure, internal error, bad response).
+NET_ERROR(TRUST_TOKEN_OPERATION_FAILED, -506)
+
+// When handling a Trust Tokens protocol operation-executing request, the system
+// was able to execute the request's Trust Tokens operation without sending the
+// request to its destination: for instance, the results could have been present
+// in a local cache (for redemption) or the operation could have been diverted
+// to a local provider (for "platform-provided" issuance).
+NET_ERROR(TRUST_TOKEN_OPERATION_SUCCESS_WITHOUT_SENDING_REQUEST, -507)
 
 // *** Code -600 is reserved (was FTP_PASV_COMMAND_FAILED). ***
 
@@ -965,5 +998,15 @@ NET_ERROR(DNS_SEARCH_EMPTY, -805)
 // Failed to sort addresses according to RFC3484.
 NET_ERROR(DNS_SORT_ERROR, -806)
 
-// Failed to resolve over HTTP, fallback to legacy
-NET_ERROR(DNS_HTTP_FAILED, -807)
+// Error -807 was removed (DNS_HTTP_FAILED)
+
+// Failed to resolve the hostname of a DNS-over-HTTPS server.
+NET_ERROR(DNS_SECURE_RESOLVER_HOSTNAME_RESOLUTION_FAILED, -808)
+
+// DNS identified the request as disallowed for insecure connection (http/ws).
+// Error should be handled as if an HTTP redirect was received to redirect to
+// https or wss.
+NET_ERROR(DNS_NAME_HTTPS_ONLY, -809)
+
+// All DNS requests associated with this job have been cancelled.
+NET_ERROR(DNS_REQUEST_CANCELLED, -810)

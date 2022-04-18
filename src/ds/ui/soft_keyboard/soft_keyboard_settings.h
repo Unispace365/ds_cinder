@@ -81,7 +81,7 @@ public:
 			mKeyShiftDnImage = mKeyShiftUpImage;
 		}
 
-		if(mKeyDnTextConfig.empty() || mKeyDnTextConfig.empty()){
+		if(mKeyDnTextConfig.empty()){
 			mKeyDnTextConfig = mKeyUpTextConfig;
 		}
 		if(mKeyTabUpImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyTabUpImage))){

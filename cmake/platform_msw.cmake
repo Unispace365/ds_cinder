@@ -153,7 +153,7 @@ endif()
 
 # GStreamer and its dependencies.
 # GStreamer
-list( APPEND DS_CINDER_LIBS_DEPENDS "${GSTREAMER_1_0_ROOT_X86_64}/lib/" )
+list( APPEND DS_CINDER_LIBS_DEPENDS "${GSTREAMER_1_0_ROOT_MSVC_X86_64}/lib/" )
 list( APPEND DS_CINDER_INCLUDE_SYSTEM_PRIVATE "${Fontconfig_INCLUE_DIR}" )
 
 # find_package( GStreamer REQUIRED )

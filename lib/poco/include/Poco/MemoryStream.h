@@ -1,8 +1,6 @@
 //
 // MemoryStream.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/MemoryStream.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  MemoryStream
@@ -174,7 +172,7 @@ private:
 //
 // We provide an instantiation for char
 //
-typedef BasicMemoryStreamBuf<char, std::char_traits<char> > MemoryStreamBuf;
+typedef BasicMemoryStreamBuf<char, std::char_traits<char>> MemoryStreamBuf;
 
 
 class Foundation_API MemoryIOS: public virtual std::ios

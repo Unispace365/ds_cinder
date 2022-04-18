@@ -5,6 +5,7 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
+#include "ds/cfg/settings.h"
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
@@ -15,7 +16,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/content/content_events.h"
-#include "ds/network/https_client.h"
+
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
@@ -35,6 +36,7 @@
 #include <Poco/Path.h>
 #include <cinder/ip/Flip.h>
 #include <cinder/ImageIo.h>
+#include <cinder/CinderImGui.h>
 
 #ifndef _WIN32
 // For access to Linux native GLFW window calls
@@ -140,7 +142,7 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
-
+	
 	setupKeyPresses();
 
 	mEngineSettings.printStartupInfo();
@@ -184,6 +186,8 @@ App::~App() {
 	mEngine.recordMetric("engine", "shutdown", 1);
 	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
 
+	if(mSyncService) delete mSyncService;
+
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 }
@@ -220,8 +224,90 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 }
 
 void App::loadAppSettings() {
-	// Fonts links together a font name and a physical font file
-	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
+
+	bool hasLegacySettings = false;
+
+	// After registration, colors can be called by name from settings files or in the app (deprecated)
+	if (ds::Environment::hasSettings("colors.xml")) {
+		hasLegacySettings = true;
+		// Colors
+		mEngine.loadSettings("colors", "colors.xml");
+
+		mEngine.editColors().clear();
+		mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
+		mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
+		mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+			mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
+		}, ds::cfg::SETTING_TYPE_COLOR);
+	}
+
+	/* Settings */
+	mEngine.loadSettings("app_settings", "app_settings.xml");
+
+	// Text is the old text styles format (deprecated)
+	if (ds::Environment::hasSettings("text.xml")) {
+		hasLegacySettings = true;
+		mEngine.loadTextCfg("text.xml");
+	}
+	
+
+	if (hasLegacySettings) {
+		mEngine.loadSettings("styles", "");
+		DS_LOG_INFO("---------------------------------------------");
+		DS_LOG_INFO("Detected a colors.xml or text.xml file, merging into styles.xml.");
+		DS_LOG_INFO("Save styles.xml from the settings editor and delete the old settings files.");
+		DS_LOG_INFO("---------------------------------------------");
+
+
+		mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+			mEngine.getSettings("styles").addSetting(theSetting);
+		});
+
+		auto& allTextStyles = mEngine.getEngineCfg().getAllTextStyles();
+		for (auto it :  allTextStyles) {
+			auto newSetting = ds::cfg::Settings::Setting();
+			newSetting.mName = it.second.mName;
+			newSetting.mType = ds::cfg::SETTING_TYPE_TEXT_STYLE;
+			newSetting.mRawValue = ds::ui::TextStyle::settingFromTextStyle(mEngine, it.second);
+			mEngine.getSettings("styles").addSetting(newSetting);
+		}
+
+		int colorOrder = 1; 
+		int textOrder = 2000000;  // god help you if you have more than 2,000,000 color settings
+
+		auto colorHeader = ds::cfg::Settings::Setting();
+		colorHeader.mName = "COLORS";
+		colorHeader.mType = ds::cfg::SETTING_TYPE_SECTION_HEADER;
+		colorHeader.mReadIndex = colorOrder;
+		mEngine.getSettings("styles").addSetting(colorHeader);
+
+		auto textSTylesH = ds::cfg::Settings::Setting();
+		textSTylesH.mName = "TEXT STYLES";
+		textSTylesH.mType = ds::cfg::SETTING_TYPE_SECTION_HEADER;
+		textSTylesH.mReadIndex = textOrder;
+		mEngine.getSettings("styles").addSetting(textSTylesH);
+
+		auto& readSettings = mEngine.getSettings("styles").mSettings;
+
+		for (auto& sit : readSettings) {
+			for (auto& it : sit.second) {
+				if (it.mType == ds::cfg::SETTING_TYPE_COLOR) {
+					it.mReadIndex = colorOrder++;
+				} else if (it.mType == ds::cfg::SETTING_TYPE_TEXT_STYLE) {
+					it.mReadIndex = textOrder++;
+				}
+			}
+		}
+	} else {
+		mEngine.loadSettings("styles", "styles.xml");
+	}
+
+
+
+	mEngine.editFonts().clear();
+	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName, theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_STRING);
 
 	if (ds::safeFileExistsCheck(ds::Environment::expand("%APP%/settings/fonts.xml"), false)) {
 		mEngine.loadSettings("fonts", "fonts.xml");
@@ -245,21 +331,6 @@ void App::loadAppSettings() {
 		}
 	}
 
-
-	// Colors
-	// After registration, colors can be called by name from settings files or in the app
-	mEngine.editColors().clear();
-	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
-	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
-	mEngine.loadSettings("colors", "colors.xml");
-	mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
-		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
-	}, ds::cfg::SETTING_TYPE_COLOR);
-
-	/* Settings */
-	mEngine.loadSettings("app_settings", "app_settings.xml");
-	mEngine.loadTextCfg("text.xml");
-
 	mEngine.loadSettings("tuio_inputs", "tuio_inputs.xml");
 }
 
@@ -267,14 +338,19 @@ void App::setup() {
 	inherited::setup();
 
 	mEngine.getPangoFontService().loadFonts();
-	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
+	mEngine.setup(*this);
 
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
 #endif
 
 	mEngine.getLoadImageService().initialize();
+	ImGui::Initialize();
+
+	if (mEngine.getEngineSettings().getBool("run_downsync_as_subprocess",0,true)) {
+		launchSyncService();
+	}
 }
 
 void App::resetupServerOnDisplayChange() {
@@ -304,6 +380,24 @@ void App::preServerSetup() {
 	for(auto it : get_setups()) {
 		it(mEngine);
 	}
+
+
+	/// NOTE: This happens here because the app settings occurs in the step above
+	mEngine.getSettings("styles").replaceSettingVariablesAndExpressions();
+
+	// Colors
+	// After registration, colors can be called by name from settings files or in the app
+	mEngine.editColors().clear();
+	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
+	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
+	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
+
+	mEngine.getEngineCfg().clearTextStyles();
+	mEngine.getSettings("styles").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.getEngineCfg().setTextStyle(theSetting.mName, ds::ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString()));
+	}, ds::cfg::SETTING_TYPE_TEXT_STYLE);
 }
 
 void App::update() {
@@ -350,6 +444,7 @@ void App::update() {
 
 void App::draw() {
 	mEngine.draw();
+	ImGui::Render();
 }
 void App::mouseDown(ci::app::MouseEvent e) {
 	mTouchDebug.mouseDown(e);
@@ -374,14 +469,21 @@ void App::touchesBegan(ci::app::TouchEvent e) {
 	if(mEngine.getAutoHideMouse()) {
 		mEngine.setHideMouse(true);
 	}
+
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesBegin(e);
 }
 
 void App::touchesMoved(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesMoved(e);
 }
 
 void App::touchesEnded(ci::app::TouchEvent e) {
+	// NOTE: Implicit conversion happens here
+	// from ci::app::TouchEvent to ds::ui::TouchEvent
 	mEngine.touchesEnded(e);
 }
 
@@ -449,6 +551,54 @@ void App::debugEnabledSprites() {
 				if(!texty || (texty && texty->getSpriteName() != L"debug_text")) sprite.setTransparent(true);
 			}
 		}, true);
+	}
+}
+
+#define CN_BUFSIZE 256
+void App::launchSyncService()
+{
+	//fireup downsync
+	if (mSyncService == nullptr) {
+		mSyncService = new ds::content::SyncService(mEngine);
+		ds::content::SyncSettings settings;
+
+		settings.name = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_name", 0, ""));
+		if (settings.name == "%AUTO%") {
+			// make a buffer for the computer name
+			DWORD bufsize = CN_BUFSIZE;
+			char  computername_buffer[CN_BUFSIZE];
+			memset(computername_buffer, 0, CN_BUFSIZE);
+
+			// get the forrealz computer name.
+			GetComputerNameExA(COMPUTER_NAME_FORMAT::ComputerNameDnsHostname, computername_buffer, &bufsize);
+			settings.name = std::string(computername_buffer);
+		}
+		settings.server = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_server", 0, ""));
+		if (settings.server == "%AUTO%") {
+			settings.server = mEngine.getEngineSettings().getString("cms:url");
+		}
+
+		settings.token = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_token", 0, ""));
+		settings.directory = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_directory", 0, ""));
+		//optional settings
+		settings.interval = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_interval", 0, ""));
+		settings.rate_decay = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_rate_decay", 0, ""));
+		settings.rate_qty = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_rate_quantity", 0, ""));
+		settings.udp_port = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_upd_port", 0, ""));
+		settings.verbosity = ds::Environment::expand(
+			mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
+
+		mSyncService->initialize(settings);
+		registerKeyPress(
+			"Toggle Downsync output", [this] { mSyncService->toggleOutput(); }, ci::app::KeyEvent::KEY_SLASH, true);
 	}
 }
 

@@ -1,4 +1,21 @@
 -----------------------------
+DS Cinder Version 106.0.0
+-----------------------------
+
+- Moved to Visual Studio 19 & C++17
+- Supports Cinder 0.9.3 ( now a submodule )
+- Moves DLLs to specific directories
+- text.xml + colors.xml combined into styles.xml
+- Added Yoga layouts
+- Reduce re-creation of FBOs
+- Updated Pango/Cairo (from Experimental Gstreamer 1.19.3) for glyph caching crash fix
+- Integrated downsync
+- Updated poco to latest version
+- Adds DummyWeb project for supporting viewers without CEF
+- Updated to Gstreamer 1.18.5
+- Improved LoadImageService to reduce lag & stale textures
+
+-----------------------------
 DS Cinder Version 105.0.0
 -----------------------------
 

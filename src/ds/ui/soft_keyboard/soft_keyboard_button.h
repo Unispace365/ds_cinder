@@ -64,6 +64,7 @@ protected:
 	ds::ui::Sprite*						mGraphic;
 	ci::Color							mKeyUpColor;
 	ci::Color							mKeyDnColor;
+	double								mLastPressed;
 
 };
 } // namespace ui

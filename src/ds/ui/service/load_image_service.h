@@ -16,7 +16,6 @@ class SpriteEngine;
  */
 class LoadImageService : public ds::AutoUpdate {
 public:
-
 	typedef std::function<void(ci::gl::TextureRef, const bool errored, const std::string& errMsg)> LoadedCallback;
 
 	LoadImageService(SpriteEngine& eng);
@@ -106,7 +105,11 @@ private:
 
 	bool												mShouldQuit;
 
-	bool												mTextureOnMainThread;
+	bool												mTextureOnMainThread; 
+	bool												mCacheEverything;
+
+protected:
+	void handleImageLoadRequest(ImageLoadRequest&);
 };
 
 }

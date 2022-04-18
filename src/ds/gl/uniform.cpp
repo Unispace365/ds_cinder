@@ -195,7 +195,7 @@ void Uniform::applyTo(ci::gl::GlslProgRef shader) const {
 		{
 			local_visitor.mData = it->second.second;
 			local_visitor.mName = it->first;
-			boost::apply_visitor(local_visitor, it->second.first);
+			std::visit(local_visitor, it->second.first);
 		}
 	}
 }

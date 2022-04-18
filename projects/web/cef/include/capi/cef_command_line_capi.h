@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=72ba5fe0cc6fe8081ec7b2b556e9022d1c6e8c61$
+// $hash=3049c9960a95d32d61cc57ae998c0eba12820673$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
@@ -53,8 +53,9 @@ extern "C" {
 // optionally have a value specified using the '=' delimiter (e.g.
 // "-switch=value"). An argument of "--" will terminate switch parsing with all
 // subsequent tokens, regardless of prefix, being interpreted as non-switch
-// arguments. Switch names are considered case-insensitive. This structure can
-// be used before cef_initialize() is called.
+// arguments. Switch names should be lowercase ASCII and will be converted to
+// such if necessary. Switch values will retain the original case and UTF8
+// encoding. This structure can be used before cef_initialize() is called.
 ///
 typedef struct _cef_command_line_t {
   ///
@@ -199,13 +200,13 @@ typedef struct _cef_command_line_t {
 ///
 // Create a new cef_command_line_t instance.
 ///
-CEF_EXPORT cef_command_line_t* cef_command_line_create();
+CEF_EXPORT cef_command_line_t* cef_command_line_create(void);
 
 ///
 // Returns the singleton global cef_command_line_t object. The returned object
 // will be read-only.
 ///
-CEF_EXPORT cef_command_line_t* cef_command_line_get_global();
+CEF_EXPORT cef_command_line_t* cef_command_line_get_global(void);
 
 #ifdef __cplusplus
 }

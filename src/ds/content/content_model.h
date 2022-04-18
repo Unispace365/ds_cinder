@@ -53,6 +53,7 @@ class ContentProperty {
 	/// The name, value and resource are equal
 	bool operator==(const ContentProperty&) const;
 
+	bool empty() const;
 	/// ------- This value, type converted when called --------- //
 
 	bool   getBool() const;
@@ -134,6 +135,11 @@ class ContentModelRef {
 	/// Tests if this ContentModelRef has the same Id, Name, Label and underlying data pointer
 	bool operator==(const ContentModelRef&) const;
 
+	bool weakEqual(const ContentModelRef & b) const;
+
+	bool equalChildrenAndReferences(const ContentModelRef& b, std::vector<std::pair<void*, void*>>& alreadyChecked) const;
+
+	bool operator!=(const ContentModelRef&) const;
 
 	/// Use this for looking stuff up only. Recommend using the other functions to manage the list
 	const std::map<std::string, ContentProperty>& getProperties();

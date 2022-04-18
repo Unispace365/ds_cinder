@@ -5,321 +5,315 @@
 #include "mupdf/fitz/context.h"
 #include "mupdf/fitz/geometry.h"
 #include "mupdf/fitz/font.h"
-#include "mupdf/fitz/colorspace.h"
 #include "mupdf/fitz/image.h"
 #include "mupdf/fitz/output.h"
 #include "mupdf/fitz/device.h"
 
-/*
+/**
+	Simple text layout (for use with annotation editing primarily).
+*/
+typedef struct fz_layout_char
+{
+	float x, w;
+	const char *p; /* location in source text of character */
+	struct fz_layout_char *next;
+} fz_layout_char;
+
+typedef struct fz_layout_line
+{
+	float x, y, h;
+	const char *p; /* location in source text of start of line */
+	fz_layout_char *text;
+	struct fz_layout_line *next;
+} fz_layout_line;
+
+typedef struct
+{
+	fz_pool *pool;
+	fz_matrix matrix;
+	fz_matrix inv_matrix;
+	fz_layout_line *head, **tailp;
+	fz_layout_char **text_tailp;
+} fz_layout_block;
+
+/**
+	Create a new layout block, with new allocation pool, zero
+	matrices, and initialise linked pointers.
+*/
+fz_layout_block *fz_new_layout(fz_context *ctx);
+
+/**
+	Drop layout block. Free the pool, and linked blocks.
+
+	Never throws exceptions.
+*/
+void fz_drop_layout(fz_context *ctx, fz_layout_block *block);
+
+/**
+	Add a new line to the end of the layout block.
+*/
+void fz_add_layout_line(fz_context *ctx, fz_layout_block *block, float x, float y, float h, const char *p);
+
+/**
+	Add a new char to the line at the end of the layout block.
+*/
+void fz_add_layout_char(fz_context *ctx, fz_layout_block *block, float x, float w, const char *p);
+
+/**
 	Text extraction device: Used for searching, format conversion etc.
 
 	(In development - Subject to change in future versions)
 */
 
-typedef struct fz_stext_style_s fz_stext_style;
-typedef struct fz_stext_char_s fz_stext_char;
-typedef struct fz_stext_span_s fz_stext_span;
-typedef struct fz_stext_line_s fz_stext_line;
-typedef struct fz_stext_block_s fz_stext_block;
-typedef struct fz_image_block_s fz_image_block;
-typedef struct fz_page_block_s fz_page_block;
+typedef struct fz_stext_char fz_stext_char;
+typedef struct fz_stext_line fz_stext_line;
+typedef struct fz_stext_block fz_stext_block;
 
-typedef struct fz_stext_sheet_s fz_stext_sheet;
-typedef struct fz_stext_page_s fz_stext_page;
+/**
+	FZ_STEXT_PRESERVE_LIGATURES: If this option is activated
+	ligatures are passed through to the application in their
+	original form. If this option is deactivated ligatures are
+	expanded into their constituent parts, e.g. the ligature ffi is
+	expanded into three separate characters f, f and i.
 
-/*
-	FZ_STEXT_PRESERVE_LIGATURES: If this option is activated ligatures
-	are passed through to the application in their original form. If
-	this option is deactivated ligatures are expanded into their
-	constituent parts, e.g. the ligature ffi is expanded into three
-	separate characters f, f and i.
+	FZ_STEXT_PRESERVE_WHITESPACE: If this option is activated
+	whitespace is passed through to the application in its original
+	form. If this option is deactivated any type of horizontal
+	whitespace (including horizontal tabs) will be replaced with
+	space characters of variable width.
 
-	FZ_STEXT_PRESERVE_WHITESPACE: If this option is activated whitespace
-	is passed through to the application in its original form. If this
-	option is deactivated any type of horizontal whitespace (including
-	horizontal tabs) will be replaced with space characters of variable
-	width.
+	FZ_STEXT_PRESERVE_IMAGES: If this option is set, then images
+	will be stored in the structured text structure. The default is
+	to ignore all images.
+
+	FZ_STEXT_INHIBIT_SPACES: If this option is set, we will not try
+	to add missing space characters where there are large gaps
+	between characters.
+
+	FZ_STEXT_DEHYPHENATE: If this option is set, hyphens at the
+	end of a line will be removed and the lines will be merged.
+
+	FZ_STEXT_PRESERVE_SPANS: If this option is set, spans on the same line
+	will not be merged. Each line will thus be a span of text with the same
+	font, colour, and size.
 */
 enum
 {
 	FZ_STEXT_PRESERVE_LIGATURES = 1,
 	FZ_STEXT_PRESERVE_WHITESPACE = 2,
+	FZ_STEXT_PRESERVE_IMAGES = 4,
+	FZ_STEXT_INHIBIT_SPACES = 8,
+	FZ_STEXT_DEHYPHENATE = 16,
+	FZ_STEXT_PRESERVE_SPANS = 32,
 };
 
-/*
-	fz_stext_sheet: A text sheet contains a list of distinct text styles
-	used on a page (or a series of pages).
+/**
+	A text page is a list of blocks, together with an overall
+	bounding box.
 */
-struct fz_stext_sheet_s
+typedef struct
 {
-	int maxid;
-	fz_stext_style *style;
-};
-
-/*
-	fz_stext_style: A text style contains details of a distinct text style
-	used on a page.
-*/
-struct fz_stext_style_s
-{
-	fz_stext_style *next;
-	int id;
-	fz_font *font;
-	float size;
-	int wmode;
-	int script;
-	/* Ascender and Descender only have the conventional sense in
-	 * horizontal mode; in vertical mode they are rotated too - they are
-	 * the maximum and minimum bounds respectively. */
-	float ascender;
-	float descender;
-	/* etc... */
-};
-
-/*
-	fz_stext_page: A text page is a list of page blocks, together with
-	an overall bounding box.
-*/
-struct fz_stext_page_s
-{
+	fz_pool *pool;
 	fz_rect mediabox;
-	int len, cap;
-	fz_page_block *blocks;
-	fz_stext_page *next;
-};
-
-/*
-	fz_page_block: A page block is a typed block pointer.
-*/
-struct fz_page_block_s
-{
-	int type;
-	union
-	{
-		fz_stext_block *text;
-		fz_image_block *image;
-	} u;
-};
+	fz_stext_block *first_block, *last_block;
+} fz_stext_page;
 
 enum
 {
-	FZ_PAGE_BLOCK_TEXT = 0,
-	FZ_PAGE_BLOCK_IMAGE = 1
+	FZ_STEXT_BLOCK_TEXT = 0,
+	FZ_STEXT_BLOCK_IMAGE = 1
 };
 
-/*
-	fz_stext_block: A text block is a list of lines of text. In typical
-	cases this may correspond to a paragraph or a column of text. A
-	collection of blocks makes up a page.
+/**
+	A text block is a list of lines of text (typically a paragraph),
+	or an image.
 */
-struct fz_stext_block_s
+struct fz_stext_block
 {
+	int type;
 	fz_rect bbox;
-	int len, cap;
-	fz_stext_line *lines;
+	union {
+		struct { fz_stext_line *first_line, *last_line; } t;
+		struct { fz_matrix transform; fz_image *image; } i;
+	} u;
+	fz_stext_block *prev, *next;
 };
 
-/*
-	fz_image_block: An image block is an image, together with the  list of lines of text. In typical
-	cases this may correspond to a paragraph or a column of text. A
-	collection of blocks makes up a page.
+/**
+	A text line is a list of characters that share a common baseline.
 */
-struct fz_image_block_s
+struct fz_stext_line
 {
-	fz_rect bbox;
-	fz_matrix mat;
-	fz_image *image;
-	fz_colorspace *cspace;
-	float colors[FZ_MAX_COLORS];
-};
-
-/*
-	fz_stext_line: A text line is a list of text spans, with the same
-	baseline. In typical cases this should correspond (as expected) to
-	complete lines of text. A collection of lines makes up a block.
-*/
-struct fz_stext_line_s
-{
-	fz_stext_span *first_span, *last_span;
-
-	/* Cached information */
-	float distance; /* Perpendicular distance from previous line */
-	fz_rect bbox;
-	void *region; /* Opaque value for matching line masks */
-};
-
-/*
-	fz_stext_span: A text span is a list of characters that share a common
-	baseline/transformation. In typical cases a single span may be enough
-	to represent a complete line. In cases where the text has big gaps in
-	it (perhaps as it crosses columns or tables), a line may be represented
-	by multiple spans.
-*/
-struct fz_stext_span_s
-{
-	int len, cap;
-	fz_stext_char *text;
-	fz_point min; /* Device space */
-	fz_point max; /* Device space */
 	int wmode; /* 0 for horizontal, 1 for vertical */
-	fz_matrix transform; /* e and f are always 0 here */
-	/* Ascender_max and Descender_min only have the conventional sense in
-	 * horizontal mode; in vertical mode they are rotated too - they are
-	 * the maximum and minimum bounds respectively. */
-	float ascender_max; /* Document space */
-	float descender_min; /* Document space */
-	fz_rect bbox; /* Device space */
-
-	/* Cached information */
-	float base_offset; /* Perpendicular distance from baseline of line */
-	float spacing; /* Distance along baseline from previous span in this line (or 0 if first) */
-	int column; /* If non zero, the column that it's in */
-	float column_width; /* Percentage */
-	int align; /* 0 = left, 1 = centre, 2 = right */
-	float indent; /* The indent position for this column. */
-
-	fz_stext_span *next;
-};
-
-/*
-	fz_stext_char: A text char is a unicode character, the style in which
-	is appears, and the point at which it is positioned. Transform
-	(and hence bbox) information is given by the enclosing span.
-*/
-struct fz_stext_char_s
-{
-	fz_point p; /* Device space */
-	int c;
-	fz_stext_style *style;
-};
-
-typedef struct fz_char_and_box_s fz_char_and_box;
-
-struct fz_char_and_box_s
-{
-	int c;
+	fz_point dir; /* normalized direction of baseline */
 	fz_rect bbox;
+	fz_stext_char *first_char, *last_char;
+	fz_stext_line *prev, *next;
+};
+
+/**
+	A text char is a unicode character, the style in which is
+	appears, and the point at which it is positioned.
+*/
+struct fz_stext_char
+{
+	int c;
+	int color; /* sRGB hex color */
+	fz_point origin;
+	fz_quad quad;
+	float size;
+	fz_font *font;
+	fz_stext_char *next;
 };
 
 extern const char *fz_stext_options_usage;
 
-fz_char_and_box *fz_stext_char_at(fz_context *ctx, fz_char_and_box *cab, fz_stext_page *page, int idx);
+/**
+	Create an empty text page.
 
-/*
-	fz_stext_char_bbox: Return the bbox of a text char. Calculated from
-	the supplied enclosing span.
-
-	bbox: A place to store the bbox
-
-	span: The enclosing span
-
-	idx: The index of the char within the span
-
-	Returns bbox (updated)
-
-	Does not throw exceptions
-*/
-fz_rect *fz_stext_char_bbox(fz_context *ctx, fz_rect *bbox, fz_stext_span *span, int idx);
-
-/*
-	fz_new_stext_sheet: Create an empty style sheet.
-
-	The style sheet is filled out by the text device, creating
-	one style for each unique font, color, size combination that
-	is used.
-*/
-fz_stext_sheet *fz_new_stext_sheet(fz_context *ctx);
-void fz_drop_stext_sheet(fz_context *ctx, fz_stext_sheet *sheet);
-
-/*
-	fz_new_stext_page: Create an empty text page.
-
-	The text page is filled out by the text device to contain the blocks,
-	lines and spans of text on the page.
+	The text page is filled out by the text device to contain the
+	blocks and lines of text on the page.
 
 	mediabox: optional mediabox information.
 */
-fz_stext_page *fz_new_stext_page(fz_context *ctx, const fz_rect *mediabox);
+fz_stext_page *fz_new_stext_page(fz_context *ctx, fz_rect mediabox);
 void fz_drop_stext_page(fz_context *ctx, fz_stext_page *page);
 
-void fz_analyze_text(fz_context *ctx, fz_stext_sheet *sheet, fz_stext_page *page);
-
-/*
-	fz_print_stext_sheet: Output a text sheet to a file as CSS.
+/**
+	Output structured text to a file in HTML (visual) format.
 */
-void fz_print_stext_sheet(fz_context *ctx, fz_output *out, fz_stext_sheet *sheet);
+void fz_print_stext_page_as_html(fz_context *ctx, fz_output *out, fz_stext_page *page, int id);
+void fz_print_stext_header_as_html(fz_context *ctx, fz_output *out);
+void fz_print_stext_trailer_as_html(fz_context *ctx, fz_output *out);
 
-/*
-	fz_print_stext_page_html: Output a page to a file in HTML format.
+/**
+	Output structured text to a file in XHTML (semantic) format.
 */
-void fz_print_stext_page_html(fz_context *ctx, fz_output *out, fz_stext_page *page);
+void fz_print_stext_page_as_xhtml(fz_context *ctx, fz_output *out, fz_stext_page *page, int id);
+void fz_print_stext_header_as_xhtml(fz_context *ctx, fz_output *out);
+void fz_print_stext_trailer_as_xhtml(fz_context *ctx, fz_output *out);
 
-/*
-	fz_print_stext_page_xml: Output a page to a file in XML format.
+/**
+	Output structured text to a file in XML format.
 */
-void fz_print_stext_page_xml(fz_context *ctx, fz_output *out, fz_stext_page *page);
+void fz_print_stext_page_as_xml(fz_context *ctx, fz_output *out, fz_stext_page *page, int id);
 
-/*
-	fz_print_stext_page: Output a page to a file in UTF-8 format.
+/**
+	Output structured text to a file in JSON format.
 */
-void fz_print_stext_page(fz_context *ctx, fz_output *out, fz_stext_page *page);
+void fz_print_stext_page_as_json(fz_context *ctx, fz_output *out, fz_stext_page *page, float scale);
 
-/*
-	fz_search_stext_page: Search for occurrence of 'needle' in text page.
-
-	Return the number of hits and store hit bboxes in the passed in array.
-
-	NOTE: This is an experimental interface and subject to change without notice.
+/**
+	Output structured text to a file in plain-text UTF-8 format.
 */
-int fz_search_stext_page(fz_context *ctx, fz_stext_page *text, const char *needle, fz_rect *hit_bbox, int hit_max);
+void fz_print_stext_page_as_text(fz_context *ctx, fz_output *out, fz_stext_page *page);
 
-/*
-	fz_highlight_selection: Return a list of rectangles to highlight given a selection rectangle.
+/**
+	Search for occurrence of 'needle' in text page.
 
-	NOTE: This is an experimental interface and subject to change without notice.
+	Return the number of hits and store hit quads in the passed in
+	array.
+
+	NOTE: This is an experimental interface and subject to change
+	without notice.
 */
-int fz_highlight_selection(fz_context *ctx, fz_stext_page *page, fz_rect rect, fz_rect *hit_bbox, int hit_max);
+int fz_search_stext_page(fz_context *ctx, fz_stext_page *text, const char *needle, fz_quad *quads, int max_quads);
 
-/*
-	fz_copy_selection: Return a newly allocated UTF-8 string with the text for a given selection rectangle.
-
-	NOTE: This is an experimental interface and subject to change without notice.
+/**
+	Return a list of quads to highlight lines inside the selection
+	points.
 */
-char *fz_copy_selection(fz_context *ctx, fz_stext_page *page, fz_rect rect);
+int fz_highlight_selection(fz_context *ctx, fz_stext_page *page, fz_point a, fz_point b, fz_quad *quads, int max_quads);
 
-/*
-	struct fz_stext_options: Options for creating a pixmap and draw device.
+enum
+{
+	FZ_SELECT_CHARS,
+	FZ_SELECT_WORDS,
+	FZ_SELECT_LINES,
+};
+
+fz_quad fz_snap_selection(fz_context *ctx, fz_stext_page *page, fz_point *ap, fz_point *bp, int mode);
+
+/**
+	Return a newly allocated UTF-8 string with the text for a given
+	selection.
+
+	crlf: If true, write "\r\n" style line endings (otherwise "\n"
+	only).
 */
-typedef struct fz_stext_options_s fz_stext_options;
+char *fz_copy_selection(fz_context *ctx, fz_stext_page *page, fz_point a, fz_point b, int crlf);
 
-struct fz_stext_options_s
+/**
+	Return a newly allocated UTF-8 string with the text for a given
+	selection rectangle.
+
+	crlf: If true, write "\r\n" style line endings (otherwise "\n"
+	only).
+*/
+char *fz_copy_rectangle(fz_context *ctx, fz_stext_page *page, fz_rect area, int crlf);
+
+/**
+	Options for creating a pixmap and draw device.
+*/
+typedef struct
 {
 	int flags;
-};
-/*
-	fz_parse_stext_options: Parse stext device options from a comma separated key-value string.
+} fz_stext_options;
+
+/**
+	Parse stext device options from a comma separated key-value
+	string.
 */
 fz_stext_options *fz_parse_stext_options(fz_context *ctx, fz_stext_options *opts, const char *string);
 
-/*
-	fz_new_stext_device: Create a device to extract the text on a page.
+/**
+	Create a device to extract the text on a page.
 
-	Gather and sort the text on a page into spans of uniform style,
-	arranged into lines and blocks by reading order. The reading order
-	is determined by various heuristics, so may not be accurate.
+	Gather the text on a page into blocks and lines.
 
-	sheet: The text sheet to which styles should be added. This can
-	either be a newly created (empty) text sheet, or one containing
-	styles from a previous text device. The same sheet cannot be used
-	in multiple threads simultaneously.
+	The reading order is taken from the order the text is drawn in
+	the source file, so may not be accurate.
 
 	page: The text page to which content should be added. This will
 	usually be a newly created (empty) text page, but it can be one
-	containing data already (for example when merging multiple pages,
-	or watermarking).
+	containing data already (for example when merging multiple
+	pages, or watermarking).
 
 	options: Options to configure the stext device.
 */
-fz_device *fz_new_stext_device(fz_context *ctx, fz_stext_sheet *sheet, fz_stext_page *page, const fz_stext_options *options);
+fz_device *fz_new_stext_device(fz_context *ctx, fz_stext_page *page, const fz_stext_options *options);
+
+/**
+	Create a device to OCR the text on the page.
+
+	Renders the page internally to a bitmap that is then OCRd. Text
+	is then forwarded onto the target device.
+
+	target: The target device to receive the OCRd text.
+
+	ctm: The transform to apply to the mediabox to get the size for
+	the rendered page image. Also used to calculate the resolution
+	for the page image. In general, this will be the same as the CTM
+	that you pass to fz_run_page (or fz_run_display_list) to feed
+	this device.
+
+	mediabox: The mediabox (in points). Combined with the CTM to get
+	the bounds of the pixmap used internally for the rendered page
+	image.
+
+	with_list: If with_list is false, then all non-text operations
+	are forwarded instantly to the target device. This results in
+	the target device seeing all NON-text operations, followed by
+	all the text operations (derived from OCR).
+
+	If with_list is true, then all the marking operations are
+	collated into a display list which is then replayed to the
+	target device at the end.
+
+	language: NULL (for "eng"), or a pointer to a string to describe
+	the languages/scripts that should be used for OCR (e.g.
+	"eng,ara").
+*/
+fz_device *fz_new_ocr_device(fz_context *ctx, fz_device *target, fz_matrix ctm, fz_rect mediabox, int with_list, const char *language);
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b1b96b7cb636afbd201b88bc1544afc58099c0b6$
+// $hash=0a206b1c12637c8b04b2815cb3b50f212768ba01$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
@@ -109,7 +109,7 @@ CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
 // high-res time. Can be used by clients to synchronize with the time
 // information in trace events.
 ///
-CEF_EXPORT int64 cef_now_from_system_trace_time();
+CEF_EXPORT int64 cef_now_from_system_trace_time(void);
 
 #ifdef __cplusplus
 }

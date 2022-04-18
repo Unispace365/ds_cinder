@@ -50,11 +50,12 @@ void PanoramicVideo::installSprite(ds::Engine& engine)
 	engine.installSprite(installAsServer, installAsClient);
 }
 
-PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
+PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine, const bool textureInvertX)
 	: ds::ui::Sprite(engine)
 	, mVideoSprite(nullptr)
 	, mInvertX(false)
 	, mInvertY(true)
+	, mTexInvertX(textureInvertX)
 	, mXSensitivity(0.15f)
 	, mYSensitivity(0.15f)
 	, mFov(60.0f)
@@ -71,6 +72,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 #version 150
 uniform mat4	ciModelViewProjection;
 uniform mat3	ciNormalMatrix;
+
 
 in vec4		ciPosition;
 in vec2		ciTexCoord0;
@@ -92,7 +94,7 @@ void main( void )
 	mSphereFragmentShader = R"frag(
 #version 150
 
-uniform sampler2D tex0;
+uniform sampler2D	tex0;
 
 in vec4 Color;
 in vec2 TexCoord0;
@@ -108,8 +110,28 @@ void main() {
 }
 )frag";
 
+	mSphereFragmentShaderInvertX = R"frag(
+#version 150
 
-	mShader = ci::gl::GlslProg::create(mSphereVertexShader, mSphereFragmentShader);
+uniform sampler2D	tex0;
+
+in vec4 Color;
+in vec2 TexCoord0;
+
+out vec4 oColor;
+
+
+void main() {
+    vec2 flippedTexCoord0 = vec2(1-TexCoord0.x, 1-TexCoord0.y);
+    vec4 diffuseColor = texture2D(tex0, flippedTexCoord0);
+	diffuseColor = diffuseColor * Color;
+    oColor = diffuseColor;
+}
+)frag";
+
+	mShader = mTexInvertX
+		? ci::gl::GlslProg::create(mSphereVertexShader, mSphereFragmentShaderInvertX)
+		: ci::gl::GlslProg::create(mSphereVertexShader, mSphereFragmentShader);
 	mSphereVbo = ci::gl::VboMesh::create(ci::geom::Sphere().subdivisions(120).radius(200.0f));
 
 	resetCamera();
@@ -201,7 +223,7 @@ void PanoramicVideo::drawLocalClient(){
 
 		ci::gl::TextureRef videoTexture = mVideoSprite->getFinalOutTexture();
 		if(!videoTexture) return;
-		
+
 		ci::Area newViewportBounds;
 
 		DS_REPORT_GL_ERRORS();
@@ -261,6 +283,23 @@ void PanoramicVideo::resetCamera(){
 	mYRot = -90.0f;
 	mCamera.lookAt(ci::vec3(200.0f, 0.0f, 0.0f));
 
+}
+
+
+/// Get camera rotation independent of sprite getRotation()
+/// Useful for dealing with stablized streams from panoramic cameras
+/// z-axis not implemented
+ci::vec2 PanoramicVideo::getCameraRotation() {
+	return ci::vec2(mXRot, mYRot);
+}
+
+/// Get camera rotation independent of sprite getRotation()
+/// Useful for dealing with stablized streams from panoramic cameras
+/// May not be super safe if player content hasn't been setup yet
+/// z-axis not implemented
+void PanoramicVideo::setCameraRotation(ci::vec2 setter) {
+	mXRot = setter.x;
+	mYRot = setter.y;
 }
 
 void PanoramicVideo::onSizeChanged() {

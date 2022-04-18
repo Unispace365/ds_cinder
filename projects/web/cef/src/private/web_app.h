@@ -26,14 +26,14 @@ public:
 	// CefApp methods:
 	virtual void OnBeforeCommandLineProcessing(
 		const CefString& process_type,
-		CefRefPtr<CefCommandLine> command_line) OVERRIDE;
+		CefRefPtr<CefCommandLine> command_line) override;
 
 	virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
-		OVERRIDE{ return this; }
+		override { return this; }
 
 
 	// CefBrowserProcessHandler methods:
-	virtual void OnContextInitialized() OVERRIDE;
+	virtual void OnContextInitialized() override;
 
 	void		createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent);
 

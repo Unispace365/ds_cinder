@@ -147,6 +147,11 @@ bool ContentProperty::operator==(const ContentProperty& b) const {
 	return mName == b.mName && mValue == b.mValue && sameResource;
 }
 
+bool ContentProperty::empty() const
+{
+	return mName.empty();
+}
+
 bool ContentProperty::getBool() const {
 	return ds::parseBoolean(mValue);
 }
@@ -319,11 +324,26 @@ bool map_compare(Map const &lhs, Map const &rhs) {
 }
 
 bool ContentModelRef::operator==(const ContentModelRef& b) const {
-	if(empty() && b.empty()) return true;
+	std::vector<std::pair<void*, void*>> alreadyChecked;
+
+	//if (weakEqual(b)) {
+	try {
+		return equalChildrenAndReferences(b, alreadyChecked);
+	}
+	catch (...) {
+		return false;
+	}
+	//}
+	//else {
+		//return false;
+	//}
+	/*if(empty() && b.empty()) return true;
 
 	if(!mData && !b.mData) return true;
 
 	if(!mData && b.mData || mData && !b.mData) return false;
+
+	if (mData.get() == b.mData.get()) return true;
 
 	if(mData->mName == b.mData->mName
 	   && mData->mId == b.mData->mId
@@ -338,16 +358,96 @@ bool ContentModelRef::operator==(const ContentModelRef& b) const {
 		if (!map_compare(mData->mPropertyLists, b.mData->mPropertyLists)) {
 			return false;
 		}
+
+		// These two recurse!
 		if(!map_compare(mData->mChildren, b.mData->mChildren)) {
 			return false;
 		}
+		// This fucker is leading to an infinite loop of rechecking :(
 		if (!map_compare(mData->mReferences, b.mData->mReferences)) {
 			return false;
 		}
 		return true;
 	}
 
+	return false;*/
+}
+
+bool ContentModelRef::weakEqual(const ContentModelRef& b) const {
+
+	if (empty() && b.empty()) return true;
+
+	if (!mData && !b.mData) return true;
+
+	if (!mData && b.mData || mData && !b.mData) return false;
+
+	if (mData.get() == b.mData.get()) return true;
+
+	return (
+		   mData->mName == b.mData->mName
+		&& mData->mId == b.mData->mId
+		&& mData->mLabel == b.mData->mLabel
+		&& mData->mUserData == b.mData->mUserData
+		&& mData->mProperties.size() == b.mData->mProperties.size()
+		&& mData->mChildren.size() == b.mData->mChildren.size()
+		&& mData->mReferences.size() == b.mData->mReferences.size()
+		&& map_compare(mData->mProperties, b.mData->mProperties)
+		&& map_compare(mData->mPropertyLists, b.mData->mPropertyLists)
+		);
+}
+
+//Predicate: this & b have equal size children and references
+bool ContentModelRef::equalChildrenAndReferences(const ContentModelRef& b, std::vector<std::pair<void*, void*>>& alreadyChecked) const {
+	if (weakEqual(b)) {
+		if (!mData) return true;
+
+		auto* max = static_cast<void*>(std::max(mData.get(), b.mData.get()));
+		auto* min = static_cast<void*>(std::min(mData.get(), b.mData.get()));
+		if (std::find(alreadyChecked.begin(), alreadyChecked.end(), std::make_pair(min, max)) != alreadyChecked.end()) {
+			return true;
+		}
+
+		for (size_t i = 0; i < mData->mChildren.size(); ++i) {
+			if (!mData->mChildren.at(i).equalChildrenAndReferences(b.mData->mChildren.at(i), alreadyChecked))
+				return false;
+		}
+
+		alreadyChecked.push_back(std::make_pair(min, max));
+
+		auto aIt = mData->mReferences.begin();
+		auto bIt = b.mData->mReferences.begin();
+		while (aIt != mData->mReferences.end() && bIt != b.mData->mReferences.end()) {
+			if (aIt->first == bIt->first && aIt->second.size() == bIt->second.size()) {
+
+				auto aaIt = aIt->second.begin();
+				auto bbIt = bIt->second.begin();
+				while (aaIt != aIt->second.end() && bbIt != bIt->second.end()) {
+					if (aaIt->first != bbIt->first || !aaIt->second.equalChildrenAndReferences(bbIt->second, alreadyChecked)) {
+						return false;
+					}
+					aaIt++;
+					bbIt++;
+				}
+
+			} else {
+				return false;
+			}
+			aIt++;
+			bIt++;
+		}
+
+		return true;
+	}
+
 	return false;
+}
+
+bool ContentModelRef::operator!=(const ContentModelRef& b) const {
+	if (*this == b){
+		return false;
+	} else {
+		return true;
+	}
 }
 
 const std::map<std::string, ContentProperty>& ContentModelRef::getProperties() {

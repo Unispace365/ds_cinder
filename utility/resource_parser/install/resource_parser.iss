@@ -40,7 +40,7 @@
 ; This grabs the full installer script to actually build the thing
 ; Check that file if you have any problems or questions
 ; App binaries, data, and settings (minus configuration.xml) are automatically added
-#include GetEnv('DS_PLATFORM_090') + "/install/base_install.iss"
+#include GetEnv('DS_PLATFORM_093') + "/install/base_install.iss"
 
 
 ; -------- Optional additional stuff

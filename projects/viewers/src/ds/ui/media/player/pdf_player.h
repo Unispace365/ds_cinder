@@ -23,6 +23,11 @@ class PDFPlayer : public ds::ui::IPdf {
   public:
 	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
 
+	enum TouchMode {NORMAL, POS_SCALE};
+	void setTouchMode(TouchMode mode);
+	void setNormalTouch();
+	void setPosScaleTouch();
+
 	void setMedia(const std::string mediaPath);
 	virtual void setResource(const ds::Resource& mediaResource) override;
 
@@ -92,6 +97,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
 	bool									mInterfaceBelowMedia;
+	float									mInterfaceBottomPad = 50.0f;
 	bool									mLetterbox;
 	bool									mShowingLinks = false;
 	bool									mCanShowLinks = true;

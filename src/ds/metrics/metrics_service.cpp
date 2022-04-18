@@ -24,6 +24,7 @@ MetricsService::MetricsService(ds::Engine& eng)
 	if(mActive) {
 		std::string host = mEngine.getEngineSettings().getString("metrics:udp_host");
 		std::string port = mEngine.getEngineSettings().getString("metrics:udp_port");
+		
 		if(mUdpReccy.connect(host, port)) {
 			DS_LOG_INFO("MetricsService: connected to telegraf udp at " << host << ":" << port);
 		}

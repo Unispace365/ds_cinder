@@ -1,9 +1,7 @@
 #ifndef MUPDF_PDF_FONT_H
 #define MUPDF_PDF_FONT_H
 
-/*
- * Font
- */
+#include "mupdf/pdf/cmap.h"
 
 enum
 {
@@ -18,37 +16,25 @@ enum
 	PDF_FD_FORCE_BOLD = 1 << 18
 };
 
-void pdf_load_encoding(const char **estrings, char *encoding);
-int pdf_lookup_agl(const char *name);
-const char **pdf_lookup_agl_duplicates(int ucs);
+void pdf_load_encoding(const char **estrings, const char *encoding);
 
-extern const unsigned short pdf_doc_encoding[256];
-extern const char * const pdf_mac_roman[256];
-extern const char * const pdf_mac_expert[256];
-extern const char * const pdf_win_ansi[256];
-extern const char * const pdf_standard[256];
-
-typedef struct pdf_font_desc_s pdf_font_desc;
-typedef struct pdf_hmtx_s pdf_hmtx;
-typedef struct pdf_vmtx_s pdf_vmtx;
-
-struct pdf_hmtx_s
+typedef struct
 {
 	unsigned short lo;
 	unsigned short hi;
 	int w;	/* type3 fonts can be big! */
-};
+} pdf_hmtx;
 
-struct pdf_vmtx_s
+typedef struct
 {
 	unsigned short lo;
 	unsigned short hi;
 	short x;
 	short y;
 	short w;
-};
+} pdf_vmtx;
 
-struct pdf_font_desc_s
+typedef struct
 {
 	fz_storable storable;
 	size_t size;
@@ -87,7 +73,7 @@ struct pdf_font_desc_s
 	pdf_vmtx *vmtx;
 
 	int is_embedded;
-};
+} pdf_font_desc;
 
 void pdf_set_font_wmode(fz_context *ctx, pdf_font_desc *font, int wmode);
 void pdf_set_default_hmtx(fz_context *ctx, pdf_font_desc *font, int w);
@@ -102,12 +88,13 @@ pdf_vmtx pdf_lookup_vmtx(fz_context *ctx, pdf_font_desc *font, int cid);
 void pdf_load_to_unicode(fz_context *ctx, pdf_document *doc, pdf_font_desc *font, const char **strings, char *collection, pdf_obj *cmapstm);
 
 int pdf_font_cid_to_gid(fz_context *ctx, pdf_font_desc *fontdesc, int cid);
+const char *pdf_clean_font_name(const char *fontname);
 
-const char *pdf_lookup_substitute_font(fz_context *ctx, int mono, int serif, int bold, int italic, int *len);
+const unsigned char *pdf_lookup_substitute_font(fz_context *ctx, int mono, int serif, int bold, int italic, int *len);
 
 pdf_font_desc *pdf_load_type3_font(fz_context *ctx, pdf_document *doc, pdf_obj *rdb, pdf_obj *obj);
-void pdf_load_type3_glyphs(fz_context *ctx, pdf_document *doc, pdf_font_desc *fontdesc, int nestedDepth);
-pdf_font_desc *pdf_load_font(fz_context *ctx, pdf_document *doc, pdf_obj *rdb, pdf_obj *obj, int nestedDepth);
+void pdf_load_type3_glyphs(fz_context *ctx, pdf_document *doc, pdf_font_desc *fontdesc);
+pdf_font_desc *pdf_load_font(fz_context *ctx, pdf_document *doc, pdf_obj *rdb, pdf_obj *obj);
 pdf_font_desc *pdf_load_hail_mary_font(fz_context *ctx, pdf_document *doc);
 
 pdf_font_desc *pdf_new_font_desc(fz_context *ctx);
@@ -116,13 +103,25 @@ void pdf_drop_font(fz_context *ctx, pdf_font_desc *font);
 
 void pdf_print_font(fz_context *ctx, fz_output *out, pdf_font_desc *fontdesc);
 
-fz_rect *pdf_measure_text(fz_context *ctx, pdf_font_desc *fontdesc, unsigned char *buf, size_t len, fz_rect *rect);
-float pdf_text_stride(fz_context *ctx, pdf_font_desc *fontdesc, float fontsize, unsigned char *buf, size_t len, float room, size_t *count);
+void pdf_run_glyph(fz_context *ctx, pdf_document *doc, pdf_obj *resources, fz_buffer *contents, fz_device *dev, fz_matrix ctm, void *gstate, fz_default_colorspaces *default_cs);
 
-void pdf_run_glyph(fz_context *ctx, pdf_document *doc, pdf_obj *resources, fz_buffer *contents, fz_device *dev, const fz_matrix *ctm, void *gstate, int nestedDepth);
+pdf_obj *pdf_add_simple_font(fz_context *ctx, pdf_document *doc, fz_font *font, int encoding);
 
-pdf_obj *pdf_add_simple_font(fz_context *ctx, pdf_document *doc, fz_font *font);
+/*
+	Creates CID font with Identity-H CMap and a ToUnicode CMap that
+	is created by using the TTF cmap table "backwards" to go from
+	the GID to a Unicode value.
+
+	We can possibly get width information that may have been embedded
+	in the PDF /W array (or W2 if vertical text)
+*/
 pdf_obj *pdf_add_cid_font(fz_context *ctx, pdf_document *doc, fz_font *font);
+
+/*
+	Add a non-embedded UTF16-encoded CID-font for the CJK scripts:
+	CNS1, GB1, Japan1, or Korea1
+*/
+pdf_obj *pdf_add_cjk_font(fz_context *ctx, pdf_document *doc, fz_font *font, int script, int wmode, int serif);
 
 int pdf_font_writing_supported(fz_font *font);
 

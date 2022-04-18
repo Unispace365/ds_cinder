@@ -21,15 +21,26 @@
 #include "cinder/ImageIo.h"
 #include <cinder/Ray.h>
 #include <cinder/Rand.h>
+#include <numeric>
 
 //#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <ds/cfg/settings_variables.h>
 
+#include "util/flexbox_parser.h"
+#include <boost/format.hpp>
+
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 namespace ds {
 namespace ui {
+
+YGSize _yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+	YGSize retVal;
+	ds::ui::Sprite* spr = (ds::ui::Sprite*)YGNodeGetContext(node);
+	
+	return spr->yogaMeasureFunc(node, width, widthMode, height, heightMode);
+}
 
 const char          SPRITE_ID_ATTRIBUTE = 1;
 
@@ -195,13 +206,17 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mClippingBoundsDirty = false;
 	mOutputFbo = nullptr;
 	mIsRenderFinalToTexture = false;
-
+	mYogaNode = YGNodeNew();
+	YGNodeSetMeasureFunc(mYogaNode, _yogaMeasureFunc);
+	YGNodeSetContext(mYogaNode, this);
 	dimensionalStateChanged();
 }
 
 Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
+
+	mEngine.clearFingersForSprite(this);
 
 	mEngine.removeFromDragDestinationList(this);
 
@@ -266,8 +281,16 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	// If rendering to an FBO, no need to get the total transformation. Otherwise combine existing
 	// transform with the local transform
 	if (!mIsRenderFinalToTexture){
+		//we are not rendering to a FBO so whole transform enchalata
 		totalTransformation = trans * totalTransformation;
 	}
+	else if (!mFinalToTexture_UseLocalTransform) {
+		//possibly strip the local transform too. This may need to be more 
+		//granular (translation, rotation and scale) and moved to buildTransform();
+		totalTransformation = ci::mat4();
+	}
+
+
 
 	// Local anonymous lambda for the common aspects of drawing. Called differently below depending
 	// on the mIsRenderFinalToTexture state
@@ -275,6 +298,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		// ci::gl::ScopedModelMatrix sMm;//{ totalTransformation };
 		ci::gl::pushModelMatrix();
 		ci::gl::multModelMatrix(totalTransformation);
+		
 		mSpriteShader.loadShaders();
 
 		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
@@ -331,7 +355,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 
 		if (!mIsRenderFinalToTexture && (mSpriteFlags&CLIP_F) != 0){ // Clipping is implicit when rendering to an FBO, only set clipping if we aren't
-			const ci::Rectf&	  clippingBounds = getClippingBounds();
+			const ci::Rectf&	  clippingBounds = getClippingBounds(drawParams.mClippingParent);
 			clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
 		}
 
@@ -352,6 +376,17 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				(*it)->drawClient(totalTransformation, dParams);
 			}
 		}
+		if ((mSpriteFlags & TRANSPARENT_F) == 0) {
+
+			ci::gl::pushModelMatrix();
+			ci::gl::multModelMatrix(totalTransformation);
+
+			DS_REPORT_GL_ERRORS();
+			drawPostLocalClient();
+			DS_REPORT_GL_ERRORS();
+			ci::gl::popModelMatrix();
+		}
+
 	};
 
 	if(mIsRenderFinalToTexture && mOutputFbo){
@@ -374,6 +409,8 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	if (!mIsRenderFinalToTexture && (mSpriteFlags&CLIP_F) != 0){
 		clip_plane::disableClipping();
 	}
+
+	
 }
 
 void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
@@ -440,6 +477,9 @@ void Sprite::drawLocalClient(){
 	} else {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 	}
+}
+
+void Sprite::drawPostLocalClient() {
 }
 
 void Sprite::drawLocalServer(){
@@ -677,6 +717,17 @@ void Sprite::addChild(Sprite &child){
 	}
 
 	mChildren.push_back(&child);
+	/*
+	//check if the node has a parent. ds_cinder allows moving a child with a parent
+	//but yoga does not. so we have to clear the parent first.
+	auto parent_node = YGNodeGetParent(child.mYogaNode);
+	if(parent_node){
+		YGNodeRemoveChild(parent_node, child.mYogaNode);
+	}
+	YGNodeSetMeasureFunc(mYogaNode, nullptr);
+	
+	YGNodeInsertChild(mYogaNode, child.mYogaNode, mYogaNode->getChildren().size());
+	*/
 	child.setParent(this);
 	child.setPerspective(mPerspective);
 	child.setDrawSorted(getDrawSorted());
@@ -693,6 +744,7 @@ void Sprite::removeChild(Sprite &child){
 
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	if(found != mChildren.end()) mChildren.erase(found);
+	YGNodeRemoveChild(mYogaNode, child.mYogaNode);
 	if(child.getParent() == this) {
 		child.setParent(nullptr);
 		child.setPerspective(false);
@@ -796,6 +848,15 @@ void Sprite::setSizeAll(float width, float height, float depth){
 	mWidth = width;
 	mHeight = height;
 	mDepth = depth;
+	/*auto ygw = YGNodeStyleGetWidth(mYogaNode);
+	auto ygh = YGNodeStyleGetHeight(mYogaNode);
+	
+	auto childCnt =YGNodeGetChildCount(mYogaNode);
+	if (childCnt == 0 && (ygw.value != mWidth || ygh.value != mHeight)) {
+		YGNodeStyleSetWidth(mYogaNode, mWidth);
+		YGNodeStyleSetHeight(mYogaNode, mHeight);
+		YGNodeMarkDirty(mYogaNode);
+	}*/
 	mUpdateTransform = true;
 	mNeedsBatchUpdate = true;
 	markAsDirty(SIZE_DIRTY);
@@ -1669,7 +1730,23 @@ void Sprite::setResource(const ds::Resource&) {
 }
 
 void Sprite::setupFinalRenderBuffer(){
-	if(mOutputFbo){
+	if(mIsRenderFinalToTexture){
+
+		if(mOutputFbo && mOutputFbo->getWidth() == (int)getWidth() && mOutputFbo->getHeight() == (int)getHeight()){
+			//Reuse
+			//DS_LOG_INFO("Reusing my FBO :)");
+		}else if( getWidth() > 1.0f && getHeight() > 1.0f){
+			mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
+			//DS_LOG_INFO("Just made an FBO :)");
+		}else{
+			mOutputFbo = nullptr;
+			//DS_LOG_INFO("FBO too small");
+		}
+	}else{
+		mOutputFbo = nullptr;
+	}
+
+	/*if(mOutputFbo){
 		mOutputFbo = nullptr;
 	}
 
@@ -1680,7 +1757,7 @@ void Sprite::setupFinalRenderBuffer(){
 		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
 	} else {
 		mOutputFbo = nullptr;
-	}
+	}*/
 }
 
 ds::gl::Uniform& Sprite::getUniform(){
@@ -1691,16 +1768,23 @@ void Sprite::setShaderExtraData(const ci::vec4& data){
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
+void Sprite::setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info) {
 	if (render_to_texture == mIsRenderFinalToTexture) return;
 	mIsRenderFinalToTexture = render_to_texture;
-
-	mFboFormat = format;
+	mFinalToTexture_UseLocalTransform = info.useLocalTransform;
+	mFboFormat = info.format;
 	setupFinalRenderBuffer();
+}
+
+void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format){
+	FinalRenderInfo info;
+	info.format = format;
+	setFinalRenderToTexture(render_to_texture, info);
 
 }
 
 bool Sprite::isFinalRenderToTexture(){
+	return mIsRenderFinalToTexture;
 	return mIsRenderFinalToTexture;
 }
 
@@ -1732,54 +1816,101 @@ bool Sprite::getClipping() const {
 	return getFlag(CLIP_F, mSpriteFlags);
 }
 
-const ci::Rectf& Sprite::getClippingBounds(){
+const ci::Rectf& Sprite::getClippingBounds(ds::ui::Sprite* clippingParent){
 	if(mClippingBoundsDirty) {
 		mClippingBoundsDirty = false;
-		computeClippingBounds();
+		computeClippingBounds(clippingParent);
 	}
 	return mClippingBounds;
 }
 
-void Sprite::computeClippingBounds(){
+void Sprite::computeClippingBounds(ds::ui::Sprite* clippingParent){
 	if(getClipping()) {
-		ci::vec3 tl = localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
-		ci::vec3 br = localToGlobal(ci::vec3(getWidth(), getHeight(), 0.0f));
-		ci::Rectf clippingRect(tl.x, tl.y, br.x, br.y);
+		/// if there's a "top" sprite that we're calculating based off of, use that as 0,0 for position calculations
+		/// this is intended for drawing clipped sprites into fbo's
+		if (clippingParent) {
+			auto parentGlobalPos = clippingParent->getGlobalPosition();
+			ci::vec3 tl = localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f)) - parentGlobalPos;
+			ci::vec3 br = localToGlobal(ci::vec3(getWidth(), getHeight(), 0.0f)) - parentGlobalPos;
+			ci::Rectf clippingRect(tl.x, tl.y, br.x, br.y);
 
-		// first find the outermost clipped window and use it as our reference
-		Sprite *outerClippedSprite = nullptr;
-		Sprite *curSprite = this;
-		while(curSprite) {
-			if(curSprite->getClipping())
-				outerClippedSprite = curSprite;
-			curSprite = curSprite->mParent;
-		}
+			// first find the outermost clipped window and use it as our reference
+			Sprite *outerClippedSprite = nullptr;
+			Sprite *curSprite = this;
+			while (curSprite) {
+				if (curSprite->getClipping())
+					outerClippedSprite = curSprite;
+				curSprite = curSprite->mParent;
+				if (curSprite == clippingParent) break;
+			}
 
-		if(outerClippedSprite) {
-			curSprite = mParent;
-			while(curSprite) {
-				if(curSprite->getClipping()) {
-					float ww = curSprite->getWidth();
-					float wh = curSprite->getHeight();
-					ci::vec3 tl = curSprite->localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
-					ci::vec3 br = curSprite->localToGlobal(ci::vec3(ww, wh, 0.0f));
-					ci::Rectf outerRect(tl.x, tl.y, br.x, br.y);
-					clippingRect.clipBy(outerRect);
+			if (outerClippedSprite) {
+				curSprite = mParent;
+				while (curSprite) {
+					if (curSprite->getClipping()) {
+						float ww = curSprite->getWidth();
+						float wh = curSprite->getHeight();
+						ci::vec3 tl = curSprite->localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f)) - parentGlobalPos;
+						ci::vec3 br = curSprite->localToGlobal(ci::vec3(ww, wh, 0.0f)) - parentGlobalPos;
+						ci::Rectf outerRect(tl.x, tl.y, br.x, br.y);
+						clippingRect.clipBy(outerRect);
+					}
+					curSprite = curSprite->mParent;
 				}
+			}
+
+			if (clippingRect.x1 == clippingRect.x2) clippingRect.x2 += 1.0f;
+			if (clippingRect.y1 == clippingRect.y2) clippingRect.y2 += 1.0f;
+
+			if (!math::isEqual(clippingRect.x1, mClippingBounds.x1)
+				|| !math::isEqual(clippingRect.x2, mClippingBounds.x2)
+				|| !math::isEqual(clippingRect.y1, mClippingBounds.y1)
+				|| !math::isEqual(clippingRect.y2, mClippingBounds.y2)) {
+				mClippingBounds = clippingRect;
+				markAsDirty(CLIPPING_BOUNDS);
+			}
+
+		/// the 'traditional' recipe for calculating clip planes based on global positions
+		} else {
+
+			ci::vec3 tl = localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
+			ci::vec3 br = localToGlobal(ci::vec3(getWidth(), getHeight(), 0.0f));
+			ci::Rectf clippingRect(tl.x, tl.y, br.x, br.y);
+
+			// first find the outermost clipped window and use it as our reference
+			Sprite *outerClippedSprite = nullptr;
+			Sprite *curSprite = this;
+			while (curSprite) {
+				if (curSprite->getClipping())
+					outerClippedSprite = curSprite;
 				curSprite = curSprite->mParent;
 			}
-		}
 
-		if (clippingRect.x1 == clippingRect.x2) clippingRect.x2 += 1.0f;
-		if (clippingRect.y1 == clippingRect.y2) clippingRect.y2 += 1.0f;
+			if (outerClippedSprite) {
+				curSprite = mParent;
+				while (curSprite) {
+					if (curSprite->getClipping()) {
+						float ww = curSprite->getWidth();
+						float wh = curSprite->getHeight();
+						ci::vec3 tl = curSprite->localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
+						ci::vec3 br = curSprite->localToGlobal(ci::vec3(ww, wh, 0.0f));
+						ci::Rectf outerRect(tl.x, tl.y, br.x, br.y);
+						clippingRect.clipBy(outerRect);
+					}
+					curSprite = curSprite->mParent;
+				}
+			}
 
-		if(    !math::isEqual(clippingRect.x1, mClippingBounds.x1)
-			|| !math::isEqual(clippingRect.x2, mClippingBounds.x2)
-			|| !math::isEqual(clippingRect.y1, mClippingBounds.y1)
-			|| !math::isEqual(clippingRect.y2, mClippingBounds.y2) )
-		{
-			mClippingBounds = clippingRect;
-			markAsDirty(CLIPPING_BOUNDS);
+			if (clippingRect.x1 == clippingRect.x2) clippingRect.x2 += 1.0f;
+			if (clippingRect.y1 == clippingRect.y2) clippingRect.y2 += 1.0f;
+
+			if (!math::isEqual(clippingRect.x1, mClippingBounds.x1)
+				|| !math::isEqual(clippingRect.x2, mClippingBounds.x2)
+				|| !math::isEqual(clippingRect.y1, mClippingBounds.y1)
+				|| !math::isEqual(clippingRect.y2, mClippingBounds.y2)) {
+				mClippingBounds = clippingRect;
+				markAsDirty(CLIPPING_BOUNDS);
+			}
 		}
 	}
 }
@@ -1982,6 +2113,74 @@ void Sprite::setPerspective( const bool perspective ){
   }
 }
 
+void Sprite::setFlexboxFromStyleString(std::string style)
+{
+	
+	
+	auto settings = ds::split(style, ";", true);
+	for (auto setting : settings) {
+		auto key_value = ds::split(setting, ":", true);
+		auto [key,unused] = FlexboxParser::cleanValue(key_value[0]);
+		if (key == "") { continue; }
+		auto valueItr = ++key_value.begin();
+
+		std::string value = "--empty--";
+		if (valueItr != key_value.end()) {
+			value = std::accumulate(valueItr, key_value.end(), std::string(""));
+		}
+		//DS_LOG_INFO(key << " = '" << value << "'");
+		auto success = FlexboxParser::parseProperty(key, value, mYogaNode);
+		
+	}
+	if (mYogaNode->getChildren().size() == 0) {
+		YGNodeSetMeasureFunc(mYogaNode, _yogaMeasureFunc);
+	}
+	mYogaNode->setDirty(true);
+	
+}
+
+void Sprite::setFlexboxAutoSizes()
+{
+	return;
+	//the default of auto is to size to its children.
+	//if there are no children we will size to the sprite.
+	if (mYogaNode->getChildren().size() == 0) {
+		if (YGNodeStyleGetWidth(mYogaNode).unit == YGUnitAuto &&
+			(YGNodeStyleGetMinWidth(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMinWidth(mYogaNode).unit == YGUnitUndefined) &&
+			(YGNodeStyleGetMaxWidth(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMaxWidth(mYogaNode).unit == YGUnitUndefined)
+			) {
+			YGNodeStyleSetWidth(mYogaNode, getScaleWidth());
+			YGNodeMarkDirty(mYogaNode);
+		}
+
+		if (YGNodeStyleGetHeight(mYogaNode).unit == YGUnitAuto &&
+			(YGNodeStyleGetMinHeight(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMinHeight(mYogaNode).unit == YGUnitUndefined) &&
+			(YGNodeStyleGetMaxHeight(mYogaNode).unit == YGUnitAuto || YGNodeStyleGetMaxHeight(mYogaNode).unit == YGUnitUndefined)
+			) {
+			YGNodeStyleSetHeight(mYogaNode, getScaleHeight());
+			YGNodeMarkDirty(mYogaNode);
+		}
+		
+	}
+}
+
+void Sprite::setSpriteFromFlexbox()
+{
+	//position and size
+	auto layout = mYogaNode->getLayout();
+	auto r = YGNodeLayoutGetRight(mYogaNode);
+	auto b = YGNodeLayoutGetBottom(mYogaNode);
+	auto x = YGNodeLayoutGetLeft(mYogaNode);
+	auto y = YGNodeLayoutGetTop(mYogaNode);
+	auto w = YGNodeLayoutGetWidth(mYogaNode);
+	auto h = YGNodeLayoutGetHeight(mYogaNode);
+	auto bt = YGNodeLayoutGetBorder(mYogaNode, YGEdgeTop);
+	
+	setPosition(x, y);
+	setSize(w, h);
+
+}
+
 ds::cfg::Settings* Sprite::getLayoutSettings()
 {
 	if (mParent != nullptr && mSettings == nullptr) {
@@ -2043,7 +2242,7 @@ void Sprite::readClientFrom(ds::DataBuffer& buf){
 		}
 	}
 }
-#ifdef _DEBUG
+//#ifdef _DEBUG
 void Sprite::write(std::ostream &s, const size_t tab) const {
 	writeState(s, tab);
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
@@ -2053,8 +2252,57 @@ void Sprite::write(std::ostream &s, const size_t tab) const {
 }
 
 void Sprite::writeState(std::ostream &s, const size_t tab) const {
-	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "CLASS NAME=" << typeid(this).name() << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
+	const auto indent = [tab, &s]() {
+		for (size_t k=0; k<tab; ++k) s << "  ";
+	};
+
+	const auto eraseAll = [](const std::string& s, const std::vector<std::string> list) {
+		std::string ret = s;
+		const auto eraseAllSubStr = [](std::string& s, const std::string& toErase) {
+			auto pos = std::string::npos;
+			while ((pos = s.find(toErase)) != std::string::npos) {
+				s.erase(pos, toErase.length());
+			}
+		};
+		std::for_each(list.begin(), list.end(), std::bind(eraseAllSubStr, std::ref(ret), std::placeholders::_1));
+		return ret;
+	};
+
+	const auto getNameStr = [this, eraseAll]{ 
+		//const auto smartLayout = dynamic_cast<ds::ui::SmartLayout*>
+		const auto typeName = eraseAll(typeid(*this).name(), {"class ", "ds::ui::"});
+		const auto spriteName = ds::utf8_from_wstr(this->getSpriteName());
+		const auto xmlStr = std::string("");
+		
+		return boost::format("%s%s%s")
+			% typeName
+			% (spriteName.empty() ? "" : std::string("#") + spriteName)
+			% xmlStr
+		;
+	};
+
+	indent();
+	const auto nameWidthFormat = (boost::format("%%-%ds") % (80 - tab*2)).str();
+	const auto nameStr = boost::format(nameWidthFormat) % getNameStr();
+
+	const auto pos = getPosition();
+	s	<< nameStr 
+		<< boost::format("  [%5.0f, %5.0f] @ (%6.1f, %6.1f)   opacity=%4.2f %s %s %s\n")
+			% getWidth() % getHeight()
+			% pos.s % pos.y
+			% getOpacity()
+			% (this->visible() 
+				? "        "
+				: "<HIDDEN>")
+			% (this->getClipping()
+				? "<CLIP>"
+				: "      ")
+			% (this->isEnabled()
+				? "<ENABLED>"
+				: "         ")
+			;
+	/*
+	s << "CLASS NAME= " << typeid(this).name() << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE opacity=" << mOpacity << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
@@ -2075,9 +2323,10 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE gl_inv_tx=" << mInverseGlobalTransform;
 	s << std::endl;
+	*/
 }
 
-#endif
+//#endif
 
 void Sprite::doPropagateVisibilityChange(bool before, bool after){
 	if (before == after) return;
@@ -2118,6 +2367,15 @@ bool Sprite::getDrawDebug(){
 
 void Sprite::setSpriteName(const std::wstring& name){
 	mSpriteName = name;
+}
+
+YGSize Sprite::yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
+{
+	YGSize retVal;
+	
+	retVal.width = getWidth();
+	retVal.height = getHeight();
+	return retVal;
 }
 
 const std::wstring Sprite::getSpriteName(const bool useDefault) const {

@@ -1,4 +1,4 @@
-/*
+/**
 	Bidirectional text processing.
 
 	Derived from the SmartOffice code, which is itself derived
@@ -22,7 +22,9 @@
 
 #include "mupdf/fitz/system.h"
 
-typedef enum fz_bidi_direction_e
+/* Implementation details: subject to change. */
+
+typedef enum
 {
 	FZ_BIDI_LTR = 0,
 	FZ_BIDI_RTL = 1,
@@ -30,14 +32,14 @@ typedef enum fz_bidi_direction_e
 }
 fz_bidi_direction;
 
-typedef enum fz_bidi_flags_e
+typedef enum
 {
-	BIDI_CLASSIFY_WHITE_SPACE = 1,
-	BIDI_REPLACE_TAB = 2
+	FZ_BIDI_CLASSIFY_WHITE_SPACE = 1,
+	FZ_BIDI_REPLACE_TAB = 2
 }
 fz_bidi_flags;
 
-/*
+/**
 	Prototype for callback function supplied to fz_bidi_fragment_text.
 
 	@param	fragment	first character in fragment
@@ -50,13 +52,13 @@ fz_bidi_flags;
 				than common or inherited)
 	@param	arg		data from caller of Bidi_fragmentText
 */
-typedef void (fz_bidi_fragment_callback)(const uint32_t *fragment,
+typedef void (fz_bidi_fragment_fn)(const uint32_t *fragment,
 					size_t fragmentLen,
 					int bidiLevel,
 					int script,
 					void *arg);
 
-/*
+/**
 	Partitions the given Unicode sequence into one or more
 	unidirectional fragments and invokes the given callback
 	function for each fragment.
@@ -80,7 +82,7 @@ void fz_bidi_fragment_text(fz_context *ctx,
 			const uint32_t *text,
 			size_t textlen,
 			fz_bidi_direction *baseDir,
-			fz_bidi_fragment_callback *callback,
+			fz_bidi_fragment_fn *callback,
 			void *arg,
 			int flags);
 

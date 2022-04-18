@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6c8c654be3e69d872b3cfa6bdfb1adf615bff3ac$
+// $hash=221973f3d5728478eeb0f8f5f55ca5e68b3afd8a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
@@ -219,7 +219,7 @@ typedef struct _cef_drag_data_t {
 ///
 // Create a new cef_drag_data_t object.
 ///
-CEF_EXPORT cef_drag_data_t* cef_drag_data_create();
+CEF_EXPORT cef_drag_data_t* cef_drag_data_create(void);
 
 #ifdef __cplusplus
 }

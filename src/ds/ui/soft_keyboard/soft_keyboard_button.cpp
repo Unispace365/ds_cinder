@@ -28,6 +28,7 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	, mUpImg(nullptr)
 	, mDownImg(nullptr)
 {
+	mLastPressed = 0;
 	mLayoutFixedAspect = true;
 	mText = new ds::ui::Text(mEngine);
 	addChildPtr(mText);
@@ -106,21 +107,21 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 
 		if(mKeyType == SoftKeyboardDefs::kNumber || mKeyType == SoftKeyboardDefs::kFunction || mKeyType == SoftKeyboardDefs::kArrow || mKeyType == SoftKeyboardDefs::kEscape) {
 		} else if(mKeyType == SoftKeyboardDefs::kLetter) {
-		} else if(mKeyType == SoftKeyboardDefs::kSpace) {
-			keySize.x *= 4.578125f;
+		} else if (mKeyType == SoftKeyboardDefs::kSpace) {
+			keySize.x = 5.0f * keySize.x + 4.0f * softKeySettings.mKeyTouchPadding;
 		} else if(mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete) {
 			if(mKeyType == SoftKeyboardDefs::kDelete && mCharacterLower.empty() && mCharacterUpper.empty()) {
 				mCharacterLower = L"delete";
 				mCharacterUpper = L"DELETE";
 			}
 			
-			keySize.x *= 2.71875f;
-		} else if(mKeyType == SoftKeyboardDefs::kShift) {
-			keySize.x *= 2.984375f;
+			keySize.x = 2.5f * keySize.x + 3.0f * softKeySettings.mKeyTouchPadding;
+		} else if (mKeyType == SoftKeyboardDefs::kShift) {
+			keySize.x = (5.5f * keySize.x + 7.0f * softKeySettings.mKeyTouchPadding) / 2.0f;
 		} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom || mKeyType == SoftKeyboardDefs::kSpecial) {
-			keySize.x *= 1.609375f;
-		} else if(mKeyType == SoftKeyboardDefs::kEnter) {
-			keySize.x *= 2.421875f;
+			keySize.x = 1.5f * keySize.x + softKeySettings.mKeyTouchPadding;
+		} else if (mKeyType == SoftKeyboardDefs::kEnter) {
+			keySize.x = (4.5f * keySize.x + 5.0f * softKeySettings.mKeyTouchPadding) / 2.0f;
 		} else {
 			DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
 		}
@@ -191,6 +192,12 @@ void SoftKeyboardButton::setShifted(const bool upper) {
 
 void SoftKeyboardButton::onClicked() {
 	showUp();
+	auto now = mEngine.getElapsedTimeSeconds();
+	if (now - mLastPressed < 0.1) {
+		return;
+	}
+	mLastPressed = now;
+	
 	if(mClickFn) mClickFn();
 }
 
@@ -251,11 +258,11 @@ void SoftKeyboardButton::doLayout(){
 	if(mText){
 		if(mPressed){
 			if(!mTextConfigDown.empty()){
-				mEngine.getEngineCfg().getText(mTextConfigDown).configure(*mText);
+				mText->setTextStyle(mEngine.getTextStyle(mTextConfigDown));
 			}
 		} else {
-			if(!mTextConfigUp.empty()){
-				mEngine.getEngineCfg().getText(mTextConfigUp).configure(*mText);
+			if (!mTextConfigUp.empty()) {
+				mText->setTextStyle(mEngine.getTextStyle(mTextConfigUp));
 			}
 		}
 

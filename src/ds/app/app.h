@@ -10,6 +10,7 @@
 #include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
 #include "ds/debug/key_manager.h"
+#include "ds/content/service/sync_service.h"
 
 namespace ds {
 class Environment;
@@ -129,6 +130,9 @@ public:
 	/// Show sprites that are enabled
 	void						debugEnabledSprites();
 
+	/// Launch data sync service
+	void						launchSyncService();
+
 	/// Register a function to be called when a key is pressed (with optional modifier keys)
 	/// The Key codes can be found in ci::app::KeyEvent 
 	/// This will be displayed with the help debug
@@ -162,6 +166,9 @@ private:
 	/// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;
 	const bool					mArrowKeyCameraControl;
+
+	ds::content::SyncService*   mSyncService = nullptr;
+	
 };
 
 } // namespace ds

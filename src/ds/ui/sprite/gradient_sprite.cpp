@@ -87,6 +87,8 @@ void Gradient::drawLocalClient() {
 	// the magic!
 	const float drawOpacity = getDrawOpacity();
 
+	if (getWidth() < 1.f || getHeight() < 1.f || drawOpacity < 0.001f) return;
+
 	if(mRenderBatch){
 		ci::gl::color(ci::ColorA(1.0f, 1.0f, 1.0f, drawOpacity));
 		mRenderBatch->draw();
@@ -94,8 +96,8 @@ void Gradient::drawLocalClient() {
 
 		if(mCornerRadius > 0.0f){
 			auto rect = ci::geom::RoundedRect();
-			rect.colors(ci::ColorA(mTLColor, mTLColor.a * drawOpacity),
-						ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
+			rect.colors(ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
+						ci::ColorA(mTLColor, mTLColor.a * drawOpacity),
 						ci::ColorA(mBRColor, mBRColor.a * drawOpacity),
 						ci::ColorA(mBLColor, mBLColor.a * drawOpacity));
 			rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
@@ -125,14 +127,20 @@ void Gradient::onBuildRenderBatch() {
 		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
 		theGeom.cornerSubdivisions(6);
 		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
-		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-		else mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if (mRenderBatch) {
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 
 	} else {
 		auto theGeom = ci::geom::Rect(drawRect);
 		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
-		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-		else mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if (mRenderBatch) {
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 	}
 }
 

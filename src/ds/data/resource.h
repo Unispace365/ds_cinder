@@ -245,12 +245,22 @@ std::wostream&            operator<<(std::wostream&, const ds::Resource::Id&);
 		 Make the resource ID available for hashing functions
 */
 namespace std {
-template<>
-struct hash<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_t > {
+/*template<>
+struct hashy<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_t > {
 	size_t operator()(const ds::Resource::Id& id) const {
 		return id.mType + (id.mValue << 8);
 	}
+};*/
+
+template<>	
+struct hash<ds::Resource::Id> {
+	typedef size_t result_type;
+	size_t operator()(const ds::Resource::Id& id) const
+	{
+		return id.mType + (id.mValue << 8);
+	}
 };
+	
 /* \endcond */
 }
 

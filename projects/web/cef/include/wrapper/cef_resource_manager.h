@@ -38,10 +38,10 @@
 #pragma once
 
 #include <list>
+#include <memory>
 
-#include "include/base/cef_macros.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_ref_counted.h"
-#include "include/base/cef_scoped_ptr.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_request_handler.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -65,14 +65,15 @@ class CefResourceManager
   // file extension. |url| will be fully qualified and may contain query or
   // fragment components.
   ///
-  typedef base::Callback<std::string(const std::string& /*url*/)> UrlFilter;
+  using UrlFilter =
+      base::RepeatingCallback<std::string(const std::string& /*url*/)>;
 
   ///
   // Used to resolve mime types for URLs, usually based on the file extension.
   // |url| will be fully qualified and may contain query or fragment components.
   ///
-  typedef base::Callback<std::string(const std::string& /*url*/)>
-      MimeTypeResolver;
+  using MimeTypeResolver =
+      base::RepeatingCallback<std::string(const std::string& /*url*/)>;
 
  private:
   // Values that stay with a request as it moves between providers.
@@ -99,6 +100,9 @@ class CefResourceManager
   ///
   class Request : public base::RefCountedThreadSafe<Request> {
    public:
+    Request(const Request&) = delete;
+    Request& operator=(const Request&) = delete;
+
     ///
     // Returns the URL associated with this request. The returned value will be
     // fully qualified but will not contain query or fragment components. It
@@ -159,26 +163,24 @@ class CefResourceManager
 
     // The below methods are called on the browser process IO thread.
 
-    explicit Request(scoped_ptr<RequestState> state);
+    explicit Request(std::unique_ptr<RequestState> state);
 
-    scoped_ptr<RequestState> SendRequest();
+    std::unique_ptr<RequestState> SendRequest();
     bool HasState();
 
-    static void ContinueOnIOThread(scoped_ptr<RequestState> state,
+    static void ContinueOnIOThread(std::unique_ptr<RequestState> state,
                                    CefRefPtr<CefResourceHandler> handler);
-    static void StopOnIOThread(scoped_ptr<RequestState> state);
+    static void StopOnIOThread(std::unique_ptr<RequestState> state);
 
     // Will be non-NULL while the request is pending. Only accessed on the
     // browser process IO thread.
-    scoped_ptr<RequestState> state_;
+    std::unique_ptr<RequestState> state_;
 
     // Params that stay with this request object. Safe to access on any thread.
     RequestParams params_;
-
-    DISALLOW_COPY_AND_ASSIGN(Request);
   };
 
-  typedef std::list<scoped_refptr<Request>> RequestList;
+  using RequestList = std::list<scoped_refptr<Request>>;
 
   ///
   // Interface implemented by resource providers. A provider may be created on
@@ -207,6 +209,9 @@ class CefResourceManager
   };
 
   CefResourceManager();
+
+  CefResourceManager(const CefResourceManager&) = delete;
+  CefResourceManager& operator=(const CefResourceManager&) = delete;
 
   ///
   // Add a provider that maps requests for |url| to |content|. |url| should be
@@ -290,11 +295,10 @@ class CefResourceManager
   // Called from CefRequestHandler::OnBeforeResourceLoad on the browser process
   // IO thread.
   ///
-  cef_return_value_t OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback);
+  cef_return_value_t OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                          CefRefPtr<CefFrame> frame,
+                                          CefRefPtr<CefRequest> request,
+                                          CefRefPtr<CefCallback> callback);
 
   ///
   // Called from CefRequestHandler::GetResourceHandler on the browser process
@@ -315,7 +319,7 @@ class CefResourceManager
 
   // Provider and associated information.
   struct ProviderEntry;
-  typedef std::list<ProviderEntry*> ProviderEntryList;
+  using ProviderEntryList = std::list<ProviderEntry*>;
 
   // Values associated with the pending request only. Ownership will be passed
   // between requests and the resource manager as request handling proceeds.
@@ -325,7 +329,7 @@ class CefResourceManager
     base::WeakPtr<CefResourceManager> manager_;
 
     // Callback to execute once request handling is complete.
-    CefRefPtr<CefRequestCallback> callback_;
+    CefRefPtr<CefCallback> callback_;
 
     // Position of the currently associated ProviderEntry in the |providers_|
     // list.
@@ -341,10 +345,10 @@ class CefResourceManager
 
   // Methods that manage request state between requests. Called on the browser
   // process IO thread.
-  bool SendRequest(scoped_ptr<RequestState> state);
-  void ContinueRequest(scoped_ptr<RequestState> state,
+  bool SendRequest(std::unique_ptr<RequestState> state);
+  void ContinueRequest(std::unique_ptr<RequestState> state,
                        CefRefPtr<CefResourceHandler> handler);
-  void StopRequest(scoped_ptr<RequestState> state);
+  void StopRequest(std::unique_ptr<RequestState> state);
   bool IncrementProvider(RequestState* state);
   void DetachRequestFromProvider(RequestState* state);
   void GetNextValidProvider(ProviderEntryList::iterator& iterator);
@@ -356,16 +360,14 @@ class CefResourceManager
   ProviderEntryList providers_;
 
   // Map of response ID to pending CefResourceHandler object.
-  typedef std::map<uint64, CefRefPtr<CefResourceHandler>> PendingHandlersMap;
+  using PendingHandlersMap = std::map<uint64, CefRefPtr<CefResourceHandler>>;
   PendingHandlersMap pending_handlers_;
 
   UrlFilter url_filter_;
   MimeTypeResolver mime_type_resolver_;
 
   // Must be the last member. Created and accessed on the IO thread.
-  scoped_ptr<base::WeakPtrFactory<CefResourceManager>> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefResourceManager);
+  std::unique_ptr<base::WeakPtrFactory<CefResourceManager>> weak_ptr_factory_;
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_RESOURCE_MANAGER_H_

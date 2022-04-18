@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d8f114b44d02d96b5da0ec399c99091b9ceb6871$
+// $hash=8527ceea6b8778d6fabc1b4ef82e4faa06ba777a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -242,10 +242,12 @@ typedef struct _cef_frame_t {
       struct _cef_urlrequest_client_t* client);
 
   ///
-  // Send a message to the specified |target_process|. Message delivery is not
-  // guaranteed in all cases (for example, if the browser is closing,
-  // navigating, or if the target process crashes). Send an ACK message back
-  // from the target process if confirmation is required.
+  // Send a message to the specified |target_process|. Ownership of the message
+  // contents will be transferred and the |message| reference will be
+  // invalidated. Message delivery is not guaranteed in all cases (for example,
+  // if the browser is closing, navigating, or if the target process crashes).
+  // Send an ACK message back from the target process if confirmation is
+  // required.
   ///
   void(CEF_CALLBACK* send_process_message)(
       struct _cef_frame_t* self,

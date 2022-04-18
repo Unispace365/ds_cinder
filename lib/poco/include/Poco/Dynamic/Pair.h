@@ -1,8 +1,6 @@
 //
 // Pair.h
 //
-// $Id: //poco/Main/Foundation/include/Poco/Dynamic/Pair.h#9 $
-//
 // Library: Foundation
 // Package: Dynamic
 // Module:  Pair
@@ -35,7 +33,7 @@ class Pair
 	/// Pair allows to define a pair of values.
 {
 public:
-	typedef typename std::pair<K, Var> Data;
+	using Data = typename std::pair<K, Var>;
 
 	Pair(): _data()
 		/// Creates an empty Pair
@@ -98,7 +96,7 @@ public:
 	std::string toString()
 	{
 		std::string str;
-		Var(*this).convert<std::string>(str);
+		Var(*this).template convert<std::string>(str);
 		return str;
 	}
 
@@ -108,7 +106,7 @@ private:
 
 
 template <>
-class VarHolderImpl<Pair<std::string> >: public VarHolder
+class VarHolderImpl<Pair<std::string>>: public VarHolder
 {
 public:
 	VarHolderImpl(const Pair<std::string>& val): _val(val)
@@ -118,7 +116,7 @@ public:
 	~VarHolderImpl()
 	{
 	}
-	
+
 	const std::type_info& type() const
 	{
 		return typeid(Pair<std::string>);
@@ -133,7 +131,7 @@ public:
 	{
 		throw BadCastException("Cannot cast Pair type to Int16");
 	}
-	
+
 	void convert(Int32& val) const
 	{
 		throw BadCastException("Cannot cast Pair type to Int32");
@@ -153,7 +151,7 @@ public:
 	{
 		throw BadCastException("Cannot cast Pair type to UInt16");
 	}
-	
+
 	void convert(UInt32& val) const
 	{
 		throw BadCastException("Cannot cast Pair type to UInt32");
@@ -191,9 +189,9 @@ public:
 		val.append("{ ");
 		Var key(_val.first());
 		Impl::appendJSONKey(val, key);
-		val.append(" : ");
+		val.append(": ");
 		Impl::appendJSONValue(val, _val.second());
-		val.append(" }");	
+		val.append(" }");
 	}
 
 	void convert(Poco::DateTime&) const
@@ -215,7 +213,7 @@ public:
 	{
 		return cloneHolder(pVarHolder, _val);
 	}
-	
+
 	const Pair<std::string>& value() const
 	{
 		return _val;
@@ -257,7 +255,7 @@ private:
 
 
 template <>
-class VarHolderImpl<Pair<int> >: public VarHolder
+class VarHolderImpl<Pair<int>>: public VarHolder
 {
 public:
 	VarHolderImpl(const Pair<int>& val): _val(val)
@@ -267,7 +265,7 @@ public:
 	~VarHolderImpl()
 	{
 	}
-	
+
 	const std::type_info& type() const
 	{
 		return typeid(Pair<int>);
@@ -282,7 +280,7 @@ public:
 	{
 		throw BadCastException("Cannot cast Pair type to Int16");
 	}
-	
+
 	void convert(Int32& val) const
 	{
 		throw BadCastException("Cannot cast Pair type to Int32");
@@ -302,7 +300,7 @@ public:
 	{
 		throw BadCastException("Cannot cast Pair type to UInt16");
 	}
-	
+
 	void convert(UInt32& val) const
 	{
 		throw BadCastException("Cannot cast Pair type to UInt32");
@@ -340,9 +338,9 @@ public:
 		val.append("{ ");
 		Var key(_val.first());
 		Impl::appendJSONKey(val, key);
-		val.append(" : ");
+		val.append(": ");
 		Impl::appendJSONValue(val, _val.second());
-		val.append(" }");	
+		val.append(" }");
 	}
 
 	void convert(Poco::DateTime&) const
@@ -364,7 +362,7 @@ public:
 	{
 		return cloneHolder(pVarHolder, _val);
 	}
-	
+
 	const Pair<int>& value() const
 	{
 		return _val;
