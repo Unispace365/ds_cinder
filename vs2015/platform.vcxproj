@@ -56,6 +56,8 @@
     <ClInclude Include="..\src\ds\content\content_model.h" />
     <ClInclude Include="..\src\ds\content\content_query.h" />
     <ClInclude Include="..\src\ds\content\content_wrangler.h" />
+    <ClInclude Include="..\src\ds\content\nw_query_handler.h" />
+    <ClInclude Include="..\src\ds\content\nw_schedule_handler.h" />
     <ClInclude Include="..\src\ds\content\service\sync_service.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
@@ -200,6 +202,7 @@
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
+    <ClInclude Include="default_content_model_xml.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.cpp">
@@ -243,6 +246,8 @@
     <ClCompile Include="..\src\ds\content\content_model.cpp" />
     <ClCompile Include="..\src\ds\content\content_query.cpp" />
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
+    <ClCompile Include="..\src\ds\content\nw_query_handler.cpp" />
+    <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp" />
     <ClCompile Include="..\src\ds\content\service\sync_service.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />

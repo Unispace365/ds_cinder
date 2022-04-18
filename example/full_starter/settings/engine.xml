@@ -65,6 +65,7 @@
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
 	<setting name="content:node_watch" value="true" type="bool" comment="If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777" default="true"/>
 	<setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data. Specify multiple locations separated by a semicolon" default="%APP%/data/model/content_model.xml"/>
+	<!--setting name="content:model_location" value="%APP%/data/model/nw_content_model.xml" type="string" comment="If you are using thenuewaffles cms you may want to use the nw_content_model.xml as is" default="%APP%/data/model/content_model.xml"/-->
 	<setting name="content:use_wrangler" value="true" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
 	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
 	<setting name="auto_refresh_directories" value="%APP%/data;%APP%/settings" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>

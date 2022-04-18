@@ -672,6 +672,15 @@
     <ClInclude Include="..\src\ds\content\service\sync_service.h">
       <Filter>src\ds\content\service</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_query_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_schedule_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="default_content_model_xml.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1111,6 +1120,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\content\service\sync_service.cpp">
       <Filter>src\ds\content\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_query_handler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp">
+      <Filter>src\ds\content</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
