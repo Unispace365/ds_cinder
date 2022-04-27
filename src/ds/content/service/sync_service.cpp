@@ -43,7 +43,7 @@ namespace ds::content {
 			SetInformationJobObject(mJobObj, JobObjectExtendedLimitInformation, &info, sizeof(info));
 		}
 		else {
-			DS_LOG_ERROR("SyncServicce (downsync): Could not create job for sync process. Aborting");
+			DS_LOG_ERROR("SyncService (downsync): Could not create job for sync process. Aborting");
 			return;
 		}
 
@@ -79,19 +79,19 @@ namespace ds::content {
 				}
 				//optionals
 				if (!settings.interval.empty()) {
-					args.push_back("-interval");
+					args.push_back("--interval");
 					args.push_back(settings.interval);
 				}
 				if (!settings.rate_decay.empty()) {
-					args.push_back("-rate-decay");
+					args.push_back("--rate-decay");
 					args.push_back(settings.rate_decay);
 				}
 				if (!settings.rate_qty.empty()) {
-					args.push_back("-rate-qty");
+					args.push_back("--rate-qty");
 					args.push_back(settings.rate_qty);
 				}
 				if (!settings.udp_port.empty()) {
-					args.push_back("-udp-port");
+					args.push_back("--udp-port");
 					args.push_back(settings.udp_port);
 				}
 				if (!settings.verbosity.empty()) {
@@ -113,10 +113,10 @@ namespace ds::content {
 
 						mProcessId = process.id();
 						mStarted = true;
-						DS_LOG_INFO("SyncServicce (downsync): Started Downsync");
+						DS_LOG_INFO("SyncService (downsync): Started Downsync");
 					}
 					else {
-						DS_LOG_ERROR("SyncServicce (downsync): Failed to start downsync");
+						DS_LOG_ERROR("SyncService (downsync): Failed to start downsync");
 						mExit = true;
 						mStarted = false;
 					}
@@ -124,7 +124,7 @@ namespace ds::content {
 					//mLock.unlock();
 				}
 				else {
-					DS_LOG_ERROR("SyncServicce (downsync): downsync.exe not found at " << sync_path);
+					DS_LOG_ERROR("SyncService (downsync): downsync.exe not found at " << sync_path);
 					mExit = true;
 					mStarted = false;
 				}
