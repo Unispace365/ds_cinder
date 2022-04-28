@@ -36,9 +36,20 @@ public:
 		if(!mConsoleCreated)
 			return;
 
-		fclose(stdin);
-		fclose(stdout);
-		fclose(stderr);
+		// NH: For some reason, the app was crashing on restart  if you were to show 
+		// the console and then restart.  The crash was occuring when initializing 
+		// the logger, which writes to std::cout.  I suspect it has something to do 
+		// with trying to write to file descriptor that has been destroyed.
+		// Someone on StackOverflow says we can keep the file open,  but just direct
+		// it to a null device with freopen().  This seems to have fixed the crashing
+		// issue...
+		// https://stackoverflow.com/a/4973065
+		//fclose(stdin);
+		//fclose(stdout);
+		//fclose(stderr);
+		freopen("nul", "r", stdin);
+		freopen("nul", "w", stdout);
+		freopen("nul", "w", stderr);
 
 		if(!FreeConsole()) {
 			DS_LOG_WARNING("failed to close console window");
