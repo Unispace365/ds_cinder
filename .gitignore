@@ -74,3 +74,7 @@ projects/**/lib*.a
 *.db-wal
 
 *.lastcodeanalysissucceeded
+
+projects/dummy_web/lib64/dummy_web.lib
+
+projects/dummy_web/lib64/dummy_web_d.lib
