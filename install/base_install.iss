@@ -78,7 +78,7 @@ Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
-Source: "{#GST}/bin/*.dll"; DestDir: "{app}/dll"
+Source: "{#GST}/bin/*.dll"; Excludes:"librtmp-1.dll"; DestDir: "{app}/dll"
 Source: "{#GST}/lib/gstreamer-1.0/*.dll"; DestDir: "{app}/dll/gst_plugins"
 #endif
 
