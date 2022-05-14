@@ -111,6 +111,9 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='DummyWeb_Debug|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -160,7 +163,7 @@
     <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64_d.props" />
-    <Import Project="..\dummy_web\PropertySheets\dummy_web_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\dummy_web\PropertySheets\dummy_web_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
