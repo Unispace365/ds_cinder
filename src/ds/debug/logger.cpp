@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <Poco/DateTimeFormatter.h>
+#include <Poco/LocalDateTime.h>
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/Semaphore.h>
@@ -137,7 +138,7 @@ void ds::Logger::setup(ds::cfg::Settings& settings)
 		// If an actual file name was supplied, then do something to separate the date stamp
 		// XXX -- not currently supported, assume the default log name
 		//if (!file.empty() && !ends_in_separator(file)) file.append(" ");
-		fn.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
+		fn.append(Poco::DateTimeFormatter::format(Poco::LocalDateTime(), DATE_FORMAT));
 		fn.append(".log.txt");
 		path.append(fn);
 		LOG_FILE = path.toString();
