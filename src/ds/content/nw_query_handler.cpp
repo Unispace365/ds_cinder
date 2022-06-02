@@ -30,8 +30,9 @@ NWQueryHandler::NWQueryHandler(ds::ui::SpriteEngine &eng)
   mComputerName = mEngine.getAppSettings().getString(
       "debug:override_computername", 0, computername_buffer);
   DS_LOG_INFO("Discovered Computer Name of: " << mComputerName);
-
-  handleQuery();
+  mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](auto& e) {
+	  handleQuery();
+  });
 }
 
 void NWQueryHandler::handleQuery() {
