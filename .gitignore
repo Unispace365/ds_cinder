@@ -33,6 +33,7 @@ vs2015/x64/
 projects/**/x64/
 
 projects/pdf/lib/
+projects/pdf/lib/v*
 projects/physics/lib/
 projects/video/lib/
 projects/web/lib/
@@ -78,3 +79,8 @@ projects/**/lib*.a
 projects/dummy_web/lib64/dummy_web.lib
 
 projects/dummy_web/lib64/dummy_web_d.lib
+
+projects/pdf/lib64/v143/pdf_mupdf.lib
+projects/pdf/lib64/v142/pdf_mupdf.lib
+projects/pdf/lib64/v143/pdf_mupdf_d.lib
+projects/pdf/lib64/v142/pdf_mupdf_d.lib
