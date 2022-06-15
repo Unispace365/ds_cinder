@@ -58,6 +58,17 @@ development and preview builds and avoids needing to create a custom config for 
 <setting name="downsync_config_file" value="%APP%/downsync/config.staging.json5" type="string" comment="Downsync with attempt to use this config when run as a subprocess" default="true"/>
 ```
 
+## Microsoft C++ Visual Redistributable
+
+When installing an application that has been updated with these settings, there will sometimes be the following error pop-up:
+```
+The code execution cannot proceed because vcruntime140_1.dll was not found. Reinstalling the program may fix this problem.
+```
+
+This can be solved by installing the newest Microsoft Visual C++ Redistributable at the following link:
+
+https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
 ## Yoga
 ... ?
 
