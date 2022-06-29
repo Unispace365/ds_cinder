@@ -142,6 +142,7 @@
     <ClInclude Include="..\src\ds\util\ada\tools\fs.h" />
     <ClInclude Include="..\src\ds\util\ada\tools\list.h" />
     <ClInclude Include="..\src\ds\util\ada\tools\text.h" />
+    <ClInclude Include="..\src\ds\util\boolinq.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\ds\util\glm_structured_binding.h" />
     <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />

@@ -699,6 +699,9 @@
     <ClInclude Include="..\src\ds\util\ada\tools\text.h">
       <Filter>src\ds\util\ada\tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\boolinq.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">

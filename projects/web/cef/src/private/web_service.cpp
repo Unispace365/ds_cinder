@@ -344,6 +344,14 @@ void WebCefService::authCallbackContinue(const int browserId, const std::string&
 	}
 }
 
+void WebCefService::openDevtools(const int browserId)
+{
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if (handler) {
+		handler->openDevTools(browserId);
+	}
+}
+
 void WebCefService::deleteCookies(const std::string& url, const std::string& cookies) {
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler) {

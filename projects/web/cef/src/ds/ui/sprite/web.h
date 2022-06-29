@@ -176,6 +176,8 @@ public:
 	virtual void								onUpdateServer(const ds::UpdateParams&) override;
 	virtual void								drawLocalClient() override;
 
+	virtual void								openTools();
+
 protected:
 	virtual void								onSizeChanged();
 	virtual void								writeAttributesTo(ds::DataBuffer&);
@@ -229,6 +231,7 @@ private:
 	void										clearBrowser();
 	void										createBrowser();
 	void										initializeBrowser();
+	
 	bool										mNeedsInitialized;
 
 	ds::web::WebCefService&						mService;

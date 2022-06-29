@@ -193,6 +193,9 @@ public:
 
 	// Requests the browser to be closed and also clears and related callbacks
 	void					closeBrowser(const int browserId);
+	
+	//open dev tools window.
+	void openDevTools(int browserId);
 
 	// Adds a callback to a list of callbacks for after browsers are created
 	void 					addCreatedCallback(void * instancePtr, std::function<void(int)> callback);

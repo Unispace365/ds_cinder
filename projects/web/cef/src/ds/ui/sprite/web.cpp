@@ -395,6 +395,11 @@ void Web::initializeBrowser(){
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
+void Web::openTools()
+{
+	mService.openDevtools(mBrowserId);
+}
+
 
 void Web::dispatchCallbacks(){
 	if(mNeedsInitialized){

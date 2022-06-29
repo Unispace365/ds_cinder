@@ -554,6 +554,21 @@ void WebHandler::closeBrowser(const int browserId){
 	}
 }
 
+void WebHandler::openDevTools(int browserId) {
+	CefRefPtr<CefBrowserHost> browserHost = nullptr;
+	CefRefPtr<CefClient> client;
+	auto findy = mBrowserList.find(browserId);
+	if (findy != mBrowserList.end()) {
+		browserHost = findy->second->GetHost();
+		client = findy->second->GetHost()->GetClient();
+	}
+	if (browserHost) {
+		CefWindowInfo info;
+		info.SetAsPopup((HWND)ci::app::getWindow()->getNative(), "Tools");
+		browserHost->ShowDevTools(info, client, CefBrowserSettings(), CefPoint());
+	}
+}
+
 void WebHandler::addCreatedCallback(void * instancePtr, std::function<void(int)> callback){
 	// be sure this is locked with other requests to the browser list
 	base::AutoLock lock_scope(mLock);
