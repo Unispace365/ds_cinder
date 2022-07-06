@@ -27,9 +27,17 @@ NWQueryHandler::NWQueryHandler(ds::ui::SpriteEngine &eng)
   GetComputerNameExA(COMPUTER_NAME_FORMAT::ComputerNameDnsHostname,
                      computername_buffer, &bufsize);
 
-  mComputerName = mEngine.getAppSettings().getString(
-      "debug:override_computername", 0, computername_buffer);
-  DS_LOG_INFO("Discovered Computer Name of: " << mComputerName);
+  
+  auto computerName = mEngine.getAppSettings().getString(
+      "platform:override_computername", 0, computername_buffer);
+  mPlatformKey = mEngine.getAppSettings().getString(
+	  "platform:key", 0, computerName);
+  auto platformKeyUpper = mPlatformKey;
+  ds::to_uppercase(platformKeyUpper);
+  if ((mPlatformKey.empty() ||  platformKeyUpper == "AUTO") && !computerName.empty()) {
+	  mPlatformKey = computerName;
+  }
+  DS_LOG_INFO("Discovered Platform Key of: " << mPlatformKey);
   mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](auto& e) {
 	  handleQuery();
   });
@@ -95,47 +103,49 @@ void NWQueryHandler::handleQuery() {
   }
   mEngine.mContent.replaceChild(cmsUFRoot);
 
+  //if we were filtering this is where it would be.
   std::vector<std::string> excluded_templates =
-      ds::split(mEngine.getAppSettings().getString("template_exclude", 0, ""),
+      ds::split(mEngine.getAppSettings().getString("kind_exclude", 0, ""),
                 ", ", true);
-  std::vector<ds::model::ContentModelRef> allNodesList =
-      boolinq::from(rawNodesList)
-          .where([excluded_templates,
-                  allUFNodes](ds::model::ContentModelRef it) {
-            auto kind = it.getPropertyString("kind");
-            if (std::find(excluded_templates.begin(), excluded_templates.end(),
-                          kind) != excluded_templates.end()) {
-              DS_LOG_INFO("excluding " << kind);
-              return false;
-            }
-            if (kind == "template_overview") {
-              auto rawItem = allUFNodes.at(it.getId());
-              auto children = rawItem.getPropertyListInt("items");
+  std::vector<ds::model::ContentModelRef> allNodesList = rawNodesList;
+      //boolinq::from(rawNodesList)
+      //    .where([excluded_templates,
+      //            allUFNodes](ds::model::ContentModelRef it) {
+      //      auto kind = it.getPropertyString("kind");
+      //      if (std::find(excluded_templates.begin(), excluded_templates.end(),
+      //                    kind) != excluded_templates.end()) {
+      //        DS_LOG_INFO("excluding " << kind);
+      //        return false;
+      //      }
+      //      if (kind == "template_overview") {
+      //        auto rawItem = allUFNodes.at(it.getId());
+      //        auto children = rawItem.getPropertyListInt("items");
 
-              for (auto ch : children) {
+      //        for (auto ch : children) {
 
-                auto chIt = allUFNodes.at(ch);
-                auto chKind = chIt.getPropertyString("kind");
-                auto branch = chIt.getPropertyString("branch");
-                // if any child is allowed return that the parent is allowed.
-                if (branch == "content" &&
-                    std::find(excluded_templates.begin(),
-                              excluded_templates.end(),
-                              chKind) == excluded_templates.end()) {
-                  return true;
-                }
-              }
-              return false;
-            }
-            return true;
-          })
-          .toStdVector();
+      //          auto chIt = allUFNodes.at(ch);
+      //          auto chKind = chIt.getPropertyString("kind");
+      //          auto branch = chIt.getPropertyString("branch");
+      //          // if any child is allowed return that the parent is allowed.
+      //          if (branch == "content" &&
+      //              std::find(excluded_templates.begin(),
+      //                        excluded_templates.end(),
+      //                        chKind) == excluded_templates.end()) {
+      //            return true;
+      //          }
+      //        }
+      //        return false;
+      //      }
+      //      return true;
+      //    })
+      //    .toStdVector();
 
   // ----------- PLATFORMS --------------------------------------
   ds::model::ContentModelRef cmsPlatforms =
       ds::model::ContentModelRef("cms_platforms");
-  cmsPlatforms.setProperty("kind", std::string("platform"));
+  cmsPlatforms.setProperty("kind", std::string("platforms"));
   cmsPlatforms.setProperty("name", std::string("Platforms"));
+
   auto nodes =
       mEngine.mContent.getChildByName("sqlite.waffles_nodes").getChildren();
   // add properties to the platforms
@@ -150,20 +160,35 @@ void NWQueryHandler::handleQuery() {
   /// Note, you could change mComputerName to something from app settings or
   /// other value to filter in other ways
   ds::model::ContentModelRef thisPlatform;
-  for (auto it : allPlatformsList) {
-    parseModelProperties(it, allNodesList);
-    if (it.getPropertyString("platform_key") == mComputerName) {
-      thisPlatform = it;
-    }
-  }
-
-  if (thisPlatform.empty()) {
-    DS_LOG_WARNING("No specific platform for this app. Check the computer name "
-                   << mComputerName << " against the CMS");
+  int platformCount = 0;
+  if (allPlatformsList.empty()) {
+	  DS_LOG_WARNING("Did not find any platforms in the database.");
   }
 
   cmsPlatforms.clearChildren();
-  cmsPlatforms.addChild(thisPlatform);
+  for (auto it : allPlatformsList) {
+    parseModelProperties(it, allNodesList);
+    if (it.getPropertyString("platform_key") == mPlatformKey) {
+      thisPlatform = it;
+	  platformCount++;
+	  cmsPlatforms.addChild(thisPlatform);
+    }
+  }
+
+  if (platformCount > 1) {
+	  DS_LOG_WARNING("Found Multiple platforms that match the given platform key of " << mPlatformKey
+		  << " This is probably not what you want");
+  }
+  
+  if (thisPlatform.empty() && !allPlatformsList.empty()) {
+    DS_LOG_WARNING("No specific platform for this app. Check the computer name "
+                   << mPlatformKey << " against the CMS");
+  }
+  else if(!allPlatformsList.empty()) {
+	  DS_LOG_INFO("Found matching platform "
+		  << mPlatformKey << " against the CMS");
+  }
+
   mEngine.mContent.replaceChild(cmsPlatforms);
 
   // ----------- NODES --------------------------------------
