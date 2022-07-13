@@ -39,6 +39,7 @@ public:
 	std::vector<KeyRegister>&	getKeyRegistry() { return mKeyRegisters; }
 
 	std::string keyCodeToString(const int keyCode);
+	std::string mKeyCodeMap(const int keyCode);
 
 	/// Output all set keys into a string.
 	std::string getAllKeysString();
