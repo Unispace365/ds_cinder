@@ -222,7 +222,15 @@ std::string KeyManager::keyCodeToString(const int keyCode) {
 	return "Unknown";
 }
 
-std::map<std::string, int> KeyManager::mKeyCodeMap = { {"unknown",ci::app::KeyEvent::KEY_UNKNOWN},
+int KeyManager::stringToKeyCode(const std::string& keyname)
+{
+	if (mKeyCodeMap.find(keyname) == mKeyCodeMap.end()) {
+		return 0;
+	}
+	return mKeyCodeMap[keyname];
+}
+
+std::unordered_map<std::string, int> KeyManager::mKeyCodeMap = { {"unknown",ci::app::KeyEvent::KEY_UNKNOWN},
         {"backspace",ci::app::KeyEvent::KEY_BACKSPACE},
         {"tab",ci::app::KeyEvent::KEY_TAB},
         {"clear",ci::app::KeyEvent::KEY_CLEAR},
