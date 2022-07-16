@@ -159,7 +159,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 {
 	mBlobType = BLOB_TYPE;
 
-	mEngineFontScale = mEngine.getEngineSettings().getFloat("font_scale",0, 4.0 / 3.0);
+	mEngineFontScale = mEngine.getEngineSettings().getFloat("font_scale",0, 4.0f / 3.0f);
 	
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
@@ -540,7 +540,7 @@ void Text::drawLocalClient(){
 		}
 		if (mFitToResizeLimit && mEngine.getEngineSettings().getBool("font:debug_fit_to_resize",0)) {
 			ci::gl::drawString(ci::toString(mFitCurrentTextSize), ci::vec2(0, 0), ci::ColorA(1, 0, 0, 1));
-			ci::gl::ScopedColor(ci::ColorA(1, 0, 0, 1));
+			ci::gl::ScopedColor sc(ci::ColorA(1, 0, 0, 1));
 			ci::gl::drawStrokedRect(ci::Rectf(0, 0, mResizeLimitWidth, mResizeLimitHeight));
 		}
 	}

@@ -258,7 +258,7 @@ void PanoramicVideo::drawLocalClient(){
 
 		// might have to figure this out for client/server
 		ci::gl::ScopedViewport newViewport(newViewportBounds.getX1(), newViewportBounds.getY1(), newViewportBounds.getWidth(), newViewportBounds.getHeight());
-		ci::gl::ScopedGlslProg sShader();
+		ci::gl::ScopedGlslProg sShader(mShader);
 		mShader->bind();
 		videoTexture->bind();
 
