@@ -36,7 +36,6 @@ namespace ds {
 namespace ui {
 
 YGSize _yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
-	YGSize retVal;
 	ds::ui::Sprite* spr = (ds::ui::Sprite*)YGNodeGetContext(node);
 	
 	return spr->yogaMeasureFunc(node, width, widthMode, height, heightMode);

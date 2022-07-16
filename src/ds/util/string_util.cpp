@@ -17,6 +17,9 @@ using namespace ds;
 #include <time.h>
 #include <iostream>
 
+// Disable C++17 Deprecation warning for codecvt
+#pragma warning( disable : 4996 )
+
 std::wstring wstr_from_str(const std::string& str, const UINT cp)
 {
 	if (str.empty()) return std::wstring();
