@@ -696,7 +696,7 @@
     <ClInclude Include="..\src\ds\util\ada\tools\list.h">
       <Filter>src\ds\util\ada\tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\util\ada\tools\text.h">
+    <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h">
       <Filter>src\ds\util\ada\tools</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1154,7 +1154,7 @@
     <ClCompile Include="..\src\ds\util\ada\tools\list.cpp">
       <Filter>src\ds\util\ada\tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\util\ada\tools\text.cpp">
+    <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp">
       <Filter>src\ds\util\ada\tools</Filter>
     </ClCompile>
   </ItemGroup>

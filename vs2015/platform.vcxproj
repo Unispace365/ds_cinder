@@ -139,9 +139,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h" />
     <ClInclude Include="..\src\ds\ui\touch\tuio_input.h" />
+    <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h" />
     <ClInclude Include="..\src\ds\util\ada\tools\fs.h" />
     <ClInclude Include="..\src\ds\util\ada\tools\list.h" />
-    <ClInclude Include="..\src\ds\util\ada\tools\text.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\ds\util\glm_structured_binding.h" />
     <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />
@@ -319,9 +319,9 @@
     <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\tuio_input.cpp" />
+    <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp" />
     <ClCompile Include="..\src\ds\util\ada\tools\fs.cpp" />
     <ClCompile Include="..\src\ds\util\ada\tools\list.cpp" />
-    <ClCompile Include="..\src\ds\util\ada\tools\text.cpp" />
     <ClCompile Include="..\src\ds\util\date_util.cpp" />
     <ClCompile Include="..\src\ds\util\markdown_to_pango.cpp" />
     <ClCompile Include="..\src\ds\util\sundown\autolink.c">
