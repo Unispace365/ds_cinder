@@ -115,6 +115,12 @@
     <Filter Include="src\ds\content\service">
       <UniqueIdentifier>{580833cb-7224-4971-8e92-49ac3f3bbaba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\util\ada">
+      <UniqueIdentifier>{f1cf5eb3-aeb8-47e9-b5db-199e0ce13c46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\ada\tools">
+      <UniqueIdentifier>{e0f16fa4-bbe0-4d31-a799-778e27fa8a95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -672,6 +678,27 @@
     <ClInclude Include="..\src\ds\content\service\sync_service.h">
       <Filter>src\ds\content\service</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_query_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_schedule_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="default_content_model_xml.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\shader_string_repo.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\fs.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\list.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1111,6 +1138,24 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\content\service\sync_service.cpp">
       <Filter>src\ds\content\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_query_handler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\shader_string_repo.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\fs.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\list.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

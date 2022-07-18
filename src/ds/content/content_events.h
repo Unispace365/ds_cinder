@@ -15,6 +15,11 @@ class RequestContentQueryEvent : public ds::RegisteredEvent<RequestContentQueryE
 /// A message was received from dsnode on localhost port 7777
 class DsNodeMessageReceivedEvent : public ds::RegisteredEvent<DsNodeMessageReceivedEvent> {};
 
+struct CmsDataLoadCompleteEvent : public ds::RegisteredEvent<CmsDataLoadCompleteEvent> {
+};
+
+struct ScheduleUpdatedEvent : public ds::RegisteredEvent<ScheduleUpdatedEvent> {};
+
 } // !namespace ds
 
 #endif 

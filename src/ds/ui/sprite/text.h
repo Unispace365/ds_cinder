@@ -285,7 +285,6 @@ protected:
 	bool						mFitToResizeLimit;
 	bool						mNeedsMaxResizeFontSizeUpdate;
 	bool						mNeedsRefit;
-	int							mMaxResizeFontSize;
 	double						mFitCurrentTextSize;
 
 	/// Info about the text layout

@@ -159,7 +159,7 @@ namespace ds::ui {
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-					YGNodeStyleSetFlexGrow(node, number);
+					YGNodeStyleSetFlexGrow(node, (float)(number));
 				}
 				else {
 					DS_LOG_ERROR("could not parse flex-grow value");
@@ -172,7 +172,7 @@ namespace ds::ui {
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-					YGNodeStyleSetFlexShrink(node, number);
+					YGNodeStyleSetFlexShrink(node, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse flex-shrink value");
@@ -185,7 +185,7 @@ namespace ds::ui {
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				double number;
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-					YGNodeStyleSetFlex(node, number);
+					YGNodeStyleSetFlex(node, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse flex value");
@@ -202,10 +202,10 @@ namespace ds::ui {
 				} 
 				else if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetFlexBasis(node, number);
+						YGNodeStyleSetFlexBasis(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetFlexBasisPercent(node, number);
+						YGNodeStyleSetFlexBasisPercent(node, (float)number);
 					}
 				}
 				else {
@@ -247,10 +247,10 @@ namespace ds::ui {
 				} 
 				else if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetWidth(node, number);
+						YGNodeStyleSetWidth(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetWidthPercent(node, number);
+						YGNodeStyleSetWidthPercent(node, (float)number);
 					}
 				}
 				else {
@@ -268,10 +268,10 @@ namespace ds::ui {
 				} 
 				else if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetHeight(node, number);
+						YGNodeStyleSetHeight(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetHeightPercent(node, number);
+						YGNodeStyleSetHeightPercent(node, (float)number);
 					}
 				}
 				else {
@@ -286,10 +286,10 @@ namespace ds::ui {
 				double number;
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetMaxWidth(node, number);
+						YGNodeStyleSetMaxWidth(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetMaxWidthPercent(node, number);
+						YGNodeStyleSetMaxWidthPercent(node, (float)number);
 					}
 				}
 				else {
@@ -305,10 +305,10 @@ namespace ds::ui {
 			
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetMaxHeight(node, number);
+						YGNodeStyleSetMaxHeight(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetMaxHeightPercent(node, number);
+						YGNodeStyleSetMaxHeightPercent(node, (float)number);
 					}
 				}
 				else {
@@ -323,10 +323,10 @@ namespace ds::ui {
 				double number;
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetMinWidth(node, number);
+						YGNodeStyleSetMinWidth(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetMinWidthPercent(node, number);
+						YGNodeStyleSetMinWidthPercent(node, (float)number);
 					}
 				}
 				else {
@@ -342,10 +342,10 @@ namespace ds::ui {
 			
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (!pct) {
-						YGNodeStyleSetMinHeight(node, number);
+						YGNodeStyleSetMinHeight(node, (float)number);
 					}
 					else {
-						YGNodeStyleSetMinHeightPercent(node, number);
+						YGNodeStyleSetMinHeightPercent(node, (float)number);
 					}
 				}
 				else {
@@ -362,7 +362,7 @@ namespace ds::ui {
 					YGNodeStyleSetAspectRatio(node,YGUndefined);
 				} 
 				else if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-						YGNodeStyleSetAspectRatio(node, number);
+						YGNodeStyleSetAspectRatio(node, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse aspect-ratio value");
@@ -392,10 +392,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPaddingPercent(node, YGEdgeTop, number);
+						YGNodeStyleSetPaddingPercent(node, YGEdgeTop, (float)number);
 					}
 					else {
-						YGNodeStyleSetPadding(node, YGEdgeTop, number);
+						YGNodeStyleSetPadding(node, YGEdgeTop, (float)number);
 					}
 				}
 				else {
@@ -411,10 +411,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPaddingPercent(node, YGEdgeBottom, number);
+						YGNodeStyleSetPaddingPercent(node, YGEdgeBottom, (float)number);
 					}
 					else {
-						YGNodeStyleSetPadding(node, YGEdgeBottom, number);
+						YGNodeStyleSetPadding(node, YGEdgeBottom, (float)number);
 					}
 				}
 				else {
@@ -430,10 +430,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPaddingPercent(node, YGEdgeLeft, number);
+						YGNodeStyleSetPaddingPercent(node, YGEdgeLeft, (float)number);
 					}
 					else {
-						YGNodeStyleSetPadding(node, YGEdgeLeft, number);
+						YGNodeStyleSetPadding(node, YGEdgeLeft, (float)number);
 					}
 				}
 				else {
@@ -449,10 +449,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPaddingPercent(node, YGEdgeRight, number);
+						YGNodeStyleSetPaddingPercent(node, YGEdgeRight, (float)number);
 					}
 					else {
-						YGNodeStyleSetPadding(node, YGEdgeRight, number);
+						YGNodeStyleSetPadding(node, YGEdgeRight, (float)number);
 					}
 				}
 				else {
@@ -468,10 +468,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetMarginPercent(node, YGEdgeTop, number);
+						YGNodeStyleSetMarginPercent(node, YGEdgeTop, (float)number);
 					}
 					else {
-						YGNodeStyleSetMargin(node, YGEdgeTop, number);
+						YGNodeStyleSetMargin(node, YGEdgeTop, (float)number);
 					}
 				}
 				else {
@@ -487,10 +487,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetMarginPercent(node, YGEdgeBottom, number);
+						YGNodeStyleSetMarginPercent(node, YGEdgeBottom, (float)number);
 					}
 					else {
-						YGNodeStyleSetMargin(node, YGEdgeBottom, number);
+						YGNodeStyleSetMargin(node, YGEdgeBottom, (float)number);
 					}
 				}
 				else {
@@ -506,10 +506,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetMarginPercent(node, YGEdgeLeft, number);
+						YGNodeStyleSetMarginPercent(node, YGEdgeLeft, (float)number);
 					}
 					else {
-						YGNodeStyleSetMargin(node, YGEdgeLeft, number);
+						YGNodeStyleSetMargin(node, YGEdgeLeft, (float)number);
 					}
 				}
 				else {
@@ -525,10 +525,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetMarginPercent(node, YGEdgeRight, number);
+						YGNodeStyleSetMarginPercent(node, YGEdgeRight, (float)number);
 					}
 					else {
-						YGNodeStyleSetMargin(node, YGEdgeRight, number);
+						YGNodeStyleSetMargin(node, YGEdgeRight, (float)number);
 					}
 				}
 				else {
@@ -543,7 +543,7 @@ namespace ds::ui {
 				double number;
 				
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-						YGNodeStyleSetBorder(node, YGEdgeTop, number);
+						YGNodeStyleSetBorder(node, YGEdgeTop, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse border-top value");
@@ -557,7 +557,7 @@ namespace ds::ui {
 				double number;
 				
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-						YGNodeStyleSetBorder(node, YGEdgeBottom, number);
+						YGNodeStyleSetBorder(node, YGEdgeBottom, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse border-bottom value");
@@ -571,7 +571,7 @@ namespace ds::ui {
 				double number;
 				
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-						YGNodeStyleSetBorder(node, YGEdgeLeft, number);
+						YGNodeStyleSetBorder(node, YGEdgeLeft, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse border-left value");
@@ -585,7 +585,7 @@ namespace ds::ui {
 				double number;
 				
 				if (!pct && Poco::NumberParser::tryParseFloat(value, number)) {
-						YGNodeStyleSetBorder(node, YGEdgeRight, number);
+						YGNodeStyleSetBorder(node, YGEdgeRight, (float)number);
 				}
 				else {
 					DS_LOG_ERROR("could not parse border-right value");
@@ -600,10 +600,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPositionPercent(node, YGEdgeTop, number);
+						YGNodeStyleSetPositionPercent(node, YGEdgeTop, (float)number);
 					}
 					else {
-						YGNodeStyleSetPosition(node, YGEdgeTop, number);
+						YGNodeStyleSetPosition(node, YGEdgeTop, (float)number);
 					}
 				}
 				else {
@@ -619,10 +619,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPositionPercent(node, YGEdgeBottom, number);
+						YGNodeStyleSetPositionPercent(node, YGEdgeBottom, (float)number);
 					}
 					else {
-						YGNodeStyleSetPosition(node, YGEdgeBottom, number);
+						YGNodeStyleSetPosition(node, YGEdgeBottom, (float)number);
 					}
 				}
 				else {
@@ -638,10 +638,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPositionPercent(node, YGEdgeLeft, number);
+						YGNodeStyleSetPositionPercent(node, YGEdgeLeft, (float)number);
 					}
 					else {
-						YGNodeStyleSetPosition(node, YGEdgeLeft, number);
+						YGNodeStyleSetPosition(node, YGEdgeLeft, (float)number);
 					}
 				}
 				else {
@@ -657,10 +657,10 @@ namespace ds::ui {
 				
 				if (Poco::NumberParser::tryParseFloat(value, number)) {
 					if (pct) {
-						YGNodeStyleSetPositionPercent(node, YGEdgeRight, number);
+						YGNodeStyleSetPositionPercent(node, YGEdgeRight, (float)number);
 					}
 					else {
-						YGNodeStyleSetPosition(node, YGEdgeRight, number);
+						YGNodeStyleSetPosition(node, YGEdgeRight, (float)number);
 					}
 				}
 				else {
@@ -685,6 +685,7 @@ namespace ds::ui {
 		else {
 			DS_LOG_ERROR("Could not find parser for property named '" << property << "'");
 		}
+		return false;
 	}
 
 	
