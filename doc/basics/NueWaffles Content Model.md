@@ -75,7 +75,7 @@ The Query handler will add the following Content Models to the root content mode
 
 - **cms_tags** - the list of tags in the cms
 - **cms_root** - this is the content tree. It is unusual to get to part of this model directly, usually you would look up a node that is aquired from an event or a platform node selector in the cms. the Query handler will also as a references map that is called `valid_nodes`
-- **cms_platforms** - this is the list of platforms that match the applications platform key. The platform key is set via the engine file's `platform:key` setting. If this value is blank or AUTO then the computers machine name is used for the platform key. Unless you have a reason to do otherwise, you should ensure that only one cms platform will match a give computer as it will be hard to distinguish the correct platform for an application.
+- **cms_platforms** - this is the list of platforms that match the applications platform key. The platform key is set via the app_settings.xml file's `platform:key` setting. If this value is blank or AUTO then the computers machine name is used for the platform key. Unless you have a reason to do otherwise, you should ensure that only one cms platform will match a give computer as it will be hard to distinguish the correct platform for an application.
 - **cms_events** this is a list of **ALL** the cms events for all the schedules for the first platform in the platform list. This includes past cms events and future events. The Schedule handler is responsible to filtering these events to events that are occuring "now"
 
 ### *Scheduler Handler*
