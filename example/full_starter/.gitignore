@@ -37,6 +37,8 @@
 *.opendb
 *.msi
 *.cab
+*/.vs
+*/.vscode
 
 GPUCache/
 Release/
@@ -48,7 +50,15 @@ Release/
 /vs2015/databases/
 /vs2015/QuotaManager
 /vs2015/QuotaManager-journal
+/vs2019/.fontconfig
+/vs2019/x64/
+/vs2019/Debug/
+/vs2019/File System/
+/vs2019/databases/
+/vs2019/QuotaManager
+/vs2019/QuotaManager-journal
 /settings/configuration.xml
 /inspector.pak
 /install/DSNode
 /install/DsAppHost
+*/imgui.ini

@@ -74,6 +74,7 @@ projects/**/lib*.a
 /vs2015/platform.sln
 *.db-shm
 *.db-wal
+*/imgui.ini
 
 *.lastcodeanalysissucceeded
 
