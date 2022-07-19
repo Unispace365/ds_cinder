@@ -56,6 +56,8 @@
     <ClInclude Include="..\src\ds\content\content_model.h" />
     <ClInclude Include="..\src\ds\content\content_query.h" />
     <ClInclude Include="..\src\ds\content\content_wrangler.h" />
+    <ClInclude Include="..\src\ds\content\nw_query_handler.h" />
+    <ClInclude Include="..\src\ds\content\nw_schedule_handler.h" />
     <ClInclude Include="..\src\ds\content\service\sync_service.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
@@ -127,6 +129,7 @@
     <ClInclude Include="..\src\ds\ui\control\control_slider.h" />
     <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h" />
     <ClInclude Include="..\src\ds\ui\layout\perspective_layout.h" />
+    <ClInclude Include="..\src\ds\ui\service\shader_string_repo.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.h" />
@@ -136,6 +139,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h" />
     <ClInclude Include="..\src\ds\ui\touch\tuio_input.h" />
+    <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h" />
+    <ClInclude Include="..\src\ds\util\ada\tools\fs.h" />
+    <ClInclude Include="..\src\ds\util\ada\tools\list.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\ds\util\glm_structured_binding.h" />
     <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />
@@ -200,6 +206,7 @@
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
+    <ClInclude Include="default_content_model_xml.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.cpp">
@@ -243,6 +250,8 @@
     <ClCompile Include="..\src\ds\content\content_model.cpp" />
     <ClCompile Include="..\src\ds\content\content_query.cpp" />
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
+    <ClCompile Include="..\src\ds\content\nw_query_handler.cpp" />
+    <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp" />
     <ClCompile Include="..\src\ds\content\service\sync_service.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
@@ -301,6 +310,7 @@
     <ClCompile Include="..\src\ds\ui\control\control_slider.cpp" />
     <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\layout\perspective_layout.cpp" />
+    <ClCompile Include="..\src\ds\ui\service\shader_string_repo.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
@@ -309,6 +319,9 @@
     <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\tuio_input.cpp" />
+    <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp" />
+    <ClCompile Include="..\src\ds\util\ada\tools\fs.cpp" />
+    <ClCompile Include="..\src\ds\util\ada\tools\list.cpp" />
     <ClCompile Include="..\src\ds\util\date_util.cpp" />
     <ClCompile Include="..\src\ds\util\markdown_to_pango.cpp" />
     <ClCompile Include="..\src\ds\util\sundown\autolink.c">
@@ -396,18 +409,18 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

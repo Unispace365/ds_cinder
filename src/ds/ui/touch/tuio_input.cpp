@@ -37,12 +37,21 @@ protected:
 		}
 		ci::osc::ReceiverUdp::closeImpl();
 
+		/*
+		NH: It still seems that we will crash if we delete the socket when restarting the app.
+		If we instead try to cancel and close the socket above, but keep the socket pointer
+		around (by maintaining a pointer to OSC ReceiverUdp in the sDeadReceiversPool), then 
+		we won't crash on the next update cycle when mIo->poll() is called in the Cinder App.
+		I believe the only harm is that this UdpReceiver instance will hang around until the
+		app quits, even after engine restarts, but that shouldn't cause a problem in normal
+		operating conditions...
 		try {
 			mSocket.reset();
 		}
 		catch (const std::exception& e) {
 			DS_LOG_WARNING("Error deleting socket: " << e.what());
 		}
+		*/
 
 	}
 };

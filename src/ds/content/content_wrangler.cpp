@@ -101,7 +101,7 @@ void ContentWrangler::initialize() {
 		return;
 	}
 
-	mModelModelLocation = mEngine.getEngineSettings().getString("content:model_location");
+	mModelModelLocation = mEngine.getEngineSettings().getString("content:model_location",0,"");
 
 	if (mEngine.getEngineSettings().getBool("content:node_watch")) {
 		mNodeWatcher.startWatching();

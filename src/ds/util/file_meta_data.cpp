@@ -96,7 +96,7 @@ std::string filePathRelativeTo(const std::string &base, const std::string &relat
 	using namespace std::filesystem;
 	std::error_code e;
 	auto cpath = current_path();
-	current_path(path(base).parent_path());
+	if(!base.empty()) current_path(path(base).parent_path());
 	std::string ret = std::filesystem::canonical(path(relative), e).string();
 	current_path(cpath);
 	if(e) {

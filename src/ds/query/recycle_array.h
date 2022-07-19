@@ -95,7 +95,7 @@ RecycleArray<T>::RecycleArray(const RecycleArray &rhs)
 template <class T>
 RecycleArray<T>::~RecycleArray()
 {
-	if(mD) realloc(mD, 0);
+	if(mD) free(mD);
 }
 
 template <class T>

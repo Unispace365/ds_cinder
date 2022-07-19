@@ -23,6 +23,7 @@
 #include "fparser.hh"
 #include "extrasrc/fptypes.hh"
 #include "extrasrc/fpaux.hh"
+#pragma warning( disable : 4838 4068 26495 26819 4244 )
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #define tO3 ;typedef
 #define tN3 (xP1 a)

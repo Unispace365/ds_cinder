@@ -10,8 +10,11 @@
 	<setting name="server:send_port" value="1037" type="int" comment="The send port of the server. Match these between server and client" default="1037" min_value="1" max_value="99999"/>
 	<setting name="server:listen_port" value="1038" type="int" comment="The listen port of the server (which is what the client sends on). Match these between server and client." default="1038" min_value="1" max_value="99999"/>
 	<setting name="platform:architecture" value="standalone" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
+	<setting name="platform:guid" value="full_starter_app" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 
 	<setting name="DOWNSYNC SETTINGS" value="" type="seciton_header"/>
+	<setting name="platform:key" value="AUTO" type="string" comment="platform key that is matched to platform key on a cms platform. empty or AUTO defaults to the machine name"/>
+	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="run_downsync_as_subprocess" value="true" type="bool" comment="Will Attempt to run downsync from the %APP%/downsync folder" default="true"/>
 	<setting name="downsync_config_file" value="%APP%/downsync/config.staging.json5" type="string" comment="Downsync with attempt to use this config when run as a subprocess" default="true"/>
 	<setting name="downsync_name" value="" type="string"/>
@@ -80,7 +83,8 @@
 	<setting name="cms:url" value="DS_BASEURL" type="string" comment="The URL of a Content Management System, set as DS_BASE_URL to use that env variable." default="DS_BASEURL"/>
 	<setting name="node:refresh_rate" value="0.1" type="float" comment="If your app uses a NodeWatcher, how often to check for node updates" default="0.1" min_value="0.001" max_value="10.0"/>
 	<setting name="content:node_watch" value="true" type="bool" comment="If ContentWrangler should automatically listen to dsnode messages on udp localhost port 7777" default="true"/>
-	<setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data. Specify multiple locations separated by a semicolon" default="%APP%/data/model/content_model.xml"/>
+	<!--setting name="content:model_location" value="%APP%/data/model/content_model.xml" type="string" comment="Where ContentWrangler should look for an xml file that describes a data model to load sqlite data. Specify multiple locations separated by a semicolon" default="%APP%/data/model/content_model.xml"/-->
+	<setting name="content:model_location" value="%APP%/data/model/nw_content_model.xml" type="string" comment="If you are using thenuewaffles cms you may want to use the nw_content_model.xml as is" default="%APP%/data/model/content_model.xml"/>
 	<setting name="content:use_wrangler" value="true" type="bool" comment=" If ContentWrangler should be used to automatically grab data" default="true"/>
 	<setting name="auto_refresh_app" value="true" type="bool" comment="Listen to directory changes and auto soft-restart the app." default="false"/>
 	<setting name="auto_refresh_directories" value="%APP%/data;%APP%/settings" type="string" comment="Semi-colon separated list of directories to listen to to restart the app." default="%APP%"/>
