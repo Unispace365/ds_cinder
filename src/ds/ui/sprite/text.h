@@ -107,10 +107,10 @@ public:
 	std::string					getFont();
 
 
-	/// Sets the default color of the text for rendering. If you're using <span> tags to change the color, you'll want to enable setPreserveSpanColors()
+	/// Sets the default color of the text for rendering. If you're using \<span\> tags to change the color, you'll want to enable setPreserveSpanColors()
 	void						setTextColor(const ci::Color&);
 	/// All setColor()'s are identical to setTextColor()
-	/// Sets the default color of the text for rendering. If you're using <span> tags to change the color, you'll want to enable setPreserveSpanColors()
+	/// Sets the default color of the text for rendering. If you're using \<span\> tags to change the color, you'll want to enable setPreserveSpanColors()
 	virtual void				setColor(const ci::Color&) override;
 	virtual void				setColor(float r, float g, float b) override;
 	virtual void				setColorA(const ci::ColorA&) override;
@@ -243,7 +243,7 @@ protected:
 	void						findFitFontSize();
 	void 						findFitFontSizeFromArray();
 
-	/// Pulls out <ol> and <ul> tags and creates the lists, returns true if there are more lists to parse
+	/// Pulls out \<ol\> and \<ul\> tags and creates the lists, returns true if there are more lists to parse
 	bool parseLists();
 	/// puts the layout into pango, updates any layout stuff, and measures the result
 	/// This is a pre-requisite for drawPangoText().
