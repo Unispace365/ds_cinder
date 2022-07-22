@@ -45,6 +45,12 @@ protected:
 		I believe the only harm is that this UdpReceiver instance will hang around until the
 		app quits, even after engine restarts, but that shouldn't cause a problem in normal
 		operating conditions...
+
+		UPDATE: Keep the socket around, but have the app delay opening the Udp listening 
+		socket for a short time period, in order to give the boost::asio subsystem to free
+		up the port for the next restart.  This allows the the app to restart without failing
+		to open the socket on the next time around...
+
 		try {
 			mSocket.reset();
 		}
@@ -130,6 +136,10 @@ TuioInput::~TuioInput() {
 }
 
 void TuioInput::stop() {
+	if (mStartListeningCallback)
+		mEngine.cancelTimedCallback(mStartListeningCallback);
+	mStartListeningCallback = 0;
+
 	if (mOscReceiver) {
 		mOscReceiver->close();
 		sDeadReceiversPool.push_back(mOscReceiver);
@@ -149,13 +159,20 @@ void TuioInput::start(const bool _registerEvents, const int port) {
 	if (port != 0)
 		mUdpPort = port;
 
+	mShouldRegisterEvents = _registerEvents;
+
+	mStartListeningCallback = mEngine.timedCallback( [this](){startListening();}, 1.0f);
+}
+
+void TuioInput::startListening() {
+
 	// IMPORTANT! Need to delete the tuio::Receiver before reassigning/deleting the 
 	// osc::ReceiverUdp, because the Tuio::Receiver's destructor requires 
 	// the osc::Receiver to still exist when called...
 	mTuioReceiver.reset();
 	mOscReceiver.reset(new CustomOscReceiverUdp(mUdpPort));
 
-	if (_registerEvents) {
+	if (mShouldRegisterEvents) {
 		mTuioReceiver = std::make_shared<ci::tuio::Receiver>(mOscReceiver.get());
 		// TuioInputs that are not the main input have their own transformations, and setup their own handlers to inject touches
 		registerEvents();
@@ -182,7 +199,7 @@ void TuioInput::start(const bool _registerEvents, const int port) {
 			<< " degrees.  finger Id offset of " << mFingerIdOffset << " filter rect of " << mAllowedRect);
 		mOscReceiver->bind();
 	} catch(std::exception& e) {
-		DS_LOG_WARNING("Couldn't connect a tuio input at port " << port << " exception: " << e.what());
+		DS_LOG_WARNING("Couldn't connect a tuio input at port " << mUdpPort << " exception: " << e.what());
 	}
 
 	mOscReceiver->listen(
