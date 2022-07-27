@@ -29,11 +29,14 @@ struct GstAudioDevice {
 	float		mPan;
 
 
-	GstAudioDevice() : mVolume(1.0){};
+	GstAudioDevice() 
+		: mVolume(1.0f)
+		, mPan(0.0f)
+	{}
 	GstAudioDevice(const std::string& deviceName,
 				   const std::string& deviceGuid = "", 
-				   const double theVolume = 1.0,
-				   const float thePan = 0.0
+				   const double theVolume = 1.0f,
+				   const float thePan = 0.0f
 				   );
 
 	void			initialize();

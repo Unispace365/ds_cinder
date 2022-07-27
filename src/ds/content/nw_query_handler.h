@@ -29,7 +29,7 @@ private:
 
 	
 
-	std::string								mComputerName;
+	std::string								mPlatformKey;
 };
 
 } // !namespace schneider

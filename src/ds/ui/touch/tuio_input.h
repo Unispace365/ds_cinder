@@ -40,6 +40,7 @@ public:
 protected:
 	ci::vec2						transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
 	void							registerEvents();
+	void							startListening();
 
 private:
 	ds::ui::SpriteEngine&			mEngine;
@@ -51,6 +52,8 @@ private:
 
 	OscReceiverRef					mOscReceiver;
 	TuioReceiverRef					mTuioReceiver;
+	bool							mShouldRegisterEvents = false;
+	size_t							mStartListeningCallback = 0;
 };
 
 

@@ -74,7 +74,7 @@ private:
 		}
 		std::string						mFilePath;
 		int								mFlags;
-		bool							mError;
+		bool							mError = false;
 		std::string						mErrorMsg;
 		ci::gl::TextureRef				mTexture;
 		ci::ImageSourceRef				mImageSourceRef; // only for main-thread image creation

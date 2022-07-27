@@ -85,7 +85,7 @@ struct TextStyle{
 	/// Positive numbers add more space between letters
 	double					mLetterSpacing;
 
-	/// The default color of the font, can be overridden by <span> tags
+	/// The default color of the font, can be overridden by \<span\> tags
 	ci::ColorA	  			mColor;
 	std::string				mColorName;
 

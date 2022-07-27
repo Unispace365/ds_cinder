@@ -30,6 +30,9 @@
 ; If USE_APPHOST is also defined, will run dsnode inside Apphost
 #define USE_DSNODE
 
+; Uses downsync to connect to a CMS
+#define USE_DOWNSYNC
+
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
 

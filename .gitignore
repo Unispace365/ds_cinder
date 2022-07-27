@@ -62,6 +62,7 @@ example/simple_video_player/MediaInfo.dll
 
 *GPUCache/
 .vs/
+.vscode/
 *.lastcodeanalysissucceeded
 /example/*/bin/
 projects/**/lib*.a
@@ -73,6 +74,7 @@ projects/**/lib*.a
 /vs2015/platform.sln
 *.db-shm
 *.db-wal
+*/imgui.ini
 
 *.lastcodeanalysissucceeded
 

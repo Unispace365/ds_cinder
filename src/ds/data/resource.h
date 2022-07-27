@@ -257,7 +257,9 @@ struct hash<ds::Resource::Id> {
 	typedef size_t result_type;
 	size_t operator()(const ds::Resource::Id& id) const
 	{
-		return id.mType + (id.mValue << 8);
+		return (id.mType & 0xff) + ( 
+			(static_cast<size_t>(id.mValue) & 0xffffffff) << 8 
+		);
 	}
 };
 	

@@ -39,6 +39,7 @@ public:
 	std::vector<KeyRegister>&	getKeyRegistry() { return mKeyRegisters; }
 
 	std::string keyCodeToString(const int keyCode);
+	static int stringToKeyCode(const std::string& keyname);
 
 	/// Output all set keys into a string.
 	std::string getAllKeysString();
@@ -48,7 +49,7 @@ public:
 
 private:
 	std::vector<KeyRegister>	mKeyRegisters;
-		
+	static std::unordered_map<std::string,int> mKeyCodeMap;
 };
 
 } // namespace time

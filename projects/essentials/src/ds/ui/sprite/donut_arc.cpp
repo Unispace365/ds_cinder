@@ -56,6 +56,9 @@ void DonutArc::resetDrawPercent(){
 
 void DonutArc::drawLocalClient() {
 	if(visible()) {
+
+	//this->getColor(), this->getDrawOpacity()
+		// ci::gl::color(ci::ColorA(getColor(), getDrawOpacity()));
 		// Number of points based on the outer radius to maintain smoothness
 		const int resolution = 32 + (int)(255.0f * fabsf(mDrawPercent));
 		auto center = ci::vec3(getWidth() / 2.0f, getHeight() / 2.0f, 0.0f);
