@@ -546,6 +546,7 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 * **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
 * **media_player_cache_images**: Boolean, default is false, true enables image caching
+* **media_player_animation_duration**: Float, the duration that the media player uses to fade media onto the screen.
 * **media_player_video_gl_mode**: Accepts only "true". Will enable openGL elements in GStreamer. This is required to be on when using nvdecode
 * **media_player_video_nvdecode**: Boolean. if true, will use the nvdec NVidia CUDA video decoder for video playback. See the readme in the video project for details.
 
