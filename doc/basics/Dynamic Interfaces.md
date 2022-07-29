@@ -854,8 +854,6 @@ For properties, this checks if the property string is empty. For instance, visib
 
 This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
 
-Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
-
 ```XML
 <layout name="root" 
 	shrink_to_children="both"
@@ -865,6 +863,39 @@ Additional properties could be added for bool and int checks (visible_if_bool pe
 	<layout name="title_layout"
 		layout_type="horiz"
 		model="visible_if_exists:this->title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
+`visible_if_property` & `hidden_if_property` Property
+----------------------------
+
+A model property that can also hide/show children depending on a boolean property.
+
+For instance, `visible_if_property:this->show_title` will check `node.getPropertyBool("show_title");`
+
+For `visible_if_property`, the instance will have a `show()` call  if the property is `true`, and a `hide()` call if the property is `false`.
+
+For `hidden_if_property`, the instance will have a `hide()` call  if the property is `true`, and a `show()` call if the property is `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that because of `node.getPropertyBool(..)` usage, an attempt to parse a non-existent property will be treated as `false`.
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_property:this->show_title"
 		>
 		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
 		<text name="the_title"
