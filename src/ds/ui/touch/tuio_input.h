@@ -52,7 +52,6 @@ private:
 
 	OscReceiverRef					mOscReceiver;
 	TuioReceiverRef					mTuioReceiver;
-	bool							mShouldRegisterEvents = false;
 	size_t							mStartListeningCallback = 0;
 };
 
