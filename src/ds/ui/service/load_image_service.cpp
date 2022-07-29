@@ -362,9 +362,11 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 			const int h = isr->getHeight();
 
 			if (usePbo) {
-				const GLint internalFormat = isr->hasAlpha() ? GL_RGBA : GL_RGB;
-				fmt.setInternalFormat(internalFormat);
-				fmt.dataType(GL_UNSIGNED_BYTE);
+				// NH: If we don't set the texture internal format or type, then Cinder will automatically infer the format from the image
+				// This allows us to e.g. load HDR EXR images in float32 or float16 formats...
+				//const GLint internalFormat = isr->hasAlpha() ? GL_RGBA : GL_RGB;
+				//fmt.setInternalFormat(internalFormat);
+				//fmt.dataType(GL_UNSIGNED_BYTE);
 				fmt.setIntermediatePbo(cinderPbo);
 			}
 
