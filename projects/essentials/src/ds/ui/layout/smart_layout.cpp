@@ -335,6 +335,18 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->hide();
 					}
+				} else if(sprPropToSet == "visible_if_property") {
+					if (theNode.getPropertyBool(theProp)) {
+						child->show();
+					} else {
+						child->hide();
+					}
+				} else if(sprPropToSet == "hidden_if_property") {
+					if (theNode.getPropertyBool(theProp)) {
+						child->hide();
+					} else {
+						child->show();
+					}
 				} else if (sprPropToSet.rfind("_",0)==0) {
 					auto click_data = theNode.getPropertyString(theProp);
 					if (click_data.empty() && !default.empty()) {
