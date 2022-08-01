@@ -335,13 +335,13 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->hide();
 					}
-				} else if(sprPropToSet == "visible_if_property") {
+				} else if(sprPropToSet == "visible_if_true") {
 					if (theNode.getPropertyBool(theProp)) {
 						child->show();
 					} else {
 						child->hide();
 					}
-				} else if(sprPropToSet == "hidden_if_property") {
+				} else if(sprPropToSet == "hidden_if_true") {
 					if (theNode.getPropertyBool(theProp)) {
 						child->hide();
 					} else {

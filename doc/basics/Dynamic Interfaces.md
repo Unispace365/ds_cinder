@@ -873,16 +873,16 @@ This is designed to be used with skip_hidden_children, so you can conditionally 
 </layout>
 ```
 
-`visible_if_property` & `hidden_if_property` Property
+`visible_if_true` & `hidden_if_true` Property
 ----------------------------
 
 A model property that can also hide/show children depending on a boolean property.
 
-For instance, `visible_if_property:this->show_title` will check `node.getPropertyBool("show_title");`
+For instance, `visible_if_true:this->show_title` will check `node.getPropertyBool("show_title");`
 
-For `visible_if_property`, the instance will have a `show()` call  if the property is `true`, and a `hide()` call if the property is `false`.
+For `visible_if_true`, the instance will have a `show()` call  if the property is `true`, and a `hide()` call if the property is `false`.
 
-For `hidden_if_property`, the instance will have a `hide()` call  if the property is `true`, and a `show()` call if the property is `false`.
+For `hidden_if_true`, the instance will have a `hide()` call  if the property is `true`, and a `show()` call if the property is `false`.
 
 Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
 
@@ -895,7 +895,7 @@ A note that because of `node.getPropertyBool(..)` usage, an attempt to parse a n
 	>
 	<layout name="title_layout"
 		layout_type="horiz"
-		model="visible_if_property:this->show_title"
+		model="visible_if_true:this->show_title"
 		>
 		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
 		<text name="the_title"
