@@ -149,6 +149,13 @@ auto INIT = []() {
 		});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_animation_duration",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto dur = ds::string_to_float(theValue);
+				mediaPlayer.setAnimationDuration(dur);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_video_gl_mode",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 			auto& mvs = mediaPlayer.getSettings();

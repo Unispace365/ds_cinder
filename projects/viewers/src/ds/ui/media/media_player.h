@@ -133,6 +133,11 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// NOTE: this is very rarely used. In a vast majority of cases, loading the media will automatically set this value
 	void setContentAspectRatio(const float newRatio) { mContentAspectRatio = newRatio; }
 
+	//set the animation duration for incoming media
+	void setAnimationDuration(float duration) {
+		mAnimDuration = duration;
+	};
+
   protected:
 	/// override to do any custom layout functions
 	virtual void onLayout(){};
