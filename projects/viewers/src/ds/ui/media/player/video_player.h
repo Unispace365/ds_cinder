@@ -39,6 +39,7 @@ class VideoPlayer : public ds::ui::Sprite {
 	void			hideInterface();
 	VideoInterface* getVideoInterface() { return mVideoInterface; }
 	void			setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void			setDisableInterface(const bool disable);
 
 	ds::ui::GstVideo* getVideo();
 
@@ -85,6 +86,7 @@ class VideoPlayer : public ds::ui::Sprite {
 	ds::ui::GstVideo*						mVideo;
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
+	bool									mDisabledInterface;
 	bool									mLetterbox;
 	bool									mResetOnVideoComplete;
 	std::function<void(void)>				mGoodStatusCallback;

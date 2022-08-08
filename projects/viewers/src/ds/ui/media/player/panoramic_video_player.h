@@ -39,6 +39,7 @@ public:
 	void								hideInterface();
 	VideoInterface*						getVideoInterface() { return mVideoInterface; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void								setDisableInterface(const bool disable);
 
 	ds::ui::PanoramicVideo*				getPanoramicVideo();
 	ds::ui::GstVideo*					getVideo();
@@ -84,6 +85,7 @@ protected:
 	ds::ui::GstVideo*							mVideo;
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
+	bool										mDisabledInterface;
 	bool										mTextureInvertX;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(void)>					mVideoCompleteCallback;

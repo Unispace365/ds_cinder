@@ -42,6 +42,7 @@ class StreamPlayer : public ds::ui::Sprite {
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
 
 	void setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void setDisableInterface(const bool disable);
 	void setAutoRestartStream(bool autoRestart);
 	void setLetterbox(const bool doLetterbox);
 
@@ -65,6 +66,7 @@ class StreamPlayer : public ds::ui::Sprite {
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
 	bool									mInterfaceBelowMedia;
+	bool									mDisabledInterface;
 	float									mInterfaceBottomPad = 50.0f;
 	bool									mLetterbox;
 	double									mStreamLatency;

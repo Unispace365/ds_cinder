@@ -28,7 +28,8 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mIsPlaying(false)
   , mLetterbox(true)
   , mInterfaceBelowMedia(false)
-  , mVolume(1.0f) {
+  , mVolume(1.0f)
+  , mDisabledInterface(false) {
 	mLayoutFixedAspect = true;
 }
 
@@ -78,7 +79,7 @@ void StreamPlayer::setResource(const ds::Resource& resource) {
 	}
 
 	if (mVideoInterface) {
-		if (mShowInterfaceAtStart) {
+		if (mShowInterfaceAtStart && !mDisabledInterface) {
 			mVideoInterface->show();
 		} else {
 			mVideoInterface->setOpacity(0.0f);
@@ -125,8 +126,14 @@ void StreamPlayer::layout() {
 	}
 }
 
+/// retains the interface features of the player, but perma-hides it from displaying
+/// (set to false by default)
+void StreamPlayer::setDisableInterface(const bool disable) {
+	mDisabledInterface = disable;
+}
+
 void StreamPlayer::showInterface() {
-	if (mVideoInterface) {
+	if (mVideoInterface && !mDisabledInterface) {
 		mVideoInterface->animateOn();
 	}
 }
@@ -140,6 +147,7 @@ void StreamPlayer::hideInterface() {
 void StreamPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setVolume(settings.mVideoVolume);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
+	setDisableInterface(settings.mDisabledInterface);
 	setLetterbox(settings.mLetterBox);
 	setStreamLatency(settings.mVideoStreamingLatency);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;

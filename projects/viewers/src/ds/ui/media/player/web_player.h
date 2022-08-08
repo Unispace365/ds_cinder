@@ -42,6 +42,7 @@ class WebPlayer : public ds::ui::Sprite {
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
 	void setNativeTouches(const bool isNative);
+	void setDisableInterface(const bool disable);
 
   protected:
 	virtual void onSizeChanged();
@@ -63,6 +64,7 @@ class WebPlayer : public ds::ui::Sprite {
 	float mInterfaceBottomPad = 50.0f;
 	bool mNativeTouches;
 	bool mAutoStart;
+	bool mDisabledInterface;
 };
 
 }  // namespace ui

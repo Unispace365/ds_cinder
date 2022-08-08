@@ -69,6 +69,14 @@ auto INIT = []() {
 		});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_disable_interface",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs = mediaPlayer.getSettings();
+				mvs.mDisabledInterface = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_interface_b_pad",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 			auto& mvs = mediaPlayer.getSettings();
@@ -249,8 +257,7 @@ void MediaPlayer::initialize() {
 	} else if (mediaType == ds::Resource::PDF_TYPE) {
 		initializePdf();
 		showThumbnail = false;
-	} else if (mediaType == ds::Resource::WEB_TYPE
-		) {
+	} else if (mediaType == ds::Resource::WEB_TYPE) {
 		initializeWeb();
 	} else if(mediaType == ds::Resource::YOUTUBE_TYPE){
 		initializeYouTube();

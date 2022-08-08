@@ -34,6 +34,7 @@ PanoramicVideoPlayer::PanoramicVideoPlayer(ds::ui::SpriteEngine& eng, const bool
 	, mPanning(0.0f)
 	, mVolume(1.0f)
 	, mLooping(true)
+	, mDisabledInterface(false)
 {
 	mLayoutFixedAspect = true;
 }
@@ -129,7 +130,7 @@ void PanoramicVideoPlayer::setResource(const ds::Resource& resource) {
 	}
 
 	if(mVideoInterface) {
-		if(mShowInterfaceAtStart) {
+		if(mShowInterfaceAtStart && !mDisabledInterface) {
 			mVideoInterface->show();
 		} else {
 			mVideoInterface->setOpacity(0.0f);
@@ -176,8 +177,14 @@ void PanoramicVideoPlayer::layout() {
 	}
 }
 
+/// retains the interface features of the player, but perma-hides it from displaying
+/// (set to false by default)
+void PanoramicVideoPlayer::setDisableInterface(const bool disable) {
+	mDisabledInterface = false;
+}
+
 void PanoramicVideoPlayer::showInterface() {
-	if(mVideoInterface) {
+	if(mVideoInterface && !mDisabledInterface) {
 		mVideoInterface->animateOn();
 	}
 }
@@ -250,6 +257,7 @@ void PanoramicVideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings)
 	setAutoPlayFirstFrame(settings.mVideoAutoPlayFirstFrame);
 	setVideoLoop(settings.mVideoLoop);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
+	setDisableInterface(settings.mDisabledInterface);
 	setAudioDevices(settings.mVideoAudioDevices);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 	mInterfaceBottomPad = settings.mInterfaceBottomPad;

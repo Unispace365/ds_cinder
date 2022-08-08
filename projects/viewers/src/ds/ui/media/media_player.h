@@ -151,6 +151,7 @@ class MediaPlayer : public ds::ui::Sprite {
 	MediaViewerSettings mMediaViewerSettings;
 
 	bool		 mEmbedInterface = false;
+	bool		 mDisabledInterface = false;
 	bool		 mInitialized	= false;
 	ds::Resource mResource;
 	float		 mContentAspectRatio;
