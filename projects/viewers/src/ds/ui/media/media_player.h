@@ -97,6 +97,9 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// Only applies to initialization after this call
 	void setEmbedInterface(const bool doEmbed) { mEmbedInterface = doEmbed; }
 
+	/// Set whether the interface can or can't be shown, for rare cases where it was embedded but shouldn't ever be visible
+	void setCanDisplayInterface(const bool canDisplay);
+
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
