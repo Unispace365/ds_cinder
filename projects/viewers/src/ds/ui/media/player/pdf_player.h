@@ -37,7 +37,6 @@ class PDFPlayer : public ds::ui::IPdf {
 
 	void		  showInterface();
 	void		  hideInterface();
-	void		  setDisableInterface(const bool disable);
 	PDFInterface* getPDFInterface() { return mPdfInterface; }
 
 	/// This is provided primarily for backwards-compatibility
@@ -97,7 +96,6 @@ class PDFPlayer : public ds::ui::IPdf {
 	PDFInterface*							mPdfInterface;
 	bool									mEmbedInterface;
 	bool									mShowInterfaceAtStart;
-	bool									mDisabledInterface;
 	bool									mInterfaceBelowMedia;
 	float									mInterfaceBottomPad = 50.0f;
 	bool									mLetterbox;

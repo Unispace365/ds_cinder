@@ -33,8 +33,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mLooping(true)
   , mResetOnVideoComplete(true)
   , mInterfaceBelowMedia(false)
-  , mLetterbox(true)
-  , mDisabledInterface(false) {
+  , mLetterbox(true) {
 	mLayoutFixedAspect = true;
 }
 
@@ -122,7 +121,7 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 	}
 
 	if (mVideoInterface) {
-		if (mShowInterfaceAtStart && !mDisabledInterface) {
+		if (mShowInterfaceAtStart) {
 			mVideoInterface->show();
 		} else {
 			mVideoInterface->setOpacity(0.0f);
@@ -169,14 +168,8 @@ void VideoPlayer::layout() {
 	}
 }
 
-/// retains the interface features of the player, but perma-hides it from displaying
-/// (set to false by default)
-void VideoPlayer::setDisableInterface(const bool disable) {
-	mDisabledInterface = disable;
-}
-
 void VideoPlayer::showInterface() {
-	if (mVideoInterface && !mDisabledInterface) {
+	if (mVideoInterface) {
 		mVideoInterface->animateOn();
 	}
 }
@@ -223,7 +216,6 @@ void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 	setVideoLoop(settings.mVideoLoop);
 	setResetOnVideoComplete(settings.mVideoResetOnComplete);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
-	setDisableInterface(settings.mDisabledInterface);
 	setAudioDevices(settings.mVideoAudioDevices);
 	setLetterbox(settings.mLetterBox);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;

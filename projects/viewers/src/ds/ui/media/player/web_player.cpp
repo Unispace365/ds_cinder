@@ -1,4 +1,4 @@
-	#include "stdafx.h"
+#include "stdafx.h"
 
 #include "web_player.h"
 
@@ -31,7 +31,6 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mStartInteractable(false)
   , mLetterbox(true)
   , mInterfaceBelowMedia(false)
-  , mDisabledInterface(false)
 {
 
 	mLayoutFixedAspect = true;
@@ -44,7 +43,6 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setKeyboardParams(settings.mWebKeyboardKeyScale, settings.mWebAllowKeyboard, settings.mWebKeyboardAbove);
 	setAllowTouchToggle(settings.mWebAllowTouchToggle);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
-	setDisableInterface(settings.mDisabledInterface);
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
@@ -155,7 +153,7 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 
 
 	if (mWebInterface) {
-		if (mShowInterfaceAtStart && !mDisabledInterface) {
+		if (mShowInterfaceAtStart) {
 			mWebInterface->show();
 		} else {
 			mWebInterface->setOpacity(0.0f);
@@ -189,14 +187,8 @@ void WebPlayer::userInputReceived() {
 	showInterface();
 }
 
-/// retains the interface features of the player, but perma-hides it from displaying
-/// (set to false by default)
-void WebPlayer::setDisableInterface(const bool disable) {
-	mDisabledInterface = disable;
-}
-
 void WebPlayer::showInterface() {
-	if(mWebInterface && !mDisabledInterface) {
+	if(mWebInterface) {
 		mWebInterface->animateOn();
 	}
 }

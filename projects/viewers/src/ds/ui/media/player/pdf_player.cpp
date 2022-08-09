@@ -26,7 +26,6 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
   , mInterfaceBelowMedia(false)
   , mShowInterfaceAtStart(true)
   , mLetterbox(true)
-  , mDisabledInterface(false)
 {
 	enable(false);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -256,7 +255,7 @@ void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 
 
 	if (mPdfInterface) {
-		if (mShowInterfaceAtStart && !mDisabledInterface) {
+		if (mShowInterfaceAtStart) {
 			mPdfInterface->show();
 		} else {
 			mPdfInterface->setOpacity(0.0f);
@@ -294,14 +293,8 @@ void PDFPlayer::layout() {
 	}
 }
 
-/// retains the interface features of the player, but perma-hides it from displaying
-/// (set to false by default)
-void PDFPlayer::setDisableInterface(const bool disable) {
-	mDisabledInterface = disable;
-}
-
 void PDFPlayer::showInterface() {
-	if (mPdfInterface && !mDisabledInterface) {
+	if (mPdfInterface) {
 		mPdfInterface->animateOn();
 	}
 }
@@ -314,7 +307,6 @@ void PDFPlayer::hideInterface() {
 void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
-	setDisableInterface(settings.mDisabledInterface);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 	mInterfaceBottomPad = settings.mInterfaceBottomPad;
 	mCanShowLinks = settings.mPdfCanShowLinks;
