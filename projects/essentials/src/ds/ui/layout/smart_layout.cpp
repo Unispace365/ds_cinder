@@ -347,6 +347,30 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->show();
 					}
+				} else if(sprPropToSet == "visible_if_equal_int") {
+					auto pieces = ds::split(theProp, "==", true);
+					if (pieces.size() == 2) {
+						if (theNode.getPropertyInt(pieces[0]) == stoi(pieces[1])) {
+							child->show();
+						}
+						else {
+							child->hide();
+						}
+					} else {
+						DS_LOG_WARNING("Unknown parameters for 'visible_if_equal_int'. Expects, as an example: 'visible_if_equal_int:this->property==3'.")
+					}
+				} else if(sprPropToSet == "hidden_if_equal_int") {
+					auto pieces = ds::split(theProp, "==", true);
+					if (pieces.size() == 2) {
+						if (theNode.getPropertyInt(pieces[0]) == stoi(pieces[1])) {
+							child->hide();
+						}
+						else {
+							child->show();
+						}
+					} else {
+						DS_LOG_WARNING("Unknown parameters for 'hidden_if_equal_int'. Expects, as an example: 'hidden_if_equal_int:this->property==3'.")
+					}
 				} else if (sprPropToSet.rfind("_",0)==0) {
 					auto click_data = theNode.getPropertyString(theProp);
 					if (click_data.empty() && !default.empty()) {
