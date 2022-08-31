@@ -347,29 +347,39 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						child->show();
 					}
-				} else if(sprPropToSet == "visible_if_equal_int") {
-					auto pieces = ds::split(theProp, "==", true);
-					if (pieces.size() == 2) {
-						if (theNode.getPropertyInt(pieces[0]) == stoi(pieces[1])) {
-							child->show();
+				} else if(sprPropToSet.length() > 16 && (sprPropToSet.substr(0, 16) == "visible_if_equal" || sprPropToSet.substr(0, 15) == "hidden_if_equal")) {
+					auto property_pieces = ds::split(sprPropToSet, "_", true);
+					std::string myType = property_pieces.size() > 0 ? property_pieces[property_pieces.size() - 1] : "NULL";
+					bool myShow = property_pieces.size() > 0 ? (property_pieces[0].compare("visible") == 0) : false;
+					auto param_pieces = ds::split(theProp, "==", true);
+					if (param_pieces.size() == 2) {
+						auto myName = param_pieces[0];
+						auto myValue = param_pieces[1];
+						bool myResult = false;
+						if (myType.compare("int") == 0) {
+							try { myResult = theNode.getPropertyInt(myName) == stoi(myValue); }
+							catch (...) { DS_LOG_WARNING("Parse error on '" << sprPropToSet << "' with value of '" << myValue << "'."); }
+						} else if (myType.compare("float") == 0) {
+							try { myResult = theNode.getPropertyFloat(myName) == std::stof(myValue); }
+							catch (...) { DS_LOG_WARNING("Parse error on '" << sprPropToSet << "' with value of '" << myValue << "'."); }
+						} else if (myType.compare("double") == 0) {
+							try { myResult = theNode.getPropertyDouble(myName) == std::stod(myValue); }
+							catch (...) { DS_LOG_WARNING("Parse error on '" << sprPropToSet << "' with value of '" << myValue << "'."); }
+						} else if (myType.compare("string") == 0) {
+							myResult = theNode.getPropertyString(myName).compare(myValue) == 0;
+						} else if (myType.compare("property") == 0) {
+							myResult = theNode.getPropertyString(myName).compare(theNode.getPropertyString(myValue)) == 0;
+						} else {
+							DS_LOG_WARNING("Unknown data type '" << myType << "' for '" << (myShow ? "visible" : "hidden") << "_if_equal' property.")
+						}
+						if (myResult) {
+							myShow ? child->show() : child->hide();
 						}
 						else {
-							child->hide();
+							myShow ? child->hide() : child->show();
 						}
 					} else {
-						DS_LOG_WARNING("Unknown parameters for 'visible_if_equal_int'. Expects, as an example: 'visible_if_equal_int:this->property==3'.")
-					}
-				} else if(sprPropToSet == "hidden_if_equal_int") {
-					auto pieces = ds::split(theProp, "==", true);
-					if (pieces.size() == 2) {
-						if (theNode.getPropertyInt(pieces[0]) == stoi(pieces[1])) {
-							child->hide();
-						}
-						else {
-							child->show();
-						}
-					} else {
-						DS_LOG_WARNING("Unknown parameters for 'hidden_if_equal_int'. Expects, as an example: 'hidden_if_equal_int:this->property==3'.")
+						DS_LOG_WARNING("Could not split on '==' for '" << (myShow ? "visible" : "hidden") << "_if_equal_*'.")
 					}
 				} else if (sprPropToSet.rfind("_",0)==0) {
 					auto click_data = theNode.getPropertyString(theProp);
