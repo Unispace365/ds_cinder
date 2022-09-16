@@ -543,7 +543,8 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_video_volume**: Float, sets the volume of videos when they start
 * **media_player_video_loop**: Boolean, true, the default, loops the video, false will play the video once and stop
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
-* **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
+* **media_player_video_split_alpha**: Boolean. If this value is true, the video player will assume that the video has an alpha channel encoded in the lower half of the video (so that actual video is twice as big in the Y direction) and will use this data to render the top half with the alpha values found in the "red" channel of the lower image. This technique is often a considerable file size savings over using ProRes videos for alpha.
+* **media_player_letterbox**: Boolean. True, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 * **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
 * **media_player_cache_images**: Boolean, default is false, true enables image caching
 * **media_player_animation_duration**: Float, the duration that the media player uses to fade media onto the screen.

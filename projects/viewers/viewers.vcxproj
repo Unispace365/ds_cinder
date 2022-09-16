@@ -44,6 +44,7 @@
     <ClCompile Include="src\ds\ui\media\media_viewer.cpp" />
     <ClCompile Include="src\ds\ui\media\player\panoramic_video_player.cpp" />
     <ClCompile Include="src\ds\ui\media\player\pdf_player.cpp" />
+    <ClCompile Include="src\ds\ui\media\player\split_alpha_video_player.cpp" />
     <ClCompile Include="src\ds\ui\media\player\stream_player.cpp" />
     <ClCompile Include="src\ds\ui\media\player\video_player.cpp" />
     <ClCompile Include="src\ds\ui\media\player\web_player.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="src\ds\ui\media\media_viewer_settings.h" />
     <ClInclude Include="src\ds\ui\media\player\panoramic_video_player.h" />
     <ClInclude Include="src\ds\ui\media\player\pdf_player.h" />
+    <ClInclude Include="src\ds\ui\media\player\split_alpha_video_player.h" />
     <ClInclude Include="src\ds\ui\media\player\stream_player.h" />
     <ClInclude Include="src\ds\ui\media\player\video_player.h" />
     <ClInclude Include="src\ds\ui\media\player\web_player.h" />
