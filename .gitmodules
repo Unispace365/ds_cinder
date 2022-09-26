@@ -1,3 +1,4 @@
 [submodule "Cinder"]
 	path = Cinder
 	url = https://github.com/cinder/Cinder.git
+	ignore = dirty
