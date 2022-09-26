@@ -159,20 +159,13 @@ void TuioInput::start(const bool _registerEvents, const int port) {
 	if (port != 0)
 		mUdpPort = port;
 
-	mShouldRegisterEvents = _registerEvents;
-
-	mStartListeningCallback = mEngine.timedCallback( [this](){startListening();}, 1.0f);
-}
-
-void TuioInput::startListening() {
-
 	// IMPORTANT! Need to delete the tuio::Receiver before reassigning/deleting the 
 	// osc::ReceiverUdp, because the Tuio::Receiver's destructor requires 
 	// the osc::Receiver to still exist when called...
 	mTuioReceiver.reset();
 	mOscReceiver.reset(new CustomOscReceiverUdp(mUdpPort));
 
-	if (mShouldRegisterEvents) {
+	if (_registerEvents) {
 		mTuioReceiver = std::make_shared<ci::tuio::Receiver>(mOscReceiver.get());
 		// TuioInputs that are not the main input have their own transformations, and setup their own handlers to inject touches
 		registerEvents();
@@ -186,6 +179,12 @@ void TuioInput::startListening() {
 		mTuioReceiver = std::make_shared<ci::tuio::Receiver>(ci::app::getWindow(), mOscReceiver.get());
 	}
 
+	// Wait for old sockets to clear out of ASIO subsystem before attempting to bind the
+	// socket and start listenening...
+	mStartListeningCallback = mEngine.timedCallback( [this](){startListening();}, 1.0f);
+}
+
+void TuioInput::startListening() {
 	// Compute original offset, scale, rotation from transformation matrix
 	ci::vec3 pos, scale, skew;
 	ci::vec4 persp;
