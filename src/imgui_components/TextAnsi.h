@@ -748,7 +748,7 @@ namespace ImGui
 				if (line < text_end) {
 					ImRect line_rect(pos, pos + ImVec2(FLT_MAX, line_height));
 					while (line < text_end) {
-						if (IsClippedEx(line_rect, 0, false))
+						if (IsClippedEx(line_rect, 0))
 							break;
 
 						const char* line_end = (const char*)memchr(line, '\n', text_end - line);
@@ -803,8 +803,12 @@ namespace ImGui
 			return;
 
 		ImGuiContext& g = *GImGui;
-		const char* text_end = g.TempBuffer + ImFormatStringV(g.TempBuffer, IM_ARRAYSIZE(g.TempBuffer), fmt, args);
-		TextAnsiUnformatted(g.TempBuffer, text_end);
+		//ImFormatStringV()
+		const char* text_end =
+			g.TempBuffer.Data + ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.capacity(), fmt, args);
+		// const char*	  text_end = g.TempBuffer.Data + g.TempBuffer.size();
+		//+ImVector<char>(g.TempBuffer, g.TempBuffer.size(), fmt, args);
+		TextAnsiUnformatted(g.TempBuffer.Data, text_end);
 	}
 
 	void TextAnsi(const char* fmt, ...)
