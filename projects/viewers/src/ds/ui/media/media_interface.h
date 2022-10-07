@@ -37,6 +37,8 @@ class MediaInterface : public ds::ui::Sprite {
 	void setBackgroundColor(ci::ColorA newColor);
 	void setBackgroundColor(ci::Color newColor);
 
+	virtual void show() override;
+
 	ds::ui::Sprite* getBackground() { return mBackground; }
 	virtual void setMinWidth(float width) { mMinWidth = width; layout(); }
   protected:

@@ -18,6 +18,7 @@ struct MediaViewerSettings {
 	MediaViewerSettings()
 		: mDefaultBounds(0.0f, 0.0f)
 		, mShowInterfaceAtStart(true)
+		, mCanDisplayInterface(true)
 		, mInterfaceBelowMedia(false)
 		, mInterfaceBottomPad(50.0f)
 		, mLetterBox(true)
@@ -52,6 +53,9 @@ struct MediaViewerSettings {
 
 	/// Whether the interface should be visible immediately or not
 	bool						mShowInterfaceAtStart;
+
+	/// Whether the interface should be hidden always (true by default)
+	bool						mCanDisplayInterface;
 
 	/// If true, puts the interface below (vertically) the media, otherwise floats on top on the lower third (the default)
 	bool						mInterfaceBelowMedia;
