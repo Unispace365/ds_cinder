@@ -17,7 +17,7 @@
 #include "ds/ui/media/player/panoramic_video_player.h"
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/stream_player.h"
-#include "ds/ui/media/player/video_player.h"
+#include "ds/ui/media/player/split_alpha_video_player.h"
 #include "ds/ui/media/player/web_player.h"
 #include "ds/ui/media/player/youtube_player.h"
 
@@ -57,6 +57,14 @@ auto INIT = []() {
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				auto& mvs					 = mediaPlayer.getSettings();
 				mvs.mVideoAutoPlayFirstFrame = !ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_video_split_alpha",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs = mediaPlayer.getSettings();
+				mvs.mVideoSplitAlpha = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
 
@@ -338,7 +346,11 @@ void MediaPlayer::initializeImage() {
 
 void MediaPlayer::initializeVideo() {
 	// Depends on base initialize to check already initialized case
-	mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
+	if (mMediaViewerSettings.mVideoSplitAlpha) {
+		mVideoPlayer = new SplitAlphaVideoPlayer(mEngine, mEmbedInterface);
+	} else {
+		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
+	}
 	addChildPtr(mVideoPlayer);
 
 	mVideoPlayer->setErrorCallback([this](const std::string& msg) {

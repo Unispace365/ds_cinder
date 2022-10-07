@@ -115,6 +115,9 @@
     <ClCompile Include="src\ds\ui\media\interface\youtube_interface.cpp">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\player\split_alpha_video_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -201,6 +204,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\interface\youtube_interface.h">
       <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\player\split_alpha_video_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

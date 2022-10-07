@@ -44,6 +44,7 @@ struct MediaViewerSettings {
 		, mVideoNVDecode(false)
 		, mPanoramicVideoInteractive(true)
 		, mYouTubeSize(1920.0f, 1080.0f)
+		, mVideoSplitAlpha(false)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -148,6 +149,9 @@ struct MediaViewerSettings {
 
 	/// Which audio devices to play audio out of (see the gstreamer_audio_devices header for more details)
 	std::vector<GstAudioDevice> mVideoAudioDevices;
+
+	///render video as if lower half is the alpha channel
+	bool						mVideoSplitAlpha;
 
 
 };

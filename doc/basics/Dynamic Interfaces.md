@@ -544,8 +544,9 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_video_volume**: Float, sets the volume of videos when they start
 * **media_player_video_loop**: Boolean, true, the default, loops the video, false will play the video once and stop
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
-* **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
-* **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages.
+* **media_player_video_split_alpha**: Boolean. If this value is true, the video player will assume that the video has an alpha channel encoded in the lower half of the video (so that actual video is twice as big in the Y direction) and will use this data to render the top half with the alpha values found in the "red" channel of the lower image. This technique is often a considerable file size savings over using ProRes videos for alpha.
+* **media_player_letterbox**: Boolean. True, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
+* **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
 * **media_player_cache_images**: Boolean, default is false, true enables image caching
 * **media_player_animation_duration**: Float, the duration that the media player uses to fade media onto the screen.
 * **media_player_video_gl_mode**: Accepts only "true". Will enable openGL elements in GStreamer. This is required to be on when using nvdecode
@@ -855,8 +856,6 @@ For properties, this checks if the property string is empty. For instance, visib
 
 This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
 
-Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
-
 ```XML
 <layout name="root"
 	shrink_to_children="both"
@@ -875,6 +874,66 @@ Additional properties could be added for bool and int checks (visible_if_bool pe
 	</layout>
 </layout>
 ```
+
+`visible_if_true` & `hidden_if_true` Property
+----------------------------
+
+A model property that can hide/show children depending on a boolean property.
+
+For instance, `visible_if_true:this->show_title` will check `[this].getPropertyBool("show_title");`
+
+For `visible_if_true`, the instance will have a `show()` call if the property is `true`, and a `hide()` call if the property is `false`.
+
+For `hidden_if_true`, the instance will have a `hide()` call if the property is `true`, and a `show()` call if the property is `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that because of `node.getPropertyBool(..)` usage, an attempt to parse a non-existent property will be treated as `false`.
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_true:this->show_title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
+`visible_if_equal` & `hidden_if_equal` Property
+----------------------------
+
+A model property that can hide/show children depending on an equality check.
+
+This can be done on many different data types -- currently int, float, double, string, and property -- by appending in the format of `visible_if_equal_[DATA-TYPE]` or `hidden_if_equal_[DATA-TYPE]`. An example being `visible_if_equal_int` for an integer equality check.
+
+Here are examples of what C++ snippets will be executed given different versions of this property:
+
+`visible_if_equal_int:this->choice==3` ==> `[this].getPropertyInt("choice") == stoi("3");`
+
+`visible_if_equal_float:this->statistic==0.3` ==> `[this].getPropertyFloat("statistic") == stof("0.3");`
+
+`visible_if_equal_double:this->coordinate==13.4` ==> `[this].getPropertyDouble("coordinate") == stod("13.4");`
+
+`visible_if_equal_string:this->title==Welcome` ==> `[this].getPropertyString("title").compare("Welcome") == 0;`
+
+`visible_if_equal_property:this->target==destination` ==> `[this].getPropertyString("target").compare([this].getPropertyString("destination")) == 0;`
+
+For `visible_if_equal_*`, the instance will have a `show()` call if the execution returns `true`, and a `hide()` call if the execution returns `false`.
+
+For `hidden_if_equal_*`, the instance will have a `hide()` call if the execution returns  `true`, and a `show()` call if the execution returns `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that a default value normally given from a node.getProperty\[DATA-TYPE\](..) call is a likely consequence of unset / mismanaged properties.
 
 
 Caveats

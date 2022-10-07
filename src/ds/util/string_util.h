@@ -119,6 +119,10 @@ void to_uppercase(std::wstring& str);
 /// Defaults parameters to 0 if they don't exist.
 ci::vec3 parseVector(const std::string &s);
 
+/// Parses a string into a 4d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::vec4 parseVector4(const std::string &s);
+
 /// Parses a string into a rectangle. Example: size="400, 400, 0, 0", where it's "L, T, W, H" the space after the comma is required to read the second and third token.
 /// Defaults parameters to 0 if they don't exist.
 ci::Rectf parseRect(const std::string &s);
@@ -127,11 +131,15 @@ ci::Rectf parseRect(const std::string &s);
 ///														X1		Y1		X2		 Y2				   L	  T		 W		 H
 std::string unparseRect(const ci::Rectf& v);
 
+/// The inverse of parseVector. For an input of ci::vec2(123.0f, 0.0f) returns "123.0, 0.0"
+std::string unparseVector(const ci::vec2& v);
+
 /// The inverse of parseVector. For an input of ci::vec3(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
 std::string unparseVector(const ci::vec3& v);
 
-/// The inverse of parseVector. For an input of ci::vec2f(123.0f, 0.0f) returns "123.0, 0.0"
-std::string unparseVector(const ci::vec2& v);
+/// The inverse of parseVector. For an input of ci::vec4(123.0f, 0.0f, 987.6f, 42.1f) returns "123.0, 0.0, 987.6, 42.1"
+std::string unparseVector(const ci::vec4& v);
+
 
 /// Parse true/false from a string. 
 bool parseBoolean(const std::string &s);

@@ -732,6 +732,17 @@ ci::vec3 parseVector(const std::string &s){
 	return v;
 }
 
+ci::vec4 parseVector4(const std::string &s){
+	auto tokens = ds::split(s, ", ", true);
+	ci::vec4 v;
+	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
+	v.y = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
+	v.z = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
+	v.w = tokens.size() > 3 ? ds::string_to_float(tokens[3]) : 0.0f;
+
+	return v;
+}
+
 ci::Rectf parseRect(const std::string &s){
 	auto tokens = ds::split(s, ", ", true);
 	ci::Rectf v;
@@ -752,9 +763,21 @@ std::string unparseRect(const ci::Rectf& v){
 	return ss.str();
 }
 
+std::string unparseVector(const ci::vec2& v){
+	std::stringstream ss;
+	ss << v.x << ", " << v.y;
+	return ss.str();
+}
+
 std::string unparseVector(const ci::vec3& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y << ", " << v.z;
+	return ss.str();
+}
+
+std::string unparseVector(const ci::vec4& v){
+	std::stringstream ss;
+	ss << v.x << ", " << v.y << ", " << v.z << ", " << v.w;
 	return ss.str();
 }
 
@@ -765,12 +788,6 @@ bool parseBoolean(const std::string &s){
 std::string unparseBoolean(const bool b){
 	if(b) return "true";
 	return "false";
-}
-
-std::string unparseVector(const ci::vec2& v){
-	std::stringstream ss;
-	ss << v.x << ", " << v.y;
-	return ss.str();
 }
 
 void tokenize(const std::string& input, const std::function<void(const std::string&)>& f){
