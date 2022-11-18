@@ -7,8 +7,8 @@
 #include "web_app.h"
 
 #include <string>
+#include <iostream>
 
-#include "web_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"
@@ -31,7 +31,6 @@ namespace web{
 WebApp::WebApp() {
 }
 
-#include <iostream>
 void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 
 	// This could prevent a crash in debug when closing (but sometimes doesn't):
@@ -42,10 +41,10 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 
 	command_line->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
-	//command_line->AppendSwitchWithValue("use-gl", "angle");
+	command_line->AppendSwitchWithValue("use-gl", "angle");
 
-	//command_line->AppendSwitch("enable-gpu");
-	//command_line->AppendSwitch("enable-gpu-compositing");
+	command_line->AppendSwitch("enable-gpu");
+	command_line->AppendSwitch("enable-gpu-compositing");
 	//command_line->AppendSwitch("disable-gpu");
 	//command_line->AppendSwitch("disable-gpu-compositing");
 
@@ -87,7 +86,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
 	browser_settings.windowless_frame_rate = 60;
-	//browser_settings.webgl = STATE_ENABLED;
+	browser_settings.webgl = STATE_ENABLED;
 
 	// TODO: make a setting
 	//browser_settings.web_security = STATE_DISABLED;
