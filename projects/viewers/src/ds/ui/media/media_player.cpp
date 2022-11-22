@@ -587,7 +587,9 @@ void MediaPlayer::userInputReceived() {
 }
 
 void MediaPlayer::setCanDisplayInterface(const bool canDisplay) {
-	getMediaInterface()->setAllowDisplay(canDisplay);
+	if (getMediaInterface()) {
+		getMediaInterface()->setAllowDisplay(canDisplay);
+	}
 }
 
 void MediaPlayer::showInterface() {
