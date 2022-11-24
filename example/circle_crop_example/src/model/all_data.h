@@ -9,14 +9,12 @@ namespace example {
  * \class example::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	AllStories		mAllStories;
-
+	AllStories mAllStories;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_CIRCLECROPEXAMPLE_APP_MODEL_ALLDATA_H_

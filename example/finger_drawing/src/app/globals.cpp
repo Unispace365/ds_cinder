@@ -11,11 +11,9 @@ namespace example {
 /**
  * \class example::Globals
  */
-Globals::Globals(ds::ui::SpriteEngine& e , const AllData& d )
-		: mEngine(e)
-		, mAllData(d)
-{
-}
+Globals::Globals(ds::ui::SpriteEngine& e, const AllData& d)
+  : mEngine(e)
+  , mAllData(d) {}
 
 
-} // !namespace example
+} // namespace example

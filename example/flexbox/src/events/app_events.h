@@ -4,7 +4,6 @@
 
 namespace ds {
 
-class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent> {};
 
-} // !namespace ds
-
+} // namespace ds

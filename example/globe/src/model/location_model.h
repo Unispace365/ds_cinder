@@ -4,50 +4,46 @@
 
 #include <ds/data/resource.h>
 
+#include <Poco/DateTime.h>
+#include <cinder/Vector.h>
 #include <memory>
 #include <vector>
-#include <cinder/Vector.h>
-#include <Poco/DateTime.h>
 
 
-
-namespace ds {
-namespace model{
+namespace ds { namespace model {
 
 
-/**
-* \class ds::model::LocationRef
-*			Auto-generated data model for Location
-*			Don't manually edit this file. Instead drop the source yaml file onto the yaml_importer in the utility folder of ds_cinder. 
-*/
-class LocationRef {
-public:
+	/**
+	 * \class ds::model::LocationRef
+	 *			Auto-generated data model for Location
+	 *			Don't manually edit this file. Instead drop the source yaml file onto the yaml_importer in the utility
+	 *folder of ds_cinder.
+	 */
+	class LocationRef {
+	  public:
+		LocationRef();
 
-	LocationRef();
-
-	const int& getId() const;
-	const float& getLat() const;
-	const int& getLayer() const;
-	const float& getLong() const;
-	const std::wstring& getName() const;
-	const std::wstring& getPopulation() const;
-
-
-	LocationRef& setId(const int& Id);
-	LocationRef& setLat(const float& Lat);
-	LocationRef& setLayer(const int& Layer);
-	LocationRef& setLong(const float& Long);
-	LocationRef& setName(const std::wstring& Name);
-	LocationRef& setPopulation(const std::wstring& Population);
+		const int&			getId() const;
+		const float&		getLat() const;
+		const int&			getLayer() const;
+		const float&		getLong() const;
+		const std::wstring& getName() const;
+		const std::wstring& getPopulation() const;
 
 
+		LocationRef& setId(const int& Id);
+		LocationRef& setLat(const float& Lat);
+		LocationRef& setLayer(const int& Layer);
+		LocationRef& setLong(const float& Long);
+		LocationRef& setName(const std::wstring& Name);
+		LocationRef& setPopulation(const std::wstring& Population);
 
-private:
-	class Data;
-	std::shared_ptr<Data>	mData;
-};
 
-} // namespace model
-} // namespace ds
+	  private:
+		class Data;
+		std::shared_ptr<Data> mData;
+	};
+
+}} // namespace ds::model
 
 #endif

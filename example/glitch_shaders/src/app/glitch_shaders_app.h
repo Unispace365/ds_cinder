@@ -11,28 +11,27 @@ namespace downstream {
 class AllData;
 
 class glitch_shaders_app : public ds::App {
-public:
+  public:
 	glitch_shaders_app();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
-	void				onAppEvent(const ds::Event&);
+  private:
+	void onAppEvent(const ds::Event&);
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
+	Globals mGlobals;
 
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_GLITCH_SHADERS_APP_H_

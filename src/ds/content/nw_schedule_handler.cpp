@@ -11,7 +11,7 @@
 #include <ds/content/content_events.h>
 #include <ds/debug/logger.h>
 
-//#include "events/app_events.h"
+// #include "events/app_events.h"
 
 namespace ds::model {
 
@@ -53,7 +53,7 @@ void NWScheduleHandler::checkSchedule() {
 			}
 		} catch (std::exception& e) {
 			DS_LOG_WARNING("NWScheduleHandler: exception checking the event " << it.getPropertyString("name") << ": "
-																			<< e.what());
+																			  << e.what());
 		}
 	}
 
@@ -154,4 +154,4 @@ bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTim
 	return false;
 }
 
-}  // namespace linkedin
+} // namespace ds::model

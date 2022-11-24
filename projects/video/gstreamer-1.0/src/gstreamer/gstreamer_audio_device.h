@@ -12,7 +12,8 @@ struct GstAudioDevice {
 	/// The name of the device as listed in the Sound control panel
 	std::string mDeviceName;
 
-	/// If this is blank, it will be auto-detected from the current sound card driver list, assuming the device name can be found
+	/// If this is blank, it will be auto-detected from the current sound card driver list, assuming the device name can
+	/// be found
 	std::string mDeviceGuid;
 
 	/// Internally-used name of the panorama and volume elements. Clients don't need to set these
@@ -22,24 +23,20 @@ struct GstAudioDevice {
 
 	/// How loud to make this output from 0.0 (mute) to 10.0 (10x boosted volume). default is 1.0 (100%)
 	/// Set this when sending into the GstVideo sprite instance to change the volume after starting
-	double		mVolume; 
+	double mVolume;
 
 	/// Left / right pan for this device, -1.0 (left) to 1.0 (right). Default is 0.0 which is balanced
 	/// Set this when sending into the GstVideo sprite instance to change the panb after starting
-	float		mPan;
+	float mPan;
 
 
-	GstAudioDevice() 
-		: mVolume(1.0f)
-		, mPan(0.0f)
-	{}
-	GstAudioDevice(const std::string& deviceName,
-				   const std::string& deviceGuid = "", 
-				   const double theVolume = 1.0f,
-				   const float thePan = 0.0f
-				   );
+	GstAudioDevice()
+	  : mVolume(1.0f)
+	  , mPan(0.0f) {}
+	GstAudioDevice(const std::string& deviceName, const std::string& deviceGuid = "", const double theVolume = 1.0f,
+				   const float thePan = 0.0f);
 
-	void			initialize();
+	void initialize();
 };
 
 } // namespace ds

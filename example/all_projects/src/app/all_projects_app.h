@@ -7,17 +7,16 @@
 namespace fullstarter {
 
 class FullStarterApp : public ds::App {
-public:
+  public:
 	FullStarterApp();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace fullstarter
+} // namespace fullstarter

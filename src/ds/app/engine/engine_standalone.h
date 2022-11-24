@@ -14,30 +14,29 @@ class ContentWrangler;
  * and server, and no communication pipe replicating sprite changes.
  */
 class EngineStandalone : public Engine {
-public:
+  public:
 	EngineStandalone(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
 
-	virtual void					installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-													const std::function<void(ds::BlobRegistry&)>& asClient);
+	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+							   const std::function<void(ds::BlobRegistry&)>& asClient);
 
-	virtual void					setup(ds::App&);
-	virtual void					update();
-	virtual void					draw();
+	virtual void setup(ds::App&);
+	virtual void update();
+	virtual void draw();
 
-	virtual void					stopServices();
-	virtual int						getMode() const { return STANDALONE_MODE; }
+	virtual void stopServices();
+	virtual int	 getMode() const { return STANDALONE_MODE; }
 
-	virtual int						getBytesRecieved(){ return 0; }
-	virtual int						getBytesSent(){ return 0; }
+	virtual int getBytesRecieved() { return 0; }
+	virtual int getBytesSent() { return 0; }
 
-private:
+  private:
+	virtual void handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
+	virtual void handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
+	virtual void handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
-	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
-	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
-	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
-
-	ContentWrangler*				mContentWrangler;
+	ContentWrangler* mContentWrangler;
 };
 
 } // namespace ds

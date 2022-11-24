@@ -9,19 +9,18 @@ namespace downstream {
 class AllData;
 
 class generic_data_model_app : public ds::App {
-public:
+  public:
 	generic_data_model_app();
 
-	void				setupServer();
+	void setupServer();
 
-	float				mSampleValue;
+	float mSampleValue;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_GENERIC_DATA_MODEL_APP_H_

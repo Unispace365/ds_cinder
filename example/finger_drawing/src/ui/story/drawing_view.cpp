@@ -3,49 +3,52 @@
 #include <Poco/LocalDateTime.h>
 
 #include <ds/app/environment.h>
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 #include "app/globals.h"
-#include "events/app_events.h"
 #include "ds/ui/interface_xml/interface_xml_importer.h"
+#include "events/app_events.h"
 
 namespace example {
 
 DrawingView::DrawingView(Globals& g)
-	: ds::ui::Sprite(g.mEngine)
-	, mGlobals(g)
-	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
-	, mMessage(nullptr)
-	, mPrimaryLayout(nullptr)
-	, mDrawingCanvas(nullptr)
-	, mDrawingHolder(nullptr)
-	, mBackground(nullptr)
+  : ds::ui::Sprite(g.mEngine)
+  , mGlobals(g)
+  , mEventClient(g.mEngine.getNotifier(),
+				 [this](const ds::Event* m) {
+					 if (m) this->onAppEvent(*m);
+				 })
+  , mMessage(nullptr)
+  , mPrimaryLayout(nullptr)
+  , mDrawingCanvas(nullptr)
+  , mDrawingHolder(nullptr)
+  , mBackground(nullptr)
 
 {
 
-	std::map<std::string, ds::ui::Sprite*>	spriteMap;
+	std::map<std::string, ds::ui::Sprite*> spriteMap;
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/drawing_view.xml"), spriteMap);
 	mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
-	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
+	mMessage	   = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
 	mDrawingHolder = spriteMap["drawing_canvas_holder"];
-	mBackground = spriteMap["background"];
-	if(mDrawingHolder){
-		mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, "");// "%APP%/data/images/drawing/fuzzy.png");
+	mBackground	   = spriteMap["background"];
+	if (mDrawingHolder) {
+		mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, ""); // "%APP%/data/images/drawing/fuzzy.png");
 		mDrawingHolder->addChildPtr(mDrawingCanvas);
 	}
 
 	// Set the default color
 	auto reddy = configureBrushColorButton("brush_red", spriteMap, true);
-	if(mDrawingCanvas && reddy){
+	if (mDrawingCanvas && reddy) {
 		auto swatchy = reddy->getFirstDescendantWithName(L"brush_red.swatch");
-		if(swatchy){
+		if (swatchy) {
 			mDrawingCanvas->setBrushColor(swatchy->getColor());
 			reddy->showDown();
 			reddy->enable(false);
 		}
 	}
-	
+
 	configureBrushColorButton("brush_pink", spriteMap, true);
 	configureBrushColorButton("brush_orange", spriteMap, true);
 	configureBrushColorButton("brush_yellow", spriteMap, true);
@@ -62,7 +65,7 @@ DrawingView::DrawingView(Globals& g)
 	configureBrushSizeButton("xlarge", spriteMap, 50);
 	configureBrushSizeButton("xxlarge", spriteMap, 120);
 
-	if(medButt && mDrawingCanvas){
+	if (medButt && mDrawingCanvas) {
 		medButt->enable(false);
 		medButt->showDown();
 		mDrawingCanvas->setBrushSize(12);
@@ -78,9 +81,9 @@ DrawingView::DrawingView(Globals& g)
 	configureBrushColorButton("background_white", spriteMap, false);
 
 	auto blackground = configureBrushColorButton("background_black", spriteMap, false);
-	if(mBackground && blackground){
+	if (mBackground && blackground) {
 		auto swatchy = blackground->getFirstDescendantWithName(L"background_black.swatch");
-		if(swatchy){
+		if (swatchy) {
 			mBackground->setColor(swatchy->getColor());
 			blackground->showDown();
 			blackground->enable(false);
@@ -88,10 +91,10 @@ DrawingView::DrawingView(Globals& g)
 	}
 
 	auto fuzzyButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap["fuzzy.the_button"]);
-	if(fuzzyButton){
-		fuzzyButton->setClickFn([this, fuzzyButton]{
-			if(mDrawingCanvas){
-				if(mDrawingCanvas->getBrushImagePath().empty()){
+	if (fuzzyButton) {
+		fuzzyButton->setClickFn([this, fuzzyButton] {
+			if (mDrawingCanvas) {
+				if (mDrawingCanvas->getBrushImagePath().empty()) {
 					mDrawingCanvas->setBrushImage("%APP%/data/images/drawing/fuzzy.png");
 					fuzzyButton->showDown();
 				} else {
@@ -102,39 +105,40 @@ DrawingView::DrawingView(Globals& g)
 	}
 
 	auto clearButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["clear_button.the_button"]);
-	if(clearButton){
-		clearButton->setClickFn([this]{
-			if(mDrawingCanvas) mDrawingCanvas->clearCanvas();
+	if (clearButton) {
+		clearButton->setClickFn([this] {
+			if (mDrawingCanvas) mDrawingCanvas->clearCanvas();
 		});
 	}
 
 	layout();
 	animateOn();
-
 }
 
-ds::ui::LayoutButton* DrawingView::configureBrushColorButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const bool isBrush, const bool isErase){
+ds::ui::LayoutButton* DrawingView::configureBrushColorButton(const std::string&						buttonName,
+															 std::map<std::string, ds::ui::Sprite*> spriteMap,
+															 const bool isBrush, const bool isErase) {
 
-	std::string fullName = buttonName + ".the_button";
-	std::string colorName = buttonName + ".swatch";
-	auto swatchButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap[fullName]);
-	if(swatchButton){
+	std::string fullName	 = buttonName + ".the_button";
+	std::string colorName	 = buttonName + ".swatch";
+	auto		swatchButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap[fullName]);
+	if (swatchButton) {
 		auto theSwatch = dynamic_cast<ds::ui::Sprite*>(spriteMap[colorName]);
-		swatchButton->setClickFn([this, swatchButton, theSwatch, isBrush, isErase]{
-			if(mDrawingCanvas && theSwatch && mBackground){
-				if(isBrush){
-					for(auto it : mBrushColorButtons){
+		swatchButton->setClickFn([this, swatchButton, theSwatch, isBrush, isErase] {
+			if (mDrawingCanvas && theSwatch && mBackground) {
+				if (isBrush) {
+					for (auto it : mBrushColorButtons) {
 						it->showUp();
 						it->enable(true);
 					}
-					if(isErase){
+					if (isErase) {
 						mDrawingCanvas->setEraseMode(true);
 					} else {
 						mDrawingCanvas->setEraseMode(false);
 						mDrawingCanvas->setBrushColor(theSwatch->getColor());
 					}
 				} else {
-					for(auto it : mBackgroundColorButtons){
+					for (auto it : mBackgroundColorButtons) {
 						it->showUp();
 						it->enable(true);
 					}
@@ -146,30 +150,32 @@ ds::ui::LayoutButton* DrawingView::configureBrushColorButton(const std::string& 
 			}
 		});
 
-		if(isBrush){
+		if (isBrush) {
 			mBrushColorButtons.push_back(swatchButton);
 		} else {
 			mBackgroundColorButtons.push_back(swatchButton);
 		}
 
 		return swatchButton;
-		
+
 	} else {
 		DS_LOG_WARNING("Couldn't find a brush or background color button for " << buttonName);
 	}
 
 	return nullptr;
 }
-ds::ui::LayoutButton* DrawingView::configureBrushSizeButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const float brushSize){
+ds::ui::LayoutButton* DrawingView::configureBrushSizeButton(const std::string&					   buttonName,
+															std::map<std::string, ds::ui::Sprite*> spriteMap,
+															const float							   brushSize) {
 
-	std::string fullName = buttonName + ".the_button";
-	std::string theSize = buttonName + ".sizer";
-	auto swatchButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap[fullName]);
-	if(swatchButton){
+	std::string fullName	 = buttonName + ".the_button";
+	std::string theSize		 = buttonName + ".sizer";
+	auto		swatchButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap[fullName]);
+	if (swatchButton) {
 		auto theSwatch = dynamic_cast<ds::ui::Sprite*>(spriteMap[theSize]);
-		swatchButton->setClickFn([this, swatchButton, theSwatch, brushSize]{
-			if(mDrawingCanvas && theSwatch){
-				for(auto it : mSizeButtons){
+		swatchButton->setClickFn([this, swatchButton, theSwatch, brushSize] {
+			if (mDrawingCanvas && theSwatch) {
+				for (auto it : mSizeButtons) {
 					it->showUp();
 					it->enable(true);
 				}
@@ -190,24 +196,22 @@ ds::ui::LayoutButton* DrawingView::configureBrushSizeButton(const std::string& b
 	}
 
 	return nullptr;
-
 }
 
-void DrawingView::onAppEvent(const ds::Event& in_e){
-}
+void DrawingView::onAppEvent(const ds::Event& in_e) {}
 
 
-void DrawingView::layout(){
-	if(mPrimaryLayout){
+void DrawingView::layout() {
+	if (mPrimaryLayout) {
 		mPrimaryLayout->runLayout();
 	}
 
-	if(mDrawingCanvas && mDrawingHolder){
+	if (mDrawingCanvas && mDrawingHolder) {
 		mDrawingCanvas->setSizeAll(mDrawingHolder->getSize());
 	}
 }
 
-void DrawingView::animateOn(){
+void DrawingView::animateOn() {
 	show();
 	tweenOpacity(1.0f, mEngine.getAnimDur());
 
@@ -215,11 +219,11 @@ void DrawingView::animateOn(){
 	tweenAnimateOn(true, 0.0f, 0.05f);
 }
 
-void DrawingView::animateOff(){
-	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
+void DrawingView::animateOff() {
+	tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [this] { hide(); });
 }
 
-void DrawingView::onUpdateServer(const ds::UpdateParams& p){
+void DrawingView::onUpdateServer(const ds::UpdateParams& p) {
 
 	// any changes for this frame happen here
 }

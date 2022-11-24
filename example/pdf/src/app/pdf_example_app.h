@@ -8,20 +8,19 @@
 namespace downstream {
 
 class pdf_example_app : public ds::App {
-public:
+  public:
 	pdf_example_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	void addMediaViewer(std::string uri);
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_PDF_EXAMPLE_APP_H_

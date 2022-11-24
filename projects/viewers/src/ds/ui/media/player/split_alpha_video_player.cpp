@@ -2,7 +2,6 @@
 
 #include "split_alpha_video_player.h"
 
-
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -16,8 +15,7 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 static std::string splitvideo_vert = R"glsl(
 #version 420
@@ -66,13 +64,11 @@ void main() {
 )glsl";
 
 SplitAlphaVideoPlayer::SplitAlphaVideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
-  : ds::ui::VideoPlayer(eng,embedInterface)
-{
+  : ds::ui::VideoPlayer(eng, embedInterface) {
 	setTransparent(false);
 	try {
 		mSplitAlphaShader = ci::gl::GlslProg::create(splitvideo_vert, splitvideo_frag);
-	}
-	catch (ci::gl::GlslProgExc e) {
+	} catch (ci::gl::GlslProgExc e) {
 
 		DS_LOG_INFO("GLSL EX: " << e.what());
 		ci::gl::ShaderDef def;
@@ -80,50 +76,45 @@ SplitAlphaVideoPlayer::SplitAlphaVideoPlayer(ds::ui::SpriteEngine& eng, const bo
 	}
 }
 
-void SplitAlphaVideoPlayer::onUpdateServer(const ds::UpdateParams & up)
-{
-	
-	
+void SplitAlphaVideoPlayer::onUpdateServer(const ds::UpdateParams& up) {
+
+
 	mVideo->setFinalRenderToTexture(true);
-	
-	
+
+
 	mVideo->drawClient(ci::mat4(), ds::DrawParams());
 	mTex = mVideo->getFinalOutTexture();
-	//mVideo->setFinalRenderToTexture(false);
-
+	// mVideo->setFinalRenderToTexture(false);
 }
 
-void SplitAlphaVideoPlayer::drawLocalClient()
-{
-	
+void SplitAlphaVideoPlayer::drawLocalClient() {
+
 	if (mTex && mSplitAlphaShader) {
 		mTex->bind(0);
 		ci::gl::color(1.0, 1.0, 1.0, 1.0);
-		//ci::gl::draw(mTex);
+		// ci::gl::draw(mTex);
 		mSplitAlphaShader->bind();
 		ci::gl::drawSolidRect(ci::Rectf(0, 0, getWidth(), getHeight()));
-		//auto size = getSize();
-		//mTex->unbind();
+		// auto size = getSize();
+		// mTex->unbind();
 	}
 }
 
-void SplitAlphaVideoPlayer::setResource(const ds::Resource& resource)
-{
+void SplitAlphaVideoPlayer::setResource(const ds::Resource& resource) {
 	ds::ui::VideoPlayer::setResource(resource);
-	
-	setSize(mVideo->getWidth(), mVideo->getHeight()*0.5);
-	//mVideo->setPosition(0, 0);
+
+	setSize(mVideo->getWidth(), mVideo->getHeight() * 0.5);
+	// mVideo->setPosition(0, 0);
 }
 
 void SplitAlphaVideoPlayer::onSizeChanged() {
 
 	if (mVideo) {
 		if (mVideo->getWidth() > 0.0f) {
-			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()*2), mLetterbox);
+			fitInside(mVideo, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight() * 2), mLetterbox);
 		}
 	}
 }
 
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

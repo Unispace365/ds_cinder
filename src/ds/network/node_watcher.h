@@ -2,13 +2,13 @@
 #ifndef DS_NETWORK_NODEWATCHER_H_
 #define DS_NETWORK_NODEWATCHER_H_
 
-#include <functional>
-#include <vector>
+#include "ds/app/auto_update.h"
 #include <Poco/Condition.h>
 #include <Poco/Mutex.h>
 #include <Poco/Runnable.h>
 #include <Poco/Thread.h>
-#include "ds/app/auto_update.h"
+#include <functional>
+#include <vector>
 
 namespace ds {
 
@@ -17,55 +17,55 @@ namespace ds {
  * \brief Feed clients information about changes in the node.
  */
 class NodeWatcher : public ds::AutoUpdate {
-public:
+  public:
 	/// A generic class that stores info received from the node.
 	class Message {
-	public:
+	  public:
 		Message();
 
 		/// A stack of all the messages received
-		std::vector<std::string>	mData;
+		std::vector<std::string> mData;
 
-		bool						empty() const;
-		void						clear();
-		void						swap(Message&);
+		bool empty() const;
+		void clear();
+		void swap(Message&);
 	};
 
-public:
+  public:
 	/// Standard node location
-	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7788, const bool autoStart = true);
+	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7788,
+				const bool autoStart = true);
 	~NodeWatcher();
 
-	void							add(const std::function<void(const Message&)>&);
-	void							startWatching();
-	void							stopWatching();
+	void add(const std::function<void(const Message&)>&);
+	void startWatching();
+	void stopWatching();
 
-protected:
-	virtual void					update(const ds::UpdateParams &);
+  protected:
+	virtual void update(const ds::UpdateParams&);
 
-private:
+  private:
 	class Loop : public Poco::Runnable {
-	public:
-		Poco::Mutex					mMutex;
-		bool						mAbort;
-		Message						mMsg;
+	  public:
+		Poco::Mutex mMutex;
+		bool		mAbort;
+		Message		mMsg;
 
-	public:
+	  public:
 		Loop(ds::ui::SpriteEngine&, const std::string& host, const int port);
 
-		virtual void				run();
+		virtual void run();
 
-	private:
-		const std::string			mHost;
-		const int					mPort;
-		const long					mRefreshRateMs;	// in milliseconds
+	  private:
+		const std::string mHost;
+		const int		  mPort;
+		const long		  mRefreshRateMs; // in milliseconds
 	};
 
-	Poco::Thread					mThread;
-	Loop							mLoop;
-	std::vector<std::function<void(const Message&)>>
-									mListener;
-	Message							mMsg;
+	Poco::Thread									 mThread;
+	Loop											 mLoop;
+	std::vector<std::function<void(const Message&)>> mListener;
+	Message											 mMsg;
 };
 
 } // namespace ds

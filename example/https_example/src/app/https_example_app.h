@@ -10,16 +10,15 @@ namespace example {
 class AllData;
 
 class https_example : public ds::App {
-public:
+  public:
 	https_example();
 
-	void				setupServer();
+	void setupServer();
 
-private:
-
-	ds::net::HttpsRequest	mHttpsRequest;
+  private:
+	ds::net::HttpsRequest mHttpsRequest;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_HTTPS_EXAMPLE_APP_H_

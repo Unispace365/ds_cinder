@@ -1,9 +1,9 @@
 #include "circlecropexample_app.h"
 
 #include <Poco/String.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/app/engine/engine.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -17,30 +17,30 @@
 namespace example {
 
 CircleCropExample::CircleCropExample()
-	: inherited(ds::RootList()
-								.ortho() // sample ortho view
-								.pickColor()
+  : inherited(ds::RootList()
+				  .ortho() // sample ortho view
+				  .pickColor()
 
-								.persp() // sample perp view
-								.perspFov(60.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-								.perspNear(0.0002f)
-								.perspFar(20.0f)
+				  .persp() // sample perp view
+				  .perspFov(60.0f)
+				  .perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+				  .perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
+				  .perspNear(0.0002f)
+				  .perspFar(20.0f)
 
-								.ortho() ) // ortho view on top
-	, mGlobals(mEngine , mAllData )
-	, mQueryHandler(mEngine, mAllData)
-	, mIdling( false )
-	, mShaderCircleCrop(nullptr)
-{
+				  .ortho()) // ortho view on top
+  , mGlobals(mEngine, mAllData)
+  , mQueryHandler(mEngine, mAllData)
+  , mIdling(false)
+  , mShaderCircleCrop(nullptr) {
 
 
 	/*fonts in use */
-	//mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-shorthand);
+	// mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name",
+	// "font-shorthand);
 }
 
-void CircleCropExample::setupServer(){
+void CircleCropExample::setupServer() {
 
 
 	/* Settings */
@@ -51,7 +51,7 @@ void CircleCropExample::setupServer(){
 	mEngine.getRootSprite(1).clearChildren();
 	mEngine.getRootSprite(2).clearChildren();
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite& rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.2f, 0.1f, 0.6f));
 
@@ -60,15 +60,15 @@ void CircleCropExample::setupServer(){
 	//------------------ HERE'S WHAT YOU CAME FOR!!!! ------------------//
 	//------------------------------------------------------------------//
 	// Add an "ip" (image processing) to an image file, set that as the "image" of an ImageSprite
-	// The circle mask is pre-defined. 
+	// The circle mask is pre-defined.
 	// You can extend ip::function, install that on the engine, and have that run here instead
 	// Pass the string key to the image file to look up the ip when the image file is created.
 	// kind of confusing, but there you go.
-	
+
 	// This one crops the image data when loading the image, and bakes the circle crop into the texture
 	// Can result in a lower resolution circle edge if the image is lower resolution and scaled up
-	ds::ui::Image*	imagey = new ds::ui::Image(mEngine);
-	std::string fileName = "%APP%/data/images/cupola.png";
+	ds::ui::Image* imagey	= new ds::ui::Image(mEngine);
+	std::string	   fileName = "%APP%/data/images/cupola.png";
 	imagey->setImageFile(fileName);
 	imagey->cicleCropAutoCenter();
 	rootSprite.addChildPtr(imagey);
@@ -78,13 +78,13 @@ void CircleCropExample::setupServer(){
 
 	// This one get's cropped by the shader that renders the image
 	// Can produce a higher resolution circle crop for lower res images that are scaled up
-	// since the edge is rendered per output pixel 
+	// since the edge is rendered per output pixel
 	mShaderCircleCrop = new ds::ui::Image(mEngine);
 	mShaderCircleCrop->setImageFile(ds::Environment::expand(fileName));
 	mShaderCircleCrop->setCircleCrop(true);
 	mShaderCircleCrop->setScale(2.0f);
 	rootSprite.addChildPtr(mShaderCircleCrop);
-	
+
 	const float scw = mShaderCircleCrop->getWidth();
 	const float sch = mShaderCircleCrop->getHeight();
 	mShaderCircleCrop->setPosition(scw, 100.0f);
@@ -96,59 +96,56 @@ void CircleCropExample::setupServer(){
 	circBorder->setColor(ci::Color(0.54f, 0.2f, 0.1f));
 	circBorder->setSize(200.f, 200.0f);
 	rootSprite.addChildPtr(circBorder);
-
-
 }
 
 void CircleCropExample::update() {
 	inherited::update();
 
-	if( mEngine.isIdling() && !mIdling ){
-		//Start idling
+	if (mEngine.isIdling() && !mIdling) {
+		// Start idling
 		mIdling = true;
-		mEngine.getNotifier().notify( IdleStartedEvent() );
-	} else if ( !mEngine.isIdling() && mIdling ){
-		//Stop idling
+		mEngine.getNotifier().notify(IdleStartedEvent());
+	} else if (!mEngine.isIdling() && mIdling) {
+		// Stop idling
 		mIdling = false;
-		mEngine.getNotifier().notify( IdleEndedEvent() );
+		mEngine.getNotifier().notify(IdleEndedEvent());
 	}
-
 }
 
-void CircleCropExample::onKeyDown(ci::app::KeyEvent event){
+void CircleCropExample::onKeyDown(ci::app::KeyEvent event) {
 	using ci::app::KeyEvent;
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+	if (event.getChar() == KeyEvent::KEY_r) { // R = reload all configs and start over without quitting app
 		setupServer();
-	} else if(event.getCode() == KeyEvent::KEY_d){
+	} else if (event.getCode() == KeyEvent::KEY_d) {
 		moveCamera(ci::vec3(1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_a){
+	} else if (event.getCode() == KeyEvent::KEY_a) {
 		moveCamera(ci::vec3(-1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_w){
+	} else if (event.getCode() == KeyEvent::KEY_w) {
 		moveCamera(ci::vec3(0.0f, -1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_s){
+	} else if (event.getCode() == KeyEvent::KEY_s) {
 		moveCamera(ci::vec3(0.0f, 1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
+	} else if (event.getCode() == KeyEvent::KEY_RIGHTBRACKET) {
 		moveCamera(ci::vec3(0.0f, 0.0f, 1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
+	} else if (event.getCode() == KeyEvent::KEY_LEFTBRACKET) {
 		moveCamera(ci::vec3(0.0f, 0.0f, -1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
+	} else if (event.getCode() == KeyEvent::KEY_EQUALS) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 		p.mFarPlane += 1.0f;
 		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
 		mEngine.setPerspectiveCamera(1, p);
-	} else if(event.getCode() == KeyEvent::KEY_MINUS){
+	} else if (event.getCode() == KeyEvent::KEY_MINUS) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 		p.mFarPlane -= 1.0f;
 		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
 		mEngine.setPerspectiveCamera(1, p);
-	} else if(event.getCode() == KeyEvent::KEY_c){
-		if(mShaderCircleCrop){
+	} else if (event.getCode() == KeyEvent::KEY_c) {
+		if (mShaderCircleCrop) {
 			mShaderCircleCrop->setCircleCrop(!mShaderCircleCrop->getCircleCrop());
 		}
 	}
 }
 
-void CircleCropExample::moveCamera(const ci::vec3& deltaMove){
+void CircleCropExample::moveCamera(const ci::vec3& deltaMove) {
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 	p.mPosition += deltaMove;
 	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;

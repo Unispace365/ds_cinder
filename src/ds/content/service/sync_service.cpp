@@ -14,7 +14,10 @@
 
 namespace ds::content {
 
-SyncService::SyncService(ds::ui::SpriteEngine& eng) : AutoUpdate(eng), mEngine(eng), mProcessId(0) {
+SyncService::SyncService(ds::ui::SpriteEngine& eng)
+  : AutoUpdate(eng)
+  , mEngine(eng)
+  , mProcessId(0) {
 
 	mStdoutBuffer.clear();
 }
@@ -164,7 +167,8 @@ void SyncService::update(const ds::UpdateParams&) {
 		auto offset = mStdoutBuffer.size() < mShowCount ? 0 : mStdoutBuffer.size() - mShowCount;
 		// auto offset = mStdoutBuffer.size();
 		auto start = mStdoutBuffer.begin() + offset;
-		for (auto itr = start; itr != mStdoutBuffer.end(); ++itr) ImGui::TextAnsi(itr->c_str());
+		for (auto itr = start; itr != mStdoutBuffer.end(); ++itr)
+			ImGui::TextAnsi(itr->c_str());
 
 
 		if (mTestScroll) {
@@ -187,4 +191,4 @@ void SyncService::update(const ds::UpdateParams&) {
 }
 
 
-}  // namespace ds::content
+} // namespace ds::content

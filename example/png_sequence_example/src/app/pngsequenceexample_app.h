@@ -14,24 +14,24 @@ namespace example {
 	Drop a series of png images onto the app window to play them back. Simple!
 */
 class PngSequenceExample : public ds::App {
-public:
+  public:
 	PngSequenceExample();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-private:
-	typedef ds::App		inherited;
+	virtual void fileDrop(ci::app::FileDropEvent event);
+
+  private:
+	typedef ds::App inherited;
 
 
 	// Data acquisition
-	Globals						mGlobals;
+	Globals mGlobals;
 
-	ds::ui::PngSequenceSprite*	mPngSequence;
+	ds::ui::PngSequenceSprite* mPngSequence;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_PNGSEQUENCEEXAMPLE_APP_H_
-

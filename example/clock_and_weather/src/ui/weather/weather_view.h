@@ -7,16 +7,14 @@
 namespace downstream {
 
 /**
-* \class downstream::WeatherView
-*			A view that shows the weather
-*/
+ * \class downstream::WeatherView
+ *			A view that shows the weather
+ */
 class WeatherView : public ds::ui::SmartLayout {
-public:
+  public:
 	WeatherView(ds::ui::SpriteEngine& eng);
-
 };
 
 } // namespace downstream
 
 #endif
-

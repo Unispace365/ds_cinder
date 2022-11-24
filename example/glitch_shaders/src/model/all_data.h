@@ -10,15 +10,12 @@ namespace downstream {
  * \class downstream::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_GLITCH_SHADERS_APP_MODEL_ALLDATA_H_
-

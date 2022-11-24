@@ -9,11 +9,10 @@ namespace physics {
 class AllData;
 
 class physics_example_app : public ds::App {
-public:
+  public:
 	physics_example_app();
 
-	void				setupServer();
-
+	void setupServer();
 };
 
-} 
+} // namespace physics

@@ -2,14 +2,13 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 /**
  * \class MediaInterface
  *		Abstract base class for the other media interfaces (PDF, Web, Video)
- *		In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward navigate,
- *		refresh, play/pause, scrub bar, volume control)
+ *		In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward
+ *navigate, refresh, play/pause, scrub bar, volume control)
  */
 class MediaInterface : public ds::ui::Sprite {
   public:
@@ -38,8 +37,15 @@ class MediaInterface : public ds::ui::Sprite {
 	void setBackgroundColor(ci::Color newColor);
 
 	ds::ui::Sprite* getBackground() { return mBackground; }
-	virtual void setMinWidth(float width) { mMinWidth = width; layout(); }
+	virtual void	setMinWidth(float width) {
+		   mMinWidth = width;
+		   layout();
+	}
+
   protected:
+	virtual void onLayout(){};
+	virtual void onSizeChanged() override;
+
 	float			mAnimateDuration;
 	ds::ui::Sprite* mBackground;
 	float			mMinWidth;
@@ -48,10 +54,6 @@ class MediaInterface : public ds::ui::Sprite {
 	bool			mCanIdle;
 	bool			mCanDisplay;
 	float			mInterfaceIdleSettings;
-	virtual void	onLayout(){};
-	virtual void	onSizeChanged();
 };
 
-}  // namespace ui
-}  // namespace ds
-
+} // namespace ds::ui

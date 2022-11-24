@@ -33,13 +33,12 @@ void ContentQuery::run() {
 	mAllResources.clear();
 
 	auto metaNode = metaData.getChildByName("meta");
-	if (!metaNode.empty()){
+	if (!metaNode.empty()) {
 		// Handle custom db & resource locations from meta node
-		auto dbLoc = metaNode.getPropertyString("db_location");
+		auto dbLoc	= metaNode.getPropertyString("db_location");
 		auto resLoc = metaNode.getPropertyString("resource_location");
-		if(!dbLoc.empty() && !resLoc.empty()) {
-			mResourceLocation =
-				ds::getNormalizedPath(ds::Environment::expand(resLoc));
+		if (!dbLoc.empty() && !resLoc.empty()) {
+			mResourceLocation = ds::getNormalizedPath(ds::Environment::expand(resLoc));
 			try {
 				Poco::Path p = Poco::Path(mResourceLocation);
 				p.append(dbLoc);
@@ -55,20 +54,19 @@ void ContentQuery::run() {
 
 	// Customize resources query / resources table names
 	auto resourceNode = metaData.getChildByName("resources");
-	if(!resourceNode.empty()){
-		for(auto kv : mResourceRemap){
+	if (!resourceNode.empty()) {
+		for (auto kv : mResourceRemap) {
 			auto newVal = resourceNode.getPropertyString(kv.first);
-			if(!newVal.empty()) mResourceRemap[kv.first] = newVal;
+			if (!newVal.empty()) mResourceRemap[kv.first] = newVal;
 		}
 
-		if(!resourceNode.getPropertyString("check_updated").empty()){
+		if (!resourceNode.getPropertyString("check_updated").empty()) {
 			mCheckUpdatedResources = resourceNode.getPropertyBool("check_updated");
 			mData.setProperty("merge_content", !mCheckUpdatedResources);
 		}
-	}else{
+	} else {
 		mData.setProperty("merge_content", true);
 	}
-
 
 
 	if (mCmsDatabase.empty()) {
@@ -135,9 +133,9 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 					continue;
 				}
 
-				auto childLocalId	= it.getPropertyString("child_local_id");
+				auto childLocalId	 = it.getPropertyString("child_local_id");
 				auto parentForeignId = it.getPropertyString("parent_foreign_id");
-				auto childLocalMap   = it.getPropertyString("child_local_map");
+				auto childLocalMap	 = it.getPropertyString("child_local_map");
 
 				std::function<bool(ds::model::ContentModelRef&, ds::model::ContentModelRef&)> isMatchFn;
 
@@ -147,14 +145,14 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 					};
 				} else if (!parentForeignId.empty()) {
 					isMatchFn = [parentForeignId](ds::model::ContentModelRef& parChild,
-												   ds::model::ContentModelRef& row) {
+												  ds::model::ContentModelRef& row) {
 						return parChild.getPropertyInt(parentForeignId) == row.getId();
 					};
 				} else if (!childLocalMap.empty()) {
 					auto mapChildTo = ds::split(childLocalMap, ":", true);
 					if (mapChildTo.size() == 2) {
 						isMatchFn = [mapChildTo](ds::model::ContentModelRef& parChild,
-												  ds::model::ContentModelRef& row) {
+												 ds::model::ContentModelRef& row) {
 							return parChild.getPropertyString(mapChildTo[1]) == row.getPropertyString(mapChildTo[0]);
 						};
 					} else {
@@ -163,9 +161,10 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 						continue;
 					}
 				} else {
-					DS_LOG_WARNING("ContentQuery::assembleModels() child table model has no parent-child relationship configuration.\n"
-						<< "  Must use one of: [child_local_id, parent_foreign_id, child_local_map].\n"
-						<< "  Table name: "  << it.getName() );
+					DS_LOG_WARNING("ContentQuery::assembleModels() child table model has no parent-child relationship "
+								   "configuration.\n"
+								   << "  Must use one of: [child_local_id, parent_foreign_id, child_local_map].\n"
+								   << "  Table name: " << it.getName());
 					continue;
 				}
 
@@ -176,9 +175,9 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 						}
 					}
 				} // End of this table's rows
-			} // End of this depth check
-		} // End of tables in this for loop
-	} // End of depth for loop
+			}	  // End of this depth check
+		}		  // End of tables in this for loop
+	}			  // End of depth for loop
 
 	/// assign top level to the final output
 	for (auto it : tablesParent.getChildren()) {
@@ -200,11 +199,11 @@ ds::model::ContentModelRef ContentQuery::readXml() {
 	ci::XmlTree xml;
 
 	try {
-		auto theFile = cinder::loadFile(filePath);
+		auto		theFile	   = cinder::loadFile(filePath);
 		std::string theContent = std::string((char*)theFile->getBuffer()->getData(), theFile->getBuffer()->getSize());
 
 		std::string value = ds::cfg::SettingsVariables::replaceVariables(theContent);
-		value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+		value			  = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
 		xml = ci::XmlTree(value);
 	} catch (ci::XmlTree::Exception& e) {
@@ -216,7 +215,7 @@ ds::model::ContentModelRef ContentQuery::readXml() {
 	}
 
 	auto rooty = xml.getChild("model");
-	int  id	= 1;
+	int	 id	   = 1;
 	readXmlNode(rooty, output, id);
 
 	if (output.hasDirectChild("model")) {
@@ -259,17 +258,17 @@ void ContentQuery::updateResourceCache() {
 	ds::query::Result recResult;
 
 	auto resQuery = std::string("SELECT");
-	resQuery.append(" " + mResourceRemap["id"]);			   // 0
-		resQuery.append(", " + mResourceRemap["type"]);		   // 1
-		resQuery.append(", " + mResourceRemap["duration"]);	   // 2
-		resQuery.append(", " + mResourceRemap["width"]);	   // 3
-		resQuery.append(", " + mResourceRemap["height"]);	   // 4
-		resQuery.append(", " + mResourceRemap["filename"]);	   // 5
-		resQuery.append(", " + mResourceRemap["path"]);		   // 6
-		resQuery.append(", " + mResourceRemap["thumb"]);	   // 7
+	resQuery.append(" " + mResourceRemap["id"]);		// 0
+	resQuery.append(", " + mResourceRemap["type"]);		// 1
+	resQuery.append(", " + mResourceRemap["duration"]); // 2
+	resQuery.append(", " + mResourceRemap["width"]);	// 3
+	resQuery.append(", " + mResourceRemap["height"]);	// 4
+	resQuery.append(", " + mResourceRemap["filename"]); // 5
+	resQuery.append(", " + mResourceRemap["path"]);		// 6
+	resQuery.append(", " + mResourceRemap["thumb"]);	// 7
 
-	if(mCheckUpdatedResources){
-		resQuery.append(", " + mResourceRemap["updated"]);	   // 8
+	if (mCheckUpdatedResources) {
+		resQuery.append(", " + mResourceRemap["updated"]); // 8
 	}
 
 	resQuery.append(" FROM " + mResourceRemap["table_name"] + " ");
@@ -280,8 +279,8 @@ void ContentQuery::updateResourceCache() {
 		resQuery.append("' ");
 	}
 
-	if(mCheckUpdatedResources){
-		resQuery.append("ORDER BY "+ mResourceRemap["updated"] +" ASC");
+	if (mCheckUpdatedResources) {
+		resQuery.append("ORDER BY " + mResourceRemap["updated"] + " ASC");
 	}
 
 	/// Lets do the query!
@@ -294,11 +293,11 @@ void ContentQuery::updateResourceCache() {
 	if (sqliteResultCode == SQLITE_OK) {
 		sqlite3_busy_timeout(db, 1500);
 		sqlite3_stmt* statement;
-		const int	 err = sqlite3_prepare_v2(db, resQuery.c_str(), -1, &statement, 0);
+		const int	  err = sqlite3_prepare_v2(db, resQuery.c_str(), -1, &statement, 0);
 		if (err != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			DS_LOG_ERROR("ContentQuery::updateResourceQuery::rawSelect SQL error code="
-					<< err << " message=" << sqlite3_errstr(err) << " on select=" << resQuery << std::endl);
+						 << err << " message=" << sqlite3_errstr(err) << " on select=" << resQuery << std::endl);
 
 		} else {
 
@@ -309,20 +308,20 @@ void ContentQuery::updateResourceCache() {
 				auto statementResult = sqlite3_step(statement);
 				if (statementResult == SQLITE_ROW) {
 
-					int			thisId  = sqlite3_column_int(statement, 0);
+					int			thisId	= sqlite3_column_int(statement, 0);
 					std::string thePath = getSqliteString(statement, 6);
 
-					mAllResources[thisId] = ds::Resource(thisId,  // db id
-							ds::Resource::makeTypeFromString(getSqliteString(
-									statement, 1)),  // type (image, video, pdf) as int
-							sqlite3_column_double(statement, 2),		  // duration
-							(float)sqlite3_column_double(statement, 3),  // width
-							(float)sqlite3_column_double(statement, 4),  // height
-							getSqliteString(statement, 5),				  // filename
-							thePath,									  // path
-							sqlite3_column_int(statement, 7),			  // thumbnail id
-							""  // full filepath (set in a second)
-							);
+					mAllResources[thisId] = ds::Resource(thisId, // db id
+														 ds::Resource::makeTypeFromString(getSqliteString(
+															 statement, 1)), // type (image, video, pdf) as int
+														 sqlite3_column_double(statement, 2),		 // duration
+														 (float)sqlite3_column_double(statement, 3), // width
+														 (float)sqlite3_column_double(statement, 4), // height
+														 getSqliteString(statement, 5),				 // filename
+														 thePath,									 // path
+														 sqlite3_column_int(statement, 7),			 // thumbnail id
+														 "" // full filepath (set in a second)
+					);
 
 					auto& reccy = mAllResources[thisId];
 					if (reccy.getType() == ds::Resource::WEB_TYPE) {
@@ -343,7 +342,7 @@ void ContentQuery::updateResourceCache() {
 						reccy.setLocalFilePath(ret, false);
 					}
 
-					if(mCheckUpdatedResources){
+					if (mCheckUpdatedResources) {
 						mLastUpdatedResource = getSqliteString(statement, 8);
 					}
 
@@ -356,7 +355,7 @@ void ContentQuery::updateResourceCache() {
 		sqlite3_close_v2(db);
 	} else {
 		DS_LOG_ERROR("ContentQuery:updateResourceQuery Unable to access the database "
-				<< mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
+					 << mCmsDatabase << " (SQLite error " << sqliteResultCode << ")." << std::endl);
 	}
 
 	DS_LOG_VERBOSE(1, "ContentQuery: updateResourceCache lastUpdated=" << mLastUpdatedResource);
@@ -377,11 +376,12 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 		theTableAlias = theTable;
 	}
 
-	int						   thisId	 = mTableId++;
+	int						   thisId	  = mTableId++;
 	ds::model::ContentModelRef tableModel = ds::model::ContentModelRef(theTableAlias, thisId, "SQLite Table");
 
 	if (theTable.empty()) {
-		if (tableDescription.getName() != "model" && tableDescription.getName() != "meta" && tableDescription.getName() != "resources") {
+		if (tableDescription.getName() != "model" && tableDescription.getName() != "meta" &&
+			tableDescription.getName() != "resources") {
 			DS_LOG_WARNING("ContentQuery::getDataFromTable() No table name specified in datamodel query");
 		}
 
@@ -389,12 +389,12 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 
 	} else {
 
-		std::string selectStmt  = tableDescription.getPropertyString("select");
+		std::string selectStmt	= tableDescription.getPropertyString("select");
 		std::string sorting		= tableDescription.getPropertyString("sort");
 		std::string whereClause = tableDescription.getPropertyString("where");
 		std::string limits		= tableDescription.getPropertyString("limit");
 		std::string reccys		= tableDescription.getPropertyString("resources");
-		std::string primaryId   = tableDescription.getPropertyString("id");
+		std::string primaryId	= tableDescription.getPropertyString("id");
 		std::string theName		= tableDescription.getPropertyString("name_field");
 		std::string theLabel	= tableDescription.getPropertyString("label_field");
 
@@ -456,7 +456,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 			DS_LOG_VERBOSE(4, "Executing SQL query " << theQuery.str());
 
 			sqlite3_stmt* statement;
-			const int	 err = sqlite3_prepare_v2(db, theQuery.str().c_str(), -1, &statement, 0);
+			const int	  err = sqlite3_prepare_v2(db, theQuery.str().c_str(), -1, &statement, 0);
 			if (err != SQLITE_OK) {
 				sqlite3_finalize(statement);
 				DS_LOG_ERROR("ContentQuery::rawSelect SQL error code=" << err << " message=" << sqlite3_errstr(err)
@@ -492,7 +492,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 								const char* dataType	 = NULL;
 								const char* collSequence = NULL;
 								int			notNull		 = 0;
-								int			primaryKey   = 0;
+								int			primaryKey	 = 0;
 								int			autoInc		 = 0;
 								int			resulty =
 									sqlite3_table_column_metadata(db, NULL, theTable.c_str(), columnName, &dataType,
@@ -519,7 +519,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 
 							auto theText = sqlite3_column_text(statement, i);
 
-							auto theInt  = sqlite3_column_int(statement, i);
+							auto theInt	 = sqlite3_column_int(statement, i);
 							auto theDoub = sqlite3_column_double(statement, i);
 
 							std::string theData = "";
@@ -567,7 +567,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, ds::
 
 		parentModel.addChild(tableModel);
 
-	}  // table name is present
+	} // table name is present
 
 	auto tableChildren = tableDescription.getChildren();
 	for (auto it : tableChildren) {
@@ -581,12 +581,12 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, cons
 	std::string dbPath			 = cms.getDatabasePath();
 	std::string sampleQuery		 = "SELECT * FROM " + theTable;
 	sqlite3*	db				 = NULL;
-	const int   sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(dbPath).c_str(), &db, SQLITE_OPEN_READONLY, 0);
+	const int	sqliteResultCode = sqlite3_open_v2(ds::getNormalizedPath(dbPath).c_str(), &db, SQLITE_OPEN_READONLY, 0);
 	if (sqliteResultCode == SQLITE_OK) {
 		sqlite3_busy_timeout(db, 1500);
 
 		sqlite3_stmt* statement;
-		const int	 err = sqlite3_prepare_v2(db, sampleQuery.c_str(), -1, &statement, 0);
+		const int	  err = sqlite3_prepare_v2(db, sampleQuery.c_str(), -1, &statement, 0);
 		if (err != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << sampleQuery << std::endl);
@@ -598,7 +598,7 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, cons
 				auto statementResult = sqlite3_step(statement);
 				if (statementResult == SQLITE_ROW) {
 					auto					   columnCount = sqlite3_data_count(statement);
-					ds::model::ContentModelRef thisRow	 = ds::model::ContentModelRef(theTable + "_row", id);
+					ds::model::ContentModelRef thisRow	   = ds::model::ContentModelRef(theTable + "_row", id);
 					id++;
 					for (int i = 0; i < columnCount; i++) {
 
@@ -628,4 +628,4 @@ void ContentQuery::getDataFromTable(ds::model::ContentModelRef parentModel, cons
 	}
 }
 
-}  // namespace ds
+} // namespace ds

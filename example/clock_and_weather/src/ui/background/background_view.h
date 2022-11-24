@@ -7,17 +7,17 @@
 namespace downstream {
 
 /**
-* \class downstream::BackgroundView
-*			A view that shows the background
-*/
+ * \class downstream::BackgroundView
+ *			A view that shows the background
+ */
 class BackgroundView : public ds::ui::SmartLayout {
-public:
+  public:
 	BackgroundView(ds::ui::SpriteEngine& eng);
 
 	void cycleBackground();
 
 	std::vector<std::string> mBackgrounds;
-	ds::ui::SmartLayout* mCurBackground;
+	ds::ui::SmartLayout*	 mCurBackground;
 
 	int mCurBackgroundIndex = 0;
 };
@@ -25,4 +25,3 @@ public:
 } // namespace downstream
 
 #endif
-

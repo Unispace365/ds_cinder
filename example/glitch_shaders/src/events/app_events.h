@@ -5,16 +5,16 @@
 
 namespace downstream {
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
-public:
+class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent> {
+  public:
 	StoryDataUpdatedEvent(){};
-}; 
+};
 
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
+class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {
+  public:
 	RequestAppExitEvent(){};
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_GLITCH_SHADERS_APP_APPEVENTS_H_

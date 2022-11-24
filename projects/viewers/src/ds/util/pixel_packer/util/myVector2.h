@@ -16,19 +16,18 @@ in the file COPYING.
 
 #include <ostream>
 
-class t_myVector2
-{
-public:
-   t_myVector2();
-   t_myVector2(int x, int y);
+class t_myVector2 {
+  public:
+	t_myVector2();
+	t_myVector2(int x, int y);
 
-   friend std::ostream& operator<<(std::ostream &out, const t_myVector2 &vec2);
+	friend std::ostream& operator<<(std::ostream& out, const t_myVector2& vec2);
 
-   bool operator==(const t_myVector2 &vec) const;
-   bool operator<(const t_myVector2 &vec) const;
+	bool operator==(const t_myVector2& vec) const;
+	bool operator<(const t_myVector2& vec) const;
 
-   int x;
-   int y;
+	int x;
+	int y;
 };
 
 

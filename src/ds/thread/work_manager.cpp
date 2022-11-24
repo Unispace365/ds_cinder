@@ -2,58 +2,51 @@
 
 #include "ds/thread/work_manager.h"
 
+#include "ds/thread/work_client.h"
 #include <algorithm>
 #include <iostream>
-#include "ds/thread/work_client.h"
 
 using namespace ds;
-//using namespace std;
+// using namespace std;
 
-static const std::string					WORK_THREAD_NAME("ds_work");
+static const std::string WORK_THREAD_NAME("ds_work");
 
 /**
  * \class WorkManager
  */
 WorkManager::WorkManager()
-	: mPool(WORK_THREAD_NAME, 4, 16)		// Keep at least 4 threads running, because we use this for all async ops
-//	: mPool(WORK_THREAD_NAME, 1, 1)
-	, mLoop(*this)
-{
+  : mPool(WORK_THREAD_NAME, 4, 16) // Keep at least 4 threads running, because we use this for all async ops
+								   //	: mPool(WORK_THREAD_NAME, 1, 1)
+  , mLoop(*this) {
 	mClient.reserve(64);
 	mInput.reserve(64);
 	mOutput.reserve(64);
 	mOutputTmp.reserve(64);
 }
 
-WorkManager::~WorkManager()
-{
+WorkManager::~WorkManager() {
 	stopManager();
 }
 
-void WorkManager::addClient(WorkClient& c)
-{
-	Poco::Mutex::ScopedLock		l(mInputMutex);
+void WorkManager::addClient(WorkClient& c) {
+	Poco::Mutex::ScopedLock l(mInputMutex);
 	try {
 		mClient.push_back(&c);
-	} catch (std::exception const&) {
-	}
+	} catch (std::exception const&) {}
 }
 
-void WorkManager::removeClient(WorkClient& c)
-{
-	Poco::Mutex::ScopedLock		l(mInputMutex);
+void WorkManager::removeClient(WorkClient& c) {
+	Poco::Mutex::ScopedLock l(mInputMutex);
 	try {
-		mClient.erase( remove( mClient.begin(), mClient.end(), &c ), mClient.end() );
-	} catch (std::exception const&) {
-	}
+		mClient.erase(remove(mClient.begin(), mClient.end(), &c), mClient.end());
+	} catch (std::exception const&) {}
 }
 
-bool WorkManager::sendRequest(std::unique_ptr<WorkRequest> upR, Poco::Timestamp* sendTime)
-{
+bool WorkManager::sendRequest(std::unique_ptr<WorkRequest> upR, Poco::Timestamp* sendTime) {
 	if (!upR.get()) return false;
 	// Push new input onto the stack
 	{
-		Poco::Mutex::ScopedLock		l(mInputMutex);
+		Poco::Mutex::ScopedLock l(mInputMutex);
 		try {
 			upR.get()->mRequestTime = Poco::Timestamp();
 			if (sendTime) *sendTime = upR.get()->mRequestTime;
@@ -65,31 +58,28 @@ bool WorkManager::sendRequest(std::unique_ptr<WorkRequest> upR, Poco::Timestamp*
 	return inputAdded();
 }
 
-void WorkManager::stopManager()
-{
+void WorkManager::stopManager() {
 	// Clear out the inputs so the threads will finish.
 	{
-		Poco::Mutex::ScopedLock		l(mInputMutex);
+		Poco::Mutex::ScopedLock l(mInputMutex);
 		mInput.clear();
 	}
 
 	try {
 		mPool.joinAll();
-	} catch (std::exception&) {
-	}
+	} catch (std::exception&) {}
 }
 
-void WorkManager::update()
-{
+void WorkManager::update() {
 	// To control how much processing the client does, pop off a single result
 	// in an update cycle.
 	mOutputTmp.clear();
 	{
-		Poco::Mutex::ScopedLock		l(mOutputMutex);
+		Poco::Mutex::ScopedLock l(mOutputMutex);
 		if (!mOutput.empty()) {
 			// I suspect there's a 1-line way to do this but haven't found it so far
-//			std::move(mOutput.begin(), mOutput.begin()+1, mOutputTmp.end());
-			std::unique_ptr<WorkRequest>	r(std::move(mOutput.front()));
+			//			std::move(mOutput.begin(), mOutput.begin()+1, mOutputTmp.end());
+			std::unique_ptr<WorkRequest> r(std::move(mOutput.front()));
 			mOutput.erase(mOutput.begin());
 			mOutputTmp.push_back(std::move(r));
 		}
@@ -97,11 +87,11 @@ void WorkManager::update()
 	if (mOutputTmp.empty()) return;
 
 	{
-		Poco::Mutex::ScopedLock		l(mClientMutex);
-		for (auto it=mOutputTmp.begin(), end=mOutputTmp.end(); it != end; ++it) {
-			WorkRequest*			r(it->get());
+		Poco::Mutex::ScopedLock l(mClientMutex);
+		for (auto it = mOutputTmp.begin(), end = mOutputTmp.end(); it != end; ++it) {
+			WorkRequest* r(it->get());
 			if (!r) continue;
-			WorkClient*				client = findClientLocked(r->mClientId);
+			WorkClient* client = findClientLocked(r->mClientId);
 			if (!client) continue;
 
 			client->handleResult(*it);
@@ -111,8 +101,7 @@ void WorkManager::update()
 	mOutputTmp.clear();
 }
 
-bool WorkManager::inputAdded()
-{
+bool WorkManager::inputAdded() {
 	// Start a new thread to handle the input.  If we can't start one, no big deal,
 	// that means we've got threads running that will handle it.  And note that
 	// we always have a minimum number of threads running, so there's always someone
@@ -133,15 +122,13 @@ bool WorkManager::inputAdded()
 		mPool.startWithPriority(Poco::Thread::PRIO_LOW, mLoop);
 #endif
 	} catch (Poco::NoThreadAvailableException&) {
-	} catch (std::exception&) {
-	}
+	} catch (std::exception&) {}
 
 	return true;
 }
 
-void WorkManager::popNextInput(RequestList& in)
-{
-	Poco::Mutex::ScopedLock		l(mInputMutex);
+void WorkManager::popNextInput(RequestList& in) {
+	Poco::Mutex::ScopedLock l(mInputMutex);
 	if (!mInput.empty()) {
 		if (in.empty()) {
 			in.swap(mInput);
@@ -151,18 +138,15 @@ void WorkManager::popNextInput(RequestList& in)
 	}
 }
 
-void WorkManager::addOutput(std::unique_ptr<WorkRequest>& r)
-{
+void WorkManager::addOutput(std::unique_ptr<WorkRequest>& r) {
 	if (!r.get()) return;
-	Poco::Mutex::ScopedLock		l(mOutputMutex);
+	Poco::Mutex::ScopedLock l(mOutputMutex);
 	try {
 		mOutput.push_back(std::move(r));
-	} catch (std::exception const&) {
-	}
+	} catch (std::exception const&) {}
 }
 
-WorkClient* WorkManager::findClientLocked(const void* clientId)
-{
+WorkClient* WorkManager::findClientLocked(const void* clientId) {
 	auto it = std::find(mClient.begin(), mClient.end(), (WorkClient*)clientId);
 	if (it == mClient.end()) return nullptr;
 	return *it;
@@ -172,27 +156,24 @@ WorkClient* WorkManager::findClientLocked(const void* clientId)
  * \class Loop
  */
 WorkManager::Loop::Loop(WorkManager& qm)
-	: mManager(qm)
-{
-}
+  : mManager(qm) {}
 
-void WorkManager::Loop::run()
-{
+void WorkManager::Loop::run() {
 	DS_DBG_THREAD_CODE(mManager.debugThreadStarted(Poco::Thread::current()));
 
 	// Run for as long as I have input, then let the thread die to be reclaimed.
-	RequestList						ins;
+	RequestList ins;
 	mManager.popNextInput(ins);
 	while (!ins.empty()) {
 		// Process
-		for (auto it=ins.begin(), end=ins.end(); it != end; ++it) {
+		for (auto it = ins.begin(), end = ins.end(); it != end; ++it) {
 			handleInput(*it);
 		}
 		ins.clear();
 
 		// Testing!  Which is not great -- should have some randomization
 		// so they're not all in sync.
-//		Poco::Thread::sleep(500);
+		//		Poco::Thread::sleep(500);
 
 		// Continue processing if we've got input
 		mManager.popNextInput(ins);
@@ -201,44 +182,40 @@ void WorkManager::Loop::run()
 	DS_DBG_THREAD_CODE(mManager.debugThreadStopped(Poco::Thread::current()));
 }
 
-void WorkManager::Loop::handleInput(std::unique_ptr<WorkRequest>& upR) const
-{
-	WorkRequest*			r = upR.get();
+void WorkManager::Loop::handleInput(std::unique_ptr<WorkRequest>& upR) const {
+	WorkRequest* r = upR.get();
 	if (!r) return;
 
 	r->run();
 
-  mManager.addOutput(upR);
+	mManager.addOutput(upR);
 }
 
 /* QUERY-DEBUG
  ******************************************************************/
 #if QUERY_DEBUG_IS_ON
 
-void QueryManager::debugThreadStarted(void* id)
-{
-	Poco::Mutex::ScopedLock		l(mInputMutex);
+void QueryManager::debugThreadStarted(void* id) {
+	Poco::Mutex::ScopedLock l(mInputMutex);
 	mStatistics.mThreadId.add(id);
 }
 
-void QueryManager::debugThreadStopped(void* id)
-{
-	Poco::Mutex::ScopedLock		l(mInputMutex);
+void QueryManager::debugThreadStopped(void* id) {
+	Poco::Mutex::ScopedLock l(mInputMutex);
 	mStatistics.mThreadId.remove(id);
 }
 
-void QueryManager::debugGetStatistics(QueryDebug::Statistics& s)
-{
+void QueryManager::debugGetStatistics(QueryDebug::Statistics& s) {
 	{
-		Poco::Mutex::ScopedLock		l(mInputMutex);
+		Poco::Mutex::ScopedLock l(mInputMutex);
 		s.mInputSize = mInput.size();
-		s.mThreadId = mStatistics.mThreadId;
+		s.mThreadId	 = mStatistics.mThreadId;
 	}
 	{
-		Poco::Mutex::ScopedLock		l(mInputMutex);
+		Poco::Mutex::ScopedLock l(mInputMutex);
 		s.mOutputSize = mOutput.size();
 	}
-	s.mUsed = mPool.used();
+	s.mUsed		 = mPool.used();
 	s.mAllocated = mPool.allocated();
 }
 

@@ -13,30 +13,31 @@ namespace example {
 class AllData;
 
 class CircleCropExample : public ds::App {
-public:
+  public:
 	CircleCropExample();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
-	void				update();
-private:
-	typedef ds::App		inherited;
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
+	void		 update();
+
+  private:
+	typedef ds::App inherited;
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
-	//Idle state of the app to detect state change
-	bool				mIdling;
-	ds::ui::Image*		mShaderCircleCrop;
+	// Idle state of the app to detect state change
+	bool		   mIdling;
+	ds::ui::Image* mShaderCircleCrop;
 
 
-	void				moveCamera(const ci::vec3& deltaMove);
+	void moveCamera(const ci::vec3& deltaMove);
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_CIRCLECROPEXAMPLE_APP_H_

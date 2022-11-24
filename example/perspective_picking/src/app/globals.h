@@ -8,11 +8,9 @@
 
 #include "model/all_data.h"
 
-namespace ds {
-namespace ui {
-class SpriteEngine;
-} // namespace ui
-} // namespace ds
+namespace ds { namespace ui {
+	class SpriteEngine;
+}} // namespace ds::ui
 
 namespace perspective_picking {
 
@@ -21,23 +19,20 @@ namespace perspective_picking {
  * \brief Global data for the app.
  */
 class Globals {
-public:
+  public:
 	Globals(ds::ui::SpriteEngine&, const AllData& d);
 
-	ds::ui::SpriteEngine&			mEngine;
-	ds::EventNotifier				mNotifier;
+	ds::ui::SpriteEngine& mEngine;
+	ds::EventNotifier	  mNotifier;
 
-	const AllStories&				mAllStories;
+	const AllStories& mAllStories;
 
-	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	ds::cfg::Settings&				getSettingsLayout() const;
-	ds::cfg::Settings&				getSettings(const std::string& name) const;
-
-
+	// Shortcuts
+	const ds::cfg::Text& getText(const std::string& name) const;
+	ds::cfg::Settings&	 getSettingsLayout() const;
+	ds::cfg::Settings&	 getSettings(const std::string& name) const;
 };
 
-} // !namespace perspective_picking
+} // namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_GLOBALS_
-

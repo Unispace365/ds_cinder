@@ -10,14 +10,12 @@ namespace example {
  * \class example::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_FINGER_DRAWING_APP_MODEL_ALLDATA_H_

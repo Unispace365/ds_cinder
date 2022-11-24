@@ -13,22 +13,22 @@ class UpdateParams;
  * Store a collection of auto update objects.
  */
 class AutoUpdateList {
-public:
+  public:
 	AutoUpdateList();
 
-	void						update(const ds::UpdateParams&);
+	void update(const ds::UpdateParams&);
 
-private:
-	void						addWaiting(AutoUpdate*);
-	void						remove(AutoUpdate*);
+  private:
+	void addWaiting(AutoUpdate*);
+	void remove(AutoUpdate*);
 
 	friend class AutoUpdate;
-	std::vector<AutoUpdate*>	mRunning;
+	std::vector<AutoUpdate*> mRunning;
 	/// A list of pending update objects -- when an update is added,
 	/// it starts here, then gets placed in the real update list
 	/// at the start of the next update cycle. This prevents a
 	/// a bug where the vector gets modified during an update.
-	std::vector<AutoUpdate*>	mWaiting;
+	std::vector<AutoUpdate*> mWaiting;
 };
 
 } // namespace ds

@@ -6,19 +6,16 @@
 namespace perspective_picking {
 
 /**
-* \class perspective_picking::AllData
-* This is kind of silly, but If we expand anything I want this here
-*/
+ * \class perspective_picking::AllData
+ * This is kind of silly, but If we expand anything I want this here
+ */
 class AllStories {
-public:
-
+  public:
 	AllStories(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace perspective_picking
+} // namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_MODEL_ALLSTORIES_H_
-

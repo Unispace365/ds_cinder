@@ -4,7 +4,6 @@
 
 namespace downstream {
 
-class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent> {};
 
-} // !namespace downstream
-
+} // namespace downstream

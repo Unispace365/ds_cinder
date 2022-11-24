@@ -1,7 +1,7 @@
 #include "view_dragger.h"
 
-#include <ds/ui/sprite/sprite_engine.h>
 #include "app/globals.h"
+#include <ds/ui/sprite/sprite_engine.h>
 
 namespace perspective_picking {
 
@@ -9,13 +9,13 @@ namespace perspective_picking {
  * \class na::ViewDragger
  */
 ViewDragger::ViewDragger(Globals& g, ds::ui::Sprite& parent)
-		: mParent(parent)
-		, mMomentum(parent.getEngine())
-		, mIsTouchy(false)
-		, mReturnTime(g.getSettingsLayout().getFloat("media_viewer:check_bounds:return_time", 0, 0.6f)) {
+  : mParent(parent)
+  , mMomentum(parent.getEngine())
+  , mIsTouchy(false)
+  , mReturnTime(g.getSettingsLayout().getFloat("media_viewer:check_bounds:return_time", 0, 0.6f)) {
 	mParent.enable(true);
 	mParent.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	mParent.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){ onTouched(ti);});
+	mParent.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) { onTouched(ti); });
 
 	mMomentum.setMomentumParent(&mParent);
 	mMomentum.setMass(8.0f);
@@ -52,7 +52,7 @@ void ViewDragger::onTouched(const ds::ui::TouchInfo& ti) {
 }
 
 void ViewDragger::checkBounds(const bool immediate) {
-	const float thisWidth = mParent.getWidth();
+	const float thisWidth  = mParent.getWidth();
 	const float thisHeight = mParent.getHeight();
 
 	const float anchorX = mParent.getCenter().x * thisWidth;
@@ -67,35 +67,35 @@ void ViewDragger::checkBounds(const bool immediate) {
 	float destinationX = thisX;
 	float destinationY = thisY;
 
-	if(thisWidth < worldW){
-		if(thisX < 0){
+	if (thisWidth < worldW) {
+		if (thisX < 0) {
 			destinationX = 0;
-		} else if(thisX > worldW - thisWidth){
+		} else if (thisX > worldW - thisWidth) {
 			destinationX = worldW - thisWidth;
 		}
 	} else {
-		if(thisX < worldW - thisWidth){
+		if (thisX < worldW - thisWidth) {
 			destinationX = worldW - thisWidth;
-		} else if(thisX > 0){
+		} else if (thisX > 0) {
 			destinationX = 0;
 		}
 	}
 
-	if(thisHeight < worldH){
-		if(thisY < 0){
+	if (thisHeight < worldH) {
+		if (thisY < 0) {
 			destinationY = 0;
-		} else if(thisY > worldH - thisHeight){
+		} else if (thisY > worldH - thisHeight) {
 			destinationY = worldH - thisHeight;
 		}
 	} else {
-		if(thisY < worldH - thisHeight){
+		if (thisY < worldH - thisHeight) {
 			destinationY = worldH - thisHeight;
-		} else if(thisY > 0){
+		} else if (thisY > 0) {
 			destinationY = 0;
 		}
 	}
 
-	if(destinationX == thisX && destinationY == thisY){
+	if (destinationX == thisX && destinationY == thisY) {
 		return;
 	}
 
@@ -104,7 +104,7 @@ void ViewDragger::checkBounds(const bool immediate) {
 	// re-apply the anchor offset.
 	destinationX += anchorX;
 	destinationY += anchorY;
-	if(immediate){
+	if (immediate) {
 		mParent.setPosition(floorf(destinationX), floorf(destinationY));
 	} else {
 		mParent.tweenPosition(ci::vec3(destinationX, destinationY, 0.0f), mReturnTime, 0.0f, ci::EaseOutQuint());
@@ -112,5 +112,3 @@ void ViewDragger::checkBounds(const bool immediate) {
 }
 
 } // namespace perspective_picking
-
-

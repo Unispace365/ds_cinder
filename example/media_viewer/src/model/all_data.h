@@ -9,16 +9,12 @@ namespace mv {
  * \class mv::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::MediaRef>	mAllMedia;
-
+	std::vector<ds::model::MediaRef> mAllMedia;
 };
 
-} // !namespace mv
+} // namespace mv
 
 #endif // !_MEDIAVIEWER_APP_MODEL_ALLDATA_H_
-
-

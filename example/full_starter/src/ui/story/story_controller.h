@@ -7,19 +7,19 @@ namespace fullstarter {
 class StoryView;
 
 /**
-* \class fullstarter::StoryController
-*			Controls and manages any stories onscreen. If you don't rename this class into something relevant I will publicly shame you.
-*/
+ * \class fullstarter::StoryController
+ *			Controls and manages any stories onscreen. If you don't rename this class into something relevant I will
+ *publicly shame you.
+ */
 class StoryController : public ds::ui::SmartLayout {
-public:
+  public:
 	StoryController(ds::ui::SpriteEngine& eng);
 
 
 	void setData();
 	void removeCurrentStory();
 
-	StoryView*	mCurrentStory = nullptr;
+	StoryView* mCurrentStory = nullptr;
 };
 
 } // namespace fullstarter
-

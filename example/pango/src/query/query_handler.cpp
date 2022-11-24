@@ -1,25 +1,27 @@
 #include "query_handler.h"
 
+#include "app/globals.h"
 #include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
-#include "app/globals.h"
 
 namespace pango {
 
 /**
  * \class pango::QueryHandler
  */
-QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
-		: mEventClient(se.getNotifier(), [this](const ds::Event* e){if (e) onAppEvent(*e); })
-		, mAllData(ad)
-		, mStoryQuery(se, [](){return new StoryQuery(); })
-{
+QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData& ad)
+  : mEventClient(se.getNotifier(),
+				 [this](const ds::Event* e) {
+					 if (e) onAppEvent(*e);
+				 })
+  , mAllData(ad)
+  , mStoryQuery(se, []() { return new StoryQuery(); }) {
 
 	// Initialize data
-	mStoryQuery.setReplyHandler([this](StoryQuery& q){this->onStoryQuery(q); });
+	mStoryQuery.setReplyHandler([this](StoryQuery& q) { this->onStoryQuery(q); });
 }
 
-void QueryHandler::runInitialQueries(const bool synchronous){
+void QueryHandler::runInitialQueries(const bool synchronous) {
 	mStoryQuery.start(nullptr, synchronous);
 }
 
@@ -32,11 +34,8 @@ void QueryHandler::onStoryQuery(StoryQuery& q) {
 
 	// In general, when a view is re-loaded, it'll pick up the new stories after this point.
 	// You can also dispatch an event here to notify views of new data
-	//mEventClient.notify(StoryDataLoadedEvent());
-
+	// mEventClient.notify(StoryDataLoadedEvent());
 }
 
 
-} // !namespace pango
-
-
+} // namespace pango

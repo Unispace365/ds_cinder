@@ -12,19 +12,19 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/util/text_model.h>
-#include <ds/util/string_util.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/util/string_util.h>
 
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLayoutFile,
 						 const std::string xmlFileLocation, const bool loadImmediately)
   : ds::ui::LayoutSprite(engine)
+  , mInitialized(false)
   , mLayoutFile(xmlFileLocation + xmlLayoutFile)
   , mNeedsLayout(false)
-  , mInitialized(false)
+
   , mEventClient(engine) {
 	if (loadImmediately) {
 		initialize();
@@ -33,15 +33,15 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 
 SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine)
   : ds::ui::LayoutSprite(engine)
-  , mLayoutFile("")
   , mInitialized(false)
+  , mLayoutFile("")
   , mNeedsLayout(false)
   , mEventClient(engine) {}
 
 void SmartLayout::setLayoutFile(const std::string& xmlLayoutFile, const std::string xmlFileLocation,
 								const bool loadImmediately) {
 	mInitialized = false;
-	mLayoutFile  = xmlFileLocation + xmlLayoutFile;
+	mLayoutFile	 = xmlFileLocation + xmlLayoutFile;
 
 	if (loadImmediately) {
 		initialize();
@@ -60,7 +60,9 @@ void SmartLayout::initialize() {
 	mInitialized = true;
 }
 
-bool SmartLayout::hasSprite(const std::string& spriteName) { return mSpriteMap.find(spriteName) != mSpriteMap.end(); }
+bool SmartLayout::hasSprite(const std::string& spriteName) {
+	return mSpriteMap.find(spriteName) != mSpriteMap.end();
+}
 
 ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	auto findy = mSpriteMap.find(spriteName);
@@ -96,72 +98,66 @@ void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache, bool skipMetaData) {
-	
-		int flags = 0;
-		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
-		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache,
+								 bool skipMetaData) {
 
-		setSpriteImage(spriteName, imagePath, flags);
+	int flags = 0;
+	if (cache) flags = ds::ui::Image::IMG_CACHE_F;
+	if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+
+	setSpriteImage(spriteName, imagePath, flags);
 }
 
 void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath, int flags) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		
-		//bool cache =  flags & ds::ui::Image::IMG_CACHE_F;
-		bool skipMetaData =  bool(flags & ds::ui::Image::IMG_SKIP_METADATA_F);
-		//bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
-		//bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
-		
+
+		// bool cache =  flags & ds::ui::Image::IMG_CACHE_F;
+		bool skipMetaData = bool(flags & ds::ui::Image::IMG_SKIP_METADATA_F);
+		// bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+		// bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
+
 		sprI->setImageFile(imagePath, flags);
 
 		if (skipMetaData) {
-			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
-				mNeedsLayout = true;
-			});
-		}
-		else {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) { mNeedsLayout = true; });
+		} else {
 			mNeedsLayout = true;
 		}
 
-	}
-	else {
+	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache, bool skipMetaData) {
-	
-		int flags = 0;
-		if (cache) flags = ds::ui::Image::IMG_CACHE_F;
-		if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache,
+								 bool skipMetaData) {
 
-		setSpriteImage(spriteName, imageResource, flags);
+	int flags = 0;
+	if (cache) flags = ds::ui::Image::IMG_CACHE_F;
+	if (skipMetaData) flags = flags | ds::ui::Image::IMG_SKIP_METADATA_F;
+
+	setSpriteImage(spriteName, imageResource, flags);
 }
 
 void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, int flags) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		//bool cache = flags & ds::ui::Image::IMG_CACHE_F;
+		// bool cache = flags & ds::ui::Image::IMG_CACHE_F;
 		bool skipMetaData = bool(flags & ds::ui::Image::IMG_SKIP_METADATA_F);
-		//bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
-		//bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
+		// bool mipmap = flags & ds::ui::Image::IMG_ENABLE_MIPMAP_F;
+		// bool preload = flags & ds::ui::Image::IMG_PRELOAD_F;
 
 		sprI->setImageResource(imageResource, flags);
 
 		if (skipMetaData) {
-			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) {
-				mNeedsLayout = true;
-			});
-		}
-		else {
+			sprI->setStatusCallback([this](const ds::ui::Image::Status& status) { mNeedsLayout = true; });
+		} else {
 			mNeedsLayout = true;
 		}
-	}
-	else {
+	} else {
 		DS_LOG_VERBOSE(2, "Failed to set Image for Sprite: " << spriteName);
 	}
 }
@@ -225,12 +221,12 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 	for (auto mit : ds::split(model, "; ", true)) {
 		auto keyVals = ds::split(mit, ":", true);
 		if (keyVals.size() == 2) {
-			auto valueDefault = ds::split(keyVals[1],"|",true);
-			auto values = keyVals[1];
-			auto default = std::string("");
-			if (valueDefault.size()==2) {
+			auto valueDefault = ds::split(keyVals[1], "|", true);
+			auto values		  = keyVals[1];
+			auto def		  = std::string("");
+			if (valueDefault.size() == 2) {
 				values = valueDefault[0];
-				default = valueDefault[1];
+				def	   = valueDefault[1];
 			}
 
 			auto childProps = ds::split(values, "->", true);
@@ -247,7 +243,7 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 			}
 
 
-			if (childProps.size() == 1) {  // Handle model types that only require a model & not a property
+			if (childProps.size() == 1) { // Handle model types that only require a model & not a property
 				auto sprPropToSet = keyVals[0];
 				if (sprPropToSet == "text_model") {
 					auto fmt = child->getUserData().getString("model_format");
@@ -255,27 +251,27 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					std::string formattedModel = ds::ui::processTextModel(fmt, theNode);
 
 					ds::ui::XmlImporter::setSpriteProperty(*child, "text", formattedModel);
-				} else if(sprPropToSet == "visible_if_exists") {
-					if(theNode.empty()) {
+				} else if (sprPropToSet == "visible_if_exists") {
+					if (theNode.empty()) {
 						child->hide();
 					} else {
 						child->show();
 					}
-				} else if(sprPropToSet == "hidden_if_exists") {
-					if(theNode.empty()) {
+				} else if (sprPropToSet == "hidden_if_exists") {
+					if (theNode.empty()) {
 						child->show();
 					} else {
 						child->hide();
 					}
 				}
-			} else if (childProps.size() == 2) {  // Handle 'model->property' models
+			} else if (childProps.size() == 2) { // Handle 'model->property' models
 				auto		sprPropToSet = keyVals[0];
 				auto		theProp		 = childProps[1];
-				std::string actualValue  = "";
-				
-				if (sprPropToSet.rfind( "resource",0)==0) {
+				std::string actualValue	 = "";
 
-					int  flags = 0;
+				if (sprPropToSet.rfind("resource", 0) == 0) {
+
+					int flags = 0;
 					if (sprPropToSet.find("_") != std::string::npos) {
 
 						auto theFlags = ds::split(sprPropToSet, "_", true);
@@ -284,69 +280,63 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 							if (val == "cache" || val == "c") {
 								flags |= ds::ui::Image::IMG_CACHE_F;
 
-							}
-							else if (val == "mipmap" || val == "m") {
+							} else if (val == "mipmap" || val == "m") {
 								flags |= ds::ui::Image::IMG_ENABLE_MIPMAP_F;
 
-							}
-							else if (val == "preload" || val == "p") {
+							} else if (val == "preload" || val == "p") {
 								flags |= ds::ui::Image::IMG_PRELOAD_F;
 
-							}
-							else if (val == "skipmeta" || val == "s") {
+							} else if (val == "skipmeta" || val == "s") {
 								flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
 
-							}
-							else if (val != "resource" ) {
-								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _" << val
-									<< "_ on sprite of type: " << typeid(child).name());
+							} else if (val != "resource") {
+								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _"
+											   << val << "_ on sprite of type: " << typeid(child).name());
 							}
 						}
 					}
-					if(flags==0)
-					{
+					if (flags == 0) {
 						child->setResource(theNode.getProperty(theProp).getResource());
-					}
-					else {
+					} else {
 						setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
 					}
-				} else if(sprPropToSet == "media_player_src") {
+				} else if (sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();
-					if(theResource.empty()) {
+					if (theResource.empty()) {
 						theResource = ds::Resource(ds::Environment::expand(theNode.getPropertyString(theProp)));
-					} else if(theResource.getType() == ds::Resource::IMAGE_TYPE) {
+					} else if (theResource.getType() == ds::Resource::IMAGE_TYPE) {
 						ds::ImageMetaData metaData;
 						metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()),
 									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
 					}
 
-					if(!theResource.empty()) {
+					if (!theResource.empty()) {
 						child->setResource(theResource);
 					}
-				} else if(sprPropToSet == "visible_if_exists"){
-					if(theNode.getPropertyString(theProp).empty()) {
+				} else if (sprPropToSet == "visible_if_exists") {
+					if (theNode.getPropertyString(theProp).empty()) {
 						child->hide();
 					} else {
 						child->show();
 					}
-				} else if(sprPropToSet == "hidden_if_exists"){
-					if(theNode.getPropertyString(theProp).empty()) {
+				} else if (sprPropToSet == "hidden_if_exists") {
+					if (theNode.getPropertyString(theProp).empty()) {
 						child->show();
 					} else {
 						child->hide();
 					}
-				} else if (sprPropToSet.rfind("_",0)==0) {
+				} else if (sprPropToSet.rfind("_", 0) == 0) {
 					auto click_data = theNode.getPropertyString(theProp);
-					if (click_data.empty() && !default.empty()) {
-						click_data = default;
+					if (click_data.empty() && !def.empty()) {
+						click_data = def;
 					}
 					if (!click_data.empty()) {
 						child->getUserData().setString(sprPropToSet, click_data);
 					}
 				} else {
 					actualValue = theNode.getPropertyString(theProp);
-					if (actualValue.empty() && !default.empty()) {
-						actualValue = default;
+					if (actualValue.empty() && !def.empty()) {
+						actualValue = def;
 					}
 					ds::ui::XmlImporter::setSpriteProperty(*child, sprPropToSet, actualValue);
 				}
@@ -380,7 +370,7 @@ void SmartLayout::applyEachModelToSprite(ds::ui::Sprite* child, const std::strin
 			if (limit == 0) limit = -1;
 
 			for (auto baby : theNode.getChildren()) {
-				if(limit-- == 0) break;
+				if (limit-- == 0) break;
 
 				auto babySprite = new ds::ui::SmartLayout(mEngine, pairy[0]);
 				child->addChildPtr(babySprite);
@@ -421,5 +411,4 @@ void SmartLayout::onUpdateServer(const ds::UpdateParams& p) {
 }
 
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

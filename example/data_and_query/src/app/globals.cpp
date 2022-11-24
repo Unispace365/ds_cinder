@@ -13,18 +13,16 @@ namespace fullstarter {
 /**
  * \class fullstarter::Globals
  */
-Globals::Globals(ds::ui::SpriteEngine& e , const AllData& d )
-		: mEngine(e)
-		, mAllData(d)
-		, mAnimationDuration(0.35f)
-{
-}
+Globals::Globals(ds::ui::SpriteEngine& e, const AllData& d)
+  : mEngine(e)
+  , mAllData(d)
+  , mAnimationDuration(0.35f) {}
 
-const float Globals::getAnimDur(){
+const float Globals::getAnimDur() {
 	return mAnimationDuration;
 }
 
-void Globals::initialize(){
+void Globals::initialize() {
 	mAnimationDuration = getAppSettings().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
@@ -39,9 +37,7 @@ ds::cfg::Settings& Globals::getAppSettings() const {
 
 const ds::cfg::Text& Globals::getText(const std::string& name) const {
 	return mEngine.getEngineCfg().getText(name);
-
 }
 
 
-
-} // !namespace fullstarter
+} // namespace fullstarter

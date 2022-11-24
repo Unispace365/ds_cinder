@@ -12,25 +12,25 @@ namespace example {
 class AllData;
 
 class finger_drawing : public ds::App {
-public:
+  public:
 	finger_drawing();
 
-	void				setupServer();
+	void setupServer();
 
-private:
-	void				onAppEvent(const ds::Event&);
+  private:
+	void onAppEvent(const ds::Event&);
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_FINGER_DRAWING_APP_H_

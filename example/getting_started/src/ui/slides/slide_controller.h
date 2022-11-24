@@ -7,19 +7,19 @@
 namespace downstream {
 
 /**
-* \class downstream::SlideController
-*			Load and display slides
-*/
+ * \class downstream::SlideController
+ *			Load and display slides
+ */
 class SlideController : public ds::ui::SmartLayout {
-public:
+  public:
 	SlideController(ds::ui::SpriteEngine& eng);
 
-	void						setData(const bool doAnimate, const bool forwards = true);
-	void						goForward();
-	void						goBack();
+	void setData(const bool doAnimate, const bool forwards = true);
+	void goForward();
+	void goBack();
 
-private:
-	ds::ui::SmartLayout*		mCurrentSlide;
+  private:
+	ds::ui::SmartLayout* mCurrentSlide;
 };
 
 } // namespace downstream

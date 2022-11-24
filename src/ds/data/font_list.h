@@ -7,7 +7,7 @@
 
 namespace ds {
 namespace ui {
-class SpriteEngine;
+	class SpriteEngine;
 }
 
 /**
@@ -18,41 +18,48 @@ class SpriteEngine;
  * shuttling down the full name any time a text sprite is created.
  */
 class FontList {
-public:
+  public:
 	FontList(ds::ui::SpriteEngine& eng);
 
-	void				clear();
+	void clear();
 
-	/// Loads and registers a font to be used by the system. 
-	/// \param filePath is the absolute path to the font file (otf or ttf generally). Something like c:/path/to/your/app/folder/data/fonts/notosans-bold.otf
-	/// \param fontName is the Pango-recognized name of the font. This will be something like "Noto Sans Bold" or "Arial"
-	/// \param shortName is the name for the font that you can set on a text sprite. mMyText->setFont("noto_sans_bold"). Note: this can be the same as the Pango fontName if you want. Defaults to shortName if blank
-	void				installFont(const std::string& filePath, const std::string& fontName, const std::string& shortName = "");
+	/// Loads and registers a font to be used by the system.
+	/// \param filePath is the absolute path to the font file (otf or ttf generally). Something like
+	/// c:/path/to/your/app/folder/data/fonts/notosans-bold.otf \param fontName is the Pango-recognized name of the
+	/// font. This will be something like "Noto Sans Bold" or "Arial" \param shortName is the name for the font that you
+	/// can set on a text sprite. mMyText->setFont("noto_sans_bold"). Note: this can be the same as the Pango fontName
+	/// if you want. Defaults to shortName if blank
+	void installFont(const std::string& filePath, const std::string& fontName, const std::string& shortName = "");
 
 	/// Does the above, but doesn't load the font file. This is for fonts that are already installed on a system-level
-	void				registerFont(const std::string& fontName, const std::string& shortName);
+	void registerFont(const std::string& fontName, const std::string& shortName);
 
-	/// Answer > 0 for a valid ID. Name can either be the file path, font name, or short name. Jebus help you if you name fonts the same thing.
-	size_t				getIdFromName(const std::string&) const;
-	const std::string&	getFilePathFromId(const size_t id) const;
+	/// Answer > 0 for a valid ID. Name can either be the file path, font name, or short name. Jebus help you if you
+	/// name fonts the same thing.
+	size_t			   getIdFromName(const std::string&) const;
+	const std::string& getFilePathFromId(const size_t id) const;
 
-	/// Clients give either a filename or a shortname, and I answer with the resulting font name to actually load in Pango.
-	/// For example, pass in your custom name of "noto-sans-bold" or "the-title-font" and it will respond with the registered or installed mapped font name such as "Noto Sans Bold" or "Arial"
-	/// If you haven't registered this shortname, it will be returned. So you can use system-installed fonts without having to do anything
-	const std::string&	getFontNameForShortName(const std::string& shortName) const;
+	/// Clients give either a filename or a shortname, and I answer with the resulting font name to actually load in
+	/// Pango. For example, pass in your custom name of "noto-sans-bold" or "the-title-font" and it will respond with
+	/// the registered or installed mapped font name such as "Noto Sans Bold" or "Arial" If you haven't registered this
+	/// shortname, it will be returned. So you can use system-installed fonts without having to do anything
+	const std::string& getFontNameForShortName(const std::string& shortName) const;
 
-private:
+  private:
 	class Entry {
-	public:
-		Entry(){}
-		Entry(const std::string& filePath, const std::string& fontName, const std::string& shortName) : mFilePath(filePath), mFontName(fontName), mShortName(shortName) { }
-		std::string						mFilePath;
-		std::string						mFontName;
-		std::string						mShortName;
+	  public:
+		Entry() {}
+		Entry(const std::string& filePath, const std::string& fontName, const std::string& shortName)
+		  : mFilePath(filePath)
+		  , mFontName(fontName)
+		  , mShortName(shortName) {}
+		std::string mFilePath;
+		std::string mFontName;
+		std::string mShortName;
 	};
-	std::unordered_map<size_t, Entry>	mData;
+	std::unordered_map<size_t, Entry> mData;
 
-	ds::ui::SpriteEngine&				mEngine;
+	ds::ui::SpriteEngine& mEngine;
 };
 
 } // namespace ds

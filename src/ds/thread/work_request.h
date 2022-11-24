@@ -2,8 +2,8 @@
 #ifndef DS_THREAD_WORKREQUEST_H_
 #define DS_THREAD_WORKREQUEST_H_
 
-#include <Poco/Timestamp.h>
 #include <Poco/Runnable.h>
+#include <Poco/Timestamp.h>
 
 namespace ds {
 
@@ -12,17 +12,17 @@ namespace ds {
  * \brief Abstract class for anything that can be sent into the work manager.
  */
 class WorkRequest : public Poco::Runnable {
-public:
+  public:
 	WorkRequest(const void* clientId);
 	virtual ~WorkRequest();
 
-protected:
+  protected:
 	friend class WorkManager;
 
-	const void*					mClientId;
-	Poco::Timestamp				mRequestTime;
+	const void*		mClientId;
+	Poco::Timestamp mRequestTime;
 
-private:
+  private:
 	WorkRequest();
 };
 

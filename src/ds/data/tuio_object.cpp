@@ -8,19 +8,16 @@ namespace ds {
  * \class TuioObject
  */
 TuioObject::TuioObject()
-		: mObjectId(-1)
-		, mAngle(0.0f)
-{
-}
+  : mObjectId(-1)
+  , mAngle(0.0f) {}
 
-TuioObject::TuioObject(const int objectId, const cinder::vec2& position, const float angle, const cinder::vec2& velocity, const float rotationVelocity)
-		: mObjectId(objectId)
-		, mPosition(position)
-		, mAngle(angle)
-		, mVelocity(velocity)
-		, mRotationVelocity(rotationVelocity)
-{
-}
+TuioObject::TuioObject(const int objectId, const cinder::vec2& position, const float angle,
+					   const cinder::vec2& velocity, const float rotationVelocity)
+  : mObjectId(objectId)
+  , mPosition(position)
+  , mAngle(angle)
+  , mVelocity(velocity)
+  , mRotationVelocity(rotationVelocity) {}
 
 int TuioObject::getObjectId() const {
 	return mObjectId;

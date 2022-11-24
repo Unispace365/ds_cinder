@@ -11,15 +11,13 @@
 namespace mv {
 
 /**
-* \class mv::Globals
-*/
+ * \class mv::Globals
+ */
 Globals::Globals(ds::ui::SpriteEngine& e)
-	: mEngine(e)
-	, mAnimDuration(0.2f)
-	, mRequestId(0)
-	, mVolume(0.0)
-{
-}
+  : mEngine(e)
+  , mAnimDuration(0.2f)
+  , mRequestId(0)
+  , mVolume(0.0) {}
 
 ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
@@ -42,5 +40,4 @@ const float Globals::getAnimDur() {
 }
 
 
-} // !namespace mv
-
+} // namespace mv

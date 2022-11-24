@@ -4,27 +4,18 @@
 
 #include <cinder/Vector.h>
 
-namespace ds {
-namespace ui {
+namespace ds { namespace ui {
 
-class Sprite;
+	class Sprite;
 
-struct TapInfo
-{
-  enum State
-  {
-    Waiting,
-    Tapped,
-    Done,
-    Null
-  };
+	struct TapInfo {
+		enum State { Waiting, Tapped, Done, Null };
 
-  State       mState;
-  int         mCount;
-  ci::vec3   mCurrentGlobalPoint;
-};
+		State	 mState;
+		int		 mCount;
+		ci::vec3 mCurrentGlobalPoint;
+	};
 
-} // namespace ui
-} // namespace ds
+}} // namespace ds::ui
 
-#endif//DS_UI_TOUCH_TAPINFO_H_
+#endif // DS_UI_TOUCH_TAPINFO_H_

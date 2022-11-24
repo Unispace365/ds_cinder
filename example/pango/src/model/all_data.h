@@ -10,16 +10,12 @@ namespace pango {
  * \class pango::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace pango
+} // namespace pango
 
 #endif // !_PANGO_APP_MODEL_ALLDATA_H_
-
-

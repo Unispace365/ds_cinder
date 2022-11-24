@@ -6,24 +6,19 @@
 namespace perspective_picking {
 
 class IdleStartedEvent : public ds::Event {
-public:
+  public:
+	static int WHAT();
 
-	static int		WHAT();
-
-	IdleStartedEvent( );
-
+	IdleStartedEvent();
 };
 
 class IdleEndedEvent : public ds::Event {
-public:
+  public:
+	static int WHAT();
 
-	static int		WHAT();
-
-	IdleEndedEvent( );
-
+	IdleEndedEvent();
 };
 
-} // !namespace perspective_picking
+} // namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_APPEVENTS_H_
-

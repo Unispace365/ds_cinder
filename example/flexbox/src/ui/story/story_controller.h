@@ -7,20 +7,19 @@ namespace ds {
 class StoryView;
 
 /**
-* \class ds::StoryController
-*			Controls and manages any stories onscreen. If you don't rename this class into something relevant I will publicly shame you.
-*/
+ * \class ds::StoryController
+ *			Controls and manages any stories onscreen. If you don't rename this class into something relevant I will
+ *publicly shame you.
+ */
 class StoryController : public ds::ui::SmartLayout {
-public:
+  public:
 	StoryController(ds::ui::SpriteEngine& eng);
 
 
 	void setData();
 	void removeCurrentStory();
 
-	StoryView*	mCurrentStory = nullptr;
+	StoryView* mCurrentStory = nullptr;
 };
 
 } // namespace ds
-
-

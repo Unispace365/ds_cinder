@@ -15,26 +15,26 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 YouTubeWeb::YouTubeWeb(ds::ui::SpriteEngine& eng)
-	: ds::ui::Web(eng)
-{
-	// TODO: change this to a system that uses cookies? see cef_cookie.h and https://magpcss.org/ceforum/viewtopic.php?f=6&t=16655
+  : ds::ui::Web(eng) {
+
+	// TODO: change this to a system that uses cookies? see cef_cookie.h and
+	// https://magpcss.org/ceforum/viewtopic.php?f=6&t=16655
 	setTitleChangedFn([this](const std::wstring& titley) {
 		auto theTitle = titley; // the title string can get changed on another thread, so copy it
-		if(theTitle.find(L"cur=") == 0){
-			auto durPos = theTitle.find(L"dur=");
-			auto titPos = theTitle.find(L"title=");
-			auto volPos = theTitle.find(L"vol=");
-			auto statePos = theTitle.find(L"state=");
-			auto posStr = theTitle.substr(4, durPos - 4);
-			auto durStr = theTitle.substr(durPos + 4, volPos - durPos - 4);
-			auto volStr = theTitle.substr(volPos + 4, statePos - volPos - 4);
+		if (theTitle.find(L"cur=") == 0) {
+			auto durPos		 = theTitle.find(L"dur=");
+			auto titPos		 = theTitle.find(L"title=");
+			auto volPos		 = theTitle.find(L"vol=");
+			auto statePos	 = theTitle.find(L"state=");
+			auto posStr		 = theTitle.substr(4, durPos - 4);
+			auto durStr		 = theTitle.substr(durPos + 4, volPos - durPos - 4);
+			auto volStr		 = theTitle.substr(volPos + 4, statePos - volPos - 4);
 			mCurrentPosition = ds::wstring_to_double(posStr);
-			mDuration = ds::wstring_to_double(durStr);
-			mVolume = ds::wstring_to_float(volStr) / 100.0f; // youtube uses 0.0 - 100.0, we use 0.0 - 1.0
+			mDuration		 = ds::wstring_to_double(durStr);
+			mVolume			 = ds::wstring_to_float(volStr) / 100.0f; // youtube uses 0.0 - 100.0, we use 0.0 - 1.0
 
 			/* states:
 				-1 – unstarted
@@ -44,9 +44,9 @@ YouTubeWeb::YouTubeWeb(ds::ui::SpriteEngine& eng)
 				3 – buffering
 				5 – video cued
 				*/
-			mPlaying = theTitle.substr(statePos + 6, titPos - statePos - 6) == L"1";
+			mPlaying	  = theTitle.substr(statePos + 6, titPos - statePos - 6) == L"1";
 			auto newTitle = ds::utf8_from_wstr(theTitle.substr(titPos + 6));
-			if(newTitle != mVideoTitle){
+			if (newTitle != mVideoTitle) {
 				mVideoTitle = newTitle;
 				if (mTitleChangedCallback) mTitleChangedCallback(mVideoTitle);
 			}
@@ -64,8 +64,9 @@ void YouTubeWeb::setMedia(const std::string& mediaPath) {
 
 void YouTubeWeb::setVideoId(const std::string& videoId) {
 	mPlaying = false;
-	//std::string url = "https://www.youtube.com/embed/" + resource.getFileName();
-	std::string url = ds::Environment::expand("%APP%/data/html/youtube.html?v=" + videoId + "&a=" + std::to_string(mAutoStart));
+	// std::string url = "https://www.youtube.com/embed/" + resource.getFileName();
+	std::string url =
+		ds::Environment::expand("%APP%/data/html/youtube.html?v=" + videoId + "&a=" + std::to_string(mAutoStart));
 
 	loadUrl(url);
 }
@@ -83,7 +84,7 @@ void YouTubeWeb::stop() {
 }
 
 void YouTubeWeb::togglePlayPause() {
-	if(mPlaying){
+	if (mPlaying) {
 		pause();
 	} else {
 		play();
@@ -117,18 +118,17 @@ void YouTubeWeb::setVolume(const float theVolume) {
 }
 
 YouTubePlayer::YouTubePlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
-	: ds::ui::Sprite(eng)
-	, mYouTubeWeb(nullptr)
-	, mYoutubeInterface(nullptr)
-	, mEmbedInterface(embedInterface)
-	, mShowInterfaceAtStart(true)
-	, mKeyboardKeyScale(1.0f)
-	, mAllowTouchToggle(true)
-	, mStartInteractable(false)
-	, mLetterbox(true)
-	, mInterfaceBelowMedia(false)
-	, mVolume(1.0f)
-{
+  : ds::ui::Sprite(eng)
+  , mYouTubeWeb(nullptr)
+  , mYoutubeInterface(nullptr)
+  , mKeyboardKeyScale(1.0f)
+  , mEmbedInterface(embedInterface)
+  , mShowInterfaceAtStart(true)
+  , mLetterbox(true)
+  , mAllowTouchToggle(true)
+  , mStartInteractable(false)
+  , mInterfaceBelowMedia(false)
+  , mVolume(1.0f) {
 	mLayoutFixedAspect = true;
 	enable(false);
 }
@@ -141,9 +141,9 @@ void YouTubePlayer::setMediaViewerSettings(const MediaViewerSettings& settings) 
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
-	mInterfaceBottomPad = settings.mInterfaceBottomPad;
-	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
-	mVolume = settings.mVideoVolume;
+	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
+	mAutoStart			 = !settings.mVideoAutoPlayFirstFrame;
+	mVolume				 = settings.mVideoVolume;
 }
 
 
@@ -152,11 +152,10 @@ void YouTubePlayer::setYouTubeSize(const ci::vec2 youTubeSize) {
 	if (mYouTubeWeb) {
 		mYouTubeWeb->setSize(mYouTubeSize.x, mYouTubeSize.y);
 	}
-
 }
 void YouTubePlayer::setAllowTouchToggle(const bool allowTouchToggle) {
 	mAllowTouchToggle = allowTouchToggle;
-	if(mYoutubeInterface){
+	if (mYoutubeInterface) {
 		mYoutubeInterface->setAllowTouchToggle(allowTouchToggle);
 	}
 }
@@ -216,8 +215,9 @@ void YouTubePlayer::setResource(const ds::Resource& resource) {
 	}
 
 	if (mEmbedInterface) {
-		mYoutubeInterface = dynamic_cast<YoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
-		
+		mYoutubeInterface =
+			dynamic_cast<YoutubeInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+
 		if (mYoutubeInterface) {
 			setAllowTouchToggle(mAllowTouchToggle);
 			mYoutubeInterface->sendToFront();
@@ -250,14 +250,15 @@ void YouTubePlayer::layout() {
 
 		float yPos = getHeight() - mYoutubeInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if (yPos + mYoutubeInterface->getScaleHeight() > getHeight()) yPos = getHeight() - mYoutubeInterface->getScaleHeight();
+		if (yPos + mYoutubeInterface->getScaleHeight() > getHeight())
+			yPos = getHeight() - mYoutubeInterface->getScaleHeight();
 		if (mInterfaceBelowMedia) yPos = getHeight();
 		mYoutubeInterface->setPosition(getWidth() / 2.0f - mYoutubeInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
 
 void YouTubePlayer::play() {
-	if(mYouTubeWeb){
+	if (mYouTubeWeb) {
 		mYouTubeWeb->play();
 	}
 }
@@ -325,7 +326,7 @@ void YouTubePlayer::setNativeTouches(const bool isNative) {
 
 void YouTubePlayer::setVolume(const float volume) {
 	mVolume = volume;
-	if(mYouTubeWeb){
+	if (mYouTubeWeb) {
 		mYouTubeWeb->setVolume(volume);
 	}
 }
@@ -340,8 +341,7 @@ ds::ui::YouTubeWeb* YouTubePlayer::getYouTubeWeb() {
 	return mYouTubeWeb;
 }
 
-YoutubeInterface * YouTubePlayer::getYoutubeInterface() {
+YoutubeInterface* YouTubePlayer::getYoutubeInterface() {
 	return mYoutubeInterface;
 }
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

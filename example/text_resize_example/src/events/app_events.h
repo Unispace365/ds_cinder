@@ -4,7 +4,6 @@
 
 namespace text_resize {
 
-class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent> {};
 
-} // !namespace text_resize
-
+} // namespace text_resize

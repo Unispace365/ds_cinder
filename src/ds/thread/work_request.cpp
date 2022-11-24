@@ -8,12 +8,8 @@ namespace ds {
  * \class WorkRequest
  */
 WorkRequest::WorkRequest(const void* clientId)
-	: mClientId(clientId)
-{
-}
+  : mClientId(clientId) {}
 
-WorkRequest::~WorkRequest()
-{
-}
+WorkRequest::~WorkRequest() {}
 
 } // namespace ds

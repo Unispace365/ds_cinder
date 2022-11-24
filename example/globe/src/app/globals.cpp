@@ -13,9 +13,8 @@ namespace globe_example {
 /**
  * \class globe_example::Globals
  */
-Globals::Globals(ds::ui::SpriteEngine& e )
-		: mEngine(e)
-{
+Globals::Globals(ds::ui::SpriteEngine& e)
+  : mEngine(e) {
 	genDataModel();
 }
 
@@ -69,11 +68,7 @@ void Globals::genDataModel() {
 		lr.setLong(36.5672003);
 		mLocations.push_back(lr);
 	}
-
-
-
 }
 
 
-
-} // !namespace globe_example
+} // namespace globe_example

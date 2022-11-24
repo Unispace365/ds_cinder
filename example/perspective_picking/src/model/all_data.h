@@ -9,16 +9,12 @@ namespace perspective_picking {
  * \class perspective_picking::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	AllStories		mAllStories;
-
+	AllStories mAllStories;
 };
 
-} // !namespace perspective_picking
+} // namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_MODEL_ALLDATA_H_
-
-

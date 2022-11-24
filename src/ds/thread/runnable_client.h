@@ -2,9 +2,9 @@
 #ifndef DS_THREAD_RUNNABLECLIENT_H_
 #define DS_THREAD_RUNNABLECLIENT_H_
 
-#include <functional>
 #include "ds/thread/work_client.h"
 #include "ds/thread/work_request_list.h"
+#include <functional>
 
 namespace ds {
 
@@ -15,32 +15,30 @@ namespace ds {
  * they want to.  Otherwise, the object is memory managed.
  */
 class RunnableClient : public WorkClient {
-public:
+  public:
 	RunnableClient(ui::SpriteEngine&, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& = nullptr);
-	
-	void						setResultHandler(const std::function<void(std::unique_ptr<Poco::Runnable>&)>&);
 
-	bool						run(std::unique_ptr<Poco::Runnable>&);
+	void setResultHandler(const std::function<void(std::unique_ptr<Poco::Runnable>&)>&);
 
-protected:
-	virtual void				handleResult(std::unique_ptr<WorkRequest>&);
+	bool run(std::unique_ptr<Poco::Runnable>&);
 
-private:
-	typedef WorkClient			inherited;
+  protected:
+	virtual void handleResult(std::unique_ptr<WorkRequest>&);
+
+  private:
+	typedef WorkClient inherited;
 
 	class Request : public WorkRequest {
-	public:
+	  public:
 		Request(const void* clientId);
 
-		std::unique_ptr<Poco::Runnable>
-								mPayload;
+		std::unique_ptr<Poco::Runnable> mPayload;
 
-		void					run();
+		void run();
 	};
-	WorkRequestList<Request>	mCache;
+	WorkRequestList<Request> mCache;
 
-	std::function<void(std::unique_ptr<Poco::Runnable>&)>
-								mResultHandler;
+	std::function<void(std::unique_ptr<Poco::Runnable>&)> mResultHandler;
 };
 
 } // namespace ds

@@ -4,36 +4,33 @@
 
 #include "ds/ui/sprite/sprite.h"
 
-namespace ds {
-namespace ui {
+namespace ds { namespace ui {
 
 	class CircleBorder : public Sprite {
-	public:
+	  public:
 		CircleBorder(SpriteEngine&);
 		CircleBorder(SpriteEngine&, const float width);
 
-		void						setBorderWidth(const float borderWidth);
-		const float					getBorderWidth(){ return mBorderWidth; }
+		void		setBorderWidth(const float borderWidth);
+		const float getBorderWidth() { return mBorderWidth; }
 
 		/// Initialization
-		static void					installAsServer(ds::BlobRegistry&);
-		static void					installAsClient(ds::BlobRegistry&);
+		static void installAsServer(ds::BlobRegistry&);
+		static void installAsClient(ds::BlobRegistry&);
 
-	protected:
-		virtual void				writeAttributesTo(ds::DataBuffer&);
-		virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	  protected:
+		virtual void writeAttributesTo(ds::DataBuffer&);
+		virtual void readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-		void						updateShaderExtraData();
+		void updateShaderExtraData();
 
-	private:
-		typedef Sprite				inherited;
-		void						initialize();
+	  private:
+		typedef Sprite inherited;
+		void		   initialize();
 
-		float						mBorderWidth;
-
+		float mBorderWidth;
 	};
 
-} // namespace ui
-} // namespace ds
+}} // namespace ds::ui
 
-#endif //DS_UI_CIRCLE_BORDER_H
+#endif // DS_UI_CIRCLE_BORDER_H

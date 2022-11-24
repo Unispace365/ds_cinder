@@ -1,9 +1,9 @@
 #ifndef _KEYBOARDEXAMPLE_APP_QUERY_INDUSTRY_QUERY_H_
 #define _KEYBOARDEXAMPLE_APP_QUERY_INDUSTRY_QUERY_H_
 
-#include <functional>
 #include <Poco/Runnable.h>
 #include <ds/query/query_result.h>
+#include <functional>
 
 #include "model/all_stories.h"
 
@@ -13,17 +13,17 @@ namespace example {
  * \class example::StoryQuery
  */
 class StoryQuery : public Poco::Runnable {
-public:
+  public:
 	StoryQuery();
 
-	virtual void			run();
+	virtual void run();
 
-	AllStories				mOutput;
+	AllStories mOutput;
 
-private:
-	void					query(AllStories& output);
+  private:
+	void query(AllStories& output);
 };
 
-} // !namespace example
+} // namespace example
 
 #endif //!_KEYBOARDEXAMPLE_APP_QUERY_INDUSTRY_QUERY_H_

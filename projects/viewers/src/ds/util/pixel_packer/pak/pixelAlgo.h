@@ -16,14 +16,13 @@ in the file COPYING.
 
 #include "ds/util/pixel_packer/util/myBox.h"
 #include "ds/util/pixel_packer/util/myVector2.h"
-#include <vector>
 #include <map>
+#include <vector>
 
-class t_pixelAlgo
-{
-public:
-   virtual std::multimap<t_myVector2, t_myVector2> pack(const std::vector< t_myVector2> &rects, const t_myVector2 &size,bool &fine) = 0;
-
+class t_pixelAlgo {
+  public:
+	virtual std::multimap<t_myVector2, t_myVector2> pack(const std::vector<t_myVector2>& rects, const t_myVector2& size,
+														 bool& fine) = 0;
 };
 
 #endif

@@ -5,10 +5,10 @@
 #include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
-
 class Resource;
+}
 
-namespace ui {
+namespace ds::ui {
 
 class GstVideo;
 class VideoInterface;
@@ -24,8 +24,8 @@ class VideoPlayer : public ds::ui::Sprite {
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
 	virtual void setResource(const ds::Resource& resource) override;
-	void setMedia(const std::string mediaPath);
-	void clear();
+	void		 setMedia(const std::string mediaPath);
+	void		 clear();
 
 	void layout();
 
@@ -102,10 +102,8 @@ class VideoPlayer : public ds::ui::Sprite {
 	bool						mLooping;
 	bool						mInterfaceBelowMedia;
 	float						mInterfaceBottomPad = 50.0f;
-	bool						mGlMode = false;
-	bool						mNVDecode = false;
+	bool						mGlMode				= false;
+	bool						mNVDecode			= false;
 };
 
-}  // namespace ui
-}  // namespace ds
-
+} // namespace ds::ui

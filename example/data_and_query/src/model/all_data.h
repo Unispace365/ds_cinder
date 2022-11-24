@@ -10,14 +10,12 @@ namespace fullstarter {
  * \class fullstarter::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace fullstarter
+} // namespace fullstarter
 
 #endif // !_FULLSTARTER_APP_MODEL_ALLDATA_H_

@@ -6,50 +6,46 @@
 #include <ds/app/auto_update.h>
 #include <functional>
 
-namespace ds {
-namespace time {
+namespace ds { namespace time {
 
-/**
-* \class Callback
-* \brief Get a lambda function back after a certain amount of time. Only supports a single callback at a time
-*/
-class Callback : ds::AutoUpdate {
-public:
+	/**
+	 * \class Callback
+	 * \brief Get a lambda function back after a certain amount of time. Only supports a single callback at a time
+	 */
+	class Callback : ds::AutoUpdate {
+	  public:
+		/// Construct a blank callback, use singleCallback() or repeatedCallback()
+		Callback(ds::ui::SpriteEngine& eng);
 
-	/// Construct a blank callback, use singleCallback() or repeatedCallback()
-	Callback(ds::ui::SpriteEngine& eng);
+		/// Repeatedly callback
+		Callback(ds::ui::SpriteEngine& eng, std::function<void()> func, const double secondsDelay);
 
-	/// Repeatedly callback
-	Callback(ds::ui::SpriteEngine& eng, std::function<void()> func, const double secondsDelay);
+		Callback(Callback&& cb);
 
-	Callback(Callback&& cb);
-	
-	/// Waits the specified amount of time, calls the function, then stops
-	/// Returns an ID so you can cancel it later if you need to (if you're starting this from the engine)
-	size_t timedCallback(std::function<void()> func, const double secondsCallback);
+		/// Waits the specified amount of time, calls the function, then stops
+		/// Returns an ID so you can cancel it later if you need to (if you're starting this from the engine)
+		size_t timedCallback(std::function<void()> func, const double secondsCallback);
 
-	/// Waits the amount of time, calls the function, then repeats again and again
-	/// Returns an ID so you can cancel it later if you need to (if you're starting this from the engine)
-	size_t repeatedCallback(std::function<void()> func, const double secondsCallback);
+		/// Waits the amount of time, calls the function, then repeats again and again
+		/// Returns an ID so you can cancel it later if you need to (if you're starting this from the engine)
+		size_t repeatedCallback(std::function<void()> func, const double secondsCallback);
 
-	/// Cancels any upcoming callbacks, single or repeated
-	void cancel();
+		/// Cancels any upcoming callbacks, single or repeated
+		void cancel();
 
-	/// Get the Id for this instance
-	size_t getId() { return mId; }
+		/// Get the Id for this instance
+		size_t getId() { return mId; }
 
-private:
+	  private:
+		virtual void			 update(const ds::UpdateParams& p) override;
+		std::function<void()>	 mCallback;
+		Poco::Timestamp::TimeVal mStart;
+		size_t					 mId;
+		double					 mDelay;
+		bool					 mRepeated;
+		bool					 mRunning;
+	};
 
-	virtual void				update(const ds::UpdateParams& p) override;
-	std::function<void()>		mCallback;
-	Poco::Timestamp::TimeVal	mStart;
-	size_t						mId;
-	double						mDelay;
-	bool						mRepeated;
-	bool						mRunning;
-};
-
-} // namespace time
-} // namespace ds
+}} // namespace ds::time
 
 #endif // DS_TIME_TIME_CALLBACK

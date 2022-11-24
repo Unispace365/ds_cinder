@@ -4,32 +4,29 @@
 
 #include <string>
 
-namespace ds {
-namespace ui {
+namespace ds { namespace ui {
 
-enum BlendMode
-{
-  NORMAL,
-  MULTIPLY,
-  SCREEN,
-  ADD,
-  SUBTRACT,
-  LIGHTEN,
-  DARKEN,
-  TRANSPARENT_BLACK,
-  EXCLUSION,
-  PREMULTIPLY,
-  FBO_IN,
-  FBO_OUT
-};
+	enum BlendMode {
+		NORMAL,
+		MULTIPLY,
+		SCREEN,
+		ADD,
+		SUBTRACT,
+		LIGHTEN,
+		DARKEN,
+		TRANSPARENT_BLACK,
+		EXCLUSION,
+		PREMULTIPLY,
+		FBO_IN,
+		FBO_OUT
+	};
 
-BlendMode getBlendModeByString(const std::string& blendString);
-const std::string getStringForBlendMode(const BlendMode& blendMode);
+	BlendMode		  getBlendModeByString(const std::string& blendString);
+	const std::string getStringForBlendMode(const BlendMode& blendMode);
 
-bool premultiplyAlpha(const BlendMode &blendMode);
-void applyBlendingMode(const BlendMode &blendMode);
+	bool premultiplyAlpha(const BlendMode& blendMode);
+	void applyBlendingMode(const BlendMode& blendMode);
 
-}
-}
+}} // namespace ds::ui
 
-#endif//DS_UI_BLEND_H
+#endif // DS_UI_BLEND_H

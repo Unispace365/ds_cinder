@@ -7,11 +7,9 @@
 
 #include "model/all_data.h"
 
-namespace ds {
-namespace ui {
-class SpriteEngine;
-} // namespace ui
-} // namespace ds
+namespace ds { namespace ui {
+	class SpriteEngine;
+}} // namespace ds::ui
 
 namespace example {
 
@@ -20,15 +18,14 @@ namespace example {
  * \brief Global data for the app.
  */
 class Globals {
-public:
+  public:
 	Globals(ds::ui::SpriteEngine&, const AllData& d);
 
-	ds::ui::SpriteEngine&			mEngine;
+	ds::ui::SpriteEngine& mEngine;
 
-	const AllData&					mAllData;
-
+	const AllData& mAllData;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_FINGER_DRAWING_APP_GLOBALS_

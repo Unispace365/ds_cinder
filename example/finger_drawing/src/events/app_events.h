@@ -5,16 +5,16 @@
 
 namespace example {
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
-public:
+class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent> {
+  public:
 	StoryDataUpdatedEvent(){};
-}; 
+};
 
-class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent>{
-public:
+class RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {
+  public:
 	RequestAppExitEvent(){};
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_FINGER_DRAWING_APP_APPEVENTS_H_

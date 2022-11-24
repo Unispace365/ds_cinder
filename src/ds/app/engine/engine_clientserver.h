@@ -12,13 +12,12 @@ namespace ds {
  * and server, and no communication pipe replicating sprite changes.
  */
 class EngineClientServer : public AbstractEngineServer {
-public:
+  public:
 	EngineClientServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClientServer();
 
 
-	virtual void					draw();
-
+	virtual void draw();
 };
 
 } // namespace ds

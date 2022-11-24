@@ -7,9 +7,9 @@
 #include <ds/ui/sprite/sprite_engine.h>
 // NOTE: Placing this include at the top gets a conflict
 // with cinder. Need to look into that.
-#include <ds/network/node_watcher.h>
-#include "query/media_query.h"
 #include "model/all_data.h"
+#include "query/media_query.h"
+#include <ds/network/node_watcher.h>
 
 namespace mv {
 
@@ -18,25 +18,23 @@ namespace mv {
  * \brief Handle app events that deal with querying for data.
  */
 class QueryHandler {
-public:
+  public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
-private:
+  private:
+	void onAppEvent(const ds::Event&);
+	void onMediaQuery(MediaQuery&);
 
-	void								onAppEvent(const ds::Event&);
-	void								onMediaQuery(MediaQuery&);
+	ds::EventClient mEventClient;
 
-	ds::EventClient						mEventClient;
+	AllData& mAllData;
 
-	AllData&							mAllData;
-
-	ds::SerialRunnable<MediaQuery>		mMediaQuery;
+	ds::SerialRunnable<MediaQuery> mMediaQuery;
 
 	// CACHING
-	ds::ResourceList					mResources;
+	ds::ResourceList mResources;
 };
 
-} // !namespace mv
+} // namespace mv
 
 #endif // !_MEDIAVIEWER_APP_QUERY_QUERYHANDLER_H_
-

@@ -1,12 +1,11 @@
 #pragma once
 
+#include "media_viewer_settings.h"
 #include <ds/ui/media/player/web_player.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite.h>
-#include "media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 class PanoramicVideoPlayer;
 class VideoPlayer;
 class PDFPlayer;
@@ -16,14 +15,14 @@ class MediaInterface;
 
 /**
  * \class MediaPlayer
- *			This will load an appropriate media player after deducing the type: PDF, Web, Image, Video file or Video stream.
- *			After loading a piece of media and initializing, the size of this sprite will match the size of the loaded media.
- *			After initializing, you can set the size of this sprite to resize the media.
- *			Not recommended to scale this sprite, set it's size instead.
+ *			This will load an appropriate media player after deducing the type: PDF, Web, Image, Video file or Video
+ *stream. After loading a piece of media and initializing, the size of this sprite will match the size of the loaded
+ *media. After initializing, you can set the size of this sprite to resize the media. Not recommended to scale this
+ *sprite, set it's size instead.
  *
  *			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
- *					that has a children vector of resources of the thumbnails set, and the children need to have the correct
- *					parentIndex (i.e. page number) set.
+ *					that has a children vector of resources of the thumbnails set, and the children need to have the
+ *correct parentIndex (i.e. page number) set.
  */
 class MediaPlayer : public ds::ui::Sprite {
   public:
@@ -39,27 +38,29 @@ class MediaPlayer : public ds::ui::Sprite {
 	void loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	/// Support the base sprite setting function, which is the same as loadMedia and initialize immediately
-	virtual void setResource(const ds::Resource& reccy) { loadMedia(reccy); }
+	virtual void setResource(const ds::Resource& reccy) override { loadMedia(reccy); }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
 	const ds::Resource& getResource() { return mResource; }
 
-	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
+	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have
+	/// an effect
 	void setDefaultBounds(const float defaultWidth, const float defaultHeight);
 
-	/// Sets the area for the initial default web size calculation. must be called before initialize or load media to have an
-	/// effect
+	/// Sets the area for the initial default web size calculation. must be called before initialize or load media to
+	/// have an effect
 	void setWebViewSize(const ci::vec2 webSize);
 
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void initialize();
 
-	/// Unloads any media and interface already loaded. initialize could be called again after this and load the same content
+	/// Unloads any media and interface already loaded. initialize could be called again after this and load the same
+	/// content
 	void uninitialize();
 
-	/// If true, the player has been initialized and it has media. False and it hasn't, and is empty, though may have a Resource
-	/// set.
-	const bool   getInitialized() { return mInitialized; }
+	/// If true, the player has been initialized and it has media. False and it hasn't, and is empty, though may have a
+	/// Resource set.
+	const bool	 getInitialized() { return mInitialized; }
 	virtual bool isLoaded() const override { return mInitialized; }
 
 	/// When true, will cache any image players. Has no effect on other media types
@@ -113,7 +114,9 @@ class MediaPlayer : public ds::ui::Sprite {
 	void setInitializedCallback(std::function<void()> func);
 
 	/// If the media loaded inside this player changes sizes (such as a pdf with different page sizes)
-	void setMediaSizeChangedCallback(std::function<void(const ci::vec2& newSize)> func) { mMediaSizeChangedCallback = func; }
+	void setMediaSizeChangedCallback(std::function<void(const ci::vec2& newSize)> func) {
+		mMediaSizeChangedCallback = func;
+	}
 
 
 	/// Will do standard functions based on media type:
@@ -125,24 +128,22 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// Sets a tap function to enable the above handling
 	void enableStandardClick();
 
-	/// Returns the width / height of the content that's loaded. If there's no content loaded, will return whatever the previous
-	/// ratio was
+	/// Returns the width / height of the content that's loaded. If there's no content loaded, will return whatever the
+	/// previous ratio was
 	const float getContentAspectRatio() { return mContentAspectRatio; }
 
 	/// Use to override the content aspect ratio for custom layouts
 	/// NOTE: this is very rarely used. In a vast majority of cases, loading the media will automatically set this value
 	void setContentAspectRatio(const float newRatio) { mContentAspectRatio = newRatio; }
 
-	//set the animation duration for incoming media
-	void setAnimationDuration(float duration) {
-		mAnimDuration = duration;
-	};
+	// set the animation duration for incoming media
+	void setAnimationDuration(float duration) { mAnimDuration = duration; };
 
   protected:
 	/// override to do any custom layout functions
 	virtual void onLayout(){};
-	virtual void userInputReceived();
-	virtual void onSizeChanged();
+	virtual void userInputReceived() override;
+	virtual void onSizeChanged() override;
 
 	void initializeThumbnail();
 	void initializeImage();
@@ -156,19 +157,19 @@ class MediaPlayer : public ds::ui::Sprite {
 	MediaViewerSettings mMediaViewerSettings;
 
 	bool		 mEmbedInterface = false;
-	bool		 mInitialized	= false;
+	bool		 mInitialized	 = false;
 	ds::Resource mResource;
 	float		 mContentAspectRatio;
 	float		 mAnimDuration;
 
 	PDFPlayer*			  mPDFPlayer	   = nullptr;
-	StreamPlayer*		  mStreamPlayer	= nullptr;
-	VideoPlayer*		  mVideoPlayer	 = nullptr;
+	StreamPlayer*		  mStreamPlayer	   = nullptr;
+	VideoPlayer*		  mVideoPlayer	   = nullptr;
 	PanoramicVideoPlayer* mPanoramicPlayer = nullptr;
-	WebPlayer*			  mWebPlayer = nullptr;
-	YouTubePlayer*		  mYouTubePlayer = nullptr;
+	WebPlayer*			  mWebPlayer	   = nullptr;
+	YouTubePlayer*		  mYouTubePlayer   = nullptr;
 	Image*				  mThumbnailImage  = nullptr;
-	Image*				  mPrimaryImage	= nullptr;
+	Image*				  mPrimaryImage	   = nullptr;
 
 	std::function<void(const std::string& msg)> mErrorCallback;
 	std::function<void(const bool isGood)>		mStatusCallback;
@@ -180,5 +181,4 @@ class MediaPlayer : public ds::ui::Sprite {
 	void setDefaultProperties();
 };
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

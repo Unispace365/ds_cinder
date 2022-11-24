@@ -8,10 +8,9 @@
 namespace ds {
 
 DirectoryWatcher::DirectoryWatcher(ds::ui::SpriteEngine& se)
-	: ds::AutoUpdate(se)
-	, mStop(0)
-	, mWaiter(mStop, se.getNotifier()) {
-}
+  : ds::AutoUpdate(se)
+  , mStop(0)
+  , mWaiter(mStop, se.getNotifier()) {}
 
 DirectoryWatcher::~DirectoryWatcher() {
 	stop();
@@ -28,7 +27,7 @@ void DirectoryWatcher::addPath(const std::string& path) {
 void DirectoryWatcher::clearPaths() {
 	try {
 		mWaiter.mPaths.clear();
-	} catch(std::exception& ex) {
+	} catch (std::exception& ex) {
 		DS_LOG_WARNING("DirectoryWatcher::clearPaths() exception: " << ex.what());
 	}
 }
@@ -45,8 +44,7 @@ void DirectoryWatcher::stop() {
 	wakeup();
 	try {
 		mThread.join();
-	} catch (std::exception&) {
-	}
+	} catch (std::exception&) {}
 }
 
 void DirectoryWatcher::update(const ds::UpdateParams&) {
@@ -57,20 +55,18 @@ void DirectoryWatcher::update(const ds::UpdateParams&) {
  * \class Waiter
  * \brief Handle waiting on directory changes and sending notices.
  */
-DirectoryWatcher::Waiter::Waiter(	const Poco::AtomicCounter& stop,
-									ds::EventNotifier& n)
-		: mStop(stop)
-		, mNotifier(n) {
-}
+DirectoryWatcher::Waiter::Waiter(const Poco::AtomicCounter& stop, ds::EventNotifier& n)
+  : mStop(stop)
+  , mNotifier(n) {}
 
 void DirectoryWatcher::Waiter::update() {
 	mLocalPaths.clear();
 	{
-		Poco::Mutex::ScopedLock		lock(mLock);
+		Poco::Mutex::ScopedLock lock(mLock);
 		mLocalPaths.swap(mChangedPaths);
 	}
 	if (mLocalPaths.empty()) return;
-	for (auto it=mLocalPaths.begin(), end=mLocalPaths.end(); it!=end; ++it) {
+	for (auto it = mLocalPaths.begin(), end = mLocalPaths.end(); it != end; ++it) {
 		mNotifier.notify(Changed(*it));
 	}
 }
@@ -80,7 +76,7 @@ bool DirectoryWatcher::Waiter::isStopped() {
 }
 
 bool DirectoryWatcher::Waiter::onChanged(const std::string& path) {
-	Poco::Mutex::ScopedLock		lock(mLock);
+	Poco::Mutex::ScopedLock lock(mLock);
 	if (std::find(mChangedPaths.begin(), mChangedPaths.end(), path) == mChangedPaths.end()) {
 		mChangedPaths.push_back(path);
 	}

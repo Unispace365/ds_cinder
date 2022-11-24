@@ -11,39 +11,34 @@
 #include "web_handler.h"
 #include <functional>
 
-namespace ds {
-namespace web{
+namespace ds { namespace web {
 
 
-// Implement application-level callbacks for the browser process.
-// This is responsible for the initial command-line setup, context initialization, and browser creation.
-class WebApp : public CefApp,
-	public CefBrowserProcessHandler
-{
-public:
-	WebApp();
+	// Implement application-level callbacks for the browser process.
+	// This is responsible for the initial command-line setup, context initialization, and browser creation.
+	class WebApp : public CefApp, public CefBrowserProcessHandler {
+	  public:
+		WebApp();
 
-	// CefApp methods:
-	virtual void OnBeforeCommandLineProcessing(
-		const CefString& process_type,
-		CefRefPtr<CefCommandLine> command_line) override;
+		// CefApp methods:
+		virtual void OnBeforeCommandLineProcessing(const CefString&			 process_type,
+												   CefRefPtr<CefCommandLine> command_line) override;
 
-	virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
-		override { return this; }
+		virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override { return this; }
 
 
-	// CefBrowserProcessHandler methods:
-	virtual void OnContextInitialized() override;
+		// CefBrowserProcessHandler methods:
+		virtual void OnContextInitialized() override;
 
-	void		createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent);
+		void createBrowser(const std::string& url, void* instancePtr, std::function<void(int)> createdCallback,
+						   const bool isTransparent);
 
-private:
-	// Include the default reference counting implementation.
-	IMPLEMENT_REFCOUNTING(WebApp);
+	  private:
+		// Include the default reference counting implementation.
+		IMPLEMENT_REFCOUNTING(WebApp);
 
-	CefRefPtr<WebHandler>	mHandler;
-};
-}
-}
+		CefRefPtr<WebHandler> mHandler;
+	};
+}} // namespace ds::web
 
-#endif  // DS_WEB_PRIVATE_CEF_WEB_APP
+#endif // DS_WEB_PRIVATE_CEF_WEB_APP

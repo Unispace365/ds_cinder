@@ -3,9 +3,9 @@
 #include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/app/engine/engine.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -15,23 +15,21 @@
 namespace ds {
 
 sync_video_player::sync_video_player()
-	: inherited(ds::RootList().ortho().pickColor()) 
-	, mGlobals(mEngine)
-	, mVideo(nullptr)
-	, mVideoHolder(nullptr)
-	, mFpsDisplay(nullptr)
-	, mVerbose(false)
-	, mSeekSpeed(1.0)
-	, mVsb(nullptr)
-{
+  : inherited(ds::RootList().ortho().pickColor())
+  , mGlobals(mEngine)
+  , mVideo(nullptr)
+  , mVideoHolder(nullptr)
+  , mFpsDisplay(nullptr)
+  , mVerbose(false)
+  , mSeekSpeed(1.0)
+  , mVsb(nullptr) {
 
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
-
 }
 
-void sync_video_player::setupServer(){
+void sync_video_player::setupServer() {
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -39,10 +37,10 @@ void sync_video_player::setupServer(){
 
 	mEngine.getRootSprite(0).clearChildren();
 
-	mVsb = nullptr;
+	mVsb   = nullptr;
 	mVideo = nullptr;
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite& rootSprite = mEngine.getRootSprite();
 
 	ds::ui::Sprite* spriggy = new ds::ui::Sprite(mEngine, mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	spriggy->setTransparent(false);
@@ -59,20 +57,19 @@ void sync_video_player::setupServer(){
 	mFpsDisplay->setPosition(mEngine.getWorldWidth() / 4.0f, 30.0f);
 	rootSprite.addChildPtr(mFpsDisplay);
 
-	//loadVideo("%APP%/data/video/test_video.mp4");
-
+	// loadVideo("%APP%/data/video/test_video.mp4");
 }
 
-void sync_video_player::fileDrop(ci::app::FileDropEvent event){
-	if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+void sync_video_player::fileDrop(ci::app::FileDropEvent event) {
+	if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE) {
 		return;
 	}
 	std::vector<std::string> paths;
-	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+	for (auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it) {
 		paths.push_back((*it).string());
 	}
 
-	if(paths.empty()){
+	if (paths.empty()) {
 		return;
 	}
 #if 0
@@ -91,40 +88,38 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	loadVideo(paths.front());
 }
 
-void sync_video_player::loadVideo(const std::string& videoPath){
+void sync_video_player::loadVideo(const std::string& videoPath) {
 
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 	mVideo->setCheckBounds(false);
-	//mVideo->setVerboseLogging(mVerbose);
+	// mVideo->setVerboseLogging(mVerbose);
 	mVideo->enable(true);
 
 	std::vector<std::string> allowedInstances;
 	allowedInstances.push_back("debug_client");
-	//mVideo->setPlayableInstances(allowedInstances);
+	// mVideo->setPlayableInstances(allowedInstances);
 
 	mVideo->setAutoSynchronize(true);
 
 	mVideo->loadVideo(videoPath);
 
 	mVideo->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
-	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) {
 		ds::ui::GstVideo* video = dynamic_cast<ds::ui::GstVideo*>(bs);
-		if (video){
-			if (mSelectedVideo == video){
-				if (video->getIsPlaying()){
+		if (video) {
+			if (mSelectedVideo == video) {
+				if (video->getIsPlaying()) {
 					video->pause();
 					mVsb->mPauseOn->show();
 					mVsb->mPauseOff->hide();
-				}
-				else {
+				} else {
 					video->play();
 					mVsb->mPauseOn->hide();
 					mVsb->mPauseOff->show();
 				}
-			}
-			else {
+			} else {
 				mSelectedVideo = video;
 				video->sendToFront();
 				updateScrubBar(mSelectedVideo);
@@ -135,30 +130,27 @@ void sync_video_player::loadVideo(const std::string& videoPath){
 	mVideoHolder->addChildPtr(mVideo);
 	mSelectedVideo = mVideo;
 
-	if (!mVsb)
-	{
+	if (!mVsb) {
 		setupScrubBar();
 	}
 	if (mVsb) {
 		mVsb->linkVideo(mVideo);
 		mVsb->sendToFront();
-
 	}
 }
-void sync_video_player::setupScrubBar(){
+void sync_video_player::setupScrubBar() {
 
-	//Setup Scrub bar
+	// Setup Scrub bar
 
 	mVsb = new VideoScrubBar(mGlobals, 800.0f);
 	mVideoHolder->addChildPtr(mVsb);
 	mVsb->setCenter(0.5f, 0.5f);
-	mVsb->setPosition(mEngine.getWorldWidth()/2.0f, mEngine.getWorldHeight() - 100.0f);
+	mVsb->setPosition(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() - 100.0f);
 	mVsb->show();
 	mVsb->setOpacity(1.0f);
 	mVsb->mHome->hide();
 
-	mVsb->mPauseOff->setClickFn([this]
-	{
+	mVsb->mPauseOff->setClickFn([this] {
 		if (mSelectedVideo) {
 			mSelectedVideo->pause();
 			mVsb->mPauseOn->show();
@@ -166,8 +158,7 @@ void sync_video_player::setupScrubBar(){
 		}
 	});
 
-	mVsb->mPauseOn->setClickFn([this]
-	{
+	mVsb->mPauseOn->setClickFn([this] {
 		if (mSelectedVideo) {
 
 			mSelectedVideo->play();
@@ -176,8 +167,7 @@ void sync_video_player::setupScrubBar(){
 		}
 	});
 
-	mVsb->mVolumeOn->setClickFn([this]
-	{
+	mVsb->mVolumeOn->setClickFn([this] {
 		if (mSelectedVideo) {
 
 			mSelectedVideo->setMute(true);
@@ -186,8 +176,7 @@ void sync_video_player::setupScrubBar(){
 		}
 	});
 
-	mVsb->mVolumeOff->setClickFn([this]
-	{
+	mVsb->mVolumeOff->setClickFn([this] {
 		if (mSelectedVideo) {
 
 			mSelectedVideo->setMute(false);
@@ -195,26 +184,24 @@ void sync_video_player::setupScrubBar(){
 			mVsb->mVolumeOn->show();
 		}
 	});
-	
 }
 
 void sync_video_player::update() {
 	inherited::update();
 
-	if(mVideo){
+	if (mVideo) {
 		mPan = mGlobals.getSettingsLayout().getFloat("pan:value", 0, 0.0f);
 		mVideo->setPan(mPan);
 		std::stringstream ss;
 		ss << "fps: " << mVideo->getVideoPlayingFramerate();
 	}
-
 }
 
-void sync_video_player::updateScrubBar(ds::ui::Video* video){
+void sync_video_player::updateScrubBar(ds::ui::Video* video) {
 	if (!mVsb || !video) return;
 	mVsb->linkVideo(video);
 
-	if (!video->getIsMuted()){
+	if (!video->getIsMuted()) {
 		mVsb->mVolumeOff->hide();
 		mVsb->mVolumeOn->show();
 	} else {
@@ -222,51 +209,49 @@ void sync_video_player::updateScrubBar(ds::ui::Video* video){
 		mVsb->mVolumeOn->hide();
 	}
 
-	if (video->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED){
+	if (video->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED) {
 		mVsb->mPauseOn->show();
 		mVsb->mPauseOff->hide();
-	} else{
+	} else {
 		mVsb->mPauseOn->hide();
 		mVsb->mPauseOff->show();
 	}
 
 	mVsb->sendToFront();
-
 }
 
-void sync_video_player::onKeyDown(ci::app::KeyEvent event){
+void sync_video_player::onKeyDown(ci::app::KeyEvent event) {
 	using ci::app::KeyEvent;
 
-	if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
-		if (mVideo){
+	if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l) {
+		if (mVideo) {
 			mVideo->setPan(-1.0f);
 		}
-	}
-	else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
-		if (mVideo){
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c) {
+		if (mVideo) {
 			mVideo->setPan(0.0f);
 		}
-	}
-	else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
-		if (mVideo){
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r) {
+		if (mVideo) {
 			mVideo->setPan(1.0f);
 		}
-	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_d){ // d = delete selected video (only on master).
-		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE ){
+	} else if (event.isControlDown() &&
+			   event.getChar() == KeyEvent::KEY_d) { // d = delete selected video (only on master).
+		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE) {
 			return;
 		}
 
-		if (mSelectedVideo ){
-			//TODO: Need to schedule this to be removed,and actually remove during update.
-			mLoadedVideos.erase(std::remove(mLoadedVideos.begin(), mLoadedVideos.end(), mSelectedVideo), mLoadedVideos.end());
+		if (mSelectedVideo) {
+			// TODO: Need to schedule this to be removed,and actually remove during update.
+			mLoadedVideos.erase(std::remove(mLoadedVideos.begin(), mLoadedVideos.end(), mSelectedVideo),
+								mLoadedVideos.end());
 			mSelectedVideo->release();
 			mVsb->linkVideo(nullptr);
 			if (!mLoadedVideos.empty()) {
 				mSelectedVideo = mLoadedVideos[0];
 				updateScrubBar(mSelectedVideo);
 				mVsb->sendToFront();
-			}
-			else{
+			} else {
 				mSelectedVideo = nullptr;
 			}
 		}
@@ -277,5 +262,4 @@ void sync_video_player::onKeyDown(ci::app::KeyEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
-		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
-
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })

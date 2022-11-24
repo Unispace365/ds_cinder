@@ -2,8 +2,8 @@
 #define _DRAG_DESTINATION_EXAMPLE_APP_H_
 
 #include <cinder/app/App.h>
-#include <ds/app/app.h>
 #include <cinder/app/RendererGl.h>
+#include <ds/app/app.h>
 
 #include "app/globals.h"
 #include "query/query_handler.h"
@@ -12,20 +12,20 @@ namespace example {
 class AllData;
 
 class drag_destination_example : public ds::App {
-public:
+  public:
 	drag_destination_example();
 
-	void				setupServer();
+	void setupServer();
 
-private:
+  private:
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_DRAG_DESTINATION_EXAMPLE_APP_H_

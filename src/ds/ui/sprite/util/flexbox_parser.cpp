@@ -1,11 +1,13 @@
 #include "stdafx.h"
+
 #include "flexbox_parser.h"
+#include "Poco\NumberParser.h"
 #include "Poco\String.h"
 #include "Poco\UTF8String.h"
-#include "Poco\NumberParser.h"
-#define PARSER(x) 
+
+#define PARSER(x)
 namespace ds::ui {
-	std::unordered_map < std::string, std::function<bool(YGNodeRef, std::string, bool)>> FlexboxParser::parsers({
+std::unordered_map < std::string, std::function<bool(YGNodeRef, std::string, bool)>> FlexboxParser::parsers({
 			{"ignore-children",
 			[](YGNodeRef node,std::string value,bool pct)->bool {
 				if (value == "true") {
@@ -673,36 +675,34 @@ namespace ds::ui {
 			
 		});
 
-	bool FlexboxParser::parseProperty(std::string property, std::string value, YGNodeRef node) {
+bool FlexboxParser::parseProperty(std::string property, std::string value, YGNodeRef node) {
 
-		auto [cleanedValue, isPercent] = cleanValue(value);
-		if (cleanedValue == "flex-begin") {
-			cleanedValue = "flex-start";
-		}
-		if (parsers.find(property) != parsers.end()) {
-			return parsers[property](node, cleanedValue, isPercent);
-		}
-		else {
-			DS_LOG_ERROR("Could not find parser for property named '" << property << "'");
-		}
-		return false;
+	auto [cleanedValue, isPercent] = cleanValue(value);
+	if (cleanedValue == "flex-begin") {
+		cleanedValue = "flex-start";
 	}
-
-	
-	std::tuple<std::string, bool> FlexboxParser::cleanValue(std::string value)
-	{
-		auto original = value;
-		Poco::removeInPlace(value, '\n');
-		Poco::trimInPlace(value);
-		Poco::UTF8::toLowerInPlace(value);
-		
-
-		bool isPercent = (value.length()>1 && value.compare(value.length()-1,1,"%") == 0);
-		bool isPixel = (value.length()>2 && value.compare(value.length() - 2, 2, "px") == 0);
-		if (isPercent) value = value.substr(0, value.length() - 1);
-		if (isPixel) value = value.substr(0, value.length() - 2);
-		return { value,isPercent };
+	if (parsers.find(property) != parsers.end()) {
+		return parsers[property](node, cleanedValue, isPercent);
+	} else {
+		DS_LOG_ERROR("Could not find parser for property named '" << property << "'");
 	}
-
-
+	return false;
 }
+
+
+std::tuple<std::string, bool> FlexboxParser::cleanValue(std::string value) {
+	auto original = value;
+	Poco::removeInPlace(value, '\n');
+	Poco::trimInPlace(value);
+	Poco::UTF8::toLowerInPlace(value);
+
+
+	bool isPercent = (value.length() > 1 && value.compare(value.length() - 1, 1, "%") == 0);
+	bool isPixel   = (value.length() > 2 && value.compare(value.length() - 2, 2, "px") == 0);
+	if (isPercent) value = value.substr(0, value.length() - 1);
+	if (isPixel) value = value.substr(0, value.length() - 2);
+	return {value, isPercent};
+}
+
+
+} // namespace ds::ui

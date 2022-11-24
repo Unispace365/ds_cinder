@@ -2,94 +2,91 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-#include <cinder/gl/Texture.h>
-#include <cinder/gl/GlslProg.h>
 #include <cinder/Camera.h>
 #include <cinder/Sphere.h>
+#include <cinder/gl/GlslProg.h>
+#include <cinder/gl/Texture.h>
 
 #include "ds/ui/sprite/video.h"
 
 
 namespace ds {
-	class Engine;
+class Engine;
 namespace ui {
 
-class PanoramicVideo : public ds::ui::Sprite
-{
+	class PanoramicVideo : public ds::ui::Sprite {
 
-public:
-	PanoramicVideo(ds::ui::SpriteEngine&, const bool textureInvertX = false);
+	  public:
+		PanoramicVideo(ds::ui::SpriteEngine&, const bool textureInvertX = false);
 
-	virtual void		setResource(const ds::Resource& resource) override;
-	void				loadVideo(const std::string& videoPath);
-	ds::ui::Video*		getVideo() const;
-	void				resetCamera();
-	void setCameraRotation(ci::vec2 setter);
-	ci::vec2			getCameraRotation();
+		virtual void   setResource(const ds::Resource& resource) override;
+		void		   loadVideo(const std::string& videoPath);
+		ds::ui::Video* getVideo() const;
+		void		   resetCamera();
+		void		   setCameraRotation(ci::vec2 setter);
+		ci::vec2	   getCameraRotation();
 
 
-	// Sets how fast dragging around is. Higher numbers are slower panning, lower numbers are faster
-	// Default = 5.0f
-	void				setDragParams(const float xSensitivity, const float ySensitivity);
-	
-	// Sets the drag direction, default x=false, y=true
-	void				setDragInvert(const bool xInvert, const bool yInvert);
+		// Sets how fast dragging around is. Higher numbers are slower panning, lower numbers are faster
+		// Default = 5.0f
+		void setDragParams(const float xSensitivity, const float ySensitivity);
 
-	void				handleDrag(const ci::vec2& deltaPos);
+		// Sets the drag direction, default x=false, y=true
+		void setDragInvert(const bool xInvert, const bool yInvert);
 
-	void				setFOV(const float fov);
+		void handleDrag(const ci::vec2& deltaPos);
 
-	// Applied to video when video is loaded
-	void				setPan(const float audioPan);
-	void				setPlayableInstances(const std::vector<std::string> instances);
-	void				setAutoSyncronize(const bool doSync); // synchronize across client/server
+		void setFOV(const float fov);
 
-	void setPanoTappedCallback(std::function<void(void)> cb){
-		mPanoTappedCb = cb;
-	}
+		// Applied to video when video is loaded
+		void setPan(const float audioPan);
+		void setPlayableInstances(const std::vector<std::string> instances);
+		void setAutoSyncronize(const bool doSync); // synchronize across client/server
 
-protected:
-	// These are our only chances in client mode to catch the video.
-	virtual void		onChildAdded(ds::ui::Sprite& child) override;
-	virtual void		onChildRemoved(ds::ui::Sprite& child) override;
-	virtual void		onSizeChanged() override;
-	virtual void		drawLocalClient() override;
-	virtual void		writeAttributesTo(ds::DataBuffer&);
-	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
+		void setPanoTappedCallback(std::function<void(void)> cb) { mPanoTappedCb = cb; }
 
-	virtual void		onBuildRenderBatch() override;
+	  protected:
+		// These are our only chances in client mode to catch the video.
+		virtual void onChildAdded(ds::ui::Sprite& child) override;
+		virtual void onChildRemoved(ds::ui::Sprite& child) override;
+		virtual void onSizeChanged() override;
+		virtual void drawLocalClient() override;
+		virtual void writeAttributesTo(ds::DataBuffer&);
+		virtual void readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-private:
-	ds::ui::Video*		mVideoSprite;
+		virtual void onBuildRenderBatch() override;
 
-	ci::CameraPersp     mCamera;
-	ci::gl::VboMeshRef	mSphereVbo;
+	  private:
+		ds::ui::Video* mVideoSprite;
 
-	bool				mInvertX;
-	bool				mInvertY;
-	bool				mTexInvertX;
-	float				mXSensitivity;
-	float				mYSensitivity;
+		ci::CameraPersp	   mCamera;
+		ci::gl::VboMeshRef mSphereVbo;
 
-	float				mXRot;
-	float				mYRot;
-	float				mFov;
+		bool  mInvertX;
+		bool  mInvertY;
+		bool  mTexInvertX;
+		float mXSensitivity;
+		float mYSensitivity;
 
-	float				mPanning;
-	std::vector<std::string> mPlayableInstances;
-	bool				mAutoSync;
-	std::string			mSphereVertexShader;
-	std::string			mSphereFragmentShader;
-	std::string			mSphereFragmentShaderInvertX;
-	ci::gl::GlslProgRef	mShader;
+		float mXRot;
+		float mYRot;
+		float mFov;
 
-	std::function<void(void)> mPanoTappedCb = nullptr;
+		float					 mPanning;
+		std::vector<std::string> mPlayableInstances;
+		bool					 mAutoSync;
+		std::string				 mSphereVertexShader;
+		std::string				 mSphereFragmentShader;
+		std::string				 mSphereFragmentShaderInvertX;
+		ci::gl::GlslProgRef		 mShader;
 
-public:
-	static void			installAsServer(ds::BlobRegistry&);
-	static void			installAsClient(ds::BlobRegistry&);
-	static void			installSprite(ds::Engine&);
+		std::function<void(void)> mPanoTappedCb = nullptr;
 
-};
+	  public:
+		static void installAsServer(ds::BlobRegistry&);
+		static void installAsClient(ds::BlobRegistry&);
+		static void installSprite(ds::Engine&);
+	};
 
-}} //!dlpr::view
+} // namespace ui
+} // namespace ds
