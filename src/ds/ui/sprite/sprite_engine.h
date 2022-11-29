@@ -10,7 +10,6 @@
 #include <cinder/app/Window.h>
 
 #include "ds/app/app_defs.h"
-#include "ds/cfg/settings_variables.h"
 #include "ds/content/content_model.h"
 #include "ds/debug/logger.h"
 #include "ds/thread/work_manager.h"

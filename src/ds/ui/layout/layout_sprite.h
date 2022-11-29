@@ -6,7 +6,7 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-namespace ds { namespace ui {
+namespace ds::ui {
 
 	/**
 	 * \class LayoutSprite
@@ -114,6 +114,6 @@ namespace ds { namespace ui {
 		bool	   mSkipHiddenChildren;
 	};
 
-}} // namespace ds::ui
+} // namespace ds::ui
 
 #endif

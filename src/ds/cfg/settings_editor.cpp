@@ -10,6 +10,7 @@
 #include "ds/app/blob_registry.h"
 #include "ds/cfg/editor_components/edit_view.h"
 #include "ds/cfg/editor_components/editor_item.h"
+#include "ds/cfg/settings_variables.h"
 #include <ds/math/math_defs.h>
 
 namespace ds { namespace cfg {
@@ -25,6 +26,7 @@ namespace ds { namespace cfg {
 	  , mSaveConfig(nullptr)
 	  , mSaveLocalConfig(nullptr)
 	  , mEditView(nullptr) {
+
 		mPrimaryLayout = new ds::ui::LayoutSprite(mEngine);
 		addChildPtr(mPrimaryLayout);
 		mPrimaryLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);

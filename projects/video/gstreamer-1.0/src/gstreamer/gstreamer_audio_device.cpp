@@ -40,12 +40,12 @@ BOOL CALLBACK DSEnumProc(LPGUID lpGUID, LPCTSTR lpszDesc, LPCTSTR lpszDrvName, L
 	sci->lpGuid			  = NULL;
 
 
-	wcscpy(sci->description, lpszDesc);
+	wcscpy_s(sci->description, lpszDesc);
 
 	std::stringstream ss2;
 	ss2 << lpszDrvName << std::endl;
 	std::string tmpString2 = ss2.str();
-	strcpy(sci->devName, tmpString2.c_str());
+	strcpy_s(sci->devName, tmpString2.c_str());
 
 
 	// NULL is the primary sound driver. Make sure you don't memcpy from NULL. Visual Studio doesn't like it when you do

@@ -21,8 +21,8 @@ class NWScheduleHandler : public ds::AutoUpdate {
 	virtual void checkSchedule();
 	virtual bool eventIsNow(ds::model::ContentModelRef& theEvent, Poco::DateTime& ldt);
 
-	ds::EventClient		  mEventClient;
 	ds::ui::SpriteEngine& mEngine;
+	ds::EventClient		  mEventClient;
 };
 
 } // namespace ds::model

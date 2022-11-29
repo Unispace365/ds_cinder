@@ -110,7 +110,6 @@ EngineSettingsPreloader::EngineSettingsPreloader(ci::app::AppBase::Settings* set
 
 void EngineSettingsPreloader::earlyPrepareAppSettings(ci::app::AppBase::Settings* settings) {
 	// Enable MultiTouch on app window if needed
-	const auto touchMode = ds::ui::TouchMode::fromSettings(mEngineSettings);
 	if (ds::ui::TouchMode::hasSystem(ds::ui::TouchMode::fromSettings(mEngineSettings))) {
 		settings->setMultiTouchEnabled();
 	}
@@ -535,7 +534,6 @@ void App::writeSpriteHierarchy() {
 void App::debugEnabledSprites() {
 	DS_LOG_VERBOSE(1, "App::debugEnabledSprites()");
 	const size_t numRoots	  = mEngine.getRootCount();
-	int			 numPlacemats = 0;
 	for (size_t i = 0; i < numRoots - 1; i++) {
 		mEngine.getRootSprite(i).forEachChild(
 			[this](ds::ui::Sprite& sprite) {
@@ -638,7 +636,7 @@ void App::setupKeyPresses() {
 		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey(
 		"Toggle always on top",
-		[this] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
+		[] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
 	mKeyManager.registerKey(
 		"Toggle idling", [this] { mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); },
 		KeyEvent::KEY_i);
@@ -654,7 +652,7 @@ void App::setupKeyPresses() {
 		"Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
 	mKeyManager.registerKey(
 		"Verbose logging toggle",
-		[this] {
+		[] {
 			if (ds::getLogger().getVerboseLevel() > 0)
 				ds::getLogger().setVerboseLevel(0);
 			else
@@ -662,10 +660,10 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_v);
 	mKeyManager.registerKey(
-		"Verbose logging increment", [this] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false,
+		"Verbose logging increment", [] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false,
 		true);
 	mKeyManager.registerKey(
-		"Verbose logging decrement", [this] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
+		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
 		true);
 	mKeyManager.registerKey(
 		"Settings editor",

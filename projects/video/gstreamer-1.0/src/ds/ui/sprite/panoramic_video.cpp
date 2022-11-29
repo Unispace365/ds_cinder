@@ -8,6 +8,7 @@
 #include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/data/data_buffer.h>
+#include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
@@ -46,11 +47,11 @@ namespace ds { namespace ui {
 	  , mTexInvertX(textureInvertX)
 	  , mXSensitivity(0.15f)
 	  , mYSensitivity(0.15f)
-	  , mFov(60.0f)
-	  , mAutoSync(true)
-	  , mPanning(0.0f)
 	  , mXRot(0.0f)
-	  , mYRot(-90.0f) {
+	  , mYRot(-90.0f)
+	  , mFov(60.0f)
+	  , mPanning(0.0f)
+	  , mAutoSync(true) {
 		mBlobType = _BLOB;
 		setUseShaderTexture(true);
 		setTransparent(true);

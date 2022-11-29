@@ -2,22 +2,21 @@
 
 #include "content_query.h"
 
-#include <ds/debug/logger.h>
-#include <ds/query/query_client.h>
-#include <ds/util/file_meta_data.h>
 #include <map>
 #include <sstream>
 
+#include <ds/debug/logger.h>
+#include <ds/query/query_client.h>
+#include <ds/util/file_meta_data.h>
 #include <ds/app/environment.h>
-
-
-#include "ds/query/sqlite/sqlite3.h"
+#include <ds/cfg/settings_variables.h>
+#include <ds/query/sqlite/sqlite3.h>
 
 namespace ds {
 
 ContentQuery::ContentQuery()
-  : mTableId(0)
-  , mCheckUpdatedResources(true) {}
+  : mCheckUpdatedResources(true)
+  , mTableId(0) {}
 
 void ContentQuery::run() {
 	mData = ds::model::ContentModelRef("sqlite", 0, "The root of all sqlite data");

@@ -36,12 +36,12 @@ using namespace ci::app;
 AbstractEngineServer::AbstractEngineServer(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed,
 										   const ds::RootList& roots, const int appMode)
   : ds::Engine(app, settings, ed, roots, appMode)
-  //    , mConnection(NumberOfNetworkThreads)
   , mSender(mSendConnection, true)
   , mReceiver(mReceiveConnection, false)
   , mBlobReader(mReceiver.getData(), *this)
-  , mState(nullptr)
-  , mContentWrangler(nullptr) {
+  , mContentWrangler(nullptr)
+  , mState(nullptr) {
+
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB		   = mBlobRegistry.add([this](BlobReader& r) { receiveHeader(r.mDataBuffer); });

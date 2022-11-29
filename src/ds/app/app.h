@@ -2,6 +2,9 @@
 #ifndef DS_APP_APP_H_
 #define DS_APP_APP_H_
 
+#include <cinder/app/App.h>
+#include <cinder/app/RendererGl.h>
+
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
@@ -9,8 +12,6 @@
 #include "ds/debug/key_manager.h"
 #include "ds/ui/touch/touch_debug.h"
 #include "ds/ui/touch/touch_event.h"
-#include <cinder/app/App.h>
-#include <cinder/app/RendererGl.h>
 
 namespace ds {
 class Environment;

@@ -2,17 +2,20 @@
 
 #include "settings.h"
 
+#include <Poco/File.h>
+#include <Poco/String.h>
+#include <cinder/Xml.h>
+
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/color_util.h"
 #include "ds/util/file_meta_data.h"
 #include "ds/util/string_util.h"
-#include <Poco/File.h>
-#include <Poco/String.h>
-#include <cinder/Xml.h>
+#include "ds/cfg/settings_variables.h"
 
-namespace ds { namespace cfg {
+
+namespace ds::cfg {
 
 	const std::string& SETTING_TYPE_UNKNOWN		   = "unknown";
 	const std::string& SETTING_TYPE_BOOL		   = "bool";
@@ -178,7 +181,7 @@ namespace ds { namespace cfg {
 		initialize_types();
 	}
 
-	void Settings::mergeSettings(Settings& mergeIn) {
+	void Settings::mergeSettings(const Settings& mergeIn) {
 		merge_settings(mSettings, mergeIn.mSettings);
 	}
 
@@ -555,4 +558,4 @@ namespace ds { namespace cfg {
 		}
 	}
 
-}} // namespace ds::cfg
+} // namespace ds::cfg

@@ -70,8 +70,8 @@ EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
   , mHeaderId(0)
   , mCommandId(0)
   , mHeaderAndCommandOnly(false)
-  , mUseChunker(useChunker)
-  , mNoDataCount(0) {
+  , mNoDataCount(0)
+  , mUseChunker(useChunker) {
 	setHeaderAndCommandOnly();
 }
 
@@ -142,7 +142,6 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 
 	morePacketsAvailable = !mReceiveBuffers.empty();
 
-	const size_t receiveSize = mCurrentDataBuffer.size();
 	const char	 size		 = static_cast<char>(registry.mReader.size());
 	while (mCurrentDataBuffer.canRead<char>()) {
 		const char token = mCurrentDataBuffer.read<char>();

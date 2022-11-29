@@ -19,7 +19,6 @@
 #include "ds/cfg/settings.h"
 #include "ds/data/data_buffer.h"
 #include "ds/data/user_data.h"
-#include "ds/debug/debug_defines.h"
 #include "ds/gl/uniform.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
@@ -30,8 +29,6 @@
 #include "ds/ui/tween/sprite_anim.h"
 #include "ds/util/bit_mask.h"
 #include "ds/util/idle_timer.h"
-#include "yoga/YGConfig.h"
-#include "yoga/YGNode.h"
 #include "yoga/Yoga.h"
 
 namespace ds {
@@ -70,7 +67,13 @@ namespace ui {
 	class Sprite : public SpriteAnimatable {
 	  public:
 		struct FinalRenderInfo {
-			bool				useLocalTransform = true;
+			FinalRenderInfo(){}
+			FinalRenderInfo(const FinalRenderInfo&)				  = default;
+			FinalRenderInfo(FinalRenderInfo&&)					  = default;
+			FinalRenderInfo&	operator=(const FinalRenderInfo&) = default;
+			FinalRenderInfo&	operator=(FinalRenderInfo&&)	  = default;
+
+			bool				useLocalTransform				  = true;
 			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format();
 		};
 		/** Generic sprite creation function.

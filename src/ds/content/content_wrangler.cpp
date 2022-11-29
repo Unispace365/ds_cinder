@@ -11,20 +11,20 @@
 namespace ds {
 
 ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
-  : mNodeWatcher(se, "localhost", 7777, false)
-  , mEngine(se)
+  : mEngine(se)
   , mContentQuery(se, [] { return new ContentQuery(); })
+  , mNodeWatcher(se, "localhost", 7777, false)
   , mEventClient(se) {
 
 	mEngine.mContent.setName("root");
 	mEngine.mContent.setLabel("The root of all content");
 
 	ds::event::Registry::get().addEventCreator(DsNodeMessageReceivedEvent::NAME(),
-											   [this]() -> ds::Event* { return new DsNodeMessageReceivedEvent(); });
+											   []() -> ds::Event* { return new DsNodeMessageReceivedEvent(); });
 	ds::event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(),
-											   [this]() -> ds::Event* { return new ContentUpdatedEvent(); });
+											   []() -> ds::Event* { return new ContentUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestContentQueryEvent::NAME(),
-											   [this]() -> ds::Event* { return new RequestContentQueryEvent(); });
+											   []() -> ds::Event* { return new RequestContentQueryEvent(); });
 	mEventClient.listenToEvents<RequestContentQueryEvent>([this](const RequestContentQueryEvent& e) { runQuery(); });
 
 	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m) {
@@ -133,7 +133,7 @@ void ContentWrangler::runQuery() {
 	auto allModels = ds::split(mModelModelLocation, ";", true);
 	for (auto it : allModels) {
 		auto thisModel = it;
-		mContentQuery.start([this, thisModel](ds::ContentQuery& dq) {
+		mContentQuery.start([thisModel](ds::ContentQuery& dq) {
 			const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
 			dq.mXmlDataModel	 = thisModel;
 			dq.mCmsDatabase		 = cms.getDatabasePath();

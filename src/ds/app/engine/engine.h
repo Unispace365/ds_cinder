@@ -73,12 +73,12 @@ class Engine : public ui::SpriteEngine {
 	virtual void update() = 0;
 	virtual void draw()	  = 0;
 
-	virtual ds::EventNotifier&		  getChannel(const std::string&);
+	virtual ds::EventNotifier&		  getChannel(const std::string&) override;
 	void							  addChannel(const std::string& name, const std::string& description);
-	virtual ds::AutoUpdateList&		  getAutoUpdateList(const int = AutoUpdateType::SERVER);
-	virtual ds::ui::PangoFontService& getPangoFontService() { return mPangoFontService; }
-	virtual ds::ui::LoadImageService& getLoadImageService() { return *mLoadImageService; }
-	virtual ds::ui::Tweenline&		  getTweenline() { return mTweenline; }
+	virtual ds::AutoUpdateList&		  getAutoUpdateList(const int = AutoUpdateType::SERVER) override;
+	virtual ds::ui::PangoFontService& getPangoFontService() override { return mPangoFontService; }
+	virtual ds::ui::LoadImageService& getLoadImageService() override { return *mLoadImageService; }
+	virtual ds::ui::Tweenline&		  getTweenline() override { return mTweenline; }
 
 	/// I take ownership of any services added to me.
 	void addService(const std::string&, ds::EngineService&);
@@ -134,24 +134,24 @@ class Engine : public ui::SpriteEngine {
 	void checkIdle();
 
 	/// Starts idle mode right away, regardless of time
-	virtual void startIdling();
+	virtual void startIdling() override;
 
 	/// Ends idle mode, regardless of input and starts the timeout again
 	virtual void stopIdling() { resetIdleTimeout(); }
 
 	/// Identical to stopIdling(), retained for backwards compatibility
-	virtual void resetIdleTimeout();
+	virtual void resetIdleTimeout() override;
 
 	/// Called during app construction, to register the sprites as blob handlers.
 	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
 							   const std::function<void(ds::BlobRegistry&)>& asClient) = 0;
 
-	virtual ds::sprite_id_t nextSpriteId();
-	virtual void			registerSprite(ds::ui::Sprite&);
-	virtual void			unregisterSprite(ds::ui::Sprite&);
-	virtual ds::ui::Sprite* findSprite(const ds::sprite_id_t);
-	virtual void			spriteDeleted(const ds::sprite_id_t&);
-	virtual ci::Color8u		getUniqueColor();
+	virtual ds::sprite_id_t nextSpriteId() override;
+	virtual void			registerSprite(ds::ui::Sprite&) override;
+	virtual void			unregisterSprite(ds::ui::Sprite&) override;
+	virtual ds::ui::Sprite* findSprite(const ds::sprite_id_t) override;
+	virtual void			spriteDeleted(const ds::sprite_id_t&) override;
+	virtual ci::Color8u		getUniqueColor() override;
 
 	std::shared_ptr<ci::tuio::Receiver> getTuioClient(const int tuioIndex = -1);
 	void								touchesBegin(const ds::ui::TouchEvent&);
@@ -168,13 +168,13 @@ class Engine : public ui::SpriteEngine {
 	/// or if you have an unusual input situation (like a kinect or something) and want to use touch
 	/// These are separate functions from the touchesBegin, etc from above so the general
 	/// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
-	virtual void injectTouchesBegin(const ds::ui::TouchEvent&);
-	virtual void injectTouchesMoved(const ds::ui::TouchEvent&);
-	virtual void injectTouchesEnded(const ds::ui::TouchEvent&);
+	virtual void injectTouchesBegin(const ds::ui::TouchEvent&) override;
+	virtual void injectTouchesMoved(const ds::ui::TouchEvent&) override;
+	virtual void injectTouchesEnded(const ds::ui::TouchEvent&) override;
 
-	virtual void injectObjectsBegin(const ds::TuioObject&);
-	virtual void injectObjectsMoved(const ds::TuioObject&);
-	virtual void injectObjectsEnded(const ds::TuioObject&);
+	virtual void injectObjectsBegin(const ds::TuioObject&) override;
+	virtual void injectObjectsMoved(const ds::TuioObject&) override;
+	virtual void injectObjectsEnded(const ds::TuioObject&) override;
 
 	/// Register a tuio::Receiver to send TUIO objects events through the Engine.  Useful if your app needs
 	/// additional tuio::Receiver object listeners beyond the single tuio::Receiver provided by the Engine.
@@ -182,24 +182,24 @@ class Engine : public ui::SpriteEngine {
 
 	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	/// Sprites can still turn this off after creation
-	virtual bool getRotateTouchesDefault();
+	virtual bool getRotateTouchesDefault() override;
 
-	virtual ds::ResourceList&	getResources();
-	virtual const ds::FontList& getFonts() const;
+	virtual ds::ResourceList&	getResources() override;
+	virtual const ds::FontList& getFonts() const override;
 	ds::FontList&				editFonts();
 
-	virtual const ds::ColorList& getColors() const;
+	virtual const ds::ColorList& getColors() const override;
 	ds::ColorList&				 editColors();
 
 	void						   markCameraDirty();
-	virtual PerspCameraParams	   getPerspectiveCamera(const size_t index) const;
-	virtual const ci::CameraPersp& getPerspectiveCameraRef(const size_t index) const;
-	virtual void				   setPerspectiveCamera(const size_t index, const PerspCameraParams&);
-	virtual void				   setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&);
+	virtual PerspCameraParams	   getPerspectiveCamera(const size_t index) const override;
+	virtual const ci::CameraPersp& getPerspectiveCameraRef(const size_t index) const override;
+	virtual void				   setPerspectiveCamera(const size_t index, const PerspCameraParams&) override;
+	virtual void				   setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) override;
 
-	virtual float getOrthoFarPlane(const size_t index) const;
-	virtual float getOrthoNearPlane(const size_t index) const;
-	virtual void  setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
+	virtual float getOrthoFarPlane(const size_t index) const override;
+	virtual float getOrthoNearPlane(const size_t index) const override;
+	virtual void  setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) override;
 
 	/// Can be used by apps to stop services before exiting.
 	/// This will happen automatically, but some apps might want
@@ -210,15 +210,15 @@ class Engine : public ui::SpriteEngine {
 	bool getHideMouse() const;
 	bool getAutoHideMouse() const { return mAutoHideMouse; }
 
-	ds::ui::Sprite* getHit(const ci::vec3& point);
+	ds::ui::Sprite* getHit(const ci::vec3& point) override;
 
 	ui::TouchManager& getTouchManager() { return mTouchManager; }
-	virtual void	  clearFingers(const std::vector<int>& fingers);
-	virtual void	  clearFingersForSprite(ui::Sprite* theSprite) { mTouchManager.clearFingersForSprite(theSprite); }
-	void			  setSpriteForFinger(const int fingerId, ui::Sprite* theSprite) {
+	virtual void	  clearFingers(const std::vector<int>& fingers) override;
+	virtual void	  clearFingersForSprite(ui::Sprite* theSprite) override { mTouchManager.clearFingersForSprite(theSprite); }
+	void			  setSpriteForFinger(const int fingerId, ui::Sprite* theSprite) override {
 		 mTouchManager.setSpriteForFinger(fingerId, theSprite);
 	}
-	ds::ui::Sprite* getSpriteForFinger(const int fingerId) { return mTouchManager.getSpriteForFinger(fingerId); }
+	ds::ui::Sprite* getSpriteForFinger(const int fingerId) override { return mTouchManager.getSpriteForFinger(fingerId); }
 	virtual bool	shouldDiscardTouch(ci::vec2& p) { return mTouchManager.shouldDiscardTouch(p); }
 
 	void	   setTouchSmoothing(const bool doSmoothing);
@@ -231,7 +231,7 @@ class Engine : public ui::SpriteEngine {
 	/// Debugging aid to write out the sprites
 	void writeSprites(std::ostream&) const;
 
-	virtual ci::app::WindowRef getWindow();
+	virtual ci::app::WindowRef getWindow() override;
 
 	void toggleConsole();
 	void showConsole();

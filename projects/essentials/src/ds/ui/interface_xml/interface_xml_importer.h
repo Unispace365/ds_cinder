@@ -40,11 +40,12 @@ class XmlImporter {
 	// properties to the parent, saving you a sprite
 	static bool loadXMLto(ds::ui::Sprite* parent, const std::string& xmlFile, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(),
+						  const bool mergeFirstSprite = false, const ds::cfg::Settings& override_map = ds::cfg::Settings(),
 						  ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
+
 	static bool loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& xmldata, NamedSpriteMap& map,
 						  SpriteImporter customImporter = nullptr, const std::string& namePrefix = "",
-						  const bool mergeFirstSprite = false, ds::cfg::Settings& override_map = ds::cfg::Settings(),
+						  const bool mergeFirstSprite = false, const ds::cfg::Settings& override_map = ds::cfg::Settings(),
 						  ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
 
 	/// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic
@@ -55,10 +56,10 @@ class XmlImporter {
 	static void setAutoCache(const bool doCaching);
 
 	static void setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer = "",
-								  ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
+								  const ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
 	static void setSpriteProperty(ds::ui::Sprite& sprite, const std::string& property, const std::string& value,
 								  const std::string&	referer	 = "",
-								  ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
+								  const ds::cfg::VariableMap& localMap = ds::cfg::VariableMap());
 
 	static std::string getSpriteTypeForSprite(ds::ui::Sprite* sp);
 
@@ -67,7 +68,7 @@ class XmlImporter {
 	/// get the value as text, image will try to load an image at the value file path
 	static ds::ui::Sprite* createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type,
 											  const std::string&	value	  = "",
-											  ds::cfg::VariableMap& local_map = ds::cfg::VariableMap());
+											  const ds::cfg::VariableMap& local_map = ds::cfg::VariableMap());
 	static void			   getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml);
 
 	/// the opposite of loading an xml to a sprite
@@ -89,7 +90,7 @@ class XmlImporter {
 	  , mCustomImporter(customImporter) {}
 	~XmlImporter();
 
-	bool load(ci::XmlTree&, const bool mergeFirstSprite, ds::cfg::Settings& override_map = ds::cfg::Settings(),
+	bool load(ci::XmlTree&, const bool mergeFirstSprite, const ds::cfg::Settings& override_map = ds::cfg::Settings(),
 			  ds::cfg::VariableMap local_map = ds::cfg::VariableMap());
 
 	bool readSprite(ds::ui::Sprite*, std::unique_ptr<ci::XmlTree>&, const bool mergeFirstSprite);

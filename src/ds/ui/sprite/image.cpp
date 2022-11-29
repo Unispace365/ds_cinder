@@ -15,502 +15,497 @@
 #include "ds/util/image_meta_data.h"
 #include <ds/app/environment.h>
 
+namespace {
+char BLOB_TYPE = 0;
 
-namespace ds { namespace ui {
-
-	using namespace ci;
-
-	namespace {
-		char BLOB_TYPE = 0;
-
-		const DirtyState& IMG_SRC_DIRTY	 = INTERNAL_A_DIRTY;
-		const DirtyState& IMG_CROP_DIRTY = INTERNAL_B_DIRTY;
+const ds::ui::DirtyState& IMG_SRC_DIRTY	 = ds::ui::INTERNAL_A_DIRTY;
+const ds::ui::DirtyState& IMG_CROP_DIRTY = ds::ui::INTERNAL_B_DIRTY;
 
 
-		const char IMG_SRC_ATT	 = 80;
-		const char IMG_CROP_ATT	 = 81;
-		const char RES_FLAGS_ATT = 82;
+const char IMG_SRC_ATT	 = 80;
+const char IMG_CROP_ATT	 = 81;
+const char RES_FLAGS_ATT = 82;
 
-		const std::string CircleCropFrag = "#version 150\n"
+const std::string CircleCropFrag = R"FRAG(
+#version 150
 
-										   "in vec2 position_interpolated; \n"
-										   "in vec2 texture_interpolated; \n"
-										   "in vec2 extent_interpolated; \n"
-										   "in vec4 extra_interpolated; \n"
+in vec2 position_interpolated;
+in vec2 texture_interpolated;
+in vec2 extent_interpolated;
+in vec4 extra_interpolated;
 
-										   "uniform sampler2D tex0; \n"
-										   "uniform bool useTexture; \n"
-										   "uniform bool preMultiply; \n"
+uniform sampler2D tex0;
+uniform bool	  useTexture;
+uniform bool	  preMultiply;
 
-										   "in vec2            TexCoord0; \n"
-										   "in vec4            Color; \n"
-										   "out vec4           oColor; \n"
+in vec2	 TexCoord0;
+in vec4	 Color;
+out vec4 oColor;
 
-										   "void main()\n"
-										   "{\n"
-										   "oColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
+void main() {
+	oColor = vec4(1.0, 1.0, 1.0, 1.0);
 
-										   "	if(useTexture) {\n"
-										   "		oColor = texture2D(tex0, TexCoord0);\n"
-										   "	}\n"
-
-										   "	oColor *= Color;\n"
-
-										   "	if(preMultiply) {\n"
-										   "		oColor.r *= oColor.a;\n"
-										   "		oColor.g *= oColor.a;\n"
-										   "		oColor.b *= oColor.a;\n"
-										   "	}\n"
-
-										   "	vec2 circleExtent = vec2(\n"
-										   "		extra_interpolated.z - extra_interpolated.x,\n"
-										   "		extra_interpolated.w - extra_interpolated.y\n"
-										   "		);\n"
-										   "	vec2 circleRadius = circleExtent * 0.5;\n"
-										   "	vec2 circleCenter = vec2(\n"
-										   "		(extra_interpolated.x + extra_interpolated.z) * 0.5,\n"
-										   "		(extra_interpolated.y + extra_interpolated.w) * 0.5\n"
-										   "		);\n"
-										   "	vec2 delta = position_interpolated - circleCenter;\n"
-
-										   // apply the general equation of an ellipse
-										   "	float radialDistance = (\n"
-										   "		((delta.x * delta.x) / (circleRadius.x * circleRadius.x)) +\n"
-										   "		((delta.y * delta.y) / (circleRadius.y * circleRadius.y))\n"
-										   "		);\n"
-
-										   "	float totalAlpha = 1.0;\n"
-
-										   // do this with minimal aliasing
-										   "	float fragDelta = fwidth(radialDistance) * 1.1;\n"
-										   "	totalAlpha = 1.0 - smoothstep(1.0 - fragDelta, 1.0, radialDistance);\n"
-
-										   "	oColor.a *= totalAlpha;\n"
-										   "}\n";
-
-		const std::string CircleCropVert = "#version 150\n"
-										   "out vec2 			position_interpolated;\n"
-										   "out vec2 			texture_interpolated;\n"
-										   "out vec4 			extra_interpolated;\n"
-										   "out vec2 			extent_interpolated;\n"
-
-										   "uniform bool 		useTexture;\n"
-										   "uniform vec2 		extent;\n"
-										   "uniform vec4 		extra;\n"
-										   "uniform mat4		ciModelMatrix;\n"
-										   "uniform mat4		ciModelViewProjection;\n"
-										   "uniform vec4		uClipPlane0;\n"
-										   "uniform vec4 		uClipPlane1;\n"
-										   "uniform vec4		uClipPlane2;\n"
-										   "uniform vec4		uClipPlane3;\n"
-
-										   "in vec4			ciPosition;\n"
-										   "in vec2			ciTexCoord0;\n"
-										   "in vec4			ciColor;\n"
-										   "out vec2			TexCoord0;\n"
-										   "out vec4			Color;\n"
-
-										   "void main()\n"
-										   "{\n"
-										   "	position_interpolated = ciPosition.xy;\n"
-										   "	if(useTexture) {\n"
-										   "		texture_interpolated = texture_interpolated;\n"
-										   "	}\n"
-
-										   "	extent_interpolated = extent;\n"
-
-										   // see if extra has non-zero width and height
-										   "	if(((extra.z - extra.x) > 0) && ((extra.w - extra.y) > 0)) {\n"
-										   // specified, so use it
-										   "		extra_interpolated = extra;\n"
-										   "	} else {\n"
-										   // use the entire extent
-										   "		extra_interpolated = vec4(0, 0, extent.xy);\n"
-										   "	}\n"
-
-										   "	gl_Position = ciModelViewProjection * ciPosition;\n"
-										   "	TexCoord0 = ciTexCoord0;\n"
-										   "	Color = ciColor;\n"
-
-										   "	gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
-										   "	gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
-										   "	gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
-										   "	gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
-										   "}\n";
-	} // namespace
-
-	void Image::installAsServer(ds::BlobRegistry& registry) {
-		BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromClient(r); });
+	if (useTexture) {
+		oColor = texture2D(tex0, TexCoord0);
 	}
 
-	void Image::installAsClient(ds::BlobRegistry& registry) {
-		BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromServer<Image>(r); });
+	oColor *= Color;
+
+	if (preMultiply) {
+		oColor.r *= oColor.a;
+		oColor.g *= oColor.a;
+		oColor.b *= oColor.a;
 	}
 
-	Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) {
-		return makeAlloc<ds::ui::Image>([&e, &fn]() -> ds::ui::Image* { return new ds::ui::Image(e, fn); }, parent);
+	vec2 circleExtent = vec2(extra_interpolated.z - extra_interpolated.x, extra_interpolated.w - extra_interpolated.y);
+	vec2 circleRadius = circleExtent * 0.5;
+	vec2 circleCenter =
+		vec2((extra_interpolated.x + extra_interpolated.z) * 0.5, (extra_interpolated.y + extra_interpolated.w) * 0.5);
+	vec2 delta = position_interpolated - circleCenter;
+
+	// apply the general equation of an ellipse
+	float radialDistance = (((delta.x * delta.x) / (circleRadius.x * circleRadius.x)) +
+							((delta.y * delta.y) / (circleRadius.y * circleRadius.y)));
+
+	float totalAlpha = 1.0;
+
+	// do this with minimal aliasing
+	float fragDelta = fwidth(radialDistance) * 1.1;
+	totalAlpha		= 1.0 - smoothstep(1.0 - fragDelta, 1.0, radialDistance);
+
+	oColor.a *= totalAlpha;
+}
+)FRAG";
+
+const std::string CircleCropVert = R"VERT(
+#version 150
+out vec2 position_interpolated;
+out vec2 texture_interpolated;
+out vec4 extra_interpolated;
+out vec2 extent_interpolated;
+
+uniform bool useTexture;
+uniform vec2 extent;
+uniform vec4 extra;
+uniform mat4 ciModelMatrix;
+uniform mat4 ciModelViewProjection;
+uniform vec4 uClipPlane0;
+uniform vec4 uClipPlane1;
+uniform vec4 uClipPlane2;
+uniform vec4 uClipPlane3;
+
+in	vec4 ciPosition;
+in	vec2 ciTexCoord0;
+in	vec4 ciColor;
+out vec2 TexCoord0;
+out vec4 Color;
+
+void main() {
+	position_interpolated = ciPosition.xy;
+	if (useTexture) {
+		texture_interpolated = texture_interpolated;
 	}
 
-	Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-		return makeImage(e, ds::Environment::expand(r.getPortableFilePath()), parent);
+	extent_interpolated = extent;
+
+	// see if extra has non-zero width and height
+	if (((extra.z - extra.x) > 0) && ((extra.w - extra.y) > 0)) {
+		// specified, so use it
+		extra_interpolated = extra;
+	} else {
+		// use the entire extent
+		extra_interpolated = vec4(0, 0, extent.xy);
 	}
 
-	Image::Image(SpriteEngine& engine)
-	  : Sprite(engine)
-	  , mStatusFn(nullptr)
-	  , mCircleCropped(false)
-	  , mCircleCropCentered(false)
-	  , mTextureRef(nullptr) {
-		mStatus.mCode		 = Status::STATUS_EMPTY;
-		mDrawRect.mOrthoRect = ci::Rectf::zero();
-		mDrawRect.mPerspRect = ci::Rectf::zero();
-		mBlobType			 = BLOB_TYPE;
+	gl_Position = ciModelViewProjection * ciPosition;
+	TexCoord0	= ciTexCoord0;
+	Color		= ciColor;
 
-		setTransparent(false);
-		setUseShaderTexture(true);
+	gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);
+	gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);
+	gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);
+	gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);
+}
+)VERT";
+} // namespace
 
-		markAsDirty(IMG_SRC_DIRTY);
-		markAsDirty(IMG_CROP_DIRTY);
+namespace ds::ui {
 
-		mLayoutFixedAspect = true;
+using namespace ci;
+
+
+void Image::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromClient(r); });
+}
+
+void Image::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromServer<Image>(r); });
+}
+
+Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) {
+	return makeAlloc<ds::ui::Image>([&e, &fn]() -> ds::ui::Image* { return new ds::ui::Image(e, fn); }, parent);
+}
+
+Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
+	return makeImage(e, ds::Environment::expand(r.getPortableFilePath()), parent);
+}
+
+Image::Image(SpriteEngine& engine)
+  : Sprite(engine)
+  , mStatusFn(nullptr)
+  , mCircleCropped(false)
+  , mCircleCropCentered(false)
+  , mTextureRef(nullptr) {
+	mStatus.mCode		 = Status::STATUS_EMPTY;
+	mDrawRect.mOrthoRect = ci::Rectf::zero();
+	mDrawRect.mPerspRect = ci::Rectf::zero();
+	mBlobType			 = BLOB_TYPE;
+
+	setTransparent(false);
+	setUseShaderTexture(true);
+
+	markAsDirty(IMG_SRC_DIRTY);
+	markAsDirty(IMG_CROP_DIRTY);
+
+	mLayoutFixedAspect = true;
+}
+
+Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
+  : Image(engine) {
+	setImageFile(filename, flags);
+}
+
+Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
+  : Image(engine) {
+	setImageResource(resourceId, flags);
+}
+
+Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
+  : Image(engine) {
+	setImageResource(resource, flags);
+}
+
+Image::~Image() {
+	mEngine.getLoadImageService().release(mFilename, this);
+}
+
+void Image::setImageFile(const std::string& filename, const int flags) {
+	if (mFilename == filename && mFlags == flags) {
+		return;
 	}
 
-	Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
-	  : Image(engine) {
-		setImageFile(filename, flags);
+	mEngine.getLoadImageService().release(mFilename, this);
+
+	if (filename.find("http") == 0) {
+		mFilename = filename;
+	} else {
+		mFilename = ds::Environment::expand(filename);
 	}
 
-	Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
-	  : Image(engine) {
-		setImageResource(resourceId, flags);
-	}
+	mFlags = flags;
 
-	Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
-	  : Image(engine) {
-		setImageResource(resource, flags);
-	}
+	imageChanged();
 
-	Image::~Image() {
-		mEngine.getLoadImageService().release(mFilename, this);
-	}
-
-	void Image::setImageFile(const std::string& filename, const int flags) {
-		if (mFilename == filename && mFlags == flags) {
-			return;
-		}
-
-		mEngine.getLoadImageService().release(mFilename, this);
-
-		if (filename.find("http") == 0) {
-			mFilename = filename;
-		} else {
-			mFilename = ds::Environment::expand(filename);
-		}
-
-		mFlags = flags;
-
-		imageChanged();
-
-		mEngine.getLoadImageService().acquire(
-			mFilename, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
-				mTextureRef = tex;
-				if (error) {
-					mErrorMsg = errorMsg;
-					setStatus(Status::STATUS_ERRORED);
-				} else {
-					checkStatus();
-
-					if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
-						circleCropAutoCenter();
-					}
-				}
-			});
-
-		if (mCircleCropCentered) {
-			circleCropAutoCenter();
-		}
-	}
-
-	void Image::setImageResource(const ds::Resource& r, const int flags) {
-		mResource = r;
-
-		setImageFile(r.getAbsoluteFilePath(), flags);
-	}
-
-	void Image::setImageResource(const ds::Resource::Id& rid, const int flags) {
-		if (!rid.empty()) {
-			mEngine.getResources().get(rid, mResource);
-		}
-
-		if (!mResource.empty()) {
-			setImageResource(mResource, flags);
-		} else {
-			DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << rid.mValue);
-		}
-	}
-
-	void Image::onUpdateServer(const UpdateParams& up) {
-		// checkStatus();
-	}
-
-	void Image::onUpdateClient(const UpdateParams& up) {
-		// checkStatus();
-	}
-
-	void Image::drawLocalClient() {
-		if (!inBounds() || !isLoaded()) return;
-
-		if (mTextureRef) {
-
-			mTextureRef->bind();
-			if (mRenderBatch) {
-				mRenderBatch->draw();
+	mEngine.getLoadImageService().acquire(
+		mFilename, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
+			mTextureRef = tex;
+			if (error) {
+				mErrorMsg = errorMsg;
+				setStatus(Status::STATUS_ERRORED);
 			} else {
-				const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
-				ci::gl::drawSolidRect(useRect);
+				checkStatus();
+
+				if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
+					circleCropAutoCenter();
+				}
 			}
+		});
 
-			mTextureRef->unbind();
-		}
-	}
-
-	void Image::clearImage() {
-		mEngine.getLoadImageService().release(mFilename, this);
-		mTextureRef = nullptr;
-		mFilename	= "";
-		mResource	= ds::Resource();
-		imageChanged();
-	}
-
-	void Image::setSize(float width, float height) {
-		setSizeAll(width, height, mDepth);
-	}
-
-	void Image::setSizeAll(float width, float height, float depth) {
-		setScale(width / getWidth(), height / getHeight());
-	}
-
-	bool Image::isLoaded() const {
-		return mStatus.mCode == Status::STATUS_LOADED;
-	}
-
-	void Image::setCircleCrop(bool circleCrop) {
-		mCircleCropped = circleCrop;
-		if (circleCrop) {
-			// switch to crop shader
-			mSpriteShader.setShaders(CircleCropVert, CircleCropFrag, "image_circle_crop");
-		} else {
-			// go back to base shader
-			mSpriteShader.setToDefaultShader();
-		}
-
-		mNeedsBatchUpdate = true;
-		markAsDirty(IMG_CROP_DIRTY);
-	}
-
-	void Image::setCircleCropRect(const ci::Rectf& rect) {
-		markAsDirty(IMG_CROP_DIRTY);
-		mShaderExtraData.x = rect.x1;
-		mShaderExtraData.y = rect.y1;
-		mShaderExtraData.z = rect.x2;
-		mShaderExtraData.w = rect.y2;
-	}
-
-	void Image::cicleCropAutoCenter() {
+	if (mCircleCropCentered) {
 		circleCropAutoCenter();
 	}
+}
 
-	void Image::circleCropAutoCenter() {
-		mCircleCropCentered = true;
-		setCircleCrop(true);
-		const float scw = getWidth();
-		const float sch = getHeight();
-		if (scw > sch) {
-			setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+void Image::setImageResource(const ds::Resource& r, const int flags) {
+	mResource = r;
+
+	setImageFile(r.getAbsoluteFilePath(), flags);
+}
+
+void Image::setImageResource(const ds::Resource::Id& rid, const int flags) {
+	if (!rid.empty()) {
+		mEngine.getResources().get(rid, mResource);
+	}
+
+	if (!mResource.empty()) {
+		setImageResource(mResource, flags);
+	} else {
+		DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << rid.mValue);
+	}
+}
+
+void Image::onUpdateServer(const UpdateParams& up) {
+	// checkStatus();
+}
+
+void Image::onUpdateClient(const UpdateParams& up) {
+	// checkStatus();
+}
+
+void Image::drawLocalClient() {
+	if (!inBounds() || !isLoaded()) return;
+
+	if (mTextureRef) {
+
+		mTextureRef->bind();
+		if (mRenderBatch) {
+			mRenderBatch->draw();
 		} else {
-			setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
+			const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
+			ci::gl::drawSolidRect(useRect);
 		}
+
+		mTextureRef->unbind();
+	}
+}
+
+void Image::clearImage() {
+	mEngine.getLoadImageService().release(mFilename, this);
+	mTextureRef = nullptr;
+	mFilename	= "";
+	mResource	= ds::Resource();
+	imageChanged();
+}
+
+void Image::setSize(float width, float height) {
+	setSizeAll(width, height, mDepth);
+}
+
+void Image::setSizeAll(float width, float height, float depth) {
+	setScale(width / getWidth(), height / getHeight());
+}
+
+bool Image::isLoaded() const {
+	return mStatus.mCode == Status::STATUS_LOADED;
+}
+
+void Image::setCircleCrop(bool circleCrop) {
+	mCircleCropped = circleCrop;
+	if (circleCrop) {
+		// switch to crop shader
+		mSpriteShader.setShaders(CircleCropVert, CircleCropFrag, "image_circle_crop");
+	} else {
+		// go back to base shader
+		mSpriteShader.setToDefaultShader();
 	}
 
-	void Image::disableCircleCropCentered() {
-		mCircleCropCentered = false;
-		setCircleCrop(false);
+	mNeedsBatchUpdate = true;
+	markAsDirty(IMG_CROP_DIRTY);
+}
+
+void Image::setCircleCropRect(const ci::Rectf& rect) {
+	markAsDirty(IMG_CROP_DIRTY);
+	mShaderExtraData.x = rect.x1;
+	mShaderExtraData.y = rect.y1;
+	mShaderExtraData.z = rect.x2;
+	mShaderExtraData.w = rect.y2;
+}
+
+void Image::cicleCropAutoCenter() {
+	circleCropAutoCenter();
+}
+
+void Image::circleCropAutoCenter() {
+	mCircleCropCentered = true;
+	setCircleCrop(true);
+	const float scw = getWidth();
+	const float sch = getHeight();
+	if (scw > sch) {
+		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+	} else {
+		setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
+	}
+}
+
+void Image::disableCircleCropCentered() {
+	mCircleCropCentered = false;
+	setCircleCrop(false);
+}
+
+void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
+	mStatusFn = fn;
+
+	// In case the image was already loaded (cached or onscreen already), and the callback function gets set after
+	// the setImage call, make sure we get the message
+	if (mStatus.mCode == Status::STATUS_LOADED && mStatusFn) {
+		mStatusFn(mStatus);
+	}
+}
+
+bool Image::isLoadedPrimary() const {
+	return isLoaded();
+}
+
+void Image::imageChanged() {
+	if (mEngine.getMode() == mEngine.CLIENT_MODE) return;
+
+	setStatus(Status::STATUS_EMPTY);
+	markAsDirty(IMG_SRC_DIRTY);
+	doOnImageUnloaded();
+
+	// Make my size match
+	ImageMetaData d;
+	if (!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
+		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
+	} else {
+		// Metadata not found, reset all internal states
+		ds::ui::Sprite::setSizeAll(0, 0, 1.0f);
+		ds::ui::Sprite::setScale(1.0f, 1.0f, 1.0f);
+		mDrawRect.mOrthoRect = ci::Rectf::zero();
+		mDrawRect.mPerspRect = ci::Rectf::zero();
 	}
 
-	void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
-		mStatusFn = fn;
+	onImageChanged();
+}
 
-		// In case the image was already loaded (cached or onscreen already), and the callback function gets set after
-		// the setImage call, make sure we get the message
-		if (mStatus.mCode == Status::STATUS_LOADED && mStatusFn) {
-			mStatusFn(mStatus);
-		}
+void Image::writeAttributesTo(ds::DataBuffer& buf) {
+	Sprite::writeAttributesTo(buf);
+
+	if (mDirty.has(IMG_SRC_DIRTY)) {
+		buf.add(IMG_SRC_ATT);
+		buf.add(mFilename);
+		buf.add(mResource.getPortableFilePath());
+		buf.add(mResource.getWidth());
+		buf.add(mResource.getHeight());
+		buf.add(mFlags);
 	}
 
-	bool Image::isLoadedPrimary() const {
-		return isLoaded();
+	if (mDirty.has(IMG_CROP_DIRTY)) {
+		buf.add(IMG_CROP_ATT);
+		buf.add(mCircleCropped);
+		buf.add(mShaderExtraData.x);
+		buf.add(mShaderExtraData.y);
+		buf.add(mShaderExtraData.z);
+		buf.add(mShaderExtraData.w);
 	}
+}
 
-	void Image::imageChanged() {
-		if (mEngine.getMode() == mEngine.CLIENT_MODE) return;
-
+void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
+	if (attributeId == IMG_SRC_ATT) {
 		setStatus(Status::STATUS_EMPTY);
-		markAsDirty(IMG_SRC_DIRTY);
-		doOnImageUnloaded();
+		auto filename		  = buf.read<std::string>();
+		auto resourceFileName = ds::Environment::expand(buf.read<std::string>());
+		auto resource		  = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
+		resource.setWidth(buf.read<float>());
+		resource.setHeight(buf.read<float>());
+		auto flags = buf.read<int>();
 
-		// Make my size match
-		ImageMetaData d;
-		if (!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
-			Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
+		if (resourceFileName.empty()) {
+			setImageFile(filename, flags);
 		} else {
-			// Metadata not found, reset all internal states
-			ds::ui::Sprite::setSizeAll(0, 0, 1.0f);
-			ds::ui::Sprite::setScale(1.0f, 1.0f, 1.0f);
-			mDrawRect.mOrthoRect = ci::Rectf::zero();
-			mDrawRect.mPerspRect = ci::Rectf::zero();
+			setImageResource(resource, flags);
 		}
 
-		onImageChanged();
+
+	} else if (attributeId == IMG_CROP_ATT) {
+		mCircleCropped = buf.read<bool>();
+		setCircleCrop(mCircleCropped);
+		mShaderExtraData.x = buf.read<float>();
+		mShaderExtraData.y = buf.read<float>();
+		mShaderExtraData.z = buf.read<float>();
+		mShaderExtraData.w = buf.read<float>();
+	} else {
+		Sprite::readAttributeFrom(attributeId, buf);
+	}
+}
+
+
+bool Image::getMetaData(ImageMetaData& d) const {
+	std::string fn;
+	if (!mResource.empty()) {
+		if (mResource.getWidth() > 0 && mResource.getHeight() > 0) {
+			d.mSize.x = mResource.getWidth();
+			d.mSize.y = mResource.getHeight();
+			return true;
+		}
+		fn = mResource.getAbsoluteFilePath();
+	} else {
+		fn = mFilename;
 	}
 
-	void Image::writeAttributesTo(ds::DataBuffer& buf) {
-		Sprite::writeAttributesTo(buf);
+	if (fn.empty()) return false;
 
-		if (mDirty.has(IMG_SRC_DIRTY)) {
-			buf.add(IMG_SRC_ATT);
-			buf.add(mFilename);
-			buf.add(mResource.getPortableFilePath());
-			buf.add(mResource.getWidth());
-			buf.add(mResource.getHeight());
-			buf.add(mFlags);
-		}
+	d = ImageMetaData(fn);
+	return !d.empty();
+}
 
-		if (mDirty.has(IMG_CROP_DIRTY)) {
-			buf.add(IMG_CROP_ATT);
-			buf.add(mCircleCropped);
-			buf.add(mShaderExtraData.x);
-			buf.add(mShaderExtraData.y);
-			buf.add(mShaderExtraData.z);
-			buf.add(mShaderExtraData.w);
-		}
-	}
+void Image::setStatus(const int code) {
+	if (code == mStatus.mCode) return;
 
-	void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
-		if (attributeId == IMG_SRC_ATT) {
-			setStatus(Status::STATUS_EMPTY);
-			auto filename		  = buf.read<std::string>();
-			auto resourceFileName = ds::Environment::expand(buf.read<std::string>());
-			auto resource		  = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
-			resource.setWidth(buf.read<float>());
-			resource.setHeight(buf.read<float>());
-			auto flags = buf.read<int>();
+	if (code != Status::STATUS_ERRORED) mErrorMsg = "";
 
-			if (resourceFileName.empty()) {
-				setImageFile(filename, flags);
+	mStatus.mCode = code;
+	if (mStatusFn) mStatusFn(mStatus);
+}
+
+void Image::checkStatus() {
+	if (mTextureRef) {
+		setStatus(Status::STATUS_LOADED);
+		doOnImageLoaded();
+
+		if (mEngine.getMode() != mEngine.CLIENT_MODE) {
+			const float prevRealW = getWidth(), prevRealH = getHeight();
+			if (prevRealW <= 0 || prevRealH <= 0) {
+				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
+								   static_cast<float>(mTextureRef->getHeight()), mDepth);
 			} else {
-				setImageResource(resource, flags);
+				float prevWidth	 = prevRealW * getScale().x;
+				float prevHeight = prevRealH * getScale().y;
+				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
+								   static_cast<float>(mTextureRef->getHeight()), mDepth);
+				setSize(prevWidth, prevHeight);
 			}
+		}
+	}
+}
 
+void Image::onBuildRenderBatch() {
+	if (mDrawRect.mOrthoRect.getWidth() < 1.0f) return;
 
-		} else if (attributeId == IMG_CROP_ATT) {
-			mCircleCropped = buf.read<bool>();
-			setCircleCrop(mCircleCropped);
-			mShaderExtraData.x = buf.read<float>();
-			mShaderExtraData.y = buf.read<float>();
-			mShaderExtraData.z = buf.read<float>();
-			mShaderExtraData.w = buf.read<float>();
+	auto drawRect = mDrawRect.mOrthoRect;
+	if (getPerspective()) drawRect = mDrawRect.mPerspRect;
+	if (mCornerRadius > 0.0f) {
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		if (mRenderBatch) {
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
-			Sprite::readAttributeFrom(attributeId, buf);
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
-	}
 
-
-	bool Image::getMetaData(ImageMetaData& d) const {
-		std::string fn;
-		if (!mResource.empty()) {
-			if (mResource.getWidth() > 0 && mResource.getHeight() > 0) {
-				d.mSize.x = mResource.getWidth();
-				d.mSize.y = mResource.getHeight();
-				return true;
-			}
-			fn = mResource.getAbsoluteFilePath();
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		if (mRenderBatch) {
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
-			fn = mFilename;
-		}
-
-		if (fn.empty()) return false;
-
-		d = ImageMetaData(fn);
-		return !d.empty();
-	}
-
-	void Image::setStatus(const int code) {
-		if (code == mStatus.mCode) return;
-
-		if (code != Status::STATUS_ERRORED) mErrorMsg = "";
-
-		mStatus.mCode = code;
-		if (mStatusFn) mStatusFn(mStatus);
-	}
-
-	void Image::checkStatus() {
-		if (mTextureRef) {
-			setStatus(Status::STATUS_LOADED);
-			doOnImageLoaded();
-
-			if (mEngine.getMode() != mEngine.CLIENT_MODE) {
-				const float prevRealW = getWidth(), prevRealH = getHeight();
-				if (prevRealW <= 0 || prevRealH <= 0) {
-					Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
-									   static_cast<float>(mTextureRef->getHeight()), mDepth);
-				} else {
-					float prevWidth	 = prevRealW * getScale().x;
-					float prevHeight = prevRealH * getScale().y;
-					Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
-									   static_cast<float>(mTextureRef->getHeight()), mDepth);
-					setSize(prevWidth, prevHeight);
-				}
-			}
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
 	}
+}
 
-	void Image::onBuildRenderBatch() {
-		if (mDrawRect.mOrthoRect.getWidth() < 1.0f) return;
-
-		auto drawRect = mDrawRect.mOrthoRect;
-		if (getPerspective()) drawRect = mDrawRect.mPerspRect;
-		if (mCornerRadius > 0.0f) {
-			auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
-			if (mRenderBatch) {
-				mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-			} else {
-				mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-			}
-
-		} else {
-			auto theGeom = ci::geom::Rect(drawRect);
-			if (mRenderBatch) {
-				mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-			} else {
-				mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-			}
-		}
+void Image::doOnImageLoaded() {
+	if (mTextureRef) {
+		mNeedsBatchUpdate	 = true;
+		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
+										 static_cast<float>(mTextureRef->getWidth()), 0.0f);
+		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTextureRef->getWidth()),
+										 static_cast<float>(mTextureRef->getHeight()));
 	}
 
-	void Image::doOnImageLoaded() {
-		if (mTextureRef) {
-			mNeedsBatchUpdate	 = true;
-			mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
-											 static_cast<float>(mTextureRef->getWidth()), 0.0f);
-			mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTextureRef->getWidth()),
-											 static_cast<float>(mTextureRef->getHeight()));
-		}
+	onImageLoaded();
+}
 
-		onImageLoaded();
-	}
+void Image::doOnImageUnloaded() {
+	onImageUnloaded();
+}
 
-	void Image::doOnImageUnloaded() {
-		onImageUnloaded();
-	}
-
-}} // namespace ds::ui
+} // namespace ds::ui

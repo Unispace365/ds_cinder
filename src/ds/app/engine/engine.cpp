@@ -123,15 +123,15 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
   }) {
 
 	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(),
-											   [this]() -> ds::Event* { return new ds::app::RequestAppExitEvent(); });
+											   []() -> ds::Event* { return new ds::app::RequestAppExitEvent(); });
 	ds::event::Registry::get().addEventCreator(ds::app::IdleEndedEvent::NAME(),
-											   [this]() -> ds::Event* { return new ds::app::IdleEndedEvent(); });
+											   []() -> ds::Event* { return new ds::app::IdleEndedEvent(); });
 	ds::event::Registry::get().addEventCreator(ds::app::IdleStartedEvent::NAME(),
-											   [this]() -> ds::Event* { return new ds::app::IdleStartedEvent(); });
-	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleStatsRequest::NAME(), [this]() -> ds::Event* {
+											   []() -> ds::Event* { return new ds::app::IdleStartedEvent(); });
+	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleStatsRequest::NAME(), []() -> ds::Event* {
 		return new ds::EngineStatsView::ToggleStatsRequest();
 	});
-	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleHelpRequest::NAME(), [this]() -> ds::Event* {
+	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleHelpRequest::NAME(), []() -> ds::Event* {
 		return new ds::EngineStatsView::ToggleHelpRequest();
 	});
 
@@ -1089,8 +1089,8 @@ void Engine::clearAllSprites(const bool clearDebug) {
 
 void Engine::registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver> tuioReceiver) {
 	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
-		const auto makeHandler = [this](auto& eventQueue) {
-			return [this, &eventQueue](const auto& o) {
+		const auto makeHandler = [](auto& eventQueue) {
+			return [&eventQueue](const auto& o) {
 				eventQueue.incoming(ds::TuioObject(o.getClassId(), o.getPosition(), o.getAngle(), o.getVelocity(),
 												   o.getRotationVelocity()));
 			};

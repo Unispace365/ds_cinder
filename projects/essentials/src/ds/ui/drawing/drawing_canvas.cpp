@@ -2,27 +2,26 @@
 
 #include "drawing_canvas.h"
 
+#include <cinder/ImageIo.h>
+#include <cinder/Rand.h>
 #include <cinder/Surface.h>
 #include <cinder/gl/gl.h>
 
 #include <Poco/LocalDateTime.h>
 
-#include "ds/data/data_buffer.h"
 #include <ds/app/app.h>
 #include <ds/app/blob_reader.h>
 #include <ds/app/blob_registry.h>
 #include <ds/app/engine/engine.h>
+#include <ds/app/environment.h>
+#include <ds/data/data_buffer.h>
+#include <ds/debug/debug_defines.h>
+#include <ds/debug/logger.h>
 #include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
-
-#include <ds/app/environment.h>
-#include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
 
 // #include <ds/gl/save_camera.h>
-#include <cinder/ImageIo.h>
-
-#include <cinder/Rand.h>
 
 #include <thread>
 
@@ -143,12 +142,12 @@ namespace ds { namespace ui {
 
 	DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath)
 	  : ds::ui::Sprite(eng)
+	  , mCanvasFileLoaderClient(eng)
+	  , mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
+	  , mBrushImage(nullptr)
 	  , mBrushSize(24.0f)
 	  , mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
-	  , mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
-	  , mEraseMode(false)
-	  , mCanvasFileLoaderClient(eng)
-	  , mBrushImage(nullptr) {
+	  , mEraseMode(false) {
 		mBlobType = BLOB_TYPE;
 		setBaseShader(vertShader, opacityFrag, shaderNameOpaccy);
 

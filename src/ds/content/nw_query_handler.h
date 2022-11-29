@@ -25,9 +25,10 @@ class NWQueryHandler {
 	virtual void parseModelProperties(ds::model::ContentModelRef&			   node,
 									  std::vector<ds::model::ContentModelRef>& allNodes);
 
-	ds::Resource		  processResource(ds::Resource input);
-	ds::EventClient		  mEventClient;
+	ds::Resource processResource(ds::Resource input);
+
 	ds::ui::SpriteEngine& mEngine;
+	ds::EventClient		  mEventClient;
 
 
 	std::string mPlatformKey;

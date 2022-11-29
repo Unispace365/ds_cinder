@@ -1,11 +1,12 @@
 #pragma once
 
-#include "ds/data/resource.h"
-#include <cinder/Color.h>
-#include <cinder/Rect.h>
 #include <map>
 #include <vector>
 
+#include <cinder/Color.h>
+#include <cinder/Rect.h>
+
+#include <ds/data/resource.h>
 #include <ds/app/event.h>
 
 namespace cinder {
@@ -108,7 +109,7 @@ namespace cfg {
 			unsigned int mReadIndex;
 		};
 		/// static method to merge settings
-		void mergeSettings(Settings& mergeIn);
+		void mergeSettings(const Settings& mergeIn);
 
 		/// The name of these settings (e.g. engine, layout, text, etc)
 		void			   setName(const std::string& theType) { mName = theType; }
