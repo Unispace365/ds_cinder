@@ -21,10 +21,10 @@ FullStarterApp::FullStarterApp()
 	// after this registration, you can call the event like the following, or from an interface xml file
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(SomethingHappenedEvent::NAME(),
-											   [this]() -> ds::Event* { return new SomethingHappenedEvent(); });
+											   []() -> ds::Event* { return new SomethingHappenedEvent(); });
 
 	mEventClient.listenToEvents<SomethingHappenedEvent>(
-		[this](const SomethingHappenedEvent& e) { std::cout << "Something happened" << std::endl; });
+		[](const SomethingHappenedEvent& e) { std::cout << "Something happened" << std::endl; });
 
 	// registerKeyPress("Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); },
 	// ci::app::KeyEvent::KEY_n);

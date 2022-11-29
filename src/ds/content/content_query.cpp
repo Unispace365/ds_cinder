@@ -5,12 +5,12 @@
 #include <map>
 #include <sstream>
 
-#include <ds/debug/logger.h>
-#include <ds/query/query_client.h>
-#include <ds/util/file_meta_data.h>
 #include <ds/app/environment.h>
 #include <ds/cfg/settings_variables.h>
+#include <ds/debug/logger.h>
+#include <ds/query/query_client.h>
 #include <ds/query/sqlite/sqlite3.h>
+#include <ds/util/file_meta_data.h>
 
 namespace ds {
 

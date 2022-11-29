@@ -9,7 +9,6 @@
 #include <ds/util/string_util.h>
 
 #include <yoga/YGNode.h>
-//#include <yoga/Yoga.h>
 
 namespace ds { namespace ui {
 
@@ -17,8 +16,7 @@ namespace ds { namespace ui {
 	  : ds::ui::Sprite(engine)
 	  , mLayoutUpdatedFunction(nullptr)
 	  , mLayoutType(kLayoutVFlow)
-	  , mShrinkToChildren(kShrinkNone)
- {}
+	  , mShrinkToChildren(kShrinkNone) {}
 
 	void LayoutSprite::runLayout() {
 		if (mLayoutType == kLayoutNone) {
@@ -379,7 +377,7 @@ namespace ds { namespace ui {
 		// mParentYogaNode->clearChildren();
 
 		std::function<void(std::vector<ds::ui::Sprite*>)> setupAutosizeChildren =
-			[ &setupAutosizeChildren](std::vector<ds::ui::Sprite*> children) {
+			[&setupAutosizeChildren](std::vector<ds::ui::Sprite*> children) {
 				for (auto chillin : children) {
 					chillin->setFlexboxAutoSizes();
 					if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
@@ -394,7 +392,7 @@ namespace ds { namespace ui {
 
 
 		std::function<void(std::vector<ds::ui::Sprite*>)> updateChildren =
-			[ &updateChildren](std::vector<ds::ui::Sprite*> children) {
+			[&updateChildren](std::vector<ds::ui::Sprite*> children) {
 				for (auto chillin : children) {
 					chillin->setSpriteFromFlexbox();
 					if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
