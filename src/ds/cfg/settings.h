@@ -34,8 +34,7 @@ extern const std::string& SETTING_TYPE_VEC2;
 extern const std::string& SETTING_TYPE_VEC3;
 extern const std::string& SETTING_TYPE_RECT;
 extern const std::string& SETTING_TYPE_SECTION_HEADER; // A meta type of setting for ui display
-extern const std::string&
-	SETTING_TYPE_TEXT_STYLE; // A semicolon-separated list of text style info (e.g. font:Arial; size:20)
+extern const std::string& SETTING_TYPE_TEXT_STYLE; // A semicolon-separated text style info (e.g. font:Arial; size:20)
 
 /**
  * \class Settings

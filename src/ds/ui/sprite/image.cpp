@@ -156,6 +156,7 @@ Image::Image(SpriteEngine& engine)
   , mCircleCropped(false)
   , mCircleCropCentered(false)
   , mTextureRef(nullptr) {
+
 	mStatus.mCode		 = Status::STATUS_EMPTY;
 	mDrawRect.mOrthoRect = ci::Rectf::zero();
 	mDrawRect.mPerspRect = ci::Rectf::zero();

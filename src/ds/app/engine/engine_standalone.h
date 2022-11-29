@@ -26,7 +26,7 @@ class EngineStandalone : public Engine {
 	virtual void draw();
 
 	virtual void stopServices();
-	//virtual int	 getMode() const { return STANDALONE_MODE; }
+	// virtual int	 getMode() const { return STANDALONE_MODE; }
 
 	virtual int getBytesRecieved() { return 0; }
 	virtual int getBytesSent() { return 0; }
