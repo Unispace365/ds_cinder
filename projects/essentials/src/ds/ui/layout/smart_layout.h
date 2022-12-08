@@ -3,10 +3,10 @@
 #define DS_UI_LAYOUT_SMART_LAYOUT_SPRITE
 
 
+#include <ds/app/event_client.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/app/event_client.h>
 
 namespace ds::ui {
 

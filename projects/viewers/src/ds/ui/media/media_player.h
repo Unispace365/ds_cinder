@@ -1,6 +1,7 @@
 #pragma once
 
 #include "media_viewer_settings.h"
+
 #include <ds/ui/media/player/web_player.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite.h>
@@ -98,6 +99,10 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// Only applies to initialization after this call
 	void setEmbedInterface(const bool doEmbed) { mEmbedInterface = doEmbed; }
 
+	/// Set whether the interface can or can't be shown, for rare cases where it was embedded but shouldn't ever be
+	/// visible
+	void setCanDisplayInterface(const bool canDisplay);
+
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
@@ -156,8 +161,10 @@ class MediaPlayer : public ds::ui::Sprite {
 
 	MediaViewerSettings mMediaViewerSettings;
 
-	bool		 mEmbedInterface = false;
-	bool		 mInitialized	 = false;
+	bool mEmbedInterface	= false;
+	bool mInitialized		= false;
+	bool mDisabledInterface = false;
+
 	ds::Resource mResource;
 	float		 mContentAspectRatio;
 	float		 mAnimDuration;

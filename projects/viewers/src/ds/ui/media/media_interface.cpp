@@ -81,6 +81,13 @@ void MediaInterface::setBackgroundColor(ci::Color newColor) {
 	if (mBackground) mBackground->setColor(newColor);
 }
 
+void MediaInterface::show()
+{
+	if (mCanDisplay) {
+		Sprite::show();
+	}
+}
+
 void MediaInterface::animateOn() {
 	if (!mCanDisplay) return;
 	resetIdleTimer();

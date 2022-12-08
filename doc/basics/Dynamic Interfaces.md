@@ -157,10 +157,10 @@ Syntax Rules:
 
 `target` parameter && `<override>` elements
 --------------------------
-**target** adding a `target="`*`value`*`"` parameter to an element will cause the importer to attempt to match the value to the value in `xml_importer:target` engine setting. 
+**target** adding a `target="`*`value`*`"` parameter to an element will cause the importer to attempt to match the value to the value in `xml_importer:target` engine setting.
 If the values match, then the tag is processed as normal. **If the tag does not match then the element will be ignored. as if it was not in the file. This includes any children**
-  
-The `<override>` element can be added as a child to another element and it will add/replace the properties on that element. 
+
+The `<override>` element can be added as a child to another element and it will add/replace the properties on that element.
 Note that it cannot remove a property. This is only really useful with the `target` property set on the `<override>` element, allowing for Layouts to morph based on different hardware (or other conditions).
 
 Example:
@@ -178,11 +178,11 @@ myLayout.xml
 	<layout name="example_shown" layout_type="vert" target="landscape">
 		<override layout_type="vert_wrap" target="3x3"/>
 		<override layout_size_mode="flex" target="5x4"/>
-		... 
+		...
 	</layout>
 	<layout name="example_not_shown" layout_type="horiz" target="portrait">
 		<override layout_type="vert" target="3x3"/>
-		... 
+		...
 	</layout>
 </interface>
 ```
@@ -221,7 +221,7 @@ void ViewerController::onAppEvent(const ds::Event& in_e){
 	}
 }
 ```
-	
+
 
 Sprite Parameters
 ------------------------------------------------------------
@@ -281,7 +281,7 @@ Sprite Parameters
 		1. left: (Default) Aligns the sprite to the left of the layout.
 		2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
 		3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
-	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout or a fill size mode in a vert or horiz type layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0. 
+	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout or a fill size mode in a vert or horiz type layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0.
 	* **layout_fixed_aspect_mode**: allows for the overriding of layout based letterboxing. Currently doesn't affect flex sizing mode.
 		1. default. does nothing. reverts to logic above.
 		2. letterbox. Force sprite to letterbox.
@@ -335,7 +335,7 @@ Text Parameters
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
 * **font_leading**: The multiplier of font_size to use for line height (only when text consists of multiple lines)
 * **font_letter_spacing**: Set the letter spacing in pts (0.0 = normal, 1.0 = 1pt extra letter spacing, etc.)
-* **text_ellipses**: Sets the ellipses mode of the text. Possible values: none, start, middle, end. Default=none. Use this with resize_limit to change what happens if the text gets too long. 
+* **text_ellipses**: Sets the ellipses mode of the text. Possible values: none, start, middle, end. Default=none. Use this with resize_limit to change what happens if the text gets too long.
 * **resize_limit**: If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500" Note: the text_ellipses value must be something other than "none" for the height limit to take effect. Set the y value to a negative number to show that number of lines. For instance, -2 will show two lines of text per paragraph before adding an ellipses.
 * **text_align**: Set the alignment of the Text Sprite
     1. "left": The default, normal text
@@ -365,11 +365,11 @@ Image Parameters
 	* **_preload** OR **_p**: include the ds::ui::Image::IMG_PRELOAD flag, which preloads the image.
 	* **_skipmeta** OR **_s**: include the ds::ui::Image::IMG_SKIP_METADATA flag, which skips metadata loading.
 
-These flags can also be applied the the resource property when working with a model:  
+These flags can also be applied the the resource property when working with a model:
 ```xml
 		model="resource_mipmap:this->img_resource"
 ```
-	
+
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 * **auto_circle_crop**: Boolean. If true, centers the crop in the middle of the image and always makes it a circle, persists through image file changes.
 
@@ -537,6 +537,7 @@ If you have the viewers project included, you can create media players. Media pl
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
 * **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop. Also applies to YouTube links
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
+* **media_player_can_display_interface**:: Boolean (defaults to true), in the off-chance you need the player's interface to be hidden but retain the interactions provided by the interface - you can set it to false. If setting to false on a web player, you will likely want to set `media_player_web_start_interactive` and `enable` to true in order to enable interaction. For other players you may want to set `media_player_standard_click` and `enable` to true for interaction. Note that this does not currently work for youtube players.
 * **media_player_interface_b_pad**: Float, how many pixels above the bottom of the media the interace should be. Default = 50 pixels.
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
 * **media_player_web_start_interactive**: Boolean, enables touching the web view immediately upon creation
@@ -728,12 +729,12 @@ If you're using ds::model::ContentModelRef for your data model and queries (see 
 
 * **model**: String, colon-separated sprite parameters, semi-colon and space separated for multiple settings.
 
-**Syntax**:  
-{sprite property}:{content model reference}->{content model property}.  
+**Syntax**:
+{sprite property}:{content model reference}->{content model property}.
 or
-{_userData key}:{content model reference}->{content model property}. 
+{_userData key}:{content model reference}->{content model property}.
 
-**Example**: 
+**Example**:
 
 ```XML
 <text name="must_name_your_sprite"
@@ -742,7 +743,7 @@ or
 	/>
 ```
 
-When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking.  
+When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking.
 
 You can also set a key in the userData cache by beginning the key name with and underscore. The underscore is part of the key so if you retrieve it elsewhere be sure to include it. this is intended to be used with on_click_event and on_tap_event, but it may have other uses.
 
@@ -779,7 +780,7 @@ addChildPtr(mySlide);
 ```
 Connecting the model and events
 ---------------------------
-An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache. 
+An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache.
 
 ```XML
 <layout_button name="button"
@@ -826,7 +827,7 @@ content model is applied. Which means it's a bad idea to have children (especial
 
 **Syntax**: {xml layout}:{model}
 
-**Example**: 
+**Example**:
 
 ```XML
 <!-- slideshow.xml -->
@@ -855,10 +856,8 @@ For properties, this checks if the property string is empty. For instance, visib
 
 This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
 
-Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
-
 ```XML
-<layout name="root" 
+<layout name="root"
 	shrink_to_children="both"
 	skip_hidden_children="true"
 	model="visible_if_exists:this"
@@ -875,6 +874,66 @@ Additional properties could be added for bool and int checks (visible_if_bool pe
 	</layout>
 </layout>
 ```
+
+`visible_if_true` & `hidden_if_true` Property
+----------------------------
+
+A model property that can hide/show children depending on a boolean property.
+
+For instance, `visible_if_true:this->show_title` will check `[this].getPropertyBool("show_title");`
+
+For `visible_if_true`, the instance will have a `show()` call if the property is `true`, and a `hide()` call if the property is `false`.
+
+For `hidden_if_true`, the instance will have a `hide()` call if the property is `true`, and a `show()` call if the property is `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that because of `node.getPropertyBool(..)` usage, an attempt to parse a non-existent property will be treated as `false`.
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_true:this->show_title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
+`visible_if_equal` & `hidden_if_equal` Property
+----------------------------
+
+A model property that can hide/show children depending on an equality check.
+
+This can be done on many different data types -- currently int, float, double, string, and property -- by appending in the format of `visible_if_equal_[DATA-TYPE]` or `hidden_if_equal_[DATA-TYPE]`. An example being `visible_if_equal_int` for an integer equality check.
+
+Here are examples of what C++ snippets will be executed given different versions of this property:
+
+`visible_if_equal_int:this->choice==3` ==> `[this].getPropertyInt("choice") == stoi("3");`
+
+`visible_if_equal_float:this->statistic==0.3` ==> `[this].getPropertyFloat("statistic") == stof("0.3");`
+
+`visible_if_equal_double:this->coordinate==13.4` ==> `[this].getPropertyDouble("coordinate") == stod("13.4");`
+
+`visible_if_equal_string:this->title==Welcome` ==> `[this].getPropertyString("title").compare("Welcome") == 0;`
+
+`visible_if_equal_property:this->target==destination` ==> `[this].getPropertyString("target").compare([this].getPropertyString("destination")) == 0;`
+
+For `visible_if_equal_*`, the instance will have a `show()` call if the execution returns `true`, and a `hide()` call if the execution returns `false`.
+
+For `hidden_if_equal_*`, the instance will have a `hide()` call if the execution returns  `true`, and a `show()` call if the execution returns `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that a default value normally given from a node.getProperty\[DATA-TYPE\](..) call is a likely consequence of unset / mismanaged properties.
 
 
 Caveats

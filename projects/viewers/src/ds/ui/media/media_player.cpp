@@ -77,6 +77,14 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_can_display_interface",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs = mediaPlayer.getSettings();
+				mvs.mCanDisplayInterface = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_interface_b_pad",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				auto& mvs				= mediaPlayer.getSettings();
@@ -354,6 +362,7 @@ void MediaPlayer::initializeVideo() {
 
 	mVideoPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mVideoPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 	setSizeAll(mVideoPlayer->getSize());
@@ -374,6 +383,7 @@ void MediaPlayer::initializeVideoPanoramic() {
 
 	mPanoramicPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPanoramicPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	if (!mMediaViewerSettings.mPanoramicVideoInteractive) {
 		auto pvs = mPanoramicPlayer->getPanoramicVideo();
@@ -401,6 +411,7 @@ void MediaPlayer::initializeVideoStream() {
 
 	mStreamPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mStreamPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
 	setSizeAll(mStreamPlayer->getSize());
@@ -413,6 +424,7 @@ void MediaPlayer::initializePdf() {
 
 	mPDFPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPDFPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mPDFPlayer->setErrorCallback([this](const std::string& msg) {
 		if (mErrorCallback) mErrorCallback(msg);
@@ -446,6 +458,7 @@ void MediaPlayer::initializeWeb() {
 	addChildPtr(mWebPlayer);
 	mWebPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mWebPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	if (mWebPlayer->getWeb()) {
 		mWebPlayer->getWeb()->setDocumentReadyFn([this] {
@@ -469,6 +482,8 @@ void MediaPlayer::initializeYouTube() {
 	addChildPtr(mYouTubePlayer);
 	mYouTubePlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mYouTubePlayer->setResource(mResource);
+	///STUB: this is untested:
+	//setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	if (mYouTubePlayer->getYouTubeWeb()) {
 		mYouTubePlayer->getYouTubeWeb()->setDocumentReadyFn([this] {
@@ -569,6 +584,12 @@ void MediaPlayer::userInputReceived() {
 	ds::ui::Sprite::userInputReceived();
 
 	showInterface();
+}
+
+void MediaPlayer::setCanDisplayInterface(const bool canDisplay) {
+	if (getMediaInterface()) {
+		getMediaInterface()->setAllowDisplay(canDisplay);
+	}
 }
 
 void MediaPlayer::showInterface() {
