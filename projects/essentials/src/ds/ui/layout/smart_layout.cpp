@@ -24,8 +24,8 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
   , mInitialized(false)
   , mLayoutFile(xmlFileLocation + xmlLayoutFile)
   , mNeedsLayout(false)
-
   , mEventClient(engine) {
+
 	if (loadImmediately) {
 		initialize();
 	}
@@ -51,7 +51,15 @@ void SmartLayout::setLayoutFile(const std::string& xmlLayoutFile, const std::str
 void SmartLayout::initialize() {
 	mSpriteMap.clear();
 	clearChildren();
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
+	//ds::ui::XmlImporter::loadXMLto()
+	//ds::ui::XmlImporter::loadXMLTo(this, ds::Environment::expand(mLayoutFile), mSpriteMap, );
+	if (auto setty = getLayoutSettings()) {
+		ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true,
+									   *setty);
+	} else {
+		ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
+	}
+	
 
 	// Auto clear mNeedsLayout if client app runs layout manually
 	setLayoutUpdatedFunction([this] { mNeedsLayout = false; });

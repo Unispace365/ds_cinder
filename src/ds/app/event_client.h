@@ -8,10 +8,13 @@
 namespace ds {
 class Event;
 class EventNotifier;
+} // namespace ds
 
-namespace ui {
-	class SpriteEngine;
-}
+namespace ds::ui {
+class SpriteEngine;
+} // namespace ds::ui
+
+namespace ds {
 
 /**
  * \class EventClient
@@ -21,6 +24,9 @@ class EventClient {
   public:
 	/// Uses sprite engine's default event notifier. Use the listenToEvents() callback with this constructor
 	EventClient(ds::ui::SpriteEngine&);
+
+	/// Uses sprite engine's default event notifier. Use the listenToEvents() callback with this constructor
+	EventClient(EventNotifier&);
 
 	/// Supply your own event notifier and listeners
 	/// To be meaningful, clients should supply something
@@ -39,7 +45,7 @@ class EventClient {
 	template <class EVENT>
 	void listenToEvents(std::function<void(const EVENT&)> callback) {
 		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
-		auto type = EVENT::WHAT();
+		const auto type = EVENT::WHAT();
 
 		mEventCallbacks[type] = [callback](const ds::Event& e) {
 			callback(static_cast<const EVENT&>(e));

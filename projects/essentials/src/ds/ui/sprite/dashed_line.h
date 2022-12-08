@@ -9,39 +9,39 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-namespace ds { namespace ui {
+namespace ds::ui {
 
-	/**
-	 * \class DashedLine
-	 *			Sprite to draw lines for map path!
-	 */
-	class DashedLine : public ds::ui::Sprite {
-	  public:
-		DashedLine(ds::ui::SpriteEngine& eng, const float lineWidth = 1.0f, const float lineLength = 20.0f,
-				   const float dashLength = 5.0f, const float spaceIncrement = 10.0f);
+/**
+ * \class DashedLine
+ *			Sprite to draw lines for map path!
+ */
+class DashedLine : public ds::ui::Sprite {
+  public:
+	DashedLine(ds::ui::SpriteEngine& eng, const float lineWidth = 1.0f, const float lineLength = 20.0f,
+			   const float dashLength = 5.0f, const float spaceIncrement = 10.0f);
 
-		void		setDashLength(const float dashLength);
-		const float getDashLength() { return mDashLength; }
+	void		setDashLength(const float dashLength);
+	const float getDashLength() { return mDashLength; }
 
-		void		setSpaceIncrement(const float spaceIncrement);
-		const float setSpaceIncrement() { return mSpaceIncrement; }
+	void		setSpaceIncrement(const float spaceIncrement);
+	const float setSpaceIncrement() { return mSpaceIncrement; }
 
-	  protected:
-		virtual void onSizeChanged();
-		void		 rebuildLine();
+  protected:
+	virtual void onSizeChanged();
+	void		 rebuildLine();
 
-		bool  mPointsAreDirty;
-		float mSpaceIncrement;
-		float mDashLength;
+	bool  mPointsAreDirty;
+	float mSpaceIncrement;
+	float mDashLength;
 
-		ci::gl::BatchRef	mBatchRef;
-		ci::gl::GlslProgRef mGlsl;
-		int					mTotalDashesSize;
+	ci::gl::BatchRef	mBatchRef;
+	ci::gl::GlslProgRef mGlsl;
+	int					mTotalDashesSize;
 
-		virtual void drawLocalClient();
-		virtual void drawLocalServer();
-	};
+	virtual void drawLocalClient();
+	virtual void drawLocalServer();
+};
 
-}} // namespace ds::ui
+} // namespace ds::ui
 
 #endif

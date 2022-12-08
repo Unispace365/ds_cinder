@@ -10,14 +10,21 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
+// Windows
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
+#endif
 #include <windows.h>
+
 #else
+// non windows
 #include "glob.h"
 #endif
+
 
 
 namespace ada {
@@ -86,8 +93,8 @@ std::string urlResolve(const std::string& _path, const std::string& _pwd, const 
 bool extractDependency(const std::string& _line, std::string* _dependency) {
 	// Search for ocurences of #include or #pargma include (OF)
 	if (_line.find("#include ") == 0 || _line.find("#pragma include ") == 0) {
-		unsigned begin = _line.find_first_of("\"");
-		unsigned end   = _line.find_last_of("\"");
+		size_t begin = _line.find_first_of("\"");
+		size_t end   = _line.find_last_of("\"");
 		if (begin != end) {
 			(*_dependency) = _line.substr(begin + 1, end - begin - 1);
 			return true;

@@ -746,7 +746,7 @@ namespace ui {
 		// the layout for this to work, but one of its ancestor sprite needs to have been.
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
 		ds::cfg::Settings* getLayoutSettings();
-		void			   setLayoutSettings(ds::cfg::Settings& settings);
+		void			   setLayoutSettings(const ds::cfg::Settings& settings);
 
 		// Flexbox
 		virtual void setFlexboxFromStyleString(std::string style);

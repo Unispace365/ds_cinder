@@ -21,7 +21,7 @@ namespace ds {
  */
 class ComputerInfo {
   public:
-	const enum MemoryConversion { MEGABYTE, GIGABYTE, KILOBYTE, NONE };
+	enum MemoryConversion { MEGABYTE, GIGABYTE, KILOBYTE, NONE };
 	/// Determine which metrics are active.
 	static const int MAIN_ON  = (1 << 0);
 	static const int VIDEO_ON = (1 << 1);

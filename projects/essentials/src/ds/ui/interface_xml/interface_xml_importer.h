@@ -15,7 +15,6 @@ namespace ds::ui {
 class Sprite;
 class SpriteEngine;
 class Gradient;
-
 struct Stylesheet;
 
 class XmlImporter {

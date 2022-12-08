@@ -32,6 +32,13 @@ EventClient::EventClient(ds::ui::SpriteEngine& eng)
 	});
 }
 
+EventClient::EventClient(EventNotifier& notifier)
+  : mNotifier(notifier) {
+	mNotifier.mEventNotifier.addListener(this, [this](const ds::Event* m) {
+		if (m) this->onAppEvent(*m);
+	});
+}
+
 EventClient::~EventClient() {
 	mNotifier.mEventNotifier.removeListener(this);
 	mNotifier.mEventNotifier.removeRequestListener(this);

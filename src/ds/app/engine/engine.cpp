@@ -819,28 +819,20 @@ void Engine::createStatsView(sprite_id_t root_id) {
 
 ds::EventNotifier& Engine::getChannel(const std::string& name) {
 	if (name.empty()) {
-		DS_LOG_WARNING("Engine::getChannel() on empty name");
-		if (mChannels.empty()) {
-			mChannels["blank"] = Channel();
-			return mChannels["blank"].mNotifier;
-		} else {
-			return mChannels.begin()->second.mNotifier;
-		}
+		DS_LOG_WARNING("Engine::getChannel() on empty name.");
 	}
+
 	if (!mChannels.empty()) {
 		auto f = mChannels.find(name);
 		if (f != mChannels.end()) return f->second.mNotifier;
 	}
-	mChannels[name] = Channel();
-	auto f			= mChannels.find(name);
-	if (f != mChannels.end()) return f->second.mNotifier;
-	DS_LOG_WARNING("Engine::getChannel() no channel named " + name);
-	if (mChannels.empty()) {
-		mChannels["blank"] = Channel();
-		return mChannels["blank"].mNotifier;
-	} else {
-		return mChannels.begin()->second.mNotifier;
+
+	auto f = mChannels.find(name);
+	if (f == mChannels.end()) {
+		DS_LOG_WARNING("Engine::getChannel() no channel named " << name << ". Creating now");
+		mChannels[name] = Channel(name);
 	}
+	return mChannels[name].mNotifier;
 }
 
 void Engine::addChannel(const std::string& name, const std::string& description) {

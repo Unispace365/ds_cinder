@@ -20,10 +20,10 @@ EngineData::EngineData(ds::cfg::Settings& engine_settings)
   , mFrameRate(60.0f)
   , mIdleTimeout(300)
   , mAppInstanceName("Downstream")
-  , mMute(false)
+  , mAnimDur(0.35f)
   , mSrcRect(ci::Rectf::zero())
   , mDstRect(ci::Rectf::zero())
-  , mAnimDur(0.35f) {}
+  , mMute(false) {}
 
 void EngineData::clearServices() {
 	if (mServices.empty()) return;

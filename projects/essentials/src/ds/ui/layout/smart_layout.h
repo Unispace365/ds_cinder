@@ -6,6 +6,7 @@
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/app/event_client.h>
 
 namespace ds::ui {
 

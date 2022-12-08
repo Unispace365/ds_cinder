@@ -10,25 +10,26 @@
 #ifndef DS_CINDER_PROJECTS_ESSENTIALS_SRC_DS_UI_UTIL_TEXT_MODEL
 #define DS_CINDER_PROJECTS_ESSENTIALS_SRC_DS_UI_UTIL_TEXT_MODEL
 
+#include <string>
+#include <vector>
 
-namespace ds {
-namespace model {
-	class ContentModelRef;
+namespace ds::model {
+class ContentModelRef;
 }
-namespace ui {
+
+namespace ds::ui {
 
 
-	/// Process a string:
-	///   Values inside '{'..'}' will be replaced with the corresponding property from the content model
-	///   Then anything within 'fn('..')' will try to find a corresponding 'function' and replace
-	std::string processTextModel(const std::string& format, ds::model::ContentModelRef& model);
+/// Process a string:
+///   Values inside '{'..'}' will be replaced with the corresponding property from the content model
+///   Then anything within 'fn('..')' will try to find a corresponding 'function' and replace
+std::string processTextModel(const std::string& format, ds::model::ContentModelRef& model);
 
-	std::string processTextFunction(std::vector<std::string>& fnSplit);
+std::string processTextFunction(std::vector<std::string>& fnSplit);
 
-	std::string utcFormat(const std::string& value, const std::string& outFmt, const std::string& parseFmt = "",
-						  const bool isLocal = false);
+std::string utcFormat(const std::string& value, const std::string& outFmt, const std::string& parseFmt = "",
+					  const bool isLocal = false);
 
-} // namespace ui
-} // namespace ds
+} // namespace ds::ui
 
 #endif

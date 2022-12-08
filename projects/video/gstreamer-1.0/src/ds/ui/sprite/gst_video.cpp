@@ -46,9 +46,6 @@ namespace {
 	void noop(T){/* no op */};
 	auto void_noop = []() -> void { /* no op */ };
 
-	static int drawcount = 0;
-
-
 	static std::string yuv_vert = "#version 150\n"
 								  "uniform mat4       ciModelMatrix;\n"
 								  "uniform mat4       ciModelViewProjection;\n"

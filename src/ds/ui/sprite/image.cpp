@@ -476,7 +476,7 @@ void Image::onBuildRenderBatch() {
 	auto drawRect = mDrawRect.mOrthoRect;
 	if (getPerspective()) drawRect = mDrawRect.mPerspRect;
 	if (mCornerRadius > 0.0f) {
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius*(1.f/getScale().x));
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {

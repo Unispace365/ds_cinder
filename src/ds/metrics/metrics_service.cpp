@@ -10,11 +10,11 @@
 namespace ds {
 
 MetricsService::MetricsService(ds::Engine& eng)
-  : mEngine(eng)
-  , mActive(true)
+  : mActive(true)
   , mSendBaseInfo(true)
   , mSendTouchInfo(false)
-  , mCallbacks(eng) {
+  , mCallbacks(eng)
+  , mEngine(eng) {
 
 	mActive		   = mEngine.getEngineSettings().getBool("metrics:active");
 	mSendBaseInfo  = mEngine.getEngineSettings().getBool("metrics:send_base_info");

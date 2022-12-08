@@ -2152,7 +2152,7 @@ ds::cfg::Settings* Sprite::getLayoutSettings() {
 	return mSettings;
 }
 
-void Sprite::setLayoutSettings(ds::cfg::Settings& settings) {
+void Sprite::setLayoutSettings(const ds::cfg::Settings& settings) {
 	if (mSettings != nullptr) {
 		delete mSettings;
 		mSettings = nullptr;

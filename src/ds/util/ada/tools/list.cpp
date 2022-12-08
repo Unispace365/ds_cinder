@@ -35,7 +35,7 @@ void add(const std::string& _str, List& _list) {
 }
 
 void del(const std::string& _str, List& _list) {
-	for (unsigned int i = _list.size() - 1; i >= 0; i--) {
+	for (int i = static_cast<int>(_list.size()) - 1; i >= 0; i--) {
 		if (_list[i] == _str) {
 			_list.erase(_list.begin() + i);
 		}

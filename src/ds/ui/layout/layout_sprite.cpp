@@ -426,7 +426,7 @@ void LayoutSprite::addChild(Sprite& child) {
 	}
 	YGNodeSetMeasureFunc(mYogaNode, nullptr);
 
-	YGNodeInsertChild(mYogaNode, child.getYogaNode(), mYogaNode->getChildren().size());
+	YGNodeInsertChild(mYogaNode, child.getYogaNode(), static_cast<uint32_t>(mYogaNode->getChildren().size()));
 
 	Sprite::addChild(child);
 }

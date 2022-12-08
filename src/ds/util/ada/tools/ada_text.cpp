@@ -291,7 +291,7 @@ int count_buffers(const std::string& _source) {
 	}
 
 	// return the number of results
-	return results.size();
+	return static_cast<int>(results.size());
 }
 
 // Count how many BUFFERS are in the shader
@@ -389,7 +389,7 @@ int count_convolution_pyramid(const std::string& _source) {
 	}
 
 	// return the number of results
-	return results.size();
+	return static_cast<int>(results.size());
 }
 
 bool check_for_convolution_pyramid_algorithm(const std::string& _source) {

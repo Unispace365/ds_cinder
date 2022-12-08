@@ -305,6 +305,8 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 				caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "I420", "width", G_TYPE_INT, mWidth,
 										   "height", G_TYPE_INT, mHeight, NULL);
+			}else {
+				// TODO!!! No valid Caps here
 			}
 
 			mVideoBuffer = new unsigned char[mVideoBufferSize];
@@ -364,7 +366,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		GstElement* mainTee		 = gst_element_factory_make("tee", NULL);
 
 		gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainVolume, mainTee, NULL);
-		gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
+		gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
 		//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
 
 		for (int i = 0; i < mAudioDevices.size(); i++) {
@@ -434,12 +436,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 
 
-			link_ok = gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
+			gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 			GstPadTemplate* tee_src_pad_template =
 				gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
 			GstPad* teePad			 = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
 			GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
-			link_ok					 = gst_pad_link(teePad, queue_audio_pad1);
+			gst_pad_link(teePad, queue_audio_pad1);
 		}
 
 		GstPad*	 pad	   = gst_element_get_static_pad(mainConvert, "sink");
@@ -612,7 +614,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 			GstElement* mainTee		 = gst_element_factory_make("tee", NULL);
 
 			gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainVolume, mainTee, NULL);
-			gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
+			gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
 			//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
 
 			for (int i = 0; i < mAudioDevices.size(); i++) {
@@ -637,12 +639,12 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 				gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 
 
-				link_ok = gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
+				gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 				GstPadTemplate* tee_src_pad_template =
 					gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
 				GstPad* teePad			 = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
 				GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
-				link_ok					 = gst_pad_link(teePad, queue_audio_pad1);
+				gst_pad_link(teePad, queue_audio_pad1);
 			}
 
 			GstPad*	 pad	   = gst_element_get_static_pad(mainConvert, "sink");
@@ -891,13 +893,13 @@ void GStreamerWrapper::close() {
 	bool hasVideoSink	  = false;
 	bool hasPipeline	  = false;
 	bool hasGstBus		  = false;
-	bool hasClockProvider = false;
+	// bool hasClockProvider = false;
 	{
 		std::lock_guard<std::mutex> lock(mVideoMutex);
 		if (mGstVideoSink != nullptr) hasVideoSink = true;
 		if (mGstPipeline != nullptr) hasPipeline = true;
 		if (mGstBus != nullptr) hasGstBus = true;
-		if (mClockProvider != nullptr) hasClockProvider = true;
+		// if (mClockProvider != nullptr) hasClockProvider = true;
 	}
 
 	// Clear callbacks before closing
