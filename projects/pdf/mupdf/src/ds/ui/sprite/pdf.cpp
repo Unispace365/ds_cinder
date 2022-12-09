@@ -156,8 +156,7 @@ void Pdf::onUpdateClient(const UpdateParams& p) {
 void Pdf::onUpdateServer(const UpdateParams& p) {
 	if (mHolder.update()) {
 
-		auto theSurface = mHolder.getSurface();
-		if (theSurface) {
+		if (auto theSurface = mHolder.getSurface()) {
 			if (!mTexture || mTexture->getWidth() != theSurface->getWidth() ||
 				mTexture->getHeight() != theSurface->getHeight()) {
 				mTexture = ci::gl::Texture2d::create(*theSurface.get());
