@@ -206,19 +206,20 @@ void Engine::setupSrcDstRects() {
 		ci::DisplayRef	mainDisplay = ci::Display::getMainDisplay();
 		const ci::Rectf mainDisplayRect =
 			ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
-		ci::Rectf newSrcRect = mainDisplayRect;
+
+		ci::Rectf newSrcRect = mSettings.getRect("src_rect"); // Always use the user-defined src rect
 		ci::Rectf newDstRect = mainDisplayRect;
 
 		if (autoSizeMode == "letterbox" &&
-			(mainDisplayRect.getWidth() != mData.mWorldSize.x || mainDisplayRect.getHeight() != mData.mWorldSize.y) &&
-			mData.mWorldSize.x > 0 && mData.mWorldSize.y > 0) {
+			(mainDisplayRect.getWidth() != newSrcRect.getWidth() ||
+			 mainDisplayRect.getHeight() != newSrcRect.getHeight()) &&
+			(mData.mWorldSize.x > 0 && mData.mWorldSize.y > 0)) {
 
 			// a = w / h
 			// w = ah
 			// h = w / a
 			float mainDispAsp = mainDisplayRect.getWidth() / mainDisplayRect.getHeight();
-			float worldAsp	  = mData.mWorldSize.x / mData.mWorldSize.y;
-			newSrcRect		  = ci::Rectf(0.0f, 0.0f, mData.mWorldSize.x, mData.mWorldSize.y);
+			float worldAsp	  = newSrcRect.getAspectRatio();
 
 			// same aspect ratio: scale to fill the screen
 			if (mainDispAsp == worldAsp) {
@@ -227,14 +228,14 @@ void Engine::setupSrcDstRects() {
 				// pillarbox
 			} else if (mainDispAsp > worldAsp) {
 				float newW = mainDisplayRect.getHeight() * worldAsp;
-				newDstRect = ci::Rectf(mainDisplayRect.getWidth() / 2.0f - newW / 2.0f, 0.0f,
-									   mainDisplayRect.getWidth() / 2.0f + newW / 2.0f, mainDisplayRect.getHeight());
+				float newX = (mainDisplayRect.getWidth() / 2.0f) - (newW / 2.f);
+				newDstRect = ci::Rectf(newX, 0.0f, newX + newW, mainDisplayRect.getHeight());
 
 				// letterbox
 			} else {
 				float newH = mainDisplayRect.getWidth() / worldAsp;
-				newDstRect = ci::Rectf(0.0f, mainDisplayRect.getHeight() / 2.0f - newH / 2.0f,
-									   mainDisplayRect.getWidth(), mainDisplayRect.getHeight() / 2.0f + newH / 2.0f);
+				float newY = (mainDisplayRect.getHeight() / 2.0f) - (newH / 2.0f);
+				newDstRect = ci::Rectf(0.0f, newY, mainDisplayRect.getWidth(), newY + newH);
 			}
 		}
 

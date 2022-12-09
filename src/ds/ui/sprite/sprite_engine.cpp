@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <cinder/app/App.h>
+
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_events.h"
 #include "ds/app/engine/engine_service.h"
@@ -7,9 +9,8 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/metrics/metrics_service.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
-#include "sprite.h"
-#include "sprite_engine.h"
-#include <cinder/app/App.h>
+#include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds::ui {
 
@@ -31,11 +32,9 @@ ds::EventNotifier& SpriteEngine::getNotifier() {
 	return mData.mNotifier;
 }
 
-/** \cond Doxygen is having trouble deducing this function so ignore it. */
 void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.loadSettings(name, filename);
 }
-/** \endcond */
 
 ds::EngineCfg& SpriteEngine::getEngineCfg() {
 	return mData.mEngineCfg;
@@ -143,10 +142,10 @@ float SpriteEngine::getFrameRate() const {
 }
 
 void SpriteEngine::setLayoutTarget(std::string target, int index) {
-
-	ds::cfg::Settings::Setting& setting = getEngineSettings().getSetting("xml_importer:target", index);
-	setting.mRawValue					= target;
+	auto& setting	  = getEngineSettings().getSetting("xml_importer:target", index);
+	setting.mRawValue = target;
 }
+
 bool SpriteEngine::hasLayoutTarget(std::string target) {
 	if (target.empty()) return false;
 	std::regex regex{"(\\s*,\\s*)"};

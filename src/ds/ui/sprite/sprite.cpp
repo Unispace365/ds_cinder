@@ -1709,19 +1709,6 @@ void Sprite::setupFinalRenderBuffer() {
 	} else {
 		mOutputFbo = nullptr;
 	}
-
-	/*if(mOutputFbo){
-		mOutputFbo = nullptr;
-	}
-
-	if(mIsRenderFinalToTexture &&
-	   getWidth() > 1.0f &&
-	   getHeight() > 1.0f
-	   ){
-		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFboFormat);
-	} else {
-		mOutputFbo = nullptr;
-	}*/
 }
 
 ds::gl::Uniform& Sprite::getUniform() {
