@@ -207,25 +207,35 @@ const double wstring_to_double(const std::wstring& str) {
 	return doubleValue;
 }
 
-// variation on a function found on stackoverflow
-std::vector<std::string> split(const std::string& str, const std::string& delimiters, bool dropEmpty) {
+namespace {
+template <typename S>
+std::vector<S> split_tmpl(const S& str, const S& delimiters, bool dropEmpty) {
 	std::size_t				 pos;
 	std::size_t				 lastPos = 0;
-	std::vector<std::string> splitWords;
+	std::vector<S> splitWords;
+
+	auto delimiter = delimiters;
+	ds::replace(delimiter, S{' '}, S{});
 
 	while (true) {
-		pos = str.find(delimiters, lastPos);
-		if (pos == std::string::npos) {
+		pos = str.find(delimiter, lastPos);
+		if (pos == S::npos) {
 			pos = str.length();
+			lastPos = str.find_first_not_of(S{' ', '\t'}, lastPos);
+			if (lastPos == S::npos) break;
 
-			if (pos != lastPos || !dropEmpty) splitWords.push_back(std::string(str.data() + lastPos, pos - lastPos));
+			if (pos != lastPos || !dropEmpty) splitWords.push_back(S(str.data() + lastPos, pos - lastPos));
 
 			break;
 		} else {
 			if (pos != lastPos || !dropEmpty) {
-				std::string tstr = std::string(str.data() + lastPos, pos - lastPos);
+				// Trim any spaces or tabs after the delimiter
+				lastPos = str.find_first_not_of(S{' ', '\t'}, lastPos);
+				if(lastPos == S::npos) break;
+
+				S tstr = S(str.data() + lastPos, pos - lastPos);
 				if (!tstr.empty() || !dropEmpty) splitWords.push_back(tstr);
-				lastPos = pos + delimiters.size();
+				lastPos = pos + delimiter.size();
 				continue;
 			}
 		}
@@ -235,32 +245,15 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
 
 	return splitWords;
 }
+}
+
+// variation on a function found on stackoverflow
+std::vector<std::string> split(const std::string& str, const std::string& delimiters, bool dropEmpty) {
+	return split_tmpl(str, delimiters, dropEmpty);
+}
 
 std::vector<std::wstring> split(const std::wstring& str, const std::wstring& delimiters, bool dropEmpty) {
-	std::size_t				  pos;
-	std::size_t				  lastPos = 0;
-	std::vector<std::wstring> splitWords;
-
-	while (true) {
-		pos = str.find(delimiters, lastPos);
-		if (pos == std::wstring::npos) {
-			pos = str.length();
-
-			if (pos != lastPos || !dropEmpty) splitWords.push_back(std::wstring(str.data() + lastPos, pos - lastPos));
-
-			break;
-		} else {
-			if (pos != lastPos || !dropEmpty) {
-				splitWords.push_back(std::wstring(str.data() + lastPos, pos - lastPos /* + delimiters.size()*/));
-				lastPos = pos + delimiters.size();
-				continue;
-			}
-		}
-
-		lastPos = pos + 1;
-	}
-
-	return splitWords;
+	return split_tmpl(str, delimiters, dropEmpty);
 }
 
 std::vector<std::string> partition(const std::string& str, const std::string& partitioner) {
