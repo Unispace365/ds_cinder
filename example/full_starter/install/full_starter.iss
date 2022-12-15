@@ -24,14 +24,14 @@
 ; App runs inside apphost
 ; Automatically add the apphost.json config file to the correct destination directory
 ; If IS_PRODUCTION is defined, will start apphost on system boot
-#define USE_APPHOST
+; #define USE_APPHOST
 
 ; Uses DsNode to connect to a DsCMS
 ; If USE_APPHOST is also defined, will run dsnode inside Apphost
-#define USE_DSNODE
+; #define USE_DSNODE
 
 ; Uses downsync to connect to a CMS
-#define USE_DOWNSYNC
+; #define USE_DOWNSYNC
 
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
