@@ -250,7 +250,7 @@ void infinityList::initItemStart(int itemNum) {
 
 void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti) {
 	if (mScrollable) {
-		if (mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
+		if (mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint-ti.mStartPoint);
 		if (ti.mPhase == TouchInfo::Added) {
 			mSpriteMomentum.deactivate();
 		} else if (ti.mPhase == TouchInfo::Removed && ti.mNumberFingers == 0) {

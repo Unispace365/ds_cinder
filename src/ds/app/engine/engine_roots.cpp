@@ -126,11 +126,11 @@ void OrthRoot::setGlCamera() {
  */
 PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p)
   : inherited(r, id)
+  , mCameraParams(p)
   , mEngine(e)
   , mCameraDirty(false)
   , mSprite(EngineRoot::make(e, id, true))
-  , mMaster(nullptr)
-  , mCameraParams(p) {}
+  , mMaster(nullptr) {}
 
 void PerspRoot::setup(const Settings& s) {
 	mSprite->setSize(s.mWorldSize.x, s.mWorldSize.y);

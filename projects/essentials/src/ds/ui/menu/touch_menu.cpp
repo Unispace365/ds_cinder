@@ -10,25 +10,31 @@ namespace ds { namespace ui {
 	TouchMenu::TouchMenu(ds::ui::SpriteEngine& enginey)
 	  : ds::ui::Sprite(enginey)
 	  , mFiveFingerCluster(2.0f, 4, 200.0f) {
+
 		mFiveFingerCluster.setClusterUpdateCallback(
 			[this](const ds::ui::TouchInfo::Phase cp, const ds::ui::FiveFingerCluster::Cluster& starCluster) {
 				handleClusterUpdate(cp, starCluster);
 			});
+
 		enable(false);
+
 		setProcessTouchCallback([this](Sprite* bs, const ds::ui::TouchInfo& ti) { this->handleTouchInfo(bs, ti); });
 	}
 
 	void TouchMenu::handleClusterUpdate(const ds::ui::TouchInfo::Phase			  tp,
 										const ds::ui::FiveFingerCluster::Cluster& lemonCluster) {
-		if (!mClusterLookup[lemonCluster.mClusterId]) {
+
+		auto findy = mClusterLookup.find(lemonCluster.mClusterId);
+
+		if (findy == mClusterLookup.end()) {
 			mClusterLookup[lemonCluster.mClusterId] = getClusterView();
 		}
 
-		if (mClusterLookup[lemonCluster.mClusterId])
-			mClusterLookup[lemonCluster.mClusterId]->updateCluster(tp, lemonCluster);
+		mClusterLookup[lemonCluster.mClusterId]->updateCluster(tp, lemonCluster);
 
-		if (tp == ds::ui::TouchInfo::Removed && mClusterLookup[lemonCluster.mClusterId]) {
-			mClusterLookup.erase(lemonCluster.mClusterId);
+		if (tp == ds::ui::TouchInfo::Removed && findy != mClusterLookup.end()) {
+			findy->second->deactivate();
+			mClusterLookup.erase(findy);
 		}
 	}
 

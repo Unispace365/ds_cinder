@@ -33,6 +33,9 @@ namespace ds { namespace time {
 		/// Cancels any upcoming callbacks, single or repeated
 		void cancel();
 
+		bool isRunning() { return mRunning; }
+		bool isRepeating() { return mRepeated; }
+
 		/// Get the Id for this instance
 		size_t getId() { return mId; }
 

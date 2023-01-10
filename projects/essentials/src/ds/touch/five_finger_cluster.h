@@ -28,8 +28,8 @@ namespace ds { namespace ui {
 		class Cluster {
 		  public:
 			Cluster()
-			  : mTriggerable(false)
-			  , mMaxTouches(0){};
+			  : mMaxTouches(0)
+			  , mTriggerable(false){};
 			int							   mClusterId;
 			ci::Rectf					   mBoundingBox;
 			ci::Rectf					   mCurrentBoundingBox;

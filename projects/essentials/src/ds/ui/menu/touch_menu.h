@@ -23,19 +23,19 @@ namespace ds { namespace ui {
 		/** A simple construction for setting up each item in the menu. */
 		struct MenuItemModel {
 			MenuItemModel()
-			  : mTitle(L"")
+			  : mActivatedCallback(nullptr)
+			  , mTitle(L"")
 			  , mSubtitle(L"")
 			  , mIconNormalImage("")
-			  , mIconHighlightedImage("")
-			  , mActivatedCallback(nullptr) {}
+			  , mIconHighlightedImage("") {}
 			MenuItemModel(const std::wstring& titley, const std::string& normalImage = "",
 						  const std::string& highImage = "", std::function<void(ci::vec3)> callback = nullptr,
 						  const std::wstring& subtitley = L"")
-			  : mTitle(titley)
+			  : mActivatedCallback(callback)
+			  , mTitle(titley)
+			  , mSubtitle(subtitley)
 			  , mIconNormalImage(normalImage)
-			  , mIconHighlightedImage(highImage)
-			  , mActivatedCallback(callback)
-			  , mSubtitle(subtitley) {}
+			  , mIconHighlightedImage(highImage) {}
 
 			std::function<void(ci::vec3)>
 				mActivatedCallback; // Called when this item has been activated, the vec3 is the position of the item
@@ -53,12 +53,12 @@ namespace ds { namespace ui {
 			  , mItemIconHeight(150.0f)
 			  , mItemTitlePad(20.0f)
 			  , mItemTitleYPositionPercent(0.5f)
-			  , mItemSize(250.0f, 250.0f)
 			  , mItemTitleOpacity(0.5f)
-			  , mItemTitleTextConfig("")
-			  , mItemSubtitleTextConfig("")
 			  , mItemSubtitleOpacity(0.5f)
 			  , mItemTitleResizeLimit(0.0f, 0.0f)
+			  , mItemSize(250.0f, 250.0f)
+			  , mItemTitleTextConfig("")
+			  , mItemSubtitleTextConfig("")
 			  , mClusterRadius(280.0f)
 			  , mClusterPositionOffset(-90.0f)
 			  , mClusterSizeThreshold(1000.0f)

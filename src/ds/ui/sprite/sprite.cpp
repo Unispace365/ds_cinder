@@ -1735,7 +1735,6 @@ void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format
 
 bool Sprite::isFinalRenderToTexture() {
 	return mIsRenderFinalToTexture;
-	return mIsRenderFinalToTexture;
 }
 
 ci::gl::TextureRef Sprite::getFinalOutTexture() {

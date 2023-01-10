@@ -8,8 +8,8 @@ namespace ds { namespace ui {
 
 	FiveFingerCluster::FiveFingerCluster(float secondsToTrigger /* = 2.0f */, int minTouches /* = 5 */,
 										 float boundingBoxSize /* = 200.0f */)
-	  : mMinTouches(minTouches)
-	  , mTriggerTime(secondsToTrigger)
+	  : mTriggerTime(secondsToTrigger)
+	  , mMinTouches(minTouches)
 	  , mBoundingBoxSize(boundingBoxSize)
 	  , mMinClusterSeparation(450.0f)
 	  , mMaxClusterId(0) {}

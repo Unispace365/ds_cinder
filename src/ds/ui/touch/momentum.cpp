@@ -13,10 +13,10 @@ Momentum::Momentum(ds::ui::SpriteEngine& engine)
   : inherited(engine)
   , mSprite(nullptr)
   , mActive(false)
-  , mDeactivateThreshold(0.00001f)
-  , mMass(10.0f)
-  , mFriction(0.6f)
   , mNumSmoothFrames(3)
+  , mFriction(0.6f)
+  , mMass(10.0f)
+  , mDeactivateThreshold(0.00001f)
   , mMoved(false) {
 	mLastTime = Poco::Timestamp().epochMicroseconds();
 }
