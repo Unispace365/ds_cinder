@@ -23,16 +23,16 @@ namespace ds { namespace ui {
 							   const ci::Color buttonColor, const ci::Color backgroundColor)
 	  : MediaInterface(eng, sizey, backgroundColor)
 	  , mLinkedPDF(nullptr)
+	  , mLinkedEnabled(false)
 	  , mUpButton(nullptr)
 	  , mDownButton(nullptr)
 	  , mPageCounter(nullptr)
 	  , mTouchToggle(nullptr)
 	  , mThumbsButton(nullptr)
-	  , mShowingThumbs(false)
-	  , mThumbnailBar(nullptr)
-	  , mLinkedEnabled(false)
 	  , mScrubBar(nullptr)
-	  , mInitialHeight(sizey.y) {
+	  , mInitialHeight(sizey.y)
+	  , mThumbnailBar(nullptr)
+	  , mShowingThumbs(false) {
 		mUpButton =
 			new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",
 									"%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
@@ -40,8 +40,10 @@ namespace ds { namespace ui {
 		mUpButton->setClickFn([this]() {
 			if (mLinkedPDF) {
 				if (mLinkedPDF->getPageCount() > 1) {
+					mUpButton->enable(false);
 					mLinkedPDF->goToPreviousPage();
 					updateWidgets();
+					mUpButton->callAfterDelay([this]{mUpButton->enable(true);}, 0.15f);
 				}
 			}
 		});
@@ -57,8 +59,10 @@ namespace ds { namespace ui {
 		mDownButton->setClickFn([this]() {
 			if (mLinkedPDF) {
 				if (mLinkedPDF->getPageCount() > 1) {
+					mDownButton->enable(false);
 					mLinkedPDF->goToNextPage();
 					updateWidgets();
+					mDownButton->callAfterDelay([this]{mDownButton->enable(true);}, 0.15f);
 				}
 			}
 		});
