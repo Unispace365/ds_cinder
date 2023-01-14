@@ -351,7 +351,15 @@ void App::setup() {
 #endif
 
 	mEngine.getLoadImageService().initialize();
+
 	ImGui::Initialize();
+	static auto imguiIni = ds::Environment::expand("%LOCAL%/settings/%PP%/imgui.ini");
+	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	ImGui::GetIO().IniFilename = imguiIni.c_str();
+	ImGui::GetIO().IniSavingRate = 5.f;
+	ImGui::LoadIniSettingsFromDisk(imguiIni.c_str());
+	// ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	if (mEngine.getEngineSettings().getBool("run_downsync_as_subprocess", 0, true)) {
 		launchSyncService();
@@ -411,6 +419,8 @@ void App::preServerSetup() {
 }
 
 void App::update() {
+	ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
+
 #ifdef _WIN32
 	if (mEngine.getEngineSettings().getBool("system:never_sleep", 0, true)) {
 		// prevents the system from going to sleep

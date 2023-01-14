@@ -290,13 +290,42 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 }
 
 
+namespace {
+	enum SettingLocation { APP = 1, LOCAL = 2,APP_CFG = 3,  LOCAL_CFG = 4, USER = 5 };
+
+	SettingLocation getLocationType(const std::string& filename) {
+		if (filename.empty()) return USER;
+
+		const auto appDir			= ds::Environment::expand("%APP%/settings");
+		const auto localDir			= ds::Environment::expand("%LOCAL%/settings/%PP%");
+		const auto appOverrideDir	= ds::Environment::expand("%APP%/settings/%CFG_FOLDER%");
+		const auto localOverrideDir = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%");
+
+		if (filename.find(localOverrideDir) != std::string::npos) return LOCAL_CFG;
+		if (filename.find(appOverrideDir) != std::string::npos) return APP_CFG;
+		if (filename.find(localDir) != std::string::npos) return LOCAL;
+		if (filename.find(appDir) != std::string::npos) return APP_CFG;
+
+		return USER;
+	}
+} // namespace
+
 void Settings::writeTo(const std::string& filename) {
+	auto targetLocation = getLocationType(filename);
 
 	ci::XmlTree xml = ci::XmlTree::createDoc();
 	ci::XmlTree rootNode;
 	rootNode.setTag("settings");
 	auto& sortedSettings = getReadSortedSettings();
 	for (auto sit : sortedSettings) {
+		// Determine if this setting is actually an override or not
+		auto sourceLocation = getLocationType(sit.mSource);
+		if (sourceLocation < targetLocation) {
+			continue;
+		} else {
+			DS_LOG_INFO("Writing setting" << sit.mName << " as it overrides a prior value");
+		}
+
 		ci::XmlTree settingNode;
 		settingNode.setTag("setting");
 		settingNode.setAttribute("name", sit.mName);
@@ -472,7 +501,7 @@ int Settings::getSettingIndex(const std::string& name) const {
 
 void Settings::forEachSetting(const std::function<void(Setting&)>& func, const std::string& typeFilter /*= ""*/) {
 	auto& theThingies = getReadSortedSettings();
-	for (auto sit : theThingies) {
+	for (auto&& sit : theThingies) {
 		if (!typeFilter.empty() && typeFilter != sit.mType) continue;
 		func(sit);
 	}
