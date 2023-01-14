@@ -78,9 +78,9 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 	const auto& name = setting.mName;
 
 	auto standardText = [&] {
-		std::string buf = setting.mRawValue;
-		if (ImGui::InputText(name.data(), &buf)) {
-			setting.mRawValue = buf;
+		// std::string buf = std::string(setting.mRawValue);
+		if (ImGui::InputText(name.data(), &setting.mRawValue)) {
+			// setting.mRawValue = std::string(buf);
 		}
 	};
 
@@ -106,12 +106,15 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			ImGui::Text(name.data());
 			ImGui::Separator();
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_STRING) {
-			standardText();
+			// standardText();
+			ImGui::InputText(name.data(), &setting.mRawValue);
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_WSTRING) {
-			standardText();
+			// standardText();
+			ImGui::InputText(name.data(), &setting.mRawValue);
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_BOOL) {
 			bool checked = setting.getBool();
-			if (ImGui::Checkbox(name.data(), &checked)) {
+			ImGui::Checkbox(name.data(), &checked);
+			if (setting.getBool() != checked){
 				setting.mRawValue = ds::unparseBoolean(checked);
 			}
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_INT) {
@@ -149,7 +152,8 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 					ds::unparseRect(ci::Rectf(rectish.x, rectish.y, rectish.x + rectish.z, rectish.y + rectish.w));
 			}
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_UNKNOWN) {
-			standardText();
+			// standardText();
+			ImGui::InputText(name.data(), &setting.mRawValue);
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_COLOR) {
 			ci::ColorA color	 = ds::parseColor(setting.mRawValue, mEngine);
 			ci::ColorA colorOrig = color;

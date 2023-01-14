@@ -79,11 +79,39 @@ namespace {
 					int thisReadIndex = 0;
 					for (int i = 0; i < sit.second.size(); i++) {
 						if (i < dit.second.size()) {
-							int readIndex			 = dit.second[i].mReadIndex;
-							dit.second[i]			 = sit.second[i];
-							dit.second[i].mReadIndex = readIndex;
+							bool sourceEmpty  = dit.second[i].mSource.empty();
+							bool valueChanged = dit.second[i].mRawValue != sit.second[i].mRawValue;
+							bool isChange	  = sourceEmpty || valueChanged;
 
-							if (readIndex > thisReadIndex) thisReadIndex = readIndex;
+							if (isChange) {
+								if (!sourceEmpty) {
+									int readIndex			 = dit.second[i].mReadIndex;
+									sit.second[i].mReadIndex = readIndex;
+									if (readIndex > thisReadIndex) thisReadIndex = readIndex;
+								}
+
+								if (sit.second[i].mComment.empty() && !dit.second[i].mComment.empty()) {
+									sit.second[i].mComment = dit.second[i].mComment;
+								}
+								if (sit.second[i].mType == "unknown") {
+									sit.second[i].mType = dit.second[i].mType;
+								}
+								if (sit.second[i].mDefault.empty()) {
+									sit.second[i].mDefault = dit.second[i].mDefault;
+								}
+								if (sit.second[i].mMinValue.empty()) {
+									sit.second[i].mMinValue = dit.second[i].mMinValue;
+								}
+								if (sit.second[i].mMaxValue.empty()) {
+									sit.second[i].mMaxValue = dit.second[i].mMaxValue;
+								}
+								if (sit.second[i].mPossibleValues.empty()) {
+									sit.second[i].mPossibleValues = dit.second[i].mPossibleValues;
+								}
+
+								dit.second[i] = sit.second[i];
+							}
+
 						} else {
 							dit.second.emplace_back(sit.second[i]);
 							if (thisReadIndex > 0) {
@@ -291,7 +319,7 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 
 
 namespace {
-	enum SettingLocation { APP = 1, LOCAL = 2,APP_CFG = 3,  LOCAL_CFG = 4, USER = 5 };
+	enum SettingLocation { APP = 1, LOCAL = 2, APP_CFG = 3, LOCAL_CFG = 4, USER = 5 };
 
 	SettingLocation getLocationType(const std::string& filename) {
 		if (filename.empty()) return USER;
@@ -304,7 +332,7 @@ namespace {
 		if (filename.find(localOverrideDir) != std::string::npos) return LOCAL_CFG;
 		if (filename.find(appOverrideDir) != std::string::npos) return APP_CFG;
 		if (filename.find(localDir) != std::string::npos) return LOCAL;
-		if (filename.find(appDir) != std::string::npos) return APP_CFG;
+		if (filename.find(appDir) != std::string::npos) return APP;
 
 		return USER;
 	}
