@@ -319,6 +319,8 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 
 
 namespace {
+	// Locations ordered by which overrideds which (high number = higher priority)
+	// 'USER' is for settings changed by the user while the application is running
 	enum SettingLocation { APP = 1, LOCAL = 2, APP_CFG = 3, LOCAL_CFG = 4, USER = 5 };
 
 	SettingLocation getLocationType(const std::string& filename) {

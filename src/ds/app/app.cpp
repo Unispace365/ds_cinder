@@ -1,3 +1,4 @@
+#include "cinder/Utilities.h"
 #include "stdafx.h"
 
 #include "ds/app/app.h"
@@ -353,7 +354,11 @@ void App::setup() {
 	mEngine.getLoadImageService().initialize();
 
 	ImGui::Initialize();
-	static auto imguiIni = ds::Environment::expand("%LOCAL%/settings/%PP%/imgui.ini");
+	static auto imguiIni = ds::Environment::expand("%LOCAL%/common/%PP%/imgui.ini");
+	if(!ds::safeFileExistsCheck(imguiIni)){
+		ci::writeString(ci::writeFile(imguiIni, true), "");
+	}
+	// TODO: Check if folder exists?
 	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui::GetIO().IniFilename = imguiIni.c_str();

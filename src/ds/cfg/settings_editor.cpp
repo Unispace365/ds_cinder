@@ -65,17 +65,26 @@ void SettingsEditor::drawSettings() {
 
 void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng) {
 	if (ImGui::BeginTabItem(eng.getName().data())) {
+
 		drawSaveButtons(eng);
+
+		std::string searchText;
+		ImGui::NewLine();
+		ImGui::InputText((eng.getName() + " Search").data(), &searchText);
 		ImGui::NewLine();
 
-		eng.forEachSetting([this, &eng](ds::cfg::Settings::Setting& setting) { drawSingleSetting(setting, eng); });
+		eng.forEachSetting([this, &eng, &searchText](ds::cfg::Settings::Setting& setting) { drawSingleSetting(setting, eng, searchText); });
 
 		ImGui::EndTabItem();
 	}
 }
 
-void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings) {
+void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings, const std::string& search) {
 	const auto& name = setting.mName;
+
+	if(!search.empty() && name.find(search) == std::string::npos){
+		return;
+	}
 
 	auto standardText = [&] {
 		// std::string buf = std::string(setting.mRawValue);
@@ -143,7 +152,6 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 				setting.mRawValue = ds::unparseVector(value);
 			}
 		} else if (setting.mType == ds::cfg::SETTING_TYPE_RECT) {
-			// ImGui::Text(name.data());
 			ci::Rectf value	  = setting.getRect();
 			ci::vec4  rectish = ci::vec4(value.getUpperLeft(), value.getLowerRight() - value.getUpperLeft());
 
@@ -265,21 +273,26 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 }
 
 void SettingsEditor::drawSaveButtons(ds::cfg::Settings& toSave) {
+	std::string appDir = ds::Environment::expand("%APP%/settings/");
+	std::string localDir = ds::Environment::expand("%LOCAL%/%PP%/");
+	std::string appCfgDir = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/");
+	std::string localCfgDir = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/");
+
 	ImGui::Separator();
-	if (ImGui::Button("Save to %APP%/settings/")) {
-		saveChange(ds::Environment::expand("%APP%/settings/"), toSave);
+	if (ImGui::Button(appDir.data())) {
+		saveChange(appDir, toSave);
 	}
 
-	if (ImGui::Button("Save to %LOCAL%/%PP%/")) {
-		saveChange(ds::Environment::expand("%LOCAL%/%PP%/"), toSave);
+	if (ImGui::Button(localDir.data())) {
+		saveChange(localDir, toSave);
 	}
 
-	if (ImGui::Button("Save to %APP%/settings/%CFG_FOLDER%/")) {
-		saveChange(ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/"), toSave);
+	if (ImGui::Button(appCfgDir.data())) {
+		saveChange(appCfgDir, toSave);
 	}
 
-	if (ImGui::Button("Save to %LOCAL%/settings/%PP%/%CFG_FOLDER%/")) {
-		saveChange(ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/"), toSave);
+	if (ImGui::Button(localCfgDir.data())) {
+		saveChange(localCfgDir, toSave);
 	}
 }
 

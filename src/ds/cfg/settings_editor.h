@@ -27,7 +27,7 @@ class SettingsEditor : public ds::ui::Sprite {
   private:
 	void drawSettings();
 	void drawSettingFile(ds::cfg::Settings& eng);
-	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings);
+	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings, const std::string& search);
 
 	void drawSaveButtons(ds::cfg::Settings& toSave);
 	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
