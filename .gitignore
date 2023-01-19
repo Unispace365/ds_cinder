@@ -30,6 +30,9 @@ vs2015/Release_Debug_Info/
 vs2015/logs/
 !lib/yoga/x64/debug
 !lib/yoga/x64/release
+.cache/
+compile_commands.json
+local.sln
 
 /doc/doxygen/generated
 
