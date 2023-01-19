@@ -14,9 +14,6 @@
 namespace ds::cfg {
 
 /// View for displaying and editing settings
-/// Note that the ui is specified in c++ and not an external layout file
-/// This is designed to work for any app without any sidecar files
-/// So it's best not to use this as an example of best practices (unless you're also making a portable ui)
 class SettingsEditor : public ds::ui::Sprite {
   public:
 	SettingsEditor(ds::ui::SpriteEngine& e);
