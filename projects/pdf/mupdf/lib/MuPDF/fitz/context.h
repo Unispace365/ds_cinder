@@ -1,3 +1,25 @@
+// Copyright (C) 2004-2022 Artifex Software, Inc.
+//
+// This file is part of MuPDF.
+//
+// MuPDF is free software: you can redistribute it and/or modify it under the
+// terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// MuPDF is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with MuPDF. If not, see <https://www.gnu.org/licenses/agpl-3.0.en.html>
+//
+// Alternative licensing terms are available from the licensor.
+// For commercial licensing, see <https://www.artifex.com/> or contact
+// Artifex Software, Inc., 1305 Grant Avenue - Suite 200, Novato,
+// CA 94945, U.S.A., +1(415)492-9861, for further information.
+
 #ifndef MUPDF_FITZ_CONTEXT_H
 #define MUPDF_FITZ_CONTEXT_H
 
@@ -12,6 +34,7 @@ typedef struct fz_tuning_context fz_tuning_context;
 typedef struct fz_store fz_store;
 typedef struct fz_glyph_cache fz_glyph_cache;
 typedef struct fz_document_handler_context fz_document_handler_context;
+typedef struct fz_output fz_output;
 typedef struct fz_context fz_context;
 
 /**
@@ -44,6 +67,9 @@ const char *fz_caught_message(fz_context *ctx);
 int fz_caught(fz_context *ctx);
 void fz_rethrow_if(fz_context *ctx, int errcode);
 
+void fz_start_throw_on_repair(fz_context *ctx);
+void fz_end_throw_on_repair(fz_context *ctx);
+
 enum
 {
 	FZ_ERROR_NONE = 0,
@@ -53,6 +79,7 @@ enum
 	FZ_ERROR_MINOR = 4,
 	FZ_ERROR_TRYLATER = 5,
 	FZ_ERROR_ABORT = 6,
+	FZ_ERROR_REPAIRED = 7,
 	FZ_ERROR_COUNT
 };
 
@@ -189,6 +216,9 @@ fz_context *fz_clone_context(fz_context *ctx);
 	The context and all of its global state is freed, and any
 	buffered warnings are flushed (see fz_flush_warnings). If NULL
 	is passed in nothing will happen.
+
+	Must not be called for a context that is being used in an active
+	fz_try(), fz_always() or fz_catch() block.
 */
 void fz_drop_context(fz_context *ctx);
 
@@ -229,12 +259,34 @@ void fz_default_error_callback(void *user, const char *message);
 void fz_default_warning_callback(void *user, const char *message);
 
 /**
+	A callback called whenever an error message is generated.
+	The user pointer passed to fz_set_error_callback() is passed
+	along with the error message.
+*/
+typedef void (fz_error_cb)(void *user, const char *message);
+
+/**
+	A callback called whenever a warning message is generated.
+	The user pointer passed to fz_set_warning_callback() is
+	passed along with the warning message.
+*/
+typedef void (fz_warning_cb)(void *user, const char *message);
+
+/**
 	Set the error callback. This will be called as part of the
 	exception handling.
 
 	The callback must not throw exceptions!
 */
-void fz_set_error_callback(fz_context *ctx, void (*print)(void *user, const char *message), void *user);
+void fz_set_error_callback(fz_context *ctx, fz_error_cb *error_cb, void *user);
+
+/**
+	Retrieve the currently set error callback, or NULL if none
+	has been set. Optionally, if user is non-NULL, the user pointer
+	given when the warning callback was set is also passed back to
+	the caller.
+*/
+fz_error_cb *fz_error_callback(fz_context *ctx, void **user);
 
 /**
 	Set the warning callback. This will be called as part of the
@@ -242,7 +294,15 @@ void fz_set_error_callback(fz_context *ctx, void (*print)(void *user, const char
 
 	The callback must not throw exceptions!
 */
-void fz_set_warning_callback(fz_context *ctx, void (*print)(void *user, const char *message), void *user);
+void fz_set_warning_callback(fz_context *ctx, fz_warning_cb *warning_cb, void *user);
+
+/**
+	Retrieve the currently set warning callback, or NULL if none
+	has been set. Optionally, if user is non-NULL, the user pointer
+	given when the warning callback was set is also passed back to
+	the caller.
+*/
+fz_warning_cb *fz_warning_callback(fz_context *ctx, void **user);
 
 /**
 	In order to tune MuPDF's behaviour, certain functions can
@@ -424,6 +484,15 @@ void fz_disable_icc(fz_context *ctx);
 	((TYPE*)Memento_label(fz_calloc(CTX, 1, sizeof(TYPE)), #TYPE))
 
 /**
+	Allocate memory for an array of structures, clear it, and tag
+	the pointer for Memento.
+
+	Throws exception in the event of failure to allocate.
+*/
+#define fz_malloc_struct_array(CTX, N, TYPE) \
+	((TYPE*)Memento_label(fz_calloc(CTX, N, sizeof(TYPE)), #TYPE "[]"))
+
+/**
 	Allocate uninitialized memory for an array of structures, and
 	tag the pointer for Memento. Does NOT clear the memory!
 
@@ -513,16 +582,23 @@ int fz_do_try(fz_context *ctx);
 int fz_do_always(fz_context *ctx);
 int fz_do_catch(fz_context *ctx);
 
+#ifndef FZ_JMPBUF_ALIGN
+#define FZ_JMPBUF_ALIGN 32
+#endif
+
 typedef struct
 {
-	int state, code;
 	fz_jmp_buf buffer;
+	int state, code;
+	char padding[FZ_JMPBUF_ALIGN-sizeof(int)*2];
 } fz_error_stack_slot;
 
 typedef struct
 {
 	fz_error_stack_slot *top;
 	fz_error_stack_slot stack[256];
+	fz_error_stack_slot padding;
+	fz_error_stack_slot *stack_base;
 	int errcode;
 	void *print_user;
 	void (*print)(void *user, const char *message);
@@ -561,6 +637,7 @@ struct fz_context
 #if FZ_ENABLE_ICC
 	int icc_enabled;
 #endif
+	int throw_on_repair;
 
 	/* TODO: should these be unshared? */
 	fz_document_handler_context *handler;
@@ -568,6 +645,7 @@ struct fz_context
 	fz_tuning_context *tuning;
 
 	/* shared contexts */
+	fz_output *stddbg;
 	fz_font_context *font;
 	fz_colorspace_context *colorspace;
 	fz_store *store;
@@ -611,6 +689,21 @@ fz_keep_imp(fz_context *ctx, void *p, int *refs)
 			++*refs;
 		}
 		fz_unlock(ctx, FZ_LOCK_ALLOC);
+	}
+	return p;
+}
+
+static inline void *
+fz_keep_imp_locked(fz_context *ctx FZ_UNUSED, void *p, int *refs)
+{
+	if (p)
+	{
+		(void)Memento_checkIntPointerOrNull(refs);
+		if (*refs > 0)
+		{
+			(void)Memento_takeRef(p);
+			++*refs;
+		}
 	}
 	return p;
 }

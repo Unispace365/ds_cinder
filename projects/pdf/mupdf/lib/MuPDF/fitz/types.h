@@ -1,4 +1,4 @@
-// Copyright (C) 2004-2021 Artifex Software, Inc.
+// Copyright (C) 2021 Artifex Software, Inc.
 //
 // This file is part of MuPDF.
 //
@@ -20,38 +20,22 @@
 // Artifex Software, Inc., 1305 Grant Avenue - Suite 200, Novato,
 // CA 94945, U.S.A., +1(415)492-9861, for further information.
 
-#ifndef TRACK_USAGE_H
-#define TRACK_USAGE_H
+#ifndef MUPDF_FITZ_TYPES_H
+#define MUPDF_FITZ_TYPES_H
 
-#ifdef TRACK_USAGE
+typedef struct fz_document fz_document;
 
-typedef struct track_usage_data {
-	int count;
-	const char *function;
-	int line;
-	const char *desc;
-	struct track_usage_data *next;
-} track_usage_data;
-
-#define TRACK_LABEL(A) \
-	do { \
-		static track_usage_data USAGE_DATA = { 0 };\
-		track_usage(&USAGE_DATA, __FILE__, __LINE__, A);\
-	} while (0)
-
-#define TRACK_FN() \
-	do { \
-		static track_usage_data USAGE_DATA = { 0 };\
-		track_usage(&USAGE_DATA, __FILE__, __LINE__, __FUNCTION__);\
-	} while (0)
-
-void track_usage(track_usage_data *data, const char *function, int line, const char *desc);
-
-#else
-
-#define TRACK_LABEL(A) do { } while (0)
-#define TRACK_FN() do { } while (0)
-
-#endif
+/**
+	Locations within the document are referred to in terms of
+	chapter and page, rather than just a page number. For some
+	documents (such as epub documents with large numbers of pages
+	broken into many chapters) this can make navigation much faster
+	as only the required chapter needs to be decoded at a time.
+*/
+typedef struct
+{
+	int chapter;
+	int page;
+} fz_location;
 
 #endif

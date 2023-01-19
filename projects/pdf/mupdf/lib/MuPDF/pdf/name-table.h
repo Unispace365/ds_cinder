@@ -1,3 +1,25 @@
+// Copyright (C) 2004-2022 Artifex Software, Inc.
+//
+// This file is part of MuPDF.
+//
+// MuPDF is free software: you can redistribute it and/or modify it under the
+// terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// MuPDF is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with MuPDF. If not, see <https://www.gnu.org/licenses/agpl-3.0.en.html>
+//
+// Alternative licensing terms are available from the licensor.
+// For commercial licensing, see <https://www.artifex.com/> or contact
+// Artifex Software, Inc., 1305 Grant Avenue - Suite 200, Novato,
+// CA 94945, U.S.A., +1(415)492-9861, for further information.
+
 /* Alphabetically sorted list of all PDF names to be available as constants */
 PDF_MAKE_NAME("1.2", 1_2)
 PDF_MAKE_NAME("3D", 3D)
@@ -31,6 +53,7 @@ PDF_MAKE_NAME("ArtBox", ArtBox)
 PDF_MAKE_NAME("AsIs", AsIs)
 PDF_MAKE_NAME("Ascent", Ascent)
 PDF_MAKE_NAME("AuthEvent", AuthEvent)
+PDF_MAKE_NAME("Author", Author)
 PDF_MAKE_NAME("B", B)
 PDF_MAKE_NAME("BBox", BBox)
 PDF_MAKE_NAME("BC", BC)
@@ -84,6 +107,7 @@ PDF_MAKE_NAME("Cert", Cert)
 PDF_MAKE_NAME("Ch", Ch)
 PDF_MAKE_NAME("Changes", Changes)
 PDF_MAKE_NAME("CharProcs", CharProcs)
+PDF_MAKE_NAME("CheckSum", CheckSum)
 PDF_MAKE_NAME("Circle", Circle)
 PDF_MAKE_NAME("ClosedArrow", ClosedArrow)
 PDF_MAKE_NAME("Collection", Collection)
@@ -177,9 +201,11 @@ PDF_MAKE_NAME("Ff", Ff)
 PDF_MAKE_NAME("FieldMDP", FieldMDP)
 PDF_MAKE_NAME("Fields", Fields)
 PDF_MAKE_NAME("FileAttachment", FileAttachment)
+PDF_MAKE_NAME("FileSize", FileSize)
 PDF_MAKE_NAME("Filespec", Filespec)
 PDF_MAKE_NAME("Filter", Filter)
 PDF_MAKE_NAME("Final", Final)
+PDF_MAKE_NAME("Fingerprint", Fingerprint)
 PDF_MAKE_NAME("First", First)
 PDF_MAKE_NAME("FirstChar", FirstChar)
 PDF_MAKE_NAME("FirstPage", FirstPage)
@@ -221,6 +247,7 @@ PDF_MAKE_NAME("H", H)
 PDF_MAKE_NAME("Height", Height)
 PDF_MAKE_NAME("Helv", Helv)
 PDF_MAKE_NAME("Highlight", Highlight)
+PDF_MAKE_NAME("HistoryPos", HistoryPos)
 PDF_MAKE_NAME("I", I)
 PDF_MAKE_NAME("IC", IC)
 PDF_MAKE_NAME("ICCBased", ICCBased)
@@ -248,6 +275,7 @@ PDF_MAKE_NAME("JPXDecode", JPXDecode)
 PDF_MAKE_NAME("JS", JS)
 PDF_MAKE_NAME("JavaScript", JavaScript)
 PDF_MAKE_NAME("K", K)
+PDF_MAKE_NAME("Keywords", Keywords)
 PDF_MAKE_NAME("Kids", Kids)
 PDF_MAKE_NAME("L", L)
 PDF_MAKE_NAME("LC", LC)
@@ -304,6 +332,7 @@ PDF_MAKE_NAME("None", None)
 PDF_MAKE_NAME("Normal", Normal)
 PDF_MAKE_NAME("NotApproved", NotApproved)
 PDF_MAKE_NAME("NotForPublicRelease", NotForPublicRelease)
+PDF_MAKE_NAME("NumSections", NumSections)
 PDF_MAKE_NAME("Nums", Nums)
 PDF_MAKE_NAME("O", O)
 PDF_MAKE_NAME("OC", OC)
@@ -412,6 +441,7 @@ PDF_MAKE_NAME("StrikeOut", StrikeOut)
 PDF_MAKE_NAME("StructParent", StructParent)
 PDF_MAKE_NAME("StructParents", StructParents)
 PDF_MAKE_NAME("SubFilter", SubFilter)
+PDF_MAKE_NAME("Subject", Subject)
 PDF_MAKE_NAME("Subtype", Subtype)
 PDF_MAKE_NAME("Subtype2", Subtype2)
 PDF_MAKE_NAME("Supplement", Supplement)
