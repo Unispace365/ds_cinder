@@ -621,14 +621,17 @@ void SettingsEditor::saveChange(const std::string& path, ds::cfg::Settings& toSa
 }
 
 void SettingsEditor::showSettings(const std::string theSettingsName) {
-
-	show();
-	mOpen = true;
+	if(!mOpen){
+		show();
+		mOpen = true;
+	}
 }
 
 void SettingsEditor::hideSettings() {
-	hide();
-	mOpen = false;
+	if(mOpen){
+		hide();
+		mOpen = false;
+	}
 }
 
 } // namespace ds::cfg
