@@ -71,12 +71,28 @@ void SettingsEditor::drawPostLocalClient() {
 		if (mSyncStatusOpen) drawSyncStatus();
 		if (mShortcutsOpen) drawShortcuts();
 		if (mLogOpen) drawLog();
+
+
+		if (mImguiStyleOpen) {
+			ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+			if (ImGui::Begin("ImGui", &mImguiStyleOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
+				ImGui::ShowStyleSelector("Style select");
+				ImGui::ShowStyleEditor();
+			}
+			ImGui::End();
+		}
 	}
 }
 
 void SettingsEditor::drawMenu() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("Status")) {
+			if (ImGui::MenuItem("Open All", nullptr)) {
+				mAppStatusOpen	   = true;
+				mSyncStatusOpen	   = true;
+				mAppHostStatusOpen = true;
+				mLogOpen		   = true;
+			}
 			if (ImGui::MenuItem("App status", nullptr, mAppStatusOpen)) {
 				mAppStatusOpen = !mAppStatusOpen;
 			}
@@ -126,6 +142,39 @@ void SettingsEditor::drawMenu() {
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("App Shortcuts", nullptr, mShortcutsOpen)) {
 				mShortcutsOpen = !mShortcutsOpen;
+			}
+
+			if (ImGui::MenuItem("ImGui Style", nullptr, mImguiStyleOpen)) {
+				mImguiStyleOpen = !mImguiStyleOpen;
+			}
+
+			if (ImGui::MenuItem("Open EVERYTHING", nullptr)) {
+				mAppStatusOpen	   = true;
+				mSyncStatusOpen	   = true;
+				mAppHostStatusOpen = true;
+				mLogOpen		   = true;
+				mEngineOpen		   = true;
+				mAppSettingsOpen   = true;
+				mStylesOpen		   = true;
+				mFontsOpen		   = true;
+				mTuioOpen		   = true;
+				mContentOpen	   = true;
+				mShortcutsOpen	   = true;
+				mImguiStyleOpen	   = true;
+			}
+			if (ImGui::MenuItem("Close EVERYTHING", nullptr)) {
+				mAppStatusOpen	   = false;
+				mSyncStatusOpen	   = false;
+				mAppHostStatusOpen = false;
+				mLogOpen		   = false;
+				mEngineOpen		   = false;
+				mAppSettingsOpen   = false;
+				mStylesOpen		   = false;
+				mFontsOpen		   = false;
+				mTuioOpen		   = false;
+				mContentOpen	   = false;
+				mShortcutsOpen	   = false;
+				mImguiStyleOpen	   = false;
 			}
 			ImGui::EndMenu();
 		}
@@ -205,7 +254,7 @@ namespace {
 } // namespace
 void SettingsEditor::drawContent() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Content", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("Content", &mContentOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		auto& allContent = mEngine.mContent;
 		drawTree(allContent);
 	}
@@ -214,7 +263,7 @@ void SettingsEditor::drawContent() {
 
 void SettingsEditor::drawAppStatus() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Status", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("Status", &mAppStatusOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		auto& eng = ((ds::Engine&)(mEngine));
 		auto  sz  = eng.mSprites.size();
 		ImGui::LabelText("Sprite Count", "%i", int(sz));
@@ -240,7 +289,7 @@ void SettingsEditor::drawAppStatus() {
 
 void SettingsEditor::drawAppHostStatus() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("AppHost", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("AppHost", &mAppHostStatusOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		if (mAppHostRunning) {
 			ImGui::Text("AppHost running");
 			if (ImGui::Button("Start")) {
@@ -282,7 +331,7 @@ void SettingsEditor::drawAppHostStatus() {
 
 void SettingsEditor::drawSyncStatus() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Sync Status", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("Sync Status", &mSyncStatusOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		if (mLastSync.year() < Poco::DateTime().year()) {
 			ImGui::Text("Sync incomplete or not running");
 		} else {
@@ -303,7 +352,7 @@ void SettingsEditor::drawSyncStatus() {
 void SettingsEditor::drawShortcuts() {
 
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Shortcuts", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("Shortcuts", &mShortcutsOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		auto  appy	 = dynamic_cast<ds::App*>(ds::App::get());
 		auto& keyMgr = appy->getKeyManager();
 
@@ -356,7 +405,7 @@ void SettingsEditor::drawLog() {
 	}
 
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Log", NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin("Log", &mLogOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 		ImGui::Checkbox("Auto Scroll", &mLogAutoScroll);
 
 		auto logSize = ImGui::GetWindowSize();
@@ -621,14 +670,14 @@ void SettingsEditor::saveChange(const std::string& path, ds::cfg::Settings& toSa
 }
 
 void SettingsEditor::showSettings(const std::string theSettingsName) {
-	if(!mOpen){
+	if (!mOpen) {
 		show();
 		mOpen = true;
 	}
 }
 
 void SettingsEditor::hideSettings() {
-	if(mOpen){
+	if (mOpen) {
 		hide();
 		mOpen = false;
 	}

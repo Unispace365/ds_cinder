@@ -4,12 +4,12 @@
 
 #include <Poco/DateTime.h>
 
-#include <ds/cfg/settings.h>
 #include <ds/app/event_client.h>
+#include <ds/cfg/settings.h>
+#include <ds/network/https_client.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/network/https_client.h>
 
 namespace ds::cfg {
 
@@ -39,43 +39,43 @@ class SettingsEditor : public ds::ui::Sprite {
 	void drawLog();
 
 	void drawSettingFile(ds::cfg::Settings& eng);
-	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings, const std::string& search);
+	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
+						   const std::string& search);
 
 	void drawSaveButtons(ds::cfg::Settings& toSave);
 	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
 
 	ds::EventClient mEventClient;
-	Settings* mCurrentSettings;
+	Settings*		mCurrentSettings;
 
 
 	std::map<std::string, std::string> mSearchMap;
 	std::map<std::string, std::string> mFilterMap;
 
-	bool mOpen = false;
-	bool mAppStatusOpen = true;
-	bool mSyncStatusOpen = true;
+	bool mOpen				= false;
+	bool mAppStatusOpen		= false;
+	bool mSyncStatusOpen	= false;
+	bool mAppHostStatusOpen = false;
+	bool mEngineOpen		= false;
+	bool mAppSettingsOpen	= false;
+	bool mStylesOpen		= false;
+	bool mFontsOpen			= false;
+	bool mTuioOpen			= false;
+	bool mContentOpen		= false;
+	bool mShortcutsOpen		= false;
+	bool mImguiStyleOpen	= false;
+	bool mLogOpen			= false;
 
-	bool mAppHostStatusOpen = true;
+	// AppHost
 	ds::net::HttpsRequest mHttpsRequest;
-	bool mAppHostRunning = false;
+	bool				  mAppHostRunning = false;
 
-	bool mEngineOpen = true;
-	bool mAppSettingsOpen = true;
-	bool mStylesOpen = true;
-	bool mFontsOpen = true;
-	bool mTuioOpen = true;
-
-	bool mContentOpen = true;
-
-	bool mShortcutsOpen = true;
-
-	bool mLogOpen = true;
-	bool mLogAutoScroll = true;
+	// Logs
+	bool		mLogAutoScroll = true;
 	std::string mLogBuffer;
 
+	// Sync
 	Poco::DateTime mLastSync;
-
-	// EditView*				 mEditView;
 };
 
 } // namespace ds::cfg

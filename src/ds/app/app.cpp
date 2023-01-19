@@ -363,6 +363,12 @@ void App::setup() {
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui::GetIO().IniFilename = imguiIni.c_str();
 	ImGui::GetIO().IniSavingRate = 5.f;
+
+	auto fontFile = ds::Environment::expand("%APP%/data/fonts/OpenSans-Regular.ttf");
+	if(ds::safeFileExistsCheck(fontFile)){
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(ds::Environment::expand("%APP%/data/fonts/OpenSans-Regular.ttf").data(), 18.f);
+		ImGui::GetIO().Fonts->Build();
+	}
 	ImGui::LoadIniSettingsFromDisk(imguiIni.c_str());
 	// ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
 
