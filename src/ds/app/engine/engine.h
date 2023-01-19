@@ -314,6 +314,7 @@ class Engine : public ui::SpriteEngine {
 	void setupAutoRefresh();
 
 	friend class EngineStatsView;
+	friend class cfg::SettingsEditor;
 	std::vector<std::unique_ptr<EngineRoot>> mRoots;
 	ds::App&								 mDsApp;
 	ds::EngineSettings&						 mSettings;

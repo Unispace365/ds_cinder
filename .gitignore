@@ -20,10 +20,10 @@
 
 lib/platform*.lib
 obj/
-Debug/
-Release/
-Release_Debug_Info/
-logs/
+vs2019/Debug/
+vs2019/Release/
+vs2019/Release_Debug_Info/
+vs2019/logs/
 !lib/yoga/x64/debug
 !lib/yoga/x64/release
 

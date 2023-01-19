@@ -295,6 +295,10 @@ void ds::Logger::Loop::log(const int level, const std::wstring& str) {
 	log(level, ds::utf8_from_wstr(str));
 }
 
+std::string ds::Logger::getLogFile(){
+	return LOG_FILE;
+}
+
 void Logger::Loop::run() {
 	std::vector<entry> ins;
 	ins.reserve(128);

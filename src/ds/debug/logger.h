@@ -5,14 +5,17 @@
 // Unfortunately due to some weird include issue I need to make sure to
 // include cinder/ChanTraits.h before something in presumably the C++ libs.
 #include "ds/util/bit_mask.h"
+
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <cinder/Color.h>
+
 #include <Poco/Condition.h>
 #include <Poco/Mutex.h>
 #include <Poco/Thread.h>
 #include <Poco/Timestamp.h>
-#include <cinder/Color.h>
-#include <sstream>
-#include <string>
-#include <vector>
 
 namespace ds {
 
@@ -92,6 +95,8 @@ class Logger {
 	 * missing logging for a fraction of a second. */
 	static void toggleModule(const ds::BitMask& module, const bool on);
 
+	std::string getLogFile();
+
   public:
 	Logger();
 	~Logger();
@@ -126,6 +131,7 @@ class Logger {
 		void log(const int level, const std::wstring&);
 
 		virtual void run();
+
 
 	  private:
 		std::stringstream mBuf;
