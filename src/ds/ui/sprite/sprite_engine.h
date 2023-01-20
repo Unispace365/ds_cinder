@@ -51,6 +51,7 @@ struct TextStyle;
  * Interface for the API that is supplied to sprites.
  */
 class SpriteEngine {
+	friend class SettingsEditior;
   public:
 	/** Access to the app-wide notification service. Use this to send a
 	 message to everyone who's registered an EventClient. */

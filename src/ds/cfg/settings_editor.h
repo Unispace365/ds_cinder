@@ -75,6 +75,9 @@ class SettingsEditor : public ds::ui::Sprite {
 	int mBytesSent = 0;
 	float mFps = 0.f;
 
+	bool mSrcDestSaved = false;
+	ci::Rectf mOrigSrc, mOrigDest;
+
 	// AppHost
 	ds::net::HttpsRequest mHttpsRequest;
 	bool				  mAppHostRunning = false;
@@ -88,6 +91,7 @@ class SettingsEditor : public ds::ui::Sprite {
 	Poco::Environment mEnv;
 	std::string		  mAppVersion;
 	std::string		  mProductName;
+	std::string		  mOsVersion;
 };
 
 } // namespace ds::cfg

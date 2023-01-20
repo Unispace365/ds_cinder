@@ -2,11 +2,6 @@
 
 #include "settings_editor.h"
 
-#ifdef _WIN32
-#include <shellapi.h>
-#include <winver.h>
-#endif
-
 #include <cinder/CinderImGui.h>
 #include <cinder/Clipboard.h>
 #include <cinder/app/Platform.h>
@@ -23,8 +18,6 @@
 #include <ds/app/blob_reader.h>
 #include <ds/app/blob_registry.h>
 #include <ds/app/engine/engine_data.h>
-#include <ds/cfg/editor_components/edit_view.h>
-#include <ds/cfg/editor_components/editor_item.h>
 #include <ds/cfg/settings.h>
 #include <ds/cfg/settings_variables.h>
 #include <ds/content/content_events.h>
@@ -33,89 +26,9 @@
 #include <ds/math/math_defs.h>
 #include <ds/util/color_util.h>
 
-namespace {
-std::string getVersionString() {
-	std::string		  versionOut = "not found";
-
-	HRSRC			  hResInfo;
-	DWORD			  dwSize;
-	HGLOBAL			  hResData;
-	LPVOID			  pRes, pResCopy;
-	UINT			  uLen	= 0;
-	VS_FIXEDFILEINFO* lpFfi = NULL;
-	HINSTANCE		  hInst = ::GetModuleHandle(NULL);
-
-	hResInfo = FindResource(hInst, MAKEINTRESOURCE(1), RT_VERSION);
-	if (!hResInfo) return versionOut;
-
-	dwSize	 = SizeofResource(hInst, hResInfo);
-	hResData = LoadResource(hInst, hResInfo);
-	if (!hResData) return versionOut;
-
-	pRes = LockResource(hResData);
-	if (!pRes) return versionOut;
-
-	pResCopy = LocalAlloc(LMEM_FIXED, dwSize);
-	if (!pResCopy) return versionOut;
-
-
-	CopyMemory(pResCopy, pRes, dwSize);
-
-	if (VerQueryValue(pResCopy, _T("\\"), (LPVOID*)&lpFfi, &uLen)) {
-		if (lpFfi != NULL) {
-			DWORD dwFileVersionMS = lpFfi->dwFileVersionMS;
-			DWORD dwFileVersionLS = lpFfi->dwFileVersionLS;
-
-			DWORD dwLeftMost	= HIWORD(dwFileVersionMS);
-			DWORD dwSecondLeft	= LOWORD(dwFileVersionMS);
-			DWORD dwSecondRight = HIWORD(dwFileVersionLS);
-			DWORD dwRightMost	= LOWORD(dwFileVersionLS);
-
-			versionOut = std::string("Version: ") + std::to_string(dwLeftMost) + "." + std::to_string(dwSecondLeft) +
-						 "." + std::to_string(dwSecondRight) + "." + std::to_string(dwRightMost);
-		}
-	}
-
-	LocalFree(pResCopy);
-	return versionOut;
-}
-
-std::string getProductName() {
-	std::string versionOut = "Not Set";
-
-	HRSRC			  hResInfo;
-	DWORD			  dwSize;
-	HGLOBAL			  hResData;
-	LPVOID			  pRes, pResCopy;
-	UINT			  uLen	= 0;
-	VS_FIXEDFILEINFO* lpFfi = NULL;
-	HINSTANCE		  hInst = ::GetModuleHandle(NULL);
-
-	hResInfo = FindResource(hInst, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-	if (!hResInfo) return versionOut;
-
-	dwSize	 = SizeofResource(hInst, hResInfo);
-	hResData = LoadResource(hInst, hResInfo);
-	if (!hResData) return versionOut;
-
-	pRes = LockResource(hResData);
-	if (!pRes) return versionOut;
-
-	pResCopy = LocalAlloc(LMEM_FIXED, dwSize);
-	if (!pResCopy) return versionOut;
-
-
-	CopyMemory(pResCopy, pRes, dwSize);
-	if (VerQueryValueW(pResCopy, _T("\\StringFileInfo\\040904b0\\ProductName"), (LPVOID*)&lpFfi, &uLen)) {
-		if (lpFfi != NULL) {
-			versionOut			  = ds::utf8_from_wstr(std::wstring(((wchar_t*)(lpFfi)), uLen));
-		}
-	}
-
-	LocalFree(pResCopy);
-	return versionOut;
-}
-} // namespace
+// Select the platform specific implementation OS verion / app version / product name
+// Currently windows only with a null "stub" for future additions
+#include "impl/impl.h"
 
 namespace ds::cfg {
 
@@ -138,8 +51,10 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	mHttpsRequest.makeGetRequest("localhost:7800/api/status");
 
 	// Get the current application version
-	mAppVersion = getVersionString();
-	mProductName = getProductName();
+	auto info = impl::ComputerInfo();
+	mAppVersion = info.getAppVersionString();
+	mProductName = info.getAppProductName();
+	mOsVersion	 = info.getOsVersion();
 
 	// Set mLastSync years in the past (to signify no sync yet)
 	mLastSync.assign(2000, 1, 1);
@@ -154,6 +69,35 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 void SettingsEditor::drawPostLocalClient() {
 	if (mOpen && visible()) {
 		drawMenu();
+
+		/* ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("App", NULL, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBackground)) {
+			if (!mSrcDestSaved) {
+				mOrigSrc	  = mEngine.getSrcRect();
+				mOrigDest	  = mEngine.getDstRect();
+				mSrcDestSaved = true;
+			}
+			
+			auto newSrc = mEngine.getSrcRect();
+
+			auto dstSize   = ImGui::GetWindowSize();
+			auto dstPos	   = ImGui::GetWindowPos();
+			auto dstAspect = dstSize.x / dstSize.y;
+			auto srcAspect = newSrc.getAspectRatio();
+
+			float origScale = mOrigDest.getWidth() / mOrigSrc.getWidth();
+			float newScale	= dstSize.x / mOrigDest.getWidth();
+
+			newSrc = newSrc.getCenteredFit(ci::Rectf(0.f, 0.f, dstSize.x *  newScale, dstSize.y * newScale), true);
+			newSrc.scale(origScale);
+
+			auto& eng		   = ((ds::Engine&)(mEngine));
+			eng.mData.mSrcRect = newSrc;
+			eng.markCameraDirty();
+		}
+	ImGui::End();*/
+		
+
 
 		drawSettings();
 
@@ -179,6 +123,10 @@ void SettingsEditor::drawPostLocalClient() {
 void SettingsEditor::drawMenu() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("Quick Info")) {
+			if (ImGui::Button("Exit Debug")) {
+				auto& eng = ((ds::Engine&)(mEngine));
+				eng.hideSettingsEditor();
+			}
 			if (ImGui::Button("Open All")) {
 				mAppStatusOpen	   = true;
 				mSyncStatusOpen	   = true;
@@ -408,8 +356,7 @@ void SettingsEditor::drawAppStatusInfo() {
 	}
 	ImGui::Separator();
 	ImGui::Text("Computer Info");
-	ImGui::Text("\tOS: %s", mEnv.osDisplayName().data());
-	ImGui::Text("\tVersion: %s", mEnv.osVersion().data());
+	ImGui::Text("\tOS: %s", mOsVersion.data());
 	ImGui::Text("\tArcitecture: %s", mEnv.osArchitecture().data());
 	ImGui::Text("\tCores: %u", mEnv.processorCount());
 
@@ -828,6 +775,12 @@ void SettingsEditor::showSettings(const std::string theSettingsName) {
 
 void SettingsEditor::hideSettings() {
 	if (mOpen) {
+		if (mSrcDestSaved) {
+			auto& eng		   = ((ds::Engine&)(mEngine));
+			eng.mData.mSrcRect = mOrigSrc;
+			eng.markCameraDirty();
+		}
+
 		hide();
 		mOpen = false;
 	}

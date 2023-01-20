@@ -47,8 +47,10 @@
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
     <ClInclude Include="..\src\ds\app\event_registry.h" />
-    <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h" />
-    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\base_impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\null_impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\windows_impl.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings_editor.h" />
     <ClInclude Include="..\src\ds\cfg\settings_variables.h" />
@@ -242,8 +244,6 @@
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
     <ClCompile Include="..\src\ds\app\event_registry.cpp" />
-    <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp" />
-    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_variables.cpp" />
