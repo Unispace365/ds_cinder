@@ -1,4 +1,19 @@
 -----------------------------
+DS Cinder Version 107.0.0
+-----------------------------
+
+- Moved to Visual Studio 2022
+- Cinder 0.9.3 + ImGui_docking features (now a DS fork of Cinder)
+- ImGui!
+	- ImGui is supported for debugging controls
+	- Upgraded settings editor and status tools to use ImGui
+	- Default ImGui font + engine.xml setting
+- Updated MuPDF to v1.21.x
+- Updated Poco to v1.12.4
+- Reformatted all code and added .clang-format file
+- Saving settings now only saves settings that have been overwritten
+
+-----------------------------
 DS Cinder Version 106.0.0
 -----------------------------
 

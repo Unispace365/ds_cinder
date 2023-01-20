@@ -1,6 +1,6 @@
 # Poco and you
 
-> [Poco Project](https://pocoproject.org) version: 1.21.x
+> [Poco Project](https://pocoproject.org) version: 1.12.4
 
 ## Downloading the Source
 > [Poco download page](https://pocoproject.org/download.html)

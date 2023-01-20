@@ -15,33 +15,31 @@ When running an app, press the "e" key to show the editor. You can browse throug
 There are two pieces to any setting: the xml setting, and it's c++ counterpart. The xml setting looks something like this:
 
 ```xml
-<setting name="particular_component:speed" value="100.0" />
+```xml
+	<setting name="particular_component:speed" value="100.0" />
 ```
-	
-In c++ land, the setting gets ready like this:
 
+In c++ land, the setting gets ready like this:
 ```cpp
 float theSpeed = mEngine.getAppSettings().getFloat("particular_component:speed");
 ```
-	
 
 ## Indicies
 
 You can have multiple instances of the same setting, to define a series of things:
+
 ```xml
 <setting name="component:address" value="127.0.0.1" />
 <setting name="component:address" value="8.8.8.8" />
 ```
-	
-In c++:
 
+In c++:
 ```cpp
 std::string firstAddress = mEngine.getAppSettings().getString("component:address", 0);
 std::string secondAddres = mEngine.getAppSettings().getString("component:address", 1);
 ```
 
 You can also iterate through each setting with the same name:
-
 ```cpp
 int i = 0;
 while(true){
