@@ -1,7 +1,6 @@
 # MuPDF and you
 
-> http://www.mupdf.com/
-> Current MuPdf version: 1.21.x
+> [MuPDF](http://www.mupdf.com/) version: 1.21.x
 
 ## Building MuPdf - Roughly following [MuPdf Building Guide](https://www.mupdf.com/docs/building.html)
 1. Clone MuPdf `git clone --recursive git://git.ghostscript.com/mupdf.git`
