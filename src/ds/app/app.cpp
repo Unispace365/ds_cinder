@@ -353,24 +353,33 @@ void App::setup() {
 
 	mEngine.getLoadImageService().initialize();
 
+	// Setup ImGui
 	ImGui::Initialize();
+
+	// Save ImGui ini (window positions) to Documents/Downstream/common/%Project-Path%/imgui.ini
 	static auto imguiIni = ds::Environment::expand("%LOCAL%/common/%PP%/imgui.ini");
+
+	// Ensure directory exists!!
 	if(!ds::safeFileExistsCheck(imguiIni)){
 		ci::writeString(ci::writeFile(imguiIni, true), "");
 	}
-	// TODO: Check if folder exists?
+
 	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui::GetIO().IniFilename = imguiIni.c_str();
 	ImGui::GetIO().IniSavingRate = 5.f;
 
-	auto fontFile = ds::Environment::expand("%APP%/data/fonts/OpenSans-Regular.ttf");
+	// Set ImGui font + font size. Default is Calibri from the standard windows location
+	// Can be overridden in engine.xml
+	float fontSize = mEngine.getEngineSettings().getFloat("debug:imgui_font_size", 0, 18.f);
+	auto fontFile = ds::Environment::expand(mEngine.getEngineSettings().getString("debug:imgui_font", 0, "C:/Windows/Fonts/Calibri.ttf"));
 	if(ds::safeFileExistsCheck(fontFile)){
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(ds::Environment::expand("%APP%/data/fonts/OpenSans-Regular.ttf").data(), 18.f);
-		ImGui::GetIO().Fonts->Build();
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(fontFile.data(), fontSize);
+	}else{
+		ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Calibri.ttf", fontSize);
 	}
+	ImGui::GetIO().Fonts->Build();
 	ImGui::LoadIniSettingsFromDisk(imguiIni.c_str());
-	// ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	if (mEngine.getEngineSettings().getBool("run_downsync_as_subprocess", 0, true)) {
 		launchSyncService();
@@ -431,6 +440,7 @@ void App::preServerSetup() {
 
 void App::update() {
 	ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
+
 
 #ifdef _WIN32
 	if (mEngine.getEngineSettings().getBool("system:never_sleep", 0, true)) {
@@ -650,9 +660,9 @@ void App::setupKeyPresses() {
 			mEngine.getNotifier().notify(EngineStatsView::ToggleHelpRequest());
 		},
 		KeyEvent::KEY_h);
-	mKeyManager.registerKey(
-		"Toggle stats", [this] { mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); },
-		KeyEvent::KEY_s);
+	/* mKeyManager.registerKey(
+		"Toggle Debug Tools", [this] { mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); },
+		KeyEvent::KEY_s); */
 	mKeyManager.registerKey(
 		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey(
@@ -687,14 +697,14 @@ void App::setupKeyPresses() {
 		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
 		true);
 	mKeyManager.registerKey(
-		"Settings editor",
+		"Toggle debug tools",
 		[this] {
 			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
 											  : mEngine.showSettingsEditor(mEngineSettings);
 		},
 		KeyEvent::KEY_e);
-	mKeyManager.registerKey(
-		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d);
+	/* mKeyManager.registerKey(
+		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d); */
 	mKeyManager.registerKey(
 		"Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
 	mKeyManager.registerKey(
