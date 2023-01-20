@@ -3,6 +3,7 @@
 #define DS_CFG_SETTINGS_EDITOR
 
 #include <Poco/DateTime.h>
+#include <Poco/Environment.h>
 
 #include <ds/app/event_client.h>
 #include <ds/cfg/settings.h>
@@ -30,12 +31,14 @@ class SettingsEditor : public ds::ui::Sprite {
 	void drawSettings();
 	void drawContent();
 	void drawAppStatus();
+	void drawAppStatusInfo();
 	void drawAppHostStatus();
 	void drawSyncStatus();
+	void drawSyncStatusInfo();
 	void drawShortcuts();
 	void drawLog();
 
-	void drawSettingFile(ds::cfg::Settings& eng);
+	void drawSettingFile(ds::cfg::Settings& eng, bool& isOpen);
 	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
 						   const std::string& search);
 
@@ -63,6 +66,15 @@ class SettingsEditor : public ds::ui::Sprite {
 	bool mImguiStyleOpen	= false;
 	bool mLogOpen			= false;
 
+	// App Status
+	int mSpriteCount = 0;
+	std::string mTouchMode;
+	float mPhysicalMemory = 0.f;
+	float mVirtualMemory = 0.f;
+	int mBytesReceived = 0;
+	int mBytesSent = 0;
+	float mFps = 0.f;
+
 	// AppHost
 	ds::net::HttpsRequest mHttpsRequest;
 	bool				  mAppHostRunning = false;
@@ -73,6 +85,9 @@ class SettingsEditor : public ds::ui::Sprite {
 
 	// Sync
 	Poco::DateTime mLastSync;
+	Poco::Environment mEnv;
+	std::string		  mAppVersion;
+	std::string		  mProductName;
 };
 
 } // namespace ds::cfg

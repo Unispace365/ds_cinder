@@ -4,15 +4,19 @@
 
 #ifdef _WIN32
 #include <shellapi.h>
+#include <winver.h>
 #endif
 
 #include <cinder/CinderImGui.h>
 #include <cinder/Clipboard.h>
+#include <cinder/app/Platform.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_stdlib.h>
 
 #include <Poco/DateTimeFormatter.h>
+#include <Poco/File.h>
+#include <Poco/Net/DNS.h>
 
 #include <pango/pango-fontmap.h>
 
@@ -28,6 +32,90 @@
 #include <ds/debug/logger.h>
 #include <ds/math/math_defs.h>
 #include <ds/util/color_util.h>
+
+namespace {
+std::string getVersionString() {
+	std::string		  versionOut = "not found";
+
+	HRSRC			  hResInfo;
+	DWORD			  dwSize;
+	HGLOBAL			  hResData;
+	LPVOID			  pRes, pResCopy;
+	UINT			  uLen	= 0;
+	VS_FIXEDFILEINFO* lpFfi = NULL;
+	HINSTANCE		  hInst = ::GetModuleHandle(NULL);
+
+	hResInfo = FindResource(hInst, MAKEINTRESOURCE(1), RT_VERSION);
+	if (!hResInfo) return versionOut;
+
+	dwSize	 = SizeofResource(hInst, hResInfo);
+	hResData = LoadResource(hInst, hResInfo);
+	if (!hResData) return versionOut;
+
+	pRes = LockResource(hResData);
+	if (!pRes) return versionOut;
+
+	pResCopy = LocalAlloc(LMEM_FIXED, dwSize);
+	if (!pResCopy) return versionOut;
+
+
+	CopyMemory(pResCopy, pRes, dwSize);
+
+	if (VerQueryValue(pResCopy, _T("\\"), (LPVOID*)&lpFfi, &uLen)) {
+		if (lpFfi != NULL) {
+			DWORD dwFileVersionMS = lpFfi->dwFileVersionMS;
+			DWORD dwFileVersionLS = lpFfi->dwFileVersionLS;
+
+			DWORD dwLeftMost	= HIWORD(dwFileVersionMS);
+			DWORD dwSecondLeft	= LOWORD(dwFileVersionMS);
+			DWORD dwSecondRight = HIWORD(dwFileVersionLS);
+			DWORD dwRightMost	= LOWORD(dwFileVersionLS);
+
+			versionOut = std::string("Version: ") + std::to_string(dwLeftMost) + "." + std::to_string(dwSecondLeft) +
+						 "." + std::to_string(dwSecondRight) + "." + std::to_string(dwRightMost);
+		}
+	}
+
+	LocalFree(pResCopy);
+	return versionOut;
+}
+
+std::string getProductName() {
+	std::string versionOut = "Not Set";
+
+	HRSRC			  hResInfo;
+	DWORD			  dwSize;
+	HGLOBAL			  hResData;
+	LPVOID			  pRes, pResCopy;
+	UINT			  uLen	= 0;
+	VS_FIXEDFILEINFO* lpFfi = NULL;
+	HINSTANCE		  hInst = ::GetModuleHandle(NULL);
+
+	hResInfo = FindResource(hInst, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
+	if (!hResInfo) return versionOut;
+
+	dwSize	 = SizeofResource(hInst, hResInfo);
+	hResData = LoadResource(hInst, hResInfo);
+	if (!hResData) return versionOut;
+
+	pRes = LockResource(hResData);
+	if (!pRes) return versionOut;
+
+	pResCopy = LocalAlloc(LMEM_FIXED, dwSize);
+	if (!pResCopy) return versionOut;
+
+
+	CopyMemory(pResCopy, pRes, dwSize);
+	if (VerQueryValueW(pResCopy, _T("\\StringFileInfo\\040904b0\\ProductName"), (LPVOID*)&lpFfi, &uLen)) {
+		if (lpFfi != NULL) {
+			versionOut			  = ds::utf8_from_wstr(std::wstring(((wchar_t*)(lpFfi)), uLen));
+		}
+	}
+
+	LocalFree(pResCopy);
+	return versionOut;
+}
+} // namespace
 
 namespace ds::cfg {
 
@@ -49,11 +137,15 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	});
 	mHttpsRequest.makeGetRequest("localhost:7800/api/status");
 
-	// Set mLastSync years in the past
+	// Get the current application version
+	mAppVersion = getVersionString();
+	mProductName = getProductName();
+
+	// Set mLastSync years in the past (to signify no sync yet)
 	mLastSync.assign(2000, 1, 1);
 
+	// Update the last sync time every time we get a dsnode message or CMS loading complete
 	mEventClient.listenToEvents<ds::CmsDataLoadCompleteEvent>([this](const auto& e) { mLastSync = Poco::DateTime(); });
-
 	mEventClient.listenToEvents<ds::DsNodeMessageReceivedEvent>(
 		[this](const auto& e) { mLastSync = Poco::DateTime(); });
 }
@@ -86,6 +178,45 @@ void SettingsEditor::drawPostLocalClient() {
 
 void SettingsEditor::drawMenu() {
 	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("Quick Info")) {
+			if (ImGui::Button("Open All")) {
+				mAppStatusOpen	   = true;
+				mSyncStatusOpen	   = true;
+				mAppHostStatusOpen = true;
+				mLogOpen		   = true;
+				mEngineOpen		   = true;
+				mAppSettingsOpen   = true;
+				mStylesOpen		   = true;
+				mFontsOpen		   = true;
+				mTuioOpen		   = true;
+				mContentOpen	   = true;
+				mShortcutsOpen	   = true;
+				mImguiStyleOpen	   = true;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close All")) {
+				mAppStatusOpen	   = false;
+				mSyncStatusOpen	   = false;
+				mAppHostStatusOpen = false;
+				mLogOpen		   = false;
+				mEngineOpen		   = false;
+				mAppSettingsOpen   = false;
+				mStylesOpen		   = false;
+				mFontsOpen		   = false;
+				mTuioOpen		   = false;
+				mContentOpen	   = false;
+				mShortcutsOpen	   = false;
+				mImguiStyleOpen	   = false;
+			}
+
+			drawAppStatusInfo();
+			ImGui::NewLine();
+
+			drawSyncStatusInfo();
+
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Status")) {
 			if (ImGui::MenuItem("Open All", nullptr)) {
 				mAppStatusOpen	   = true;
@@ -105,6 +236,7 @@ void SettingsEditor::drawMenu() {
 			if (ImGui::MenuItem("Logs", nullptr, mLogOpen)) {
 				mLogOpen = !mLogOpen;
 			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Settings")) {
@@ -148,34 +280,6 @@ void SettingsEditor::drawMenu() {
 				mImguiStyleOpen = !mImguiStyleOpen;
 			}
 
-			if (ImGui::MenuItem("Open EVERYTHING", nullptr)) {
-				mAppStatusOpen	   = true;
-				mSyncStatusOpen	   = true;
-				mAppHostStatusOpen = true;
-				mLogOpen		   = true;
-				mEngineOpen		   = true;
-				mAppSettingsOpen   = true;
-				mStylesOpen		   = true;
-				mFontsOpen		   = true;
-				mTuioOpen		   = true;
-				mContentOpen	   = true;
-				mShortcutsOpen	   = true;
-				mImguiStyleOpen	   = true;
-			}
-			if (ImGui::MenuItem("Close EVERYTHING", nullptr)) {
-				mAppStatusOpen	   = false;
-				mSyncStatusOpen	   = false;
-				mAppHostStatusOpen = false;
-				mLogOpen		   = false;
-				mEngineOpen		   = false;
-				mAppSettingsOpen   = false;
-				mStylesOpen		   = false;
-				mFontsOpen		   = false;
-				mTuioOpen		   = false;
-				mContentOpen	   = false;
-				mShortcutsOpen	   = false;
-				mImguiStyleOpen	   = false;
-			}
 			ImGui::EndMenu();
 		}
 
@@ -185,23 +289,22 @@ void SettingsEditor::drawMenu() {
 }
 
 void SettingsEditor::drawSettings() {
-
-	if (mEngineOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("engine"));
-	if (mAppSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("app_settings"));
+	if (mEngineOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("engine"), mEngineOpen);
+	if (mAppSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("app_settings"), mAppSettingsOpen);
 
 	if (mStylesOpen) {
 		if (!mEngine.getEngineCfg().getSettings("styles").empty()) {
-			drawSettingFile(mEngine.getEngineCfg().getSettings("styles"));
+			drawSettingFile(mEngine.getEngineCfg().getSettings("styles"), mStylesOpen);
 		} else {
-			drawSettingFile(mEngine.getEngineCfg().getSettings("text"));
-			drawSettingFile(mEngine.getEngineCfg().getSettings("colors"));
+			drawSettingFile(mEngine.getEngineCfg().getSettings("text"), mStylesOpen);
+			drawSettingFile(mEngine.getEngineCfg().getSettings("colors"), mStylesOpen);
 		}
 	}
 
-	if (mFontsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("fonts"));
+	if (mFontsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("fonts"), mFontsOpen);
 
 	if (!mEngine.getEngineCfg().getSettings("tuio_inputs").empty() && mTuioOpen) {
-		drawSettingFile(mEngine.getEngineCfg().getSettings("tuio_inputs"));
+		drawSettingFile(mEngine.getEngineCfg().getSettings("tuio_inputs"), mTuioOpen);
 	}
 }
 
@@ -264,27 +367,70 @@ void SettingsEditor::drawContent() {
 void SettingsEditor::drawAppStatus() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Status", &mAppStatusOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
-		auto& eng = ((ds::Engine&)(mEngine));
-		auto  sz  = eng.mSprites.size();
-		ImGui::LabelText("Sprite Count", "%i", int(sz));
-
-		ImGui::LabelText("Touch Mode", ds::ui::TouchMode::toString(eng.mTouchMode).data());
-
-		ImGui::LabelText("Physical Memory", "%f", mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess());
-		ImGui::LabelText("Virtual Memory", "%f", mEngine.getComputerInfo().getVirtualMemoryUsedByProcess());
-
-		if (mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE) {
-			ImGui::LabelText("Bytes Received", "%i", mEngine.getBytesRecieved());
-			ImGui::LabelText("Bytes Sent", "%i", mEngine.getBytesSent());
-		}
-
-		float fpsy = eng.getAverageFps();
-		ImGui::LabelText("FPS", "%f", fpsy);
-		// DsNode / Downsync status
-		// CPU Usage
-		// GPU Usage
+		drawAppStatusInfo();
 	}
 	ImGui::End();
+}
+
+void SettingsEditor::drawAppStatusInfo() {
+	auto& eng = ((ds::Engine&)(mEngine));
+
+	// No need for these to change every single frame
+	if (ci::app::getElapsedFrames() % 8 == 0) {
+		mSpriteCount	= int(eng.mSprites.size());
+		mTouchMode		= ds::ui::TouchMode::toString(eng.mTouchMode);
+		mPhysicalMemory = mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess();
+		mVirtualMemory	= mEngine.getComputerInfo().getVirtualMemoryUsedByProcess();
+
+		if (mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE) {
+			mBytesReceived = mEngine.getBytesRecieved();
+			mBytesSent	   = mEngine.getBytesSent();
+		}
+
+		mFps = eng.getAverageFps();
+	}
+
+	if (!mProductName.empty()) {
+		ImGui::Text("%s Info", mProductName.data());
+	} else {
+		ImGui::Text("App Info");
+	}
+
+	ImGui::Text("\tVersion: %s", mAppVersion.data());
+	ImGui::Text("\tSprites: %i", int(mSpriteCount));
+	ImGui::Text("\tFPS: %f", mFps);
+	ImGui::Text("\tTouch Mode: %s", mTouchMode.data());
+	ImGui::Text("\tPhysical Memory: %f", mPhysicalMemory);
+	ImGui::Text("\tVirtual Memory: %f", mVirtualMemory);
+	if (mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE) {
+		ImGui::Text("\tBytes Received: %i", mBytesReceived);
+		ImGui::Text("\tBytes Sent: %i", mBytesSent);
+	}
+	ImGui::Separator();
+	ImGui::Text("Computer Info");
+	ImGui::Text("\tOS: %s", mEnv.osDisplayName().data());
+	ImGui::Text("\tVersion: %s", mEnv.osVersion().data());
+	ImGui::Text("\tArcitecture: %s", mEnv.osArchitecture().data());
+	ImGui::Text("\tCores: %u", mEnv.processorCount());
+
+	ImGui::Text("Network");
+	auto host = Poco::Net::DNS::thisHost();
+	ImGui::Text("\tHostName: %s", host.name().data());
+	for (auto&& alias : host.aliases()) {
+		ImGui::Text("\tAlias: %s", alias.data());
+	}
+	for (auto&& addr : host.addresses()) {
+		ImGui::Text("\taddr: %s", addr.toString().data());
+	}
+
+	ImGui::Text("Displays");
+	if (auto plat = ci::app::Platform::get()) {
+		int i = 1;
+		for (auto&& disp : plat->getDisplays()) {
+			ImGui::Text("\tDisplay %i : %i x %i", i, disp->getWidth(), disp->getHeight());
+			++i;
+		}
+	}
 }
 
 void SettingsEditor::drawAppHostStatus() {
@@ -332,21 +478,25 @@ void SettingsEditor::drawAppHostStatus() {
 void SettingsEditor::drawSyncStatus() {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Sync Status", &mSyncStatusOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
-		if (mLastSync.year() < Poco::DateTime().year()) {
-			ImGui::Text("Sync incomplete or not running");
-		} else {
-			auto diff = Poco::DateTime() - mLastSync;
-
-			if (diff.minutes() < 1) {
-				ImGui::LabelText("Last Sync", "%i seconds ago", diff.seconds());
-			} else if (diff.hours() < 1) {
-				ImGui::LabelText("Last Sync", "%i minutes ago", diff.minutes());
-			} else {
-				ImGui::LabelText("Last Sync", "%i hours ago", diff.hours());
-			}
-		}
+		drawSyncStatusInfo();
 	}
 	ImGui::End();
+}
+
+void SettingsEditor::drawSyncStatusInfo() {
+	if (mLastSync.year() < Poco::DateTime().year()) {
+		ImGui::Text("Sync incomplete or not running");
+	} else {
+		auto diff = Poco::DateTime() - mLastSync;
+
+		if (diff.minutes() < 1) {
+			ImGui::Text("Last Sync was %i seconds ago", diff.seconds());
+		} else if (diff.hours() < 1) {
+			ImGui::Text("Last Sync was %i minutes ago", diff.minutes());
+		} else {
+			ImGui::Text("Last Sync was %i hours ago", diff.hours());
+		}
+	}
 }
 
 void SettingsEditor::drawShortcuts() {
@@ -418,9 +568,9 @@ void SettingsEditor::drawLog() {
 	ImGui::End();
 }
 
-void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng) {
+void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng, bool& isOpen) {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin(eng.getName().data(), NULL, ImGuiWindowFlags_NoFocusOnAppearing)) {
+	if (ImGui::Begin(eng.getName().data(), &isOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 
 		drawSaveButtons(eng);
 
