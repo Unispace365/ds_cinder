@@ -15,7 +15,7 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib; libboost_date_time-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_58.lib; libboost_regex-vc120-mt-sgd-1_60.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_090)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DS_PLATFORM_093)\Cinder\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

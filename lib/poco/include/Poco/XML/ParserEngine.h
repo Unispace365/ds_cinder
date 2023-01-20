@@ -19,7 +19,6 @@
 
 #include "Poco/XML/XML.h"
 #if defined(POCO_UNBUNDLED)
-#include <expat_config.h>
 #include <expat.h>
 #else
 #include "Poco/XML/expat.h"

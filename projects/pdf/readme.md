@@ -10,7 +10,7 @@
 4. Open `mupdf/project/win32/mupdf.sln` in Visual Studio
 5. Right click the libmupdf project -> Properties -> General -> Set platform toolset to v143 (Visual Studio 2022)
 6. In the same window ensure the windows SDK version is set to latest
-7. Build the libmupdf project in both Debug(x64) and Release(x64)
+7. Build the libmupdf *Solution* in both Debug(x64) and Release(x64)
 8. Assuming all goes well, you're ready to plug it in to DsCinder!
 
 ## Updating DsCinder mupdf libs
