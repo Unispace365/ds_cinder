@@ -5,12 +5,13 @@
 
 ## Building MuPdf - Roughly following [MuPdf Building Guide](https://www.mupdf.com/docs/building.html)
 1. Clone MuPdf `git clone --recursive git://git.ghostscript.com/mupdf.git`
-2. Pull the submodules `(git submodule update --init)`
-3. Open `mupdf/project/win32/mupdf.sln` in Visual Studio
-4. Right click the libmupdf project -> Properties -> General -> Set platform toolset to v143 (Visual Studio 2022)
-5. In the same window ensure the windows SDK version is set to latest
-6. Build the libmupdf project in both Debug(x64) and Release(x64)
-7. Assuming all goes well, you're ready to plug it in to DsCinder!
+2. Check out the current release branch (1.21.x as I'm writing this)
+3. Pull the submodules `(git submodule update --init)`
+4. Open `mupdf/project/win32/mupdf.sln` in Visual Studio
+5. Right click the libmupdf project -> Properties -> General -> Set platform toolset to v143 (Visual Studio 2022)
+6. In the same window ensure the windows SDK version is set to latest
+7. Build the libmupdf project in both Debug(x64) and Release(x64)
+8. Assuming all goes well, you're ready to plug it in to DsCinder!
 
 ## Updating DsCinder mupdf libs
 1. Copy the contents of `mupdf/include` to `ds_cinder/projects/pdf/mupdf/lib/MuPdf` (should overwrite the existing files)
