@@ -12,6 +12,9 @@ DS Cinder Version 107.0.0
 - Updated Poco to v1.12.4
 - Reformatted all code and added .clang-format file
 - Saving settings now only saves settings that have been overwritten
+- Added version info to full_starter project (and thus newly generated projects)
+- Added documentation for adding / updating versions on projects
+- Added %project%/install/readme.txt to base_install.iss for per-app release notes
 
 -----------------------------
 DS Cinder Version 106.0.0

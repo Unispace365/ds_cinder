@@ -5,16 +5,20 @@
 
 <img src="./docs/screenshot.png" height = "500px" />
 
-* **Documentation**: [Link to box folder]()
-* **Pivotal Project**: [Link to project]()
-* **Developement CMS**:
-* **Production CMS**:
+---
+# THIS README NEEDS TO BE FILLED IN!!!!
+---
+
+* **Documentation**: [Add Link to box folder]()
+* **Jira Project**: [Add Link to project]()
+* **Developement CMS**: TBD
+* **Production CMS**: TBD
 
 ## Compiling / Running
 
-* Get [ds_cinder](https://github.com/Downstream/ds_cinder) XXXXX branch
+* Get [ds_cinder](https://github.com/Downstream/ds_cinder) develop branch
 * Follow the [ds_cinder getting started guide](https://github.com/Downstream/ds_cinder/)
-* DsNode?
+* DsNode / downsync?
 * Any additional setup steps (e.g. media not from the CMS or git, scripts, etc)
 
 ### Hardware
@@ -28,13 +32,7 @@
 * Another awesome feather
 * That feature no one really needs
 
-### Modes
-
-* Mode 1
-* Mode 2
-
-
-***
+---
 
 ### People Involved
 
