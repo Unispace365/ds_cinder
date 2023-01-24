@@ -60,6 +60,8 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\ft_bragg_fallen_heroes\vs2019\cinder_app_icon.ico" />
+    <Image Include="..\..\..\..\ft_bragg_fallen_heroes\vs2019\cinder_app_icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
