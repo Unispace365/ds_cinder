@@ -15,7 +15,6 @@ When running an app, press the "e" key to show the editor. You can browse throug
 There are two pieces to any setting: the xml setting, and it's c++ counterpart. The xml setting looks something like this:
 
 ```xml
-```xml
 	<setting name="particular_component:speed" value="100.0" />
 ```
 

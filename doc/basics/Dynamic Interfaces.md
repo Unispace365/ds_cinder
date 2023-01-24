@@ -23,7 +23,7 @@ The tag value is the sprite type. For instance, <sprite/> creates a blank ds::ui
 The ideal pattern for loading XML layouts is through the SmartLayout class that's included in the Essentials project.
 Prefer derriving from either SmartLayout or ds::ui::Sprite unless you have a good reason not to.
 
-Also check out the [Content Model](./Content Model.md) guide for binding content model data directly to elements of your
+Also check out the [Content Model](./Content%20Model.md) guide for binding content model data directly to elements of your
 smart layout. It's a clearer more data-driven style, and makes future changes easier since you can change the content
 model without needing to recompile and only update your layouts.
 ```cpp
