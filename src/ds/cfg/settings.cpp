@@ -350,6 +350,7 @@ void Settings::writeTo(const std::string& filename) {
 	for (auto sit : sortedSettings) {
 		// Determine if this setting is actually an override or not
 		auto sourceLocation = getLocationType(sit.mSource);
+		// Never skip section headers, but skip non-overrides
 		bool skip = !(sit.mType == SETTING_TYPE_SECTION_HEADER) && (sourceLocation < targetLocation);
 		if (skip) {
 			continue;
