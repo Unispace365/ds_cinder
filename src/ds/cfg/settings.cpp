@@ -350,7 +350,8 @@ void Settings::writeTo(const std::string& filename) {
 	for (auto sit : sortedSettings) {
 		// Determine if this setting is actually an override or not
 		auto sourceLocation = getLocationType(sit.mSource);
-		if (sourceLocation < targetLocation) {
+		bool skip = !(sit.mType == SETTING_TYPE_SECTION_HEADER) && (sourceLocation < targetLocation);
+		if (skip) {
 			continue;
 		} else {
 			DS_LOG_INFO("Writing setting" << sit.mName << " as it overrides a prior value");
