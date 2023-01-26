@@ -92,6 +92,8 @@ class SettingsEditor : public ds::ui::Sprite {
 	std::string		  mAppVersion;
 	std::string		  mProductName;
 	std::string		  mOsVersion;
+	std::string		  mGlVendor;
+	std::string		  mGlVersion;
 };
 
 } // namespace ds::cfg

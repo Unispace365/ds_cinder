@@ -51,10 +51,12 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	mHttpsRequest.makeGetRequest("localhost:7800/api/status");
 
 	// Get the current application version
-	auto info = impl::ComputerInfo();
-	mAppVersion = info.getAppVersionString();
+	auto info	 = impl::ComputerInfo();
+	mAppVersion	 = info.getAppVersionString();
 	mProductName = info.getAppProductName();
 	mOsVersion	 = info.getOsVersion();
+	mGlVendor	 = info.getOpenGlVendor();
+	mGlVersion	 = info.getOpenglVersion();
 
 	// Set mLastSync years in the past (to signify no sync yet)
 	mLastSync.assign(2000, 1, 1);
@@ -77,7 +79,7 @@ void SettingsEditor::drawPostLocalClient() {
 				mOrigDest	  = mEngine.getDstRect();
 				mSrcDestSaved = true;
 			}
-			
+
 			auto newSrc = mEngine.getSrcRect();
 
 			auto dstSize   = ImGui::GetWindowSize();
@@ -96,7 +98,6 @@ void SettingsEditor::drawPostLocalClient() {
 			eng.markCameraDirty();
 		}
 	ImGui::End();*/
-		
 
 
 		drawSettings();
@@ -359,6 +360,9 @@ void SettingsEditor::drawAppStatusInfo() {
 	ImGui::Text("\tOS: %s", mOsVersion.data());
 	ImGui::Text("\tArcitecture: %s", mEnv.osArchitecture().data());
 	ImGui::Text("\tCores: %u", mEnv.processorCount());
+	ImGui::Text("\tGraphics");
+	ImGui::Text("\t\tVendor: %s", mGlVendor.data());
+	ImGui::Text("\t\tVersion: %s", mGlVersion.data());
 
 	ImGui::Text("Network");
 	auto host = Poco::Net::DNS::thisHost();

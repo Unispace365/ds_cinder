@@ -13,6 +13,10 @@ struct BaseComputerInfo {
 
 	/// Returns the OS Name + Version (or Unknown)
 	virtual std::string getOsVersion() = 0;
+
+	virtual std::string getOpenGlVendor() = 0;
+
+	virtual std::string getOpenglVersion() = 0;
 };
 
 } // namespace ds::cfg::impl

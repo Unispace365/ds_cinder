@@ -94,7 +94,20 @@ struct WinComputerInfo : public BaseComputerInfo {
 	}
 
 	virtual std::string getOsVersion() override { return "Windows 10/11"; }
+
+	virtual std::string getOpenGlVendor() override {
+		const GLubyte* vendor = glGetString(GL_VENDOR);
+		return std::string((const char*)(vendor), std::strlen((const char*)(vendor)));
+	};
+
+	virtual std::string getOpenglVersion() override {
+		const GLubyte* version	   = glGetString(GL_VERSION);
+		const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+		return std::string((const char*)(version)) + " (GLSL: " + std::string((const char*)(glslVersion)) + ")";
+	};
 };
+
 
 using ComputerInfo = WinComputerInfo;
 
