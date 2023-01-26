@@ -137,8 +137,9 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 				auto childLocalMap	 = it.getPropertyString("child_local_map");
 
 				std::function<bool(ds::model::ContentModelRef&, ds::model::ContentModelRef&)> isMatchFn;
-
+				bool																		  usingChildLocalId = false;
 				if (!childLocalId.empty()) {
+					usingChildLocalId = true;
 					isMatchFn = [childLocalId](ds::model::ContentModelRef& parChild, ds::model::ContentModelRef& row) {
 						return parChild.getId() == row.getPropertyInt(childLocalId);
 					};
@@ -166,14 +167,29 @@ void ContentQuery::assembleModels(ds::model::ContentModelRef tablesParent) {
 								   << "  Table name: " << it.getName());
 					continue;
 				}
-
-				for (auto row : it.getChildren()) {
+				std::unordered_map<int, std::vector<ds::model::ContentModelRef>> splitMap;
+				if (usingChildLocalId) {
+					for (auto row : it.getChildren()) {
+						auto& vec = splitMap[row.getPropertyInt(childLocalId)];
+						vec.push_back(row);
+					}
+					
 					for (auto parChild : parentModel.getChildren()) {
-						if (isMatchFn(parChild, row)) {
+						for (auto row : splitMap[parChild.getId()]){
 							parChild.addChild(row);
 						}
-					}
-				} // End of this table's rows
+					}// End of this table's rows
+
+				} else {
+
+					for (auto row : it.getChildren()) {
+						for (auto parChild : parentModel.getChildren()) {
+							if (isMatchFn(parChild, row)) {
+								parChild.addChild(row);
+							}
+						}
+					} // End of this table's rows
+				}
 			}	  // End of this depth check
 		}		  // End of tables in this for loop
 	}			  // End of depth for loop
