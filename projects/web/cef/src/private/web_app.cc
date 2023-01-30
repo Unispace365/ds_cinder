@@ -38,7 +38,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	// But it's here for posterity, in case you ever wanna disable stuff randomly
 	//command_line->AppendSwitch(CefString("disable-extensions"));
 
-	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
+	//command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 
 	command_line->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
 	command_line->AppendSwitchWithValue("use-gl", "angle");
@@ -56,7 +56,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	//command_line->AppendSwitch("disable-surfaces");
 	//command_line->AppendSwitch("enable-begin-frame-scheduling");
 
-	//command_line->AppendSwitch("off-screen-rendering-enabled");
+	command_line->AppendSwitch("off-screen-rendering-enabled");
 	command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 }
@@ -108,6 +108,8 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
 	window_info.SetAsWindowless(window);// , isTransparent);
+	//window_info.shared_texture_enabled = false;
+	//window_info.windowless_rendering_enabled = true;
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);

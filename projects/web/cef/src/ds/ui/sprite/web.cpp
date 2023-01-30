@@ -472,7 +472,7 @@ void Web::update(const ds::UpdateParams& p) {
 			mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		} else {
 			DS_LOG_VERBOSE(5, "Web: Reusing draw texture " << mUrl);
-			mWebTexture->update(mBuffer, GL_BGRA, -1, 0, mBrowserSize.x, mBrowserSize.y);
+			mWebTexture->update(mBuffer, GL_BGRA, GL_UNSIGNED_BYTE, 0, mBrowserSize.x, mBrowserSize.y);
 		}
 
 		mHasBuffer = false;

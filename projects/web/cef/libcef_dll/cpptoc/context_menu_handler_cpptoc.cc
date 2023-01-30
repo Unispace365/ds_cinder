@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b840f4ff3504ccc605d74312fc0ad124dfa3abd6$
+// $hash=6b90c347c6cc6cfbd8aa5e92eebc19929bd8c2c2$
 //
 
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/run_quick_menu_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 namespace {
@@ -35,24 +36,29 @@ void CEF_CALLBACK context_menu_handler_on_before_context_menu(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params);
-  if (!params)
+  if (!params) {
     return;
+  }
   // Verify param: model; type: refptr_diff
   DCHECK(model);
-  if (!model)
+  if (!model) {
     return;
+  }
 
   // Execute
   CefContextMenuHandlerCppToC::Get(self)->OnBeforeContextMenu(
@@ -73,28 +79,34 @@ int CEF_CALLBACK context_menu_handler_run_context_menu(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return 0;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params);
-  if (!params)
+  if (!params) {
     return 0;
+  }
   // Verify param: model; type: refptr_diff
   DCHECK(model);
-  if (!model)
+  if (!model) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuHandlerCppToC::Get(self)->RunContextMenu(
@@ -118,20 +130,24 @@ int CEF_CALLBACK context_menu_handler_on_context_menu_command(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return 0;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params);
-  if (!params)
+  if (!params) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuHandlerCppToC::Get(self)->OnContextMenuCommand(
@@ -151,19 +167,140 @@ void CEF_CALLBACK context_menu_handler_on_context_menu_dismissed(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefContextMenuHandlerCppToC::Get(self)->OnContextMenuDismissed(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame));
+}
+
+int CEF_CALLBACK context_menu_handler_run_quick_menu(
+    struct _cef_context_menu_handler_t* self,
+    cef_browser_t* browser,
+    struct _cef_frame_t* frame,
+    const cef_point_t* location,
+    const cef_size_t* size,
+    cef_quick_menu_edit_state_flags_t edit_state_flags,
+    cef_run_quick_menu_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return 0;
+  }
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame) {
+    return 0;
+  }
+  // Verify param: location; type: simple_byref_const
+  DCHECK(location);
+  if (!location) {
+    return 0;
+  }
+  // Verify param: size; type: simple_byref_const
+  DCHECK(size);
+  if (!size) {
+    return 0;
+  }
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback) {
+    return 0;
+  }
+
+  // Translate param: location; type: simple_byref_const
+  CefPoint locationVal = location ? *location : CefPoint();
+  // Translate param: size; type: simple_byref_const
+  CefSize sizeVal = size ? *size : CefSize();
+
+  // Execute
+  bool _retval = CefContextMenuHandlerCppToC::Get(self)->RunQuickMenu(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), locationVal,
+      sizeVal, edit_state_flags, CefRunQuickMenuCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK context_menu_handler_on_quick_menu_command(
+    struct _cef_context_menu_handler_t* self,
+    cef_browser_t* browser,
+    struct _cef_frame_t* frame,
+    int command_id,
+    cef_event_flags_t event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return 0;
+  }
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefContextMenuHandlerCppToC::Get(self)->OnQuickMenuCommand(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), command_id,
+      event_flags);
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK context_menu_handler_on_quick_menu_dismissed(
+    struct _cef_context_menu_handler_t* self,
+    cef_browser_t* browser,
+    struct _cef_frame_t* frame) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return;
+  }
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame) {
+    return;
+  }
+
+  // Execute
+  CefContextMenuHandlerCppToC::Get(self)->OnQuickMenuDismissed(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame));
 }
 
@@ -179,6 +316,11 @@ CefContextMenuHandlerCppToC::CefContextMenuHandlerCppToC() {
       context_menu_handler_on_context_menu_command;
   GetStruct()->on_context_menu_dismissed =
       context_menu_handler_on_context_menu_dismissed;
+  GetStruct()->run_quick_menu = context_menu_handler_run_quick_menu;
+  GetStruct()->on_quick_menu_command =
+      context_menu_handler_on_quick_menu_command;
+  GetStruct()->on_quick_menu_dismissed =
+      context_menu_handler_on_quick_menu_dismissed;
 }
 
 // DESTRUCTOR - Do not edit by hand.
@@ -194,7 +336,7 @@ CefRefPtr<CefContextMenuHandler> CefCppToCRefCounted<
     cef_context_menu_handler_t>::UnwrapDerived(CefWrapperType type,
                                                cef_context_menu_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

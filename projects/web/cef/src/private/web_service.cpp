@@ -101,13 +101,13 @@ void WebCefService::start() {
 		DS_LOG_WARNING("CEF setup exit code is not the expected value! Code: " << exit_code);
 	}
 	*/
-
+	
 	CefSettings settings;
 	// There's no sandboxing for IO requests
 	settings.no_sandbox = true;
 
 	// probably want to persist cookies
-	// settings.persist_session_cookies = true;
+	settings.persist_session_cookies = true;
 
 	// Single process could be used for debugging, but it's much slower and not-production ready
 	// No longer supported
@@ -121,6 +121,7 @@ void WebCefService::start() {
 	settings.windowless_rendering_enabled = true;
 
 	settings.background_color = CefColorSetARGB(255, 255, 255, 255);
+
 
 	// settings.command_line_args_disabled = true;
 
@@ -203,7 +204,7 @@ void WebCefService::start() {
 }
 
 void WebCefService::update(const ds::UpdateParams&) {
-	// CefDoMessageLoopWork();
+	//CefDoMessageLoopWork();
 }
 
 void WebCefService::createBrowser(const std::string& startUrl, void* instancePtr,

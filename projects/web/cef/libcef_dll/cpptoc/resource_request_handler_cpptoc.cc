@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=70457d6e92ff60ee9955d451f5d3d78b70535510$
+// $hash=ae437028fb869b3a569bb45d150cf772a309a1f2$
 //
 
 #include "libcef_dll/cpptoc/resource_request_handler_cpptoc.h"
@@ -17,8 +17,8 @@
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/callback_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
-#include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 
@@ -35,12 +35,14 @@ resource_request_handler_get_cookie_access_filter(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -59,28 +61,30 @@ resource_request_handler_on_before_resource_load(
     cef_browser_t* browser,
     cef_frame_t* frame,
     cef_request_t* request,
-    cef_request_callback_t* callback) {
+    cef_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return RV_CONTINUE;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return RV_CONTINUE;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return RV_CONTINUE;
+  }
   // Unverified params: browser, frame
 
   // Execute
   cef_return_value_t _retval =
       CefResourceRequestHandlerCppToC::Get(self)->OnBeforeResourceLoad(
           CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-          CefRequestCToCpp::Wrap(request),
-          CefRequestCallbackCToCpp::Wrap(callback));
+          CefRequestCToCpp::Wrap(request), CefCallbackCToCpp::Wrap(callback));
 
   // Return type: simple
   return _retval;
@@ -95,12 +99,14 @@ resource_request_handler_get_resource_handler(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -123,20 +129,24 @@ void CEF_CALLBACK resource_request_handler_on_resource_redirect(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response);
-  if (!response)
+  if (!response) {
     return;
+  }
   // Verify param: new_url; type: string_byref
   DCHECK(new_url);
-  if (!new_url)
+  if (!new_url) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Translate param: new_url; type: string_byref
@@ -158,16 +168,19 @@ int CEF_CALLBACK resource_request_handler_on_resource_response(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return 0;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response);
-  if (!response)
+  if (!response) {
     return 0;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -189,16 +202,19 @@ resource_request_handler_get_resource_response_filter(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response);
-  if (!response)
+  if (!response) {
     return NULL;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -222,16 +238,19 @@ void CEF_CALLBACK resource_request_handler_on_resource_load_complete(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response);
-  if (!response)
+  if (!response) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -250,16 +269,19 @@ void CEF_CALLBACK resource_request_handler_on_protocol_execution(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
   // Verify param: allow_os_execution; type: bool_byref
   DCHECK(allow_os_execution);
-  if (!allow_os_execution)
+  if (!allow_os_execution) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Translate param: allow_os_execution; type: bool_byref
@@ -272,8 +294,9 @@ void CEF_CALLBACK resource_request_handler_on_protocol_execution(
       CefRequestCToCpp::Wrap(request), allow_os_executionBool);
 
   // Restore param: allow_os_execution; type: bool_byref
-  if (allow_os_execution)
+  if (allow_os_execution) {
     *allow_os_execution = allow_os_executionBool ? true : false;
+  }
 }
 
 }  // namespace
@@ -310,7 +333,7 @@ CefCppToCRefCounted<CefResourceRequestHandlerCppToC,
                     cef_resource_request_handler_t>::
     UnwrapDerived(CefWrapperType type, cef_resource_request_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

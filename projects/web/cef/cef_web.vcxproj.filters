@@ -20,25 +20,31 @@
       <UniqueIdentifier>{8e2f0597-103d-41e5-8d74-3fe2400ba741}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\base">
-      <UniqueIdentifier>{af3d4ed1-a969-4e20-a231-d35fbd8bb9e0}</UniqueIdentifier>
+      <UniqueIdentifier>{e0895d0b-49cb-4a12-84fb-0e091860f13c}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\capi">
-      <UniqueIdentifier>{65cadee2-1b8d-4bab-90c8-1604e2ac0861}</UniqueIdentifier>
+      <UniqueIdentifier>{af9b5bdd-636c-4696-b22b-2104be0fcd5c}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\internal">
-      <UniqueIdentifier>{6c208ece-6e3f-4c61-952f-59a26d34ed03}</UniqueIdentifier>
+      <UniqueIdentifier>{c345e2a5-236e-4edd-ad5d-ba5fc580849d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cef\test">
+      <UniqueIdentifier>{3a5b2ba5-384a-4b66-a06e-51723fafc458}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\views">
-      <UniqueIdentifier>{da6b72a5-f648-4747-acdc-a2ad111e0c28}</UniqueIdentifier>
+      <UniqueIdentifier>{eb574e02-d72f-4b94-ae1e-86cb9a488561}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\wrapper">
-      <UniqueIdentifier>{d01c3d73-aaa2-4a85-b383-96d22d5e0a92}</UniqueIdentifier>
+      <UniqueIdentifier>{e90389d0-d554-4b2b-a926-67d44fa95890}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\base\internal">
-      <UniqueIdentifier>{af9b2492-9ce7-4b8c-a86a-55a308890fb4}</UniqueIdentifier>
+      <UniqueIdentifier>{2249d945-fe06-433f-9b4d-1d991953f9df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cef\capi\test">
+      <UniqueIdentifier>{c5b0c48e-3913-42e5-8554-c42c2183ffb4}</UniqueIdentifier>
     </Filter>
     <Filter Include="cef\capi\views">
-      <UniqueIdentifier>{55146367-717b-4e97-8351-755d38fe16cf}</UniqueIdentifier>
+      <UniqueIdentifier>{b89c1ba8-fa11-430f-9d11-2a7074b21101}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,22 +54,22 @@
     <ClInclude Include="src\private\web_service.h">
       <Filter>src\private</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_sandbox_win.h">
-      <Filter>cef</Filter>
+    <ClInclude Include="src\private\web_callbacks.h">
+      <Filter>src\private</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_scheme.h">
-      <Filter>cef</Filter>
+    <ClInclude Include="src\private\web_handler.h">
+      <Filter>src\private</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_ssl_info.h">
-      <Filter>cef</Filter>
+    <ClInclude Include="src\private\web_app.h">
+      <Filter>src\private</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_stream.h">
-      <Filter>cef</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cef_string_visitor.h">
-      <Filter>cef</Filter>
+    <ClInclude Include="..\..\..\src\stdafx.h">
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_task.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_thread.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_trace.h">
@@ -81,7 +87,10 @@
     <ClInclude Include="include\cef_version.h">
       <Filter>cef</Filter>
     </ClInclude>
-    <ClInclude Include="include\cef_web_plugin.h">
+    <ClInclude Include="include\cef_waitable_event.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_x509_certificate.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_xml_reader.h">
@@ -90,7 +99,16 @@
     <ClInclude Include="include\cef_zip_reader.h">
       <Filter>cef</Filter>
     </ClInclude>
+    <ClInclude Include="include\cef_accessibility_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_api_hash.h">
+      <Filter>cef</Filter>
+    </ClInclude>
     <ClInclude Include="include\cef_app.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_audio_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_auth_callback.h">
@@ -111,13 +129,28 @@
     <ClInclude Include="include\cef_client.h">
       <Filter>cef</Filter>
     </ClInclude>
+    <ClInclude Include="include\cef_command_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_command_ids.h">
+      <Filter>cef</Filter>
+    </ClInclude>
     <ClInclude Include="include\cef_command_line.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_config.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_context_menu_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_cookie.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_crash_util.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_devtools_message_observer.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_dialog_handler.h">
@@ -141,6 +174,15 @@
     <ClInclude Include="include\cef_drag_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
+    <ClInclude Include="include\cef_extension.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_extension_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_file_util.h">
+      <Filter>cef</Filter>
+    </ClInclude>
     <ClInclude Include="include\cef_find_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
@@ -148,6 +190,12 @@
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_frame.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_frame_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_i18n_util.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_image.h">
@@ -163,6 +211,9 @@
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_load_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_media_router.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_menu_model.h">
@@ -189,6 +240,12 @@
     <ClInclude Include="include\cef_path_util.h">
       <Filter>cef</Filter>
     </ClInclude>
+    <ClInclude Include="include\cef_permission_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_preference.h">
+      <Filter>cef</Filter>
+    </ClInclude>
     <ClInclude Include="include\cef_print_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
@@ -199,6 +256,9 @@
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_process_util.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_registration.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_render_handler.h">
@@ -228,25 +288,61 @@
     <ClInclude Include="include\cef_resource_handler.h">
       <Filter>cef</Filter>
     </ClInclude>
+    <ClInclude Include="include\cef_resource_request_handler.h">
+      <Filter>cef</Filter>
+    </ClInclude>
     <ClInclude Include="include\cef_response.h">
       <Filter>cef</Filter>
     </ClInclude>
     <ClInclude Include="include\cef_response_filter.h">
       <Filter>cef</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\cef_move.h">
+    <ClInclude Include="include\cef_sandbox_win.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_scheme.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_server.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_shared_memory_region.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_shared_process_message_builder.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_ssl_info.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_ssl_status.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_stream.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cef_string_visitor.h">
+      <Filter>cef</Filter>
+    </ClInclude>
+    <ClInclude Include="include\base\cef_lock.h">
+      <Filter>cef\base</Filter>
+    </ClInclude>
+    <ClInclude Include="include\base\cef_logging.h">
+      <Filter>cef\base</Filter>
+    </ClInclude>
+    <ClInclude Include="include\base\cef_macros.h">
       <Filter>cef\base</Filter>
     </ClInclude>
     <ClInclude Include="include\base\cef_platform_thread.h">
       <Filter>cef\base</Filter>
     </ClInclude>
+    <ClInclude Include="include\base\cef_ptr_util.h">
+      <Filter>cef\base</Filter>
+    </ClInclude>
     <ClInclude Include="include\base\cef_ref_counted.h">
       <Filter>cef\base</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\cef_scoped_ptr.h">
-      <Filter>cef\base</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\cef_string16.h">
+    <ClInclude Include="include\base\cef_scoped_refptr.h">
       <Filter>cef\base</Filter>
     </ClInclude>
     <ClInclude Include="include\base\cef_template_util.h">
@@ -264,19 +360,19 @@
     <ClInclude Include="include\base\cef_weak_ptr.h">
       <Filter>cef\base</Filter>
     </ClInclude>
+    <ClInclude Include="include\base\cef_atomic_flag.h">
+      <Filter>cef\base</Filter>
+    </ClInclude>
     <ClInclude Include="include\base\cef_atomic_ref_count.h">
       <Filter>cef\base</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\cef_atomicops.h">
+    <ClInclude Include="include\base\cef_auto_reset.h">
       <Filter>cef\base</Filter>
     </ClInclude>
     <ClInclude Include="include\base\cef_basictypes.h">
       <Filter>cef\base</Filter>
     </ClInclude>
     <ClInclude Include="include\base\cef_bind.h">
-      <Filter>cef\base</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\cef_bind_helpers.h">
       <Filter>cef\base</Filter>
     </ClInclude>
     <ClInclude Include="include\base\cef_build.h">
@@ -297,67 +393,34 @@
     <ClInclude Include="include\base\cef_cancelable_callback.h">
       <Filter>cef\base</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\cef_lock.h">
+    <ClInclude Include="include\base\cef_compiler_specific.h">
       <Filter>cef\base</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\cef_logging.h">
-      <Filter>cef\base</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\cef_macros.h">
-      <Filter>cef\base</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\internal\cef_bind_internal.h">
-      <Filter>cef\base\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\internal\cef_bind_internal_win.h">
-      <Filter>cef\base\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\base\internal\cef_callback_internal.h">
-      <Filter>cef\base\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\base\internal\cef_lock_impl.h">
+      <Filter>cef\base\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\base\internal\cef_net_error_list.h">
       <Filter>cef\base\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\base\internal\cef_raw_scoped_refptr_mismatch_checker.h">
       <Filter>cef\base\internal</Filter>
     </ClInclude>
+    <ClInclude Include="include\base\internal\cef_scoped_policy.h">
+      <Filter>cef\base\internal</Filter>
+    </ClInclude>
     <ClInclude Include="include\base\internal\cef_thread_checker_impl.h">
       <Filter>cef\base\internal</Filter>
     </ClInclude>
-    <ClInclude Include="include\base\internal\cef_atomicops_x86_msvc.h">
+    <ClInclude Include="include\base\internal\cef_bind_internal.h">
       <Filter>cef\base\internal</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\cef_request_handler_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_resource_bundle_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_resource_bundle_handler_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_resource_handler_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_response_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_response_filter_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_scheme_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_ssl_info_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_stream_capi.h">
-      <Filter>cef\capi</Filter>
-    </ClInclude>
-    <ClInclude Include="include\capi\cef_string_visitor_capi.h">
-      <Filter>cef\capi</Filter>
+    <ClInclude Include="include\base\internal\cef_callback_internal.h">
+      <Filter>cef\base\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_task_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_thread_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_trace_capi.h">
@@ -372,7 +435,10 @@
     <ClInclude Include="include\capi\cef_values_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\cef_web_plugin_capi.h">
+    <ClInclude Include="include\capi\cef_waitable_event_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_x509_certificate_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_xml_reader_capi.h">
@@ -381,7 +447,13 @@
     <ClInclude Include="include\capi\cef_zip_reader_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
+    <ClInclude Include="include\capi\cef_accessibility_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
     <ClInclude Include="include\capi\cef_app_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_audio_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_auth_callback_capi.h">
@@ -402,6 +474,9 @@
     <ClInclude Include="include\capi\cef_client_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
+    <ClInclude Include="include\capi\cef_command_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
     <ClInclude Include="include\capi\cef_command_line_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
@@ -409,6 +484,12 @@
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_cookie_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_crash_util_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_devtools_message_observer_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_dialog_handler_capi.h">
@@ -432,6 +513,15 @@
     <ClInclude Include="include\capi\cef_drag_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
+    <ClInclude Include="include\capi\cef_extension_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_extension_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_file_util_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
     <ClInclude Include="include\capi\cef_find_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
@@ -439,6 +529,12 @@
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_frame_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_frame_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_i18n_util_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_image_capi.h">
@@ -454,6 +550,9 @@
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_load_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_media_router_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_menu_model_capi.h">
@@ -474,6 +573,12 @@
     <ClInclude Include="include\capi\cef_path_util_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
+    <ClInclude Include="include\capi\cef_permission_handler_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_preference_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
     <ClInclude Include="include\capi\cef_print_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
@@ -484,6 +589,9 @@
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_process_util_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_registration_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\cef_render_handler_capi.h">
@@ -501,23 +609,59 @@
     <ClInclude Include="include\capi\cef_request_context_handler_capi.h">
       <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_browser_view_delegate_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_request_handler_capi.h">
+      <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_button_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_resource_bundle_capi.h">
+      <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_button_delegate_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_resource_bundle_handler_capi.h">
+      <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_display_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_resource_handler_capi.h">
+      <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_fill_layout_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_resource_request_handler_capi.h">
+      <Filter>cef\capi</Filter>
     </ClInclude>
-    <ClInclude Include="include\capi\views\cef_label_button_capi.h">
-      <Filter>cef\capi\views</Filter>
+    <ClInclude Include="include\capi\cef_response_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_response_filter_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_scheme_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_server_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_shared_memory_region_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_shared_process_message_builder_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_ssl_info_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_ssl_status_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_stream_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\cef_string_visitor_capi.h">
+      <Filter>cef\capi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\test\cef_test_helpers_capi.h">
+      <Filter>cef\capi\test</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\test\cef_test_server_capi.h">
+      <Filter>cef\capi\test</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\test\cef_translator_test_capi.h">
+      <Filter>cef\capi\test</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\views\cef_layout_capi.h">
       <Filter>cef\capi\views</Filter>
@@ -526,6 +670,9 @@
       <Filter>cef\capi\views</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\views\cef_menu_button_delegate_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_overlay_controller_capi.h">
       <Filter>cef\capi\views</Filter>
     </ClInclude>
     <ClInclude Include="include\capi\views\cef_panel_capi.h">
@@ -561,8 +708,23 @@
     <ClInclude Include="include\capi\views\cef_browser_view_capi.h">
       <Filter>cef\capi\views</Filter>
     </ClInclude>
-    <ClInclude Include="include\internal\cef_string_list.h">
-      <Filter>cef\internal</Filter>
+    <ClInclude Include="include\capi\views\cef_browser_view_delegate_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_button_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_button_delegate_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_display_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_fill_layout_capi.h">
+      <Filter>cef\capi\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\capi\views\cef_label_button_capi.h">
+      <Filter>cef\capi\views</Filter>
     </ClInclude>
     <ClInclude Include="include\internal\cef_string_map.h">
       <Filter>cef\internal</Filter>
@@ -582,10 +744,16 @@
     <ClInclude Include="include\internal\cef_time.h">
       <Filter>cef\internal</Filter>
     </ClInclude>
+    <ClInclude Include="include\internal\cef_time_wrappers.h">
+      <Filter>cef\internal</Filter>
+    </ClInclude>
     <ClInclude Include="include\internal\cef_trace_event_internal.h">
       <Filter>cef\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\internal\cef_types.h">
+      <Filter>cef\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\internal\cef_types_geometry.h">
       <Filter>cef\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\internal\cef_types_win.h">
@@ -595,6 +763,9 @@
       <Filter>cef\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\internal\cef_win.h">
+      <Filter>cef\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\internal\cef_app_win.h">
       <Filter>cef\internal</Filter>
     </ClInclude>
     <ClInclude Include="include\internal\cef_export.h">
@@ -609,8 +780,17 @@
     <ClInclude Include="include\internal\cef_string.h">
       <Filter>cef\internal</Filter>
     </ClInclude>
-    <ClInclude Include="include\views\cef_browser_view.h">
-      <Filter>cef\views</Filter>
+    <ClInclude Include="include\internal\cef_string_list.h">
+      <Filter>cef\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\test\cef_test_server.h">
+      <Filter>cef\test</Filter>
+    </ClInclude>
+    <ClInclude Include="include\test\cef_translator_test.h">
+      <Filter>cef\test</Filter>
+    </ClInclude>
+    <ClInclude Include="include\test\cef_test_helpers.h">
+      <Filter>cef\test</Filter>
     </ClInclude>
     <ClInclude Include="include\views\cef_browser_view_delegate.h">
       <Filter>cef\views</Filter>
@@ -637,6 +817,9 @@
       <Filter>cef\views</Filter>
     </ClInclude>
     <ClInclude Include="include\views\cef_menu_button_delegate.h">
+      <Filter>cef\views</Filter>
+    </ClInclude>
+    <ClInclude Include="include\views\cef_overlay_controller.h">
       <Filter>cef\views</Filter>
     </ClInclude>
     <ClInclude Include="include\views\cef_panel.h">
@@ -669,13 +852,16 @@
     <ClInclude Include="include\views\cef_box_layout.h">
       <Filter>cef\views</Filter>
     </ClInclude>
-    <ClInclude Include="include\wrapper\cef_helpers.h">
-      <Filter>cef\wrapper</Filter>
+    <ClInclude Include="include\views\cef_browser_view.h">
+      <Filter>cef\views</Filter>
     </ClInclude>
     <ClInclude Include="include\wrapper\cef_message_router.h">
       <Filter>cef\wrapper</Filter>
     </ClInclude>
     <ClInclude Include="include\wrapper\cef_resource_manager.h">
+      <Filter>cef\wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrapper\cef_scoped_temp_dir.h">
       <Filter>cef\wrapper</Filter>
     </ClInclude>
     <ClInclude Include="include\wrapper\cef_stream_resource_handler.h">
@@ -693,17 +879,8 @@
     <ClInclude Include="include\wrapper\cef_closure_task.h">
       <Filter>cef\wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="src\private\web_callbacks.h">
-      <Filter>src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="src\private\web_handler.h">
-      <Filter>src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="src\private\web_app.h">
-      <Filter>src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\stdafx.h">
-      <Filter>src</Filter>
+    <ClInclude Include="include\wrapper\cef_helpers.h">
+      <Filter>cef\wrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -722,5 +899,10 @@
     <ClCompile Include="src\private\web_handler.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="include\base\internal\README-TRANSFER.txt">
+      <Filter>cef\base\internal</Filter>
+    </Text>
   </ItemGroup>
 </Project>

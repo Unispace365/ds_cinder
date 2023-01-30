@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3312cb333052eb2fa99a73fc863d918b385954f5$
+// $hash=cba0c0be85a7b8de588f939e43c267dbfe5eaca7$
 //
 
 #include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"
@@ -24,12 +24,14 @@ void CEF_CALLBACK v8array_buffer_release_callback_release_buffer(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: buffer; type: simple_byaddr
   DCHECK(buffer);
-  if (!buffer)
+  if (!buffer) {
     return;
+  }
 
   // Execute
   CefV8ArrayBufferReleaseCallbackCppToC::Get(self)->ReleaseBuffer(buffer);
@@ -56,7 +58,7 @@ CefCppToCRefCounted<CefV8ArrayBufferReleaseCallbackCppToC,
     UnwrapDerived(CefWrapperType type,
                   cef_v8array_buffer_release_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>
