@@ -660,9 +660,6 @@ void App::setupKeyPresses() {
 			mEngine.getNotifier().notify(EngineStatsView::ToggleHelpRequest());
 		},
 		KeyEvent::KEY_h);
-	/* mKeyManager.registerKey(
-		"Toggle Debug Tools", [this] { mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); },
-		KeyEvent::KEY_s); */
 	mKeyManager.registerKey(
 		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey(
@@ -697,10 +694,17 @@ void App::setupKeyPresses() {
 		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
 		true);
 	mKeyManager.registerKey(
-		"Toggle debug tools",
+		"Toggle Debug Stats", [this] {
+			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
+											  : mEngine.showSettingsEditor("stats");
+			// mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); 
+		},
+		KeyEvent::KEY_s);
+	mKeyManager.registerKey(
+		"Toggle Debug Tools",
 		[this] {
 			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
-											  : mEngine.showSettingsEditor(mEngineSettings);
+											  : mEngine.showSettingsEditor();
 		},
 		KeyEvent::KEY_e);
 	/* mKeyManager.registerKey(

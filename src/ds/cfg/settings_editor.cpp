@@ -71,35 +71,6 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 void SettingsEditor::drawPostLocalClient() {
 	if (mOpen && visible()) {
 		drawMenu();
-
-		/* ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("App", NULL, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBackground)) {
-			if (!mSrcDestSaved) {
-				mOrigSrc	  = mEngine.getSrcRect();
-				mOrigDest	  = mEngine.getDstRect();
-				mSrcDestSaved = true;
-			}
-
-			auto newSrc = mEngine.getSrcRect();
-
-			auto dstSize   = ImGui::GetWindowSize();
-			auto dstPos	   = ImGui::GetWindowPos();
-			auto dstAspect = dstSize.x / dstSize.y;
-			auto srcAspect = newSrc.getAspectRatio();
-
-			float origScale = mOrigDest.getWidth() / mOrigSrc.getWidth();
-			float newScale	= dstSize.x / mOrigDest.getWidth();
-
-			newSrc = newSrc.getCenteredFit(ci::Rectf(0.f, 0.f, dstSize.x *  newScale, dstSize.y * newScale), true);
-			newSrc.scale(origScale);
-
-			auto& eng		   = ((ds::Engine&)(mEngine));
-			eng.mData.mSrcRect = newSrc;
-			eng.markCameraDirty();
-		}
-	ImGui::End();*/
-
-
 		drawSettings();
 
 		if (mContentOpen) drawContent();
@@ -774,6 +745,10 @@ void SettingsEditor::showSettings(const std::string theSettingsName) {
 	if (!mOpen) {
 		show();
 		mOpen = true;
+	}
+
+	if(theSettingsName == "stats"){
+		mAppStatusOpen = true;
 	}
 }
 

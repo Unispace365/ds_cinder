@@ -117,7 +117,7 @@ class Engine : public ui::SpriteEngine {
 
 	void prepareSettings(ci::app::AppBase::Settings&);
 	void reloadSettings();
-	void showSettingsEditor(ds::cfg::Settings& theSettings);
+	void showSettingsEditor(const std::string& name = "");
 	void hideSettingsEditor();
 	bool isShowingSettingsEditor();
 

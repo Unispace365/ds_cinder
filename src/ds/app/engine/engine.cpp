@@ -581,9 +581,9 @@ void Engine::onAppEvent(const ds::Event& in_e) {
 	}
 }
 
-void Engine::showSettingsEditor(ds::cfg::Settings& theSettings) {
+void Engine::showSettingsEditor(const std::string& name) {
 	if (mSettingsEditor) {
-		mSettingsEditor->showSettings(theSettings.getName());
+		mSettingsEditor->showSettings(name);
 	}
 }
 
