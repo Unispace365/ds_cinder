@@ -44,18 +44,25 @@ class MediaInterface : public ds::ui::Sprite {
 		   layout();
 	}
 
+	bool isLocked() { return mCanLock && mLocked; }
+
   protected:
 	virtual void onLayout(){};
 	virtual void onSizeChanged() override;
 
-	float			mAnimateDuration;
 	ds::ui::Sprite* mBackground;
-	float			mMinWidth;
-	float			mMaxWidth;
-	bool			mIdling;
-	bool			mCanIdle;
-	bool			mCanDisplay;
-	float			mInterfaceIdleSettings;
+
+	float mAnimateDuration;
+	float mMinWidth;
+	float mMaxWidth;
+
+	bool mIdling;
+	bool mCanIdle;
+	bool mCanDisplay;
+	bool mCanLock;
+	bool mLocked = false;
+
+	float mInterfaceIdleSettings;
 };
 
 } // namespace ds::ui

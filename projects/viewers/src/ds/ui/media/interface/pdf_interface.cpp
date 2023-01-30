@@ -32,6 +32,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
   , mThumbnailBar(nullptr)
   , mShowingThumbs(false) {
 
+  	  mCanLock = true;
+
 	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",
 										"%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
@@ -288,8 +290,10 @@ void PDFInterface::toggleTouch() {
 	if (mLinkedPDF) {
 		if (mLinkedPDF->isEnabled()) {
 			stopTouch();
+			mLocked = false;
 		} else {
 			startTouch();
+			mLocked = true;
 		}
 	}
 }

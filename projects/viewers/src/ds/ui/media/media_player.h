@@ -103,6 +103,9 @@ class MediaPlayer : public ds::ui::Sprite {
 	/// visible
 	void setCanDisplayInterface(const bool canDisplay);
 
+	// void setInterfaceLocked(bool isLocked);
+	bool isInterfaceLocked();
+
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
@@ -164,6 +167,7 @@ class MediaPlayer : public ds::ui::Sprite {
 	bool mEmbedInterface	= false;
 	bool mInitialized		= false;
 	bool mDisabledInterface = false;
+	bool mInterfaceLocked	= false;
 
 	ds::Resource mResource;
 	float		 mContentAspectRatio;

@@ -19,13 +19,14 @@ namespace ds::ui {
 
 MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroundColor)
   : ds::ui::Sprite(eng, sizey.x, sizey.y)
-  , mAnimateDuration(0.35f)
   , mBackground(nullptr)
+  , mAnimateDuration(0.35f)
   , mMinWidth(sizey.y)
   , mMaxWidth(sizey.x)
   , mIdling(false)
   , mCanIdle(true)
   , mCanDisplay(true)
+  , mCanLock(false)
   , mInterfaceIdleSettings(5.0f) {
 
 	// TODO: settings?
@@ -81,8 +82,7 @@ void MediaInterface::setBackgroundColor(ci::Color newColor) {
 	if (mBackground) mBackground->setColor(newColor);
 }
 
-void MediaInterface::show()
-{
+void MediaInterface::show() {
 	if (mCanDisplay) {
 		Sprite::show();
 	}

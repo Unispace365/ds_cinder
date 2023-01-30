@@ -3,7 +3,7 @@
 #include "ds/app/event_client.h"
 #include "ds/ui/media/media_interface.h"
 
-namespace ds { namespace ui {
+namespace ds::ui {
 
 	class ImageButton;
 	class Text;
@@ -93,4 +93,4 @@ namespace ds { namespace ui {
 		ds::ui::EntryField*	  mPasswordField;
 	};
 
-}} // namespace ds::ui
+} // namespace ds::ui

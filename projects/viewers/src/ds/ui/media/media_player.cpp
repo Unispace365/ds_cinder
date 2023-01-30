@@ -592,6 +592,18 @@ void MediaPlayer::setCanDisplayInterface(const bool canDisplay) {
 	}
 }
 
+/* void MediaPlayer::setInterfaceLocked(bool isLocked){
+	auto mi = getMediaInterface();
+	if(mi) return mi->isLocked();
+	return false;
+} */
+
+bool MediaPlayer::isInterfaceLocked() {
+	auto mi = getMediaInterface();
+	if(mi) return mi->isLocked();
+	return false;
+}
+
 void MediaPlayer::showInterface() {
 	if (mVideoPlayer) mVideoPlayer->showInterface();
 	if (mPanoramicPlayer) mPanoramicPlayer->showInterface();
