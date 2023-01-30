@@ -431,7 +431,7 @@ void WebInterface::updateWidgets() {
 				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
 															ds::ui::Image::IMG_CACHE_F);
 				mWebLocked = true;
-				mLocked = mWebLocked;
+				setLocked(mWebLocked);
 			}
 		} else {
 			if (mWebLocked) {
@@ -440,7 +440,7 @@ void WebInterface::updateWidgets() {
 				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
 															ds::ui::Image::IMG_CACHE_F);
 				mWebLocked = false;
-				mLocked = mWebLocked;
+				setLocked(mWebLocked);
 			}
 		}
 	}

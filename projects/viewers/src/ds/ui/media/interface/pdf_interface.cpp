@@ -290,10 +290,10 @@ void PDFInterface::toggleTouch() {
 	if (mLinkedPDF) {
 		if (mLinkedPDF->isEnabled()) {
 			stopTouch();
-			mLocked = false;
+			setLocked(false);
 		} else {
 			startTouch();
-			mLocked = true;
+			setLocked(true);
 		}
 	}
 }

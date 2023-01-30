@@ -44,7 +44,15 @@ class MediaInterface : public ds::ui::Sprite {
 		   layout();
 	}
 
+	void setLocked(bool isLock){
+		if(!mCanLock) return;
+		mLocked = isLock;
+		if(mLockChangeCallback) mLockChangeCallback(isLock);
+	}
 	bool isLocked() { return mCanLock && mLocked; }
+	void setLockStateCallback(std::function<void(bool)> lockChangeCallback) {
+		mLockChangeCallback = lockChangeCallback;
+	}
 
   protected:
 	virtual void onLayout(){};
@@ -56,11 +64,12 @@ class MediaInterface : public ds::ui::Sprite {
 	float mMinWidth;
 	float mMaxWidth;
 
-	bool mIdling;
-	bool mCanIdle;
-	bool mCanDisplay;
-	bool mCanLock;
-	bool mLocked = false;
+	bool					  mIdling;
+	bool					  mCanIdle;
+	bool					  mCanDisplay;
+	bool					  mCanLock;
+	bool					  mLocked = false;
+	std::function<void(bool)> mLockChangeCallback;
 
 	float mInterfaceIdleSettings;
 };
