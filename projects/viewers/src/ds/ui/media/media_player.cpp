@@ -238,6 +238,7 @@ void MediaPlayer::setDefaultBounds(const float defaultWidth, const float default
 }
 
 void MediaPlayer::setWebViewSize(const ci::vec2 webSize) {
+	if(mWebPlayer){ mWebPlayer->setWebViewSize(webSize); }
 	mMediaViewerSettings.mWebDefaultSize = webSize;
 }
 

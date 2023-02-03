@@ -459,10 +459,11 @@ void Web::update(const ds::UpdateParams& p) {
 		setZoom(mZoom);
 	}
 
-	// Anything that modifies mBuffer needs to be locked
-	std::lock_guard<std::mutex> lock(mMutex);
 
 	if (mBuffer && mHasBuffer) {
+		// Anything that modifies mBuffer needs to be locked
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mWebTexture || mWebTexture->getWidth() != mBrowserSize.x || mWebTexture->getHeight() != mBrowserSize.y) {
 			DS_LOG_VERBOSE(5, "Web: creating draw texture " << mUrl);
 			ci::gl::Texture::Format fmt;
@@ -478,8 +479,10 @@ void Web::update(const ds::UpdateParams& p) {
 		mHasBuffer = false;
 	}
 
-
 	if (mPopupBuffer && mHasPopupBuffer) {
+		// Anything that modifies mBuffer needs to be locked
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!mPopupTexture || mPopupTexture->getWidth() != (int)mPopupSize.x ||
 			mPopupTexture->getHeight() != (int)mPopupSize.y) {
 			DS_LOG_VERBOSE(5, "Web: creating popup draw texture " << mUrl);
@@ -600,8 +603,21 @@ void Web::setUrlOrThrow(const std::string& url) {
 
 
 void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
-	sendKeyDownEvent(keyEvent);
-	sendKeyUpEvent(keyEvent);
+	// For some reason the arrow keys don't get forwarded properly without this
+	// Main use-case is using clickers/keyboard for navigating presentations
+	if (keyEvent.getCode() == ci::app::KeyEvent::KEY_UP ||
+		keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT ||
+		keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN) {
+		ci::app::KeyEvent event(mEngine.getWindow(), keyEvent.getCode(), keyEvent.getCode(), '	', 0,
+								keyEvent.getCode());
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	} else {
+		sendKeyDownEvent(keyEvent);
+		sendKeyUpEvent(keyEvent);
+	}
+	
+	
 }
 
 void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {

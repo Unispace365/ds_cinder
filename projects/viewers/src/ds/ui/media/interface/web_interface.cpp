@@ -471,6 +471,9 @@ void WebInterface::updateWidgets() {
 				mKeyboard->setKeyPressFunction(
 					[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
 						if (mLinkedWeb) {
+							if(mLinkedWeb != mEngine.getRegisteredEntryField()){
+								mEngine.registerEntryField(mLinkedWeb);
+							}
 							if (mAuthorizing && mUserField && mPasswordField && mAuthLayout) {
 								if (mUserField->getIsInFocus()) {
 									if (keyType == SoftKeyboardDefs::KeyType::kEnter ||

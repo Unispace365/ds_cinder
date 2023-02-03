@@ -16,21 +16,22 @@ namespace ds { namespace ui {
 	ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig,
 							 std::vector<ds::ui::TouchMenu::MenuItemModel> itemModels)
 	  : ds::ui::Sprite(enginey)
+	  , mBackground(nullptr)
+	  , mGraphicHolder(nullptr)
 	  , mActive(false)
 	  , mInvalid(false)
-	  , mBackground(nullptr)
-	  , mMenuConfig(menuConfig)
-	  , mItemModels(itemModels)
 	  , mTappableMode(false)
-	  , mGraphicHolder(nullptr) {
+	  , mMenuConfig(menuConfig)
+	  , mItemModels(itemModels) {
 
 		mBackground = new ds::ui::Image(mEngine);
 		if (mBackground) {
 			addChild(*mBackground);
 			mBackground->setCenter(0.5f, 0.5f);
 			mBackground->setPosition(mMenuConfig.mBackgroundOffset);
-			mBackground->setColor(mMenuConfig.mBackgroundColor);
+			mBackground->setColorA(mMenuConfig.mBackgroundColor);
 			mBackground->setScale(0.0f, 0.0f, 0.0f);
+			mBackground->setBlendMode(mMenuConfig.mBackgroundBlendMode);
 			mBackground->setOpacity(0.0f);
 
 			if (!mMenuConfig.mBackgroundImage.empty()) {

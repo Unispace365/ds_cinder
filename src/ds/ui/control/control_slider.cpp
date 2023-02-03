@@ -10,12 +10,12 @@ namespace ds { namespace ui {
 								 const float slideLength)
 	  : Sprite(engine)
 	  , mVertical(vertical)
-	  , mNub(nullptr)
 	  , mBackground(nullptr)
+	  , mNub(nullptr)
+	  , mTouchPadding(20.0f)
 	  , mSliderPercent(0.0)
 	  , mMinValue(0.0)
 	  , mMaxValue(1.0)
-	  , mTouchPadding(20.0f)
 	  , mSliderInterpolation(kSliderTypeLinear) {
 
 		// Set some defaults
@@ -48,7 +48,7 @@ namespace ds { namespace ui {
 	}
 
 	void ControlSlider::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
-		if (ti.mFingerIndex == 0) {
+		if (ti.mNumberFingers == 1 || ti.mNumberFingers == 0) {
 			ci::vec3 localPos = globalToLocal(ti.mCurrentGlobalPoint);
 
 			bool  isPerspective = getPerspective();

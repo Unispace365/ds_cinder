@@ -27,15 +27,20 @@ namespace ds { namespace ui {
 			  , mTitle(L"")
 			  , mSubtitle(L"")
 			  , mIconNormalImage("")
-			  , mIconHighlightedImage("") {}
+			  , mIconHighlightedImage("")
+			  , mNormalColor(ci::ColorA::white())
+			  , mHighlightColor(ci::ColorA::white()) {}
 			MenuItemModel(const std::wstring& titley, const std::string& normalImage = "",
 						  const std::string& highImage = "", std::function<void(ci::vec3)> callback = nullptr,
-						  const std::wstring& subtitley = L"")
+						  const std::wstring& subtitley = L"", ci::ColorA normalColor = ci::ColorA::white(),
+						  ci::ColorA highlightColor = ci::ColorA::white())
 			  : mActivatedCallback(callback)
 			  , mTitle(titley)
 			  , mSubtitle(subtitley)
 			  , mIconNormalImage(normalImage)
-			  , mIconHighlightedImage(highImage) {}
+			  , mIconHighlightedImage(highImage)
+			  , mNormalColor(normalColor)
+			  , mHighlightColor(highlightColor) {}
 
 			std::function<void(ci::vec3)>
 				mActivatedCallback; // Called when this item has been activated, the vec3 is the position of the item
@@ -43,6 +48,8 @@ namespace ds { namespace ui {
 			std::wstring mSubtitle; // Label text for the menu item (second line, probably smaller)
 			std::string	 mIconNormalImage;	   // Path to the normal image for the icon
 			std::string mIconHighlightedImage; // Path to the highlighted image for the icon, uses normal image if blank
+			ci::ColorA	mNormalColor;
+			ci::ColorA	mHighlightColor;
 		};
 
 		/** A structure for configuring a touch menu */
@@ -65,11 +72,12 @@ namespace ds { namespace ui {
 			  , mClusterDistanceThreshold(1000.0f)
 			  , mClusterMinTouchPoints(5)
 			  , mBackgroundImage("")
-			  , mBackgroundColor(0.0f, 0.0f, 0.0f)
+			  , mBackgroundColor(0.0f, 0.0f, 0.0f, 1.f)
 			  , mBackgroundOpacity(0.3f)
 			  , mBackgroundScale(3.0f)
 			  , mBackgroundOffset(0.0f, 0.0f)
 			  , mBackgroundPulseAmount(1.0f)
+			  	, mBackgroundBlendMode(BlendMode::NORMAL)
 			  , mAnimationStyle(kAnimateUp)
 			  , mDoClipping(true)
 			  , mActivatedCallback(nullptr)
@@ -100,11 +108,12 @@ namespace ds { namespace ui {
 										// to 5
 
 			std::string mBackgroundImage;	// The path to an image
-			ci::Color	mBackgroundColor;	// Color to set the background image
+			ci::ColorA	mBackgroundColor;	// Color to set the background image
 			float		mBackgroundOpacity; // Max opacity for the background image when the cluster is active
 			float		mBackgroundScale;	// Scale of the background image when cluster is active
 			ci::vec2	mBackgroundOffset;	// Position of the background image when cluster is active
 			float		mBackgroundPulseAmount;
+			BlendMode mBackgroundBlendMode;
 
 			typedef enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial } ClusterAnimation;
 

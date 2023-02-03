@@ -580,7 +580,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia) {
 
 	std::string extensionay = Poco::Path(filey.path()).getExtension();
 	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
-	if (extensionay.find("gif") != std::string::npos) {
+	if (extensionay.find("gif") != std::string::npos || extensionay.find("svg") != std::string::npos) {
 		return ds::Resource::WEB_TYPE;
 
 	} else if (extensionay.find("pdf") != std::string::npos) {

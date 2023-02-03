@@ -40,17 +40,18 @@ class SettingsEditor : public ds::ui::Sprite {
 
 	void drawSettingFile(ds::cfg::Settings& eng, bool& isOpen);
 	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
-						   const std::string& search);
+						   const std::string& search, bool multiple = false);
 
 	void drawSaveButtons(ds::cfg::Settings& toSave);
 	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
 
 	ds::EventClient mEventClient;
 	Settings*		mCurrentSettings;
+	std::unordered_map<std::string, int> mSettingCounters;
 
 
-	std::map<std::string, std::string> mSearchMap;
-	std::map<std::string, std::string> mFilterMap;
+	std::unordered_map<std::string, std::string> mSearchMap;
+	std::unordered_map<std::string, std::string> mFilterMap;
 
 	bool mOpen				= false;
 	bool mAppStatusOpen		= false;

@@ -14,19 +14,19 @@ namespace ds { namespace ui {
 	MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuItemModel itemModel,
 					   const ds::ui::TouchMenu::TouchMenuConfig config)
 	  : ds::ui::Sprite(enginey)
-	  , mClippy(nullptr)
-	  , mMenuItemModel(itemModel)
-	  , mMenuConfig(config)
 	  , mHighlighted(false)
-	  , mRotation(0.0f)
+	  , mActive(false)
+	  , mTitle(nullptr)
+	  , mSubtitle(nullptr)
 	  , mClipper(nullptr)
+	  , mClippy(nullptr)
 	  , mIcon(nullptr)
 	  , mIconGlow(nullptr)
 	  , mIconsMatch(false)
-	  , mActive(false)
 	  , mLines(nullptr)
-	  , mTitle(nullptr)
-	  , mSubtitle(nullptr) {
+	  , mMenuItemModel(itemModel)
+	  , mMenuConfig(config)
+	  , mRotation(0.0f) {
 
 		if (mMenuItemModel.mIconHighlightedImage.empty()) {
 			mMenuItemModel.mIconHighlightedImage = mMenuItemModel.mIconNormalImage;
@@ -86,6 +86,7 @@ namespace ds { namespace ui {
 			ci::vec2 titleSize = ci::vec2(mTitle->getWidth(), mTitle->getHeight());
 			mTitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, titlePositiony);
 			mTitle->setOpacity(mMenuConfig.mItemTitleOpacity);
+			mTitle->setColor(mMenuItemModel.mNormalColor);
 			mClippy->addChildPtr(mTitle);
 			subtitlePositiony += (titleSize.y * 1.1f);
 		}
@@ -96,6 +97,7 @@ namespace ds { namespace ui {
 			ci::vec2 titleSize = ci::vec2(mSubtitle->getWidth(), mSubtitle->getHeight());
 			mSubtitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, subtitlePositiony);
 			mSubtitle->setOpacity(mMenuConfig.mItemSubtitleOpacity);
+			mSubtitle->setColor(mMenuItemModel.mNormalColor);
 			mClippy->addChildPtr(mSubtitle);
 		}
 
@@ -107,12 +109,14 @@ namespace ds { namespace ui {
 			mIcon->setCenter(0.5f, 0.5f);
 			mIcon->setScale(newScale, newScale);
 			mIcon->setPosition(getWidth() * 0.5f, titlePositiony - (iconHeight * 0.5f * newScale) - padding);
+			mIcon->setColorA(mMenuItemModel.mNormalColor);
 		}
 		if (mIcon && mIconGlow) {
 			mClippy->addChild(*mIconGlow);
 			mIconGlow->setCenter(mIcon->getCenter());
 			mIconGlow->setScale(mIcon->getScale());
 			mIconGlow->setPosition(mIcon->getPosition());
+			mIconGlow->setColorA(mMenuItemModel.mHighlightColor);
 			mIconGlow->setOpacity(0.0f);
 		}
 
