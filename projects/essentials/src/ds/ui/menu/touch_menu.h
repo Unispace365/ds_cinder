@@ -77,7 +77,7 @@ namespace ds { namespace ui {
 			  , mBackgroundScale(3.0f)
 			  , mBackgroundOffset(0.0f, 0.0f)
 			  , mBackgroundPulseAmount(1.0f)
-			  	, mBackgroundBlendMode(BlendMode::NORMAL)
+			  , mBackgroundBlendMode(BlendMode::NORMAL)
 			  , mAnimationStyle(kAnimateUp)
 			  , mDoClipping(true)
 			  , mActivatedCallback(nullptr)
@@ -113,7 +113,7 @@ namespace ds { namespace ui {
 			float		mBackgroundScale;	// Scale of the background image when cluster is active
 			ci::vec2	mBackgroundOffset;	// Position of the background image when cluster is active
 			float		mBackgroundPulseAmount;
-			BlendMode mBackgroundBlendMode;
+			BlendMode	mBackgroundBlendMode;
 
 			typedef enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial } ClusterAnimation;
 

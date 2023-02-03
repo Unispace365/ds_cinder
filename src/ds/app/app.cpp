@@ -697,7 +697,7 @@ void App::setupKeyPresses() {
 		"Toggle Debug Stats", [this] {
 			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
 											  : mEngine.showSettingsEditor("stats");
-			// mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); 
+			mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); 
 		},
 		KeyEvent::KEY_s);
 	mKeyManager.registerKey(
