@@ -58,7 +58,8 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 
 		// show the interface if we have one
 		if (mVideoInterface && mResetOnVideoComplete) {
-			mVideoInterface->userInputReceived();
+			mVideoInterface->resetIdleTimer();
+			//mVideoInterface->userInputReceived();
 		}
 
 		if (mVideoCompleteCallback) {
