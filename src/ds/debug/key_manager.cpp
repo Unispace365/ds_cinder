@@ -30,7 +30,7 @@ namespace ds { namespace keys {
 
 	bool KeyManager::keyDown(ci::app::KeyEvent event) {
 		bool handled = false;
-		for (auto it : mKeyRegisters) {
+		for (auto& it : mKeyRegisters) {
 			if (it.mKeyCode == event.getCode() && it.mAltDown == event.isAltDown() &&
 				it.mCtrlDown == event.isControlDown() && it.mShiftDown == event.isShiftDown() && it.mCallback) {
 				it.mCallback();
