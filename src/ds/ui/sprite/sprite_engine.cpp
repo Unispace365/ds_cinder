@@ -61,7 +61,7 @@ ds::cfg::Settings& SpriteEngine::getAppSettings() const {
 }
 
 ds::cfg::Settings& SpriteEngine::getColorSettings() const {
-	return mData.mEngineCfg.getSettings("colors");
+	return mData.mEngineCfg.getSettings("styles");
 }
 
 float SpriteEngine::getMinTouchDistance() const {
