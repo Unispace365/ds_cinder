@@ -258,6 +258,7 @@ class Web : public ds::ui::IEntryField {
 
 	int			   mBrowserId;
 	unsigned char* mBuffer;
+	int			   mBufferBytes = 0;
 	bool		   mHasBuffer;
 	ci::ivec2 mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::TextureRef mWebTexture;

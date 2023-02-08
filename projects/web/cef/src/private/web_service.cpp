@@ -33,6 +33,7 @@ namespace ds::web {
  */
 WebCefService::WebCefService(ds::Engine& e)
   : ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT) {
+
 	mEngine.registerSpriteImporter(
 		"web", [](ds::ui::SpriteEngine& engine) -> ds::ui::Sprite* { return new ds::ui::Web(engine); });
 

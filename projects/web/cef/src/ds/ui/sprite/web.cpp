@@ -182,12 +182,12 @@ Web::~Web() {
 	}
 
 	if (mBuffer) {
-		delete mBuffer;
+		delete[] mBuffer;
 		mBuffer = nullptr;
 	}
 
 	if (mPopupBuffer) {
-		delete mPopupBuffer;
+		delete[] mPopupBuffer;
 		mPopupBuffer = nullptr;
 	}
 
@@ -287,7 +287,7 @@ void Web::initializeBrowser() {
 		// Would be much more performant, especially for large browsers with small ui changes (like blinking
 		// cursors)
 
-		if (mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y) {
+		if (mBuffer && bufferWidth <= mBrowserSize.x && bufferHeight <= mBrowserSize.y) {
 			mHasBuffer = true;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
@@ -502,26 +502,29 @@ void Web::update(const ds::UpdateParams& p) {
 }
 
 void Web::onSizeChanged() {
-	{
+	const int		theWid = static_cast<int>(getWidth());
+	const int		theHid = static_cast<int>(getHeight());
+	const ci::ivec2 newBrowserSize(theWid, theHid);
+	const int		newBufferBytes = theWid * theHid * 4;
+	if (newBrowserSize == mBrowserSize && mBuffer) {
+		return;
+	}
+
+	mBrowserSize = newBrowserSize;
+
+	if (newBufferBytes > mBufferBytes) {
+		mBufferBytes = newBufferBytes;
 		// Anything that modifies mBuffer needs to be locked
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		const int		theWid = static_cast<int>(getWidth());
-		const int		theHid = static_cast<int>(getHeight());
-		const ci::ivec2 newBrowserSize(theWid, theHid);
-		if (newBrowserSize == mBrowserSize && mBuffer) {
-			return;
-		}
-
-		mBrowserSize = newBrowserSize;
 		if (mBuffer) {
-			delete mBuffer;
+			delete[] mBuffer;
 			mBuffer = nullptr;
 		}
-		const int bufferSize = theWid * theHid * 4;
-		mBuffer				 = new unsigned char[bufferSize];
-		mHasBuffer			 = false;
+		mBuffer	   = new unsigned char[mBufferBytes];
+		mHasBuffer = false;
 	}
+
 
 	DS_LOG_VERBOSE(4, "Web: changed size " << getSize() << " url=" << mUrl);
 
@@ -605,8 +608,7 @@ void Web::setUrlOrThrow(const std::string& url) {
 void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 	// For some reason the arrow keys don't get forwarded properly without this
 	// Main use-case is using clickers/keyboard for navigating presentations
-	if (keyEvent.getCode() == ci::app::KeyEvent::KEY_UP ||
-		keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT ||
+	if (keyEvent.getCode() == ci::app::KeyEvent::KEY_UP || keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT ||
 		keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN) {
 		ci::app::KeyEvent event(mEngine.getWindow(), keyEvent.getCode(), keyEvent.getCode(), '	', 0,
 								keyEvent.getCode());
@@ -616,8 +618,6 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 		sendKeyDownEvent(keyEvent);
 		sendKeyUpEvent(keyEvent);
 	}
-	
-	
 }
 
 void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
