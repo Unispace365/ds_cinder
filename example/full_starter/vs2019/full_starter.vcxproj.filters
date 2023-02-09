@@ -63,5 +63,6 @@
     <Image Include="..\..\..\..\ft_bragg_fallen_heroes\vs2019\cinder_app_icon.ico">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="cinder_app_icon.ico" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
   "PreventSleep": true,
   "Kiosk": true,
   "RestartApps": {
-    "Enabled": true,
+    "Enabled": false,
     "Hour": 1,
     "Minute": 0
   },
@@ -21,14 +21,6 @@
           "StartDelay": 1000,
           "RestartDelay": 10000,
           "EnableMonitor": true,
-          "MemoryLimit": 10000
-        },
-        {
-          "Path": "%PROGRAMFILES%/Downstream/full_starter/DSNode/DSNode.exe",
-          "Args": "",
-          "StartDelay": 1000,
-          "RestartDelay": 10000,
-          "EnableMonitor": false,
           "MemoryLimit": 10000
         }
       ]

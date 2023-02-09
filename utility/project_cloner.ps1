@@ -19,13 +19,13 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     $DestDir = $DestDir + "\" + $NewName;
     $SrcDir = $BaseDir + "src\";
     $SlnDir = $BaseDir + "vs2019\";
-    $DebugDir = $BaseDir + "vs2019\Debug";
-    $ReleaseDir = $BaseDir + "vs2019\Release";
-    $IpchDir = $BaseDir + "vs2019\ipch";
-    $x64Dir = $BaseDir + "vs2019\x64";
-    $logsDir = $BaseDir + "logs";
-    $gpuDir = $BaseDir + "vs2019\GPUCache";
-    $fcDir = $BaseDir + "vs2019\.fontconfig";
+    $DebugDir = "Debug";
+    $ReleaseDir = "Release";
+    $IpchDir = "ipch";
+    $x64Dir = "x64";
+    $vsPrivDir = ".vs";
+    $gpuDir = "GPUCache";
+    $fcDir = ".fontconfig";
 	$readmeLoc = $DestDir + "\README.md"
 
     #Write-Host "Removing old stuff at the destination";
@@ -35,7 +35,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
 	New-Item -ItemType Directory -Force -Path $DestDir
 
-    robocopy "$BaseDir" "$DestDir" /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
+    robocopy "$BaseDir" "$DestDir" /E /XD $DebugDir $x64Dir $vsPrivDir $ReleaseDir $IpchDir $gpuDir $fcDir /xf *.sdf *.suo *.db *.opendb
 
     $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h,*.xml,*.iss,*.ps1,*.json,README.md -Recurse;
 
@@ -60,15 +60,12 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
         Write-Host "     Wrote" $OutputFileName;
     }
 
-    $FileList = Get-ChildItem -Path $DestDir -Include *.sln,*.vcxproj* -Recurse;
+    $FileList = Get-ChildItem -Path $DestDir -Include *.sln,*.vcxproj*,*.rc -Recurse;
 
     foreach ($File in $FileList) {
         $OutputFile = $File.FullName;
     
-        $Content = (Get-Content -Path $File.FullName -Raw).Replace("fullstarter", $NewName).
-            Replace("FULLSTARTER", $NewName.ToUpper()).
-            Replace("FullStarter", $NewName).
-            Replace("full_starter", $NewName);
+        $Content = (Get-Content -Path $File.FullName -Raw).Replace("fullstarter", $NewName).Replace("FULLSTARTER", $NewName.ToUpper()).Replace("FullStarter", $NewName).Replace("full_starter", $NewName);
 
         Set-Content -Path $OutputFile -Value $Content;
 

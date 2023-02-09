@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\ft_bragg_fallen_heroes\vs2019\cinder_app_icon.ico" />
+    <Image Include="cinder_app_icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
