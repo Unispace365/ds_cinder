@@ -767,35 +767,35 @@ void SettingsEditor::saveChange(const std::string& path, ds::cfg::Settings& toSa
 
 void SettingsEditor::toggleSetting(const std::string theSettingsName) {
 	if (theSettingsName == "stats") {
-		if(mAppStatusOpen && mSyncStatusOpen && mAppHostStatusOpen){
-			mAppStatusOpen = false;
-			mSyncStatusOpen = false;
+		if (mAppStatusOpen && mSyncStatusOpen && mAppHostStatusOpen) {
+			mAppStatusOpen	   = false;
+			mSyncStatusOpen	   = false;
 			mAppHostStatusOpen = false;
-		}else{
-			mAppStatusOpen = true;
-			mSyncStatusOpen = true;
+		} else {
+			mAppStatusOpen	   = true;
+			mSyncStatusOpen	   = true;
 			mAppHostStatusOpen = true;
 		}
 	} else if (theSettingsName == "logs") {
-			mLogOpen = !mLogOpen;
+		mLogOpen = !mLogOpen;
 	} else if (theSettingsName == "keys") {
 		mShortcutsOpen = !mShortcutsOpen;
 	} else if (theSettingsName == "settings") {
-		if(mEngineOpen && mAppSettingsOpen && mStylesOpen){
-			mEngineOpen = false;
+		if (mEngineOpen && mAppSettingsOpen && mStylesOpen) {
+			mEngineOpen		 = false;
 			mAppSettingsOpen = false;
-			mStylesOpen = false;
-		}else{
-			mEngineOpen = true;
+			mStylesOpen		 = false;
+		} else {
+			mEngineOpen		 = true;
 			mAppSettingsOpen = true;
-			mStylesOpen = true;
+			mStylesOpen		 = true;
 		}
 	}
 
 	if (!(mAppStatusOpen || mSyncStatusOpen || mAppHostStatusOpen || mEngineOpen || mAppSettingsOpen || mStylesOpen ||
 		  mFontsOpen || mTuioOpen || mContentOpen || mShortcutsOpen || mImguiStyleOpen || mLogOpen)) {
 		hideSettings();
-	}else{
+	} else {
 		showSettings("");
 	}
 }

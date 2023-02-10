@@ -354,22 +354,23 @@ void App::setup() {
 	static auto imguiIni = ds::Environment::expand("%LOCAL%/common/%PP%/imgui.ini");
 
 	// Ensure directory exists!!
-	if(!ds::safeFileExistsCheck(imguiIni)){
+	if (!ds::safeFileExistsCheck(imguiIni)) {
 		ci::writeString(ci::writeFile(imguiIni, true), "");
 	}
 
 	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	ImGui::GetIO().IniFilename = imguiIni.c_str();
+	ImGui::GetIO().IniFilename	 = imguiIni.c_str();
 	ImGui::GetIO().IniSavingRate = 5.f;
 
 	// Set ImGui font + font size. Default is Calibri from the standard windows location
 	// Can be overridden in engine.xml
 	float fontSize = mEngine.getEngineSettings().getFloat("debug:imgui_font_size", 0, 18.f);
-	auto fontFile = ds::Environment::expand(mEngine.getEngineSettings().getString("debug:imgui_font", 0, "C:/Windows/Fonts/Calibri.ttf"));
-	if(ds::safeFileExistsCheck(fontFile)){
+	auto  fontFile = ds::Environment::expand(
+		 mEngine.getEngineSettings().getString("debug:imgui_font", 0, "C:/Windows/Fonts/Calibri.ttf"));
+	if (ds::safeFileExistsCheck(fontFile)) {
 		ImGui::GetIO().Fonts->AddFontFromFileTTF(fontFile.data(), fontSize);
-	}else{
+	} else {
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Calibri.ttf", fontSize);
 	}
 	ImGui::GetIO().Fonts->Build();
@@ -558,7 +559,7 @@ void App::writeSpriteHierarchy() {
 
 void App::debugEnabledSprites() {
 	DS_LOG_VERBOSE(1, "App::debugEnabledSprites()");
-	const size_t numRoots	  = mEngine.getRootCount();
+	const size_t numRoots = mEngine.getRootCount();
 	for (size_t i = 0; i < numRoots - 1; i++) {
 		mEngine.getRootSprite(i).forEachChild(
 			[this](ds::ui::Sprite& sprite) {
@@ -657,17 +658,13 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey(
 		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey(
-		"Toggle always on top",
-		[] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); }, KeyEvent::KEY_a);
+		"Toggle always on top", [] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); },
+		KeyEvent::KEY_a);
 	mKeyManager.registerKey(
 		"Toggle idling", [this] { mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); },
 		KeyEvent::KEY_i);
 	mKeyManager.registerKey(
-		"Toggle on-screen console",
-		[this] {
-		mEngine.toggleSettingsEditor("logs");
-		},
-		KeyEvent::KEY_c);
+		"Toggle on-screen console", [this] { mEngine.toggleSettingsEditor("logs"); }, KeyEvent::KEY_c);
 	mKeyManager.registerKey(
 		"Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c, true);
 	mKeyManager.registerKey(
@@ -694,22 +691,13 @@ void App::setupKeyPresses() {
 		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
 		true);
 	mKeyManager.registerKey(
-		"Toggle Debug Stats", [this] {
-		mEngine.toggleSettingsEditor("stats");
-		},
-		KeyEvent::KEY_s);
+		"Toggle Debug Stats", [this] { mEngine.toggleSettingsEditor("stats"); }, KeyEvent::KEY_s);
 	mKeyManager.registerKey(
 		"Toggle Debug Tools",
-		[this] {
-			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor();
-		},
+		[this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(); },
 		KeyEvent::KEY_e);
 	mKeyManager.registerKey(
-		"Toggle Settings editors",
-		[this] {
-		mEngine.toggleSettingsEditor("settings");
-		},
-		KeyEvent::KEY_e, true);
+		"Toggle Settings editors", [this] { mEngine.toggleSettingsEditor("settings"); }, KeyEvent::KEY_e, true);
 	/* mKeyManager.registerKey(
 		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d); */
 	mKeyManager.registerKey(

@@ -46,8 +46,8 @@ class SettingsEditor : public ds::ui::Sprite {
 	void drawSaveButtons(ds::cfg::Settings& toSave);
 	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
 
-	ds::EventClient mEventClient;
-	Settings*		mCurrentSettings;
+	ds::EventClient						 mEventClient;
+	Settings*							 mCurrentSettings;
 	std::unordered_map<std::string, int> mSettingCounters;
 
 
@@ -69,15 +69,15 @@ class SettingsEditor : public ds::ui::Sprite {
 	bool mLogOpen			= false;
 
 	// App Status
-	int mSpriteCount = 0;
+	int			mSpriteCount = 0;
 	std::string mTouchMode;
-	float mPhysicalMemory = 0.f;
-	float mVirtualMemory = 0.f;
-	int mBytesReceived = 0;
-	int mBytesSent = 0;
-	float mFps = 0.f;
+	float		mPhysicalMemory = 0.f;
+	float		mVirtualMemory	= 0.f;
+	int			mBytesReceived	= 0;
+	int			mBytesSent		= 0;
+	float		mFps			= 0.f;
 
-	bool mSrcDestSaved = false;
+	bool	  mSrcDestSaved = false;
 	ci::Rectf mOrigSrc, mOrigDest;
 
 	// AppHost
@@ -89,7 +89,7 @@ class SettingsEditor : public ds::ui::Sprite {
 	std::string mLogBuffer;
 
 	// Sync
-	Poco::DateTime mLastSync;
+	Poco::DateTime	  mLastSync;
 	Poco::Environment mEnv;
 	std::string		  mAppVersion;
 	std::string		  mProductName;
