@@ -91,9 +91,6 @@
     <Filter Include="src\ds\util\sundown">
       <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\metrics">
-      <UniqueIdentifier>{9dcb5691-ef16-4d0b-9a62-1d447eb771ea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\content">
       <UniqueIdentifier>{a17a3242-099b-4dc1-90dd-459d20a0616f}</UniqueIdentifier>
     </Filter>
@@ -426,9 +423,6 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_mode.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h">
-      <Filter>src\ds\app\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -569,9 +563,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\metrics\metrics_service.h">
-      <Filter>src\ds\metrics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\time\time_callback.h">
       <Filter>src\ds\time</Filter>
@@ -956,9 +947,6 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp">
-      <Filter>src\ds\app\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
@@ -1078,9 +1066,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp">
       <Filter>src\ds\ui\touch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp">
-      <Filter>src\ds\metrics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\time\time_callback.cpp">
       <Filter>src\ds\time</Filter>

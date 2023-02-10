@@ -7,7 +7,6 @@
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/computer_info.h"
 #include "ds/debug/debug_defines.h"
-#include "ds/metrics/metrics_service.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/sprite_engine.h"
@@ -18,7 +17,6 @@ SpriteEngine::SpriteEngine(ds::EngineData& ed, const int appMode)
   : mData(ed)
   , mRegisteredEntryField(nullptr)
   , mAppMode(appMode)
-  , mMetricsService(nullptr)
   , mRestartAfterUpdate(false)
   , mCallbackId(0) {
 	mComputerInfo = new ds::ComputerInfo();
@@ -322,56 +320,6 @@ void SpriteEngine::cancelTimedCallback(size_t callbackId) {
 			break;
 		}
 	}
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName,
-								const std::string& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const int& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const float& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName, const double& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName,
-								const ci::vec2& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName,
-								const ci::vec3& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldName,
-								const ci::Rectf& fieldValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldName, fieldValue);
-}
-
-void SpriteEngine::recordMetric(const std::string& metricName, const std::string& fieldNameAndValue) {
-	if (mMetricsService) mMetricsService->recordMetric(metricName, fieldNameAndValue);
-}
-
-void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName,
-									  const std::string& stringValue) {
-	if (mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
-}
-
-void SpriteEngine::recordMetricString(const std::string& metricName, const std::string& fieldName,
-									  const std::wstring& stringValue) {
-	if (mMetricsService) mMetricsService->recordMetricString(metricName, fieldName, stringValue);
-}
-
-void SpriteEngine::recordMetricTouch(ds::ui::TouchInfo& ti) {
-	if (mMetricsService) mMetricsService->recordMetricTouch(ti);
 }
 
 void SpriteEngine::restartAfterNextUpdate() {

@@ -20,14 +20,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\base_action.cpp" />
-    <ClCompile Include="src\ds\debug\automator\actions\callback_action.cpp" />
-    <ClCompile Include="src\ds\debug\automator\actions\drag_action.cpp" />
-    <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp" />
-    <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp" />
-    <ClCompile Include="src\ds\debug\automator\automator.cpp" />
-    <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
-    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
     <ClCompile Include="src\ds\service\weather_service.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
@@ -53,14 +45,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\ds\debug\automator\actions\base_action.h" />
-    <ClInclude Include="src\ds\debug\automator\actions\callback_action.h" />
-    <ClInclude Include="src\ds\debug\automator\actions\drag_action.h" />
-    <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h" />
-    <ClInclude Include="src\ds\debug\automator\actions\tap_action.h" />
-    <ClInclude Include="src\ds\debug\automator\automator.h" />
-    <ClInclude Include="src\ds\query\content\generic_content_model.h" />
-    <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
     <ClInclude Include="src\ds\service\weather_service.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />

@@ -117,6 +117,7 @@ class Engine : public ui::SpriteEngine {
 
 	void prepareSettings(ci::app::AppBase::Settings&);
 	void reloadSettings();
+	void toggleSettingsEditor(const std::string& name = "");
 	void showSettingsEditor(const std::string& name = "");
 	void hideSettingsEditor();
 	bool isShowingSettingsEditor();
@@ -310,10 +311,8 @@ class Engine : public ui::SpriteEngine {
 	void setupMute();
 	void setupResourceLocation();
 	void setupRoots();
-	void setupMetrics();
 	void setupAutoRefresh();
 
-	friend class EngineStatsView;
 	friend class cfg::SettingsEditor;
 	std::vector<std::unique_ptr<EngineRoot>> mRoots;
 	ds::App&								 mDsApp;

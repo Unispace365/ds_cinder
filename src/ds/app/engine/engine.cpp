@@ -5,7 +5,6 @@
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
-#include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
@@ -20,7 +19,6 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "ds/metrics/metrics_service.h"
 #include "ds/ui/service/load_image_service.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
@@ -128,12 +126,6 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
 											   []() -> ds::Event* { return new ds::app::IdleEndedEvent(); });
 	ds::event::Registry::get().addEventCreator(ds::app::IdleStartedEvent::NAME(),
 											   []() -> ds::Event* { return new ds::app::IdleStartedEvent(); });
-	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleStatsRequest::NAME(), []() -> ds::Event* {
-		return new ds::EngineStatsView::ToggleStatsRequest();
-	});
-	ds::event::Registry::get().addEventCreator(ds::EngineStatsView::ToggleHelpRequest::NAME(), []() -> ds::Event* {
-		return new ds::EngineStatsView::ToggleHelpRequest();
-	});
 
 	setupEngine();
 
@@ -171,7 +163,6 @@ void Engine::setupEngine() {
 	setupMute();
 	setupResourceLocation();
 	setupIdleTimeout();
-	setupMetrics();
 	setupAutoRefresh();
 }
 
@@ -472,14 +463,6 @@ void Engine::setupRoots() {
 	}
 }
 
-void Engine::setupMetrics() {
-	if (mMetricsService) {
-		delete mMetricsService;
-	}
-
-	mMetricsService = new ds::MetricsService(*this);
-}
-
 void Engine::setupAutoRefresh() {
 	mAutoRefresh.initialize();
 }
@@ -578,6 +561,12 @@ void Engine::onAppEvent(const ds::Event& in_e) {
 		}
 	} else if (in_e.mWhat == ds::app::RequestAppExitEvent::WHAT()) {
 		mDsApp.quit();
+	}
+}
+
+void Engine::toggleSettingsEditor(const std::string& name) {
+	if (mSettingsEditor) {
+		mSettingsEditor->toggleSetting(name);
 	}
 }
 
@@ -806,11 +795,6 @@ void Engine::createStatsView(sprite_id_t root_id) {
 			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
 			if (mSettingsEditor) {
 				parent->addChildPtr(mSettingsEditor);
-			}
-
-			EngineStatsView* v = new EngineStatsView(*this);
-			if (v) {
-				parent->addChild(*v);
 			}
 
 			mRoots.push_back(std::move(root));

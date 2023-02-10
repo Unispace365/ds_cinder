@@ -39,7 +39,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_standalone.h" />
-    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\engine\unique_id.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
@@ -87,7 +86,6 @@
     <ClInclude Include="..\src\ds\math\fpconfig.hh" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
-    <ClInclude Include="..\src\ds\metrics\metrics_service.h" />
     <ClInclude Include="..\src\ds\network\curl\curl.h" />
     <ClInclude Include="..\src\ds\network\curl\curlver.h" />
     <ClInclude Include="..\src\ds\network\curl\easy.h" />
@@ -237,7 +235,6 @@
     <ClCompile Include="..\src\ds\app\engine\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp" />
-    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\app\event.cpp" />
@@ -276,7 +273,6 @@
     <ClCompile Include="..\src\ds\math\fparser.cc" />
     <ClCompile Include="..\src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
-    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp" />
     <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="..\src\ds\network\https_client.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />

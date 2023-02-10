@@ -11,7 +11,6 @@
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
 #include "ds/app/engine/engine_standalone.h"
-#include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
 #include "ds/cfg/settings.h"
 #include "ds/content/content_events.h"
@@ -20,7 +19,6 @@
 
 
 // For installing the sprite types
-#include "ds/app/engine/engine_stats_view.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
@@ -156,8 +154,6 @@ App::App(const RootList& roots)
 						  [](ds::BlobRegistry& r) { ds::ui::Image::installAsClient(r); });
 	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Text::installAsServer(r); },
 						  [](ds::BlobRegistry& r) { ds::ui::Text::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { EngineStatsView::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { EngineStatsView::installAsClient(r); });
 	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Border::installAsServer(r); },
 						  [](ds::BlobRegistry& r) { ds::ui::Border::installAsClient(r); });
 	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Circle::installAsServer(r); },
@@ -177,11 +173,9 @@ App::App(const RootList& roots)
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
 	DS_LOG_INFO(mEngine.getAppInstanceName() << " startup");
-	mEngine.recordMetric("engine", "startup", 1);
 }
 
 App::~App() {
-	mEngine.recordMetric("engine", "shutdown", 1);
 	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
 
 	if (mSyncService) delete mSyncService;
@@ -657,7 +651,7 @@ void App::setupKeyPresses() {
 		"Print available keys",
 		[this] {
 			mKeyManager.printCurrentKeys();
-			mEngine.getNotifier().notify(EngineStatsView::ToggleHelpRequest());
+			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor("keys");
 		},
 		KeyEvent::KEY_h);
 	mKeyManager.registerKey(
@@ -669,7 +663,13 @@ void App::setupKeyPresses() {
 		"Toggle idling", [this] { mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); },
 		KeyEvent::KEY_i);
 	mKeyManager.registerKey(
-		"Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c);
+		"Toggle on-screen console",
+		[this] {
+		mEngine.toggleSettingsEditor("logs");
+		},
+		KeyEvent::KEY_c);
+	mKeyManager.registerKey(
+		"Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c, true);
 	mKeyManager.registerKey(
 		"Touch mode", [this] { mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
 	mKeyManager.registerKey(
@@ -695,18 +695,21 @@ void App::setupKeyPresses() {
 		true);
 	mKeyManager.registerKey(
 		"Toggle Debug Stats", [this] {
-			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
-											  : mEngine.showSettingsEditor("stats");
-			mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest()); 
+		mEngine.toggleSettingsEditor("stats");
 		},
 		KeyEvent::KEY_s);
 	mKeyManager.registerKey(
 		"Toggle Debug Tools",
 		[this] {
-			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor()
-											  : mEngine.showSettingsEditor();
+			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor();
 		},
 		KeyEvent::KEY_e);
+	mKeyManager.registerKey(
+		"Toggle Settings editors",
+		[this] {
+		mEngine.toggleSettingsEditor("settings");
+		},
+		KeyEvent::KEY_e, true);
 	/* mKeyManager.registerKey(
 		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d); */
 	mKeyManager.registerKey(

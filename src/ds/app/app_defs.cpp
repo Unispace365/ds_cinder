@@ -96,7 +96,8 @@ RootList::Root::Root()
   , mMaster(kIndependent)
   , mDebugDraw(false)
   , mSyncronize(true)
-  , mDrawScaled(true) {}
+  , mDrawScaled(true)
+  , mRootId(0) {}
 
 
 } // namespace ds
