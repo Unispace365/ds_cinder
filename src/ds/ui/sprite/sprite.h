@@ -67,13 +67,13 @@ namespace ui {
 	class Sprite : public SpriteAnimatable {
 	  public:
 		struct FinalRenderInfo {
-			FinalRenderInfo(){}
-			FinalRenderInfo(const FinalRenderInfo&)				  = default;
-			FinalRenderInfo(FinalRenderInfo&&)					  = default;
-			FinalRenderInfo&	operator=(const FinalRenderInfo&) = default;
-			FinalRenderInfo&	operator=(FinalRenderInfo&&)	  = default;
+			FinalRenderInfo() {}
+			FinalRenderInfo(const FinalRenderInfo&)			   = default;
+			FinalRenderInfo(FinalRenderInfo&&)				   = default;
+			FinalRenderInfo& operator=(const FinalRenderInfo&) = default;
+			FinalRenderInfo& operator=(FinalRenderInfo&&)	   = default;
 
-			bool				useLocalTransform				  = true;
+			bool				useLocalTransform = true;
 			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format();
 		};
 		/** Generic sprite creation function.
@@ -659,7 +659,7 @@ namespace ui {
 
 		// Deprecate?
 		//[[deprecated("Use FinalRenderInfo.format and setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo
-		//info)")]]
+		// info)")]]
 		void setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format);
 		void setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info = FinalRenderInfo());
 		bool isFinalRenderToTexture();
@@ -731,7 +731,7 @@ namespace ui {
 
 		/// Mark this sprite to be a debug sprite layer.
 		///	The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and
-		///not be colored weird. 	Client apps don't generally need to set this flag, as it happens automagically.
+		/// not be colored weird. 	Client apps don't generally need to set this flag, as it happens automagically.
 		void setDrawDebug(const bool doDebug);
 
 		/// If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if
@@ -794,6 +794,7 @@ namespace ui {
 		void		 buildGlobalTransform() const;
 		virtual void drawLocalClient();
 		virtual void drawPostLocalClient();
+		void		 drawLocalClientInternal(const ci::mat4& totalTransformation, const DrawParams& drawParams);
 		virtual void drawLocalServer();
 		bool		 hasDoubleTap() const;
 		bool		 hasTap() const;

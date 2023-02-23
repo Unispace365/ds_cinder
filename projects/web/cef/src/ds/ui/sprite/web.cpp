@@ -278,6 +278,7 @@ void Web::initializeBrowser() {
 		}
 	};
 
+	// ci::gl::ContextRef backgroundCtx = ci::gl::Context::create(ci::gl::context());
 	wcc.mPaintCallback = [this](const void* buffer, const int bufferWidth, const int bufferHeight) {
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -519,7 +520,6 @@ void Web::onSizeChanged() {
 
 		if (mBuffer) {
 			delete[] mBuffer;
-			mBuffer = nullptr;
 		}
 		mBuffer	   = new unsigned char[mBufferBytes];
 		mHasBuffer = false;
@@ -534,6 +534,7 @@ void Web::onSizeChanged() {
 }
 
 void Web::drawLocalClient() {
+	std::lock_guard<std::mutex> lock(mMutex);
 	if (mWebTexture) {
 
 		DS_LOG_VERBOSE(8, "Web: drawing web " << mUrl);

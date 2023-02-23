@@ -265,6 +265,102 @@ void Sprite::updateServer(const UpdateParams& p) {
 	onUpdateServer(p);
 }
 
+void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const DrawParams& drawParams) {
+	// ci::gl::ScopedModelMatrix sMm;//{ totalTransformation };
+	ci::gl::pushModelMatrix();
+	ci::gl::multModelMatrix(totalTransformation);
+
+	mSpriteShader.loadShaders();
+
+	if ((mSpriteFlags & TRANSPARENT_F) == 0) {
+
+		buildRenderBatch();
+
+		DS_REPORT_GL_ERRORS();
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(mBlendMode);
+		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
+		if (shaderBase) {
+			DS_REPORT_GL_ERRORS();
+			shaderBase->bind();
+			DS_REPORT_GL_ERRORS();
+			shaderBase->uniform("tex0", 0);
+
+			int uniformLoc = 0;
+
+			if (shaderBase->findUniform("useTexture", &uniformLoc)) {
+				shaderBase->uniform("useTexture", mUseShaderTexture);
+			}
+			if (shaderBase->findUniform("preMultiply", &uniformLoc)) {
+				shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			}
+			if (shaderBase->findUniform("extent", &uniformLoc)) {
+				shaderBase->uniform("extent", ci::vec2(getWidth(), getHeight()));
+			}
+			if (shaderBase->findUniform("extra", &uniformLoc)) {
+				shaderBase->uniform("extra", mShaderExtraData);
+			}
+
+			mUniform.applyTo(shaderBase);
+			clip_plane::passClipPlanesToShader(shaderBase);
+		}
+
+		DS_REPORT_GL_ERRORS();
+
+		mDrawOpacity = mOpacity * drawParams.mParentOpacity;
+
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+
+		if (mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
+
+		DS_REPORT_GL_ERRORS();
+		drawLocalClient();
+		DS_REPORT_GL_ERRORS();
+	}
+
+
+	if (!mIsRenderFinalToTexture &&
+		(mSpriteFlags & CLIP_F) != 0) { // Clipping is implicit when rendering to an FBO, only set clipping if we aren't
+		const ci::Rectf& clippingBounds = getClippingBounds(drawParams.mClippingParent);
+		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(),
+								   clippingBounds.getY2());
+	}
+
+	ci::gl::popModelMatrix();
+	DS_REPORT_GL_ERRORS();
+
+
+	DrawParams dParams = drawParams;
+	dParams.mParentOpacity *= mOpacity;
+
+	if ((mSpriteFlags & DRAW_SORTED_F) == 0) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	} else {
+		makeSortedChildren();
+		for (auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	}
+	if ((mSpriteFlags & TRANSPARENT_F) == 0) {
+
+		ci::gl::pushModelMatrix();
+		ci::gl::multModelMatrix(totalTransformation);
+
+		DS_REPORT_GL_ERRORS();
+		drawPostLocalClient();
+		DS_REPORT_GL_ERRORS();
+		ci::gl::popModelMatrix();
+	}
+}
+
 void Sprite::drawClient(const ci::mat4& trans, const DrawParams& drawParams) {
 	if ((mSpriteFlags & VISIBLE_F) == 0) {
 		return;
@@ -285,106 +381,6 @@ void Sprite::drawClient(const ci::mat4& trans, const DrawParams& drawParams) {
 		totalTransformation = ci::mat4();
 	}
 
-
-	// Local anonymous lambda for the common aspects of drawing. Called differently below depending
-	// on the mIsRenderFinalToTexture state
-	auto renderInternal = [&]() {
-		// ci::gl::ScopedModelMatrix sMm;//{ totalTransformation };
-		ci::gl::pushModelMatrix();
-		ci::gl::multModelMatrix(totalTransformation);
-
-		mSpriteShader.loadShaders();
-
-		if ((mSpriteFlags & TRANSPARENT_F) == 0) {
-
-			buildRenderBatch();
-
-			DS_REPORT_GL_ERRORS();
-			ci::gl::enableAlphaBlending();
-			applyBlendingMode(mBlendMode);
-			ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
-			if (shaderBase) {
-				DS_REPORT_GL_ERRORS();
-				shaderBase->bind();
-				DS_REPORT_GL_ERRORS();
-				shaderBase->uniform("tex0", 0);
-
-				int uniformLoc = 0;
-
-				if (shaderBase->findUniform("useTexture", &uniformLoc)) {
-					shaderBase->uniform("useTexture", mUseShaderTexture);
-				}
-				if (shaderBase->findUniform("preMultiply", &uniformLoc)) {
-					shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
-				}
-				if (shaderBase->findUniform("extent", &uniformLoc)) {
-					shaderBase->uniform("extent", ci::vec2(getWidth(), getHeight()));
-				}
-				if (shaderBase->findUniform("extra", &uniformLoc)) {
-					shaderBase->uniform("extra", mShaderExtraData);
-				}
-
-				mUniform.applyTo(shaderBase);
-				clip_plane::passClipPlanesToShader(shaderBase);
-			}
-
-			DS_REPORT_GL_ERRORS();
-
-			mDrawOpacity = mOpacity * drawParams.mParentOpacity;
-
-			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
-
-			if (mUseDepthBuffer) {
-				ci::gl::enableDepthRead();
-				ci::gl::enableDepthWrite();
-			} else {
-				ci::gl::disableDepthRead();
-				ci::gl::disableDepthWrite();
-			}
-
-			DS_REPORT_GL_ERRORS();
-			drawLocalClient();
-			DS_REPORT_GL_ERRORS();
-		}
-
-
-		if (!mIsRenderFinalToTexture &&
-			(mSpriteFlags & CLIP_F) !=
-				0) { // Clipping is implicit when rendering to an FBO, only set clipping if we aren't
-			const ci::Rectf& clippingBounds = getClippingBounds(drawParams.mClippingParent);
-			clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(),
-									   clippingBounds.getY2());
-		}
-
-		ci::gl::popModelMatrix();
-		DS_REPORT_GL_ERRORS();
-
-
-		DrawParams dParams = drawParams;
-		dParams.mParentOpacity *= mOpacity;
-
-		if ((mSpriteFlags & DRAW_SORTED_F) == 0) {
-			for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-				(*it)->drawClient(totalTransformation, dParams);
-			}
-		} else {
-			makeSortedChildren();
-			for (auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it) {
-				(*it)->drawClient(totalTransformation, dParams);
-			}
-		}
-		if ((mSpriteFlags & TRANSPARENT_F) == 0) {
-
-			ci::gl::pushModelMatrix();
-			ci::gl::multModelMatrix(totalTransformation);
-
-			DS_REPORT_GL_ERRORS();
-			drawPostLocalClient();
-			DS_REPORT_GL_ERRORS();
-			ci::gl::popModelMatrix();
-		}
-	};
-
 	if (mIsRenderFinalToTexture && mOutputFbo) {
 		// set the viewport and maticies to match the w/h of this object and fbo
 		ci::CameraOrtho			  camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
@@ -397,9 +393,9 @@ void Sprite::drawClient(const ci::mat4& trans, const DrawParams& drawParams) {
 		// ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
 		// ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
 		ci::gl::clear(ci::ColorA(0.f, 0.f, 0.f, 0.f), true);
-		renderInternal();
+		drawLocalClientInternal(totalTransformation, drawParams);
 	} else {
-		renderInternal();
+		drawLocalClientInternal(totalTransformation, drawParams);
 	}
 
 	if (!mIsRenderFinalToTexture && (mSpriteFlags & CLIP_F) != 0) {

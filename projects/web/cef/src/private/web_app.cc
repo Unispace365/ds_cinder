@@ -45,7 +45,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitchWithValue("use-gl", "desktop");
 	command_line->AppendSwitch("enable-gpu");
 	command_line->AppendSwitch("enable-gpu-compositing");
-	// command_line->AppendSwitch("disable-gpu-vsync");
+	command_line->AppendSwitch("disable-gpu-vsync");
 	//command_line->AppendSwitch("disable-gpu");
 	//command_line->AppendSwitch("disable-gpu-compositing");
 
@@ -54,8 +54,8 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitch("enable-usermedia-screen-capture");
 
 	// Some docs online say to use these two, but I had bad results with these
-	//command_line->AppendSwitch("disable-surfaces");
-	//command_line->AppendSwitch("enable-begin-frame-scheduling");
+	// command_line->AppendSwitch("disable-surfaces");
+	// command_line->AppendSwitch("enable-begin-frame-scheduling");
 
 	command_line->AppendSwitch("off-screen-rendering-enabled");
 	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
@@ -108,7 +108,6 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
-	window_info.shared_texture_enabled = false;
 	window_info.windowless_rendering_enabled = true;
 	window_info.SetAsWindowless(window);// , isTransparent);
 
