@@ -48,6 +48,12 @@ class Init {
 							"ThumbnailBar: Not enough colors when trying to set thumbnail_bar_scroll_fade_colors")
 					}
 				});
+
+			e.registerSpritePropertySetter<ds::ui::ThumbnailBar>(
+				"thumbnail_bar_fixed_width",
+				[](ds::ui::ThumbnailBar& bar, const std::string& theValue, const std::string& fileReferrer) {
+					bar.setFixedWidth(ds::parseBoolean(theValue));
+				});
 		});
 	}
 };
@@ -169,8 +175,13 @@ namespace ds { namespace ui {
 	void ThumbnailBar::setImageSize(ds::ui::Image* img) {
 		if (!img) return;
 
-		auto scale = std::min(mItemSize / img->getWidth(), getHeight() / img->getHeight());
-		img->setScale(scale);
+		if(mFixedWidth){
+			auto scale = mItemSize / img->getWidth();
+			img->setScale(scale);
+		}else{
+			auto scale = std::min(mItemSize / img->getWidth(), getHeight() / img->getHeight());
+			img->setScale(scale);
+		}
 
 		/*
 		float imageAsp = img->getWidth() / img->getHeight();

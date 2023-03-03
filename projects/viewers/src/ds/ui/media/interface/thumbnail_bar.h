@@ -30,6 +30,8 @@ namespace ds { namespace ui {
 		void setHighlightColor(const ci::Color& highlightColor);
 		void setHighlightedItem(const int itemIndex);
 
+		void setFixedWidth(bool isFixedWidth) { mFixedWidth = isFixedWidth; }
+
 		ds::ui::ScrollList* getScrollList() { return mFileList; }
 
 	  protected:
@@ -47,6 +49,7 @@ namespace ds { namespace ui {
 		float							   mPadding;
 		float							   mItemSize;
 		float							   mSourceAspect;
+		bool							   mFixedWidth = false;
 
 		ci::Color mHighlightColor;
 		int		  mHighlightItemIndex;
