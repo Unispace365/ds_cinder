@@ -31,13 +31,14 @@ namespace ds { namespace ui {
 		void setHighlightedItem(const int itemIndex);
 
 		void setFixedWidth(bool isFixedWidth) { mFixedWidth = isFixedWidth; }
+		void setFilledBackgrounds(bool isFilledBgs) { mFilledBackgrounds = isFilledBgs; }
 
 		ds::ui::ScrollList* getScrollList() { return mFileList; }
 
 	  protected:
 		virtual void onSizeChanged();
 
-		void setImageSize(ds::ui::Image* img);
+		void setImageSize(ds::ui::Sprite* sp);
 
 		void updateHighlight();
 
@@ -49,7 +50,8 @@ namespace ds { namespace ui {
 		float							   mPadding;
 		float							   mItemSize;
 		float							   mSourceAspect;
-		bool							   mFixedWidth = false;
+		bool							   mFixedWidth		  = false;
+		bool							   mFilledBackgrounds = false;
 
 		ci::Color mHighlightColor;
 		int		  mHighlightItemIndex;

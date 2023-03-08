@@ -54,6 +54,12 @@ class Init {
 				[](ds::ui::ThumbnailBar& bar, const std::string& theValue, const std::string& fileReferrer) {
 					bar.setFixedWidth(ds::parseBoolean(theValue));
 				});
+
+			e.registerSpritePropertySetter<ds::ui::ThumbnailBar>(
+				"thumbnail_bar_fill_backgrounds",
+				[](ds::ui::ThumbnailBar& bar, const std::string& theValue, const std::string& fileReferrer) {
+					bar.setFilledBackgrounds(ds::parseBoolean(theValue));
+				});
 		});
 	}
 };
@@ -87,16 +93,34 @@ namespace ds { namespace ui {
 			}
 		});
 
-		mFileList->setCreateItemCallback([this]() -> ds::ui::Sprite* { return new ds::ui::Image(mEngine); });
+		mFileList->setCreateItemCallback([this]() -> ds::ui::Sprite* {
+			if (mFilledBackgrounds) {
+				auto backy = new ds::ui::Sprite(mEngine);
+				backy->setTransparent(false);
+				backy->setColor(ci::Color::white());
+				auto img = new ds::ui::Image(mEngine);
+				backy->addChildPtr(img);
+				return backy;
+			} else {
+				return new ds::ui::Image(mEngine);
+			}
+		});
 
 		mFileList->setDataCallback([this](ds::ui::Sprite* bs, int dbId) {
-			Image* rpi = dynamic_cast<Image*>(bs);
+			Image* rpi = nullptr;
+
+			rpi = dynamic_cast<Image*>(bs);
+
+			if (!rpi && !bs->getChildren().empty()) {
+				rpi = dynamic_cast<Image*>(bs->getChildren()[0]);
+			}
+
 			if (rpi) {
 				rpi->enable(true);
 				rpi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 				mImageMap[rpi] = mInfoMap[dbId];
 				rpi->setImageResource(mInfoMap[dbId], ds::ui::Image::IMG_CACHE_F);
-				setImageSize(rpi);
+				setImageSize(bs);
 
 				if (dbId == mHighlightItemIndex) {
 					rpi->setColor(mHighlightColor);
@@ -155,7 +179,7 @@ namespace ds { namespace ui {
 			mFileList->setLayoutParams(0.0f, 0.0f, mItemSize + mPadding);
 			mFileList->setSize(w - mPadding * 2.0f, h - mPadding * 2.0f);
 			mFileList->setPosition(mPadding, mPadding);
-			mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs) { setImageSize(dynamic_cast<Image*>(bs)); });
+			mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs) { setImageSize(bs); });
 			mFileList->layout();
 
 			updateHighlight();
@@ -172,30 +196,38 @@ namespace ds { namespace ui {
 		updateHighlight();
 	}
 
-	void ThumbnailBar::setImageSize(ds::ui::Image* img) {
-		if (!img) return;
+	void ThumbnailBar::setImageSize(ds::ui::Sprite* sp) {
+		if (!sp) return;
 
-		if(mFixedWidth){
-			auto scale = mItemSize / img->getWidth();
-			img->setScale(scale);
-		}else{
-			auto scale = std::min(mItemSize / img->getWidth(), getHeight() / img->getHeight());
-			img->setScale(scale);
-		}
-
-		/*
-		float imageAsp = img->getWidth() / img->getHeight();
-		if(imageAsp > mSourceAspect){
-			img->setScale(mItemSize / img->getWidth());
+		float			scale = 1.f;
+		ds::ui::Sprite* img	  = nullptr;
+		if (sp->getChildren().empty()) {
+			img = sp;
 		} else {
-			img->setScale((getHeight() - mPadding * 2.0f) / img->getHeight());
+			img = sp->getChildren()[0];
 		}
-		*/
+
+		if (!img) {
+			DS_LOG_INFO("Somehow didn't get a valid sprite in ThumbnailBar");
+		}
+
+		if (mFixedWidth) {
+			scale = mItemSize / img->getWidth();
+		} else {
+			scale = std::min(mItemSize / img->getWidth(), getHeight() / img->getHeight());
+		}
+
+		// Ensure the final size of the backer is the full height, even if the asset isn't
+		auto sz = ci::vec2(img->getSize() * scale);
+		sz.y	= std::max(sz.y, mItemSize);
+		sz /= scale;
+		sp->setSize(sz);
+		sp->setScale(scale);
 	}
 
 	void ThumbnailBar::updateHighlight() {
 		if (mFileList) {
-			mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs) { bs->setColor(ci::Color::white()); });
+			mFileList->forEachLoadedSprite([](ds::ui::Sprite* bs) { bs->setColor(ci::Color::white()); });
 
 			auto findy = mInfoMap.find(mHighlightItemIndex);
 			if (findy != mInfoMap.end()) {
