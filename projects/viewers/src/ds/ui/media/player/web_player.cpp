@@ -120,8 +120,8 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 
 	addChildPtr(mWeb);
 
-	setTransparent(false);
-	setColor(ci::Color::white());
+	//setTransparent(false);
+	//setColor(ci::Color::white());
 	mWeb->setResource(resource);
 
 	if (mStartInteractable) {
