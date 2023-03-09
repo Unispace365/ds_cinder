@@ -116,8 +116,8 @@ namespace ds { namespace ui {
 			}
 
 			if (rpi) {
-				rpi->enable(true);
-				rpi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+				bs->enable(true);
+				bs->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 				mImageMap[rpi] = mInfoMap[dbId];
 				rpi->setImageResource(mInfoMap[dbId], ds::ui::Image::IMG_CACHE_F);
 				setImageSize(bs);
