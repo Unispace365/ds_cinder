@@ -84,6 +84,11 @@ namespace ds { namespace ui {
 
 		mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::vec3& cent) {
 			Image* rpi = dynamic_cast<Image*>(bs);
+
+			if (!rpi && !bs->getChildren().empty()) {
+				rpi = dynamic_cast<Image*>(bs->getChildren()[0]);
+			}
+
 			if (rpi && mClickedCallback) {
 				// look up the resource from the image sprite in the image map
 				auto findy = mImageMap.find(rpi);
