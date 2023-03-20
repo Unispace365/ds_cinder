@@ -232,7 +232,13 @@ namespace ds { namespace ui {
 
 	void ThumbnailBar::updateHighlight() {
 		if (mFileList) {
-			mFileList->forEachLoadedSprite([](ds::ui::Sprite* bs) { bs->setColor(ci::Color::white()); });
+			mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs) {
+				if (mFilledBackgrounds && !bs->getChildren().empty()) {
+					bs->getChildren()[0]->setColor(ci::Color::white());
+				} else {
+					bs->setColor(ci::Color::white());
+				}
+			});
 
 			auto findy = mInfoMap.find(mHighlightItemIndex);
 			if (findy != mInfoMap.end()) {
