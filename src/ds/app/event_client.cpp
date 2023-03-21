@@ -9,29 +9,33 @@ namespace ds {
 /**
  * \class EventClient
  */
-EventClient::EventClient( EventNotifier& n,
-						  const std::function<void(const ds::Event *)>& fn,
-						  const std::function<void(ds::Event &)>& requestFn)
-		: mNotifier(n) {
-	if(fn) {
+EventClient::EventClient(EventNotifier& n, const std::function<void(const ds::Event*)>& fn,
+						 const std::function<void(ds::Event&)>& requestFn)
+  : mNotifier(n) {
+	if (fn) {
 		n.mEventNotifier.addListener(this, [this, fn](const ds::Event* m) {
-			if(m) this->onAppEvent(*m);
-			if(fn) fn(m);
+			if (m) this->onAppEvent(*m);
+			if (fn) fn(m);
 		});
 	} else {
 		n.mEventNotifier.addListener(this, [this](const ds::Event* m) {
-			if(m) this->onAppEvent(*m);
+			if (m) this->onAppEvent(*m);
 		});
 	}
 	if (requestFn) n.mEventNotifier.addRequestListener(this, requestFn);
-
 }
 
 EventClient::EventClient(ds::ui::SpriteEngine& eng)
-	: mNotifier(eng.getNotifier())
-{
+  : mNotifier(eng.getNotifier()) {
 	mNotifier.mEventNotifier.addListener(this, [this](const ds::Event* m) {
-		if(m) this->onAppEvent(*m);
+		if (m) this->onAppEvent(*m);
+	});
+}
+
+EventClient::EventClient(EventNotifier& notifier)
+  : mNotifier(notifier) {
+	mNotifier.mEventNotifier.addListener(this, [this](const ds::Event* m) {
+		if (m) this->onAppEvent(*m);
 	});
 }
 
@@ -53,10 +57,10 @@ void EventClient::request(ds::Event& e) {
 }
 
 void EventClient::onAppEvent(const ds::Event& in_e) {
-	if(mEventCallbacks.empty()) return;
+	if (mEventCallbacks.empty()) return;
 
 	auto callbackIt = mEventCallbacks.find(in_e.mWhat);
-	if(callbackIt != end(mEventCallbacks)) {
+	if (callbackIt != end(mEventCallbacks)) {
 		(callbackIt->second)(in_e);
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9cdeea47297901ed9863ee2c80400a5e94e40612$
+// $hash=71f2ac1fe5be9a4783d35211352a92b19f1a84c0$
 //
 
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
@@ -26,8 +26,9 @@ completion_callback_on_complete(struct _cef_completion_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefCompletionCallbackCppToC::Get(self)->OnComplete();
@@ -54,7 +55,7 @@ CefRefPtr<CefCompletionCallback> CefCppToCRefCounted<
     cef_completion_callback_t>::UnwrapDerived(CefWrapperType type,
                                               cef_completion_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

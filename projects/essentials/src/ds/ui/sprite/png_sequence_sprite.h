@@ -6,93 +6,90 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 /**
-* \class PngSequenceSprite
-*/
+ * \class PngSequenceSprite
+ */
 class PngSequenceSprite : public ds::ui::Sprite {
-public:
-
+  public:
 	// what to do when you get to the end
-typedef enum { Loop = 0, Once} LoopStyle;
+	typedef enum { Loop = 0, Once } LoopStyle;
 
-// Create a png sequence using the image files speficied in the vector. 
-// The string should be loadable by a normal ds::ui::Image
-// Default behavior: playing, one image per server frame, looping
-PngSequenceSprite(SpriteEngine& engine);
-PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFiles);
+	// Create a png sequence using the image files speficied in the vector.
+	// The string should be loadable by a normal ds::ui::Image
+	// Default behavior: playing, one image per server frame, looping
+	PngSequenceSprite(SpriteEngine& engine);
+	PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFiles);
 
-	void						setImages(const std::vector<std::string>& imageFiles);
+	void setImages(const std::vector<std::string>& imageFiles);
 
 	// The number of seconds to wait for the next frame.
 	// Default = 0.0, which will play each png frame on every server frame
-	void						setFrameTime(const float time); 
+	void setFrameTime(const float time);
 
-	// Sets the looping method. 
+	// Sets the looping method.
 	// Loop = start over from the beginning
 	// Once = play to the end and pause.
-	void						setLoopStyle(LoopStyle style);
-	const LoopStyle				getLoopStyle() const;
+	void			setLoopStyle(LoopStyle style);
+	const LoopStyle getLoopStyle() const;
 
 	// Play = advance through the frames
-	void						play();
+	void play();
 	// Pause = show the current frame
-	void						pause();
+	void pause();
 
 	// Are the frames advancing?
-	const bool					isPlaying() const;
+	const bool isPlaying() const;
 
 	/// \brief returns true if all images are loaded.
-	virtual bool				isLoaded() const;
+	virtual bool isLoaded() const override;
 
-	// Jump to a specific frame. 
+	// Jump to a specific frame.
 	// Frame indices outside the range of the frames are ignored.
-	void						setCurrentFrameIndex(const int frameIndex);
-	const int					getCurrentFrameIndex() const;
-	const int					getNumberOfFrames();
+	void	  setCurrentFrameIndex(const int frameIndex);
+	const int getCurrentFrameIndex() const;
+	const int getNumberOfFrames();
 
 	// Returns the image sprite at the index supplied.
 	// If the index is invalid, returns nullptr
 	// Don't release this frame, it'll cause trubs
-	ds::ui::Image*				getFrameAtIndex(const int frameIndex);
+	ds::ui::Image* getFrameAtIndex(const int frameIndex);
 
 	// Makes the size of this sprite the same size as the first image
 	// If there are no images, the size will be 0,0
-	void						sizeToFirstImage();
+	void sizeToFirstImage();
 
 	// Sets the callback that runs when an animation is done.
-	void                        setAnimationEndedCallback(const std::function<void()>& func);
+	void setAnimationEndedCallback(const std::function<void()>& func);
 
 	// Sets the callback that is called when the images have all loaded.
-	void						setLoadedCallback(const std::function<void()>& func);
+	void setLoadedCallback(const std::function<void()>& func);
 
 	/// Change image flags used for internal Image sprites.
 	/// Default is: ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F
-	void						setImageFlags(const int flags) { mImageFlags = flags;}
+	void setImageFlags(const int flags) { mImageFlags = flags; }
 
-private:
-	void						checkLoaded();
-	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
-	void                        runAnimationEndedCallback();
+  private:
+	void		 checkLoaded();
+	virtual void onUpdateServer(const ds::UpdateParams& p) override;
+	void		 runAnimationEndedCallback();
 
-	int							mImageFlags =  ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F;
+	int							mImageFlags = ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F;
 	LoopStyle					mLoopStyle;
 	int							mCurrentFrameIndex;
 	int							mNumFrames;
 	bool						mPlaying;
-	bool					    mIsLoaded;
+	bool						mIsLoaded;
 	float						mFrameTime;
 	double						mLastFrameTime;
-	std::vector<ds::ui::Image*>	mFrames;
-	ds::ui::Image* mVisibleFrame = nullptr;
+	std::vector<ds::ui::Image*> mFrames;
+	ds::ui::Image*				mVisibleFrame = nullptr;
 
-	std::function<void()>       mAnimationEndedCallback;
-	std::function<void()>       mLoadedCallback;
+	std::function<void()> mAnimationEndedCallback;
+	std::function<void()> mLoadedCallback;
 };
 
-} // namespace ui
-} // namespace ds
+} // namespace ds::ui
 
 #endif

@@ -2,23 +2,22 @@
 
 #include "file_meta_data.h"
 
-#include <Poco/Path.h>
 #include <Poco/File.h>
-#include <filesystem>
+#include <Poco/Path.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <filesystem>
 
 namespace ds {
 
 namespace {
-const std::string		EMPTY_SZ("");
+	const std::string EMPTY_SZ("");
 }
 
 /**
  * \class FileMetaData
  */
-FileMetaData::FileMetaData() {
-}
+FileMetaData::FileMetaData() {}
 
 FileMetaData::FileMetaData(const std::string& filename) {
 	parse(filename);
@@ -27,13 +26,13 @@ FileMetaData::FileMetaData(const std::string& filename) {
 void FileMetaData::parse(const std::string& filename) {
 	mAttrib.clear();
 
-	Poco::Path			p(filename);
+	Poco::Path				 p(filename);
 	std::vector<std::string> splitString = ds::split(p.getBaseName(), ".");
-	for (auto it = splitString.begin(), it2 = splitString.end(); it != it2; ++it ) {
+	for (auto it = splitString.begin(), it2 = splitString.end(); it != it2; ++it) {
 		// First item is base name
 		if (it == splitString.begin()) continue;
-		std::string		str = *it;
-		const size_t	pos = str.find("_");
+		std::string	 str = *it;
+		const size_t pos = str.find("_");
 		if (pos == std::string::npos) continue;
 
 		std::vector<std::string> meta = split(str, "_");
@@ -47,7 +46,7 @@ size_t FileMetaData::keyCount() const {
 }
 
 bool FileMetaData::contains(const std::string& key) const {
-	for (auto it=mAttrib.begin(), end=mAttrib.end(); it!=end; ++it) {
+	for (auto it = mAttrib.begin(), end = mAttrib.end(); it != end; ++it) {
 		if (it->first == key) return true;
 	}
 	return false;
@@ -64,48 +63,48 @@ const std::string& FileMetaData::valueAt(const size_t index) const {
 }
 
 const std::string& FileMetaData::findValue(const std::string& key) const {
-	for (auto it=mAttrib.begin(), end=mAttrib.end(); it!=end; ++it) {
+	for (auto it = mAttrib.begin(), end = mAttrib.end(); it != end; ++it) {
 		if (it->first == key) return it->second;
 	}
 	return EMPTY_SZ;
 }
 
 
-bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
-	if(filePath.empty()) return false;
+bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory) {
+	if (filePath.empty()) return false;
 
 	Poco::File xmlFile(filePath);
-	bool fileExists = false;
-	try{
-		if(xmlFile.exists()){
+	bool	   fileExists = false;
+	try {
+		if (xmlFile.exists()) {
 			fileExists = true;
 		}
-		if(fileExists && !allowDirectory){
-			if(xmlFile.isDirectory()) fileExists = false;
+		if (fileExists && !allowDirectory) {
+			if (xmlFile.isDirectory()) fileExists = false;
 		}
-	} catch(std::exception&){}
+	} catch (std::exception&) {}
 
 	return fileExists;
 }
 
-std::string filePathRelativeTo(const std::string &base, const std::string &relative){
-	if(relative.find("%APP%") != std::string::npos || relative.find("%LOCAL%") != std::string::npos){
+std::string filePathRelativeTo(const std::string& base, const std::string& relative) {
+	if (relative.find("%APP%") != std::string::npos || relative.find("%LOCAL%") != std::string::npos) {
 		return ds::Environment::expand(relative);
 	}
 
 	using namespace std::filesystem;
 	std::error_code e;
-	auto cpath = current_path();
-	if(!base.empty()) current_path(path(base).parent_path());
+	auto			cpath = current_path();
+	if (!base.empty()) current_path(path(base).parent_path());
 	std::string ret = std::filesystem::canonical(path(relative), e).string();
 	current_path(cpath);
-	if(e) {
+	if (e) {
 		DS_LOG_WARNING("Trying to use bad relative file path: " << relative << ": " << e.message());
 	}
 	return ret;
 }
 
-std::string	getNormalizedPath(const std::string& path) {
+std::string getNormalizedPath(const std::string& path) {
 	auto ret = path;
 	std::replace(ret.begin(), ret.end(), '\\', '/');
 
@@ -114,7 +113,7 @@ std::string	getNormalizedPath(const std::string& path) {
 	return ret;
 }
 
-std::string	getNormalizedPath(const Poco::Path& path) {
+std::string getNormalizedPath(const Poco::Path& path) {
 	return getNormalizedPath(path.toString());
 }
 

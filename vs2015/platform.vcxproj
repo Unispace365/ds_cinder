@@ -39,7 +39,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_standalone.h" />
-    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\engine\unique_id.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
@@ -47,8 +46,10 @@
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
     <ClInclude Include="..\src\ds\app\event_registry.h" />
-    <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h" />
-    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\base_impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\null_impl.h" />
+    <ClInclude Include="..\src\ds\cfg\impl\windows_impl.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings_editor.h" />
     <ClInclude Include="..\src\ds\cfg\settings_variables.h" />
@@ -85,7 +86,6 @@
     <ClInclude Include="..\src\ds\math\fpconfig.hh" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
-    <ClInclude Include="..\src\ds\metrics\metrics_service.h" />
     <ClInclude Include="..\src\ds\network\curl\curl.h" />
     <ClInclude Include="..\src\ds\network\curl\curlver.h" />
     <ClInclude Include="..\src\ds\network\curl\easy.h" />
@@ -235,15 +235,12 @@
     <ClCompile Include="..\src\ds\app\engine\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp" />
-    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\app\event.cpp" />
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
     <ClCompile Include="..\src\ds\app\event_registry.cpp" />
-    <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp" />
-    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_variables.cpp" />
@@ -276,7 +273,6 @@
     <ClCompile Include="..\src\ds\math\fparser.cc" />
     <ClCompile Include="..\src\ds\math\fpoptimizer.cc" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
-    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp" />
     <ClCompile Include="..\src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="..\src\ds\network\https_client.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />

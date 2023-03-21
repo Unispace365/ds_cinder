@@ -2,47 +2,45 @@
 #ifndef DS_NETWORK_HTTPCLIENT_H_
 #define DS_NETWORK_HTTPCLIENT_H_
 
-#include <functional>
-#include <string>
 #include "ds/thread/work_client.h"
 #include "ds/thread/work_request_list.h"
+#include <functional>
+#include <string>
 
-namespace Poco {
-namespace Net {
-class HTMLForm;
-class HTTPRequest;
-}
-}
+namespace Poco { namespace Net {
+	class HTMLForm;
+	class HTTPRequest;
+}} // namespace Poco::Net
 
 namespace ds {
 
 /* Generic HTTP reply info
  ******************************************************************/
 class HttpReply {
-public:
-	static const int		REPLY_OK = 0;
-	static const int		REPLY_UNKNOWN_ERROR = -1;
-	static const int		REPLY_CONNECTION_ERROR = -2;
+  public:
+	static const int REPLY_OK				= 0;
+	static const int REPLY_UNKNOWN_ERROR	= -1;
+	static const int REPLY_CONNECTION_ERROR = -2;
 
-public:
-	std::wstring			mMsg;
-	int						mStatus;
+  public:
+	std::wstring mMsg;
+	int			 mStatus;
 
 	HttpReply();
 
-	void					clear();
+	void clear();
 };
 
 /* HTTP-CLIENT
  * Perform an HTTP GET operation asynchronously.  Note that
- * HTTPS is not supported -- Use HttpsClient for that. 
+ * HTTPS is not supported -- Use HttpsClient for that.
  * This uses Poco to make requests. Recommend using HttpsClient (or use curl directly) instead
  ******************************************************************/
 class HttpClient : public ds::WorkClient {
-public:
+  public:
 	/// If the URL contains a query part it needs to be URL encoded, that won't happen automatically.
-	static bool						httpGetAndReply(const std::wstring& url, ds::HttpReply*);
-	static bool						httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply*);
+	static bool httpGetAndReply(const std::wstring& url, ds::HttpReply*);
+	static bool httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply*);
 	/// Do a post with complete control over what goes in the form. Poco supplies utilities for
 	/// adding strings and files. An example of posting a file into the form would be this:
 	/// const std::string  filename("c:\\tempfile.png")'
@@ -50,58 +48,55 @@ public:
 	///    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
 	///    if (ps) f.addPart("file", ps);
 	/// };
-	static bool						httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>&, ds::HttpReply*);
+	static bool httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>&,
+								 ds::HttpReply*);
 
-public:
+  public:
 	HttpClient(ui::SpriteEngine&, const std::function<void(const HttpReply&)>& = nullptr);
 
-	void							setResultHandler(const std::function<void(const HttpReply&)>&);
+	void setResultHandler(const std::function<void(const HttpReply&)>&);
 
-	bool							httpGet(const std::wstring& url);
-	bool							httpPost(const std::wstring& url, const std::string& body);
-	bool							httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
-	bool							http(	const std::string &verb, const std::string& url, const std::string &body,
-											const std::function<void(Poco::Net::HTTPRequest&)>& postFn);
+	bool httpGet(const std::wstring& url);
+	bool httpPost(const std::wstring& url, const std::string& body);
+	bool httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	bool http(const std::string& verb, const std::string& url, const std::string& body,
+			  const std::function<void(Poco::Net::HTTPRequest&)>& postFn);
 
-protected:
-	virtual void					handleResult(std::unique_ptr<WorkRequest>&);
+  protected:
+	virtual void handleResult(std::unique_ptr<WorkRequest>&);
 
-private:
-    typedef ds::WorkClient  inherited;
+  private:
+	typedef ds::WorkClient inherited;
 
 	class Request : public ds::WorkRequest {
-	public:
+	  public:
 		Request(const void* clientId);
 
 		/// input
-		int							mOpt;
-		std::string					mVerb;
-		std::wstring				mUrl;
-		std::string					mBody;
+		int			 mOpt;
+		std::string	 mVerb;
+		std::wstring mUrl;
+		std::string	 mBody;
 		/// Utility to write multipart form data in a post
-		std::function<void(Poco::Net::HTMLForm&)>
-									mPostFn;
+		std::function<void(Poco::Net::HTMLForm&)> mPostFn;
 		/// Utility to write to the message
-		std::function<void(Poco::Net::HTTPRequest&)>
-									mRequestFn;
+		std::function<void(Poco::Net::HTTPRequest&)> mRequestFn;
 
-        /// output
-		ds::HttpReply				mReply;
+		/// output
+		ds::HttpReply mReply;
 
-		virtual void				run();
+		virtual void run();
 	};
 
-	ds::WorkRequestList<Request>	mCache;
-    std::function<void(const HttpReply&)>
-									mResultHandler;
+	ds::WorkRequestList<Request>		  mCache;
+	std::function<void(const HttpReply&)> mResultHandler;
 
-private:
-	bool							sendHttp(	const int opt, const std::string &verb, const std::wstring& url, const std::string& body,
-												const std::function<void(Poco::Net::HTMLForm&)>& postFn,
-												const std::function<void(Poco::Net::HTTPRequest&)>& requestFn = nullptr);
-	static bool						httpAndReply(	const int opt, const std::wstring& url, const std::string& body,
-													const std::function<void(Poco::Net::HTMLForm&)>& postFn,
-													ds::HttpReply*);
+  private:
+	bool		sendHttp(const int opt, const std::string& verb, const std::wstring& url, const std::string& body,
+						 const std::function<void(Poco::Net::HTMLForm&)>&	 postFn,
+						 const std::function<void(Poco::Net::HTTPRequest&)>& requestFn = nullptr);
+	static bool httpAndReply(const int opt, const std::wstring& url, const std::string& body,
+							 const std::function<void(Poco::Net::HTMLForm&)>& postFn, ds::HttpReply*);
 };
 
 } // namespace ds

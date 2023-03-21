@@ -11,16 +11,15 @@ namespace ds {
  */
 RootList::RootList(const std::vector<int>* roots) {
 	if (roots) {
-		for (auto it=roots->begin(), end=roots->end(); it!=end; ++it) {
+		for (auto it = roots->begin(), end = roots->end(); it != end; ++it) {
 			mRoots.push_back(Root());
 			if ((*it) == Engine::CAMERA_PERSP) mRoots.back().mType = Root::kPerspective;
 		}
 	}
 }
 
-RootList::RootList(const std::function<RootList(void)> &fn)
-		: mInitFn(fn) {
-}
+RootList::RootList(const std::function<RootList(void)>& fn)
+  : mInitFn(fn) {}
 
 bool RootList::empty() const {
 	return mRoots.empty();
@@ -92,14 +91,13 @@ RootList& RootList::slave() {
  * \class Root
  */
 RootList::Root::Root()
-		: mType(kOrtho)
-		, mPick(kDefault)
-		, mMaster(kIndependent)
-		, mDebugDraw(false)
-		, mDrawScaled(true)
-		, mSyncronize(true)
-{
-}
+  : mType(kOrtho)
+  , mPick(kDefault)
+  , mMaster(kIndependent)
+  , mDebugDraw(false)
+  , mSyncronize(true)
+  , mDrawScaled(true)
+  , mRootId(0) {}
 
 
 } // namespace ds

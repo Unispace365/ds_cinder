@@ -7,7 +7,7 @@
 
 namespace ds {
 namespace ui {
-class Sprite;
+	class Sprite;
 }
 
 extern const std::string demangleTypeName(const std::string& n);
@@ -24,12 +24,12 @@ extern const std::string demangleTypeName(const std::string& n);
 	};
  */
 class Event {
-public:
+  public:
 	Event();
 	Event(const size_t what);
 	virtual ~Event();
 
-	const std::string		getName() const;
+	const std::string getName() const;
 
 	/*
 	 * \fn as()
@@ -41,66 +41,65 @@ public:
 	 *
 	 * \example local_event.as<MyDerivedEventType>()->mDreviedMember
 	 */
-	template<typename T>
-	T* const				as();
-	template<typename T>
-	const T* const			as() const;
+	template <typename T>
+	T* const as();
+	template <typename T>
+	const T* const as() const;
 
-	size_t					mWhat;
-	std::string				mEventName;
+	size_t		mWhat;
+	std::string mEventName;
 
 	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
-	ci::vec3				mEventOrigin;
+	ci::vec3 mEventOrigin;
 	/** An event-specific parameter, for client usage. Defaults to nullptr	*/
-	ds::ui::Sprite*			mSpriteOriginator;
+	ds::ui::Sprite* mSpriteOriginator;
 	/** An event-specific ID. Could be used to lookup info from a db, etc. Default=0*/
-	int						mUserId;
+	int mUserId;
 	/** An event-specific size. For instance if you want launch a panel at a certain width */
-	ci::vec3				mUserSize;
+	ci::vec3 mUserSize;
 	/** An event-specific string. Defaults to empty */
-	std::string				mUserStringData;
+	std::string mUserStringData;
 };
 
 // Template impl
-template<typename T>
-T* const Event::as()
-{
+template <typename T>
+T* const Event::as() {
 	return dynamic_cast<T* const>(this);
 }
 
-template<typename T>
-const T* const Event::as() const
-{
+template <typename T>
+const T* const Event::as() const {
 	return dynamic_cast<const T* const>(this);
 }
 // End of Template impl
 
 
 /**
-* \class RegisteredEvent
-* \brief All events should derive from this class, to be properly
-* registered with the system.
-*/
-template<class Derived>
+ * \class RegisteredEvent
+ * \brief All events should derive from this class, to be properly
+ * registered with the system.
+ */
+template <class Derived>
 class RegisteredEvent : public Event {
-public:
+  public:
 	/// Unique identifier for this message
-	static size_t					WHAT() { return sENTRY.getWhat(); }
+	static size_t WHAT() { return sENTRY.getWhat(); }
 	/// Unique channel name for this message
-	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
+	static const std::string& CHANNEL() { return sENTRY.getChannel(); }
 
-	static const std::string		NAME() { return demangleTypeName(typeid(Derived).name()); }
+	static const std::string NAME() { return demangleTypeName(typeid(Derived).name()); }
 
-protected:
-	RegisteredEvent() : Event(sENTRY.getWhat()) {
+  protected:
+	RegisteredEvent()
+	  : Event(sENTRY.getWhat()) {
 		mEventName = NAME();
 	}
 
-private:
-	static event::Registry::Entry	sENTRY;
+  private:
+	static event::Registry::Entry sENTRY;
 };
 
-template<class Derived>
+template <class Derived>
 event::Registry::Entry RegisteredEvent<Derived>::sENTRY(NAME());
 
 } // namespace ds

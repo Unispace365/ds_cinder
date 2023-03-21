@@ -2,14 +2,13 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 /**
  * \class MediaInterface
  *		Abstract base class for the other media interfaces (PDF, Web, Video)
- *		In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward navigate,
- *		refresh, play/pause, scrub bar, volume control)
+ *		In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward
+ *navigate, refresh, play/pause, scrub bar, volume control)
  */
 class MediaInterface : public ds::ui::Sprite {
   public:
@@ -40,20 +39,39 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void show() override;
 
 	ds::ui::Sprite* getBackground() { return mBackground; }
-	virtual void setMinWidth(float width) { mMinWidth = width; layout(); }
+	virtual void	setMinWidth(float width) {
+		   mMinWidth = width;
+		   layout();
+	}
+
+	void setLocked(bool isLock){
+		if(!mCanLock) return;
+		mLocked = isLock;
+		if(mLockChangeCallback) mLockChangeCallback(isLock);
+	}
+	bool isLocked() { return mCanLock && mLocked; }
+	void setLockStateCallback(std::function<void(bool)> lockChangeCallback) {
+		mLockChangeCallback = lockChangeCallback;
+	}
+
   protected:
-	float			mAnimateDuration;
+	virtual void onLayout(){};
+	virtual void onSizeChanged() override;
+
 	ds::ui::Sprite* mBackground;
-	float			mMinWidth;
-	float			mMaxWidth;
-	bool			mIdling;
-	bool			mCanIdle;
-	bool			mCanDisplay;
-	float			mInterfaceIdleSettings;
-	virtual void	onLayout(){};
-	virtual void	onSizeChanged();
+
+	float mAnimateDuration;
+	float mMinWidth;
+	float mMaxWidth;
+
+	bool					  mIdling;
+	bool					  mCanIdle;
+	bool					  mCanDisplay;
+	bool					  mCanLock;
+	bool					  mLocked = false;
+	std::function<void(bool)> mLockChangeCallback;
+
+	float mInterfaceIdleSettings;
 };
 
-}  // namespace ui
-}  // namespace ds
-
+} // namespace ds::ui

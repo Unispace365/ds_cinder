@@ -20,12 +20,19 @@
 
 lib/platform*.lib
 obj/
-Debug/
-Release/
-Release_Debug_Info/
-logs/
+vs2019/Debug/
+vs2019/Release/
+vs2019/Release_Debug_Info/
+vs2019/logs/
+vs2015/Debug/
+vs2015/Release/
+vs2015/Release_Debug_Info/
+vs2015/logs/
 !lib/yoga/x64/debug
 !lib/yoga/x64/release
+.cache/
+compile_commands.json
+local.sln
 
 /doc/doxygen/generated
 
@@ -67,7 +74,6 @@ example/simple_video_player/MediaInfo.dll
 /example/*/bin/
 projects/**/lib*.a
 
-.clang-format
 .fontconfig
 /example/clock_and_weather/settings/3840x2160/app_settings.xml
 /example/clock_and_weather/settings/3840x2160/engine.xml

@@ -1,17 +1,15 @@
 #ifndef _MEDIAVIEWER_APP_GLOBALS_
 #define _MEDIAVIEWER_APP_GLOBALS_
 
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 #include "model/all_data.h"
 
-namespace ds {
-namespace ui {
-class SpriteEngine;
-} // namespace ui
-} // namespace ds
+namespace ds { namespace ui {
+	class SpriteEngine;
+}} // namespace ds::ui
 
 namespace mv {
 
@@ -20,27 +18,26 @@ namespace mv {
  * \brief Global data for the app.
  */
 class Globals {
-public:
+  public:
 	Globals(ds::ui::SpriteEngine&, const AllData& d);
 
-	ds::ui::SpriteEngine&			mEngine;
+	ds::ui::SpriteEngine& mEngine;
 
-	const AllData&					mAllData;
+	const AllData& mAllData;
 
-	void							initialize();
+	void initialize();
 
-	const float						getAnimDur();
+	const float getAnimDur();
 
-	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	ds::cfg::Settings&				getSettingsLayout() const;
-	ds::cfg::Settings&				getSettings(const std::string& name) const;
+	// Shortcuts
+	const ds::cfg::Text& getText(const std::string& name) const;
+	ds::cfg::Settings&	 getSettingsLayout() const;
+	ds::cfg::Settings&	 getSettings(const std::string& name) const;
 
-private:
-	float							mAnimDuration;
+  private:
+	float mAnimDuration;
 };
 
-} // !namespace mv
+} // namespace mv
 
 #endif // !_MEDIAVIEWER_APP_GLOBALS_
-

@@ -72,9 +72,11 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
     * Approximately 4 hours with a fast internet connection (25Mbps) and fast build machine (2.6Ghz+, 4+ logical cores).
     * Python 3 64bit installed in the default location and included in PATH
     * CMake
-* Compiling (use this guide instead of MasterBuildQuickStart or BranchesAndBuilding above)
+* Compiling (use this guide while referencing the MasterBuildQuickStart or BranchesAndBuilding guides above)
+    * Compiling should be done on a clean Windows machine. Antivirus/antimalware tools can both slow compilation and
+      break critical processes.
     * Create the directory c:/code (the directory needs to be at the root level to avoid issues with path length down the road)
-    * Copy the python script from here: https://bitbucket.org/chromiumembedded/cef/raw/master/tools/automate/automate-git.py and create automate-git.py in c:/code
+    * Copy the python build script from cef: https://bitbucket.org/chromiumembedded/cef/raw/master/tools/automate/automate-git.py and create automate-git.py in c:/code
     * Get the bat file to start compilation
         * Copy build_cef.bat from ds_cinder/projects/web/cef/build/ to c:/code
         * Change --branch=3945 to the current supported release branch from BranchesAndBuilding

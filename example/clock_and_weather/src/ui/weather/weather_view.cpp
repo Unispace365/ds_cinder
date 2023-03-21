@@ -2,16 +2,16 @@
 
 #include "weather_view.h"
 
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/app/engine/engine_events.h>
 #include <ds/content/content_events.h>
 #include <ds/service/weather_service.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 #include "events/app_events.h"
 
 namespace {
 class Init {
-public:
+  public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
 			e.registerSpriteImporter("weather_view", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
@@ -20,15 +20,11 @@ public:
 
 			/*
 			e.registerSpritePropertySetter(
-				"media_player_src", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer) {
-				if(auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) {
-					ds::Resource theResource;
-					int			 mediaType = ds::Resource::parseTypeFromFilename(theValue);
-					if(mediaType == ds::Resource::WEB_TYPE) {
-						theResource = ds::Resource(theValue, mediaType);
-					} else {
-						std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
-						theResource = ds::Resource(absPath);
+				"media_player_src", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string&
+			fileReferrer) { if(auto mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite)) { ds::Resource
+			theResource; int			 mediaType = ds::Resource::parseTypeFromFilename(theValue); if(mediaType ==
+			ds::Resource::WEB_TYPE) { theResource = ds::Resource(theValue, mediaType); } else { std::string absPath =
+			ds::filePathRelativeTo(fileReferrer, theValue); theResource = ds::Resource(absPath);
 					}
 					mediaPlayer->loadMedia(theResource, true);
 				} else {
@@ -42,16 +38,15 @@ public:
 };
 
 Init INIT;
-}  // namespace
+} // namespace
 
 
 namespace downstream {
 
 WeatherView::WeatherView(ds::ui::SpriteEngine& eng)
-	: ds::ui::SmartLayout(eng, "weather_view.xml")
-{
+  : ds::ui::SmartLayout(eng, "weather_view.xml") {
 
-	listenToEvents<ds::weather::WeatherUpdatedEvent>([this](auto e) { 
+	listenToEvents<ds::weather::WeatherUpdatedEvent>([this](auto e) {
 		completeAllTweens(false, true);
 		setContentModel(mEngine.mContent.getChildByName("portland_weather"));
 	});
@@ -61,4 +56,3 @@ WeatherView::WeatherView(ds::ui::SpriteEngine& eng)
 
 
 } // namespace downstream
-

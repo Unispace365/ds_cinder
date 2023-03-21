@@ -1,21 +1,20 @@
 #pragma once
 
-#include <ds/ui/sprite/web.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/ui/sprite/web.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 class YoutubeInterface;
 class MediaInterface;
 struct MediaViewerSettings;
 
 /**
-* \class YouTubeWeb
-*			A web sprite with some state tracking and API for video playback controls.
-*			This is broken out into another sprite so the interface and the player can both link to it
-*/
+ * \class YouTubeWeb
+ *			A web sprite with some state tracking and API for video playback controls.
+ *			This is broken out into another sprite so the interface and the player can both link to it
+ */
 class YouTubeWeb : public ds::ui::Web {
-public:
+  public:
 	YouTubeWeb(ds::ui::SpriteEngine& eng);
 
 	/// Takes the file name of the resource and sets the video id
@@ -29,9 +28,7 @@ public:
 
 	/// Once the video has started playing, this will be available
 	std::string getVideoTitle() { return mVideoTitle; };
-	void setTitleChangedCallback(std::function<void(std::string newTitle)> func) {
-		mTitleChangedCallback = func;
-	}
+	void setTitleChangedCallback(std::function<void(std::string newTitle)> func) { mTitleChangedCallback = func; }
 
 	void play();
 	void pause();
@@ -40,7 +37,7 @@ public:
 	void toggleMute();
 
 	/// seeks to this percent in the video
-	void seekPercent(const float percenty);
+	void  seekPercent(const float percenty);
 	float getCurrentPercent();
 
 	double getDuration() { return mDuration; }
@@ -50,32 +47,33 @@ public:
 
 	// 0.0f = no sound, 1.0f = full volume
 	void setVolume(const float theVolume);
-	// 0.0f - 1.0f 
+	// 0.0f - 1.0f
 	float getVolume();
 
-protected:
-	std::string mVideoTitle;
-	std::string mVideoId;
-	double mCurrentPosition = 0.0;
-	double mDuration = 0.0;
-	float mVolume = 0.0f; // 0.0 - 100.0
-	bool mPlaying = false;
-	bool mAutoStart = true;
+  protected:
+	std::string						 mVideoTitle;
+	std::string						 mVideoId;
+	double							 mCurrentPosition = 0.0;
+	double							 mDuration		  = 0.0;
+	float							 mVolume		  = 0.0f; // 0.0 - 100.0
+	bool							 mPlaying		  = false;
+	bool							 mAutoStart		  = true;
 	std::function<void(std::string)> mTitleChangedCallback;
 };
 
 /**
-* \class YouTubePlayer
-*			Creates a YouTubeWeb sprite and puts an interface on top of it specifically designed to handle youtube videos
-*/
+ * \class YouTubePlayer
+ *			Creates a YouTubeWeb sprite and puts an interface on top of it specifically designed to handle youtube
+ *videos
+ */
 class YouTubePlayer : public ds::ui::Sprite {
-public:
+  public:
 	YouTubePlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
 	virtual void setResource(const ds::Resource& resource) override;
-	void setMedia(const std::string mediaPath);
+	void		 setMedia(const std::string mediaPath);
 
-	virtual void userInputReceived();
+	virtual void userInputReceived() override;
 	void		 layout();
 
 	void play();
@@ -89,8 +87,8 @@ public:
 
 	void sendClick(const ci::vec3& globalClickPos);
 
-	ds::ui::YouTubeWeb*  getYouTubeWeb();
-	YoutubeInterface* getYoutubeInterface();  // may be nullptr if embedInterface is false
+	ds::ui::YouTubeWeb* getYouTubeWeb();
+	YoutubeInterface*	getYoutubeInterface(); // may be nullptr if embedInterface is false
 
 	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
@@ -103,27 +101,25 @@ public:
 	void setNativeTouches(const bool isNative);
 	void setVolume(const float volume);
 
-protected:
+  protected:
 	virtual void onSizeChanged();
 
-	ds::ui::YouTubeWeb*  mYouTubeWeb;
-	YoutubeInterface* mYoutubeInterface;
-	ci::vec2	  mYouTubeSize;
-	float		  mKeyboardKeyScale;
-	std::function<void(bool)>	mKeyboardStatusCallback = nullptr;
+	ds::ui::YouTubeWeb*		  mYouTubeWeb;
+	YoutubeInterface*		  mYoutubeInterface;
+	ci::vec2				  mYouTubeSize;
+	float					  mKeyboardKeyScale;
+	std::function<void(bool)> mKeyboardStatusCallback = nullptr;
 
-	bool mEmbedInterface;
-	bool mShowInterfaceAtStart;
-	bool mLetterbox;
-	bool mAllowTouchToggle;
-	bool mStartInteractable;
-	bool mInterfaceBelowMedia;
+	bool  mEmbedInterface;
+	bool  mShowInterfaceAtStart;
+	bool  mLetterbox;
+	bool  mAllowTouchToggle;
+	bool  mStartInteractable;
+	bool  mInterfaceBelowMedia;
 	float mInterfaceBottomPad = 50.0f;
-	bool mNativeTouches;
-	bool mAutoStart;
+	bool  mNativeTouches;
+	bool  mAutoStart;
 	float mVolume;
 };
 
-}  // namespace ui
-}  // namespace ds
-
+} // namespace ds::ui

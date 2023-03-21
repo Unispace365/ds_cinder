@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=43d586b5f868ea7e08eb7ba1297f50649e418a1d$
+// $hash=bf6605b9c5545c7b739ee45b368b8b8d657c7961$
 //
 
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -31,16 +31,19 @@ scheme_handler_factory_create(struct _cef_scheme_handler_factory_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
-  if (!scheme_name)
+  if (!scheme_name) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -73,7 +76,7 @@ CefRefPtr<CefSchemeHandlerFactory> CefCppToCRefCounted<
                                                  cef_scheme_handler_factory_t*
                                                      s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

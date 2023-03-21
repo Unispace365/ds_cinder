@@ -2,8 +2,8 @@
 #define _CEFDEVELOP_APP_H_
 
 #include <cinder/app/App.h>
-#include <ds/app/app.h>
 #include <cinder/app/RendererGl.h>
+#include <ds/app/app.h>
 
 #include "app/globals.h"
 #include "query/query_handler.h"
@@ -14,27 +14,28 @@ namespace cef {
 class AllData;
 
 class CefDevelop : public ds::App {
-public:
+  public:
 	CefDevelop();
 
-	virtual void		onKeyUp(ci::app::KeyEvent event) override;
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyUp(ci::app::KeyEvent event) override;
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-private:
-	typedef ds::App		inherited;
+	virtual void fileDrop(ci::app::FileDropEvent event);
+
+  private:
+	typedef ds::App inherited;
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
-	ds::ui::Web*		mWebby;
+	ds::ui::Web* mWebby;
 };
 
-} // !namespace cef
+} // namespace cef
 
 #endif // !_CEFDEVELOP_APP_H_

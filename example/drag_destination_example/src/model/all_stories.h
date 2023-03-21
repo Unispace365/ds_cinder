@@ -6,18 +6,16 @@
 namespace example {
 
 /**
-* \class example::AllData
-* This is kind of silly, but If we expand anything I want this here
-*/
+ * \class example::AllData
+ * This is kind of silly, but If we expand anything I want this here
+ */
 class AllStories {
-public:
-
+  public:
 	AllStories(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_DRAG_DESTINATION_EXAMPLE_APP_MODEL_ALLSTORIES_H_

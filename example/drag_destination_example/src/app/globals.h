@@ -7,11 +7,9 @@
 
 #include "model/all_data.h"
 
-namespace ds {
-namespace ui {
-class SpriteEngine;
-} // namespace ui
-} // namespace ds
+namespace ds { namespace ui {
+	class SpriteEngine;
+}} // namespace ds::ui
 
 namespace example {
 
@@ -20,27 +18,26 @@ namespace example {
  * \brief Global data for the app.
  */
 class Globals {
-public:
+  public:
 	Globals(ds::ui::SpriteEngine&, const AllData& d);
 
-	ds::ui::SpriteEngine&			mEngine;
+	ds::ui::SpriteEngine& mEngine;
 
-	const AllData&					mAllData;
+	const AllData& mAllData;
 
-	const float						getAnimDur();
+	const float getAnimDur();
 
-	void							initialize();
+	void initialize();
 
-	//Shortcuts
-	const ds::cfg::Text&			getText(const std::string& name) const;
-	ds::cfg::Settings&				getSettingsLayout() const;
-	ds::cfg::Settings&				getSettings(const std::string& name) const;
+	// Shortcuts
+	const ds::cfg::Text& getText(const std::string& name) const;
+	ds::cfg::Settings&	 getSettingsLayout() const;
+	ds::cfg::Settings&	 getSettings(const std::string& name) const;
 
-private:
-
-	float							mAnimationDuration;
+  private:
+	float mAnimationDuration;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_DRAG_DESTINATION_EXAMPLE_APP_GLOBALS_

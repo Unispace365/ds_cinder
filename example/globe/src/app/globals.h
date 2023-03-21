@@ -8,11 +8,9 @@
 
 #include <model/location_model.h>
 
-namespace ds {
-namespace ui {
-class SpriteEngine;
-} // namespace ui
-} // namespace ds
+namespace ds { namespace ui {
+	class SpriteEngine;
+}} // namespace ds::ui
 
 namespace globe_example {
 
@@ -23,19 +21,18 @@ namespace globe_example {
 
 
 class Globals {
-public:
+  public:
 	Globals(ds::ui::SpriteEngine&);
 
-	ds::ui::SpriteEngine&			mEngine;
+	ds::ui::SpriteEngine& mEngine;
 
-	ds::cfg::Settings&				getSettingsLayout() const;
+	ds::cfg::Settings& getSettingsLayout() const;
 
 	void genDataModel();
 
 	std::vector<ds::model::LocationRef> mLocations;
-
 };
 
-} // !namespace globe_example
+} // namespace globe_example
 
 #endif // !_GLOBEEXAMPLE_APP_GLOBALS_

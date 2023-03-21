@@ -4,6 +4,6 @@
 
 namespace fullstarter {
 
-class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent> {};
 
-} // !namespace fullstarter
+} // namespace fullstarter

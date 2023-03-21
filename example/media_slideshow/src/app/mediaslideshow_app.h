@@ -12,23 +12,21 @@ namespace example {
 class AllData;
 
 class MediaSlideshow : public ds::App {
-public:
+  public:
 	MediaSlideshow();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-private:
+	virtual void fileDrop(ci::app::FileDropEvent event);
 
+  private:
 	// Data acquisition
-	Globals				mGlobals;
+	Globals mGlobals;
 
 	ds::ui::MediaSlideshow* mSlideshow;
-
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_MEDIASLIDESHOW_APP_H_
-

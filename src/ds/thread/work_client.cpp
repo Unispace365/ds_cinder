@@ -11,18 +11,14 @@ namespace ds {
  * \class WorkClient
  */
 WorkClient::WorkClient(ui::SpriteEngine& e)
-	: mManager(e.getWorkManager())
-{
+  : mManager(e.getWorkManager()) {
 	mManager.addClient(*this);
 }
 
-WorkClient::~WorkClient()
-{
+WorkClient::~WorkClient() {
 	mManager.removeClient(*this);
 }
 
-void WorkClient::handleResult(std::unique_ptr<WorkRequest>&)
-{
-}
+void WorkClient::handleResult(std::unique_ptr<WorkRequest>&) {}
 
 } // namespace ds

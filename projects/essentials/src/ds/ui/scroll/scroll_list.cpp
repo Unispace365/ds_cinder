@@ -2,41 +2,38 @@
 
 #include "scroll_list.h"
 
-#include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/scroll/scroll_area.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/scroll/scroll_area.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
-namespace ds{
-namespace ui{
+namespace ds::ui {
 
 ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
-	: ds::ui::Sprite(engine)
-	, mScrollArea(nullptr)
-	, mStartPositionX(10.0f)
-	, mStartPositionY(0.0f)
-	, mIncrementAmount(50.0f)
-	, mAnimateOnDeltaDelay(0.0f)
-	, mAnimateOnStartDelay(0.0f)
-	, mVerticalScrolling(vertical)
-	, mFillFromTop(true)
-	, mGridLayout(false)
-	, mSpecialLayout(false)
-	, mVaryingSizeLayout(false)
-	, mTargetRow(0)
-	, mTargetColumn(0)
-	, mMatrixPadding(0)
-{
+  : ds::ui::Sprite(engine)
+  , mScrollArea(nullptr)
+  , mVerticalScrolling(vertical)
+  , mStartPositionY(0.0f)
+  , mStartPositionX(10.0f)
+  , mIncrementAmount(50.0f)
+  , mFillFromTop(true)
+  , mGridLayout(false)
+  , mSpecialLayout(false)
+  , mVaryingSizeLayout(false)
+  , mAnimateOnDeltaDelay(0.0f)
+  , mAnimateOnStartDelay(0.0f)
+  , mTargetRow(0)
+  , mTargetColumn(0)
+  , mMatrixPadding(0) {
+
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
-	if(mScrollArea){
-		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){
+	if (mScrollArea) {
+		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*) {
 			assignItems();
-			if(mScrollUpdatedCallback){
+			if (mScrollUpdatedCallback) {
 				mScrollUpdatedCallback();
 			}
 		});
-		mScrollArea->setScrollerTouchedCallback([this]{
-			mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
-		});
+		mScrollArea->setScrollerTouchedCallback([this] { mLastUpdateTime = Poco::Timestamp().epochMicroseconds(); });
 		mScrollArea->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 		mScrollArea->setFadeHeight(50.0f);
 		mScrollArea->setUseFades(true);
@@ -46,7 +43,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	mScrollableHolder = new ds::ui::Sprite(mEngine);
 
 
-	if(mScrollableHolder){
+	if (mScrollableHolder) {
 		mScrollArea->addSpriteToScroll(mScrollableHolder);
 		mScrollableHolder->enable(false);
 	}
@@ -56,68 +53,68 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	enable(false);
 }
 
-void ScrollList::setContent(const std::vector<int>& models){
+void ScrollList::setContent(const std::vector<int>& models) {
 	clearItems();
 
-	for(auto it = models.begin(); it < models.end(); ++it){
-		auto placeholder = ItemPlaceHolder((*it));
+	for (auto it = models.begin(); it < models.end(); ++it) {
+		auto placeholder  = ItemPlaceHolder((*it));
 		placeholder.mSize = ci::vec2(mIncrementAmount);
 		mItemPlaceHolders.push_back(placeholder);
 	}
 
 	layout();
-	if(mScrollArea){
+	if (mScrollArea) {
 		mScrollArea->resetScrollerPosition();
 	}
 	animateItemsOn();
 }
 
-void ScrollList::animateItemsOn(){
+void ScrollList::animateItemsOn() {
 	float theDelay = mAnimateOnStartDelay;
-	for(auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it){
-		if((*it).mAssociatedSprite){
-			if(mAnimateOnCallback) mAnimateOnCallback((*it).mAssociatedSprite, theDelay);
+	for (auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it) {
+		if ((*it).mAssociatedSprite) {
+			if (mAnimateOnCallback) mAnimateOnCallback((*it).mAssociatedSprite, theDelay);
 			theDelay += mAnimateOnDeltaDelay;
 		}
 	}
 }
 
-void ScrollList::layout(){
+void ScrollList::layout() {
 
 	layoutItems();
 
 
-	if(mVerticalScrolling){
+	if (mVerticalScrolling) {
 		float scrollyHeight = mScrollableHolder->getHeight();
 
-		if(scrollyHeight < getHeight()){
+		if (scrollyHeight < getHeight()) {
 			scrollyHeight = getHeight();
 		}
 
-		if(mScrollableHolder){
+		if (mScrollableHolder) {
 			mScrollableHolder->setSize(getWidth(), scrollyHeight);
 		}
-		if (getPerspective()){
-			if(mFillFromTop){
+		if (getPerspective()) {
+			if (mFillFromTop) {
 				pushItemsTop();
 			}
-		} else if(!mFillFromTop){
+		} else if (!mFillFromTop) {
 			pushItemsTop();
 		}
 
 	} else {
 		float scrollyWidth = mScrollableHolder->getWidth();
 
-		if(scrollyWidth < getWidth()){
+		if (scrollyWidth < getWidth()) {
 			scrollyWidth = getWidth();
 		}
 
-		if(mScrollableHolder){
+		if (mScrollableHolder) {
 			mScrollableHolder->setSize(scrollyWidth, getHeight());
 		}
 	}
 
-	if(mScrollArea){
+	if (mScrollArea) {
 		mScrollArea->setScrollSize(getWidth(), getHeight());
 	}
 
@@ -125,23 +122,23 @@ void ScrollList::layout(){
 	assignItems();
 }
 
-void ScrollList::pushItemsTop(){
-	if (mVerticalScrolling){
+void ScrollList::pushItemsTop() {
+	if (mVerticalScrolling) {
 		if (mItemPlaceHolders.empty()) return;
 		float scrollHeight = mScrollableHolder->getHeight();
-		if(getPerspective()){
+		if (getPerspective()) {
 			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders[0].mSize.y : mIncrementAmount;
-			if(mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - incrementAmount){
+			if (mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - incrementAmount) {
 				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - incrementAmount;
-				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+				for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
 					(*it).mY += delta;
 				}
 			}
 		} else {
 			const auto incrementAmount = mVaryingSizeLayout ? mItemPlaceHolders.back().mSize.y : mIncrementAmount;
-			if(mItemPlaceHolders.back().mY < scrollHeight - incrementAmount){
+			if (mItemPlaceHolders.back().mY < scrollHeight - incrementAmount) {
 				float delta = scrollHeight - mItemPlaceHolders.back().mY - incrementAmount;
-				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+				for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
 					(*it).mY += delta;
 				}
 			}
@@ -149,27 +146,26 @@ void ScrollList::pushItemsTop(){
 	}
 }
 
-void ScrollList::setGridLayout(const bool doGrid, const ci::vec2& gridIncrement){
-	mGridLayout = doGrid;
+void ScrollList::setGridLayout(const bool doGrid, const ci::vec2& gridIncrement) {
+	mGridLayout	   = doGrid;
 	mGridIncrement = gridIncrement;
 
 	layout();
 }
 
-void ScrollList::layoutItemsGrid(){
+void ScrollList::layoutItemsGrid() {
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
 	// TODO: handle perspective
-	//const bool isPerspective = Sprite::getPerspective();
-	float wrapWidth = getWidth();
-	bool justwrapped = false;
-	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+	// const bool isPerspective = Sprite::getPerspective();
+	bool  justwrapped = false;
+	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
 		(*it).mX = xp;
 		(*it).mY = yp;
 
-		if(mVerticalScrolling) {
+		if (mVerticalScrolling) {
 			xp += mGridIncrement.x;
-			if(xp > getWidth() - mGridIncrement.x) {
+			if (xp > getWidth() - mGridIncrement.x) {
 				xp = mStartPositionX;
 				yp += mGridIncrement.y;
 				justwrapped = true;
@@ -178,7 +174,7 @@ void ScrollList::layoutItemsGrid(){
 			}
 		} else {
 			yp += mGridIncrement.y;
-			if(yp > getHeight() - mGridIncrement.y) {
+			if (yp > getHeight() - mGridIncrement.y) {
 				yp = mStartPositionY;
 				xp += mGridIncrement.x;
 				justwrapped = true;
@@ -188,15 +184,15 @@ void ScrollList::layoutItemsGrid(){
 		}
 	}
 
-	if(!justwrapped){
-		if(mVerticalScrolling) {
+	if (!justwrapped) {
+		if (mVerticalScrolling) {
 			yp += mGridIncrement.y;
 		} else {
 			xp += mGridIncrement.x;
 		}
 	}
-	if(mScrollableHolder){
-		if(mVerticalScrolling) {
+	if (mScrollableHolder) {
+		if (mVerticalScrolling) {
 			mScrollableHolder->setSize(getWidth(), yp);
 		} else {
 			mScrollableHolder->setSize(xp, getHeight());
@@ -204,39 +200,37 @@ void ScrollList::layoutItemsGrid(){
 	}
 }
 
-void ScrollList::setMatrixLayout(const bool doSpcial, const int targetRow, const int targetColumn, const float gapping)
-{
+void ScrollList::setMatrixLayout(const bool doSpcial, const int targetRow, const int targetColumn,
+								 const float gapping) {
 	mSpecialLayout = doSpcial;
-	mTargetRow = targetRow;
-	mTargetColumn = targetColumn;
+	mTargetRow	   = targetRow;
+	mTargetColumn  = targetColumn;
 	mMatrixPadding = gapping;
 	layout();
 }
 
-void ScrollList::layoutItemsMatrix()
-{
-	float xp = mStartPositionX;
-	float yp = mStartPositionY;
+void ScrollList::layoutItemsMatrix() {
+	float	   xp			 = mStartPositionX;
+	float	   yp			 = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
-	float totalHeight = yp;
-	if (mVerticalScrolling){
-		if (mTargetColumn == 0)	return;
-		totalHeight = std::ceil((float)mItemPlaceHolders.size() / mTargetColumn) * mIncrementAmount + mStartPositionY * 2.0f;
+	float	   totalHeight	 = yp;
+	if (mVerticalScrolling) {
+		if (mTargetColumn == 0) return;
+		totalHeight =
+			std::ceil((float)mItemPlaceHolders.size() / mTargetColumn) * mIncrementAmount + mStartPositionY * 2.0f;
 		if (isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
-	}
-	else
-	{
-		if (mTargetRow == 0)	return;
+	} else {
+		if (mTargetRow == 0) return;
 	}
 	int index = 1;
-	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
 		(*it).mX = xp;
 		(*it).mY = yp;
 
-		if(mVerticalScrolling) {
+		if (mVerticalScrolling) {
 			int count = index % mTargetColumn;
-			if(count == 0) {
-				if(isPerspective) {
+			if (count == 0) {
+				if (isPerspective) {
 					yp -= mIncrementAmount;
 				} else {
 					yp += mIncrementAmount;
@@ -248,11 +242,11 @@ void ScrollList::layoutItemsMatrix()
 
 		} else {
 			int count = index % mTargetRow;
-			if(count == 0) {
+			if (count == 0) {
 				xp += mIncrementAmount;
 				yp = mStartPositionY;
 			} else {
-				if(index == mItemPlaceHolders.size()) {
+				if (index == mItemPlaceHolders.size()) {
 					xp += mIncrementAmount;
 				}
 				yp += mMatrixPadding;
@@ -261,33 +255,32 @@ void ScrollList::layoutItemsMatrix()
 		index++;
 	}
 
-	if (mVerticalScrolling){
+	if (mVerticalScrolling) {
 		mScrollableHolder->setSize(getWidth(), totalHeight);
-	}
-	else{
+	} else {
 		xp += mStartPositionX;
 		mScrollableHolder->setSize(xp, getHeight());
 	}
 }
 
-// Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
-void ScrollList::layoutItems(){
-	if(mGridLayout){
+// Override if you need to do something special with the layout, otherwise just set start positions and increment
+// amounts
+void ScrollList::layoutItems() {
+	if (mGridLayout) {
 		layoutItemsGrid();
 		return;
 	}
-	if (mSpecialLayout)
-	{
+	if (mSpecialLayout) {
 		layoutItemsMatrix();
 		return;
 	}
 
-	float xp = mStartPositionX;
-	float yp = mStartPositionY;
+	float	   xp			 = mStartPositionX;
+	float	   yp			 = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
-	float totalHeight = yp;
+	float	   totalHeight	 = yp;
 
-	if (mVerticalScrolling){
+	if (mVerticalScrolling) {
 		if (mVaryingSizeLayout) {
 			totalHeight += mStartPositionY * 2.f;
 			for (auto item : mItemPlaceHolders) {
@@ -296,7 +289,7 @@ void ScrollList::layoutItems(){
 		} else {
 			totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
 		}
-		if(isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
+		if (isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
 	}
 
 	if (mVaryingSizeLayout) {
@@ -332,7 +325,7 @@ void ScrollList::layoutItems(){
 	}
 
 
-	if(mVerticalScrolling){
+	if (mVerticalScrolling) {
 		mScrollableHolder->setSize(getWidth(), totalHeight);
 	} else {
 		xp += mStartPositionX;
@@ -341,9 +334,9 @@ void ScrollList::layoutItems(){
 }
 
 
-void ScrollList::clearItems(){
-	for(auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it){
-		if(it->mAssociatedSprite){
+void ScrollList::clearItems() {
+	for (auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it) {
+		if (it->mAssociatedSprite) {
 			it->mAssociatedSprite->hide();
 			mReserveItems.push_back(it->mAssociatedSprite);
 		}
@@ -351,32 +344,34 @@ void ScrollList::clearItems(){
 
 	mItemPlaceHolders.clear();
 
-	if(mScrollArea){
+	if (mScrollArea) {
 		mScrollArea->setScrollSize(mScrollArea->getWidth(), mScrollArea->getHeight());
 	}
 }
 
-void ScrollList::assignItems(){
-	if(!mScrollArea || !mScrollableHolder) return;
+void ScrollList::assignItems() {
+	if (!mScrollArea || !mScrollableHolder) return;
 
-	ci::vec2 scrollPos = mScrollArea->getScrollerPosition();
-	float scrollHeight = mScrollArea->getHeight();
-	float scrollWidth = mScrollArea->getWidth();
+	ci::vec2 scrollPos	  = mScrollArea->getScrollerPosition();
+	float	 scrollHeight = mScrollArea->getHeight();
+	float	 scrollWidth  = mScrollArea->getWidth();
 
 	if (mVaryingSizeLayout) {
 		float incrementedPosition = mVerticalScrolling ? mStartPositionY : mStartPositionX;
 		for (auto& it : mItemPlaceHolders) {
-			if (mVerticalScrolling) it.mY = incrementedPosition;
-			else it.mX = incrementedPosition;
+			if (mVerticalScrolling)
+				it.mY = incrementedPosition;
+			else
+				it.mX = incrementedPosition;
 
 			float itemY = scrollPos.y + it.mY;
 			float itemX = scrollPos.x + it.mX;
 
-			const auto incrementAmount = mVaryingSizeLayout ? (mVerticalScrolling ? it.mSize.y : it.mSize.x) : mIncrementAmount;
+			const auto incrementAmount =
+				mVaryingSizeLayout ? (mVerticalScrolling ? it.mSize.y : it.mSize.x) : mIncrementAmount;
 
 			if ((mVerticalScrolling && ((itemY + incrementAmount > 0.0f) && (itemY < scrollHeight))) ||
-				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))
-				) {
+				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))) {
 				if (it.mAssociatedSprite) {
 					it.mAssociatedSprite->setPosition(it.mX, it.mY);
 				} else {
@@ -388,10 +383,12 @@ void ScrollList::assignItems(){
 					} else {
 						if (mCreateItemCallback) sprite = mCreateItemCallback();
 						if (sprite) {
-							sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleItemTouchInfo(sp, ti); });
+							sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) {
+								handleItemTouchInfo(sp, ti);
+							});
 							sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent) {
-								Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
-								float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+								Poco::Timestamp::TimeVal nowwwy	 = Poco::Timestamp().epochMicroseconds();
+								float					 timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 								if (timeDif < 0.2f) {
 									DS_LOG_VERBOSE(2, "Too soon since the last touch to tap this list!");
 									return;
@@ -401,7 +398,8 @@ void ScrollList::assignItems(){
 							});
 							mScrollableHolder->addChildPtr(sprite);
 						} else {
-							DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when we need them!!");
+							DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make "
+										   "sprites when we need them!!");
 						}
 					}
 
@@ -425,8 +423,10 @@ void ScrollList::assignItems(){
 				}
 			}
 
-			if (mVerticalScrolling) incrementedPosition = it.mY + it.mSize.y;
-			else incrementedPosition = it.mX + it.mSize.x;
+			if (mVerticalScrolling)
+				incrementedPosition = it.mY + it.mSize.y;
+			else
+				incrementedPosition = it.mX + it.mSize.x;
 		}
 
 		if (mVerticalScrolling) {
@@ -447,11 +447,11 @@ void ScrollList::assignItems(){
 			float itemY = scrollPos.y + it->mY;
 			float itemX = scrollPos.x + it->mX;
 
-			const auto incrementAmount = mVaryingSizeLayout ? (mVerticalScrolling ? it->mSize.y : it->mSize.x) : mIncrementAmount;
+			const auto incrementAmount =
+				mVaryingSizeLayout ? (mVerticalScrolling ? it->mSize.y : it->mSize.x) : mIncrementAmount;
 
 			if ((mVerticalScrolling && ((itemY + incrementAmount > 0.0f) && (itemY < scrollHeight))) ||
-				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))
-				) {
+				(!mVerticalScrolling && ((itemX + incrementAmount > 0.0f) && (itemX < scrollWidth)))) {
 				if (it->mAssociatedSprite) {
 					it->mAssociatedSprite->setPosition(it->mX, it->mY);
 				} else {
@@ -474,10 +474,11 @@ void ScrollList::assignItems(){
 			} else {
 				if (mCreateItemCallback) sprite = mCreateItemCallback();
 				if (sprite) {
-					sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleItemTouchInfo(sp, ti); });
+					sprite->setProcessTouchCallback(
+						[this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleItemTouchInfo(sp, ti); });
 					sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::vec3 cent) {
-						Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
-						float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+						Poco::Timestamp::TimeVal nowwwy	 = Poco::Timestamp().epochMicroseconds();
+						float					 timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 						if (timeDif < 0.2f) {
 							DS_LOG_VERBOSE(2, "Too soon since the last touch to tap this list!");
 							return;
@@ -487,11 +488,12 @@ void ScrollList::assignItems(){
 					});
 					mScrollableHolder->addChildPtr(sprite);
 				} else {
-					DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when we need them!!");
+					DS_LOG_WARNING("Didn't create a sprite for scroll list! Use the callback and make sprites when "
+								   "we need them!!");
 				}
 			}
 
-			auto &placeHolder = mItemPlaceHolders[*it];
+			auto& placeHolder = mItemPlaceHolders[*it];
 
 			if (sprite) {
 
@@ -504,77 +506,77 @@ void ScrollList::assignItems(){
 	}
 
 	// hide any extras
-	for(auto it = mReserveItems.begin(), it2 = mReserveItems.end(); it != it2; ++it){
+	for (auto it = mReserveItems.begin(), it2 = mReserveItems.end(); it != it2; ++it) {
 		auto sprite = *it;
 		sprite->hide();
 	}
-
 }
 
-void ScrollList::handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti){
-	if(bs){
-		if(mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
+void ScrollList::handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti) {
+	if (bs) {
+		if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-		if(mScrollArea  && ti.mPhase == ds::ui::TouchInfo::Moved &&ci::distance(ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
-			if(mStateChangeCallback) mStateChangeCallback(bs, false);
+		if (mScrollArea && ti.mPhase == ds::ui::TouchInfo::Moved &&
+			ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()) {
+			if (mStateChangeCallback) mStateChangeCallback(bs, false);
 			bs->passTouchToSprite(mScrollArea->getSpriteToPassTo(), ti);
 			return;
 		}
 	}
 }
 
-void ScrollList::onSizeChanged(){
+void ScrollList::onSizeChanged() {
 	layout();
 }
 
-void ScrollList::setItemTappedCallback(const std::function<void(ds::ui::Sprite*, const ci::vec3& cent)> &func){
+void ScrollList::setItemTappedCallback(const std::function<void(ds::ui::Sprite*, const ci::vec3& cent)>& func) {
 	mItemTappedCallback = func;
 }
 
-void ScrollList::setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func){
+void ScrollList::setCreateItemCallback(const std::function<ds::ui::Sprite*()>& func) {
 	mCreateItemCallback = func;
 }
 
-void ScrollList::setDataCallback(const std::function<void(ds::ui::Sprite*, const int dbId) > &func){
+void ScrollList::setDataCallback(const std::function<void(ds::ui::Sprite*, const int dbId)>& func) {
 	mSetDataCallback = func;
 }
 
-void ScrollList::setAnimateOnCallback(const std::function<void(ds::ui::Sprite*, const float delay)>&func){
+void ScrollList::setAnimateOnCallback(const std::function<void(ds::ui::Sprite*, const float delay)>& func) {
 	mAnimateOnCallback = func;
 }
 
-void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func){
+void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>& func) {
 	mStateChangeCallback = func;
 }
 
-void ScrollList::setScrollUpdatedCallback(const std::function<void(void)> &func){
+void ScrollList::setScrollUpdatedCallback(const std::function<void(void)>& func) {
 	mScrollUpdatedCallback = func;
 }
 
-void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){
-	mStartPositionX = startPositionX;
-	mStartPositionY = startPositionY;
+void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount,
+								 const bool fill_from_top) {
+	mStartPositionX	 = startPositionX;
+	mStartPositionY	 = startPositionY;
 	mIncrementAmount = incremenetAmount;
-	mFillFromTop = fill_from_top;
+	mFillFromTop	 = fill_from_top;
 }
 
-void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDelay){
+void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDelay) {
 	mAnimateOnStartDelay = startDelay;
 	mAnimateOnDeltaDelay = deltaDelay;
 }
 
-void ScrollList::forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> func){
-	if(!func) return;
-	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
-		if((*it).mAssociatedSprite){
+void ScrollList::forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> func) {
+	if (!func) return;
+	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it) {
+		if ((*it).mAssociatedSprite) {
 			func((*it).mAssociatedSprite);
 		}
 	}
 
-	for(auto it = mReserveItems.begin(); it < mReserveItems.end(); ++it){
+	for (auto it = mReserveItems.begin(); it < mReserveItems.end(); ++it) {
 		func((*it));
 	}
 }
 
-}
-}
+} // namespace ds::ui

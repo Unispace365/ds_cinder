@@ -12,44 +12,44 @@
 #include "content_query.h"
 
 namespace ds {
-	namespace ui {
-		class SpriteEngine;
-	}
+namespace ui {
+	class SpriteEngine;
+}
 
-	/**
-	 * \class ContentWrangler
-	 * \brief Listen to dsnode and app events to run queries and notify about the results
-	 *		 Does nothing if no resource location has been specified
-	 */
-	class ContentWrangler {
-	public:
-		ContentWrangler(ds::ui::SpriteEngine&);
+/**
+ * \class ContentWrangler
+ * \brief Listen to dsnode and app events to run queries and notify about the results
+ *		 Does nothing if no resource location has been specified
+ */
+class ContentWrangler {
+  public:
+	ContentWrangler(ds::ui::SpriteEngine&);
 
-		/// TODO: handle errors from the content query (don't replace mData or send out update events)
+	/// TODO: handle errors from the content query (don't replace mData or send out update events)
 
-		/// A map of all the resources from the resources table
-		std::unordered_map<int, ds::Resource> mAllResources;
+	/// A map of all the resources from the resources table
+	std::unordered_map<int, ds::Resource> mAllResources;
 
-		/// Starts node watcher and sets xml / db locations
-		void initialize();
+	/// Starts node watcher and sets xml / db locations
+	void initialize();
 
-		/// Reply handler for individual queries
-		void recieveQuery(ContentQuery& q);
+	/// Reply handler for individual queries
+	void recieveQuery(ContentQuery& q);
 
-		/// Asynchronously runs query and notifies the ContentUpdatedEvent when complete
-		void runQuery();
+	/// Asynchronously runs query and notifies the ContentUpdatedEvent when complete
+	void runQuery();
 
 
-	private:
-		ds::ui::SpriteEngine& mEngine;
-		ds::ParallelRunnable<ContentQuery> mContentQuery;
+  private:
+	ds::ui::SpriteEngine&			   mEngine;
+	ds::ParallelRunnable<ContentQuery> mContentQuery;
 
-		ds::DelayedNodeWatcher mNodeWatcher;
-		ds::EventClient        mEventClient;
+	ds::DelayedNodeWatcher mNodeWatcher;
+	ds::EventClient		   mEventClient;
 
-		std::string mModelModelLocation;
-	};
+	std::string mModelModelLocation;
+};
 
-}  // namespace ds
+} // namespace ds
 
 #endif

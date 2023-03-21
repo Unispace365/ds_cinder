@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 	<setting name="SERVER SETTINGS" value="" type="section_header"/>
-	<setting name="project_path" value="fullstarter" type="string" comment="Project path for locating app resources"/>
+	<setting name="project_path" value="fullstarter" type="string" comment="Project path for locating app resources AKA %PP%"/>
 	<setting name="platform:guid" value="full_starter_app" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
 	<setting name="xml_importer:target" value="default" type="string" comment="target for xml importer target properties to match" default="default"/>
@@ -93,12 +93,12 @@
 	<setting name="logger:level" value="all" type="string" comment="What level of log to log." default="all" possibles="all, none, info, warning, error, fatal"/>
 	<setting name="logger:module" value="all" type="string" comment="all,none, or numbers (i.e. 0,1,2,3).  Applications map the numbers to specific modules." default="all"/>
 	<setting name="logger:async" value="true" type="string" comment="Whether to save logs on another thread or the main one." default="true"/>
-	<setting name="logger:file" value="%LOCAL%/logs/" type="string" comment="Filename and location" default="%LOCAL%/logs/"/>
+	<setting name="logger:file" value="%LOCAL%/logs/%PP%/" type="string" comment="Filename and location" default="%LOCAL%/logs/"/>
 	<setting name="logger:verbose_level" value="0" type="int" comment="How much verbose output to log. 0=nothing, 9=everything" default="0" min_value="0" max_value="9"/>
 
 	<setting name="METRICS" value="" type="section_header"/>
 	<setting name="metrics:active" value="false" type="bool" comment="Enable telegraf metrics sending" default="true"/>
-	<setting name="metrics:send_base_info" value="true" type="bool" comment="Send common engine info like fps and number of sprites" default="true"/>
+	<setting name="metrics:send_base_info" value="false" type="bool" comment="Send common engine info like fps and number of sprites" default="true"/>
 	<setting name="metrics:base_info_send_delay" value="5.0" type="double" comment="How often to send the base info in seconds" default="5.0" min_value="0.5" max_value="100"/>
 	<setting name="metrics:send_touch_info" value="false" type="bool" comment="Record touch data or not" default="false"/>
 	<setting name="metrics:udp_host" value="127.0.0.1" type="string" comment="The host name to send udp metrics info to" default="127.0.0.1"/>

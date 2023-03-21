@@ -28,40 +28,38 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// -----------------------------------------------------------------------------
-// Usage documentation
-// -----------------------------------------------------------------------------
-//
-// Overview:
-// A callback is similar in concept to a function pointer: it wraps a runnable
-// object such as a function, method, lambda, or even another callback, allowing
-// the runnable object to be invoked later via the callback object.
-//
-// Unlike function pointers, callbacks are created with base::BindOnce() or
-// base::BindRepeating() and support partial function application.
-//
-// A base::OnceCallback may be Run() at most once; a base::RepeatingCallback may
-// be Run() any number of times. |is_null()| is guaranteed to return true for a
-// moved-from callback.
-//
-//   // The lambda takes two arguments, but the first argument |x| is bound at
-//   // callback creation.
-//   base::OnceCallback<int(int)> cb = base::BindOnce([] (int x, int y) {
-//     return x + y;
-//   }, 1);
-//   // Run() only needs the remaining unbound argument |y|.
-//   printf("1 + 2 = %d\n", std::move(cb).Run(2));  // Prints 3
-//   printf("cb is null? %s\n",
-//          cb.is_null() ? "true" : "false");  // Prints true
-//   std::move(cb).Run(2);  // Crashes since |cb| has already run.
-//
-// Callbacks also support cancellation. A common use is binding the receiver
-// object as a WeakPtr<T>. If that weak pointer is invalidated, calling Run()
-// will be a no-op. Note that |IsCancelled()| and |is_null()| are distinct:
-// simply cancelling a callback will not also make it null.
-//
-// See https://chromium.googlesource.com/chromium/src/+/HEAD/docs/callback.md
-// for the full documentation.
+/// \file
+/// A callback is similar in concept to a function pointer: it wraps a runnable
+/// object such as a function, method, lambda, or even another callback,
+/// allowing the runnable object to be invoked later via the callback object.
+///
+/// Unlike function pointers, callbacks are created with base::BindOnce() or
+/// base::BindRepeating() and support partial function application.
+///
+/// A base::OnceCallback may be Run() at most once; a base::RepeatingCallback
+/// may be Run() any number of times. |is_null()| is guaranteed to return true
+/// for a moved-from callback.
+///
+/// <pre>
+///   // The lambda takes two arguments, but the first argument |x| is bound at
+///   // callback creation.
+///   base::OnceCallback<int(int)> cb = base::BindOnce([] (int x, int y) {
+///     return x + y;
+///   }, 1);
+///   // Run() only needs the remaining unbound argument |y|.
+///   printf("1 + 2 = %d\n", std::move(cb).Run(2));  // Prints 3
+///   printf("cb is null? %s\n",
+///          cb.is_null() ? "true" : "false");  // Prints true
+///   std::move(cb).Run(2);  // Crashes since |cb| has already run.
+/// </pre>
+///
+/// Callbacks also support cancellation. A common use is binding the receiver
+/// object as a WeakPtr<T>. If that weak pointer is invalidated, calling Run()
+/// will be a no-op. Note that |IsCancelled()| and |is_null()| are distinct:
+/// simply cancelling a callback will not also make it null.
+///
+/// See https://chromium.googlesource.com/chromium/src/+/lkgr/docs/callback.md
+/// for the full documentation.
 
 #ifndef CEF_INCLUDE_BASE_CEF_CALLBACK_H_
 #define CEF_INCLUDE_BASE_CEF_CALLBACK_H_
@@ -85,18 +83,18 @@
 namespace base {
 
 template <typename R, typename... Args>
-class OnceCallback<R(Args...)> : public internal::CallbackBase {
+class OnceCallback<R(Args...)> : public cef_internal::CallbackBase {
  public:
   using ResultType = R;
   using RunType = R(Args...);
-  using PolymorphicInvoke = R (*)(internal::BindStateBase*,
-                                  internal::PassingType<Args>...);
+  using PolymorphicInvoke = R (*)(cef_internal::BindStateBase*,
+                                  cef_internal::PassingType<Args>...);
 
   constexpr OnceCallback() = default;
   OnceCallback(std::nullptr_t) = delete;
 
-  explicit OnceCallback(internal::BindStateBase* bind_state)
-      : internal::CallbackBase(bind_state) {}
+  explicit OnceCallback(cef_internal::BindStateBase* bind_state)
+      : cef_internal::CallbackBase(bind_state) {}
 
   OnceCallback(const OnceCallback&) = delete;
   OnceCallback& operator=(const OnceCallback&) = delete;
@@ -105,10 +103,10 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
   OnceCallback& operator=(OnceCallback&&) noexcept = default;
 
   OnceCallback(RepeatingCallback<RunType> other)
-      : internal::CallbackBase(std::move(other)) {}
+      : cef_internal::CallbackBase(std::move(other)) {}
 
   OnceCallback& operator=(RepeatingCallback<RunType> other) {
-    static_cast<internal::CallbackBase&>(*this) = std::move(other);
+    static_cast<cef_internal::CallbackBase&>(*this) = std::move(other);
     return *this;
   }
 
@@ -144,7 +142,7 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
   OnceCallback<ThenR(Args...)> Then(OnceCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindOnce(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             OnceCallback, OnceCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));
   }
@@ -157,7 +155,7 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
       RepeatingCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindOnce(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             OnceCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));
@@ -165,18 +163,19 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
 };
 
 template <typename R, typename... Args>
-class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
+class RepeatingCallback<R(Args...)>
+    : public cef_internal::CallbackBaseCopyable {
  public:
   using ResultType = R;
   using RunType = R(Args...);
-  using PolymorphicInvoke = R (*)(internal::BindStateBase*,
-                                  internal::PassingType<Args>...);
+  using PolymorphicInvoke = R (*)(cef_internal::BindStateBase*,
+                                  cef_internal::PassingType<Args>...);
 
   constexpr RepeatingCallback() = default;
   RepeatingCallback(std::nullptr_t) = delete;
 
-  explicit RepeatingCallback(internal::BindStateBase* bind_state)
-      : internal::CallbackBaseCopyable(bind_state) {}
+  explicit RepeatingCallback(cef_internal::BindStateBase* bind_state)
+      : cef_internal::CallbackBaseCopyable(bind_state) {}
 
   // Copyable and movable.
   RepeatingCallback(const RepeatingCallback&) = default;
@@ -226,7 +225,7 @@ class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
       RepeatingCallback<ThenR(ThenArgs...)> then) const& {
     CHECK(then);
     return BindRepeating(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             RepeatingCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         *this, std::move(then));
@@ -237,7 +236,7 @@ class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
       RepeatingCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindRepeating(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             RepeatingCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));

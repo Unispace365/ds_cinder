@@ -6,20 +6,19 @@
 
 #include <ds/debug/logger.h>
 
-namespace ds{
-namespace ui{
+namespace ds::ui {
 
 PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFiles)
-	: ds::ui::Sprite(engine)
-	, mLoopStyle(Loop)
-	, mCurrentFrameIndex(0)
-	, mPlaying(true)
-	, mIsLoaded(false)
-	, mFrameTime(0.0f)
-	, mNumFrames(0)
-	, mAnimationEndedCallback(nullptr)
-	, mLoadedCallback(nullptr)
-{
+  : ds::ui::Sprite(engine)
+  , mLoopStyle(Loop)
+  , mCurrentFrameIndex(0)
+  , mNumFrames(0)
+  , mPlaying(true)
+  , mIsLoaded(false)
+  , mFrameTime(0.0f)
+  , mAnimationEndedCallback(nullptr)
+  , mLoadedCallback(nullptr) {
+
 	mLayoutFixedAspect = true;
 	setImages(imageFiles);
 
@@ -31,19 +30,19 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 }
 
 PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
-	: ds::ui::Sprite(engine)
-	, mLoopStyle(Loop)
-	, mCurrentFrameIndex(0)
-	, mPlaying(true)
-	, mIsLoaded(false)
-	, mFrameTime(0.0f)
-	, mNumFrames(0)
-{
+  : ds::ui::Sprite(engine)
+  , mLoopStyle(Loop)
+  , mCurrentFrameIndex(0)
+  , mNumFrames(0)
+  , mPlaying(true)
+  , mIsLoaded(false)
+  , mFrameTime(0.0f) {
+
 	mLayoutFixedAspect = true;
-	mLastFrameTime = ci::app::getElapsedSeconds();
+	mLastFrameTime	   = ci::app::getElapsedSeconds();
 }
 
-void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
+void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles) {
 	mNumFrames = static_cast<int>(imageFiles.size());
 
 	if (mNumFrames == 0) {
@@ -57,46 +56,46 @@ void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
 		last_frame->release();
 		mFrames.pop_back();
 	}
-	
+
 	// Create new empty frame sprites as needed
-	while(mFrames.size() < mNumFrames){
+	while (mFrames.size() < mNumFrames) {
 		ds::ui::Image* img = new ds::ui::Image(mEngine);
 		addChildPtr(img); // More idiomatic
 		img->hide();
-		mFrames.push_back( img );
+		mFrames.push_back(img);
 	}
 
 	mVisibleFrame = nullptr;
-	int i = 0;
+	int i		  = 0;
 	for (auto filename : imageFiles) {
 		mFrames[i]->setImageFile(filename, mImageFlags);
 		i++;
 	}
 }
 
-void PngSequenceSprite::setFrameTime(const float time){
-	if(time < 0.0f) return;
+void PngSequenceSprite::setFrameTime(const float time) {
+	if (time < 0.0f) return;
 	mFrameTime = time;
 }
 
-void PngSequenceSprite::setLoopStyle(LoopStyle style){
+void PngSequenceSprite::setLoopStyle(LoopStyle style) {
 	mLoopStyle = style;
 }
 
-const PngSequenceSprite::LoopStyle PngSequenceSprite::getLoopStyle()const{
+const PngSequenceSprite::LoopStyle PngSequenceSprite::getLoopStyle() const {
 	return mLoopStyle;
 }
 
-void PngSequenceSprite::play(){
+void PngSequenceSprite::play() {
 	mLastFrameTime = ci::app::getElapsedSeconds();
-	mPlaying = true;
+	mPlaying	   = true;
 }
 
-void PngSequenceSprite::pause(){
+void PngSequenceSprite::pause() {
 	mPlaying = false;
 }
 
-const bool PngSequenceSprite::isPlaying()const{
+const bool PngSequenceSprite::isPlaying() const {
 	return mPlaying;
 }
 
@@ -116,37 +115,37 @@ void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex) {
 	mVisibleFrame->show();
 }
 
-const int PngSequenceSprite::getCurrentFrameIndex()const{
+const int PngSequenceSprite::getCurrentFrameIndex() const {
 	return mCurrentFrameIndex;
 }
 
-const int PngSequenceSprite::getNumberOfFrames(){
+const int PngSequenceSprite::getNumberOfFrames() {
 	return mNumFrames;
 }
 
-ds::ui::Image* PngSequenceSprite::getFrameAtIndex(const int frameIndex){
-	if(frameIndex < 0 || frameIndex > mNumFrames - 1) return nullptr;
+ds::ui::Image* PngSequenceSprite::getFrameAtIndex(const int frameIndex) {
+	if (frameIndex < 0 || frameIndex > mNumFrames - 1) return nullptr;
 	return mFrames[frameIndex];
 }
 
-void PngSequenceSprite::sizeToFirstImage(){
-	if(mFrames.empty()){
+void PngSequenceSprite::sizeToFirstImage() {
+	if (mFrames.empty()) {
 		setSize(0.0f, 0.0f);
 	} else {
 		setSize(mFrames[0]->getScaleWidth(), mFrames[0]->getScaleHeight());
 	}
 }
 
-void PngSequenceSprite::setAnimationEndedCallback(const std::function<void()>& func){
+void PngSequenceSprite::setAnimationEndedCallback(const std::function<void()>& func) {
 	mAnimationEndedCallback = func;
 }
 
-void PngSequenceSprite::setLoadedCallback(const std::function<void()>& func){
+void PngSequenceSprite::setLoadedCallback(const std::function<void()>& func) {
 	mLoadedCallback = func;
 }
 
-void PngSequenceSprite::checkLoaded(){
-	if(!mIsLoaded){
+void PngSequenceSprite::checkLoaded() {
+	if (!mIsLoaded) {
 		for (auto frame : mFrames) {
 			if (!frame->isLoaded()) {
 				break;
@@ -163,27 +162,23 @@ void PngSequenceSprite::checkLoaded(){
 void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p) {
 	checkLoaded();
 
-	if (mPlaying
-	   && mNumFrames > 0
-	   && !mFrames.empty()
-	   && mCurrentFrameIndex > -1 
-	   && mCurrentFrameIndex < mFrames.size()) {
+	if (mPlaying && mNumFrames > 0 && !mFrames.empty() && mCurrentFrameIndex > -1 &&
+		mCurrentFrameIndex < mFrames.size()) {
 
 		bool advanceFrame = true;
 
 		if (mFrameTime > 0.0f) {
-			const double thisTime = ci::app::getElapsedSeconds();
+			const double thisTime  = ci::app::getElapsedSeconds();
 			const double deltaTime = thisTime - mLastFrameTime;
 			if (deltaTime > (double)mFrameTime) {
-				advanceFrame = true;
+				advanceFrame   = true;
 				mLastFrameTime = thisTime;
-			}
-			else {
+			} else {
 				advanceFrame = false;
 			}
 		}
 
-		if(advanceFrame){
+		if (advanceFrame) {
 			// hide the old frame
 			mFrames[mCurrentFrameIndex]->hide();
 
@@ -191,16 +186,16 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p) {
 			mCurrentFrameIndex++;
 
 			// Check if we're at the end of a loop/once and act accordingly
-			if(mCurrentFrameIndex > mNumFrames - 1){
-				if(mLoopStyle == Loop){
+			if (mCurrentFrameIndex > mNumFrames - 1) {
+				if (mLoopStyle == Loop) {
 					mCurrentFrameIndex = 0;
 				} else { // LoopStyle::Once is the default/fallback
 					mCurrentFrameIndex = mNumFrames - 1;
 					pause();
 				}
 
-				if(mAnimationEndedCallback){
-					mAnimationEndedCallback();// Call the callback if appropriate
+				if (mAnimationEndedCallback) {
+					mAnimationEndedCallback(); // Call the callback if appropriate
 				}
 			}
 
@@ -216,5 +211,4 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p) {
 	}
 }
 
-} // namespace ui
-} // namespace ds
+} // namespace ds::ui

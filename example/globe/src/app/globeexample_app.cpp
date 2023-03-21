@@ -5,9 +5,9 @@
 #include <ds/ui/sprite/sprite_engine.h>
 
 #include <Poco/String.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/app/engine/engine.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 #include <ds/ui/sprite/text.h>
 
@@ -24,20 +24,16 @@
 namespace globe_example {
 
 GlobeExample::GlobeExample()
-	: ds::App(ds::RootList()
-								.persp() // sample perp view
-								.perspFov(30.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 2000.0f))
-								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-								.perspNear(10.0f)
-								.perspFar(4500.0f)
-)
-	, mGlobals(mEngine)
-{
+  : ds::App(ds::RootList()
+				.persp() // sample perp view
+				.perspFov(30.0f)
+				.perspPosition(ci::vec3(0.0, 0.0f, 2000.0f))
+				.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
+				.perspNear(10.0f)
+				.perspFar(4500.0f))
+  , mGlobals(mEngine) {}
 
-}
-
-void GlobeExample::setupServer(){
+void GlobeExample::setupServer() {
 
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
@@ -48,7 +44,7 @@ void GlobeExample::setupServer(){
 	});
 
 	/* Get our data model synchronously, don't ever do this */
-	//ci::XmlTree doc(ci::loadFile(""));
+	// ci::XmlTree doc(ci::loadFile(""));
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -56,51 +52,50 @@ void GlobeExample::setupServer(){
 
 	mEngine.getRootSprite(0).clearChildren();
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite& rootSprite = mEngine.getRootSprite();
 
-	rootSprite.addChildPtr(new PopulationView(mGlobals) );
-
+	rootSprite.addChildPtr(new PopulationView(mGlobals));
 }
 
 void GlobeExample::update() {
 	ds::App::update();
 }
 
-void GlobeExample::onKeyDown(ci::app::KeyEvent event){
+void GlobeExample::onKeyDown(ci::app::KeyEvent event) {
 	using ci::app::KeyEvent;
 
 	float moveAmount = 1.0f;
-	if(event.isShiftDown()) moveAmount = 10.0f;
-	if(event.isAltDown()) moveAmount = 100.0f;
+	if (event.isShiftDown()) moveAmount = 10.0f;
+	if (event.isAltDown()) moveAmount = 100.0f;
 
-	if(event.getCode() == KeyEvent::KEY_d){
+	if (event.getCode() == KeyEvent::KEY_d) {
 		moveCamera(ci::vec3(moveAmount, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_a){
+	} else if (event.getCode() == KeyEvent::KEY_a) {
 		moveCamera(ci::vec3(-moveAmount, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_w){
+	} else if (event.getCode() == KeyEvent::KEY_w) {
 		moveCamera(ci::vec3(0.0f, -moveAmount, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_s){
+	} else if (event.getCode() == KeyEvent::KEY_s) {
 		moveCamera(ci::vec3(0.0f, moveAmount, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
+	} else if (event.getCode() == KeyEvent::KEY_RIGHTBRACKET) {
 		moveCamera(ci::vec3(0.0f, 0.0f, moveAmount));
-	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
+	} else if (event.getCode() == KeyEvent::KEY_LEFTBRACKET) {
 		moveCamera(ci::vec3(0.0f, 0.0f, -moveAmount));
-	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
+	} else if (event.getCode() == KeyEvent::KEY_EQUALS) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		p.mFarPlane += moveAmount;
 		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
 		mEngine.setPerspectiveCamera(0, p);
-	} else if(event.getCode() == KeyEvent::KEY_MINUS){
+	} else if (event.getCode() == KeyEvent::KEY_MINUS) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		p.mFarPlane -= moveAmount;
 		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
 		mEngine.setPerspectiveCamera(0, p);
-	} else if(event.getCode() == KeyEvent::KEY_0){
+	} else if (event.getCode() == KeyEvent::KEY_0) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		p.mNearPlane -= moveAmount;
 		std::cout << "Clip near camera: " << p.mNearPlane << std::endl;
 		mEngine.setPerspectiveCamera(0, p);
-	} else if(event.getCode() == KeyEvent::KEY_9){
+	} else if (event.getCode() == KeyEvent::KEY_9) {
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		p.mNearPlane += moveAmount;
 		std::cout << "Clip near camera: " << p.mNearPlane << std::endl;
@@ -108,7 +103,7 @@ void GlobeExample::onKeyDown(ci::app::KeyEvent event){
 	}
 }
 
-void GlobeExample::moveCamera(const ci::vec3& deltaMove){
+void GlobeExample::moveCamera(const ci::vec3& deltaMove) {
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 	p.mPosition += deltaMove;
 	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;

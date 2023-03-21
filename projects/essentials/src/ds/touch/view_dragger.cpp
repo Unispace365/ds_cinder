@@ -7,15 +7,14 @@
 namespace ds {
 
 ViewDragger::ViewDragger(ds::ui::Sprite& parent)
-	: AutoUpdate(parent.getEngine())
-	, mParent(parent)
-	, mMomentum(parent.getEngine())
-	, mIsTouchy(false)
-	, mReturnTime(0.35f) 
-{
+  : AutoUpdate(parent.getEngine())
+  , mParent(parent)
+  , mMomentum(parent.getEngine())
+  , mIsTouchy(false)
+  , mReturnTime(0.35f) {
 	mParent.enable(true);
 	mParent.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	mParent.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){ onTouched(ti); });
+	mParent.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) { onTouched(ti); });
 
 	mMomentum.setMomentumParent(&mParent);
 	mMomentum.setMass(8.0f);
@@ -25,7 +24,7 @@ ViewDragger::ViewDragger(ds::ui::Sprite& parent)
 }
 
 void ViewDragger::update(const ds::UpdateParams&) {
-	if(mMomentum.recentlyMoved()) {
+	if (mMomentum.recentlyMoved()) {
 		checkBounds(false);
 	}
 }
@@ -37,7 +36,7 @@ bool ViewDragger::hasTouches() const {
 void ViewDragger::onTouched(const ds::ui::TouchInfo& ti) {
 	mParent.sendToFront();
 	mParent.animStop();
-	if(ti.mPhase == ds::ui::TouchInfo::Removed && ti.mNumberFingers == 0) {
+	if (ti.mPhase == ds::ui::TouchInfo::Removed && ti.mNumberFingers == 0) {
 		mIsTouchy = false;
 		mMomentum.activate();
 	} else {
@@ -45,13 +44,13 @@ void ViewDragger::onTouched(const ds::ui::TouchInfo& ti) {
 		mIsTouchy = true;
 	}
 
-	if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mFingerIndex == 0) {
+	if (ti.mPhase == ds::ui::TouchInfo::Moved && ti.mFingerIndex == 0) {
 		mParent.move(ti.mDeltaPoint);
 	}
 }
 
 void ViewDragger::checkBounds(const bool immediate) {
-	const float thisWidth = mParent.getWidth();
+	const float thisWidth  = mParent.getWidth();
 	const float thisHeight = mParent.getHeight();
 
 	const float anchorX = mParent.getCenter().x * thisWidth;
@@ -68,35 +67,35 @@ void ViewDragger::checkBounds(const bool immediate) {
 	float destinationX = thisX;
 	float destinationY = thisY;
 
-	if(thisWidth < worldW){
-		if(thisX < worldL){
+	if (thisWidth < worldW) {
+		if (thisX < worldL) {
 			destinationX = worldL;
-		} else if(thisX > worldW - thisWidth){
+		} else if (thisX > worldW - thisWidth) {
 			destinationX = worldW - thisWidth;
 		}
 	} else {
-		if(thisX < worldW - thisWidth){
+		if (thisX < worldW - thisWidth) {
 			destinationX = worldW - thisWidth;
-		} else if(thisX > worldL){
+		} else if (thisX > worldL) {
 			destinationX = worldL;
 		}
 	}
 
-	if(thisHeight < worldH){
-		if(thisY < worldT){
+	if (thisHeight < worldH) {
+		if (thisY < worldT) {
 			destinationY = worldT;
-		} else if(thisY > worldH - thisHeight){
+		} else if (thisY > worldH - thisHeight) {
 			destinationY = worldH - thisHeight;
 		}
 	} else {
-		if(thisY < worldH - thisHeight){
+		if (thisY < worldH - thisHeight) {
 			destinationY = worldH - thisHeight;
-		} else if(thisY > worldT){
+		} else if (thisY > worldT) {
 			destinationY = worldT;
 		}
 	}
 
-	if(destinationX == thisX && destinationY == thisY){
+	if (destinationX == thisX && destinationY == thisY) {
 		return;
 	}
 
@@ -105,11 +104,11 @@ void ViewDragger::checkBounds(const bool immediate) {
 	// re-apply the anchor offset.
 	destinationX += anchorX;
 	destinationY += anchorY;
-	if(immediate){
+	if (immediate) {
 		mParent.setPosition(floorf(destinationX), floorf(destinationY));
 	} else {
 		mParent.tweenPosition(ci::vec3(destinationX, destinationY, 0.0f), mReturnTime, 0.0f, ci::EaseOutQuint());
 	}
 }
 
-} // namespace test
+} // namespace ds

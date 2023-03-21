@@ -11,8 +11,8 @@ namespace ds {
  */
 template <typename Dst, typename Src>
 std::unique_ptr<Dst> unique_dynamic_cast(std::unique_ptr<Src>& ptr) {
-	Src						*p = ptr.release();
-	std::unique_ptr<Dst>	r(dynamic_cast<Dst*>(p));
+	Src*				 p = ptr.release();
+	std::unique_ptr<Dst> r(dynamic_cast<Dst*>(p));
 	if (!r) {
 		ptr.reset(p);
 	}

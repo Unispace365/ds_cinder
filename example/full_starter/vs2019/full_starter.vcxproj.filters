@@ -30,6 +30,9 @@
     <ClInclude Include="..\src\ui\story\story_controller.h">
       <Filter>src\ui\story</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -52,8 +55,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources.rc">
+    <ResourceCompile Include="full_starter.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\ft_bragg_fallen_heroes\vs2019\cinder_app_icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="cinder_app_icon.ico" />
   </ItemGroup>
 </Project>

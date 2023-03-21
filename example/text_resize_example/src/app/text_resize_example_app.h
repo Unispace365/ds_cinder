@@ -7,17 +7,16 @@
 namespace text_resize {
 
 class text_resize_example_app : public ds::App {
-public:
+  public:
 	text_resize_example_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace text_resize
+} // namespace text_resize

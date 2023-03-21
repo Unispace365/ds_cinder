@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d048a58af52b66863c3081e63dd2e0f8b615d35a$
+// $hash=ac50966059a1ba14d20824a27bcc19e9c0c0d910$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
+#include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
@@ -26,8 +27,9 @@ CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
-    return NULL;
+  if (name.empty()) {
+    return nullptr;
+  }
 
   // Execute
   cef_process_message_t* _retval = cef_process_message_create(name.GetStruct());
@@ -42,8 +44,9 @@ NO_SANITIZE("cfi-icall") bool CefProcessMessageCToCpp::IsValid() {
   shutdown_checker::AssertNotShutdown();
 
   cef_process_message_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -58,8 +61,9 @@ NO_SANITIZE("cfi-icall") bool CefProcessMessageCToCpp::IsReadOnly() {
   shutdown_checker::AssertNotShutdown();
 
   cef_process_message_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_read_only))
+  if (CEF_MEMBER_MISSING(_struct, is_read_only)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -75,8 +79,9 @@ CefRefPtr<CefProcessMessage> CefProcessMessageCToCpp::Copy() {
   shutdown_checker::AssertNotShutdown();
 
   cef_process_message_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, copy))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, copy)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -91,8 +96,9 @@ NO_SANITIZE("cfi-icall") CefString CefProcessMessageCToCpp::GetName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_process_message_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_name))
+  if (CEF_MEMBER_MISSING(_struct, get_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -110,8 +116,9 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
   shutdown_checker::AssertNotShutdown();
 
   cef_process_message_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_argument_list))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_argument_list)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -120,6 +127,26 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
 
   // Return type: refptr_same
   return CefListValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefSharedMemoryRegion>
+CefProcessMessageCToCpp::GetSharedMemoryRegion() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_shared_memory_region)) {
+    return nullptr;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_shared_memory_region_t* _retval =
+      _struct->get_shared_memory_region(_struct);
+
+  // Return type: refptr_same
+  return CefSharedMemoryRegionCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -139,7 +166,7 @@ cef_process_message_t* CefCToCppRefCounted<
     cef_process_message_t>::UnwrapDerived(CefWrapperType type,
                                           CefProcessMessage* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

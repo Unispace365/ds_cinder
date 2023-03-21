@@ -6,19 +6,16 @@
 namespace mv {
 
 /**
-* \class mv::AllData
-* This is kind of silly, but If we expand anything I want this here
-*/
+ * \class mv::AllData
+ * This is kind of silly, but If we expand anything I want this here
+ */
 class AllStories {
-public:
-
+  public:
 	AllStories(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace mv
+} // namespace mv
 
 #endif // !_MEDIAVIEWER_APP_MODEL_ALLSTORIES_H_
-

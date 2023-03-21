@@ -11,19 +11,20 @@
 namespace ds {
 
 ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
-  : mNodeWatcher(se, "localhost", 7777, false)
-  , mEngine(se)
+  : mEngine(se)
   , mContentQuery(se, [] { return new ContentQuery(); })
+  , mNodeWatcher(se, "localhost", 7777, false)
   , mEventClient(se) {
 
 	mEngine.mContent.setName("root");
 	mEngine.mContent.setLabel("The root of all content");
 
 	ds::event::Registry::get().addEventCreator(DsNodeMessageReceivedEvent::NAME(),
-											   [this]() -> ds::Event* { return new DsNodeMessageReceivedEvent(); });
-	ds::event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(), [this]() -> ds::Event* { return new ContentUpdatedEvent(); });
+											   []() -> ds::Event* { return new DsNodeMessageReceivedEvent(); });
+	ds::event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(),
+											   []() -> ds::Event* { return new ContentUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestContentQueryEvent::NAME(),
-											   [this]() -> ds::Event* { return new RequestContentQueryEvent(); });
+											   []() -> ds::Event* { return new RequestContentQueryEvent(); });
 	mEventClient.listenToEvents<RequestContentQueryEvent>([this](const RequestContentQueryEvent& e) { runQuery(); });
 
 	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m) {
@@ -48,10 +49,10 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
 
 	if (auto match = mEngine.mContent.getChildByName(q.mData.getName())) {
-		using ModelVec = std::vector<ds::model::ContentModelRef>;
-		ModelVec newTables      = q.mData.getChildren();
+		using ModelVec	   = std::vector<ds::model::ContentModelRef>;
+		ModelVec newTables = q.mData.getChildren();
 
-		if(mEngine.mContent.getChildByName("sqlite").getPropertyBool("merge_content")){
+		if (mEngine.mContent.getChildByName("sqlite").getPropertyBool("merge_content")) {
 			// Merge new tables with the existing data tables
 			ModelVec existingTables = match.getChildren();
 			ModelVec mergedList;
@@ -82,7 +83,7 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 
 			/// replace all children of the top-level node
 			match.setChildren(mergedList);
-		}else{
+		} else {
 			// Just straight up replace, no merge
 			match.clear();
 			match = q.mData;
@@ -101,14 +102,16 @@ void ContentWrangler::initialize() {
 		return;
 	}
 
-	mModelModelLocation = mEngine.getEngineSettings().getString("content:model_location",0,"");
+	mModelModelLocation = mEngine.getEngineSettings().getString("content:model_location", 0, "");
 
 	if (mEngine.getEngineSettings().getBool("content:node_watch")) {
 		mNodeWatcher.startWatching();
-		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation << " and using node watcher");
+		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation
+																		 << " and using node watcher");
 	} else {
 		mNodeWatcher.stopWatching();
-		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation << " and NOT using node watcher");
+		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation
+																		 << " and NOT using node watcher");
 	}
 
 	runQuery();
@@ -120,9 +123,8 @@ void ContentWrangler::runQuery() {
 	}
 
 	if (mModelModelLocation.empty()) {
-		DS_LOG_VERBOSE(2,
-					   "ContentWrangler: no model location specified. Not a problem if you're not using "
-					   "ContentWrangler or Sqlite");
+		DS_LOG_VERBOSE(2, "ContentWrangler: no model location specified. Not a problem if you're not using "
+						  "ContentWrangler or Sqlite");
 		return;
 	}
 
@@ -131,15 +133,14 @@ void ContentWrangler::runQuery() {
 	auto allModels = ds::split(mModelModelLocation, ";", true);
 	for (auto it : allModels) {
 		auto thisModel = it;
-		mContentQuery.start([this, thisModel](ds::ContentQuery& dq) {
+		mContentQuery.start([thisModel](ds::ContentQuery& dq) {
 			const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
-			dq.mXmlDataModel     = thisModel;
-			dq.mCmsDatabase      = cms.getDatabasePath();
+			dq.mXmlDataModel	 = thisModel;
+			dq.mCmsDatabase		 = cms.getDatabasePath();
 			dq.mResourceLocation = cms.getResourcePath();
 		});
 	}
 }
 
 
-
-}  // namespace ds
+} // namespace ds

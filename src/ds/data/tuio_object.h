@@ -12,22 +12,23 @@ namespace ds {
  * TUIO system doesn't have to be exposed to the app.
  */
 class TuioObject {
-public:
+  public:
 	TuioObject();
-	TuioObject(const int objectId, const cinder::vec2& position, const float angle = 0.0f, const cinder::vec2& velocity = cinder::vec2(), const float rotationVelocity = 0.0f);
+	TuioObject(const int objectId, const cinder::vec2& position, const float angle = 0.0f,
+			   const cinder::vec2& velocity = cinder::vec2(), const float rotationVelocity = 0.0f);
 
-	int						getObjectId() const;
-	const cinder::vec2&	getPosition() const;
-	const float				getAngle() const;
-	const cinder::vec2&	getVelocity() const;
-	const float				getRotationVelocity() const;
+	int					getObjectId() const;
+	const cinder::vec2& getPosition() const;
+	const float			getAngle() const;
+	const cinder::vec2& getVelocity() const;
+	const float			getRotationVelocity() const;
 
-private:
-	int						mObjectId;
-	cinder::vec2			mPosition;
-	float					mAngle;
-	cinder::vec2			mVelocity;
-	float					mRotationVelocity;
+  private:
+	int			 mObjectId;
+	cinder::vec2 mPosition;
+	float		 mAngle;
+	cinder::vec2 mVelocity;
+	float		 mRotationVelocity;
 };
 
 } // namespace ds

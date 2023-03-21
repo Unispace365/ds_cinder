@@ -10,19 +10,18 @@
 
 namespace {
 
-static std::unordered_map<std::string, std::string>							VARIABLE_MAP;
+static std::unordered_map<std::string, std::string> VARIABLE_MAP;
 
 class Init {
-public:
+  public:
 	Init() {
 		ds::App::AddServerSetup([](ds::Engine& e) {
-
 			VARIABLE_MAP.clear();
 
-			VARIABLE_MAP["world_width"] = std::to_string(e.getWorldWidth());
+			VARIABLE_MAP["world_width"]	 = std::to_string(e.getWorldWidth());
 			VARIABLE_MAP["world_height"] = std::to_string(e.getWorldHeight());
-			VARIABLE_MAP["world_size"] = ds::unparseVector(ci::vec2(e.getWorldWidth(), e.getWorldHeight()));
-			VARIABLE_MAP["anim_dur"] = std::to_string(e.getAnimDur());
+			VARIABLE_MAP["world_size"]	 = ds::unparseVector(ci::vec2(e.getWorldWidth(), e.getWorldHeight()));
+			VARIABLE_MAP["anim_dur"]	 = std::to_string(e.getAnimDur());
 
 			e.getAppSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, theSetting.mRawValue);
@@ -35,10 +34,9 @@ public:
 Init INIT;
 
 
-}  // namespace
+} // namespace
 
-namespace ds {
-namespace cfg {
+namespace ds::cfg {
 
 
 std::string SettingsVariables::parseExpression(const std::string& theExpr) {
@@ -48,16 +46,16 @@ std::string SettingsVariables::parseExpression(const std::string& theExpr) {
 	FunctionParser fparser;
 	fparser.AddConstant("pi", 3.1415926535897932);
 	int res = fparser.Parse(theExpr, "");
-	if(res > -1) {
+	if (res > -1) {
 		DS_LOG_WARNING("SettingsVariables::parseExpression() error parsing: " << fparser.ErrorMsg());
 		return "0.0";
 	}
 
-	double* vals = {};
-	double  theResult = fparser.Eval(vals);
-	returny = std::to_string(theResult);
+	double* vals	  = {};
+	double	theResult = fparser.Eval(vals);
+	returny			  = std::to_string(theResult);
 
-	if(returny == "nan") {
+	if (returny == "nan") {
 		DS_LOG_WARNING("SettingsVariables: Experession didn't parse to a number! Using 0.0");
 		return "0.0";
 	}
@@ -71,10 +69,10 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 	// Do we have any wrapeped expressions?
 	auto exprFindy = value.find("#expr{");
 
-	if(exprFindy == std::string::npos) {
-		//Or maybe we just are an expression?
+	if (exprFindy == std::string::npos) {
+		// Or maybe we just are an expression?
 		auto findy = value.find("#expr");
-		if(findy != std::string::npos) {
+		if (findy != std::string::npos) {
 			auto theExpr = value.substr(findy + 5);
 			return parseExpression(theExpr);
 		}
@@ -86,10 +84,10 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 	// Splits value string into a vector of (int, string) pairs
 	// anything between '#expr{' and '}' will be a pair of (1, str),
 	// and non-expr parts of the string will be pairs of (0, str)
-	for(const auto elemPair : ds::extractPairs(value, "#expr{", "}")) {
-		bool isExpr = static_cast<bool>(elemPair.first);
-		const std::string& val = elemPair.second;
-		if(isExpr) {
+	for (const auto elemPair : ds::extractPairs(value, "#expr{", "}")) {
+		bool			   isExpr = static_cast<bool>(elemPair.first);
+		const std::string& val	  = elemPair.second;
+		if (isExpr) {
 			finalValue.append(parseExpression(val));
 		} else {
 			finalValue.append(val);
@@ -97,45 +95,45 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 	}
 
 	// I don't think this should ever happen, but just in case we'll try to recurse?
-	exprFindy = finalValue.find("#expr{");
+	exprFindy	  = finalValue.find("#expr{");
 	auto endFindy = finalValue.find("}");
-	if(exprFindy != std::string::npos && endFindy == std::string::npos) {
+	if (exprFindy != std::string::npos && endFindy == std::string::npos) {
 		DS_LOG_WARNING("Syntax error parsing expression: missing } in " << value);
-	} else if(exprFindy != std::string::npos) {
+	} else if (exprFindy != std::string::npos) {
 		finalValue = parseAllExpressions(finalValue);
 	}
 	return finalValue;
 }
 
-std::string SettingsVariables::replaceVariables(const std::string& value,VariableMap& local_map) {
-	if(value.find("$_") != std::string::npos) {
+std::string SettingsVariables::replaceVariables(const std::string& value, const VariableMap& local_map) {
+	if (value.find("$_") != std::string::npos) {
 		/// keep track of parses, cause it could get circular
 		unsigned int numTries = 0;
 
 		auto theReplacement = value;
-		int  maxTries = 100000;
-		while(numTries < maxTries) {
+		int	 maxTries		= 100000;
+		while (numTries < maxTries) {
 
-			auto newReplacement = replaceSingleVariable(theReplacement,local_map);
+			auto newReplacement = replaceSingleVariable(theReplacement, local_map);
 
 			/// nothing was replaced, we're done
-			if(newReplacement == theReplacement) {
+			if (newReplacement == theReplacement) {
 				break;
 			}
 
 			theReplacement = newReplacement;
 
 			/// No more parameters, skipsies
-			if(newReplacement.find("$_") == std::string::npos) {
+			if (newReplacement.find("$_") == std::string::npos) {
 				break;
 			}
 
 			numTries++;
 		}
 
-		if(numTries == maxTries) {
-			DS_LOG_WARNING(
-				"SettingsVariables::replaceVariables() tried max tries, that means you have a circular references in your parameters");
+		if (numTries == maxTries) {
+			DS_LOG_WARNING("SettingsVariables::replaceVariables() tried max tries, that means you have a circular "
+						   "references in your parameters");
 		}
 
 		return theReplacement;
@@ -143,48 +141,49 @@ std::string SettingsVariables::replaceVariables(const std::string& value,Variabl
 	return value;
 }
 
-std::string SettingsVariables::replaceSingleVariable(const std::string& value,VariableMap& local_map) {
+std::string SettingsVariables::replaceSingleVariable(const std::string& value, const VariableMap& local_map) {
 
 	auto theStart = value.find("$_");
 
-	if(theStart == std::string::npos) return value;
+	if (theStart == std::string::npos) return value;
 
 	auto theEnd = value.find(" ", theStart);
 
 	auto commaEnd = value.find(",", theStart);
-	if(commaEnd < theEnd) theEnd = commaEnd;
+	if (commaEnd < theEnd) theEnd = commaEnd;
 
 	auto semiEnd = value.find(";", theStart);
-	if(semiEnd < theEnd) theEnd = semiEnd;
+	if (semiEnd < theEnd) theEnd = semiEnd;
 
 	auto brackSta = value.find("{", theStart);
-	if(brackSta < theEnd) theEnd = brackSta;
+	if (brackSta < theEnd) theEnd = brackSta;
 
 	auto brackEnd = value.find("}", theStart);
-	if(brackEnd < theEnd) theEnd = brackEnd;
+	if (brackEnd < theEnd) theEnd = brackEnd;
 
 	auto period = value.find(".", theStart);
-	if(period < theEnd) theEnd = period;
+	if (period < theEnd) theEnd = period;
 
 	auto quot = value.find("'", theStart);
-	if(quot < theEnd) theEnd = quot;
+	if (quot < theEnd) theEnd = quot;
 
-	if(theEnd == std::string::npos) theEnd = value.size();
+	if (theEnd == std::string::npos) theEnd = value.size();
 
 	auto beforeString = value.substr(0, theStart);
-	auto paramName = value.substr(theStart + 2, theEnd - theStart - 2);  // ditch the $_
-	auto endString = value.substr(theEnd);
+	auto paramName	  = value.substr(theStart + 2, theEnd - theStart - 2); // ditch the $_
+	auto endString	  = value.substr(theEnd);
 
-	// std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" << paramName <<
-	// std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd << std::endl;
+	// std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" <<
+	// paramName << std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd <<
+	// std::endl;
 
 	VariableMap& combined_map = VARIABLE_MAP;
-	if (local_map.size()>0) {
+	if (local_map.size() > 0) {
 		combined_map = local_map;
 	}
-	
+
 	auto findy = combined_map.find(paramName);
-	if(findy != combined_map.end()) {
+	if (findy != combined_map.end()) {
 		std::string replacement = findy->second;
 
 		return beforeString + replacement + endString;
@@ -197,7 +196,7 @@ std::string SettingsVariables::replaceSingleVariable(const std::string& value,Va
 }
 
 void SettingsVariables::addVariable(const std::string& varName, const std::string& varValue) {
-	if(varName.empty()) {
+	if (varName.empty()) {
 		DS_LOG_WARNING("SettingsVariables: No variable name specified when adding variable");
 		return;
 	}
@@ -213,6 +212,4 @@ VariableMap SettingsVariables::insertAppToLocal(VariableMap& local_map) {
 }
 
 
-
-}  // namespace cfg
-}  // namespace ds
+} // namespace ds::cfg

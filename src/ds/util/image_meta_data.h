@@ -2,8 +2,8 @@
 #ifndef DS_UTIL_IMAGEMETADATA_H_
 #define DS_UTIL_IMAGEMETADATA_H_
 
-#include <string>
 #include <cinder/Vector.h>
+#include <string>
 
 namespace ds {
 
@@ -13,18 +13,17 @@ namespace ds {
  * NOTE: This can be VERY slow, if the image needs to be loaded.
  */
 class ImageMetaData {
-public:
-
+  public:
 	ImageMetaData();
 	ImageMetaData(const std::string& filename);
 
 	/// Clears any stored w/h info
-	static void					clearMetadataCache();
+	static void clearMetadataCache();
 
-	bool						empty() const;
-	void						add(const std::string& filePath, const ci::vec2 size );
+	bool empty() const;
+	void add(const std::string& filePath, const ci::vec2 size);
 
-	ci::vec2					mSize;
+	ci::vec2 mSize;
 };
 
 } // namespace ds

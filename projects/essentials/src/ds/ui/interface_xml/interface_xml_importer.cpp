@@ -4,6 +4,7 @@
 
 #include "stylesheet_parser.h"
 
+#include <cinder/Xml.h>
 #include <ds/app/engine/engine.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
@@ -42,17 +43,16 @@
 #include <ds/util/file_meta_data.h>
 #include <ds/util/markdown_to_pango.h>
 #include <ds/util/string_util.h>
-#include <cinder/Xml.h>
 
 #include <boost/algorithm/string.hpp>
-#include <filesystem>
 #include <boost/foreach.hpp>
-//#include <boost/regex.hpp>
+#include <filesystem>
+// #include <boost/regex.hpp>
 #include <regex>
 
-#include <Poco/Path.h>
-#include <Poco/DateTimeParser.h>
 #include <Poco/DateTimeFormatter.h>
+#include <Poco/DateTimeParser.h>
+#include <Poco/Path.h>
 
 #include <fstream>
 #include <iostream>
@@ -61,7 +61,8 @@
 namespace {
 
 static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData> PRELOADED_CACHE;
-static bool																	AUTO_CACHE = false;
+
+static bool AUTO_CACHE = false;
 
 // Get the setting if we're caching or not and run it just before server setup
 // That way we can clear the cache each time the server setup runs
@@ -78,10 +79,9 @@ class Init {
 Init INIT;
 
 
-}  // namespace
+} // namespace
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 
@@ -95,27 +95,27 @@ std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad) {
 }
 
 namespace {
-static const ci::vec3						  DEFAULT_SIZE					= ci::vec3(0.0f, 0.0f, 1.0f);
-static const ci::vec3						  DEFAULT_CENTER				= ci::vec3(0.0f, 0.0f, 0.0f);
-static const ci::vec3						  DEFAULT_POS					= ci::vec3(0.0f, 0.0f, 0.0f);
-static const ci::vec3						  DEFAULT_ROT					= ci::vec3(0.0f, 0.0f, 0.0f);
-static const ci::vec3						  DEFAULT_SCALE					= ci::vec3(1.0f, 1.0f, 1.0f);
-static const ci::Color						  DEFAULT_COLOR					= ci::Color(1.0f, 1.0f, 1.0f);
-static const float							  DEFAULT_OPACITY				= 1.0f;
-static const bool							  DEFAULT_VISIBLE				= true;
-static const bool							  DEFAULT_TRANSPARENT			= true;
-static const bool							  DEFAULT_ENABLED				= false;
-static const bool							  DEFAULT_CLIPPING				= false;
-static const bool							  DEFAULT_CHECKBOUNDS			= false;
-static const ds::ui::BlendMode				  DEFAULT_BLENDMODE				= ds::ui::NORMAL;
-static const float							  DEFAULT_LAYOUT_PAD			= 0.0f;
-static const float							  DEFAULT_LAYOUT_SPACING		= 0.0f;
-static const ci::vec2						  DEFAULT_LAYOUT_SIZE			= ci::vec2();
-static const ci::vec3						  DEFAULT_LAYOUT_FUDGE			= ci::vec3();
-static const int							  DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
-static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE			= ds::ui::LayoutSprite::kLayoutNone;
-static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE			= ds::ui::LayoutSprite::kShrinkNone;
-}  // namespace
+	static const ci::vec3						  DEFAULT_SIZE					= ci::vec3(0.0f, 0.0f, 1.0f);
+	static const ci::vec3						  DEFAULT_CENTER				= ci::vec3(0.0f, 0.0f, 0.0f);
+	static const ci::vec3						  DEFAULT_POS					= ci::vec3(0.0f, 0.0f, 0.0f);
+	static const ci::vec3						  DEFAULT_ROT					= ci::vec3(0.0f, 0.0f, 0.0f);
+	static const ci::vec3						  DEFAULT_SCALE					= ci::vec3(1.0f, 1.0f, 1.0f);
+	static const ci::Color						  DEFAULT_COLOR					= ci::Color(1.0f, 1.0f, 1.0f);
+	static const float							  DEFAULT_OPACITY				= 1.0f;
+	static const bool							  DEFAULT_VISIBLE				= true;
+	static const bool							  DEFAULT_TRANSPARENT			= true;
+	static const bool							  DEFAULT_ENABLED				= false;
+	static const bool							  DEFAULT_CLIPPING				= false;
+	static const bool							  DEFAULT_CHECKBOUNDS			= false;
+	static const ds::ui::BlendMode				  DEFAULT_BLENDMODE				= ds::ui::NORMAL;
+	static const float							  DEFAULT_LAYOUT_PAD			= 0.0f;
+	static const float							  DEFAULT_LAYOUT_SPACING		= 0.0f;
+	static const ci::vec2						  DEFAULT_LAYOUT_SIZE			= ci::vec2();
+	static const ci::vec3						  DEFAULT_LAYOUT_FUDGE			= ci::vec3();
+	static const int							  DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
+	static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE			= ds::ui::LayoutSprite::kLayoutNone;
+	static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE			= ds::ui::LayoutSprite::kShrinkNone;
+} // namespace
 
 
 // There's a lotta dynamic casts here and such, but this is pretty much a dev-only task.
@@ -130,11 +130,13 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml) {
 	if (sp.getScale() != DEFAULT_SCALE) xml.setAttribute("scale", unparseVector(sp.getScale()));
 	if (sp.getCenter() != DEFAULT_CENTER) xml.setAttribute("center", unparseVector(sp.getCenter()));
 	if (sp.getClipping() != DEFAULT_CLIPPING) xml.setAttribute("clipping", unparseBoolean(sp.getClipping()));
-	if (sp.getBlendMode() != DEFAULT_BLENDMODE) xml.setAttribute("blend_mode", ds::ui::getStringForBlendMode(sp.getBlendMode()));
+	if (sp.getBlendMode() != DEFAULT_BLENDMODE)
+		xml.setAttribute("blend_mode", ds::ui::getStringForBlendMode(sp.getBlendMode()));
 	if (sp.isEnabled() != DEFAULT_ENABLED) xml.setAttribute("enable", unparseBoolean(sp.isEnabled()));
 	if (!sp.getMultiTouchConstraints().isEmpty())
 		xml.setAttribute("multitouch", getMultitouchStringForBitMask(sp.getMultiTouchConstraints()));
-	if (sp.getTransparent() != DEFAULT_TRANSPARENT) xml.setAttribute("transparent", unparseBoolean(sp.getTransparent()));
+	if (sp.getTransparent() != DEFAULT_TRANSPARENT)
+		xml.setAttribute("transparent", unparseBoolean(sp.getTransparent()));
 	if (!sp.getAnimateOnScript().empty()) xml.setAttribute("animate_on", sp.getAnimateOnScript());
 	if (sp.mLayoutTPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("t_pad", sp.mLayoutTPad);
 	if (sp.mLayoutBPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("b_pad", sp.mLayoutBPad);
@@ -171,14 +173,16 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml) {
 			xml.setAttribute("font_leading", txt->getLeading());
 		}
 
-		xml.setAttribute("resize_limit", unparseVector(ci::vec2(txt->getResizeLimitWidth(), txt->getResizeLimitHeight())));
+		xml.setAttribute("resize_limit",
+						 unparseVector(ci::vec2(txt->getResizeLimitWidth(), txt->getResizeLimitHeight())));
 		if (txt->getAlignment() != ds::ui::Alignment::kLeft)
 			xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(txt->getAlignment()));
 	}
 
 	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
 	if (img) {
-		if (!img->getImageFilename().empty()) xml.setAttribute("filename", ds::Environment::contract(img->getImageFilename()));
+		if (!img->getImageFilename().empty())
+			xml.setAttribute("filename", ds::Environment::contract(img->getImageFilename()));
 		if (img->getCircleCrop()) xml.setAttribute("circle_crop", "true");
 	}
 
@@ -238,153 +242,170 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite) {
 	return newXml;
 }
 
-void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer,ds::cfg::VariableMap& local_map) {
+void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, ci::XmlTree::Attr& attr, const std::string& referer,
+									const ds::cfg::VariableMap& local_map) {
 	std::string property = attr.getName();
 	setSpriteProperty(sprite, property, attr.getValue(), referer, local_map);
 }
 
 
 struct SprProps {
-	SprProps(ds::ui::Sprite& spr, const std::string& prop, const std::string& val, const std::string& ref, ds::cfg::VariableMap& l_map)
-		: sprite(spr), property(prop), value(val), referer(ref), local_map(l_map), engine(spr.getEngine()){}
-	ds::ui::Sprite& sprite;
-	const std::string& property;
-	const std::string& value;
-	const std::string& referer;
-	ds::cfg::VariableMap& local_map;
+	SprProps(ds::ui::Sprite& spr, const std::string& prop, const std::string& val, const std::string& ref,
+			 const ds::cfg::VariableMap& l_map)
+	  : sprite(spr)
+	  , property(prop)
+	  , value(val)
+	  , referer(ref)
+	  , local_map(l_map)
+	  , engine(spr.getEngine()) {}
+	ds::ui::Sprite&		  sprite;
+	const std::string&	  property;
+	const std::string&	  value;
+	const std::string&	  referer;
+	const ds::cfg::VariableMap& local_map;
 	ds::ui::SpriteEngine& engine;
 };
 
-void logAttributionWarning(SprProps& p){
-	DS_LOG_WARNING("XmlImporter: incompatible attribute \'" << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
+void logAttributionWarning(const SprProps& p) {
+	DS_LOG_WARNING("XmlImporter: incompatible attribute \'"
+				   << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true))
+				   << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
-void logNotFoundWarning(SprProps& p) {
-	DS_LOG_WARNING("XmlImporter: Property not found \'" << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
+void logNotFoundWarning(const SprProps& p) {
+	DS_LOG_WARNING("XmlImporter: Property not found \'"
+				   << p.property << "\' on sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true))
+				   << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
-void logInvalidValue(SprProps& p, std::string validValues) {
-	DS_LOG_WARNING("XmlImporter: invalid value of \'" << p.value << "\' for property \'" << p.property << "\', allowed values are " << validValues << ". From sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'" << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
+void logInvalidValue(const SprProps& p, std::string validValues) {
+	DS_LOG_WARNING("XmlImporter: invalid value of \'"
+				   << p.value << "\' for property \'" << p.property << "\', allowed values are " << validValues
+				   << ". From sprite \'" << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << "\' of type \'"
+				   << typeid(p.sprite).name() << "\' from \'" << p.referer << "\'");
 }
 
 void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& property, const std::string& theValue,
-	const std::string& referer, ds::cfg::VariableMap& local_map) {
+									const std::string& referer, const ds::cfg::VariableMap& local_map) {
 
 	if (property.front() == '_') {
 		DS_LOG_VERBOSE(2, "Sprite property commented out: " << property << " " << theValue << " " << referer);
 		return;
 	}
 
-	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << theValue << " referer=" << referer);
+	DS_LOG_VERBOSE(4, "XmlImporter: setSpriteProperty, prop=" << property << " value=" << theValue
+															  << " referer=" << referer);
 
 	std::string value = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
-	value = ds::cfg::SettingsVariables::parseAllExpressions(value);
+	value			  = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
 	// TODO: build this in a different function?
-	static std::unordered_map<std::string, std::function<void(SprProps& p)>> propertyMap;
+	static std::unordered_map<std::string, std::function<void(const SprProps & p)>> propertyMap;
 
 	// build the static map on the first run
 	if (propertyMap.empty()) {
-		propertyMap["name"] = [](SprProps& p) {
+		propertyMap["name"] = [](const SprProps& p) {
 			p.sprite.setSpriteName(ds::wstr_from_utf8(p.value));
 		};
-		propertyMap["class"] = [](SprProps& p) {
+		propertyMap["class"] = [](const SprProps& p) {
 			// Do nothing, this is handled by css parsers, if any
 		};
-		propertyMap["attach_state"] = [](SprProps& p) {
-			// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
+		propertyMap["attach_state"] = [](const SprProps& p) {
+			// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore
+			// it.
 		};
-		propertyMap["sprite_link"] = [](SprProps& p) {
-			// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
+		propertyMap["sprite_link"] = [](const SprProps& p) {
+			// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore
+			// it.
 		};
-		propertyMap["width"] = [](SprProps& p) {
+		propertyMap["width"] = [](const SprProps& p) {
 			p.sprite.setSize(ds::string_to_float(p.value), p.sprite.getHeight());
 		};
-		propertyMap["height"] = [](SprProps& p) {
+		propertyMap["height"] = [](const SprProps& p) {
 			p.sprite.setSize(p.sprite.getWidth(), ds::string_to_float(p.value));
 		};
-		propertyMap["depth"] = [](SprProps& p) {
+		propertyMap["depth"] = [](const SprProps& p) {
 			p.sprite.setSizeAll(p.sprite.getWidth(), p.sprite.getHeight(), ds::string_to_float(p.value));
 		};
-		propertyMap["size"] = [](SprProps& p) {
+		propertyMap["size"] = [](const SprProps& p) {
 			ci::vec3 v = parseVector(p.value);
 			p.sprite.setSize(v.x, v.y);
 		};
-		propertyMap["color"] = [](SprProps& p) {
+		propertyMap["color"] = [](const SprProps& p) {
 			p.sprite.setTransparent(false);
 			p.sprite.setColorA(parseColor(p.value, p.engine));
 		};
-		propertyMap["opacity"] = [](SprProps& p) {
+		propertyMap["opacity"] = [](const SprProps& p) {
 			p.sprite.setOpacity(ds::string_to_float(p.value));
 		};
-		propertyMap["position"] = [](SprProps& p) {
+		propertyMap["position"] = [](const SprProps& p) {
 			p.sprite.setPosition(parseVector(p.value));
 		};
-		propertyMap["rotation"] = [](SprProps& p) {
+		propertyMap["rotation"] = [](const SprProps& p) {
 			p.sprite.setRotation(parseVector(p.value));
 		};
-		propertyMap["scale"] = [](SprProps& p) {
+		propertyMap["scale"] = [](const SprProps& p) {
 			p.sprite.setScale(parseVector(p.value));
 		};
-		propertyMap["center"] = [](SprProps& p) {
+		propertyMap["center"] = [](const SprProps& p) {
 			p.sprite.setCenter(parseVector(p.value));
 		};
-		propertyMap["clipping"] = [](SprProps& p) {
+		propertyMap["clipping"] = [](const SprProps& p) {
 			p.sprite.setClipping(parseBoolean(p.value));
 		};
-		propertyMap["blend_mode"] = [](SprProps& p) {
+		propertyMap["blend_mode"] = [](const SprProps& p) {
 			p.sprite.setBlendMode(ds::ui::getBlendModeByString(p.value));
 		};
-		propertyMap["enable"] = [](SprProps& p) {
+		propertyMap["enable"] = [](const SprProps& p) {
 			p.sprite.enable(parseBoolean(p.value));
 		};
-		propertyMap["multitouch"] = [](SprProps& p) {
+		propertyMap["multitouch"] = [](const SprProps& p) {
 			p.sprite.enableMultiTouch(parseMultitouchMode(p.value));
 		};
-		propertyMap["transparent"] = [](SprProps& p) {
+		propertyMap["transparent"] = [](const SprProps& p) {
 			p.sprite.setTransparent(parseBoolean(p.value));
 		};
-		propertyMap["visible"] = [](SprProps& p) {
+		propertyMap["visible"] = [](const SprProps& p) {
 			const auto isVisible = parseBoolean(p.value);
 			(isVisible) ? p.sprite.show() : p.sprite.hide();
 		};
-		propertyMap["animate_on"] = [](SprProps& p) {
+		propertyMap["animate_on"] = [](const SprProps& p) {
 			p.sprite.setAnimateOnScript(p.value);
 		};
-		propertyMap["animate_off"] = [](SprProps& p) {
+		propertyMap["animate_off"] = [](const SprProps& p) {
 			p.sprite.setAnimateOffScript(p.value);
 		};
-		propertyMap["corner_radius"] = [](SprProps& p) {
+		propertyMap["corner_radius"] = [](const SprProps& p) {
 			p.sprite.setCornerRadius(ds::string_to_float(p.value));
 		};
-		propertyMap["t_pad"] = [](SprProps& p) {
+		propertyMap["t_pad"] = [](const SprProps& p) {
 			p.sprite.mLayoutTPad = ds::string_to_float(p.value);
 		};
-		propertyMap["b_pad"] = [](SprProps& p) {
+		propertyMap["b_pad"] = [](const SprProps& p) {
 			p.sprite.mLayoutBPad = ds::string_to_float(p.value);
 		};
-		propertyMap["l_pad"] = [](SprProps& p) {
+		propertyMap["l_pad"] = [](const SprProps& p) {
 			p.sprite.mLayoutLPad = ds::string_to_float(p.value);
 		};
-		propertyMap["r_pad"] = [](SprProps& p) {
+		propertyMap["r_pad"] = [](const SprProps& p) {
 			p.sprite.mLayoutRPad = ds::string_to_float(p.value);
 		};
-		propertyMap["pad_all"] = [](SprProps& p) {
-			const auto pad = ds::string_to_float(p.value);
+		propertyMap["pad_all"] = [](const SprProps& p) {
+			const auto pad		 = ds::string_to_float(p.value);
 			p.sprite.mLayoutLPad = pad;
 			p.sprite.mLayoutTPad = pad;
 			p.sprite.mLayoutRPad = pad;
 			p.sprite.mLayoutBPad = pad;
 		};
-		propertyMap["padding"] = [](SprProps& p) {
-			auto pads = ds::split(p.value, ", ", true);
-			const auto county = pads.size();
+		propertyMap["padding"] = [](const SprProps& p) {
+			auto	   pads		 = ds::split(p.value, ", ", true);
+			const auto county	 = pads.size();
 			p.sprite.mLayoutLPad = (county > 0) ? ds::string_to_float(pads[0]) : 0.0f;
 			p.sprite.mLayoutTPad = (county > 1) ? ds::string_to_float(pads[1]) : 0.0f;
 			p.sprite.mLayoutRPad = (county > 2) ? ds::string_to_float(pads[2]) : 0.0f;
 			p.sprite.mLayoutBPad = (county > 3) ? ds::string_to_float(pads[3]) : 0.0f;
 		};
-		propertyMap["layout_size_mode"] = [](SprProps& p) {
+		propertyMap["layout_size_mode"] = [](const SprProps& p) {
 			const auto sizeMode = p.value;
 			if (sizeMode == "fixed") {
 				p.sprite.mLayoutUserType = LayoutSprite::kFixedSize;
@@ -398,7 +419,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logInvalidValue(p, "fixed, flex, stretch, fill");
 			}
 		};
-		propertyMap["layout_v_align"] = [](SprProps& p) {
+		propertyMap["layout_v_align"] = [](const SprProps& p) {
 			const auto alignMode = p.value;
 			if (alignMode == "top") {
 				p.sprite.mLayoutVAlign = LayoutSprite::kTop;
@@ -410,7 +431,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logInvalidValue(p, "top, middle, center, bottom");
 			}
 		};
-		propertyMap["layout_h_align"] = [](SprProps& p) {
+		propertyMap["layout_h_align"] = [](const SprProps& p) {
 			const auto alignMode = p.value;
 			if (alignMode == "left") {
 				p.sprite.mLayoutHAlign = LayoutSprite::kLeft;
@@ -422,47 +443,45 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logInvalidValue(p, "left, middle, center, right");
 			}
 		};
-		propertyMap["layout_fudge"] = [](SprProps& p) {
+		propertyMap["layout_fudge"] = [](const SprProps& p) {
 			p.sprite.mLayoutFudge = parseVector(p.value);
 		};
-		propertyMap["layout_size"] = [](SprProps& p) {
+		propertyMap["layout_size"] = [](const SprProps& p) {
 			p.sprite.mLayoutSize = ci::vec2(parseVector(p.value));
 		};
-		propertyMap["on_tap_event"] = [](SprProps& p) {
+		propertyMap["on_tap_event"] = [](const SprProps& p) {
 			auto theValue = p.value;
-			p.sprite.setTapCallback([theValue](ds::ui::Sprite* bs, const ci::vec3& pos) { XmlImporter::dispatchStringEvents(theValue, bs, pos); });
+			p.sprite.setTapCallback([theValue](ds::ui::Sprite* bs, const ci::vec3& pos) {
+				XmlImporter::dispatchStringEvents(theValue, bs, pos);
+			});
 		};
-		propertyMap["layout_fixed_aspect"] = [](SprProps& p) {
+		propertyMap["layout_fixed_aspect"] = [](const SprProps& p) {
 			p.sprite.mLayoutFixedAspect = parseBoolean(p.value);
 		};
-		propertyMap["layout_fixed_aspect_mode"] = [](SprProps& p) {
+		propertyMap["layout_fixed_aspect_mode"] = [](const SprProps& p) {
 			const auto aspectMode = p.value;
 			if (aspectMode == "letterbox") {
 				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectLetterbox;
-			}
-			else if (aspectMode == "fill" ) {
+			} else if (aspectMode == "fill") {
 				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectFill;
-			}
-			else if (aspectMode == "default") {
+			} else if (aspectMode == "default") {
 				p.sprite.mLayoutFixedAspectMode = LayoutSprite::kAspectDefault;
-			}
-			else {
+			} else {
 				logInvalidValue(p, "letterbox, fill, default");
 			}
 		};
-		propertyMap["shader"] = [](SprProps& p) {
+		propertyMap["shader"] = [](const SprProps& p) {
 			using namespace std::filesystem;
 			std::filesystem::path fullShaderPath(filePathRelativeTo(p.referer, p.value));
 			p.sprite.setBaseShader(fullShaderPath.parent_path().string(), fullShaderPath.filename().string());
-
 		};
 
-		propertyMap["yoga_style"] = [](SprProps& p) {
+		propertyMap["yoga_style"] = [](const SprProps& p) {
 			p.sprite.setFlexboxFromStyleString(p.value);
 		};
 
 		// LayoutpSprite specific (the other layout stuff could apply to any sprite)
-		propertyMap["layout_type"] = [](SprProps& p) {
+		propertyMap["layout_type"] = [](const SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
 			if (layoutSprite) {
 				const auto layoutType = p.value;
@@ -480,12 +499,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutFlex);
 				} else {
 					layoutSprite->setLayoutType(LayoutSprite::kLayoutNone);
-				} 
+				}
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["layout_spacing"] = [](SprProps& p) {
+		propertyMap["layout_spacing"] = [](const SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
 			if (layoutSprite) {
 				layoutSprite->setSpacing(ds::string_to_float(p.value));
@@ -493,7 +512,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["overall_alignment"] = [](SprProps& p) {
+		propertyMap["overall_alignment"] = [](const SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
 			if (layoutSprite) {
 				const auto alignMode = p.value;
@@ -510,7 +529,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["shrink_to_children"] = [](SprProps& p) {
+		propertyMap["shrink_to_children"] = [](const SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
 			if (layoutSprite) {
 				const auto shrinkMode = p.value;
@@ -529,7 +548,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["skip_hidden_children"] = [](SprProps& p) {
+		propertyMap["skip_hidden_children"] = [](const SprProps& p) {
 			auto layoutsprite = dynamic_cast<LayoutSprite*>(&p.sprite);
 			if (layoutsprite) {
 				layoutsprite->setSkipHiddenChildren(parseBoolean(p.value));
@@ -539,7 +558,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Text specific attributes
-		propertyMap["font"] = [](SprProps& p) {
+		propertyMap["font"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setTextStyle(text->getEngine().getTextStyle(p.value));
@@ -552,7 +571,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				}
 			}
 		};
-		propertyMap["font_name"] = [](SprProps& p) {
+		propertyMap["font_name"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setFont(p.value);
@@ -560,7 +579,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_style"] = [](SprProps& p) {
+		propertyMap["text_style"] = [](const SprProps& p) {
 			// Try to set the font
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
@@ -580,7 +599,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				}
 			}
 		};
-		propertyMap["resize_limit"] = [](SprProps& p) {
+		propertyMap["resize_limit"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				auto v = parseVector(p.value);
@@ -589,13 +608,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["fit_font_sizes"] = [](SprProps& p) {
+		propertyMap["fit_font_sizes"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
-				std::regex e3(",+");
-				auto itr = std::sregex_token_iterator(p.value.begin(), p.value.end(), e3, -1);
+				std::regex			e3(",+");
+				auto				itr = std::sregex_token_iterator(p.value.begin(), p.value.end(), e3, -1);
 				std::vector<double> size_values;
-				double font_value;
+				double				font_value;
 
 				for (; itr != std::sregex_token_iterator(); ++itr) {
 					if (ds::string_to_value<double>(itr->str(), font_value)) {
@@ -608,7 +627,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["fit_max_font_size"] = [](SprProps& p) {
+		propertyMap["fit_max_font_size"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				double v = ds::string_to_double(p.value);
@@ -617,7 +636,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["fit_min_font_size"] = [](SprProps& p) {
+		propertyMap["fit_min_font_size"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				double v = ds::string_to_double(p.value);
@@ -626,7 +645,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["fit_font_size_range"] = [](SprProps& p) {
+		propertyMap["fit_font_size_range"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				ci::vec3 v = parseVector(p.value);
@@ -636,7 +655,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["fit_to_limit"] = [](SprProps& p) {
+		propertyMap["fit_to_limit"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				bool v = parseBoolean(p.value);
@@ -645,7 +664,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_align"] = [](SprProps& p) {
+		propertyMap["text_align"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				std::string alignString = p.value;
@@ -665,7 +684,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text"] = [](SprProps& p) {
+		propertyMap["text"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setText(p.value);
@@ -673,7 +692,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_update"] = [](SprProps& p) {
+		propertyMap["text_update"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				if (!p.value.empty()) {
@@ -683,7 +702,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_model_format"] = [](SprProps& p) {
+		propertyMap["text_model_format"] = [](const SprProps& p) {
 			if (auto text = dynamic_cast<Text*>(&p.sprite)) {
 				if (!p.value.empty()) {
 					text->getUserData().setString("model_format", p.value);
@@ -692,7 +711,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_utc_parse"] = [](SprProps& p) {
+		propertyMap["text_utc_parse"] = [](const SprProps& p) {
 			if (auto text = dynamic_cast<Text*>(&p.sprite)) {
 				if (!p.value.empty()) {
 					text->getUserData().setString("utc_parse_fmt", p.value);
@@ -701,7 +720,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_utc_format"] = [](SprProps& p) {
+		propertyMap["text_utc_format"] = [](const SprProps& p) {
 			if (auto text = dynamic_cast<Text*>(&p.sprite)) {
 				if (!p.value.empty()) {
 					text->getUserData().setString("utc_out_fmt", p.value);
@@ -710,20 +729,20 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_utc"] = [](SprProps& p) {
+		propertyMap["text_utc"] = [](const SprProps& p) {
 			if (auto text = dynamic_cast<Text*>(&p.sprite)) {
 				if (!p.value.empty()) {
 					auto parseFmt = text->getUserData().getString("utc_parse_fmt");
-					auto outFmt = text->getUserData().getString("utc_out_fmt");
+					auto outFmt	  = text->getUserData().getString("utc_out_fmt");
 
 					if (outFmt.empty()) {
 						outFmt = std::string("%Y-%m-%d %H:%M:%S");
 					}
 
-					const bool isNow = (p.value == "now");
-					bool didParse = false;
+					const bool	   isNow	= (p.value == "now");
+					bool		   didParse = false;
 					Poco::DateTime date;
-					int tzd = 0;
+					int			   tzd = 0;
 					if (!isNow && !parseFmt.empty()) {
 						didParse = Poco::DateTimeParser::tryParse(parseFmt, p.value, date, tzd);
 					}
@@ -736,7 +755,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 						std::string reformedDate = Poco::DateTimeFormatter::format(date, outFmt);
 						text->setText(reformedDate);
 					} else {
-						DS_LOG_WARNING("Unable to parse value '" << p.value << "' as date! parse_fmt='" << parseFmt << "' & out_fmt='" << outFmt << "' on sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName()) << " from: " << p.referer);
+						DS_LOG_WARNING("Unable to parse value '" << p.value << "' as date! parse_fmt='" << parseFmt
+																 << "' & out_fmt='" << outFmt << "' on sprite "
+																 << ds::utf8_from_wstr(p.sprite.getSpriteName())
+																 << " from: " << p.referer);
 						text->setText(p.value);
 					}
 				}
@@ -744,7 +766,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_uppercase"] = [](SprProps& p) {
+		propertyMap["text_uppercase"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				auto upperText = p.value;
@@ -754,7 +776,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_lowercase"] = [](SprProps& p) {
+		propertyMap["text_lowercase"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				auto lowerText = p.value;
@@ -764,7 +786,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_ellipses"] = [](SprProps& p) {
+		propertyMap["text_ellipses"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				EllipsizeMode theMode = EllipsizeMode::kEllipsizeNone;
@@ -785,7 +807,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_wrap"] = [](SprProps& p) {
+		propertyMap["text_wrap"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				WrapMode theMode = WrapMode::kWrapModeWordChar;
@@ -806,7 +828,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["text_allow_markup"] = [](SprProps& p) {
+		propertyMap["text_allow_markup"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setAllowMarkup(parseBoolean(p.value));
@@ -814,7 +836,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["markdown"] = [](SprProps& p) {
+		propertyMap["markdown"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setText(ds::ui::markdown_to_pango(p.value));
@@ -822,7 +844,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["font_size"] = [](SprProps& p) {
+		propertyMap["font_size"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setFontSize(ds::string_to_float(p.value));
@@ -830,7 +852,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["font_leading"] = [](SprProps& p) {
+		propertyMap["font_leading"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setLeading(ds::string_to_float(p.value));
@@ -838,7 +860,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["font_letter_spacing"] = [](SprProps& p) {
+		propertyMap["font_letter_spacing"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setLetterSpacing(ds::string_to_float(p.value));
@@ -846,7 +868,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["font_color"] = [](SprProps& p) {
+		propertyMap["font_color"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setColor(parseColor(p.value, text->getEngine()));
@@ -854,7 +876,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["preserve_span_colors"] = [](SprProps& p) {
+		propertyMap["preserve_span_colors"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setPreserveSpanColors(parseBoolean(p.value));
@@ -862,7 +884,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["shrink_to_bounds"] = [](SprProps& p) {
+		propertyMap["shrink_to_bounds"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {
 				text->setShrinkToBounds(parseBoolean(p.value));
@@ -872,22 +894,25 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Image properties
-		propertyMap["on_click_event"] = [](SprProps& p) {
-			auto imgBtn = dynamic_cast<ImageButton*>(&p.sprite);
-			auto sprBtn = dynamic_cast<SpriteButton*>(&p.sprite);
-			auto layBtn = dynamic_cast<LayoutButton*>(&p.sprite);
+		propertyMap["on_click_event"] = [](const SprProps& p) {
+			auto imgBtn	  = dynamic_cast<ImageButton*>(&p.sprite);
+			auto sprBtn	  = dynamic_cast<SpriteButton*>(&p.sprite);
+			auto layBtn	  = dynamic_cast<LayoutButton*>(&p.sprite);
 			auto theValue = p.value;
 			if (imgBtn) {
-				imgBtn->setClickFn([imgBtn, theValue]{ dispatchStringEvents(theValue, imgBtn, imgBtn->getGlobalPosition()); });
+				imgBtn->setClickFn(
+					[imgBtn, theValue] { dispatchStringEvents(theValue, imgBtn, imgBtn->getGlobalPosition()); });
 			} else if (sprBtn) {
-				sprBtn->setClickFn([sprBtn, theValue]{ dispatchStringEvents(theValue, sprBtn, sprBtn->getGlobalPosition()); });
+				sprBtn->setClickFn(
+					[sprBtn, theValue] { dispatchStringEvents(theValue, sprBtn, sprBtn->getGlobalPosition()); });
 			} else if (layBtn) {
-				layBtn->setClickFn([layBtn, theValue]{ dispatchStringEvents(theValue, layBtn, layBtn->getGlobalPosition()); });
+				layBtn->setClickFn(
+					[layBtn, theValue] { dispatchStringEvents(theValue, layBtn, layBtn->getGlobalPosition()); });
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["circle_crop"] = [](SprProps& p) {
+		propertyMap["circle_crop"] = [](const SprProps& p) {
 			auto image = dynamic_cast<Image*>(&p.sprite);
 			if (image) {
 				image->setCircleCrop(parseBoolean(p.value));
@@ -895,7 +920,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["auto_circle_crop"] = [](SprProps& p) {
+		propertyMap["auto_circle_crop"] = [](const SprProps& p) {
 			auto image = dynamic_cast<Image*>(&p.sprite);
 			if (image) {
 				if (parseBoolean(p.value)) {
@@ -909,7 +934,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Image Button properties
-		propertyMap["down_image"] = [](SprProps& p) {
+		propertyMap["down_image"] = [](const SprProps& p) {
 			auto image = dynamic_cast<ImageButton*>(&p.sprite);
 			if (image) {
 				image->setHighImage(filePathRelativeTo(p.referer, p.value), ds::ui::Image::IMG_CACHE_F);
@@ -917,7 +942,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["up_image"] = [](SprProps& p) {
+		propertyMap["up_image"] = [](const SprProps& p) {
 			auto image = dynamic_cast<ImageButton*>(&p.sprite);
 			if (image) {
 				image->setNormalImage(filePathRelativeTo(p.referer, p.value), ds::ui::Image::IMG_CACHE_F);
@@ -925,7 +950,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["down_image_color"] = [](SprProps& p) {
+		propertyMap["down_image_color"] = [](const SprProps& p) {
 			auto image = dynamic_cast<ImageButton*>(&p.sprite);
 			if (image) {
 				image->setHighImageColor(parseColor(p.value, p.engine));
@@ -933,35 +958,35 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["up_image_color"] = [](SprProps& p) {
+		propertyMap["up_image_color"] = [](const SprProps& p) {
 			auto image = dynamic_cast<ImageButton*>(&p.sprite);
 			if (image) {
 				image->setNormalImageColor(parseColor(p.value, p.engine));
 			} else {
 				logAttributionWarning(p);
 			}
-
 		};
-		propertyMap["btn_touch_padding"] = [](SprProps& p) {
+		propertyMap["btn_touch_padding"] = [](const SprProps& p) {
 			auto image = dynamic_cast<ImageButton*>(&p.sprite);
 			if (image) {
 				image->setTouchPad(ds::string_to_float(p.value));
 			} else {
 				logAttributionWarning(p);
-			}			
+			}
 		};
 
 		// Gradient sprite properties
-		propertyMap["colorTop"] = [](SprProps& p) {
+		propertyMap["colorTop"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
-				DS_LOG_WARNING("DEPRECATION WARNING: colorTop from gradient sprites will soon be color_top. On sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
+				DS_LOG_WARNING("DEPRECATION WARNING: colorTop from gradient sprites will soon be color_top. On sprite "
+							   << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
 				gradient->setColorsV(parseColor(p.value, p.engine), gradient->getColorBL());
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["color_top"] = [](SprProps& p) {
+		propertyMap["color_top"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
 				gradient->setColorsV(parseColor(p.value, p.engine), gradient->getColorBL());
@@ -969,16 +994,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["colorBot"] = [](SprProps& p) {
+		propertyMap["colorBot"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
-				DS_LOG_WARNING("DEPRECATION WARNING: change colorBot to color_bot. On sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
+				DS_LOG_WARNING("DEPRECATION WARNING: change colorBot to color_bot. On sprite "
+							   << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
 				gradient->setColorsV(gradient->getColorTL(), parseColor(p.value, p.engine));
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["color_bot"] = [](SprProps& p) {
+		propertyMap["color_bot"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
 				gradient->setColorsV(gradient->getColorTL(), parseColor(p.value, p.engine));
@@ -986,16 +1012,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["colorLeft"] = [](SprProps& p) {
+		propertyMap["colorLeft"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
-				DS_LOG_WARNING("DEPRECATION WARNING: change colorLeft to color_left. On sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
+				DS_LOG_WARNING("DEPRECATION WARNING: change colorLeft to color_left. On sprite "
+							   << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
 				gradient->setColorsH(parseColor(p.value, p.engine), gradient->getColorTR());
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["color_left"] = [](SprProps& p) {
+		propertyMap["color_left"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
 				gradient->setColorsH(parseColor(p.value, p.engine), gradient->getColorTR());
@@ -1003,16 +1030,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["colorRight"] = [](SprProps& p) {
+		propertyMap["colorRight"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
-				DS_LOG_WARNING("DEPRECATION WARNING: change colorRight to color_right. On sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
+				DS_LOG_WARNING("DEPRECATION WARNING: change colorRight to color_right. On sprite "
+							   << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
 				gradient->setColorsH(gradient->getColorTL(), parseColor(p.value, p.engine));
 			} else {
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["color_right"] = [](SprProps& p) {
+		propertyMap["color_right"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
 				gradient->setColorsH(gradient->getColorTL(), parseColor(p.value, p.engine));
@@ -1020,10 +1048,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["gradientColors"] = [](SprProps& p) {
+		propertyMap["gradientColors"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
-				DS_LOG_WARNING("DEPRECATION WARNING: change gradientColors to gradient_colors. On sprite " << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
+				DS_LOG_WARNING("DEPRECATION WARNING: change gradientColors to gradient_colors. On sprite "
+							   << ds::utf8_from_wstr(p.sprite.getSpriteName(true)) << " from: " << p.referer);
 				auto colors = ds::split(p.value, ", ", true);
 				if (colors.size() > 3) {
 					auto colorOne = parseColor(colors[0], p.engine);
@@ -1038,7 +1067,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["gradient_colors"] = [](SprProps& p) {
+		propertyMap["gradient_colors"] = [](const SprProps& p) {
 			auto gradient = dynamic_cast<GradientSprite*>(&p.sprite);
 			if (gradient) {
 				auto colors = ds::split(p.value, ", ", true);
@@ -1057,7 +1086,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Scroll sprite properties
-		propertyMap["scroll_list_layout"] = [](SprProps& p) {
+		propertyMap["scroll_list_layout"] = [](const SprProps& p) {
 			auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			if (scrollList) {
 				auto vec = parseVector(p.value);
@@ -1066,7 +1095,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_list_animate"] = [](SprProps& p) {
+		propertyMap["scroll_list_animate"] = [](const SprProps& p) {
 			auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			if (scrollList) {
 				auto vec = parseVector(p.value);
@@ -1075,7 +1104,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_allow_momentum"] = [](SprProps& p) {
+		propertyMap["scroll_allow_momentum"] = [](const SprProps& p) {
 			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			ds::ui::ScrollArea* scrollArea = nullptr;
 			if (scrollList) {
@@ -1092,7 +1121,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_fade_colors"] = [](SprProps& p) {
+		propertyMap["scroll_fade_colors"] = [](const SprProps& p) {
 			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			ds::ui::ScrollArea* scrollArea = nullptr;
 			if (scrollList) {
@@ -1116,7 +1145,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_area_vert"] = [](SprProps& p) {
+		propertyMap["scroll_area_vert"] = [](const SprProps& p) {
 			auto scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&p.sprite);
 			if (scrollArea) {
 				auto vec = parseBoolean(p.value);
@@ -1125,7 +1154,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_fade_size"] = [](SprProps& p) {
+		propertyMap["scroll_fade_size"] = [](const SprProps& p) {
 			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			ds::ui::ScrollArea* scrollArea = nullptr;
 			if (scrollList) {
@@ -1143,7 +1172,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_shader_fade"] = [](SprProps& p) {
+		propertyMap["scroll_shader_fade"] = [](const SprProps& p) {
 			auto				scrollList = dynamic_cast<ds::ui::ScrollList*>(&p.sprite);
 			ds::ui::ScrollArea* scrollArea = nullptr;
 			if (scrollList) {
@@ -1161,7 +1190,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["smart_scroll_item_layout"] = [](SprProps& p) {
+		propertyMap["smart_scroll_item_layout"] = [](const SprProps& p) {
 			auto smartScrollList = dynamic_cast<ds::ui::SmartScrollList*>(&p.sprite);
 			if (smartScrollList) {
 				smartScrollList->setItemLayoutFile(p.value);
@@ -1170,7 +1199,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			}
 		};
 
-		propertyMap["scroll_bar_nub_color"] = [](SprProps& p) {
+		propertyMap["scroll_bar_nub_color"] = [](const SprProps& p) {
 			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
 			if (scrollBar && scrollBar->getNubSprite()) {
 				scrollBar->getNubSprite()->setColorA(parseColor(p.value, p.engine));
@@ -1178,7 +1207,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_bar_background_color"] = [](SprProps& p) {
+		propertyMap["scroll_bar_background_color"] = [](const SprProps& p) {
 			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
 			if (scrollBar && scrollBar->getBackgroundSprite()) {
 				scrollBar->getBackgroundSprite()->setColorA(parseColor(p.value, p.engine));
@@ -1186,7 +1215,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_bar_corner_radius"] = [](SprProps& p) {
+		propertyMap["scroll_bar_corner_radius"] = [](const SprProps& p) {
 			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
 			if (scrollBar && scrollBar->getBackgroundSprite() && scrollBar->getNubSprite()) {
 				scrollBar->getBackgroundSprite()->setCornerRadius(ds::string_to_float(p.value));
@@ -1195,7 +1224,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["scroll_bar_touch_padding"] = [](SprProps& p) {
+		propertyMap["scroll_bar_touch_padding"] = [](const SprProps& p) {
 			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
 			if (scrollBar) {
 				scrollBar->setTouchPadding(ds::string_to_float(p.value));
@@ -1205,7 +1234,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Border sprite properties
-		propertyMap["border_width"] = [](SprProps& p) {
+		propertyMap["border_width"] = [](const SprProps& p) {
 			auto border = dynamic_cast<Border*>(&p.sprite);
 			if (border) {
 				border->setBorderWidth(ds::string_to_float(p.value));
@@ -1220,7 +1249,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Circle sprite properties
-		propertyMap["filled"] = [](SprProps& p) {
+		propertyMap["filled"] = [](const SprProps& p) {
 			auto circle = dynamic_cast<Circle*>(&p.sprite);
 			if (circle) {
 				circle->setFilled(parseBoolean(p.value));
@@ -1228,7 +1257,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["radius"] = [](SprProps& p) {
+		propertyMap["radius"] = [](const SprProps& p) {
 			auto circle = dynamic_cast<Circle*>(&p.sprite);
 			if (circle) {
 				circle->setRadius(ds::string_to_float(p.value));
@@ -1236,7 +1265,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["line_width"] = [](SprProps& p) {
+		propertyMap["line_width"] = [](const SprProps& p) {
 			auto circle = dynamic_cast<Circle*>(&p.sprite);
 			if (circle) {
 				circle->setLineWidth(ds::string_to_float(p.value));
@@ -1244,7 +1273,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["donut_width"] = [](SprProps& p) {
+		propertyMap["donut_width"] = [](const SprProps& p) {
 			auto donut = dynamic_cast<DonutArc*>(&p.sprite);
 			if (donut) {
 				donut->setDonutWidth(ds::string_to_float(p.value));
@@ -1252,7 +1281,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["donut_percent"] = [](SprProps& p) {
+		propertyMap["donut_percent"] = [](const SprProps& p) {
 			auto donut = dynamic_cast<DonutArc*>(&p.sprite);
 			if (donut) {
 				donut->setPercent(ds::string_to_float(p.value));
@@ -1260,7 +1289,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["dash_length"] = [](SprProps& p) {
+		propertyMap["dash_length"] = [](const SprProps& p) {
 			auto dashed = dynamic_cast<DashedLine*>(&p.sprite);
 			if (dashed) {
 				dashed->setDashLength(ds::string_to_float(p.value));
@@ -1268,7 +1297,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["dash_space_inc"] = [](SprProps& p) {
+		propertyMap["dash_space_inc"] = [](const SprProps& p) {
 			auto dashed = dynamic_cast<DashedLine*>(&p.sprite);
 			if (dashed) {
 				dashed->setSpaceIncrement(ds::string_to_float(p.value));
@@ -1278,7 +1307,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		/// Check box properties
-		propertyMap["check_box_true_label"] = [](SprProps& p) {
+		propertyMap["check_box_true_label"] = [](const SprProps& p) {
 			auto checkBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 			if (checkBox) {
 				checkBox->setTrueLabel(ds::wstr_from_utf8(p.value));
@@ -1286,7 +1315,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["check_box_false_label"] = [](SprProps& p) {
+		propertyMap["check_box_false_label"] = [](const SprProps& p) {
 			auto checkBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 			if (checkBox) {
 				checkBox->setFalseLabel(ds::wstr_from_utf8(p.value));
@@ -1294,7 +1323,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["check_box_touch_pad"] = [](SprProps& p) {
+		propertyMap["check_box_touch_pad"] = [](const SprProps& p) {
 			auto checkBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 			if (checkBox) {
 				checkBox->setTouchPadding(ds::string_to_float(p.value));
@@ -1302,7 +1331,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["check_box_box_pad"] = [](SprProps& p) {
+		propertyMap["check_box_box_pad"] = [](const SprProps& p) {
 			auto checkBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 			if (checkBox) {
 				checkBox->setBoxPadding(ds::string_to_float(p.value));
@@ -1310,7 +1339,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["check_box_label_pad"] = [](SprProps& p) {
+		propertyMap["check_box_label_pad"] = [](const SprProps& p) {
 			auto checkBox = dynamic_cast<ControlCheckBox*>(&p.sprite);
 			if (checkBox) {
 				checkBox->setLabelPadding(ds::string_to_float(p.value));
@@ -1320,7 +1349,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		/// Persp layout
-		propertyMap["persp_fov"] = [](SprProps& p) {
+		propertyMap["persp_fov"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setFov(ds::string_to_float(p.value));
@@ -1328,7 +1357,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["persp_auto_clip"] = [](SprProps& p) {
+		propertyMap["persp_auto_clip"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setAutoClip(ds::parseBoolean(p.value));
@@ -1336,7 +1365,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["persp_auto_clip_range"] = [](SprProps& p) {
+		propertyMap["persp_auto_clip_range"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setAutoClipDepthRange(ds::string_to_float(p.value));
@@ -1344,7 +1373,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["persp_near_clip"] = [](SprProps& p) {
+		propertyMap["persp_near_clip"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setNearClip(ds::string_to_float(p.value));
@@ -1352,7 +1381,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["persp_far_clip"] = [](SprProps& p) {
+		propertyMap["persp_far_clip"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setFarClip(ds::string_to_float(p.value));
@@ -1360,7 +1389,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["persp_enabled"] = [](SprProps& p) {
+		propertyMap["persp_enabled"] = [](const SprProps& p) {
 			auto perspLayout = dynamic_cast<ds::ui::PerspectiveLayout*>(&p.sprite);
 			if (perspLayout) {
 				perspLayout->setPerspectiveEnabled(ds::parseBoolean(p.value));
@@ -1369,24 +1398,23 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			}
 		};
 
-		propertyMap["model"] = [](SprProps& p) {
+		propertyMap["model"] = [](const SprProps& p) {
 			auto& ud = p.sprite.getUserData();
 			if (p.sprite.getSpriteName(false).empty()) {
 				logInvalidValue(p, "a sprite with a name set already");
 			}
 			ud.setString(p.property, p.value);
-
 		};
-		propertyMap["each_model"] = [](SprProps& p) {
+		propertyMap["each_model"] = [](const SprProps& p) {
 			if (!p.sprite.getChildren().empty()) {
-				DS_LOG_WARNING("Setting each_model on a sprite with children is risky, things might go wrong here! (Ignore for smart_scroll_list)");
+				DS_LOG_WARNING("Setting each_model on a sprite with children is risky, things might go wrong here! "
+							   "(Ignore for smart_scroll_list)");
 			}
 			p.sprite.getUserData().setString(p.property, p.value);
 		};
-		propertyMap["each_model_limit"] = [](SprProps& p) {
+		propertyMap["each_model_limit"] = [](const SprProps& p) {
 			p.sprite.getUserData().setInt(p.property, ds::string_to_int(p.value));
 		};
-
 	};
 
 	// Find and apply the correct property
@@ -1394,9 +1422,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	if (findy != propertyMap.end()) {
 		findy->second(SprProps(sprite, property, value, referer, local_map));
 
-	// a specific case where the filename and src properties can have flags with them, e.g. filename_cache_mipmap and src_preload_skipmeta_cache
+		// a specific case where the filename and src properties can have flags with them, e.g. filename_cache_mipmap
+		// and src_preload_skipmeta_cache
 	} else if (property.rfind("filename", 0) == 0 || property.rfind("src", 0) == 0) {
-		int  flags = 0;
+		int flags = 0;
 		if (property.find("_") != std::string::npos) {
 
 			auto theFlags = ds::split(property, "_", true);
@@ -1415,13 +1444,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 					flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
 
 				} else if (val != "filename" && val != "src") {
-					logInvalidValue(SprProps(sprite, property, value, referer, local_map), " cache, mipmap, preload, skipmeta in combination with filename or src, such as filename_cache or src_mipmap_preload");
+					logInvalidValue(SprProps(sprite, property, value, referer, local_map),
+									" cache, mipmap, preload, skipmeta in combination with filename or src, such as "
+									"filename_cache or src_mipmap_preload");
 				}
 			}
 		}
 
-		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
-		auto image = dynamic_cast<Image*>(&sprite);
+		auto		imgBtn	 = dynamic_cast<ImageButton*>(&sprite);
+		auto		image	 = dynamic_cast<Image*>(&sprite);
 		std::string filePath = value;
 		if (!value.empty()) filePath = filePathRelativeTo(referer, value);
 		if (image) {
@@ -1433,7 +1464,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			logAttributionWarning(SprProps(sprite, property, value, referer, local_map));
 		}
 
-	// fallback to the engine registered setting
+		// fallback to the engine registered setting
 	} else if (sprite.getEngine().setRegisteredSpriteProperty(property, sprite, value, referer)) {
 
 	} else {
@@ -1463,7 +1494,7 @@ void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* 
 	auto tokens = ds::split(value, "; ", true);
 	if (!tokens.empty()) {
 		std::string eventName = tokens.front();
-		ds::Event*  eventy	= ds::event::Registry::get().getEventCreator(eventName)();
+		ds::Event*	eventy	  = ds::event::Registry::get().getEventCreator(eventName)();
 		if (eventy->mWhat < 1) {
 			DS_LOG_WARNING("XmlImporter::dispatchSingleEvent() Event not defined: " << eventName);
 		}
@@ -1497,7 +1528,9 @@ void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* 
 }
 
 XmlImporter::~XmlImporter() {
-	BOOST_FOREACH (auto s, mStylesheets) { delete s; }
+	BOOST_FOREACH (auto s, mStylesheets) {
+		delete s;
+	}
 }
 
 bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData) {
@@ -1568,7 +1601,9 @@ void XmlImporter::setAutoCache(const bool doCaching) {
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild,
+							const ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
+
 	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto filename=" << filename << " prefix=" << prefixName);
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
@@ -1581,7 +1616,7 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 		auto xmlIt = PRELOADED_CACHE.find(filename);
 		if (xmlIt != PRELOADED_CACHE.end()) {
 			cachedAlready = true;
-			preloadData   = xmlIt->second;
+			preloadData	  = xmlIt->second;
 		}
 	}
 
@@ -1596,74 +1631,76 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
 	for (auto it = preloadData.mStylesheets.begin(); it < preloadData.mStylesheets.end(); ++it) {
 		Stylesheet* ss = new Stylesheet();
-		ss->mRules	 = (*it)->mRules;
+		ss->mRules	   = (*it)->mRules;
 		ss->mReferer   = (*it)->mReferer;
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild,override_map,local_map);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild, override_map, local_map);
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, XmlPreloadData& preloadData, NamedSpriteMap& map,
-							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
-	DS_LOG_VERBOSE(3, "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
+							SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild,
+							const ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
+	DS_LOG_VERBOSE(3,
+				   "XmlImporter: loadXMLto preloaded filename=" << preloadData.mFilename << " prefix=" << prefixName);
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
 	for (auto it = preloadData.mStylesheets.begin(); it < preloadData.mStylesheets.end(); ++it) {
 		Stylesheet* ss = new Stylesheet();
-		ss->mRules	 = (*it)->mRules;
+		ss->mRules	   = (*it)->mRules;
 		ss->mReferer   = (*it)->mReferer;
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild,override_map,local_map);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild, override_map, local_map);
 }
 
 
-bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Settings& override_map, ds::cfg::VariableMap local_map) {
+bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, const ds::cfg::Settings& override_map,
+					   ds::cfg::VariableMap local_map) {
 	if (!xml.hasChild("interface")) {
 		DS_LOG_WARNING("No interface found in xml file: " << mXmlFile);
 		return false;
 	}
-	
-	auto   interface = xml.getChild("interface");
+
+	auto				 interface = xml.getChild("interface");
 	ds::cfg::VariableMap new_local_map;
-	
-	//if this file has a settings block grab it. 
-	//then we merge with the incomming override_map, 
-	//which should be an empty map in all cases except if
-	//this file is being loaded by an <xml> tag
+
+	// if this file has a settings block grab it.
+	// then we merge with the incomming override_map,
+	// which should be an empty map in all cases except if
+	// this file is being loaded by an <xml> tag
 	auto settings = ds::cfg::Settings();
 	if (interface.hasChild("settings")) {
-		settings.readFrom(interface, mXmlFile, true,&(mTargetSprite->getEngine()));
+		settings.readFrom(interface, mXmlFile, true, &(mTargetSprite->getEngine()));
 	}
 
 	settings.mergeSettings(override_map);
 	settings.replaceSettingVariablesAndExpressions();
 
-	//covert the setting into a variable map.
-	settings.forEachSetting([&new_local_map, &local_map](const ds::cfg::Settings::Setting& theSetting) {
+	// covert the setting into a variable map.
+	settings.forEachSetting([&new_local_map](const ds::cfg::Settings::Setting& theSetting) {
 		if (!theSetting.mName.empty()) {
 			new_local_map[theSetting.mName] = theSetting.mRawValue;
 		}
 	});
-	
-	//give the target sprite the settings so that they can be referenced later.
+
+	// give the target sprite the settings so that they can be referenced later.
 	mTargetSprite->setLayoutSettings(settings);
 
-	//combine the current variable map with the new one.
+	// combine the current variable map with the new one.
 	if (local_map.size() > 0) {
 		new_local_map.insert(local_map.begin(), local_map.end());
 		mCombinedSettings = new_local_map;
-	}
-	else {
+	} else {
 		mCombinedSettings = ds::cfg::SettingsVariables::insertAppToLocal(new_local_map);
 	}
-	
-	
-	auto&  sprites   = interface.getChildren();
-	size_t count = 0;
+
+
+	auto&  sprites = interface.getChildren();
+	size_t count   = 0;
 	/*
 	size_t count	 = sprites.size();
 	if (count < 1) {
@@ -1692,23 +1729,24 @@ bool XmlImporter::load(ci::XmlTree& xml, const bool mergeFirstChild, ds::cfg::Se
 		auto findy = mNamedSpriteMap.find(it.second);
 		if (findy != mNamedSpriteMap.end()) {
 			if (it.first && findy->second) {
-				EntryField*   ef  = dynamic_cast<EntryField*>(it.first);
+				EntryField*	  ef  = dynamic_cast<EntryField*>(it.first);
 				SoftKeyboard* sfk = dynamic_cast<SoftKeyboard*>(findy->second);
 				if (ef && sfk) {
-					sfk->setKeyPressFunction([ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
-						if (ef) {
-							ef->keyPressed(character, keyType);
-						}
-					});
+					sfk->setKeyPressFunction(
+						[ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
+							if (ef) {
+								ef->keyPressed(character, keyType);
+							}
+						});
 				} else {
-					ScrollBar* sb = dynamic_cast<ScrollBar*>(it.first);
+					ScrollBar*	sb = dynamic_cast<ScrollBar*>(it.first);
 					ScrollList* sl = dynamic_cast<ScrollList*>(findy->second);
 					ScrollArea* sa = dynamic_cast<ScrollArea*>(findy->second);
-					if(sb && sl){
+					if (sb && sl) {
 						sb->linkScrollList(sl);
 					}
 
-					if(sb && sa){
+					if (sb && sa) {
 						sb->linkScrollArea(sa);
 					}
 				}
@@ -1735,8 +1773,8 @@ struct SelectorMatchChecker : public boost::static_visitor<bool> {
 static void applyStylesheet(const Stylesheet& stylesheet, ds::ui::Sprite& sprite, const std::string& name,
 							const std::string& classes) {
 
-	DS_LOG_VERBOSE(
-		3, "XmlImporter: applyStylesheet stylesheet=" << stylesheet.mReferer << " name=" << name << " classes=" << classes);
+	DS_LOG_VERBOSE(3, "XmlImporter: applyStylesheet stylesheet=" << stylesheet.mReferer << " name=" << name
+																 << " classes=" << classes);
 
 	BOOST_FOREACH (auto& rule, stylesheet.mRules) {
 		auto classes_vec  = ds::split(classes, " ", true);
@@ -1799,7 +1837,8 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp) {
 }
 
 // NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
-ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value, ds::cfg::VariableMap& local_map) {
+ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type,
+												const std::string& value, const ds::cfg::VariableMap& local_map) {
 	DS_LOG_VERBOSE(4, "XmlImporter: createSpriteByType type=" << type << " value=" << value);
 
 	ds::ui::Sprite* spriddy = nullptr;
@@ -1816,9 +1855,9 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = image;
 	} else if (type == "image_with_thumbnail") {
 		auto image = new ds::ui::ImageWithThumbnail(engine);
-		spriddy	= image;
+		spriddy	   = image;
 	} else if (type == "text" || type == "multiline_text") {
-		auto text	= new ds::ui::Text(engine);
+		auto text	 = new ds::ui::Text(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);
@@ -1879,12 +1918,12 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		for (auto it : tokens) {
 			auto colony = it.find(":");
 			if (colony != std::string::npos) {
-				std::string paramType  = it.substr(0, colony);
-				std::string theValue = it.substr(colony + 1);
+				std::string paramType = it.substr(0, colony);
+				std::string theValue  = it.substr(colony + 1);
 				if (paramType.empty() || theValue.empty()) continue;
 
 				std::string paramValue = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
-				paramValue = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
+				paramValue			   = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
 
 				if (paramType == "type") {
 					keyboardType = paramValue;
@@ -1936,31 +1975,31 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					if (parseBoolean(paramValue)) {
 						sks.mKeyLetterUpImage = "";
 						sks.mKeyNumberUpImage = "";
-						sks.mKeySpaceUpImage = "";
-						sks.mKeyEnterUpImage = "";
+						sks.mKeySpaceUpImage  = "";
+						sks.mKeyEnterUpImage  = "";
 						sks.mKeyDeleteUpImage = "";
-						sks.mKeyShiftUpImage = "";
-						sks.mKeyTabUpImage = "";
+						sks.mKeyShiftUpImage  = "";
+						sks.mKeyTabUpImage	  = "";
 					}
 				} else if (paramType == "email_mode") {
 					sks.mEmailMode = parseBoolean(paramValue);
-				} else if(paramType == "graphic_keys") {
+				} else if (paramType == "graphic_keys") {
 					sks.mGraphicKeys = parseBoolean(paramValue);
-				} else if(paramType == "graphic_type") {
-					if(paramValue == "solid") {
+				} else if (paramType == "graphic_type") {
+					if (paramValue == "solid") {
 						sks.mGraphicType = SoftKeyboardSettings::kSolid;
-					} else if(paramValue == "circular_border") {
+					} else if (paramValue == "circular_border") {
 						sks.mGraphicType = SoftKeyboardSettings::kCircularBorder;
-					} else if(paramValue == "circular_solid") {
+					} else if (paramValue == "circular_solid") {
 						sks.mGraphicType = SoftKeyboardSettings::kCircularSolid;
 					} else {
 						sks.mGraphicType = SoftKeyboardSettings::kBorder;
 					}
-				} else if(paramType == "graphic_key_size") {
+				} else if (paramType == "graphic_key_size") {
 					sks.mGraphicKeySize = ds::string_to_float(paramValue);
-				} else if(paramType == "graphic_corner_radius") {
+				} else if (paramType == "graphic_corner_radius") {
 					sks.mGraphicRoundedCornerRadius = ds::string_to_float(paramValue);
-				} else if(paramType == "graphic_border_width") {
+				} else if (paramType == "graphic_border_width") {
 					sks.mGraphicBorderWidth = ds::string_to_float(paramValue);
 				} else {
 					DS_LOG_WARNING("SoftKeyboard interface setting not recognized: " << paramType);
@@ -1989,11 +2028,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 			auto colony = it.find(":");
 			if (colony != std::string::npos) {
 				std::string paramType = it.substr(0, colony);
-				std::string theValue = it.substr(colony + 1);
+				std::string theValue  = it.substr(colony + 1);
 				if (paramType.empty() || theValue.empty()) continue;
 
 				std::string paramValue = ds::cfg::SettingsVariables::replaceVariables(theValue, local_map);
-				paramValue = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
+				paramValue			   = ds::cfg::SettingsVariables::parseAllExpressions(paramValue);
 
 				if (paramType == "text_config") {
 					efs.mTextConfig = paramValue;
@@ -2042,11 +2081,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	auto&		engine = parent->getEngine();
 
 	std::string layout_target = engine.getLayoutTarget();
-	//if the node has a target attribute it should honor that.
-	if (node->hasAttribute("target"))
-	{
-		if (!engine.hasLayoutTarget(node->getAttributeValue<std::string>("target")))
-		{
+	// if the node has a target attribute it should honor that.
+	if (node->hasAttribute("target")) {
+		if (!engine.hasLayoutTarget(node->getAttributeValue<std::string>("target"))) {
 			return true;
 		}
 	}
@@ -2059,7 +2096,8 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			return false;
 		}
 		if (xmlPath == mXmlFile) {
-			DS_LOG_WARNING("XmlImporter: Recursive XML: You cannot load the same xml from the same xml in " << mXmlFile);
+			DS_LOG_WARNING("XmlImporter: Recursive XML: You cannot load the same xml from the same xml in "
+						   << mXmlFile);
 			return false;
 		}
 
@@ -2071,9 +2109,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			spriteName = ss.str();
 		}
 
-		//get xml settings override
-		//these need to be merged with the settings file
-		//in the incomming xml doc. with these taking precedent.
+		// get xml settings override
+		// these need to be merged with the settings file
+		// in the incomming xml doc. with these taking precedent.
 		ds::cfg::Settings override_map;
 		if (node->hasChild("settings")) {
 			std::stringstream ss;
@@ -2082,7 +2120,8 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 
-		if (!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName, mergeFirstSprite, override_map, mCombinedSettings)) {
+		if (!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName, mergeFirstSprite,
+									override_map, mCombinedSettings)) {
 			return false;
 		}
 
@@ -2090,16 +2129,14 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		BOOST_FOREACH (auto& newNode, node->getChildren()) {
 			if (newNode->getTag() == "property") {
 
-				//if the property node has a target attribute it should honor that.
-				if (newNode->hasAttribute("target"))
-				{
+				// if the property node has a target attribute it should honor that.
+				if (newNode->hasAttribute("target")) {
 					auto target = newNode->getAttributeValue<std::string>("target");
-					if (!engine.hasLayoutTarget(target))
-					{
+					if (!engine.hasLayoutTarget(target)) {
 						continue;
 					}
 				}
-				
+
 				std::string		  childSpriteName = newNode->getAttributeValue<std::string>("name", "");
 				std::stringstream ss;
 				ss << spriteName << "." << childSpriteName;
@@ -2115,19 +2152,19 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 				if (spriddy) {
 					BOOST_FOREACH (auto& attr, newNode->getAttributes()) {
-						if (attr.getName() == "name") continue;  // don't overwrite the name
-						setSpriteProperty(*spriddy, attr, xmlPath,mCombinedSettings);
+						if (attr.getName() == "name") continue; // don't overwrite the name
+						setSpriteProperty(*spriddy, attr, xmlPath, mCombinedSettings);
 					}
 				} else {
 					DS_LOG_WARNING("XmlImporter: Recursive XML: Couldn't find a child with the name "
 								   << childSpriteName << " to apply properties to");
 				}
-			}
-			else if (newNode->getTag() == "settings") {
-				//we skip the settings.
+			} else if (newNode->getTag() == "settings") {
+				// we skip the settings.
 			} else {
-				DS_LOG_WARNING("XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname="
-							   << newNode->getTag());
+				DS_LOG_WARNING(
+					"XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname="
+					<< newNode->getTag());
 			}
 		}
 
@@ -2158,10 +2195,8 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			return false;
 		}
 
-		BOOST_FOREACH (auto& sprite, node->getChildren())
-		{
-			if(sprite->getTag() != "override")
-			{
+		BOOST_FOREACH (auto& sprite, node->getChildren()) {
+			if (sprite->getTag() != "override") {
 				readSprite(spriddy, sprite, false);
 			}
 		}
@@ -2172,7 +2207,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			mSpriteLinks[spriddy] = linkValue;
 		}
 
-		ds::ui::ScrollArea*   parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
+		ds::ui::ScrollArea*	  parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
 		ds::ui::SpriteButton* spriteButton = dynamic_cast<ds::ui::SpriteButton*>(parent);
 		ds::ui::LayoutButton* layoutButton = dynamic_cast<ds::ui::LayoutButton*>(parent);
 		if (parentScroll) {
@@ -2204,29 +2239,28 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 		// Get sprite name and classes
-		std::string sprite_name	= node->getAttributeValue<std::string>("name", "");
+		std::string sprite_name	   = node->getAttributeValue<std::string>("name", "");
 		std::string sprite_classes = node->getAttributeValue<std::string>("class", "");
 
 		// Apply stylesheet(s)
-		BOOST_FOREACH (auto stylesheet, mStylesheets) { applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes); }
-		
-		// Set properties from xml attributes, overwriting those from the stylesheet(s)
-		BOOST_FOREACH (auto& attr, node->getAttributes()) { if(attr.getName() != "target") setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings); }
+		BOOST_FOREACH (auto stylesheet, mStylesheets) {
+			applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes);
+		}
 
-		//apply the overrides
-		BOOST_FOREACH(auto& override_, node->getChildren())
-		{
-			if (override_->getTag() == "override")
-			{
-				if (override_->hasAttribute("target"))
-				{
-					if (!engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target")))
-					{
+		// Set properties from xml attributes, overwriting those from the stylesheet(s)
+		BOOST_FOREACH (auto& attr, node->getAttributes()) {
+			if (attr.getName() != "target") setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings);
+		}
+
+		// apply the overrides
+		BOOST_FOREACH (auto& override_, node->getChildren()) {
+			if (override_->getTag() == "override") {
+				if (override_->hasAttribute("target")) {
+					if (!engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target"))) {
 						continue;
 					}
 				}
-				for(auto& attr: override_->getAttributes())
-				{
+				for (auto& attr : override_->getAttributes()) {
 					if (attr.getName() != "target") {
 						setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings);
 					}
@@ -2246,8 +2280,8 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			spriddy->setSpriteName(ds::wstr_from_utf8(sprite_name));
 
 			if (mNamedSpriteMap.find(sprite_name) != mNamedSpriteMap.end()) {
- 				DS_LOG_WARNING("Interface xml file " << mXmlFile <<" contains duplicate sprites named:"
-							   << sprite_name << ", only the first one will be identified.");
+				DS_LOG_WARNING("Interface xml file " << mXmlFile << " contains duplicate sprites named:" << sprite_name
+													 << ", only the first one will be identified.");
 			} else {
 				mNamedSpriteMap.insert(std::make_pair(sprite_name, spriddy));
 			}
@@ -2258,5 +2292,4 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	return true;
 }
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

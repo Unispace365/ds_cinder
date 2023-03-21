@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright 2012 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -97,10 +97,7 @@ NET_ERROR(BLOCKED_BY_ADMINISTRATOR, -22)
 // The socket is already connected.
 NET_ERROR(SOCKET_IS_CONNECTED, -23)
 
-// The request was blocked because the forced reenrollment check is still
-// pending. This error can only occur on ChromeOS.
-// The error can be emitted by code in chrome/browser/policy/policy_helpers.cc.
-NET_ERROR(BLOCKED_ENROLLMENT_CHECK_PENDING, -24)
+// Error -24 was removed (BLOCKED_ENROLLMENT_CHECK_PENDING)
 
 // The upload failed because the upload stream needed to be re-read, due to a
 // retry or a redirect, but the upload stream doesn't support that operation.
@@ -112,7 +109,7 @@ NET_ERROR(CONTEXT_SHUT_DOWN, -26)
 
 // The request failed because the response was delivered along with requirements
 // which are not met ('X-Frame-Options' and 'Content-Security-Policy' ancestor
-// checks and 'Cross-Origin-Resource-Policy', for instance).
+// checks and 'Cross-Origin-Resource-Policy' for instance).
 NET_ERROR(BLOCKED_BY_RESPONSE, -27)
 
 // Error -28 was removed (BLOCKED_BY_XSS_AUDITOR).
@@ -126,6 +123,9 @@ NET_ERROR(BLOCKED_BY_CSP, -30)
 
 // The request was blocked because of no H/2 or QUIC session.
 NET_ERROR(H2_OR_QUIC_REQUIRED, -31)
+
+// The request was blocked by CORB or ORB.
+NET_ERROR(BLOCKED_BY_ORB, -32)
 
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
@@ -524,7 +524,7 @@ NET_ERROR(CERT_INVALID, -207)
 // signature algorithm.
 NET_ERROR(CERT_WEAK_SIGNATURE_ALGORITHM, -208)
 
-// -209 is availible: was CERT_NOT_IN_DNS.
+// -209 is available: was CERT_NOT_IN_DNS.
 
 // The host name specified in the certificate is not unique.
 NET_ERROR(CERT_NON_UNIQUE_NAME, -210)
@@ -718,7 +718,7 @@ NET_ERROR(QUIC_PROTOCOL_ERROR, -356)
 // The HTTP headers were truncated by an EOF.
 NET_ERROR(RESPONSE_HEADERS_TRUNCATED, -357)
 
-// The QUIC crytpo handshake failed.  This means that the server was unable
+// The QUIC crypto handshake failed.  This means that the server was unable
 // to read any requests sent, so they may be resent.
 NET_ERROR(QUIC_HANDSHAKE_FAILED, -358)
 
@@ -806,6 +806,19 @@ NET_ERROR(QUIC_CERT_ROOT_NOT_KNOWN, -380)
 // processed and is therefore safe to retry on a different connection.
 NET_ERROR(QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED, -381)
 
+// The ACCEPT_CH restart has been triggered too many times
+NET_ERROR(TOO_MANY_ACCEPT_CH_RESTARTS, -382)
+
+// The IP address space of the remote endpoint differed from the previous
+// observed value during the same request. Any cache entry for the affected
+// request should be invalidated.
+NET_ERROR(INCONSISTENT_IP_ADDRESS_SPACE, -383)
+
+// The IP address space of the cached remote endpoint is blocked by private
+// network access check.
+NET_ERROR(CACHED_IP_ADDRESS_SPACE_BLOCKED_BY_PRIVATE_NETWORK_ACCESS_POLICY,
+          -384)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
@@ -849,7 +862,7 @@ NET_ERROR(CACHE_LOCK_TIMEOUT, -409)
 NET_ERROR(CACHE_AUTH_FAILURE_AFTER_READ, -410)
 
 // Internal not-quite error code for the HTTP cache. In-memory hints suggest
-// that the cache entry would not have been useable with the transaction's
+// that the cache entry would not have been usable with the transaction's
 // current configuration (e.g. load flags, mode, etc.)
 NET_ERROR(CACHE_ENTRY_NOT_SUITABLE, -411)
 
@@ -1010,3 +1023,7 @@ NET_ERROR(DNS_NAME_HTTPS_ONLY, -809)
 
 // All DNS requests associated with this job have been cancelled.
 NET_ERROR(DNS_REQUEST_CANCELLED, -810)
+
+// The hostname resolution of HTTPS record was expected to be resolved with
+// alpn values of supported protocols, but did not.
+NET_ERROR(DNS_NO_MACHING_SUPPORTED_ALPN, -811)

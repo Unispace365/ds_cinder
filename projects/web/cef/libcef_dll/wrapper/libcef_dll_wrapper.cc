@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b12081eab77cac5baf1134e9fba8a23c6aef770a$
+// $hash=60bb1af4e6451440a44e3469e69e34fd6f711d62$
 //
 
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_crash_util_capi.h"
 #include "include/capi/cef_file_util_capi.h"
+#include "include/capi/cef_i18n_util_capi.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_path_util_capi.h"
@@ -24,12 +25,12 @@
 #include "include/capi/cef_task_capi.h"
 #include "include/capi/cef_trace_capi.h"
 #include "include/capi/cef_v8_capi.h"
-#include "include/capi/cef_web_plugin_capi.h"
 #include "include/capi/test/cef_test_helpers_capi.h"
 #include "include/cef_api_hash.h"
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
+#include "include/cef_i18n_util.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_parser.h"
 #include "include/cef_path_util.h"
@@ -39,17 +40,13 @@
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/cef_v8.h"
-#include "include/cef_web_plugin.h"
 #include "include/test/cef_test_helpers.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
-#include "libcef_dll/cpptoc/register_cdm_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
-#include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
-#include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -141,20 +138,6 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefQuitMessageLoop() {
   cef_quit_message_loop();
 }
 
-NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefSetOSModalLoop(bool osModalLoop) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_set_osmodal_loop(osModalLoop);
-}
-
-NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefEnableHighDPISupport() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_enable_highdpi_support();
-}
-
 NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefCrashReportingEnabled() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -172,8 +155,9 @@ void CefSetCrashKeyValue(const CefString& key, const CefString& value) {
 
   // Verify param: key; type: string_byref_const
   DCHECK(!key.empty());
-  if (key.empty())
+  if (key.empty()) {
     return;
+  }
   // Unverified params: value
 
   // Execute
@@ -186,8 +170,9 @@ CEF_GLOBAL bool CefCreateDirectory(const CefString& full_path) {
 
   // Verify param: full_path; type: string_byref_const
   DCHECK(!full_path.empty());
-  if (full_path.empty())
+  if (full_path.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_create_directory(full_path.GetStruct());
@@ -230,8 +215,9 @@ CEF_GLOBAL bool CefCreateTempDirectoryInDirectory(const CefString& base_dir,
 
   // Verify param: base_dir; type: string_byref_const
   DCHECK(!base_dir.empty());
-  if (base_dir.empty())
+  if (base_dir.empty()) {
     return false;
+  }
   // Unverified params: prefix
 
   // Execute
@@ -248,8 +234,9 @@ CEF_GLOBAL bool CefDirectoryExists(const CefString& path) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(!path.empty());
-  if (path.empty())
+  if (path.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_directory_exists(path.GetStruct());
@@ -264,8 +251,9 @@ CEF_GLOBAL bool CefDeleteFile(const CefString& path, bool recursive) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(!path.empty());
-  if (path.empty())
+  if (path.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_delete_file(path.GetStruct(), recursive);
@@ -282,12 +270,14 @@ CEF_GLOBAL bool CefZipDirectory(const CefString& src_dir,
 
   // Verify param: src_dir; type: string_byref_const
   DCHECK(!src_dir.empty());
-  if (src_dir.empty())
+  if (src_dir.empty()) {
     return false;
+  }
   // Verify param: dest_file; type: string_byref_const
   DCHECK(!dest_file.empty());
-  if (dest_file.empty())
+  if (dest_file.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_zip_directory(src_dir.GetStruct(), dest_file.GetStruct(),
@@ -303,11 +293,22 @@ CEF_GLOBAL void CefLoadCRLSetsFile(const CefString& path) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(!path.empty());
-  if (path.empty())
+  if (path.empty()) {
     return;
+  }
 
   // Execute
   cef_load_crlsets_file(path.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefIsRTL() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_is_rtl();
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")
@@ -320,12 +321,14 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
 
   // Verify param: source_origin; type: string_byref_const
   DCHECK(!source_origin.empty());
-  if (source_origin.empty())
+  if (source_origin.empty()) {
     return false;
+  }
   // Verify param: target_protocol; type: string_byref_const
   DCHECK(!target_protocol.empty());
-  if (target_protocol.empty())
+  if (target_protocol.empty()) {
     return false;
+  }
   // Unverified params: target_domain
 
   // Execute
@@ -347,12 +350,14 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
 
   // Verify param: source_origin; type: string_byref_const
   DCHECK(!source_origin.empty());
-  if (source_origin.empty())
+  if (source_origin.empty()) {
     return false;
+  }
   // Verify param: target_protocol; type: string_byref_const
   DCHECK(!target_protocol.empty());
-  if (target_protocol.empty())
+  if (target_protocol.empty()) {
     return false;
+  }
   // Unverified params: target_domain
 
   // Execute
@@ -375,13 +380,39 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefClearCrossOriginWhitelist() {
 }
 
 NO_SANITIZE("cfi-icall")
+CEF_GLOBAL bool CefResolveURL(const CefString& base_url,
+                              const CefString& relative_url,
+                              CefString& resolved_url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: base_url; type: string_byref_const
+  DCHECK(!base_url.empty());
+  if (base_url.empty()) {
+    return false;
+  }
+  // Verify param: relative_url; type: string_byref_const
+  DCHECK(!relative_url.empty());
+  if (relative_url.empty()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = cef_resolve_url(base_url.GetStruct(), relative_url.GetStruct(),
+                                resolved_url.GetWritableStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
 CEF_GLOBAL bool CefParseURL(const CefString& url, CefURLParts& parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
   DCHECK(!url.empty());
-  if (url.empty())
+  if (url.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_parse_url(url.GetStruct(), &parts);
@@ -408,8 +439,9 @@ CefFormatUrlForSecurityDisplay(const CefString& origin_url) {
 
   // Verify param: origin_url; type: string_byref_const
   DCHECK(!origin_url.empty());
-  if (origin_url.empty())
+  if (origin_url.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval =
@@ -427,8 +459,9 @@ CEF_GLOBAL CefString CefGetMimeType(const CefString& extension) {
 
   // Verify param: extension; type: string_byref_const
   DCHECK(!extension.empty());
-  if (extension.empty())
+  if (extension.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval = cef_get_mime_type(extension.GetStruct());
@@ -447,14 +480,16 @@ void CefGetExtensionsForMimeType(const CefString& mime_type,
 
   // Verify param: mime_type; type: string_byref_const
   DCHECK(!mime_type.empty());
-  if (mime_type.empty())
+  if (mime_type.empty()) {
     return;
+  }
 
   // Translate param: extensions; type: string_vec_byref
   cef_string_list_t extensionsList = cef_string_list_alloc();
   DCHECK(extensionsList);
-  if (extensionsList)
+  if (extensionsList) {
     transfer_string_list_contents(extensions, extensionsList);
+  }
 
   // Execute
   cef_get_extensions_for_mime_type(mime_type.GetStruct(), extensionsList);
@@ -473,8 +508,9 @@ CEF_GLOBAL CefString CefBase64Encode(const void* data, size_t data_size) {
 
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval = cef_base64encode(data, data_size);
@@ -491,8 +527,9 @@ CEF_GLOBAL CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
 
   // Verify param: data; type: string_byref_const
   DCHECK(!data.empty());
-  if (data.empty())
-    return NULL;
+  if (data.empty()) {
+    return nullptr;
+  }
 
   // Execute
   cef_binary_value_t* _retval = cef_base64decode(data.GetStruct());
@@ -507,8 +544,9 @@ CEF_GLOBAL CefString CefURIEncode(const CefString& text, bool use_plus) {
 
   // Verify param: text; type: string_byref_const
   DCHECK(!text.empty());
-  if (text.empty())
+  if (text.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval = cef_uriencode(text.GetStruct(), use_plus);
@@ -527,8 +565,9 @@ CEF_GLOBAL CefString CefURIDecode(const CefString& text,
 
   // Verify param: text; type: string_byref_const
   DCHECK(!text.empty());
-  if (text.empty())
+  if (text.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval =
@@ -547,8 +586,9 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
 
   // Verify param: json_string; type: string_byref_const
   DCHECK(!json_string.empty());
-  if (json_string.empty())
-    return NULL;
+  if (json_string.empty()) {
+    return nullptr;
+  }
 
   // Execute
   cef_value_t* _retval = cef_parse_json(json_string.GetStruct(), options);
@@ -558,22 +598,40 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
 }
 
 NO_SANITIZE("cfi-icall")
+CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const void* json,
+                                            size_t json_size,
+                                            cef_json_parser_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json; type: simple_byaddr
+  DCHECK(json);
+  if (!json) {
+    return nullptr;
+  }
+
+  // Execute
+  cef_value_t* _retval = cef_parse_json_buffer(json, json_size, options);
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
 CEF_GLOBAL CefRefPtr<CefValue> CefParseJSONAndReturnError(
     const CefString& json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t& error_code_out,
     CefString& error_msg_out) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: json_string; type: string_byref_const
   DCHECK(!json_string.empty());
-  if (json_string.empty())
-    return NULL;
+  if (json_string.empty()) {
+    return nullptr;
+  }
 
   // Execute
   cef_value_t* _retval = cef_parse_jsonand_return_error(
-      json_string.GetStruct(), options, &error_code_out,
-      error_msg_out.GetWritableStruct());
+      json_string.GetStruct(), options, error_msg_out.GetWritableStruct());
 
   // Return type: refptr_same
   return CefValueCToCpp::Wrap(_retval);
@@ -586,8 +644,9 @@ CEF_GLOBAL CefString CefWriteJSON(CefRefPtr<CefValue> node,
 
   // Verify param: node; type: refptr_same
   DCHECK(node.get());
-  if (!node.get())
+  if (!node.get()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval =
@@ -616,8 +675,9 @@ CEF_GLOBAL bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
 
   // Verify param: command_line; type: refptr_same
   DCHECK(command_line.get());
-  if (!command_line.get())
+  if (!command_line.get()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_launch_process(CefCommandLineCToCpp::Unwrap(command_line));
@@ -635,8 +695,9 @@ CEF_GLOBAL bool CefRegisterSchemeHandlerFactory(
 
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
+  if (scheme_name.empty()) {
     return false;
+  }
   // Unverified params: domain_name, factory
 
   // Execute
@@ -685,8 +746,9 @@ CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
 
   // Verify param: task; type: refptr_diff
   DCHECK(task.get());
-  if (!task.get())
+  if (!task.get()) {
     return false;
+  }
 
   // Execute
   int _retval = cef_post_task(threadId, CefTaskCppToC::Wrap(task));
@@ -703,8 +765,9 @@ CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
 
   // Verify param: task; type: refptr_diff
   DCHECK(task.get());
-  if (!task.get())
+  if (!task.get()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -762,12 +825,14 @@ CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
 
   // Verify param: extension_name; type: string_byref_const
   DCHECK(!extension_name.empty());
-  if (extension_name.empty())
+  if (extension_name.empty()) {
     return false;
+  }
   // Verify param: javascript_code; type: string_byref_const
   DCHECK(!javascript_code.empty());
-  if (javascript_code.empty())
+  if (javascript_code.empty()) {
     return false;
+  }
   // Unverified params: handler
 
   // Execute
@@ -780,90 +845,6 @@ CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
 }
 
 NO_SANITIZE("cfi-icall")
-CEF_GLOBAL
-void CefVisitWebPluginInfo(CefRefPtr<CefWebPluginInfoVisitor> visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return;
-
-  // Execute
-  cef_visit_web_plugin_info(CefWebPluginInfoVisitorCppToC::Wrap(visitor));
-}
-
-NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefRefreshWebPlugins() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_refresh_web_plugins();
-}
-
-NO_SANITIZE("cfi-icall")
-CEF_GLOBAL void CefUnregisterInternalWebPlugin(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-
-  // Execute
-  cef_unregister_internal_web_plugin(path.GetStruct());
-}
-
-NO_SANITIZE("cfi-icall")
-CEF_GLOBAL void CefRegisterWebPluginCrash(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-
-  // Execute
-  cef_register_web_plugin_crash(path.GetStruct());
-}
-
-NO_SANITIZE("cfi-icall")
-CEF_GLOBAL void CefIsWebPluginUnstable(
-    const CefString& path,
-    CefRefPtr<CefWebPluginUnstableCallback> callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback.get());
-  if (!callback.get())
-    return;
-
-  // Execute
-  cef_is_web_plugin_unstable(
-      path.GetStruct(), CefWebPluginUnstableCallbackCppToC::Wrap(callback));
-}
-
-NO_SANITIZE("cfi-icall")
-CEF_GLOBAL
-void CefRegisterWidevineCdm(const CefString& path,
-                            CefRefPtr<CefRegisterCdmCallback> callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-  // Unverified params: callback
-
-  // Execute
-  cef_register_widevine_cdm(path.GetStruct(),
-                            CefRegisterCdmCallbackCppToC::Wrap(callback));
-}
-
-NO_SANITIZE("cfi-icall")
 CEF_GLOBAL void CefExecuteJavaScriptWithUserGestureForTests(
     CefRefPtr<CefFrame> frame,
     const CefString& javascript) {
@@ -871,11 +852,26 @@ CEF_GLOBAL void CefExecuteJavaScriptWithUserGestureForTests(
 
   // Verify param: frame; type: refptr_same
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Unverified params: javascript
 
   // Execute
   cef_execute_java_script_with_user_gesture_for_tests(
       CefFrameCToCpp::Unwrap(frame), javascript.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall")
+CEF_GLOBAL void CefSetDataDirectoryForTests(const CefString& dir) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: dir; type: string_byref_const
+  DCHECK(!dir.empty());
+  if (dir.empty()) {
+    return;
+  }
+
+  // Execute
+  cef_set_data_directory_for_tests(dir.GetStruct());
 }

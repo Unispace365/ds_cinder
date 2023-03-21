@@ -2,8 +2,8 @@
 #ifndef DS_THREAD_WORKREQUESTLIST_H_
 #define DS_THREAD_WORKREQUESTLIST_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace ds {
 
@@ -13,21 +13,20 @@ namespace ds {
  */
 template <typename T>
 class WorkRequestList {
-public:
+  public:
 	WorkRequestList(const void* clientId);
 
 	/// Answer the next free item or create one, if I can
-	std::unique_ptr<T>			next();
+	std::unique_ptr<T> next();
 	/// Give ownership of the arg to the list.
-	void						push(std::unique_ptr<T>&);
+	void push(std::unique_ptr<T>&);
 
-private:
+  private:
 	WorkRequestList();
 
-	const void*					mClientId;
+	const void* mClientId;
 
-	std::vector<std::unique_ptr<T>>
-								mRequest;
+	std::vector<std::unique_ptr<T>> mRequest;
 };
 
 /**
@@ -35,14 +34,11 @@ private:
  */
 template <class T>
 WorkRequestList<T>::WorkRequestList(const void* clientId)
-	: mClientId(clientId)
-{
-}
+  : mClientId(clientId) {}
 
 template <class T>
-std::unique_ptr<T> WorkRequestList<T>::next()
-{
-	std::unique_ptr<T>			ans;
+std::unique_ptr<T> WorkRequestList<T>::next() {
+	std::unique_ptr<T> ans;
 	if (!mRequest.empty()) {
 		ans = std::move(mRequest.back());
 		mRequest.pop_back();
@@ -52,14 +48,12 @@ std::unique_ptr<T> WorkRequestList<T>::next()
 }
 
 template <class T>
-void WorkRequestList<T>::push(std::unique_ptr<T>& obj)
-{
+void WorkRequestList<T>::push(std::unique_ptr<T>& obj) {
 	if (!obj) return;
 
 	try {
 		mRequest.push_back(std::move(obj));
-	} catch (std::exception const&) {
-	}
+	} catch (std::exception const&) {}
 }
 
 } // namespace ds

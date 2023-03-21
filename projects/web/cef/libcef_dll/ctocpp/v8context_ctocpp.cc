@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d5260efeb3be935bd7e7a064c91967d34214ac82$
+// $hash=af5dfb61e2e3f14c482c861af5a271adca93439a$
 //
 
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -58,8 +58,9 @@ NO_SANITIZE("cfi-icall") bool CefV8Context::InContext() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefV8ContextCToCpp::GetTaskRunner() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_task_runner))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_task_runner)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -72,8 +73,9 @@ CefRefPtr<CefTaskRunner> CefV8ContextCToCpp::GetTaskRunner() {
 
 NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::IsValid() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -87,8 +89,9 @@ NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::IsValid() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowser> CefV8ContextCToCpp::GetBrowser() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_browser))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_browser)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -101,8 +104,9 @@ CefRefPtr<CefBrowser> CefV8ContextCToCpp::GetBrowser() {
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefFrame> CefV8ContextCToCpp::GetFrame() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_frame))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_frame)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -115,8 +119,9 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefFrame> CefV8ContextCToCpp::GetFrame() {
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefV8Value> CefV8ContextCToCpp::GetGlobal() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_global))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_global)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -129,8 +134,9 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefV8Value> CefV8ContextCToCpp::GetGlobal() {
 
 NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::Enter() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, enter))
+  if (CEF_MEMBER_MISSING(_struct, enter)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -143,8 +149,9 @@ NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::Enter() {
 
 NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::Exit() {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, exit))
+  if (CEF_MEMBER_MISSING(_struct, exit)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -158,15 +165,17 @@ NO_SANITIZE("cfi-icall") bool CefV8ContextCToCpp::Exit() {
 NO_SANITIZE("cfi-icall")
 bool CefV8ContextCToCpp::IsSame(CefRefPtr<CefV8Context> that) {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_same))
+  if (CEF_MEMBER_MISSING(_struct, is_same)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: that; type: refptr_same
   DCHECK(that.get());
-  if (!that.get())
+  if (!that.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->is_same(_struct, CefV8ContextCToCpp::Unwrap(that));
@@ -182,26 +191,30 @@ bool CefV8ContextCToCpp::Eval(const CefString& code,
                               CefRefPtr<CefV8Value>& retval,
                               CefRefPtr<CefV8Exception>& exception) {
   cef_v8context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, eval))
+  if (CEF_MEMBER_MISSING(_struct, eval)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: code; type: string_byref_const
   DCHECK(!code.empty());
-  if (code.empty())
+  if (code.empty()) {
     return false;
+  }
   // Unverified params: script_url
 
   // Translate param: retval; type: refptr_same_byref
   cef_v8value_t* retvalStruct = NULL;
-  if (retval.get())
+  if (retval.get()) {
     retvalStruct = CefV8ValueCToCpp::Unwrap(retval);
+  }
   cef_v8value_t* retvalOrig = retvalStruct;
   // Translate param: exception; type: refptr_same_byref
   cef_v8exception_t* exceptionStruct = NULL;
-  if (exception.get())
+  if (exception.get()) {
     exceptionStruct = CefV8ExceptionCToCpp::Unwrap(exception);
+  }
   cef_v8exception_t* exceptionOrig = exceptionStruct;
 
   // Execute
@@ -214,7 +227,7 @@ bool CefV8ContextCToCpp::Eval(const CefString& code,
       retval = CefV8ValueCToCpp::Wrap(retvalStruct);
     }
   } else {
-    retval = NULL;
+    retval = nullptr;
   }
   // Restore param:exception; type: refptr_same_byref
   if (exceptionStruct) {
@@ -222,7 +235,7 @@ bool CefV8ContextCToCpp::Eval(const CefString& code,
       exception = CefV8ExceptionCToCpp::Wrap(exceptionStruct);
     }
   } else {
-    exception = NULL;
+    exception = nullptr;
   }
 
   // Return type: bool
@@ -242,7 +255,7 @@ cef_v8context_t*
 CefCToCppRefCounted<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>::
     UnwrapDerived(CefWrapperType type, CefV8Context* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

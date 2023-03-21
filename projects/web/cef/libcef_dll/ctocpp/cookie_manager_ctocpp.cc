@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=87369bed5916a070a4f1a7f4bb9fcff5885cd31f$
+// $hash=f620145f59aad5bc92c729dc876e9c094b06a541$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
-#include "libcef_dll/transfer_util.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -39,46 +38,20 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-void CefCookieManagerCToCpp::SetSupportedSchemes(
-    const std::vector<CefString>& schemes,
-    bool include_defaults,
-    CefRefPtr<CefCompletionCallback> callback) {
-  cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_supported_schemes))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: callback
-
-  // Translate param: schemes; type: string_vec_byref_const
-  cef_string_list_t schemesList = cef_string_list_alloc();
-  DCHECK(schemesList);
-  if (schemesList)
-    transfer_string_list_contents(schemes, schemesList);
-
-  // Execute
-  _struct->set_supported_schemes(_struct, schemesList, include_defaults,
-                                 CefCompletionCallbackCppToC::Wrap(callback));
-
-  // Restore param:schemes; type: string_vec_byref_const
-  if (schemesList)
-    cef_string_list_free(schemesList);
-}
-
-NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, visit_all_cookies))
+  if (CEF_MEMBER_MISSING(_struct, visit_all_cookies)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor.get());
-  if (!visitor.get())
+  if (!visitor.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->visit_all_cookies(
@@ -94,19 +67,22 @@ bool CefCookieManagerCToCpp::VisitUrlCookies(
     bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
   cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, visit_url_cookies))
+  if (CEF_MEMBER_MISSING(_struct, visit_url_cookies)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
   DCHECK(!url.empty());
-  if (url.empty())
+  if (url.empty()) {
     return false;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor.get());
-  if (!visitor.get())
+  if (!visitor.get()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -123,15 +99,17 @@ bool CefCookieManagerCToCpp::SetCookie(
     const CefCookie& cookie,
     CefRefPtr<CefSetCookieCallback> callback) {
   cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_cookie))
+  if (CEF_MEMBER_MISSING(_struct, set_cookie)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
   DCHECK(!url.empty());
-  if (url.empty())
+  if (url.empty()) {
     return false;
+  }
   // Unverified params: callback
 
   // Execute
@@ -148,8 +126,9 @@ bool CefCookieManagerCToCpp::DeleteCookies(
     const CefString& cookie_name,
     CefRefPtr<CefDeleteCookiesCallback> callback) {
   cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, delete_cookies))
+  if (CEF_MEMBER_MISSING(_struct, delete_cookies)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -168,8 +147,9 @@ NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::FlushStore(
     CefRefPtr<CefCompletionCallback> callback) {
   cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, flush_store))
+  if (CEF_MEMBER_MISSING(_struct, flush_store)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -198,7 +178,7 @@ CefCToCppRefCounted<CefCookieManagerCToCpp,
                     cef_cookie_manager_t>::UnwrapDerived(CefWrapperType type,
                                                          CefCookieManager* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

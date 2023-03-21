@@ -14,40 +14,35 @@ namespace mv {
 class Globals;
 
 /**
-* \class mv::TitledMediaViewer
-*			A single media viewer with a title and a close button
-*/
+ * \class mv::TitledMediaViewer
+ *			A single media viewer with a title and a close button
+ */
 class TitledMediaViewer : public ds::ui::MediaViewer {
-public:
+  public:
 	TitledMediaViewer(Globals& g);
 
 
-	void								setMedia(ds::model::MediaRef media, const bool openGl, const bool nvDec);
-	void								animateOn();
-	void								animateOff();
+	void setMedia(ds::model::MediaRef media, const bool openGl, const bool nvDec);
+	void animateOn();
+	void animateOff();
 
-	void								showTitle();
-	void								hideTitle();
-	void								toggleTitle();
+	void showTitle();
+	void hideTitle();
+	void toggleTitle();
 
-private:
+  private:
+	virtual void onLayout();
 
-	virtual void						onLayout();
+	Globals& mGlobals;
 
-	Globals&							mGlobals;
+	ds::ui::Sprite* mTrayHolder;
+	ds::ui::Sprite* mBackground;
+	ds::ui::Text*	mTitle;
+	ds::ui::Text*	mBody;
 
-	ds::ui::Sprite*						mTrayHolder;
-	ds::ui::Sprite*						mBackground;
-	ds::ui::Text*						mTitle;
-	ds::ui::Text*						mBody;
-
-	bool								mShowingTitle;
-
-
+	bool mShowingTitle;
 };
 
 } // namespace mv
 
 #endif
-
-

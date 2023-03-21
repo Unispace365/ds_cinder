@@ -15,23 +15,21 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   : ds::ui::Sprite(eng)
   , mWeb(nullptr)
   , mWebInterface(nullptr)
+  , mKeyboardKeyScale(1.0f)
   , mEmbedInterface(embedInterface)
   , mShowInterfaceAtStart(true)
-  , mKeyboardKeyScale(1.0f)
+  , mLetterbox(true)
   , mKeyboardAllow(true)
   , mKeyboardAbove(true)
   , mAllowTouchToggle(true)
   , mStartInteractable(false)
-  , mLetterbox(true)
-  , mInterfaceBelowMedia(false)
-{
+  , mInterfaceBelowMedia(false) {
 
 	mLayoutFixedAspect = true;
 	enable(false);
@@ -46,8 +44,8 @@ void WebPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setStartInteractable(settings.mWebStartTouchable);
 	setNativeTouches(settings.mWebNativeTouches);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
-	mInterfaceBottomPad = settings.mInterfaceBottomPad;
-	mAutoStart = !settings.mVideoAutoPlayFirstFrame;
+	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
+	mAutoStart			 = !settings.mVideoAutoPlayFirstFrame;
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
@@ -59,8 +57,8 @@ void WebPlayer::setWebViewSize(const ci::vec2 webSize) {
 
 void WebPlayer::setKeyboardParams(const float keyboardKeyScale, const bool keyboardAllow, const bool keyboardAbove) {
 	mKeyboardKeyScale = keyboardKeyScale;
-	mKeyboardAllow	= keyboardAllow;
-	mKeyboardAbove	= keyboardAbove;
+	mKeyboardAllow	  = keyboardAllow;
+	mKeyboardAbove	  = keyboardAbove;
 	if (mWebInterface) {
 		mWebInterface->setKeyboardKeyScale(keyboardKeyScale);
 		mWebInterface->setKeyboardAllow(keyboardAllow);
@@ -122,9 +120,9 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 
 	addChildPtr(mWeb);
 
-	setTransparent(false);
-	setColor(ci::Color::white());
-	mWeb->setResource(resource);	
+	//setTransparent(false);
+	//setColor(ci::Color::white());
+	mWeb->setResource(resource);
 
 	if (mStartInteractable) {
 		mWeb->enable(true);
@@ -164,20 +162,22 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	setSize(mWeb->getWidth(), mWeb->getHeight());
 }
 
-void WebPlayer::onSizeChanged() { layout(); }
+void WebPlayer::onSizeChanged() {
+	layout();
+}
 
 void WebPlayer::layout() {
-	if(mWeb) {
+	if (mWeb) {
 		fitInside(mWeb, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mLetterbox);
 	}
 
-	if(mWebInterface && mEmbedInterface) {
+	if (mWebInterface && mEmbedInterface) {
 		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
 
 		float yPos = getHeight() - mWebInterface->getScaleHeight() - mInterfaceBottomPad;
-		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if(yPos + mWebInterface->getScaleHeight() > getHeight()) yPos = getHeight() - mWebInterface->getScaleHeight();
-		if(mInterfaceBelowMedia) yPos = getHeight();
+		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if (yPos + mWebInterface->getScaleHeight() > getHeight()) yPos = getHeight() - mWebInterface->getScaleHeight();
+		if (mInterfaceBelowMedia) yPos = getHeight();
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
@@ -188,20 +188,24 @@ void WebPlayer::userInputReceived() {
 }
 
 void WebPlayer::showInterface() {
-	if(mWebInterface) {
+	if (mWebInterface) {
 		mWebInterface->animateOn();
 	}
 }
 
 void WebPlayer::hideInterface() {
-	if(mWebInterface) {
+	if (mWebInterface) {
 		mWebInterface->startIdling();
 	}
 }
 
-void WebPlayer::setShowInterfaceAtStart(const bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
+void WebPlayer::setShowInterfaceAtStart(const bool showInterfaceAtStart) {
+	mShowInterfaceAtStart = showInterfaceAtStart;
+}
 
-void WebPlayer::setStartInteractable(const bool startInteractable) { mStartInteractable = startInteractable; }
+void WebPlayer::setStartInteractable(const bool startInteractable) {
+	mStartInteractable = startInteractable;
+}
 
 void WebPlayer::setLetterbox(const bool doLetterbox) {
 	mLetterbox = doLetterbox;
@@ -210,7 +214,7 @@ void WebPlayer::setLetterbox(const bool doLetterbox) {
 
 void WebPlayer::setNativeTouches(const bool isNative) {
 	mNativeTouches = isNative;
-	if(mWeb){
+	if (mWeb) {
 		mWeb->setNativeTouchInput(mNativeTouches);
 	}
 }
@@ -221,11 +225,13 @@ void WebPlayer::sendClick(const ci::vec3& globalClickPos) {
 	}
 }
 
-ds::ui::Web* WebPlayer::getWeb() { return mWeb; }
+ds::ui::Web* WebPlayer::getWeb() {
+	return mWeb;
+}
 
 
-ds::ui::WebInterface* WebPlayer::getWebInterface(){
+ds::ui::WebInterface* WebPlayer::getWebInterface() {
 	return mWebInterface;
 }
-}  // namespace ui
-}  // namespace ds
+
+} // namespace ds::ui

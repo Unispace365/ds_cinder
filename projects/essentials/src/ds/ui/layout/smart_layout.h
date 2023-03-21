@@ -3,12 +3,12 @@
 #define DS_UI_LAYOUT_SMART_LAYOUT_SPRITE
 
 
+#include <ds/app/event_client.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 /**
  * \class SmartLayout
@@ -16,7 +16,6 @@ namespace ui {
  */
 class SmartLayout : public ds::ui::LayoutSprite {
   public:
-
 	SmartLayout(ds::ui::SpriteEngine& engine);
 
 	/// Automatically loads the xmlLayout file (at %APP%/data/layouts/xmlLayoutFile) and runs the layout upon creation
@@ -73,10 +72,12 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void setSpriteFont(const std::string& spriteName, const std::string& textCfgName);
 
 	/// Set the image file for an Image sprite with name of spriteName. Image path is automatically expanded
-	void setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache = false, bool skipMetaData = false); 
+	void setSpriteImage(const std::string& spriteName, const std::string& imagePath, bool cache = false,
+						bool skipMetaData = false);
 	void setSpriteImage(const std::string& spriteName, const std::string& imagePath, int flags);
 	/// Set the image resource for an Image sprite with name of spriteName.
-	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache = false, bool skipMetaData = false);
+	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache = false,
+						bool skipMetaData = false);
 	void setSpriteImage(const std::string& spriteName, ds::Resource imageResource, int flags);
 
 	/// Set the tap function on a sprite named spriteName
@@ -84,12 +85,12 @@ class SmartLayout : public ds::ui::LayoutSprite {
 						const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback);
 
 	/// Set the click function on a sprite named spriteName, only for ImageButton, SpriteButton, and LayoutButton
-	void setSpriteClickFn(const std::string&		 spriteName,
-						const std::function<void()>& clickCallback);
+	void setSpriteClickFn(const std::string& spriteName, const std::function<void()>& clickCallback);
 
 	/// Set the content model for this SmartLayout.
 	///  - this will apply the content to each named sprite in the map, if they had a "model" property applied
-	///  - model="resource:this->image_resource" for instance will map the "image_resource" property of the set content model to the sprite's resource property
+	///  - model="resource:this->image_resource" for instance will map the "image_resource" property of the set content
+	///  model to the sprite's resource property
 	///  - You can use any sprite property in the first field
 	///  - The content model set here can be retrieved with getContentModel()
 	///  - After all sprites have been set, the callback for setContentUpdatedCallback() is called
@@ -111,7 +112,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	ds::EventClient			   mEventClient;
 	sMap					   mSpriteMap;
 	ds::model::ContentModelRef mContentModel;
-	std::function<void()>		mContentUpdatedCallback;
+	std::function<void()>	   mContentUpdatedCallback;
 
   private:
 	/// Apply a single model to a given sprite child
@@ -121,7 +122,6 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	void applyEachModelToSprite(ds::ui::Sprite* child, const std::string& eachModel);
 };
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui
 
 #endif

@@ -5,20 +5,18 @@
 
 #include <string>
 
-namespace ds {
-	namespace network {
+namespace ds { namespace network {
 	class networkInfo {
 
-	public:
+	  public:
 		networkInfo();
 
-		void				showInfo();
-		std::string			getAddress() const;
-	private:
-		std::string			mAddress;
-	};
-}
+		void		showInfo();
+		std::string getAddress() const;
 
-} // !namespace ds
+	  private:
+		std::string mAddress;
+	};
+}} // namespace ds::network
 
 #endif // !_DS_NETWORK_NETWORK_INFO_H_

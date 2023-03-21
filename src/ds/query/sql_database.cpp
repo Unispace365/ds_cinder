@@ -1,14 +1,14 @@
 #include "stdafx.h"
 
-#include "ds/query/sql_database.h"
 #include "ds/debug/logger.h"
+#include "ds/query/sql_database.h"
 #include "ds/util/file_meta_data.h"
 
-#include <iostream>
-#include <Poco/Thread.h>
 #include <Poco/Path.h>
+#include <Poco/Thread.h>
+#include <iostream>
 
-//using namespace std;
+// using namespace std;
 
 
 /*
@@ -45,12 +45,12 @@
 **     WHERE documents MATCH <query>
 **     ORDER BY rank(matchinfo(documents), 1.0, 0.5) DESC
 */
-static void rankfunc(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal){
-	int *aMatchinfo;                /* Return value of matchinfo() */
-	int nCol;                       /* Number of columns in the table */
-	int nPhrase;                    /* Number of phrases in the query */
-	int iPhrase;                    /* Current phrase */
-	double score = 0.0;             /* Value to return */
+static void rankfunc(sqlite3_context* pCtx, int nVal, sqlite3_value** apVal) {
+	int*   aMatchinfo;	/* Return value of matchinfo() */
+	int	   nCol;		/* Number of columns in the table */
+	int	   nPhrase;		/* Number of phrases in the query */
+	int	   iPhrase;		/* Current phrase */
+	double score = 0.0; /* Value to return */
 
 	assert(sizeof(int) == 4);
 
@@ -60,18 +60,18 @@ static void rankfunc(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal){
 	** nPhrase to contain the number of reportable phrases in the users full-text
 	** query, and nCol to the number of columns in the table.
 	*/
-	if(nVal<1) goto wrong_number_args;
-	aMatchinfo = (int *)sqlite3_value_blob(apVal[0]);
-	nPhrase = aMatchinfo[0];
-	nCol = aMatchinfo[1];
-	if(nVal != (1 + nCol)){
+	if (nVal < 1) goto wrong_number_args;
+	aMatchinfo = (int*)sqlite3_value_blob(apVal[0]);
+	nPhrase	   = aMatchinfo[0];
+	nCol	   = aMatchinfo[1];
+	if (nVal != (1 + nCol)) {
 		std::cout << "wrong number of arguments" << std::endl;
 		goto wrong_number_args;
 	}
 
 	/* Iterate through each phrase in the users query. */
-	for(iPhrase = 0; iPhrase<nPhrase; iPhrase++){
-		int iCol;                     /* Current column */
+	for (iPhrase = 0; iPhrase < nPhrase; iPhrase++) {
+		int iCol; /* Current column */
 
 		/* Now iterate through each column in the users query. For each column,
 		** increment the relevancy score by:
@@ -82,12 +82,12 @@ static void rankfunc(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal){
 		** the hit count and global hit counts for each column are found in
 		** aPhraseinfo[iCol*3] and aPhraseinfo[iCol*3+1], respectively.
 		*/
-		int *aPhraseinfo = &aMatchinfo[2 + iPhrase*nCol * 3];
-		for(iCol = 0; iCol<nCol; iCol++){
-			int nHitCount = aPhraseinfo[3 * iCol];
-			int nGlobalHitCount = aPhraseinfo[3 * iCol + 1];
-			double weight = sqlite3_value_double(apVal[iCol + 1]);
-			if(nHitCount>0){
+		int* aPhraseinfo = &aMatchinfo[2 + iPhrase * nCol * 3];
+		for (iCol = 0; iCol < nCol; iCol++) {
+			int	   nHitCount	   = aPhraseinfo[3 * iCol];
+			int	   nGlobalHitCount = aPhraseinfo[3 * iCol + 1];
+			double weight		   = sqlite3_value_double(apVal[iCol + 1]);
+			if (nHitCount > 0) {
 				score += ((double)nHitCount / (double)nGlobalHitCount) * weight;
 			}
 		}
@@ -101,51 +101,46 @@ wrong_number_args:
 	sqlite3_result_error(pCtx, "wrong number of arguments to function rank()", -1);
 }
 
-namespace ds {
+namespace ds { namespace query {
 
-namespace query {
+	/* SQL-DATABASE
+	 ******************************************************************/
+	SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int* errorCode)
+	  : db(NULL)
+	  , db_file(ds::getNormalizedPath(sDB)) {
+		const int result = sqlite3_open_v2(db_file.c_str(), &db, flags, 0);
+		if (errorCode) *errorCode = result;
+		if (result == SQLITE_OK) {
+			sqlite3_busy_timeout(db, 1500);
 
-/* SQL-DATABASE
- ******************************************************************/
-SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int *errorCode)
-	: db(NULL)
-	, db_file(ds::getNormalizedPath(sDB))
-{
-	const int		result = sqlite3_open_v2(db_file.c_str(), &db, flags, 0);
-	if (errorCode) *errorCode = result;
-	if (result == SQLITE_OK) {
-		sqlite3_busy_timeout(db, 1500);
-		
-		sqlite3_create_function(db, "rank", -1, SQLITE_ANY, NULL, &rankfunc, NULL, NULL);
-		
-	} else {
-		// Actually a fatal error but ...
-		// GN, much much later: I dunno how this is a fatal error. Maybe your app can run just fine without this particular database. Just sayin'
-		DS_LOG_ERROR("  SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")." << std::endl);
-		
-		// Why were we living with 10 seconds of sleep for so long?
-		// Leaving this here for future people to ponder their existence
-		//Poco::Thread::sleep(1000*10);
+			sqlite3_create_function(db, "rank", -1, SQLITE_ANY, NULL, &rankfunc, NULL, NULL);
+
+		} else {
+			// Actually a fatal error but ...
+			// GN, much much later: I dunno how this is a fatal error. Maybe your app can run just fine without this
+			// particular database. Just sayin'
+			DS_LOG_ERROR("  SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")."
+																		 << std::endl);
+
+			// Why were we living with 10 seconds of sleep for so long?
+			// Leaving this here for future people to ponder their existence
+			// Poco::Thread::sleep(1000*10);
+		}
 	}
-}
 
-SqlDatabase::~SqlDatabase()
-{
-	sqlite3_close(db);
-}
-
-sqlite3_stmt* SqlDatabase::rawSelect(const std::string& rawSqlSelect)
-{
-	sqlite3_stmt*		statement;
-	const int			err = sqlite3_prepare_v2(db, rawSqlSelect.c_str(), -1, &statement, 0);
-	if (err != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << rawSqlSelect << std::endl);
-		return NULL;
+	SqlDatabase::~SqlDatabase() {
+		sqlite3_close(db);
 	}
-	return statement;
-}
 
-} // namespace query
+	sqlite3_stmt* SqlDatabase::rawSelect(const std::string& rawSqlSelect) {
+		sqlite3_stmt* statement;
+		const int	  err = sqlite3_prepare_v2(db, rawSqlSelect.c_str(), -1, &statement, 0);
+		if (err != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			DS_LOG_ERROR("SqlDatabase::rawSelect SQL error = " << err << " on select=" << rawSqlSelect << std::endl);
+			return NULL;
+		}
+		return statement;
+	}
 
-} // namespace ds
+}} // namespace ds::query

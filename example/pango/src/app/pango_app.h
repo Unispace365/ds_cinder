@@ -13,31 +13,28 @@ namespace pango {
 class AllData;
 
 class PangoApp : public ds::App {
-public:
+  public:
 	PangoApp();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
+	virtual void fileDrop(ci::app::FileDropEvent event);
 
-private:
-
-	void				onAppEvent(const ds::Event&);
+  private:
+	void onAppEvent(const ds::Event&);
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
 	// App events can be handled here
-	ds::EventClient		mEventClient;
-
+	ds::EventClient mEventClient;
 };
 
-} // !namespace pango
+} // namespace pango
 
 #endif // !_PANGO_APP_H_
-

@@ -9,16 +9,12 @@ namespace panoramic {
  * \class panoramic::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::Resource>		mAllVideos;
-
+	std::vector<ds::Resource> mAllVideos;
 };
 
-} // !namespace panoramic
+} // namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_MODEL_ALLDATA_H_
-
-

@@ -7,17 +7,16 @@
 namespace ds {
 
 class flexbox_app : public ds::App {
-public:
+  public:
 	flexbox_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace ds
+} // namespace ds

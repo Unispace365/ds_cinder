@@ -3,28 +3,18 @@
 #define DS_UI_DRAG_DESTINATION_INFO_H
 #include "cinder/Vector.h"
 
-namespace ds {
-namespace ui {
+namespace ds { namespace ui {
 
-class Sprite;
+	class Sprite;
 
-struct DragDestinationInfo
-{
-  enum Phase
-  {
-    Entered,
-    Updated,
-    Exited,
-    Released,
-    Null
-  };
+	struct DragDestinationInfo {
+		enum Phase { Entered, Updated, Exited, Released, Null };
 
-  ci::vec3 mCurrentPoint;
-  Phase     mPhase;
-  Sprite   *mSprite;
-};
+		ci::vec3 mCurrentPoint;
+		Phase	 mPhase;
+		Sprite*	 mSprite;
+	};
 
-} // namespace ui
-} // namespace ds
+}} // namespace ds::ui
 
-#endif//DS_UI_DRAG_DESTINATION_INFO_H
+#endif // DS_UI_DRAG_DESTINATION_INFO_H

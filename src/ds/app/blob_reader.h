@@ -6,7 +6,7 @@ namespace ds {
 class DataBuffer;
 
 namespace ui {
-class SpriteEngine;
+	class SpriteEngine;
 } // namespace ui
 
 /**
@@ -15,14 +15,14 @@ class SpriteEngine;
  */
 class BlobReader {
   public:
-    BlobReader(DataBuffer&, ui::SpriteEngine&);
+	BlobReader(DataBuffer&, ui::SpriteEngine&);
 
-    DataBuffer&         mDataBuffer;
-    ui::SpriteEngine&   mSpriteEngine;
+	DataBuffer&		  mDataBuffer;
+	ui::SpriteEngine& mSpriteEngine;
 
   private:
-    BlobReader();
-    BlobReader(const BlobReader&);
+	BlobReader();
+	BlobReader(const BlobReader&);
 };
 
 } // namespace ds

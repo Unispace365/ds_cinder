@@ -7,17 +7,16 @@
 namespace downstream {
 
 class scroll_example_app : public ds::App {
-public:
+  public:
 	scroll_example_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace downstream
+} // namespace downstream

@@ -8,8 +8,8 @@
 #include <ds/ui/sprite/sprite_engine.h>
 // NOTE: Placing this include at the top gets a conflict
 // with cinder. Need to look into that.
-#include "query/story_query.h"
 #include "model/all_data.h"
+#include "query/story_query.h"
 
 namespace pango {
 
@@ -18,25 +18,22 @@ namespace pango {
  * \brief Handle app events that deal with querying for data.
  */
 class QueryHandler {
-public:
+  public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
-	void								runInitialQueries(const bool synchronous);
+	void runInitialQueries(const bool synchronous);
 
-private:
+  private:
+	void onAppEvent(const ds::Event&);
+	void onStoryQuery(StoryQuery&);
 
-	void								onAppEvent(const ds::Event&);
-	void								onStoryQuery(StoryQuery&);
+	ds::EventClient mEventClient;
 
-	ds::EventClient						mEventClient;
+	AllData& mAllData;
 
-	AllData&							mAllData;
-
-	ds::SerialRunnable<StoryQuery>		mStoryQuery;
-
+	ds::SerialRunnable<StoryQuery> mStoryQuery;
 };
 
-} // !namespace pango
+} // namespace pango
 
 #endif // !_PANGO_APP_QUERY_QUERYHANDLER_H_
-

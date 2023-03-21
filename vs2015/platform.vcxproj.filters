@@ -79,9 +79,6 @@
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{ec8f7e90-a386-4b14-9c1b-dddd49bd09fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\cfg\editor_components">
-      <UniqueIdentifier>{f24cfaab-b5e0-484d-9eb4-cff6b4568774}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\soft_keyboard">
       <UniqueIdentifier>{1796269e-de1c-42c4-b9a3-b679fed1fc83}</UniqueIdentifier>
     </Filter>
@@ -93,9 +90,6 @@
     </Filter>
     <Filter Include="src\ds\util\sundown">
       <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\metrics">
-      <UniqueIdentifier>{9dcb5691-ef16-4d0b-9a62-1d447eb771ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\content">
       <UniqueIdentifier>{a17a3242-099b-4dc1-90dd-459d20a0616f}</UniqueIdentifier>
@@ -120,6 +114,9 @@
     </Filter>
     <Filter Include="src\ds\util\ada\tools">
       <UniqueIdentifier>{e0f16fa4-bbe0-4d31-a799-778e27fa8a95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\cfg\impl">
+      <UniqueIdentifier>{4b832ab0-deb4-4f79-b3ce-cd2feeb1c092}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -426,9 +423,6 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_mode.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h">
-      <Filter>src\ds\app\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -519,12 +513,6 @@
     <ClInclude Include="..\src\ds\cfg\settings_editor.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h">
       <Filter>src\ds\ui\soft_keyboard</Filter>
     </ClInclude>
@@ -575,9 +563,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\metrics\metrics_service.h">
-      <Filter>src\ds\metrics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\time\time_callback.h">
       <Filter>src\ds\time</Filter>
@@ -698,6 +683,18 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h">
       <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\base_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\null_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\windows_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -950,9 +947,6 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp">
-      <Filter>src\ds\app\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
@@ -1025,12 +1019,6 @@
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp">
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp">
       <Filter>src\ds\ui\soft_keyboard</Filter>
     </ClCompile>
@@ -1078,9 +1066,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp">
       <Filter>src\ds\ui\touch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp">
-      <Filter>src\ds\metrics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\time\time_callback.cpp">
       <Filter>src\ds\time</Filter>

@@ -20,11 +20,52 @@ Creating a Sprite and loading XML
 -------------------------------
 The tag value is the sprite type. For instance, <sprite/> creates a blank ds::ui::Sprite. Sprites are created as parents/children based on the XML hierarchy. Positions work relative to the parent (like normal).
 
-Loading an interface XML to your class:
+The ideal pattern for loading XML layouts is through the SmartLayout class that's included in the Essentials project.
+Prefer derriving from either SmartLayout or ds::ui::Sprite unless you have a good reason not to.
+
+Also check out the [Content Model](./Content%20Model.md) guide for binding content model data directly to elements of your
+smart layout. It's a clearer more data-driven style, and makes future changes easier since you can change the content
+model without needing to recompile and only update your layouts.
+```cpp
+// Option 1: Derive from ds::ui::SmartLayout
+// This class "becomes" the root sprite from your layout file, and has direct access to the children
+class MyCoolThing : public ds::ui::SmartLayout {
+MyCoolThing(ds::ui::SpriteEngine& eng) : ds::ui::SmartLayout(eng, "my_cool_layout.xml"){}
+};
+
+// Option 2: Adding a ds::ui::SmartLayout as a child (from inside a sprite or in your main App class)
+ds::ui::SmartLayout* myCoolChild = new ds::ui::SmartLayout(mEngine, "another_cool_layout.xml");
+// this is a shorthand equivalent of:
+ds::ui::SmartLayout* myUncoolChild = new ds::ui::SmartLayout(mEngine, "another_cool_layout.xml", "%APP%/data/layouts/");
+this->addChildPtr(myCoolChild);
+this->addChildPtr(myUncoolChild);
+
+// In either case, children loaded from that layout file can be accessed easially and templated to attempt a cast. These
+// can both return nullptr so don't forget to check them!
+ds::ui::Sprite* bg = myCoolChild->getSprite("background");
+ds::ui::Text* headline = myUncoolChild->getSprite<ds::ui::Text*>("headline")
+
+// And finally there are convience functions for common actions that fail silently and are safer to use
+// These also trigger automatic running of layouts before the next draw
+myCoolChild->setSpriteColor("background", aColor);
+myUncoolChild->setSpriteText("headline", "Hey, that's nice!");
+myUncoolChild->setSpriteImage("logo", logoResOrPath);
+```
+
+Alternatively (especially looking at older code) XML loading can be done manually. This adds the imported xml elements as
+children of `this` and provides a map of sprite names to the actual sprites. Note that you need to dynamic_cast and
+check the sprites if you need specific sprite type functions.
 
 ```cpp
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+
+	// look up sprite by name. Note that it can be null!
+    ds::ui::Sprite* backgroundSprite = spriteMap["background"]; 
+    if(backgroundSprite != nullptr) backgroundSprite->setOpacity(0.5f);
+
+    ds::ui::Text* headlineSprite = dynamic_cast<ds::ui::Text*>(spriteMap["headline"]);
+    if(headlineSprite) headlineSprite->setText("This is a headline");
 ```
 
 Adds the hierarchy in the interface as a child of "this".

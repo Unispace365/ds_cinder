@@ -10,21 +10,15 @@ namespace ds {
  * \class PerspCameraParams
  */
 class PerspCameraParams {
-public:
+  public:
 	PerspCameraParams();
 
-	bool				operator==(const PerspCameraParams&) const;
+	bool operator==(const PerspCameraParams&) const;
 
-	ci::vec3			mPosition,
-						mTarget;
-	float				mFov,
-						mNearPlane,
-						mFarPlane,
-						mLensShiftH,
-						mLensShiftV;
-
+	ci::vec3 mPosition, mTarget;
+	float	 mFov, mNearPlane, mFarPlane, mLensShiftH, mLensShiftV;
 };
 
-}
+} // namespace ds
 
 #endif

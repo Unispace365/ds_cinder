@@ -6,35 +6,35 @@
 
 namespace panoramic {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
+  public:
 	IdleStartedEvent(){};
 };
 
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
+  public:
 	IdleEndedEvent(){};
-
 };
 
-class RequestVideoList : public ds::RegisteredEvent<RequestVideoList>{
-public:
-	RequestVideoList(const ci::vec3& location) : mLocation(location){}
+class RequestVideoList : public ds::RegisteredEvent<RequestVideoList> {
+  public:
+	RequestVideoList(const ci::vec3& location)
+	  : mLocation(location) {}
 	const ci::vec3 mLocation;
 };
 
-class RequestCloseAllEvent : public ds::RegisteredEvent<RequestCloseAllEvent>{
-public:
-	RequestCloseAllEvent(){}
+class RequestCloseAllEvent : public ds::RegisteredEvent<RequestCloseAllEvent> {
+  public:
+	RequestCloseAllEvent() {}
 };
 
-class RequestPanoramicVideo : public ds::RegisteredEvent<RequestPanoramicVideo>{
-public:
-	RequestPanoramicVideo(const ds::Resource reccy) : mResource(reccy){}
+class RequestPanoramicVideo : public ds::RegisteredEvent<RequestPanoramicVideo> {
+  public:
+	RequestPanoramicVideo(const ds::Resource reccy)
+	  : mResource(reccy) {}
 	ds::Resource mResource;
 };
 
-} // !namespace panoramic
+} // namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_APPEVENTS_H_
-

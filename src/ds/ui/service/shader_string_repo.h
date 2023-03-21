@@ -1,11 +1,10 @@
 #pragma once
-#include <stdafx.h>
 #include <ds/util/ada/tools/list.h>
+#include <stdafx.h>
 
 namespace ds::ui {
-class ShaderStringRepository
-{
-public:
+class ShaderStringRepository {
+  public:
 	ShaderStringRepository();
 
 	/// <summary>
@@ -22,20 +21,19 @@ public:
 	static std::shared_ptr<ShaderStringRepository> getDefaultRepository();
 
 	void addIncludeDirectory(std::string includeDirectory);
-	//void addIncludeDirectories(std::vector<std::string> includeDirectories);
-	//void clearIncludeDirectories();
+	// void addIncludeDirectories(std::vector<std::string> includeDirectories);
+	// void clearIncludeDirectories();
 
 
 	std::string getShader(std::string file);
-	//std::string fillIncludesInString(std::strng shader);
+	// std::string fillIncludesInString(std::strng shader);
 	void clearRepository();
 
-protected:
-	void cacheFromFile(std::string file);
+  protected:
+	void										   cacheFromFile(std::string file);
 	static std::shared_ptr<ShaderStringRepository> mDefaultRepo;
-	std::unordered_map<std::string, std::string> mRepository;
-	std::vector<std::string> mIncludeDirectories;
-	//ds::Engine& mEngine;
+	std::unordered_map<std::string, std::string>   mRepository;
+	std::vector<std::string>					   mIncludeDirectories;
+	// ds::Engine& mEngine;
 };
-}
-
+} // namespace ds::ui

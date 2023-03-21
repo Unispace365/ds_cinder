@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5ecb5a9e8c8e87982ea8f7de2c3a560c2480de1$
+// $hash=33a406dea5c7b19a173f32c3d77a14574b120df7$
 //
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
@@ -22,8 +22,9 @@ NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_cert_status))
+  if (CEF_MEMBER_MISSING(_struct, get_cert_status)) {
     return CERT_STATUS_NONE;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -39,8 +40,9 @@ CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_x509certificate))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_x509certificate)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -67,7 +69,7 @@ CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
     CefWrapperType type,
     CefSSLInfo* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

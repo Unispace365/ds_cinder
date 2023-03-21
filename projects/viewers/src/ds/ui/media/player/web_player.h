@@ -2,8 +2,7 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 class Web;
 class WebInterface;
 class MediaInterface;
@@ -18,9 +17,9 @@ class WebPlayer : public ds::ui::Sprite {
 	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
 	virtual void setResource(const ds::Resource& resource) override;
-	void setMedia(const std::string mediaPath);
+	void		 setMedia(const std::string mediaPath);
 
-	virtual void userInputReceived();
+	virtual void userInputReceived() override;
 	void		 layout();
 
 	void showInterface();
@@ -29,7 +28,7 @@ class WebPlayer : public ds::ui::Sprite {
 	void sendClick(const ci::vec3& globalClickPos);
 
 	ds::ui::Web*  getWeb();
-	WebInterface* getWebInterface();  // may be nullptr if embedInterface is false
+	WebInterface* getWebInterface(); // may be nullptr if embedInterface is false
 
 	/// Sets all applicable settings from a MediaViewerSettings
 	void setMediaViewerSettings(const MediaViewerSettings& settings);
@@ -44,27 +43,25 @@ class WebPlayer : public ds::ui::Sprite {
 	void setNativeTouches(const bool isNative);
 
   protected:
-	virtual void onSizeChanged();
+	virtual void onSizeChanged() override;
 
-	ds::ui::Web*  mWeb;
-	WebInterface* mWebInterface;
-	ci::vec2	  mWebSize;
-	float		  mKeyboardKeyScale;
-	std::function<void(bool)>	mKeyboardStatusCallback = nullptr;
+	ds::ui::Web*			  mWeb;
+	WebInterface*			  mWebInterface;
+	ci::vec2				  mWebSize;
+	float					  mKeyboardKeyScale;
+	std::function<void(bool)> mKeyboardStatusCallback = nullptr;
 
-	bool mEmbedInterface;
-	bool mShowInterfaceAtStart;
-	bool mLetterbox;
-	bool mKeyboardAllow;
-	bool mKeyboardAbove;
-	bool mAllowTouchToggle;
-	bool mStartInteractable;
-	bool mInterfaceBelowMedia;
+	bool  mEmbedInterface;
+	bool  mShowInterfaceAtStart;
+	bool  mLetterbox;
+	bool  mKeyboardAllow;
+	bool  mKeyboardAbove;
+	bool  mAllowTouchToggle;
+	bool  mStartInteractable;
+	bool  mInterfaceBelowMedia;
 	float mInterfaceBottomPad = 50.0f;
-	bool mNativeTouches;
-	bool mAutoStart;
+	bool  mNativeTouches;
+	bool  mAutoStart;
 };
 
-}  // namespace ui
-}  // namespace ds
-
+} // namespace ds::ui

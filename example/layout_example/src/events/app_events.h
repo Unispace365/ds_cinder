@@ -5,18 +5,16 @@
 
 namespace example {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
+  public:
 	IdleStartedEvent(){};
 };
 
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
+  public:
 	IdleEndedEvent(){};
-
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_LAYOUT_EXAMPLE_APP_APPEVENTS_H_
-

@@ -3,85 +3,81 @@
 #define DS_EXAMPLE_GLOBE_UI_GLOBE_VIEW
 
 
-#include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/mesh.h>
+#include <ds/ui/sprite/sprite.h>
 
 #include <ds/touch/delayed_momentum.h>
 
-namespace ds {
+namespace ds { namespace ui {
+	class GlobePinManager;
+	class GlobePin;
 
-	namespace ui {
-		class GlobePinManager;
-		class GlobePin;
+	/**
+	 * \class GlobeView - where the magic happens (TM).
+	 */
+	class GlobeView : public ds::ui::Sprite {
+	  public:
+		GlobeView(SpriteEngine& e, float mMinTilt = -22.0f, float mMaxTilt = 65.0f, float radius = 400.0f,
+				  int meshResolution = 120);
+		ci::vec3 getGlobeRotation() { return mGlobeRotation; }
 
-		/**
-		* \class GlobeView - where the magic happens (TM).
-		*/
-		class GlobeView : public ds::ui::Sprite {
-		public:
+		void addPin(ds::ui::GlobePin* pin);
 
-			GlobeView(SpriteEngine& e, float mMinTilt = -22.0f, float mMaxTilt = 65.0f, float radius = 400.0f, int meshResolution = 120);
-			ci::vec3 getGlobeRotation() { return mGlobeRotation; }
+		void setFocusOffset(float latitude, float longitude);
+		void rotateTo(float latitude, float longitude);
 
-			void addPin(ds::ui::GlobePin* pin);
+		void clearFilters();
+		void addFilter(int nfilt);
+		void removeFilter(int nfilt);
 
-			void setFocusOffset(float latitude, float longitude);
-			void rotateTo(float latitude, float longitude);
+	  private:
+		const int	mMeshResolution;
+		const float mGlobeRadius;
 
-			void clearFilters();
-			void addFilter(int nfilt);
-			void removeFilter(int nfilt);
+		SpriteEngine&	mEngine;
+		ds::ui::Sprite& mTouchGrabber;
 
-		private:
+		ci::gl::Texture2dRef mTexDiffuse;
+		ci::gl::Texture2dRef mTexNight;
 
-			const int mMeshResolution;
-			const float mGlobeRadius;
+		ci::gl::Texture2dRef mTexNormal;
+		ci::gl::Texture2dRef mTexMask;
 
-			SpriteEngine&		mEngine;
-			ds::ui::Sprite&		mTouchGrabber;
+		// If we just straight up focus on a location it looks unnatural, use this to offset the focus point offcenter
+		// so it reads better
+		ci::vec2 mFocusOffset;
 
-			ci::gl::Texture2dRef mTexDiffuse;
-			ci::gl::Texture2dRef mTexNight;
+		virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
+		virtual void drawLocalClient() override;
 
-			ci::gl::Texture2dRef mTexNormal;
-			ci::gl::Texture2dRef mTexMask;
+		ci::gl::BatchRef mEarth;
+		ci::gl::BatchRef mGlow;
+		ci::gl::BatchRef mOccluder;
 
-			//If we just straight up focus on a location it looks unnatural, use this to offset the focus point offcenter so it reads better
-			ci::vec2			mFocusOffset;
+		ds::ui::GlobePinManager& mPinManager;
 
-			virtual void		onUpdateServer(const ds::UpdateParams& updateParams) override;
-			virtual void		drawLocalClient() override;
-
-			ci::gl::BatchRef	mEarth;
-			ci::gl::BatchRef	mGlow;
-			ci::gl::BatchRef	mOccluder;
-
-			ds::ui::GlobePinManager& mPinManager;
-
-			DelayedMomentum		mXMomentum;
-			DelayedMomentum		mYMomentum;
+		DelayedMomentum mXMomentum;
+		DelayedMomentum mYMomentum;
 
 
-			ci::gl::GlslProgRef	mEarthShader;
-			ci::gl::GlslProgRef	mGlowShader;
+		ci::gl::GlslProgRef mEarthShader;
+		ci::gl::GlslProgRef mGlowShader;
 
-			float				mMinTilt;
-			float				mMaxTilt;
+		float mMinTilt;
+		float mMaxTilt;
 
-			double				mLastTouched;
-			double				mTouchWaitOrbit;
+		double mLastTouched;
+		double mTouchWaitOrbit;
 
-			ci::vec3			mGlobeRotation;
+		ci::vec3 mGlobeRotation;
 
-			ci::vec3			mTweenStartRotation;
-			ci::vec3			mTweenEndRotation;
-			bool				mIsTweeningRotation;
+		ci::vec3 mTweenStartRotation;
+		ci::vec3 mTweenEndRotation;
+		bool	 mIsTweeningRotation;
+	};
 
-		};
 
-
-	}
-}
+}} // namespace ds::ui
 
 
 #endif

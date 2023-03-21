@@ -9,14 +9,12 @@ namespace cef {
  * \class cef::AllData
  */
 class AllData {
-public:
-	
+  public:
 	AllData(){};
 
-	std::vector<ds::model::StoryRef>	mStories;
-
+	std::vector<ds::model::StoryRef> mStories;
 };
 
-} // !namespace cef
+} // namespace cef
 
 #endif // !_CEFDEVELOP_APP_MODEL_ALLDATA_H_

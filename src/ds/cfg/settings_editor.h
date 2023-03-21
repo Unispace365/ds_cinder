@@ -2,48 +2,101 @@
 #ifndef DS_CFG_SETTINGS_EDITOR
 #define DS_CFG_SETTINGS_EDITOR
 
+#include <Poco/DateTime.h>
+#include <Poco/Environment.h>
+
+#include <ds/app/event_client.h>
+#include <ds/cfg/settings.h>
+#include <ds/network/https_client.h>
+#include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/cfg/settings.h>
-#include <ds/ui/layout/layout_sprite.h>
 
-namespace ds{
-namespace cfg{
-class EditorItem;
-class EditView;
+namespace ds::cfg {
 
 /// View for displaying and editing settings
-/// Note that the ui is specified in c++ and not an external layout file
-/// This is designed to work for any app without any sidecar files
-/// So it's best not to use this as an example of best practices (unless you're also making a portable ui)
 class SettingsEditor : public ds::ui::Sprite {
-public:
+  public:
 	SettingsEditor(ds::ui::SpriteEngine& e);
-	
-	void						showSettings(const std::string settingsName);
-	void						hideSettings();
 
-	void						editProperty(EditorItem* ei);
-private:
-	EditorItem*					getNextItem(EditorItem* ei);
-	EditorItem*					getPrevItem(EditorItem* ei);
+	void toggleSetting(const std::string settingsName);
+	void showSettings(const std::string settingsName);
+	void hideSettings();
 
-	ds::ui::Text*				createSaveButton(ds::ui::LayoutSprite* theParent);
-	void						setSaveTouch(ds::ui::Text* theButton, const std::string& saveName);
+	virtual void drawPostLocalClient() override;
 
-	Settings*					mCurrentSettings;
+  private:
+	friend class ds::Engine;
+	void drawMenu();
 
-	ds::ui::LayoutSprite*		mPrimaryLayout;
-	ds::ui::LayoutSprite*		mSettingsLayout;
-	std::vector<EditorItem*>	mSettingItems;
-	ds::ui::Text*				mTitle;
-	ds::ui::Text*				mSaveApp;
-	ds::ui::Text*				mSaveLocal;
-	ds::ui::Text*				mSaveConfig;
-	ds::ui::Text*				mSaveLocalConfig;
-	EditView*					mEditView;
+	void drawSettings();
+	void drawContent();
+	void drawAppStatus();
+	void drawAppStatusInfo();
+	void drawAppHostStatus();
+	void drawSyncStatus();
+	void drawSyncStatusInfo();
+	void drawShortcuts();
+	void drawLog();
+
+	void drawSettingFile(ds::cfg::Settings& eng, bool& isOpen);
+	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
+						   const std::string& search, bool multiple = false);
+
+	void drawSaveButtons(ds::cfg::Settings& toSave);
+	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
+
+	ds::EventClient						 mEventClient;
+	Settings*							 mCurrentSettings;
+	std::unordered_map<std::string, int> mSettingCounters;
+
+
+	std::unordered_map<std::string, std::string> mSearchMap;
+	std::unordered_map<std::string, std::string> mFilterMap;
+
+	bool mOpen				= false;
+	bool mAppStatusOpen		= false;
+	bool mSyncStatusOpen	= false;
+	bool mAppHostStatusOpen = false;
+	bool mEngineOpen		= false;
+	bool mAppSettingsOpen	= false;
+	bool mStylesOpen		= false;
+	bool mFontsOpen			= false;
+	bool mTuioOpen			= false;
+	bool mContentOpen		= false;
+	bool mShortcutsOpen		= false;
+	bool mImguiStyleOpen	= false;
+	bool mLogOpen			= false;
+
+	// App Status
+	int			mSpriteCount = 0;
+	std::string mTouchMode;
+	float		mPhysicalMemory = 0.f;
+	float		mVirtualMemory	= 0.f;
+	int			mBytesReceived	= 0;
+	int			mBytesSent		= 0;
+	float		mFps			= 0.f;
+
+	bool	  mSrcDestSaved = false;
+	ci::Rectf mOrigSrc, mOrigDest;
+
+	// AppHost
+	ds::net::HttpsRequest mHttpsRequest;
+	bool				  mAppHostRunning = false;
+
+	// Logs
+	bool		mLogAutoScroll = true;
+	std::string mLogBuffer;
+
+	// Sync
+	Poco::DateTime	  mLastSync;
+	Poco::Environment mEnv;
+	std::string		  mAppVersion;
+	std::string		  mProductName;
+	std::string		  mOsVersion;
+	std::string		  mGlVendor;
+	std::string		  mGlVersion;
 };
 
-} // namespace ui
-} // namespace ds
-#endif // 
+} // namespace ds::cfg
+#endif //

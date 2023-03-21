@@ -13,25 +13,25 @@ namespace example {
 class AllData;
 
 class KeyboardExample : public ds::App {
-public:
+  public:
 	KeyboardExample();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-private:
+	virtual void fileDrop(ci::app::FileDropEvent event);
+
+  private:
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
-	ds::ui::SoftKeyboard*	mSoftKeyboard;
-
+	ds::ui::SoftKeyboard* mSoftKeyboard;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_KEYBOARDEXAMPLE_APP_H_

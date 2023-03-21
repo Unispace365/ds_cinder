@@ -16,17 +16,16 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
   : ds::ui::IPdf(eng)
   , mPdfInterface(nullptr)
   , mEmbedInterface(embedInterface)
-  , mInterfaceBelowMedia(false)
   , mShowInterfaceAtStart(true)
-  , mLetterbox(true)
-{
+  , mInterfaceBelowMedia(false)
+  , mLetterbox(true) {
+
 	enable(false);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
@@ -60,13 +59,13 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	mLayoutFixedAspect = true;
 }
 
-void PDFPlayer::setTouchMode(TouchMode mode){
-	if(mode == TouchMode::NORMAL){
+void PDFPlayer::setTouchMode(TouchMode mode) {
+	if (mode == TouchMode::NORMAL) {
 		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 		// set some callbacks in case we are ever enabled
 		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
-			int count = getPageCount();
+			int count				 = getPageCount();
 			int zeroIndexNextWrapped = (getPageNum() % count);
 			setPageNum(zeroIndexNextWrapped + 1);
 		});
@@ -74,24 +73,24 @@ void PDFPlayer::setTouchMode(TouchMode mode){
 		setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
 			int diff = 0;
 
-			if(delta.x < -20.0f) {
+			if (delta.x < -20.0f) {
 				diff = 1;
-			} else if(delta.x > 20.0f) {
+			} else if (delta.x > 20.0f) {
 				diff = -1;
 			}
 
-			if(diff != 0) {
-				int count = getPageCount();
+			if (diff != 0) {
+				int count				 = getPageCount();
 				int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
 				setPageNum(zeroIndexNextWrapped + 1);
 			}
 		});
-	}else if (mode == TouchMode::POS_SCALE){
+	} else if (mode == TouchMode::POS_SCALE) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 
 		// set some callbacks in case we are ever enabled
 		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
-			int count = getPageCount();
+			int count				 = getPageCount();
 			int zeroIndexNextWrapped = (getPageNum() % count);
 			setPageNum(zeroIndexNextWrapped + 1);
 		});
@@ -101,45 +100,47 @@ void PDFPlayer::setTouchMode(TouchMode mode){
 }
 
 
-void PDFPlayer::setNormalTouch(){
+void PDFPlayer::setNormalTouch() {
 	setTouchMode(TouchMode::NORMAL);
 }
 
-void PDFPlayer::setPosScaleTouch(){
+void PDFPlayer::setPosScaleTouch() {
 	setTouchMode(TouchMode::POS_SCALE);
 }
 
-void PDFPlayer::setMedia(const std::string mediaPath) { setResource(ds::Resource(mediaPath)); }
+void PDFPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath));
+}
 
 void PDFPlayer::loadNextPage() {
 	mLoadingCount++;
 
 	// prevent an infinite loop if we're already loaded and there's only a few pages
-	if(mLoadingCount > mNumPages){
-		//std::cout << "Cancelling loads cause we've loaded everything" << std::endl;
+	if (mLoadingCount > mNumPages) {
+		// std::cout << "Cancelling loads cause we've loaded everything" << std::endl;
 		return;
 	}
 
-	
+
 	// only load a few pages ahead, cause we don't know how many pdfs could be onscreen at once
-	if(mLoadedPage > mCurrentPage + mRenderAheadPages) {
+	if (mLoadedPage > mCurrentPage + mRenderAheadPages) {
 		return;
 	}
-	
+
 	mLoadedPage++;
 
 	// don't loop around when loading
-	if(mLoadedPage > mPages.size()) {
+	if (mLoadedPage > mPages.size()) {
 		return;
 
 		// tried out looping around, but just skip it
-//		mLoadedPage = 1;
+		//		mLoadedPage = 1;
 	}
-	
+
 	auto findy = mPages.find(mLoadedPage);
-	if(findy != mPages.end()) {
+	if (findy != mPages.end()) {
 		auto thePdf = findy->second;
-		if(thePdf->getResourceFilename() != mResourceFilename) {
+		if (thePdf->getResourceFilename() != mResourceFilename) {
 			thePdf->setResourceFilename(mResourceFilename);
 			thePdf->setPageNum(findy->first);
 		}
@@ -153,7 +154,7 @@ void PDFPlayer::loadNextPage() {
 		fitInside(thePdf, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
 
 		/// if the pdf didn't change scale, it won't re-render, so just move ahead
-		if(thePdf->getScale().x == preW) {
+		if (thePdf->getScale().x == preW) {
 			loadNextPage();
 		}
 	}
@@ -161,75 +162,73 @@ void PDFPlayer::loadNextPage() {
 
 void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 
-	mSourceResource	= mediaResource;
+	mSourceResource	  = mediaResource;
 	mResourceFilename = mSourceResource.getAbsoluteFilePath();
 
 	ci::vec2 prevSize = ci::vec2(0.0f, 0.0f);
 
-	for (auto it : mPages){
+	for (auto it : mPages) {
 		it.second->release();
 	}
 
 	mPages.clear();
 
-	mCurrentPage = 1;
+	mCurrentPage  = 1;
 	mLoadingCount = 0;
-	
-	if(mPdfInterface) {
+
+	if (mPdfInterface) {
 		mPdfInterface->linkPDF(nullptr, ds::Resource());
 	}
 
-	bool firsty = true;
-	int thePage = 1;
-	float theW = 0.0f;
-	float theH = 0.0f;
-	while(true) {
-		if(!firsty && thePage > mNumPages + 1) break;
+	bool  firsty  = true;
+	int	  thePage = 1;
+	float theW	  = 0.0f;
+	float theH	  = 0.0f;
+	while (true) {
+		if (!firsty && thePage > mNumPages + 1) break;
 
 		auto newPdf = new ds::ui::Pdf(mEngine);
 
 		newPdf->setPageLoadedCallback([this, thePage] {
-			//std::cout << "Page loaded: " << thePage << std::endl;
-			if(mGoodStatusCallback) mGoodStatusCallback();
+			// std::cout << "Page loaded: " << thePage << std::endl;
+			if (mGoodStatusCallback) mGoodStatusCallback();
 			loadNextPage();
 
-			if(mPdfInterface) {
+			if (mPdfInterface) {
 				mPdfInterface->updateWidgets();
 			}
 		});
 
-		if(firsty) {
+		if (firsty) {
 			newPdf->setResourceFilename(mResourceFilename);
 			newPdf->setPageNum(thePage);
 			mLoadedPage = 1;
 
-			newPdf->setPageSizeChangedFn([this] {
-				layout();
-			});
+			newPdf->setPageSizeChangedFn([this] { layout(); });
 
 			newPdf->setLoadErrorCallback([this](const std::string& msg) {
-				if(mErrorMsgCallback) mErrorMsgCallback(msg);
+				if (mErrorMsgCallback) mErrorMsgCallback(msg);
 			});
 
 			mNumPages = newPdf->getPageCount();
 
-			theW = newPdf->getWidth();
-			theH = newPdf->getHeight();
+			theW   = newPdf->getWidth();
+			theH   = newPdf->getHeight();
 			firsty = false;
 		} else {
 			newPdf->hide();
 		}
 
-		if(mShowingLinks && mCanShowLinks) {
+		if (mShowingLinks && mCanShowLinks) {
 			newPdf->showLinks();
 		} else {
 			newPdf->hideLinks();
 		}
 
 		newPdf->setLinkClickedCallback([this](ds::pdf::PdfLinkInfo info) {
-			if(info.mPageDest > 0) {
+			if (info.mPageDest > 0) {
 				setPageNum(info.mPageDest);
-			} else if(mLinkClickedCallback) {
+			} else if (mLinkClickedCallback) {
 				mLinkClickedCallback(info);
 			}
 		});
@@ -262,22 +261,24 @@ void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 			mPdfInterface->hide();
 		}
 	}
-	
-	if(theW < 1 || theH < 1) {
+
+	if (theW < 1 || theH < 1) {
 		DS_LOG_WARNING("PDF Player loaded a PDF with no size! " << mediaResource.getAbsoluteFilePath());
-		if(mErrorMsgCallback) mErrorMsgCallback("PDF size or file could not be found.");
+		if (mErrorMsgCallback) mErrorMsgCallback("PDF size or file could not be found.");
 	}
 
 	setSize(theW, theH);
 }
 
-void PDFPlayer::onSizeChanged() { layout(); }
+void PDFPlayer::onSizeChanged() {
+	layout();
+}
 
 void PDFPlayer::layout() {
 	const float w = getWidth();
 	const float h = getHeight();
 
-	mLoadedPage = mCurrentPage - 1;
+	mLoadedPage	  = mCurrentPage - 1;
 	mLoadingCount = 0;
 
 	loadNextPage();
@@ -288,7 +289,7 @@ void PDFPlayer::layout() {
 		float yPos = h - mPdfInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
 		if (yPos + mPdfInterface->getScaleHeight() > h) yPos = h - mPdfInterface->getScaleHeight();
-		if(mInterfaceBelowMedia) yPos = h;
+		if (mInterfaceBelowMedia) yPos = h;
 		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
@@ -308,12 +309,14 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
-	mInterfaceBottomPad = settings.mInterfaceBottomPad;
-	mCanShowLinks = settings.mPdfCanShowLinks;
+	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
+	mCanShowLinks		 = settings.mPdfCanShowLinks;
 	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }
 
-void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
+void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) {
+	mShowInterfaceAtStart = showInterfaceAtStart;
+}
 
 void PDFPlayer::setLetterbox(const bool doLetterbox) {
 	mLetterbox = doLetterbox;
@@ -321,16 +324,16 @@ void PDFPlayer::setLetterbox(const bool doLetterbox) {
 }
 
 void PDFPlayer::showLinks() {
-	if(!mCanShowLinks) return;
+	if (!mCanShowLinks) return;
 	mShowingLinks = true;
-	for (auto it : mPages){
+	for (auto it : mPages) {
 		it.second->showLinks();
 	}
 }
 
 void PDFPlayer::hideLinks() {
 	mShowingLinks = false;
-	for(auto it : mPages) {
+	for (auto it : mPages) {
 		it.second->hideLinks();
 	}
 }
@@ -339,12 +342,12 @@ void PDFPlayer::setPageNum(const int pageNum) {
 
 	mCurrentPage = pageNum;
 
-	if(mCurrentPage < 1) mCurrentPage = 1;
-	if(mCurrentPage > mNumPages) mCurrentPage = mNumPages;
+	if (mCurrentPage < 1) mCurrentPage = 1;
+	if (mCurrentPage > mNumPages) mCurrentPage = mNumPages;
 
 	ci::vec2 curSize;
-	for (auto it : mPages){
-		if(it.first == mCurrentPage) {
+	for (auto it : mPages) {
+		if (it.first == mCurrentPage) {
 			it.second->show();
 			curSize = ci::vec2(it.second->getSize());
 		} else {
@@ -352,21 +355,21 @@ void PDFPlayer::setPageNum(const int pageNum) {
 		}
 	}
 
-	if(mSizeChangedCallback) {
-		mSizeChangedCallback(curSize);		
+	if (mSizeChangedCallback) {
+		mSizeChangedCallback(curSize);
 	}
 
-	if(mPageChangeCallback) {
+	if (mPageChangeCallback) {
 		mPageChangeCallback();
 	}
 
-	if(mPdfInterface) {
+	if (mPdfInterface) {
 		mPdfInterface->updateWidgets();
 	}
 
 	// ensure the current page is loaded
 	mLoadingCount = 0;
-	mLoadedPage = mCurrentPage - 1;
+	mLoadedPage	  = mCurrentPage - 1;
 	loadNextPage();
 }
 
@@ -380,13 +383,13 @@ int PDFPlayer::getPageCount() const {
 
 void PDFPlayer::nextPage() {
 	mCurrentPage++;
-	if(mCurrentPage > mNumPages) mCurrentPage = 1;
+	if (mCurrentPage > mNumPages) mCurrentPage = 1;
 	setPageNum(mCurrentPage);
 }
 
 void PDFPlayer::prevPage() {
 	mCurrentPage--;
-	if(mCurrentPage < 1) mCurrentPage = mNumPages;
+	if (mCurrentPage < 1) mCurrentPage = mNumPages;
 	setPageNum(mCurrentPage);
 }
 
@@ -398,5 +401,4 @@ void PDFPlayer::goToPreviousPage() {
 	prevPage();
 }
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

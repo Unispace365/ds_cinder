@@ -9,8 +9,8 @@ namespace ds {
 class BlobReader;
 
 namespace ui {
-class ImageGenerator;
-class SpriteEngine;
+	class ImageGenerator;
+	class SpriteEngine;
 } // namespace ui
 
 /**
@@ -19,15 +19,14 @@ class SpriteEngine;
  */
 class ImageRegistry {
   public:
-    ImageRegistry();
+	ImageRegistry();
 
-    /// Add a new blob handler.  I answer with the unique key assigned the handler.
-    char										addGenerator(const std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>& factoryFn);
-		ds::ui::ImageGenerator*	makeGenerator(const char, ds::ui::SpriteEngine&);
+	/// Add a new blob handler.  I answer with the unique key assigned the handler.
+	char addGenerator(const std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>& factoryFn);
+	ds::ui::ImageGenerator* makeGenerator(const char, ds::ui::SpriteEngine&);
 
   private:
-    std::vector<std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>>
-                      mFactory;
+	std::vector<std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>> mFactory;
 };
 
 } // namespace ds

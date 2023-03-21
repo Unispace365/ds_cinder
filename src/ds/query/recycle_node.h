@@ -4,26 +4,25 @@
 
 #pragma once
 
-namespace ds{
-namespace prvlist {
+namespace ds { namespace prvlist {
 
-/* NODE
-	**************************************************************/
-struct _node_base {
-	_node_base*		mNext;
+	/* NODE
+	 **************************************************************/
+	struct _node_base {
+		_node_base* mNext;
 
-	_node_base*		tail() {
-		_node_base*	n = this;
-		while(n->mNext != NULL) n = n->mNext;
-		return n;
-	}
-};
+		_node_base* tail() {
+			_node_base* n = this;
+			while (n->mNext != NULL)
+				n = n->mNext;
+			return n;
+		}
+	};
 
-template <class T>
-struct _node : public _node_base {
-	T			mData;
-};
+	template <class T>
+	struct _node : public _node_base {
+		T mData;
+	};
 
-} // prvlist
-} // ds
+}} // namespace ds::prvlist
 #endif

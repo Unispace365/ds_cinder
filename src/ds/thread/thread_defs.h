@@ -3,13 +3,13 @@
 #define DS_THREAD_THREADDEFS_H_
 
 #ifdef _DEBUG
-//#define		DS_THREAD_DEBUG_IS_ON		(1)
+// #define		DS_THREAD_DEBUG_IS_ON		(1)
 #endif
 
 #ifdef DS_THREAD_DEBUG_IS_ON
-#define DS_DBG_THREAD_CODE(x)			(x)
+#define DS_DBG_THREAD_CODE(x) (x)
 #else
-#define DS_DBG_THREAD_CODE(x)			(void*)0
+#define DS_DBG_THREAD_CODE(x) (void*)0
 #endif
 
 #endif // DS_THREAD_THREADDEFS_H_

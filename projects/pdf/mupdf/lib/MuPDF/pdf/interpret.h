@@ -1,18 +1,43 @@
+// Copyright (C) 2004-2021 Artifex Software, Inc.
+//
+// This file is part of MuPDF.
+//
+// MuPDF is free software: you can redistribute it and/or modify it under the
+// terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// MuPDF is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with MuPDF. If not, see <https://www.gnu.org/licenses/agpl-3.0.en.html>
+//
+// Alternative licensing terms are available from the licensor.
+// For commercial licensing, see <https://www.artifex.com/> or contact
+// Artifex Software, Inc., 1305 Grant Avenue - Suite 200, Novato,
+// CA 94945, U.S.A., +1(415)492-9861, for further information.
+
 #ifndef PDF_INTERPRET_H
 #define PDF_INTERPRET_H
 
 #include "mupdf/pdf/font.h"
 #include "mupdf/pdf/resource.h"
+#include "mupdf/pdf/document.h"
 
 typedef struct pdf_gstate pdf_gstate;
 typedef struct pdf_processor pdf_processor;
 
 void *pdf_new_processor(fz_context *ctx, int size);
+pdf_processor *pdf_keep_processor(fz_context *ctx, pdf_processor *proc);
 void pdf_close_processor(fz_context *ctx, pdf_processor *proc);
 void pdf_drop_processor(fz_context *ctx, pdf_processor *proc);
 
 struct pdf_processor
 {
+	int refs;
 	void (*close_processor)(fz_context *ctx, pdf_processor *proc);
 	void (*drop_processor)(fz_context *ctx, pdf_processor *proc);
 
@@ -268,13 +293,13 @@ typedef struct
 	The filter options struct allows you to filter objects using callbacks.
 */
 pdf_processor *pdf_new_filter_processor(fz_context *ctx, pdf_document *doc, pdf_processor *chain, pdf_obj *old_res, pdf_obj *new_res, int struct_parents, fz_matrix transform, pdf_filter_options *filter);
-pdf_obj *pdf_filter_xobject_instance(fz_context *ctx, pdf_obj *old_xobj, pdf_obj *page_res, fz_matrix ctm, pdf_filter_options *filter);
+pdf_obj *pdf_filter_xobject_instance(fz_context *ctx, pdf_obj *old_xobj, pdf_obj *page_res, fz_matrix ctm, pdf_filter_options *filter, pdf_cycle_list *cycle_up);
 
 /*
 	Functions to actually process annotations, glyphs and general stream objects.
 */
 void pdf_process_contents(fz_context *ctx, pdf_processor *proc, pdf_document *doc, pdf_obj *obj, pdf_obj *res, fz_cookie *cookie);
-void pdf_process_annot(fz_context *ctx, pdf_processor *proc, pdf_document *doc, pdf_page *page, pdf_annot *annot, fz_cookie *cookie);
+void pdf_process_annot(fz_context *ctx, pdf_processor *proc, pdf_annot *annot, fz_cookie *cookie);
 void pdf_process_glyph(fz_context *ctx, pdf_processor *proc, pdf_document *doc, pdf_obj *resources, fz_buffer *contents);
 
 /* Text handling helper functions */

@@ -6,8 +6,8 @@ namespace ds {
  * \brief Provided to sprites for draw()ing functions.
  */
 class DrawParams {
-public:
-	DrawParams() {};
+  public:
+	DrawParams(){};
 	float mParentOpacity = 1.0f;
 
 	// if this exists, this sprite will be used as the position basis for calculating clipping planes
@@ -16,4 +16,3 @@ public:
 };
 
 } // namespace ds
-

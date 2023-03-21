@@ -73,9 +73,13 @@ Source: "/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 #endif
 
+#ifexist "install/readme.txt"
+Source: "install/readme.txt"; DestDir: "{app}/release_notes.txt"; Flags: isreadme
+#endif
+
 Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
-Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
+;Source: "{#DS_PLATFORM}/.git/HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
 Source: "{#GST}/bin/*.dll"; Excludes:"librtmp-1.dll"; DestDir: "{app}/dll"

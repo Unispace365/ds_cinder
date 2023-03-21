@@ -5,28 +5,27 @@
 namespace ds {
 
 namespace {
-const ci::ColorA		EMPTY_COL(255, 0, 255, 255);
+	const ci::ColorA EMPTY_COL(255, 0, 255, 255);
 }
 
-ColorList::ColorList(){
-}
+ColorList::ColorList() {}
 
-void ColorList::clear(){
+void ColorList::clear() {
 	mData.clear();
 }
 
-bool ColorList::empty() const{
+bool ColorList::empty() const {
 	return (mData.empty());
 }
 
-void ColorList::install(const ci::ColorA& color, const std::string& shortName){
+void ColorList::install(const ci::ColorA& color, const std::string& shortName) {
 	mData[shortName] = color;
 }
 
-const ci::ColorA& ColorList::getColorFromName(const std::string& n) const{
-	if(mData.empty()) return EMPTY_COL;
+const ci::ColorA& ColorList::getColorFromName(const std::string& n) const {
+	if (mData.empty()) return EMPTY_COL;
 	auto findy = mData.find(n);
-	if(findy != mData.end()){
+	if (findy != mData.end()) {
 		return findy->second;
 	}
 	return EMPTY_COL;
