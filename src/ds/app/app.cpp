@@ -360,6 +360,7 @@ void App::setup() {
 
 	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard;
 	ImGui::GetIO().IniFilename	 = imguiIni.c_str();
 	ImGui::GetIO().IniSavingRate = 5.f;
 
