@@ -354,9 +354,18 @@ void Image::imageChanged() {
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
+
 	// Make my size match
 	ImageMetaData d;
 	if (!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
+		/* if (!mResource.empty()) {
+			auto crop = mResource.getCrop();
+			float width = d.mSize.x * crop.getWidth();
+			float height = d.mSize.x * crop.getHeight();
+			Sprite::setSizeAll(width, height, mDepth);
+		}else{
+			
+		}*/
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
 		// Metadata not found, reset all internal states
@@ -425,8 +434,8 @@ bool Image::getMetaData(ImageMetaData& d) const {
 	std::string fn;
 	if (!mResource.empty()) {
 		if (mResource.getWidth() > 0 && mResource.getHeight() > 0) {
-			d.mSize.x = mResource.getWidth();
-			d.mSize.y = mResource.getHeight();
+			d.mSize.x = mResource.getWidth() * mResource.getCrop().getWidth();
+			d.mSize.y = mResource.getHeight() * mResource.getCrop().getHeight();
 			return true;
 		}
 		fn = mResource.getAbsoluteFilePath();
@@ -457,13 +466,13 @@ void Image::checkStatus() {
 		if (mEngine.getMode() != mEngine.CLIENT_MODE) {
 			const float prevRealW = getWidth(), prevRealH = getHeight();
 			if (prevRealW <= 0 || prevRealH <= 0) {
-				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
-								   static_cast<float>(mTextureRef->getHeight()), mDepth);
+				Sprite::setSizeAll(static_cast<float>(mDrawRect.mOrthoRect.getWidth()),
+								   static_cast<float>(mDrawRect.mOrthoRect.getHeight()), mDepth);
 			} else {
 				float prevWidth	 = prevRealW * getScale().x;
 				float prevHeight = prevRealH * getScale().y;
-				Sprite::setSizeAll(static_cast<float>(mTextureRef->getWidth()),
-								   static_cast<float>(mTextureRef->getHeight()), mDepth);
+				Sprite::setSizeAll(static_cast<float>(mDrawRect.mOrthoRect.getWidth()),
+								   static_cast<float>(mDrawRect.mOrthoRect.getHeight()), mDepth);
 				setSize(prevWidth, prevHeight);
 			}
 		}
@@ -484,7 +493,18 @@ void Image::onBuildRenderBatch() {
 		}
 
 	} else {
-		auto theGeom = ci::geom::Rect(drawRect);
+		ci::vec2 ul = ci::vec2(0.f, 0.f);
+		ci::vec2 ur = ci::vec2(1.f, 0.f);
+		ci::vec2 lr = ci::vec2(1.f, 1.f);
+		ci::vec2 ll = ci::vec2(0.f, 1.f);
+		if(!mResource.empty()){
+			auto crop = mResource.getCrop();
+			ul = crop.getUpperLeft();
+			ur = crop.getUpperRight();
+			lr = crop.getLowerRight();
+			ll = crop.getLowerLeft();
+		}
+		auto theGeom = ci::geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -498,8 +518,21 @@ void Image::doOnImageLoaded() {
 		mNeedsBatchUpdate	 = true;
 		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
 										 static_cast<float>(mTextureRef->getWidth()), 0.0f);
-		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTextureRef->getWidth()),
-										 static_cast<float>(mTextureRef->getHeight()));
+
+
+			float orthoX = 0.f;
+			float orthoY = 0.f;
+			float orthoW = mTextureRef->getWidth();
+			float orthoH = mTextureRef->getHeight();
+			if (!mResource.empty()) {
+				auto crop = mResource.getCrop();
+				orthoX = crop.getX1()*orthoW;
+				orthoY = crop.getY1()*orthoH;
+				orthoW = orthoW * crop.getWidth();
+				orthoH = orthoH * crop.getHeight();
+			}
+
+		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, orthoX+orthoW, orthoY+orthoH);
 	}
 
 	onImageLoaded();

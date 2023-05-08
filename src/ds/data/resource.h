@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <cinder/Rect.h>
+
 namespace ds {
 class DataBuffer;
 class ResourceList;
@@ -143,6 +145,21 @@ class Resource {
 	float getHeight() const { return mHeight; }
 	void  setHeight(const float newHeight) { mHeight = newHeight; }
 
+	ci::Rectf getCrop() const { return ci::Rectf(mCropX, mCropY, mCropX + mCropW, mCropY + mCropH); }
+	void	  setCrop(const ci::Rectf cropRect) {
+		 ci::Rectf myRect = ci::Rectf(1.f, 2.f, 3.f, 4.f);
+		 mCropX			  = cropRect.getX1();
+		 mCropY			  = cropRect.getY1();
+		 mCropW			  = cropRect.getWidth();
+		 mCropH			  = cropRect.getHeight();
+	}
+	void setCrop(const float cropX, const float cropY, const float cropW, const float cropH) {
+		mCropX = cropX;
+		mCropY = cropY;
+		mCropW = cropW;
+		mCropH = cropH;
+	}
+
 	int	 getThumbnailId() const { return mThumbnailId; }
 	void setThumbnailId(const int thub) { mThumbnailId = thub; }
 
@@ -212,6 +229,10 @@ class Resource {
 	int	   mType;
 	double mDuration;
 	float  mWidth, mHeight;
+	float  mCropX = 0.f;
+	float  mCropY = 0.f;
+	float  mCropW = 1.f;
+	float  mCropH = 1.f;
 
 	/// filename and path are applied when querying from a database
 	std::string mFileName;
