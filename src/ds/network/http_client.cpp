@@ -60,21 +60,22 @@ void HttpClient::setResultHandler(const std::function<void(const HttpReply&)>& h
 	mResultHandler = h;
 }
 
-bool HttpClient::httpGet(const std::wstring& url) {
-	return sendHttp(HTTP_GET_OPT, EMPTY_SZ, url, EMPTY_SZ, nullptr);
+bool HttpClient::httpGet(const std::wstring& url, const int timeout) {
+	return sendHttp(HTTP_GET_OPT, EMPTY_SZ, url, EMPTY_SZ, nullptr, nullptr, timeout);
 }
 
-bool HttpClient::httpPost(const std::wstring& url, const std::string& body) {
-	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, body, nullptr);
+bool HttpClient::httpPost(const std::wstring& url, const std::string& body, const int timeout) {
+	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, body, nullptr, nullptr, timeout);
 }
 
-bool HttpClient::httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn) {
-	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, EMPTY_SZ, postFn);
+bool HttpClient::httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+						  const int timeout) {
+	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, EMPTY_SZ, postFn, nullptr, timeout);
 }
 
 bool HttpClient::http(const std::string& verb, const std::string& url, const std::string& body,
-					  const std::function<void(Poco::Net::HTTPRequest&)>& requestFn) {
-	return sendHttp(HTTP_POST_OPT, verb, ds::wstr_from_utf8(url), body, nullptr, requestFn);
+					  const std::function<void(Poco::Net::HTTPRequest&)>& requestFn, const int timeout) {
+	return sendHttp(HTTP_POST_OPT, verb, ds::wstr_from_utf8(url), body, nullptr, requestFn, timeout);
 }
 
 void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr) {
@@ -88,7 +89,8 @@ void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr) {
 
 bool HttpClient::sendHttp(const int opt, const std::string& verb, const std::wstring& url, const std::string& body,
 						  const std::function<void(Poco::Net::HTMLForm&)>&	  postFn,
-						  const std::function<void(Poco::Net::HTTPRequest&)>& requestFn) {
+						  const std::function<void(Poco::Net::HTTPRequest&)>& requestFn,
+						  const int timeout) {
 	if (url.empty()) {
 		DS_LOG_WARNING("ERROR ds::HttpClient() empty url");
 		return false;
@@ -103,6 +105,7 @@ bool HttpClient::sendHttp(const int opt, const std::string& verb, const std::wst
 	r->mBody	  = body;
 	r->mPostFn	  = postFn;
 	r->mRequestFn = requestFn;
+	r->mTimeout	  = timeout;
 	r->mReply.clear();
 	return mManager.sendRequest(ds::unique_dynamic_cast<WorkRequest, Request>(r));
 }
@@ -163,7 +166,7 @@ void HttpClient::Request::run() {
 			if (!mBody.empty()) request.setContentLength(mBody.size());
 			if (mRequestFn != nullptr) {
 				request.setKeepAlive(true);
-				s.setKeepAliveTimeout(Poco::Timespan(30, 0));
+				s.setKeepAliveTimeout(Poco::Timespan(mTimeout, 0));
 				mRequestFn(request);
 			}
 
