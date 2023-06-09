@@ -9,7 +9,7 @@
 #include <ds/ui/tween/tweenline.h>
 
 
-namespace ds { namespace ui {
+namespace ds::ui{
 
 	DonutArc::DonutArc(ds::ui::SpriteEngine& engine, const float theSize)
 	  : ds::ui::Sprite(engine, theSize, theSize)
@@ -89,4 +89,31 @@ namespace ds { namespace ui {
 			delay);
 	}
 
-}} // namespace ds::ui
+} // namespace ds::ui
+
+namespace {
+// Auto-running static function for using this sprite with the XML layout system
+auto INIT = []() {
+	using ds::ui::DonutArc;
+	ds::App::AddStartup([](ds::Engine& e) {
+		/* e.registerSpriteImporter(
+			"donut_arc", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* { return new DonutArc(enginey); });
+ */
+		e.registerSpritePropertySetter<DonutArc>(
+			"donut_thickness", [](DonutArc& background, const std::string& theValue, const std::string& fileReferrer) {
+				background.setDonutWidth(ds::string_to_float(theValue));
+			});
+
+		e.registerSpritePropertySetter<DonutArc>(
+			"donut_radius", [](DonutArc& background, const std::string& theValue, const std::string& fileReferrer) {
+				background.setSize(ci::vec3(ds::string_to_float(theValue) * 2.f));
+			});
+
+		e.registerSpritePropertySetter<DonutArc>(
+			"donut_percent", [](DonutArc& background, const std::string& theValue, const std::string& fileReferrer) {
+				background.setPercent(ds::string_to_float(theValue), true);
+			});
+	});
+	return true;
+}();
+} // anonymous namespace

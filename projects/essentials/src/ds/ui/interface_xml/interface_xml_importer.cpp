@@ -1273,22 +1273,6 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["donut_width"] = [](const SprProps& p) {
-			auto donut = dynamic_cast<DonutArc*>(&p.sprite);
-			if (donut) {
-				donut->setDonutWidth(ds::string_to_float(p.value));
-			} else {
-				logAttributionWarning(p);
-			}
-		};
-		propertyMap["donut_percent"] = [](const SprProps& p) {
-			auto donut = dynamic_cast<DonutArc*>(&p.sprite);
-			if (donut) {
-				donut->setPercent(ds::string_to_float(p.value));
-			} else {
-				logAttributionWarning(p);
-			}
-		};
 		propertyMap["dash_length"] = [](const SprProps& p) {
 			auto dashed = dynamic_cast<DashedLine*>(&p.sprite);
 			if (dashed) {

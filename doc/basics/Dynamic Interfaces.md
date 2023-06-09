@@ -460,8 +460,9 @@ Border Parameters
 
 Donut Arc Parameters
 ---------------------------
-* **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
-* **donut_percent**: Float, the percentage that the donut is filled in
+* **donut_radius**: Float, the outer radius of the donut
+* **donut_thickness**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
+* **donut_percent**: Float, the percentage that the donut is filled in (default: 1.0)
 
 Dashed Line Parameters
 ---------------------------
