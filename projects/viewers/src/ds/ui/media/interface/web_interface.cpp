@@ -162,6 +162,10 @@ void WebInterface::setKeyboardAllow(const bool keyboardAllowed) {
 	}
 }
 
+void WebInterface::setAllowNativeKeyboard(bool nativeKeyboardAllowed) {
+	mEnableNativeKeyboard = nativeKeyboardAllowed;
+}
+
 
 void WebInterface::setKeyboardAbove(const bool kerboardAbove) {
 	mKeyboardAbove = kerboardAbove;
@@ -471,7 +475,7 @@ void WebInterface::updateWidgets() {
 				mKeyboard->setKeyPressFunction(
 					[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
 						if (mLinkedWeb) {
-							if(mLinkedWeb != mEngine.getRegisteredEntryField()){
+							if (mLinkedWeb != mEngine.getRegisteredEntryField()) {
 								mEngine.registerEntryField(mLinkedWeb);
 							}
 							if (mAuthorizing && mUserField && mPasswordField && mAuthLayout) {
@@ -528,11 +532,25 @@ void WebInterface::updateWidgets() {
 	}
 
 	layout();
+
+	if (mEnableNativeKeyboard) {
+		if (mKeyboardShowing && mLinkedWeb != mEngine.getRegisteredEntryField()) {
+			mEngine.registerEntryField(mLinkedWeb);
+		} else if (!mKeyboardShowing && mEngine.getRegisteredEntryField() == mLinkedWeb) {
+			mEngine.registerEntryField(nullptr);
+		}
+	} else {
+		// Ensure we disconnect
+		if (mEngine.getRegisteredEntryField() == mLinkedWeb) {
+			mEngine.registerEntryField(nullptr);
+		}
+	}
 }
 
 void WebInterface::showKeyboard(bool show) {
 	mKeyboardShowing = show;
 	updateWidgets();
+
 	if (mKeyboardStatusCallback) mKeyboardStatusCallback(mKeyboardShowing);
 }
 

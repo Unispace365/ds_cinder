@@ -28,6 +28,7 @@ class WebInterface : public MediaInterface {
 
 	void setKeyboardKeyScale(const float newKeyScale);
 	void setKeyboardAllow(const bool keyboardAllowed);
+	void setAllowNativeKeyboard(bool nativeKeyboardAllowed);
 	void setKeyboardAbove(const bool kerboardAbove);
 	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
@@ -78,6 +79,7 @@ class WebInterface : public MediaInterface {
 
 	float mKeyboardKeyScale;
 
+	bool mEnableNativeKeyboard = false;
 	bool mAbleToTouchToggle;
 	bool mWebLocked;
 

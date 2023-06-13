@@ -109,6 +109,14 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_web_native_keyboard",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			   = mediaPlayer.getSettings();
+				mvs.mWebNativeKeyboard = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_letterbox",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				auto& mvs	   = mediaPlayer.getSettings();
@@ -465,6 +473,7 @@ void MediaPlayer::initializeWeb() {
 		mWebPlayer->getWeb()->setDocumentReadyFn([this] {
 			if (mWebPlayer->getWebInterface()) {
 				mWebPlayer->getWebInterface()->updateWidgets();
+				mWebPlayer->getWebInterface()->setAllowNativeKeyboard(mMediaViewerSettings.mWebNativeKeyboard);
 			}
 			if (mStatusCallback) mStatusCallback(true);
 		});
