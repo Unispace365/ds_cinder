@@ -318,6 +318,9 @@ class Engine : public ui::SpriteEngine {
 	ds::App&								 mDsApp;
 	ds::EngineSettings&						 mSettings;
 	ds::cfg::SettingsEditor*				 mSettingsEditor;
+	bool mHideMouseSaved = false;
+	bool mAutoHideMouseSaved = false;
+
 	bool									 mShowConsole;
 	ds::ui::PangoFontService				 mPangoFontService;
 	ds::ui::Tweenline						 mTweenline;

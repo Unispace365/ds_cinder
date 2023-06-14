@@ -568,17 +568,56 @@ void Engine::toggleSettingsEditor(const std::string& name) {
 	if (mSettingsEditor) {
 		mSettingsEditor->toggleSetting(name);
 	}
+
+	if (isShowingSettingsEditor()) {
+		mHideMouseSaved		= mHideMouse;
+		mAutoHideMouseSaved = mAutoHideMouse;
+
+		setHideMouse(false);
+		mHideMouse	   = false;
+		mAutoHideMouse = false;
+	} else {
+		setHideMouse(mHideMouseSaved);
+		mHideMouse	   = mHideMouseSaved;
+		mAutoHideMouse = mAutoHideMouseSaved;
+	}
 }
 
 void Engine::showSettingsEditor(const std::string& name) {
 	if (mSettingsEditor) {
 		mSettingsEditor->showSettings(name);
 	}
+
+	if (isShowingSettingsEditor()) {
+		mHideMouseSaved		= mHideMouse;
+		mAutoHideMouseSaved = mAutoHideMouse;
+
+		setHideMouse(false);
+		mHideMouse	   = false;
+		mAutoHideMouse = false;
+	} else {
+		setHideMouse(mHideMouseSaved);
+		mHideMouse	   = mHideMouseSaved;
+		mAutoHideMouse = mAutoHideMouseSaved;
+	}
 }
 
 void Engine::hideSettingsEditor() {
 	if (mSettingsEditor) {
 		mSettingsEditor->hideSettings();
+	}
+
+	if (isShowingSettingsEditor()) {
+		mHideMouseSaved		= mHideMouse;
+		mAutoHideMouseSaved = mAutoHideMouse;
+
+		setHideMouse(false);
+		mHideMouse	   = false;
+		mAutoHideMouse = false;
+	} else {
+		setHideMouse(mHideMouseSaved);
+		mHideMouse	   = mHideMouseSaved;
+		mAutoHideMouse = mAutoHideMouseSaved;
 	}
 }
 
