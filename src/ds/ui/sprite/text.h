@@ -230,6 +230,11 @@ class Text : public ds::ui::Sprite {
 	/// Note: this texture has pre-multiplied alpha
 	const ci::gl::TextureRef getTexture();
 
+	// Returns the x,y offset that's applied to the texture before drawing
+	// Useful if you're using a text sprite for non-standard purposes and use anything other than left alignment
+	// In those cases, the texture is only as large as the drawn pixels, but is drawn with the offset to align correctly
+	ci::vec2 getRenderOffset(){return mRenderOffset;}
+
 	/// Registers this class to be net-sync capable
 	static void installAsServer(ds::BlobRegistry&);
 	static void installAsClient(ds::BlobRegistry&);
