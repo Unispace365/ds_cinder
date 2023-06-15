@@ -239,7 +239,7 @@ namespace ds { namespace ui {
 		}
 
 		if (mFilled) {
-			auto theCircle = DsCircleGeom().radius(mRadius).center(ci::vec2(mRadius, mRadius));
+			auto theCircle = DsCircleGeom().radius(mRadius+mLineWidth).center(ci::vec2(mRadius, mRadius));
 			if (mNumberOfSegments > 1) {
 				theCircle.subdivisions(mNumberOfSegments);
 			}
