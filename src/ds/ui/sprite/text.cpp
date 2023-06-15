@@ -606,6 +606,18 @@ ci::Rectf Text::getRectForCharacterIndex(const int characterIndex) {
 	return outputRect;
 }
 
+float Text::getBaseline(){
+	measurePangoText();
+
+	if (mPangoLayout && !mText.empty()) {
+		int baseline = pango_layout_get_baseline(mPangoLayout);
+		return float(baseline) / float(PANGO_SCALE);
+	}else{
+		return 0.f;
+	}
+
+}
+
 bool Text::getTextWrapped() {
 	// calculate current state if needed
 	measurePangoText();

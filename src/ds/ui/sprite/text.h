@@ -32,8 +32,8 @@ namespace ds::ui {
  *'quotes' and not double "quotes" like the documentation. Double quotes = nothing shows up) Span attributes: font_desc
  *(such as 'Sans Italic 12') font_family or face (such as 'Arial' or 'Sans') size ('xx-small', 'x-small', 'small',
  *'medium', 'large', 'x-large', 'xx-large' or 'smaller' or 'larger') style (One of 'normal', 'oblique', 'italic')
- *						weight (One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy', or a numeric weight
- *like 400 for normal or 700 for bold) variant ('normal' or 'smallcaps') stretch (One of 'ultracondensed',
+ *						weight (One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy', or a numeric
+ *weight like 400 for normal or 700 for bold) variant ('normal' or 'smallcaps') stretch (One of 'ultracondensed',
  *'extracondensed', 'condensed', 'semicondensed', 'normal', 'semiexpanded', 'expanded', 'extraexpanded',
  *'ultraexpanded') foreground (An RGB color specification such as '\#00FF00' or a color name such as 'red') NOTE:
  *you must turn on setPreserveSpanColors(true) background (An RGB color specification such as '\#00FF00' or a color
@@ -219,6 +219,8 @@ class Text : public ds::ui::Sprite {
 	/// isn't empty)
 	int getCharacterIndexForPosition(const ci::vec2& localPosition);
 
+	float getBaseline();
+
 	/// By default, we render text using the color from this sprite with the alpha values from pango
 	/// If you turn this on, we also use the colors from pango and multiply in the color from this sprite
 	/// This is for instances where you're using a color in a span tag in the markup
@@ -233,7 +235,7 @@ class Text : public ds::ui::Sprite {
 	// Returns the x,y offset that's applied to the texture before drawing
 	// Useful if you're using a text sprite for non-standard purposes and use anything other than left alignment
 	// In those cases, the texture is only as large as the drawn pixels, but is drawn with the offset to align correctly
-	ci::vec2 getRenderOffset(){return mRenderOffset;}
+	ci::vec2 getRenderOffset() { return mRenderOffset; }
 
 	/// Registers this class to be net-sync capable
 	static void installAsServer(ds::BlobRegistry&);
