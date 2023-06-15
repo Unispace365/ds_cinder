@@ -26,13 +26,15 @@ namespace ds { namespace net {
 		/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less
 		/// secure)
 		void makeGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true,
-							const bool isDownloadMedia = false, const std::string& downloadfile = "");
+							const bool isDownloadMedia = false, const std::string& downloadfile = "",
+							const long timeout = 30L);
 		void makeGetRequest(const std::string& url, std::vector<std::string> headers, const bool verifyPeers = true,
 							const bool verifyHosts = true, const bool isDownloadMedia = false,
-							const std::string& downloadfile = "");
+							const std::string& downloadfile = "", const long timeout = 30L);
 		/// Same as makeGetRequest, but runs syncronously
 		void makeSyncGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true,
-								const bool isDownloadMedia = false, const std::string& downloadfile = "");
+								const bool isDownloadMedia = false, const std::string& downloadfile = "",
+								const long timeout = 30L);
 
 		/// The url is the full request url
 		/// The postData is something like name=jeeves&project=ds_cinder
@@ -42,13 +44,15 @@ namespace ds { namespace net {
 		void makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true,
 							 const bool verifyHosts = true, const std::string& customrequest = "",
 							 std::vector<std::string> headers = std::vector<std::string>(),
-							 const bool isDownloadMedia = false, const std::string& downloadfile = "");
+							 const bool isDownloadMedia = false, const std::string& downloadfile = "",
+							 const long timeout = 30L);
 
 		/// Same as makePostRequest, but runs syncronously
 		void makeSyncPostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true,
 								 const bool verifyHosts = true, const std::string& customrequest = "",
 								 std::vector<std::string> headers = std::vector<std::string>(),
-								 const bool isDownloadMedia = false, const std::string& downloadfile = "");
+								 const bool isDownloadMedia = false, const std::string& downloadfile = "",
+								 const long timeout = 30L);
 
 		/// If errored == true, then something went wrong and the reply will have the error message
 		/// Otherwise it will be whatever was returned from the server
@@ -85,6 +89,7 @@ namespace ds { namespace net {
 			bool					 mVerboseOutput;
 			bool					 mIsDownloadMedia;
 			std::string				 mDownloadFile;
+			long					 mTimeout;
 		};
 
 		void																	onRequestComplete(IndividualRequest&);

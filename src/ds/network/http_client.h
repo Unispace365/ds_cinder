@@ -56,11 +56,12 @@ class HttpClient : public ds::WorkClient {
 
 	void setResultHandler(const std::function<void(const HttpReply&)>&);
 
-	bool httpGet(const std::wstring& url);
-	bool httpPost(const std::wstring& url, const std::string& body);
-	bool httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	bool httpGet(const std::wstring& url, const int timeout = 30);
+	bool httpPost(const std::wstring& url, const std::string& body, const int timeout = 30);
+	bool httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+				  const int timeout = 30);
 	bool http(const std::string& verb, const std::string& url, const std::string& body,
-			  const std::function<void(Poco::Net::HTTPRequest&)>& postFn);
+			  const std::function<void(Poco::Net::HTTPRequest&)>& postFn, const int timeout = 30);
 
   protected:
 	virtual void handleResult(std::unique_ptr<WorkRequest>&);
@@ -77,6 +78,7 @@ class HttpClient : public ds::WorkClient {
 		std::string	 mVerb;
 		std::wstring mUrl;
 		std::string	 mBody;
+		int			 mTimeout;
 		/// Utility to write multipart form data in a post
 		std::function<void(Poco::Net::HTMLForm&)> mPostFn;
 		/// Utility to write to the message
@@ -94,7 +96,8 @@ class HttpClient : public ds::WorkClient {
   private:
 	bool		sendHttp(const int opt, const std::string& verb, const std::wstring& url, const std::string& body,
 						 const std::function<void(Poco::Net::HTMLForm&)>&	 postFn,
-						 const std::function<void(Poco::Net::HTTPRequest&)>& requestFn = nullptr);
+						 const std::function<void(Poco::Net::HTTPRequest&)>& requestFn = nullptr,
+						 const int timeout = 30);
 	static bool httpAndReply(const int opt, const std::wstring& url, const std::string& body,
 							 const std::function<void(Poco::Net::HTMLForm&)>& postFn, ds::HttpReply*);
 };

@@ -15,7 +15,7 @@ namespace ds { namespace net {
 	}
 
 	void HttpsRequest::makeSyncGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify,
-										  const bool isDownloadMedia, const std::string& downloadfile) {
+										  const bool isDownloadMedia, const std::string& downloadfile, const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 			return;
@@ -23,7 +23,8 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
 															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile);
+															  << " downloadFile=" << downloadfile
+															  << " timeout=" << timeout);
 
 		IndividualRequest req;
 		req.mInput			 = url;
@@ -33,11 +34,12 @@ namespace ds { namespace net {
 		req.mVerboseOutput	 = mVerbose;
 		req.mIsDownloadMedia = isDownloadMedia;
 		req.mDownloadFile	 = downloadfile;
+		req.mTimeout		 = timeout;
 		req.run();
 	}
 
 	void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify,
-									  const bool isDownloadMedia, const std::string& downloadfile) {
+									  const bool isDownloadMedia, const std::string& downloadfile, const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 			return;
@@ -45,9 +47,10 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
 															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile);
+															  << " downloadFile=" << downloadfile
+															  << " timeout=" << timeout);
 
-		mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile](IndividualRequest& q) {
+		mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile, timeout](IndividualRequest& q) {
 			q.mInput		   = url;
 			q.mVerifyHost	   = hostVerify;
 			q.mVerifyPeers	   = peerVerify;
@@ -55,12 +58,13 @@ namespace ds { namespace net {
 			q.mVerboseOutput   = mVerbose;
 			q.mIsDownloadMedia = isDownloadMedia;
 			q.mDownloadFile	   = downloadfile;
+			q.mTimeout		   = timeout;
 		});
 	}
 
 	void HttpsRequest::makeGetRequest(const std::string& url, std::vector<std::string> headers, const bool peerVerify,
 									  const bool hostVerify, const bool isDownloadMedia,
-									  const std::string& downloadfile) {
+									  const std::string& downloadfile, const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 			return;
@@ -68,10 +72,11 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
 															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile);
+															  << " downloadFile=" << downloadfile
+															  << " timeout=" << timeout);
 
 		mRequests.start(
-			[this, url, peerVerify, hostVerify, headers, isDownloadMedia, downloadfile](IndividualRequest& q) {
+			[this, url, peerVerify, hostVerify, headers, isDownloadMedia, downloadfile, timeout](IndividualRequest& q) {
 				q.mInput		   = url;
 				q.mVerifyHost	   = hostVerify;
 				q.mVerifyPeers	   = peerVerify;
@@ -80,13 +85,15 @@ namespace ds { namespace net {
 				q.mHeaders		   = headers;
 				q.mIsDownloadMedia = isDownloadMedia;
 				q.mDownloadFile	   = downloadfile;
+				q.mTimeout		   = timeout;
 			});
 	}
 
 	void HttpsRequest::makeSyncPostRequest(const std::string& url, const std::string& postData,
 										   const bool peerVerify /*= true*/, const bool hostVerify /*= true*/,
 										   const std::string& customRequest, std::vector<std::string> headers,
-										   const bool isDownloadMedia, const std::string& downloadfile) {
+										   const bool isDownloadMedia, const std::string& downloadfile,
+										   const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 			return;
@@ -94,7 +101,7 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url="
 							  << url << " postData=" << postData << " peer=" << peerVerify << " host=" << hostVerify
-							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile << " timeout=" << timeout);
 
 		IndividualRequest req;
 		req.mInput			 = url;
@@ -104,13 +111,15 @@ namespace ds { namespace net {
 		req.mVerboseOutput	 = mVerbose;
 		req.mIsDownloadMedia = isDownloadMedia;
 		req.mDownloadFile	 = downloadfile;
+		req.mTimeout		 = timeout;
 		req.run();
 	}
 
 	void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData,
 									   const bool peerVerify /*= true*/, const bool hostVerify /*= true*/,
 									   const std::string& customRequest, std::vector<std::string> headers,
-									   const bool isDownloadMedia, const std::string& downloadfile) {
+									   const bool isDownloadMedia, const std::string& downloadfile,
+									   const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 			return;
@@ -118,10 +127,10 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url="
 							  << url << " postData=" << postData << " peer=" << peerVerify << " host=" << hostVerify
-							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile);
+							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile << " timeout=" << timeout);
 
 		mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers, isDownloadMedia,
-						 downloadfile](IndividualRequest& q) {
+						 downloadfile, timeout](IndividualRequest& q) {
 			q.mInput		   = url;
 			q.mPostData		   = postData;
 			q.mVerifyHost	   = hostVerify;
@@ -132,6 +141,7 @@ namespace ds { namespace net {
 			q.mVerboseOutput   = mVerbose;
 			q.mIsDownloadMedia = isDownloadMedia;
 			q.mDownloadFile	   = downloadfile;
+			q.mTimeout		   = timeout;
 		});
 	}
 
@@ -206,7 +216,8 @@ namespace ds { namespace net {
 		CURL* curl = curl_easy_init();
 		if (curl) {
 
-			curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
+			curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, mTimeout);
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, mTimeout);
 
 			if (mVerboseOutput) {
 				curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
