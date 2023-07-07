@@ -239,7 +239,7 @@ namespace ds { namespace ui {
 		}
 
 		if (mFilled) {
-			auto theCircle = DsCircleGeom().radius(mRadius+mLineWidth).center(ci::vec2(mRadius, mRadius));
+			auto theCircle = DsCircleGeom().radius(mRadius).center(ci::vec2(mRadius, mRadius));
 			if (mNumberOfSegments > 1) {
 				theCircle.subdivisions(mNumberOfSegments);
 			}
@@ -248,7 +248,7 @@ namespace ds { namespace ui {
 			else
 				mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
 		} else {
-			auto theCircle = ci::geom::Ring().radius(mRadius).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
+			auto theCircle = ci::geom::Ring().radius(mRadius-(mLineWidth/2.f)).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
 			if (mNumberOfSegments > 1) {
 				theCircle.subdivisions(mNumberOfSegments);
 			}
