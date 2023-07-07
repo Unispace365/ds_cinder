@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "perspective_layout.h"
+#include <ds/ui/sprite/util/clip_plane.h>
 
 namespace ds { namespace ui {
 
@@ -71,7 +72,9 @@ namespace ds { namespace ui {
 		trans	   = glm::scale(trans, ci::vec3(1.0f, -1.0f, 1.0f));
 		trans	   = glm::translate(trans, ci::vec3(0.0f, -getHeight(), 0.0f));
 
+		ds::ui::clip_plane::enableClipping(-90000.f, -90000.f, 90000.f, 90000.f);
 		ds::ui::LayoutSprite::drawClient(trans, drawParams);
+		ds::ui::clip_plane::disableClipping();
 	}
 
 }} // namespace ds::ui
