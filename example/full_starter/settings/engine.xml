@@ -11,11 +11,11 @@
 	<setting name="server:listen_port" value="1038" type="int" comment="The listen port of the server (which is what the client sends on). Match these between server and client." default="1038" min_value="1" max_value="99999"/>
 	<setting name="platform:architecture" value="standalone" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
 	<setting name="platform:guid" value="full_starter_app" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
-
-	<setting name="DOWNSYNC SETTINGS" value="" type="seciton_header"/>
 	<setting name="platform:key" value="AUTO" type="string" comment="platform key that is matched to platform key on a cms platform. empty or AUTO defaults to the machine name"/>
 	<setting name="xml_importer:cache" value="true" type="bool" comment="If the xml importer should cache xml content or reload from disk each time" default="true"/>
-	<setting name="run_downsync_as_subprocess" value="true" type="bool" comment="Will Attempt to run downsync from the %APP%/downsync folder" default="true"/>
+
+	<setting name="DOWNSYNC SETTINGS" value="" type="seciton_header"/>
+	<setting name="run_downsync_as_subprocess" value="false" type="bool" comment="Will Attempt to run downsync from the %APP%/downsync folder" default="true"/>
 	<setting name="downsync_config_file" value="%APP%/downsync/config.staging.json5" type="string" comment="Downsync with attempt to use this config when run as a subprocess" default="true"/>
 	<setting name="downsync_name" value="" type="string"/>
 	<setting name="downsync_server" value="" type="string"/>
@@ -26,6 +26,16 @@
 	<setting name="downsync_rate_quantity" value="" type="float"/>
 	<setting name="downsync_upd_port" value="" type="int"/>
 	<setting name="downsync_verbosity" value="" type="int"/>
+
+	<setting name="BRIDGESYNC SETTINGS" value="" type="seciton_header"/>
+	<setting name="run_bridgesync_as_subprocess" value="false" type="bool" comment="Will Attempt to run BridgeSync from the %APP%/bridgesync folder" default="true"/>
+	<setting name="bridgesync:server" value="http://localhost:7080" type="string"/>
+	<!-- <setting name="bridgesync:auth_server" value="https://tetrapack-api-userpool.auth.us-east-2.amazoncognito.com" type="string"/>
+	<setting name="bridgesync:client_id" value="34mvap19oucs64oercn9m54uo9" type="string"/>
+	<setting name="bridgesync:client_secret" value="184chbohsgmrrgsh8s0e1kdkauhqmd2peug5ijhmhfv1qp8rmvme" type="string"/> -->
+	<setting name="bridgesync:directory" value="%LOCAL%/fullstarter" type="string"/>
+	<setting name="bridgesync:interval" value="5" type="string" comment="interval in seconds to check for updates"/>
+	<setting name="bridgesync:verbose" value="true" type="bool"/>
 
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
 	<setting name="span_all_displays" value="false" type="bool" comment="Automatically spans displays and overrides world size, src/dst rect and screen:mode" default="false"/>

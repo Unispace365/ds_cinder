@@ -33,6 +33,9 @@
 ; Uses downsync to connect to a CMS
 ; #define USE_DOWNSYNC
 
+; Uses bridgesync to connect to a CMS
+; #define USE_BRIDGESYNC
+
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
 
