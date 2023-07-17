@@ -139,6 +139,12 @@ namespace ds { namespace ui {
 		BUFPUTSL(ob, " | ");
 	}
 
+	static int rndr_raw_html(struct buf* ob, const struct buf* text, void* opaque) {
+		/* if (text) bufput(ob, text->data, text->size);
+		BUFPUTSL(ob, " | "); */
+		return 0;
+	}
+
 	std::wstring markdown_to_pango(const std::wstring& inputMarkdown) {
 		return ds::wstr_from_utf8(markdown_to_pango(ds::utf8_from_wstr(inputMarkdown)));
 	}
@@ -172,7 +178,7 @@ namespace ds { namespace ui {
 			NULL,				  // rndr_image,
 			rndr_linebreak,		  // rndr_linebreak,
 			NULL,				  // rndr_link,
-			NULL,				  // rndr_raw_html,
+			rndr_raw_html,				  // rndr_raw_html,
 			rndr_triple_emphasis, // rndr_triple_emphasis,
 			rndr_strikethrough,	  // rndr_strikethrough,
 			rndr_superscript,	  // rndr_superscript,
@@ -191,7 +197,7 @@ namespace ds { namespace ui {
 		struct buf*			ob;
 		callbacks = cb_default;
 
-		const int parserExtensions = MKDEXT_FENCED_CODE | MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_LAX_SPACING |
+		const int parserExtensions = MKDEXT_FENCED_CODE | MKDEXT_LAX_SPACING |
 									 MKDEXT_SUPERSCRIPT | MKDEXT_STRIKETHROUGH /*| MKDEXT_TABLES */;
 		markdown = sd_markdown_new(parserExtensions, 16, &callbacks, nullptr);
 
@@ -201,9 +207,9 @@ namespace ds { namespace ui {
 		// Remove some "offensive" characters
 		// These will break pango's markup later on
 		// These also break blockquotes, but we re-add those later
-		ds::replace(theInput, "&", "&amp;");
+		/* ds::replace(theInput, "&", "&amp;");
 		ds::replace(theInput, "<", "&lt;");
-		ds::replace(theInput, ">", "&gt;");
+		ds::replace(theInput, ">", "&gt;"); */
 
 		ob = bufnew(64);
 		sd_markdown_render(ob, reinterpret_cast<const uint8_t*>(theInput.c_str()), theInput.length(), markdown);
