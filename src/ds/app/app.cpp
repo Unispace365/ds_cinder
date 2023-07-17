@@ -644,7 +644,7 @@ void App::launchBridgeSyncService() {
 		ds::content::BridgeSyncSettings settings;
 
 		settings.server = mEngine.getEngineSettings().getString("bridgesync:server", 0, "");
-		if (settings.server == "%AUTO%") {
+		if (settings.server == "%AUTO%" || settings.server.empty()) {
 			settings.server = mEngine.getEngineSettings().getString("cms:url");
 		}
 		settings.authServer	  = mEngine.getEngineSettings().getString("bridgesync:auth_server", 0, "");
@@ -652,6 +652,10 @@ void App::launchBridgeSyncService() {
 		settings.clientSecret = mEngine.getEngineSettings().getString("bridgesync:client_secret", 0, "");
 		settings.directory =
 			ds::Environment::expand(mEngine.getEngineSettings().getString("bridgesync:directory", 0, ""));
+		if(settings.directory.empty()){
+			settings.directory = ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, ""));
+
+		}
 		// optional settings
 		settings.interval = mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
 		settings.verbose  = mEngine.getEngineSettings().getBool("bridgeSync:verbose", 0, false);
