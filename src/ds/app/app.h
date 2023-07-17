@@ -8,6 +8,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/content/service/bridge_sync_service.h"
 #include "ds/content/service/sync_service.h"
 #include "ds/debug/key_manager.h"
 #include "ds/ui/touch/touch_debug.h"
@@ -133,8 +134,11 @@ class App : public EngineSettingsPreloader, public cinder::app::App {
 	/// Show sprites that are enabled
 	void debugEnabledSprites();
 
-	/// Launch data sync service
+	/// Launch downsync service
 	void launchSyncService();
+
+	/// Launch downsync service
+	void launchBridgeSyncService();
 
 	/// Register a function to be called when a key is pressed (with optional modifier keys)
 	/// The Key codes can be found in ci::app::KeyEvent
@@ -171,7 +175,8 @@ class App : public EngineSettingsPreloader, public cinder::app::App {
 	const float mArrowKeyCameraStep;
 	const bool	mArrowKeyCameraControl;
 
-	ds::content::SyncService* mSyncService = nullptr;
+	ds::content::SyncService*		mSyncService	   = nullptr;
+	ds::content::BridgeSyncService* mBridgeSyncService = nullptr;
 };
 
 } // namespace ds

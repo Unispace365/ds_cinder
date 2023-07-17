@@ -118,6 +118,9 @@
     <Filter Include="src\ds\cfg\impl">
       <UniqueIdentifier>{4b832ab0-deb4-4f79-b3ce-cd2feeb1c092}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\imgui_components">
+      <UniqueIdentifier>{6e8dd3c8-2605-44f6-b63a-4d39d6e9cca2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -696,6 +699,12 @@
     <ClInclude Include="..\src\ds\cfg\impl\windows_impl.h">
       <Filter>src\ds\cfg\impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\content\service\bridge_sync_service.h">
+      <Filter>src\ds\content\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\imgui_components\TextAnsi.h">
+      <Filter>src\imgui_components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1141,6 +1150,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp">
       <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\service\bridge_sync_service.cpp">
+      <Filter>src\ds\content\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\imgui_components\TextAnsi.cpp">
+      <Filter>src\imgui_components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

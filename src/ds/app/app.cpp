@@ -379,6 +379,8 @@ void App::setup() {
 
 	if (mEngine.getEngineSettings().getBool("run_downsync_as_subprocess", 0, true)) {
 		launchSyncService();
+	} else if (mEngine.getEngineSettings().getBool("run_bridgesync_as_subprocess", 0, true)) {
+		launchBridgeSyncService();
 	}
 }
 
@@ -627,7 +629,40 @@ void App::launchSyncService() {
 
 		mSyncService->initialize(settings);
 		registerKeyPress(
-			"Toggle Downsync output", [this] { mSyncService->toggleOutput(); }, ci::app::KeyEvent::KEY_SLASH, true);
+			"Toggle Downsync output",
+			[this] {
+				if (mSyncService) mSyncService->toggleOutput();
+			},
+			ci::app::KeyEvent::KEY_SLASH, true);
+	}
+}
+
+void App::launchBridgeSyncService() {
+	// fireup downsync
+	if (mBridgeSyncService == nullptr) {
+		mBridgeSyncService = new ds::content::BridgeSyncService(mEngine);
+		ds::content::BridgeSyncSettings settings;
+
+		settings.server = mEngine.getEngineSettings().getString("bridgesync:server", 0, "");
+		if (settings.server == "%AUTO%") {
+			settings.server = mEngine.getEngineSettings().getString("cms:url");
+		}
+		settings.authServer	  = mEngine.getEngineSettings().getString("bridgesync:auth_server", 0, "");
+		settings.clientId	  = mEngine.getEngineSettings().getString("bridgesync:client_id", 0, "");
+		settings.clientSecret = mEngine.getEngineSettings().getString("bridgesync:client_secret", 0, "");
+		settings.directory =
+			ds::Environment::expand(mEngine.getEngineSettings().getString("bridgesync:directory", 0, ""));
+		// optional settings
+		settings.interval = mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
+		settings.verbose  = mEngine.getEngineSettings().getBool("bridgeSync:verbose", 0, false);
+
+		mBridgeSyncService->initialize(settings);
+		registerKeyPress(
+			"Toggle BridgeSync output",
+			[this] {
+				if (mBridgeSyncService) mBridgeSyncService->toggleOutput();
+			},
+			ci::app::KeyEvent::KEY_SLASH, true);
 	}
 }
 
