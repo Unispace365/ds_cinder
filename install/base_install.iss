@@ -8,8 +8,9 @@
 
 #ifdef USE_DSNODE
 #ifdef USE_DOWNSYNC
+#ifdef USE_BRIDGESYNC
 #ifndef ALLOW_BOTH_DSNODE_DOWNSYNC
-#error "You should not define both USE_DSNODE and USE_DOWNSYNC"
+#error "You should only define one of USE_DSNODE, USE_DOWNSYNC, USE_BRIDGESYNC"
 #endif
 #endif
 #endif
@@ -67,6 +68,10 @@ Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
 #ifdef USE_DOWNSYNC
 Source: "/downsync/downsync.exe"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
 Source: "/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
+#endif
+
+#ifdef USE_BRIDGESYNC
+Source: "/bridgesync/*"; DestDir: "{app}/bridgesync/"; Flags: recursesubdirs
 #endif
 
 #ifexist "README.md"
