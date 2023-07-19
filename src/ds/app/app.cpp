@@ -405,6 +405,12 @@ void App::resetupServer() {
 	loadAppSettings();
 	mEngine.reloadSettings();
 	mEngine.getLoadImageService().initialize();
+
+	if (mEngine.getEngineSettings().getBool("run_bridgesync_as_subprocess", 0, true)) {
+		// Restart bridge sync in case endpoint has changed
+		launchBridgeSyncService();
+	}
+
 }
 
 void App::preServerSetup() {
@@ -639,6 +645,19 @@ void App::launchSyncService() {
 
 void App::launchBridgeSyncService() {
 	// fireup downsync
+	if(mBridgeSyncService == nullptr){
+		registerKeyPress(
+			"Toggle BridgeSync output",
+			[this] {
+				if (mBridgeSyncService) mBridgeSyncService->toggleOutput();
+			},
+			ci::app::KeyEvent::KEY_SLASH, true);
+	}
+	if (mBridgeSyncService != nullptr) {
+		mBridgeSyncService->showOutput(false);
+		delete mBridgeSyncService;
+		mBridgeSyncService = nullptr;
+	}
 	if (mBridgeSyncService == nullptr) {
 		mBridgeSyncService = new ds::content::BridgeSyncService(mEngine);
 		ds::content::BridgeSyncSettings settings;
@@ -661,12 +680,12 @@ void App::launchBridgeSyncService() {
 		settings.verbose  = mEngine.getEngineSettings().getBool("bridgeSync:verbose", 0, false);
 
 		mBridgeSyncService->initialize(settings);
-		registerKeyPress(
+		/* registerKeyPress(
 			"Toggle BridgeSync output",
 			[this] {
 				if (mBridgeSyncService) mBridgeSyncService->toggleOutput();
 			},
-			ci::app::KeyEvent::KEY_SLASH, true);
+			ci::app::KeyEvent::KEY_SLASH, true); */
 	}
 }
 
