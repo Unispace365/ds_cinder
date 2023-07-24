@@ -31,9 +31,10 @@ namespace ds { namespace ui {
 	}
 
 	void PerspectiveLayout::updateCam(const ci::mat4& transform) {
-		auto screenSize = glm::vec2(ci::app::getWindowSize());
-		mScaleW			= screenSize.x / mSrcWidth;
-		mScaleH			= screenSize.y / mSrcHeight;
+		auto dst = glm::vec2(mEngine.getDstRect().getWidth(), mEngine.getDstRect().getHeight());
+		auto src = glm::vec2(mEngine.getSrcRect().getWidth(), mEngine.getSrcRect().getHeight());
+		mScaleW	 = dst.x / src.x;
+		mScaleH	 = dst.y / src.y;
 
 		mCam = ci::CameraPersp(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mFov, mNearClip, mFarClip);
 		if (mAutoClip) {
@@ -49,11 +50,12 @@ namespace ds { namespace ui {
 
 		// Needs to be in screeen space,
 		auto gp	  = ci::vec2(getGlobalPosition());
-		mViewport = ci::Rectf(gp, gp + ci::vec2(getSize() * getScale()));
+		mViewport = ci::Rectf(gp, gp + ci::vec2(getSize() * getScale()) * ci::vec2(mScaleW, mScaleH));
 
-		mVpSize	 = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
-		mVpPos	 = ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
-		mVpPos.y = static_cast<int>(screenSize.y - (mVpPos.y + mVpSize.y));
+		mVpSize = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
+		mVpPos	= ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
+		mVpPos -= mEngine.getSrcRect().getUpperLeft() * ci::vec2(mScaleW, mScaleH);
+		mVpPos.y = static_cast<int>(dst.y - (mVpPos.y + mVpSize.y));
 	}
 
 	void PerspectiveLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) {
@@ -71,6 +73,7 @@ namespace ds { namespace ui {
 		auto trans = ci::mat4();
 		trans	   = glm::scale(trans, ci::vec3(1.0f, -1.0f, 1.0f));
 		trans	   = glm::translate(trans, ci::vec3(0.0f, -getHeight(), 0.0f));
+		// trans	   = glm::scale(trans, ci::vec3(mScaleW, mScaleH, 1.0f));
 
 		ds::ui::clip_plane::enableClipping(-90000.f, -90000.f, 90000.f, 90000.f);
 		ds::ui::LayoutSprite::drawClient(trans, drawParams);
