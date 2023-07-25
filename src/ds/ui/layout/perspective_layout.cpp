@@ -50,8 +50,9 @@ namespace ds { namespace ui {
 
 		// Needs to be in screeen space,
 		auto gp	  = ci::vec2(getGlobalPosition());
-		mViewport = ci::Rectf(gp, gp + ci::vec2(getSize() * getScale()) * ci::vec2(mScaleW, mScaleH));
+		mViewport = ci::Rectf(gp, gp + ci::vec2(getSize() * getScale()));
 
+		// In clip space :)
 		mVpSize = ci::vec2(getWidth(), getHeight()) * ci::vec2(mScaleW, mScaleH);
 		mVpPos	= ci::vec2(getGlobalPosition()) * ci::vec2(mScaleW, mScaleH);
 		mVpPos -= mEngine.getSrcRect().getUpperLeft() * ci::vec2(mScaleW, mScaleH);
