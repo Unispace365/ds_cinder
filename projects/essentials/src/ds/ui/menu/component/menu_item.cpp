@@ -33,11 +33,13 @@ namespace ds { namespace ui {
 		}
 
 		if (!mMenuItemModel.mIconNormalImage.empty()) {
-			mIcon = new ds::ui::Image(mEngine, mMenuItemModel.mIconNormalImage);
+			mIcon = new ds::ui::Image(mEngine, mMenuItemModel.mIconNormalImage,
+									  ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
 		}
 
 		if (!mMenuItemModel.mIconHighlightedImage.empty()) {
-			mIconGlow = new ds::ui::Image(mEngine, mMenuItemModel.mIconHighlightedImage);
+			mIconGlow = new ds::ui::Image(mEngine, mMenuItemModel.mIconHighlightedImage,
+										  ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_ENABLE_MIPMAP_F);
 		}
 
 		if (mIcon && mIconGlow) {
