@@ -613,7 +613,13 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 		keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN) {
 		ci::app::KeyEvent event(mEngine.getWindow(), keyEvent.getCode(), keyEvent.getCode(), '	', 0,
 								keyEvent.getCode());
-		sendKeyDownEvent(event);
+		sendKeyDownEvent(event, false);
+		sendKeyUpEvent(event);
+	} else if (keyEvent.getCode() == ci::app::KeyEvent::KEY_RETURN ||
+			   keyEvent.getCode() == ci::app::KeyEvent::KEY_KP_ENTER) {
+		ci::app::KeyEvent event(mEngine.getWindow(), keyEvent.getCode(), keyEvent.getCharUtf32(), keyEvent.getChar(), 0,
+								keyEvent.getNativeKeyCode());
+		sendKeyDownEvent(event, false);
 		sendKeyUpEvent(event);
 	} else {
 		sendKeyDownEvent(keyEvent);
@@ -682,7 +688,7 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 	} else if (keyType == ds::ui::SoftKeyboardDefs::kEnter) {
 		code = ci::app::KeyEvent::KEY_RETURN;
 		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '\r', 0, code);
-		sendKeyDownEvent(event);
+		sendKeyDownEvent(event, false);
 		sendKeyUpEvent(event);
 	} else if (keyType == ds::ui::SoftKeyboardDefs::kTab) {
 		code = ci::app::KeyEvent::KEY_TAB;
@@ -714,7 +720,7 @@ void Web::sendKeyUpEvent(const ci::app::KeyEvent& event) {
 	DS_LOG_VERBOSE(3, "Web: send key up " << event.getChar() << " code: " << event.getCode());
 
 	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(),
-						  event.isControlDown(), event.isAltDown(), true);
+						  event.isControlDown(), event.isAltDown(), 0);
 
 	if (mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE ||
 		mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE) {
