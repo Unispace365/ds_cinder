@@ -677,7 +677,7 @@ void App::launchBridgeSyncService() {
 		}
 		// optional settings
 		settings.interval = mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
-		settings.verbose  = mEngine.getEngineSettings().getBool("bridgeSync:verbose", 0, false);
+		settings.verbose  = mEngine.getEngineSettings().getBool("bridgesync:verbose", 0, false);
 
 		mBridgeSyncService->initialize(settings);
 		/* registerKeyPress(
