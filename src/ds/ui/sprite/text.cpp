@@ -1294,7 +1294,7 @@ void Text::renderPangoText() {
 			unsigned char* pixels = cairo_image_surface_get_data(cairoSurface);
 
 			ci::gl::Texture::Format format;
-			//	format.enableMipmapping(true);
+			format.enableMipmapping(mEngine.getEngineSettings().getBool("text_mipmap", 0, false));
 
 			if (mPreserveSpanColors) {
 				mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
