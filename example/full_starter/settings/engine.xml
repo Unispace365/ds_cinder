@@ -64,6 +64,7 @@
 	<setting name="load_image:create_texture_on_main_thread" value="false" type="bool" comment="True will create the gl texture on the main thread. Only use if you have issues with delayed image loading, typically in fullscreen" default="false"/>
 	<setting name="load_image:cache_everything" value="false" type="bool" comment="True will keep all images in GPU memory until the app exits. False only caches the images loaded with the cache flag" default="false"/>
 	<setting name="font_scale" value="1.3333333333333" type="float" comment="text sprites with scale font values by this amount" default="1.3333333333333" min_value="0.001" max_value="1000.0"/>
+	<setting name="text_mipmap" value="false" type="bool" comment="Mip-map all text" />
 
 	<setting name="TOUCH SETTINGS" value="" type="section_header"/>
 	<setting name="touch:mode" value="SystemAndMouse" type="string" comment="Set the current touch mode: Tuio, TuioAndMouse, System, SystemAndMouse, All." default="SystemAndMouse" possibles="Tuio, TuioAndMouse, System, SystemAndMouse, All"/>
