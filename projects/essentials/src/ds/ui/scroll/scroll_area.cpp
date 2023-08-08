@@ -372,7 +372,11 @@ void ScrollArea::drawClient(const ci::mat4& transformMatrix, const ds::DrawParam
 	dp.mParentOpacity  = drawParams.mParentOpacity;
 	dp.mClippingParent = this;
 
+	// This horrible hack fixes clipping issues
+	ds::ui::clip_plane::enableClipping(-999999.f, -999999.f, 999999.f, 999999.f);
 	ds::ui::Sprite::drawClient(ci::mat4(), dp);
+	ds::ui::clip_plane::disableClipping();
+
 
 	mTransformation = preTrans;
 
