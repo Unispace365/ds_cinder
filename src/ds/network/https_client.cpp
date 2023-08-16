@@ -15,16 +15,16 @@ namespace ds { namespace net {
 	}
 
 	void HttpsRequest::makeSyncGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify,
-										  const bool isDownloadMedia, const std::string& downloadfile, const long timeout) {
+										  const bool isDownloadMedia, const std::string& downloadfile,
+										  const long timeout) {
 		if (url.empty()) {
 			DS_LOG_WARNING("Couldn't make a get request in HttpsRequest because the url is empty");
 			return;
 		}
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
-															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile
-															  << " timeout=" << timeout);
+															  << " isDownload=" << isDownloadMedia << " downloadFile="
+															  << downloadfile << " timeout=" << timeout);
 
 		IndividualRequest req;
 		req.mInput			 = url;
@@ -36,6 +36,10 @@ namespace ds { namespace net {
 		req.mDownloadFile	 = downloadfile;
 		req.mTimeout		 = timeout;
 		req.run();
+
+		if (mReplyFunction) {
+			mReplyFunction(req.mError, req.mOutput, req.mHttpStatus);
+		}
 	}
 
 	void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify, const bool hostVerify,
@@ -46,20 +50,20 @@ namespace ds { namespace net {
 		}
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
-															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile
-															  << " timeout=" << timeout);
+															  << " isDownload=" << isDownloadMedia << " downloadFile="
+															  << downloadfile << " timeout=" << timeout);
 
-		mRequests.start([this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile, timeout](IndividualRequest& q) {
-			q.mInput		   = url;
-			q.mVerifyHost	   = hostVerify;
-			q.mVerifyPeers	   = peerVerify;
-			q.mIsGet		   = true;
-			q.mVerboseOutput   = mVerbose;
-			q.mIsDownloadMedia = isDownloadMedia;
-			q.mDownloadFile	   = downloadfile;
-			q.mTimeout		   = timeout;
-		});
+		mRequests.start(
+			[this, url, peerVerify, hostVerify, isDownloadMedia, downloadfile, timeout](IndividualRequest& q) {
+				q.mInput		   = url;
+				q.mVerifyHost	   = hostVerify;
+				q.mVerifyPeers	   = peerVerify;
+				q.mIsGet		   = true;
+				q.mVerboseOutput   = mVerbose;
+				q.mIsDownloadMedia = isDownloadMedia;
+				q.mDownloadFile	   = downloadfile;
+				q.mTimeout		   = timeout;
+			});
 	}
 
 	void HttpsRequest::makeGetRequest(const std::string& url, std::vector<std::string> headers, const bool peerVerify,
@@ -71,9 +75,8 @@ namespace ds { namespace net {
 		}
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makeGetRequest url=" << url << " peer=" << peerVerify << " host=" << hostVerify
-															  << " isDownload=" << isDownloadMedia
-															  << " downloadFile=" << downloadfile
-															  << " timeout=" << timeout);
+															  << " isDownload=" << isDownloadMedia << " downloadFile="
+															  << downloadfile << " timeout=" << timeout);
 
 		mRequests.start(
 			[this, url, peerVerify, hostVerify, headers, isDownloadMedia, downloadfile, timeout](IndividualRequest& q) {
@@ -101,18 +104,25 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url="
 							  << url << " postData=" << postData << " peer=" << peerVerify << " host=" << hostVerify
-							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile << " timeout=" << timeout);
+							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile
+							  << " timeout=" << timeout);
 
 		IndividualRequest req;
 		req.mInput			 = url;
+		req.mPostData		 = postData;
 		req.mVerifyHost		 = hostVerify;
 		req.mVerifyPeers	 = peerVerify;
 		req.mIsGet			 = false;
+		req.mCustomRequest	 = customRequest;
+		req.mHeaders		 = headers;
 		req.mVerboseOutput	 = mVerbose;
 		req.mIsDownloadMedia = isDownloadMedia;
 		req.mDownloadFile	 = downloadfile;
 		req.mTimeout		 = timeout;
 		req.run();
+		if (mReplyFunction) {
+			mReplyFunction(req.mError, req.mOutput, req.mHttpStatus);
+		}
 	}
 
 	void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData,
@@ -127,7 +137,8 @@ namespace ds { namespace net {
 
 		DS_LOG_VERBOSE(2, "HttpsRequest::makePostRequest url="
 							  << url << " postData=" << postData << " peer=" << peerVerify << " host=" << hostVerify
-							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile << " timeout=" << timeout);
+							  << " isDownload=" << isDownloadMedia << " downloadFile=" << downloadfile
+							  << " timeout=" << timeout);
 
 		mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers, isDownloadMedia,
 						 downloadfile, timeout](IndividualRequest& q) {
