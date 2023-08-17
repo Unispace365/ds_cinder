@@ -16,7 +16,7 @@ namespace ds::ui {
 
 VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize, const float buttHeight,
 									   const ci::Color interfaceColor, VideoVolumeStyle style)
-  : ds::ui::Sprite(eng, theSize * 2.5f, theSize)
+  : ds::ui::Sprite(eng, theSize * 1.5f, theSize)
   , mStyle(style)
   , mLinkedVideo(nullptr)
   , mLinkedYouTube(nullptr)
@@ -34,6 +34,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 	clearChildren();
 	mBars.clear();
 	if (mStyle == VideoVolumeStyle::CLASSIC) {
+		setSize(mTheSize * 1.5f, mTheSize);
 		const int barCount = 5;
 
 		const float floatNumBars = (float)(barCount);
@@ -55,6 +56,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		}
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
+		setSize(mTheSize * 2.25f, mTheSize);
 		// Slider is made up of 3 parts:
 		// 'mute' - Button to toggle between muted / unmuted
 		// 'track' - the background of the slider showing it's overall length
