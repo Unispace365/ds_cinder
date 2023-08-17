@@ -63,9 +63,10 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		// 'fill' - the filled portion of the slider
 		// 'nub' - the visual handle at the current slider position
 		mSliderSprites.mMuteButton =
-			new ds::ui::ImageButton(mEngine, mVolumeHighImage, mVolumeLowImage, (mTheSize - mButtHeight) / 2.0f);
-		mSliderSprites.mMuteButton->setScale(mTheSize / mSliderSprites.mMuteButton->getHeight());
-		mSliderSprites.mMuteButton->setCenter(0.0f, 0.5f);
+			new ds::ui::ImageButton(mEngine, mVolumeHighImage, mMuteImage, (mTheSize - mButtHeight) / 2.0f);
+		mSliderSprites.mMuteButton->setScale((mTheSize - (mButtHeight * 0.5f)) /
+											 mSliderSprites.mMuteButton->getHeight());
+		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
 		mSliderSprites.mMuteButton->setPosition(0.0f, getHeight() / 2.f);
 		mSliderSprites.mMuteButton->setClickFn([this] {
 			if (mMuted) {
@@ -76,7 +77,9 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		});
 		addChildPtr(mSliderSprites.mMuteButton);
 
-		ci::vec2 trackPos = ci::vec2(mSliderSprites.mMuteButton->getScaleWidth() + 8.f, getHeight() / 2.f);
+		auto muteOffset = mSliderSprites.mMuteButton->getScaleWidth() / 2.f; // Mute button is centered, only need half
+		const auto padding	= mSliderHeight;
+		ci::vec2   trackPos = ci::vec2(muteOffset + padding, getHeight() / 2.f);
 
 		mSliderSprites.mSliderTrack = new ds::ui::Sprite(mEngine, getWidth() - (trackPos.x), mSliderHeight);
 		mSliderSprites.mSliderTrack->setTransparent(false);
@@ -173,20 +176,20 @@ void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams) {
 			}
 		} else if (mStyle == VideoVolumeStyle::SLIDER) {
 			if (isMuted || vol <= std::numeric_limits<float>::epsilon()) {
-				mSliderSprites.mMuteButton->setHighImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																		 ds::ui::Image::IMG_CACHE_F);
 				mSliderSprites.mMuteButton->setNormalImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
 																		   ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setHighImage((mLastVolume < 0.5f) ? mVolumeLowImage : mVolumeHighImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
+																		 ds::ui::Image::IMG_CACHE_F);
 			} else if (vol < 0.5f) {
-				mSliderSprites.mMuteButton->setHighImage(mVolumeLowImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																			  ds::ui::Image::IMG_CACHE_F);
 				mSliderSprites.mMuteButton->setNormalImage(mVolumeLowImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
 																				ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setHighImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
+																			  ds::ui::Image::IMG_CACHE_F);
 			} else {
-				mSliderSprites.mMuteButton->setHighImage(mVolumeHighImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																			   ds::ui::Image::IMG_CACHE_F);
 				mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
 																				 ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setHighImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
+																			   ds::ui::Image::IMG_CACHE_F);
 			}
 
 			mSliderSprites.mSliderFill->setSize(vol * mSliderSprites.mSliderTrack->getWidth(),
