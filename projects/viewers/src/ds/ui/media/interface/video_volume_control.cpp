@@ -175,21 +175,19 @@ void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams) {
 				}
 			}
 		} else if (mStyle == VideoVolumeStyle::SLIDER) {
+			const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
+
 			if (isMuted || vol <= std::numeric_limits<float>::epsilon()) {
-				mSliderSprites.mMuteButton->setNormalImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																		   ds::ui::Image::IMG_CACHE_F);
-				mSliderSprites.mMuteButton->setHighImage((mLastVolume < 0.5f) ? mVolumeLowImage : mVolumeHighImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																		 ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setNormalImage(mMuteImage, imageFlags);
+
+				const auto& highImage = (mLastVolume < 0.5f) ? mVolumeLowImage : mVolumeHighImage;
+				mSliderSprites.mMuteButton->setHighImage(highImage, imageFlags);
 			} else if (vol < 0.5f) {
-				mSliderSprites.mMuteButton->setNormalImage(mVolumeLowImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																				ds::ui::Image::IMG_CACHE_F);
-				mSliderSprites.mMuteButton->setHighImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																			  ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setNormalImage(mVolumeLowImage, imageFlags);
+				mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
 			} else {
-				mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																				 ds::ui::Image::IMG_CACHE_F);
-				mSliderSprites.mMuteButton->setHighImage(mMuteImage, ds::ui::Image::IMG_ENABLE_MIPMAP_F |
-																			   ds::ui::Image::IMG_CACHE_F);
+				mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
+				mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
 			}
 
 			mSliderSprites.mSliderFill->setSize(vol * mSliderSprites.mSliderTrack->getWidth(),
