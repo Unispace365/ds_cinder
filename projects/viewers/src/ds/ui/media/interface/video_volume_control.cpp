@@ -56,7 +56,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		}
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
-		setSize(mTheSize * 2.25f, mTheSize);
+		setSize(mTheSize * 2.f, mTheSize);
 		// Slider is made up of 3 parts:
 		// 'mute' - Button to toggle between muted / unmuted
 		// 'track' - the background of the slider showing it's overall length
