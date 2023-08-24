@@ -307,7 +307,7 @@ void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const 
 
 		DS_REPORT_GL_ERRORS();
 
-		mDrawOpacity = mOpacity * drawParams.mParentOpacity;
+		mDrawOpacity = getOpacity() * drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
 
 		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 
@@ -337,7 +337,7 @@ void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const 
 
 
 	DrawParams dParams = drawParams;
-	dParams.mParentOpacity *= mOpacity;
+	dParams.mParentOpacity *= getOpacity(); // Use getOpacity() to allow sprites to override this behavior.
 
 	if ((mSpriteFlags & DRAW_SORTED_F) == 0) {
 		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
@@ -420,7 +420,7 @@ void Sprite::drawServer(const ci::mat4& trans, const DrawParams& drawParams) {
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
 
-			mDrawOpacity = mOpacity * drawParams.mParentOpacity;
+			mDrawOpacity = getOpacity() * drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
 			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 		} else {
 			ci::gl::disableAlphaBlending();

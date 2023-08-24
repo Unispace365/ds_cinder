@@ -475,7 +475,7 @@ namespace ui {
 		/** Get the opacity of this Sprite (transparency).
 			0.0 is invisible, 1.0 is fully opaque.
 			\return The current opacity value of this Sprite. */
-		float getOpacity() const;
+		virtual float getOpacity() const;
 		/** Returns the final opacity of the Sprite decided based on all its parents.
 			Useful for custom drawing routines where getOpacity() does not work.
 			The difference between this and getOpacity() is that, getOpacity() is the opacity
