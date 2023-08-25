@@ -10,24 +10,24 @@ namespace web_example {
 class WebView;
 
 class web_example : public ds::App {
-public:
+  public:
 	web_example();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
-	void				update();
-private:
-	typedef ds::App		inherited;
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
+	void		 update();
+
+  private:
+	typedef ds::App inherited;
 	// Data acquisition
-	Globals				mGlobals;
+	Globals mGlobals;
 
-	WebView*			mWebView;
+	WebView* mWebView;
 
 
-	void				moveCamera(const ci::vec3& deltaMove);
+	void moveCamera(const ci::vec3& deltaMove);
 };
 
-} // !namespace web_example
+} // namespace web_example
 
 #endif // !_WEB_EXAMPLE_APP_H_
-

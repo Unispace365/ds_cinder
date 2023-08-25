@@ -1,0 +1,97 @@
+<interface>
+
+    <layout name="flex_layout_one"
+			layout_type="yoga"
+			yoga_style="
+            direction: ltr;
+            width: $_world_width;
+            height: $_world_height;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-start;
+            "
+            color="#222222"
+			size="$_world_size"
+		>
+	    <layout name="flex_layout"
+			layout_type="yoga"
+			yoga_style="
+            direction: ltr;
+            width: $_world_width;
+            height: $_world_height;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+            "
+            color="#222222"
+			size="$_world_size"
+		>
+		
+	
+		    <sprite name="one"
+			color="#ff0000"
+			yoga_style="
+            max-width: 50%;
+            max-height: 100px;
+            min-width: 10%;
+            min-height: 90px;
+            "
+			/>
+			
+            <sprite name="two"
+			color="#888888"
+			yoga_style="
+            max-width: 50%;
+            max-height: 150px;
+            min-width: 10%;
+            min-height: 150px;
+            align-self: flex-start;
+            flex-grow: 1;
+            flex-shrink: 0;
+            "
+			/>
+
+            <sprite name="three"
+			color="#22aa22"
+			yoga_style="
+            max-width: 50%;
+            max-height: 100px;
+            min-width: 10%;
+            min-height: 90px;
+            "
+			/>
+        </layout>
+        <layout 
+            yoga_style="flex-grow: 1;
+            flex-shrink: 0;
+            width:100%;
+            height:100%;
+            position-type: absolute;
+            "
+            layout_type="yoga"
+            >
+		<text name="app_title"
+			font="app:title"
+			yoga_style="flex-grow: 1;
+            flex-shrink: 1;
+            position-top: 80;
+            position-left: 50%;
+            
+            position-type: absolute;
+            "
+            
+			_pad_all="#expr $_padding * 2.0"
+			_layout_h_align="center"
+			animate_on="$_default:anim"
+            shrink_to_bounds="true"
+            resize_limit="$_world_width"
+			text="sub-box"
+			/>
+			
+		
+	</layout>
+</layout>
+
+</interface>
+
+

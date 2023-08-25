@@ -8,8 +8,9 @@
 
 namespace ds {
 class Engine;
+}
 
-namespace gstreamer {
+namespace ds::gstreamer {
 
 /**
  * \class ds::gstreamer::GstVideoService
@@ -31,7 +32,6 @@ class GstVideoService final : public ds::EngineService {
 	ds::Engine& mEngine;
 };
 
-}  // namespace gstreamer
-}  // namespace ds
+} // namespace ds::gstreamer
 
 #endif

@@ -10,20 +10,19 @@ namespace example {
 class AllData;
 
 class mqtt_example : public ds::App {
-public:
+  public:
 	mqtt_example();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-private:
-	typedef ds::App		inherited;
+  private:
+	typedef ds::App inherited;
 
 
-	ds::net::MqttWatcher	mMqttWatcher;
+	ds::net::MqttWatcher mMqttWatcher;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_MQTT_EXAMPLE_APP_H_
-

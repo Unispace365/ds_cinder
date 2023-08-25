@@ -1,8 +1,6 @@
 //
 // FilePartSource.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/FilePartSource.h#1 $
-//
 // Library: Net
 // Package: Messages
 // Module:  FilePartSource
@@ -40,7 +38,7 @@ public:
 		/// The MIME type is set to application/octet-stream.
 		///
 		/// Throws an OpenFileException if the file cannot be opened.
-	
+
 	FilePartSource(const std::string& path, const std::string& mediaType);
 		/// Creates the FilePartSource for the given
 		/// path and MIME type.
@@ -49,7 +47,7 @@ public:
 
 	FilePartSource(const std::string& path, const std::string& filename, const std::string& mediaType);
 		/// Creates the FilePartSource for the given
-		/// path and MIME type. The given filename is 
+		/// path and MIME type. The given filename is
 		/// used as part filename (see filename()) only.
 		///
 		/// Throws an OpenFileException if the file cannot be opened.
@@ -59,7 +57,7 @@ public:
 
 	std::istream& stream();
 		/// Returns a file input stream for the given file.
-		
+
 	const std::string& filename() const;
 		/// Returns the filename portion of the path.
 

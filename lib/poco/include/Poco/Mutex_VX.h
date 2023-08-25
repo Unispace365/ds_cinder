@@ -1,8 +1,6 @@
 //
 // Mutex_VX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Mutex_VX.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Mutex
@@ -39,7 +37,7 @@ protected:
 	bool tryLockImpl();
 	bool tryLockImpl(long milliseconds);
 	void unlockImpl();
-	
+
 private:
 	SEM_ID _sem;
 };

@@ -18,6 +18,7 @@
 #include <cinder/app/AppBase.h>
 #include <cinder/app/MouseEvent.h>
 #include <cinder/app/Window.h>
+#include <Poco/Foundation.h> // Include Poco before including any GL stuff to prevent redfinition of APIENTRY
 #include <cinder/gl/Fbo.h>
 #include <cinder/gl/GlslProg.h>
 #include <cinder/gl/TextureFont.h>
@@ -40,6 +41,7 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/util/string_util.h>
+#include <ds/util/glm_structured_binding.h>
 
 // Poco
 #include <Poco/Foundation.h>

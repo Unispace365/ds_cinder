@@ -17,13 +17,11 @@ namespace ds {
  * \class EngineSender
  */
 EngineSender::EngineSender(ds::NetConnection& con, const bool useChunker)
-		: mConnection(con) 
-		, mPacketId(0)
-		, mUseChunker(useChunker)
-{
-}
+  : mConnection(con)
+  , mPacketId(0)
+  , mUseChunker(useChunker) {}
 
-void EngineSender::setPacketNumber(unsigned int packetId){
+void EngineSender::setPacketNumber(unsigned int packetId) {
 	mPacketId = packetId;
 }
 
@@ -31,9 +29,9 @@ void EngineSender::setPacketNumber(unsigned int packetId){
  * \class AutoSend
  */
 EngineSender::AutoSend::AutoSend(EngineSender& sender)
-		: mData(sender.mSendBuffer)
-		, mSender(sender) {
-  mData.clear();
+  : mData(sender.mSendBuffer)
+  , mSender(sender) {
+	mData.clear();
 }
 
 EngineSender::AutoSend::~AutoSend() {
@@ -48,7 +46,7 @@ EngineSender::AutoSend::~AutoSend() {
 
 	std::vector<std::string> chunks;
 
-	if(mSender.mUseChunker){
+	if (mSender.mUseChunker) {
 
 		mSender.mPacketId++;
 		ds::net::Chunker chunker;
@@ -57,7 +55,7 @@ EngineSender::AutoSend::~AutoSend() {
 		chunks.push_back(mSender.mCompressionBuffer);
 	}
 
-	for (auto it : chunks){
+	for (auto it : chunks) {
 		mSender.mConnection.sendMessage(it);
 	}
 
@@ -68,17 +66,17 @@ EngineSender::AutoSend::~AutoSend() {
  * \class EngineReceiver
  */
 EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
-		: mConnection(con)
-		, mHeaderId(0)
-		, mCommandId(0)
-		, mHeaderAndCommandOnly(false)
-		, mUseChunker(useChunker)
-		, mNoDataCount(0) {
+  : mConnection(con)
+  , mHeaderId(0)
+  , mCommandId(0)
+  , mHeaderAndCommandOnly(false)
+  , mNoDataCount(0)
+  , mUseChunker(useChunker) {
 	setHeaderAndCommandOnly();
 }
 
 void EngineReceiver::setHeaderAndCommandIds(const char header, const char command) {
-	mHeaderId = header;
+	mHeaderId  = header;
 	mCommandId = command;
 }
 
@@ -93,17 +91,18 @@ ds::DataBuffer& EngineReceiver::getData() {
 bool EngineReceiver::receiveBlob(const bool strict) {
 	std::string recvBuffer;
 
-	if(mUseChunker){
-		while(mConnection.recvMessage(recvBuffer)) {
+	if (mUseChunker) {
+		while (mConnection.recvMessage(recvBuffer)) {
 			mDechunker.addChunk(recvBuffer);
 		}
 
-		while(mDechunker.getAvailable() > 0) {
+		while (mDechunker.getAvailable() > 0) {
 			std::string outBuf;
-			bool validy = mDechunker.getNextGroup(outBuf);
+			bool		validy = mDechunker.getNextGroup(outBuf);
 
-			if(!validy) {
-				DS_LOG_WARNING_M("EngineReceiver: Invalid chunk received. Expect a new world frame shortly.", ds::IO_LOG);
+			if (!validy) {
+				DS_LOG_WARNING_M("EngineReceiver: Invalid chunk received. Expect a new world frame shortly.",
+								 ds::IO_LOG);
 				return false;
 			}
 
@@ -111,15 +110,15 @@ bool EngineReceiver::receiveBlob(const bool strict) {
 			mReceiveBuffers.push_back(mCompressionBufferRead);
 		}
 	} else {
-		while(mConnection.recvMessage(recvBuffer)) {
+		while (mConnection.recvMessage(recvBuffer)) {
 			snappy::Uncompress(recvBuffer.c_str(), recvBuffer.size(), &mCompressionBufferRead);
 			mReceiveBuffers.push_back(mCompressionBufferRead);
 		}
 	}
 
-	if(mReceiveBuffers.empty()) {
+	if (mReceiveBuffers.empty()) {
 		++mNoDataCount;
-		if(strict) {
+		if (strict) {
 			return false;
 		}
 	}
@@ -128,7 +127,7 @@ bool EngineReceiver::receiveBlob(const bool strict) {
 }
 
 bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& reader, bool& morePacketsAvailable) {
-	if(mReceiveBuffers.empty()) {
+	if (mReceiveBuffers.empty()) {
 		++mNoDataCount;
 		morePacketsAvailable = false;
 		return false;
@@ -136,16 +135,16 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 
 	mNoDataCount = 0;
 
-	mCurrentDataBuffer.clear(); 
-	mCurrentDataBuffer.addRaw(mReceiveBuffers.front().c_str(), static_cast<unsigned int>(mReceiveBuffers.front().size()));
+	mCurrentDataBuffer.clear();
+	mCurrentDataBuffer.addRaw(mReceiveBuffers.front().c_str(),
+							  static_cast<unsigned int>(mReceiveBuffers.front().size()));
 	mReceiveBuffers.erase(mReceiveBuffers.begin());
 
 	morePacketsAvailable = !mReceiveBuffers.empty();
 
-	const size_t				receiveSize = mCurrentDataBuffer.size();
-	const char					size = static_cast<char>(registry.mReader.size());
+	const char	 size		 = static_cast<char>(registry.mReader.size());
 	while (mCurrentDataBuffer.canRead<char>()) {
-		const char				token = mCurrentDataBuffer.read<char>();
+		const char token = mCurrentDataBuffer.read<char>();
 		if (token > 0 && token < size) {
 			// If we're doing header and command only, as soon as we hit a
 			// non-header, non-command, we need to bail

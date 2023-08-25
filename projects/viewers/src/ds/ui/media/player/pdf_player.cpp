@@ -16,128 +16,228 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
-PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cachePrevNext)
-  : ds::ui::Sprite(eng)
-  , mPDF(nullptr)
+PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
+  : ds::ui::IPdf(eng)
   , mPdfInterface(nullptr)
-  , mPDFNext(nullptr)
-  , mPDFPrev(nullptr)
-  , mPDFNextHolder(nullptr)
-  , mPDFPrevHolder(nullptr)
   , mEmbedInterface(embedInterface)
-  , mInterfaceBelowMedia(false)
   , mShowInterfaceAtStart(true)
-  , mLetterbox(true)
-  , mAutoCachePrevNext(cachePrevNext)
-  , mCurrentPage(-1)
-  , mNextReady(false)
-  , mPrevReady(false)
-  , mFirstPageLoaded(false) {
-	//	setTransparent(false);
-	//	setColor(ci::Color(0.3f, 0.5f, 0.0f));
+  , mInterfaceBelowMedia(false)
+  , mLetterbox(true) {
+
+	enable(false);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+
+	// in case we haven't loaded pages fast enough, show white
+	setTransparent(false);
+
+	setTouchMode(TouchMode::NORMAL);
+	// set some callbacks in case we are ever enabled
+	/*setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+		int count = getPageCount();
+		int zeroIndexNextWrapped = (getPageNum() % count);
+		setPageNum(zeroIndexNextWrapped + 1);
+	});
+
+	setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
+		int diff = 0;
+
+		if(delta.x < -20.0f) {
+			diff = 1;
+		} else if(delta.x > 20.0f) {
+			diff = -1;
+		}
+
+		if(diff != 0) {
+			int count = getPageCount();
+			int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		}
+	});*/
 
 	mLayoutFixedAspect = true;
-	mPDFNextHolder	 = new ds::ui::Sprite(mEngine);
-	mPDFPrevHolder	 = new ds::ui::Sprite(mEngine);
-	addChildPtr(mPDFPrevHolder);
-	addChildPtr(mPDFNextHolder);
 }
 
-void PDFPlayer::setMedia(const std::string mediaPath) { setResource(ds::Resource(mediaPath)); }
+void PDFPlayer::setTouchMode(TouchMode mode) {
+	if (mode == TouchMode::NORMAL) {
+		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
-void PDFPlayer::setResource(const ds::Resource mediaResource) {
+		// set some callbacks in case we are ever enabled
+		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+			int count				 = getPageCount();
+			int zeroIndexNextWrapped = (getPageNum() % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		});
 
-	mSourceResource		  = mediaResource;
-	std::string mediaPath = mSourceResource.getAbsoluteFilePath();
+		setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta) {
+			int diff = 0;
+
+			if (delta.x < -20.0f) {
+				diff = 1;
+			} else if (delta.x > 20.0f) {
+				diff = -1;
+			}
+
+			if (diff != 0) {
+				int count				 = getPageCount();
+				int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
+				setPageNum(zeroIndexNextWrapped + 1);
+			}
+		});
+	} else if (mode == TouchMode::POS_SCALE) {
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+
+		// set some callbacks in case we are ever enabled
+		setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos) {
+			int count				 = getPageCount();
+			int zeroIndexNextWrapped = (getPageNum() % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		});
+
+		setSwipeCallback(nullptr);
+	}
+}
+
+
+void PDFPlayer::setNormalTouch() {
+	setTouchMode(TouchMode::NORMAL);
+}
+
+void PDFPlayer::setPosScaleTouch() {
+	setTouchMode(TouchMode::POS_SCALE);
+}
+
+void PDFPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath));
+}
+
+void PDFPlayer::loadNextPage() {
+	mLoadingCount++;
+
+	// prevent an infinite loop if we're already loaded and there's only a few pages
+	if (mLoadingCount > mNumPages) {
+		// std::cout << "Cancelling loads cause we've loaded everything" << std::endl;
+		return;
+	}
+
+
+	// only load a few pages ahead, cause we don't know how many pdfs could be onscreen at once
+	if (mLoadedPage > mCurrentPage + mRenderAheadPages) {
+		return;
+	}
+
+	mLoadedPage++;
+
+	// don't loop around when loading
+	if (mLoadedPage > mPages.size()) {
+		return;
+
+		// tried out looping around, but just skip it
+		//		mLoadedPage = 1;
+	}
+
+	auto findy = mPages.find(mLoadedPage);
+	if (findy != mPages.end()) {
+		auto thePdf = findy->second;
+		if (thePdf->getResourceFilename() != mResourceFilename) {
+			thePdf->setResourceFilename(mResourceFilename);
+			thePdf->setPageNum(findy->first);
+		}
+
+		float preW = thePdf->getScale().x;
+
+		const float w = getWidth();
+		const float h = getHeight();
+		/// this changes the scale, which kicks off a re-render
+		/// that will end in a page load notification which hits this function again
+		fitInside(thePdf, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
+
+		/// if the pdf didn't change scale, it won't re-render, so just move ahead
+		if (thePdf->getScale().x == preW) {
+			loadNextPage();
+		}
+	}
+}
+
+void PDFPlayer::setResource(const ds::Resource& mediaResource) {
+
+	mSourceResource	  = mediaResource;
+	mResourceFilename = mSourceResource.getAbsoluteFilePath();
 
 	ci::vec2 prevSize = ci::vec2(0.0f, 0.0f);
 
-	if (mPDF) {
-		prevSize = ci::vec2(mPDF->getSize());
-		mPDF->release();
-		mPDF = nullptr;
-		if (mPdfInterface) {
-			mPdfInterface->linkPDF(nullptr, ds::Resource());
-		}
+	for (auto it : mPages) {
+		it.second->release();
 	}
 
-	mPDF = new ds::ui::Pdf(mEngine);
-	mPDF->setResourceFilename(mediaPath);
+	mPages.clear();
 
-	// When the page finishes loading, hide the low-res thumbnail version and advance its page
-	mPDF->setPageLoadedCallback([this, mediaPath] {
-		if (!mFirstPageLoaded) {
-			if (mPDFNext) {
-				mPDFNext->setResourceFilename(mediaPath);
-			}
-			if (mPDFPrev) {
-				mPDFPrev->setResourceFilename(mediaPath);
-			}
-			layout();
-		}
-		mFirstPageLoaded = true;
-		loadNextAndPrevPages();
-		if (mGoodStatusCallback) mGoodStatusCallback();
-	});
+	mCurrentPage  = 1;
+	mLoadingCount = 0;
 
-	mPDF->setPageSizeChangedFn([this] {
-		if (mSizeChangedCallback) {
-			if (mPDF) {
-				mSizeChangedCallback(ci::vec2(mPDF->getSize()));
+	if (mPdfInterface) {
+		mPdfInterface->linkPDF(nullptr, ds::Resource());
+	}
+
+	bool  firsty  = true;
+	int	  thePage = 1;
+	float theW	  = 0.0f;
+	float theH	  = 0.0f;
+	while (true) {
+		if (!firsty && thePage > mNumPages + 1) break;
+
+		auto newPdf = new ds::ui::Pdf(mEngine);
+
+		newPdf->setPageLoadedCallback([this, thePage] {
+			// std::cout << "Page loaded: " << thePage << std::endl;
+			if (mGoodStatusCallback) mGoodStatusCallback();
+			loadNextPage();
+
+			if (mPdfInterface) {
+				mPdfInterface->updateWidgets();
 			}
+		});
+
+		if (firsty) {
+			newPdf->setResourceFilename(mResourceFilename);
+			newPdf->setPageNum(thePage);
+			mLoadedPage = 1;
+
+			newPdf->setPageSizeChangedFn([this] { layout(); });
+
+			newPdf->setLoadErrorCallback([this](const std::string& msg) {
+				if (mErrorMsgCallback) mErrorMsgCallback(msg);
+			});
+
+			mNumPages = newPdf->getPageCount();
+
+			theW   = newPdf->getWidth();
+			theH   = newPdf->getHeight();
+			firsty = false;
 		} else {
-			layout();
+			newPdf->hide();
 		}
-	});
 
-	mPDF->setLoadErrorCallback([this](const std::string& msg) {
-		if (mErrorMsgCallback) mErrorMsgCallback(msg);
-	});
+		if (mShowingLinks && mCanShowLinks) {
+			newPdf->showLinks();
+		} else {
+			newPdf->hideLinks();
+		}
 
-	addChildPtr(mPDF);
+		newPdf->setLinkClickedCallback([this](ds::pdf::PdfLinkInfo info) {
+			if (info.mPageDest > 0) {
+				setPageNum(info.mPageDest);
+			} else if (mLinkClickedCallback) {
+				mLinkClickedCallback(info);
+			}
+		});
 
-	if (mPDFNext) {
-		mPDFNext->release();
-		mPDFNext = nullptr;
+		addChildPtr(newPdf);
+		mPages[thePage] = newPdf;
+
+		thePage++;
 	}
-	if (mPDFPrev) {
-		mPDFPrev->release();
-		mPDFPrev = nullptr;
-	}
-
-	mFirstPageLoaded = false;
-
-	// This loads 2 additional PDF sprites, one for the next page, and one for the previous page
-	// The scale of the PDF stays at 0.5 (because of the thumb holder), so the quality is less than the proper PDF
-	// When the page gets changed, and the next or previous PDFs are loaded, they're shown until the primary PDF finishes
-	// rendering
-	if (mPDFNextHolder && mPDFPrevHolder && mPDF->getPageCount() > 1 && mAutoCachePrevNext) {
-		mPDFNext = new ds::ui::Pdf(mEngine);
-
-		// Next and prev pdf starts loading after the first proper page has finished, for speed
-		mPDFNext->setScale(0.5f);
-		mPDFNext->setOpacity(0.0f);
-		mNextReady = false;
-		mPDFNext->setPageChangeCallback([this] { mNextReady = false; });
-		mPDFNext->setPageLoadedCallback([this] { mNextReady = true; });
-		mPDFNextHolder->addChildPtr(mPDFNext);
-
-		mPDFPrev = new ds::ui::Pdf(mEngine);
-		mPDFPrev->setScale(0.5f);
-		mPDFPrev->setOpacity(0.0f);
-		mPrevReady = false;
-		mPDFPrev->setPageChangeCallback([this] { mPrevReady = false; });
-		mPDFPrev->setPageLoadedCallback([this] { mPrevReady = true; });
-		mPDFPrevHolder->addChildPtr(mPDFPrev);
-
-		mPDFPrevHolder->sendToFront();
-		mPDFNextHolder->sendToFront();
-	}
-
-	mCurrentPage = 0;
 
 	if (mPdfInterface) {
 		mPdfInterface->release();
@@ -162,130 +262,37 @@ void PDFPlayer::setResource(const ds::Resource mediaResource) {
 		}
 	}
 
-	// This overrides the PDF interface page change callback
-	if (mPDF) {
-
-		// Something requested the main PDF's page to change
-		// Update the interface UI and show the thumbnail low-res size.
-		// The thumbnail gets hidden when the main PDF finishes rendering (async)
-		mPDF->setPageChangeCallback([this] {
-			// If we're going to a page we've already tried to load (the next or prev)
-			if (mPDF->getPageNum() != mCurrentPage) {
-				if (mPDFNext && mPDF->getPageNum() == mPDFNext->getPageNum()) {
-					// We should be ready to go, if not, then start loading the next page and forget about this one
-					if (mNextReady) {
-						mPDFNext->setOpacity(1.0f);
-					} else {
-						mPDFNext->setOpacity(0.0f);
-					}
-
-					if (mPDFPrev) {
-						mPDFPrev->setOpacity(0.0f);
-					}
-				}
-				if (mPDFPrev && mPDF->getPageNum() == mPDFPrev->getPageNum()) {
-					// We should be ready to go, if not, then start loading the prev page and forget about this one
-					if (mPrevReady) {
-						mPDFPrev->setOpacity(1.0f);
-					} else {
-						mPDFPrev->setOpacity(0.0f);
-					}
-
-					if (mPDFNext) {
-						mPDFNext->setOpacity(0.0f);
-					}
-				}
-			}
-
-			mCurrentPage = mPDF->getPageNum();
-
-			if (mPdfInterface) {
-				mPdfInterface->updateWidgets();
-			}
-
-			layout();
-		});
+	if (theW < 1 || theH < 1) {
+		DS_LOG_WARNING("PDF Player loaded a PDF with no size! " << mediaResource.getAbsoluteFilePath());
+		if (mErrorMsgCallback) mErrorMsgCallback("PDF size or file could not be found.");
 	}
 
-	setSize(mPDF->getWidth(), mPDF->getHeight());
+	setSize(theW, theH);
 }
 
-void PDFPlayer::loadNextAndPrevPages() {
-	if (!mPDF) return;
-	const int curPageNum = mPDF->getPageNum();
-	const int curCount   = mPDF->getPageCount();
-	if (mPDFNext) {
-		mPDFNext->setOpacity(0.0f);
-		if (curPageNum == curCount) {
-			mPDFNext->setPageNum(0);
-		} else {
-			mPDFNext->setPageNum(curPageNum + 1);
-		}
-	}
-	if (mPDFPrev) {
-		mPDFPrev->setOpacity(0.0f);
-		if (curPageNum == 1) {
-			mPDFPrev->setPageNum(curCount);
-		} else {
-			mPDFPrev->setPageNum(curPageNum - 1);
-		}
-	}
-
+void PDFPlayer::onSizeChanged() {
 	layout();
 }
-
-void PDFPlayer::onSizeChanged() { layout(); }
 
 void PDFPlayer::layout() {
 	const float w = getWidth();
 	const float h = getHeight();
 
-	if (mPDFNextHolder && mPDFNext) {
-		float pfnw	 = mPDFNext->getWidth();
-		float pfnh	 = mPDFNext->getHeight();
-		float theScale = h / pfnh;
+	mLoadedPage	  = mCurrentPage - 1;
+	mLoadingCount = 0;
 
-		if (theScale * pfnw > w) {
-			theScale = w / pfnw;
-		}
-
-		mPDFNextHolder->setScale(theScale * 2.0f);
-		mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
-
-		// todo: support next/prev in non-letterbox
-		// fitInside(mPDFNextHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
-	}
-
-	if (mPDFPrevHolder && mPDFPrev) {
-		float pfnw	 = mPDFPrev->getWidth();
-		float pfnh	 = mPDFPrev->getHeight();
-		float theScale = h / pfnh;
-		if (theScale * pfnw > w) {
-			theScale = w / pfnw;
-		}
-		mPDFPrevHolder->setScale(theScale * 2.0f);
-		mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
-
-		// todo: support next/prev in non-letterbox
-		// fitInside(mPDFPrevHolder, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
-	}
-
-	if (mPDF && w > 0.0f && h > 0.0f && mPDF->getHeight() > 0.0f && mPDF->getWidth() > 0.0f) {
-		fitInside(mPDF, ci::Rectf(0.0f, 0.0f, w, h), mLetterbox);
-	}
+	loadNextPage();
 
 	if (mPdfInterface) {
 		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
 
-		float yPos = h - mPdfInterface->getHeight() - 50.0f;
+		float yPos = h - mPdfInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < h / 2.0f) yPos = h / 2.0f;
-		if (yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
-		if(mInterfaceBelowMedia) yPos = h;
-		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, yPos);
+		if (yPos + mPdfInterface->getScaleHeight() > h) yPos = h - mPdfInterface->getScaleHeight();
+		if (mInterfaceBelowMedia) yPos = h;
+		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
-
-ds::ui::Pdf* PDFPlayer::getPDF() { return mPDF; }
 
 void PDFPlayer::showInterface() {
 	if (mPdfInterface) {
@@ -302,26 +309,96 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	setLetterbox(settings.mLetterBox);
 	setShowInterfaceAtStart(settings.mShowInterfaceAtStart);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
+	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
+	mCanShowLinks		 = settings.mPdfCanShowLinks;
+	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }
 
-void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
+void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) {
+	mShowInterfaceAtStart = showInterfaceAtStart;
+}
 
 void PDFPlayer::setLetterbox(const bool doLetterbox) {
 	mLetterbox = doLetterbox;
 	layout();
 }
 
-void PDFPlayer::nextPage() {
-	if (mPDF) {
-		mPDF->goToNextPage();
+void PDFPlayer::showLinks() {
+	if (!mCanShowLinks) return;
+	mShowingLinks = true;
+	for (auto it : mPages) {
+		it.second->showLinks();
 	}
+}
+
+void PDFPlayer::hideLinks() {
+	mShowingLinks = false;
+	for (auto it : mPages) {
+		it.second->hideLinks();
+	}
+}
+
+void PDFPlayer::setPageNum(const int pageNum) {
+
+	mCurrentPage = pageNum;
+
+	if (mCurrentPage < 1) mCurrentPage = 1;
+	if (mCurrentPage > mNumPages) mCurrentPage = mNumPages;
+
+	ci::vec2 curSize;
+	for (auto it : mPages) {
+		if (it.first == mCurrentPage) {
+			it.second->show();
+			curSize = ci::vec2(it.second->getSize());
+		} else {
+			it.second->hide();
+		}
+	}
+
+	if (mSizeChangedCallback) {
+		mSizeChangedCallback(curSize);
+	}
+
+	if (mPageChangeCallback) {
+		mPageChangeCallback();
+	}
+
+	if (mPdfInterface) {
+		mPdfInterface->updateWidgets();
+	}
+
+	// ensure the current page is loaded
+	mLoadingCount = 0;
+	mLoadedPage	  = mCurrentPage - 1;
+	loadNextPage();
+}
+
+int PDFPlayer::getPageNum() const {
+	return mCurrentPage;
+}
+
+int PDFPlayer::getPageCount() const {
+	return mNumPages;
+}
+
+void PDFPlayer::nextPage() {
+	mCurrentPage++;
+	if (mCurrentPage > mNumPages) mCurrentPage = 1;
+	setPageNum(mCurrentPage);
 }
 
 void PDFPlayer::prevPage() {
-	if (mPDF) {
-		mPDF->goToPreviousPage();
-	}
+	mCurrentPage--;
+	if (mCurrentPage < 1) mCurrentPage = mNumPages;
+	setPageNum(mCurrentPage);
 }
 
-}  // namespace ui
-}  // namespace ds
+void PDFPlayer::goToNextPage() {
+	nextPage();
+}
+
+void PDFPlayer::goToPreviousPage() {
+	prevPage();
+}
+
+} // namespace ds::ui

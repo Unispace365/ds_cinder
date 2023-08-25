@@ -1,8 +1,6 @@
 //
 // HTTPStreamFactory.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/HTTPStreamFactory.h#1 $
-//
 // Library: Net
 // Package: HTTP
 // Module:  HTTPStreamFactory
@@ -51,7 +49,7 @@ public:
 
 	virtual ~HTTPStreamFactory();
 		/// Destroys the HTTPStreamFactory.
-		
+
 	virtual std::istream* open(const Poco::URI& uri);
 		/// Creates and opens a HTTP stream for the given URI.
 		/// The URI must be a http://... URI.
@@ -62,25 +60,25 @@ public:
 		/// location is automatically resolved, as long
 		/// as the redirect location is still accessible
 		/// via the HTTP protocol. If a redirection to
-		/// a non http://... URI is received, a 
+		/// a non http://... URI is received, a
 		/// UnsupportedRedirectException exception is thrown.
 		/// The offending URI can then be obtained via the message()
 		/// method of UnsupportedRedirectException.
-		
+
 	static void registerFactory();
 		/// Registers the HTTPStreamFactory with the
-		/// default URIStreamOpener instance.	
+		/// default URIStreamOpener instance.
 
 	static void unregisterFactory();
 		/// Unregisters the HTTPStreamFactory with the
-		/// default URIStreamOpener instance.	
-		
+		/// default URIStreamOpener instance.
+
 private:
 	enum
 	{
 		MAX_REDIRECTS = 10
 	};
-	
+
 	std::string  _proxyHost;
 	Poco::UInt16 _proxyPort;
 	std::string  _proxyUsername;

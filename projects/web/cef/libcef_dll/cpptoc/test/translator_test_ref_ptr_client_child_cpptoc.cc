@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a0d7621a6ebd0b238e2bcc4d983061a9ae0e9528$
+// $hash=56384b27dfcbd43965ef7fd5bf521d56fb40766d$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,11 +21,14 @@ namespace {
 
 int CEF_CALLBACK translator_test_ref_ptr_client_child_get_other_value(
     struct _cef_translator_test_ref_ptr_client_child_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -36,11 +40,14 @@ int CEF_CALLBACK translator_test_ref_ptr_client_child_get_other_value(
 
 int CEF_CALLBACK translator_test_ref_ptr_client_child_get_value(
     struct _cef_translator_test_ref_ptr_client_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -63,6 +70,13 @@ CefTranslatorTestRefPtrClientChildCppToC::
   GetStruct()->base.get_value = translator_test_ref_ptr_client_child_get_value;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrClientChildCppToC::
+    ~CefTranslatorTestRefPtrClientChildCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefTranslatorTestRefPtrClientChild>
 CefCppToCRefCounted<CefTranslatorTestRefPtrClientChildCppToC,
@@ -71,16 +85,8 @@ CefCppToCRefCounted<CefTranslatorTestRefPtrClientChildCppToC,
     UnwrapDerived(CefWrapperType type,
                   cef_translator_test_ref_ptr_client_child_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefTranslatorTestRefPtrClientChildCppToC,
-    CefTranslatorTestRefPtrClientChild,
-    cef_translator_test_ref_ptr_client_child_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,20 +9,25 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2671bd327be9faac30b38b219a2d21ae58554659$
+// $hash=e8e755f72056f698bbe9edfc4250fb288718e10d$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 #include <algorithm>
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_subject))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_subject)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -33,10 +38,14 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
   return CefX509CertPrincipalCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_issuer))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_issuer)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -47,10 +56,14 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
   return CefX509CertPrincipalCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_serial_number))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_serial_number)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -61,38 +74,49 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
-CefTime CefX509CertificateCToCpp::GetValidStart() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefX509CertificateCToCpp::GetValidStart() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_valid_start))
-    return CefTime();
+  if (CEF_MEMBER_MISSING(_struct, get_valid_start)) {
+    return CefBaseTime();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_valid_start(_struct);
+  cef_basetime_t _retval = _struct->get_valid_start(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-CefTime CefX509CertificateCToCpp::GetValidExpiry() {
+NO_SANITIZE("cfi-icall")
+CefBaseTime CefX509CertificateCToCpp::GetValidExpiry() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_valid_expiry))
-    return CefTime();
+  if (CEF_MEMBER_MISSING(_struct, get_valid_expiry)) {
+    return CefBaseTime();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_valid_expiry(_struct);
+  cef_basetime_t _retval = _struct->get_valid_expiry(_struct);
 
   // Return type: simple
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_derencoded))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_derencoded)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -103,10 +127,14 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_pemencoded))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_pemencoded)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -117,10 +145,13 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
-size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
+NO_SANITIZE("cfi-icall") size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_issuer_chain_size))
+  if (CEF_MEMBER_MISSING(_struct, get_issuer_chain_size)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -131,11 +162,15 @@ size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
     IssuerChainBinaryList& chain) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_derencoded_issuer_chain))
+  if (CEF_MEMBER_MISSING(_struct, get_derencoded_issuer_chain)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -169,11 +204,15 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
   }
 }
 
+NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
     IssuerChainBinaryList& chain) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_pemencoded_issuer_chain))
+  if (CEF_MEMBER_MISSING(_struct, get_pemencoded_issuer_chain)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -211,6 +250,12 @@ void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
 
 CefX509CertificateCToCpp::CefX509CertificateCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefX509CertificateCToCpp::~CefX509CertificateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_x509certificate_t* CefCToCppRefCounted<
     CefX509CertificateCToCpp,
@@ -218,16 +263,8 @@ cef_x509certificate_t* CefCToCppRefCounted<
     cef_x509certificate_t>::UnwrapDerived(CefWrapperType type,
                                           CefX509Certificate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefX509CertificateCToCpp,
-                                         CefX509Certificate,
-                                         cef_x509certificate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefX509CertificateCToCpp,

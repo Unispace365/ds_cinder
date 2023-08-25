@@ -8,20 +8,20 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 /**
  \class LineSprite
  \brief
-	- UI elements extend from Sprite to participate in the display hierarchy, drawing transformations, built-in tweens,
- touch picking, etc.
+	- UI elements extend from Sprite to participate in the display hierarchy, drawing transformations, built-in
+ tweens, touch picking, etc.
 	- Sprite can have children, which will be positioned in local space relative to the parent sprite.
-	- Sprite will release all children when removing. Use release() to remove the sprite from it's parent and delete it.
-	- The base Sprite class can be set to display a solid rectangle, assuming it has a size, is non-transparent, and has
- a color.
-	- Sprites can be animated using the SpriteAnimatable functions to gracefully change size, position, opacity, scale,
- color, and rotation.
+	- Sprite will release all children when removing. Use release() to remove the sprite from it's parent and delete
+ it.
+	- The base Sprite class can be set to display a solid rectangle, assuming it has a size, is non-transparent, and
+ has a color.
+	- Sprites can be animated using the SpriteAnimatable functions to gracefully change size, position, opacity,
+ scale, color, and rotation.
 	- Sprites can clip their children along their bounds using setClipping(true)	 */
 class LineSprite : public ds::ui::Sprite {
   public:
@@ -93,10 +93,9 @@ class LineSprite : public ds::ui::Sprite {
 	std::vector<ci::vec2> mPoints;
 
 	ci::gl::GlslProgRef mShader;
-	ci::gl::VboMeshRef  mVboMesh;
+	ci::gl::VboMeshRef	mVboMesh;
 };
 
-}  // namespace experiments
-}  // namespace experiments
+} // namespace ds::ui
 
 #endif

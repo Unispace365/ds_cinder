@@ -1,8 +1,6 @@
 //
 // NullStream.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/NullStream.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  NullStream
@@ -36,10 +34,10 @@ class Foundation_API NullStreamBuf: public UnbufferedStreamBuf
 public:
 	NullStreamBuf();
 		/// Creates a NullStreamBuf.
-	
+
 	~NullStreamBuf();
 		/// Destroys the NullStreamBuf.
-		
+
 protected:
 	int readFromDevice();
 	int writeToDevice(char c);
@@ -80,7 +78,7 @@ class Foundation_API NullOutputStream: public NullIOS, public std::ostream
 public:
 	NullOutputStream();
 		/// Creates the NullOutputStream.
-	
+
 	~NullOutputStream();
 		/// Destroys the NullOutputStream.
 };

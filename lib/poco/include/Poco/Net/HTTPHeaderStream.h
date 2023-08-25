@@ -1,8 +1,6 @@
 //
 // HTTPHeaderStream.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/HTTPHeaderStream.h#1 $
-//
 // Library: Net
 // Package: HTTP
 // Module:  HTTPHeaderStream
@@ -40,11 +38,11 @@ class Net_API HTTPHeaderStreamBuf: public HTTPBasicStreamBuf
 	/// in a HTTPSession.
 {
 public:
-	typedef HTTPBasicStreamBuf::openmode openmode;
+	using openmode = HTTPBasicStreamBuf::openmode;
 
 	HTTPHeaderStreamBuf(HTTPSession& session, openmode mode);
 	~HTTPHeaderStreamBuf();
-	
+
 protected:
 	int readFromDevice(char* buffer, std::streamsize length);
 	int writeToDevice(const char* buffer, std::streamsize length);
@@ -77,7 +75,7 @@ public:
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr);
-	
+
 private:
 	static Poco::MemoryPool _pool;
 };
@@ -92,7 +90,7 @@ public:
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr);
-	
+
 private:
 	static Poco::MemoryPool _pool;
 };

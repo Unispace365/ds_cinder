@@ -1,8 +1,6 @@
 //
 // FPEnvironment_QNX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/FPEnvironment_QNX.h#1 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  FPEnvironment
@@ -50,18 +48,18 @@ protected:
 	FPEnvironmentImpl(const FPEnvironmentImpl& env);
 	~FPEnvironmentImpl();
 	FPEnvironmentImpl& operator = (const FPEnvironmentImpl& env);
-	void keepCurrentImpl();		
+	void keepCurrentImpl();
 	static void clearFlagsImpl();
-	static bool isFlagImpl(FlagImpl flag);	
+	static bool isFlagImpl(FlagImpl flag);
 	static void setRoundingModeImpl(RoundingModeImpl mode);
 	static RoundingModeImpl getRoundingModeImpl();
-	static bool isInfiniteImpl(float value);		
+	static bool isInfiniteImpl(float value);
 	static bool isInfiniteImpl(double value);
 	static bool isInfiniteImpl(long double value);
-	static bool isNaNImpl(float value);		
+	static bool isNaNImpl(float value);
 	static bool isNaNImpl(double value);
 	static bool isNaNImpl(long double value);
-	static float copySignImpl(float target, float source);		
+	static float copySignImpl(float target, float source);
 	static double copySignImpl(double target, double source);
 	static long double copySignImpl(long double target, long double source);
 

@@ -1,0 +1,53 @@
+<interface>
+
+	<layout name="layout"
+			layout_type="vert"
+			layout_size_mode="fixed"
+			enable="true"
+			multitouch="info"
+			size="600, 30"
+			overall_alignment="center"
+		>
+		
+		<sprite name="normal"
+			layout_size_mode="flex"
+			color="#222222"
+			size="2, 2"
+			/>
+		<layout name="the_text"
+			layout_type="horiz"
+			layout_v_align="middle"
+			layout_size_mode="stretch"
+			>
+			<image name="media"
+				src_cache="%APP%/data/images/ui/PictureStack.png" 
+				pad_all="0"
+				layout_size_mode="flex"
+				visible="false"
+				layout_v_align="middle"
+				/>
+			<text name="name"
+				font="viewer:name"
+				layout_v_align="middle"
+				model="text:this->property_name"
+				l_pad="10"
+				layout_size_mode="fixed"
+				size="200, 100"
+				resize_limit="150"
+				text_align="left"
+				/>
+			<text name="value"
+				font="viewer:value"
+				layout_v_align="middle"
+				model="text:this->property_value"
+				resize_limit="340, 1"
+				text_ellipses="end"
+				l_pad="10"
+				/>
+				
+			
+		</layout>
+	</layout>
+	
+</interface>
+

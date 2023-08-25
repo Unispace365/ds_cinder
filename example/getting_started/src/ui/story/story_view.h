@@ -7,23 +7,20 @@
 namespace downstream {
 
 /**
-* \class downstream::StoryView
-*			A view that shows a single story. Disappears when idle starts, and reappears on user action
-*/
-class StoryView : public ds::ui::SmartLayout  {
-public:
+ * \class downstream::StoryView
+ *			A view that shows a single story. Disappears when idle starts, and reappears on user action
+ */
+class StoryView : public ds::ui::SmartLayout {
+  public:
 	StoryView(ds::ui::SpriteEngine& eng);
 
-private:
+  private:
+	void animateOn();
+	void animateOff();
 
-	void								animateOn();
-	void								animateOff();
-
-	void								setData();
-
+	void setData();
 };
 
 } // namespace downstream
 
 #endif
-

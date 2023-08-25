@@ -1,8 +1,6 @@
 //
 // TaskNotification.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/TaskNotification.h#1 $
-//
 // Library: Foundation
 // Package: Tasks
 // Module:  Tasks
@@ -53,7 +51,7 @@ class Foundation_API TaskStartedNotification: public TaskNotification
 {
 public:
 	TaskStartedNotification(Task* pTask);
-	
+
 protected:
 	~TaskStartedNotification();
 };
@@ -94,7 +92,7 @@ public:
 
 protected:
 	~TaskFailedNotification();
-	
+
 private:
 	Exception* _pException;
 };
@@ -111,7 +109,7 @@ public:
 
 protected:
 	~TaskProgressNotification();
-	
+
 private:
 	float _progress;
 };
@@ -122,7 +120,7 @@ class TaskCustomNotification: public TaskNotification
 	/// This is a template for "custom" notification.
 	/// Unlike other notifications, this notification
 	/// is instantiated and posted by the task itself.
-	/// The purpose is to provide generic notifiation
+	/// The purpose is to provide generic notification
 	/// mechanism between the task and its observer(s).
 {
 public:
@@ -139,7 +137,7 @@ public:
 
 protected:
 	~TaskCustomNotification(){};
-	
+
 private:
 	C _custom;
 };

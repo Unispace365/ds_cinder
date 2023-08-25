@@ -1,8 +1,6 @@
 //
 // RWLock_WINCE.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/RWLock_WINCE.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  RWLock
@@ -44,7 +42,7 @@ protected:
 	void writeLockImpl();
 	bool tryWriteLockImpl(DWORD timeout = 1);
 	void unlockImpl();
-	
+
 private:
 	DWORD _readerCount;
 	DWORD _readerWaiting;

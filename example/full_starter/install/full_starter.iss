@@ -24,11 +24,17 @@
 ; App runs inside apphost
 ; Automatically add the apphost.json config file to the correct destination directory
 ; If IS_PRODUCTION is defined, will start apphost on system boot
-#define USE_APPHOST
+; #define USE_APPHOST
 
 ; Uses DsNode to connect to a DsCMS
 ; If USE_APPHOST is also defined, will run dsnode inside Apphost
-#define USE_DSNODE
+; #define USE_DSNODE
+
+; Uses downsync to connect to a CMS
+; #define USE_DOWNSYNC
+
+; Uses bridgesync to connect to a CMS
+; #define USE_BRIDGESYNC
 
 ; Sets the DS_BASEURL env variable for dsnode if present AND IS_PRODUCTION is defined
 ;#define CMS_URL ""
@@ -45,7 +51,7 @@
 ; This grabs the full installer script to actually build the thing
 ; Check that file if you have any problems or questions
 ; App binaries, data, and settings (minus configuration.xml) are automatically added
-#include GetEnv('DS_PLATFORM_090') + "/install/base_install.iss"
+#include GetEnv('DS_PLATFORM_093') + "/install/base_install.iss"
 
 
 ; -------- Optional additional stuff

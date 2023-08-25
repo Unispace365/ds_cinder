@@ -1,8 +1,6 @@
 //
 // TCPServer.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/TCPServer.h#1 $
-//
 // Library: Net
 // Package: TCPServer
 // Module:  TCPServer
@@ -24,9 +22,12 @@
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/TCPServerConnectionFactory.h"
 #include "Poco/Net/TCPServerParams.h"
+#include "Poco/RefCountedObject.h"
+#include "Poco/AutoPtr.h"
 #include "Poco/Runnable.h"
 #include "Poco/Thread.h"
 #include "Poco/ThreadPool.h"
+#include <atomic>
 
 
 namespace Poco {
@@ -34,6 +35,35 @@ namespace Net {
 
 
 class TCPServerDispatcher;
+class StreamSocket;
+
+
+class Net_API TCPServerConnectionFilter: public Poco::RefCountedObject
+	/// A TCPServerConnectionFilter can be used to reject incoming connections
+	/// before passing them on to the TCPServerDispatcher and
+	/// starting a thread to handle them.
+	///
+	/// An example use case is white-list or black-list IP address filtering.
+	///
+	/// Subclasses must override the accept() method.
+{
+public:
+	using Ptr = Poco::AutoPtr<TCPServerConnectionFilter>;
+
+	virtual bool accept(const StreamSocket& socket) = 0;
+		/// Returns true if the given StreamSocket connection should
+		/// be handled, and passed on to the TCPServerDispatcher.
+		///
+		/// Returns false if the socket should be closed immediately.
+		///
+		/// The socket can be prevented from being closed immediately
+		/// if false is returned by creating a copy of the socket.
+		/// This can be used to handle certain socket connections in
+		/// a special way, outside the TCPServer framework.
+
+protected:
+	virtual ~TCPServerConnectionFilter();
+};
 
 
 class Net_API TCPServer: public Poco::Runnable
@@ -63,7 +93,7 @@ class Net_API TCPServer: public Poco::Runnable
 	/// on the number of connections waiting to be served.
 	///
 	/// It is possible to specify a maximum number of queued connections.
-	/// This prevents the connection queue from overflowing in the 
+	/// This prevents the connection queue from overflowing in the
 	/// case of an extreme server load. In such a case, connections that
 	/// cannot be queued are silently and immediately closed.
 	///
@@ -121,7 +151,7 @@ public:
 
 	const TCPServerParams& params() const;
 		/// Returns a const reference to the TCPServerParam object
-		/// used by the server's TCPServerDispatcher.	
+		/// used by the server's TCPServerDispatcher.
 
 	void start();
 		/// Starts the server. A new thread will be
@@ -138,7 +168,7 @@ public:
 		/// Already handled connections will continue to be served.
 		///
 		/// Once the server has been stopped, it cannot be restarted.
-		
+
 	int currentThreads() const;
 		/// Returns the number of currently used connection threads.
 
@@ -147,13 +177,13 @@ public:
 
 	int totalConnections() const;
 		/// Returns the total number of handled connections.
-		
+
 	int currentConnections() const;
 		/// Returns the number of currently handled connections.
 
 	int maxConcurrentConnections() const;
-		/// Returns the maximum number of concurrently handled connections.	
-		
+		/// Returns the maximum number of concurrently handled connections.
+
 	int queuedConnections() const;
 		/// Returns the number of queued connections.
 
@@ -165,6 +195,19 @@ public:
 
 	Poco::UInt16 port() const;
 		/// Returns the port the server socket listens on.
+
+	void setConnectionFilter(const TCPServerConnectionFilter::Ptr& pFilter);
+		/// Sets a TCPServerConnectionFilter. Can also be used to remove
+		/// a filter by passing a null pointer.
+		///
+		/// To avoid a potential race condition, the filter must
+		/// be set before the TCPServer is started. Trying to set
+		/// the filter after start() has been called will trigger
+		/// an assertion.
+
+	TCPServerConnectionFilter::Ptr getConnectionFilter() const;
+		/// Returns the TCPServerConnectionFilter set with setConnectionFilter(),
+		/// or null pointer if no filter has been set.
 
 protected:
 	void run();
@@ -180,11 +223,12 @@ private:
 	TCPServer();
 	TCPServer(const TCPServer&);
 	TCPServer& operator = (const TCPServer&);
-	
-	ServerSocket         _socket;
+
+	ServerSocket _socket;
 	TCPServerDispatcher* _pDispatcher;
-	Poco::Thread         _thread;
-	bool                 _stopped;
+	TCPServerConnectionFilter::Ptr _pConnectionFilter;
+	Poco::Thread _thread;
+	std::atomic<bool> _stopped;
 };
 
 
@@ -200,6 +244,12 @@ inline const ServerSocket& TCPServer::socket() const
 inline Poco::UInt16 TCPServer::port() const
 {
 	return _socket.address().port();
+}
+
+
+inline TCPServerConnectionFilter::Ptr TCPServer::getConnectionFilter() const
+{
+	return _pConnectionFilter;
 }
 
 

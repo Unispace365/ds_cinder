@@ -1,8 +1,6 @@
 //
 // Event_WIN32.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Event_WIN32.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Event
@@ -23,7 +21,7 @@
 #include "Poco/Foundation.h"
 #include "Poco/Exception.h"
 #include "Poco/UnWindows.h"
-
+#include <atomic>
 
 namespace Poco {
 
@@ -31,15 +29,15 @@ namespace Poco {
 class Foundation_API EventImpl
 {
 protected:
-	EventImpl(bool autoReset);		
+	EventImpl(bool autoReset);
 	~EventImpl();
 	void setImpl();
 	void waitImpl();
 	bool waitImpl(long milliseconds);
 	void resetImpl();
-	
+
 private:
-	HANDLE _event;
+	std::atomic<HANDLE> _event;
 };
 
 

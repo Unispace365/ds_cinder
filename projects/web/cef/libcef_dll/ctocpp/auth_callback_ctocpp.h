@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4c48e5bee2bd177f01d0ae484eba308344c3f822$
+// $hash=60f444d40338eb245860b389d087e12af15cbf20$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_AUTH_CALLBACK_CTOCPP_H_
@@ -31,10 +31,11 @@ class CefAuthCallbackCToCpp : public CefCToCppRefCounted<CefAuthCallbackCToCpp,
                                                          cef_auth_callback_t> {
  public:
   CefAuthCallbackCToCpp();
+  virtual ~CefAuthCallbackCToCpp();
 
   // CefAuthCallback methods.
-  void Continue(const CefString& username, const CefString& password) OVERRIDE;
-  void Cancel() OVERRIDE;
+  void Continue(const CefString& username, const CefString& password) override;
+  void Cancel() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_AUTH_CALLBACK_CTOCPP_H_

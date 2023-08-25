@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=05b6fa7134b9e58dcef8262b0b726e4afd6e3512$
+// $hash=febb11e8ea976823bf839bc77bc129be40af20bb$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -17,6 +17,8 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -25,11 +27,14 @@ namespace {
 void CEF_CALLBACK extension_handler_on_extension_load_failed(
     struct _cef_extension_handler_t* self,
     cef_errorcode_t result) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefExtensionHandlerCppToC::Get(self)->OnExtensionLoadFailed(result);
@@ -38,15 +43,19 @@ void CEF_CALLBACK extension_handler_on_extension_load_failed(
 void CEF_CALLBACK
 extension_handler_on_extension_loaded(struct _cef_extension_handler_t* self,
                                       cef_extension_t* extension) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return;
+  }
 
   // Execute
   CefExtensionHandlerCppToC::Get(self)->OnExtensionLoaded(
@@ -56,15 +65,19 @@ extension_handler_on_extension_loaded(struct _cef_extension_handler_t* self,
 void CEF_CALLBACK
 extension_handler_on_extension_unloaded(struct _cef_extension_handler_t* self,
                                         cef_extension_t* extension) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return;
+  }
 
   // Execute
   CefExtensionHandlerCppToC::Get(self)->OnExtensionUnloaded(
@@ -77,37 +90,50 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
     const cef_string_t* url,
     cef_client_t** client,
     struct _cef_browser_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return 0;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
-  if (!client)
+  if (!client) {
     return 0;
+  }
   // Verify param: settings; type: struct_byref
   DCHECK(settings);
-  if (!settings)
+  if (!settings) {
     return 0;
+  }
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
 
   // Translate param: client; type: refptr_same_byref
   CefRefPtr<CefClient> clientPtr;
-  if (client && *client)
+  if (client && *client) {
     clientPtr = CefClientCppToC::Unwrap(*client);
+  }
   CefClient* clientOrig = clientPtr.get();
   // Translate param: settings; type: struct_byref
   CefBrowserSettings settingsObj;
-  if (settings)
+  if (settings) {
     settingsObj.AttachTo(*settings);
+  }
 
   // Execute
   bool _retval =
@@ -122,12 +148,13 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
         *client = CefClientCppToC::Wrap(clientPtr);
       }
     } else {
-      *client = NULL;
+      *client = nullptr;
     }
   }
   // Restore param: settings; type: struct_byref
-  if (settings)
+  if (settings) {
     settingsObj.DetachTo(*settings);
+  }
 
   // Return type: bool
   return _retval;
@@ -144,53 +171,74 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
                                     cef_window_info_t* windowInfo,
                                     cef_client_t** client,
                                     struct _cef_browser_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: active_browser; type: refptr_diff
   DCHECK(active_browser);
-  if (!active_browser)
+  if (!active_browser) {
     return 0;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
   // Verify param: windowInfo; type: struct_byref
   DCHECK(windowInfo);
-  if (!windowInfo)
+  if (!windowInfo) {
     return 0;
+  }
+  if (!template_util::has_valid_size(windowInfo)) {
+    NOTREACHED() << "invalid windowInfo->[base.]size";
+    return 0;
+  }
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
-  if (!client)
+  if (!client) {
     return 0;
+  }
   // Verify param: settings; type: struct_byref
   DCHECK(settings);
-  if (!settings)
+  if (!settings) {
     return 0;
+  }
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
 
   // Translate param: windowInfo; type: struct_byref
   CefWindowInfo windowInfoObj;
-  if (windowInfo)
+  if (windowInfo) {
     windowInfoObj.AttachTo(*windowInfo);
+  }
   // Translate param: client; type: refptr_same_byref
   CefRefPtr<CefClient> clientPtr;
-  if (client && *client)
+  if (client && *client) {
     clientPtr = CefClientCppToC::Unwrap(*client);
+  }
   CefClient* clientOrig = clientPtr.get();
   // Translate param: settings; type: struct_byref
   CefBrowserSettings settingsObj;
-  if (settings)
+  if (settings) {
     settingsObj.AttachTo(*settings);
+  }
 
   // Execute
   bool _retval = CefExtensionHandlerCppToC::Get(self)->OnBeforeBrowser(
@@ -199,8 +247,9 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
       active ? true : false, windowInfoObj, clientPtr, settingsObj);
 
   // Restore param: windowInfo; type: struct_byref
-  if (windowInfo)
+  if (windowInfo) {
     windowInfoObj.DetachTo(*windowInfo);
+  }
   // Restore param: client; type: refptr_same_byref
   if (client) {
     if (clientPtr.get()) {
@@ -208,12 +257,13 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
         *client = CefClientCppToC::Wrap(clientPtr);
       }
     } else {
-      *client = NULL;
+      *client = nullptr;
     }
   }
   // Restore param: settings; type: struct_byref
-  if (settings)
+  if (settings) {
     settingsObj.DetachTo(*settings);
+  }
 
   // Return type: bool
   return _retval;
@@ -224,19 +274,24 @@ extension_handler_get_active_browser(struct _cef_extension_handler_t* self,
                                      cef_extension_t* extension,
                                      cef_browser_t* browser,
                                      int include_incognito) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return NULL;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowser> _retval =
@@ -254,23 +309,29 @@ extension_handler_can_access_browser(struct _cef_extension_handler_t* self,
                                      cef_browser_t* browser,
                                      int include_incognito,
                                      cef_browser_t* target_browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: target_browser; type: refptr_diff
   DCHECK(target_browser);
-  if (!target_browser)
+  if (!target_browser) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefExtensionHandlerCppToC::Get(self)->CanAccessBrowser(
@@ -287,27 +348,34 @@ int CEF_CALLBACK extension_handler_get_extension_resource(
     cef_browser_t* browser,
     const cef_string_t* file,
     cef_get_extension_resource_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension; type: refptr_diff
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: file; type: string_byref_const
   DCHECK(file);
-  if (!file)
+  if (!file) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefExtensionHandlerCppToC::Get(self)->GetExtensionResource(
@@ -336,6 +404,12 @@ CefExtensionHandlerCppToC::CefExtensionHandlerCppToC() {
       extension_handler_get_extension_resource;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefExtensionHandlerCppToC::~CefExtensionHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
     CefExtensionHandlerCppToC,
@@ -343,16 +417,8 @@ CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
     cef_extension_handler_t>::UnwrapDerived(CefWrapperType type,
                                             cef_extension_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefExtensionHandlerCppToC,
-                                         CefExtensionHandler,
-                                         cef_extension_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefExtensionHandlerCppToC,

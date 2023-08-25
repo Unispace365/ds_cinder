@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d5d5c9af8be047bbb6597e5c32a18f5ac7b2d1da$
+// $hash=2ecf87822e0901130b8738a0e6b0d663129404a2$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
@@ -25,26 +25,28 @@
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame,
-    bool with_menu_marker) {
+    const CefString& text) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: delegate; type: refptr_diff
   DCHECK(delegate.get());
-  if (!delegate.get())
-    return NULL;
+  if (!delegate.get()) {
+    return nullptr;
+  }
   // Unverified params: text
 
   // Execute
-  cef_menu_button_t* _retval =
-      cef_menu_button_create(CefMenuButtonDelegateCppToC::Wrap(delegate),
-                             text.GetStruct(), with_frame, with_menu_marker);
+  cef_menu_button_t* _retval = cef_menu_button_create(
+      CefMenuButtonDelegateCppToC::Wrap(delegate), text.GetStruct());
 
   // Return type: refptr_same
   return CefMenuButtonCToCpp::Wrap(_retval);
@@ -52,29 +54,37 @@ CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                                    const CefPoint& screen_point,
                                    cef_menu_anchor_position_t anchor_position) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_button_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, show_menu))
+  if (CEF_MEMBER_MISSING(_struct, show_menu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_same
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->show_menu(_struct, CefMenuModelCToCpp::Unwrap(menu_model),
                      &screen_point, anchor_position);
 }
 
-void CefMenuButtonCToCpp::TriggerMenu() {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::TriggerMenu() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_button_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, trigger_menu))
+  if (CEF_MEMBER_MISSING(_struct, trigger_menu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -82,11 +92,15 @@ void CefMenuButtonCToCpp::TriggerMenu() {
   _struct->trigger_menu(_struct);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButtonCToCpp::AsMenuButton() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_menu_button))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_menu_button)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -97,28 +111,36 @@ CefRefPtr<CefMenuButton> CefMenuButtonCToCpp::AsMenuButton() {
   return CefMenuButtonCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetText(const CefString& text) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_text))
+  if (CEF_MEMBER_MISSING(_struct, set_text)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: text; type: string_byref_const
   DCHECK(!text.empty());
-  if (text.empty())
+  if (text.empty()) {
     return;
+  }
 
   // Execute
   _struct->set_text(_struct, text.GetStruct());
 }
 
-CefString CefMenuButtonCToCpp::GetText() {
+NO_SANITIZE("cfi-icall") CefString CefMenuButtonCToCpp::GetText() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_text))
+  if (CEF_MEMBER_MISSING(_struct, get_text)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -131,12 +153,16 @@ CefString CefMenuButtonCToCpp::GetText() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetImage(cef_button_state_t button_state,
                                    CefRefPtr<CefImage> image) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_image))
+  if (CEF_MEMBER_MISSING(_struct, set_image)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -146,12 +172,16 @@ void CefMenuButtonCToCpp::SetImage(cef_button_state_t button_state,
   _struct->set_image(_struct, button_state, CefImageCToCpp::Unwrap(image));
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefImage> CefMenuButtonCToCpp::GetImage(
     cef_button_state_t button_state) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_image))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_image)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -162,12 +192,16 @@ CefRefPtr<CefImage> CefMenuButtonCToCpp::GetImage(
   return CefImageCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetTextColor(cef_button_state_t for_state,
                                        cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_text_color))
+  if (CEF_MEMBER_MISSING(_struct, set_text_color)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -175,11 +209,15 @@ void CefMenuButtonCToCpp::SetTextColor(cef_button_state_t for_state,
   _struct->set_text_color(_struct, for_state, color);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_enabled_text_colors))
+  if (CEF_MEMBER_MISSING(_struct, set_enabled_text_colors)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -187,29 +225,38 @@ void CefMenuButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
   _struct->set_enabled_text_colors(_struct, color);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetFontList(const CefString& font_list) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_font_list))
+  if (CEF_MEMBER_MISSING(_struct, set_font_list)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: font_list; type: string_byref_const
   DCHECK(!font_list.empty());
-  if (font_list.empty())
+  if (font_list.empty()) {
     return;
+  }
 
   // Execute
   _struct->set_font_list(_struct, font_list.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetHorizontalAlignment(
     cef_horizontal_alignment_t alignment) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_horizontal_alignment))
+  if (CEF_MEMBER_MISSING(_struct, set_horizontal_alignment)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -217,11 +264,15 @@ void CefMenuButtonCToCpp::SetHorizontalAlignment(
   _struct->set_horizontal_alignment(_struct, alignment);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetMinimumSize(const CefSize& size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, set_minimum_size)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -229,11 +280,15 @@ void CefMenuButtonCToCpp::SetMinimumSize(const CefSize& size) {
   _struct->set_minimum_size(_struct, &size);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetMaximumSize(const CefSize& size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_label_button_t* _struct =
       reinterpret_cast<cef_label_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, set_maximum_size)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -241,10 +296,14 @@ void CefMenuButtonCToCpp::SetMaximumSize(const CefSize& size) {
   _struct->set_maximum_size(_struct, &size);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLabelButton> CefMenuButtonCToCpp::AsLabelButton() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_label_button))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_label_button)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -255,10 +314,14 @@ CefRefPtr<CefLabelButton> CefMenuButtonCToCpp::AsLabelButton() {
   return CefLabelButtonCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetState(cef_button_state_t state) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_state))
+  if (CEF_MEMBER_MISSING(_struct, set_state)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -266,10 +329,13 @@ void CefMenuButtonCToCpp::SetState(cef_button_state_t state) {
   _struct->set_state(_struct, state);
 }
 
-cef_button_state_t CefMenuButtonCToCpp::GetState() {
+NO_SANITIZE("cfi-icall") cef_button_state_t CefMenuButtonCToCpp::GetState() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_state))
+  if (CEF_MEMBER_MISSING(_struct, get_state)) {
     return CEF_BUTTON_STATE_NORMAL;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -280,10 +346,14 @@ cef_button_state_t CefMenuButtonCToCpp::GetState() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetInkDropEnabled(bool enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_ink_drop_enabled))
+  if (CEF_MEMBER_MISSING(_struct, set_ink_drop_enabled)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -291,42 +361,56 @@ void CefMenuButtonCToCpp::SetInkDropEnabled(bool enabled) {
   _struct->set_ink_drop_enabled(_struct, enabled);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_tooltip_text))
+  if (CEF_MEMBER_MISSING(_struct, set_tooltip_text)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: tooltip_text; type: string_byref_const
   DCHECK(!tooltip_text.empty());
-  if (tooltip_text.empty())
+  if (tooltip_text.empty()) {
     return;
+  }
 
   // Execute
   _struct->set_tooltip_text(_struct, tooltip_text.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetAccessibleName(const CefString& name) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_accessible_name))
+  if (CEF_MEMBER_MISSING(_struct, set_accessible_name)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return;
+  }
 
   // Execute
   _struct->set_accessible_name(_struct, name.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserView> CefMenuButtonCToCpp::AsBrowserView() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_browser_view))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_browser_view)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -337,10 +421,13 @@ CefRefPtr<CefBrowserView> CefMenuButtonCToCpp::AsBrowserView() {
   return CefBrowserViewCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefButton> CefMenuButtonCToCpp::AsButton() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefButton> CefMenuButtonCToCpp::AsButton() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_button))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_button)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -351,10 +438,13 @@ CefRefPtr<CefButton> CefMenuButtonCToCpp::AsButton() {
   return CefButtonCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefPanel> CefMenuButtonCToCpp::AsPanel() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefPanel> CefMenuButtonCToCpp::AsPanel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_panel))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_panel)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -365,10 +455,14 @@ CefRefPtr<CefPanel> CefMenuButtonCToCpp::AsPanel() {
   return CefPanelCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefScrollView> CefMenuButtonCToCpp::AsScrollView() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_scroll_view))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_scroll_view)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -379,10 +473,14 @@ CefRefPtr<CefScrollView> CefMenuButtonCToCpp::AsScrollView() {
   return CefScrollViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTextfield> CefMenuButtonCToCpp::AsTextfield() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, as_textfield))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, as_textfield)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -393,10 +491,13 @@ CefRefPtr<CefTextfield> CefMenuButtonCToCpp::AsTextfield() {
   return CefTextfieldCToCpp::Wrap(_retval);
 }
 
-CefString CefMenuButtonCToCpp::GetTypeString() {
+NO_SANITIZE("cfi-icall") CefString CefMenuButtonCToCpp::GetTypeString() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_type_string))
+  if (CEF_MEMBER_MISSING(_struct, get_type_string)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -409,10 +510,14 @@ CefString CefMenuButtonCToCpp::GetTypeString() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefMenuButtonCToCpp::ToString(bool include_children) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, to_string))
+  if (CEF_MEMBER_MISSING(_struct, to_string)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -425,10 +530,13 @@ CefString CefMenuButtonCToCpp::ToString(bool include_children) {
   return _retvalStr;
 }
 
-bool CefMenuButtonCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -439,10 +547,13 @@ bool CefMenuButtonCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-bool CefMenuButtonCToCpp::IsAttached() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsAttached() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_attached))
+  if (CEF_MEMBER_MISSING(_struct, is_attached)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -453,17 +564,22 @@ bool CefMenuButtonCToCpp::IsAttached() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_same))
+  if (CEF_MEMBER_MISSING(_struct, is_same)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: that; type: refptr_same
   DCHECK(that.get());
-  if (!that.get())
+  if (!that.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->is_same(_struct, CefViewCToCpp::Unwrap(that));
@@ -472,10 +588,14 @@ bool CefMenuButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefViewDelegate> CefMenuButtonCToCpp::GetDelegate() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_delegate))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_delegate)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -486,10 +606,13 @@ CefRefPtr<CefViewDelegate> CefMenuButtonCToCpp::GetDelegate() {
   return CefViewDelegateCppToC::Unwrap(_retval);
 }
 
-CefRefPtr<CefWindow> CefMenuButtonCToCpp::GetWindow() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefMenuButtonCToCpp::GetWindow() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_window))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_window)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -500,10 +623,13 @@ CefRefPtr<CefWindow> CefMenuButtonCToCpp::GetWindow() {
   return CefWindowCToCpp::Wrap(_retval);
 }
 
-int CefMenuButtonCToCpp::GetID() {
+NO_SANITIZE("cfi-icall") int CefMenuButtonCToCpp::GetID() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_id))
+  if (CEF_MEMBER_MISSING(_struct, get_id)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -514,10 +640,13 @@ int CefMenuButtonCToCpp::GetID() {
   return _retval;
 }
 
-void CefMenuButtonCToCpp::SetID(int id) {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::SetID(int id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_id))
+  if (CEF_MEMBER_MISSING(_struct, set_id)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -525,10 +654,13 @@ void CefMenuButtonCToCpp::SetID(int id) {
   _struct->set_id(_struct, id);
 }
 
-int CefMenuButtonCToCpp::GetGroupID() {
+NO_SANITIZE("cfi-icall") int CefMenuButtonCToCpp::GetGroupID() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_group_id))
+  if (CEF_MEMBER_MISSING(_struct, get_group_id)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -539,10 +671,13 @@ int CefMenuButtonCToCpp::GetGroupID() {
   return _retval;
 }
 
-void CefMenuButtonCToCpp::SetGroupID(int group_id) {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::SetGroupID(int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_group_id))
+  if (CEF_MEMBER_MISSING(_struct, set_group_id)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -550,10 +685,14 @@ void CefMenuButtonCToCpp::SetGroupID(int group_id) {
   _struct->set_group_id(_struct, group_id);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefView> CefMenuButtonCToCpp::GetParentView() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_parent_view))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_parent_view)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -564,10 +703,14 @@ CefRefPtr<CefView> CefMenuButtonCToCpp::GetParentView() {
   return CefViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefView> CefMenuButtonCToCpp::GetViewForID(int id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_view_for_id))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_view_for_id)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -578,10 +721,14 @@ CefRefPtr<CefView> CefMenuButtonCToCpp::GetViewForID(int id) {
   return CefViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetBounds(const CefRect& bounds) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_bounds))
+  if (CEF_MEMBER_MISSING(_struct, set_bounds)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -589,10 +736,13 @@ void CefMenuButtonCToCpp::SetBounds(const CefRect& bounds) {
   _struct->set_bounds(_struct, &bounds);
 }
 
-CefRect CefMenuButtonCToCpp::GetBounds() {
+NO_SANITIZE("cfi-icall") CefRect CefMenuButtonCToCpp::GetBounds() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_bounds))
+  if (CEF_MEMBER_MISSING(_struct, get_bounds)) {
     return CefRect();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -603,10 +753,13 @@ CefRect CefMenuButtonCToCpp::GetBounds() {
   return _retval;
 }
 
-CefRect CefMenuButtonCToCpp::GetBoundsInScreen() {
+NO_SANITIZE("cfi-icall") CefRect CefMenuButtonCToCpp::GetBoundsInScreen() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_bounds_in_screen))
+  if (CEF_MEMBER_MISSING(_struct, get_bounds_in_screen)) {
     return CefRect();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -617,10 +770,14 @@ CefRect CefMenuButtonCToCpp::GetBoundsInScreen() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetSize(const CefSize& size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_size))
+  if (CEF_MEMBER_MISSING(_struct, set_size)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -628,10 +785,13 @@ void CefMenuButtonCToCpp::SetSize(const CefSize& size) {
   _struct->set_size(_struct, &size);
 }
 
-CefSize CefMenuButtonCToCpp::GetSize() {
+NO_SANITIZE("cfi-icall") CefSize CefMenuButtonCToCpp::GetSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_size))
+  if (CEF_MEMBER_MISSING(_struct, get_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -642,10 +802,14 @@ CefSize CefMenuButtonCToCpp::GetSize() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetPosition(const CefPoint& position) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_position))
+  if (CEF_MEMBER_MISSING(_struct, set_position)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -653,10 +817,13 @@ void CefMenuButtonCToCpp::SetPosition(const CefPoint& position) {
   _struct->set_position(_struct, &position);
 }
 
-CefPoint CefMenuButtonCToCpp::GetPosition() {
+NO_SANITIZE("cfi-icall") CefPoint CefMenuButtonCToCpp::GetPosition() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_position))
+  if (CEF_MEMBER_MISSING(_struct, get_position)) {
     return CefPoint();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -667,10 +834,45 @@ CefPoint CefMenuButtonCToCpp::GetPosition() {
   return _retval;
 }
 
-CefSize CefMenuButtonCToCpp::GetPreferredSize() {
+NO_SANITIZE("cfi-icall")
+void CefMenuButtonCToCpp::SetInsets(const CefInsets& insets) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, set_insets)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_insets(_struct, &insets);
+}
+
+NO_SANITIZE("cfi-icall") CefInsets CefMenuButtonCToCpp::GetInsets() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_insets)) {
+    return CefInsets();
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_insets_t _retval = _struct->get_insets(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall") CefSize CefMenuButtonCToCpp::GetPreferredSize() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_preferred_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -681,10 +883,13 @@ CefSize CefMenuButtonCToCpp::GetPreferredSize() {
   return _retval;
 }
 
-void CefMenuButtonCToCpp::SizeToPreferredSize() {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::SizeToPreferredSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, size_to_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, size_to_preferred_size)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -692,10 +897,13 @@ void CefMenuButtonCToCpp::SizeToPreferredSize() {
   _struct->size_to_preferred_size(_struct);
 }
 
-CefSize CefMenuButtonCToCpp::GetMinimumSize() {
+NO_SANITIZE("cfi-icall") CefSize CefMenuButtonCToCpp::GetMinimumSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_minimum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -706,10 +914,13 @@ CefSize CefMenuButtonCToCpp::GetMinimumSize() {
   return _retval;
 }
 
-CefSize CefMenuButtonCToCpp::GetMaximumSize() {
+NO_SANITIZE("cfi-icall") CefSize CefMenuButtonCToCpp::GetMaximumSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_maximum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -720,10 +931,13 @@ CefSize CefMenuButtonCToCpp::GetMaximumSize() {
   return _retval;
 }
 
-int CefMenuButtonCToCpp::GetHeightForWidth(int width) {
+NO_SANITIZE("cfi-icall") int CefMenuButtonCToCpp::GetHeightForWidth(int width) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
+  if (CEF_MEMBER_MISSING(_struct, get_height_for_width)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -734,10 +948,13 @@ int CefMenuButtonCToCpp::GetHeightForWidth(int width) {
   return _retval;
 }
 
-void CefMenuButtonCToCpp::InvalidateLayout() {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::InvalidateLayout() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, invalidate_layout))
+  if (CEF_MEMBER_MISSING(_struct, invalidate_layout)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -745,10 +962,13 @@ void CefMenuButtonCToCpp::InvalidateLayout() {
   _struct->invalidate_layout(_struct);
 }
 
-void CefMenuButtonCToCpp::SetVisible(bool visible) {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::SetVisible(bool visible) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_visible))
+  if (CEF_MEMBER_MISSING(_struct, set_visible)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -756,10 +976,13 @@ void CefMenuButtonCToCpp::SetVisible(bool visible) {
   _struct->set_visible(_struct, visible);
 }
 
-bool CefMenuButtonCToCpp::IsVisible() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsVisible() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_visible))
+  if (CEF_MEMBER_MISSING(_struct, is_visible)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -770,10 +993,13 @@ bool CefMenuButtonCToCpp::IsVisible() {
   return _retval ? true : false;
 }
 
-bool CefMenuButtonCToCpp::IsDrawn() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsDrawn() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_drawn))
+  if (CEF_MEMBER_MISSING(_struct, is_drawn)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -784,10 +1010,13 @@ bool CefMenuButtonCToCpp::IsDrawn() {
   return _retval ? true : false;
 }
 
-void CefMenuButtonCToCpp::SetEnabled(bool enabled) {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::SetEnabled(bool enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_enabled))
+  if (CEF_MEMBER_MISSING(_struct, set_enabled)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -795,10 +1024,13 @@ void CefMenuButtonCToCpp::SetEnabled(bool enabled) {
   _struct->set_enabled(_struct, enabled);
 }
 
-bool CefMenuButtonCToCpp::IsEnabled() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsEnabled() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_enabled))
+  if (CEF_MEMBER_MISSING(_struct, is_enabled)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -809,10 +1041,14 @@ bool CefMenuButtonCToCpp::IsEnabled() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetFocusable(bool focusable) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_focusable))
+  if (CEF_MEMBER_MISSING(_struct, set_focusable)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -820,10 +1056,13 @@ void CefMenuButtonCToCpp::SetFocusable(bool focusable) {
   _struct->set_focusable(_struct, focusable);
 }
 
-bool CefMenuButtonCToCpp::IsFocusable() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsFocusable() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_focusable))
+  if (CEF_MEMBER_MISSING(_struct, is_focusable)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -834,10 +1073,13 @@ bool CefMenuButtonCToCpp::IsFocusable() {
   return _retval ? true : false;
 }
 
-bool CefMenuButtonCToCpp::IsAccessibilityFocusable() {
+NO_SANITIZE("cfi-icall") bool CefMenuButtonCToCpp::IsAccessibilityFocusable() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, is_accessibility_focusable))
+  if (CEF_MEMBER_MISSING(_struct, is_accessibility_focusable)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -848,10 +1090,13 @@ bool CefMenuButtonCToCpp::IsAccessibilityFocusable() {
   return _retval ? true : false;
 }
 
-void CefMenuButtonCToCpp::RequestFocus() {
+NO_SANITIZE("cfi-icall") void CefMenuButtonCToCpp::RequestFocus() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, request_focus))
+  if (CEF_MEMBER_MISSING(_struct, request_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -859,10 +1104,14 @@ void CefMenuButtonCToCpp::RequestFocus() {
   _struct->request_focus(_struct);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonCToCpp::SetBackgroundColor(cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, set_background_color))
+  if (CEF_MEMBER_MISSING(_struct, set_background_color)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -870,10 +1119,13 @@ void CefMenuButtonCToCpp::SetBackgroundColor(cef_color_t color) {
   _struct->set_background_color(_struct, color);
 }
 
-cef_color_t CefMenuButtonCToCpp::GetBackgroundColor() {
+NO_SANITIZE("cfi-icall") cef_color_t CefMenuButtonCToCpp::GetBackgroundColor() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_background_color))
+  if (CEF_MEMBER_MISSING(_struct, get_background_color)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -884,10 +1136,14 @@ cef_color_t CefMenuButtonCToCpp::GetBackgroundColor() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_to_screen))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_to_screen)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -898,10 +1154,14 @@ bool CefMenuButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_from_screen))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_from_screen)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -912,10 +1172,14 @@ bool CefMenuButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_to_window))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_to_window)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -926,10 +1190,14 @@ bool CefMenuButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_from_window))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_from_window)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -940,18 +1208,23 @@ bool CefMenuButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
                                              CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_to_view))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_to_view)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_same
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->convert_point_to_view(
@@ -961,18 +1234,23 @@ bool CefMenuButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
                                                CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, convert_point_from_view))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_from_view)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_same
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->convert_point_from_view(
@@ -986,20 +1264,19 @@ bool CefMenuButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 
 CefMenuButtonCToCpp::CefMenuButtonCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefMenuButtonCToCpp::~CefMenuButtonCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_menu_button_t*
 CefCToCppRefCounted<CefMenuButtonCToCpp, CefMenuButton, cef_menu_button_t>::
     UnwrapDerived(CefWrapperType type, CefMenuButton* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefMenuButtonCToCpp, CefMenuButton, cef_menu_button_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefMenuButtonCToCpp,

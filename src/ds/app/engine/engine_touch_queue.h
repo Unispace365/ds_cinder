@@ -2,9 +2,9 @@
 #ifndef DS_APP_ENGINE_ENGINETOUCHQUEUE_H_
 #define DS_APP_ENGINE_ENGINETOUCHQUEUE_H_
 
+#include <cinder/Thread.h>
 #include <functional>
 #include <vector>
-#include <cinder/Thread.h>
 
 #include <ds/debug/logger.h>
 
@@ -19,48 +19,45 @@ namespace ds {
  */
 template <typename T>
 class EngineTouchQueue {
-public:
-	EngineTouchQueue(	std::mutex&, float& lastTouchTime,
-						const std::function<void(const T&)>&, const std::string& debugLabel = "");
+  public:
+	EngineTouchQueue(std::mutex&, float& lastTouchTime, const std::function<void(const T&)>&,
+					 const std::string& debugLabel = "");
 
-	void					setUpdateFn(const std::function<void(const T&)>&);
+	void setUpdateFn(const std::function<void(const T&)>&);
 
-	void					setAutoIdleReset(bool);
+	void setAutoIdleReset(bool);
 
 	/// Call this as new events arrive. I will handle locking
-	void					incoming(const T&);
+	void incoming(const T&);
 
 	/// When updating, first call this while the mutex is locked...
-	void					lockedUpdate();
+	void lockedUpdate();
 	/// ... then call this after the lock has been released.
-	void					update(const float currTime);
+	void update(const float currTime);
 
-private:
+  private:
 	EngineTouchQueue(const EngineTouchQueue&);
 
-	std::mutex&				mMutex;
-	float&					mLastTouchTime;
-	std::function<void(const T&)>
-							mUpdateFn;
-	std::string				mDebugLabel;
+	std::mutex&					  mMutex;
+	float&						  mLastTouchTime;
+	std::function<void(const T&)> mUpdateFn;
+	std::string					  mDebugLabel;
 
-	bool					mAutoIdleReset;
+	bool mAutoIdleReset;
 
 	/// Incoming stores the events as they arrive, the
 	/// Updating holds them temporarily for processing.
-	std::vector<T>			mIncoming,
-							mUpdating;
+	std::vector<T> mIncoming, mUpdating;
 };
 
 template <typename T>
-EngineTouchQueue<T>::EngineTouchQueue(	std::mutex& m, float& lastTouchTime,
-										const std::function<void(const T&)>& updateFn, const std::string& debugLabel)
-		: mMutex(m)
-		, mLastTouchTime(lastTouchTime)
-		, mUpdateFn(updateFn)
-		, mDebugLabel(debugLabel)
-		, mAutoIdleReset(true)
-{
+EngineTouchQueue<T>::EngineTouchQueue(std::mutex& m, float& lastTouchTime,
+									  const std::function<void(const T&)>& updateFn, const std::string& debugLabel)
+  : mMutex(m)
+  , mLastTouchTime(lastTouchTime)
+  , mUpdateFn(updateFn)
+  , mDebugLabel(debugLabel)
+  , mAutoIdleReset(true) {
 	mIncoming.reserve(32);
 	mUpdating.reserve(32);
 }
@@ -91,12 +88,12 @@ template <typename T>
 void EngineTouchQueue<T>::update(const float currTime) {
 	if (mUpdating.empty()) return;
 
-	if(mAutoIdleReset){
-		//DS_LOG_INFO("EngineTouchQueue: losing idle due to " << mDebugLabel);
+	if (mAutoIdleReset) {
+		// DS_LOG_INFO("EngineTouchQueue: losing idle due to " << mDebugLabel);
 		mLastTouchTime = currTime;
 	}
-	
-	for (auto it=mUpdating.begin(), end=mUpdating.end(); it!=end; ++it) {
+
+	for (auto it = mUpdating.begin(), end = mUpdating.end(); it != end; ++it) {
 		mUpdateFn(*it);
 	}
 }

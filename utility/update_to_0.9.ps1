@@ -37,7 +37,7 @@ $FileListSolution = Get-ChildItem -Path .\ -Include *.sln,*.vcxproj -Recurse;
 foreach ($File in $FileListSolution) {
     $OutputFile = $File.FullName;
 	
-    $Content = (Get-Content -Path $File.FullName -Raw).Replace("DS_PLATFORM_086", "DS_PLATFORM_090").
+    $Content = (Get-Content -Path $File.FullName -Raw).Replace("DS_PLATFORM_086", "DS_PLATFORM_093").
 		Replace("CINDER_086", "CINDER_090");
 	
     Set-Content -Path $OutputFile -Value $Content;

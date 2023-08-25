@@ -42,7 +42,7 @@
    parsing and comparions by programs. The LIBCURL_VERSION_NUM define will
    always follow this syntax:
 
-         0xXXYYZZ
+		 0xXXYYZZ
 
    Where XX, YY and ZZ are the main version, release and patch numbers in
    hexadecimal (using 8 bits each). All three numbers are always represented
@@ -70,8 +70,7 @@
  */
 #define LIBCURL_TIMESTAMP "[unreleased]"
 
-#define CURL_VERSION_BITS(x,y,z) ((x)<<16|(y)<<8|z)
-#define CURL_AT_LEAST_VERSION(x,y,z) \
-  (LIBCURL_VERSION_NUM >= CURL_VERSION_BITS(x, y, z))
+#define CURL_VERSION_BITS(x, y, z) ((x) << 16 | (y) << 8 | z)
+#define CURL_AT_LEAST_VERSION(x, y, z) (LIBCURL_VERSION_NUM >= CURL_VERSION_BITS(x, y, z))
 
 #endif /* __CURL_CURLVER_H */

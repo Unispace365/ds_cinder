@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,17 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=158b19fa3b7bec818b76834d487844acf7434273$
+// $hash=464ef9eb17442065860808d28cd96a5736ac118c$
 //
 
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefDownloadItemCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cancel))
+  if (CEF_MEMBER_MISSING(_struct, cancel)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -27,10 +31,13 @@ void CefDownloadItemCallbackCToCpp::Cancel() {
   _struct->cancel(_struct);
 }
 
-void CefDownloadItemCallbackCToCpp::Pause() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Pause() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, pause))
+  if (CEF_MEMBER_MISSING(_struct, pause)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -38,10 +45,13 @@ void CefDownloadItemCallbackCToCpp::Pause() {
   _struct->pause(_struct);
 }
 
-void CefDownloadItemCallbackCToCpp::Resume() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Resume() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, resume))
+  if (CEF_MEMBER_MISSING(_struct, resume)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -53,6 +63,12 @@ void CefDownloadItemCallbackCToCpp::Resume() {
 
 CefDownloadItemCallbackCToCpp::CefDownloadItemCallbackCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCallbackCToCpp::~CefDownloadItemCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_download_item_callback_t* CefCToCppRefCounted<
     CefDownloadItemCallbackCToCpp,
@@ -60,16 +76,8 @@ cef_download_item_callback_t* CefCToCppRefCounted<
     cef_download_item_callback_t>::UnwrapDerived(CefWrapperType type,
                                                  CefDownloadItemCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefDownloadItemCallbackCToCpp,
-    CefDownloadItemCallback,
-    cef_download_item_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefDownloadItemCallbackCToCpp,

@@ -1,8 +1,6 @@
 //
 // Stopwatch.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Stopwatch.h#2 $
-//
 // Library: Foundation
 // Package: DateTime
 // Module:  Stopwatch
@@ -37,20 +35,20 @@ public:
 
 	void start();
 		/// Starts (or restarts) the stopwatch.
-		
+
 	void stop();
 		/// Stops or pauses the stopwatch.
-	
+
 	void reset();
 		/// Resets the stopwatch.
-		
+
 	void restart();
 		/// Resets and starts the stopwatch.
-		
+
 	Clock::ClockDiff elapsed() const;
 		/// Returns the elapsed time in microseconds
 		/// since the stopwatch started.
-		
+
 	int elapsedSeconds() const;
 		/// Returns the number of seconds elapsed
 		/// since the stopwatch started.

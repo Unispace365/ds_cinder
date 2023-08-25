@@ -6,12 +6,11 @@
 namespace pango {
 
 
-class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent>{
-public:
+class StoryDataUpdatedEvent : public ds::RegisteredEvent<StoryDataUpdatedEvent> {
+  public:
 	StoryDataUpdatedEvent(){};
-}; 
+};
 
-} // !namespace pango
+} // namespace pango
 
 #endif // !_PANGO_APP_APPEVENTS_H_
-

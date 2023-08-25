@@ -70,29 +70,14 @@
     <Filter Include="src\ds\storage">
       <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\osc">
-      <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\tuio">
       <UniqueIdentifier>{9be7ff39-27e0-45e4-890a-65e91ab4e28e}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\ui\touch">
       <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\osc\osc">
-      <UniqueIdentifier>{8d7b7f8c-0bb8-4d92-a9da-0864cb3d60b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\osc\ip">
-      <UniqueIdentifier>{0253483d-3435-4cd5-87aa-09af4f9844a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\osc\ip\win32">
-      <UniqueIdentifier>{0d7b5432-3ad6-4e19-89dd-71086b05587c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{ec8f7e90-a386-4b14-9c1b-dddd49bd09fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\cfg\editor_components">
-      <UniqueIdentifier>{f24cfaab-b5e0-484d-9eb4-cff6b4568774}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\ui\soft_keyboard">
       <UniqueIdentifier>{1796269e-de1c-42c4-b9a3-b679fed1fc83}</UniqueIdentifier>
@@ -106,9 +91,6 @@
     <Filter Include="src\ds\util\sundown">
       <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\metrics">
-      <UniqueIdentifier>{9dcb5691-ef16-4d0b-9a62-1d447eb771ea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\content">
       <UniqueIdentifier>{a17a3242-099b-4dc1-90dd-459d20a0616f}</UniqueIdentifier>
     </Filter>
@@ -120,6 +102,24 @@
     </Filter>
     <Filter Include="src\ds\math\extrasrc">
       <UniqueIdentifier>{92591042-2bbc-4223-b5f5-a834d2713105}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tuio\osc">
+      <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\content\service">
+      <UniqueIdentifier>{580833cb-7224-4971-8e92-49ac3f3bbaba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\ada">
+      <UniqueIdentifier>{f1cf5eb3-aeb8-47e9-b5db-199e0ce13c46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\ada\tools">
+      <UniqueIdentifier>{e0f16fa4-bbe0-4d31-a799-778e27fa8a95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\cfg\impl">
+      <UniqueIdentifier>{4b832ab0-deb4-4f79-b3ce-cd2feeb1c092}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\imgui_components">
+      <UniqueIdentifier>{6e8dd3c8-2605-44f6-b63a-4d39d6e9cca2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -360,9 +360,6 @@
     <ClInclude Include="..\src\ds\cfg\settings.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\cfg_text.h">
-      <Filter>src\ds\cfg</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\network\tcp_socket_sender.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
@@ -428,9 +425,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_mode.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h">
-      <Filter>src\ds\app\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
       <Filter>src\ds\ui\touch</Filter>
@@ -510,72 +504,6 @@
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\osc\OscBundle.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\OscListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\OscMessage.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\OscSender.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\OscArg.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscException.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscHostEndianness.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscOutboundPacketStream.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscPacketListener.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscPrintReceivedElements.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscReceivedElements.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\OscTypes.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\osc\MessageMappingOscPacketListener.h">
-      <Filter>src\osc\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\ip\IpEndpointName.h">
-      <Filter>src\osc\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\ip\NetworkingUtils.h">
-      <Filter>src\osc\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\ip\PacketListener.h">
-      <Filter>src\osc\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\ip\TimerListener.h">
-      <Filter>src\osc\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\osc\ip\UdpSocket.h">
-      <Filter>src\osc\ip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\tuio\TuioClient.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\tuio\TuioCursor.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\tuio\TuioObject.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\tuio\TuioProfileBase.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\date_util.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
@@ -587,12 +515,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\cfg\settings_editor.h">
       <Filter>src\ds\cfg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h">
-      <Filter>src\ds\cfg\editor_components</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h">
       <Filter>src\ds\ui\soft_keyboard</Filter>
@@ -644,9 +566,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_debug.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\metrics\metrics_service.h">
-      <Filter>src\ds\metrics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\time\time_callback.h">
       <Filter>src\ds\time</Filter>
@@ -732,6 +651,60 @@
     <ClInclude Include="..\src\ds\math\extrasrc\fptypes.hh">
       <Filter>src\ds\math\extrasrc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\flexbox_parser.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(DS_PLATFORM_093)\Cinder\blocks\TUIO\src\cinder\tuio\Tuio.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.h">
+      <Filter>src\tuio\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\glm_structured_binding.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\service\sync_service.h">
+      <Filter>src\ds\content\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_query_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\nw_schedule_handler.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="default_content_model_xml.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\shader_string_repo.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\fs.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\list.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\ada\tools\ada_text.h">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\base_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\null_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\impl\windows_impl.h">
+      <Filter>src\ds\cfg\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\service\bridge_sync_service.h">
+      <Filter>src\ds\content\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\imgui_components\TextAnsi.h">
+      <Filter>src\imgui_components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -769,9 +742,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\string_util.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\params\draw_params.cpp">
-      <Filter>src\ds\params</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\params\update_params.cpp">
       <Filter>src\ds\params</Filter>
@@ -920,9 +890,6 @@
     <ClCompile Include="..\src\ds\cfg\settings.cpp">
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
-      <Filter>src\ds\cfg</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
@@ -989,9 +956,6 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp">
-      <Filter>src\ds\app\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
@@ -1052,42 +1016,6 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\osc\OscListener.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\OscMessage.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\OscSender.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\OscBundle.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\osc\OscOutboundPacketStream.cpp">
-      <Filter>src\osc\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\osc\OscPrintReceivedElements.cpp">
-      <Filter>src\osc\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\osc\OscReceivedElements.cpp">
-      <Filter>src\osc\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\osc\OscTypes.cpp">
-      <Filter>src\osc\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\ip\IpEndpointName.cpp">
-      <Filter>src\osc\ip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\ip\win32\NetworkingUtils.cpp">
-      <Filter>src\osc\ip\win32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp">
-      <Filter>src\osc\ip\win32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\tuio\TuioClient.cpp">
-      <Filter>src\tuio</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\util\date_util.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
@@ -1099,12 +1027,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp">
       <Filter>src\ds\cfg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp">
-      <Filter>src\ds\cfg\editor_components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp">
-      <Filter>src\ds\cfg\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp">
       <Filter>src\ds\ui\soft_keyboard</Filter>
@@ -1154,9 +1076,6 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_debug.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\metrics\metrics_service.cpp">
-      <Filter>src\ds\metrics</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\time\time_callback.cpp">
       <Filter>src\ds\time</Filter>
     </ClCompile>
@@ -1201,6 +1120,42 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\math\fparser.cc">
       <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\flexbox_parser.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\TUIO\src\cinder\tuio\Tuio.cpp">
+      <Filter>src\tuio</Filter>
+    </ClCompile>
+    <ClCompile Include="$(DS_PLATFORM_093)\Cinder\blocks\OSC\src\cinder\osc\Osc.cpp">
+      <Filter>src\tuio\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\service\sync_service.cpp">
+      <Filter>src\ds\content\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_query_handler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\shader_string_repo.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\fs.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\list.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\ada\tools\ada_text.cpp">
+      <Filter>src\ds\util\ada\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\service\bridge_sync_service.cpp">
+      <Filter>src\ds\content\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\imgui_components\TextAnsi.cpp">
+      <Filter>src\imgui_components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

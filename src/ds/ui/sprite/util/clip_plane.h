@@ -4,16 +4,12 @@
 
 #include <cinder/gl/GlslProg.h>
 
-namespace ds {
-namespace ui {
-namespace clip_plane {
+namespace ds { namespace ui { namespace clip_plane {
 
-void enableClipping(float x0, float y0, float x1, float y1);
-void disableClipping();
-void passClipPlanesToShader(ci::gl::GlslProgRef shaderProg);
+	void enableClipping(float x0, float y0, float x1, float y1);
+	void disableClipping();
+	void passClipPlanesToShader(ci::gl::GlslProgRef shaderProg);
 
-} // namespace clip_plane
-} // namespace ui
-} // namespace ds
+}}} // namespace ds::ui::clip_plane
 
-#endif//DS_UI_CLIP_PLANE_H
+#endif // DS_UI_CLIP_PLANE_H

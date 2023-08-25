@@ -1,8 +1,6 @@
 //
 // RawSocketImpl.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/RawSocketImpl.h#1 $
-//
 // Library: Net
 // Package: Sockets
 // Module:  RawSocketImpl
@@ -34,8 +32,8 @@ class Net_API RawSocketImpl: public SocketImpl
 public:
 	RawSocketImpl();
 		/// Creates an unconnected IPv4 raw socket with IPPROTO_RAW.
-		
-	RawSocketImpl(IPAddress::Family family, int proto = IPPROTO_RAW);
+
+	RawSocketImpl(SocketAddress::Family family, int proto = IPPROTO_RAW);
 		/// Creates an unconnected raw socket.
 		///
 		/// The socket will be created for the
@@ -43,11 +41,11 @@ public:
 
 	RawSocketImpl(poco_socket_t sockfd);
 		/// Creates a RawSocketImpl using the given native socket.
-				
+
 protected:
 	void init(int af);
 	void init2(int af, int proto);
-	
+
 	~RawSocketImpl();
 };
 

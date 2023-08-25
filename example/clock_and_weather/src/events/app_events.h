@@ -5,8 +5,8 @@
 
 namespace downstream {
 
-class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent>{};
+class SomethingHappenedEvent : public ds::RegisteredEvent<SomethingHappenedEvent> {};
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_CLOCK_AND_WEATHER_APP_APPEVENTS_H_

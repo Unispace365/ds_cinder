@@ -20,11 +20,52 @@ Creating a Sprite and loading XML
 -------------------------------
 The tag value is the sprite type. For instance, <sprite/> creates a blank ds::ui::Sprite. Sprites are created as parents/children based on the XML hierarchy. Positions work relative to the parent (like normal).
 
-Loading an interface XML to your class:
+The ideal pattern for loading XML layouts is through the SmartLayout class that's included in the Essentials project.
+Prefer derriving from either SmartLayout or ds::ui::Sprite unless you have a good reason not to.
+
+Also check out the [Content Model](./Content%20Model.md) guide for binding content model data directly to elements of your
+smart layout. It's a clearer more data-driven style, and makes future changes easier since you can change the content
+model without needing to recompile and only update your layouts.
+```cpp
+// Option 1: Derive from ds::ui::SmartLayout
+// This class "becomes" the root sprite from your layout file, and has direct access to the children
+class MyCoolThing : public ds::ui::SmartLayout {
+MyCoolThing(ds::ui::SpriteEngine& eng) : ds::ui::SmartLayout(eng, "my_cool_layout.xml"){}
+};
+
+// Option 2: Adding a ds::ui::SmartLayout as a child (from inside a sprite or in your main App class)
+ds::ui::SmartLayout* myCoolChild = new ds::ui::SmartLayout(mEngine, "another_cool_layout.xml");
+// this is a shorthand equivalent of:
+ds::ui::SmartLayout* myUncoolChild = new ds::ui::SmartLayout(mEngine, "another_cool_layout.xml", "%APP%/data/layouts/");
+this->addChildPtr(myCoolChild);
+this->addChildPtr(myUncoolChild);
+
+// In either case, children loaded from that layout file can be accessed easially and templated to attempt a cast. These
+// can both return nullptr so don't forget to check them!
+ds::ui::Sprite* bg = myCoolChild->getSprite("background");
+ds::ui::Text* headline = myUncoolChild->getSprite<ds::ui::Text*>("headline")
+
+// And finally there are convience functions for common actions that fail silently and are safer to use
+// These also trigger automatic running of layouts before the next draw
+myCoolChild->setSpriteColor("background", aColor);
+myUncoolChild->setSpriteText("headline", "Hey, that's nice!");
+myUncoolChild->setSpriteImage("logo", logoResOrPath);
+```
+
+Alternatively (especially looking at older code) XML loading can be done manually. This adds the imported xml elements as
+children of `this` and provides a map of sprite names to the actual sprites. Note that you need to dynamic_cast and
+check the sprites if you need specific sprite type functions.
 
 ```cpp
     std::map<std::string, ds::ui::Sprite*>    spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+
+	// look up sprite by name. Note that it can be null!
+    ds::ui::Sprite* backgroundSprite = spriteMap["background"]; 
+    if(backgroundSprite != nullptr) backgroundSprite->setOpacity(0.5f);
+
+    ds::ui::Text* headlineSprite = dynamic_cast<ds::ui::Text*>(spriteMap["headline"]);
+    if(headlineSprite) headlineSprite->setText("This is a headline");
 ```
 
 Adds the hierarchy in the interface as a child of "this".
@@ -78,7 +119,7 @@ Xml Element Name                                                      | DsCinder
 Variables
 ----------------------
 
-Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
+Add dynamic variables to any sprite parameter. Variables are pulled from app_settings.xml automagically or from a `<settings>` block in the xml. In addition, there are a few default variables for common engine properties. Specify a variable in an xml layout by pre-pending it with "$_".
 
 ```xml
 <interface>
@@ -109,6 +150,29 @@ Variables are replaced first before expressions (see below), and parsed recursiv
 * **world_size**: The equivalent of "mEngine.getWorldWidth(), mEngine.getWorldHeight()"
 * **anim_dur**: The equivalent of mEngine.getAnimDur()
 
+### Layout `<settings>` block
+
+```xml
+<interface>
+	<settings>
+		<setting name="main_color" value="#ffaeaeff"/>
+		<setting name="secondary_color" value="#ffffffff"/>
+	</settings>
+	<layout name="example"
+		size="$_world_size"
+		pad_all="$_padding"
+		animate_on="$_default:anim"
+		animate_off="$_default:anim"
+		>
+		<sprite size="100, 100" color="$_main_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+		<sprite size="100, 100" color="$_secondary_color"/>
+</interface>
+```
+
+A layout file can have a settings block. the settings in that block exist only in that file and do not propagate back to the main app settings. If a layout setting and an app setting have the same name, the layout settings takes priority.
+
+`<xml>` sprite type can also have a child <settings> block. See [xml](#XML-Parameters) sprite for more details.
 
 Expressions
 --------------------
@@ -132,6 +196,39 @@ Syntax Rules:
 * If you start a line with #expr (with no brackets), the entire rest of the line is evaluated as an expression
 * pi is automatically defined
 
+`target` parameter && `<override>` elements
+--------------------------
+**target** adding a `target="`*`value`*`"` parameter to an element will cause the importer to attempt to match the value to the value in `xml_importer:target` engine setting.
+If the values match, then the tag is processed as normal. **If the tag does not match then the element will be ignored. as if it was not in the file. This includes any children**
+
+The `<override>` element can be added as a child to another element and it will add/replace the properties on that element.
+Note that it cannot remove a property. This is only really useful with the `target` property set on the `<override>` element, allowing for Layouts to morph based on different hardware (or other conditions).
+
+Example:
+```xml
+engine.xml
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	...
+	<setting name="xml_importer:target" value="landscape, 3x3" type="string" default="true"/>
+	...
+</settings>
+
+myLayout.xml
+<interface>
+	<layout name="example_shown" layout_type="vert" target="landscape">
+		<override layout_type="vert_wrap" target="3x3"/>
+		<override layout_size_mode="flex" target="5x4"/>
+		...
+	</layout>
+	<layout name="example_not_shown" layout_type="horiz" target="portrait">
+		<override layout_type="vert" target="3x3"/>
+		...
+	</layout>
+</interface>
+```
+
+in this example the "example_shown" layout is included and it's layout_type is overridden, but its layout_size_mode is not. the "example_not_shown" is skipped entirely.
 
 Events
 --------------------------------------------------------
@@ -165,7 +262,7 @@ void ViewerController::onAppEvent(const ds::Event& in_e){
 	}
 }
 ```
-	
+
 
 Sprite Parameters
 ------------------------------------------------------------
@@ -181,7 +278,7 @@ Sprite Parameters
 * **scale**: 3d vector of the scale in x, y, z. Scale is from 0.0 (nothing) to 1.0 (100%), not bounded. scale="1, 1, 1" or scale="0.5, 0.5, 1"
 * **center**: Center is where the anchor of the sprite is calculated from (for scaling and rotation) and is a percentage from 0.0 (top/left) to 1.0 (bottom/right), not bounded. center="0, 0.5, 1"
 * **clipping**: Boolean of whether to clip it's children.
-* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken. Default = normal.
+* **blend_mode**: Valid values: normal, multiply, screen, add, subtract, lighten, darken, premultiply, fbo_in, fbo_out, transparent_black. Default = normal.
 * **enable**: Boolean of whether to handle touch input or not.
 * **multitouch**: String of multitouch mode. Possible values:
     * info = MULTITOUCH_INFO_ONLY
@@ -225,7 +322,11 @@ Sprite Parameters
 		1. left: (Default) Aligns the sprite to the left of the layout.
 		2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
 		3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
-	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0.
+	* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout or a fill size mode in a vert or horiz type layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0.
+	* **layout_fixed_aspect_mode**: allows for the overriding of layout based letterboxing. Currently doesn't affect flex sizing mode.
+		1. default. does nothing. reverts to logic above.
+		2. letterbox. Force sprite to letterbox.
+		3. fill. Force sprite to fill the space.
 
 Layout Parameters
 ------------------------------------------------------------
@@ -268,12 +369,14 @@ Text Parameters
 	* **text_utc_format**: Output date format to convert to (default: "%H:%M:%S %d-%m-%Y")
 	* **text_utc**: The time/date string OR "now" (example: "11:42:00 14-02-2018")
 * **markdown**: Parses the string into markdown then applies it as text. markdown="Hello World, but including **markdown**"
-* **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
+* **text_style**: The text style name or settings string. Set in settings/styles.xml. The text style sets the font name, size, leading and color. text_style="sample:config". Or you can use the full style syntax of text_style="font:Arial; size:20; leading:1.2; letter_spacing:5.0; align:center; fit_sizes:12, 24, 36, 40"
+* **text_allow_markup**: Sets if the text entered should parse pango markup (e.g. <span weight='bold'>bold text</span>). Default: true
+* **font**: The text style name. Set in settings/styles.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **font_name**: The name of the font registered in the app. **Note:** It's recommended you use the font setting above (a whole config) OR font_name and font_size, and not mix the two.
 * **font_size**: Replace the original font size of Text sprites. font_size="20"
 * **font_leading**: The multiplier of font_size to use for line height (only when text consists of multiple lines)
 * **font_letter_spacing**: Set the letter spacing in pts (0.0 = normal, 1.0 = 1pt extra letter spacing, etc.)
-* **text_ellipses**: Sets the ellipses mode of the text. Possible values: none, start, middle, end. Default=none. Use this with resize_limit to change what happens if the text gets too long. 
+* **text_ellipses**: Sets the ellipses mode of the text. Possible values: none, start, middle, end. Default=none. Use this with resize_limit to change what happens if the text gets too long.
 * **resize_limit**: If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500" Note: the text_ellipses value must be something other than "none" for the height limit to take effect. Set the y value to a negative number to show that number of lines. For instance, -2 will show two lines of text per paragraph before adding an ellipses.
 * **text_align**: Set the alignment of the Text Sprite
     1. "left": The default, normal text
@@ -283,6 +386,7 @@ Text Parameters
 * **text_model_format**: Allows combining of plain text, data from a content model, and text
 	post-processing functions. Requires being in a smart layout, and having setContentModel called.
 	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.
+* **preserve_span_colors**: If the text contains a <span> tag with any color info, you **must** turn this on to see it. Otherwise the text will only render as the color from this sprite. This is due to pre-multiplication of the alpha channel, which we ignore for better font rendering, particularly for thinner fonts.
 * **fit_to_limit**: The font size is calculated so that all of of the text fits in the resize_limit rectangle with the largest possible font. (true or false)
 * **fit_font_size_range**: a 2 element vector of font sizes. If fit_to_limit is true, the calculated font will not be smaller than the first element and will not be larger than the second element. Example: fit_font_size_range="12, 72"
 * **fit_max_font_size**: If fit_to_limit is true, the calculated font will not be larger than this value. the same as the second element of **fit_font_size_range**
@@ -296,8 +400,17 @@ Text Parameters
 
 Image Parameters
 -------------------------
-* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
-* **filename_cache** OR **src_cache**: Exactly the same as above, but includes the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+* **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png". Image loading flags can be added to the property name seperated by underscores (_). For example filename_cache with cause the ds::ui::Image::IMG_CACHE_F flag to be passed to the loade, while filename_mipmap_cache will cause both ds::ui::Image::IMG_CACHE_F and ds::ui::Image::IMG_MIPMAP to be passed.
+	* **_cache** OR **_c**: include the ds::ui::Image::IMG_CACHE_F flag, which permanently caches the image
+	* **_mipmap** OR **_m**: include the ds::ui::Image::IMG_MIPMAP flag, which generates mipmaps for the given image.
+	* **_preload** OR **_p**: include the ds::ui::Image::IMG_PRELOAD flag, which preloads the image.
+	* **_skipmeta** OR **_s**: include the ds::ui::Image::IMG_SKIP_METADATA flag, which skips metadata loading.
+
+These flags can also be applied the the resource property when working with a model:
+```xml
+		model="resource_mipmap:this->img_resource"
+```
+
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 * **auto_circle_crop**: Boolean. If true, centers the crop in the middle of the image and always makes it a circle, persists through image file changes.
 
@@ -329,11 +442,11 @@ Button Parameters
 
 Gradient Parameters
 ---------------------------
-* **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="#ffffff"
-* **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="#ffffff"
-* **colorLeft**: A color value to set the TL and BL colors of the gradient to. colorLeft="#ffffff"
-* **colorRight**: A color value to set the TR and BR colors of the gradient to. colorRight="#ffffff"
-* **gradientColors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
+* **color_top**: A color value to set the TL and TR colors of the gradient to. colorTop="#ffffff"
+* **color_bot**: A color value to set the BL and BR colors of the gradient to. colorBot="#ffffff"
+* **color_left**: A color value to set the TL and BL colors of the gradient to. colorLeft="#ffffff"
+* **color_right**: A color value to set the TR and BR colors of the gradient to. colorRight="#ffffff"
+* **gradient_colors**: Set all four colors for the gradient, specified clockwise from TL "[colorTL], [colorTR], [colorBR], [colorBL]". Example: gradientColors="#ff0000, #000000, #00ff00, #0000ff"
 
 Circle Parameters
 ---------------------------
@@ -347,8 +460,9 @@ Border Parameters
 
 Donut Arc Parameters
 ---------------------------
-* **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
-* **donut_percent**: Float, the percentage that the donut is filled in
+* **donut_radius**: Float, the outer radius of the donut
+* **donut_thickness**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
+* **donut_percent**: Float, the percentage that the donut is filled in (default: 1.0)
 
 Dashed Line Parameters
 ---------------------------
@@ -363,18 +477,32 @@ Control Check Box Parameters
 
 Scroll List Parameters
 -------------------------------
-* **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
+* **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc) OR use smart_scroll_list
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
-* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 * **scroll_fade_size**: Set the size of the fade as a float.
+* **scroll_shader_fade**: **Also applicable to ScrollArea**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
+
+Scroll Area Parameters
+-------------------------------
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool)
+* **scroll_fade_colors**: **Also applicable to ScrollList**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+* **scroll_fade_size**: **Also applicable to ScrollList**. Set the size of the fade as a float.
+* **scroll_shader_fade**: **Also applicable to ScrollList**. Uses a shader for fading out the sides instead of putting gradients on top. NOTE: Any Children cannot use blend modes; this scroll area cannot be inside of a clipping sprite; any children with clipping cannot be rotated
+* **scroll_allow_momentum**: **Also applicable to ScrollList**. Allows the scroll area to move with momentum after the user has finished dragging. In some circumstances, this can cause undesired movement, like if you're getting callbacks from the scroll updating, you might get inconsistent values. Default=true
 
 Smart Scroll List Parameters
 --------------------------------------
-* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal
-	layout.
+* **Note:** Defaults to a vertical scroll list. Use `smart_scroll_list_horizontal` for horizontal layout.
 * **smart_scroll_item_layout**: Sets the layout file for each list item, relative to %APP%/data/layouts/
+
+Scroll Bar Parameters
+--------------------------------------
+* **sprite_link** Add the name of a ScrollList or ScrollArea to control one of those areas
+* **scroll_bar_nub_color**: A color for the current-position indicator
+* **scroll_bar_background_color**: A color for the area in the back behind the nub
+* **scroll_bar_corner_radius**: Sets the corner radius of both the nub and the background
 
 EntryField and SoftKeyboard Parameters
 --------------------------------------
@@ -400,7 +528,10 @@ type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; ke
 * **blink_rate**: How many seconds to wait between blinks. Total blink time is animate_rate + animate_rate + blink_rate. Default: 0.5
 * **animate_rate**: How many seconds to fade the cursor on and off. Default: 0.3.
 * **text_offset**: How many pixels to offset the text sprite. Default: 0.0, 0.0
+* **search_mode**: If true, will not add returns when the enter button is hit. Default: false
 * **password_mode**: If true, will show bullets instead of text. Default: false
+* **auto_resize**: If true, sizes the resize limit of the text to the size of the EntryField sprite, otherwise the field_size is assumed to be static. Default: false
+* **auto_expand**: If true, sizes the width of the text field to this EntryField, and sizes the height of the EntryField to the text. Basically it makes an entry field that expands vertically as you type. Disables auto_resize if this is enabled. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended, simplified, pinpad and pincode. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Simplified only has letters, space bar, and delete keys. Pinpad is like an ATM pin pad with an enter button. Pincode is a number entry keyboard with a back/delete button. Default: standard
@@ -446,15 +577,21 @@ If you have the viewers project included, you can create media players. Media pl
 * **media_player_src**: Relative or absolute path to the media. For example:
 
         media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
-* **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop
+* **media_player_auto_start**: Boolean, if true, videos play automatically. If false, they'll play the first frame then stop. Also applies to YouTube links
 * **media_player_show_interface**: Boolean, true shows interfaces for pdf, web and video immediately
+* **media_player_can_display_interface**:: Boolean (defaults to true), in the off-chance you need the player's interface to be hidden but retain the interactions provided by the interface - you can set it to false. If setting to false on a web player, you will likely want to set `media_player_web_start_interactive` and `enable` to true in order to enable interaction. For other players you may want to set `media_player_standard_click` and `enable` to true for interaction. Note that this does not currently work for youtube players.
+* **media_player_interface_b_pad**: Float, how many pixels above the bottom of the media the interace should be. Default = 50 pixels.
 * **media_player_web_size**: Vector, sets the w/h in pixels of web views
+* **media_player_web_start_interactive**: Boolean, enables touching the web view immediately upon creation
+* **media_player_web_native_keyboard**: Boolean, when focused, should the web sprite accept native keyboard input (without needing to open on-screen keyboard)
 * **media_player_video_volume**: Float, sets the volume of videos when they start
 * **media_player_video_loop**: Boolean, true, the default, loops the video, false will play the video once and stop
 * **media_player_video_reset_on_complete**: Boolean, true, the default, resets the video to 0.0 when the video finishes in non-loop mode
-* **media_player_letterbox**: Boolean, true, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
+* **media_player_video_split_alpha**: Boolean. If this value is true, the video player will assume that the video has an alpha channel encoded in the lower half of the video (so that actual video is twice as big in the Y direction) and will use this data to render the top half with the alpha values found in the "red" channel of the lower image. This technique is often a considerable file size savings over using ProRes videos for alpha.
+* **media_player_letterbox**: Boolean. True, the default, will letterbox the media inside the size of the media player, false fills (with no cropping by default). Web always fills
 * **media_player_standard_click**: Boolean, default is false, true will allow tapping to start/stop videos, advance pdf's, and click into web pages. 
 * **media_player_cache_images**: Boolean, default is false, true enables image caching
+* **media_player_animation_duration**: Float, the duration that the media player uses to fade media onto the screen.
 * **media_player_video_gl_mode**: Accepts only "true". Will enable openGL elements in GStreamer. This is required to be on when using nvdecode
 * **media_player_video_nvdecode**: Boolean. if true, will use the nvdec NVidia CUDA video decoder for video playback. See the readme in the video project for details.
 
@@ -469,11 +606,20 @@ Properties:
 * You can set the properties of any loaded child from the parent with a "property" tag.
 * Children are given a dot naming scheme, and calling properties uses names relative to the child's interface.
 
+Settings:
+* you can set the settings of the loaded layout with a `<settings>` block. These take precedence over the same setting in the loaded xml or in app settings.
+* If the loading layout has a settings block it is also applied to the incomming layout but it has a lower precedence than the incoming layout. the settings order with first used at top:
+	* `<xml>` sprite settings
+	* loaded layout file settings
+	* loading layout settings
+	* app settings
+
 Example:
 
 **menu_view.xml:**
 
 ```xml
+<interface>
 <layout name="layout" >
 	<xml name="home" src="%APP%/data/layouts/menu_button.xml" >
 		<!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
@@ -482,6 +628,10 @@ Example:
 		<property name="high_icon" src="%APP%/data/images/icons/home_down.png" />
 	</xml>
    <xml name="map" src="%APP%/data/layouts/menu_button.xml" >
+		<settings>
+			<setting name="gradient1" value="green" />
+			<setting name="gradient2" value="blue_green"/>
+		</settings>
 		<!-- you can't have any normal children here,
 			 only set properties of the children of the parent xml interface -->
 		<property name="normal_icon" src="%APP%/data/images/icons/map_up.png" />
@@ -489,17 +639,24 @@ Example:
 		<property name="down_gradient" opacity="0.5" animate_on="fade" />
 	</xml>
 </layout>
+</interface>
 ```
 
 **menu_button.xml:**
 
 ```xml
+<interface>
+<settings>
+	<setting name="gradient1" value="red_orange" />
+	<setting name="gradient2" value="orange"/>
+</settings>
 <sprite_button name="the_button" size="80, 80">
 	<gradient name="down_gradient" attach_state="high" size="80, 80"
-			  gradientColors="red_orange, red_orange, red_orange, orange"/>
+			  gradientColors="$_gradient1, $_gradient1, $_gradient1, $_gradient2"/>
 	<image attach_state="normal" name="normal_icon"/>
 	<image attach_state="high" name="high_icon" />
 </sprite_button>
+</interface>
 ```
 
 **In c++:**
@@ -615,12 +772,12 @@ If you're using ds::model::ContentModelRef for your data model and queries (see 
 
 * **model**: String, colon-separated sprite parameters, semi-colon and space separated for multiple settings.
 
-**Syntax**:  
-{sprite property}:{content model reference}->{content model property}.  
+**Syntax**:
+{sprite property}:{content model reference}->{content model property}.
 or
-{_userData key}:{content model reference}->{content model property}. 
+{_userData key}:{content model reference}->{content model property}.
 
-**Example**: 
+**Example**:
 
 ```XML
 <text name="must_name_your_sprite"
@@ -629,13 +786,15 @@ or
 	/>
 ```
 
-When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking.  
+When setting a ContentModelRef, you first specify the **sprite property**. Nearly any sprite property in the above works. Setting the model uses the same code path as the initial parsing. You can set the position, color, font, animation, tap events, text, image source, etc. The advantage of this solution is the ability to put more ui control in the database, allowing for easier re-skinning and tweaking.
 
 You can also set a key in the userData cache by beginning the key name with and underscore. The underscore is part of the key so if you retrieve it elsewhere be sure to include it. this is intended to be used with on_click_event and on_tap_event, but it may have other uses.
 
 The second part of the syntax is the **content model reference**. Typically you'll use the "this" value, which indicates the current ContentModelRef for this SmartLayout. You can also access any level of children that can be accessed through mContentModel.getChildByName(""), such as "slide.theme" or "sqlite.settings".
 
 After a pointer arrow, you'll specify the **content model property** to use. In general these will be the column names from a sqlite db. Since all data in ContentModelRef is stored as string and type converted when applied, you can apply any content model property to any sprite property, so it's up to you to make sure it makes sense. On the flip side, you could apply properties to a text field for quick debugging. For instance, if a color is not appearing correctly, you could apply the color property to a text field to check the value.
+
+You can add a default setting for most elements using the | character. Default setting don't make sense in all scenarios (such as text_model or visible_if_exists) and will not have any effect if it doesn't.
 
 Set multiple models separated by a **semi-colon and a space**.
 
@@ -658,13 +817,13 @@ addChildPtr(mySlide);
 <layout name="root_layout" >
 	<text name="the_title"
 		font="slide:title"
-		model="color:theme->title_color; text:this->title"
+		model="color:theme->title_color; text:this->title; text-align:this->align|center"
 		/>
 </layout>
 ```
 Connecting the model and events
 ---------------------------
-An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache. 
+An event's data parameter can be set from the model by using the userData cache. To do so, begin the property to set in the model with an **underscore**. This will set the value in the userData cache of the sprite. Later when an event fires you get the value from the userData cache.
 
 ```XML
 <layout_button name="button"
@@ -711,7 +870,7 @@ content model is applied. Which means it's a bad idea to have children (especial
 
 **Syntax**: {xml layout}:{model}
 
-**Example**: 
+**Example**:
 
 ```XML
 <!-- slideshow.xml -->
@@ -740,10 +899,8 @@ For properties, this checks if the property string is empty. For instance, visib
 
 This is designed to be used with skip_hidden_children, so you can conditionally have parts of your layouts appear based on the content.
 
-Additional properties could be added for bool and int checks (visible_if_bool perhaps?)
-
 ```XML
-<layout name="root" 
+<layout name="root"
 	shrink_to_children="both"
 	skip_hidden_children="true"
 	model="visible_if_exists:this"
@@ -760,6 +917,66 @@ Additional properties could be added for bool and int checks (visible_if_bool pe
 	</layout>
 </layout>
 ```
+
+`visible_if_true` & `hidden_if_true` Property
+----------------------------
+
+A model property that can hide/show children depending on a boolean property.
+
+For instance, `visible_if_true:this->show_title` will check `[this].getPropertyBool("show_title");`
+
+For `visible_if_true`, the instance will have a `show()` call if the property is `true`, and a `hide()` call if the property is `false`.
+
+For `hidden_if_true`, the instance will have a `hide()` call if the property is `true`, and a `show()` call if the property is `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that because of `node.getPropertyBool(..)` usage, an attempt to parse a non-existent property will be treated as `false`.
+
+```XML
+<layout name="root" 
+	shrink_to_children="both"
+	skip_hidden_children="true"
+	>
+	<layout name="title_layout"
+		layout_type="horiz"
+		model="visible_if_true:this->show_title"
+		>
+		<image name="an_icon" src="%APP%/data/images/title_icon.png" />
+		<text name="the_title"
+			font="slide:title"
+			model="color:theme->title_color; text:this->title"
+			/>
+	</layout>
+</layout>
+```
+
+`visible_if_equal` & `hidden_if_equal` Property
+----------------------------
+
+A model property that can hide/show children depending on an equality check.
+
+This can be done on many different data types -- currently int, float, double, string, and property -- by appending in the format of `visible_if_equal_[DATA-TYPE]` or `hidden_if_equal_[DATA-TYPE]`. An example being `visible_if_equal_int` for an integer equality check.
+
+Here are examples of what C++ snippets will be executed given different versions of this property:
+
+`visible_if_equal_int:this->choice==3` ==> `[this].getPropertyInt("choice") == stoi("3");`
+
+`visible_if_equal_float:this->statistic==0.3` ==> `[this].getPropertyFloat("statistic") == stof("0.3");`
+
+`visible_if_equal_double:this->coordinate==13.4` ==> `[this].getPropertyDouble("coordinate") == stod("13.4");`
+
+`visible_if_equal_string:this->title==Welcome` ==> `[this].getPropertyString("title").compare("Welcome") == 0;`
+
+`visible_if_equal_property:this->target==destination` ==> `[this].getPropertyString("target").compare([this].getPropertyString("destination")) == 0;`
+
+For `visible_if_equal_*`, the instance will have a `show()` call if the execution returns `true`, and a `hide()` call if the execution returns `false`.
+
+For `hidden_if_equal_*`, the instance will have a `hide()` call if the execution returns  `true`, and a `show()` call if the execution returns `false`.
+
+Any consequences related to this, such as a usage of `skip_hidden_children`, should apply accordingly.
+
+A note that a default value normally given from a node.getProperty\[DATA-TYPE\](..) call is a likely consequence of unset / mismanaged properties.
 
 
 Caveats

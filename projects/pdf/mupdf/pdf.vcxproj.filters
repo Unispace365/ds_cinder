@@ -30,6 +30,9 @@
     <ClInclude Include="..\..\..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\pdf_link.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\private\pdf_service.cpp">
@@ -43,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\stdafx.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\pdf_link.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

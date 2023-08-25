@@ -3,36 +3,56 @@
 #define _DS_UI_TOUCH_TUIO_INPUT_H_
 
 #include <ds/ui/sprite/sprite_engine.h>
-#include <tuio/TuioClient.h>
 
-namespace ds {
-namespace ui {
+namespace cinder {
+namespace osc {
+	class ReceiverUdp;
+}
+namespace tuio {
+	class Receiver;
+	// typename Cursor2d;
+} // namespace tuio
+} // namespace cinder
 
-/**
-* \class TuioInput
-* \brief Handles multiplexed TUIO input, with unique transformations for each input
-*		 Note that this is in additional to the built-in touch mode
-*/
-class TuioInput {
-public:
-	TuioInput(ds::ui::SpriteEngine& engine, const int port, const ci::vec2 scale, const ci::vec2 offset,
-			  const float rotty, const int fingerIdOffset, const ci::Rectf& allowedArea);
-	~TuioInput();
+namespace ds { namespace ui {
 
-protected:
-	ci::vec2 transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
+	/**
+	 * \class TuioInput
+	 * \brief Handles multiplexed TUIO input, with unique transformations for each input
+	 *		 Note that this is in additional to the built-in touch mode
+	 */
+	class TuioInput {
+	  public:
+		TuioInput(ds::ui::SpriteEngine& engine, const int port, const ci::vec2 scale, const ci::vec2 offset,
+				  const float rotty, const int fingerIdOffset, const ci::Rectf& allowedArea);
+		~TuioInput();
 
-private:
-	ds::ui::TouchEvent convertTouchEvent(ci::app::TouchEvent& e, const bool isAdd);
-	ds::ui::SpriteEngine& mEngine;
-	ci::tuio::Client      mTuioClient;
+		typedef std::shared_ptr<ci::osc::ReceiverUdp> OscReceiverRef;
+		typedef std::shared_ptr<ci::tuio::Receiver>	  TuioReceiverRef;
+		TuioReceiverRef								  getReceiver() { return mTuioReceiver; }
 
-	int       mFingerIdOffset;
-	glm::mat4 mTransform;
-	ci::Rectf mAllowedRect;
-};
+		void start(const bool registerEvents = false, const int port = 0);
+		void stop();
 
-} // ! namespace ui
-}  // !namespace ds
+	  protected:
+		ci::vec2 transformEventPosition(const ci::vec2& pos, const bool doWindowScale = false);
+		void	 registerEvents();
+		void	 startListening();
 
-#endif  // !_DS_UI_TOUCH_TUIO_INPUT_H_
+	  private:
+		ds::ui::SpriteEngine& mEngine;
+
+		int		  mUdpPort;
+		int		  mFingerIdOffset;
+		glm::mat4 mTransform;
+		ci::Rectf mAllowedRect;
+
+		OscReceiverRef	mOscReceiver;
+		TuioReceiverRef mTuioReceiver;
+		size_t			mStartListeningCallback = 0;
+	};
+
+
+}} // namespace ds::ui
+
+#endif // !_DS_UI_TOUCH_TUIO_INPUT_H_

@@ -1,8 +1,6 @@
 //
 // RemoteSyslogListener.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/RemoteSyslogListener.h#5 $
-//
 // Library: Net
 // Package: Logging
 // Module:  RemoteSyslogListener
@@ -37,7 +35,7 @@ class SyslogParser;
 
 class Net_API RemoteSyslogListener: public Poco::SplitterChannel
 	/// RemoteSyslogListener implements listening for syslog messages
-	/// sent over UDP, according to RFC 5424 "The Syslog Protocol" 
+	/// sent over UDP, according to RFC 5424 "The Syslog Protocol"
 	/// and RFC 5426 "Transmission of syslog messages over UDP".
 	///
 	/// In addition, RemoteSyslogListener also supports the "old" BSD syslog
@@ -52,6 +50,7 @@ class Net_API RemoteSyslogListener: public Poco::SplitterChannel
 	///   - addr: IP address of the host/interface sending the message.
 	///   - host: host name; only for "new" syslog messages.
 	///   - app:  application name; only for "new" syslog messages.
+	///   - structured-data: RFC 5424 structured data, or empty if not present.
 {
 public:
 	RemoteSyslogListener();
@@ -64,6 +63,13 @@ public:
 		/// Creates the RemoteSyslogListener, listening on the given port number
 		/// and using the number of threads for message processing.
 
+	RemoteSyslogListener(Poco::UInt16 port, bool reusePort, int threads);
+		/// Creates the RemoteSyslogListener, listening on the given port number
+		/// and using the number of threads for message processing.
+		///
+		/// If reusePort is true, the underlying UDP socket will bind
+		/// with the reusePort flag set.
+
 	void setProperty(const std::string& name, const std::string& value);
 		/// Sets the property with the given value.
 		///
@@ -71,10 +77,14 @@ public:
 		///     * port: The UDP port number where to listen for UDP packets
 		///       containing syslog messages. If 0 is specified, does not
 		///       listen for UDP messages.
+		///     * reusePort: If set to true, allows multiple instances
+		///       binding to the same port number.
 		///     * threads: The number of parser threads processing
 		///       received syslog messages. Defaults to 1. A maximum
 		///       of 16 threads is supported.
-		
+		///     * buffer: The UDP socket receive buffer size in bytes. If not
+		///       specified, the system default is used.
+
 	std::string getProperty(const std::string& name) const;
 		/// Returns the value of the property with the given name.
 
@@ -83,7 +93,7 @@ public:
 
 	void close();
 		/// Stops the listener.
-		
+
 	void processMessage(const std::string& messageText);
 		/// Parses a single line of text containing a syslog message
 		/// and sends it down the filter chain.
@@ -96,10 +106,14 @@ public:
 		/// Registers the channel with the global LoggingFactory.
 
 	static const std::string PROP_PORT;
+	static const std::string PROP_REUSE_PORT;
 	static const std::string PROP_THREADS;
+	static const std::string PROP_BUFFER;
 
-    static const std::string LOG_PROP_APP;
-    static const std::string LOG_PROP_HOST;
+	static const std::string LOG_PROP_FACILITY;
+	static const std::string LOG_PROP_APP;
+	static const std::string LOG_PROP_HOST;
+	static const std::string LOG_PROP_STRUCTURED_DATA;
 
 protected:
 	~RemoteSyslogListener();
@@ -111,7 +125,9 @@ private:
 	Poco::ThreadPool        _threadPool;
 	Poco::NotificationQueue _queue;
 	Poco::UInt16            _port;
+	bool                    _reusePort;
 	int                     _threads;
+	int                     _buffer;
 };
 
 

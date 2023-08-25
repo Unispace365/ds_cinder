@@ -1,0 +1,15 @@
+<model>
+	<!-- some optional settings for this content model
+	<meta resource_location="%APP%/data" db_location="/db.sqlite" use_resources="false" />
+	-->
+	
+	<table name="sample_data"
+			resources="resourceid"
+			sort="id ASC"		
+			limit="1"
+			label_field="title"
+			where="enabled=1"
+		/>
+</model>
+
+

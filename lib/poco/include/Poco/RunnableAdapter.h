@@ -1,8 +1,6 @@
 //
 // RunnableAdapter.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/RunnableAdapter.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Thread
@@ -41,11 +39,11 @@ class RunnableAdapter: public Runnable
 {
 public:
 	typedef void (C::*Callback)();
-	
+
 	RunnableAdapter(C& object, Callback method): _pObject(&object), _method(method)
 	{
 	}
-	
+
 	RunnableAdapter(const RunnableAdapter& ra): _pObject(ra._pObject), _method(ra._method)
 	{
 	}
@@ -65,7 +63,7 @@ public:
 	{
 		(_pObject->*_method)();
 	}
-	
+
 private:
 	RunnableAdapter();
 

@@ -1,16 +1,14 @@
 #pragma once
-#ifndef DS_UI_MEDIA_VIDEO_PLAYER_VIDEO_PLAYER
-#define DS_UI_MEDIA_VIDEO_PLAYER_VIDEO_PLAYER
 
 
 #include <ds/ui/sprite/sprite.h>
 #include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
-
 class Resource;
+}
 
-namespace ui {
+namespace ds::ui {
 
 class GstVideo;
 class VideoInterface;
@@ -25,8 +23,9 @@ class VideoPlayer : public ds::ui::Sprite {
   public:
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
-	void setMedia(const std::string mediaPath);
-	void clear();
+	virtual void setResource(const ds::Resource& resource) override;
+	void		 setMedia(const std::string mediaPath);
+	void		 clear();
 
 	void layout();
 
@@ -102,11 +101,9 @@ class VideoPlayer : public ds::ui::Sprite {
 	std::vector<GstAudioDevice> mAudioDevices;
 	bool						mLooping;
 	bool						mInterfaceBelowMedia;
-	bool						mGlMode = false;
-	bool						mNVDecode = false;
+	float						mInterfaceBottomPad = 50.0f;
+	bool						mGlMode				= false;
+	bool						mNVDecode			= false;
 };
 
-}  // namespace ui
-}  // namespace ds
-
-#endif
+} // namespace ds::ui

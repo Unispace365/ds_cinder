@@ -8,6 +8,8 @@
 |* (See lgpl.txt and gpl.txt for the license text.)                        *|
 \***************************************************************************/
 
+#pragma warning( disable : 26495 6385 6011 )
+
 #include "stdafx.h"
 
 #include "fpconfig.hh"

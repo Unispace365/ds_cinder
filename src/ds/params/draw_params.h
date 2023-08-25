@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DS_DRAW_PARAMS_H
-#define DS_DRAW_PARAMS_H
-
 namespace ds {
 
 /**
@@ -9,11 +6,13 @@ namespace ds {
  * \brief Provided to sprites for draw()ing functions.
  */
 class DrawParams {
-public:
-	DrawParams();
-	float mParentOpacity;
+  public:
+	DrawParams(){};
+	float mParentOpacity = 1.0f;
+
+	// if this exists, this sprite will be used as the position basis for calculating clipping planes
+	// this is primarily for situations where you're drawing clipped sprites into an FBO or texture
+	ds::ui::Sprite* mClippingParent = nullptr;
 };
 
 } // namespace ds
-
-#endif

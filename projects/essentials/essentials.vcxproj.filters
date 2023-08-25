@@ -13,15 +13,6 @@
     <Filter Include="src\ds\ui\sprite">
       <UniqueIdentifier>{7035895f-5756-4b2e-ba21-ac6ad7bf4646}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\debug">
-      <UniqueIdentifier>{614a484e-f3b2-4cf3-b620-364d9c79768e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\debug\automator">
-      <UniqueIdentifier>{70d4b1ae-c46c-4e5c-aa1e-2960e7a748d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\debug\automator\actions">
-      <UniqueIdentifier>{37c45674-f0db-41af-a690-16d479dcffc4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\interface_xml">
       <UniqueIdentifier>{4ef0ddea-47c5-41b1-a726-039d9baa7560}</UniqueIdentifier>
     </Filter>
@@ -33,12 +24,6 @@
     </Filter>
     <Filter Include="src\ds\ui\util">
       <UniqueIdentifier>{509ed608-4269-4952-abb2-195b290af1be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\query">
-      <UniqueIdentifier>{8d39ee5c-0b15-42a8-ae73-996996c88c49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\query\content">
-      <UniqueIdentifier>{192d763d-e381-4e1f-b44f-ee514bfcd3fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\ui\menu">
       <UniqueIdentifier>{61ad51bb-dfaf-4cae-97ed-0f41b0ca7bd0}</UniqueIdentifier>
@@ -63,24 +48,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ds\debug\automator\automator.cpp">
-      <Filter>src\ds\debug\automator</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\base_action.cpp">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\drag_action.cpp">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\debug\automator\actions\callback_action.cpp">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
@@ -117,12 +84,6 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\query\content\generic_content_model.cpp">
-      <Filter>src\ds\query\content</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp">
-      <Filter>src\ds\query\content</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
@@ -158,24 +119,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ds\debug\automator\automator.h">
-      <Filter>src\ds\debug\automator</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\debug\automator\actions\drag_action.h">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\debug\automator\actions\tap_action.h">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\debug\automator\actions\base_action.h">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\debug\automator\actions\callback_action.h">
-      <Filter>src\ds\debug\automator\actions</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
@@ -217,12 +160,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
       <Filter>src\ds\ui\scroll</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\query\content\xml_content_loader.h">
-      <Filter>src\ds\query\content</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\query\content\generic_content_model.h">
-      <Filter>src\ds\query\content</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h">
       <Filter>src\ds\ui\scroll</Filter>

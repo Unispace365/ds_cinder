@@ -2,125 +2,127 @@
 #ifndef DS_UI_TOUCH_MANAGER_H
 #define DS_UI_TOUCH_MANAGER_H
 
-#include <map>
-#include <memory>
-#include <cinder/app/TouchEvent.h>
-#include <cinder/app/MouseEvent.h>
+#include "touch_info.h"
+#include "touch_mode.h"
 #include <cinder/Color.h>
 #include <cinder/Rect.h>
-#include "touch_mode.h"
-#include "touch_info.h"
+#include <cinder/app/MouseEvent.h>
+#include <cinder/app/TouchEvent.h>
+#include <map>
+#include <memory>
 
 namespace ds {
 class Engine;
 
 namespace ui {
-class RotationTranslator;
-class Sprite;
-class TouchEvent;
+	class RotationTranslator;
+	class Sprite;
+	class TouchEvent;
 
-class TouchManager {
-public:
-class Capture {
-public:
-	Capture()				{ }
-	virtual ~Capture()		{ }
-	virtual void							touchBegin(const TouchInfo&) = 0;
-	virtual void							touchMoved(const TouchInfo&) = 0;
-	virtual void							touchEnd(const TouchInfo&) = 0;
-};
+	class TouchManager {
+	  public:
+		class Capture {
+		  public:
+			Capture() {}
+			virtual ~Capture() {}
+			virtual void touchBegin(const TouchInfo&) = 0;
+			virtual void touchMoved(const TouchInfo&) = 0;
+			virtual void touchEnd(const TouchInfo&)	  = 0;
+		};
 
-public:
-	typedef enum { kInputNormal = 0, kInputTranslate, kInputScale } InputMode;
+	  public:
+		typedef enum { kInputNormal = 0, kInputTranslate, kInputScale } InputMode;
 
-	TouchManager(Engine&, const TouchMode::Enum&);
+		TouchManager(Engine&, const TouchMode::Enum&);
 
-	/// Sets the input mode. kInputNormal is the most common and passes touch and mouse to the app.
-	///		Translate will move the src rect around
-	///		Scale will scale the src rect
-	void									setInputMode(const InputMode& theMode);
-	const InputMode&						getInputMode() const { return mInputMode; }
-	void									setTouchMode(const TouchMode::Enum&);
+		/// Sets the input mode. kInputNormal is the most common and passes touch and mouse to the app.
+		///		Translate will move the src rect around
+		///		Scale will scale the src rect
+		void			 setInputMode(const InputMode& theMode);
+		const InputMode& getInputMode() const { return mInputMode; }
+		void			 setTouchMode(const TouchMode::Enum&);
 
-	void									mouseTouchBegin(const ci::app::MouseEvent&, int id);
-	void									mouseTouchMoved(const ci::app::MouseEvent&, int id);
-	void									mouseTouchEnded(const ci::app::MouseEvent&, int id);
+		void mouseTouchBegin(const ci::app::MouseEvent&, int id);
+		void mouseTouchMoved(const ci::app::MouseEvent&, int id);
+		void mouseTouchEnded(const ci::app::MouseEvent&, int id);
 
-	void									touchesBegin(const ds::ui::TouchEvent&);
-	void									touchesMoved(const ds::ui::TouchEvent&);
-	void									touchesEnded(const ds::ui::TouchEvent&);
+		void touchesBegin(const ds::ui::TouchEvent&);
+		void touchesMoved(const ds::ui::TouchEvent&);
+		void touchesEnded(const ds::ui::TouchEvent&);
 
-	void									clearFingers(const std::vector<int> &fingers);
+		void clearFingers(const std::vector<int>& fingers);
 
-	void									setSpriteForFinger(const int fingerId, ui::Sprite* theSprite);
-	Sprite*									getSpriteForFinger(const int fingerId);
+		void	setSpriteForFinger(const int fingerId, ui::Sprite* theSprite);
+		Sprite* getSpriteForFinger(const int fingerId);
 
-	void									setOverrideTranslation(const bool doOverride){ mOverrideTranslation = doOverride; }
-	void									setOverrideDimensions(const ci::vec2& dimensions){ mTouchDimensions = dimensions; }
-	void									setOverrideOffset(const ci::vec2& offset){ mTouchOffset = offset; }
-	void									setTouchFilterRect(const ci::Rectf &filterRect){ mTouchFilterRect = filterRect; }
-	void									setTouchFilterFunc(const std::function<bool(const ci::vec2& p)> &func){ mTouchFilterFunc = func; }
+		void clearFingersForSprite(ui::Sprite* theSprite);
 
-	bool									getOverrideEnabled(){ return mOverrideTranslation; }
+		void setOverrideTranslation(const bool doOverride) { mOverrideTranslation = doOverride; }
+		void setOverrideDimensions(const ci::vec2& dimensions) { mTouchDimensions = dimensions; }
+		void setOverrideOffset(const ci::vec2& offset) { mTouchOffset = offset; }
+		void setTouchFilterRect(const ci::Rectf& filterRect) { mTouchFilterRect = filterRect; }
+		void setTouchFilterFunc(const std::function<bool(const ci::vec2& p)>& func) { mTouchFilterFunc = func; }
 
-	/// If you've set the override for translation, actually do that translation
-	void									overrideTouchTranslation(ci::vec2& inOutPoint);
+		bool getOverrideEnabled() { return mOverrideTranslation; }
 
-	/// If we have a rect defined to discard touches, discard that shit!
-	bool									shouldDiscardTouch(const ci::vec2& p);
+		/// If you've set the override for translation, actually do that translation
+		void overrideTouchTranslation(ci::vec2& inOutPoint);
 
-	void									setCapture(Capture*);
+		/// If we have a rect defined to discard touches, discard that shit!
+		bool shouldDiscardTouch(const ci::vec2& p);
 
-	std::map<int, ci::vec3>&				getPreviousTouchPoints(){ return mTouchPreviousPoint; }
+		void setCapture(Capture*);
 
-	void									setTouchSmoothing(const bool doSmoothing);
-	const bool								getTouchSmoothing(){ return mSmoothEnabled; }
+		std::map<int, ci::vec3>& getPreviousTouchPoints() { return mTouchPreviousPoint; }
 
-	void									setTouchSmoothFrames(const int smoothFrames);
+		void	   setTouchSmoothing(const bool doSmoothing);
+		const bool getTouchSmoothing() { return mSmoothEnabled; }
 
-private:
-	/// Utility to get the hit sprite in either the orthogonal or perspective root sprites
-	Sprite* 								getHit(const ci::vec3 &point);
+		void setTouchSmoothFrames(const int smoothFrames);
 
-	/// If the window is stretched, the mouse points will be off. Fix that shit!
-	ci::vec2								translateMousePoint(const ci::ivec2);
+	  private:
+		/// Utility to get the hit sprite in either the orthogonal or perspective root sprites
+		Sprite* getHit(const ci::vec3& point);
 
-	void									inputBegin(const int fingerId, const ci::vec2& globalPos);
-	void									inputMoved(const int fingerId, const ci::vec2& globalPos);
-	void									inputEnded(const int fingerId, const ci::vec2& globalPos);
+		/// If the window is stretched, the mouse points will be off. Fix that shit!
+		ci::vec2 translateMousePoint(const ci::ivec2);
 
-	std::map<int, std::vector<ci::vec3>>	mTouchSmoothPoints;
-	bool									mSmoothEnabled;
-	int										mFramesToSmooth;
+		void inputBegin(const int fingerId, const ci::vec2& globalPos);
+		void inputMoved(const int fingerId, const ci::vec2& globalPos);
+		void inputEnded(const int fingerId, const ci::vec2& globalPos);
 
-	Engine&									mEngine;
+		std::map<int, std::vector<ci::vec3>> mTouchSmoothPoints;
+		bool								 mSmoothEnabled;
+		int									 mFramesToSmooth;
 
-	std::map<int, ui::Sprite*>				mFingerDispatcher;
-	std::map<int, ci::vec3>					mTouchStartPoint;
-	std::map<int, ci::vec3>					mTouchPreviousPoint;
-	std::map<int, bool>						mDiscardTouchMap;
+		Engine& mEngine;
 
-	ci::vec2								mTouchDimensions;
-	ci::vec2								mTouchOffset;
-	bool									mOverrideTranslation;
-	ci::Rectf								mTouchFilterRect;
-	std::function<bool(const ci::vec2& p)>	mTouchFilterFunc;
+		std::map<int, ui::Sprite*> mFingerDispatcher;
+		std::map<int, ci::vec3>	   mTouchStartPoint;
+		std::map<int, ci::vec3>	   mTouchPreviousPoint;
+		std::map<int, bool>		   mDiscardTouchMap;
 
-	InputMode								mInputMode;
-	int										mTransScaleFingId;
-	ci::vec2								mTransScaleOrigin;
-	ci::Rectf								mStartSrcRect;
+		ci::vec2							   mTouchDimensions;
+		ci::vec2							   mTouchOffset;
+		bool								   mOverrideTranslation;
+		ci::Rectf							   mTouchFilterRect;
+		std::function<bool(const ci::vec2& p)> mTouchFilterFunc;
 
-	TouchMode::Enum							mTouchMode;
-	Capture*								mCapture;
+		InputMode mInputMode;
+		int		  mTransScaleFingId;
+		ci::vec2  mTransScaleOrigin;
+		ci::Rectf mStartSrcRect;
 
-	/// This is overkill but done this way so I can make changes to
-	/// the rotation translator without causing a recompile.
-	std::shared_ptr<RotationTranslator>		mRotationTranslatorPtr;
-	RotationTranslator&						mRotationTranslator;
-};
+		TouchMode::Enum mTouchMode;
+		Capture*		mCapture;
+
+		/// This is overkill but done this way so I can make changes to
+		/// the rotation translator without causing a recompile.
+		std::shared_ptr<RotationTranslator> mRotationTranslatorPtr;
+		RotationTranslator&					mRotationTranslator;
+	};
 
 } // namespace ui
 } // namespace ds
 
-#endif//DS_UI_TOUCH_MANAGER_H
+#endif // DS_UI_TOUCH_MANAGER_H

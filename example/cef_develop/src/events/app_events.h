@@ -5,17 +5,16 @@
 
 namespace cef {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
+  public:
 	IdleStartedEvent(){};
 };
 
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
+  public:
 	IdleEndedEvent(){};
-
 };
 
-} // !namespace cef
+} // namespace cef
 
 #endif // !_CEFDEVELOP_APP_APPEVENTS_H_

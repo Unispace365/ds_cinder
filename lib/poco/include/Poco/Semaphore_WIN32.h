@@ -1,8 +1,6 @@
 //
 // Semaphore_WIN32.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Semaphore_WIN32.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Semaphore
@@ -31,12 +29,12 @@ namespace Poco {
 class Foundation_API SemaphoreImpl
 {
 protected:
-	SemaphoreImpl(int n, int max);		
+	SemaphoreImpl(int n, int max);
 	~SemaphoreImpl();
 	void setImpl();
 	void waitImpl();
 	bool waitImpl(long milliseconds);
-	
+
 private:
 	HANDLE _sema;
 };

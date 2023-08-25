@@ -1,8 +1,6 @@
 //
 // FIFOBufferStream.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/FIFOBufferStream.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  FIFOBufferStream
@@ -35,7 +33,7 @@ class Foundation_API FIFOBufferStreamBuf: public BufferedBidirectionalStreamBuf
 	/// FIFOBuffer is enabled for emtpy/non-empty/full state transitions notifications.
 {
 public:
-	
+
 	FIFOBufferStreamBuf();
 		/// Creates a FIFOBufferStreamBuf.
 
@@ -62,7 +60,7 @@ protected:
 	int writeToDevice(const char* buffer, std::streamsize length);
 
 private:
-	enum 
+	enum
 	{
 		STREAM_BUFFER_SIZE = 1024
 	};
@@ -91,15 +89,15 @@ public:
 
 	explicit FIFOIOS(std::size_t length);
 		/// Creates a FIFOIOS of the given length.
-		
+
 	~FIFOIOS();
 		/// Destroys the FIFOIOS.
 		///
 		/// Flushes the buffer.
-		
+
 	FIFOBufferStreamBuf* rdbuf();
 		/// Returns a pointer to the internal FIFOBufferStreamBuf.
-		
+
 	void close();
 		/// Flushes the stream.
 

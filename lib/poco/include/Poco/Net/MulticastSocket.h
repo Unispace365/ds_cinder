@@ -1,8 +1,6 @@
 //
 // MulticastSocket.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/MulticastSocket.h#1 $
-//
 // Library: Net
 // Package: Sockets
 // Module:  MulticastSocket
@@ -41,9 +39,16 @@ class Net_API MulticastSocket: public DatagramSocket
 {
 public:
 	MulticastSocket();
-		/// Creates the multicast socket.
-		
-	explicit MulticastSocket(IPAddress::Family family);
+		/// Creates an unconnected, unbound multicast socket.
+		///
+		/// Before the multicast socket can be used, bind(),
+		/// bind6() or connect() must be called.
+		///
+		/// Notice: The behavior of this constructor has changed
+		/// in release 2.0. Previously, the constructor created
+		/// an unbound IPv4 multicast socket.
+
+	explicit MulticastSocket(SocketAddress::Family family);
 		/// Creates an unconnected datagram socket.
 		///
 		/// The socket will be created for the
@@ -102,7 +107,7 @@ public:
 
 	unsigned getTimeToLive() const;
 		/// Returns the TTL/hop limit for outgoing packets.
-		
+
 	void joinGroup(const IPAddress& groupAddress);
 		/// Joins the specified multicast group at the default interface.
 

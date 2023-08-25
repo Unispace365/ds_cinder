@@ -22,31 +22,32 @@
     <ProjectGuid>{26C6A0CB-E8CF-4C0F-BAA8-4C6E374BE2C4}</ProjectGuid>
     <RootNamespace>BasicTweenApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\mosquitto\PropertySheets\Mosquitto64.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\mosquitto\PropertySheets\Mosquitto64.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_090)\vs2015\PropertySheets\Platform64_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\mosquitto\PropertySheets\Mosquitto64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\mosquitto\PropertySheets\Mosquitto64_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -74,11 +75,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DS_PLATFORM_093)\Cinder\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DS_PLATFORM_093)\Cinder\lib;$(DS_PLATFORM_093)\Cinder\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -98,12 +99,12 @@
       <Message>Copying Mosquitto DLLs to output directory</Message>
       <Command>echo Copying Mosquitto DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\mosquitto\lib64\mosquitto.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\mosquittopp.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\libcrypto-1_1-x64.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\libssl-1_1-x64.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\pthreadVC2.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_093)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_093)\projects\mosquitto\lib64\mosquitto.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\mosquittopp.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\libcrypto-1_1-x64.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\libssl-1_1-x64.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\pthreadVC2.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\mosquitto.dll;
 	  $(SolutionDir)\$(Configuration)\mosquittopp.dll;
 	  $(SolutionDir)\$(Configuration)\libcrypto-1_1-x64.dll;
@@ -130,7 +131,7 @@ xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DS_PLATFORM_093)\Cinder\lib;$(DS_PLATFORM_093)\Cinder\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -153,12 +154,12 @@ xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\
       <Message>Copying Mosquitto DLLs to output directory</Message>
       <Command>echo Copying Mosquitto DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_090)\projects\mosquitto\lib64\mosquitto.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\mosquittopp.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\libcrypto-1_1-x64.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\libssl-1_1-x64.dll;
-	  $(DS_PLATFORM_090)\projects\mosquitto\lib64\pthreadVC2.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_093)\projects\mosquitto\lib64\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_093)\projects\mosquitto\lib64\mosquitto.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\mosquittopp.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\libcrypto-1_1-x64.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\libssl-1_1-x64.dll;
+	  $(DS_PLATFORM_093)\projects\mosquitto\lib64\pthreadVC2.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\mosquitto.dll;
 	  $(SolutionDir)\$(Configuration)\mosquittopp.dll;
 	  $(SolutionDir)\$(Configuration)\libcrypto-1_1-x64.dll;

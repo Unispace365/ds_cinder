@@ -1,8 +1,6 @@
 //
 // MultipartWriter.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/MultipartWriter.h#1 $
-//
 // Library: Net
 // Package: Messages
 // Module:  MultipartWriter
@@ -42,7 +40,7 @@ class Net_API MultipartWriter
 	/// a MultipartWriter object.
 	/// Then, for each part, call nextPart() and
 	/// write the content to the output stream.
-	/// Repeat for all parts. 
+	/// Repeat for all parts.
 	/// After the last part has been written,
 	/// call close() to finish the multipart message.
 {
@@ -59,12 +57,12 @@ public:
 
 	~MultipartWriter();
 		/// Destroys the MultipartWriter.
-		
+
 	void nextPart(const MessageHeader& header);
 		/// Opens a new message part and writes
 		/// the message boundary string, followed
 		/// by the message header to the stream.
-		
+
 	void close();
 		/// Closes the multipart message and writes
 		/// the terminating boundary string.
@@ -84,7 +82,7 @@ public:
 		/// MIME_boundary_XXXXXXXXXXXX, where
 		/// XXXXXXXXXXXX is a random hexadecimal
 		/// number.
-		
+
 private:
 	MultipartWriter();
 	MultipartWriter(const MultipartWriter&);

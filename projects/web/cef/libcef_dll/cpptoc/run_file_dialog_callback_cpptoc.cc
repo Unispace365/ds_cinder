@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=83fcf9fdedeee9ae48661c128b95bbd382fbbc82$
+// $hash=1377c3978cb878ce8fea606899c80b99f017fe48$
 //
 
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -21,17 +22,15 @@ namespace {
 
 void CEF_CALLBACK run_file_dialog_callback_on_file_dialog_dismissed(
     struct _cef_run_file_dialog_callback_t* self,
-    int selected_accept_filter,
     cef_string_list_t file_paths) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
-    return;
+  }
   // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
@@ -40,7 +39,7 @@ void CEF_CALLBACK run_file_dialog_callback_on_file_dialog_dismissed(
 
   // Execute
   CefRunFileDialogCallbackCppToC::Get(self)->OnFileDialogDismissed(
-      selected_accept_filter, file_pathsList);
+      file_pathsList);
 }
 
 }  // namespace
@@ -52,6 +51,12 @@ CefRunFileDialogCallbackCppToC::CefRunFileDialogCallbackCppToC() {
       run_file_dialog_callback_on_file_dialog_dismissed;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefRunFileDialogCallbackCppToC::~CefRunFileDialogCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefRunFileDialogCallback>
 CefCppToCRefCounted<CefRunFileDialogCallbackCppToC,
@@ -59,16 +64,8 @@ CefCppToCRefCounted<CefRunFileDialogCallbackCppToC,
                     cef_run_file_dialog_callback_t>::
     UnwrapDerived(CefWrapperType type, cef_run_file_dialog_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefRunFileDialogCallbackCppToC,
-    CefRunFileDialogCallback,
-    cef_run_file_dialog_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

@@ -1,8 +1,6 @@
 //
 // TaskManager.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/TaskManager.h#2 $
-//
 // Library: Foundation
 // Package: Tasks
 // Module:  Tasks
@@ -49,8 +47,8 @@ class Foundation_API TaskManager
 	/// will only be sent out once in 100 milliseconds.
 {
 public:
-	typedef AutoPtr<Task>      TaskPtr;
-	typedef std::list<TaskPtr> TaskList;
+	using TaskPtr = AutoPtr<Task>;
+	using TaskList = std::list<TaskPtr>;
 
 	TaskManager();
 		/// Creates the TaskManager, using the
@@ -72,7 +70,7 @@ public:
 
 	void cancelAll();
 		/// Requests cancellation of all tasks.
-		
+
 	void joinAll();
 		/// Waits for the completion of all the threads
 		/// in the TaskManager's thread pool.
@@ -102,7 +100,7 @@ public:
 
 protected:
 	void postNotification(const Notification::Ptr& pNf);
-		/// Posts a notification to the task manager's 
+		/// Posts a notification to the task manager's
 		/// notification center.
 
 	void taskStarted(Task* pTask);

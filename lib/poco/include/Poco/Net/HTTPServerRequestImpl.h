@@ -1,8 +1,6 @@
 //
 // HTTPServerRequestImpl.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/HTTPServerRequestImpl.h#1 $
-//
 // Library: Net
 // Package: HTTPServer
 // Module:  HTTPServerRequestImpl
@@ -51,43 +49,42 @@ public:
 
 	~HTTPServerRequestImpl();
 		/// Destroys the HTTPServerRequestImpl.
-		
+
 	std::istream& stream();
 		/// Returns the input stream for reading
 		/// the request body.
 		///
 		/// The stream is valid until the HTTPServerRequestImpl
 		/// object is destroyed.
-		
-	bool expectContinue() const;
-		/// Returns true if the client expects a
-		/// 100 Continue response.
-		
+
 	const SocketAddress& clientAddress() const;
 		/// Returns the client's address.
 
 	const SocketAddress& serverAddress() const;
 		/// Returns the server's address.
-		
+
 	const HTTPServerParams& serverParams() const;
 		/// Returns a reference to the server parameters.
 
 	HTTPServerResponse& response() const;
 		/// Returns a reference to the associated response.
-		
+
+	bool secure() const;
+		/// Returns true if the request is using a secure
+		/// connection. Returns false if no secure connection
+		/// is used, or if it is not known whether a secure
+		/// connection is used.
+
 	StreamSocket& socket();
 		/// Returns a reference to the underlying socket.
-		
+
 	StreamSocket detachSocket();
 		/// Returns the underlying socket after detaching
 		/// it from the server session.
-		
+
 	HTTPServerSession& session();
 		/// Returns the underlying HTTPServerSession.
 
-protected:
-	static const std::string EXPECT;
-	
 private:
 	HTTPServerResponseImpl&         _response;
 	HTTPServerSession&              _session;
@@ -104,7 +101,7 @@ private:
 inline std::istream& HTTPServerRequestImpl::stream()
 {
 	poco_check_ptr (_pStream);
-	
+
 	return *_pStream;
 }
 

@@ -2,12 +2,12 @@
 
 #include <poco/Timestamp.h>
 
-#include <cinder/Rand.h> 
+#include <cinder/Rand.h>
 #include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
 #include "app/app_defs.h"
@@ -17,14 +17,16 @@
 namespace example {
 
 TextTest::TextTest(Globals& g)
-	: inherited(g.mEngine)
-	, mGlobals(g)
-	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
-	, mMessage(nullptr)
-{
+  : inherited(g.mEngine)
+  , mGlobals(g)
+  , mEventClient(g.mEngine.getNotifier(),
+				 [this](const ds::Event* m) {
+					 if (m) this->onAppEvent(*m);
+				 })
+  , mMessage(nullptr) {
 
 	mMessage = mGlobals.getText("sample:config").create(mEngine, this);
-	if(mMessage){
+	if (mMessage) {
 		std::wstring theText = ds::wstr_from_utf8(mGlobals.getSettingsLayout().getString("text:test:text", 0, ""));
 		mMessage->setText(theText);
 
@@ -41,17 +43,17 @@ TextTest::TextTest(Globals& g)
 		std::cout << "Layout time: " << delty << std::endl;
 
 		std::vector<ci::Rectf> characterPositions;
-		for(int i = 0; i < theText.size() + 1; i++){
+		for (int i = 0; i < theText.size() + 1; i++) {
 			ci::Rectf possy = mMessage->getRectForCharacterIndex(i);
 			characterPositions.push_back(possy);
 		}
 
-		for(int i = 0; i < theText.size(); i++){
+		for (int i = 0; i < theText.size(); i++) {
 			ci::Rectf possy = characterPositions[i];
-			//ci::vec2 possyTwo = ci::vec2(0.0f, 0.0f);
-			//if(i + 1 < theText.size()){
+			// ci::vec2 possyTwo = ci::vec2(0.0f, 0.0f);
+			// if(i + 1 < theText.size()){
 			//	possyTwo = characterPositions[i + 1];
-			//}
+			// }
 			ds::ui::Sprite* overlay = new ds::ui::Sprite(mEngine);
 			addChildPtr(overlay);
 			overlay->setTransparent(false);
@@ -66,36 +68,33 @@ TextTest::TextTest(Globals& g)
 	layout();
 
 	setPosition(mGlobals.getSettingsLayout().getVec2("text:test:offset", 0, ci::vec2()));
-
 }
 
-void TextTest::onAppEvent(const ds::Event& in_e){
-// 	if(in_e.mWhat == IdleEndedEvent::WHAT()){
-// 		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
-// 		animateOn();
-// 	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
-// 		animateOff();
-// 	} else if(in_e.mWhat == KeyPressedEvent::WHAT()){
-// 		if(mMessage){
-// 			const KeyPressedEvent& e((const KeyPressedEvent&)in_e);
-// 			mMessage->setText(e.mFullString);
-// 		}
-// 	}
+void TextTest::onAppEvent(const ds::Event& in_e) {
+	// 	if(in_e.mWhat == IdleEndedEvent::WHAT()){
+	// 		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
+	// 		animateOn();
+	// 	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
+	// 		animateOff();
+	// 	} else if(in_e.mWhat == KeyPressedEvent::WHAT()){
+	// 		if(mMessage){
+	// 			const KeyPressedEvent& e((const KeyPressedEvent&)in_e);
+	// 			mMessage->setText(e.mFullString);
+	// 		}
+	// 	}
 
 	// If you have an event that is dispatched when new content is queryied, you could map that here.
-	//if(in_e.mWhat == StoryContentUpdated::WHAT()){
+	// if(in_e.mWhat == StoryContentUpdated::WHAT()){
 	//	setData();
 	//}
 }
 
-void TextTest::onSizeChanged(){
+void TextTest::onSizeChanged() {}
 
-}
-
-void TextTest::layout(){
-// 	if(mMessage){
-// 		mMessage->setPosition(100.0f, 200.0f);
-// 	}
+void TextTest::layout() {
+	// 	if(mMessage){
+	// 		mMessage->setPosition(100.0f, 200.0f);
+	// 	}
 }
 
 } // namespace example

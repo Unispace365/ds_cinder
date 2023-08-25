@@ -4,169 +4,167 @@
 
 #include <ds/math/math_func.h>
 
-namespace ds{
-namespace ui{
+namespace ds { namespace ui {
 
-ControlCheckBox::ControlCheckBox(ds::ui::SpriteEngine& engine)
-	: Sprite(engine, 50.0f, 50.0f)
-	, mInnerBox(nullptr)
-	, mOuterBox(nullptr)
-	, mLabel(nullptr)
-	, mIsChecked(false)
-	, mBoxPad(5.0f)
-	, mTouchPadding(15.0f)
-	, mLabelPadding(0.0f)
-	, mTrueText(L"True")
-	, mFalseText(L"False")
-{
+	ControlCheckBox::ControlCheckBox(ds::ui::SpriteEngine& engine)
+	  : Sprite(engine, 50.0f, 50.0f)
+	  , mInnerBox(nullptr)
+	  , mOuterBox(nullptr)
+	  , mLabel(nullptr)
+	  , mIsChecked(false)
+	  , mBoxPad(5.0f)
+	  , mTouchPadding(15.0f)
+	  , mLabelPadding(0.0f)
+	  , mTrueText(L"True")
+	  , mFalseText(L"False") {
 
-	// Set some defaults
-	// You can change these by getting the nub and background sprites and changing them
-	mOuterBox = new ds::ui::Border(mEngine);
-	mOuterBox->mExportWithXml = false;
-	mOuterBox->setColor(ci::Color(0.4f, 0.4f, 0.4f));
-	mOuterBox->setBorderWidth(1.0f);
-	addChildPtr(mOuterBox);
+		// Set some defaults
+		// You can change these by getting the nub and background sprites and changing them
+		mOuterBox				  = new ds::ui::Border(mEngine);
+		mOuterBox->mExportWithXml = false;
+		mOuterBox->setColor(ci::Color(0.4f, 0.4f, 0.4f));
+		mOuterBox->setBorderWidth(1.0f);
+		addChildPtr(mOuterBox);
 
-	mInnerBox = new ds::ui::Sprite(mEngine);
-	mInnerBox->mExportWithXml = false;
-	mInnerBox->setTransparent(false);
-	mInnerBox->setColor(ci::Color(0.6f, 0.6f, 0.6f));
-	addChildPtr(mInnerBox);
+		mInnerBox				  = new ds::ui::Sprite(mEngine);
+		mInnerBox->mExportWithXml = false;
+		mInnerBox->setTransparent(false);
+		mInnerBox->setColor(ci::Color(0.6f, 0.6f, 0.6f));
+		addChildPtr(mInnerBox);
 
-	enable(true);
-	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3&){
-		setCheckBoxValue(!mIsChecked);
-	});
+		enable(true);
+		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3&) { setCheckBoxValue(!mIsChecked); });
 
-	layout();
-	updateBox();
-}
-
-
-void ControlCheckBox::layout(){
-
-	const float boxSize = getHeight() - mTouchPadding * 2.0f;
-	if(mInnerBox && mOuterBox){
-		mOuterBox->setSize(boxSize, boxSize);
-		mOuterBox->setPosition(mTouchPadding, mTouchPadding);
-		
-		mInnerBox->setSize(boxSize - mBoxPad * 2.0f, boxSize - mBoxPad * 2.0f);
-		mInnerBox->setPosition(mBoxPad + mTouchPadding, mBoxPad + mTouchPadding);
+		layout();
+		updateBox();
 	}
 
-	if(mLabel){
-		mLabel->setPosition(getHeight() + mLabelPadding, getHeight() / 2.0f - mLabel->getHeight() / 2.0f);
-	}
-}
 
-void ControlCheckBox::onSizeChanged(){
-	layout();
-}
+	void ControlCheckBox::layout() {
 
-void ControlCheckBox::setCheckboxUpdatedCallback(std::function<void(const bool)> func){
-	mCheckBoxUpdatedCallback = func;
-}
+		const float boxSize = getHeight() - mTouchPadding * 2.0f;
+		if (mInnerBox && mOuterBox) {
+			mOuterBox->setSize(boxSize, boxSize);
+			mOuterBox->setPosition(mTouchPadding, mTouchPadding);
 
-void ControlCheckBox::setCheckBoxValue(const bool checkValue){
-	mIsChecked = checkValue;
+			mInnerBox->setSize(boxSize - mBoxPad * 2.0f, boxSize - mBoxPad * 2.0f);
+			mInnerBox->setPosition(mBoxPad + mTouchPadding, mBoxPad + mTouchPadding);
+		}
 
-	updateBox();
-
-	if(mCheckBoxUpdatedCallback) mCheckBoxUpdatedCallback(mIsChecked);
-}
-
-void ControlCheckBox::updateBox(){
-	if(mLabel){
-		if(mIsChecked){
-			mLabel->setText(mTrueText);
-		} else {
-			mLabel->setText(mFalseText);
+		if (mLabel) {
+			mLabel->setPosition(getHeight() + mLabelPadding, getHeight() / 2.0f - mLabel->getHeight() / 2.0f);
 		}
 	}
 
-	if(mInnerBox){
-		if(mIsChecked){
-			mInnerBox->show();
-		} else {
-			mInnerBox->hide();
-		}
-	}
-
-	if(mVisualUpdateCallback){
-		mVisualUpdateCallback();
-	}
-
-	if(mLabel){
-		setSize(getHeight() + mLabel->getWidth() + mLabelPadding, getHeight());
-	} else {
+	void ControlCheckBox::onSizeChanged() {
 		layout();
 	}
-}
 
-ds::ui::Sprite* ControlCheckBox::getInnerBoxSprite(){
-	return mInnerBox;
-}
-
-ds::ui::Border* ControlCheckBox::getOuterBoxSprite(){
-	return mOuterBox;
-}
-
-void ControlCheckBox::setTouchPadding(const float touchPadding){
-	mTouchPadding = touchPadding;
-	layout();
-}
-
-void ControlCheckBox::setBoxPadding(const float boxPadding){
-	mBoxPad = boxPadding;
-	layout();
-}
-
-
-void ControlCheckBox::setLabelTextConfig(const std::string& textConfig){
-	const ds::cfg::Text& theActualConfig = mEngine.getEngineCfg().getText(textConfig);
-	if(mLabel){
-		theActualConfig.configure(*mLabel);
-	} else {
-		mLabel = theActualConfig.create(mEngine, this);
+	void ControlCheckBox::setCheckboxUpdatedCallback(std::function<void(const bool)> func) {
+		mCheckBoxUpdatedCallback = func;
 	}
-	updateBox();
-}
 
-void ControlCheckBox::setLabelTextConfig(const std::string& fontName, const float& fontSize, const ci::ColorA& fontColor){
-	if(!mLabel){
-		mLabel = new ds::ui::Text(mEngine);
-		addChildPtr(mLabel);
+	void ControlCheckBox::setCheckBoxValue(const bool checkValue) {
+		mIsChecked = checkValue;
+
+		updateBox();
+
+		if (mCheckBoxUpdatedCallback) mCheckBoxUpdatedCallback(mIsChecked);
 	}
-	mLabel->setFont(fontName);
-	mLabel->setFontSize(fontSize);
-	mLabel->setColorA(fontColor);
-	updateBox();
-}
 
-void ControlCheckBox::setLabelPadding(const float labelPadding){
-	mLabelPadding = labelPadding;
-	updateBox();
-}
+	void ControlCheckBox::updateBox() {
+		if (mLabel) {
+			if (mIsChecked) {
+				mLabel->setText(mTrueText);
+			} else {
+				mLabel->setText(mFalseText);
+			}
+		}
 
-void ControlCheckBox::setLabelLabels(const std::wstring& trueLabel, const std::wstring& falseText){
-	mTrueText = trueLabel;
-	mFalseText = falseText;
-	updateBox();
-}
+		if (mInnerBox) {
+			if (mIsChecked) {
+				mInnerBox->show();
+			} else {
+				mInnerBox->hide();
+			}
+		}
 
-void ControlCheckBox::setTrueLabel(const std::wstring& trueLabel){
-	mTrueText = trueLabel;
-	updateBox();
-}
+		if (mVisualUpdateCallback) {
+			mVisualUpdateCallback();
+		}
 
-void ControlCheckBox::setFalseLabel(const std::wstring& falseText){
-	mFalseText = falseText;
-	updateBox();
+		if (mLabel) {
+			setSize(getHeight() + mLabel->getWidth() + mLabelPadding, getHeight());
+		} else {
+			layout();
+		}
+	}
 
-}
+	ds::ui::Sprite* ControlCheckBox::getInnerBoxSprite() {
+		return mInnerBox;
+	}
 
-} // namespace ui
+	ds::ui::Border* ControlCheckBox::getOuterBoxSprite() {
+		return mOuterBox;
+	}
 
-} // namespace ds
+
+	ds::ui::Text* ControlCheckBox::getLabelSprite() {
+		return mLabel;
+	}
+
+	void ControlCheckBox::setTouchPadding(const float touchPadding) {
+		mTouchPadding = touchPadding;
+		layout();
+	}
+
+	void ControlCheckBox::setBoxPadding(const float boxPadding) {
+		mBoxPad = boxPadding;
+		layout();
+	}
+
+
+	void ControlCheckBox::setLabelTextStyle(const std::string& styleName) {
+		const ds::ui::TextStyle& theStyle = mEngine.getTextStyle(styleName);
+		setLabelTextStyle(theStyle);
+	}
+
+	void ControlCheckBox::setLabelTextStyle(const std::string& fontName, const float& fontSize,
+											const ci::ColorA& fontColor) {
+		ds::ui::TextStyle textStyle = ds::ui::TextStyle(fontName, fontName, fontSize, 1.0f, 0.0f, fontColor);
+		setLabelTextStyle(textStyle);
+	}
+
+	void ControlCheckBox::setLabelTextStyle(const ds::ui::TextStyle& textConfig) {
+		if (!mLabel) {
+			mLabel = new ds::ui::Text(mEngine);
+			addChildPtr(mLabel);
+		}
+
+		mLabel->setTextStyle(textConfig);
+		updateBox();
+	}
+
+	void ControlCheckBox::setLabelPadding(const float labelPadding) {
+		mLabelPadding = labelPadding;
+		updateBox();
+	}
+
+	void ControlCheckBox::setLabelLabels(const std::wstring& trueLabel, const std::wstring& falseText) {
+		mTrueText  = trueLabel;
+		mFalseText = falseText;
+		updateBox();
+	}
+
+	void ControlCheckBox::setTrueLabel(const std::wstring& trueLabel) {
+		mTrueText = trueLabel;
+		updateBox();
+	}
+
+	void ControlCheckBox::setFalseLabel(const std::wstring& falseText) {
+		mFalseText = falseText;
+		updateBox();
+	}
+
+}} // namespace ds::ui

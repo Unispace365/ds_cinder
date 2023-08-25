@@ -1,0 +1,73 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			enable="true"
+			size="$_world_size"
+			animate_off="position:0, $_world_height; ease:inQuint"
+		>
+		
+		<layout name="content_layout"
+			pad_all="$_padding"
+			layout_type="vert"
+			layout_spacing="$_padding"
+			layout_size_mode="stretch"
+			>
+			
+			<sprite layout_size_mode="stretch" />
+			
+			<sprite name="spacer_one" 
+				layout_size_mode="flex"
+				color="white"
+				size="$_line:size"
+				opacity="$_line:opacity"
+				animate_on="$_default:anim"
+			/>
+			
+			<text name="title"
+				font="story:title"
+				layout_size_mode="flex"
+				animate_on="$_default:anim"
+				model="text:this->title"
+				/>
+				
+			<image name="primary_image"
+				layout_size_mode="fixed"
+				layout_size="#expr{$_world_height / 2.0}, #expr{$_world_height / 2.0}"
+				animate_on="$_default:anim"
+			/>
+			
+			<text name="caption"
+				font="media_viewer:title"
+				layout_size_mode="flex"
+				animate_on="$_default:anim"
+				text="<span style='italic' weight='light' size='x-small'>Above: a sample image.</span>"
+				/>
+			<text name="subtitle_message"
+				font="media_viewer:title"
+				layout_size_mode="flex"
+				animate_on="$_default:anim"
+				text="Press 'c' to toggle the console, 'h' to display hotkeys, 'i' to toggle idle mode"
+				/>
+			
+			<sprite layout_size_mode="stretch" />
+			
+			<xml name="sample_button" src="%APP%/data/layouts/icon_label_button.xml" >
+				<property name="the_button" on_click_event="SomethingHappenedEvent" />
+				<property name="high_label" text="Something" />
+			</xml>
+			<xml name="idle_button" src="%APP%/data/layouts/icon_label_button.xml" >
+				<property name="high_label" text="Idle" />
+			</xml>
+			
+			<xml name="quit_button" src="%APP%/data/layouts/icon_label_button.xml" >
+				<property name="the_button" on_click_event="RequestAppExitEvent" />
+				<property name="high_label" text="Quit" />
+			</xml>
+		</layout>
+	</layout>
+
+
+</interface>
+
+

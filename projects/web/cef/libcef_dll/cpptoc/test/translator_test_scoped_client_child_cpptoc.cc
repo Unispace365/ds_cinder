@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4c93372779a4d56648ed7721e655687c52fcb3dd$
+// $hash=2444cafe9c59f007ea908c8e43a8f02376d57011$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
@@ -23,8 +23,9 @@ int CEF_CALLBACK translator_test_scoped_client_child_get_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -39,8 +40,9 @@ int CEF_CALLBACK translator_test_scoped_client_child_get_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -63,6 +65,11 @@ CefTranslatorTestScopedClientChildCppToC::
   GetStruct()->base.get_value = translator_test_scoped_client_child_get_value;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedClientChildCppToC::
+    ~CefTranslatorTestScopedClientChildCppToC() {}
+
 template <>
 CefOwnPtr<CefTranslatorTestScopedClientChild>
 CefCppToCScoped<CefTranslatorTestScopedClientChildCppToC,
@@ -82,16 +89,8 @@ CefCppToCScoped<CefTranslatorTestScopedClientChildCppToC,
     UnwrapDerivedRaw(CefWrapperType type,
                      cef_translator_test_scoped_client_child_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCScoped<
-    CefTranslatorTestScopedClientChildCppToC,
-    CefTranslatorTestScopedClientChild,
-    cef_translator_test_scoped_client_child_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

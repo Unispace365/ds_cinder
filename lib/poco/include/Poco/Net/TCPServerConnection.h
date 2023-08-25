@@ -1,8 +1,6 @@
 //
 // TCPServerConnection.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/TCPServerConnection.h#1 $
-//
 // Library: Net
 // Package: TCPServer
 // Module:  TCPServerConnection
@@ -66,9 +64,9 @@ private:
 	TCPServerConnection();
 	TCPServerConnection(const TCPServerConnection&);
 	TCPServerConnection& operator = (const TCPServerConnection&);
-	
+
 	StreamSocket _socket;
-	
+
 	friend class TCPServerDispatcher;
 };
 

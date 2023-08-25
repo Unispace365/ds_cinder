@@ -1,8 +1,6 @@
 //
 // FileStream_POSIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/FileStream_POSIX.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  FileStream
@@ -35,7 +33,7 @@ class Foundation_API FileStreamBuf: public BufferedBidirectionalStreamBuf
 public:
 	FileStreamBuf();
 		/// Creates a FileStreamBuf.
-		
+
 	~FileStreamBuf();
 		/// Destroys the FileStream.
 

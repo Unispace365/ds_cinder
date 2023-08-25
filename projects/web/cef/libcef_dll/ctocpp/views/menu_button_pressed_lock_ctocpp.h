@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2a275bd4a57c74df08bef4a5a0d8e3f8d2b22305$
+// $hash=8c0bc19bcd5b9f53b0ee556fb0117e9a6115eb7f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_PRESSED_LOCK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefMenuButtonPressedLockCToCpp
                                  cef_menu_button_pressed_lock_t> {
  public:
   CefMenuButtonPressedLockCToCpp();
+  virtual ~CefMenuButtonPressedLockCToCpp();
 
   // CefMenuButtonPressedLock methods.
 };

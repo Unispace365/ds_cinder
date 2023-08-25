@@ -11,26 +11,25 @@ namespace example {
 class AllData;
 
 class layout_example : public ds::App {
-public:
+  public:
 	layout_example();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-private:
-	typedef ds::App		inherited;
+	virtual void fileDrop(ci::app::FileDropEvent event);
+
+  private:
+	typedef ds::App inherited;
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
-
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_LAYOUT_EXAMPLE_APP_H_
-

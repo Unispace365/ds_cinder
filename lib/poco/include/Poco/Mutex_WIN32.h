@@ -1,8 +1,6 @@
 //
 // Mutex_WIN32.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Mutex_WIN32.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Mutex
@@ -37,7 +35,7 @@ protected:
 	bool tryLockImpl();
 	bool tryLockImpl(long milliseconds);
 	void unlockImpl();
-	
+
 private:
 	CRITICAL_SECTION _cs;
 };

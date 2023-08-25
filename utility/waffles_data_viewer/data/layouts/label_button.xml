@@ -1,0 +1,54 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="110, 30"
+		center="0.5, 0.5"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		>
+
+
+		<layout 
+			attach_state="normal"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center" 
+			>
+			<sprite name="up_color" 
+				layout_size_mode="fill"
+				color="#333333"	
+			/>
+			<text 
+				name="normal_label"
+				font="back_button"
+				layout_h_align="center"
+				/>			
+		</layout>
+		
+		<layout 
+			attach_state="high"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center" 
+			>
+				
+			<sprite name="down_color" 
+				layout_size_mode="fill"
+				color="grey"
+				/>
+			<text 
+				name="high_label"
+				font="back_button"
+				color="orange"
+				layout_h_align="center"
+				/>			
+		
+		</layout>
+		
+	</layout_button>
+		
+	
+	
+		
+</interface>
+

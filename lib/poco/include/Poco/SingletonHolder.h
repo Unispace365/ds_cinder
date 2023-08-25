@@ -1,8 +1,6 @@
 //
 // SingletonHolder.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/SingletonHolder.h#1 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  SingletonHolder
@@ -41,14 +39,14 @@ public:
 		/// Creates the SingletonHolder.
 	{
 	}
-	
+
 	~SingletonHolder()
 		/// Destroys the SingletonHolder and the singleton
 		/// object that it holds.
 	{
 		delete _pS;
 	}
-	
+
 	S* get()
 		/// Returns a pointer to the singleton object
 		/// hold by the SingletonHolder. The first call
@@ -58,7 +56,7 @@ public:
 		if (!_pS) _pS = new S;
 		return _pS;
 	}
-	
+
 	void reset()
 		/// Deletes the singleton object.
 	{
@@ -66,7 +64,7 @@ public:
 		delete _pS;
 		_pS = 0;
 	}
-	
+
 private:
 	S* _pS;
 	FastMutex _m;

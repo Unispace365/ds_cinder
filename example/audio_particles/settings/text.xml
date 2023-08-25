@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<settings>
-	<setting name="header:label:name" value="noto-bold" type="string" comment=" Font names are installed in the root app class on startup	 Sample Text "/>
-	<setting name="header:label:size" value="16" type="float"/>
-	<setting name="header:label:leading" value="0.75" type="float"/>
-	<setting name="header:label:color" value="#ffffffff" type="color"/>
-</settings>
-

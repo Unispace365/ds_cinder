@@ -1,8 +1,6 @@
 //
 // MemoryStream.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/MemoryStream.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  MemoryStream
@@ -33,9 +31,9 @@
 namespace Poco {
 
 
-template <typename ch, typename tr> 
+template <typename ch, typename tr>
 class BasicMemoryStreamBuf: public std::basic_streambuf<ch, tr>
-	/// BasicMemoryStreamBuf is a simple implementation of a 
+	/// BasicMemoryStreamBuf is a simple implementation of a
 	/// stream buffer for reading and writing from a memory area.
 	///
 	/// This streambuf only supports unidirectional streams.
@@ -147,7 +145,7 @@ public:
 	{
 		return 0;
 	}
-	
+
 	std::streamsize charsWritten() const
 	{
 		return static_cast<std::streamsize>(this->pptr() - this->pbase());
@@ -160,7 +158,7 @@ public:
 		this->setg(_pBuffer, _pBuffer, _pBuffer + _bufferSize);
 		this->setp(_pBuffer, _pBuffer + _bufferSize);
 	}
-		
+
 private:
 	char_type*      _pBuffer;
 	std::streamsize _bufferSize;
@@ -174,7 +172,7 @@ private:
 //
 // We provide an instantiation for char
 //
-typedef BasicMemoryStreamBuf<char, std::char_traits<char> > MemoryStreamBuf;
+typedef BasicMemoryStreamBuf<char, std::char_traits<char>> MemoryStreamBuf;
 
 
 class Foundation_API MemoryIOS: public virtual std::ios
@@ -186,13 +184,13 @@ class Foundation_API MemoryIOS: public virtual std::ios
 public:
 	MemoryIOS(char* pBuffer, std::streamsize bufferSize);
 		/// Creates the basic stream.
-		
+
 	~MemoryIOS();
 		/// Destroys the stream.
 
 	MemoryStreamBuf* rdbuf();
 		/// Returns a pointer to the underlying streambuf.
-		
+
 protected:
 	MemoryStreamBuf _buf;
 };
@@ -205,7 +203,7 @@ public:
 	MemoryInputStream(const char* pBuffer, std::streamsize bufferSize);
 		/// Creates a MemoryInputStream for the given memory area,
 		/// ready for reading.
-	
+
 	~MemoryInputStream();
 		/// Destroys the MemoryInputStream.
 };
@@ -218,7 +216,7 @@ public:
 	MemoryOutputStream(char* pBuffer, std::streamsize bufferSize);
 		/// Creates a MemoryOutputStream for the given memory area,
 		/// ready for writing.
-	
+
 	~MemoryOutputStream();
 		/// Destroys the MemoryInputStream.
 

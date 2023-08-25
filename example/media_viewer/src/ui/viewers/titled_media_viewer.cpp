@@ -3,8 +3,8 @@
 #include <Poco/LocalDateTime.h>
 
 #include <ds/app/environment.h>
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -13,15 +13,14 @@
 namespace mv {
 
 TitledMediaViewer::TitledMediaViewer(Globals& g)
-	: ds::ui::MediaViewer(g.mEngine, true)
-	, mGlobals(g)
+  : ds::ui::MediaViewer(g.mEngine, true)
+  , mGlobals(g)
 
-	, mTrayHolder(nullptr)
-	, mBackground(nullptr)
-	, mTitle(nullptr)
-	, mBody(nullptr)
-	, mShowingTitle(false)
-{
+  , mTrayHolder(nullptr)
+  , mBackground(nullptr)
+  , mTitle(nullptr)
+  , mBody(nullptr)
+  , mShowingTitle(false) {
 
 	mAnimDuration = mGlobals.getAnimDur();
 
@@ -38,25 +37,23 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	mTrayHolder->addChildPtr(mBackground);
 
 	mTitle = mGlobals.getText("viewer:title").create(mEngine, mTrayHolder);
-	mBody = mGlobals.getText("viewer:body").create(mEngine, mTrayHolder);
+	mBody  = mGlobals.getText("viewer:body").create(mEngine, mTrayHolder);
 
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
-		toggleTitle();
-	});
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) { toggleTitle(); });
 }
 
 void TitledMediaViewer::setMedia(ds::model::MediaRef media, const bool openGl, const bool nvDec) {
-	auto settings = getSettings();
-	settings.mVideoGlMode = openGl;
+	auto settings			= getSettings();
+	settings.mVideoGlMode	= openGl;
 	settings.mVideoNVDecode = nvDec;
 	setSettings(settings);
 	loadMedia(media.getPrimaryResource());
 
-	if(mTitle){
+	if (mTitle) {
 		mTitle->setText(media.getTitle());
 	}
 
-	if(mBody){
+	if (mBody) {
 		mBody->setText(media.getBody());
 	}
 
@@ -66,12 +63,12 @@ void TitledMediaViewer::setMedia(ds::model::MediaRef media, const bool openGl, c
 
 void TitledMediaViewer::onLayout() {
 	MediaViewer::onLayout();
-	
+
 	const float w = getWidth();
 	const float h = getHeight();
 
 	const float padding = mGlobals.getSettingsLayout().getFloat("titled_viewer:padding", 0, 20.0f);
-	if(mBody && mBackground && mTitle && mShowingTitle){
+	if (mBody && mBackground && mTitle && mShowingTitle) {
 		// do the stuff
 
 		float yp = padding + h;
@@ -86,45 +83,47 @@ void TitledMediaViewer::onLayout() {
 		yp += mBody->getHeight() + padding;
 
 		mBackground->setSize(w, yp);
-
 	}
 }
 
 
-void TitledMediaViewer::animateOn(){
+void TitledMediaViewer::animateOn() {
 	tweenStarted();
 	show();
-	tweenOpacity(1.0f, mGlobals.getAnimDur(), 0.0f, ci::easeNone, [this]{tweenEnded(); });
+	tweenOpacity(1.0f, mGlobals.getAnimDur(), 0.0f, ci::easeNone, [this] { tweenEnded(); });
 }
 
-void TitledMediaViewer::animateOff(){
+void TitledMediaViewer::animateOff() {
 	tweenStarted();
-	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); tweenEnded(); });
+	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this] {
+		hide();
+		tweenEnded();
+	});
 }
 
 void TitledMediaViewer::showTitle() {
-	if(mShowingTitle) return;
+	if (mShowingTitle) return;
 	mShowingTitle = true;
 
 	onLayout();
 
-	if(mTrayHolder){
+	if (mTrayHolder) {
 		mTrayHolder->show();
 		mTrayHolder->tweenOpacity(1.0f, mGlobals.getAnimDur());
 	}
 }
 
 void TitledMediaViewer::hideTitle() {
-	if(!mShowingTitle) return;
+	if (!mShowingTitle) return;
 	mShowingTitle = false;
 
-	if(mTrayHolder){
-		mTrayHolder->tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{mTrayHolder->hide(); });
+	if (mTrayHolder) {
+		mTrayHolder->tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this] { mTrayHolder->hide(); });
 	}
 }
 
 void TitledMediaViewer::toggleTitle() {
-	if(mShowingTitle){
+	if (mShowingTitle) {
 		hideTitle();
 	} else {
 		showTitle();
@@ -133,5 +132,3 @@ void TitledMediaViewer::toggleTitle() {
 
 
 } // namespace mv
-
-

@@ -2,15 +2,15 @@
 #ifndef DS_THREAD_WORKCLIENT_H_
 #define DS_THREAD_WORKCLIENT_H_
 
-#include <vector>
-#include <memory>
 #include "ds/thread/work_request.h"
+#include <memory>
+#include <vector>
 
 namespace ds {
 class WorkManager;
 
 namespace ui {
-class SpriteEngine;
+	class SpriteEngine;
 }
 
 /**
@@ -18,18 +18,18 @@ class SpriteEngine;
  * \brief Abstract superclass for anything that can supply requests to the work manager.
  */
 class WorkClient {
-public:
+  public:
 	WorkClient(ui::SpriteEngine&);
 	virtual ~WorkClient();
 
-protected:
+  protected:
 	friend class WorkManager;
 
 	/// Subclasses should take ownership if they want to recycle the request.
-	virtual void			handleResult(std::unique_ptr<WorkRequest>&);
+	virtual void handleResult(std::unique_ptr<WorkRequest>&);
 
-protected:
-	WorkManager&			mManager;
+  protected:
+	WorkManager& mManager;
 };
 
 } // namespace ds

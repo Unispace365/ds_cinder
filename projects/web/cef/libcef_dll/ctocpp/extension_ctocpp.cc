@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,20 +9,24 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=03f1fdb03fe9164e965e62d3e703d1b5a548ffdd$
+// $hash=93f4af6f3591fb4bd50275d518b176b890b7d901$
 //
 
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefExtensionCToCpp::GetIdentifier() {
+NO_SANITIZE("cfi-icall") CefString CefExtensionCToCpp::GetIdentifier() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_identifier))
+  if (CEF_MEMBER_MISSING(_struct, get_identifier)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -35,10 +39,13 @@ CefString CefExtensionCToCpp::GetIdentifier() {
   return _retvalStr;
 }
 
-CefString CefExtensionCToCpp::GetPath() {
+NO_SANITIZE("cfi-icall") CefString CefExtensionCToCpp::GetPath() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_path))
+  if (CEF_MEMBER_MISSING(_struct, get_path)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -51,10 +58,14 @@ CefString CefExtensionCToCpp::GetPath() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDictionaryValue> CefExtensionCToCpp::GetManifest() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_manifest))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_manifest)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -65,17 +76,22 @@ CefRefPtr<CefDictionaryValue> CefExtensionCToCpp::GetManifest() {
   return CefDictionaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionCToCpp::IsSame(CefRefPtr<CefExtension> that) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_same))
+  if (CEF_MEMBER_MISSING(_struct, is_same)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: that; type: refptr_same
   DCHECK(that.get());
-  if (!that.get())
+  if (!that.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->is_same(_struct, CefExtensionCToCpp::Unwrap(that));
@@ -84,10 +100,14 @@ bool CefExtensionCToCpp::IsSame(CefRefPtr<CefExtension> that) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefExtensionHandler> CefExtensionCToCpp::GetHandler() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_handler))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_handler)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -98,10 +118,14 @@ CefRefPtr<CefExtensionHandler> CefExtensionCToCpp::GetHandler() {
   return CefExtensionHandlerCppToC::Unwrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequestContext> CefExtensionCToCpp::GetLoaderContext() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_loader_context))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_loader_context)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -112,10 +136,13 @@ CefRefPtr<CefRequestContext> CefExtensionCToCpp::GetLoaderContext() {
   return CefRequestContextCToCpp::Wrap(_retval);
 }
 
-bool CefExtensionCToCpp::IsLoaded() {
+NO_SANITIZE("cfi-icall") bool CefExtensionCToCpp::IsLoaded() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_loaded))
+  if (CEF_MEMBER_MISSING(_struct, is_loaded)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -126,10 +153,13 @@ bool CefExtensionCToCpp::IsLoaded() {
   return _retval ? true : false;
 }
 
-void CefExtensionCToCpp::Unload() {
+NO_SANITIZE("cfi-icall") void CefExtensionCToCpp::Unload() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, unload))
+  if (CEF_MEMBER_MISSING(_struct, unload)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -141,20 +171,19 @@ void CefExtensionCToCpp::Unload() {
 
 CefExtensionCToCpp::CefExtensionCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefExtensionCToCpp::~CefExtensionCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_extension_t*
 CefCToCppRefCounted<CefExtensionCToCpp, CefExtension, cef_extension_t>::
     UnwrapDerived(CefWrapperType type, CefExtension* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefExtensionCToCpp, CefExtension, cef_extension_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefExtensionCToCpp,

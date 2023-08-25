@@ -1,8 +1,6 @@
 //
 // NullPartHandler.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/NullPartHandler.h#1 $
-//
 // Library: Net
 // Package: Messages
 // Module:  NullPartHandler
@@ -34,10 +32,10 @@ class Net_API NullPartHandler: public PartHandler
 public:
 	NullPartHandler();
 		/// Creates the NullPartHandler.
-	
+
 	~NullPartHandler();
 		/// Destroys the NullPartHandler.
-	
+
 	void handlePart(const MessageHeader& header, std::istream& stream);
 		/// Reads and discards all data from the stream.
 };

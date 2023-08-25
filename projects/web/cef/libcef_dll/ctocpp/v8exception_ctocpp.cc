@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fadbedea9a784ce5d674141fa36b54e87150061$
+// $hash=b3ea08250be63ea366897aac9eb85868711f27da$
 //
 
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefV8ExceptionCToCpp::GetMessage() {
+NO_SANITIZE("cfi-icall") CefString CefV8ExceptionCToCpp::GetMessage() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_message))
+  if (CEF_MEMBER_MISSING(_struct, get_message)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -32,10 +33,11 @@ CefString CefV8ExceptionCToCpp::GetMessage() {
   return _retvalStr;
 }
 
-CefString CefV8ExceptionCToCpp::GetSourceLine() {
+NO_SANITIZE("cfi-icall") CefString CefV8ExceptionCToCpp::GetSourceLine() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_source_line))
+  if (CEF_MEMBER_MISSING(_struct, get_source_line)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -48,10 +50,12 @@ CefString CefV8ExceptionCToCpp::GetSourceLine() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_script_resource_name))
+  if (CEF_MEMBER_MISSING(_struct, get_script_resource_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -64,10 +68,11 @@ CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
   return _retvalStr;
 }
 
-int CefV8ExceptionCToCpp::GetLineNumber() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetLineNumber() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_line_number))
+  if (CEF_MEMBER_MISSING(_struct, get_line_number)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -78,10 +83,11 @@ int CefV8ExceptionCToCpp::GetLineNumber() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetStartPosition() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetStartPosition() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_start_position))
+  if (CEF_MEMBER_MISSING(_struct, get_start_position)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -92,10 +98,11 @@ int CefV8ExceptionCToCpp::GetStartPosition() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetEndPosition() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetEndPosition() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_end_position))
+  if (CEF_MEMBER_MISSING(_struct, get_end_position)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -106,10 +113,11 @@ int CefV8ExceptionCToCpp::GetEndPosition() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetStartColumn() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetStartColumn() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_start_column))
+  if (CEF_MEMBER_MISSING(_struct, get_start_column)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -120,10 +128,11 @@ int CefV8ExceptionCToCpp::GetStartColumn() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetEndColumn() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetEndColumn() {
   cef_v8exception_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_end_column))
+  if (CEF_MEMBER_MISSING(_struct, get_end_column)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -138,21 +147,17 @@ int CefV8ExceptionCToCpp::GetEndColumn() {
 
 CefV8ExceptionCToCpp::CefV8ExceptionCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ExceptionCToCpp::~CefV8ExceptionCToCpp() {}
+
 template <>
 cef_v8exception_t*
 CefCToCppRefCounted<CefV8ExceptionCToCpp, CefV8Exception, cef_v8exception_t>::
     UnwrapDerived(CefWrapperType type, CefV8Exception* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefV8ExceptionCToCpp,
-                                         CefV8Exception,
-                                         cef_v8exception_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefV8ExceptionCToCpp,

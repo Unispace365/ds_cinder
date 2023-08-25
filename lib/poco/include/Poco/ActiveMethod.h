@@ -1,8 +1,6 @@
 //
 // ActiveMethod.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/ActiveMethod.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  ActiveObjects
@@ -30,7 +28,7 @@
 namespace Poco {
 
 
-template <class ResultType, class ArgType, class OwnerType, class StarterType = ActiveStarter<OwnerType> >
+template <class ResultType, class ArgType, class OwnerType, class StarterType = ActiveStarter<OwnerType>>
 class ActiveMethod
 	/// An active method is a method that, when called, executes
 	/// in its own thread. ActiveMethod's take exactly one
@@ -85,7 +83,7 @@ public:
 	{
 		poco_check_ptr (pOwner);
 	}
-	
+
 	ActiveResultType operator () (const ArgType& arg)
 		/// Invokes the ActiveMethod.
 	{
@@ -94,7 +92,7 @@ public:
 		StarterType::start(_pOwner, pRunnable);
 		return result;
 	}
-		
+
 	ActiveMethod(const ActiveMethod& other):
 		_pOwner(other._pOwner),
 		_method(other._method)
@@ -108,7 +106,7 @@ public:
 		return *this;
 	}
 
-	void swap(ActiveMethod& other)
+	void swap(ActiveMethod& other) noexcept
 	{
 		std::swap(_pOwner, other._pOwner);
 		std::swap(_method, other._method);
@@ -177,7 +175,7 @@ public:
 	{
 		poco_check_ptr (pOwner);
 	}
-	
+
 	ActiveResultType operator () (void)
 		/// Invokes the ActiveMethod.
 	{
@@ -186,7 +184,7 @@ public:
 		StarterType::start(_pOwner, pRunnable);
 		return result;
 	}
-		
+
 	ActiveMethod(const ActiveMethod& other):
 		_pOwner(other._pOwner),
 		_method(other._method)
@@ -200,7 +198,7 @@ public:
 		return *this;
 	}
 
-	void swap(ActiveMethod& other)
+	void swap(ActiveMethod& other) noexcept
 	{
 		std::swap(_pOwner, other._pOwner);
 		std::swap(_method, other._method);

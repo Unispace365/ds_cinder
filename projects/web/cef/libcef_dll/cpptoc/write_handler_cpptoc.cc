@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8e55451fcdabc0cf875fc530982e7abeec82ca17$
+// $hash=a7d0c28420e88fe055cc18eda55d9cae1f3ee33f$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,15 +23,19 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
                                         const void* ptr,
                                         size_t size,
                                         size_t n) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefWriteHandlerCppToC::Get(self)->Write(ptr, size, n);
@@ -42,11 +47,14 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
 int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
                                     int64 offset,
                                     int whence) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefWriteHandlerCppToC::Get(self)->Seek(offset, whence);
@@ -56,11 +64,14 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
 }
 
 int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefWriteHandlerCppToC::Get(self)->Tell();
@@ -70,11 +81,14 @@ int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
 }
 
 int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefWriteHandlerCppToC::Get(self)->Flush();
@@ -84,11 +98,14 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
 }
 
 int CEF_CALLBACK write_handler_may_block(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefWriteHandlerCppToC::Get(self)->MayBlock();
@@ -109,6 +126,12 @@ CefWriteHandlerCppToC::CefWriteHandlerCppToC() {
   GetStruct()->may_block = write_handler_may_block;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefWriteHandlerCppToC::~CefWriteHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefWriteHandler> CefCppToCRefCounted<
     CefWriteHandlerCppToC,
@@ -116,16 +139,8 @@ CefRefPtr<CefWriteHandler> CefCppToCRefCounted<
     cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_write_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefWriteHandlerCppToC,
-                                         CefWriteHandler,
-                                         cef_write_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefWriteHandlerCppToC,

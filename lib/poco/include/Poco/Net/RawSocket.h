@@ -1,8 +1,6 @@
 //
 // RawSocket.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/RawSocket.h#1 $
-//
 // Library: Net
 // Package: Sockets
 // Module:  RawSocket
@@ -36,7 +34,7 @@ public:
 	RawSocket();
 		/// Creates an unconnected IPv4 raw socket.
 
-	RawSocket(IPAddress::Family family, int proto = IPPROTO_RAW);
+	RawSocket(SocketAddress::Family family, int proto = IPPROTO_RAW);
 		/// Creates an unconnected raw socket.
 		///
 		/// The socket will be created for the
@@ -55,6 +53,10 @@ public:
 		/// a RawSocketImpl, otherwise an InvalidArgumentException
 		/// will be thrown.
 
+	RawSocket(const RawSocket& socket);
+		/// Creates the RawSocket with the SocketImpl
+		/// from another socket.
+
 	~RawSocket();
 		/// Destroys the RawSocket.
 
@@ -63,7 +65,44 @@ public:
 		///
 		/// Releases the socket's SocketImpl and
 		/// attaches the SocketImpl from the other socket and
-		/// increments the reference count of the SocketImpl.	
+		/// increments the reference count of the SocketImpl.
+
+	RawSocket& operator = (const RawSocket& socket);
+		/// Assignment operator.
+		///
+		/// Releases the socket's SocketImpl and
+		/// attaches the SocketImpl from the other socket and
+		/// increments the reference count of the SocketImpl.
+
+#if POCO_NEW_STATE_ON_MOVE
+
+	RawSocket(Socket&& socket);
+		/// Creates the RawSocket with the SocketImpl
+		/// from another socket and zeroes the other socket's
+		/// SocketImpl.The SocketImpl must be
+		/// a RawSocketImpl, otherwise an InvalidArgumentException
+		/// will be thrown.
+
+	RawSocket(RawSocket&& socket);
+		/// Creates the RawSocket with the SocketImpl
+		/// from another socket and zeroes the other socket's
+		/// SocketImpl.
+
+	RawSocket& operator = (Socket&& socket);
+		/// Assignment move operator.
+		///
+		/// Releases the socket's SocketImpl and
+		/// attaches the SocketImpl from the other socket and
+		/// zeroes the other socket's SocketImpl.
+
+	RawSocket& operator = (RawSocket&& socket);
+		/// Assignment move operator.
+		///
+		/// Releases the socket's SocketImpl and
+		/// attaches the SocketImpl from the other socket and
+		/// zeroes the other socket's SocketImpl.
+
+#endif //POCO_NEW_STATE_ON_MOVE
 
 	void connect(const SocketAddress& address);
 		/// Restricts incoming and outgoing
@@ -75,9 +114,23 @@ public:
 		/// Bind a local address to the socket.
 		///
 		/// This is usually only done when establishing a server
-		/// socket. 
+		/// socket.
 		///
 		/// If reuseAddress is true, sets the SO_REUSEADDR
+		/// socket option.
+		///
+		/// Calls to connect() cannot come before calls to bind().
+
+	void bind(const SocketAddress& address, bool reuseAddress, bool reusePort);
+		/// Bind a local address to the socket.
+		///
+		/// This is usually only done when establishing a server
+		/// socket.
+		///
+		/// If reuseAddress is true, sets the SO_REUSEADDR
+		/// socket option.
+		///
+		/// If reusePort is true, sets the SO_REUSEPORT
 		/// socket option.
 		///
 		/// Calls to connect() cannot come before calls to bind().
@@ -114,7 +167,7 @@ public:
 		///
 		/// Setting this flag allows sending datagrams to
 		/// the broadcast address.
-	
+
 	bool getBroadcast() const;
 		/// Returns the value of the SO_BROADCAST socket option.
 
@@ -123,7 +176,7 @@ protected:
 		/// Creates the Socket and attaches the given SocketImpl.
 		/// The socket takes ownership of the SocketImpl.
 		///
-		/// The SocketImpl must be a StreamSocketImpl, otherwise
+		/// The SocketImpl must be a RawSocketImpl, otherwise
 		/// an InvalidArgumentException will be thrown.
 };
 

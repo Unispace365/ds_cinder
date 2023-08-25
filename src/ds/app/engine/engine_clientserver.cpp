@@ -9,14 +9,11 @@ namespace ds {
 /**
  * \class EngineClientServer
  */
-EngineClientServer::EngineClientServer(	ds::App& app, ds::EngineSettings& settings,
-										ds::EngineData& ed, const ds::RootList& roots)
-		: AbstractEngineServer(app, settings, ed, roots, CLIENTSERVER_MODE)
-{
-}
+EngineClientServer::EngineClientServer(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed,
+									   const ds::RootList& roots)
+  : AbstractEngineServer(app, settings, ed, roots, CLIENTSERVER_MODE) {}
 
-EngineClientServer::~EngineClientServer() {
-}
+EngineClientServer::~EngineClientServer() {}
 
 
 void EngineClientServer::draw() {

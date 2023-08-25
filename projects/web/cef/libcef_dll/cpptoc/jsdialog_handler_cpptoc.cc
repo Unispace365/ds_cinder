@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ee5e4d79a9cfc731aa4fa5b543fadf181d133841$
+// $hash=351f3f71bc8fcee33ee063c17f34f7a9e7a99053$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -29,23 +30,29 @@ jsdialog_handler_on_jsdialog(struct _cef_jsdialog_handler_t* self,
                              const cef_string_t* default_prompt_text,
                              cef_jsdialog_callback_t* callback,
                              int* suppress_message) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
   // Verify param: suppress_message; type: bool_byref
   DCHECK(suppress_message);
-  if (!suppress_message)
+  if (!suppress_message) {
     return 0;
+  }
   // Unverified params: origin_url, message_text, default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
@@ -59,8 +66,9 @@ jsdialog_handler_on_jsdialog(struct _cef_jsdialog_handler_t* self,
       CefJSDialogCallbackCToCpp::Wrap(callback), suppress_messageBool);
 
   // Restore param: suppress_message; type: bool_byref
-  if (suppress_message)
+  if (suppress_message) {
     *suppress_message = suppress_messageBool ? true : false;
+  }
 
   // Return type: bool
   return _retval;
@@ -72,19 +80,24 @@ jsdialog_handler_on_before_unload_dialog(struct _cef_jsdialog_handler_t* self,
                                          const cef_string_t* message_text,
                                          int is_reload,
                                          cef_jsdialog_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
   // Unverified params: message_text
 
   // Execute
@@ -99,15 +112,19 @@ jsdialog_handler_on_before_unload_dialog(struct _cef_jsdialog_handler_t* self,
 void CEF_CALLBACK
 jsdialog_handler_on_reset_dialog_state(struct _cef_jsdialog_handler_t* self,
                                        cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefJSDialogHandlerCppToC::Get(self)->OnResetDialogState(
@@ -117,15 +134,19 @@ jsdialog_handler_on_reset_dialog_state(struct _cef_jsdialog_handler_t* self,
 void CEF_CALLBACK
 jsdialog_handler_on_dialog_closed(struct _cef_jsdialog_handler_t* self,
                                   cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefJSDialogHandlerCppToC::Get(self)->OnDialogClosed(
@@ -144,6 +165,12 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC() {
   GetStruct()->on_dialog_closed = jsdialog_handler_on_dialog_closed;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefJSDialogHandlerCppToC::~CefJSDialogHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefJSDialogHandler> CefCppToCRefCounted<
     CefJSDialogHandlerCppToC,
@@ -151,16 +178,8 @@ CefRefPtr<CefJSDialogHandler> CefCppToCRefCounted<
     cef_jsdialog_handler_t>::UnwrapDerived(CefWrapperType type,
                                            cef_jsdialog_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefJSDialogHandlerCppToC,
-                                         CefJSDialogHandler,
-                                         cef_jsdialog_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefJSDialogHandlerCppToC,

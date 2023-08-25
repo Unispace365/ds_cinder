@@ -1,8 +1,6 @@
 //
 // Exception.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Exception.h#2 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Exception
@@ -44,34 +42,34 @@ public:
 
 	Exception(const Exception& exc);
 		/// Copy constructor.
-		
-	~Exception() throw();
+
+	~Exception() noexcept;
 		/// Destroys the exception and deletes the nested exception.
 
 	Exception& operator = (const Exception& exc);
 		/// Assignment operator.
 
-	virtual const char* name() const throw();
+	virtual const char* name() const noexcept;
 		/// Returns a static string describing the exception.
-		
-	virtual const char* className() const throw();
+
+	virtual const char* className() const noexcept;
 		/// Returns the name of the exception class.
-		
-	virtual const char* what() const throw();
+
+	virtual const char* what() const noexcept;
 		/// Returns a static string describing the exception.
 		///
 		/// Same as name(), but for compatibility with std::exception.
-		
+
 	const Exception* nested() const;
 		/// Returns a pointer to the nested exception, or
 		/// null if no nested exception exists.
-			
+
 	const std::string& message() const;
 		/// Returns the message text.
-			
+
 	int code() const;
 		/// Returns the exception code if defined.
-		
+
 	std::string displayText() const;
 		/// Returns a string consisting of the
 		/// message name and the message text.
@@ -81,7 +79,7 @@ public:
 		///
 		/// The copy can later be thrown again by
 		/// invoking rethrow() on it.
-		
+
 	virtual void rethrow() const;
 		/// (Re)Throws the exception.
 		///
@@ -98,7 +96,7 @@ protected:
 
 	void extendedMessage(const std::string& arg);
 		/// Sets the extended message for the exception.
-		
+
 private:
 	std::string _msg;
 	Exception*  _pNested;
@@ -148,10 +146,10 @@ inline int Exception::code() const
 		CLS(const std::string& msg, const std::string& arg, int code = CODE);		\
 		CLS(const std::string& msg, const Poco::Exception& exc, int code = CODE);	\
 		CLS(const CLS& exc);														\
-		~CLS() throw();																\
+		~CLS() noexcept;																\
 		CLS& operator = (const CLS& exc);											\
-		const char* name() const throw();											\
-		const char* className() const throw();										\
+		const char* name() const noexcept;											\
+		const char* className() const noexcept;										\
 		Poco::Exception* clone() const;												\
 		void rethrow() const;														\
 	};
@@ -175,7 +173,7 @@ inline int Exception::code() const
 	CLS::CLS(const CLS& exc): BASE(exc)																\
 	{																								\
 	}																								\
-	CLS::~CLS() throw()																				\
+	CLS::~CLS() noexcept																			\
 	{																								\
 	}																								\
 	CLS& CLS::operator = (const CLS& exc)															\
@@ -183,11 +181,11 @@ inline int Exception::code() const
 		BASE::operator = (exc);																		\
 		return *this;																				\
 	}																								\
-	const char* CLS::name() const throw()															\
+	const char* CLS::name() const noexcept															\
 	{																								\
 		return NAME;																				\
 	}																								\
-	const char* CLS::className() const throw()														\
+	const char* CLS::className() const noexcept														\
 	{																								\
 		return typeid(*this).name();																\
 	}																								\

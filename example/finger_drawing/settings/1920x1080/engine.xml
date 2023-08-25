@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<settings>
-	<setting name=" WINDOW SETTINGS -" value="" type="section_header"/>
-	<setting name=" how big the world size is, in pixels " value="" type="section_header"/>
-	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment=" "/>
-	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
-	<setting name="dst_rect" value="0, 40, 1920, 1080" type="rect"/>
-</settings>
-

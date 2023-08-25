@@ -14,16 +14,14 @@ namespace example {
  * \class example::Globals
  */
 Globals::Globals(ds::ui::SpriteEngine& e)
-		: mEngine(e)
-		, mAnimationDuration(0.35f)
-{
-}
+  : mEngine(e)
+  , mAnimationDuration(0.35f) {}
 
-const float Globals::getAnimDur(){
+const float Globals::getAnimDur() {
 	return mAnimationDuration;
 }
 
-void Globals::initialize(){
+void Globals::initialize() {
 	mAnimationDuration = getSettingsLayout().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
@@ -37,11 +35,7 @@ ds::cfg::Settings& Globals::getSettingsLayout() const {
 
 const ds::cfg::Text& Globals::getText(const std::string& name) const {
 	return mEngine.getEngineCfg().getText(name);
-
 }
 
 
-
-} // !namespace example
-
-
+} // namespace example

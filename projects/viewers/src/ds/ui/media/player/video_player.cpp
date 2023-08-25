@@ -16,28 +16,31 @@
 #include "ds/ui/media/media_interface_builder.h"
 #include "ds/ui/media/media_viewer_settings.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   : ds::ui::Sprite(eng)
-  , mVideo(nullptr)
   , mVideoInterface(nullptr)
+  , mVideo(nullptr)
   , mEmbedInterface(embedInterface)
   , mShowInterfaceAtStart(true)
+  , mLetterbox(true)
+  , mResetOnVideoComplete(true)
+  , mPanning(0.0f)
+  , mVolume(1.0f)
   , mAutoSyncronize(true)
   , mAutoPlayFirstFrame(true)
   , mAllowOutOfBoundsMuted(true)
-  , mPanning(0.0f)
-  , mVolume(1.0f)
   , mLooping(true)
-  , mResetOnVideoComplete(true)
-  , mInterfaceBelowMedia(false)
-  , mLetterbox(true) {
+  , mInterfaceBelowMedia(false) {
 	mLayoutFixedAspect = true;
 }
 
 void VideoPlayer::setMedia(const std::string mediaPath) {
+	setResource(ds::Resource(mediaPath));
+}
+
+void VideoPlayer::setResource(const ds::Resource& resource) {
 	clear();
 
 	mVideo = new ds::ui::GstVideo(mEngine);
@@ -55,7 +58,8 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 
 		// show the interface if we have one
 		if (mVideoInterface && mResetOnVideoComplete) {
-			mVideoInterface->userInputReceived();
+			mVideoInterface->resetIdleTimer();
+			//mVideoInterface->userInputReceived();
 		}
 
 		if (mVideoCompleteCallback) {
@@ -89,16 +93,16 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 		mVideo->setAutoStart(true);
 	}
 
-	if(mGlMode) {
+	if (mGlMode) {
 		mVideo->enableOpenGlMode();
 	}
 
-	if(mNVDecode) {
+	if (mNVDecode) {
 		mVideo->setNVDecode(true);
 	}
 
+	mVideo->setResource(resource);
 
-	mVideo->loadVideo(mediaPath);
 	if (mAutoPlayFirstFrame) {
 		mVideo->playAFrame(-1.0, [this]() { mVideo->setMute(false); });
 	}
@@ -110,7 +114,8 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 	}
 
 	if (mEmbedInterface) {
-		mVideoInterface = dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		mVideoInterface =
+			dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 		if (mVideoInterface) {
 			mVideoInterface->sendToFront();
 		}
@@ -127,8 +132,8 @@ void VideoPlayer::setMedia(const std::string mediaPath) {
 
 	if (mVideo->getWidth() < 1.0f || mVideo->getHeight() < 1.0f) {
 		// make this a setting? This is mostly for when the "video" is just an audio track
-		// Probably should detect this properly from GstVideo and expose it to the outside world. Users may want to know that this
-		// only has audio
+		// Probably should detect this properly from GstVideo and expose it to the outside world. Users may want to know
+		// that this only has audio
 		setSize(600.0f, 100.0f);
 	} else {
 		setSize(mVideo->getWidth(), mVideo->getHeight());
@@ -145,7 +150,9 @@ void VideoPlayer::clear() {
 	}
 }
 
-void VideoPlayer::onSizeChanged() { layout(); }
+void VideoPlayer::onSizeChanged() {
+	layout();
+}
 
 void VideoPlayer::layout() {
 	if (mVideo) {
@@ -156,11 +163,12 @@ void VideoPlayer::layout() {
 
 	if (mVideoInterface && mEmbedInterface) {
 		mVideoInterface->setSize(getWidth() / 2.0f, mVideoInterface->getHeight());
-		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
+		float yPos = getHeight() - mVideoInterface->getScaleHeight() - mInterfaceBottomPad;
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
-		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
-		if(mInterfaceBelowMedia) yPos = getHeight();
-		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
+		if (yPos + mVideoInterface->getScaleHeight() > getHeight())
+			yPos = getHeight() - mVideoInterface->getScaleHeight();
+		if (mInterfaceBelowMedia) yPos = getHeight();
+		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
 
@@ -176,7 +184,9 @@ void VideoPlayer::hideInterface() {
 	}
 }
 
-void VideoPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) { mShowInterfaceAtStart = showInterfaceAtStart; }
+void VideoPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart) {
+	mShowInterfaceAtStart = showInterfaceAtStart;
+}
 
 void VideoPlayer::play() {
 	if (mVideo) {
@@ -200,7 +210,9 @@ void VideoPlayer::stop() {
 	}
 }
 
-ds::ui::GstVideo* VideoPlayer::getVideo() { return mVideo; }
+ds::ui::GstVideo* VideoPlayer::getVideo() {
+	return mVideo;
+}
 
 
 void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
@@ -215,8 +227,9 @@ void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 	setAudioDevices(settings.mVideoAudioDevices);
 	setLetterbox(settings.mLetterBox);
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
-	mNVDecode = settings.mVideoNVDecode;
-	mGlMode = settings.mVideoGlMode;
+	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
+	mNVDecode			 = settings.mVideoNVDecode;
+	mGlMode				 = settings.mVideoGlMode;
 }
 
 void VideoPlayer::setLetterbox(const bool doLetterBox) {
@@ -268,7 +281,9 @@ void VideoPlayer::setAutoSynchronize(const bool doSync) {
 	mAutoSyncronize = doSync;
 }
 
-void VideoPlayer::setAutoPlayFirstFrame(const bool playFirstFrame) { mAutoPlayFirstFrame = playFirstFrame; }
+void VideoPlayer::setAutoPlayFirstFrame(const bool playFirstFrame) {
+	mAutoPlayFirstFrame = playFirstFrame;
+}
 
 void VideoPlayer::setPlayableInstances(const std::vector<std::string> instanceNames) {
 	if (mVideo) {
@@ -292,7 +307,9 @@ void VideoPlayer::setVideoLoop(const bool doLoop) {
 	}
 }
 
-void VideoPlayer::setResetOnVideoComplete(const bool doReset) { mResetOnVideoComplete = doReset; }
+void VideoPlayer::setResetOnVideoComplete(const bool doReset) {
+	mResetOnVideoComplete = doReset;
+}
 
 void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices) {
 	mAudioDevices = audioDevices;
@@ -301,5 +318,4 @@ void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices) {
 	}
 }
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

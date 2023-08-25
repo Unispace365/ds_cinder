@@ -1,8 +1,6 @@
 //
 // DigestEngine.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/DigestEngine.h#1 $
-//
 // Library: Foundation
 // Package: Crypt
 // Module:  DigestEngine
@@ -38,23 +36,23 @@ class Foundation_API DigestEngine
 	/// digest.
 {
 public:
-	typedef std::vector<unsigned char> Digest;
+	using Digest = std::vector<unsigned char>;
 
 	DigestEngine();
 	virtual ~DigestEngine();
-		
+
 	void update(const void* data, std::size_t length);
 	void update(char data);
 	void update(const std::string& data);
 		/// Updates the digest with the given data.
-		
+
 	virtual std::size_t digestLength() const = 0;
 		/// Returns the length of the digest in bytes.
 
 	virtual void reset() = 0;
 		/// Resets the engine so that a new
 		/// digest can be computed.
-		
+
 	virtual const Digest& digest() = 0;
 		/// Finishes the computation of the digest and
 		/// returns the message digest. Resets the engine
@@ -62,17 +60,25 @@ public:
 		/// The returned reference is valid until the next
 		/// time digest() is called, or the engine object is destroyed.
 
-	static std::string digestToHex(const Digest& bytes);
+	static std::string digestToHex(const Digest& bytes, std::size_t length = 0);
 		/// Converts a message digest into a string of hexadecimal numbers.
+		/// If length is greater than zero, the output is truncated to length
+		/// bytes. If size is greater than the length of untruncated output,
+		/// InvalidArgumentException is thrown.
 
 	static Digest digestFromHex(const std::string& digest);
 		/// Converts a string created by digestToHex back to its Digest presentation
+
+	static bool constantTimeEquals(const Digest& d1, const Digest& d2);
+		/// Compares two Digest values using a constant-time comparison
+		/// algorithm. This can be used to prevent timing attacks
+		/// (as discussed in <https://codahale.com/a-lesson-in-timing-attacks/>).
 
 protected:
 	virtual void updateImpl(const void* data, std::size_t length) = 0;
 		/// Updates the digest with the given data. Must be implemented
 		/// by subclasses.
-		
+
 private:
 	DigestEngine(const DigestEngine&);
 	DigestEngine& operator = (const DigestEngine&);
@@ -98,7 +104,7 @@ inline void DigestEngine::update(char data)
 
 inline void DigestEngine::update(const std::string& data)
 {
-	updateImpl(data.data(), data.size());	
+	updateImpl(data.data(), data.size());
 }
 
 

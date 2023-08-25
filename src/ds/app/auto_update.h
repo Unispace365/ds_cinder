@@ -2,15 +2,15 @@
 #ifndef DS_APP_AUTOUPDATE_H_
 #define DS_APP_AUTOUPDATE_H_
 
-#include <vector>
 #include <Poco/Timestamp.h>
 #include <ds/app/app_defs.h>
+#include <vector>
 
 namespace ds {
 class AutoUpdateList;
 class UpdateParams;
 namespace ui {
-class SpriteEngine;
+	class SpriteEngine;
 }
 
 /**
@@ -19,20 +19,20 @@ class SpriteEngine;
  * in my containing list.
  */
 class AutoUpdate {
-public:
+  public:
 	AutoUpdate(ds::ui::SpriteEngine&, const int mask = AutoUpdateType::SERVER);
 	virtual ~AutoUpdate();
 
-protected:
-	friend class			AutoUpdateList;
-	virtual void			update(const ds::UpdateParams&) = 0;
+  protected:
+	friend class AutoUpdateList;
+	virtual void update(const ds::UpdateParams&) = 0;
 
-	ds::ui::SpriteEngine&	mEngine;
+	ds::ui::SpriteEngine& mEngine;
 
-private:
+  private:
 	AutoUpdate();
 
-	const int				mMask;
+	const int mMask;
 };
 
 } // namespace ds

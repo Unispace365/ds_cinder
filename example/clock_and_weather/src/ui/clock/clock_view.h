@@ -7,11 +7,11 @@
 namespace downstream {
 
 /**
-* \class downstream::Clock
-*			A view that shows the ClockView view clock
-*/
+ * \class downstream::Clock
+ *			A view that shows the ClockView view clock
+ */
 class ClockView : public ds::ui::SmartLayout {
-public:
+  public:
 	ClockView(ds::ui::SpriteEngine& eng);
 
 	/// repeatedly called after calling it once
@@ -21,4 +21,3 @@ public:
 } // namespace downstream
 
 #endif
-

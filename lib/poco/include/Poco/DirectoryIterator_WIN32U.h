@@ -1,8 +1,6 @@
 //
 // DirectoryIterator_WIN32U.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/DirectoryIterator_WIN32U.h#1 $
-//
 // Library: Foundation
 // Package: Filesystem
 // Module:  DirectoryIterator
@@ -32,13 +30,13 @@ class Foundation_API DirectoryIteratorImpl
 public:
 	DirectoryIteratorImpl(const std::string& path);
 	~DirectoryIteratorImpl();
-	
+
 	void duplicate();
 	void release();
-	
+
 	const std::string& get() const;
 	const std::string& next();
-	
+
 private:
 	HANDLE           _fh;
 	WIN32_FIND_DATAW _fd;

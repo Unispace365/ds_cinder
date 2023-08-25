@@ -4,33 +4,31 @@
 
 #include <string>
 
-namespace ds
-{
+namespace ds {
 
 /**
  * ds::NetConnection
  * Abstract interface for a network connection.
  */
-class NetConnection
-{
-public:
-	virtual ~NetConnection(){}
+class NetConnection {
+  public:
+	virtual ~NetConnection() {}
 
-	virtual bool	initialize(bool server, const std::string &ip, const std::string &port) = 0;
+	virtual bool initialize(bool server, const std::string& ip, const std::string& port) = 0;
 
-	virtual bool	sendMessage(const std::string &data) = 0;
-	virtual bool	sendMessage(const char *data, int size) = 0;
+	virtual bool sendMessage(const std::string& data)	 = 0;
+	virtual bool sendMessage(const char* data, int size) = 0;
 
-	virtual int		recvMessage(std::string &msg) = 0;
+	virtual int recvMessage(std::string& msg) = 0;
 
-	virtual bool	isServer() const = 0;
+	virtual bool isServer() const = 0;
 
-	virtual bool	initialized() const = 0;
+	virtual bool initialized() const = 0;
 
-protected:
-	NetConnection(){}
+  protected:
+	NetConnection() {}
 };
 
-}
+} // namespace ds
 
-#endif//DS_ZMQ_CONNECTION_H
+#endif // DS_ZMQ_CONNECTION_H

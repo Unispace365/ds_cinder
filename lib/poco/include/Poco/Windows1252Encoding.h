@@ -1,8 +1,6 @@
 //
 // Windows1252Encoding.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Windows1252Encoding.h#1 $
-//
 // Library: Foundation
 // Package: Text
 // Module:  Windows1252Encoding
@@ -40,7 +38,7 @@ public:
 	int convert(int ch, unsigned char* bytes, int length) const;
 	int queryConvert(const unsigned char* bytes, int length) const;
 	int sequenceLength(const unsigned char* bytes, int length) const;
-	
+
 private:
 	static const char* _names[];
 	static const CharacterMap _charMap;

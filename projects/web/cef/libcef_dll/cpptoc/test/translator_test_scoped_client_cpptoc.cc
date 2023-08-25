@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3a7f32cc5c3a0e1ffe8f81167d44318c9d8eec41$
+// $hash=d19e196c418e6325718ada2866d37f6ee142d606$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
@@ -24,8 +24,9 @@ int CEF_CALLBACK translator_test_scoped_client_get_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestScopedClientCppToC::Get(self)->GetValue();
@@ -42,6 +43,10 @@ CefTranslatorTestScopedClientCppToC::CefTranslatorTestScopedClientCppToC() {
   GetStruct()->get_value = translator_test_scoped_client_get_value;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedClientCppToC::~CefTranslatorTestScopedClientCppToC() {}
+
 template <>
 CefOwnPtr<CefTranslatorTestScopedClient>
 CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
@@ -50,10 +55,8 @@ CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
     UnwrapDerivedOwn(CefWrapperType type,
                      cef_translator_test_scoped_client_t* s) {
   if (type == WT_TRANSLATOR_TEST_SCOPED_CLIENT_CHILD) {
-    return OWN_RETURN_AS(
-        CefTranslatorTestScopedClientChildCppToC::UnwrapOwn(
-            reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s)),
-        CefTranslatorTestScopedClient);
+    return CefTranslatorTestScopedClientChildCppToC::UnwrapOwn(
+        reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return CefOwnPtr<CefTranslatorTestScopedClient>();
@@ -71,16 +74,8 @@ CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
         reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCScoped<
-    CefTranslatorTestScopedClientCppToC,
-    CefTranslatorTestScopedClient,
-    cef_translator_test_scoped_client_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

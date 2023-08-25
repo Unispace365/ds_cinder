@@ -2,10 +2,10 @@
 
 #include "select_picking.h"
 
-#include <cinder/gl/gl.h>
 #include "ds/app/engine/engine_roots.h"
 #include "ds/params/draw_params.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include <cinder/gl/gl.h>
 
 namespace ds {
 
@@ -14,20 +14,16 @@ namespace ds {
  * Useful reference:
  * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
  */
-SelectPicking::SelectPicking() {
-}
+SelectPicking::SelectPicking() {}
 
 static void gluPickMatrix(double x, double y, double deltax, double deltay, int* viewport) {
 	if (deltax <= 0 || deltay <= 0) {
 		return;
 	}
 
-	ci::gl::translate(	static_cast<float>((viewport[2] - 2 * (x - viewport[0])) / deltax),
-						static_cast<float>((viewport[3] - 2 * (y - viewport[1])) / deltay),
-						0.0f);
-	ci::gl::scale(		static_cast<float>(viewport[2] / deltax),
-						static_cast<float>(viewport[3] / deltay),
-						1.0);
+	ci::gl::translate(static_cast<float>((viewport[2] - 2 * (x - viewport[0])) / deltax),
+					  static_cast<float>((viewport[3] - 2 * (y - viewport[1])) / deltay), 0.0f);
+	ci::gl::scale(static_cast<float>(viewport[2] / deltax), static_cast<float>(viewport[3] / deltay), 1.0);
 }
 
 ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) {
@@ -87,14 +83,12 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) 
  * \class Hit
  */
 SelectPicking::Hit::Hit()
-		: mId(-1)
-		, mZ(0) {
-}
+  : mId(-1)
+  , mZ(0) {}
 
-SelectPicking::Hit::Hit(const sprite_id_t id , const int z)
-		: mId(id)
-		, mZ(z) {
-}
+SelectPicking::Hit::Hit(const sprite_id_t id, const int z)
+  : mId(id)
+  , mZ(z) {}
 
 bool SelectPicking::Hit::operator<(const Hit& o) const {
 	return mZ < o.mZ;

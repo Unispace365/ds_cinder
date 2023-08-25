@@ -13,16 +13,18 @@
 
 #include <ds/data/resource.h>
 
-#include <ds/util/file_meta_data.h>
 #include "ds/ui/media/player/panoramic_video_player.h"
 #include "ds/ui/media/player/pdf_player.h"
+#include "ds/ui/media/player/split_alpha_video_player.h"
 #include "ds/ui/media/player/stream_player.h"
-#include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/web_player.h"
+#include "ds/ui/media/player/youtube_player.h"
+#include <ds/util/file_meta_data.h>
 
 #include "ds/ui/media/interface/pdf_interface.h"
 #include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/interface/web_interface.h"
+#include "ds/ui/media/interface/youtube_interface.h"
 #include "ds/ui/media/media_interface.h"
 
 #include "ds/ui/sprite/gst_video.h"
@@ -41,7 +43,7 @@ auto INIT = []() {
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				ds::Resource theResource;
 				int			 mediaType = ds::Resource::parseTypeFromFilename(theValue);
-				if(mediaType == ds::Resource::WEB_TYPE || mediaType == ds::Resource::VIDEO_STREAM_TYPE){
+				if (mediaType == ds::Resource::WEB_TYPE || mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 					theResource = ds::Resource(theValue, mediaType);
 				} else {
 					std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
@@ -59,10 +61,34 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_video_split_alpha",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			 = mediaPlayer.getSettings();
+				mvs.mVideoSplitAlpha = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_show_interface",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
 				auto& mvs				  = mediaPlayer.getSettings();
 				mvs.mShowInterfaceAtStart = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_can_display_interface",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs = mediaPlayer.getSettings();
+				mvs.mCanDisplayInterface = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_interface_b_pad",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs				= mediaPlayer.getSettings();
+				mvs.mInterfaceBottomPad = ds::string_to_float(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
 
@@ -75,9 +101,25 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_web_start_interactive",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			   = mediaPlayer.getSettings();
+				mvs.mWebStartTouchable = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_web_native_keyboard",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			   = mediaPlayer.getSettings();
+				mvs.mWebNativeKeyboard = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_letterbox",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
-				auto& mvs	  = mediaPlayer.getSettings();
+				auto& mvs	   = mediaPlayer.getSettings();
 				mvs.mLetterBox = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
@@ -93,7 +135,7 @@ auto INIT = []() {
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_video_loop",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
-				auto& mvs	  = mediaPlayer.getSettings();
+				auto& mvs	   = mediaPlayer.getSettings();
 				mvs.mVideoLoop = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
@@ -112,7 +154,7 @@ auto INIT = []() {
 				if (ds::parseBoolean(theValue)) {
 					mediaPlayer.enableStandardClick();
 				}
-		});
+			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_cache_images",
@@ -120,31 +162,37 @@ auto INIT = []() {
 				if (ds::parseBoolean(theValue)) {
 					mediaPlayer.setCacheImages(true);
 				}
-		});
+			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_animation_duration",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto dur = ds::string_to_float(theValue);
+				mediaPlayer.setAnimationDuration(dur);
+			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_video_gl_mode",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
-			auto& mvs = mediaPlayer.getSettings();
-			mvs.mVideoGlMode = ds::parseBoolean(theValue);
-			mediaPlayer.setSettings(mvs);
-		});
+				auto& mvs		 = mediaPlayer.getSettings();
+				mvs.mVideoGlMode = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 
 		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
 			"media_player_video_nvdecode",
 			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
-			auto& mvs = mediaPlayer.getSettings();
-			mvs.mVideoNVDecode = ds::parseBoolean(theValue);
-			mediaPlayer.setSettings(mvs);
-		});
+				auto& mvs		   = mediaPlayer.getSettings();
+				mvs.mVideoNVDecode = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 	});
 	return true;
 }();
-}  // namespace
+} // namespace
 
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   : ds::ui::Sprite(eng)
@@ -154,25 +202,27 @@ MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface)
   : ds::ui::Sprite(eng)
-  , mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
-  , mEmbedInterface(embedInterface) {
+  , mEmbedInterface(embedInterface)
+  , mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath)) {
 	setDefaultProperties();
 }
 
 MediaPlayer::MediaPlayer(ds::ui::SpriteEngine& eng, const ds::Resource& resource, const bool embedInterface)
   : ds::ui::Sprite(eng)
-  , mResource(resource)
-  , mEmbedInterface(embedInterface) {
+  , mEmbedInterface(embedInterface)
+  , mResource(resource) {
 	setDefaultProperties();
 }
 
 
-void MediaPlayer::setSettings(const MediaViewerSettings& newSettings) { mMediaViewerSettings = newSettings; }
+void MediaPlayer::setSettings(const MediaViewerSettings& newSettings) {
+	mMediaViewerSettings = newSettings;
+}
 
 void MediaPlayer::setDefaultProperties() {
 	mAnimDuration		= 0.35f;
 	mContentAspectRatio = 1.0;
-	mLayoutFixedAspect  = true;
+	mLayoutFixedAspect	= true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
@@ -190,13 +240,15 @@ void MediaPlayer::loadMedia(const ds::Resource& reccy, const bool initializeImme
 	if (initializeImmediately) initialize();
 }
 
-
 void MediaPlayer::setDefaultBounds(const float defaultWidth, const float defaultHeight) {
 	mMediaViewerSettings.mDefaultBounds.x = defaultWidth;
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaPlayer::setWebViewSize(const ci::vec2 webSize) { mMediaViewerSettings.mWebDefaultSize = webSize; }
+void MediaPlayer::setWebViewSize(const ci::vec2 webSize) {
+	if(mWebPlayer){ mWebPlayer->setWebViewSize(webSize); }
+	mMediaViewerSettings.mWebDefaultSize = webSize;
+}
 
 void MediaPlayer::initialize() {
 	if (mInitialized) return;
@@ -230,6 +282,8 @@ void MediaPlayer::initialize() {
 		showThumbnail = false;
 	} else if (mediaType == ds::Resource::WEB_TYPE) {
 		initializeWeb();
+	} else if (mediaType == ds::Resource::YOUTUBE_TYPE) {
+		initializeYouTube();
 	} else {
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. "
 					   << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
@@ -268,10 +322,10 @@ void MediaPlayer::initializeThumbnail() {
 void MediaPlayer::initializeImage() {
 	// Depends on base initialize to check already initialized case
 	int flags = 0;
-	if(mMediaViewerSettings.mMipMapImages) {
+	if (mMediaViewerSettings.mMipMapImages) {
 		flags = Image::IMG_ENABLE_MIPMAP_F;
 	}
-	   
+
 	if (mMediaViewerSettings.mCacheImages) {
 		flags |= Image::IMG_CACHE_F;
 	}
@@ -300,7 +354,11 @@ void MediaPlayer::initializeImage() {
 
 void MediaPlayer::initializeVideo() {
 	// Depends on base initialize to check already initialized case
-	mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
+	if (mMediaViewerSettings.mVideoSplitAlpha) {
+		mVideoPlayer = new SplitAlphaVideoPlayer(mEngine, mEmbedInterface);
+	} else {
+		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
+	}
 	addChildPtr(mVideoPlayer);
 
 	mVideoPlayer->setErrorCallback([this](const std::string& msg) {
@@ -312,7 +370,8 @@ void MediaPlayer::initializeVideo() {
 	});
 
 	mVideoPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mVideoPlayer->setMedia(mResource.getPortableFilePath());
+	mVideoPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 	setSizeAll(mVideoPlayer->getSize());
@@ -332,7 +391,8 @@ void MediaPlayer::initializeVideoPanoramic() {
 	});
 
 	mPanoramicPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mPanoramicPlayer->setMedia(mResource.getPortableFilePath());
+	mPanoramicPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	if (!mMediaViewerSettings.mPanoramicVideoInteractive) {
 		auto pvs = mPanoramicPlayer->getPanoramicVideo();
@@ -360,6 +420,7 @@ void MediaPlayer::initializeVideoStream() {
 
 	mStreamPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mStreamPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
 	setSizeAll(mStreamPlayer->getSize());
@@ -367,11 +428,12 @@ void MediaPlayer::initializeVideoStream() {
 
 void MediaPlayer::initializePdf() {
 	// Depends on base initialize to check already initialized case
-	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
+	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mPDFPlayer);
 
 	mPDFPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPDFPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	mPDFPlayer->setErrorCallback([this](const std::string& msg) {
 		if (mErrorCallback) mErrorCallback(msg);
@@ -404,12 +466,14 @@ void MediaPlayer::initializeWeb() {
 	mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mWebPlayer);
 	mWebPlayer->setMediaViewerSettings(mMediaViewerSettings);
-	mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
+	mWebPlayer->setResource(mResource);
+	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
 
 	if (mWebPlayer->getWeb()) {
 		mWebPlayer->getWeb()->setDocumentReadyFn([this] {
 			if (mWebPlayer->getWebInterface()) {
 				mWebPlayer->getWebInterface()->updateWidgets();
+				mWebPlayer->getWebInterface()->setAllowNativeKeyboard(mMediaViewerSettings.mWebNativeKeyboard);
 			}
 			if (mStatusCallback) mStatusCallback(true);
 		});
@@ -422,6 +486,31 @@ void MediaPlayer::initializeWeb() {
 	setSizeAll(mWebPlayer->getSize());
 }
 
+void MediaPlayer::initializeYouTube() {
+	// Depends on base initialize to check already initialized case
+	mYouTubePlayer = new YouTubePlayer(mEngine, mEmbedInterface);
+	addChildPtr(mYouTubePlayer);
+	mYouTubePlayer->setMediaViewerSettings(mMediaViewerSettings);
+	mYouTubePlayer->setResource(mResource);
+	///STUB: this is untested:
+	//setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
+
+	if (mYouTubePlayer->getYouTubeWeb()) {
+		mYouTubePlayer->getYouTubeWeb()->setDocumentReadyFn([this] {
+			if (mYouTubePlayer->getYoutubeInterface()) {
+				mYouTubePlayer->getYoutubeInterface()->updateWidgets();
+			}
+			if (mStatusCallback) mStatusCallback(true);
+		});
+		mYouTubePlayer->getYouTubeWeb()->setErrorCallback([this](const std::string& errorMsg) {
+			if (mErrorCallback) mErrorCallback(errorMsg);
+		});
+	}
+
+	mContentAspectRatio = mYouTubePlayer->getWidth() / mYouTubePlayer->getHeight();
+	setSizeAll(mYouTubePlayer->getSize());
+}
+
 void MediaPlayer::uninitialize() {
 	if (!mInitialized) return;
 
@@ -432,18 +521,23 @@ void MediaPlayer::uninitialize() {
 	if (mPDFPlayer) mPDFPlayer->release();
 	if (mPrimaryImage) mPrimaryImage->release();
 	if (mWebPlayer) mWebPlayer->release();
+	if (mYouTubePlayer) mYouTubePlayer->release();
 
-	mThumbnailImage  = nullptr;
+	mThumbnailImage	 = nullptr;
 	mVideoPlayer	 = nullptr;
+	mStreamPlayer	 = nullptr;
 	mPanoramicPlayer = nullptr;
 	mPDFPlayer		 = nullptr;
-	mPrimaryImage	= nullptr;
+	mPrimaryImage	 = nullptr;
 	mWebPlayer		 = nullptr;
+	mYouTubePlayer	 = nullptr;
 
 	mInitialized = false;
 }
 
-void MediaPlayer::onSizeChanged() { layout(); }
+void MediaPlayer::onSizeChanged() {
+	layout();
+}
 
 void MediaPlayer::layout() {
 
@@ -475,6 +569,10 @@ void MediaPlayer::layout() {
 		mWebPlayer->setSize(getWidth(), getHeight());
 	}
 
+	if (mYouTubePlayer) {
+		mYouTubePlayer->setSize(getWidth(), getHeight());
+	}
+
 	onLayout();
 }
 
@@ -483,11 +581,13 @@ void MediaPlayer::enter() {
 
 	if (mVideoPlayer) mVideoPlayer->play();
 	if (mPanoramicPlayer) mPanoramicPlayer->play();
+	if (mYouTubePlayer) mYouTubePlayer->play();
 }
 
 void MediaPlayer::exit() {
 	if (mVideoPlayer) mVideoPlayer->pause();
 	if (mPanoramicPlayer) mPanoramicPlayer->pause();
+	if (mYouTubePlayer) mYouTubePlayer->pause();
 }
 
 void MediaPlayer::userInputReceived() {
@@ -496,12 +596,31 @@ void MediaPlayer::userInputReceived() {
 	showInterface();
 }
 
+void MediaPlayer::setCanDisplayInterface(const bool canDisplay) {
+	if (getMediaInterface()) {
+		getMediaInterface()->setAllowDisplay(canDisplay);
+	}
+}
+
+/* void MediaPlayer::setInterfaceLocked(bool isLocked){
+	auto mi = getMediaInterface();
+	if(mi) return mi->isLocked();
+	return false;
+} */
+
+bool MediaPlayer::isInterfaceLocked() {
+	auto mi = getMediaInterface();
+	if(mi) return mi->isLocked();
+	return false;
+}
+
 void MediaPlayer::showInterface() {
 	if (mVideoPlayer) mVideoPlayer->showInterface();
 	if (mPanoramicPlayer) mPanoramicPlayer->showInterface();
 	if (mStreamPlayer) mStreamPlayer->showInterface();
 	if (mPDFPlayer) mPDFPlayer->showInterface();
 	if (mWebPlayer) mWebPlayer->showInterface();
+	if (mYouTubePlayer) mYouTubePlayer->showInterface();
 }
 
 void MediaPlayer::hideInterface() {
@@ -510,36 +629,42 @@ void MediaPlayer::hideInterface() {
 	if (mStreamPlayer) mStreamPlayer->hideInterface();
 	if (mPDFPlayer) mPDFPlayer->hideInterface();
 	if (mWebPlayer) mWebPlayer->hideInterface();
+	if (mYouTubePlayer) mYouTubePlayer->hideInterface();
 }
 
 void MediaPlayer::stopContent() {
 	if (mVideoPlayer) mVideoPlayer->stop();
 	if (mPanoramicPlayer) mPanoramicPlayer->stop();
 	if (mStreamPlayer) mStreamPlayer->stop();
+	if (mYouTubePlayer) mYouTubePlayer->stop();
 }
 
 void MediaPlayer::playContent() {
 	if (mVideoPlayer) mVideoPlayer->play();
 	if (mPanoramicPlayer) mPanoramicPlayer->play();
 	if (mStreamPlayer) mStreamPlayer->play();
+	if (mYouTubePlayer) mYouTubePlayer->play();
 }
 
 void MediaPlayer::pauseContent() {
 	if (mVideoPlayer) mVideoPlayer->pause();
 	if (mPanoramicPlayer) mPanoramicPlayer->pause();
 	if (mStreamPlayer) mStreamPlayer->pause();
+	if (mYouTubePlayer) mYouTubePlayer->pause();
 }
 
 void MediaPlayer::togglePlayPause() {
 	if (mVideoPlayer) mVideoPlayer->togglePlayPause();
 	if (mPanoramicPlayer) mPanoramicPlayer->togglePlayPause();
 	if (mStreamPlayer) mStreamPlayer->togglePlayPause();
+	if (mYouTubePlayer) mYouTubePlayer->togglePlayPause();
 }
 
 void MediaPlayer::toggleMute() {
 	if (mVideoPlayer) mVideoPlayer->toggleMute();
 	if (mPanoramicPlayer) mPanoramicPlayer->toggleMute();
 	if (mStreamPlayer) mStreamPlayer->toggleMute();
+	if (mYouTubePlayer) mYouTubePlayer->toggleMute();
 }
 
 ds::ui::Sprite* MediaPlayer::getPlayer() {
@@ -549,6 +674,7 @@ ds::ui::Sprite* MediaPlayer::getPlayer() {
 	if (mStreamPlayer) return mStreamPlayer;
 	if (mWebPlayer) return mWebPlayer;
 	if (mPrimaryImage) return mPrimaryImage;
+	if (mYouTubePlayer) return mYouTubePlayer;
 	return nullptr;
 }
 
@@ -558,25 +684,32 @@ ds::ui::MediaInterface* MediaPlayer::getMediaInterface() {
 	if (mPDFPlayer) return mPDFPlayer->getPDFInterface();
 	if (mStreamPlayer) return mStreamPlayer->getVideoInterface();
 	if (mWebPlayer) return mWebPlayer->getWebInterface();
+	if (mYouTubePlayer) return mYouTubePlayer->getYoutubeInterface();
 	return nullptr;
 }
 
-void MediaPlayer::setErrorCallback(std::function<void(const std::string& msg)> func) { mErrorCallback = func; }
+void MediaPlayer::setErrorCallback(std::function<void(const std::string& msg)> func) {
+	mErrorCallback = func;
+}
 
-void MediaPlayer::setStatusCallback(std::function<void(const bool isGood)> func) { mStatusCallback = func; }
+void MediaPlayer::setStatusCallback(std::function<void(const bool isGood)> func) {
+	mStatusCallback = func;
+}
 
-void MediaPlayer::setInitializedCallback(std::function<void()> func) { mInitializedCallback = func; }
+void MediaPlayer::setInitializedCallback(std::function<void()> func) {
+	mInitializedCallback = func;
+}
 
 void MediaPlayer::handleStandardClick(const ci::vec3& globalPos) {
 	if (mWebPlayer) mWebPlayer->sendClick(globalPos);
 	if (mPDFPlayer) mPDFPlayer->nextPage();
 	if (mVideoPlayer) mVideoPlayer->togglePlayPause();
 	if (mPanoramicPlayer) mPanoramicPlayer->togglePlayPause();
+	if (mYouTubePlayer) mYouTubePlayer->togglePlayPause();
 }
 
 void MediaPlayer::enableStandardClick() {
 	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) { handleStandardClick(pos); });
 }
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

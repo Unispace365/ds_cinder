@@ -7,9 +7,9 @@
 #include <ds/ui/sprite/sprite_engine.h>
 // NOTE: Placing this include at the top gets a conflict
 // with cinder. Need to look into that.
-#include <ds/network/node_watcher.h>
-#include "query/story_query.h"
 #include "model/all_data.h"
+#include "query/story_query.h"
+#include <ds/network/node_watcher.h>
 
 namespace cef {
 
@@ -18,26 +18,25 @@ namespace cef {
  * \brief Handle app events that deal with querying for data.
  */
 class QueryHandler {
-public:
+  public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
-	void								runInitialQueries();
+	void runInitialQueries();
 
-private:
+  private:
+	void onAppEvent(const ds::Event&);
+	void onStoryQuery(StoryQuery&);
 
-	void								onAppEvent(const ds::Event&);
-	void								onStoryQuery(StoryQuery&);
+	ds::EventClient mEventClient;
 
-	ds::EventClient						mEventClient;
+	AllData& mAllData;
 
-	AllData&							mAllData;
-
-	ds::SerialRunnable<StoryQuery>		mStoryQuery;
+	ds::SerialRunnable<StoryQuery> mStoryQuery;
 
 	// CACHING
-	ds::ResourceList					mResources;
+	ds::ResourceList mResources;
 };
 
-} // !namespace cef
+} // namespace cef
 
 #endif // !_CEFDEVELOP_APP_QUERY_QUERYHANDLER_H_

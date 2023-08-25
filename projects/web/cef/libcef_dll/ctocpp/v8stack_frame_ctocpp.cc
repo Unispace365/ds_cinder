@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a97be83f7680a0fd89df2450271bcb8adb2e2e53$
+// $hash=e62b4e0bc37726652674fb026a548dc1de6e54ca$
 //
 
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefV8StackFrameCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsValid() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -30,10 +31,11 @@ bool CefV8StackFrameCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-CefString CefV8StackFrameCToCpp::GetScriptName() {
+NO_SANITIZE("cfi-icall") CefString CefV8StackFrameCToCpp::GetScriptName() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_script_name))
+  if (CEF_MEMBER_MISSING(_struct, get_script_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -46,10 +48,12 @@ CefString CefV8StackFrameCToCpp::GetScriptName() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefV8StackFrameCToCpp::GetScriptNameOrSourceURL() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_script_name_or_source_url))
+  if (CEF_MEMBER_MISSING(_struct, get_script_name_or_source_url)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -63,10 +67,11 @@ CefString CefV8StackFrameCToCpp::GetScriptNameOrSourceURL() {
   return _retvalStr;
 }
 
-CefString CefV8StackFrameCToCpp::GetFunctionName() {
+NO_SANITIZE("cfi-icall") CefString CefV8StackFrameCToCpp::GetFunctionName() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_function_name))
+  if (CEF_MEMBER_MISSING(_struct, get_function_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -79,10 +84,11 @@ CefString CefV8StackFrameCToCpp::GetFunctionName() {
   return _retvalStr;
 }
 
-int CefV8StackFrameCToCpp::GetLineNumber() {
+NO_SANITIZE("cfi-icall") int CefV8StackFrameCToCpp::GetLineNumber() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_line_number))
+  if (CEF_MEMBER_MISSING(_struct, get_line_number)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -93,10 +99,11 @@ int CefV8StackFrameCToCpp::GetLineNumber() {
   return _retval;
 }
 
-int CefV8StackFrameCToCpp::GetColumn() {
+NO_SANITIZE("cfi-icall") int CefV8StackFrameCToCpp::GetColumn() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_column))
+  if (CEF_MEMBER_MISSING(_struct, get_column)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -107,10 +114,11 @@ int CefV8StackFrameCToCpp::GetColumn() {
   return _retval;
 }
 
-bool CefV8StackFrameCToCpp::IsEval() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsEval() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_eval))
+  if (CEF_MEMBER_MISSING(_struct, is_eval)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -121,10 +129,11 @@ bool CefV8StackFrameCToCpp::IsEval() {
   return _retval ? true : false;
 }
 
-bool CefV8StackFrameCToCpp::IsConstructor() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsConstructor() {
   cef_v8stack_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_constructor))
+  if (CEF_MEMBER_MISSING(_struct, is_constructor)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -139,6 +148,10 @@ bool CefV8StackFrameCToCpp::IsConstructor() {
 
 CefV8StackFrameCToCpp::CefV8StackFrameCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8StackFrameCToCpp::~CefV8StackFrameCToCpp() {}
+
 template <>
 cef_v8stack_frame_t*
 CefCToCppRefCounted<CefV8StackFrameCToCpp,
@@ -146,16 +159,8 @@ CefCToCppRefCounted<CefV8StackFrameCToCpp,
                     cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
                                                         CefV8StackFrame* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefV8StackFrameCToCpp,
-                                         CefV8StackFrame,
-                                         cef_v8stack_frame_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefV8StackFrameCToCpp,

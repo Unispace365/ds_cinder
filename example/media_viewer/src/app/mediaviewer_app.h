@@ -1,15 +1,15 @@
 #ifndef _MEDIAVIEWER_APP_H_
 #define _MEDIAVIEWER_APP_H_
 
-#include <cinder/gl/gl.h>
 #include <cinder/app/App.h>
 #include <cinder/app/AppBase.h>
 #include <cinder/app/RendererGl.h>
+#include <cinder/gl/gl.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
-#include "query/query_handler.h"
 #include "ds/ui/menu/touch_menu.h"
+#include "query/query_handler.h"
 
 #include <ds/ui/sprite/gst_video.h>
 
@@ -17,36 +17,35 @@ namespace mv {
 class AllData;
 
 class MediaViewer : public ds::App {
-public:
+  public:
 	MediaViewer();
 
-	virtual void		onKeyDown(ci::app::KeyEvent event) override;
-	void				setupServer();
+	virtual void onKeyDown(ci::app::KeyEvent event) override;
+	void		 setupServer();
 
-	void				fileDrop(ci::app::FileDropEvent event) override;
-private:
-	typedef ds::App		inherited;
+	void fileDrop(ci::app::FileDropEvent event) override;
+
+  private:
+	typedef ds::App inherited;
 
 	// Data
-	AllData				mAllData;
+	AllData mAllData;
 
 	// Data acquisition
-	Globals				mGlobals;
-	QueryHandler		mQueryHandler;
+	Globals		 mGlobals;
+	QueryHandler mQueryHandler;
 
-	ds::ui::TouchMenu*	mTouchMenu;
+	ds::ui::TouchMenu* mTouchMenu;
 
-	ds::ui::Sprite*		mStreamerParent;
-	ds::ui::GstVideo*	mStreamer;
+	ds::ui::Sprite*	  mStreamerParent;
+	ds::ui::GstVideo* mStreamer;
 
-	std::string			mLastFilePath;
+	std::string mLastFilePath;
 
-	bool				mGlMode = true;
-	bool				mNVDecode = true;
-
+	bool mGlMode   = true;
+	bool mNVDecode = true;
 };
 
-} // !namespace mv
+} // namespace mv
 
 #endif // !_MEDIAVIEWER_APP_H_
-

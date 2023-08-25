@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,17 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=32dd6c84d31a8affb55a3ceff6d242cca11db831$
+// $hash=6d7e2581786609dd5b472dd72dae47f26c1e7e7d$
 //
 
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefPrintJobCallbackCToCpp::Continue() {
+NO_SANITIZE("cfi-icall") void CefPrintJobCallbackCToCpp::Continue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_print_job_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -31,6 +35,12 @@ void CefPrintJobCallbackCToCpp::Continue() {
 
 CefPrintJobCallbackCToCpp::CefPrintJobCallbackCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefPrintJobCallbackCToCpp::~CefPrintJobCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_print_job_callback_t* CefCToCppRefCounted<
     CefPrintJobCallbackCToCpp,
@@ -38,16 +48,8 @@ cef_print_job_callback_t* CefCToCppRefCounted<
     cef_print_job_callback_t>::UnwrapDerived(CefWrapperType type,
                                              CefPrintJobCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefPrintJobCallbackCToCpp,
-                                         CefPrintJobCallback,
-                                         cef_print_job_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefPrintJobCallbackCToCpp,

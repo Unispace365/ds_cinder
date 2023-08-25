@@ -1,8 +1,6 @@
 //
 // NamedEvent_WIN32U.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/NamedEvent_WIN32U.h#1 $
-//
 // Library: Foundation
 // Package: Processes
 // Module:  NamedEvent
@@ -30,15 +28,15 @@ namespace Poco {
 class Foundation_API NamedEventImpl
 {
 protected:
-	NamedEventImpl(const std::string& name);	
+	NamedEventImpl(const std::string& name);
 	~NamedEventImpl();
 	void setImpl();
 	void waitImpl();
-	
+
 private:
 	std::string  _name;
 	std::wstring _uname;
-	HANDLE      _event;	
+	HANDLE      _event;
 };
 
 

@@ -1,8 +1,6 @@
 //
 // Thread_POSIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Thread_POSIX.h#3 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Thread
@@ -44,7 +42,7 @@ namespace Poco {
 
 class Foundation_API ThreadImpl
 {
-public:	
+public:
 	typedef pthread_t TIDImpl;
 	typedef void (*Callable)(void*);
 
@@ -56,12 +54,12 @@ public:
 		PRIO_HIGH_IMPL,
 		PRIO_HIGHEST_IMPL
 	};
-	
+
 	enum Policy
 	{
 		POLICY_DEFAULT_IMPL = SCHED_OTHER
 	};
-	
+
 	ThreadImpl();
 	~ThreadImpl();
 
@@ -82,6 +80,7 @@ public:
 	static void yieldImpl();
 	static ThreadImpl* currentImpl();
 	static TIDImpl currentTidImpl();
+	static long currentOsTidImpl();
 
 protected:
 	static void* runnableEntry(void* pThread);
@@ -109,7 +108,7 @@ private:
 		{
 			pthread_setspecific(_key, pThread);
 		}
-	
+
 	private:
 		pthread_key_t _key;
 	};
@@ -142,12 +141,12 @@ private:
 		std::size_t   stackSize;
 		bool          started;
 		bool          joined;
+		mutable FastMutex mutex;
 	};
 
 	AutoPtr<ThreadData> _pData;
-
 	static CurrentThreadHolder _currentThreadHolder;
-	
+
 #if defined(POCO_OS_FAMILY_UNIX) && !defined(POCO_VXWORKS)
 	SignalHandler::JumpBufferVec _jumpBufferVec;
 	friend class SignalHandler;
@@ -172,6 +171,7 @@ inline int ThreadImpl::getOSPriorityImpl() const
 
 inline bool ThreadImpl::isRunningImpl() const
 {
+	FastMutex::ScopedLock l(_pData->mutex);
 	return !_pData->pRunnableTarget.isNull();
 }
 

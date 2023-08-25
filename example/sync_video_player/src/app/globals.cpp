@@ -14,9 +14,7 @@ namespace ds {
  * \class ds::Globals
  */
 Globals::Globals(ds::ui::SpriteEngine& e)
-		: mEngine(e)
-{
-}
+  : mEngine(e) {}
 
 ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
@@ -29,11 +27,7 @@ ds::cfg::Settings& Globals::getSettingsLayout() const {
 
 const ds::cfg::Text& Globals::getText(const std::string& name) const {
 	return mEngine.getEngineCfg().getText(name);
-
 }
 
 
-
-} // !namespace ds
-
-
+} // namespace ds

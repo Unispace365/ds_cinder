@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0316cd113473467a653145abd66ec920256f53ce$
+// $hash=f90f2c0c5749139bef7c914fbb4f17cfe585e4e8$
 //
 
 #include "libcef_dll/cpptoc/app_cpptoc.h"
@@ -30,12 +30,14 @@ void CEF_CALLBACK app_on_before_command_line_processing(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: command_line; type: refptr_diff
   DCHECK(command_line);
-  if (!command_line)
+  if (!command_line) {
     return;
+  }
   // Unverified params: process_type
 
   // Execute
@@ -49,12 +51,14 @@ app_on_register_custom_schemes(struct _cef_app_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: registrar; type: rawptr_diff
   DCHECK(registrar);
-  if (!registrar)
+  if (!registrar) {
     return;
+  }
 
   // Translate param: registrar; type: rawptr_diff
   CefOwnPtr<CefSchemeRegistrar> registrarPtr(
@@ -69,8 +73,9 @@ app_get_resource_bundle_handler(struct _cef_app_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefResourceBundleHandler> _retval =
@@ -85,8 +90,9 @@ app_get_browser_process_handler(struct _cef_app_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowserProcessHandler> _retval =
@@ -101,8 +107,9 @@ app_get_render_process_handler(struct _cef_app_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefRenderProcessHandler> _retval =
@@ -125,21 +132,18 @@ CefAppCppToC::CefAppCppToC() {
   GetStruct()->get_render_process_handler = app_get_render_process_handler;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefAppCppToC::~CefAppCppToC() {}
+
 template <>
 CefRefPtr<CefApp>
 CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t>::UnwrapDerived(
     CefWrapperType type,
     cef_app_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

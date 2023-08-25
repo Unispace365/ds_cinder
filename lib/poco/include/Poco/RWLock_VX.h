@@ -1,8 +1,6 @@
 //
 // RWLock_VX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/RWLock_VX.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  RWLock
@@ -39,7 +37,7 @@ protected:
 	void writeLockImpl();
 	bool tryWriteLockImpl();
 	void unlockImpl();
-	
+
 private:
 	pthread_mutex_t _mutex;
 };
@@ -50,7 +48,7 @@ private:
 //
 inline void RWLockImpl::readLockImpl()
 {
-	if (pthread_mutex_lock(&_mutex)) 
+	if (pthread_mutex_lock(&_mutex))
 		throw SystemException("cannot lock mutex");
 }
 

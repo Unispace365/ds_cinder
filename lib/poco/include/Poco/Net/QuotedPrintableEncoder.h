@@ -1,8 +1,6 @@
 //
 // QuotedPrintableEncoder.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/QuotedPrintableEncoder.h#1 $
-//
 // Library: Net
 // Package: Messages
 // Module:  QuotedPrintableEncoder
@@ -38,7 +36,7 @@ public:
 	QuotedPrintableEncoderBuf(std::ostream& ostr);
 	~QuotedPrintableEncoderBuf();
 	int close();
-	
+
 private:
 	int writeToDevice(char c);
 	void writeEncoded(char c);

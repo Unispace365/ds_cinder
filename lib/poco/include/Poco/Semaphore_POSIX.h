@@ -1,8 +1,6 @@
 //
 // Semaphore_POSIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Semaphore_POSIX.h#1 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Semaphore
@@ -24,6 +22,7 @@
 #include "Poco/Exception.h"
 #include <pthread.h>
 #include <errno.h>
+#include <atomic>
 
 
 namespace Poco {
@@ -32,17 +31,17 @@ namespace Poco {
 class Foundation_API SemaphoreImpl
 {
 protected:
-	SemaphoreImpl(int n, int max);		
+	SemaphoreImpl(int n, int max);
 	~SemaphoreImpl();
 	void setImpl();
 	void waitImpl();
 	bool waitImpl(long milliseconds);
-	
+
 private:
-	volatile int    _n;
-	int             _max;
-	pthread_mutex_t _mutex;
-	pthread_cond_t  _cond;
+	std::atomic<int>  _n;
+	int               _max;
+	pthread_mutex_t   _mutex;
+	pthread_cond_t    _cond;
 };
 
 
@@ -51,7 +50,7 @@ private:
 //
 inline void SemaphoreImpl::setImpl()
 {
-	if (pthread_mutex_lock(&_mutex))	
+	if (pthread_mutex_lock(&_mutex))
 		throw SystemException("cannot signal semaphore (lock)");
 	if (_n < _max)
 	{
@@ -61,7 +60,7 @@ inline void SemaphoreImpl::setImpl()
 	{
 		pthread_mutex_unlock(&_mutex);
 		throw SystemException("cannot signal semaphore: count would exceed maximum");
-	}	
+	}
 	if (pthread_cond_signal(&_cond))
 	{
 		pthread_mutex_unlock(&_mutex);

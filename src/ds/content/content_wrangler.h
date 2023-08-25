@@ -2,6 +2,8 @@
 #ifndef DS_CONTENT_CONTENT_WRANGLER
 #define DS_CONTENT_CONTENT_WRANGLER
 
+#include <Poco/Process.h>
+
 #include <ds/app/event_client.h>
 #include <ds/network/helper/delayed_node_watcher.h>
 #include <ds/thread/parallel_runnable.h>
@@ -11,7 +13,7 @@
 
 namespace ds {
 namespace ui {
-class SpriteEngine;
+	class SpriteEngine;
 }
 
 /**
@@ -37,16 +39,17 @@ class ContentWrangler {
 	/// Asynchronously runs query and notifies the ContentUpdatedEvent when complete
 	void runQuery();
 
+
   private:
-	ds::ui::SpriteEngine&              mEngine;
+	ds::ui::SpriteEngine&			   mEngine;
 	ds::ParallelRunnable<ContentQuery> mContentQuery;
 
 	ds::DelayedNodeWatcher mNodeWatcher;
-	ds::EventClient        mEventClient;
+	ds::EventClient		   mEventClient;
 
 	std::string mModelModelLocation;
 };
 
-}  // namespace ds
+} // namespace ds
 
 #endif

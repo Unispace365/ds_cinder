@@ -6,7 +6,7 @@
 * **install**: scripts for building installers
 * **settings**: xml files that configure your app
 * **src**: c++ source
-* **vs2015**: project, solution, and build output
+* **vs2019**: project, solution, and build output
 
 
 ## Structure

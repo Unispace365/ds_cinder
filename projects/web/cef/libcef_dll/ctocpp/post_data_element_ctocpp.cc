@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=85d400500ae15b1750ac10905cac8c90e3ab1541$
+// $hash=46e4cc8924d3070e56735a5b2b0746ae82d25b2b$
 //
 
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPostDataElement> CefPostDataElement::Create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -28,10 +29,11 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::Create() {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefPostDataElementCToCpp::IsReadOnly() {
+NO_SANITIZE("cfi-icall") bool CefPostDataElementCToCpp::IsReadOnly() {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_read_only))
+  if (CEF_MEMBER_MISSING(_struct, is_read_only)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -42,10 +44,11 @@ bool CefPostDataElementCToCpp::IsReadOnly() {
   return _retval ? true : false;
 }
 
-void CefPostDataElementCToCpp::SetToEmpty() {
+NO_SANITIZE("cfi-icall") void CefPostDataElementCToCpp::SetToEmpty() {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_to_empty))
+  if (CEF_MEMBER_MISSING(_struct, set_to_empty)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -53,42 +56,50 @@ void CefPostDataElementCToCpp::SetToEmpty() {
   _struct->set_to_empty(_struct);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPostDataElementCToCpp::SetToFile(const CefString& fileName) {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_to_file))
+  if (CEF_MEMBER_MISSING(_struct, set_to_file)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: fileName; type: string_byref_const
   DCHECK(!fileName.empty());
-  if (fileName.empty())
+  if (fileName.empty()) {
     return;
+  }
 
   // Execute
   _struct->set_to_file(_struct, fileName.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPostDataElementCToCpp::SetToBytes(size_t size, const void* bytes) {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_to_bytes))
+  if (CEF_MEMBER_MISSING(_struct, set_to_bytes)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: bytes; type: simple_byaddr
   DCHECK(bytes);
-  if (!bytes)
+  if (!bytes) {
     return;
+  }
 
   // Execute
   _struct->set_to_bytes(_struct, size, bytes);
 }
 
+NO_SANITIZE("cfi-icall")
 CefPostDataElement::Type CefPostDataElementCToCpp::GetType() {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_type))
+  if (CEF_MEMBER_MISSING(_struct, get_type)) {
     return PDE_TYPE_EMPTY;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -99,10 +110,11 @@ CefPostDataElement::Type CefPostDataElementCToCpp::GetType() {
   return _retval;
 }
 
-CefString CefPostDataElementCToCpp::GetFile() {
+NO_SANITIZE("cfi-icall") CefString CefPostDataElementCToCpp::GetFile() {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_file))
+  if (CEF_MEMBER_MISSING(_struct, get_file)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -115,10 +127,11 @@ CefString CefPostDataElementCToCpp::GetFile() {
   return _retvalStr;
 }
 
-size_t CefPostDataElementCToCpp::GetBytesCount() {
+NO_SANITIZE("cfi-icall") size_t CefPostDataElementCToCpp::GetBytesCount() {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_bytes_count))
+  if (CEF_MEMBER_MISSING(_struct, get_bytes_count)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -129,17 +142,20 @@ size_t CefPostDataElementCToCpp::GetBytesCount() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes) {
   cef_post_data_element_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_bytes))
+  if (CEF_MEMBER_MISSING(_struct, get_bytes)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: bytes; type: simple_byaddr
   DCHECK(bytes);
-  if (!bytes)
+  if (!bytes) {
     return 0;
+  }
 
   // Execute
   size_t _retval = _struct->get_bytes(_struct, size, bytes);
@@ -152,6 +168,10 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes) {
 
 CefPostDataElementCToCpp::CefPostDataElementCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefPostDataElementCToCpp::~CefPostDataElementCToCpp() {}
+
 template <>
 cef_post_data_element_t* CefCToCppRefCounted<
     CefPostDataElementCToCpp,
@@ -159,16 +179,8 @@ cef_post_data_element_t* CefCToCppRefCounted<
     cef_post_data_element_t>::UnwrapDerived(CefWrapperType type,
                                             CefPostDataElement* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefPostDataElementCToCpp,
-                                         CefPostDataElement,
-                                         cef_post_data_element_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefPostDataElementCToCpp,

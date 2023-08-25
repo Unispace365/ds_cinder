@@ -7,8 +7,8 @@
 #include "web_app.h"
 
 #include <string>
+#include <iostream>
 
-#include "web_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"
@@ -31,7 +31,6 @@ namespace web{
 WebApp::WebApp() {
 }
 
-#include <iostream>
 void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 
 	// This could prevent a crash in debug when closing (but sometimes doesn't):
@@ -39,18 +38,27 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	// But it's here for posterity, in case you ever wanna disable stuff randomly
 	//command_line->AppendSwitch(CefString("disable-extensions"));
 
-	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
-	//command_line->AppendSwitch("enable-gpu");
-	//command_line->AppendSwitch("enable-gpu-compositing");
+	//command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
+
+	command_line->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
+
+	command_line->AppendSwitchWithValue("use-gl", "desktop");
+	command_line->AppendSwitch("enable-gpu");
+	command_line->AppendSwitch("enable-gpu-compositing");
+	command_line->AppendSwitch("disable-gpu-vsync");
 	//command_line->AppendSwitch("disable-gpu");
 	//command_line->AppendSwitch("disable-gpu-compositing");
 
-	// Some docs online say to use these two, but I had bad results with these
-	//command_line->AppendSwitch("disable-surfaces");
-	//command_line->AppendSwitch("enable-begin-frame-scheduling");
+	command_line->AppendSwitch("enable-media-stream");
+	command_line->AppendSwitch("enable-speech-input");
+	command_line->AppendSwitch("enable-usermedia-screen-capture");
 
-	//command_line->AppendSwitch("off-screen-rendering-enabled");
-	command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
+	// Some docs online say to use these two, but I had bad results with these
+	// command_line->AppendSwitch("disable-surfaces");
+	// command_line->AppendSwitch("enable-begin-frame-scheduling");
+
+	command_line->AppendSwitch("off-screen-rendering-enabled");
+	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 }
 
@@ -78,7 +86,8 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
-	browser_settings.windowless_frame_rate = 60;
+	//browser_settings.windowless_frame_rate = 60;
+	//browser_settings.webgl = STATE_ENABLED;
 
 	// TODO: make a setting
 	//browser_settings.web_security = STATE_DISABLED;
@@ -99,12 +108,13 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
+	window_info.windowless_rendering_enabled = true;
 	window_info.SetAsWindowless(window);// , isTransparent);
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);
 		// Create the first browser window.
-		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
+		CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, nullptr, nullptr);
 	} else {
 		DS_LOG_WARNING("No handler exists when trying to create a browser!");
 	}

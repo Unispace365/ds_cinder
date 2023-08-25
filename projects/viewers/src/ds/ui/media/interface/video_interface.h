@@ -4,50 +4,53 @@
 
 #include "ds/ui/media/media_interface.h"
 
-namespace ds {
-namespace ui {
+namespace ds { namespace ui {
 
-class GstVideo;
-class ImageButton;
-class VideoScrubBar;
-class VideoVolumeControl;
+	class GstVideo;
+	class ImageButton;
+	class VideoScrubBar;
+	class VideoVolumeControl;
 
-/**
-* \class VideoInterface
-*			Implements play/pause, scrub bar, volume control
-*/
-class VideoInterface : public MediaInterface  {
-public:
-	VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	/**
+	 * \class VideoInterface
+	 *			Implements play/pause, scrub bar, volume control
+	 */
+	class VideoInterface : public MediaInterface {
+	  public:
+		VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
+					   const ci::Color buttonColor, const ci::Color backgroundColor);
 
-	void						linkVideo(ds::ui::GstVideo* linkedVideo);
+		void linkVideo(ds::ui::GstVideo* linkedVideo);
 
-	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
-	
-	ds::ui::ImageButton*		getPlayButton();
-	ds::ui::ImageButton*		getPauseButton();
+		virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
-	ds::ui::Sprite*				getScrubBarBackground();
-	ds::ui::Sprite*				getScrubBarProgress();
+		ds::ui::ImageButton* getPlayButton();
+		ds::ui::ImageButton* getPauseButton();
+		ds::ui::ImageButton* getLoopButton();
+		ds::ui::ImageButton* getUnLoopButton();
 
-	VideoVolumeControl*			getVolumeControl();
+		ds::ui::Sprite* getScrubBarBackground();
+		ds::ui::Sprite* getScrubBarProgress();
 
-	void						addNubToScrubBar(ds::ui::Sprite* newNub);
-protected:
+		VideoVolumeControl* getVolumeControl();
 
-	virtual void				onLayout();
+		void addNubToScrubBar(ds::ui::Sprite* newNub);
 
-	ds::ui::GstVideo*			mLinkedVideo;
+	  protected:
+		virtual void onLayout();
 
-	ds::ui::ImageButton*		mPlayButton;
-	ds::ui::ImageButton*		mPauseButton;
+		ds::ui::GstVideo* mLinkedVideo;
 
-	VideoScrubBar*				mScrubBar;
-	VideoVolumeControl*			mVolumeControl;
+		ds::ui::ImageButton* mPlayButton;
+		ds::ui::ImageButton* mPauseButton;
 
-};
+		ds::ui::ImageButton* mLoopButton;
+		ds::ui::ImageButton* mUnLoopButton;
 
-} // namespace ui
-} // namespace ds
+		VideoScrubBar*		mScrubBar;
+		VideoVolumeControl* mVolumeControl;
+	};
+
+}} // namespace ds::ui
 
 #endif

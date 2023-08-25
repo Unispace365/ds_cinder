@@ -5,51 +5,48 @@
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 
-namespace ds{
-namespace ui{
+namespace ds::ui {
 
-ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const float uiWidth, const float touchPadding, const bool autoHide)
-	: Sprite(engine)
-	, mVertical(vertical)
-	, mNub(nullptr)
-	, mBackground(nullptr)
-	, mScrollPercent(0.0f)
-	, mPercentVisible(1.0f)
-	, mMinNubSize(uiWidth)
-	, mTouchPadding(touchPadding)
-	, mAutoHide(autoHide)
-	, mAutoHidden(false)
-	, mTouchOffset(0.0f)
-{
+ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const float uiWidth, const float touchPadding,
+					 const bool autoHide)
+  : Sprite(engine)
+  , mVertical(vertical)
+  , mBackground(nullptr)
+  , mNub(nullptr)
+  , mMinNubSize(uiWidth)
+  , mTouchPadding(touchPadding)
+  , mScrollPercent(0.0f)
+  , mPercentVisible(1.0f)
+  , mTouchOffset(0.0f)
+  , mAutoHide(autoHide)
+  , mAutoHidden(false) {
 
 	// Set some defaults
 	// You can change these by getting the nub and background sprites and changing them
-	mBackground = new ds::ui::Sprite(mEngine);
+	mBackground					= new ds::ui::Sprite(mEngine);
 	mBackground->mExportWithXml = false;
 	mBackground->setTransparent(false);
 	mBackground->setColor(ci::Color(0.1f, 0.1f, 0.1f));
-	mBackground->setCornerRadius(uiWidth/2.0f);
+	mBackground->setCornerRadius(uiWidth / 2.0f);
 	mBackground->setOpacity(0.7f);
 	addChildPtr(mBackground);
 
-	mNub = new ds::ui::Sprite(mEngine);
+	mNub				 = new ds::ui::Sprite(mEngine);
 	mNub->mExportWithXml = false;
 	mNub->setTransparent(false);
 	mNub->setColor(ci::Color(0.9f, 0.9f, 0.9f));
 	mNub->setOpacity(0.3f);
 	mNub->setSize(uiWidth, uiWidth);
-	mNub->setCornerRadius(uiWidth/2.0f);
+	mNub->setCornerRadius(uiWidth / 2.0f);
 	addChildPtr(mNub);
 
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
-		handleScrollTouch(bs, ti);
-	});
+	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) { handleScrollTouch(bs, ti); });
 
 	setSize(mTouchPadding * 2.0f + uiWidth, mTouchPadding * 2.0f + uiWidth);
 
-	if(mAutoHide){
+	if (mAutoHide) {
 		doAutoHide(true);
 		hide(); // immediately hide, but also call the function to track the state correctly
 		setOpacity(0.0f);
@@ -58,30 +55,32 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 }
 
 
-void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
-	if(ti.mFingerIndex == 0){
+void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+	if (ti.mFingerIndex == 0) {
 		ci::vec3 localPos = globalToLocal(ti.mCurrentGlobalPoint);
 
 
-		bool isPerspective = getPerspective();
-		float heighty = getHeight();
-		if(!mVertical){
+		bool  isPerspective = getPerspective();
+		float heighty		= getHeight();
+		if (!mVertical) {
 			heighty = getWidth();
 		}
 
-		float barHeight = heighty * mPercentVisible;
+		float barHeight	  = heighty * mPercentVisible;
 		float totalHeight = heighty - barHeight;
 
 		float destPercent = 0.0f;
 
-		if(ti.mPhase == ds::ui::TouchInfo::Added){
-			mTouchOffset = barHeight/2.0f;
-			if(mVertical){
-				if(localPos.y > mScrollPercent * totalHeight && localPos.y < mScrollPercent * totalHeight + barHeight){
+		if (ti.mPhase == ds::ui::TouchInfo::Added) {
+			mTouchOffset = barHeight / 2.0f;
+			if (mVertical) {
+				if (localPos.y > mScrollPercent * totalHeight &&
+					localPos.y < mScrollPercent * totalHeight + barHeight) {
 					mTouchOffset = localPos.y - mScrollPercent * totalHeight;
 				}
 			} else {
-				if(localPos.x > mScrollPercent * totalHeight && localPos.x < mScrollPercent * totalHeight + barHeight){
+				if (localPos.x > mScrollPercent * totalHeight &&
+					localPos.x < mScrollPercent * totalHeight + barHeight) {
 					mTouchOffset = localPos.x - mScrollPercent * totalHeight;
 				}
 			}
@@ -90,15 +89,15 @@ void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 		localPos.y -= mTouchOffset;
 		localPos.x -= mTouchOffset;
 
-		if(mVertical){
+		if (mVertical) {
 			// This may not be right. Feel free to fix, but be sure you get it right and check multiple instances
-			if(isPerspective){
-				localPos.y -= getHeight()/2.0f;
+			if (isPerspective) {
+				localPos.y -= getHeight() / 2.0f;
 			}
 
 			destPercent = localPos.y / totalHeight;
-			
-			if(isPerspective){
+
+			if (isPerspective) {
 				destPercent = 1.0f - destPercent;
 			}
 
@@ -107,39 +106,39 @@ void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 			destPercent = localPos.x / totalHeight;
 		}
 
-		if(destPercent < 0.0f) destPercent = 0.0f;
-		if(destPercent > 1.0f) destPercent = 1.0f;
+		if (destPercent < 0.0f) destPercent = 0.0f;
+		if (destPercent > 1.0f) destPercent = 1.0f;
 
-		if(mScrollMoveCallback){
+		if (mScrollMoveCallback) {
 			mScrollMoveCallback(destPercent);
 		}
 	}
 }
 
 
-void ScrollBar::setScrollMoveCallback(std::function<void(const float scrollPercent)> func){
+void ScrollBar::setScrollMoveCallback(std::function<void(const float scrollPercent)> func) {
 	mScrollMoveCallback = func;
 }
 
-void ScrollBar::scrollUpdated(const float percentScrolled, const float percentVisible){
+void ScrollBar::scrollUpdated(const float percentScrolled, const float percentVisible) {
 	mScrollPercent = percentScrolled;
-	if(mScrollPercent < 0.0f) mScrollPercent = 0.0f;
-	if(mScrollPercent > 1.0f) mScrollPercent = 1.0f;
+	if (mScrollPercent < 0.0f) mScrollPercent = 0.0f;
+	if (mScrollPercent > 1.0f) mScrollPercent = 1.0f;
 
 	mPercentVisible = percentVisible;
-	if(mPercentVisible < 0.0f) mPercentVisible = 0.0f;
-	if(mPercentVisible > 1.0f) mPercentVisible = 1.0f;
+	if (mPercentVisible < 0.0f) mPercentVisible = 0.0f;
+	if (mPercentVisible > 1.0f) mPercentVisible = 1.0f;
 
 	updateNubPosition();
 }
 
-void ScrollBar::layout(){
-	if(mBackground){
-		if(mVertical){
-			mBackground->setSize(getWidth() - mTouchPadding *2.0f, getHeight());
+void ScrollBar::layout() {
+	if (mBackground) {
+		if (mVertical) {
+			mBackground->setSize(getWidth() - mTouchPadding * 2.0f, getHeight());
 			mBackground->setPosition(mTouchPadding, 0.0f);
 		} else {
-			mBackground->setSize(getWidth(), getHeight() - mTouchPadding *2.0f);
+			mBackground->setSize(getWidth(), getHeight() - mTouchPadding * 2.0f);
 			mBackground->setPosition(0.0f, mTouchPadding);
 		}
 	}
@@ -147,117 +146,110 @@ void ScrollBar::layout(){
 	updateNubPosition();
 }
 
-void ScrollBar::onSizeChanged(){
+void ScrollBar::onSizeChanged() {
 	layout();
 }
 
-void ScrollBar::updateNubPosition(){
-	if(mNub){
-		if(mVertical){
+void ScrollBar::updateNubPosition() {
+	if (mNub && mBackground) {
+		if (mVertical) {
 			float nubSize = getHeight() * mPercentVisible;
-			if(nubSize < mMinNubSize) {
+			if (nubSize < mMinNubSize) {
 				nubSize = mMinNubSize;
 			}
-			mNub->setSize(mNub->getWidth(), nubSize);
+			mNub->setSize(mBackground->getWidth(), nubSize);
 
-			if(getPerspective()){
+			if (getPerspective()) {
 				mNub->setPosition(mTouchPadding, (1.0f - mScrollPercent) * (getHeight() - nubSize));
 			} else {
 				mNub->setPosition(mTouchPadding, mScrollPercent * getHeight() - mScrollPercent * mNub->getHeight());
 			}
 		} else {
 			float nubSize = getWidth() * mPercentVisible;
-			if(nubSize < mMinNubSize) {
+			if (nubSize < mMinNubSize) {
 				nubSize = mMinNubSize;
 			}
-			mNub->setSize(nubSize, mNub->getHeight());
+			mNub->setSize(nubSize, mBackground->getHeight());
 			mNub->setPosition(getWidth() * mScrollPercent - mScrollPercent * mNub->getWidth(), mTouchPadding);
 		}
 	}
 
-	if(mAutoHide){
-		if(mPercentVisible >= 0.9999f){
+	if (mAutoHide) {
+		if (mPercentVisible >= 0.9999f) {
 			doAutoHide(true);
-		} else if(mPercentVisible > 0.000000000000f) {
+		} else if (mPercentVisible > 0.000000000000f) {
 			doAutoHide(false);
 		}
 	}
 
-	if(mVisualUpdateCallback){
+	if (mVisualUpdateCallback) {
 		mVisualUpdateCallback();
 	}
 }
 
-void ScrollBar::setVisualUpdateCallback(std::function<void()> func){
+void ScrollBar::setVisualUpdateCallback(std::function<void()> func) {
 	mVisualUpdateCallback = func;
 }
 
-ds::ui::Sprite* ScrollBar::getBackgroundSprite(){
+ds::ui::Sprite* ScrollBar::getBackgroundSprite() {
 	return mBackground;
 }
 
-ds::ui::Sprite* ScrollBar::getNubSprite(){
+ds::ui::Sprite* ScrollBar::getNubSprite() {
 	return mNub;
 }
 
-void ScrollBar::setMinNubSize(const float minNub){
-	mMinNubSize = minNub; 
+void ScrollBar::setMinNubSize(const float minNub) {
+	mMinNubSize = minNub;
 }
 
-void ScrollBar::setTouchPadding(const float touchPadding){
+void ScrollBar::setTouchPadding(const float touchPadding) {
 	mTouchPadding = touchPadding;
 	layout();
 }
 
-void ScrollBar::linkScrollArea(ds::ui::ScrollArea* area){
-	if(!area) return;
+void ScrollBar::linkScrollArea(ds::ui::ScrollArea* area) {
+	if (!area) return;
 
-	area->setScrollUpdatedCallback([this](ds::ui::ScrollArea* area){
-		scrollUpdated(area->getScrollPercent(), area->getVisiblePercent());
-
-	});
-	setScrollMoveCallback([this, area](const float scrollPercent){
-		area->setScrollPercent(scrollPercent);
-	});
+	area->setScrollUpdatedCallback(
+		[this](ds::ui::ScrollArea* area) { scrollUpdated(area->getScrollPercent(), area->getVisiblePercent()); });
+	setScrollMoveCallback([area](const float scrollPercent) { area->setScrollPercent(scrollPercent); });
 }
 
-void ScrollBar::linkScrollList(ds::ui::ScrollList* list){
-	if(!list) return;
+void ScrollBar::linkScrollList(ds::ui::ScrollList* list) {
+	if (!list) return;
 
-	list->setScrollUpdatedCallback([this, list]{
+	list->setScrollUpdatedCallback([this, list] {
 		scrollUpdated(list->getScrollArea()->getScrollPercent(), list->getScrollArea()->getVisiblePercent());
-		
 	});
-	setScrollMoveCallback([this, list](const float scrollPercent){
-		if(list->getScrollArea()){
+
+	setScrollMoveCallback([list](const float scrollPercent) {
+		if (list->getScrollArea()) {
 			list->getScrollArea()->setScrollPercent(scrollPercent);
 		}
 	});
 }
 
-void ScrollBar::enableAutoHiding(const bool autoHide){
+void ScrollBar::enableAutoHiding(const bool autoHide) {
 	mAutoHide = autoHide;
-	if(!mAutoHide){
+	if (!mAutoHide) {
 		doAutoHide(false);
 	}
 }
 
-void ScrollBar::doAutoHide(const bool shouldBeHidden){
-	if(shouldBeHidden){
-		if(!mAutoHidden){
+void ScrollBar::doAutoHide(const bool shouldBeHidden) {
+	if (shouldBeHidden) {
+		if (!mAutoHidden) {
 			mAutoHidden = true;
-			tweenOpacity(0.0f, 0.35f, 0.0f, ci::easeNone, [this]{hide(); });
+			tweenOpacity(0.0f, 0.35f, 0.0f, ci::easeNone, [this] { hide(); });
 		}
 	} else {
-		if(mAutoHidden){
+		if (mAutoHidden) {
 			mAutoHidden = false;
 			show();
 			tweenOpacity(1.0f, 0.35f);
 		}
 	}
-
 }
 
-} // namespace ui
-
-} // namespace ds
+} // namespace ds::ui

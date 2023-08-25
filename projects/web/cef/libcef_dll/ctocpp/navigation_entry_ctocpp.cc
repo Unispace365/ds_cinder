@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,18 +9,22 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c122252f704410c504252f3ec109a7d0cf23ca72$
+// $hash=a832a32c3a3d5c43676c7bc76bafbe77a964a5f1$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefNavigationEntryCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefNavigationEntryCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -31,10 +35,13 @@ bool CefNavigationEntryCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-CefString CefNavigationEntryCToCpp::GetURL() {
+NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetURL() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_url))
+  if (CEF_MEMBER_MISSING(_struct, get_url)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -47,10 +54,13 @@ CefString CefNavigationEntryCToCpp::GetURL() {
   return _retvalStr;
 }
 
-CefString CefNavigationEntryCToCpp::GetDisplayURL() {
+NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetDisplayURL() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_display_url))
+  if (CEF_MEMBER_MISSING(_struct, get_display_url)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -63,10 +73,13 @@ CefString CefNavigationEntryCToCpp::GetDisplayURL() {
   return _retvalStr;
 }
 
-CefString CefNavigationEntryCToCpp::GetOriginalURL() {
+NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetOriginalURL() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_original_url))
+  if (CEF_MEMBER_MISSING(_struct, get_original_url)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -79,10 +92,13 @@ CefString CefNavigationEntryCToCpp::GetOriginalURL() {
   return _retvalStr;
 }
 
-CefString CefNavigationEntryCToCpp::GetTitle() {
+NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetTitle() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_title))
+  if (CEF_MEMBER_MISSING(_struct, get_title)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -95,11 +111,15 @@ CefString CefNavigationEntryCToCpp::GetTitle() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefNavigationEntry::TransitionType
 CefNavigationEntryCToCpp::GetTransitionType() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_transition_type))
+  if (CEF_MEMBER_MISSING(_struct, get_transition_type)) {
     return TT_EXPLICIT;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -110,10 +130,13 @@ CefNavigationEntryCToCpp::GetTransitionType() {
   return _retval;
 }
 
-bool CefNavigationEntryCToCpp::HasPostData() {
+NO_SANITIZE("cfi-icall") bool CefNavigationEntryCToCpp::HasPostData() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, has_post_data))
+  if (CEF_MEMBER_MISSING(_struct, has_post_data)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -124,24 +147,31 @@ bool CefNavigationEntryCToCpp::HasPostData() {
   return _retval ? true : false;
 }
 
-CefTime CefNavigationEntryCToCpp::GetCompletionTime() {
+NO_SANITIZE("cfi-icall")
+CefBaseTime CefNavigationEntryCToCpp::GetCompletionTime() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_completion_time))
-    return CefTime();
+  if (CEF_MEMBER_MISSING(_struct, get_completion_time)) {
+    return CefBaseTime();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_completion_time(_struct);
+  cef_basetime_t _retval = _struct->get_completion_time(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-int CefNavigationEntryCToCpp::GetHttpStatusCode() {
+NO_SANITIZE("cfi-icall") int CefNavigationEntryCToCpp::GetHttpStatusCode() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_http_status_code))
+  if (CEF_MEMBER_MISSING(_struct, get_http_status_code)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -152,10 +182,14 @@ int CefNavigationEntryCToCpp::GetHttpStatusCode() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefSSLStatus> CefNavigationEntryCToCpp::GetSSLStatus() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_sslstatus))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_sslstatus)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -170,6 +204,12 @@ CefRefPtr<CefSSLStatus> CefNavigationEntryCToCpp::GetSSLStatus() {
 
 CefNavigationEntryCToCpp::CefNavigationEntryCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefNavigationEntryCToCpp::~CefNavigationEntryCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_navigation_entry_t* CefCToCppRefCounted<
     CefNavigationEntryCToCpp,
@@ -177,16 +217,8 @@ cef_navigation_entry_t* CefCToCppRefCounted<
     cef_navigation_entry_t>::UnwrapDerived(CefWrapperType type,
                                            CefNavigationEntry* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefNavigationEntryCToCpp,
-                                         CefNavigationEntry,
-                                         cef_navigation_entry_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefNavigationEntryCToCpp,

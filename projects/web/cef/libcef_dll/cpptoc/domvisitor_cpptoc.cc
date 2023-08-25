@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3065bcabcd6be1a573f3db27bc9e92ccc1f4001$
+// $hash=1e896513b946d3e3d3199a1fb6cccf31898d6cbc$
 //
 
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,15 +22,19 @@ namespace {
 
 void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
                                    struct _cef_domdocument_t* document) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: document; type: refptr_diff
   DCHECK(document);
-  if (!document)
+  if (!document) {
     return;
+  }
 
   // Execute
   CefDOMVisitorCppToC::Get(self)->Visit(CefDOMDocumentCToCpp::Wrap(document));
@@ -43,20 +48,19 @@ CefDOMVisitorCppToC::CefDOMVisitorCppToC() {
   GetStruct()->visit = domvisitor_visit;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefDOMVisitorCppToC::~CefDOMVisitorCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefDOMVisitor>
 CefCppToCRefCounted<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>::
     UnwrapDerived(CefWrapperType type, cef_domvisitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDOMVisitorCppToC,

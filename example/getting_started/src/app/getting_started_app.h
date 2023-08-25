@@ -9,19 +9,18 @@ namespace downstream {
 class AllData;
 
 class getting_started_app : public ds::App {
-public:
+  public:
 	getting_started_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace downstream
+} // namespace downstream
 
 #endif // !_GETTING_STARTED_APP_H_

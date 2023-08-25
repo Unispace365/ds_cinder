@@ -1,5 +1,5 @@
 <interface>
-
+	
 	<layout name="root_layout"
 		size="400, 500"
 		color="#999999"
@@ -12,9 +12,11 @@
 		center="0.5, 0.5"
 		animate_on="grow:0, 0; fade:-1.0; slide:0, 0; ease:none; duration:0.35; delay:0.25"
 		>
-
+		<override  size="1030, 500" target="landscape"/>
+		<layout  layout_size_mode="stretch" layout_type="vert" layout_spacing="10" >
+		<override  layout_type="horiz_wrap" size="1030, 250"  layout_size_mode="fixed" target="landscape"/>
 		<layout
-			color="ffffff"
+			color="#ffff00"
 			size="400, 100"
 			layout_h_align="center"
 			l_pad="40"
@@ -22,9 +24,11 @@
 			t_pad="10"
 			layout_size_mode="stretch"
 			opacity="0.0"
-			animate_on="opacity:1.0; slide:-200; duration:0.5; delay:0.6"/>
+			animate_on="opacity:1.0; slide:-200; duration:0.5; delay:0.6">
+			<override layout_size_mode="fixed" width="450" r_pad="0" layout_v_align="middle" target="landscape"/>
+			</layout>
 		<layout
-			color="ffffff"
+			color="#ffaaff"
 			size="400, 100"
 			layout_h_align="center"
 			l_pad="40"
@@ -32,6 +36,7 @@
 			t_pad="0"
 			layout_size_mode="stretch"
 			animate_on="opacity:1.0; slide:-100; duration:0.5; delay:0.7">
+			<override layout_size_mode="fixed" width="450" r_pad="0" layout_v_align="middle" target="landscape"/>
 			<text name="event_text"
 				text="Am I idling?"
 				font="sample:config"
@@ -43,19 +48,19 @@
 
 		<gradient
 			layout_size_mode="fill"
-			colorLeft="ff00ff"
-			colorRight="00ff00"
+			colorLeft="#ff00ff"
+			colorRight="#00ff00"
 			blend_mode="multiply"
 			l_pad="-20"
 			r_pad="-20"
 			t_pad="-20"
 			b_pad="-20"
 			opacity="0.5"
-			>
+			target="woot">
 		</gradient>
 
 		<layout
-			color="000000"
+			color="#000000"
 			size="400, 100"
 			layout_h_align="center"
 			l_pad="40"
@@ -64,14 +69,14 @@
 			layout_size_mode="stretch"
 			opacity="0.0"
 			animate_on="opacity:1.0; slide:100; duration:0.5; delay:0.8">
-
-			<text name="sample_text"
-				text="Hey! This is a smart layout!"
-				font="sample:config"
-				/>
+			<override layout_size_mode="fixed" width="450" r_pad="0" layout_v_align="middle" target="landscape"/>
+			<xml name="xml_test" src="xml_layout.xml">
+			<property name="sample_text" resize_limit="400" text="This is the landscape setting. Try changing to portrait in engine.xml" target="landscape" />
+			<property name="sample_text" resize_limit="300" text="This is the portrait setting. Try changing to landscape in engine.xml" target="portrait"/>
+			</xml>
 		</layout>
 		<layout
-			color="ffffff"
+			color="#ffAAAA"
 			size="400, 100"
 			layout_h_align="center"
 			l_pad="40"
@@ -79,9 +84,16 @@
 			t_pad="0"
 			layout_size_mode="stretch"
 			opacity="0.0"
-			animate_on="opacity:1.0; slide:200; duration:0.5; delay:0.9"/>
-		<sprite name="farts" size="400, 10" color="ffffff" animate_on="fade:"/>
-		<sprite color="#333333" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" layout_size_mode="stretch"/>
+			animate_on="opacity:1.0; slide:200; duration:0.5; delay:0.9">
+			<override layout_size_mode="fixed" width="450" r_pad="0" layout_v_align="middle" target="landscape"/>
+			</layout>
+			</layout>
+		<sprite name="farts" size="400, 10" color="#00ffff" animate_on="fade:">
+			<override layout_size_mode="flex" layout_h_align="center" target="landscape"/>
+		</sprite>
+		<sprite color="#333333" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" >
+			<override opacity="0" target="landscape"/>
+		</sprite>
 	</layout>
 
 </interface>

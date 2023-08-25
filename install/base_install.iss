@@ -2,9 +2,25 @@
 ; TODO: Registry for Windows updates
 ; TODO: Test all switches and functions
 
-#define GST GetEnv('GSTREAMER_1_0_ROOT_X86_64')
+#define GST GetEnv('GSTREAMER_1_0_ROOT_MSVC_X86_64')
 #define SYSTEMF GetEnv('SYSTEMROOT')
-#define DS_PLATFORM GetEnv('DS_PLATFORM_090')
+#define DS_PLATFORM GetEnv('DS_PLATFORM_093')
+
+#ifdef USE_DSNODE
+#ifdef USE_DOWNSYNC
+#ifdef USE_BRIDGESYNC
+#ifndef ALLOW_BOTH_DSNODE_DOWNSYNC
+#error "You should only define one of USE_DSNODE, USE_DOWNSYNC, USE_BRIDGESYNC"
+#endif
+#endif
+#endif
+#endif
+
+#define PROD_NAME ""
+#ifndef IS_PRODUCTION
+; NPI = Not Production Installer
+#define PROD_NAME "-NPI"
+#endif
 
 [Setup]
 AppName={#APP_DISPLAY_NAME}
@@ -15,7 +31,7 @@ ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={pf}\Downstream\{#APP_NAME}
 DefaultGroupName={#APP_DISPLAY_NAME}
 OutputDir=install/build
-OutputBaseFilename={#APP_NAME}-v{#APP_VERS}
+OutputBaseFilename={#APP_NAME}{#PROD_NAME}-v{#APP_VERS}
 SourceDir=../
 UninstallDisplayIcon={app}\{#APP_EXE}
 ; OutputManifestFile={#APP_NAME}_log.txt
@@ -34,12 +50,12 @@ DisableStartupPrompt=yes
 DisableWelcomePage=yes
 
 [Files]
-Source: "vs2015/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
 Source: "data/*"; DestDir: "{app}/data"; Flags: recursesubdirs
 
 ; Include the exe individually so it throws an error if it doesn't exist
-Source: "vs2015/Release/{#APP_EXE}"; DestDir: "{app}"
+Source: "vs2019/Release/{#APP_EXE}"; DestDir: "{app}"
 
 #ifdef USE_APPHOST
 Source: "install/DSAppHost/*"; DestDir: "{app}/DSAppHost/"; Flags: recursesubdirs
@@ -50,16 +66,29 @@ Source: "install/apphost.json"; DestDir: "{userdocs}\downstream\common\dsapphost
 Source: "install/DSNode/*"; DestDir: "{app}/DSNode/"; Flags: recursesubdirs
 #endif
 
+#ifdef USE_DOWNSYNC
+Source: "/downsync/downsync.exe"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
+Source: "/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
+#endif
+
+#ifdef USE_BRIDGESYNC
+Source: "/bridgesync/*"; DestDir: "{app}/bridgesync/"; Flags: recursesubdirs
+#endif
+
 #ifexist "README.md"
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 #endif
 
+#ifexist "install/readme.txt"
+Source: "install/readme.txt"; DestDir: "{app}/release_notes.txt"; Flags: isreadme
+#endif
+
 Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
-Source: "{#DS_PLATFORM}/.git/ORIG_HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
+;Source: "{#DS_PLATFORM}/.git/HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
-Source: "{#GST}/bin/*.dll"; DestDir: "{app}/dll"
+Source: "{#GST}/bin/*.dll"; Excludes:"librtmp-1.dll"; DestDir: "{app}/dll"
 Source: "{#GST}/lib/gstreamer-1.0/*.dll"; DestDir: "{app}/dll/gst_plugins"
 #endif
 
@@ -98,9 +127,10 @@ Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
 #endif
 
 [Registry]
-#ifdef IS_PRODUCTION
 ; Sets the environment variable for pango text to look goodly
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "PANGOCAIRO_BACKEND"; ValueData: "fontconfig"
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PANGOCAIRO_BACKEND"; ValueData: "fontconfig"; Flags: preservestringtype
+
+#ifdef IS_PRODUCTION
 ; Disable the "program not responding" if this app crashed
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueType: dword; ValueName: "DontShowUI"; ValueData: "1"
 
@@ -109,6 +139,9 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
 #endif
 #endif
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\*"
 
 ; Check if DS_BASEURL environment variable is already set. If not, request a reboot
 ; Only checked if IS_PRODUCTION & CMS_URL are both set

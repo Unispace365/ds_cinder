@@ -1,8 +1,6 @@
 //
 // Environment_WIN32U.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Environment_WIN32U.h#2 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Environment
@@ -31,10 +29,10 @@ class Foundation_API EnvironmentImpl
 public:
 	typedef UInt8 NodeId[6]; /// Ethernet address.
 
-	static std::string getImpl(const std::string& name);	
-	static bool hasImpl(const std::string& name);	
+	static std::string getImpl(const std::string& name);
+	static bool hasImpl(const std::string& name);
 	static void setImpl(const std::string& name, const std::string& value);
-	static std::string osNameImpl();	
+	static std::string osNameImpl();
 	static std::string osDisplayNameImpl();
 	static std::string osVersionImpl();
 	static std::string osArchitectureImpl();

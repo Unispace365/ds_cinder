@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,18 +9,23 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6620dc6736041e4b366326edda388eac15296724$
+// $hash=720f0530ee0dff9014bc77e1475ba41de29fb890$
 //
 
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
                                                bool show_dialog) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_before_download_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -34,6 +39,12 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
 
 CefBeforeDownloadCallbackCToCpp::CefBeforeDownloadCallbackCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefBeforeDownloadCallbackCToCpp::~CefBeforeDownloadCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_before_download_callback_t* CefCToCppRefCounted<
     CefBeforeDownloadCallbackCToCpp,
@@ -42,16 +53,8 @@ cef_before_download_callback_t* CefCToCppRefCounted<
                                                    CefBeforeDownloadCallback*
                                                        c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefBeforeDownloadCallbackCToCpp,
-    CefBeforeDownloadCallback,
-    cef_before_download_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

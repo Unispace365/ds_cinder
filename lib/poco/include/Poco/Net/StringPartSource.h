@@ -1,8 +1,6 @@
 //
 // StringPartSource.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/StringPartSource.h#1 $
-//
 // Library: Net
 // Package: Messages
 // Module:  StringPartSource
@@ -37,7 +35,7 @@ public:
 		/// Creates the StringPartSource for the given string.
 		///
 		/// The MIME type is set to text/plain.
-	
+
 	StringPartSource(const std::string& str, const std::string& mediaType);
 		/// Creates the StringPartSource for the given
 		/// string and MIME type.
@@ -51,7 +49,7 @@ public:
 
 	std::istream& stream();
 		/// Returns a string input stream for the string.
-		
+
 	const std::string& filename() const;
 		/// Returns the filename portion of the path.
 
@@ -61,7 +59,7 @@ public:
 private:
 	std::istringstream _istr;
 	std::string        _filename;
-	
+
 	StringPartSource(const StringPartSource&);
 	StringPartSource& operator = (const StringPartSource&);
 };

@@ -1,8 +1,6 @@
 //
 // DirectoryIterator_UNIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/DirectoryIterator_UNIX.h#1 $
-//
 // Library: Foundation
 // Package: Filesystem
 // Module:  DirectoryIterator
@@ -32,13 +30,13 @@ class Foundation_API DirectoryIteratorImpl
 public:
 	DirectoryIteratorImpl(const std::string& path);
 	~DirectoryIteratorImpl();
-	
+
 	void duplicate();
 	void release();
-	
+
 	const std::string& get() const;
 	const std::string& next();
-	
+
 private:
 	DIR*        _pDir;
 	std::string _current;

@@ -15,19 +15,20 @@
 #include "ds/ui/media/interface/video_scrub_bar.h"
 #include "ds/ui/media/interface/video_volume_control.h"
 
-namespace ds {
-namespace ui {
+namespace ds::ui {
 
 MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroundColor)
   : ds::ui::Sprite(eng, sizey.x, sizey.y)
   , mBackground(nullptr)
-  , mIdling(nullptr)
   , mAnimateDuration(0.35f)
-  , mMaxWidth(sizey.x)
   , mMinWidth(sizey.y)
-  , mInterfaceIdleSettings(5.0f)
+  , mMaxWidth(sizey.x)
+  , mIdling(false)
   , mCanIdle(true)
-  , mCanDisplay(true) {
+  , mCanDisplay(true)
+  , mCanLock(false)
+  , mInterfaceIdleSettings(5.0f) {
+
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
 
@@ -74,11 +75,17 @@ void MediaInterface::setBackgroundColorA(const ci::ColorA backgroundColor) {
 }
 
 void MediaInterface::setBackgroundColor(ci::ColorA newColor) {
-	if(mBackground) mBackground->setColorA(newColor);
+	if (mBackground) mBackground->setColorA(newColor);
 }
 
 void MediaInterface::setBackgroundColor(ci::Color newColor) {
-	if(mBackground) mBackground->setColor(newColor);
+	if (mBackground) mBackground->setColor(newColor);
+}
+
+void MediaInterface::show() {
+	if (mCanDisplay) {
+		Sprite::show();
+	}
 }
 
 void MediaInterface::animateOn() {
@@ -97,7 +104,8 @@ void MediaInterface::animateOff() {
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this] { hide(); });
 }
 
-void MediaInterface::onSizeChanged() { layout(); }
+void MediaInterface::onSizeChanged() {
+	layout();
+}
 
-}  // namespace ui
-}  // namespace ds
+} // namespace ds::ui

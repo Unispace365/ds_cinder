@@ -16,17 +16,16 @@ class BlobReader;
  */
 class BlobRegistry {
   public:
-    BlobRegistry();
+	BlobRegistry();
 
-    /// Add a new blob handler.  I answer with the unique key assigned the handler.
-    char              add(const std::function<void(BlobReader&)>& reader);
+	/// Add a new blob handler.  I answer with the unique key assigned the handler.
+	char add(const std::function<void(BlobReader&)>& reader);
 
   private:
-    friend class EngineClient;
-    friend class EngineServer;
-    friend class EngineReceiver;
-    std::vector<std::function<void(BlobReader&)>>
-                      mReader;
+	friend class EngineClient;
+	friend class EngineServer;
+	friend class EngineReceiver;
+	std::vector<std::function<void(BlobReader&)>> mReader;
 };
 
 } // namespace ds

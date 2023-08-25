@@ -1,8 +1,6 @@
 //
 // BufferAllocator.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/BufferAllocator.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  BufferAllocator
@@ -40,8 +38,8 @@ public:
 	{
 		return new char_type[static_cast<std::size_t>(size)];
 	}
-	
-	static void deallocate(char_type* ptr, std::streamsize /*size*/) throw()
+
+	static void deallocate(char_type* ptr, std::streamsize /*size*/) noexcept
 	{
 		delete [] ptr;
 	}

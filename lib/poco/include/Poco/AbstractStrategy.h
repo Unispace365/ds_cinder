@@ -1,8 +1,6 @@
 //
 // AbstractStrategy.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/AbstractStrategy.h#1 $
-//
 // Library: Foundation
 // Package: Cache
 // Module:  AbstractCache
@@ -29,9 +27,9 @@
 namespace Poco {
 
 
-template <class TKey, class TValue> 
+template <class TKey, class TValue>
 class AbstractStrategy
-	/// An AbstractStrategy is the interface for all strategies. 
+	/// An AbstractStrategy is the interface for all strategies.
 {
 public:
 	AbstractStrategy()
@@ -48,7 +46,7 @@ public:
 		onRemove(pSender,args.key());
 		onAdd(pSender, args);
 	}
-	
+
 	virtual void onAdd(const void* pSender, const KeyValueArgs <TKey, TValue>& key) = 0;
 		/// Adds the key to the strategy.
 		/// If for the key already an entry exists, an exception will be thrown.
@@ -69,7 +67,7 @@ public:
 	virtual void onReplace(const void* pSender, std::set<TKey>& elemsToRemove) = 0;
 		/// Used by the Strategy to indicate which elements should be removed from
 		/// the cache. Note that onReplace does not change the current list of keys.
-		/// The cache object is reponsible to remove the elements.
+		/// The cache object is responsible to remove the elements.
 };
 
 

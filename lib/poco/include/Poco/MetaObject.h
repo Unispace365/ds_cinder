@@ -1,8 +1,6 @@
 //
 // MetaObject.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/MetaObject.h#1 $
-//
 // Library: Foundation
 // Package: SharedLibrary
 // Module:  ClassLoader
@@ -46,9 +44,9 @@ public:
 
 	virtual ~AbstractMetaObject()
 	{
-		for (typename ObjectSet::iterator it = _deleteSet.begin(); it != _deleteSet.end(); ++it)
+		for (auto p: _deleteSet)
 		{
-			delete *it;
+			delete p;
 		}
 	}
 
@@ -60,7 +58,7 @@ public:
 	virtual B* create() const = 0;
 		/// Create a new instance of a class.
 		/// Cannot be used for singletons.
-		
+
 	virtual B& instance() const = 0;
 		/// Returns a reference to the only instance
 		/// of the class. Used for singletons only.
@@ -76,7 +74,7 @@ public:
 		/// and the object is deleted.
 	{
 		typename ObjectSet::iterator it = _deleteSet.find(pObject);
-		
+
 		if (it != _deleteSet.end())
 		{
 			_deleteSet.erase(pObject);
@@ -117,7 +115,7 @@ private:
 	AbstractMetaObject& operator = (const AbstractMetaObject&);
 
 	typedef std::set<B*> ObjectSet;
-	
+
 	const char* _name;
 	mutable ObjectSet _deleteSet;
 };
@@ -144,12 +142,12 @@ public:
 	{
 		return new C;
 	}
-	
+
 	B& instance() const
 	{
 		throw InvalidAccessException("Not a singleton. Use create() to create instances of", this->name());
 	}
-	
+
 	bool canCreate() const
 	{
 		return true;
@@ -157,26 +155,26 @@ public:
 };
 
 
-template <class C, class B> 
-class MetaSingleton: public AbstractMetaObject<B> 
+template <class C, class B>
+class MetaSingleton: public AbstractMetaObject<B>
 	/// A SingletonMetaObject disables the create() method
 	/// and instead offers an instance() method to access
-	/// the single instance of its class. 
-{ 
-public: 
-	MetaSingleton(const char* name): AbstractMetaObject<B>(name) 
+	/// the single instance of its class.
+{
+public:
+	MetaSingleton(const char* name): AbstractMetaObject<B>(name)
 	{
 	}
-	
-	~MetaSingleton() 
+
+	~MetaSingleton()
 	{
 	}
-	
+
 	B* create() const
 	{
 		throw InvalidAccessException("Cannot create instances of a singleton class. Use instance() to obtain a", this->name());
 	}
-	
+
 	bool canCreate() const
 	{
 		return false;
@@ -192,9 +190,9 @@ public:
 		return true;
 	}
 
-private: 
-	mutable SingletonHolder<C> _object; 
-}; 
+private:
+	mutable SingletonHolder<C> _object;
+};
 
 
 } // namespace Poco

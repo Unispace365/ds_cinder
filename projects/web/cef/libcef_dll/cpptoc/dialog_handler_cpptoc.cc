@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=170d331ab7043203f4f0af870145bd4a52f4a409$
+// $hash=a71a7566407304bb219d211d4faf5c95c979b052$
 //
 
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -28,25 +29,25 @@ dialog_handler_on_file_dialog(struct _cef_dialog_handler_t* self,
                               const cef_string_t* title,
                               const cef_string_t* default_file_path,
                               cef_string_list_t accept_filters,
-                              int selected_accept_filter,
                               cef_file_dialog_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
-    return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
   // Unverified params: title, default_file_path, accept_filters
 
   // Translate param: accept_filters; type: string_vec_byref_const
@@ -56,7 +57,7 @@ dialog_handler_on_file_dialog(struct _cef_dialog_handler_t* self,
   // Execute
   bool _retval = CefDialogHandlerCppToC::Get(self)->OnFileDialog(
       CefBrowserCToCpp::Wrap(browser), mode, CefString(title),
-      CefString(default_file_path), accept_filtersList, selected_accept_filter,
+      CefString(default_file_path), accept_filtersList,
       CefFileDialogCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
@@ -71,6 +72,12 @@ CefDialogHandlerCppToC::CefDialogHandlerCppToC() {
   GetStruct()->on_file_dialog = dialog_handler_on_file_dialog;
 }
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefDialogHandlerCppToC::~CefDialogHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 CefRefPtr<CefDialogHandler> CefCppToCRefCounted<
     CefDialogHandlerCppToC,
@@ -78,16 +85,8 @@ CefRefPtr<CefDialogHandler> CefCppToCRefCounted<
     cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
                                          cef_dialog_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefDialogHandlerCppToC,
-                                         CefDialogHandler,
-                                         cef_dialog_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDialogHandlerCppToC,

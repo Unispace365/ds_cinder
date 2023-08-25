@@ -2,11 +2,11 @@
 #ifndef DS_THREAD_SERIALRUNNABLE_H_
 #define DS_THREAD_SERIALRUNNABLE_H_
 
-#include <functional>
-#include <vector>
 #include "ds/thread/runnable_client.h"
 #include "ds/util/memory_ds.h"
 #include <ds/debug/logger.h>
+#include <functional>
+#include <vector>
 
 namespace ds {
 
@@ -33,15 +33,14 @@ namespace ds {
  ******************************************************************/
 template <class T>
 class SerialRunnable {
-public:
-
-	typedef std::function<void (T&)>	HandlerFunc;
+  public:
+	typedef std::function<void(T&)> HandlerFunc;
 
 	/// The alloc function is to create a new instance of the runnable, required
 	/// NotifyWhenWaiting will send the reply handler even if there's another serial runnable about to be run
-	SerialRunnable(	ui::SpriteEngine&,	const std::function<T*(void)>& alloc, const bool notifyWhenWaiting = false);
-	
-	void					setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
+	SerialRunnable(ui::SpriteEngine&, const std::function<T*(void)>& alloc, const bool notifyWhenWaiting = false);
+
+	void setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 
 	/// Start a new runnable, initializing it via the handler block.  Any previous, unfinished runs
 	/// will be ignored.
@@ -51,42 +50,43 @@ public:
 	/// NOTE: Be careful with HandlerFunc; it might be evaluated at some later point. So if you
 	/// pass in a lambda with captured variables, make sure to capture by value, not reference, or if
 	/// you do, that the referenced item still exists for the life of the SerialRunnable.
-	bool					start(const HandlerFunc& = nullptr, const bool waitForResult = false);
+	bool start(const HandlerFunc& = nullptr, const bool waitForResult = false);
 
-private:
-	bool					send();
-	void					receive(std::unique_ptr<Poco::Runnable>&);
+  private:
+	bool send();
+	void receive(std::unique_ptr<Poco::Runnable>&);
 
-	RunnableClient			mClient;
+	RunnableClient mClient;
 	enum State {
-		CACHED,				// mCache is valid, nothing is running --NOTE this state is redundant with mCache existing, so favour that
-		RUNNING,			// mCache is empty, and as soon as I receive something, I'm done
-		WAITING				// mCache is empty, as soon as I receive something, I start again
+		CACHED,	 // mCache is valid, nothing is running --NOTE this state is redundant with mCache existing, so favour
+				 // that
+		RUNNING, // mCache is empty, and as soon as I receive something, I'm done
+		WAITING	 // mCache is empty, as soon as I receive something, I start again
 	};
-	State					mState;
-	std::unique_ptr<T>		mCache;
-	HandlerFunc				mReplyHandler;
+	State			   mState;
+	std::unique_ptr<T> mCache;
+	HandlerFunc		   mReplyHandler;
 	/// If start comes in and I can't start yet, cache the start handler
-	HandlerFunc				mStartHandler;
-	bool					mNotifyWhenWaiting;
+	HandlerFunc mStartHandler;
+	bool		mNotifyWhenWaiting;
 };
 
 template <class T>
-SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(void)>& alloc, const bool notifyWhenWaiting)
-		: mClient(se)
-		, mState(CACHED)
-		, mReplyHandler(nullptr)
-		, mStartHandler(nullptr)
-		, mNotifyWhenWaiting(notifyWhenWaiting)
-{
+SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(void)>& alloc,
+								  const bool notifyWhenWaiting)
+  : mClient(se)
+  , mState(CACHED)
+  , mReplyHandler(nullptr)
+  , mStartHandler(nullptr)
+  , mNotifyWhenWaiting(notifyWhenWaiting) {
 	/// Create the single runnable
-	if(!alloc) {
+	if (!alloc) {
 		DS_LOG_WARNING("Can't allocate serial runnable (no allocator)");
 		return;
 	}
-	std::unique_ptr<T>		up(alloc());
+	std::unique_ptr<T> up(alloc());
 	mCache = std::move(up);
-	if(!mCache) {
+	if (!mCache) {
 		DS_LOG_WARNING("Can't allocate serial runnable");
 	}
 
@@ -101,7 +101,7 @@ bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult) {
 
 		if (f) f(*(mCache.get()));
 		mCache->run();
-		std::unique_ptr<Poco::Runnable>		payload(ds::unique_dynamic_cast<Poco::Runnable, T>(mCache));
+		std::unique_ptr<Poco::Runnable> payload(ds::unique_dynamic_cast<Poco::Runnable, T>(mCache));
 		mState = RUNNING; // make sure the result handler is triggered
 		receive(payload);
 		return true;
@@ -126,7 +126,7 @@ bool SerialRunnable<T>::send() {
 		mStartHandler(*(mCache.get()));
 		mStartHandler = nullptr;
 	}
-	std::unique_ptr<Poco::Runnable>		payload(ds::unique_dynamic_cast<Poco::Runnable, T>(mCache));
+	std::unique_ptr<Poco::Runnable> payload(ds::unique_dynamic_cast<Poco::Runnable, T>(mCache));
 	if (!payload) return false;
 
 	if (!mClient.run(payload)) return false;
@@ -137,7 +137,7 @@ bool SerialRunnable<T>::send() {
 
 template <class T>
 void SerialRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r) {
-	std::unique_ptr<T>		payload(ds::unique_dynamic_cast<T, Poco::Runnable>(r));
+	std::unique_ptr<T> payload(ds::unique_dynamic_cast<T, Poco::Runnable>(r));
 	if (payload) {
 		if (mState != WAITING || mNotifyWhenWaiting) {
 			if (mReplyHandler) mReplyHandler(*(payload.get()));

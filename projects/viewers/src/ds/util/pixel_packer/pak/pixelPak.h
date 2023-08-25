@@ -16,11 +16,11 @@ in the file COPYING.
 
 #include <boost/utility.hpp>
 
-#include "pixelAlgo.h"
 #include "algoMaxRects.h"
-#include <vector>
-#include <string>
+#include "pixelAlgo.h"
 #include <Magick++.h>
+#include <string>
+#include <vector>
 
 class t_pixelPak
 {

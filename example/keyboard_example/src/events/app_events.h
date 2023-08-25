@@ -5,23 +5,23 @@
 
 namespace example {
 
-class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
-public:
+class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {
+  public:
 	IdleStartedEvent(){};
 };
 
-class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
-public:
+class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {
+  public:
 	IdleEndedEvent(){};
-
 };
 
 class KeyPressedEvent : public ds::RegisteredEvent<KeyPressedEvent> {
-public:
-	KeyPressedEvent(const std::wstring& fullString) : mFullString(fullString){}
+  public:
+	KeyPressedEvent(const std::wstring& fullString)
+	  : mFullString(fullString) {}
 	const std::wstring mFullString;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_KEYBOARDEXAMPLE_APP_APPEVENTS_H_

@@ -7,249 +7,203 @@
 
 /// This class has been modified from the CEF example SimpleApp's SimpleHandler
 
-#include "include/cef_client.h"
 #include "include/base/cef_lock.h"
+#include "include/cef_client.h"
 
+#include <cinder/Vector.h>
 #include <functional>
 #include <list>
-#include <cinder/Vector.h>
 
 #include "web_callbacks.h"
 
-namespace ds {
-namespace web{
+namespace ds { namespace web {
 
 
-class WebHandler : public CefClient,
-	public CefDisplayHandler,
-	public CefLifeSpanHandler,
-	public CefLoadHandler,
-	public CefRenderHandler,
-	public CefGeolocationHandler,
-	public CefJSDialogHandler,
-	public CefFocusHandler,
-	public CefKeyboardHandler,
-	public CefRequestHandler
-{
-public:
-	explicit WebHandler();
-	~WebHandler();
+	class WebHandler : public CefClient,
+					   public CefDisplayHandler,
+					   public CefLifeSpanHandler,
+					   public CefLoadHandler,
+					   public CefRenderHandler,
+					   public CefJSDialogHandler,
+					   public CefFocusHandler,
+					   public CefKeyboardHandler,
+					   public CefRequestHandler,
+					   public CefContextMenuHandler {
+	  public:
+		explicit WebHandler();
+		~WebHandler();
 
-	// Provide access to the single global instance of this object.
-	static WebHandler* GetInstance();
+		// Provide access to the single global instance of this object.
+		static WebHandler* GetInstance();
 
-	// CefClient methods:
-	virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE{
-		return this;
-	}
-	virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE{
-		return this;
-	}
+		// CefClient methods:
+		virtual CefRefPtr<CefDisplayHandler>	 GetDisplayHandler() override { return this; }
+		virtual CefRefPtr<CefLifeSpanHandler>	 GetLifeSpanHandler() override { return this; }
+		virtual CefRefPtr<CefLoadHandler>		 GetLoadHandler() override { return this; }
+		virtual CefRefPtr<CefRenderHandler>		 GetRenderHandler() override { return this; }
+		virtual CefRefPtr<CefJSDialogHandler>	 GetJSDialogHandler() override { return this; }
+		virtual CefRefPtr<CefFocusHandler>		 GetFocusHandler() override { return this; }
+		virtual CefRefPtr<CefKeyboardHandler>	 GetKeyboardHandler() override { return this; }
+		virtual CefRefPtr<CefRequestHandler>	 GetRequestHandler() override { return this; }
+		virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
 
 		// CefDisplayHandler methods:
-	virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
-		const CefString& title) OVERRIDE;
+		virtual void OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title) override;
 
-	virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
-										bool fullscreen) OVERRIDE;
 
-	// CefLifeSpanHandler methods:
-	virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-	virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-	virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-	virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
-							   CefRefPtr<CefFrame> frame,
-							   const CefString& target_url,
-							   const CefString& target_frame_name,
-							   CefLifeSpanHandler::WindowOpenDisposition target_disposition,
-							   bool user_gesture,
-							   const CefPopupFeatures& popupFeatures,
-							   CefWindowInfo& windowInfo,
-							   CefRefPtr<CefClient>& client,
-							   CefBrowserSettings& settings,
-							   bool* no_javascript_access);
+		virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser, cef_log_severity_t level, const CefString& message,
+									  const CefString& source, int line) override;
 
-	// CefLoadHandler methods:
-	virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-							 CefRefPtr<CefFrame> frame,
-							 ErrorCode errorCode,
-							 const CefString& errorText,
-							 const CefString& failedUrl) OVERRIDE;
+		virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen) override;
 
-	virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-									  bool isLoading,
-									  bool canGoBack,
-									  bool canGoForward) OVERRIDE;
+		// CefLifeSpanHandler methods:
+		virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+		virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
+		virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
-	// CefRenderHandler methods:
-	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-	virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
-								int viewX,
-								int viewY,
-								int& screenX,
-								int& screenY) OVERRIDE;
-	virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-	virtual void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
+		virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+								   const CefString& target_url, const CefString& target_frame_name,
+								   CefLifeSpanHandler::WindowOpenDisposition target_disposition, bool user_gesture,
+								   const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
+								   CefRefPtr<CefClient>& client, CefBrowserSettings& settings,
+								   CefRefPtr<CefDictionaryValue>& extra_info, bool* no_javascript_access) override;
 
-	virtual void OnPaint(CefRefPtr<CefBrowser> browser,
-						 PaintElementType type,
-						 const RectList& dirtyRects,
-						 const void* buffer,
-						 int width, int height) OVERRIDE;
+		// CefLoadHandler methods:
+		virtual void OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, ErrorCode errorCode,
+								 const CefString& errorText, const CefString& failedUrl) override;
 
-	virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-								CefCursorHandle cursor,
-								CursorType type,
-								const CefCursorInfo& custom_cursor_info);
+		virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack,
+										  bool canGoForward) override;
 
-	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
-							   CefRefPtr<CefDragData> drag_data,
-							   DragOperationsMask allowed_ops,
-							   int x, int y) OVERRIDE{
-		return true;
-	}
-	virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
-		const CefString& value);
-	virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
-		FocusSource source);
-	virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser,
-							 bool next);
+		// CefRenderHandler methods:
+		virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+		virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX,
+									int& screenY) override;
+		virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
+		virtual void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
 
-	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
-							const CefKeyEvent& event,
-							CefEventHandle os_event);
+		virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects,
+							 const void* buffer, int width, int height) override;
 
-	// CefGeolocationHandler methods:
-	// returning true allows access immediately
-	virtual bool OnRequestGeolocationPermission(
-		CefRefPtr<CefBrowser> browser,
-		const CefString& requesting_url,
-		int request_id,
-		CefRefPtr<CefGeolocationCallback> callback) {
-		callback->Continue(true);
-		return true;
-	}
+		virtual bool OnCursorChange(CefRefPtr<CefBrowser> browser, HCURSOR cursor, cef_cursor_type_t type,
+									const CefCursorInfo& custom_cursor_info) override;
 
-	// CefJSDialogHandler
-	// TODO: Callback to UI and optionally handle
-	virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser,
-										   const CefString& origin_url,
-										   JSDialogType dialog_type,
-										   const CefString& message_text,
-										   const CefString& default_prompt_text,
-										   CefRefPtr<CefJSDialogCallback> callback,
-										   bool& suppress_message) {
-		suppress_message = true;
-		DS_LOG_INFO("JS Dialog: " << message_text.ToString() << " from: " << origin_url.ToString());
-		return false;
-	}
+		virtual bool StartDragging(CefRefPtr<CefBrowser> browser, CefRefPtr<CefDragData> drag_data,
+								   DragOperationsMask allowed_ops, int x, int y) override {
+			return true;
+		}
 
-	virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-									CefRefPtr<CefFrame> frame,
-									bool isProxy,
-									const CefString& host,
-									int port,
-									const CefString& realm,
-									const CefString& scheme,
-									CefRefPtr<CefAuthCallback> callback) OVERRIDE;
 
-	void					authRequestCancel(const int browserId);
-	void					authRequestContinue(const int browserId, const std::string& username, const std::string& password);
+		virtual void OnVirtualKeyboardRequested(CefRefPtr<CefBrowser> browser, TextInputMode input_mode);
 
-	// Requests the browser to be closed and also clears and related callbacks
-	void					closeBrowser(const int browserId);
+		virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser, const CefString& value) override;
+		virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override;
+		virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override;
 
-	// Adds a callback to a list of callbacks for after browsers are created
-	void 					addCreatedCallback(void * instancePtr, std::function<void(int)> callback);
-	void 					cancelCreation(void * instancePtr);
+		virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event,
+								CefEventHandle os_event) override;
 
-	// See WebCefCallbacks for info
-	void 					addWebCallbacks(const int browserId, ds::web::WebCefCallbacks& callback);
+		// CefContextMenuHandler methods
+		void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+								 CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
+		bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+								  CefRefPtr<CefContextMenuParams> params, int command_id,
+								  EventFlags event_flags) override;
 
-	// Sends some mouse input to the browser
-	void 					sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
+		// CefJSDialogHandler
+		// TODO: Callback to UI and optionally handle
+		virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser, const CefString& origin_url, JSDialogType dialog_type,
+								const CefString& message_text, const CefString& default_prompt_text,
+								CefRefPtr<CefJSDialogCallback> callback, bool& suppress_message) {
+			suppress_message = true;
+			DS_LOG_INFO("JS Dialog: " << message_text.ToString() << " from: " << origin_url.ToString());
+			return false;
+		}
 
-	// Sends some mouse wheel input to the browser
-	void 					sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
+		virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser, const CefString& origin_url, bool isProxy,
+										const CefString& host, int port, const CefString& realm,
+										const CefString& scheme, CefRefPtr<CefAuthCallback> callback) override;
 
-	// Sends a key event to the browser
-	void 					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter);
+		void authRequestCancel(const int browserId);
+		void authRequestContinue(const int browserId, const std::string& username, const std::string& password);
 
-	// Loads a new URL in the specified browser's main frame
-	void 					loadUrl(const int browserId, const std::string& newUrl);
+		// Requests the browser to be closed and also clears and related callbacks
+		void closeBrowser(const int browserId);
 
-	// Execute JavaScript on this browser
-	void 					executeJavascript(const int browserId, const std::string& theJS, const std::string& sourceUrl);
+		// Adds a callback to a list of callbacks for after browsers are created
+		void addCreatedCallback(void* instancePtr, std::function<void(int)> callback);
+		void cancelCreation(void* instancePtr);
 
-	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
-	void 					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
+		// See WebCefCallbacks for info
+		void addWebCallbacks(const int browserId, ds::web::WebCefCallbacks& callback);
 
-	// Regular browser controls
-	void 					goForwards(const int browserId);
-	void 					goBackwards(const int browserId);
-	void 					reload(const int browserId, const bool ignoreCache);
-	void 					stopLoading(const int browserId);
+		// Sends some mouse input to the browser
+		void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state,
+							const int clickCount);
 
-	// Zoom level here is the same as CEF expects: 0.0 = 100% zoom
-	void 					setZoomLevel(const int browserId, const double newZoom);
-	double 					getZoomLevel(const int browserId);
+		// Sends some mouse wheel input to the browser
+		void sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
 
-	// Orphans can be created if the visible instance is released before the browser is created. 
-	// We keep those browsers around to be used the next time a browser is requested
-	bool 					hasOrphans(){ return !mOrphanedBrowsers.empty(); }
-	void 					useOrphan(std::function<void(int)> callback, const std::string startUrl);
+		// Sends a key event to the browser
+		void sendKeyEvent(const int browserId, const int state, int windows_key_code, char character,
+						  const bool shiftDown, const bool cntrlDown, const bool altDown, const bool isCharacter);
 
-	// No browser ID cause cookies are global
-	// Url and cookie name are optional. Will delete all if not specified.
-	void					deleteCookies(const std::string& url, const std::string& cookieName);
+		// Sends a touch event
+		void sendTouchEvent(const int browserId, const int touchId, const int x, const int y, const int phase);
 
-private:
+		// Loads a new URL in the specified browser's main frame
+		void loadUrl(const int browserId, const std::string& newUrl);
 
-	// switch to a map for faster lookup
-	// List of existing browser windows. Only accessed on the CEF UI thread.
-	std::map<int, CefRefPtr<CefBrowser>>				mBrowserList;
+		// Execute JavaScript on this browser
+		void executeJavascript(const int browserId, const std::string& theJS, const std::string& sourceUrl);
 
-	// Track the sizes that we want the browsers to be, since resizing is asynchronous
-	std::map<int, ci::ivec2>							mBrowserSizes;
+		// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual
+		// info
+		void requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 
-	std::map<void *,std::function<void(int)>>			mCreatedCallbacks;
-	std::map<int, ds::web::WebCefCallbacks>				mWebCallbacks;
+		// Regular browser controls
+		void goForwards(const int browserId);
+		void goBackwards(const int browserId);
+		void reload(const int browserId, const bool ignoreCache);
+		void stopLoading(const int browserId);
 
-	std::map<int, CefRefPtr<CefAuthCallback>>			mAuthCallbacks;
+		// Zoom level here is the same as CEF expects: 0.0 = 100% zoom
+		void   setZoomLevel(const int browserId, const double newZoom);
+		double getZoomLevel(const int browserId);
 
-	// Browsers that were created but their instances were removed before they were used
-	std::vector<CefRefPtr<CefBrowser>>					mOrphanedBrowsers;
+		// Orphans can be created if the visible instance is released before the browser is created.
+		// We keep those browsers around to be used the next time a browser is requested
+		bool hasOrphans() { return !mOrphanedBrowsers.empty(); }
+		void useOrphan(std::function<void(int)> callback, const std::string startUrl);
 
-	// The lock is used to ensure stuff that is immediately returned to the main app thread
-	// is synchronized with the rest of CEF
-	base::Lock											mLock;
+		// No browser ID cause cookies are global
+		// Url and cookie name are optional. Will delete all if not specified.
+		void deleteCookies(const std::string& url, const std::string& cookieName);
 
-	// Include the default reference counting implementation.
-	IMPLEMENT_REFCOUNTING(WebHandler);
-};
+	  private:
+		// switch to a map for faster lookup
+		// List of existing browser windows. Only accessed on the CEF UI thread.
+		std::map<int, CefRefPtr<CefBrowser>> mBrowserList;
 
-}
-}
+		// Track the sizes that we want the browsers to be, since resizing is asynchronous
+		std::map<int, ci::ivec2> mBrowserSizes;
 
-#endif  // DS_WEB_PRIVATE_CEF_WEB_HANDLER
+		std::map<void*, std::function<void(int)>> mCreatedCallbacks;
+		std::map<int, ds::web::WebCefCallbacks>	  mWebCallbacks;
+
+		std::map<int, CefRefPtr<CefAuthCallback>> mAuthCallbacks;
+
+		// Browsers that were created but their instances were removed before they were used
+		std::vector<CefRefPtr<CefBrowser>> mOrphanedBrowsers;
+
+		// The lock is used to ensure stuff that is immediately returned to the main app thread
+		// is synchronized with the rest of CEF
+		base::Lock mLock;
+
+		// Include the default reference counting implementation.
+		IMPLEMENT_REFCOUNTING(WebHandler);
+	};
+
+}} // namespace ds::web
+
+#endif // DS_WEB_PRIVATE_CEF_WEB_HANDLER

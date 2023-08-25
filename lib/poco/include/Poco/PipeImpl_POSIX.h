@@ -1,8 +1,6 @@
 //
 // PipeImpl_POSIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/PipeImpl_POSIX.h#1 $
-//
 // Library: Foundation
 // Package: Processes
 // Module:  PipeImpl
@@ -42,7 +40,7 @@ public:
 	Handle writeHandle() const;
 	void closeRead();
 	void closeWrite();
-	
+
 private:
 	int _readfd;
 	int _writefd;

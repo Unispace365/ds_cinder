@@ -14,16 +14,33 @@
 *.pdb
 *.db
 *.opendb
+*.vs
+
+/**/out
 
 lib/platform*.lib
 obj/
-Debug/
-Release/
-logs/
+vs2019/Debug/
+vs2019/Release/
+vs2019/Release_Debug_Info/
+vs2019/logs/
+vs2015/Debug/
+vs2015/Release/
+vs2015/Release_Debug_Info/
+vs2015/logs/
+!lib/yoga/x64/debug
+!lib/yoga/x64/release
+.cache/
+compile_commands.json
+local.sln
 
 /doc/doxygen/generated
 
+vs2015/x64/
+projects/**/x64/
+
 projects/pdf/lib/
+projects/pdf/lib/v*
 projects/physics/lib/
 projects/video/lib/
 projects/web/lib/
@@ -51,12 +68,27 @@ example/simple_video_player/MediaInfo.dll
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
 *GPUCache/
-
+.vs/
+.vscode/
+*.lastcodeanalysissucceeded
 /example/*/bin/
 projects/**/lib*.a
 
-.clang-format
 .fontconfig
 /example/clock_and_weather/settings/3840x2160/app_settings.xml
 /example/clock_and_weather/settings/3840x2160/engine.xml
 /vs2015/platform.sln
+*.db-shm
+*.db-wal
+*/imgui.ini
+
+*.lastcodeanalysissucceeded
+
+projects/dummy_web/lib64/dummy_web.lib
+
+projects/dummy_web/lib64/dummy_web_d.lib
+
+projects/pdf/lib64/v143/pdf_mupdf.lib
+projects/pdf/lib64/v142/pdf_mupdf.lib
+projects/pdf/lib64/v143/pdf_mupdf_d.lib
+projects/pdf/lib64/v142/pdf_mupdf_d.lib

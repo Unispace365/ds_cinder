@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=909e905692875dcd39fc3ffdf819b0ac2c014435$
+// $hash=3853a8b89137fdd6c71bc86f801536517bde7c88$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RESOURCE_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefResourceHandlerCppToC
                                  cef_resource_handler_t> {
  public:
   CefResourceHandlerCppToC();
+  virtual ~CefResourceHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESOURCE_HANDLER_CPPTOC_H_

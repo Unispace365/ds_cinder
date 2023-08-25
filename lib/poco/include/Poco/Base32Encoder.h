@@ -1,8 +1,6 @@
 //
 // Base32Encoder.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Base32Encoder.h#2 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  Base32
@@ -41,7 +39,7 @@ class Foundation_API Base32EncoderBuf: public UnbufferedStreamBuf
 public:
 	Base32EncoderBuf(std::ostream& ostr, bool padding = true);
 	~Base32EncoderBuf();
-	
+
 	int close();
 		/// Closes the stream buffer.
 
@@ -52,9 +50,9 @@ private:
 	int             _groupLength;
 	std::streambuf& _buf;
 	bool		_doPadding;
-	
+
 	static const unsigned char OUT_ENCODING[32];
-	
+
 	friend class Base32DecoderBuf;
 
 	Base32EncoderBuf(const Base32EncoderBuf&);
@@ -90,6 +88,8 @@ class Foundation_API Base32Encoder: public Base32EncoderIOS, public std::ostream
 	/// Always call close() when done
 	/// writing data, to ensure proper
 	/// completion of the encoding operation.
+	///
+	/// The class implements RFC 4648 - https://tools.ietf.org/html/rfc4648
 	///
 	/// Note: The characters are directly written
 	/// to the ostream's streambuf, thus bypassing

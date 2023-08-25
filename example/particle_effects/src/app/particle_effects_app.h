@@ -9,19 +9,18 @@ namespace example {
 class AllData;
 
 class particle_effects_app : public ds::App {
-public:
+  public:
 	particle_effects_app();
 
-	void				setupServer();
+	void setupServer();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event) override;
+	virtual void fileDrop(ci::app::FileDropEvent event) override;
 
-private:
-
+  private:
 	// App events can be handled here
-	ds::EventClient		mEventClient;
+	ds::EventClient mEventClient;
 };
 
-} // !namespace example
+} // namespace example
 
 #endif // !_PARTICLE_EFFECTS_APP_H_

@@ -6,10 +6,10 @@
 #include <ds/thread/gl_thread.h>
 
 namespace ds {
-
 class Engine;
+}
 
-namespace pdf {
+namespace ds::pdf {
 
 /**
  * \class ds::pdf::PdfService
@@ -17,18 +17,17 @@ namespace pdf {
  * PDF rendering thread.
  */
 class Service : public ds::EngineService {
-public:
+  public:
 	Service(ds::Engine& engine);
 	~Service();
 
-	virtual void		start();
+	virtual void start();
 
-	ds::Engine&			mEngine;
+	ds::Engine& mEngine;
 
-	GlThread			mThread;
+	GlThread mThread;
 };
 
-} // namespace ui
-} // namespace ds
+} // namespace ds::pdf
 
 #endif // DS_UI_SPRITE_PDF_H_

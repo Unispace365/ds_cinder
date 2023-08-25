@@ -1,1 +1,5 @@
 projects/web/cef/lib64/debug/libcef_dll_wrapper.lib filter=lfs diff=lfs merge=lfs -text
+projects/web/cef/lib64/runtime/libcef.dll filter=lfs diff=lfs merge=lfs -text
+projects\web\cef\lib64\runtime\libcef.dll filter=lfs diff=lfs merge=lfs -text
+*.lib filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text

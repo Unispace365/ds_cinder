@@ -44,7 +44,7 @@ ContentModel id:0 name:root label:The root of all content
                     prop:id value:2
                     prop:layout value:scroller.xml
                     prop:local_resource value:%APP%/data/images/slides/whynot.png
-                    prop:markdown_file value:%DS_PLATFORM_090%/README.md
+                    prop:markdown_file value:%DS_PLATFORM_093%/README.md
                     prop:resourceid value:0
                     prop:sort_order value:10
                     prop:title value:Environment Setup

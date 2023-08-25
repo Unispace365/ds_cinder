@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,20 +9,24 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c82eeaa3703fd56e40a4d4c0afbe1abd71920c46$
+// $hash=1f351fed26d9a331d9924c893d8b3d52064a1ecf$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefThread> CefThread::CreateThread(
     const CefString& display_name,
     cef_thread_priority_t priority,
     cef_message_loop_type_t message_loop_type,
     bool stoppable,
     cef_com_init_mode_t com_init_mode) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: display_name
@@ -38,10 +42,14 @@ CefRefPtr<CefThread> CefThread::CreateThread(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_task_runner))
-    return NULL;
+  if (CEF_MEMBER_MISSING(_struct, get_task_runner)) {
+    return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -52,10 +60,14 @@ CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
   return CefTaskRunnerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id))
+  if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id)) {
     return kInvalidPlatformThreadId;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -66,10 +78,13 @@ cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
   return _retval;
 }
 
-void CefThreadCToCpp::Stop() {
+NO_SANITIZE("cfi-icall") void CefThreadCToCpp::Stop() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, stop))
+  if (CEF_MEMBER_MISSING(_struct, stop)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -77,10 +92,13 @@ void CefThreadCToCpp::Stop() {
   _struct->stop(_struct);
 }
 
-bool CefThreadCToCpp::IsRunning() {
+NO_SANITIZE("cfi-icall") bool CefThreadCToCpp::IsRunning() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_running))
+  if (CEF_MEMBER_MISSING(_struct, is_running)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -95,21 +113,20 @@ bool CefThreadCToCpp::IsRunning() {
 
 CefThreadCToCpp::CefThreadCToCpp() {}
 
+// DESTRUCTOR - Do not edit by hand.
+
+CefThreadCToCpp::~CefThreadCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
+
 template <>
 cef_thread_t*
 CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::UnwrapDerived(
     CefWrapperType type,
     CefThread* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::

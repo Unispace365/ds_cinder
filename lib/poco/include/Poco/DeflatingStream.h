@@ -1,8 +1,6 @@
 //
 // DeflatingStream.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/DeflatingStream.h#1 $
-//
 // Library: Foundation
 // Package: Streams
 // Module:  ZLibStream
@@ -59,7 +57,7 @@ public:
 		///
 		/// Please refer to the zlib documentation of deflateInit2() for a description
 		/// of the windowBits parameter.
-		
+
 	DeflatingStreamBuf(std::ostream& ostr, StreamType type, int level);
 		/// Creates a DeflatingStreamBuf for compressing data passed
 		/// through and forwarding it to the given output stream.
@@ -70,12 +68,12 @@ public:
 		///
 		/// Please refer to the zlib documentation of deflateInit2() for a description
 		/// of the windowBits parameter.
-		
+
 	~DeflatingStreamBuf();
 		/// Destroys the DeflatingStreamBuf.
-		
+
 	int close();
-		/// Finishes up the stream. 
+		/// Finishes up the stream.
 		///
 		/// Must be called when deflating to an output stream.
 
@@ -85,7 +83,7 @@ protected:
 	virtual int sync();
 
 private:
-	enum 
+	enum
 	{
 		STREAM_BUFFER_SIZE  = 1024,
 		DEFLATE_BUFFER_SIZE = 32768
@@ -130,10 +128,10 @@ public:
 
 	~DeflatingIOS();
 		/// Destroys the DeflatingIOS.
-		
+
 	DeflatingStreamBuf* rdbuf();
 		/// Returns a pointer to the underlying stream buffer.
-		
+
 protected:
 	DeflatingStreamBuf _buf;
 };
@@ -165,9 +163,9 @@ public:
 
 	~DeflatingOutputStream();
 		/// Destroys the DeflatingOutputStream.
-		
+
 	int close();
-		/// Finishes up the stream. 
+		/// Finishes up the stream.
 		///
 		/// Must be called when deflating to an output stream.
 

@@ -13,16 +13,16 @@ in the file COPYING.
 */
 
 #if 0
-#include "pixelPak.h"
 #include "myBox.h"
+#include "pixelPak.h"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
-#include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
 #include <algorithm>
-#include <map>
+#include <boost/foreach.hpp>
 #include <cmath>
+#include <filesystem>
 #include <iostream>
+#include <map>
 
 #include <assert.h>
 #include <json/value.h>

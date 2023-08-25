@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=15d4c929e3597024c17b90ccfba019413d758b9b$
+// $hash=5738293c290214f784a22e3144475247cd4ee3b4$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,15 +24,19 @@ namespace {
 cef_size_t CEF_CALLBACK
 panel_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                   cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -45,15 +50,19 @@ panel_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 panel_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -67,15 +76,19 @@ panel_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 panel_delegate_get_maximum_size(struct _cef_view_delegate_t* self,
                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -90,15 +103,19 @@ int CEF_CALLBACK
 panel_delegate_get_height_for_width(struct _cef_view_delegate_t* self,
                                     cef_view_t* view,
                                     int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -114,19 +131,24 @@ panel_delegate_on_parent_view_changed(struct _cef_view_delegate_t* self,
                                       cef_view_t* view,
                                       int added,
                                       cef_view_t* parent) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
   // Verify param: parent; type: refptr_diff
   DCHECK(parent);
-  if (!parent)
+  if (!parent) {
     return;
+  }
 
   // Execute
   CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
@@ -139,19 +161,24 @@ panel_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                                      cef_view_t* view,
                                      int added,
                                      cef_view_t* child) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
   // Verify param: child; type: refptr_diff
   DCHECK(child);
-  if (!child)
+  if (!child) {
     return;
+  }
 
   // Execute
   CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
@@ -159,17 +186,75 @@ panel_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                            CefViewCToCpp::Wrap(child));
 }
 
-void CEF_CALLBACK panel_delegate_on_focus(struct _cef_view_delegate_t* self,
-                                          cef_view_t* view) {
+void CEF_CALLBACK
+panel_delegate_on_window_changed(struct _cef_view_delegate_t* self,
+                                 cef_view_t* view,
+                                 int added) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
+
+  // Execute
+  CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
+      ->OnWindowChanged(CefViewCToCpp::Wrap(view), added ? true : false);
+}
+
+void CEF_CALLBACK
+panel_delegate_on_layout_changed(struct _cef_view_delegate_t* self,
+                                 cef_view_t* view,
+                                 const cef_rect_t* new_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+  // Verify param: new_bounds; type: simple_byref_const
+  DCHECK(new_bounds);
+  if (!new_bounds) {
+    return;
+  }
+
+  // Translate param: new_bounds; type: simple_byref_const
+  CefRect new_boundsVal = new_bounds ? *new_bounds : CefRect();
+
+  // Execute
+  CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
+      ->OnLayoutChanged(CefViewCToCpp::Wrap(view), new_boundsVal);
+}
+
+void CEF_CALLBACK panel_delegate_on_focus(struct _cef_view_delegate_t* self,
+                                          cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
 
   // Execute
   CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
@@ -178,15 +263,19 @@ void CEF_CALLBACK panel_delegate_on_focus(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK panel_delegate_on_blur(struct _cef_view_delegate_t* self,
                                          cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_diff
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
 
   // Execute
   CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
@@ -206,8 +295,16 @@ CefPanelDelegateCppToC::CefPanelDelegateCppToC() {
       panel_delegate_on_parent_view_changed;
   GetStruct()->base.on_child_view_changed =
       panel_delegate_on_child_view_changed;
+  GetStruct()->base.on_window_changed = panel_delegate_on_window_changed;
+  GetStruct()->base.on_layout_changed = panel_delegate_on_layout_changed;
   GetStruct()->base.on_focus = panel_delegate_on_focus;
   GetStruct()->base.on_blur = panel_delegate_on_blur;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPanelDelegateCppToC::~CefPanelDelegateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>
@@ -221,16 +318,8 @@ CefRefPtr<CefPanelDelegate> CefCppToCRefCounted<
         reinterpret_cast<cef_window_delegate_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefPanelDelegateCppToC,
-                                         CefPanelDelegate,
-                                         cef_panel_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefPanelDelegateCppToC,

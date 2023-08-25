@@ -1,8 +1,6 @@
 //
 // IPAddress.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/IPAddress.h#2 $
-//
 // Library: Net
 // Package: NetCore
 // Module:  IPAddress
@@ -26,6 +24,8 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/Exception.h"
 #include <vector>
+#include <array>
+#include <ostream>
 
 
 namespace Poco {
@@ -43,7 +43,7 @@ class Net_API IPAddress
 	///
 	/// Relational operators (==, !=, <, <=, >, >=) are
 	/// supported. However, you must not interpret any
-	/// special meaning into the result of these 
+	/// special meaning into the result of these
 	/// operations, other than that the results are
 	/// consistent.
 	///
@@ -55,22 +55,32 @@ class Net_API IPAddress
 	/// supports IPv6.
 {
 public:
-	typedef std::vector<IPAddress> List;
+	using List = std::vector<IPAddress>;
 
-	enum Family
-		/// Possible address families for IP addresses.
-	{
-		IPv4 = Poco::Net::Impl::IPAddressImpl::IPv4
-#ifdef POCO_HAVE_IPv6
-		,IPv6 = Poco::Net::Impl::IPAddressImpl::IPv6
+	using RawIP = std::vector<unsigned char>;
+
+	static const unsigned IPv4Size = sizeof(in_addr);
+	static const unsigned IPv6Size = sizeof(in6_addr);
+	using RawIPv4 = std::array<unsigned char, IPv4Size>;
+	using RawIPv6 = std::array<unsigned char, IPv6Size>;
+
+	// The following declarations keep the Family type
+	// backwards compatible with the previously used
+	// enum declaration.
+	using Family = AddressFamily::Family;
+	static const Family IPv4 = AddressFamily::IPv4;
+#if defined(POCO_HAVE_IPv6)
+	static const Family IPv6 = AddressFamily::IPv6;
 #endif
-	};
-	
+
 	IPAddress();
 		/// Creates a wildcard (zero) IPv4 IPAddress.
 
 	IPAddress(const IPAddress& addr);
 		/// Creates an IPAddress by copying another one.
+
+	IPAddress(IPAddress&& addr);
+		/// Creates an IPAddress by moving another one.
 
 	explicit IPAddress(Family family);
 		/// Creates a wildcard (zero) IPAddress for the
@@ -80,7 +90,7 @@ public:
 		/// Creates an IPAddress from the string containing
 		/// an IP address in presentation format (dotted decimal
 		/// for IPv4, hex string for IPv6).
-		/// 
+		///
 		/// Depending on the format of addr, either an IPv4 or
 		/// an IPv6 address is created.
 		///
@@ -95,12 +105,12 @@ public:
 
 	IPAddress(const void* addr, poco_socklen_t length);
 		/// Creates an IPAddress from a native internet address.
-		/// A pointer to a in_addr or a in6_addr structure may be 
+		/// A pointer to a in_addr or a in6_addr structure may be
 		/// passed.
 
 	IPAddress(const void* addr, poco_socklen_t length, Poco::UInt32 scope);
 		/// Creates an IPAddress from a native internet address.
-		/// A pointer to a in_addr or a in6_addr structure may be 
+		/// A pointer to a in_addr or a in6_addr structure may be
 		/// passed. Additionally, for an IPv6 address, a scope ID
 		/// may be specified. The scope ID will be ignored if an IPv4
 		/// address is specified.
@@ -122,7 +132,16 @@ public:
 
 	IPAddress& operator = (const IPAddress& addr);
 		/// Assigns an IPAddress.
-		
+
+	IPAddress& operator = (IPAddress&& addr);
+		/// Move-assigns an IPAddress.
+
+	bool isV4() const;
+	bool isV6() const;
+	RawIPv4 toV4Bytes() const;
+	RawIPv6 toV6Bytes() const;
+	RawIP toBytes() const;
+
 	Family family() const;
 		/// Returns the address family (IPv4 or IPv6) of the address.
 
@@ -140,23 +159,23 @@ public:
 		///
 		/// Textual representation of IPv6 address is one of the following forms:
 		///
-		/// The preferred form is x:x:x:x:x:x:x:x, where the 'x's are the hexadecimal 
+		/// The preferred form is x:x:x:x:x:x:x:x, where the 'x's are the hexadecimal
 		/// values of the eight 16-bit pieces of the address. This is the full form.
 		/// Example: 1080:0:0:0:8:600:200A:425C
 		///
-		/// It is not necessary to write the leading zeros in an individual field. 
+		/// It is not necessary to write the leading zeros in an individual field.
 		/// However, there must be at least one numeral in every field, except as described below.
-		/// 
-		/// It is common for IPv6 addresses to contain long strings of zero bits. 
-		/// In order to make writing addresses containing zero bits easier, a special syntax is 
-		/// available to compress the zeros. The use of "::" indicates multiple groups of 16-bits of zeros. 
-		/// The "::" can only appear once in an address. The "::" can also be used to compress the leading 
+		///
+		/// It is common for IPv6 addresses to contain long strings of zero bits.
+		/// In order to make writing addresses containing zero bits easier, a special syntax is
+		/// available to compress the zeros. The use of "::" indicates multiple groups of 16-bits of zeros.
+		/// The "::" can only appear once in an address. The "::" can also be used to compress the leading
 		/// and/or trailing zeros in an address. Example: 1080::8:600:200A:425C
 		///
 		/// For dealing with IPv4 compatible addresses in a mixed environment,
-		/// a special syntax is available: x:x:x:x:x:x:d.d.d.d, where the 'x's are the 
-		/// hexadecimal values of the six high-order 16-bit pieces of the address, 
-		/// and the 'd's are the decimal values of the four low-order 8-bit pieces of the 
+		/// a special syntax is available: x:x:x:x:x:x:d.d.d.d, where the 'x's are the
+		/// hexadecimal values of the six high-order 16-bit pieces of the address,
+		/// and the 'd's are the decimal values of the four low-order 8-bit pieces of the
 		/// standard IPv4 representation address. Example: ::FFFF:192.168.1.120
 		///
 		/// If an IPv6 address contains a non-zero scope identifier, it is added
@@ -164,11 +183,11 @@ public:
 		/// the numeric value (which specifies an interface index) is directly
 		/// appended. On Unix platforms, the name of the interface corresponding
 		/// to the index (interpretation of the scope identifier) is added.
-	
+
 	bool isWildcard() const;
 		/// Returns true iff the address is a wildcard (all zero)
 		/// address.
-		
+
 	bool isBroadcast() const;
 		/// Returns true iff the address is a broadcast address.
 		///
@@ -176,14 +195,14 @@ public:
 		/// address, all bits are one.
 		///
 		/// For an IPv6 address, returns always false.
-	
+
 	bool isLoopback() const;
 		/// Returns true iff the address is a loopback address.
 		///
 		/// For IPv4, the loopback address is 127.0.0.1.
 		///
 		/// For IPv6, the loopback address is ::1.
-	
+
 	bool isMulticast() const;
 		/// Returns true iff the address is a multicast address.
 		///
@@ -193,13 +212,13 @@ public:
 		///
 		/// IPv6 multicast addresses are in the
 		/// FFxx:x:x:x:x:x:x:x range.
-		
+
 	bool isUnicast() const;
 		/// Returns true iff the address is a unicast address.
 		///
 		/// An address is unicast if it is neither a wildcard,
 		/// broadcast or multicast address.
-		
+
 	bool isLinkLocal() const;
 		/// Returns true iff the address is a link local unicast address.
 		///
@@ -208,18 +227,18 @@ public:
 		///
 		/// IPv6 link local addresses have 1111 1110 10 as the first
 		/// 10 bits, followed by 54 zeros.
-		
+
 	bool isSiteLocal() const;
 		/// Returns true iff the address is a site local unicast address.
 		///
 		/// IPv4 site local addresses are in on of the 10.0.0.0/24,
 		/// 192.168.0.0/16 or 172.16.0.0 to 172.31.255.255 ranges.
 		///
-		/// Originally, IPv6 site-local addresses had FEC0/10 (1111 1110 11) 
-		/// prefix (RFC 4291), followed by 38 zeros. Interfaces using  
+		/// Originally, IPv6 site-local addresses had FEC0/10 (1111 1110 11)
+		/// prefix (RFC 4291), followed by 38 zeros. Interfaces using
 		/// this mask are supported, but obsolete; RFC 4193 prescribes
 		/// fc00::/7 (1111 110) as local unicast prefix.
-		
+
 	bool isIPv4Compatible() const;
 		/// Returns true iff the address is IPv4 compatible.
 		///
@@ -234,16 +253,16 @@ public:
 		/// For IPv4 addresses, this is always true.
 		///
 		/// For IPv6, the address must be in the ::FFFF:x:x range.
-	
+
 	bool isWellKnownMC() const;
 		/// Returns true iff the address is a well-known multicast address.
 		///
-		/// For IPv4, well-known multicast addresses are in the 
+		/// For IPv4, well-known multicast addresses are in the
 		/// 224.0.0.0/8 range.
 		///
-		/// For IPv6, well-known multicast addresses are in the 
+		/// For IPv6, well-known multicast addresses are in the
 		/// FF0x:x:x:x:x:x:x:x range.
-	
+
 	bool isNodeLocalMC() const;
 		/// Returns true iff the address is a node-local multicast address.
 		///
@@ -252,7 +271,7 @@ public:
 		///
 		/// For IPv6, node-local multicast addresses are in the
 		/// FFx1:x:x:x:x:x:x:x range.
-	
+
 	bool isLinkLocalMC() const;
 		/// Returns true iff the address is a link-local multicast address.
 		///
@@ -284,13 +303,13 @@ public:
 	bool isGlobalMC() const;
 		/// Returns true iff the address is a global multicast address.
 		///
-		/// For IPv4, global multicast addresses are in the 
+		/// For IPv4, global multicast addresses are in the
 		/// 224.0.1.0 to 238.255.255.255 range.
 		///
 		/// For IPv6, global multicast addresses are in the
 		/// FFxF:x:x:x:x:x:x:x range.
-	
-	bool operator == (const IPAddress& addr) const;	
+
+	bool operator == (const IPAddress& addr) const;
 	bool operator != (const IPAddress& addr) const;
 	bool operator <  (const IPAddress& addr) const;
 	bool operator <= (const IPAddress& addr) const;
@@ -300,36 +319,36 @@ public:
 	IPAddress operator | (const IPAddress& addr) const;
 	IPAddress operator ^ (const IPAddress& addr) const;
 	IPAddress operator ~ () const;
-		
+
 	poco_socklen_t length() const;
-		/// Returns the length in bytes of the internal socket address structure.	
-		
+		/// Returns the length in bytes of the internal socket address structure.
+
 	const void* addr() const;
 		/// Returns the internal address structure.
-		
+
 	int af() const;
 		/// Returns the address family (AF_INET or AF_INET6) of the address.
 
 	unsigned prefixLength() const;
 		/// Returns the prefix length.
-		
+
 	void mask(const IPAddress& mask);
 		/// Masks the IP address using the given netmask, which is usually
 		/// a IPv4 subnet mask. Only supported for IPv4 addresses.
 		///
 		/// The new address is (address & mask).
-		
+
 	void mask(const IPAddress& mask, const IPAddress& set);
 		/// Masks the IP address using the given netmask, which is usually
 		/// a IPv4 subnet mask. Only supported for IPv4 addresses.
 		///
 		/// The new address is (address & mask) | (set & ~mask).
-		
+
 	static IPAddress parse(const std::string& addr);
 		/// Creates an IPAddress from the string containing
 		/// an IP address in presentation format (dotted decimal
 		/// for IPv4, hex string for IPv6).
-		/// 
+		///
 		/// Depending on the format of addr, either an IPv4 or
 		/// an IPv6 address is created.
 		///
@@ -349,13 +368,13 @@ public:
 
 	static IPAddress wildcard(Family family = IPv4);
 		/// Returns a wildcard IPv4 or IPv6 address (0.0.0.0).
-		
+
 	static IPAddress broadcast();
 		/// Returns a broadcast IPv4 address (255.255.255.255).
 
 	enum
 	{
-		MAX_ADDRESS_LENGTH = 
+		MAX_ADDRESS_LENGTH =
 #if defined(POCO_HAVE_IPv6)
 			sizeof(struct in6_addr)
 #else
@@ -366,150 +385,101 @@ public:
 
 private:
 	typedef Poco::Net::Impl::IPAddressImpl Impl;
-#ifdef POCO_HAVE_ALIGNMENT
-	typedef Impl* Ptr;
-#else
 	typedef Poco::AutoPtr<Impl> Ptr;
-#endif
 
 	Ptr pImpl() const;
+	void newIPv4();
 	void newIPv4(const void* hostAddr);
+	void newIPv4(unsigned prefix);
+#if defined(POCO_HAVE_IPv6)
+	void newIPv6();
 	void newIPv6(const void* hostAddr);
 	void newIPv6(const void* hostAddr, Poco::UInt32 scope);
-	void newIPv4(unsigned prefix);
 	void newIPv6(unsigned prefix);
-	void newIPv4();
-	void newIPv6();
-	void destruct();
-
-#ifdef POCO_HAVE_ALIGNMENT
-	char* storage();
-
-	#ifdef POCO_ENABLE_CPP11
-		static const unsigned sz = sizeof(Poco::Net::Impl::IPv6AddressImpl);
-		typedef std::aligned_storage<sz>::type AlignerType;
-
-		union
-		{
-			char buffer[sz];
-		private:
-			AlignerType aligner;
-		}
-	#else // !POCO_ENABLE_CPP11
-		AlignedCharArrayUnion <Poco::Net::Impl::IPv6AddressImpl>
-	#endif // POCO_ENABLE_CPP11
-		_memory;
-#else // !POCO_HAVE_ALIGNMENT
+	static std::string& compressV6(std::string& v6addr);
+	static std::string trimIPv6(const std::string v6Addr);
+#endif
 	Ptr _pImpl;
-#endif // POCO_HAVE_ALIGNMENT
 };
 
 
 //
 // inlines
 //
-inline void IPAddress::destruct()
+
+inline bool IPAddress::isV4() const
 {
-#ifdef POCO_HAVE_ALIGNMENT
-	pImpl()->~IPAddressImpl();
-#endif
+	return family() == IPv4;
+}
+
+
+inline bool IPAddress::isV6() const
+{
+	return family() == IPv6;
 }
 
 
 inline IPAddress::Ptr IPAddress::pImpl() const
 {
-#ifdef POCO_HAVE_ALIGNMENT
-	return reinterpret_cast<Ptr>(const_cast<char *>(_memory.buffer));
-#else
 	if (_pImpl) return _pImpl;
 	throw NullPointerException("IPaddress implementation pointer is NULL.");
-#endif
-}
-
-
-inline void IPAddress::newIPv4(const void* hostAddr)
-{
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv4AddressImpl(hostAddr);
-#else
-	_pImpl = new Poco::Net::Impl::IPv4AddressImpl(hostAddr);
-#endif
-}
-
-
-inline void IPAddress::newIPv6(const void* hostAddr)
-{
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv6AddressImpl(hostAddr);
-#else
-	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(hostAddr);
-#endif
-}
-
-
-inline void IPAddress::newIPv6(const void* hostAddr, Poco::UInt32 scope)
-{
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv6AddressImpl(hostAddr, scope);
-#else
-	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(hostAddr, scope);
-#endif
-}
-
-
-inline void IPAddress::newIPv4(unsigned prefix)
-{
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv4AddressImpl(prefix);
-#else
-	_pImpl = new Poco::Net::Impl::IPv4AddressImpl(prefix);
-#endif
-}
-
-
-inline void IPAddress::newIPv6(unsigned prefix)
-{
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv6AddressImpl(prefix);
-#else
-	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(prefix);
-#endif
 }
 
 
 inline void IPAddress::newIPv4()
 {
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv4AddressImpl;
-#else
 	_pImpl = new Poco::Net::Impl::IPv4AddressImpl;
-#endif
 }
+
+
+inline void IPAddress::newIPv4(const void* hostAddr)
+{
+	_pImpl = new Poco::Net::Impl::IPv4AddressImpl(hostAddr);
+}
+
+
+inline void IPAddress::newIPv4(unsigned prefix)
+{
+	_pImpl = new Poco::Net::Impl::IPv4AddressImpl(prefix);
+}
+
+
+#if defined(POCO_HAVE_IPv6)
 
 
 inline void IPAddress::newIPv6()
 {
-#ifdef POCO_HAVE_ALIGNMENT
-	new (storage()) Poco::Net::Impl::IPv6AddressImpl;
-#else
 	_pImpl = new Poco::Net::Impl::IPv6AddressImpl;
-#endif
 }
 
 
-#ifdef POCO_HAVE_ALIGNMENT
-inline char* IPAddress::storage()
+inline void IPAddress::newIPv6(const void* hostAddr)
 {
-	return _memory.buffer;
+	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(hostAddr);
 }
-#endif
 
 
-BinaryWriter& operator << (BinaryWriter& writer, const IPAddress& value);
-BinaryReader& operator >> (BinaryReader& reader, IPAddress& value);
+inline void IPAddress::newIPv6(const void* hostAddr, Poco::UInt32 scope)
+{
+	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(hostAddr, scope);
+}
+
+
+inline void IPAddress::newIPv6(unsigned prefix)
+{
+	_pImpl = new Poco::Net::Impl::IPv6AddressImpl(prefix);
+}
+
+
+#endif // POCO_HAVE_IPv6
 
 
 } } // namespace Poco::Net
+
+
+Net_API Poco::BinaryWriter& operator << (Poco::BinaryWriter& writer, const Poco::Net::IPAddress& value);
+Net_API Poco::BinaryReader& operator >> (Poco::BinaryReader& reader, Poco::Net::IPAddress& value);
+Net_API std::ostream& operator << (std::ostream& ostr, const Poco::Net::IPAddress& addr);
 
 
 #endif // Net_IPAddress_INCLUDED

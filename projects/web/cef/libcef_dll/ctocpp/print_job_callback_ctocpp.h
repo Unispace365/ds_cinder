@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4e509d2e658e168c9d498572b98273d2bddeec9d$
+// $hash=6ac2e8d5475582b66e40e297b192bdbdc8acbeed$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_JOB_CALLBACK_CTOCPP_H_
@@ -32,9 +32,10 @@ class CefPrintJobCallbackCToCpp
                                  cef_print_job_callback_t> {
  public:
   CefPrintJobCallbackCToCpp();
+  virtual ~CefPrintJobCallbackCToCpp();
 
   // CefPrintJobCallback methods.
-  void Continue() OVERRIDE;
+  void Continue() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_JOB_CALLBACK_CTOCPP_H_

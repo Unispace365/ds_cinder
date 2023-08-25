@@ -35,27 +35,31 @@ class Environment;
  * specified in the app settings.
  */
 class EngineSettings : public ds::cfg::Settings {
-public:
+  public:
 	EngineSettings();
 
-	void							printStartupInfo();
-	bool							getUsingDefault() const { return !mLoadedAnySettings; };
-	static const std::string&		getConfigurationFolder();
-	static const std::string&		envProjectPath();
-	void							loadInitialSettings();
+	void printStartupInfo();
+	bool getUsingDefault() const { return !mLoadedAnySettings; };
 
-private:
+	/// anything set here during runtime will override any startup arguments or configuration.xml settings
+	/// note that this does not have an immediate effect - an app soft restart is required
+	static void				  setConfigurationOverride(std::string overrideFolder);
+	static const std::string& getConfigurationFolder();
+	static const std::string& envProjectPath();
+	void					  loadInitialSettings();
+
+  private:
 	friend class Environment;
 	friend class EngineCfg;
 	/// Answer the configuration.xml if it exists.
-	const ds::cfg::Settings&		getConfiguration();
+	const ds::cfg::Settings& getConfiguration();
 
-	void							setDefaults();
+	void setDefaults();
 
-	ds::cfg::Settings				mConfiguration;
+	ds::cfg::Settings mConfiguration;
 
-	bool							mLoadedAnySettings;
-	std::stringstream				mStartupInfo;
+	bool			  mLoadedAnySettings;
+	std::stringstream mStartupInfo;
 };
 
 } // namespace ds
