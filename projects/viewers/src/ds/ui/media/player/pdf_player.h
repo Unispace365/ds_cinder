@@ -101,6 +101,7 @@ class PDFPlayer : public ds::ui::IPdf {
 	bool		  mLetterbox;
 	bool		  mShowingLinks = false;
 	bool		  mCanShowLinks = true;
+	bool		  mLoopPages	= true;
 
 	std::function<void(void)>				mPageChangeCallback;
 	std::function<void(void)>				mGoodStatusCallback;

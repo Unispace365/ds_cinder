@@ -311,6 +311,7 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	mInterfaceBelowMedia = settings.mInterfaceBelowMedia;
 	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
 	mCanShowLinks		 = settings.mPdfCanShowLinks;
+	mLoopPages			 = settings.mPdfLoop;
 	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }
 
@@ -383,13 +384,25 @@ int PDFPlayer::getPageCount() const {
 
 void PDFPlayer::nextPage() {
 	mCurrentPage++;
-	if (mCurrentPage > mNumPages) mCurrentPage = 1;
+	if (mCurrentPage > mNumPages) {
+		if(mLoopPages){
+			mCurrentPage = 1; 
+		}else{
+			mCurrentPage = mNumPages;
+		}
+	}
 	setPageNum(mCurrentPage);
 }
 
 void PDFPlayer::prevPage() {
 	mCurrentPage--;
-	if (mCurrentPage < 1) mCurrentPage = mNumPages;
+	if (mCurrentPage < 1) {
+		if(mLoopPages){
+			mCurrentPage = mNumPages; 
+		}else{
+			mCurrentPage = 1;
+		}
+	}
 	setPageNum(mCurrentPage);
 }
 

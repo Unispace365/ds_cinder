@@ -33,6 +33,7 @@ struct MediaViewerSettings {
 	  , mCacheImages(false)
 	  , mMipMapImages(true)
 	  , mPdfCanShowLinks(true)
+	  , mPdfLoop(true)
 	  , mVideoPanning(0.0f)
 	  , mVideoVolume(1.0f)
 	  , mVideoAutoSync(true)
@@ -105,6 +106,9 @@ struct MediaViewerSettings {
 
 	/// When the PDF gets touch-toggled, show any internal PDF links. default = true
 	bool mPdfCanShowLinks;
+
+	/// Should the PDF loop or stop on last page
+	bool mPdfLoop;
 
 	/// Called back when a PDF link is tapped
 	std::function<void(ds::pdf::PdfLinkInfo)> mPdfLinkTappedCallback;
