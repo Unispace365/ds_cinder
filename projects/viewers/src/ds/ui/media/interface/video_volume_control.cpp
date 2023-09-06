@@ -57,13 +57,16 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
 		setSize(mTheSize * 2.f, mTheSize);
+		const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 		// Slider is made up of 3 parts:
 		// 'mute' - Button to toggle between muted / unmuted
 		// 'track' - the background of the slider showing it's overall length
 		// 'fill' - the filled portion of the slider
 		// 'nub' - the visual handle at the current slider position
 		mSliderSprites.mMuteButton =
-			new ds::ui::ImageButton(mEngine, mVolumeHighImage, mMuteImage, (mTheSize - mButtHeight) / 2.0f);
+			new ds::ui::ImageButton(mEngine, "", "", (mTheSize - mButtHeight) / 2.0f);
+		mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
+		mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
 		mSliderSprites.mMuteButton->setScale((mTheSize - (mButtHeight * 0.5f)) /
 											 mSliderSprites.mMuteButton->getHeight());
 		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
