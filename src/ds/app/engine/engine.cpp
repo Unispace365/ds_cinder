@@ -1397,6 +1397,7 @@ void Engine::resetIdleTimeout() {
 	for (size_t i = 0; i < numRoots - 1; i++) {
 		// don't clear the last root, which is the debug draw
 		if (getRootBuilder(i).mDebugDraw) continue;
+		getRootSprite(i).setSecondBeforeIdle(mData.mIdleTimeout);
 		getRootSprite(i).resetIdleTimer();
 	}
 
