@@ -1226,7 +1226,22 @@ bool Text::measurePangoText() {
 			mPixelHeight = std::max(extentRect.height, inkRect.height);
 
 			// Adjust size and render offset when trimming white space
-			if (mTrimWhiteSpace) mRenderOffset -= ci::vec2(inkRect.x, inkRect.y);
+			if (mTrimWhiteSpace) {
+				switch (mStyle.mAlignment) {
+				case Alignment::kCenter:
+					mRenderOffset -=
+						ci::vec2(inkRect.x + inkRect.width / 2 - (extentRect.x + extentRect.width / 2), inkRect.y);
+					break;
+				case Alignment::kRight:
+					mRenderOffset -= ci::vec2(inkRect.x + inkRect.width - (extentRect.x + extentRect.width), inkRect.y);
+					break;
+				case Alignment::kLeft:
+				case Alignment::kJustify:
+					mRenderOffset -= ci::vec2(inkRect.x, inkRect.y);
+					break;
+				}
+			}
+
 			const auto pixelWidth  = float(mTrimWhiteSpace ? inkRect.width : mPixelWidth);
 			const auto pixelHeight = float(mTrimWhiteSpace ? inkRect.height : mPixelHeight);
 
