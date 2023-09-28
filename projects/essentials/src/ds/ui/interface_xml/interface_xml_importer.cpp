@@ -884,6 +884,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
+		propertyMap["trim_white_space"] = [](const SprProps& p) {
+			auto text = dynamic_cast<Text*>(&p.sprite);
+			if (text) {
+				text->setTrimWhiteSpace(parseBoolean(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
 		propertyMap["shrink_to_bounds"] = [](const SprProps& p) {
 			auto text = dynamic_cast<Text*>(&p.sprite);
 			if (text) {

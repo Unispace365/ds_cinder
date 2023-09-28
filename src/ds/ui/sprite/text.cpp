@@ -141,6 +141,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
   , mProbablyHasMarkup(false)
   , mAllowMarkup(true)
   , mPreserveSpanColors(false)
+  , mTrimWhiteSpace(false)
   , mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
   , mWrapMode(WrapMode::kWrapModeWordChar)
   , mEngineFontScale(4.0 / 3.0)
@@ -655,6 +656,14 @@ void Text::setPreserveSpanColors(const bool preserve) {
 		mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	}
 	mSpriteShader.loadShaders();
+}
+
+void Text::setTrimWhiteSpace(const bool trim) {
+	if (mTrimWhiteSpace != trim) {
+		mTrimWhiteSpace = trim;
+		mNeedsMeasuring = true;
+		markAsDirty(LAYOUT_DIRTY);
+	}
 }
 
 void Text::onUpdateClient(const UpdateParams&) {
@@ -1216,16 +1225,36 @@ bool Text::measurePangoText() {
 			mPixelWidth	 = std::max(extentRect.width, inkRect.width);
 			mPixelHeight = std::max(extentRect.height, inkRect.height);
 
+			// Adjust size and render offset when trimming white space
+			if (mTrimWhiteSpace) {
+				switch (mStyle.mAlignment) {
+				case Alignment::kCenter:
+					mRenderOffset -=
+						ci::vec2(inkRect.x + inkRect.width / 2 - (extentRect.x + extentRect.width / 2), inkRect.y);
+					break;
+				case Alignment::kRight:
+					mRenderOffset -= ci::vec2(inkRect.x + inkRect.width - (extentRect.x + extentRect.width), inkRect.y);
+					break;
+				case Alignment::kLeft:
+				case Alignment::kJustify:
+					mRenderOffset -= ci::vec2(inkRect.x, inkRect.y);
+					break;
+				}
+			}
+
+			const auto pixelWidth  = float(mTrimWhiteSpace ? inkRect.width : mPixelWidth);
+			const auto pixelHeight = float(mTrimWhiteSpace ? inkRect.height : mPixelHeight);
+
 			// This is required to not break combinations of layout align & text align
 			if (extentRect.width < (int)mResizeLimitWidth) {
 				if (!mShrinkToBounds) {
-					setSize(mResizeLimitWidth, (float)mPixelHeight);
+					setSize(mResizeLimitWidth, pixelHeight);
 				} else {
 					mRenderOffset.x -= extentRect.x;
-					setSize((float)mPixelWidth, (float)mPixelHeight);
+					setSize(pixelWidth, pixelHeight);
 				}
 			} else {
-				setSize((float)mPixelWidth, (float)mPixelHeight);
+				setSize(pixelWidth, pixelHeight);
 			}
 			YGNodeMarkDirty(mYogaNode);
 

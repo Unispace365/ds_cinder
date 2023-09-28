@@ -383,6 +383,7 @@ Text Parameters
     2. "center": Center-aligns the layout.
     3. "right": Align rows of text to the right side of the resize_limit
 * **shrink_to_bounds**: If text has 'resize_limit' set, this will set the sprite size to the size of the text texture, rather than the full resize_limit.
+* **trim_white_space**: If trim_white_space is true, the origin and size of the text is measured from the actual pixels, instead of the logical layout. The effect will be that all white space around the text is trimmed. This is useful if you want fine control over the amount of padding around the text.
 * **text_model_format**: Allows combining of plain text, data from a content model, and text
 	post-processing functions. Requires being in a smart layout, and having setContentModel called.
 	See [ContentModel & SmartLayout](#ContentModel-&-SmartLayout) below for more details.

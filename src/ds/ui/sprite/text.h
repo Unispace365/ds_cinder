@@ -185,6 +185,13 @@ class Text : public ds::ui::Sprite {
 	/// Gets the height of the sprite, based on the actual render height of the text if shrink to bounds is on
 	virtual float getHeight() const override;
 
+	/// Returns the actual render width of the text
+	int getPixelWidth() const { return mPixelWidth; }
+	/// Returns the actual render height of the text
+	int getPixelHeight() const { return mPixelHeight; }
+	/// Returns the actual render size of the text
+	ci::ivec2 getPixelSize() const { return {mPixelWidth, mPixelHeight}; }
+
 	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true.
 	/// otherwise false
 	bool getTextWrapped();
@@ -227,6 +234,12 @@ class Text : public ds::ui::Sprite {
 	/// The default is that this is false, which renders text a little more cleanly.
 	void	   setPreserveSpanColors(const bool preserve);
 	const bool getPreserveSpanColors() { return mPreserveSpanColors; }
+
+	/// By default, text is rendered using appropriate white space around the text.
+	///	Some layouts, however, required precise control over white space. This method allows
+	///	you to adjust the text's size and render offset, effectively trimming all white space.
+	void setTrimWhiteSpace(bool trim);
+	const bool getTrimWhiteSpace() { return mTrimWhiteSpace; }
 
 	/// Text is rendered into this texture
 	/// Note: this texture has pre-multiplied alpha
@@ -289,6 +302,7 @@ class Text : public ds::ui::Sprite {
 
 	/// Rendering options
 	bool		  mPreserveSpanColors;
+	bool		  mTrimWhiteSpace;
 	EllipsizeMode mEllipsizeMode;
 	WrapMode	  mWrapMode;
 	double		  mEngineFontScale;
