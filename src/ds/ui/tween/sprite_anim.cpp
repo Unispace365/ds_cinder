@@ -97,6 +97,14 @@ namespace ds { namespace ui {
 		return ANIM;
 	}
 
+	const SpriteAnim<ci::vec3>& SpriteAnimatable::ANIM_CUSTOM() {
+		static ds::ui::SpriteAnim<ci::vec3> ANIM(
+			[](ds::ui::Sprite& s) -> ci::Anim<ci::vec3>& { return s.mAnimCustom; },
+			[](ds::ui::Sprite& s) -> ci::vec3 { return s.getCustom(); },
+			[](const ci::vec3& v, ds::ui::Sprite& s) { s.setCustom(v); });
+		return ANIM;
+	}
+
 	const SpriteAnim<float>& SpriteAnimatable::ANIM_NORMALIZED() {
 		static ds::ui::SpriteAnim<float> ANIM(
 			[](ds::ui::Sprite& s) -> ci::Anim<float>& {
@@ -161,9 +169,18 @@ namespace ds { namespace ui {
 		mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 	}
 
+	void SpriteAnimatable::tweenCustom(const ci::vec3& value, const float duration, const float delay,
+									   const ci::EaseFn& ease, const std::function<void()>& finishFn,
+									   const std::function<void()>& updateFn) {
+		animCustomStop();
+		auto options =
+			mEngine.getTweenline().apply(mOwner, ANIM_CUSTOM(), value, duration, ease, finishFn, delay, updateFn);
+		mInternalCustomCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
+	}
+
 	void SpriteAnimatable::tweenNormalized(const float duration, const float delay, const ci::EaseFn& ease,
-										   const std::function<void(void)>& finishFn,
-										   const std::function<void(void)>& updateFn) {
+	                                       const std::function<void(void)>& finishFn,
+	                                       const std::function<void(void)>& updateFn) {
 		animNormalizedStop();
 		auto options =
 			mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
@@ -178,6 +195,19 @@ namespace ds { namespace ui {
 				mOwner.setColor(mInternalColorCinderTweenRef->getEndValue());
 				if (callFinishFunction) {
 					auto finishFunc = mInternalColorCinderTweenRef->getFinishFn();
+					if (finishFunc) finishFunc();
+				}
+			}
+		}
+	}
+
+	void SpriteAnimatable::completeTweenCustom(const bool callFinishFunction) {
+		if (mInternalCustomCinderTweenRef) {
+			if (getCustomTweenIsRunning()) {
+				mAnimCustom.stop();
+				mOwner.setCustom(mInternalCustomCinderTweenRef->getEndValue());
+				if (callFinishFunction) {
+					auto finishFunc = mInternalCustomCinderTweenRef->getFinishFn();
 					if (finishFunc) finishFunc();
 				}
 			}
@@ -285,6 +315,11 @@ namespace ds { namespace ui {
 	const bool SpriteAnimatable::getColorTweenIsRunning() {
 		return (mInternalColorCinderTweenRef && !mAnimColor.isComplete());
 	}
+
+	const bool SpriteAnimatable::getCustomTweenIsRunning() {
+		return (mInternalCustomCinderTweenRef && !mAnimCustom.isComplete());
+	}
+
 	const bool SpriteAnimatable::getNormalizeTweenIsRunning() {
 		return (mInternalNormalizedCinderTweenRef && !mAnimNormalized.isComplete());
 	}
@@ -336,6 +371,11 @@ namespace ds { namespace ui {
 	void SpriteAnimatable::animColorStop() {
 		mAnimColor.stop();
 		mInternalColorCinderTweenRef = nullptr;
+	}
+
+	void SpriteAnimatable::animCustomStop() {
+		mAnimCustom.stop();
+		mInternalCustomCinderTweenRef = nullptr;
 	}
 
 	void SpriteAnimatable::animNormalizedStop() {
@@ -405,6 +445,7 @@ namespace ds { namespace ui {
 		mAnimateOnScaleTarget	 = mOwner.getScale();
 		mAnimateOnPositionTarget = mOwner.getPosition();
 		mAnimateOnOpacityTarget	 = mOwner.getOpacity();
+		mAnimateOnCustomTarget   = mOwner.getCustom();
 	}
 
 	void SpriteAnimatable::setAnimateOnTargetsIfNeeded() {
@@ -583,6 +624,10 @@ namespace ds { namespace ui {
 						mOwner.setScale(mAnimateOnScaleTarget + dest);
 					}
 					tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
+				} else if (animType == "custom") {
+					setAnimateOnTargetsIfNeeded();
+					mOwner.setCustom( dest );
+					tweenCustom( mAnimateOnCustomTarget, dur, delayey, easing);
 				}
 			} else {
 				if (animType == "slide") {
@@ -607,6 +652,10 @@ namespace ds { namespace ui {
 					} else {
 						tweenScale(mAnimateOnScaleTarget + dest, dur, delayey, easing);
 					}
+				} else if (animType == "custom") {
+					// setAnimateOnTargetsIfNeeded();
+					mOwner.setCustom( mAnimateOnCustomTarget );
+					tweenCustom( dest, dur, delayey, easing);
 				}
 			}
 		}

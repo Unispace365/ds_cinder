@@ -203,6 +203,9 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setTransparent(false);
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
+
+	// Using custom animation data for a typewriter effect. Defaults to 100%.
+	setCustom( ci::vec3(1) );
 }
 
 Text::~Text() {
@@ -529,6 +532,15 @@ void Text::setFlexboxAutoSizes() {
 }
 
 void Text::drawLocalClient() {
+	// Perform typewriter effect if enabled.
+	if (getCustomTweenIsRunning() && !mProbablyHasMarkup) {
+		int length = int(round(mProcessedText.length() * getCustom().x)); // Performs typewriter animation.
+		pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), /*-1*/ length);
+
+		mNeedsTextRender = true;
+		renderPangoText();
+	}
+
 	if (mTexture && !mText.empty()) {
 		ci::gl::color(mStyle.mColor.r, mStyle.mColor.g, mStyle.mColor.b, mDrawOpacity);
 		ci::gl::ScopedTextureBind scopedTexture(mTexture);
@@ -1151,6 +1163,7 @@ bool Text::measurePangoText() {
 					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(),
 											static_cast<int>(mProcessedText.size()));
 				}
+
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 
