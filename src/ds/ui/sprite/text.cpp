@@ -205,7 +205,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 
 	// Using custom animation data for a typewriter effect. Defaults to 100%.
-	setCustom( ci::vec3(1) );
+	setCustom(ci::vec3(1));
 }
 
 Text::~Text() {
@@ -532,15 +532,6 @@ void Text::setFlexboxAutoSizes() {
 }
 
 void Text::drawLocalClient() {
-	// Perform typewriter effect if enabled.
-	if (getCustomTweenIsRunning() && !mProbablyHasMarkup) {
-		int length = int(round(mProcessedText.length() * getCustom().x)); // Performs typewriter animation.
-		pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), /*-1*/ length);
-
-		mNeedsTextRender = true;
-		renderPangoText();
-	}
-
 	if (mTexture && !mText.empty()) {
 		ci::gl::color(mStyle.mColor.r, mStyle.mColor.g, mStyle.mColor.b, mDrawOpacity);
 		ci::gl::ScopedTextureBind scopedTexture(mTexture);
@@ -549,14 +540,37 @@ void Text::drawLocalClient() {
 		ci::gl::translate(mRenderOffset);
 
 		if (mRenderBatch) {
-			mRenderBatch->draw();
+			if (getCustomTweenIsRunning()) {
+				ci::gl::ScopedGlslProg scopedGlsl(mRenderBatch->getGlslProg());
+				ci::gl::begin(GL_TRIANGLE_STRIP);
+				ci::gl::texCoord(0, 1);
+				ci::gl::vertex(0, 0);
+				ci::gl::texCoord(getCustom().x, 1);
+				ci::gl::vertex(getCustom().x * mTexture->getWidth(), 0);
+				ci::gl::texCoord(0, 0);
+				ci::gl::vertex(0, mTexture->getHeight());
+				ci::gl::texCoord(getCustom().x, 0);
+				ci::gl::vertex(getCustom().x * mTexture->getWidth(), mTexture->getHeight());
+				ci::gl::end();
+			} else
+				mRenderBatch->draw();
 		} else {
-			if (getPerspective()) {
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()),
-												static_cast<float>(mTexture->getWidth()), 0.0f));
+			ci::Rectf bounds = mTexture->getBounds();
+			if (getCustomTweenIsRunning()) { // UNTESTED
+				ci::gl::begin(GL_TRIANGLE_STRIP);
+				ci::gl::texCoord(0, 1);
+				ci::gl::vertex(0, 0);
+				ci::gl::texCoord(getCustom().x, 1);
+				ci::gl::vertex(getCustom().x * bounds.getWidth(), 0);
+				ci::gl::texCoord(0, 0);
+				ci::gl::vertex(0, bounds.getHeight());
+				ci::gl::texCoord(getCustom().x, 0);
+				ci::gl::vertex(getCustom().x * bounds.getWidth(), bounds.getHeight());
+				ci::gl::end();
+			} else if (getPerspective()) {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, bounds.getHeight(), bounds.getWidth(), 0.0f));
 			} else {
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()),
-												static_cast<float>(mTexture->getHeight())));
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, bounds.getWidth(), bounds.getHeight()));
 			}
 		}
 		if (mFitToResizeLimit && mEngine.getEngineSettings().getBool("font:debug_fit_to_resize", 0)) {
@@ -619,13 +633,13 @@ ci::Rectf Text::getRectForCharacterIndex(const int characterIndex) {
 	return outputRect;
 }
 
-float Text::getBaseline(){
+float Text::getBaseline() {
 	measurePangoText();
 
 	if (mPangoLayout && !mText.empty()) {
 		int baseline = pango_layout_get_baseline(mPangoLayout);
 		return float(baseline) / float(PANGO_SCALE);
-	}else{
+	} else {
 		return 0.f;
 	}
 
