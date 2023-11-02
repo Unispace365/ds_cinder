@@ -542,16 +542,37 @@ void Text::drawLocalClient() {
 		if (mRenderBatch) {
 			if (getCustomTweenIsRunning()) {
 				ci::gl::ScopedGlslProg scopedGlsl(mRenderBatch->getGlslProg());
-				ci::gl::begin(GL_TRIANGLE_STRIP);
-				ci::gl::texCoord(0, 1);
-				ci::gl::vertex(0, 0);
-				ci::gl::texCoord(getCustom().x, 1);
-				ci::gl::vertex(getCustom().x * mTexture->getWidth(), 0);
-				ci::gl::texCoord(0, 0);
-				ci::gl::vertex(0, mTexture->getHeight());
-				ci::gl::texCoord(getCustom().x, 0);
-				ci::gl::vertex(getCustom().x * mTexture->getWidth(), mTexture->getHeight());
-				ci::gl::end();
+
+				// Render only part of each line.
+				const auto numLines = getNumberOfLines();
+				if (numLines > 0) {
+					const float durationPerLine = 1.0f / numLines;
+					const float lineHeight		= mTexture->getHeight() / numLines;
+
+					for (int i = 0; i < numLines; ++i) {
+						const float t = glm::clamp((getCustom().x - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
+
+						const float vx0 = 0;
+						const float vx1 = t * float(mTexture->getWidth());
+						const float vy0 = float(i) * lineHeight;
+						const float vy1 = float(i + 1) * lineHeight;
+						const float tx0 = 0;
+						const float tx1 = t;
+						const float ty0 = 1.0f - float(i) / float(numLines);
+						const float ty1 = 1.0f - float(i + 1) / float(numLines);
+
+						ci::gl::begin(GL_TRIANGLE_STRIP);
+						ci::gl::texCoord(tx0, ty0);
+						ci::gl::vertex(vx0, vy0);
+						ci::gl::texCoord(tx1, ty0);
+						ci::gl::vertex(vx1, vy0);
+						ci::gl::texCoord(tx0, ty1);
+						ci::gl::vertex(vx0, vy1);
+						ci::gl::texCoord(tx1, ty1);
+						ci::gl::vertex(vx1, vy1);
+						ci::gl::end();
+					}
+				}
 			} else
 				mRenderBatch->draw();
 		} else {
