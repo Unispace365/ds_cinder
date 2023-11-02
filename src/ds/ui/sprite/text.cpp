@@ -550,16 +550,19 @@ void Text::drawLocalClient() {
 					const float lineHeight		= mTexture->getHeight() / numLines;
 
 					for (int i = 0; i < numLines; ++i) {
-						const float t = glm::clamp((getCustom().x - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
+						float t = glm::clamp((getCustom().x - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
+						t		= ci::easeInOutSine(t);
+
+						float vy0;
+						float vy1;
+						getLineRange(i, vy0, vy1);
 
 						const float vx0 = 0;
 						const float vx1 = t * float(mTexture->getWidth());
-						const float vy0 = float(i) * lineHeight;
-						const float vy1 = float(i + 1) * lineHeight;
 						const float tx0 = 0;
 						const float tx1 = t;
-						const float ty0 = 1.0f - float(i) / float(numLines);
-						const float ty1 = 1.0f - float(i + 1) / float(numLines);
+						const float ty0 = 1.0f - vy0 / float(mTexture->getHeight());
+						const float ty1 = 1.0f - vy1 / float(mTexture->getHeight());
 
 						ci::gl::begin(GL_TRIANGLE_STRIP);
 						ci::gl::texCoord(tx0, ty0);
@@ -678,6 +681,37 @@ int Text::getNumberOfLines() {
 	return mNumberOfLines;
 }
 
+float Text::getBaseLine(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoLayoutIter* iter = pango_layout_get_iter(mPangoLayout);
+	for (int i = 0; i < index && !pango_layout_iter_at_last_line(iter); ++i)
+		pango_layout_iter_next_line(iter);
+	int baseLine = pango_layout_iter_get_baseline(iter);
+
+	pango_layout_iter_free(iter);
+
+	return float(baseLine) / (float)PANGO_SCALE;
+}
+
+void Text::getLineRange(int index, float& y0, float& y1) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoLayoutIter* iter = pango_layout_get_iter(mPangoLayout);
+	for (int i = 0; i < index && !pango_layout_iter_at_last_line(iter); ++i)
+		pango_layout_iter_next_line(iter);
+
+	int _y0;
+	int _y1;
+	pango_layout_iter_get_line_yrange(iter, &_y0, &_y1);
+
+	pango_layout_iter_free(iter);
+
+	y0 = float(_y0) / (float)PANGO_SCALE;
+	y1 = float(_y1) / (float)PANGO_SCALE;
+}
 
 bool Text::getHasLists() {
 	measurePangoText();
