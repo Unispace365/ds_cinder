@@ -150,6 +150,10 @@ namespace ui {
 
 		/** Gets the SpriteEngine that was passed to this Sprite upon construction.
 			\return The app's SpriteEngine.		*/
+		const ds::ui::SpriteEngine& getEngine() const { return mEngine; }
+
+		/** Gets the SpriteEngine that was passed to this Sprite upon construction.
+			\return The app's SpriteEngine.		*/
 		ds::ui::SpriteEngine& getEngine() { return mEngine; }
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
@@ -346,6 +350,14 @@ namespace ui {
 		/** Get the rotation around all 3 axis'es, in degrees.
 			\return 3d vector of the current rotation, in degrees.*/
 		ci::vec3 getRotation() const;
+
+		/** Sets (animated) custom values as a vec3, to be used by derived classes.
+		    \param 3d vector of custom values. */
+		void setCustom( const ci::vec3 &values );
+
+		/** Returns (animated) custom values as a vec3, to be used by derived classes.
+		    \return 3d vector. */
+		const ci::vec3 &getCustom() const;
 
 		/** Get the rectangle that contains this sprite, in Parent's local space.
 			Includes all transformation, including scale and rotation.
@@ -881,6 +893,7 @@ namespace ui {
 		bool	  mRotationOrderZYX;
 		float	  mOpacity;
 		ci::Color mColor;
+		ci::vec3  mCustom;
 		ci::Rectf mClippingBounds;
 		bool	  mClippingBoundsDirty;
 

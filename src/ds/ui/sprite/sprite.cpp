@@ -646,6 +646,14 @@ ci::vec3 Sprite::getRotation() const {
 	return mRotation;
 }
 
+void Sprite::setCustom(const ci::vec3& values) {
+	mCustom = values;
+}
+
+const ci::vec3 &Sprite::getCustom() const {
+	return mCustom;
+}
+
 namespace {
 	inline float min(const float a, const float b) {
 		return a <= b ? a : b;

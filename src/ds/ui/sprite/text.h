@@ -199,6 +199,11 @@ class Text : public ds::ui::Sprite {
 	/// The number of lines in the text layout
 	int getNumberOfLines();
 
+	/// Returns the base line position in pixels of the line with the specified \a index (0-based).
+	float getBaseLine( int index );
+	/// Returns the vertical range of the line with the specified \a index (0-based).
+	void getLineRange( int index, float &y0, float &y1 );
+
 	/// If an ordered or unordered list was detected in the current text
 	bool getHasLists();
 
