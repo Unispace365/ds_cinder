@@ -147,7 +147,6 @@ class Resource {
 
 	ci::Rectf getCrop() const { return ci::Rectf(mCropX, mCropY, mCropX + mCropW, mCropY + mCropH); }
 	void	  setCrop(const ci::Rectf cropRect) {
-		 ci::Rectf myRect = ci::Rectf(1.f, 2.f, 3.f, 4.f);
 		 mCropX			  = cropRect.getX1();
 		 mCropY			  = cropRect.getY1();
 		 mCropW			  = cropRect.getWidth();

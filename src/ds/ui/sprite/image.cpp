@@ -503,6 +503,8 @@ void Image::onBuildRenderBatch() {
 			ur = crop.getUpperRight();
 			lr = crop.getLowerRight();
 			ll = crop.getLowerLeft();
+
+			//drawRect = ci::Rectf()
 		}
 		auto theGeom = ci::geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
 		if (mRenderBatch) {
@@ -520,19 +522,15 @@ void Image::doOnImageLoaded() {
 										 static_cast<float>(mTextureRef->getWidth()), 0.0f);
 
 
-			float orthoX = 0.f;
-			float orthoY = 0.f;
 			float orthoW = mTextureRef->getWidth();
 			float orthoH = mTextureRef->getHeight();
 			if (!mResource.empty()) {
 				auto crop = mResource.getCrop();
-				orthoX = crop.getX1()*orthoW;
-				orthoY = crop.getY1()*orthoH;
 				orthoW = orthoW * crop.getWidth();
 				orthoH = orthoH * crop.getHeight();
 			}
 
-		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, orthoX+orthoW, orthoY+orthoH);
+		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, orthoW, orthoH);
 	}
 
 	onImageLoaded();
