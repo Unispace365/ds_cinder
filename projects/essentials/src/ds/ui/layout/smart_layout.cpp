@@ -297,6 +297,9 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 							} else if (val == "skipmeta" || val == "s") {
 								flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
 
+							} else if (val == "trim" || val == "t") {
+								flags |= ds::ui::Image::IMG_TRIM_WHITESPACE_F;
+
 							} else if (val != "resource") {
 								DS_LOG_WARNING("Trying to set unknown flags to src/filename attribute: _"
 											   << val << "_ on sprite of type: " << typeid(child).name());

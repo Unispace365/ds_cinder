@@ -1435,9 +1435,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				} else if (val == "skipmeta" || val == "s") {
 					flags |= ds::ui::Image::IMG_SKIP_METADATA_F;
 
+				} else if (val == "trim" || val == "t") {
+					flags |= ds::ui::Image::IMG_TRIM_WHITESPACE_F;
+
 				} else if (val != "filename" && val != "src") {
 					logInvalidValue(SprProps(sprite, property, value, referer, local_map),
-									" cache, mipmap, preload, skipmeta in combination with filename or src, such as "
+									" cache, mipmap, preload, skipmeta, trim in combination with filename or src, such as "
 									"filename_cache or src_mipmap_preload");
 				}
 			}

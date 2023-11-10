@@ -406,10 +406,11 @@ Image Parameters
 	* **_mipmap** OR **_m**: include the ds::ui::Image::IMG_MIPMAP flag, which generates mipmaps for the given image.
 	* **_preload** OR **_p**: include the ds::ui::Image::IMG_PRELOAD flag, which preloads the image.
 	* **_skipmeta** OR **_s**: include the ds::ui::Image::IMG_SKIP_METADATA flag, which skips metadata loading.
+	* **_trim** OR **_t**: include the ds::ui::Image::IMG_TRIM_WHITESPACE flag, which trims all transparent edges of the image.
 
-These flags can also be applied the the resource property when working with a model:
+These flags can also be applied to the resource property when working with a model:
 ```xml
-		model="resource_mipmap:this->img_resource"
+		model="resource_mipmap_trim:this->img_resource"
 ```
 
 * **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.

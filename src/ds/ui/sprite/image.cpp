@@ -3,6 +3,7 @@
 #include "image.h"
 
 #include <map>
+#include <utility>
 
 #include <cinder/ImageIo.h>
 
@@ -10,10 +11,24 @@
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/logger.h"
+#include "ds/ui/layout/layout_sprite.h"
 #include "ds/ui/service/load_image_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/image_meta_data.h"
 #include <ds/app/environment.h>
+
+namespace {
+
+// Helpers
+bool approxEqual(float a, float b, float epsilon = 1.0e-5f) {
+	return fabsf(a - b) < epsilon;
+}
+
+bool approxZero(float a, float epsilon = 1.0e-5f) {
+	return fabsf(a) < epsilon;
+}
+
+} // namespace
 
 namespace {
 char BLOB_TYPE = 0;
@@ -208,12 +223,30 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 	imageChanged();
 
 	mEngine.getLoadImageService().acquire(
-		mFilename, flags, this, [this](ci::gl::TextureRef tex, const bool error, const std::string& errorMsg) {
-			mTextureRef = tex;
+		mFilename, flags, this,
+		[this](ci::gl::TextureRef tex, ci::Rectf coords, const bool error, const std::string& errorMsg) {
+			mTextureRef = std::move(tex);
 			if (error) {
 				mErrorMsg = errorMsg;
 				setStatus(Status::STATUS_ERRORED);
 			} else {
+				// Adjust image coordinates if trimmed.
+				if (mFlags & IMG_TRIM_WHITESPACE_F) {
+					mResource.setCrop(coords);
+					imageChanged();
+
+					// Make sure parent layout is updated prior to checking status.
+					auto parent = getParent();
+					while (parent) {
+						auto layout = dynamic_cast<ds::ui::LayoutSprite*>(parent);
+						if (layout) {
+							layout->runLayout();
+							break;
+						}
+						parent = parent->getParent();
+					}
+				}
+
 				checkStatus();
 
 				if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
@@ -227,21 +260,21 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 	}
 }
 
-void Image::setImageResource(const ds::Resource& r, const int flags) {
-	mResource = r;
+void Image::setImageResource(const ds::Resource& resource, const int flags) {
+	mResource = resource;
 
-	setImageFile(r.getAbsoluteFilePath(), flags);
+	setImageFile(resource.getAbsoluteFilePath(), flags);
 }
 
-void Image::setImageResource(const ds::Resource::Id& rid, const int flags) {
-	if (!rid.empty()) {
-		mEngine.getResources().get(rid, mResource);
+void Image::setImageResource(const ds::Resource::Id& resourceId, const int flags) {
+	if (!resourceId.empty()) {
+		mEngine.getResources().get(resourceId, mResource);
 	}
 
 	if (!mResource.empty()) {
 		setImageResource(mResource, flags);
 	} else {
-		DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << rid.mValue);
+		DS_LOG_WARNING("Image:setImageResource couldn't find the resourceid " << resourceId.mValue);
 	}
 }
 
@@ -348,7 +381,7 @@ bool Image::isLoadedPrimary() const {
 }
 
 void Image::imageChanged() {
-	if (mEngine.getMode() == mEngine.CLIENT_MODE) return;
+	if (mEngine.getMode() == SpriteEngine::CLIENT_MODE) return;
 
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
@@ -364,7 +397,7 @@ void Image::imageChanged() {
 			float height = d.mSize.x * crop.getHeight();
 			Sprite::setSizeAll(width, height, mDepth);
 		}else{
-			
+
 		}*/
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
@@ -493,10 +526,10 @@ void Image::onBuildRenderBatch() {
 		}
 
 	} else {
-		ci::vec2 ul = ci::vec2(0.f, 0.f);
-		ci::vec2 ur = ci::vec2(1.f, 0.f);
-		ci::vec2 lr = ci::vec2(1.f, 1.f);
-		ci::vec2 ll = ci::vec2(0.f, 1.f);
+	ci::vec2 ul = ci::vec2(0.f, 0.f);
+	ci::vec2 ur = ci::vec2(1.f, 0.f);
+	ci::vec2 lr = ci::vec2(1.f, 1.f);
+	ci::vec2 ll = ci::vec2(0.f, 1.f);
 		if(!mResource.empty()){
 			auto crop = mResource.getCrop();
 			ul = crop.getUpperLeft();
