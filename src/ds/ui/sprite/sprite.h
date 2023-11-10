@@ -351,14 +351,6 @@ namespace ui {
 			\return 3d vector of the current rotation, in degrees.*/
 		ci::vec3 getRotation() const;
 
-		/** Sets (animated) custom values as a vec3, to be used by derived classes.
-		    \param 3d vector of custom values. */
-		void setCustom( const ci::vec3 &values );
-
-		/** Returns (animated) custom values as a vec3, to be used by derived classes.
-		    \return 3d vector. */
-		const ci::vec3 &getCustom() const;
-
 		/** Get the rectangle that contains this sprite, in Parent's local space.
 			Includes all transformation, including scale and rotation.
 			\return Rectangle that contains this sprite, in Parent's local space.		*/
@@ -503,6 +495,14 @@ namespace ui {
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
 			\return True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		bool getTransparent() const;
+
+		/** Sets (animated) value, to be used by derived classes.
+		    \param value between 0 and 1. */
+		void setReveal( float value );
+
+		/** Returns (animated) value, to be used by derived classes.
+		    \return value between 0 and 1. */
+		float getReveal() const;
 
 		/** The opposite of hide(), affects this Sprite and it's children.
 			Does not set the value of children recursively, just shortcuts the draw loop. */
@@ -893,7 +893,7 @@ namespace ui {
 		bool	  mRotationOrderZYX;
 		float	  mOpacity;
 		ci::Color mColor;
-		ci::vec3  mCustom;
+		float	  mReveal;
 		ci::Rectf mClippingBounds;
 		bool	  mClippingBoundsDirty;
 

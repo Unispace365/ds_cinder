@@ -203,9 +203,6 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setTransparent(false);
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
-
-	// Using custom animation data for a typewriter effect. Defaults to 100%.
-	setCustom(ci::vec3(1));
 }
 
 Text::~Text() {
@@ -540,7 +537,7 @@ void Text::drawLocalClient() {
 		ci::gl::translate(mRenderOffset);
 
 		if (mRenderBatch) {
-			if (getCustomTweenIsRunning()) {
+			if (getRevealTweenIsRunning()) {
 				ci::gl::ScopedGlslProg scopedGlsl(mRenderBatch->getGlslProg());
 
 				// Render only part of each line.
@@ -550,7 +547,7 @@ void Text::drawLocalClient() {
 					const float lineHeight		= mTexture->getHeight() / numLines;
 
 					for (int i = 0; i < numLines; ++i) {
-						float t = glm::clamp((getCustom().x - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
+						float t = glm::clamp((getReveal() - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
 						t		= ci::easeInOutSine(t);
 
 						float vy0;
@@ -580,16 +577,16 @@ void Text::drawLocalClient() {
 				mRenderBatch->draw();
 		} else {
 			ci::Rectf bounds = mTexture->getBounds();
-			if (getCustomTweenIsRunning()) { // UNTESTED
+			if (getRevealTweenIsRunning()) { // UNTESTED
 				ci::gl::begin(GL_TRIANGLE_STRIP);
 				ci::gl::texCoord(0, 1);
 				ci::gl::vertex(0, 0);
-				ci::gl::texCoord(getCustom().x, 1);
-				ci::gl::vertex(getCustom().x * bounds.getWidth(), 0);
+				ci::gl::texCoord(getReveal(), 1);
+				ci::gl::vertex(getReveal() * bounds.getWidth(), 0);
 				ci::gl::texCoord(0, 0);
 				ci::gl::vertex(0, bounds.getHeight());
-				ci::gl::texCoord(getCustom().x, 0);
-				ci::gl::vertex(getCustom().x * bounds.getWidth(), bounds.getHeight());
+				ci::gl::texCoord(getReveal(), 0);
+				ci::gl::vertex(getReveal() * bounds.getWidth(), bounds.getHeight());
 				ci::gl::end();
 			} else if (getPerspective()) {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, bounds.getHeight(), bounds.getWidth(), 0.0f));

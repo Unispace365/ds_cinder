@@ -62,7 +62,7 @@ namespace ds { namespace ui {
 		static const SpriteAnim<ci::vec3>&	ANIM_SCALE();
 		static const SpriteAnim<ci::vec3>&	ANIM_SIZE();
 		static const SpriteAnim<ci::vec3>&	ANIM_ROTATION();
-		static const SpriteAnim<ci::vec3>&	ANIM_CUSTOM();
+		static const SpriteAnim<float>&		ANIM_REVEAL();
 		static const SpriteAnim<float>&		ANIM_NORMALIZED();
 
 		void tweenColor(const ci::Color&, const float duration = 1.0f, const float delay = 0.0f,
@@ -84,7 +84,7 @@ namespace ds { namespace ui {
 		void tweenSize(const ci::vec3& size, const float duration = 1.0f, const float delay = 0.0f,
 					   const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
 					   const std::function<void(void)>& updateFn = nullptr);
-		void tweenCustom(const ci::vec3& value, const float duration = 1.0f, const float delay = 0.0f,
+		void tweenReveal(float value, const float duration = 1.0f, const float delay = 0.0f,
 					   const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
 					   const std::function<void(void)>& updateFn = nullptr);
 		void tweenNormalized(const float duration = 1.0f, const float delay = 0.0f, const ci::EaseFn& = ci::easeNone,
@@ -102,7 +102,7 @@ namespace ds { namespace ui {
 		const bool getSizeTweenIsRunning();
 		const bool getOpacityTweenIsRunning();
 		const bool getColorTweenIsRunning();
-		const bool getCustomTweenIsRunning();
+		const bool getRevealTweenIsRunning();
 		const bool getNormalizeTweenIsRunning();
 
 		/// Stops all of the above tweens immediately without calling the finish function. Will leave the sprite in the
@@ -114,7 +114,7 @@ namespace ds { namespace ui {
 		void animSizeStop();
 		void animOpacityStop();
 		void animColorStop();
-		void animCustomStop();
+		void animRevealStop();
 		void animNormalizedStop();
 
 		/// Stops any running tweens and set the tween to the end, optionally calling the finish function, optionally
@@ -126,7 +126,7 @@ namespace ds { namespace ui {
 		void completeTweenSize(const bool callFinishFunction = false);
 		void completeTweenOpacity(const bool callFinishFunction = false);
 		void completeTweenColor(const bool callFinishFunction = false);
-		void completeTweenCustom(const bool callFinishFunction = false);
+		void completeTweenReveal(const bool callFinishFunction = false);
 		void completeTweenNormalized(const bool callFinishFunction = false);
 
 		/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as
@@ -203,7 +203,7 @@ namespace ds { namespace ui {
 		ci::Anim<ci::vec3>	mAnimScale;
 		ci::Anim<ci::vec3>	mAnimSize;
 		ci::Anim<ci::vec3>	mAnimRotation;
-		ci::Anim<ci::vec3>	mAnimCustom;
+		ci::Anim<float>		mAnimReveal;
 		ci::Anim<float>		mAnimNormalized;
 
 		float getNormalizedTweenValue() { return mNormalizedTweenValue; }
@@ -219,7 +219,7 @@ namespace ds { namespace ui {
 		float		mAnimateOnOpacityTarget;
 		ci::vec3	mAnimateOnPositionTarget;
 		ci::vec3	mAnimateOnScaleTarget;
-		ci::vec3    mAnimateOnCustomTarget;
+		float		mAnimateOnRevealTarget;
 
 		float mNormalizedTweenValue;
 
@@ -230,7 +230,7 @@ namespace ds { namespace ui {
 		ci::TweenRef<ci::vec3>	mInternalSizeCinderTweenRef;
 		ci::TweenRef<ci::vec3>	mInternalRotationCinderTweenRef;
 		ci::TweenRef<ci::Color> mInternalColorCinderTweenRef;
-		ci::TweenRef<ci::vec3>  mInternalCustomCinderTweenRef;
+		ci::TweenRef<float>		mInternalRevealCinderTweenRef;
 		ci::TweenRef<float>		mInternalNormalizedCinderTweenRef;
 
 		/// CueRef for animate on/off finshedCallback
