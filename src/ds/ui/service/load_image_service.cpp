@@ -175,7 +175,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 		auto filecallbacks = mCallbacks.find(it.mFilePath);
 		if (filecallbacks != mCallbacks.end()) {
 			for (auto cit : filecallbacks->second) {
-				cit.second(it.mTexture, it.mTexCoords, it.mError, it.mErrorMsg);
+				cit.second(it.mTexture, it.mCropRect, it.mError, it.mErrorMsg);
 			}
 			mCallbacks.erase(filecallbacks);
 		}
@@ -208,7 +208,7 @@ void LoadImageService::acquire(const std::string&    filePath, const int flags, 
 		if (inFind->second.mLoading == false) {
 			DS_LOG_VERBOSE(4, "LoadImageService using an in-use image for " << filePath
 																			<< " refs=" << inFind->second.mRefs);
-			loadedCallback(inFind->second.mTexture, inFind->second.mTexCoords, inFind->second.mError, inFind->second.mErrorMsg);
+			loadedCallback(inFind->second.mTexture, inFind->second.mCropRect, inFind->second.mError, inFind->second.mErrorMsg);
 			return;
 		}
 	} else {
@@ -344,20 +344,22 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 			const bool trimWhiteSpace = ((nextImage.mFlags & ds::ui::Image::IMG_TRIM_WHITESPACE_F) != 0);
 			if (trimWhiteSpace) {
 				const auto w	  = float(isr->getWidth());
-				const auto h			= float(isr->getHeight());
-				const auto bounds		= ci::Area(int(nextImage.mTexCoords.x1 * w), int(nextImage.mTexCoords.y1 * h),
-												   int(nextImage.mTexCoords.x2 * w), int(nextImage.mTexCoords.y2 * h));
-				const auto	area		= ci::ip::findNonTransparentArea(ci::Surface(isr), bounds);
-				nextImage.mTexCoords.x1 = float(area.x1) / float(isr->getWidth());
-				nextImage.mTexCoords.y1 = float(area.y1) / float(isr->getHeight());
-				nextImage.mTexCoords.x2 = float(area.x2) / float(isr->getWidth());
-				nextImage.mTexCoords.y2 = float(area.y2) / float(isr->getHeight());
+				const auto h	  = float(isr->getHeight());
+				const auto bounds = ci::Area(int(nextImage.mCropRect.x1 * w), int(nextImage.mCropRect.y1 * h),
+											 int(nextImage.mCropRect.x2 * w), int(nextImage.mCropRect.y2 * h));
+				const auto area	  = ci::ip::findNonTransparentArea(ci::Surface(isr), bounds);
+
+				// Normalize result.
+				nextImage.mCropRect.x1 = float(area.x1) / float(isr->getWidth());
+				nextImage.mCropRect.y1 = float(area.y1) / float(isr->getHeight());
+				nextImage.mCropRect.x2 = float(area.x2) / float(isr->getWidth());
+				nextImage.mCropRect.y2 = float(area.y2) / float(isr->getHeight());
 
 				// When not loading image top-down, make sure to swap y1 and y2!
 				if constexpr (!isTopDown) {
-					std::swap(nextImage.mTexCoords.y1, nextImage.mTexCoords.y2);
-					nextImage.mTexCoords.y1 = 1.0f - nextImage.mTexCoords.y1;
-					nextImage.mTexCoords.y2 = 1.0f - nextImage.mTexCoords.y2;
+					std::swap(nextImage.mCropRect.y1, nextImage.mCropRect.y2);
+					nextImage.mCropRect.y1 = 1.0f - nextImage.mCropRect.y1;
+					nextImage.mCropRect.y2 = 1.0f - nextImage.mCropRect.y2;
 				}
 			}
 

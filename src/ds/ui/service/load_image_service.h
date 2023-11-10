@@ -59,14 +59,14 @@ class LoadImageService : public ds::AutoUpdate {
 		ImageLoadRequest(const std::string& filePath, int flags, const ci::Rectf& coords)
 		  : mFilePath(filePath)
 		  , mFlags(flags)
-		  , mTexCoords(coords)
+		  , mCropRect(coords)
 		  , mRefs(1) {}
 
 		std::string		   mFilePath;
 		int				   mFlags = 0;
 		bool			   mError = false;
 		std::string		   mErrorMsg;
-		ci::Rectf		   mTexCoords{0, 0, 1, 1}; // only used for cropping and trimming white space - TODO rename?
+		ci::Rectf		   mCropRect{0, 0, 1, 1}; // passed in by the loader, subsequently adjusted if trimming white space
 		ci::gl::TextureRef mTexture;
 		ci::ImageSourceRef mImageSourceRef; // only for main-thread image creation
 		int				   mRefs	= 0;
