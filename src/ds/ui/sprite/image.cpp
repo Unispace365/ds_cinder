@@ -235,14 +235,12 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 					mResource.setCrop(coords);
 					imageChanged();
 
-					// Make sure parent layout is updated prior to checking status.
+					// Make sure all parent layouts are updated prior to checking status.
 					auto parent = getParent();
 					while (parent) {
 						auto layout = dynamic_cast<ds::ui::LayoutSprite*>(parent);
-						if (layout) {
-							layout->runLayout();
-							break;
-						}
+						if (layout) layout->runLayout();
+
 						parent = parent->getParent();
 					}
 				}
@@ -518,7 +516,7 @@ void Image::onBuildRenderBatch() {
 	auto drawRect = mDrawRect.mOrthoRect;
 	if (getPerspective()) drawRect = mDrawRect.mPerspRect;
 	if (mCornerRadius > 0.0f) {
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius*(1.f/getScale().x));
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius * (1.f / getScale().x));
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -526,18 +524,18 @@ void Image::onBuildRenderBatch() {
 		}
 
 	} else {
-	ci::vec2 ul = ci::vec2(0.f, 0.f);
-	ci::vec2 ur = ci::vec2(1.f, 0.f);
-	ci::vec2 lr = ci::vec2(1.f, 1.f);
-	ci::vec2 ll = ci::vec2(0.f, 1.f);
-		if(!mResource.empty()){
+		ci::vec2 ul = ci::vec2(0.f, 0.f);
+		ci::vec2 ur = ci::vec2(1.f, 0.f);
+		ci::vec2 lr = ci::vec2(1.f, 1.f);
+		ci::vec2 ll = ci::vec2(0.f, 1.f);
+		if (!mResource.empty()) {
 			auto crop = mResource.getCrop();
-			ul = crop.getUpperLeft();
-			ur = crop.getUpperRight();
-			lr = crop.getLowerRight();
-			ll = crop.getLowerLeft();
+			ul		  = crop.getUpperLeft();
+			ur		  = crop.getUpperRight();
+			lr		  = crop.getLowerRight();
+			ll		  = crop.getLowerLeft();
 
-			//drawRect = ci::Rectf()
+			// drawRect = ci::Rectf()
 		}
 		auto theGeom = ci::geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
 		if (mRenderBatch) {
@@ -555,13 +553,13 @@ void Image::doOnImageLoaded() {
 										 static_cast<float>(mTextureRef->getWidth()), 0.0f);
 
 
-			float orthoW = mTextureRef->getWidth();
-			float orthoH = mTextureRef->getHeight();
-			if (!mResource.empty()) {
-				auto crop = mResource.getCrop();
-				orthoW = orthoW * crop.getWidth();
-				orthoH = orthoH * crop.getHeight();
-			}
+		float orthoW = mTextureRef->getWidth();
+		float orthoH = mTextureRef->getHeight();
+		if (!mResource.empty()) {
+			auto crop = mResource.getCrop();
+			orthoW	  = orthoW * crop.getWidth();
+			orthoH	  = orthoH * crop.getHeight();
+		}
 
 		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, orthoW, orthoH);
 	}
