@@ -710,6 +710,7 @@ These tweens move to the current value offset by the supplied value. The first t
 * **fade:** Tweens to the current value, and starts at an offset supplied. For instance, fade:-1.0 would tween the opacity of a sprite from 0.0 to 1.0 (assuming it started at 1.0). fade:-0.5 would tween the sprite's opacity from 0.5 to 1.0.
 * **slide:** Tweens to the current position, and starts offset by the amount supplied. "slide:-100, 0, 0" would offset the sprite 100 pixels to the left, then tween to the current position.
 * **grow:** Tweens to the current scale, offset by the amount supplied.
+* **reveal:** On Text sprites only: gradually reveals the text from left to right.
 
 **Easing:**
 Supply a string for the easing type desired. Default is inOutCubic.

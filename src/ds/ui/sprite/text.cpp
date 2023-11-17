@@ -537,14 +537,61 @@ void Text::drawLocalClient() {
 		ci::gl::translate(mRenderOffset);
 
 		if (mRenderBatch) {
-			mRenderBatch->draw();
+			if (getRevealTweenIsRunning()) {
+				ci::gl::ScopedGlslProg scopedGlsl(mRenderBatch->getGlslProg());
+
+				// Render only part of each line.
+				const auto numLines = getNumberOfLines();
+				if (numLines > 0) {
+					const float durationPerLine = 1.0f / numLines;
+					const float lineHeight		= mTexture->getHeight() / numLines;
+
+					for (int i = 0; i < numLines; ++i) {
+						float t = glm::clamp((getReveal() - i * durationPerLine) / durationPerLine, 0.0f, 1.0f);
+						t		= ci::easeInOutSine(t);
+
+						float vy0;
+						float vy1;
+						getLineRange(i, vy0, vy1);
+
+						const float vx0 = 0;
+						const float vx1 = t * float(mTexture->getWidth());
+						const float tx0 = 0;
+						const float tx1 = t;
+						const float ty0 = 1.0f - vy0 / float(mTexture->getHeight());
+						const float ty1 = 1.0f - vy1 / float(mTexture->getHeight());
+
+						ci::gl::begin(GL_TRIANGLE_STRIP);
+						ci::gl::texCoord(tx0, ty0);
+						ci::gl::vertex(vx0, vy0);
+						ci::gl::texCoord(tx1, ty0);
+						ci::gl::vertex(vx1, vy0);
+						ci::gl::texCoord(tx0, ty1);
+						ci::gl::vertex(vx0, vy1);
+						ci::gl::texCoord(tx1, ty1);
+						ci::gl::vertex(vx1, vy1);
+						ci::gl::end();
+					}
+				}
+			} else
+				mRenderBatch->draw();
 		} else {
-			if (getPerspective()) {
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()),
-												static_cast<float>(mTexture->getWidth()), 0.0f));
+			ci::Rectf bounds = mTexture->getBounds();
+			if (getRevealTweenIsRunning()) { // UNTESTED
+				ci::gl::begin(GL_TRIANGLE_STRIP);
+				ci::gl::texCoord(0, 1);
+				ci::gl::vertex(0, 0);
+				ci::gl::texCoord(getReveal(), 1);
+				ci::gl::vertex(getReveal() * bounds.getWidth(), 0);
+				ci::gl::texCoord(0, 0);
+				ci::gl::vertex(0, bounds.getHeight());
+				ci::gl::texCoord(getReveal(), 0);
+				ci::gl::vertex(getReveal() * bounds.getWidth(), bounds.getHeight());
+				ci::gl::end();
+			} else if (getPerspective()) {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, bounds.getHeight(), bounds.getWidth(), 0.0f));
 			} else {
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()),
-												static_cast<float>(mTexture->getHeight())));
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, bounds.getWidth(), bounds.getHeight()));
 			}
 		}
 		if (mFitToResizeLimit && mEngine.getEngineSettings().getBool("font:debug_fit_to_resize", 0)) {
@@ -607,13 +654,13 @@ ci::Rectf Text::getRectForCharacterIndex(const int characterIndex) {
 	return outputRect;
 }
 
-float Text::getBaseline(){
+float Text::getBaseline() {
 	measurePangoText();
 
 	if (mPangoLayout && !mText.empty()) {
 		int baseline = pango_layout_get_baseline(mPangoLayout);
 		return float(baseline) / float(PANGO_SCALE);
-	}else{
+	} else {
 		return 0.f;
 	}
 
@@ -631,6 +678,37 @@ int Text::getNumberOfLines() {
 	return mNumberOfLines;
 }
 
+float Text::getBaseLine(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoLayoutIter* iter = pango_layout_get_iter(mPangoLayout);
+	for (int i = 0; i < index && !pango_layout_iter_at_last_line(iter); ++i)
+		pango_layout_iter_next_line(iter);
+	int baseLine = pango_layout_iter_get_baseline(iter);
+
+	pango_layout_iter_free(iter);
+
+	return float(baseLine) / (float)PANGO_SCALE;
+}
+
+void Text::getLineRange(int index, float& y0, float& y1) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoLayoutIter* iter = pango_layout_get_iter(mPangoLayout);
+	for (int i = 0; i < index && !pango_layout_iter_at_last_line(iter); ++i)
+		pango_layout_iter_next_line(iter);
+
+	int _y0;
+	int _y1;
+	pango_layout_iter_get_line_yrange(iter, &_y0, &_y1);
+
+	pango_layout_iter_free(iter);
+
+	y0 = float(_y0) / (float)PANGO_SCALE;
+	y1 = float(_y1) / (float)PANGO_SCALE;
+}
 
 bool Text::getHasLists() {
 	measurePangoText();
@@ -1151,6 +1229,7 @@ bool Text::measurePangoText() {
 					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(),
 											static_cast<int>(mProcessedText.size()));
 				}
+
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 

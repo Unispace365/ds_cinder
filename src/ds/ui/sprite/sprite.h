@@ -150,6 +150,10 @@ namespace ui {
 
 		/** Gets the SpriteEngine that was passed to this Sprite upon construction.
 			\return The app's SpriteEngine.		*/
+		const ds::ui::SpriteEngine& getEngine() const { return mEngine; }
+
+		/** Gets the SpriteEngine that was passed to this Sprite upon construction.
+			\return The app's SpriteEngine.		*/
 		ds::ui::SpriteEngine& getEngine() { return mEngine; }
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
@@ -491,6 +495,14 @@ namespace ui {
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
 			\return True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		bool getTransparent() const;
+
+		/** Sets (animated) value, to be used by derived classes.
+		    \param value between 0 and 1. */
+		void setReveal( float value );
+
+		/** Returns (animated) value, to be used by derived classes.
+		    \return value between 0 and 1. */
+		float getReveal() const;
 
 		/** The opposite of hide(), affects this Sprite and it's children.
 			Does not set the value of children recursively, just shortcuts the draw loop. */
@@ -881,6 +893,7 @@ namespace ui {
 		bool	  mRotationOrderZYX;
 		float	  mOpacity;
 		ci::Color mColor;
+		float	  mReveal;
 		ci::Rectf mClippingBounds;
 		bool	  mClippingBoundsDirty;
 

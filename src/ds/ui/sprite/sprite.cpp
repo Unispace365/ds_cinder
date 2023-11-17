@@ -158,6 +158,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mParent				  = nullptr;
 	mOpacity			  = 1.0f;
 	mColor				  = ci::Color(1.0f, 1.0f, 1.0f);
+	mReveal				  = 1.0f;
 	mMultiTouchEnabled	  = false;
 	mCheckBounds		  = false;
 	mBoundsNeedChecking	  = true;
@@ -644,6 +645,14 @@ void Sprite::doSetRotation(const ci::vec3& rot) {
 
 ci::vec3 Sprite::getRotation() const {
 	return mRotation;
+}
+
+void Sprite::setReveal( float value ) {
+	mReveal = value;
+}
+
+float Sprite::getReveal() const {
+	return mReveal;
 }
 
 namespace {

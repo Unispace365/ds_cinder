@@ -282,16 +282,17 @@ Resource::Resource(const Resource::Id& dbId, const int type)
   , mThumbnailId(0)
   , mParentId(0)
   , mParentIndex(0) {}
+
 Resource::Resource(const std::string& fullPath)
   : mDbId(0)
   , mType(parseTypeFromFilename(fullPath))
   , mDuration(0)
   , mWidth(0)
   , mHeight(0)
+  , mLocalFilePath("")
   , mThumbnailId(0)
   , mParentId(0)
-  , mParentIndex(0)
-  , mLocalFilePath("") {
+  , mParentIndex(0) {
 	setLocalFilePath(fullPath);
 }
 
@@ -301,10 +302,10 @@ Resource::Resource(const std::string& fullPath, const int type)
   , mDuration(0)
   , mWidth(0)
   , mHeight(0)
+  , mLocalFilePath("")
   , mThumbnailId(0)
   , mParentId(0)
-  , mParentIndex(0)
-  , mLocalFilePath("") {
+  , mParentIndex(0) {
 	setLocalFilePath(fullPath);
 }
 
@@ -314,10 +315,10 @@ Resource::Resource(const std::string& localFullPath, const float width, const fl
   , mDuration(0)
   , mWidth(width)
   , mHeight(height)
+  , mLocalFilePath("")
   , mThumbnailId(0)
   , mParentId(0)
-  , mParentIndex(0)
-  , mLocalFilePath("") {
+  , mParentIndex(0) {
 	setLocalFilePath(localFullPath);
 }
 
@@ -331,10 +332,10 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
   , mHeight(height)
   , mFileName(filename)
   , mPath(path)
+  , mLocalFilePath("")
   , mThumbnailId(thumbnailId)
   , mParentId(0)
-  , mParentIndex(0)
-  , mLocalFilePath("") {
+  , mParentIndex(0) {
 	setLocalFilePath(fullFilePath);
 }
 
@@ -342,7 +343,8 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 bool Resource::operator==(const Resource& o) const {
 	if (mLocalFilePath != o.mLocalFilePath) return false;
 	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth &&
-		   mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;
+		   mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath && mCropX == o.mCropX &&
+		   mCropY == o.mCropY && mCropW == o.mCropW && mCropH == o.mCropH;
 }
 
 bool Resource::operator!=(const Resource& o) const {

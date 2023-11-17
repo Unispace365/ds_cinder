@@ -97,6 +97,14 @@ namespace ds { namespace ui {
 		return ANIM;
 	}
 
+	const SpriteAnim<float>& SpriteAnimatable::ANIM_REVEAL() {
+		static ds::ui::SpriteAnim<float> ANIM(
+			[](ds::ui::Sprite& s) -> ci::Anim<float>& { return s.mAnimReveal; },
+			[](ds::ui::Sprite& s) -> float { return s.getReveal(); },
+			[](float v, ds::ui::Sprite& s) { s.setReveal(v); });
+		return ANIM;
+	}
+
 	const SpriteAnim<float>& SpriteAnimatable::ANIM_NORMALIZED() {
 		static ds::ui::SpriteAnim<float> ANIM(
 			[](ds::ui::Sprite& s) -> ci::Anim<float>& {
@@ -161,9 +169,17 @@ namespace ds { namespace ui {
 		mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 	}
 
+	void SpriteAnimatable::tweenReveal(float value, const float duration, const float delay, const ci::EaseFn& ease,
+									   const std::function<void()>& finishFn, const std::function<void()>& updateFn) {
+		animRevealStop();
+		auto options =
+			mEngine.getTweenline().apply(mOwner, ANIM_REVEAL(), value, duration, ease, finishFn, delay, updateFn);
+		mInternalRevealCinderTweenRef = options.operator ci::TweenRef<float>();
+	}
+
 	void SpriteAnimatable::tweenNormalized(const float duration, const float delay, const ci::EaseFn& ease,
-										   const std::function<void(void)>& finishFn,
-										   const std::function<void(void)>& updateFn) {
+	                                       const std::function<void(void)>& finishFn,
+	                                       const std::function<void(void)>& updateFn) {
 		animNormalizedStop();
 		auto options =
 			mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
@@ -178,6 +194,19 @@ namespace ds { namespace ui {
 				mOwner.setColor(mInternalColorCinderTweenRef->getEndValue());
 				if (callFinishFunction) {
 					auto finishFunc = mInternalColorCinderTweenRef->getFinishFn();
+					if (finishFunc) finishFunc();
+				}
+			}
+		}
+	}
+
+	void SpriteAnimatable::completeTweenReveal(const bool callFinishFunction) {
+		if (mInternalRevealCinderTweenRef) {
+			if (getRevealTweenIsRunning()) {
+				mAnimReveal.stop();
+				mOwner.setReveal(mInternalRevealCinderTweenRef->getEndValue());
+				if (callFinishFunction) {
+					auto finishFunc = mInternalRevealCinderTweenRef->getFinishFn();
 					if (finishFunc) finishFunc();
 				}
 			}
@@ -285,6 +314,11 @@ namespace ds { namespace ui {
 	const bool SpriteAnimatable::getColorTweenIsRunning() {
 		return (mInternalColorCinderTweenRef && !mAnimColor.isComplete());
 	}
+
+	const bool SpriteAnimatable::getRevealTweenIsRunning() {
+		return (mInternalRevealCinderTweenRef && !mAnimReveal.isComplete());
+	}
+
 	const bool SpriteAnimatable::getNormalizeTweenIsRunning() {
 		return (mInternalNormalizedCinderTweenRef && !mAnimNormalized.isComplete());
 	}
@@ -336,6 +370,11 @@ namespace ds { namespace ui {
 	void SpriteAnimatable::animColorStop() {
 		mAnimColor.stop();
 		mInternalColorCinderTweenRef = nullptr;
+	}
+
+	void SpriteAnimatable::animRevealStop() {
+		mAnimReveal.stop();
+		mInternalRevealCinderTweenRef = nullptr;
 	}
 
 	void SpriteAnimatable::animNormalizedStop() {
@@ -405,6 +444,7 @@ namespace ds { namespace ui {
 		mAnimateOnScaleTarget	 = mOwner.getScale();
 		mAnimateOnPositionTarget = mOwner.getPosition();
 		mAnimateOnOpacityTarget	 = mOwner.getOpacity();
+		mAnimateOnRevealTarget   = mOwner.getReveal();
 	}
 
 	void SpriteAnimatable::setAnimateOnTargetsIfNeeded() {
@@ -583,6 +623,10 @@ namespace ds { namespace ui {
 						mOwner.setScale(mAnimateOnScaleTarget + dest);
 					}
 					tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
+				} else if (animType == "reveal") {
+					setAnimateOnTargetsIfNeeded();
+					mOwner.setReveal( dest.x );
+					tweenReveal( mAnimateOnRevealTarget, dur, delayey, easing);
 				}
 			} else {
 				if (animType == "slide") {
@@ -607,6 +651,10 @@ namespace ds { namespace ui {
 					} else {
 						tweenScale(mAnimateOnScaleTarget + dest, dur, delayey, easing);
 					}
+				} else if (animType == "reveal") {
+					// setAnimateOnTargetsIfNeeded();
+					mOwner.setReveal( mAnimateOnRevealTarget );
+					tweenReveal( dest.x, dur, delayey, easing);
 				}
 			}
 		}
