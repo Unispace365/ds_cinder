@@ -535,7 +535,15 @@ void Image::onBuildRenderBatch() {
 			lr		  = crop.getLowerRight();
 			ll		  = crop.getLowerLeft();
 
-			// drawRect = ci::Rectf()
+			// Invert y-coordinates if image is not loaded top-down.
+			if (!mTextureRef->isTopDown()) {
+				std::swap(ul, ll);
+				std::swap(ur, lr);
+				ul.y = 1.0f - ul.y;
+				ur.y = 1.0f - ur.y;
+				lr.y = 1.0f - lr.y;
+				ll.y = 1.0f - ll.y;
+			}
 		}
 		auto theGeom = ci::geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
 		if (mRenderBatch) {

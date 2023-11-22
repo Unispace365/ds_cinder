@@ -355,12 +355,12 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				nextImage.mCropRect.x2 = float(area.x2) / float(isr->getWidth());
 				nextImage.mCropRect.y2 = float(area.y2) / float(isr->getHeight());
 
-				// When not loading image top-down, make sure to swap y1 and y2!
-				if constexpr (!isTopDown) {
-					std::swap(nextImage.mCropRect.y1, nextImage.mCropRect.y2);
-					nextImage.mCropRect.y1 = 1.0f - nextImage.mCropRect.y1;
-					nextImage.mCropRect.y2 = 1.0f - nextImage.mCropRect.y2;
-				}
+				//// When not loading image top-down, make sure to swap y1 and y2!
+				//if constexpr (!isTopDown) {
+				//	std::swap(nextImage.mCropRect.y1, nextImage.mCropRect.y2);
+				//	nextImage.mCropRect.y1 = 1.0f - nextImage.mCropRect.y1;
+				//	nextImage.mCropRect.y2 = 1.0f - nextImage.mCropRect.y2;
+				//}
 			}
 
 			/// once we have the surface in main-thread mode, bail out
