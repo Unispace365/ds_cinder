@@ -7,6 +7,7 @@
 #include <ds/app/auto_update.h>
 
 namespace ds::ui {
+class Image;
 class SpriteEngine;
 
 /**
@@ -15,7 +16,7 @@ class SpriteEngine;
  */
 class LoadImageService : public ds::AutoUpdate {
   public:
-	typedef std::function<void(ci::gl::TextureRef, const bool errored, const std::string& errMsg)> LoadedCallback;
+	typedef std::function<void(ci::gl::TextureRef, ci::Rectf, const bool errored, const std::string& errMsg)> LoadedCallback;
 
 	LoadImageService(SpriteEngine& eng);
 	~LoadImageService();
@@ -31,10 +32,10 @@ class LoadImageService : public ds::AutoUpdate {
 	/// Important! Be sure to call release before the requester goes away
 	/// The callback will be called one time only, and calls back if there is an error or it succeeds.
 	/// All callbacks happen in the update cycle
-	void acquire(const std::string& filePath, const int flags, void* requester, LoadedCallback loadedCallback);
+	void acquire(const std::string& filePath, const int flags, Image* requester, const LoadedCallback& loadedCallback);
 
 	/// You must call release if you no longer want the image or the reffer is about to be released
-	void release(const std::string& filePath, void* requester);
+	void release(const std::string& filePath, Image* requester);
 
 	/// \brief Starts the threads to load stuff and creates OpenGL contexts
 	/// Can be called multiple times, will reinit the loading threads if the load_image:threads
@@ -53,29 +54,23 @@ class LoadImageService : public ds::AutoUpdate {
   private:
 	/// Keeps track of requests for images, in-use images, and cached images
 	struct ImageLoadRequest {
-		ImageLoadRequest()
-		  : mFilePath("")
-		  , mFlags(0)
-		  , mTexture(nullptr)
-		  , mRefs(0)
-		  , mLoading(false) {}
+		ImageLoadRequest() = default;
 
-		ImageLoadRequest(const std::string filePath, const int flags)
+		ImageLoadRequest(const std::string& filePath, int flags, const ci::Rectf& coords)
 		  : mFilePath(filePath)
 		  , mFlags(flags)
-		  , mError(false)
-		  , mTexture(nullptr)
-		  , mRefs(1)
-		  , mLoading(false) {}
+		  , mCropRect(coords)
+		  , mRefs(1) {}
 
 		std::string		   mFilePath;
-		int				   mFlags;
+		int				   mFlags = 0;
 		bool			   mError = false;
 		std::string		   mErrorMsg;
+		ci::Rectf		   mCropRect{0, 0, 1, 1}; // passed in by the loader, subsequently adjusted if trimming white space
 		ci::gl::TextureRef mTexture;
 		ci::ImageSourceRef mImageSourceRef; // only for main-thread image creation
-		int				   mRefs;
-		bool			   mLoading;
+		int				   mRefs	= 0;
+		bool			   mLoading = false;
 	};
 
 

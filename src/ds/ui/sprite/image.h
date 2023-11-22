@@ -25,6 +25,8 @@ class Image : public Sprite {
 	static const int IMG_ENABLE_MIPMAP_F = (1 << 2);
 	/// Skip using metadata to size image sprite before loading
 	static const int IMG_SKIP_METADATA_F = (1 << 3);
+	/// Trim image white space
+	static const int IMG_TRIM_WHITESPACE_F = (1 << 4);
 
 
 	static Image& makeImage(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
@@ -145,8 +147,8 @@ class Image : public Sprite {
 		ci::Rectf mOrthoRect;
 	} mDrawRect;
 
-	bool			   mCircleCropped;
-	bool			   mCircleCropCentered;
+	bool mCircleCropped;
+	bool mCircleCropCentered;
 	ci::gl::TextureRef mTextureRef;
 	std::string		   mFilename;
 	ds::Resource	   mResource;

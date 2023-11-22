@@ -5,7 +5,10 @@
 #include <chrono>
 
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/image.h>
 #include <ds/util/file_meta_data.h>
+
+#include <cinder/ip/Trim.h>
 
 namespace {
 template <typename Clock = std::chrono::high_resolution_clock>
@@ -172,7 +175,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 		auto filecallbacks = mCallbacks.find(it.mFilePath);
 		if (filecallbacks != mCallbacks.end()) {
 			for (auto cit : filecallbacks->second) {
-				cit.second(it.mTexture, it.mError, it.mErrorMsg);
+				cit.second(it.mTexture, it.mCropRect, it.mError, it.mErrorMsg);
 			}
 			mCallbacks.erase(filecallbacks);
 		}
@@ -181,8 +184,8 @@ void LoadImageService::update(const ds::UpdateParams&) {
 	newCompletedRequests.clear();
 }
 
-void LoadImageService::acquire(const std::string& filePath, const int flags, void* requester,
-							   LoadedCallback loadedCallback) {
+void LoadImageService::acquire(const std::string&    filePath, const int flags, Image* requester,
+                               const LoadedCallback& loadedCallback) {
 	if (filePath.empty()) {
 		DS_LOG_VERBOSE(6, "LoadImageService got a blank file path.");
 		return;
@@ -205,11 +208,14 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 		if (inFind->second.mLoading == false) {
 			DS_LOG_VERBOSE(4, "LoadImageService using an in-use image for " << filePath
 																			<< " refs=" << inFind->second.mRefs);
-			loadedCallback(inFind->second.mTexture, inFind->second.mError, inFind->second.mErrorMsg);
+			loadedCallback(inFind->second.mTexture, inFind->second.mCropRect, inFind->second.mError, inFind->second.mErrorMsg);
 			return;
 		}
 	} else {
-		mInUseImages[filePath]			= ImageLoadRequest(filePath, flags);
+		// Obtain cropping information, used for trimming white space.
+		const auto resource = requester->getImageResource();
+
+		mInUseImages[filePath]			= ImageLoadRequest(filePath, flags, resource.getCrop());
 		mInUseImages[filePath].mLoading = true; // Indicates that this request has been added to the loading queue
 	}
 
@@ -229,7 +235,7 @@ void LoadImageService::acquire(const std::string& filePath, const int flags, voi
 }
 
 
-void LoadImageService::release(const std::string& filePath, void* referrer) {
+void LoadImageService::release(const std::string& filePath, Image* referrer) {
 	if (filePath.empty()) return;
 
 	/// Remove the callback for this path and referrer
@@ -322,7 +328,9 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		} else {
 			fmt.setMinFilter(GL_LINEAR);
 		}
-		// fmt.loadTopDown(false);
+
+		constexpr bool isTopDown = false;
+		fmt.loadTopDown(isTopDown);
 
 		try {
 			ci::ImageSourceRef isr;
@@ -330,6 +338,29 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 				isr = ci::loadImage(nextImage.mFilePath);
 			} catch (std::exception excp) {
 				isr = ci::loadImage(ci::loadUrl(nextImage.mFilePath));
+			}
+
+			// trim white space if requested
+			const bool trimWhiteSpace = ((nextImage.mFlags & ds::ui::Image::IMG_TRIM_WHITESPACE_F) != 0);
+			if (trimWhiteSpace) {
+				const auto w	  = float(isr->getWidth());
+				const auto h	  = float(isr->getHeight());
+				const auto bounds = ci::Area(int(nextImage.mCropRect.x1 * w), int(nextImage.mCropRect.y1 * h),
+											 int(nextImage.mCropRect.x2 * w), int(nextImage.mCropRect.y2 * h));
+				const auto area	  = ci::ip::findNonTransparentArea(ci::Surface(isr), bounds);
+
+				// Normalize result.
+				nextImage.mCropRect.x1 = float(area.x1) / float(isr->getWidth());
+				nextImage.mCropRect.y1 = float(area.y1) / float(isr->getHeight());
+				nextImage.mCropRect.x2 = float(area.x2) / float(isr->getWidth());
+				nextImage.mCropRect.y2 = float(area.y2) / float(isr->getHeight());
+
+				//// When not loading image top-down, make sure to swap y1 and y2!
+				//if constexpr (!isTopDown) {
+				//	std::swap(nextImage.mCropRect.y1, nextImage.mCropRect.y2);
+				//	nextImage.mCropRect.y1 = 1.0f - nextImage.mCropRect.y1;
+				//	nextImage.mCropRect.y2 = 1.0f - nextImage.mCropRect.y2;
+				//}
 			}
 
 			/// once we have the surface in main-thread mode, bail out
