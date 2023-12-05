@@ -167,6 +167,9 @@ class SpriteEngine {
 	Sprite* getDragDestinationSprite(const ci::vec3& globalPoint, Sprite* draggingSprite);
 
 	double getElapsedTimeSeconds() const;
+	
+	virtual bool isIdlingEnabled() const { return true; }
+	virtual void enableIdling(bool enable) {}
 
 	int			 getIdleTimeout() const;
 	void		 setIdleTimeout(int idleTimeout);

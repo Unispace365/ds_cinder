@@ -128,6 +128,12 @@ class Engine : public ui::SpriteEngine {
 	void		 startTuio(ds::App&);
 	void		 stopTuio();
 
+	/// Returns whether idle events and checks are enabled.
+	bool isIdlingEnabled() const override { return mIdlingEnabled; }
+
+	/// Sets whether idle events and checks are enabled.
+	void enableIdling(bool enable) override { mIdlingEnabled = enable; }
+
 	/// It's been enough time since the last input and is in idle mode
 	virtual bool isIdling() override;
 
@@ -333,6 +339,7 @@ class Engine : public ui::SpriteEngine {
 	DrawParams	 mDrawParams;
 	float		 mLastTime;
 	bool		 mIdling;
+	bool		 mIdlingEnabled;
 	float		 mLastTouchTime;
 
 	/// Main tuio input
