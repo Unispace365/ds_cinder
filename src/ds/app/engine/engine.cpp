@@ -69,6 +69,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
   , mFonts(*this)
   , mRequestedRootList(_roots)
   , mIdling(true)
+  , mIdlingEnabled(true)
   , mTuioInput(std::make_shared<ds::ui::TuioInput>(*this, mTuioPort, ci::vec2(1), ci::vec2(0), 0.0f, 0,
 												   ci::Rectf(ci::vec2(0), ci::vec2(0))))
   , mAutoDraw(new AutoDrawService())
@@ -1352,22 +1353,24 @@ void Engine::writeSprites(std::ostream& s) const {
 }
 
 void Engine::checkIdle() {
-	bool		 newIdle  = true;
-	const size_t numRoots = getRootCount();
-	for (int i = 0; i < numRoots - 1; i++) {
-		if (getRootBuilder(i).mDebugDraw) continue;
-		if (!getRootSprite(i).isIdling()) {
-			newIdle = false;
-			break;
+	if (isIdlingEnabled()) {
+		bool		 newIdle  = true;
+		const size_t numRoots = getRootCount();
+		for (int i = 0; i < numRoots - 1; i++) {
+			if (getRootBuilder(i).mDebugDraw) continue;
+			if (!getRootSprite(i).isIdling()) {
+				newIdle = false;
+				break;
+			}
 		}
-	}
 
-	if (newIdle != mIdling) {
-		mIdling = newIdle;
-		if (mIdling) {
-			getNotifier().notify(ds::app::IdleStartedEvent());
-		} else {
-			getNotifier().notify(ds::app::IdleEndedEvent());
+		if (newIdle != mIdling) {
+			mIdling = newIdle;
+			if (mIdling) {
+				getNotifier().notify(ds::app::IdleStartedEvent());
+			} else {
+				getNotifier().notify(ds::app::IdleEndedEvent());
+			}
 		}
 	}
 }
@@ -1377,32 +1380,36 @@ bool Engine::isIdling() {
 }
 
 void Engine::startIdling() {
-	// force idle mode to start again
-	const size_t numRoots = getRootCount();
-	for (size_t i = 0; i < numRoots - 1; i++) {
-		// don't clear the last root, which is the debug draw
-		if (getRootBuilder(i).mDebugDraw) continue;
-		getRootSprite(i).startIdling();
+	if (isIdlingEnabled()) {
+		// force idle mode to start again
+		const size_t numRoots = getRootCount();
+		for (size_t i = 0; i < numRoots - 1; i++) {
+			// don't clear the last root, which is the debug draw
+			if (getRootBuilder(i).mDebugDraw) continue;
+			getRootSprite(i).startIdling();
+		}
+		mIdling = true;
+		getNotifier().notify(ds::app::IdleStartedEvent());
 	}
-	mIdling = true;
-	getNotifier().notify(ds::app::IdleStartedEvent());
 }
 
 void Engine::resetIdleTimeout() {
-	float curr	   = static_cast<float>(ci::app::getElapsedSeconds());
-	mLastTime	   = curr;
-	mLastTouchTime = curr;
+	if (isIdlingEnabled()) {
+		float curr	   = static_cast<float>(ci::app::getElapsedSeconds());
+		mLastTime	   = curr;
+		mLastTouchTime = curr;
 
-	const size_t numRoots = getRootCount();
-	for (size_t i = 0; i < numRoots - 1; i++) {
-		// don't clear the last root, which is the debug draw
-		if (getRootBuilder(i).mDebugDraw) continue;
-		getRootSprite(i).setSecondBeforeIdle(mData.mIdleTimeout);
-		getRootSprite(i).resetIdleTimer();
+		const size_t numRoots = getRootCount();
+		for (size_t i = 0; i < numRoots - 1; i++) {
+			// don't clear the last root, which is the debug draw
+			if (getRootBuilder(i).mDebugDraw) continue;
+			getRootSprite(i).setSecondBeforeIdle(mData.mIdleTimeout);
+			getRootSprite(i).resetIdleTimer();
+		}
+
+		mIdling = false;
+		getNotifier().notify(ds::app::IdleEndedEvent());
 	}
-
-	mIdling = false;
-	getNotifier().notify(ds::app::IdleEndedEvent());
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum& mode) {
