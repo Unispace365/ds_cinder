@@ -94,6 +94,7 @@ Xml Element Name                                                      | DsCinder
 [text](#Text-Parameters)                                              | ds::ui::Text
 [gradient](#Gradient-Parameters)                                      | ds::ui::GradientSprite
 [layout](#Layout-Parameters)                                          | ds::ui::LayoutSprite
+[grid](#Grid-Parameters)                                              | ds::ui::Grid
 [persp_layout](#Perspective-Layout-Parameters)                        | ds::ui::PerspectiveLayout
 [circle](#Circle-Parameters)                                          | ds::ui::Circle
 [border](#Border-Parameters)                                          | ds::ui::Border
@@ -327,10 +328,15 @@ Sprite Parameters
 		1. default. does nothing. reverts to logic above.
 		2. letterbox. Force sprite to letterbox.
 		3. fill. Force sprite to fill the space.
+	* **grid_column**: Sets the column or columns in which this sprite will be placed within a Grid layout.
+	* **grid_row**: Sets the row or rows in which this sprite will be placed within a Grid layout.
+	* **min_width**: Sets the minimum width in pixels of this sprite when placed within a Grid layout.
+	* **max_width**: Sets the maximum width in pixels of this sprite when placed within a Grid layout.
+	* **min_height**: Sets the minimum height in pixels of this sprite when placed within a Grid layout.
+	* **max_height**: Sets the maximum height in pixels of this sprite when placed within a Grid layout.
 
 Layout Parameters
 ------------------------------------------------------------
-
 * **layout_type**: For a LayoutSprite only (has no effect on children).
     1. vert: (Default) lays out all children in a vertical (top to bottom) flow.
     2. horiz: Lays out children horizontally (left to right)
@@ -357,6 +363,14 @@ Perspective Layout Parameters
 * **persp_near_clip**: Float for the near clipping distance, only if auto clip is disabled
 * **persp_far_clip**: Float for the far clipping distance, only if auto clip is disabled
 * **persp_enabled**: Bool to enable or disable rendering in 3d at all
+
+Grid Parameters
+------------------------------------------------------------
+* **grid_template_columns**: Specifies the columns of the Grid in CSS-style notation. The string contains one or more values, separated by a space. Each value can be a fixed size (e.g. "100px", "25%"), an intrinsic (e.g. "min-content", "max-content") or a function (e.g. "auto", "minmax(10px, 100x)"). In additional, free space can be assigned using fractional values, e.g. to divide the layout into 3 equally spaced columns, you can use "1fr 1fr 1fr". Finally, you can use the repeat function to more easily set multiple columns: "repeat(3, 1fr)".
+* **grid_template_rows**: Specifies the rows of the Grid in CSS-style notation.
+* **grid_gap**: Specifies a gap between the columns and rows of the Grid, e.g. "10px" or "5%".
+* **grid_column_gap**: Specifies a gap between the columns of the Grid, e.g. "10px" or "5%".
+* **grid_row_gap**: Specifies a gap between the rows of the Grid, e.g. "10px" or "5%".
 
 Text Parameters
 ------------------------------------------------------------
