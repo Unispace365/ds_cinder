@@ -88,6 +88,8 @@ namespace {
 	const int NO_REPLICATION_F	= (1 << 6);
 	const int ROTATE_TOUCHES_F	= (1 << 7);
 	const int DRAW_DEBUG_F		= (1 << 8);
+	const int SPAN_COLUMN_SET_F = (1 << 9);
+	const int SPAN_ROW_SET_F	= (1 << 10);
 
 	const ds::BitMask SPRITE_LOG = ds::Logger::newModule("sprite");
 } // namespace
@@ -1181,6 +1183,30 @@ const ds::UserData& Sprite::getUserData() const {
 
 bool Sprite::hasMultiTouchConstraint(const BitMask& constraint) const {
 	return mMultiTouchConstraints & constraint;
+}
+
+void Sprite::setColumnSpan(const Range<size_t>& span) {
+	mGridColumnSpan = span;
+}
+
+void Sprite::setRowSpan(const Range<size_t>& span) {
+	mGridRowSpan = span;
+}
+
+bool Sprite::isColumnSpanAuto() const {
+	return !(mSpriteFlags & SPAN_COLUMN_SET_F);
+}
+
+void Sprite::setColumnSpanAuto(bool flag) {
+	mSpriteFlags |= flag ? 0 : SPAN_COLUMN_SET_F;
+}
+
+bool Sprite::isRowSpanAuto() const {
+	return !(mSpriteFlags & SPAN_ROW_SET_F);
+}
+
+void Sprite::setRowSpanAuto(bool flag) {
+	mSpriteFlags |= flag ? 0 : SPAN_ROW_SET_F;
 }
 
 void Sprite::swipe(const ci::vec3& swipeVector) {

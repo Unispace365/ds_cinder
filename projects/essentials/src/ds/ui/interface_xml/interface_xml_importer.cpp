@@ -18,9 +18,9 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/control/control_check_box.h>
 #include <ds/ui/control/control_slider.h>
+#include <ds/ui/grid/grid.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/layout/perspective_layout.h>
-#include <ds/ui/grid/grid.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_bar.h>
@@ -332,16 +332,16 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			ci::vec3 v = parseVector(p.value);
 			p.sprite.setSize(v.x, v.y);
 		};
-		propertyMap["min-width"] = [](const SprProps& p) {
+		propertyMap["min-width"] = propertyMap["min_width"] = [](const SprProps& p) {
 			p.sprite.setWidthMin(ds::string_to_float(p.value));
 		};
-		propertyMap["max-width"] = [](const SprProps& p) {
+		propertyMap["max-width"] = propertyMap["max_width"] = [](const SprProps& p) {
 			p.sprite.setWidthMax(ds::string_to_float(p.value));
 		};
-		propertyMap["min-height"] = [](const SprProps& p) {
+		propertyMap["min-height"] = propertyMap["min_height"] = [](const SprProps& p) {
 			p.sprite.setHeightMin(ds::string_to_float(p.value));
 		};
-		propertyMap["max-height"] = [](const SprProps& p) {
+		propertyMap["max-height"] = propertyMap["max_height"] = [](const SprProps& p) {
 			p.sprite.setHeightMax(ds::string_to_float(p.value));
 		};
 		propertyMap["color"] = [](const SprProps& p) {
@@ -418,13 +418,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			p.sprite.mLayoutRPad = (county > 2) ? ds::string_to_float(pads[2]) : 0.0f;
 			p.sprite.mLayoutBPad = (county > 3) ? ds::string_to_float(pads[3]) : 0.0f;
 		};
-		propertyMap["grid-column"] = [](const SprProps& p) {
+		propertyMap["grid-column"] = propertyMap["grid_column"] = [](const SprProps& p) {
 			const char* sInOut = p.value.c_str();
 			p.sprite.setColumnSpan(Grid::parseSpan(&sInOut));
+			p.sprite.setColumnSpanAuto(false);
 		};
-		propertyMap["grid-row"] = [](const SprProps& p) {
+		propertyMap["grid-row"] = propertyMap["grid_row"] = [](const SprProps& p) {
 			const char* sInOut = p.value.c_str();
 			p.sprite.setRowSpan(Grid::parseSpan(&sInOut));
+			p.sprite.setRowSpanAuto(false);
 		};
 		propertyMap["layout_size_mode"] = [](const SprProps& p) {
 			const auto sizeMode = p.value;
@@ -579,7 +581,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		};
 
 		// Grid specific attributes
-		propertyMap["grid-template-columns"] = [](const SprProps& p) {
+		propertyMap["grid-template-columns"] = propertyMap["grid_template_columns"] = [](const SprProps& p) {
 			auto grid = dynamic_cast<Grid*>(&p.sprite);
 			if (grid) {
 				grid->setColumns(p.value);
@@ -587,7 +589,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["grid-template-rows"] = [](const SprProps& p) {
+		propertyMap["grid-template-rows"] = propertyMap["grid_template_rows"] = [](const SprProps& p) {
 			auto grid = dynamic_cast<Grid*>(&p.sprite);
 			if (grid) {
 				grid->setRows(p.value);
@@ -595,7 +597,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["grid-gap"] = [](const SprProps& p) {
+		propertyMap["grid-gap"] = propertyMap["grid_gap"] = [](const SprProps& p) {
 			auto grid = dynamic_cast<Grid*>(&p.sprite);
 			if (grid) {
 				grid->setGap(p.value);
@@ -603,7 +605,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["grid-column-gap"] = [](const SprProps& p) {
+		propertyMap["grid-column-gap"] = propertyMap["grid_column_gap"] = [](const SprProps& p) {
 			auto grid = dynamic_cast<Grid*>(&p.sprite);
 			if (grid) {
 				grid->setColumnGap(p.value);
@@ -611,7 +613,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 				logAttributionWarning(p);
 			}
 		};
-		propertyMap["grid-row-gap"] = [](const SprProps& p) {
+		propertyMap["grid-row-gap"] = propertyMap["grid_row_gap"] = [](const SprProps& p) {
 			auto grid = dynamic_cast<Grid*>(&p.sprite);
 			if (grid) {
 				grid->setRowGap(p.value);

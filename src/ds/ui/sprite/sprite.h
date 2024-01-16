@@ -828,11 +828,16 @@ namespace ui {
 		// Grid
 
 		const Range<size_t>& getColumnSpan() const { return mGridColumnSpan; }
-		void				 setColumnSpan(const Range<size_t>& span) { mGridColumnSpan = span; }
+		void				 setColumnSpan(const Range<size_t>& span);
 		const Range<size_t>& getRowSpan() const { return mGridRowSpan; }
-		void				 setRowSpan(const Range<size_t>& span) { mGridRowSpan = span; }
+		void				 setRowSpan(const Range<size_t>& span);
+		bool				 isColumnSpanAuto() const;
+		bool				 isRowSpanAuto() const;
 
-	  protected:
+		void setColumnSpanAuto(bool flag);
+		void setRowSpanAuto(bool flag);
+
+	protected:
 		friend class TouchManager;
 		friend class TouchProcess;
 		friend class ds::gl::ClipPlaneState;

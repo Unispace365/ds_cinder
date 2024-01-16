@@ -211,20 +211,18 @@ Grid::Grid(SpriteEngine& engine)
 }
 
 void Grid::setColumns(const std::string& def) {
-	mColumnNames.clear();
 	mColumns.clear();
 	try {
-		parse(mColumnNames, mColumns, def);
+		parse(mColumns, def);
 	} catch (const std::exception& exc) {
 		DS_LOG_ERROR(exc.what() << " in " << def)
 	}
 }
 
 void Grid::setRows(const std::string& def) {
-	mRowNames.clear();
 	mRows.clear();
 	try {
-		parse(mRowNames, mRows, def);
+		parse(mRows, def);
 	} catch (const std::exception& exc) {
 		DS_LOG_ERROR(exc.what() << " in " << def)
 	}
@@ -243,21 +241,11 @@ void Grid::setGap(const std::string& def) {
 }
 
 ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) const {
-	return {calcColumnPos(column.min), calcRowPos(row.min), calcColumnPos(column.max) - mColumnGap.asUser(getWidth()),
-			calcRowPos(row.max) - mRowGap.asUser(getHeight())};
-}
-
-bool Grid::areaOverlapsItem(const ci::Rectf& area, const std::vector<Sprite*>& items) const {
-	for (Sprite* item : items) {
-		const auto& col = item->getColumnSpan();
-		if (col.count() == 0) continue;
-		const auto& row = item->getRowSpan();
-		if (row.count() == 0) continue;
-		const auto itemArea = calcArea(col, row);
-		if (itemArea.intersects(area)) return true;
-	}
-
-	return false;
+	const auto x1 = calcColumnPos(column.min);
+	const auto y1 = calcRowPos(row.min);
+	const auto x2 = glm::max(x1, calcColumnPos(column.max) - mColumnGap.asUser(getWidth()));
+	const auto y2 = glm::max(y1, calcRowPos(row.max) - mRowGap.asUser(getHeight()));
+	return {x1, y1, x2, y2};
 }
 
 float Grid::calcWidth() const {
@@ -278,7 +266,7 @@ float Grid::calcHeight() const {
 
 void Grid::drawLocalClient() {
 	if (mNeedsLayout) runLayout();
-#if defined(_DEBUG)
+#if 0
 	ci::gl::ScopedColor		   sc(1, 1, 1);
 	ci::gl::ScopedBlendPremult sb;
 
@@ -307,24 +295,47 @@ void Grid::addChild(Sprite& newChild) {
 	Sprite::addChild(newChild);
 }
 
+bool Grid::areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const {
+	const auto& col		 = item->getColumnSpan();
+	const auto& row		 = item->getRowSpan();
+	const auto	itemArea = calcArea(col, row);
+	return itemArea.intersects(area);
+}
+
+bool Grid::areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const {
+	for (auto item : items) {
+		if (areaOverlapsItem(area, item)) return true;
+	}
+	return false;
+}
+
 void Grid::runLayout() {
 	if (!mNeedsLayout) return;
 
 	ci::Timer t{true};
 
+	// Initialize item spans, taken from the sprites. These are then updated during layout.
+	// TODO sort items by specified order, see: https://drafts.csswg.org/css-flexbox-1/#order-modified-document-order
+	auto items = allItems();
+	for (auto item : items) {
+		if (item->isColumnSpanAuto()) item->setColumnSpan({0, 0});
+		if (item->isRowSpanAuto()) item->setRowSpan({0, 0});
+	}
+
 	try {
-		// Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
+		// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
 		computeUsedBreadthOfGridTracks(mColumns, getWidth(), mColumnGap.asUser(getWidth()), ::getColumnSpan,
 									   ::getWidthMin, ::getWidthMax);
-		// Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
+
+		// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
 		// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
 		// content-sized grid rows to determine their required height.
 		computeUsedBreadthOfGridTracks(mRows, getHeight(), mRowGap.asUser(getHeight()), ::getRowSpan, ::getHeightMin,
 									   ::getHeightMax);
 
-		// TODO If the minimum content size of any grid item has changed based on available height for the grid item as
-		// computed in step 2, adjust the min content size of the grid item and restart the grid track sizing algorithm
-		// (once only).
+		// 3. TODO If the minimum content size of any grid item has changed based on available height for the grid item
+		// as computed in step 2, adjust the min content size of the grid item and restart the grid track sizing
+		// algorithm (once only).
 	} catch (const std::exception& exc) {
 		DS_LOG_ERROR(exc.what())
 	}
@@ -335,20 +346,38 @@ void Grid::runLayout() {
 	ss << t.getSeconds() << " seconds.";
 	DS_LOG_INFO(ss.str());
 
-	// Automatic Grid Item Placement Algorithm.
-	auto items = allItems();
-
-	// TODO sort items by specified order, see: https://drafts.csswg.org/css-flexbox-1/#order-modified-document-order
-
 	// Position anything that’s not auto-positioned.
+	size_t colCursor{0};
+	size_t rowCursor{0};
+
 	for (auto item : items) {
-		const auto& col = item->getColumnSpan();
-		const auto& row = item->getRowSpan();
-		if (col.count() && row.count()) {
+		auto col = item->getColumnSpan();
+		auto row = item->getRowSpan();
+
+		// TEMP while we don't have auto grid item placement
+		if (item->isRowSpanAuto()) {
+			if (rowCursor >= mRows.size()) continue;
+			row = {rowCursor, rowCursor + 1};
+		}
+		if (item->isColumnSpanAuto()) {
+			col = {colCursor, colCursor + 1};
+			if (++colCursor >= mColumns.size()) {
+				colCursor = 0;
+				++rowCursor;
+			}
+		}
+
+		try {
 			const auto area = calcArea(col, row);
 			item->setPosition(area.x1, area.y1);
-		}
+			item->setSize(area.getWidth(), area.getHeight());
+
+			auto text = dynamic_cast<Text*>(item);
+			if (text) text->setResizeLimit(area.getWidth(), area.getHeight());
+		} catch (...) {}
 	}
+
+#if 0 // Automatic Grid Item Placement Algorithm.
 
 	// Process the items locked to a given row.
 	for (auto item : items) {
@@ -357,10 +386,15 @@ void Grid::runLayout() {
 		if (col.count() && row.count()) continue;
 		if (row.count()) {
 			for (size_t i = 0; i < mColumns.size(); ++i) {
-				const auto area = calcArea({i, i}, row);
-				if (!areaOverlapsItem(area, items)) {
+				const auto area = calcArea({i, i + 1}, row);
+				if (!areaOverlapsItems(area, items)) {
+					item->setColumnSpan({i, i + 1});
+
 					item->setPosition(area.x1, area.y1);
 					item->setSize(area.getWidth(), area.getHeight());
+
+					auto text = dynamic_cast<Text*>(item);
+					if (text) text->setResizeLimit(area.getWidth(), area.getHeight());
 					break;
 				}
 			}
@@ -377,38 +411,48 @@ void Grid::runLayout() {
 	}
 
 	// Position the remaining grid items.
-	Range<size_t> cursor{0, 0};
+	Range<size_t> cursor{0, 1};
 	for (auto item : items) {
-		const auto& row = item->getRowSpan();
 		const auto& col = item->getColumnSpan();
+		const auto& row = item->getRowSpan();
 		if (col.count() && row.count()) continue;
 		if (col.count()) {
 			// Set the column position of the cursor to be equal to the inline-start index of the grid item.
-			cursor.min = col.min;
+			cursor = {0, 1};
 
 			// Increment the auto-placement cursor’s row position until a value is found where the grid item does
 			// not overlap any occupied grid cells (creating new rows in the implicit grid as necessary). Position
 			// the item’s block-start edge to the auto-placement cursor’s row position.
-			auto area = calcArea(cursor, row);
-			while (areaOverlapsItem(area, items)) {
+			auto area = calcArea(col, cursor);
+			while (cursor.min < mRows.size() && areaOverlapsItems(area, items)) {
+				++cursor.min;
 				++cursor.max;
 
 				// TODO create new row
 				if (cursor.max > mRows.size()) break;
 
-				area = calcArea(cursor, row);
+				area = calcArea(col, cursor);
 			}
+
+			item->setRowSpan(cursor);
 
 			item->setPosition(area.x1, area.y1);
 			item->setSize(area.getWidth(), area.getHeight());
+
+			auto text = dynamic_cast<Text*>(item);
+			if (text) text->setResizeLimit(area.getWidth(), area.getHeight());
 		} else {
+			item->setRowSpan({0,1});
+
+			cursor = {0,1};
+
 			// Increment the column position of the auto-placement cursor until this item’s grid area does not overlap
 			// any occupied grid cells or overflow the number of columns determined in the previous step.
 			auto area = calcArea(cursor, row);
-			while (areaOverlapsItem(area, items)) {
+			while (areaOverlapsItems(area, items)) {
 				++cursor.min;
-
-				if (cursor.min > numColumns) break;
+				++cursor.max;
+				if(cursor.max > numColumns) break;
 
 				area = calcArea(cursor, row);
 			}
@@ -417,12 +461,17 @@ void Grid::runLayout() {
 			// block-start edges to the auto-placement cursor’s column and row position, respectively Otherwise,
 			// increment the auto-placement cursor’s row position (creating new rows in the implicit grid as necessary),
 			// set its column position to 1, and return to the previous step.
+			
+			item->setColumnSpan(cursor);
 
 			item->setPosition(area.x1, area.y1);
 			item->setSize(area.getWidth(), area.getHeight());
+
+			auto text = dynamic_cast<Text*>(item);
+			if (text) text->setResizeLimit(area.getWidth(), area.getHeight());
 		}
 	}
-
+#endif
 	mInitialized = true;
 	mNeedsLayout = false;
 
@@ -783,7 +832,7 @@ std::vector<Sprite*> Grid::nonFlexibleItems(const std::vector<Track>& tracks, co
 	return result;
 }
 
-void Grid::parse(std::vector<TrackNames>& names, std::vector<Track>& tracks, const std::string& def) {
+void Grid::parse(std::vector<Track>& tracks, const std::string& def) {
 	auto sInOut = def.c_str();
 	skipSpace(&sInOut);
 
@@ -798,27 +847,19 @@ void Grid::parse(std::vector<TrackNames>& names, std::vector<Track>& tracks, con
 			auto s = fetchUntil(&sInOut, ')');
 			skipSpaceOrParenthesis(&sInOut);
 			for (int i = 0; i < n; ++i) {
-				parse(names, tracks, s);
+				parse(tracks, s);
 			}
 		} else if (*sInOut == '[') {
 			sInOut += 1;
 			auto s = fetchUntil(&sInOut, ']');
+			DS_LOG_WARNING("Grid line names '" << s << "' are currently not supported.");
 			sInOut += 1;
 			skipSpace(&sInOut);
-			// Insert line name(s).
-			names.push_back(ci::split(s, ' '));
 		} else {
 			tracks.emplace_back(&sInOut); // Create track.
 			skipSpace(&sInOut);
-			// Insert empty line name if necessary.
-			while (names.size() < tracks.size())
-				names.emplace_back();
 		}
 	}
-
-	// Insert empty line name if necessary.
-	while (names.size() <= tracks.size())
-		names.emplace_back();
 }
 
 Range<size_t> Grid::parseSpan(const char** sInOut) {

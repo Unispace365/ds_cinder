@@ -62,7 +62,6 @@ class Grid : public Sprite {
 	using TracksForGrowthBeyondConstraintFn = std::function<std::vector<Track*>(const std::vector<Track*>&)>;
 	using BreadthFn							= std::function<float(const Track&)>;
 	using AccumulatorFn						= std::function<float&(Track&)>;
-	using TrackNames						= std::vector<std::string>;
 
 	Grid(SpriteEngine& engine);
 
@@ -86,8 +85,6 @@ class Grid : public Sprite {
 		const auto& row = item->getRowSpan();
 		return calcArea(col, row);
 	}
-	//
-	bool areaOverlapsItem(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
 
 	//
 	float calcWidth() const;
@@ -100,11 +97,9 @@ class Grid : public Sprite {
 
 	static Range<size_t> parseSpan(const char** sInOut);
 
-	void drawLocalClient();
+	void drawLocalClient() override;
 
 	void addChild(Sprite& newChild) override;
-
-	void runLayout();
 
 	void setLayoutUpdatedFunction(const std::function<void()>& layoutUpdatedFunction) {
 		mLayoutUpdatedFunction = layoutUpdatedFunction;
@@ -115,9 +110,20 @@ class Grid : public Sprite {
 		}
 	}
 
+	void setSizeAll(float width, float height, float depth) override {
+		mNeedsLayout = true;
+		Sprite::setSizeAll(width, height, depth);
+	}
+
   private:
-	//
+	// Returns whether the \a area overlaps the \a span.
+	bool areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const;
+	// Returns whether the \a area overlaps any of the \a spans.
+	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
+	// Calculates the position of the grid line with the specified \a index.
 	float calcPos(size_t index, const std::vector<Track>& tracks, float gap) const;
+	//
+	void runLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
 	void computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float percentOf, float gap, const SpanFn& spanFn,
 										const SizeFn& minFn, const SizeFn& maxFn);
@@ -144,17 +150,15 @@ class Grid : public Sprite {
 	// The \a spanFn is either `getColumnSpan` or `getRowSpan'.
 	std::vector<Sprite*> nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn);
 
-	static void parse(std::vector<TrackNames>& names, std::vector<Track>& tracks, const std::string& def);
+	static void parse(std::vector<Track>& tracks, const std::string& def);
 
-	std::vector<Track>		mColumns;
-	std::vector<Track>		mRows;
-	std::vector<TrackNames> mColumnNames;
-	std::vector<TrackNames> mRowNames;
-	css::Value				mColumnGap{0, css::Value::PIXELS};
-	css::Value				mRowGap{0, css::Value::PIXELS};
-	std::function<void()>	mLayoutUpdatedFunction;
-	bool					mInitialized{false};
-	bool					mNeedsLayout{true};
+	std::vector<Track>	  mColumns;
+	std::vector<Track>	  mRows;
+	css::Value			  mColumnGap{0, css::Value::PIXELS};
+	css::Value			  mRowGap{0, css::Value::PIXELS};
+	std::function<void()> mLayoutUpdatedFunction;
+	mutable bool		  mInitialized{false};
+	mutable bool		  mNeedsLayout{true};
 };
 
 using GridException = css::Exception<const Grid*>;
