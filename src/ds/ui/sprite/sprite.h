@@ -202,10 +202,48 @@ namespace ui {
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
 		virtual float getWidth() const;
 
+		/** The width range of the Sprite.
+			\return the minimum and maximum width of the Sprite		*/
+		Range<float> getWidthRange() const { return {getWidthMin(), getWidthMax()}; }
+
+		// Returns the minimum width of the Sprite.
+		virtual float getWidthMin() const { return std::isfinite(mMinWidth) ? mMinWidth : mWidth; }
+		// Sets the minimum width of the Sprite.
+		virtual void setWidthMin(float width) {
+			mMinWidth = width;
+			mWidth	  = glm::max(mWidth, mMinWidth);
+		}
+		// Returns the maximum width of the Sprite.
+		virtual float getWidthMax() const { return std::isfinite(mMaxWidth) ? mMaxWidth : mWidth; }
+		// Sets the maximum width of the Sprite.
+		virtual void setWidthMax(float width) {
+			mMaxWidth = width;
+			mWidth	  = glm::min(mWidth, mMaxWidth);
+		}
+
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
+
+		/** The height range of the Sprite.
+			\return the minimum and maximum height of the Sprite		*/
+		Range<float> getHeightRange() const { return {getHeightMin(), getHeightMax()}; }
+
+		// Returns the minimum height of the Sprite.
+		virtual float getHeightMin() const { return std::isfinite(mMinHeight) ? mMinHeight : mHeight; }
+		// Sets the minimum height of the Sprite.
+		virtual void setHeightMin(float height) {
+			mMinHeight = height;
+			mHeight	   = glm::max(mHeight, mMinHeight);
+		}
+		// Returns the maximum height of the Sprite.
+		virtual float getHeightMax() const { return std::isfinite(mMaxHeight) ? mMaxHeight : mHeight; }
+		// Sets the maximum height of the Sprite.
+		virtual void setHeightMax(float height) {
+			mMaxHeight = height;
+			mHeight	   = glm::min(mHeight, mMaxHeight);
+		}
 
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
@@ -787,6 +825,13 @@ namespace ui {
 
 		bool mExportWithXml;
 
+		// Grid
+
+		const Range<size_t>& getColumnSpan() const { return mGridColumnSpan; }
+		void				 setColumnSpan(const Range<size_t>& span) { mGridColumnSpan = span; }
+		const Range<size_t>& getRowSpan() const { return mGridRowSpan; }
+		void				 setRowSpan(const Range<size_t>& span) { mGridRowSpan = span; }
+
 	  protected:
 		friend class TouchManager;
 		friend class TouchProcess;
@@ -884,6 +929,9 @@ namespace ui {
 
 		float mWidth, mHeight, mDepth;
 
+		float mMinWidth{-std::numeric_limits<float>::infinity()}, mMaxWidth{std::numeric_limits<float>::infinity()};
+		float mMinHeight{-std::numeric_limits<float>::infinity()}, mMaxHeight{std::numeric_limits<float>::infinity()};
+
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;
 		mutable bool	 mUpdateTransform;
@@ -911,6 +959,9 @@ namespace ui {
 
 		mutable ci::mat4 mGlobalTransform;
 		mutable ci::mat4 mInverseGlobalTransform;
+
+		Range<size_t> mGridColumnSpan{0, 0}; // Used by Grid layouts.
+		Range<size_t> mGridRowSpan{0, 0};	 // Used by Grid layouts.
 
 		ds::UserData mUserData;
 

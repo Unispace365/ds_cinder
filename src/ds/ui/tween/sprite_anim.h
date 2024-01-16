@@ -12,6 +12,20 @@ namespace ds { namespace ui {
 	class SpriteEngine;
 
 	/**
+	 * \class Range
+	 * A utility struct to store a range of values.
+	 *
+	 */
+	template <typename T = float>
+	struct Range {
+		T min;
+		T max;
+
+		// For integer ranges, returns the span of the range, e.g. returns 0 if min and max are equal.
+		T count() const { return max - min; }
+	};
+
+	/**
 	 * \class SpriteAnim
 	 * A utility to class to provide animation access to a single
 	 * sprite property.
@@ -85,8 +99,8 @@ namespace ds { namespace ui {
 					   const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
 					   const std::function<void(void)>& updateFn = nullptr);
 		void tweenReveal(float value, const float duration = 1.0f, const float delay = 0.0f,
-					   const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
-					   const std::function<void(void)>& updateFn = nullptr);
+						 const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
+						 const std::function<void(void)>& updateFn = nullptr);
 		void tweenNormalized(const float duration = 1.0f, const float delay = 0.0f, const ci::EaseFn& = ci::easeNone,
 							 const std::function<void(void)>& finishFn = nullptr,
 							 const std::function<void(void)>& updateFn = nullptr);

@@ -128,6 +128,8 @@
     <ClInclude Include="..\src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="..\src\ds\ui\control\control_check_box.h" />
     <ClInclude Include="..\src\ds\ui\control\control_slider.h" />
+    <ClInclude Include="..\src\ds\ui\grid\css.h" />
+    <ClInclude Include="..\src\ds\ui\grid\grid.h" />
     <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h" />
     <ClInclude Include="..\src\ds\ui\layout\perspective_layout.h" />
     <ClInclude Include="..\src\ds\ui\service\shader_string_repo.h" />
@@ -307,6 +309,8 @@
     <ClCompile Include="..\src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="..\src\ds\ui\control\control_check_box.cpp" />
     <ClCompile Include="..\src\ds\ui\control\control_slider.cpp" />
+    <ClCompile Include="..\src\ds\ui\grid\css.cpp" />
+    <ClCompile Include="..\src\ds\ui\grid\grid.cpp" />
     <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\layout\perspective_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\service\shader_string_repo.cpp" />

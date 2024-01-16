@@ -647,7 +647,7 @@ ci::vec3 Sprite::getRotation() const {
 	return mRotation;
 }
 
-void Sprite::setReveal( float value ) {
+void Sprite::setReveal(float value) {
 	mReveal = value;
 }
 
@@ -841,8 +841,8 @@ const ci::vec3 Sprite::getSize() const {
 void Sprite::setSizeAll(float width, float height, float depth) {
 	if (mWidth == width && mHeight == height && mDepth == depth) return;
 
-	mWidth	= width;
-	mHeight = height;
+	mWidth	= glm::clamp(width, mMinWidth, mMaxWidth);
+	mHeight = glm::clamp(height, mMinHeight, mMaxHeight);
 	mDepth	= depth;
 	/*auto ygw = YGNodeStyleGetWidth(mYogaNode);
 	auto ygh = YGNodeStyleGetHeight(mYogaNode);
