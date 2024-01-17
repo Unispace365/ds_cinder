@@ -44,8 +44,9 @@ CMS backend for rapid prototyping and developemnt.
 1. Download and install Git and ensure you have git-lfs available
 2. Run `git clone https://github.com/Unispace365/ds_cinder.git`
 3. `cd ds_cinder`
-4. Run: `git lfs-fetch all`
-5. Run: `git submodule init` & `git submodule update --recursive` to create & update the Cinder submodule.
+4. Run: `git lfs install`
+5. Run: `git lfs fetch --all`
+6. Run: `git submodule init` & `git submodule update --recursive` to create & update the Cinder submodule.
 	- If you're upgrading from a previous version, you may need to run `git submodule sync` first
 7. Add platform environment variable
     1. Open the Start menu and type "Advanced System Settings"
