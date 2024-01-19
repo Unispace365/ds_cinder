@@ -207,14 +207,14 @@ namespace ui {
 		Range<float> getWidthRange() const { return {getWidthMin(), getWidthMax()}; }
 
 		// Returns the minimum width of the Sprite.
-		virtual float getWidthMin() const { return std::isfinite(mMinWidth) ? mMinWidth : mWidth; }
+		virtual float getWidthMin() const { return std::isfinite(mMinWidth) ? mMinWidth : getScaleWidth(); }
 		// Sets the minimum width of the Sprite.
 		virtual void setWidthMin(float width) {
 			mMinWidth = width;
 			mWidth	  = glm::max(mWidth, mMinWidth);
 		}
 		// Returns the maximum width of the Sprite.
-		virtual float getWidthMax() const { return std::isfinite(mMaxWidth) ? mMaxWidth : mWidth; }
+		virtual float getWidthMax() const { return std::isfinite(mMaxWidth) ? mMaxWidth : getScaleWidth(); }
 		// Sets the maximum width of the Sprite.
 		virtual void setWidthMax(float width) {
 			mMaxWidth = width;
@@ -231,14 +231,14 @@ namespace ui {
 		Range<float> getHeightRange() const { return {getHeightMin(), getHeightMax()}; }
 
 		// Returns the minimum height of the Sprite.
-		virtual float getHeightMin() const { return std::isfinite(mMinHeight) ? mMinHeight : mHeight; }
+		virtual float getHeightMin() const { return std::isfinite(mMinHeight) ? mMinHeight : getScaleHeight(); }
 		// Sets the minimum height of the Sprite.
 		virtual void setHeightMin(float height) {
 			mMinHeight = height;
 			mHeight	   = glm::max(mHeight, mMinHeight);
 		}
 		// Returns the maximum height of the Sprite.
-		virtual float getHeightMax() const { return std::isfinite(mMaxHeight) ? mMaxHeight : mHeight; }
+		virtual float getHeightMax() const { return std::isfinite(mMaxHeight) ? mMaxHeight : getScaleHeight(); }
 		// Sets the maximum height of the Sprite.
 		virtual void setHeightMax(float height) {
 			mMaxHeight = height;
