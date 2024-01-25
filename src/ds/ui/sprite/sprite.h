@@ -67,11 +67,11 @@ namespace ui {
 	class Sprite : public SpriteAnimatable {
 	  public:
 		struct FinalRenderInfo {
-			FinalRenderInfo() {}
-			FinalRenderInfo(const FinalRenderInfo&)			   = default;
-			FinalRenderInfo(FinalRenderInfo&&)				   = default;
+			FinalRenderInfo()                                  = default;
+			FinalRenderInfo(const FinalRenderInfo&)            = default;
+			FinalRenderInfo(FinalRenderInfo&&)                 = default;
 			FinalRenderInfo& operator=(const FinalRenderInfo&) = default;
-			FinalRenderInfo& operator=(FinalRenderInfo&&)	   = default;
+			FinalRenderInfo& operator=(FinalRenderInfo&&)      = default;
 
 			bool				useLocalTransform = true;
 			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format();
@@ -103,7 +103,7 @@ namespace ui {
 			\param width Initial horizontal size of the sprite.
 			\param height Initial vertical size of the sprite.		*/
 		Sprite(SpriteEngine& engine, float width = 0.0f, float height = 0.0f);
-		virtual ~Sprite();
+		~Sprite() override;
 
 		/** Update function for when this app is set to be a client.
 			Don't override this function, use onUpdateClient if you need it
@@ -158,7 +158,7 @@ namespace ui {
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
 			\return Returns a 3-dimensional vector equivalent to ci::vec3(width, height, depth).		*/
-		const ci::vec3 getSize() const;
+		ci::vec3 getSize() const;
 
 		/** Sets the width and height of the Sprite.
 			This does not affect the scale of the Sprite. Many subclasses set the size of the Sprite themselves, such as
@@ -260,12 +260,12 @@ namespace ui {
 		/** Get the position of the Sprite in global space.
 			Returns ci::vec3::zero() if this sprite has no parent.
 			\return The 3d vector of the world-space position, in pixels. */
-		const ci::vec3 getGlobalPosition() const;
+		ci::vec3 getGlobalPosition() const;
 
 		/** Get the center position of the Sprite in global space. This is a convenience that's getGlobalPostion() +
 		getLocalCenterPosition(); Returns ci::vec3::zero() + getLocalCenterPosition() if this sprite has no parent.
 		\return The 3d vector of the center of this sprite world-space position, in pixels. */
-		const ci::vec3 getGlobalCenterPosition() const;
+		ci::vec3 getGlobalCenterPosition() const;
 
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
@@ -315,7 +315,7 @@ namespace ui {
 			\return center 3d vector of the center percentage. */
 		const ci::vec3& getCenter() const;
 
-		/** The "midde" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate
+		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate
 		   space. Effectively mPosition + getLocalCenterPosition(); \return 3d Vector of the pixel position of the
 		   center of this Sprite. */
 		ci::vec3 getCenterPosition() const;
@@ -330,24 +330,24 @@ namespace ui {
 			\param zRot Sets the rotation around the z-axis, in degrees. 	*/
 		void setRotation(float zRot);
 
-		/** Set the rotation around all 3 axis'es, in degrees.
+		/** Set the rotation around all 3 axes, in degrees.
 			\param xRot Sets the rotation around the x-axis, in degrees.
 			\param yRot Sets the rotation around the y-axis, in degrees.
 			\param zRot Sets the rotation around the z-axis, in degrees. 	*/
-		void setRotation(const float xRot, const float yRot, const float zRot);
+		void setRotation(float xRot, float yRot, float zRot);
 
-		/** Set the rotation around all 3 axis'es, in degrees.
+		/** Set the rotation around all 3 axes, in degrees.
 			\param rot 3d vector of the new rotation, in degrees.*/
 		void setRotation(const ci::vec3& rot);
 
-		/** Set the rotation around all 3 given axis'es with the given degree
+		/** Set the rotation around all 3 given axes with the given degree
 			\param axis    axis to rotate around
 			\param angle   Amount of rotation in degrees */
-		void  setRotation(const ci::vec3& axis, const float angle);
+		void  setRotation(const ci::vec3& axis, float angle);
 		bool  mDoSpecialRotation;
 		float mDegree;
 
-		/** Get the rotation around all 3 axis'es, in degrees.
+		/** Get the rotation around all 3 axes, in degrees.
 			\return 3d vector of the current rotation, in degrees.*/
 		ci::vec3 getRotation() const;
 
@@ -438,9 +438,9 @@ namespace ui {
 		bool containsChild(Sprite* child) const;
 
 		/** Run a function for every child of this Sprite.
-			\param funkyTown The lambda function to be called for each Sprite.
+			\param fn The lambda function to be called for each Sprite.
 			\param recurse Call this function for all children of all children of all my children. */
-		void forEachChild(const std::function<void(Sprite&)>& funkyTown, const bool recurse = false);
+		void forEachChild(const std::function<void(Sprite&)>& fn, bool recurse = false);
 
 		/** Traverse children recursively and find a sprite the with the given name.
 			\param name The name given from layout or from setSpriteName(). */
@@ -523,7 +523,7 @@ namespace ui {
 
 		/** A convenience for notifying parents of events. Passes the event up through the parent hierarchy to the root
 		   Sprite. Calls eventReceived() for each parent. \param event The Event to be passed up the chain. */
-		void parentEventReceived(const ds::Event& event);
+		void parentEventReceived(const ds::Event& event) const;
 
 		/** Returns the parent for this Sprite, if any. Can return nullptr if there is no parent, so check before using.
 		 */
@@ -537,7 +537,7 @@ namespace ui {
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
-		ci::vec3 globalToLocal(const ci::vec3& globalPoint);
+		ci::vec3 globalToLocal(const ci::vec3& globalPoint) const;
 
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May
 		   not work for perspective Sprites. For example, you could figure out where to launch a media viewer from a
@@ -547,13 +547,13 @@ namespace ui {
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
-		ci::vec3 localToGlobal(const ci::vec3& localPoint);
+		ci::vec3 localToGlobal(const ci::vec3& localPoint) const;
 
 		/** Check if a global point is inside the Sprite's bounding box, does not take perspective into account.
 			\param point The global point to check if it's inside this Sprite's bounding box.
 			\param pad Extra pixel size outside this Sprite's bounding box. Useful for ad-hoc touch padding.
 			\return True if the point is inside the bounding box, false for outside. */
-		virtual bool contains(const ci::vec3& point, const float pad = 0.0f) const;
+		virtual bool contains(const ci::vec3& point, float pad = 0.0f) const;
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size
 		   for touch picking. This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit() \param point The
@@ -586,7 +586,7 @@ namespace ui {
 		void disableMultiTouch();
 
 		/** The BitMask of*/
-		const BitMask& getMultiTouchConstraints() { return mMultiTouchConstraints; }
+		const BitMask& getMultiTouchConstraints() const { return mMultiTouchConstraints; }
 
 		/** Has enableMultiTouch() been called?  */
 		bool multiTouchEnabled() const;
@@ -616,7 +616,7 @@ namespace ui {
 		/** Get notified if a double tap has occurred within the double tap threshold. */
 		void setDoubleTapCallback(const std::function<void(Sprite*, const ci::vec3&)>& func);
 
-		/** Get notified if this sprite gets dragged over any desintation sprites. Set destination sprites with
+		/** Get notified if this sprite gets dragged over any destination sprites. Set destination sprites with
 		 * mEngine.addToDragDestinationList()*/
 		void setDragDestinationCallback(const std::function<void(Sprite*, const DragDestinationInfo&)>& func);
 
@@ -632,14 +632,14 @@ namespace ui {
 			MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect */
 		void setTouchScaleMode(bool doSizeScale);
 
-		void setInnerHitFunction(std::function<const bool(const ci::vec3&)> func);
+		void setInnerHitFunction(const std::function<bool(const ci::vec3&)>& func);
 
 		/** Calls a function after the delay in seconds. Only one function is active at a time, so if you set this
 		   twice, the first delayed call will be ignored. Also see src/ds/time_callback or mEngine.timedCallback() or
 		   mEngine.repeatedCallback() for a generic timed callback*/
-		void callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
+		void callAfterDelay(const std::function<void()>&, float delayInSeconds);
 
-		/** Cancels any pending callAfterDelay() funcitons */
+		/** Cancels any pending callAfterDelay() functions */
 		void cancelDelayedCall();
 
 		/** This sprite is within the boundaries of the src_rect for this instance */
@@ -672,18 +672,18 @@ namespace ui {
 		// Deprecate?
 		//[[deprecated("Use FinalRenderInfo.format and setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo
 		// info)")]]
-		void setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format);
-		void setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info = FinalRenderInfo());
-		bool isFinalRenderToTexture();
+		void setFinalRenderToTexture(bool renderToTexture, ci::gl::Fbo::Format format);
+		void setFinalRenderToTexture(bool renderToTexture, FinalRenderInfo info = FinalRenderInfo());
+		bool isFinalRenderToTexture() const;
 
 		// Retrieve the rendered output texture
-		ci::gl::TextureRef getFinalOutTexture();
-		void			   setupFinalRenderBuffer();
+		ci::gl::TextureRef getFinalOutTexture() const;
+		void               setupFinalRenderBuffer();
 
 		/// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
-		void setBaseShader(const std::string& location, const std::string& shadername, bool applyToChildren = false);
+		void setBaseShader(const std::string& location, const std::string& shaderName, bool applyToChildren = false);
 		void setBaseShader(const std::string& vertShaderString, const std::string& fragShaderString,
-						   const std::string& shadername, bool applyToChildren = false);
+						   const std::string& shaderName, bool applyToChildren = false);
 
 		/// Set the resource content for a sprite. This is a base function that should be overridden by anything that
 		/// can take a Resource (Image, Video, PDF, etc)
@@ -702,7 +702,7 @@ namespace ui {
 		virtual void userInputReceived();
 
 		/// Set the number of seconds since the last userInputReceived() before this sprite reports as idle
-		void   setSecondBeforeIdle(const double);
+		void   setSecondBeforeIdle(double);
 		double secondsToIdle() const;
 		bool   isIdling() const;
 		void   startIdling();
@@ -711,24 +711,24 @@ namespace ui {
 
 		/// Prevent this sprite (and all children) from replicating. NOTE: Should
 		/// only be done once on construction, if you change it, weird things could happen.
-		void setNoReplicationOptimization(const bool = false);
+		void setNoReplicationOptimization(bool = false);
 		/// Special function to mark every sprite from me down as dirty.
 		void markTreeAsDirty();
 
 		/// When true, the touch input is automatically rotated to account for my rotation.
-		void setRotateTouches(const bool = false);
+		void setRotateTouches(bool = false);
 		bool isRotateTouches() const;
 
 		bool getPerspective() const;
 		/// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for
 		/// views that are inside of perspective cameras, but are expressed in screen coordinates.
-		void setIsInScreenCoordsHack(const bool);
+		void setIsInScreenCoordsHack(bool);
 
 		void setUseDepthBuffer(bool useDepth);
 		bool getUseDepthBuffer() const;
 
 		/// If this sprite renders locally and the radius is > 0, will draw a rounded rect
-		void  setCornerRadius(const float newRadius);
+		void  setCornerRadius(float newRadius);
 		float getCornerRadius() const;
 
 		/// Answer true if this sprite currently has any touches.
@@ -744,11 +744,11 @@ namespace ui {
 		/// Mark this sprite to be a debug sprite layer.
 		///	The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and
 		/// not be colored weird. 	Client apps don't generally need to set this flag, as it happens automagically.
-		void setDrawDebug(const bool doDebug);
+		void setDrawDebug(bool doDebug);
 
 		/// If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if
 		/// disabled.
-		bool getDrawDebug();
+		bool getDrawDebug() const;
 
 		/// Set the name of this sprite. No guarantee of uniqueness
 		void setSpriteName(const std::wstring& name);
@@ -757,8 +757,8 @@ namespace ui {
 		// sprite is part of. The sprite need not have been created in
 		// the layout for this to work, but one of its ancestor sprite needs to have been.
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
-		ds::cfg::Settings* getLayoutSettings();
-		void			   setLayoutSettings(const ds::cfg::Settings& settings);
+		ds::cfg::Settings* getLayoutSettings() const;
+		void               setLayoutSettings(const ds::cfg::Settings& settings);
 
 		// Flexbox
 		virtual void setFlexboxFromStyleString(std::string style);
@@ -770,7 +770,7 @@ namespace ui {
 										  YGMeasureMode heightMode);
 		/// Return the sprite's name, no guarantee of uniqueness. Returns the Id if there's no name set and useDefault
 		/// is true.
-		const std::wstring getSpriteName(const bool useDefault = true) const;
+		std::wstring getSpriteName(bool useDefault = true) const;
 
 		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
 		float	 mLayoutTPad;
@@ -798,7 +798,7 @@ namespace ui {
 		bool tapInfo(const TapInfo&);
 		void tap(const ci::vec3& tapPos);
 		void doubleTap(const ci::vec3& tapPos);
-		void dragDestination(Sprite* sprite, const DragDestinationInfo& dragInfo);
+		void dragDestination(Sprite* sprite, const DragDestinationInfo& dragInfo) const;
 		void processTouchInfo(const TouchInfo& touchInfo);
 		void processTouchInfoCallback(const TouchInfo& touchInfo);
 
@@ -822,7 +822,7 @@ namespace ui {
 		virtual void doSetPosition(const ci::vec3&);
 		virtual void doSetScale(const ci::vec3&);
 		virtual void doSetRotation(const ci::vec3&);
-		void		 doPropagateVisibilityChange(bool before, bool after);
+		void		 doPropagateVisibilityChange(bool before, bool after) const;
 
 		virtual void onCenterChanged() {}
 		virtual void onPositionChanged() {}
@@ -850,8 +850,8 @@ namespace ui {
 
 		void setSpriteId(const ds::sprite_id_t&);
 		/// Helper utility to set a flag
-		void setFlag(const int newBit, const bool on, const DirtyState&, int& oldFlags);
-		bool getFlag(const int bit, const int flags) const;
+		void        setFlag(int newBit, bool on, const DirtyState&, int& oldFlags);
+		static bool getFlag(int bit, int flags);
 
 		virtual void markAsDirty(const DirtyState&);
 		/// Special function that marks all children as dirty, without sending anything up the hierarchy.
@@ -870,7 +870,7 @@ namespace ui {
 		void sendSpriteToFront(Sprite& sprite);
 		void sendSpriteToBack(Sprite& sprite);
 
-		void setPerspective(const bool);
+		void setPerspective(bool);
 
 		mutable bool mBoundsNeedChecking;
 		mutable bool mInBounds;
@@ -964,12 +964,12 @@ namespace ui {
 		friend class ds::EngineRoot;
 		/// Disable copy constructor; sprites are managed by their parent and
 		/// must be allocated
-		Sprite(const Sprite&);
+		Sprite(const Sprite&) = delete;
 		/// Internal constructor just for the Engine, used to create the root sprite,
 		/// which always exists and is identical across all architectures.
-		Sprite(SpriteEngine&, const ds::sprite_id_t id, const bool perspective = false);
+		Sprite(SpriteEngine&, ds::sprite_id_t id, bool perspective = false);
 
-		void init(const ds::sprite_id_t);
+		void init(ds::sprite_id_t);
 		void readAttributesFrom(ds::DataBuffer&);
 
 		void dimensionalStateChanged();
@@ -1017,8 +1017,8 @@ namespace ui {
 		// #ifdef _DEBUG
 		/// Debugging aids to write out my state. write() calls writeState
 		/// on me and all my children.
-		void		 write(std::ostream&, const size_t tab) const;
-		virtual void writeState(std::ostream&, const size_t tab) const;
+		void         write(std::ostream&, size_t tab) const;
+		virtual void writeState(std::ostream&, size_t tab) const;
 		// #endif
 
 		static void installAsServer(ds::BlobRegistry&);
