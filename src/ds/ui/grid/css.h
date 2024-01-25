@@ -239,11 +239,10 @@ class PreserveAspectRatio {
 
 	glm::mat3x2 calcTransform(const ci::Rectf& element, const ci::Rectf& viewBox, bool normalized = false) const;
 
+	void parse(const char** sInOut);
+
 	Align		align{ALIGN_X_MID_Y_MID};
 	MeetOrSlice meetOrSlice{MEET};
-
-  private:
-	void parse(const char** sInOut);
 };
 
 } // namespace ds::css

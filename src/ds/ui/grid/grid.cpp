@@ -266,28 +266,30 @@ float Grid::calcHeight() const {
 
 void Grid::drawLocalClient() {
 	if (mNeedsLayout) runLayout();
-#if 0
-	ci::gl::ScopedColor		   sc(1, 1, 1);
-	ci::gl::ScopedBlendPremult sb;
 
-	ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
-	for (size_t row = 0; row < mRows.size(); ++row) {
-		for (size_t col = 0; col < mColumns.size(); ++col) {
-			ci::gl::drawStrokedRect(calcArea({col, col + 1}, {row, row + 1}));
+	const auto engine = dynamic_cast<Engine*>(&mEngine);
+	if (engine && engine->isShowingSettingsEditor()) {
+		ci::gl::ScopedColor		   sc(1, 1, 1);
+		ci::gl::ScopedBlendPremult sb;
+
+		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
+		for (size_t row = 0; row < mRows.size(); ++row) {
+			for (size_t col = 0; col < mColumns.size(); ++col) {
+				ci::gl::drawStrokedRect(calcArea({col, col + 1}, {row, row + 1}));
+			}
+		}
+
+		float width	 = calcWidth();
+		float height = calcHeight();
+
+		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
+		ci::gl::drawStrokedRect({0, 0, width, height}, 15);
+
+		ci::gl::color(ci::ColorA8u(128, 51, 0, 128));
+		for (const auto item : allItems()) {
+			ci::gl::drawStrokedRect(calcArea(item), 15);
 		}
 	}
-
-	float width	 = calcWidth();
-	float height = calcHeight();
-
-	ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
-	ci::gl::drawStrokedRect({0, 0, width, height}, 15);
-
-	ci::gl::color(ci::ColorA8u(128, 51, 0, 128));
-	for (auto item : allItems()) {
-		ci::gl::drawStrokedRect(calcArea(item), 15);
-	}
-#endif
 }
 
 void Grid::addChild(Sprite& newChild) {
