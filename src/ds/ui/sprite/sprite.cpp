@@ -105,7 +105,7 @@ void Sprite::installAsClient(ds::BlobRegistry& registry) {
 void Sprite::handleBlobFromClient(ds::BlobReader& r) {
 	ds::DataBuffer& buf(r.mDataBuffer);
 	if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
-	ds::sprite_id_t id = buf.read<ds::sprite_id_t>();
+	const ds::sprite_id_t id = buf.read<ds::sprite_id_t>();
 	Sprite*			s  = r.mSpriteEngine.findSprite(id);
 	if (s) s->readFrom(r);
 }
@@ -238,7 +238,7 @@ Sprite::~Sprite() {
 	}
 }
 
-void Sprite::updateClient(const UpdateParams& p) {
+void Sprite::updateClient(const UpdateParams& updateParams) {
 	mIdleTimer.update();
 
 	if (mCheckBounds) {
@@ -246,14 +246,14 @@ void Sprite::updateClient(const UpdateParams& p) {
 	}
 
 	for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-		(*it)->updateClient(p);
+		(*it)->updateClient(updateParams);
 	}
 
-	onUpdateClient(p);
+	onUpdateClient(updateParams);
 }
 
-void Sprite::updateServer(const UpdateParams& p) {
-	mTouchProcess.update(p);
+void Sprite::updateServer(const UpdateParams& updateParams) {
+	mTouchProcess.update(updateParams);
 
 	mIdleTimer.update();
 
@@ -262,10 +262,10 @@ void Sprite::updateServer(const UpdateParams& p) {
 	}
 
 	for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-		(*it)->updateServer(p);
+		(*it)->updateServer(updateParams);
 	}
 
-	onUpdateServer(p);
+	onUpdateServer(updateParams);
 }
 
 void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const DrawParams& drawParams) {
@@ -282,7 +282,7 @@ void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const 
 		DS_REPORT_GL_ERRORS();
 		ci::gl::enableAlphaBlending();
 		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
+		const ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if (shaderBase) {
 			DS_REPORT_GL_ERRORS();
 			shaderBase->bind();
@@ -386,7 +386,7 @@ void Sprite::drawClient(const ci::mat4& trans, const DrawParams& drawParams) {
 
 	if (mIsRenderFinalToTexture && mOutputFbo) {
 		// set the viewport and maticies to match the w/h of this object and fbo
-		ci::CameraOrtho			  camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
+		const ci::CameraOrtho			  camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
 		ci::gl::ScopedMatrices	  sMat;
 		ci::gl::ScopedViewport	  sVp(ci::ivec2(0), mOutputFbo->getSize());
 		ci::gl::ScopedFramebuffer sFb(mOutputFbo);
@@ -412,12 +412,12 @@ void Sprite::drawServer(const ci::mat4& trans, const DrawParams& drawParams) {
 	}
 
 	buildTransform();
-	ci::mat4 totalTransformation = trans * mTransformation;
+	const ci::mat4 totalTransformation = trans * mTransformation;
 	ci::gl::pushModelMatrix();
 
 	ci::gl::multModelMatrix(totalTransformation);
 
-	bool debugDraw = getDrawDebug();
+	const bool debugDraw = getDrawDebug();
 	if ((mSpriteFlags & TRANSPARENT_F) == 0 && (isEnabled() || debugDraw)) {
 		if (debugDraw) {
 			ci::gl::enableAlphaBlending();
@@ -498,16 +498,16 @@ void Sprite::buildRenderBatch() {
 }
 
 void Sprite::onBuildRenderBatch() {
-	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
+	const auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
 	if (mCornerRadius > 0.0f) {
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		const auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
 			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
 	} else {
-		auto theGeom = ci::geom::Rect(drawRect);
+		const auto theGeom = ci::geom::Rect(drawRect);
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -561,13 +561,13 @@ const ci::vec3& Sprite::getPosition() const {
 	return mPosition;
 }
 
-const ci::vec3 Sprite::getGlobalPosition() const {
+ci::vec3 Sprite::getGlobalPosition() const {
 	if (!getParent()) return ci::vec3();
 	return getParent()->localToGlobal(mPosition);
 }
 
 
-const ci::vec3 Sprite::getGlobalCenterPosition() const {
+ci::vec3 Sprite::getGlobalCenterPosition() const {
 	return getGlobalPosition() + getLocalCenterPosition();
 }
 
@@ -614,8 +614,8 @@ const ci::vec3& Sprite::getCenter() const {
 	return mCenter;
 }
 
-void Sprite::setRotation(float rotZ) {
-	doSetRotation(ci::vec3(mRotation.x, mRotation.y, rotZ));
+void Sprite::setRotation(float zRot) {
+	doSetRotation(ci::vec3(mRotation.x, mRotation.y, zRot));
 }
 
 void Sprite::setRotation(const float xRot, const float yRot, const float zRot) {
@@ -669,10 +669,10 @@ namespace {
 ci::Rectf Sprite::getBoundingBox() const {
 	const ci::mat4 t = getTransform();
 
-	glm::vec3 ul = glm::vec3(t * glm::vec4(0, 0, 0, 1));
-	glm::vec3 ll = glm::vec3(t * glm::vec4(0, getHeight(), 0, 1));
-	glm::vec3 lr = glm::vec3(t * glm::vec4(getWidth(), getHeight(), 0, 1));
-	glm::vec3 ur = glm::vec3(t * glm::vec4(getWidth(), 0, 0, 1));
+	const glm::vec3 ul = glm::vec3(t * glm::vec4(0, 0, 0, 1));
+	const glm::vec3 ll = glm::vec3(t * glm::vec4(0, getHeight(), 0, 1));
+	const glm::vec3 lr = glm::vec3(t * glm::vec4(getWidth(), getHeight(), 0, 1));
+	const glm::vec3 ur = glm::vec3(t * glm::vec4(getWidth(), 0, 0, 1));
 
 	const float left   = min(min(min(ul.x, ll.x), lr.x), ur.x);
 	const float right  = max(max(max(ul.x, ll.x), lr.x), ur.x);
@@ -687,7 +687,7 @@ ci::Rectf Sprite::getChildBoundingBox() const {
 	auto it = mChildren.begin();
 	// initialize the box to the first child and expand from there
 	ci::Rectf result = (*it)->getBoundingBox();
-	for (auto end = mChildren.end(); it != end; ++it) {
+	for (const auto end = mChildren.end(); it != end; ++it) {
 		ci::Rectf curBounds = (*it)->getBoundingBox();
 		result.include(curBounds);
 	}
@@ -744,7 +744,7 @@ void Sprite::removeChild(Sprite& child) {
 
 	onChildRemoved(child);
 
-	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
+	const auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	if (found != mChildren.end()) mChildren.erase(found);
 	YGNodeRemoveChild(mYogaNode, child.mYogaNode);
 	if (child.getParent() == this) {
@@ -784,7 +784,7 @@ void Sprite::release() {
 
 bool Sprite::containsChild(Sprite* child) const {
 	if (mChildren.empty()) return false;
-	auto found = std::find(mChildren.begin(), mChildren.end(), child);
+	const auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
 	if (found != mChildren.end()) {
 		return true;
@@ -794,10 +794,10 @@ bool Sprite::containsChild(Sprite* child) const {
 
 void Sprite::clearChildren() {
 	if (mChildren.empty()) return;
-	auto tempList = mChildren;
+	const auto tempList = mChildren;
 	mChildren.clear();
 
-	for (auto it : tempList) {
+	for (const auto it : tempList) {
 		it->release();
 	}
 }
@@ -836,7 +836,7 @@ void Sprite::buildTransform() const {
 	mInverseTransform = glm::inverse(mTransformation);
 }
 
-const ci::vec3 Sprite::getSize() const {
+ci::vec3 Sprite::getSize() const {
 	return ci::vec3(mWidth, mHeight, mDepth);
 }
 
@@ -874,7 +874,7 @@ void Sprite::setSize(float width, float height) {
 }
 
 void Sprite::sizeToChildBounds() {
-	ci::Rectf childBounds = getChildBoundingBox();
+	const ci::Rectf childBounds = getChildBoundingBox();
 
 	move(childBounds.x1, childBounds.y1);
 	setSize(childBounds.getWidth(), childBounds.getHeight());
@@ -984,7 +984,7 @@ void Sprite::buildGlobalTransform() const {
 
 	mGlobalTransform = mTransformation;
 
-	for (Sprite* parent = mParent; parent; parent = parent->getParent()) {
+	for (const Sprite* parent = mParent; parent; parent = parent->getParent()) {
 		parent->buildTransform();
 		mGlobalTransform = parent->mTransformation * mGlobalTransform;
 	}
@@ -992,7 +992,7 @@ void Sprite::buildGlobalTransform() const {
 	mInverseGlobalTransform = glm::inverse(mGlobalTransform);
 }
 
-void Sprite::parentEventReceived(const ds::Event& e) {
+void Sprite::parentEventReceived(const ds::Event& e) const {
 	Sprite* p = mParent;
 	while (p) {
 		p->eventReceived(e);
@@ -1010,16 +1010,16 @@ const ci::mat4& Sprite::getGlobalTransform() const {
 	return mGlobalTransform;
 }
 
-ci::vec3 Sprite::globalToLocal(const ci::vec3& globalPoint) {
+ci::vec3 Sprite::globalToLocal(const ci::vec3& globalPoint) const {
 	buildGlobalTransform();
 
-	ci::vec4 point = mInverseGlobalTransform * ci::vec4(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
+	const ci::vec4 point = mInverseGlobalTransform * ci::vec4(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
 	return ci::vec3(point.x, point.y, point.z);
 }
 
-ci::vec3 Sprite::localToGlobal(const ci::vec3& localPoint) {
+ci::vec3 Sprite::localToGlobal(const ci::vec3& localPoint) const {
 	buildGlobalTransform();
-	ci::vec4 point = mGlobalTransform * ci::vec4(localPoint.x, localPoint.y, localPoint.z, 1.0f);
+	const ci::vec4 point = mGlobalTransform * ci::vec4(localPoint.x, localPoint.y, localPoint.z, 1.0f);
 	return ci::vec3(point.x, point.y, point.z);
 }
 
@@ -1114,7 +1114,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick) {
 	}
 
 	// Return the child hit candidate with the nearest hitZ (closest to camera)
-	auto nearestCandidate =
+	const auto nearestCandidate =
 		std::min_element(candidates.begin(), candidates.end(),
 						 [](const HitCandidate& lhs, const HitCandidate& rhs) { return lhs.second < rhs.second; });
 	if (nearestCandidate != candidates.end()) {
@@ -1275,11 +1275,11 @@ void Sprite::disableMultiTouch() {
 	mMultiTouchConstraints.clear();
 }
 
-void Sprite::callAfterDelay(const std::function<void(void)>& fn, const float delay_in_seconds) {
+void Sprite::callAfterDelay(const std::function<void(void)>& fn, const float delayInSeconds) {
 	if (!fn) return;
 	cancelDelayedCall();
 	ci::Timeline& t	   = mEngine.getTweenline().getTimeline();
-	mDelayedCallCueRef = t.add(fn, t.getCurrentTime() + delay_in_seconds);
+	mDelayedCallCueRef = t.add(fn, t.getCurrentTime() + delayInSeconds);
 }
 
 void Sprite::cancelDelayedCall() {
@@ -1297,10 +1297,10 @@ bool Sprite::checkBounds() const {
 
 	const ci::Rectf& screenRect(mEngine.getSrcRect());
 
-	float screenMinX = screenRect.getX1();
-	float screenMaxX = screenRect.getX2();
-	float screenMinY = screenRect.getY1();
-	float screenMaxY = screenRect.getY2();
+	const float screenMinX = screenRect.getX1();
+	const float screenMaxX = screenRect.getX2();
+	const float screenMinY = screenRect.getY1();
+	const float screenMaxY = screenRect.getY2();
 
 	float spriteMinX = 0.0f;
 	float spriteMinY = 0.0f;
@@ -1413,7 +1413,7 @@ void Sprite::setDragDestinationCallback(const std::function<void(Sprite*, const 
 	mDragDestinationCallback = func;
 }
 
-void Sprite::dragDestination(Sprite* sprite, const DragDestinationInfo& dragInfo) {
+void Sprite::dragDestination(Sprite* sprite, const DragDestinationInfo& dragInfo) const {
 	if (mDragDestinationCallback) mDragDestinationCallback(sprite, dragInfo);
 }
 
@@ -1579,7 +1579,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mPosition.z		 = buf.read<float>();
 			transformChanged = true;
 		} else if (id == CHECKBOUNDS_ATT) {
-			bool checkBounds = buf.read<bool>();
+			const bool checkBounds = buf.read<bool>();
 			setCheckBounds(checkBounds);
 		} else if (id == CENTER_ATT) {
 			mCenter.x		 = buf.read<float>();
@@ -1600,17 +1600,17 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 		} else if (id == BLEND_ATT) {
 			mBlendMode = buf.read<BlendMode>();
 		} else if (id == CLIP_BOUNDS_ATT) {
-			float x1 = buf.read<float>();
-			float y1 = buf.read<float>();
-			float x2 = buf.read<float>();
-			float y2 = buf.read<float>();
+			const float x1 = buf.read<float>();
+			const float y1 = buf.read<float>();
+			const float x2 = buf.read<float>();
+			const float y2 = buf.read<float>();
 			mClippingBounds.set(x1, y1, x2, y2);
 			markClippingDirty();
 		} else if (id == CORNERRADIUS_ATT) {
-			float cornerRad = buf.read<float>();
+			const float cornerRad = buf.read<float>();
 			mCornerRadius	= cornerRad;
 		} else if (id == SORTORDER_ATT) {
-			int32_t size = buf.read<int32_t>();
+			const int32_t size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
 			if (size > 0 && size < 100000) {
 				try {
@@ -1654,7 +1654,7 @@ void Sprite::setFlag(const int newBit, const bool on, const DirtyState& dirty, i
 	markAsDirty(dirty);
 }
 
-bool Sprite::getFlag(const int bit, const int flags) const {
+bool Sprite::getFlag(const int bit, const int flags) {
 	return (flags & bit) != 0;
 }
 
@@ -1694,27 +1694,27 @@ BlendMode Sprite::getBlendMode() const {
 	return mBlendMode;
 }
 
-void Sprite::setBaseShader(const std::string& location, const std::string& shadername, bool applyToChildren) {
+void Sprite::setBaseShader(const std::string& location, const std::string& shaderName, bool applyToChildren) {
 	mNeedsBatchUpdate = true;
-	mSpriteShader.setShaders(location, shadername);
+	mSpriteShader.setShaders(location, shaderName);
 	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
 
 	if (applyToChildren) {
 		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-			(*it)->setBaseShader(location, shadername, applyToChildren);
+			(*it)->setBaseShader(location, shaderName, applyToChildren);
 		}
 	}
 }
 
-void Sprite::setBaseShader(const std::string& vertShader, const std::string& fragShader, const std::string& shadername,
+void Sprite::setBaseShader(const std::string& vertShader, const std::string& fragShader, const std::string& shaderName,
 						   bool applyToChildren) {
 	mNeedsBatchUpdate = true;
-	mSpriteShader.setShaders(vertShader, fragShader, shadername);
+	mSpriteShader.setShaders(vertShader, fragShader, shaderName);
 	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
 
 	if (applyToChildren) {
 		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-			(*it)->setBaseShader(vertShader, fragShader, shadername, applyToChildren);
+			(*it)->setBaseShader(vertShader, fragShader, shaderName, applyToChildren);
 		}
 	}
 }
@@ -1750,25 +1750,25 @@ void Sprite::setShaderExtraData(const ci::vec4& data) {
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo info) {
-	if (render_to_texture == mIsRenderFinalToTexture) return;
-	mIsRenderFinalToTexture			  = render_to_texture;
+void Sprite::setFinalRenderToTexture(bool renderToTexture, FinalRenderInfo info) {
+	if (renderToTexture == mIsRenderFinalToTexture) return;
+	mIsRenderFinalToTexture			  = renderToTexture;
 	mFinalToTexture_UseLocalTransform = info.useLocalTransform;
 	mFboFormat						  = info.format;
 	setupFinalRenderBuffer();
 }
 
-void Sprite::setFinalRenderToTexture(bool render_to_texture, ci::gl::Fbo::Format format) {
+void Sprite::setFinalRenderToTexture(bool renderToTexture, ci::gl::Fbo::Format format) {
 	FinalRenderInfo info;
 	info.format = format;
-	setFinalRenderToTexture(render_to_texture, info);
+	setFinalRenderToTexture(renderToTexture, info);
 }
 
-bool Sprite::isFinalRenderToTexture() {
+bool Sprite::isFinalRenderToTexture() const {
 	return mIsRenderFinalToTexture;
 }
 
-ci::gl::TextureRef Sprite::getFinalOutTexture() {
+ci::gl::TextureRef Sprite::getFinalOutTexture() const {
 	if (mOutputFbo) {
 		return mOutputFbo->getColorTexture();
 	} else
@@ -1976,7 +1976,7 @@ void Sprite::userInputReceived() {
 }
 
 void Sprite::sendSpriteToFront(Sprite& sprite) {
-	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	const auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
 	if (found == mChildren.end()) return;
 	if (*found == mChildren.back()) return;
 
@@ -1987,7 +1987,7 @@ void Sprite::sendSpriteToFront(Sprite& sprite) {
 }
 
 void Sprite::sendSpriteToBack(Sprite& sprite) {
-	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	const auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
 	if (found == mChildren.end()) return;
 	if (*found == mChildren.front()) return;
 
@@ -2100,7 +2100,7 @@ void Sprite::setPerspective(const bool perspective) {
 void Sprite::setFlexboxFromStyleString(std::string style) {
 
 
-	auto settings = ds::split(style, ";", true);
+	const auto settings = ds::split(style, ";", true);
 	for (auto setting : settings) {
 		auto key_value	   = ds::split(setting, ":", true);
 		auto [key, unused] = FlexboxParser::cleanValue(key_value[0]);
@@ -2149,20 +2149,20 @@ void Sprite::setFlexboxAutoSizes() {
 
 void Sprite::setSpriteFromFlexbox() {
 	// position and size
-	auto layout = mYogaNode->getLayout();
-	auto r		= YGNodeLayoutGetRight(mYogaNode);
-	auto b		= YGNodeLayoutGetBottom(mYogaNode);
-	auto x		= YGNodeLayoutGetLeft(mYogaNode);
-	auto y		= YGNodeLayoutGetTop(mYogaNode);
-	auto w		= YGNodeLayoutGetWidth(mYogaNode);
-	auto h		= YGNodeLayoutGetHeight(mYogaNode);
-	auto bt		= YGNodeLayoutGetBorder(mYogaNode, YGEdgeTop);
+	auto       layout = mYogaNode->getLayout();
+	auto       r      = YGNodeLayoutGetRight(mYogaNode);
+	auto       b      = YGNodeLayoutGetBottom(mYogaNode);
+	const auto x      = YGNodeLayoutGetLeft(mYogaNode);
+	const auto y      = YGNodeLayoutGetTop(mYogaNode);
+	const auto w      = YGNodeLayoutGetWidth(mYogaNode);
+	const auto h      = YGNodeLayoutGetHeight(mYogaNode);
+	auto       bt     = YGNodeLayoutGetBorder(mYogaNode, YGEdgeTop);
 
 	setPosition(x, y);
 	setSize(w, h);
 }
 
-ds::cfg::Settings* Sprite::getLayoutSettings() {
+ds::cfg::Settings* Sprite::getLayoutSettings() const {
 	if (mParent != nullptr && mSettings == nullptr) {
 		return mParent->getLayoutSettings();
 	}
@@ -2208,13 +2208,13 @@ void Sprite::setTouchScaleMode(bool doSizeScale) {
 	mTouchScaleSizeMode = doSizeScale;
 }
 
-void Sprite::setInnerHitFunction(std::function<const bool(const ci::vec3&)> func) {
+void Sprite::setInnerHitFunction(const std::function<bool(const ci::vec3&)>& func) {
 	mInnerHitFunction = func;
 }
 
 void Sprite::readClientFrom(ds::DataBuffer& buf) {
 	while (buf.canRead<char>()) {
-		char cmd = buf.read<char>();
+		const char cmd = buf.read<char>();
 		if (cmd != TERMINATOR_CHAR) {
 			readClientAttributeFrom(cmd, buf);
 		} else {
@@ -2226,7 +2226,7 @@ void Sprite::readClientFrom(ds::DataBuffer& buf) {
 void Sprite::write(std::ostream& s, const size_t tab) const {
 	writeState(s, tab);
 	for (auto it = mChildren.begin(), end = mChildren.end(); it != end; ++it) {
-		Sprite* child(*it);
+		const Sprite* child(*it);
 		if (child) child->write(s, tab + 1);
 	}
 }
@@ -2296,7 +2296,7 @@ void Sprite::writeState(std::ostream& s, const size_t tab) const {
 
 // #endif
 
-void Sprite::doPropagateVisibilityChange(bool before, bool after) {
+void Sprite::doPropagateVisibilityChange(bool before, bool after) const {
 	if (before == after) return;
 
 	for (auto it = mChildren.cbegin(), it2 = mChildren.cend(); it != it2; ++it) {
@@ -2329,7 +2329,7 @@ void Sprite::setDrawDebug(const bool doDebug) {
 		mSpriteFlags &= ~DRAW_DEBUG_F;
 }
 
-bool Sprite::getDrawDebug() {
+bool Sprite::getDrawDebug() const {
 	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
 }
 
@@ -2347,7 +2347,7 @@ YGSize Sprite::yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthM
 	return retVal;
 }
 
-const std::wstring Sprite::getSpriteName(const bool useDefault) const {
+std::wstring Sprite::getSpriteName(const bool useDefault) const {
 	if (mSpriteName.empty() && useDefault) {
 		std::wstringstream wss;
 		wss << getId();
