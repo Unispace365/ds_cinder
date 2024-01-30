@@ -2142,6 +2142,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	std::string value  = node->getValue();
 	auto&		engine = parent->getEngine();
 
+	// Allows access to the XML structure on construction.
+	ScopedCurrentNode scn(engine, node.get());
+
 	std::string layout_target = engine.getLayoutTarget();
 	// if the node has a target attribute it should honor that.
 	if (node->hasAttribute("target")) {
@@ -2257,9 +2260,11 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			return false;
 		}
 
-		BOOST_FOREACH (auto& sprite, node->getChildren()) {
-			if (sprite->getTag() != "override") {
-				readSprite(spriddy, sprite, false);
+		if (spriddy->parseChildren()) {
+			BOOST_FOREACH (auto& sprite, node->getChildren()) {
+				if (sprite->getTag() != "override") {
+					readSprite(spriddy, sprite, false);
+				}
 			}
 		}
 
@@ -2315,16 +2320,18 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 		// apply the overrides
-		BOOST_FOREACH (auto& override_, node->getChildren()) {
-			if (override_->getTag() == "override") {
-				if (override_->hasAttribute("target")) {
-					if (!engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target"))) {
-						continue;
+		if (spriddy->parseChildren()) {
+			BOOST_FOREACH (auto& override_, node->getChildren()) {
+				if (override_->getTag() == "override") {
+					if (override_->hasAttribute("target")) {
+						if (!engine.hasLayoutTarget(override_->getAttributeValue<std::string>("target"))) {
+							continue;
+						}
 					}
-				}
-				for (auto& attr : override_->getAttributes()) {
-					if (attr.getName() != "target") {
-						setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings);
+					for (auto& attr : override_->getAttributes()) {
+						if (attr.getName() != "target") {
+							setSpriteProperty(*spriddy, attr, mXmlFile, mCombinedSettings);
+						}
 					}
 				}
 			}

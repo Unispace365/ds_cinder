@@ -798,6 +798,9 @@ namespace ui {
 		ds::cfg::Settings* getLayoutSettings() const;
 		void               setLayoutSettings(const ds::cfg::Settings& settings);
 
+		/// Returns whether XML layout should parse the sprite's children. Defaults to TRUE, but can be overridden.
+		virtual bool parseChildren() const { return true; }
+
 		// Flexbox
 		virtual void setFlexboxFromStyleString(std::string style);
 		virtual void setFlexboxAutoSizes();

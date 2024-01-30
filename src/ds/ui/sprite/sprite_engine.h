@@ -51,6 +51,7 @@ struct TextStyle;
  */
 class SpriteEngine {
 	friend class SettingsEditior;
+
   public:
 	/** Access to the app-wide notification service. Use this to send a
 	 message to everyone who's registered an EventClient. */
@@ -141,6 +142,11 @@ class SpriteEngine {
 	/** Gets a layout target*/
 	std::string getLayoutTarget(int index = 0);
 
+	/// Stores the current XML node while parsing XML layouts. Can be used during construction.
+	void setCurrentNode(const ci::XmlTree* node) { mCurrentNode = node; }
+	///	Returns the current XML node while parsing XML layouts. Can be used during construction.
+	const ci::XmlTree* getCurrentNode() const { return mCurrentNode; }
+
 	/// The URL to a content management system, as defined in engine.xml or DS_BASEURL env variable
 	const std::string& getCmsURL() const;
 
@@ -167,7 +173,7 @@ class SpriteEngine {
 	Sprite* getDragDestinationSprite(const ci::vec3& globalPoint, Sprite* draggingSprite);
 
 	double getElapsedTimeSeconds() const;
-	
+
 	virtual bool isIdlingEnabled() const { return true; }
 	virtual void enableIdling(bool enable) {}
 
@@ -314,11 +320,31 @@ class SpriteEngine {
 	ds::EngineService& private_getService(const std::string&);
 
 	std::function<void(const ds::ui::TouchInfo& ti)> mTouchInfoPipe;
+
+	const ci::XmlTree* mCurrentNode = nullptr;
 };
 
 template <typename T>
 T& SpriteEngine::getService(const std::string& str) {
 	return dynamic_cast<T&>(private_getService(str));
 }
+
+class ScopedCurrentNode {
+	SpriteEngine& mEngine;
+	const ci::XmlTree*	  mNode;
+
+  public:
+	ScopedCurrentNode(SpriteEngine& engine, const ci::XmlTree* node)
+	  : mEngine(engine) {
+		mNode = mEngine.getCurrentNode();
+		mEngine.setCurrentNode(node);
+	}
+	~ScopedCurrentNode() { mEngine.setCurrentNode(mNode); }
+
+	ScopedCurrentNode(const ScopedCurrentNode&)			   = delete;
+	ScopedCurrentNode(ScopedCurrentNode&&)				   = delete;
+	ScopedCurrentNode& operator=(const ScopedCurrentNode&) = delete;
+	ScopedCurrentNode& operator=(ScopedCurrentNode&&)	   = delete;
+};
 
 } // namespace ds::ui
