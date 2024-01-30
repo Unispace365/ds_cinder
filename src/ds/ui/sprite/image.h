@@ -39,7 +39,7 @@ class Image : public Sprite {
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
 
-	virtual ~Image();
+	~Image() override;
 
 	/** Loads an image based on the filename.
 	 * \param filename is the file path or url to the resource.
@@ -69,10 +69,10 @@ class Image : public Sprite {
 	const std::string& getImageFilename() { return mFilename; }
 
 	/// Returns the ds::Resource if it was set as a full resource or as an id.
-	ds::Resource getImageResource() { return mResource; }
+	const ds::Resource& getImageResource() const { return mResource; }
 
 	/// Returns the loaded image, if not loaded returns an empty ref (nullptr)
-	const ci::gl::TextureRef getImageTexture() { return mTextureRef; }
+	const ci::gl::TextureRef &getImageTexture() const { return mTextureRef; }
 
 	/// Clears the image from this sprite. Removes a reference in the image store if not cached
 	void clearImage();
@@ -98,7 +98,7 @@ class Image : public Sprite {
 	/// Returns if this is set to crop to a circle
 	virtual bool getCircleCrop() { return mCircleCropped; }
 	/// Enables circle cropping and also automatically centers the rect
-	void cicleCropAutoCenter(); /// whoopsies
+	void cicleCropAutoCenter() { circleCropAutoCenter(); } /// whoopsies
 	void circleCropAutoCenter();
 	/// Turns off the above functionality
 	void disableCircleCropCentered();

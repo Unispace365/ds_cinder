@@ -5,8 +5,6 @@
 #include <map>
 #include <utility>
 
-#include <cinder/ImageIo.h>
-
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
@@ -149,20 +147,20 @@ namespace ds::ui {
 using namespace ci;
 
 
-void Image::installAsServer(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromClient(r); });
+void Image::installAsServer(BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) { handleBlobFromClient(r); });
 }
 
-void Image::installAsClient(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromServer<Image>(r); });
+void Image::installAsClient(BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) { handleBlobFromServer<Image>(r); });
 }
 
 Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) {
-	return makeAlloc<ds::ui::Image>([&e, &fn]() -> ds::ui::Image* { return new ds::ui::Image(e, fn); }, parent);
+	return makeAlloc<Image>([&e, &fn]() -> Image* { return new Image(e, fn); }, parent);
 }
 
-Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-	return makeImage(e, ds::Environment::expand(r.getPortableFilePath()), parent);
+Image& Image::makeImage(SpriteEngine& e, const Resource& r, Sprite* parent) {
+	return makeImage(e, Environment::expand(r.getPortableFilePath()), parent);
 }
 
 Image::Image(SpriteEngine& engine)
@@ -172,16 +170,16 @@ Image::Image(SpriteEngine& engine)
   , mCircleCropCentered(false)
   , mTextureRef(nullptr) {
 
-	mStatus.mCode		 = Status::STATUS_EMPTY;
-	mDrawRect.mOrthoRect = ci::Rectf::zero();
-	mDrawRect.mPerspRect = ci::Rectf::zero();
-	mBlobType			 = BLOB_TYPE;
+	mStatus.mCode        = Status::STATUS_EMPTY;
+	mDrawRect.mOrthoRect = Rectf::zero();
+	mDrawRect.mPerspRect = Rectf::zero();
+	mBlobType            = BLOB_TYPE;
 
 	setTransparent(false);
 	setUseShaderTexture(true);
 
-	markAsDirty(IMG_SRC_DIRTY);
-	markAsDirty(IMG_CROP_DIRTY);
+	Sprite::markAsDirty(IMG_SRC_DIRTY);
+	Sprite::markAsDirty(IMG_CROP_DIRTY);
 
 	mLayoutFixedAspect = true;
 }
@@ -191,14 +189,14 @@ Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
 	setImageFile(filename, flags);
 }
 
-Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
+Image::Image(SpriteEngine& engine, const Resource::Id& resourceId, const int flags)
   : Image(engine) {
 	setImageResource(resourceId, flags);
 }
 
-Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
+Image::Image(SpriteEngine& engine, const Resource& resource, const int flags)
   : Image(engine) {
-	setImageResource(resource, flags);
+  Image::setImageResource(resource, flags);
 }
 
 Image::~Image() {
@@ -215,7 +213,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 	if (filename.find("http") == 0) {
 		mFilename = filename;
 	} else {
-		mFilename = ds::Environment::expand(filename);
+		mFilename = Environment::expand(filename);
 	}
 
 	mFlags = flags;
@@ -224,7 +222,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 
 	mEngine.getLoadImageService().acquire(
 		mFilename, flags, this,
-		[this](ci::gl::TextureRef tex, ci::Rectf coords, const bool error, const std::string& errorMsg) {
+		[this](ci::gl::TextureRef tex, Rectf coords, const bool error, const std::string& errorMsg) {
 			mTextureRef = std::move(tex);
 			if (error) {
 				mErrorMsg = errorMsg;
@@ -238,7 +236,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 					// Make sure all parent layouts are updated prior to checking status.
 					auto parent = getParent();
 					while (parent) {
-						auto layout = dynamic_cast<ds::ui::LayoutSprite*>(parent);
+						const auto layout = dynamic_cast<LayoutSprite*>(parent);
 						if (layout) layout->runLayout();
 
 						parent = parent->getParent();
@@ -247,7 +245,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 
 				checkStatus();
 
-				if ((mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && mCircleCropCentered) {
+				if ((mFlags & IMG_SKIP_METADATA_F) && mCircleCropCentered) {
 					circleCropAutoCenter();
 				}
 			}
@@ -258,13 +256,13 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 	}
 }
 
-void Image::setImageResource(const ds::Resource& resource, const int flags) {
+void Image::setImageResource(const Resource& resource, const int flags) {
 	mResource = resource;
 
 	setImageFile(resource.getAbsoluteFilePath(), flags);
 }
 
-void Image::setImageResource(const ds::Resource::Id& resourceId, const int flags) {
+void Image::setImageResource(const Resource::Id& resourceId, const int flags) {
 	if (!resourceId.empty()) {
 		mEngine.getResources().get(resourceId, mResource);
 	}
@@ -293,7 +291,7 @@ void Image::drawLocalClient() {
 		if (mRenderBatch) {
 			mRenderBatch->draw();
 		} else {
-			const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
+			const Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
 			ci::gl::drawSolidRect(useRect);
 		}
 
@@ -305,7 +303,7 @@ void Image::clearImage() {
 	mEngine.getLoadImageService().release(mFilename, this);
 	mTextureRef = nullptr;
 	mFilename	= "";
-	mResource	= ds::Resource();
+	mResource	= Resource();
 	imageChanged();
 }
 
@@ -335,16 +333,12 @@ void Image::setCircleCrop(bool circleCrop) {
 	markAsDirty(IMG_CROP_DIRTY);
 }
 
-void Image::setCircleCropRect(const ci::Rectf& rect) {
+void Image::setCircleCropRect(const Rectf& rect) {
 	markAsDirty(IMG_CROP_DIRTY);
 	mShaderExtraData.x = rect.x1;
 	mShaderExtraData.y = rect.y1;
 	mShaderExtraData.z = rect.x2;
 	mShaderExtraData.w = rect.y2;
-}
-
-void Image::cicleCropAutoCenter() {
-	circleCropAutoCenter();
 }
 
 void Image::circleCropAutoCenter() {
@@ -353,9 +347,9 @@ void Image::circleCropAutoCenter() {
 	const float scw = getWidth();
 	const float sch = getHeight();
 	if (scw > sch) {
-		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+		setCircleCropRect(Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
 	} else {
-		setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
+		setCircleCropRect(Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
 	}
 }
 
@@ -388,7 +382,7 @@ void Image::imageChanged() {
 
 	// Make my size match
 	ImageMetaData d;
-	if (!(mFlags & ds::ui::Image::IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
+	if (!(mFlags & IMG_SKIP_METADATA_F) && getMetaData(d) && !d.empty()) {
 		/* if (!mResource.empty()) {
 			auto crop = mResource.getCrop();
 			float width = d.mSize.x * crop.getWidth();
@@ -400,16 +394,16 @@ void Image::imageChanged() {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
 	} else {
 		// Metadata not found, reset all internal states
-		ds::ui::Sprite::setSizeAll(0, 0, 1.0f);
-		ds::ui::Sprite::setScale(1.0f, 1.0f, 1.0f);
-		mDrawRect.mOrthoRect = ci::Rectf::zero();
-		mDrawRect.mPerspRect = ci::Rectf::zero();
+		Sprite::setSizeAll(0, 0, 1.0f);
+		setScale(1.0f, 1.0f, 1.0f);
+		mDrawRect.mOrthoRect = Rectf::zero();
+		mDrawRect.mPerspRect = Rectf::zero();
 	}
 
 	onImageChanged();
 }
 
-void Image::writeAttributesTo(ds::DataBuffer& buf) {
+void Image::writeAttributesTo(DataBuffer& buf) {
 	Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(IMG_SRC_DIRTY)) {
@@ -431,15 +425,15 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 	}
 }
 
-void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
+void Image::readAttributeFrom(const char attributeId, DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		setStatus(Status::STATUS_EMPTY);
-		auto filename		  = buf.read<std::string>();
-		auto resourceFileName = ds::Environment::expand(buf.read<std::string>());
-		auto resource		  = ds::Resource(resourceFileName, ds::Resource::IMAGE_TYPE);
+		const auto filename         = buf.read<std::string>();
+		const auto resourceFileName = Environment::expand(buf.read<std::string>());
+		auto       resource         = Resource(resourceFileName, Resource::IMAGE_TYPE);
 		resource.setWidth(buf.read<float>());
 		resource.setHeight(buf.read<float>());
-		auto flags = buf.read<int>();
+		const auto flags = buf.read<int>();
 
 		if (resourceFileName.empty()) {
 			setImageFile(filename, flags);
@@ -494,14 +488,14 @@ void Image::checkStatus() {
 		setStatus(Status::STATUS_LOADED);
 		doOnImageLoaded();
 
-		if (mEngine.getMode() != mEngine.CLIENT_MODE) {
+		if (mEngine.getMode() != SpriteEngine::CLIENT_MODE) {
 			const float prevRealW = getWidth(), prevRealH = getHeight();
 			if (prevRealW <= 0 || prevRealH <= 0) {
 				Sprite::setSizeAll(static_cast<float>(mDrawRect.mOrthoRect.getWidth()),
 								   static_cast<float>(mDrawRect.mOrthoRect.getHeight()), mDepth);
 			} else {
-				float prevWidth	 = prevRealW * getScale().x;
-				float prevHeight = prevRealH * getScale().y;
+				const float prevWidth  = prevRealW * getScale().x;
+				const float prevHeight = prevRealH * getScale().y;
 				Sprite::setSizeAll(static_cast<float>(mDrawRect.mOrthoRect.getWidth()),
 								   static_cast<float>(mDrawRect.mOrthoRect.getHeight()), mDepth);
 				setSize(prevWidth, prevHeight);
@@ -516,7 +510,7 @@ void Image::onBuildRenderBatch() {
 	auto drawRect = mDrawRect.mOrthoRect;
 	if (getPerspective()) drawRect = mDrawRect.mPerspRect;
 	if (mCornerRadius > 0.0f) {
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius * (1.f / getScale().x));
+		const auto theGeom = geom::RoundedRect(drawRect, mCornerRadius * (1.f / getScale().x));
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -524,12 +518,12 @@ void Image::onBuildRenderBatch() {
 		}
 
 	} else {
-		ci::vec2 ul = ci::vec2(0.f, 0.f);
-		ci::vec2 ur = ci::vec2(1.f, 0.f);
-		ci::vec2 lr = ci::vec2(1.f, 1.f);
-		ci::vec2 ll = ci::vec2(0.f, 1.f);
+		vec2 ul = vec2(0.f, 0.f);
+		vec2 ur = vec2(1.f, 0.f);
+		vec2 lr = vec2(1.f, 1.f);
+		vec2 ll = vec2(0.f, 1.f);
 		if (!mResource.empty()) {
-			auto crop = mResource.getCrop();
+			const auto crop = mResource.getCrop();
 			ul		  = crop.getUpperLeft();
 			ur		  = crop.getUpperRight();
 			lr		  = crop.getLowerRight();
@@ -545,7 +539,7 @@ void Image::onBuildRenderBatch() {
 				ll.y = 1.0f - ll.y;
 			}
 		}
-		auto theGeom = ci::geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
+		const auto theGeom = geom::Rect(drawRect).texCoords(ll, lr, ur, ul);
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -557,19 +551,19 @@ void Image::onBuildRenderBatch() {
 void Image::doOnImageLoaded() {
 	if (mTextureRef) {
 		mNeedsBatchUpdate	 = true;
-		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
-										 static_cast<float>(mTextureRef->getWidth()), 0.0f);
+		mDrawRect.mPerspRect = Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
+		                             static_cast<float>(mTextureRef->getWidth()), 0.0f);
 
 
 		float orthoW = mTextureRef->getWidth();
 		float orthoH = mTextureRef->getHeight();
 		if (!mResource.empty()) {
-			auto crop = mResource.getCrop();
+			const auto crop = mResource.getCrop();
 			orthoW	  = orthoW * crop.getWidth();
 			orthoH	  = orthoH * crop.getHeight();
 		}
 
-		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, orthoW, orthoH);
+		mDrawRect.mOrthoRect = Rectf(0.0f, 0.0f, orthoW, orthoH);
 	}
 
 	onImageLoaded();
