@@ -162,7 +162,7 @@ float calcAdditionSpaceBase(const std::vector<Grid::Track>& tracks, const Sprite
 							const SpanFn& spanFn) {
 	float result = sizeFn(item);
 
-	for (auto track : getSpannedTracks(tracks, item, spanFn)) {
+	for (const auto track : getSpannedTracks(tracks, item, spanFn)) {
 		result -= track->usedBreadth;
 	}
 
@@ -173,7 +173,7 @@ float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprit
 							 const SpanFn& spanFn) {
 	float result = sizeFn(item);
 
-	for (auto track : getSpannedTracks(tracks, item, spanFn)) {
+	for (const auto track : getSpannedTracks(tracks, item, spanFn)) {
 		if (std::isfinite(track->maxBreadth))
 			result -= track->maxBreadth;
 		else
@@ -186,24 +186,6 @@ float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprit
 } // namespace
 
 namespace ds::ui {
-
-void GridLine::parse(const char** sInOut) {
-	skipSpace(sInOut);
-	if (strncmp(*sInOut, "auto", 4) == 0) {
-		sInOut += 4;
-		type = AUTO;
-	} else if (strncmp(*sInOut, "span", 4) == 0) {
-		sInOut += 4;
-		type = SPAN;
-		skipSpace(sInOut);
-		if (isNumeric(**sInOut)) {
-			value = int(parseFloat(sInOut));
-		}
-	} else if (isNumeric(**sInOut)) {
-		type  = VALUE;
-		value = int(parseFloat(sInOut));
-	}
-}
 
 Grid::Grid(SpriteEngine& engine)
   : Sprite(engine) {
@@ -249,16 +231,16 @@ ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) 
 }
 
 float Grid::calcWidth() const {
-	float gap	= mColumnGap.asUser(getWidth());
-	float width = 0;
+	const float gap	  = mColumnGap.asUser(getWidth());
+	float		width = 0;
 	for (const auto& track : mColumns)
 		width += track.usedBreadth;
 	return width + glm::max(0.f, float(mColumns.size()) - 1) * gap;
 }
 
 float Grid::calcHeight() const {
-	float gap	 = mRowGap.asUser(getHeight());
-	float height = 0;
+	const float gap	   = mRowGap.asUser(getHeight());
+	float		height = 0;
 	for (const auto& track : mRows)
 		height += track.usedBreadth;
 	return height + glm::max(0.f, float(mRows.size()) - 1) * gap;
@@ -305,7 +287,7 @@ bool Grid::areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const {
 }
 
 bool Grid::areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const {
-	for (auto item : items) {
+	for (const auto item : items) {
 		if (areaOverlapsItem(area, item)) return true;
 	}
 	return false;
@@ -346,9 +328,9 @@ void Grid::runLayout() {
 	std::stringstream ss;
 	ss << std::string("Running layout on ds::ui::Grid took ");
 	ss << t.getSeconds() << " seconds.";
-	DS_LOG_INFO(ss.str());
+	DS_LOG_VERBOSE(0, ss.str());
 
-	// Position anything that’s not auto-positioned.
+	// Position anything that's not auto-positioned.
 	size_t colCursor{0};
 	size_t rowCursor{0};
 
@@ -481,7 +463,7 @@ void Grid::runLayout() {
 }
 
 float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) const {
-	if (index > tracks.size()) throw GridException(this, "Index out of range");
+	if (index > tracks.size()) throw std::runtime_error("Index out of range");
 	float n = 0;
 	for (size_t i = 0; i < index; ++i) {
 		n += tracks.at(i).usedBreadth;
@@ -546,8 +528,7 @@ void Grid::computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float perc
 }
 
 void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
-												   const SpanFn& spanFn, const SizeFn& minFn,
-												   const SizeFn& maxFn) const {
+												   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn) {
 	// Filter all grid items into a set, such that each grid item has either a SpanCount of 1 or does not cross a
 	// flex-sized grid track.
 	std::vector<Sprite*> filtered;
@@ -689,7 +670,7 @@ void Grid::resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>&		
 														   const TrackGrowthConstraintFn&			constraintFn,
 														   const TracksForGrowthFn&					tracksFn,
 														   const TracksForGrowthBeyondConstraintFn& tracksBeyondFn,
-														   const AccumulatorFn& accumulatorFn) const {
+														   const AccumulatorFn&						accumulatorFn) {
 	// A function which given a grid track returns the UsedBreadth of the grid track if Accumulator returns infinity;
 	// otherwise the value of the Accumulator is returned.
 	const auto currentBreadthFn = [accumulatorFn](const Track& t) {
@@ -702,7 +683,7 @@ void Grid::resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>&		
 		track.updatedTrackBreadth = accumulatorFn(track);
 
 	// DistributeSpaceToTracks.
-	for (auto item : items) {
+	for (const auto item : items) {
 		const auto spaceToDistribute = spaceFn(tracks, item);
 		if (approxZero(spaceToDistribute)) continue;
 
@@ -723,7 +704,7 @@ void Grid::resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>&		
 
 void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDistribute,
 								   const TrackGrowthConstraintFn& constraintFn, std::vector<Track*> tracksFn,
-								   std::vector<Track*> tracksBeyond, const BreadthFn& currentBreadthFn) const {
+								   const std::vector<Track*>& tracksBeyond, const BreadthFn& currentBreadthFn) {
 	// 1. Sort TracksForGrowth by TrackGrowthConstraint( t ) - CurrentBreadth( t ) ascending.
 	std::sort(tracksFn.begin(), tracksFn.end(), [constraintFn, currentBreadthFn](Track* a, Track* b) {
 		const auto na = constraintFn(*a) - currentBreadthFn(*a);
@@ -733,8 +714,9 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 
 	// 2.
 	for (size_t i = 0; i < tracksFn.size(); ++i) {
-		auto t	   = tracksFn.at(i);
-		auto share = glm::min(spaceToDistribute / float(tracksFn.size() - i), constraintFn(*t) - currentBreadthFn(*t));
+		const auto t = tracksFn.at(i);
+		const auto share =
+			glm::min(spaceToDistribute / float(tracksFn.size() - i), constraintFn(*t) - currentBreadthFn(*t));
 		t->tempBreadth = currentBreadthFn(*t) + share;
 		spaceToDistribute -= share;
 	}
@@ -742,15 +724,15 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 	// 3.
 	if (spaceToDistribute > 0) {
 		for (size_t i = 0; i < tracksBeyond.size(); ++i) {
-			auto t	   = tracksBeyond.at(i);
-			auto share = spaceToDistribute / float(tracksBeyond.size() - i);
+			const auto t	 = tracksBeyond.at(i);
+			const auto share = spaceToDistribute / float(tracksBeyond.size() - i);
 			t->tempBreadth += share;
 			spaceToDistribute -= share;
 		}
 	}
 
 	// 4.
-	for (auto& track : tracksFn) {
+	for (const auto& track : tracksFn) {
 		if (std::isfinite(track->updatedTrackBreadth))
 			track->updatedTrackBreadth = glm::max(track->updatedTrackBreadth, track->tempBreadth);
 		else
@@ -770,7 +752,7 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 	auto flexTracks = getFlexTracks(tracks);
 
 	// 3.
-	for (auto& track : flexTracks)
+	for (const auto& track : flexTracks)
 		track->normalizedFlexValue = track->usedBreadth / track->flexValue();
 
 	// 4.
@@ -783,7 +765,7 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 	float accumulatedFractions		 = 0;
 
 	// 7.
-	for (auto track : flexTracks) {
+	for (const auto track : flexTracks) {
 		if (track->normalizedFlexValue > currentBandFractionBreadth) {
 			if (track->normalizedFlexValue * accumulatedFractions > spaceNeededFromFlexTracks) break;
 			currentBandFractionBreadth = track->normalizedFlexValue;
@@ -814,7 +796,7 @@ std::vector<Sprite*> Grid::nonFlexibleItems(const std::vector<Track>& tracks, co
 	std::vector<Sprite*> result = allItems();
 
 	for (auto itr = result.begin(); itr != result.end();) {
-		size_t count = result.size();
+		const size_t count = result.size();
 
 		const auto& span = spanFn(*itr);
 		for (size_t i = span.min; i < span.max; ++i) {
@@ -843,8 +825,8 @@ void Grid::parse(std::vector<Track>& tracks, const std::string& def) {
 			sInOut += 6;
 			skipSpaceOrParenthesis(&sInOut);
 			// TODO: add support for auto-fill and auto-fit
-			auto n = int(parseFloat(&sInOut));
-			if (!(n > 0)) throw ParseException(sInOut, "Error parsing repeat(): expected counter > 0");
+			const auto n = parseInt(&sInOut);
+			if (n <= 0) throw std::runtime_error("Error parsing repeat(): expected counter > 0");
 			skipSpaceOrComma(&sInOut);
 			auto s = fetchUntil(&sInOut, ')');
 			skipSpaceOrParenthesis(&sInOut);
@@ -866,22 +848,52 @@ void Grid::parse(std::vector<Track>& tracks, const std::string& def) {
 
 Range<size_t> Grid::parseSpan(const char** sInOut) {
 	skipSpace(sInOut);
-	size_t minimum = size_t(parseFloat(sInOut) - 1);
+	const auto minimum = parseInt(sInOut) - 1;
 	skipUntil(sInOut, '/');
-	size_t maximum = minimum + 1;
+	auto maximum = minimum + 1;
 	if (**sInOut == '/') {
 		(*sInOut)++;
 		skipSpace(sInOut);
 		if (isNumeric(**sInOut))
-			maximum = size_t(parseFloat(sInOut) - 1);
+			maximum = parseInt(sInOut) - 1;
 		else if (strncmp(*sInOut, "span", 4) == 0) {
 			*sInOut += 4;
 			skipSpace(sInOut);
-			maximum = minimum + size_t(parseFloat(sInOut));
+			maximum = minimum + parseInt(sInOut);
 		}
 	}
 
-	return {minimum, maximum};
+	assert(minimum >= 0);
+	assert(maximum >= 0);
+	assert(minimum <= maximum);
+
+	return {size_t(minimum), size_t(maximum)};
+}
+
+SizingFn::SizingFn(const std::string& str) {
+	const char* sInOut = str.c_str();
+	parse(&sInOut);
+}
+
+SizingFn::SizingFn(const char** sInOut) {
+	parse(sInOut);
+}
+
+void SizingFn::parse(const char** sInOut) {
+	skipSpace(sInOut);
+	if (strncmp(*sInOut, "auto", 4) == 0) {
+		*sInOut += 4;
+		mUnit = UNDEFINED;
+	} else if (strncmp(*sInOut, "min-content", 11) == 0) {
+		*sInOut += 11;
+		mUnit = MIN_CONTENT;
+	} else if (strncmp(*sInOut, "max-content", 11) == 0) {
+		*sInOut += 11;
+		mUnit = MAX_CONTENT;
+	} else {
+		mValue = Value(sInOut);
+		mUnit  = FIXED;
+	}
 }
 
 Grid::Track::Track(const std::string& str) {
@@ -906,11 +918,12 @@ void Grid::Track::parse(const char** sInOut) {
 		skipSpaceOrComma(sInOut);
 		max = SizingFn(sInOut);
 		skipSpaceOrParenthesis(sInOut);
-	} else if (strncmp(*sInOut, "fit-content", 11) == 0) { // TODO not yet in specification
+	} else if (strncmp(*sInOut, "fit-content", 11) ==
+			   0) { // TODO not yet in the specification used for this version of the code.
 		*sInOut += 11;
 		skipSpaceOrParenthesis(sInOut);
 		min = max = SizingFn(sInOut);
-		if (!min.isIntrinsic()) throw ParseException(*sInOut, "Sizing function must be intrinsic");
+		if (!min.isIntrinsic()) throw std::runtime_error("Sizing function must be intrinsic");
 		skipSpaceOrParenthesis(sInOut);
 	} else { // includes flex values
 		min = max = SizingFn(sInOut);
@@ -957,9 +970,6 @@ namespace {
 
 auto INIT = []() {
 	ds::App::AddStartup([](ds::Engine& e) {
-		//// Register our grid.
-		// e.registerSpriteImporter("grid", [](SpriteEngine& enginey) -> Sprite* { return new Grid(enginey); });
-
 		// Register the properties for our grid.
 		e.registerSpritePropertySetter<Grid>("grid-template-columns",
 											 [](Grid& grid, const std::string& theValue,
@@ -988,10 +998,6 @@ auto INIT = []() {
 				const char* sInOut = theValue.c_str();
 				item.setRowSpan(Grid::parseSpan(&sInOut));
 			});
-		// e.registerSpritePropertySetter<Sprite>(
-		//	"preserveAspectRatio", [](Sprite& item, const std::string& theValue, const std::string& fileReferrer) {
-		//		item.setPreserveAspectRatio(theValue);
-		//	});
 	});
 	return true;
 }();

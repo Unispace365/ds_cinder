@@ -12,40 +12,9 @@
 
 #include <ds/ui/grid/css.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/util/float_util.h>
 
 namespace ds::ui {
-
-//
-struct GridLine {
-	enum Type { AUTO, SPAN, VALUE };
-
-	GridLine() = default;
-
-	explicit GridLine(const std::string& def) {
-		const char* sInOut = def.c_str();
-		parse(&sInOut);
-	}
-
-	explicit GridLine(const char** sInOut) { parse(sInOut); }
-
-	size_t asUser(size_t index, size_t count) const {
-		if (type == AUTO) {
-			return index;
-		}
-		if (type == SPAN) {
-			if (value < 1) throw css::Exception<GridLine>(*this, "Invalid parameter");
-			return index + value - 1;
-		}
-		if (value < 0) return count + value;
-		return size_t(value - 1);
-	}
-
-	int	 value;
-	Type type;
-
-  private:
-	void parse(const char** sInOut);
-};
 
 template <typename T>
 using SpriteFn = std::function<T(const Sprite*)>;
@@ -127,19 +96,19 @@ class Grid : public Sprite {
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
 	void computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float percentOf, float gap, const SpanFn& spanFn,
 										const SizeFn& minFn, const SizeFn& maxFn);
-	void resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
-												 const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn) const;
-	void
+	static void resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
+														const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
+	static void
 	resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>& tracks, // Set of tracks that need to be sized.
 													const std::vector<Sprite*>&				 items,			 //
 													const AdditionalSpaceFn&				 spaceFn,		 //
 													const TrackGrowthConstraintFn&			 constraintFn,	 //
 													const TracksForGrowthFn&				 tracksFn,		 //
 													const TracksForGrowthBeyondConstraintFn& tracksBeyondFn, //
-													const AccumulatorFn&					 accumulatorFn) const;
-	void		 distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDistribute,
+													const AccumulatorFn&					 accumulatorFn);
+	static void	 distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDistribute,
 										 const TrackGrowthConstraintFn& constraintFn, std::vector<Track*> tracksFn,
-										 std::vector<Track*> tracksBeyond, const BreadthFn& currentBreadthFn) const;
+										 const std::vector<Track*>& tracksBeyond, const BreadthFn& currentBreadthFn);
 	static float calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill, float gap);
 
 	static float calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill, float gap);
@@ -161,7 +130,33 @@ class Grid : public Sprite {
 	mutable bool		  mNeedsLayout{true};
 };
 
-using GridException = css::Exception<const Grid*>;
+class SizingFn {
+  public:
+	enum Unit { UNDEFINED, FIXED, MIN_CONTENT, MAX_CONTENT };
+
+	SizingFn() = default;
+
+	explicit SizingFn(const std::string& str);
+	explicit SizingFn(const char** sInOut);
+
+	const css::Value& value() const { return mValue; }
+	Unit			  unit() const { return mUnit; }
+
+	bool isFixed() const { return mUnit == FIXED && mValue.isFixed(); }
+	bool isIntrinsic() const { return !isFixed(); }
+	bool isMinContent() const { return mUnit == MIN_CONTENT; }
+	bool isMaxContent() const { return mUnit == MAX_CONTENT; }
+	bool isFlex() const { return mUnit == FIXED && mValue.isFlex(); }
+
+	//! Returns whether the sizing function is defined.
+	operator bool() const { return mUnit != UNDEFINED; }
+
+  private:
+	void parse(const char** sInOut);
+
+	Unit	   mUnit{UNDEFINED};
+	css::Value mValue;
+};
 
 struct Grid::Track {
 	enum Type { BREADTH, MIN_MAX, FIT_CONTENT };
@@ -181,16 +176,16 @@ struct Grid::Track {
 	bool isFlex() const { return min.isFlex(); }
 
 	//! Returns whether this track is not flexible but can still grow larger.
-	bool canGrow() const { return !isFlex() && !css::approxEqual(usedBreadth, maxBreadth); }
+	bool canGrow() const { return !isFlex() && !approxEqual(usedBreadth, maxBreadth); }
 
 	void parse(const char** sInOut);
 
 	// See: https://www.w3.org/TR/css-grid-1/#algo-init
 	void initialize(float percentOf);
 
-	Type		  type{BREADTH}; //
-	css::SizingFn min;			 //
-	css::SizingFn max;			 //
+	Type	 type{BREADTH}; //
+	SizingFn min;			//
+	SizingFn max;			//
 
 	float				 usedBreadth{0};									 // Used by the track sizing algorithm.
 	float				 maxBreadth{std::numeric_limits<float>::infinity()}; // Used by the track sizing algorithm.

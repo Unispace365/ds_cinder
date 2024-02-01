@@ -714,6 +714,9 @@
     <ClInclude Include="..\src\ds\ui\grid\css.h">
       <Filter>src\ds\ui\grid</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\float_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
