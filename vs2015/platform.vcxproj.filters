@@ -717,6 +717,9 @@
     <ClInclude Include="..\src\ds\util\float_util.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\fit.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1174,6 +1177,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\grid\grid.cpp">
       <Filter>src\ds\ui\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\fit.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

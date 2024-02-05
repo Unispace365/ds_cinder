@@ -344,6 +344,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 		propertyMap["max-height"] = propertyMap["max_height"] = [](const SprProps& p) {
 			p.sprite.setHeightMax(ds::string_to_float(p.value));
 		};
+		propertyMap["fit"] = [](const SprProps& p) {
+			p.sprite.setFit(p.value);
+		};
 		propertyMap["color"] = [](const SprProps& p) {
 			p.sprite.setTransparent(false);
 			p.sprite.setColorA(parseColor(p.value, p.engine));
