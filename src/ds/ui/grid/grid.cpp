@@ -225,25 +225,19 @@ void Grid::setGap(const std::string& def) {
 ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) const {
 	const auto x1 = calcColumnPos(column.min);
 	const auto y1 = calcRowPos(row.min);
-	const auto x2 = glm::max(x1, calcColumnPos(column.max) - mColumnGap.asUser(getWidth()));
-	const auto y2 = glm::max(y1, calcRowPos(row.max) - mRowGap.asUser(getHeight()));
+	auto	   x2 = calcColumnPos(column.max);
+	auto	   y2 = calcRowPos(row.max);
+	if (glm::max(0.0f, x2 - x1) > 0) x2 -= mColumnGap.asUser(getWidth());
+	if (glm::max(0.0f, y2 - y1) > 0) y2 -= mRowGap.asUser(getWidth());
 	return {x1, y1, x2, y2};
 }
 
 float Grid::calcWidth() const {
-	const float gap	  = mColumnGap.asUser(getWidth());
-	float		width = 0;
-	for (const auto& track : mColumns)
-		width += track.usedBreadth;
-	return width + glm::max(0.f, float(mColumns.size()) - 1) * gap;
+	return calcColumnPos(mColumns.size());
 }
 
 float Grid::calcHeight() const {
-	const float gap	   = mRowGap.asUser(getHeight());
-	float		height = 0;
-	for (const auto& track : mRows)
-		height += track.usedBreadth;
-	return height + glm::max(0.f, float(mRows.size()) - 1) * gap;
+	return calcRowPos(mRows.size());
 }
 
 void Grid::drawLocalClient() {
@@ -469,12 +463,12 @@ void Grid::runLayout() {
 
 float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
 	if (index > tracks.size()) throw std::runtime_error("Index out of range");
-	float n = 0;
+	float allocatedSpace = 0;
 	for (size_t i = 0; i < index; ++i) {
-		if (n > 0 && tracks.at(i).usedBreadth > 0) n += gap;
-		n += tracks.at(i).usedBreadth;
+		if (allocatedSpace > 0 && tracks.at(i).usedBreadth > 0) allocatedSpace += gap;
+		allocatedSpace += tracks.at(i).usedBreadth;
 	}
-	return n;
+	return allocatedSpace;
 }
 
 void Grid::computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float percentOf, float gap, const SpanFn& spanFn,
@@ -785,12 +779,14 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 
 float Grid::calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill, float gap) {
 	if (std::isinf(spaceToFill) || std::isnan(spaceToFill)) return std::numeric_limits<float>::signaling_NaN();
-	for (const auto& track : tracks)
-		spaceToFill -= track.usedBreadth;
 
-	spaceToFill -= glm::max(0.0f, tracks.size() * gap - gap); // Compensate for gaps.
+	float allocatedSpace = 0;
+	for (const auto& track : tracks) {
+		if (allocatedSpace > 0 && track.usedBreadth > 0) allocatedSpace += gap;
+		allocatedSpace += track.usedBreadth;
+	}
 
-	return glm::max(0.0f, spaceToFill);
+	return glm::max(0.0f, spaceToFill - allocatedSpace);
 }
 
 std::vector<Sprite*> Grid::allItems() {
