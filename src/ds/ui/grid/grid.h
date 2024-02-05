@@ -90,7 +90,7 @@ class Grid : public Sprite {
 	// Returns whether the \a area overlaps any of the \a spans.
 	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
 	// Calculates the position of the grid line with the specified \a index.
-	float calcPos(size_t index, const std::vector<Track>& tracks, float gap) const;
+	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap);
 	//
 	void runLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.

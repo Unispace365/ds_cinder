@@ -467,12 +467,12 @@ void Grid::runLayout() {
 	onLayoutUpdate();
 }
 
-float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) const {
+float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
 	if (index > tracks.size()) throw std::runtime_error("Index out of range");
 	float n = 0;
 	for (size_t i = 0; i < index; ++i) {
+		if (n > 0 && tracks.at(i).usedBreadth > 0) n += gap;
 		n += tracks.at(i).usedBreadth;
-		n += gap;
 	}
 	return n;
 }
@@ -748,10 +748,10 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill, float gap) {
 	// 1.
 	float allocatedSpace = 0;
-	for (const auto& track : tracks)
+	for (const auto& track : tracks) {
+		if (allocatedSpace > 0 && track->usedBreadth > 0) allocatedSpace += gap;
 		allocatedSpace += track->usedBreadth;
-
-	allocatedSpace += glm::max(0.0f, tracks.size() * gap - gap); // Compensate for gaps.
+	}
 
 	// 2.
 	auto flexTracks = getFlexTracks(tracks);
