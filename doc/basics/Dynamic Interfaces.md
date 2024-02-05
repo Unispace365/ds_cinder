@@ -334,6 +334,7 @@ Sprite Parameters
 	* **max_width**: Sets the maximum width in pixels of this sprite when placed within a Grid layout.
 	* **min_height**: Sets the minimum height in pixels of this sprite when placed within a Grid layout.
 	* **max_height**: Sets the maximum height in pixels of this sprite when placed within a Grid layout.
+	* **fit**: Currently only used within a Grid layout, this will adjust the sprite's scale and position to make it fit the assigned layout area. Defaults to "none". The property takes a string like "xMinYmid meet" (case insensitive), where "xMin" = left aligned, "xMid" = centered and "xMax" = right aligned; "yMin" = top aligned, "yMid" = centered and "yMax" = bottom aligned; "meet" will reduce the scale of the sprite until it fits the smallest of width and height (similar to letterboxing), where "slice" will increase the scale of the sprite until it fits the largest of width and height (some portions of the sprite will not be seen). See also: https://www.dofactory.com/html/svg/preserveaspectratio 
 
 Layout Parameters
 ------------------------------------------------------------
