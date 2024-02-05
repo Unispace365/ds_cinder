@@ -345,19 +345,8 @@ void Grid::runLayout() {
 			}
 		}
 
-		try {
-			const auto area = calcArea(col, row);
-			if (item->getFit().isNone()) {
-				item->setPosition(area.x1, area.y1);
-			} else {
-				const auto fit = item->getFit().calcTransform(area, item->getBoundingBox(), false);
-				item->setScale(fit[0][0], fit[1][1]);
-				item->setPosition(fit[2]);
-			}
-
-			auto text = dynamic_cast<Text*>(item);
-			if (text) text->setResizeLimit(area.getWidth(), area.getHeight());
-		} catch (...) {}
+		const auto area = calcArea(col, row);
+		item->fitInsideArea(area);
 	}
 
 #if 0 // Automatic Grid Item Placement Algorithm.
