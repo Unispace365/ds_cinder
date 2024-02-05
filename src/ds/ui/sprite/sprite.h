@@ -21,6 +21,7 @@
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
 #include "ds/ui/sprite/dirty_state.h"
+#include "ds/ui/sprite/fit.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/sprite/util/blend.h"
@@ -244,6 +245,12 @@ namespace ui {
 			mMaxHeight = height;
 			mHeight	   = glm::min(mHeight, mMaxHeight);
 		}
+		// Returns the sprite fitting mode, allowing access to the proper transform.
+		const Fit& getFit() const { return mFit; }
+		// Sets sprite fitting mode.
+		virtual void setFit(Fit fit) { mFit = std::move(fit); }
+		// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
+		virtual void setFit(const std::string& css) { mFit = Fit(css); }
 
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
@@ -939,6 +946,7 @@ namespace ui {
 
 		float mMinWidth{-std::numeric_limits<float>::infinity()}, mMaxWidth{std::numeric_limits<float>::infinity()};
 		float mMinHeight{-std::numeric_limits<float>::infinity()}, mMaxHeight{std::numeric_limits<float>::infinity()};
+		Fit	  mFit;
 
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;

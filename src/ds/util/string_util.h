@@ -215,6 +215,15 @@ inline long int parseHex(const char** sInOut) {
 inline long int parseBinary(const char** sInOut) {
 	return strtol(*sInOut, const_cast<char**>(sInOut), 2);
 }
+/// Returns whether the ASCII strings are equal, ignoring case.
+inline bool isSimilar(const std::string& a, const std::string& b) {
+	return a.size() == b.size() &&
+		   std::equal(a.begin(), a.end(), b.begin(), [](char a, char b) { return tolower(a) == tolower(b); });
+}
+/// Returns whether the ASCII strings are equal, ignoring case.
+inline bool isSimilar(const char* a, const char* b, size_t maxCount) {
+	return std::equal(a, a + maxCount, b, b + maxCount, [](char a, char b) { return tolower(a) == tolower(b); });
+}
 
 } // namespace ds
 
