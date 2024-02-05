@@ -245,12 +245,14 @@ namespace ui {
 			mMaxHeight = height;
 			mHeight	   = glm::min(mHeight, mMaxHeight);
 		}
-		// Returns the sprite fitting mode, allowing access to the proper transform.
+		/// Returns the sprite fitting mode, allowing access to the proper transform.
 		const Fit& getFit() const { return mFit; }
-		// Sets sprite fitting mode.
-		virtual void setFit(Fit fit) { mFit = std::move(fit); }
-		// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
+		/// Sets sprite fitting mode.
+		virtual void setFit(Fit fit) { mFit = fit; }
+		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
 		virtual void setFit(const std::string& css) { mFit = Fit(css); }
+		/// Adjusts the sprite's transform to precisely fit inside the given area.
+		virtual void fitInsideArea(const ci::Rectf& area);
 
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
