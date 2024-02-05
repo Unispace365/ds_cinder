@@ -843,8 +843,8 @@ ci::vec3 Sprite::getSize() const {
 void Sprite::setSizeAll(float width, float height, float depth) {
 	if (mWidth == width && mHeight == height && mDepth == depth) return;
 
-	mWidth	= glm::clamp(width, mMinWidth, mMaxWidth);
-	mHeight = glm::clamp(height, mMinHeight, mMaxHeight);
+	mWidth	= width;
+	mHeight = height;
 	mDepth	= depth;
 	/*auto ygw = YGNodeStyleGetWidth(mYogaNode);
 	auto ygh = YGNodeStyleGetHeight(mYogaNode);
@@ -1403,7 +1403,8 @@ void Sprite::fitInsideArea(const ci::Rectf& area) {
 		setPosition(area.x1, area.y1);
 	} else {
 		// Fit the sprite to the area.
-		const auto fit = mFit.calcTransform(area, {0, 0, getWidth(), getHeight()}, false);
+		const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+		const auto fit	  = mFit.calcTransform(area, bounds, false);
 		setScale(fit[0][0], fit[1][1]);
 		setPosition(fit[2]);
 	}

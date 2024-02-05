@@ -309,6 +309,38 @@ void Image::clearImage() {
 	imageChanged();
 }
 
+float Image::getWidthMin() const {
+	if (mMinWidth <= 0 && mMinHeight > 0) {
+		const float aspect = getWidth() / getHeight();
+		return mMinHeight * aspect;
+	}
+	return mMinWidth;
+}
+
+float Image::getWidthMax() const {
+	if (mMaxWidth <= 0 && mMaxHeight > 0) {
+		const float aspect = getWidth() / getHeight();
+		return mMaxHeight * aspect;
+	}
+	return mMaxWidth;
+}
+
+float Image::getHeightMin() const {
+	if (mMinHeight <= 0 && mMinWidth > 0) {
+		const float aspect = getHeight() / getWidth();
+		return mMinWidth * aspect;
+	}
+	return mMinHeight;
+}
+
+float Image::getHeightMax() const {
+	if (mMaxHeight <= 0 && mMaxWidth > 0) {
+		const float aspect = getHeight() / getWidth();
+		return mMaxWidth * aspect;
+	}
+	return mMaxHeight;
+}
+
 void Image::setSize(float width, float height) {
 	setSizeAll(width, height, mDepth);
 }

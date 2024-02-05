@@ -210,17 +210,11 @@ namespace ui {
 		// Returns the minimum width of the Sprite.
 		virtual float getWidthMin() const { return std::isfinite(mMinWidth) ? mMinWidth : getScaleWidth(); }
 		// Sets the minimum width of the Sprite.
-		virtual void setWidthMin(float width) {
-			mMinWidth = width;
-			mWidth	  = glm::max(mWidth, mMinWidth);
-		}
+		void setWidthMin(float width) { mMinWidth = width; }
 		// Returns the maximum width of the Sprite.
 		virtual float getWidthMax() const { return std::isfinite(mMaxWidth) ? mMaxWidth : getScaleWidth(); }
 		// Sets the maximum width of the Sprite.
-		virtual void setWidthMax(float width) {
-			mMaxWidth = width;
-			mWidth	  = glm::min(mWidth, mMaxWidth);
-		}
+		void setWidthMax(float width) { mMaxWidth = width; }
 
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
@@ -234,23 +228,18 @@ namespace ui {
 		// Returns the minimum height of the Sprite.
 		virtual float getHeightMin() const { return std::isfinite(mMinHeight) ? mMinHeight : getScaleHeight(); }
 		// Sets the minimum height of the Sprite.
-		virtual void setHeightMin(float height) {
-			mMinHeight = height;
-			mHeight	   = glm::max(mHeight, mMinHeight);
-		}
+		void setHeightMin(float height) { mMinHeight = height; }
 		// Returns the maximum height of the Sprite.
 		virtual float getHeightMax() const { return std::isfinite(mMaxHeight) ? mMaxHeight : getScaleHeight(); }
 		// Sets the maximum height of the Sprite.
-		virtual void setHeightMax(float height) {
-			mMaxHeight = height;
-			mHeight	   = glm::min(mHeight, mMaxHeight);
-		}
+		void setHeightMax(float height) { mMaxHeight = height; }
+
 		/// Returns the sprite fitting mode, allowing access to the proper transform.
 		const Fit& getFit() const { return mFit; }
 		/// Sets sprite fitting mode.
-		virtual void setFit(Fit fit) { mFit = fit; }
+		void setFit(Fit fit) { mFit = fit; }
 		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
-		virtual void setFit(const std::string& css) { mFit = Fit(css); }
+		void setFit(const std::string& css) { mFit = Fit(css); }
 		/// Adjusts the sprite's transform to precisely fit inside the given area.
 		virtual void fitInsideArea(const ci::Rectf& area);
 
