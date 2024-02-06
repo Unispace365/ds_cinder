@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <ds/ui/grid/css.h>
+#include <ds/ui/sprite/sprite.h>
 
 namespace ds::css {
 
@@ -22,6 +23,12 @@ float Value::asUser(float percentOf) const {
 	default:
 		throw std::runtime_error("Value can't be calculated");
 	}
+}
+
+float Value::asUser(const ui::Sprite& sprite, Direction direction) const {
+	assert(sprite.getParent());
+	const float percentOf = direction == HORIZONTAL ? sprite.getParent()->getWidth() : sprite.getParent()->getHeight();
+	return asUser(percentOf);
 }
 
 void Value::parse(const char** sInOut) {

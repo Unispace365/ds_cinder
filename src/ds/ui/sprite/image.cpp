@@ -308,33 +308,33 @@ void Image::clearImage() {
 }
 
 float Image::getWidthMin() const {
-	if (mMinWidth <= 0 && mMinHeight > 0) {
+	if (!mMinWidth.isDefined() && mMinHeight.isDefined()) {
 		const float aspect = getWidth() / getHeight();
-		return mMinHeight * aspect;
+		return mMinHeight.asUser(*this, css::Value::VERTICAL) * aspect;
 	}
 	return mMinWidth;
 }
 
 float Image::getWidthMax() const {
-	if (mMaxWidth <= 0 && mMaxHeight > 0) {
+	if (!mMaxWidth.isDefined() && mMaxHeight.isDefined()) {
 		const float aspect = getWidth() / getHeight();
-		return mMaxHeight * aspect;
+		return mMaxHeight.asUser(*this, css::Value::VERTICAL) * aspect;
 	}
 	return mMaxWidth;
 }
 
 float Image::getHeightMin() const {
-	if (mMinHeight <= 0 && mMinWidth > 0) {
+	if (!mMinHeight.isDefined() && mMinWidth.isDefined()) {
 		const float aspect = getHeight() / getWidth();
-		return mMinWidth * aspect;
+		return mMinWidth.asUser(*this, css::Value::HORIZONTAL) * aspect;
 	}
 	return mMinHeight;
 }
 
 float Image::getHeightMax() const {
-	if (mMaxHeight <= 0 && mMaxWidth > 0) {
+	if (!mMaxHeight.isDefined() && mMaxWidth.isDefined()) {
 		const float aspect = getHeight() / getWidth();
-		return mMaxWidth * aspect;
+		return mMaxWidth.asUser(*this, css::Value::HORIZONTAL) * aspect;
 	}
 	return mMaxHeight;
 }

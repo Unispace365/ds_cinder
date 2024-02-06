@@ -333,16 +333,16 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			p.sprite.setSize(v.x, v.y);
 		};
 		propertyMap["min-width"] = propertyMap["min_width"] = [](const SprProps& p) {
-			p.sprite.setWidthMin(ds::string_to_float(p.value));
+			p.sprite.setWidthMin(p.value);
 		};
 		propertyMap["max-width"] = propertyMap["max_width"] = [](const SprProps& p) {
-			p.sprite.setWidthMax(ds::string_to_float(p.value));
+			p.sprite.setWidthMax(p.value);
 		};
 		propertyMap["min-height"] = propertyMap["min_height"] = [](const SprProps& p) {
-			p.sprite.setHeightMin(ds::string_to_float(p.value));
+			p.sprite.setHeightMin(p.value);
 		};
 		propertyMap["max-height"] = propertyMap["max_height"] = [](const SprProps& p) {
-			p.sprite.setHeightMax(ds::string_to_float(p.value));
+			p.sprite.setHeightMax(p.value);
 		};
 		propertyMap["fit"] = [](const SprProps& p) {
 			p.sprite.setFit(p.value);
