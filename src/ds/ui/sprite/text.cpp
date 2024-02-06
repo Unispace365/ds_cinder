@@ -666,6 +666,12 @@ float Text::getBaseline() {
 
 }
 
+void Text::fitInsideArea(const ci::Rectf& area) {
+	setResizeLimit(area.getWidth(), area.getHeight());
+	setFitToResizeLimit(true);
+	Sprite::fitInsideArea(area);
+}
+
 bool Text::getTextWrapped() {
 	// calculate current state if needed
 	measurePangoText();
