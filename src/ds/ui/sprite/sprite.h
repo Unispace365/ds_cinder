@@ -178,7 +178,7 @@ namespace ui {
 			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should
 		   not call this function yourself. This is identical to setSize(), except it also sets the depth. \param size3d
 		   The size to set in the form of ci::vec2f(width, height, depth).		*/
-		virtual void setSizeAll(const ci::vec3& size3d);
+		void setSizeAll(const ci::vec3& size3d);
 
 		/** Sets the width, height, and depth of the Sprite.
 			This does not affect the scale of the Sprite.
