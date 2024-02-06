@@ -1,16 +1,18 @@
 #pragma once
 
-#include "cinder/Exception.h"
-#include "cinder/Rect.h"
-
 #include <string>
+
+namespace ds::ui {
+class Sprite;
+}
 
 namespace ds::css {
 
 //! Value/Unit pair
 class Value {
   public:
-	enum Unit { UNDEFINED, PIXELS, PERCENTAGE, FLEX };
+	enum Unit { UNDEFINED, PIXELS, PERCENTAGE, FLEX }; // Percentage is relative to parent size.
+	enum Direction { HORIZONTAL, VERTICAL };
 
 	Value() = default;
 	Value(float value, Unit unit)
@@ -20,13 +22,15 @@ class Value {
 	explicit Value(const std::string& str);
 	explicit Value(const char** sInOut);
 
-	float value() const { return mValue; }
-	Unit  unit() const { return mUnit; }
+	[[nodiscard]] float value() const { return mValue; }
+	[[nodiscard]] Unit  unit() const { return mUnit; }
 
-	float asUser(float percentOf) const;
+	[[nodiscard]] float asUser(float percentOf) const;
+	[[nodiscard]] float asUser(const ds::ui::Sprite& sprite, Direction direction) const;
 
-	bool isFlex() const { return mUnit == FLEX; }
-	bool isFixed() const { return !(mUnit == UNDEFINED || mUnit == FLEX); }
+	[[nodiscard]] bool isDefined() const { return mUnit != UNDEFINED; }
+	[[nodiscard]] bool isFlex() const { return mUnit == FLEX; }
+	[[nodiscard]] bool isFixed() const { return !(mUnit == UNDEFINED || mUnit == FLEX); }
 
 	/// Makes it easier to use, see: GridSprite::sumFlex().
 	explicit operator float() const { return mValue; }

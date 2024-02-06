@@ -20,6 +20,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
+#include "ds/ui/grid/css.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/sprite/fit.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
@@ -203,36 +204,48 @@ namespace ui {
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
 		virtual float getWidth() const;
 
-		/** The width range of the Sprite.
-			\return the minimum and maximum width of the Sprite		*/
-		Range<float> getWidthRange() const { return {getWidthMin(), getWidthMax()}; }
-
 		// Returns the minimum width of the Sprite.
-		virtual float getWidthMin() const { return std::isfinite(mMinWidth) ? mMinWidth : getScaleWidth(); }
+		virtual float getWidthMin() const {
+			return mMinWidth.isDefined() ? mMinWidth.asUser(*this, css::Value::HORIZONTAL)
+										 : css::Value(getScaleWidth(), css::Value::PIXELS);
+		}
 		// Sets the minimum width of the Sprite.
-		void setWidthMin(float width) { mMinWidth = width; }
+		void setWidthMin(float width) { mMinWidth = css::Value(width, css::Value::PIXELS); }
+		// Sets the minimum width of the Sprite.
+		void setWidthMin(const std::string& css) { mMinWidth = css::Value(css); }
 		// Returns the maximum width of the Sprite.
-		virtual float getWidthMax() const { return std::isfinite(mMaxWidth) ? mMaxWidth : getScaleWidth(); }
+		virtual float getWidthMax() const {
+			return mMaxWidth.isDefined() ? mMaxWidth.asUser(*this, css::Value::HORIZONTAL)
+										 : css::Value(getScaleWidth(), css::Value::PIXELS);
+		}
 		// Sets the maximum width of the Sprite.
-		void setWidthMax(float width) { mMaxWidth = width; }
+		void setWidthMax(float width) { mMaxWidth = css::Value(width, css::Value::PIXELS); }
+		// Sets the maximum width of the Sprite.
+		void setWidthMax(const std::string& css) { mMaxWidth = css::Value(css); }
 
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
 
-		/** The height range of the Sprite.
-			\return the minimum and maximum height of the Sprite		*/
-		Range<float> getHeightRange() const { return {getHeightMin(), getHeightMax()}; }
-
 		// Returns the minimum height of the Sprite.
-		virtual float getHeightMin() const { return std::isfinite(mMinHeight) ? mMinHeight : getScaleHeight(); }
+		virtual float getHeightMin() const {
+			return mMinHeight.isDefined() ? mMinHeight.asUser(*this, css::Value::VERTICAL)
+										  : css::Value(getScaleWidth(), css::Value::PIXELS);
+		}
 		// Sets the minimum height of the Sprite.
-		void setHeightMin(float height) { mMinHeight = height; }
+		void setHeightMin(float height) { mMinHeight = css::Value(height, css::Value::PIXELS); }
+		// Sets the minimum height of the Sprite.
+		void setHeightMin(const std::string& css) { mMinHeight = css::Value(css); }
 		// Returns the maximum height of the Sprite.
-		virtual float getHeightMax() const { return std::isfinite(mMaxHeight) ? mMaxHeight : getScaleHeight(); }
+		virtual float getHeightMax() const {
+			return mMaxHeight.isDefined() ? mMaxHeight.asUser(*this, css::Value::VERTICAL)
+										  : css::Value(getScaleWidth(), css::Value::PIXELS);
+		}
 		// Sets the maximum height of the Sprite.
-		void setHeightMax(float height) { mMaxHeight = height; }
+		void setHeightMax(float height) { mMaxHeight = css::Value(height, css::Value::PIXELS); }
+		// Sets the maximum height of the Sprite.
+		void setHeightMax(const std::string& css) { mMaxHeight = css::Value(css); }
 
 		/// Returns the sprite fitting mode, allowing access to the proper transform.
 		const Fit& getFit() const { return mFit; }
@@ -932,9 +945,9 @@ namespace ui {
 
 		float mWidth, mHeight, mDepth;
 
-		float mMinWidth{-std::numeric_limits<float>::infinity()}, mMaxWidth{std::numeric_limits<float>::infinity()};
-		float mMinHeight{-std::numeric_limits<float>::infinity()}, mMaxHeight{std::numeric_limits<float>::infinity()};
-		Fit	  mFit;
+		css::Value mMinWidth, mMaxWidth;
+		css::Value mMinHeight, mMaxHeight;
+		Fit		   mFit;
 
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;
