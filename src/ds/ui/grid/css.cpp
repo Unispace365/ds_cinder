@@ -25,9 +25,9 @@ float Value::asUser(float percentOf) const {
 	}
 }
 
-float Value::asUser(const ui::Sprite& sprite, Direction direction) const {
-	assert(sprite.getParent());
-	const float percentOf = direction == HORIZONTAL ? sprite.getParent()->getWidth() : sprite.getParent()->getHeight();
+float Value::asUser(const ui::Sprite* sprite, Direction direction) const {
+	assert(sprite && sprite->getParent());
+	const float percentOf = direction == HORIZONTAL ? sprite->getParent()->getWidth() : sprite->getParent()->getHeight();
 	return asUser(percentOf);
 }
 

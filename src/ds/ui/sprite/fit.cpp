@@ -61,9 +61,7 @@ void Fit::parse(const char** sInOut) {
 
 	if (isSimilar(*sInOut, "none", 4)) {
 		*sInOut += 4;
-		mAlignX = NONE;
-		mAlignY = NONE;
-		mMeetOrSlice = MEET;
+		mMeetOrSlice = NONE;
 		return;
 	}
 

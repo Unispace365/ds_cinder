@@ -22,6 +22,7 @@
 #include "ds/debug/logger.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/util/float_util.h"
 #include "ds/util/string_util.h"
 #include <Poco/Stopwatch.h>
 
@@ -203,6 +204,9 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setTransparent(false);
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
+
+	// Default to xMinYMid meet.
+	mFit = Fit(Fit::MIN, Fit::MIN, Fit::MEET);
 }
 
 Text::~Text() {
@@ -663,13 +667,52 @@ float Text::getBaseline() {
 	} else {
 		return 0.f;
 	}
+}
 
+bool Text::setAvailableSize(const ci::vec2& size) {
+	// Adjust resize limits.
+	setResizeLimit(size.x, size.y);
+	setFitToResizeLimit(true);
+
+	// Measure minimum required space.
+	bool hasChanged = false;
+	if (!mMinWidth.isDefined() || !approxEqual(mMinWidth.asUser(this, css::Value::HORIZONTAL), getWidth())) {
+		mMinWidth  = css::Value(getWidth(), css::Value::PIXELS);
+		hasChanged = true;
+	}
+	if (!mMinHeight.isDefined() || !approxEqual(mMinHeight.asUser(this, css::Value::VERTICAL), getHeight())) {
+		mMinHeight = css::Value(getHeight(), css::Value::PIXELS);
+		hasChanged = true;
+	}
+
+	// Notify layout if settings have changed.
+	return hasChanged;
 }
 
 void Text::fitInsideArea(const ci::Rectf& area) {
 	setResizeLimit(area.getWidth(), area.getHeight());
 	setFitToResizeLimit(true);
-	Sprite::fitInsideArea(area);
+
+	if (mFit.isNone()) {
+		// Only move the sprite to the area's origin.
+		setPosition(area.x1, area.y1);
+	} else {
+		// Fit the text to the area, but don't scale.
+		float w = getWidth();
+		float h = getHeight();
+
+		float x = area.x1;
+		if (mFit.alignX() == Fit::MID)
+			x += (area.getWidth() - w) / 2.0f;
+		else if (mFit.alignX() == Fit::MAX)
+			x += area.getWidth() - w;
+		float y = area.y1;
+		if (mFit.alignY() == Fit::MID)
+			y += (area.getHeight() - h) / 2.0f;
+		else if (mFit.alignY() == Fit::MAX)
+			y += area.getHeight() - h;
+		setPosition(x, y);
+	}
 }
 
 bool Text::getTextWrapped() {

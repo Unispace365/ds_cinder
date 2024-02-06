@@ -307,36 +307,59 @@ void Image::clearImage() {
 	imageChanged();
 }
 
+bool Image::setAvailableSize(const vec2& size) {
+	bool hasChanged = false;
+
+	if (size.x > 0) {
+		const float aspect = getHeight() / getWidth();
+		const float height = size.x * aspect;
+		if (!mMinHeight.isDefined() || !approxEqual(mMinHeight.asUser(this, css::Value::VERTICAL), height)) {
+			mMinHeight = css::Value(height, css::Value::PIXELS);
+			hasChanged |= true;
+		}
+	}
+	if (size.y > 0) {
+		const float aspect = getWidth() / getHeight();
+		const float width  = size.y * aspect;
+		if (!mMinWidth.isDefined() || !approxEqual(mMinWidth.asUser(this, css::Value::HORIZONTAL), width)) {
+			mMinWidth = css::Value(width, css::Value::PIXELS);
+			hasChanged |= true;
+		}
+	}
+
+	return hasChanged;
+}
+
 float Image::getWidthMin() const {
 	if (!mMinWidth.isDefined() && mMinHeight.isDefined()) {
 		const float aspect = getWidth() / getHeight();
-		return mMinHeight.asUser(*this, css::Value::VERTICAL) * aspect;
+		return mMinHeight.asUser(this, css::Value::VERTICAL) * aspect;
 	}
-	return mMinWidth;
+	return Sprite::getWidthMin();
 }
 
 float Image::getWidthMax() const {
 	if (!mMaxWidth.isDefined() && mMaxHeight.isDefined()) {
 		const float aspect = getWidth() / getHeight();
-		return mMaxHeight.asUser(*this, css::Value::VERTICAL) * aspect;
+		return mMaxHeight.asUser(this, css::Value::VERTICAL) * aspect;
 	}
-	return mMaxWidth;
+	return Sprite::getWidthMax();
 }
 
 float Image::getHeightMin() const {
 	if (!mMinHeight.isDefined() && mMinWidth.isDefined()) {
 		const float aspect = getHeight() / getWidth();
-		return mMinWidth.asUser(*this, css::Value::HORIZONTAL) * aspect;
+		return mMinWidth.asUser(this, css::Value::HORIZONTAL) * aspect;
 	}
-	return mMinHeight;
+	return Sprite::getHeightMin();
 }
 
 float Image::getHeightMax() const {
 	if (!mMaxHeight.isDefined() && mMaxWidth.isDefined()) {
 		const float aspect = getHeight() / getWidth();
-		return mMaxWidth.asUser(*this, css::Value::HORIZONTAL) * aspect;
+		return mMaxWidth.asUser(this, css::Value::HORIZONTAL) * aspect;
 	}
-	return mMaxHeight;
+	return Sprite::getHeightMax();
 }
 
 void Image::setSize(float width, float height) {
