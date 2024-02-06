@@ -301,19 +301,51 @@ void Grid::runLayout() {
 	}
 
 	try {
-		// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
-		computeUsedBreadthOfGridTracks(mColumns, getWidth(), mColumnGap.asUser(getWidth()), ::getColumnSpan,
-									   ::getWidthMin, ::getWidthMax);
+		bool hasChanged = false;
+		for (;;) {
+			// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
+			computeUsedBreadthOfGridTracks(mColumns, getWidth(), mColumnGap.asUser(getWidth()), ::getColumnSpan,
+										   ::getWidthMin, ::getWidthMax);
 
-		// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
-		// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
-		// content-sized grid rows to determine their required height.
-		computeUsedBreadthOfGridTracks(mRows, getHeight(), mRowGap.asUser(getHeight()), ::getRowSpan, ::getHeightMin,
-									   ::getHeightMax);
+			// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
+			// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
+			// content-sized grid rows to determine their required height.
+			computeUsedBreadthOfGridTracks(mRows, getHeight(), mRowGap.asUser(getHeight()), ::getRowSpan,
+										   ::getHeightMin, ::getHeightMax);
 
-		// 3. TODO If the minimum content size of any grid item has changed based on available height for the grid item
-		// as computed in step 2, adjust the min content size of the grid item and restart the grid track sizing
-		// algorithm (once only).
+			// 3. If the minimum content size of any grid item has changed based on available height for the grid
+			// item as computed in step 2, adjust the min content size of the grid item and restart the grid track
+			// sizing algorithm (once only).
+			if (hasChanged) break;
+
+			size_t colCursor{0};
+			size_t rowCursor{0};
+
+			for (auto item : items) {
+				auto col = item->getColumnSpan();
+				auto row = item->getRowSpan();
+
+				// TEMP while we don't have auto grid item placement
+				if (item->isRowSpanAuto()) {
+					if (rowCursor >= mRows.size()) continue;
+					row = {rowCursor, rowCursor + 1};
+				}
+				if (item->isColumnSpanAuto()) {
+					col = {colCursor, colCursor + 1};
+					if (++colCursor >= mColumns.size()) {
+						colCursor = 0;
+						++rowCursor;
+					}
+				}
+
+				const auto area = calcArea(col, row);
+				hasChanged |= item->setAvailableSize(area.getSize());
+			}
+
+			if (!hasChanged) break;
+
+			DS_LOG_VERBOSE(0, "Restarting layout because content size has changed.");
+		}
 	} catch (const std::exception& exc) {
 		DS_LOG_ERROR(exc.what())
 	}
@@ -454,6 +486,7 @@ float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
 	if (index > tracks.size()) throw std::runtime_error("Index out of range");
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index; ++i) {
+		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
 		if (allocatedSpace > 0 && tracks.at(i).usedBreadth > 0) allocatedSpace += gap;
 		allocatedSpace += tracks.at(i).usedBreadth;
 	}

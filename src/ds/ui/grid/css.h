@@ -26,7 +26,7 @@ class Value {
 	[[nodiscard]] Unit  unit() const { return mUnit; }
 
 	[[nodiscard]] float asUser(float percentOf) const;
-	[[nodiscard]] float asUser(const ds::ui::Sprite& sprite, Direction direction) const;
+	[[nodiscard]] float asUser(const ds::ui::Sprite* sprite, Direction direction) const;
 
 	[[nodiscard]] bool isDefined() const { return mUnit != UNDEFINED; }
 	[[nodiscard]] bool isFlex() const { return mUnit == FLEX; }

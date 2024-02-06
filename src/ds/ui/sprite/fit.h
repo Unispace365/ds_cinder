@@ -7,8 +7,8 @@ namespace ds::ui {
 //! A class to help calculate the transformation matrix to fit one rectangle into another.
 class Fit {
   public:
-	enum Align { NONE, MIN, MID, MAX };
-	enum MeetOrSlice { MEET, SLICE };
+	enum Align { MIN, MID, MAX };
+	enum MeetOrSlice { NONE, MEET, SLICE };
 
 	Fit() = default;
 	Fit(Align x, Align y, MeetOrSlice meetOrSlice = MEET)
@@ -23,7 +23,7 @@ class Fit {
 	explicit Fit(const char** sInOut) { parse(sInOut); }
 
 	//! Returns whether the fit is set to none. If it is, no transformations will be necessary.
-	[[nodiscard]] bool isNone() const { return mAlignX == NONE && mAlignY == NONE; }
+	[[nodiscard]] bool isNone() const { return mMeetOrSlice == NONE; }
 
 	//! Calculate the transformation matrix to fit the inner rectangle into the outer rectangle. Optionally normalizes
 	//! the result to the range 0-1.
@@ -38,11 +38,15 @@ class Fit {
 	[[nodiscard]] glm::mat4 calcTransform4x4(const ci::Rectf& outer, const ci::Rectf& inner,
 											 bool normalized = false) const;
 
+	Align alignX() const { return mAlignX; }
+	Align alignY() const { return mAlignY; }
+	MeetOrSlice meetOrSlice() const { return mMeetOrSlice; }
+
   private:
 	void parse(const char** sInOut);
 
-	Align		mAlignX{NONE};
-	Align		mAlignY{NONE};
+	Align		mAlignX{MID};
+	Align		mAlignY{MID};
 	MeetOrSlice mMeetOrSlice{MEET};
 };
 

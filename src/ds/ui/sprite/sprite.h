@@ -199,6 +199,10 @@ namespace ui {
 		   value.		 */
 		virtual ci::vec3 getPreferredSize() const;
 
+		/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+		/// calculations. Returns whether anything changed.
+		virtual bool setAvailableSize(const ci::vec2& size) { return false; }
+
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
@@ -206,8 +210,7 @@ namespace ui {
 
 		// Returns the minimum width of the Sprite.
 		virtual float getWidthMin() const {
-			return mMinWidth.isDefined() ? mMinWidth.asUser(*this, css::Value::HORIZONTAL)
-										 : css::Value(getScaleWidth(), css::Value::PIXELS);
+			return mMinWidth.isDefined() ? mMinWidth.asUser(this, css::Value::HORIZONTAL) : getScaleWidth();
 		}
 		// Sets the minimum width of the Sprite.
 		void setWidthMin(float width) { mMinWidth = css::Value(width, css::Value::PIXELS); }
@@ -215,8 +218,7 @@ namespace ui {
 		void setWidthMin(const std::string& css) { mMinWidth = css::Value(css); }
 		// Returns the maximum width of the Sprite.
 		virtual float getWidthMax() const {
-			return mMaxWidth.isDefined() ? mMaxWidth.asUser(*this, css::Value::HORIZONTAL)
-										 : css::Value(getScaleWidth(), css::Value::PIXELS);
+			return mMaxWidth.isDefined() ? mMaxWidth.asUser(this, css::Value::HORIZONTAL) : getScaleWidth();
 		}
 		// Sets the maximum width of the Sprite.
 		void setWidthMax(float width) { mMaxWidth = css::Value(width, css::Value::PIXELS); }
@@ -230,8 +232,7 @@ namespace ui {
 
 		// Returns the minimum height of the Sprite.
 		virtual float getHeightMin() const {
-			return mMinHeight.isDefined() ? mMinHeight.asUser(*this, css::Value::VERTICAL)
-										  : css::Value(getScaleWidth(), css::Value::PIXELS);
+			return mMinHeight.isDefined() ? mMinHeight.asUser(this, css::Value::VERTICAL) : getScaleHeight();
 		}
 		// Sets the minimum height of the Sprite.
 		void setHeightMin(float height) { mMinHeight = css::Value(height, css::Value::PIXELS); }
@@ -239,8 +240,7 @@ namespace ui {
 		void setHeightMin(const std::string& css) { mMinHeight = css::Value(css); }
 		// Returns the maximum height of the Sprite.
 		virtual float getHeightMax() const {
-			return mMaxHeight.isDefined() ? mMaxHeight.asUser(*this, css::Value::VERTICAL)
-										  : css::Value(getScaleWidth(), css::Value::PIXELS);
+			return mMaxHeight.isDefined() ? mMaxHeight.asUser(this, css::Value::VERTICAL) : getScaleHeight();
 		}
 		// Sets the maximum height of the Sprite.
 		void setHeightMax(float height) { mMaxHeight = css::Value(height, css::Value::PIXELS); }

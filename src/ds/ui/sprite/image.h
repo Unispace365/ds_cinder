@@ -77,6 +77,10 @@ class Image : public Sprite {
 	/// Clears the image from this sprite. Removes a reference in the image store if not cached
 	void clearImage();
 
+	/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+	/// calculations. Returns whether anything changed.
+	bool setAvailableSize(const ci::vec2& size) override;
+
 	/// Returns the minimum width of the Image. If minimum width hasn't been set, but minimum height has, it will
 	/// calculate minimum width based on the aspect ratio.
 	float getWidthMin() const override;
