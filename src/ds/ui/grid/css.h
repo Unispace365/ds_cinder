@@ -11,8 +11,22 @@ namespace ds::css {
 //! Value/Unit pair
 class Value {
   public:
-	enum Unit { UNDEFINED, PIXELS, PERCENTAGE, FLEX }; // Percentage is relative to parent size.
+	enum Unit {
+		UNDEFINED,
+		PIXELS,
+		PERCENTAGE,
+		VIEWPORT_WIDTH,
+		VIEWPORT_HEIGHT,
+		VIEWPORT_MIN,
+		VIEWPORT_MAX,
+		FLEX
+	}; // Percentage is relative to parent size.
 	enum Direction { HORIZONTAL, VERTICAL };
+
+	struct Dimensions {
+		float	 percentOf;
+		ci::vec2 viewportSize;
+	};
 
 	Value() = default;
 	Value(float value, Unit unit)
@@ -23,9 +37,9 @@ class Value {
 	explicit Value(const char** sInOut);
 
 	[[nodiscard]] float value() const { return mValue; }
-	[[nodiscard]] Unit  unit() const { return mUnit; }
+	[[nodiscard]] Unit	unit() const { return mUnit; }
 
-	[[nodiscard]] float asUser(float percentOf) const;
+	[[nodiscard]] float asUser(const Dimensions& dimensions) const;
 	[[nodiscard]] float asUser(const ds::ui::Sprite* sprite, Direction direction) const;
 
 	[[nodiscard]] bool isDefined() const { return mUnit != UNDEFINED; }

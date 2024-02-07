@@ -96,7 +96,7 @@ std::vector<Grid::Track*> getTracksMaxIsMinOrMax(const std::vector<Grid::Track*>
 		if (track->max.isMinContent() || track->max.isMaxContent()) result.push_back(track);
 	}
 
-	return result.empty() ? tracks : result;
+	return result; // result.empty() ? tracks : result;
 }
 
 std::vector<Grid::Track*> getTracksMaxIsMax(const std::vector<Grid::Track*>& tracks) {
@@ -106,7 +106,7 @@ std::vector<Grid::Track*> getTracksMaxIsMax(const std::vector<Grid::Track*>& tra
 		if (track->max.isMaxContent()) result.push_back(track);
 	}
 
-	return result.empty() ? tracks : result;
+	return result; // result.empty() ? tracks : result;
 }
 
 // Subset functions.
@@ -227,8 +227,8 @@ ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) 
 	const auto y1 = calcRowPos(row.min);
 	auto	   x2 = calcColumnPos(column.max);
 	auto	   y2 = calcRowPos(row.max);
-	if (glm::max(0.0f, x2 - x1) > 0) x2 -= mColumnGap.asUser(getWidth());
-	if (glm::max(0.0f, y2 - y1) > 0) y2 -= mRowGap.asUser(getWidth());
+	if (glm::max(0.0f, x2 - x1) > 0) x2 -= mColumnGap.asUser(this, css::Value::HORIZONTAL);
+	if (glm::max(0.0f, y2 - y1) > 0) y2 -= mRowGap.asUser(this, css::Value::VERTICAL);
 	return {x1, y1, x2, y2};
 }
 
@@ -243,8 +243,9 @@ float Grid::calcHeight() const {
 void Grid::drawLocalClient() {
 	if (mNeedsLayout) runLayout();
 
-	const auto engine = dynamic_cast<Engine*>(&mEngine);
-	if (engine && engine->isShowingSettingsEditor()) {
+#if defined(_DEBUG)
+	const auto debug = mEngine.getAppSettings().getBool("debug:layout", 0, false);
+	if (debug) {
 		ci::gl::ScopedColor		   sc(1, 1, 1);
 		ci::gl::ScopedBlendPremult sb;
 
@@ -266,6 +267,7 @@ void Grid::drawLocalClient() {
 			ci::gl::drawStrokedRect(calcArea(item), 15);
 		}
 	}
+#endif
 }
 
 void Grid::addChild(Sprite& newChild) {
@@ -304,14 +306,14 @@ void Grid::runLayout() {
 		bool hasChanged = false;
 		for (;;) {
 			// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
-			computeUsedBreadthOfGridTracks(mColumns, getWidth(), mColumnGap.asUser(getWidth()), ::getColumnSpan,
-										   ::getWidthMin, ::getWidthMax);
+			computeUsedBreadthOfGridTracks(Value::Direction::HORIZONTAL, mColumns, ::getColumnSpan, ::getWidthMin,
+										   ::getWidthMax);
 
 			// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
 			// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
 			// content-sized grid rows to determine their required height.
-			computeUsedBreadthOfGridTracks(mRows, getHeight(), mRowGap.asUser(getHeight()), ::getRowSpan,
-										   ::getHeightMin, ::getHeightMax);
+			computeUsedBreadthOfGridTracks(Value::Direction::VERTICAL, mRows, ::getRowSpan, ::getHeightMin,
+										   ::getHeightMax);
 
 			// 3. If the minimum content size of any grid item has changed based on available height for the grid
 			// item as computed in step 2, adjust the min content size of the grid item and restart the grid track
@@ -493,11 +495,16 @@ float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
 	return allocatedSpace;
 }
 
-void Grid::computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float percentOf, float gap, const SpanFn& spanFn,
+void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vector<Track>& tracks, const SpanFn& spanFn,
 										  const SizeFn& minFn, const SizeFn& maxFn) {
+	const auto spaceToFill	= (direction == Value::HORIZONTAL) ? getWidth() : getHeight();
+	const auto viewportSize = glm::vec2{mEngine.getWorldWidth(), mEngine.getWorldHeight()};
+	const auto gap =
+		(direction == Value::HORIZONTAL) ? mColumnGap.asUser(this, direction) : mRowGap.asUser(this, direction);
+
 	// Initialize per grid track variables.
 	for (auto& track : tracks)
-		track.initialize(percentOf);
+		track.initialize({spaceToFill, viewportSize});
 
 	// Resolve content-based TrackSizingFunctions
 	resolveContentBasedTrackSizingFunctions(tracks, allItems(), spanFn, minFn, maxFn);
@@ -505,7 +512,7 @@ void Grid::computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float perc
 	// Grow all grid tracks from their UsedBreadth up to their MaxBreadth value until RemainingSpace is exhausted.
 
 	// If RemainingSpace is defined
-	float remainingSpace = calculateRemainingSpace(tracks, percentOf, gap);
+	float remainingSpace = calculateRemainingSpace(tracks, spaceToFill, gap);
 	if (!approxZero(remainingSpace)) {
 		// Iterate over all grid tracks and assign UsedBreadth to UpdatedTrackBreadth.
 		for (auto& track : tracks)
@@ -526,9 +533,9 @@ void Grid::computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float perc
 	float normalizedFlexBreadth = 0;
 
 	// If RemainingSpace is defined
-	remainingSpace = calculateRemainingSpace(tracks, percentOf, gap);
+	remainingSpace = calculateRemainingSpace(tracks, spaceToFill, gap);
 	if (!approxZero(remainingSpace)) {
-		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), percentOf, gap);
+		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), spaceToFill, gap);
 	} else {
 		// i
 		for (const auto& track : tracks) {
@@ -953,7 +960,7 @@ void Grid::Track::parse(const char** sInOut) {
 	}
 }
 
-void Grid::Track::initialize(float percentOf) {
+void Grid::Track::initialize(const Value::Dimensions& dimensions) {
 	// Sizing functions should be properly initialized before running the algorithm.
 	assert(min);
 	assert(max);
@@ -967,7 +974,7 @@ void Grid::Track::initialize(float percentOf) {
 
 	if (min.isFixed()) {
 		// If MinTrackSizingFunction is a percentage or length, then UsedBreadth = resolved length
-		usedBreadth = min.value().asUser(percentOf);
+		usedBreadth = min.value().asUser(dimensions);
 	} else {
 		// If MinTrackSizingFunction is min-content, max-content, or a flexible length, then UsedBreadth = 0
 		usedBreadth = 0;
@@ -977,7 +984,7 @@ void Grid::Track::initialize(float percentOf) {
 		// If MaxTrackSizingFunction is percentage or length, then MaxBreadth = resolved length.
 		// If the resolved length of the MaxTrackSizingFunction is less than the MinTrackSizingFunction, MaxBreadth =
 		// UsedBreadth.
-		maxBreadth = glm::max(usedBreadth, max.value().asUser(percentOf));
+		maxBreadth = glm::max(usedBreadth, max.value().asUser(dimensions));
 	} else if (max.isFlex()) {
 		// If MaxTrackSizingFunction is a flexible length, then MaxBreadth = UsedBreadth
 		maxBreadth = usedBreadth;

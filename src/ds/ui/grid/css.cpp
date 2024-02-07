@@ -14,21 +14,34 @@ Value::Value(const char** sInOut) {
 	parse(sInOut);
 }
 
-float Value::asUser(float percentOf) const {
+float Value::asUser(const Dimensions& dimensions) const {
 	switch (mUnit) {
-	case PIXELS:
-		return mValue;
 	case PERCENTAGE:
-		return mValue * percentOf / 100;
-	default:
-		throw std::runtime_error("Value can't be calculated");
+		return mValue * dimensions.percentOf / 100;
+	case VIEWPORT_WIDTH:
+		return mValue * dimensions.viewportSize.x / 100;
+	case VIEWPORT_HEIGHT:
+		return mValue * dimensions.viewportSize.y / 100;
+	case VIEWPORT_MIN:
+		return mValue * std::min(dimensions.viewportSize.x, dimensions.viewportSize.y) / 100;
+	case VIEWPORT_MAX:
+		return mValue * std::max(dimensions.viewportSize.x, dimensions.viewportSize.y) / 100;
+	case UNDEFINED:
+	case PIXELS:
+	case FLEX:
+		break;
 	}
+
+	return mValue;
 }
 
 float Value::asUser(const ui::Sprite* sprite, Direction direction) const {
 	assert(sprite && sprite->getParent());
-	const float percentOf = direction == HORIZONTAL ? sprite->getParent()->getWidth() : sprite->getParent()->getHeight();
-	return asUser(percentOf);
+
+	Dimensions dim;
+	dim.percentOf	 = direction == HORIZONTAL ? sprite->getParent()->getWidth() : sprite->getParent()->getHeight();
+	dim.viewportSize = {sprite->getEngine().getWorldWidth(), sprite->getEngine().getWorldHeight()};
+	return asUser(dim);
 }
 
 void Value::parse(const char** sInOut) {
@@ -56,6 +69,18 @@ void Value::parse(const char** sInOut) {
 		} else if (strncmp(*sInOut, "fr", 2) == 0) {
 			*sInOut += 2;
 			mUnit = FLEX;
+		} else if (strncmp(*sInOut, "vw", 2) == 0) {
+			*sInOut += 2;
+			mUnit = VIEWPORT_WIDTH;
+		} else if (strncmp(*sInOut, "vh", 2) == 0) {
+			*sInOut += 2;
+			mUnit = VIEWPORT_HEIGHT;
+		} else if (strncmp(*sInOut, "vmin", 4) == 0) {
+			*sInOut += 4;
+			mUnit = VIEWPORT_MIN;
+		} else if (strncmp(*sInOut, "vmax", 4) == 0) {
+			*sInOut += 4;
+			mUnit = VIEWPORT_MAX;
 		}
 	}
 }
