@@ -60,9 +60,11 @@ class Grid : public Sprite {
 	//
 	float calcHeight() const;
 	//
-	float calcColumnPos(size_t index) const { return calcPos(index, mColumns, mColumnGap.asUser(getWidth())); }
+	float calcColumnPos(size_t index) const {
+		return calcPos(index, mColumns, mColumnGap.asUser(this, css::Value::HORIZONTAL));
+	}
 	//
-	float calcRowPos(size_t index) const { return calcPos(index, mRows, mRowGap.asUser(getHeight())); }
+	float calcRowPos(size_t index) const { return calcPos(index, mRows, mRowGap.asUser(this, css::Value::VERTICAL)); }
 
 	static Range<size_t> parseSpan(const char** sInOut);
 
@@ -94,8 +96,8 @@ class Grid : public Sprite {
 	//
 	void runLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
-	void computeUsedBreadthOfGridTracks(std::vector<Track>& tracks, float percentOf, float gap, const SpanFn& spanFn,
-										const SizeFn& minFn, const SizeFn& maxFn);
+	void		computeUsedBreadthOfGridTracks(css::Value::Direction direction, std::vector<Track>& tracks,
+											   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
 	static void resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
 														const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
 	static void
@@ -181,7 +183,7 @@ struct Grid::Track {
 	void parse(const char** sInOut);
 
 	// See: https://www.w3.org/TR/css-grid-1/#algo-init
-	void initialize(float percentOf);
+	void initialize(const css::Value::Dimensions& dimensions);
 
 	Type	 type{BREADTH}; //
 	SizingFn min;			//
