@@ -275,6 +275,20 @@ void Grid::addChild(Sprite& newChild) {
 	Sprite::addChild(newChild);
 }
 
+bool Grid::setAvailableSize(const ci::vec2& size) {
+	if (mNeedsLayout) runLayout();
+
+	const float w = mMinWidth.asUser(this, Value::HORIZONTAL);
+	const float h = mMinHeight.asUser(this, Value::VERTICAL);
+
+	const float width  = calcWidth();
+	const float height = calcHeight();
+	if (!approxEqual(width, w)) mMinWidth = Value(width, Value::PIXELS);
+	if (!approxEqual(height, h)) mMinHeight = Value(height, Value::PIXELS);
+
+	return !approxEqual(width, w) || !approxEqual(height, h);
+}
+
 bool Grid::areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const {
 	const auto& col		 = item->getColumnSpan();
 	const auto& row		 = item->getRowSpan();
@@ -357,6 +371,9 @@ void Grid::runLayout() {
 	ss << std::string("Running layout on ds::ui::Grid took ");
 	ss << t.getSeconds() << " seconds.";
 	DS_LOG_VERBOSE(0, ss.str());
+
+	// Updates the size of the grid.
+	setSize(calcWidth(), calcHeight());
 
 	// Position anything that's not auto-positioned.
 	size_t colCursor{0};
@@ -485,7 +502,7 @@ void Grid::runLayout() {
 }
 
 float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
-	if (index > tracks.size()) throw std::runtime_error("Index out of range");
+	if (index > tracks.size()) index = tracks.size();
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index; ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;

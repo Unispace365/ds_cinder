@@ -1398,16 +1398,11 @@ bool Sprite::isLoaded() const {
 }
 
 void Sprite::fitInsideArea(const ci::Rectf& area) {
-	if (mFit.isNone()) {
-		// Only move the sprite to the area's origin.
-		setPosition(area.x1, area.y1);
-	} else {
-		// Fit the sprite to the area.
-		const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-		const auto fit	  = mFit.calcTransform(area, bounds, false);
-		setScale(fit[0][0], fit[1][1]);
-		setPosition(fit[2]);
-	}
+	// Fit the sprite to the area.
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 float Sprite::getDepth() const {
