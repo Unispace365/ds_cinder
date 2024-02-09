@@ -669,7 +669,6 @@ float Text::getBaseline() {
 bool Text::setAvailableSize(const ci::vec2& size) {
 	// Adjust resize limits.
 	setResizeLimit(size.x, size.y);
-	setFitToResizeLimit(true);
 
 	// Measure minimum required space.
 	bool hasChanged = false;
@@ -688,8 +687,6 @@ bool Text::setAvailableSize(const ci::vec2& size) {
 
 void Text::fitInsideArea(const ci::Rectf& area) {
 	setResizeLimit(area.getWidth(), area.getHeight());
-	setFitToResizeLimit(true);
-
 	Sprite::fitInsideArea(area);
 }
 
