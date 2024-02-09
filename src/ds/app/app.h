@@ -169,6 +169,7 @@ class App : public EngineSettingsPreloader, public cinder::app::App {
 	ds::ui::TouchDebug		  mTouchDebug;
 	bool					  mAppKeysEnabled;
 	bool					  mMouseHidden;
+	bool					  mNeedsDockingWindow = true;
 	Poco::Timestamp::TimeVal  mMouseMoveTime;
 
 	/// When enabled, the arrow keys will move the camera.

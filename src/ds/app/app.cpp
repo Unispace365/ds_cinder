@@ -139,7 +139,7 @@ App::App(const RootList& roots)
   , mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
   , mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f) {
 
-	setupKeyPresses();
+ 	setupKeyPresses();
 
 	mEngineSettings.printStartupInfo();
 
@@ -443,7 +443,12 @@ void App::preServerSetup() {
 }
 
 void App::update() {
-	ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
+	if (mNeedsDockingWindow) {
+		ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
+		mNeedsDockingWindow = false;
+		// re-set to true after draw...
+	}
+	
 
 
 #ifdef _WIN32
@@ -479,6 +484,7 @@ void App::update() {
 			mEngine.setHideMouse(true);
 		}
 	}
+
 	mEngine.update();
 
 	if (mEngine.getRestartAfterNextUpdate() && mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE) {
@@ -489,6 +495,7 @@ void App::update() {
 void App::draw() {
 	mEngine.draw();
 	ImGui::Render();
+	mNeedsDockingWindow = true;
 }
 void App::mouseDown(ci::app::MouseEvent e) {
 	mTouchDebug.mouseDown(e);
