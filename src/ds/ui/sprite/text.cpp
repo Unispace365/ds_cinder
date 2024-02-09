@@ -204,9 +204,6 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	setTransparent(false);
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
-
-	// Default to xMinYMid meet.
-	mFit = Fit(Fit::MIN, Fit::MIN, Fit::MEET);
 }
 
 Text::~Text() {
@@ -693,26 +690,7 @@ void Text::fitInsideArea(const ci::Rectf& area) {
 	setResizeLimit(area.getWidth(), area.getHeight());
 	setFitToResizeLimit(true);
 
-	if (mFit.isNone()) {
-		// Only move the sprite to the area's origin.
-		setPosition(area.x1, area.y1);
-	} else {
-		// Fit the text to the area, but don't scale.
-		float w = getWidth();
-		float h = getHeight();
-
-		float x = area.x1;
-		if (mFit.alignX() == Fit::MID)
-			x += (area.getWidth() - w) / 2.0f;
-		else if (mFit.alignX() == Fit::MAX)
-			x += area.getWidth() - w;
-		float y = area.y1;
-		if (mFit.alignY() == Fit::MID)
-			y += (area.getHeight() - h) / 2.0f;
-		else if (mFit.alignY() == Fit::MAX)
-			y += area.getHeight() - h;
-		setPosition(x, y);
-	}
+	Sprite::fitInsideArea(area);
 }
 
 bool Text::getTextWrapped() {

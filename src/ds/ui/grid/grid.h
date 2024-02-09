@@ -86,6 +86,8 @@ class Grid : public Sprite {
 		Sprite::setSizeAll(width, height, depth);
 	}
 
+	bool setAvailableSize(const ci::vec2& size) override;
+
   private:
 	// Returns whether the \a area overlaps the \a span.
 	bool areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const;
@@ -93,7 +95,7 @@ class Grid : public Sprite {
 	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
 	// Calculates the position of the grid line with the specified \a index.
 	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap);
-	//
+	// Performs the layout algorithm.
 	void runLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
 	void		computeUsedBreadthOfGridTracks(css::Value::Direction direction, std::vector<Track>& tracks,
