@@ -70,6 +70,8 @@ class Grid : public Sprite {
 
 	void drawLocalClient() override;
 
+	void drawPostLocalClient() override;
+
 	void addChild(Sprite& newChild) override;
 
 	void setLayoutUpdatedFunction(const std::function<void()>& layoutUpdatedFunction) {
