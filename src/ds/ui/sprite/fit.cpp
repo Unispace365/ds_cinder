@@ -31,6 +31,9 @@ glm::mat3x2 Fit::calcTransform(const Rectf& outer, const Rectf& inner, bool norm
 			m32[2][1] += (outer.getHeight() - inner.getHeight() * m32[1][1]) * 0.5f;
 		else if (mAlign == Align::X_MIN_Y_MAX || mAlign == Align::X_MID_Y_MAX || mAlign == Align::X_MAX_Y_MAX)
 			m32[2][1] += outer.getHeight() - inner.getHeight() * m32[1][1];
+	} else {
+		m32[2][0] = outer.x1;
+		m32[2][1] = outer.y1;
 	}
 
 	// Normalize.
