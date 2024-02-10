@@ -305,6 +305,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 
 	// build the static map on the first run
 	if (propertyMap.empty()) {
+		propertyMap["debug"] = [](const SprProps& p) {
+			p.sprite.enableDebugging(parseBoolean(p.value));
+		};
 		propertyMap["name"] = [](const SprProps& p) {
 			p.sprite.setSpriteName(ds::wstr_from_utf8(p.value));
 		};

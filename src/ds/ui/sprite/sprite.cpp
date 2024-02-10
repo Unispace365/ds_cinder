@@ -90,6 +90,7 @@ namespace {
 	const int DRAW_DEBUG_F		= (1 << 8);
 	const int SPAN_COLUMN_SET_F = (1 << 9);
 	const int SPAN_ROW_SET_F	= (1 << 10);
+	const int DEBUG_F			= (1 << 11);
 
 	const ds::BitMask SPRITE_LOG = ds::Logger::newModule("sprite");
 } // namespace
@@ -2339,6 +2340,18 @@ void Sprite::setDrawDebug(const bool doDebug) {
 
 bool Sprite::getDrawDebug() const {
 	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
+}
+
+
+void Sprite::enableDebugging(const bool doDebug) {
+	if (doDebug)
+		mSpriteFlags |= DEBUG_F;
+	else
+		mSpriteFlags &= ~DEBUG_F;
+}
+
+bool Sprite::getDebugging() const {
+		return getFlag(DEBUG_F, mSpriteFlags);
 }
 
 

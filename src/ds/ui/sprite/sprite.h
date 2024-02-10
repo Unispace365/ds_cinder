@@ -799,6 +799,11 @@ namespace ui {
 		/// disabled.
 		bool getDrawDebug() const;
 
+		/// If this sprite has support for it, will enable debug drawing. Every sprite type has its own implementation.
+		void enableDebugging(bool doDebug);
+		/// Returns whether this sprite has debugging enabled.
+		bool getDebugging() const;
+
 		/// Set the name of this sprite. No guarantee of uniqueness
 		void setSpriteName(const std::wstring& name);
 
