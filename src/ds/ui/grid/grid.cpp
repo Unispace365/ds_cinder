@@ -242,12 +242,13 @@ float Grid::calcHeight() const {
 
 void Grid::drawLocalClient() {
 	if (mNeedsLayout) runLayout();
+}
 
-#if defined(_DEBUG)
-	const auto debug = mEngine.getAppSettings().getBool("debug:layout", 0, false);
-	if (debug) {
-		ci::gl::ScopedColor		   sc(1, 1, 1);
-		ci::gl::ScopedBlendPremult sb;
+void Grid::drawPostLocalClient() {
+	if (getDebugging()) {
+		ci::gl::ScopedColor		 sc(1, 1, 1);
+		ci::gl::ScopedBlendAlpha sb;
+		ci::gl::ScopedGlslProg	 sp(getStockShader(ci::gl::ShaderDef().color()));
 
 		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
 		for (size_t row = 0; row < mRows.size(); ++row) {
@@ -262,12 +263,11 @@ void Grid::drawLocalClient() {
 		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
 		ci::gl::drawStrokedRect({0, 0, width, height}, 15);
 
-		ci::gl::color(ci::ColorA8u(128, 51, 0, 128));
+		ci::gl::color(ci::ColorA8u(255, 102, 0, 128));
 		for (const auto item : allItems()) {
 			ci::gl::drawStrokedRect(calcArea(item), 15);
 		}
 	}
-#endif
 }
 
 void Grid::addChild(Sprite& newChild) {
