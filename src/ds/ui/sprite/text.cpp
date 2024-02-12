@@ -22,6 +22,7 @@
 #include "ds/debug/logger.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/util/float_util.h"
 #include "ds/util/string_util.h"
 #include <Poco/Stopwatch.h>
 
@@ -695,6 +696,30 @@ float Text::getBaseline() {
 	} else {
 		return 0.f;
 	}
+}
+
+bool Text::setAvailableSize(const ci::vec2& size) {
+	// Adjust resize limits.
+	setResizeLimit(size.x, size.y);
+
+	// Measure minimum required space.
+	bool hasChanged = false;
+	if (!mMinWidth.isDefined() || !approxEqual(mMinWidth.asUser(this, Value::HORIZONTAL), getWidth())) {
+		mMinWidth  = Value(getWidth(), Value::PIXELS);
+		hasChanged = true;
+	}
+	if (!mMinHeight.isDefined() || !approxEqual(mMinHeight.asUser(this, Value::VERTICAL), getHeight())) {
+		mMinHeight = Value(getHeight(), Value::PIXELS);
+		hasChanged = true;
+	}
+
+	// Notify layout if settings have changed.
+	return hasChanged;
+}
+
+void Text::fitInsideArea(const ci::Rectf& area) {
+	setResizeLimit(area.getWidth(), area.getHeight());
+	Sprite::fitInsideArea(area);
 }
 
 bool Text::getTextWrapped() {

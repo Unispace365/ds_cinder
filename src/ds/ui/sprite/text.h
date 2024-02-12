@@ -192,6 +192,13 @@ class Text : public ds::ui::Sprite {
 	/// Returns the actual render size of the text
 	ci::ivec2 getPixelSize() const { return {mPixelWidth, mPixelHeight}; }
 
+	/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+	/// calculations. Returns whether anything changed.
+	bool setAvailableSize(const ci::vec2& size) override;
+
+	/// Used in Grid layouts, enables size-fitting and sets size and position of the Text.
+	void fitInsideArea(const ci::Rectf& area) override;
+
 	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true.
 	/// otherwise false
 	bool getTextWrapped();

@@ -20,7 +20,9 @@
 #include "ds/data/data_buffer.h"
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
+#include "ds/ui/grid/value.h"
 #include "ds/ui/sprite/dirty_state.h"
+#include "ds/ui/sprite/fit.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/sprite/util/blend.h"
@@ -50,6 +52,20 @@ namespace ui {
 
 	/// Attribute access
 	extern const char SPRITE_ID_ATTRIBUTE;
+
+	/**
+	 * \class Range
+	 * A utility struct to store a range of values.
+	 *
+	 */
+	template <typename T = float>
+	struct Range {
+		T min;
+		T max;
+
+		// Returns the span of the range, e.g. returns 0 if min and max are equal.
+		T count() const { return max - min; }
+	};
 
 	/**
 	 \class Sprite
@@ -197,15 +213,62 @@ namespace ui {
 		   value.		 */
 		virtual ci::vec3 getPreferredSize() const;
 
+		/// Sets the available size for this sprite, allowing it to update its size range. This is used in grid layout
+		/// calculations. Returns whether anything changed.
+		virtual bool setAvailableSize(const ci::vec2& size) { return false; }
+
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
 		virtual float getWidth() const;
 
+		// Returns the minimum width of the Sprite if set, or the scaled width otherwise.
+		virtual float getWidthMin() const {
+			return mMinWidth.isDefined() ? mMinWidth.asUser(this, Value::HORIZONTAL) : getScaleWidth();
+		}
+		// Sets the minimum width of the Sprite.
+		void setWidthMin(float width) { mMinWidth = Value(width, Value::PIXELS); }
+		// Sets the minimum width of the Sprite.
+		void setWidthMin(const std::string& css) { mMinWidth = Value(css); }
+		// Returns the maximum width of the Sprite if set, or the scaled width otherwise.
+		virtual float getWidthMax() const {
+			return mMaxWidth.isDefined() ? mMaxWidth.asUser(this, Value::HORIZONTAL) : getScaleWidth();
+		}
+		// Sets the maximum width of the Sprite.
+		void setWidthMax(float width) { mMaxWidth = Value(width, Value::PIXELS); }
+		// Sets the maximum width of the Sprite.
+		void setWidthMax(const std::string& css) { mMaxWidth = Value(css); }
+
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
+
+		// Returns the minimum height of the Sprite if set, or the scaled height otherwise.
+		virtual float getHeightMin() const {
+			return mMinHeight.isDefined() ? mMinHeight.asUser(this, Value::VERTICAL) : getScaleHeight();
+		}
+		// Sets the minimum height of the Sprite.
+		void setHeightMin(float height) { mMinHeight = Value(height, Value::PIXELS); }
+		// Sets the minimum height of the Sprite.
+		void setHeightMin(const std::string& css) { mMinHeight = Value(css); }
+		// Returns the maximum height of the Sprite if set, or the scaled height otherwise.
+		virtual float getHeightMax() const {
+			return mMaxHeight.isDefined() ? mMaxHeight.asUser(this, Value::VERTICAL) : getScaleHeight();
+		}
+		// Sets the maximum height of the Sprite.
+		void setHeightMax(float height) { mMaxHeight = Value(height, Value::PIXELS); }
+		// Sets the maximum height of the Sprite.
+		void setHeightMax(const std::string& css) { mMaxHeight = Value(css); }
+
+		/// Returns the sprite fitting mode, allowing access to the proper transform.
+		const Fit& getFit() const { return mFit; }
+		/// Sets sprite fitting mode.
+		void setFit(Fit fit) { mFit = fit; }
+		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
+		void setFit(const std::string& css) { mFit = Fit(css); }
+		/// Adjusts the sprite's transform to precisely fit inside the given area. See also: setFit().
+		virtual void fitInsideArea(const ci::Rectf& area);
 
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
@@ -787,7 +850,14 @@ namespace ui {
 
 		bool mExportWithXml;
 
-	  protected:
+		// Grid
+
+		const Range<size_t>& getColumnSpan() const { return mGridColumnSpan; }
+		void				 setColumnSpan(const Range<size_t>& span);
+		const Range<size_t>& getRowSpan() const { return mGridRowSpan; }
+		void				 setRowSpan(const Range<size_t>& span);
+
+	protected:
 		friend class TouchManager;
 		friend class TouchProcess;
 		friend class ds::gl::ClipPlaneState;
@@ -911,6 +981,12 @@ namespace ui {
 
 		mutable ci::mat4 mGlobalTransform;
 		mutable ci::mat4 mInverseGlobalTransform;
+
+		Range<size_t> mGridColumnSpan{0, 0};  // Used by Grid layouts.
+		Range<size_t> mGridRowSpan{0, 0};	  // Used by Grid layouts.
+		Value		  mMinWidth, mMaxWidth;	  // Used by Grid layouts.
+		Value		  mMinHeight, mMaxHeight; // Used by Grid layouts.
+		Fit			  mFit;					  // Used by Grid layouts.
 
 		ds::UserData mUserData;
 

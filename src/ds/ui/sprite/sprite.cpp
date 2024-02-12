@@ -1183,6 +1183,14 @@ bool Sprite::hasMultiTouchConstraint(const BitMask& constraint) const {
 	return mMultiTouchConstraints & constraint;
 }
 
+void Sprite::setColumnSpan(const Range<size_t>& span) {
+	mGridColumnSpan = span;
+}
+
+void Sprite::setRowSpan(const Range<size_t>& span) {
+	mGridRowSpan = span;
+}
+
 void Sprite::swipe(const ci::vec3& swipeVector) {
 	if (mSwipeCallback) mSwipeCallback(this, swipeVector);
 }
@@ -1369,6 +1377,14 @@ bool Sprite::inBounds() const {
 
 bool Sprite::isLoaded() const {
 	return true;
+}
+
+void Sprite::fitInsideArea(const ci::Rectf& area) {
+	// Fit the sprite to the area.
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 float Sprite::getDepth() const {
