@@ -227,8 +227,12 @@ ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) 
 	const auto y1 = calcRowPos(row.min);
 	auto	   x2 = calcColumnPos(column.max);
 	auto	   y2 = calcRowPos(row.max);
-	if (glm::max(0.0f, x2 - x1) > 0) x2 -= mColumnGap.asUser(this, css::Value::HORIZONTAL);
-	if (glm::max(0.0f, y2 - y1) > 0) y2 -= mRowGap.asUser(this, css::Value::VERTICAL);
+
+	x2 -= static_cast<float>(countGaps(column.max, mColumns) - countGaps(column.min, mColumns)) *
+		  mColumnGap.asUser(this, Value::HORIZONTAL);
+	y2 -= static_cast<float>(countGaps(row.max, mRows) - countGaps(row.min, mRows)) *
+		  mRowGap.asUser(this, Value::VERTICAL);
+
 	return {x1, y1, x2, y2};
 }
 
@@ -502,14 +506,43 @@ void Grid::runLayout() {
 }
 
 float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
-	if (index > tracks.size()) index = tracks.size();
 	float allocatedSpace = 0;
-	for (size_t i = 0; i < index; ++i) {
+	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
-		if (allocatedSpace > 0 && tracks.at(i).usedBreadth > 0) allocatedSpace += gap;
 		allocatedSpace += tracks.at(i).usedBreadth;
 	}
-	return allocatedSpace;
+
+	return allocatedSpace + static_cast<float>(countGaps(index, tracks)) * gap;
+}
+
+float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, float gap) {
+	float allocatedSpace = 0;
+	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
+		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
+		allocatedSpace += tracks.at(i)->usedBreadth;
+	}
+
+	return allocatedSpace + static_cast<float>(countGaps(index, tracks)) * gap;
+}
+
+int Grid::countGaps(size_t index, const std::vector<Track>& tracks) {
+	int count = -1;
+	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
+		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
+		if (tracks.at(i).usedBreadth > 0 || tracks.at(i).isFlex())
+			++count; // Note: Incorrect if flex tracks end up being zero.
+	}
+	return glm::max(0, count);
+}
+
+int Grid::countGaps(size_t index, const std::vector<Track*>& tracks) {
+	int count = -1;
+	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
+		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
+		if (tracks.at(i)->usedBreadth > 0 || tracks.at(i)->isFlex())
+			++count; // Note: Incorrect if flex tracks end up being zero.
+	}
+	return glm::max(0, count);
 }
 
 void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vector<Track>& tracks, const SpanFn& spanFn,
@@ -787,11 +820,7 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 
 float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill, float gap) {
 	// 1.
-	float allocatedSpace = 0;
-	for (const auto& track : tracks) {
-		if (allocatedSpace > 0 && track->usedBreadth > 0) allocatedSpace += gap;
-		allocatedSpace += track->usedBreadth;
-	}
+	const float allocatedSpace = calcPos(tracks.size(), tracks, gap);
 
 	// 2.
 	auto flexTracks = getFlexTracks(tracks);
@@ -825,13 +854,7 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 
 float Grid::calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill, float gap) {
 	if (std::isinf(spaceToFill) || std::isnan(spaceToFill)) return std::numeric_limits<float>::signaling_NaN();
-
-	float allocatedSpace = 0;
-	for (const auto& track : tracks) {
-		if (allocatedSpace > 0 && track.usedBreadth > 0) allocatedSpace += gap;
-		allocatedSpace += track.usedBreadth;
-	}
-
+	const float allocatedSpace = calcPos(tracks.size(), tracks, gap);
 	return glm::max(0.0f, spaceToFill - allocatedSpace);
 }
 

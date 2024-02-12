@@ -97,6 +97,12 @@ class Grid : public Sprite {
 	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
 	// Calculates the position of the grid line with the specified \a index.
 	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap);
+	// Calculates the position of the grid line with the specified \a index.
+	static float calcPos(size_t index, const std::vector<Track*>& tracks, float gap);
+	// Returns the number of gaps.
+	static int countGaps(size_t index, const std::vector<Track>& tracks);
+	// Returns the number of gaps.
+	static int countGaps(size_t index, const std::vector<Track*>& tracks);
 	// Performs the layout algorithm.
 	void runLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
