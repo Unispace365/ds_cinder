@@ -223,6 +223,11 @@ void Grid::setGap(const std::string& def) {
 }
 
 ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) const {
+	if (column.min == column.max || row.min == row.max) return {0, 0, getWidth(), getHeight()};
+	if (column.min >= mColumns.size() || column.max > mColumns.size() || row.min >= mRows.size() ||
+		row.max > mRows.size())
+		return {0, 0, getWidth(), getHeight()};
+
 	const auto x1 = calcColumnPos(column.min);
 	const auto y1 = calcRowPos(row.min);
 	const auto x2 = calcColumnPos(column.max - 1) + mColumns.at(column.max - 1).usedBreadth;
