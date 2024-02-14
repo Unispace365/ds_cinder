@@ -55,15 +55,17 @@ class Grid : public Sprite {
 	}
 
 	//
-	float calcWidth() const;
+	float calcWidth(bool excludeFlex = false) const;
 	//
-	float calcHeight() const;
+	float calcHeight(bool excludeFlex = false) const;
 	//
-	float calcColumnPos(size_t index) const {
-		return calcPos(index, mColumns, mColumnGap.asUser(this, Value::HORIZONTAL));
+	float calcColumnPos(size_t index, bool excludeFlex = false) const {
+		return calcPos(index, mColumns, mColumnGap.asUser(this, Value::HORIZONTAL), excludeFlex);
 	}
 	//
-	float calcRowPos(size_t index) const { return calcPos(index, mRows, mRowGap.asUser(this, Value::VERTICAL)); }
+	float calcRowPos(size_t index, bool excludeFlex = false) const {
+		return calcPos(index, mRows, mRowGap.asUser(this, Value::VERTICAL), excludeFlex);
+	}
 
 	static Range<size_t> parseSpan(const char** sInOut);
 
@@ -83,7 +85,7 @@ class Grid : public Sprite {
 	}
 
 	void setSizeAll(float width, float height, float depth) override {
-		mNeedsLayout = true;
+		mNeedsLayout |= !mChildren.empty();
 		Sprite::setSizeAll(width, height, depth);
 	}
 
@@ -95,9 +97,9 @@ class Grid : public Sprite {
 	// Returns whether the \a area overlaps any of the \a spans.
 	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
 	// Calculates the position of the grid line with the specified \a index.
-	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap);
+	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap, bool excludeFlex = false);
 	// Calculates the position of the grid line with the specified \a index.
-	static float calcPos(size_t index, const std::vector<Track*>& tracks, float gap);
+	static float calcPos(size_t index, const std::vector<Track*>& tracks, float gap, bool excludeFlex = false);
 	// Returns the number of gaps.
 	static int countGaps(size_t index, const std::vector<Track>& tracks);
 	// Returns the number of gaps.

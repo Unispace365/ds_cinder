@@ -235,12 +235,12 @@ ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) 
 	return {x1, y1, x2, y2};
 }
 
-float Grid::calcWidth() const {
-	return calcColumnPos(mColumns.size());
+float Grid::calcWidth(bool excludeFlex) const {
+	return calcColumnPos(mColumns.size(), excludeFlex);
 }
 
-float Grid::calcHeight() const {
-	return calcRowPos(mRows.size());
+float Grid::calcHeight(bool excludeFlex) const {
+	return calcRowPos(mRows.size(), excludeFlex);
 }
 
 void Grid::drawLocalClient() {
@@ -280,13 +280,15 @@ void Grid::addChild(Sprite& newChild) {
 }
 
 bool Grid::setAvailableSize(const ci::vec2& size) {
+	setSize(size);
+
 	if (mNeedsLayout) runLayout();
 
 	const float w = mMinWidth.asUser(this, Value::HORIZONTAL);
 	const float h = mMinHeight.asUser(this, Value::VERTICAL);
 
-	const float width  = calcWidth();
-	const float height = calcHeight();
+	const float width  = calcWidth(true);
+	const float height = calcHeight(true);
 	if (!approxEqual(width, w)) mMinWidth = Value(width, Value::PIXELS);
 	if (!approxEqual(height, h)) mMinHeight = Value(height, Value::PIXELS);
 
@@ -371,9 +373,6 @@ void Grid::runLayout() {
 	ss << std::string("Running layout on ds::ui::Grid took ");
 	ss << t.getSeconds() << " seconds.";
 	DS_LOG_VERBOSE(0, ss.str());
-
-	// Updates the size of the grid.
-	setSize(calcWidth(), calcHeight());
 
 	// Position anything that's not auto-positioned.
 	size_t colCursor{0};
@@ -501,20 +500,22 @@ void Grid::runLayout() {
 	onLayoutUpdate();
 }
 
-float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap) {
+float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap, bool excludeFlex) {
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
+		if (excludeFlex && tracks.at(i).isFlex()) continue;
 		allocatedSpace += tracks.at(i).usedBreadth;
 	}
 
 	return allocatedSpace + static_cast<float>(countGaps(index, tracks)) * gap;
 }
 
-float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, float gap) {
+float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, float gap, bool excludeFlex) {
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
+		if (excludeFlex && tracks.at(i)->isFlex()) continue;
 		allocatedSpace += tracks.at(i)->usedBreadth;
 	}
 

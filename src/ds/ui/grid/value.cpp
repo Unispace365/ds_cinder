@@ -40,7 +40,7 @@ float Value::asUser(const ui::Sprite* sprite, Direction direction) const {
 	assert(sprite && sprite->getParent());
 
 	Dimensions dim;
-	dim.percentOf	 = direction == HORIZONTAL ? sprite->getParent()->getWidth() : sprite->getParent()->getHeight();
+	dim.percentOf	 = direction == HORIZONTAL ? sprite->getWidth() : sprite->getHeight();
 	dim.viewportSize = {sprite->getEngine().getWorldWidth(), sprite->getEngine().getWorldHeight()};
 	return asUser(dim);
 }
