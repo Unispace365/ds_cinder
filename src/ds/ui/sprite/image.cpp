@@ -308,26 +308,14 @@ void Image::clearImage() {
 }
 
 bool Image::setAvailableSize(const vec2& size) {
-	bool hasChanged = false;
+	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, Rectf{0, 0, getWidth(), getHeight()});
+	const auto width  = fit[0][0] * getWidth();
+	const auto height = fit[1][1] * getHeight();
 
-	if (size.x > 0) {
-		const float aspect = getHeight() / getWidth();
-		const float height = size.x * aspect;
-		if (!mMinHeight.isDefined() || !approxEqual(mMinHeight.asUser(this, css::Value::VERTICAL), height)) {
-			mMinHeight = css::Value(height, css::Value::PIXELS);
-			hasChanged |= true;
-		}
-	}
-	if (size.y > 0) {
-		const float aspect = getWidth() / getHeight();
-		const float width  = size.y * aspect;
-		if (!mMinWidth.isDefined() || !approxEqual(mMinWidth.asUser(this, css::Value::HORIZONTAL), width)) {
-			mMinWidth = css::Value(width, css::Value::PIXELS);
-			hasChanged |= true;
-		}
-	}
+	mMinWidth = mMaxWidth = css::Value(width, css::Value::PIXELS);
+	mMinHeight = mMaxHeight = css::Value(height, css::Value::PIXELS);
 
-	return hasChanged;
+	return !approxEqual(width, getWidth()) || !approxEqual(height, getHeight());
 }
 
 float Image::getWidthMin() const {
