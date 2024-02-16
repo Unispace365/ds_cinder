@@ -92,6 +92,8 @@ class Grid : public Sprite {
 
 	bool setAvailableSize(const ci::vec2& size) override;
 
+	void fitInsideArea(const ci::Rectf& area) override;
+
   private:
 	// Returns whether the \a area overlaps the \a span.
 	bool areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const;

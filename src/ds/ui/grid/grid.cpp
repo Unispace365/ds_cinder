@@ -295,6 +295,14 @@ bool Grid::setAvailableSize(const ci::vec2& size) {
 	return !approxEqual(width, w) || !approxEqual(height, h);
 }
 
+void Grid::fitInsideArea(const ci::Rectf& area) {
+	const auto changed = setAvailableSize(area.getSize());
+	const auto bounds  = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	   = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
+}
+
 bool Grid::areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const {
 	const auto& col		 = item->getColumnSpan();
 	const auto& row		 = item->getRowSpan();
