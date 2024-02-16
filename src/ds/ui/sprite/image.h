@@ -94,6 +94,9 @@ class Image : public Sprite {
 	/// calculate minimum height based on the aspect ratio.
 	float getHeightMax() const override;
 
+	/// Since images can be cropped, we need to make sure any cropping is taken into account.
+	void fitInsideArea(const ci::Rectf& area) override;
+
 	/// \note calls Image::setSizeAll(...) internally.
 	/// \see Image::setSizeAll(...)
 	void setSize(float width, float height);
@@ -119,6 +122,9 @@ class Image : public Sprite {
 	void circleCropAutoCenter();
 	/// Turns off the above functionality
 	void disableCircleCropCentered();
+
+	/// Helper function to get the bounds of the image. Adjusted for circle cropping if that's enabled.
+	ci::Rectf getBounds() const;
 
 	struct Status {
 		static const int STATUS_EMPTY	= 0;

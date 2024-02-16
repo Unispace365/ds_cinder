@@ -306,9 +306,10 @@ void Image::clearImage() {
 }
 
 bool Image::setAvailableSize(const vec2& size) {
-	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, Rectf{0, 0, getWidth(), getHeight()});
-	const auto width  = fit[0][0] * getWidth();
-	const auto height = fit[1][1] * getHeight();
+	const auto bounds = getBounds();
+	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, bounds);
+	const auto width  = fit[0][0] * bounds.getWidth();
+	const auto height = fit[1][1] * bounds.getHeight();
 
 	mMinWidth = mMaxWidth = css::Value(width, Value::PIXELS);
 	mMinHeight = mMaxHeight = css::Value(height, Value::PIXELS);
@@ -346,6 +347,13 @@ float Image::getHeightMax() const {
 		return mMaxWidth.asUser(this, Value::HORIZONTAL) * aspect;
 	}
 	return Sprite::getHeightMax();
+}
+
+void Image::fitInsideArea(const Rectf& area) {
+	const auto bounds = getBounds();
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 void Image::setSize(float width, float height) {
@@ -401,6 +409,11 @@ void Image::circleCropAutoCenter() {
 void Image::disableCircleCropCentered() {
 	mCircleCropCentered = false;
 	setCircleCrop(false);
+}
+
+ci::Rectf Image::getBounds() const {
+	if (mCircleCropped) return {mShaderExtraData.x, mShaderExtraData.y, mShaderExtraData.z, mShaderExtraData.w};
+	return {0, 0, getWidth(), getHeight()};
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
