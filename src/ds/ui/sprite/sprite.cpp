@@ -831,8 +831,8 @@ void Sprite::buildTransform() const {
 		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
-	mTransformation =
-		glm::translate(mTransformation, glm::vec3(-mCenter.x * mWidth, -mCenter.y * mHeight, -mCenter.z * mDepth));
+	mTransformation = glm::translate(mTransformation,
+									 glm::vec3(-mCenter.x * getWidth(), -mCenter.y * getHeight(), -mCenter.z * getDepth()));
 
 	mInverseTransform = glm::inverse(mTransformation);
 }

@@ -123,8 +123,10 @@ class Image : public Sprite {
 	/// Turns off the above functionality
 	void disableCircleCropCentered();
 
-	/// Helper function to get the bounds of the image. Adjusted for circle cropping if that's enabled.
-	ci::Rectf getBounds() const;
+	/// Returns the width in pixels of the image. If circle cropping is applied, it will return the cropped width.
+	float getWidth() const override { return mCircleCropped ? mShaderExtraData.z - mShaderExtraData.x : mWidth; }
+	/// Returns the height in pixels of the image. If circle cropping is applied, it will return the cropped height.
+	float getHeight() const override { return mCircleCropped ? mShaderExtraData.w - mShaderExtraData.y : mHeight; }
 
 	struct Status {
 		static const int STATUS_EMPTY	= 0;
