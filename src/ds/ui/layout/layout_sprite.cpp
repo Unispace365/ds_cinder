@@ -427,16 +427,18 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 }
 
 bool LayoutSprite::setAvailableSize(const ci::vec2& size) {
-	const bool hasChanged =
-		!approxEqual(mWidth, size.x) || !approxEqual(mHeight, size.y) || mShrinkToChildren != kShrinkBoth;
-
 	mWidth			  = size.x;
 	mHeight			  = size.y;
 	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
 
+	const auto minWidth = mMinWidth;
+	const auto minHeight = mMinHeight;
+	const auto maxWidth = mMaxWidth;
+	const auto maxHeight = mMaxHeight;
+
 	runLayout();
 
-	return hasChanged;
+	return mMinWidth != minWidth || minHeight != mMinHeight || maxWidth != mMaxWidth || maxHeight != mMaxHeight;
 }
 
 void LayoutSprite::addChild(Sprite& child) {
