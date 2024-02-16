@@ -284,8 +284,12 @@ void Image::drawLocalClient() {
 	if (!inBounds() || !isLoaded()) return;
 
 	if (mTextureRef) {
-
 		mTextureRef->bind();
+
+		// Adjust position if circle cropping is applied.
+		ci::gl::ScopedModelMatrix sm;
+		ci::gl::translate(-mShaderExtraData.x, -mShaderExtraData.y); // Compensate for cropping.
+
 		if (mRenderBatch) {
 			mRenderBatch->draw();
 		} else {
@@ -306,7 +310,7 @@ void Image::clearImage() {
 }
 
 bool Image::setAvailableSize(const vec2& size) {
-	const auto bounds = getBounds();
+	const auto bounds = Rectf{0, 0, getWidth(), getHeight()};
 	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, bounds);
 	const auto width  = fit[0][0] * bounds.getWidth();
 	const auto height = fit[1][1] * bounds.getHeight();
@@ -350,7 +354,7 @@ float Image::getHeightMax() const {
 }
 
 void Image::fitInsideArea(const Rectf& area) {
-	const auto bounds = getBounds();
+	const auto bounds = Rectf{0, 0, getWidth(), getHeight()};
 	const auto fit	  = mFit.calcTransform(area, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
@@ -397,8 +401,8 @@ void Image::cicleCropAutoCenter() {
 void Image::circleCropAutoCenter() {
 	mCircleCropCentered = true;
 	setCircleCrop(true);
-	const float scw = getWidth();
-	const float sch = getHeight();
+	const float scw = mWidth;  // We need to know the actual size of the image, not the cropped size.
+	const float sch = mHeight; // So, we can't use getWidth() and getHeight() here.
 	if (scw > sch) {
 		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
 	} else {
@@ -409,11 +413,6 @@ void Image::circleCropAutoCenter() {
 void Image::disableCircleCropCentered() {
 	mCircleCropCentered = false;
 	setCircleCrop(false);
-}
-
-ci::Rectf Image::getBounds() const {
-	if (mCircleCropped) return {mShaderExtraData.x, mShaderExtraData.y, mShaderExtraData.z, mShaderExtraData.w};
-	return {0, 0, getWidth(), getHeight()};
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
