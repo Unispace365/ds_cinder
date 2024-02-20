@@ -49,6 +49,10 @@ DisableReadyPage=yes
 DisableStartupPrompt=yes
 DisableWelcomePage=yes
 
+[Dirs]
+; This will allow us to modify the settings after installation
+Name: "{app}/settings"; Permissions: users-modify;
+
 [Files]
 Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
