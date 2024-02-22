@@ -60,6 +60,7 @@ class WebInterface : public MediaInterface {
 	ds::ui::ImageButton* getForwardButton() { return mForwardButton; }
 	ds::ui::ImageButton* getRefreshButton() { return mRefreshButton; }
 	ds::ui::ImageButton* getTouchToggleButton() { return mTouchToggle; }
+	ds::ui::Sprite*		 getKeyboardArea() { return mKeyboardArea; }
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
 
