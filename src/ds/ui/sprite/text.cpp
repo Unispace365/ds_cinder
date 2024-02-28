@@ -250,6 +250,17 @@ const ci::gl::TextureRef Text::getTexture() {
 	return mTexture;
 }
 
+ci::Area Text::calcPixelExtents() {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoRectangle extentRect = PangoRectangle();
+	PangoRectangle inkRect	  = PangoRectangle();
+	pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
+
+	return {inkRect.x, inkRect.y, inkRect.x + inkRect.width, inkRect.y + inkRect.height};
+}
+
 void Text::setTextStyle(std::string font, double size, ci::ColorA color, Alignment::Enum alignment) {
 	setFont(font);
 	setFontSize(size);
@@ -676,6 +687,21 @@ int Text::getNumberOfLines() {
 	// calculate current state if needed
 	measurePangoText();
 	return mNumberOfLines;
+}
+
+float Text::getLineHeight(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	// The most consistent line height is the distance between the baselines of each line.
+	if (getNumberOfLines() > 1) {
+		return getBaseLine(index + 1) - getBaseLine(index);
+	}
+
+	// Fall back on the measured distance.
+	float y0, y1;
+	getLineRange(index, y0, y1);
+	return y1 - y0;
 }
 
 float Text::getBaseLine(int index) {
@@ -1263,7 +1289,6 @@ bool Text::measurePangoText() {
 
 			mWrappedText   = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
-
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle extentRect = PangoRectangle();
