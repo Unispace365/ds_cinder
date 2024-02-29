@@ -260,6 +260,12 @@ class Text : public ds::ui::Sprite {
 
 	// Calculates the area actually containing any pixels.
 	ci::Area calcPixelExtents();
+	// Calculates the area actually containing any pixels for a specific line \a index.
+	ci::Rectf calcPixelExtents(int index);
+	// Calculates the ascent of the text at the specified line \a index.
+	float calcAscent(int index);
+	// Calculates the descent of the text at the specified line \a index.
+	float calcDescent(int index);
 
 	/// Registers this class to be net-sync capable
 	static void installAsServer(ds::BlobRegistry&);

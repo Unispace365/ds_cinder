@@ -261,6 +261,27 @@ ci::Area Text::calcPixelExtents() {
 	return {inkRect.x, inkRect.y, inkRect.x + inkRect.width, inkRect.y + inkRect.height};
 }
 
+ci::Rectf Text::calcPixelExtents(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoRectangle	 extentRect = PangoRectangle();
+	PangoRectangle	 inkRect	= PangoRectangle();
+	PangoLayoutLine* line		= pango_layout_get_line(mPangoLayout, index);
+	if (line) pango_layout_line_get_extents(line, &inkRect, &extentRect);
+
+	const auto area = ci::Area{inkRect.x, inkRect.y, inkRect.x + inkRect.width, inkRect.y + inkRect.height};
+	return ci::Rectf(area).scaled(1.0f / float(PANGO_SCALE));
+}
+
+float Text::calcAscent(int index) {
+	return -calcPixelExtents(index).y1;
+}
+
+float Text::calcDescent(int index) {
+	return calcPixelExtents(index).y2;
+}
+
 void Text::setTextStyle(std::string font, double size, ci::ColorA color, Alignment::Enum alignment) {
 	setFont(font);
 	setFontSize(size);
@@ -674,7 +695,6 @@ float Text::getBaseline() {
 	} else {
 		return 0.f;
 	}
-
 }
 
 bool Text::getTextWrapped() {
@@ -693,8 +713,8 @@ float Text::getLineHeight(int index) {
 	// calculate current state if needed
 	measurePangoText();
 
-	// The most consistent line height is the distance between the baselines of each line.
-	if (getNumberOfLines() > 1) {
+	// If leading is not 1, the most consistent line height is the distance between the baselines of each line.
+	if (index + 1 < getNumberOfLines()) {
 		return getBaseLine(index + 1) - getBaseLine(index);
 	}
 
