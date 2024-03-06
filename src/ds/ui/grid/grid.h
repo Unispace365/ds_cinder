@@ -75,6 +75,8 @@ class Grid : public Sprite {
 
 	void addChild(Sprite& newChild) override;
 
+	void updateLayout() const { mNeedsLayout = true; }
+
 	void setLayoutUpdatedFunction(const std::function<void()>& layoutUpdatedFunction) {
 		mLayoutUpdatedFunction = layoutUpdatedFunction;
 	}
