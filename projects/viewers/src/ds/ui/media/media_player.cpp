@@ -186,6 +186,14 @@ auto INIT = []() {
 				mvs.mVideoNVDecode = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_keep_if_same",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs		   = mediaPlayer.getSettings();
+				mvs.mKeepIfSame = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 	});
 	return true;
 }();
@@ -233,7 +241,12 @@ void MediaPlayer::loadMedia(const std::string& mediaPath, const bool initializeI
 }
 
 void MediaPlayer::loadMedia(const ds::Resource& reccy, const bool initializeImmediately) {
-	if (mInitialized) uninitialize();
+	if (mInitialized) {
+		// If the resource is the same, don't do anything.
+		if (mMediaViewerSettings.mKeepIfSame && reccy.getAbsoluteFilePath() == mResource.getAbsoluteFilePath()) return;
+		// If the resource is different, uninitialize and then set the new resource.
+		uninitialize();
+	}
 
 	mResource = reccy;
 
