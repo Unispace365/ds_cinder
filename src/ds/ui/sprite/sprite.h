@@ -110,7 +110,7 @@ namespace ui {
 		/** Update function for when this app is set to be a client.
 			Don't override this function, use onUpdateClient if you need it
 			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void updateClient(const ds::UpdateParams& updateParams) final;
+		virtual void updateClient(const ds::UpdateParams& updateParams);
 
 		/** Update function for when this app is set to be a client.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
@@ -123,7 +123,7 @@ namespace ui {
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
 			Don't override this function (you can't in fact). Override onUpdateServer() for stuff that should change
 		   each frame. \param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void updateServer(const ds::UpdateParams& updateParams) final;
+		virtual void updateServer(const ds::UpdateParams& updateParams);
 
 
 		/** Update function for when this app is set to be a server.
