@@ -199,6 +199,9 @@ class Text : public ds::ui::Sprite {
 	/// The number of lines in the text layout
 	int getNumberOfLines();
 
+	/// Returns the measured line height in pixels.
+	float getLineHeight( int index = 0 );
+
 	/// Returns the base line position in pixels of the line with the specified \a index (0-based).
 	float getBaseLine( int index );
 	/// Returns the vertical range of the line with the specified \a index (0-based).
@@ -254,6 +257,15 @@ class Text : public ds::ui::Sprite {
 	// Useful if you're using a text sprite for non-standard purposes and use anything other than left alignment
 	// In those cases, the texture is only as large as the drawn pixels, but is drawn with the offset to align correctly
 	ci::vec2 getRenderOffset() { return mRenderOffset; }
+
+	// Calculates the area actually containing any pixels.
+	ci::Area calcPixelExtents();
+	// Calculates the area actually containing any pixels for a specific line \a index.
+	ci::Rectf calcPixelExtents(int index);
+	// Calculates the ascent of the text at the specified line \a index.
+	float calcAscent(int index);
+	// Calculates the descent of the text at the specified line \a index.
+	float calcDescent(int index);
 
 	/// Registers this class to be net-sync capable
 	static void installAsServer(ds::BlobRegistry&);

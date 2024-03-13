@@ -49,6 +49,10 @@ DisableReadyPage=yes
 DisableStartupPrompt=yes
 DisableWelcomePage=yes
 
+[Dirs]
+; This will allow us to modify the settings after installation
+Name: "{app}/settings"; Permissions: users-modify;
+
 [Files]
 Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
@@ -115,7 +119,10 @@ Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHos
 
 ; If we're using apphost, apphost will launch everything itself, so just launch apphost on startup
 #ifdef USE_APPHOST
+; Only if we're not replacing the shell, see below. 
+#ifndef REPLACE_SHELL
 Name: "{commonstartup}\{#APP_NAME}-DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
+#endif
 #else
 ; No apphost, but yes for dsnode, so start that on system boot
 #ifdef USE_DSNODE
@@ -124,6 +131,7 @@ Name: "{commonstartup}\{#APP_NAME}-DSNode"; Filename: "{app}\DSNode\DSNode.exe"
 ; No apphost, but start the main app on system boot
 Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
 #endif
+
 #endif
 
 [Registry]
@@ -131,6 +139,7 @@ Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PANGOCAIRO_BACKEND"; ValueData: "fontconfig"; Flags: preservestringtype
 
 #ifdef IS_PRODUCTION
+
 ; Disable the "program not responding" if this app crashed
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueType: dword; ValueName: "DontShowUI"; ValueData: "1"
 
@@ -138,6 +147,14 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\Windows Error Reporting"; ValueT
 ; Set DS_BASEURL if the cms url has been defined
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DS_BASEURL"; ValueData: "{#CMS_URL}"
 #endif
+   
+; Instead of launching apphost on startup, we can replace the shell and not launch Windows Explorer at all.
+#ifdef REPLACE_SHELL
+  #ifdef USE_APPHOST
+    Root: HKCU; Subkey: "Software\Microsoft\Windows NT\CurrentVersion\Winlogon"; ValueName: "Shell"; ValueType: string; ValueData: "{app}\DSAppHost\DSAppHost.exe"; Flags: createvalueifdoesntexist uninsdeletevalue;
+  #endif
+#endif 
+ 
 #endif
 
 [InstallDelete]

@@ -235,14 +235,10 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 					mResource.setCrop(coords);
 					imageChanged();
 
-					// Make sure all parent layouts are updated prior to checking status.
-					auto parent = getParent();
-					while (parent) {
-						auto layout = dynamic_cast<ds::ui::LayoutSprite*>(parent);
-						if (layout) layout->runLayout();
-
-						parent = parent->getParent();
-					}
+					// Scale the sprite to make it the same size as the untrimmed image.
+					auto scale = getScale();
+					scale /= glm::max( coords.getWidth(), coords.getHeight());
+					setScale(scale);
 				}
 
 				checkStatus();
