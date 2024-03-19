@@ -166,6 +166,9 @@ void WebInterface::setAllowNativeKeyboard(bool nativeKeyboardAllowed) {
 	mEnableNativeKeyboard = nativeKeyboardAllowed;
 }
 
+void WebInterface::setAllowNativeKeyboardOnly(bool nativeKeyboardOnlyAllowed) {
+	mEnableNativeKeyboardOnly = nativeKeyboardOnlyAllowed;
+}
 
 void WebInterface::setKeyboardAbove(const bool kerboardAbove) {
 	mKeyboardAbove = kerboardAbove;
@@ -536,12 +539,12 @@ void WebInterface::updateWidgets() {
 	if (mEnableNativeKeyboard) {
 		if (mKeyboardShowing && mLinkedWeb != mEngine.getRegisteredEntryField()) {
 			mEngine.registerEntryField(mLinkedWeb);
-		} else if (!mKeyboardShowing && mEngine.getRegisteredEntryField() == mLinkedWeb) {
+		} else if (!mKeyboardShowing && mEngine.getRegisteredEntryField() == mLinkedWeb && !mEnableNativeKeyboardOnly) {
 			mEngine.registerEntryField(nullptr);
 		}
 	} else {
 		// Ensure we disconnect
-		if (mEngine.getRegisteredEntryField() == mLinkedWeb) {
+		if (!mEnableNativeKeyboardOnly && mEngine.getRegisteredEntryField() == mLinkedWeb) {
 			mEngine.registerEntryField(nullptr);
 		}
 	}

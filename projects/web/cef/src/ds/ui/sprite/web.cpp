@@ -610,7 +610,8 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 	// For some reason the arrow keys don't get forwarded properly without this
 	// Main use-case is using clickers/keyboard for navigating presentations
 	if (keyEvent.getCode() == ci::app::KeyEvent::KEY_UP || keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT ||
-		keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN) {
+		keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN ||
+		keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEUP || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEDOWN) {
 		ci::app::KeyEvent event(mEngine.getWindow(), keyEvent.getCode(), keyEvent.getCode(), '	', 0,
 								keyEvent.getCode());
 		sendKeyDownEvent(event, false);

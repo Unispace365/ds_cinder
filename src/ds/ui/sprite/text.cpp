@@ -251,6 +251,38 @@ const ci::gl::TextureRef Text::getTexture() {
 	return mTexture;
 }
 
+ci::Area Text::calcPixelExtents() {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoRectangle extentRect = PangoRectangle();
+	PangoRectangle inkRect	  = PangoRectangle();
+	pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
+
+	return {inkRect.x, inkRect.y, inkRect.x + inkRect.width, inkRect.y + inkRect.height};
+}
+
+ci::Rectf Text::calcPixelExtents(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	PangoRectangle	 extentRect = PangoRectangle();
+	PangoRectangle	 inkRect	= PangoRectangle();
+	PangoLayoutLine* line		= pango_layout_get_line(mPangoLayout, index);
+	if (line) pango_layout_line_get_extents(line, &inkRect, &extentRect);
+
+	const auto area = ci::Area{inkRect.x, inkRect.y, inkRect.x + inkRect.width, inkRect.y + inkRect.height};
+	return ci::Rectf(area).scaled(1.0f / float(PANGO_SCALE));
+}
+
+float Text::calcAscent(int index) {
+	return -calcPixelExtents(index).y1;
+}
+
+float Text::calcDescent(int index) {
+	return calcPixelExtents(index).y2;
+}
+
 void Text::setTextStyle(std::string font, double size, ci::ColorA color, Alignment::Enum alignment) {
 	setFont(font);
 	setFontSize(size);
@@ -700,6 +732,21 @@ int Text::getNumberOfLines() {
 	// calculate current state if needed
 	measurePangoText();
 	return mNumberOfLines;
+}
+
+float Text::getLineHeight(int index) {
+	// calculate current state if needed
+	measurePangoText();
+
+	// If leading is not 1, the most consistent line height is the distance between the baselines of each line.
+	if (index + 1 < getNumberOfLines()) {
+		return getBaseLine(index + 1) - getBaseLine(index);
+	}
+
+	// Fall back on the measured distance.
+	float y0, y1;
+	getLineRange(index, y0, y1);
+	return y1 - y0;
 }
 
 float Text::getBaseLine(int index) {
@@ -1287,7 +1334,6 @@ bool Text::measurePangoText() {
 
 			mWrappedText   = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
-
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle extentRect = PangoRectangle();

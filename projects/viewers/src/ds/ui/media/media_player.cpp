@@ -487,6 +487,7 @@ void MediaPlayer::initializeWeb() {
 			if (mWebPlayer->getWebInterface()) {
 				mWebPlayer->getWebInterface()->updateWidgets();
 				mWebPlayer->getWebInterface()->setAllowNativeKeyboard(mMediaViewerSettings.mWebNativeKeyboard);
+				mWebPlayer->getWebInterface()->setAllowNativeKeyboardOnly(mMediaViewerSettings.mWebNativeKeyboardOnly);
 			}
 			if (mStatusCallback) mStatusCallback(true);
 		});

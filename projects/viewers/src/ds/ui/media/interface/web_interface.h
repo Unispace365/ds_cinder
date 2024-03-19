@@ -29,6 +29,7 @@ class WebInterface : public MediaInterface {
 	void setKeyboardKeyScale(const float newKeyScale);
 	void setKeyboardAllow(const bool keyboardAllowed);
 	void setAllowNativeKeyboard(bool nativeKeyboardAllowed);
+	void setAllowNativeKeyboardOnly(bool nativeKeyboardOnlyAllowed);
 	void setKeyboardAbove(const bool kerboardAbove);
 	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
@@ -59,6 +60,7 @@ class WebInterface : public MediaInterface {
 	ds::ui::ImageButton* getForwardButton() { return mForwardButton; }
 	ds::ui::ImageButton* getRefreshButton() { return mRefreshButton; }
 	ds::ui::ImageButton* getTouchToggleButton() { return mTouchToggle; }
+	ds::ui::Sprite*		 getKeyboardArea() { return mKeyboardArea; }
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
 
@@ -80,6 +82,7 @@ class WebInterface : public MediaInterface {
 	float mKeyboardKeyScale;
 
 	bool mEnableNativeKeyboard = false;
+	bool mEnableNativeKeyboardOnly = false;
 	bool mAbleToTouchToggle;
 	bool mWebLocked;
 

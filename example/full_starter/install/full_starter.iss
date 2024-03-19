@@ -26,6 +26,10 @@
 ; If IS_PRODUCTION is defined, will start apphost on system boot
 ; #define USE_APPHOST
 
+; Define to replace Windows Explorer with DSAppHost, instead of launching it as a startup item.
+; Only works if IS_PRODUCTION is defined, too.
+; #define REPLACE_SHELL
+
 ; Uses DsNode to connect to a DsCMS
 ; If USE_APPHOST is also defined, will run dsnode inside Apphost
 ; #define USE_DSNODE

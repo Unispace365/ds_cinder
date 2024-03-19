@@ -25,6 +25,7 @@ struct MediaViewerSettings {
 	  , mWebKeyboardKeyScale(1.0f)
 	  , mWebAllowKeyboard(true)
 	  , mWebNativeKeyboard(false)
+	  , mWebNativeKeyboardOnly(false)
 	  , mWebAllowTouchToggle(true)
 	  , mWebKeyboardAbove(true)
 	  , mWebStartTouchable(false)
@@ -79,6 +80,8 @@ struct MediaViewerSettings {
 	bool mWebAllowKeyboard;
 	// If focusing the web sprite also enables native keyboard pass-through
 	bool mWebNativeKeyboard;
+	// Allow web sprites to retain native keyboard input even when the software keyboard is not on screen
+	bool mWebNativeKeyboardOnly;
 	// If we should show the button to allowing touching web sites. Default=true
 	bool mWebAllowTouchToggle;
 	// If true, the keyboard appears above the interface. False will show below
