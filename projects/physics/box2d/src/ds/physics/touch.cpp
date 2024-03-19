@@ -61,11 +61,11 @@ void Touch::processTouchMoved(const SpriteBody& body, const ds::ui::TouchInfo& t
 		// Ensure touches are properly rotated if inside a rotated sprite
 		ci::vec3		rotation(0.0f, 0.0f, 0.0f);
 		if (body.mSprite.getParent()) {
-			rotation.z = -glm::eulerAngles(glm::quat(body.mSprite.getParent()->getGlobalTransform())).z;
+			rotation.z = glm::eulerAngles(glm::quat(body.mSprite.getParent()->getGlobalTransform())).z;
 		}
 		ci::vec3		offset = ti.mCurrentGlobalPoint - ti.mStartPoint;
 		ci::vec3		new_position(offset);
-		new_position = glm::rotateZ(new_position, rotation.z);
+		new_position = glm::rotateZ(new_position, rotation.z)+ti.mStartPoint;
 
 		j->SetTarget(mWorld.Ci2BoxTranslation(new_position, nullptr));
 	}
