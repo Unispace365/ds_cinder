@@ -139,6 +139,7 @@ class Grid : public Sprite {
 
 	static void parse(std::vector<Track>& tracks, const std::string& def);
 
+	EventClient			  mEventClient;
 	std::vector<Track>	  mColumns;
 	std::vector<Track>	  mRows;
 	css::Value			  mColumnGap{0, css::Value::PIXELS};

@@ -1163,6 +1163,22 @@ namespace ui {
 		}
 	}
 
+	class SpriteDimensionsChangedEvent : public ds::RegisteredEvent<SpriteDimensionsChangedEvent> {
+		Sprite* mSprite;
+
+	  public:
+		SpriteDimensionsChangedEvent(Sprite* sprite)
+		  : mSprite(sprite) {}
+
+		Sprite*	 getParent() const { return mSprite->getParent(); }
+		Sprite*	 getSprite() const { return mSprite; }
+		ci::vec3 getSize() const { return mSprite->getSize(); }
+		ci::vec3 getScale() const { return mSprite->getScale(); }
+		float	 getScaleWidth() const { return mSprite->getScaleWidth(); }
+		float	 getScaleHeight() const { return mSprite->getScaleHeight(); }
+		float	 getScaleDepth() const { return mSprite->getScaleDepth(); }
+	};
+
 } // namespace ui
 } // namespace ds
 
