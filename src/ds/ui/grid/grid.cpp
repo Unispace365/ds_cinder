@@ -187,8 +187,25 @@ float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprit
 namespace ds::ui {
 
 Grid::Grid(SpriteEngine& engine)
-  : Sprite(engine) {
+  : Sprite(engine)
+  , mEventClient(engine) {
 	setTransparent(false); // For debugging.
+
+	// Listen to SpriteDimensionsChangedEvent.
+	mEventClient.listenToEvents<SpriteDimensionsChangedEvent>([this](const SpriteDimensionsChangedEvent& e) {
+		// No need to flag grid as dirty if it already is dirty.
+		if(mNeedsLayout) return;
+
+		// Check if sprite is a child of this grid.
+		auto parent = e.getParent();
+		while (parent && parent != this)
+			parent = parent->getParent();
+
+		if (parent) {
+			// Flag grid as dirty, so we can run the layout on the next update.
+			mNeedsLayout = true;
+		}
+	});
 }
 
 void Grid::setColumns(const std::string& def) {

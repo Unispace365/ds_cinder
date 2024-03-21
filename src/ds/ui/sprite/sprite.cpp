@@ -553,6 +553,9 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 const ci::vec3& Sprite::getPosition() const {
@@ -857,6 +860,9 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	mNeedsBatchUpdate = true;
 	markAsDirty(SIZE_DIRTY);
 	dimensionalStateChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 void Sprite::setSizeAll(const ci::vec3& size3d) {
