@@ -321,9 +321,7 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
 					}
 
-					if (!theResource.empty()) {
-						child->setResource(theResource);
-					}
+					child->setResource(theResource);
 				} else if (sprPropToSet == "visible_if_exists") {
 					if (theNode.getPropertyString(theProp).empty()) {
 						child->hide();
