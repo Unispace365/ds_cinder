@@ -46,7 +46,8 @@ struct MediaViewerSettings {
 	  , mVideoNVDecode(false)
 	  , mPanoramicVideoInteractive(true)
 	  , mVideoStreamingLatency(0.2)
-	  , mVideoSplitAlpha(false) {}
+	  , mVideoSplitAlpha(false)
+	  , mKeepIfSame(false) {}
 
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
@@ -164,6 +165,9 @@ struct MediaViewerSettings {
 
 	/// render video as if lower half is the alpha channel
 	bool mVideoSplitAlpha;
+
+	/// don't unload the media if the same resource is set again
+	bool mKeepIfSame;
 };
 
 } // namespace ds::ui
