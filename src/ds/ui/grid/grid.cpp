@@ -199,10 +199,7 @@ Grid::Grid(SpriteEngine& engine)
 
 		// Check if sprite is a child of this grid.
 		auto parent = e.getParent();
-		while (parent && parent != this)
-			parent = parent->getParent();
-
-		if (parent) {
+		if (parent == this) {
 			// Flag grid as dirty, so we can run the layout on the next update.
 			mNeedsLayout = true;
 		}
