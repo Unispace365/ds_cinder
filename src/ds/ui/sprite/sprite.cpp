@@ -553,6 +553,9 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 const ci::vec3& Sprite::getPosition() const {
@@ -828,8 +831,8 @@ void Sprite::buildTransform() const {
 		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
-	mTransformation =
-		glm::translate(mTransformation, glm::vec3(-mCenter.x * mWidth, -mCenter.y * mHeight, -mCenter.z * mDepth));
+	mTransformation = glm::translate(mTransformation,
+									 glm::vec3(-mCenter.x * getWidth(), -mCenter.y * getHeight(), -mCenter.z * getDepth()));
 
 	mInverseTransform = glm::inverse(mTransformation);
 }
@@ -857,6 +860,9 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	mNeedsBatchUpdate = true;
 	markAsDirty(SIZE_DIRTY);
 	dimensionalStateChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 void Sprite::setSizeAll(const ci::vec3& size3d) {
@@ -1183,6 +1189,14 @@ bool Sprite::hasMultiTouchConstraint(const BitMask& constraint) const {
 	return mMultiTouchConstraints & constraint;
 }
 
+void Sprite::setColumnSpan(const Range<size_t>& span) {
+	mGridColumnSpan = span;
+}
+
+void Sprite::setRowSpan(const Range<size_t>& span) {
+	mGridRowSpan = span;
+}
+
 void Sprite::swipe(const ci::vec3& swipeVector) {
 	if (mSwipeCallback) mSwipeCallback(this, swipeVector);
 }
@@ -1369,6 +1383,14 @@ bool Sprite::inBounds() const {
 
 bool Sprite::isLoaded() const {
 	return true;
+}
+
+void Sprite::fitInsideArea(const ci::Rectf& area) {
+	// Fit the sprite to the area.
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 float Sprite::getDepth() const {
