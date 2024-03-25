@@ -181,6 +181,20 @@ namespace ds { namespace ui {
 		/// setToTarget will automatically set this sprite to it's current targets, making for an easy reset.
 		void clearAnimateOnTargets(const bool recursive = false);
 
+		/// Contains animation parameters for a single tween.
+		struct AnimScript {
+			std::string type;
+			ci::vec3	startValue{};
+			ci::vec3	endValue{};
+			float		duration{0};
+			float		delay{0};
+			ci::EaseFn	easing{ci::easeNone};
+		};
+
+		/// Parse the string as a script to run a single animation and returns the parsed values.
+		AnimScript parseAnimationScript(const std::string& animScript, const ci::vec3& defaultValue,
+										float addedDelay = 0.0f) const;
+
 		/** Parse the string as a script to run a few animations.
 			Syntax: `<type>:<valueX, valueY, valueZ>;`
 			Special params:
