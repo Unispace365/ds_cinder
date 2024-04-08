@@ -79,7 +79,7 @@ Parameter Types
 * **Color**: Format: #AARRGGBB or #RRGGBB, or a named color specified by a call to mEngine.getColors().install().
 * **Boolean**: These values will map to true: true, TRUE, yes, YES, on, ON. Everything else is false.
 * **Blend**: Valid values: normal, multiply, screen, add, subtract, lighten, darken. Default = normal.
-* **Float**: Specify the number with the decimal. The trailing "f" is unneccasary. For instance, opacity="0.5" not opacity="0.5f"
+* **Float**: Specify the number with the decimal. The trailing "f" is unneccasary. For instance, opacity="0.5" not opacity="0.5f". Color needs to be defined before opacity
 
 Sprite Types
 --------------------------
