@@ -162,6 +162,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
   , mNeedsTextRender(false)
   , mNeedsFontOptionUpdate(false)
   , mNeedsMarkupDetection(false)
+  , mNeedsMinMaxMeasuring(false)
   , mPixelWidth(-1)
   , mPixelHeight(-1)
   , mPixelOffsetX(0)
@@ -238,6 +239,7 @@ void Text::setText(std::string text) {
 		mNeedsTextRender			  = true;
 		mNeedsRefit					  = true;
 		mNeedsMaxResizeFontSizeUpdate = true;
+		mNeedsMinMaxMeasuring		  = true;
 
 		markAsDirty(TEXT_DIRTY);
 	}
@@ -313,10 +315,11 @@ Alignment::Enum Text::getAlignment() {
 
 void Text::setAlignment(Alignment::Enum alignment) {
 	if (mStyle.mAlignment != alignment) {
-		mStyle.mAlignment = alignment;
-		mNeedsMeasuring	  = true;
-		mNeedsTextRender  = true;
-		mNeedsRefit		  = true;
+		mStyle.mAlignment	  = alignment;
+		mNeedsMeasuring		  = true;
+		mNeedsTextRender	  = true;
+		mNeedsRefit			  = true;
+		mNeedsMinMaxMeasuring = true;
 		markAsDirty(FONT_DIRTY);
 	}
 }
@@ -327,10 +330,11 @@ double Text::getLeading() const {
 
 Text& Text::setLeading(const double leading) {
 	if (mStyle.mLeading != leading) {
-		mStyle.mLeading	 = leading;
-		mNeedsMeasuring	 = true;
-		mNeedsTextRender = true;
-		mNeedsRefit		 = true;
+		mStyle.mLeading		  = leading;
+		mNeedsMeasuring		  = true;
+		mNeedsTextRender	  = true;
+		mNeedsRefit			  = true;
+		mNeedsMinMaxMeasuring = true;
 		markAsDirty(FONT_DIRTY);
 	}
 	return *this;
@@ -346,6 +350,7 @@ Text& Text::setLetterSpacing(const double letterSpacing) {
 		mNeedsMeasuring		  = true;
 		mNeedsTextRender	  = true;
 		mNeedsRefit			  = true;
+		mNeedsMinMaxMeasuring = true;
 		markAsDirty(FONT_DIRTY);
 	}
 	return *this;
@@ -372,8 +377,8 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 		if (mResizeLimitHeight == 0.0f) {
 			mResizeLimitHeight = -1.0f;
 		}
-		mNeedsMeasuring = true;
-		mNeedsRefit		= true;
+		mNeedsMeasuring		  = true;
+		mNeedsRefit			  = true;
 		markAsDirty(LAYOUT_DIRTY);
 	}
 
@@ -381,19 +386,21 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 }
 
 Text& Text::setFitFontSizes(std::vector<double> font_sizes) {
-	mStyle.mFitSizes = font_sizes;
-	mNeedsRefit		 = true;
-	mNeedsMeasuring	 = true;
+	mStyle.mFitSizes	  = font_sizes;
+	mNeedsRefit			  = true;
+	mNeedsMeasuring		  = true;
+	mNeedsMinMaxMeasuring = true;
 	return *this;
 }
 
 Text& Text::setFitToResizeLimit(const bool fitToResize) {
 	if (mFitToResizeLimit != fitToResize) {
 
-		mNeedsFontSizeUpdate = true;
-		mNeedsMeasuring		 = true;
-		mFitToResizeLimit	 = fitToResize;
-		mNeedsRefit			 = true;
+		mNeedsFontSizeUpdate  = true;
+		mNeedsMeasuring		  = true;
+		mFitToResizeLimit	  = fitToResize;
+		mNeedsRefit			  = true;
+		mNeedsMinMaxMeasuring = true;
 
 		mNeedsMaxResizeFontSizeUpdate = true;
 		markAsDirty(LAYOUT_DIRTY);
@@ -427,9 +434,10 @@ void Text::setTextColor(const ci::Color& color) {
 
 void Text::setFontSize(double size) {
 	if (mStyle.mSize != size) {
-		mStyle.mSize		 = size;
-		mNeedsFontSizeUpdate = true;
-		mNeedsMeasuring		 = true;
+		mStyle.mSize		  = size;
+		mNeedsFontSizeUpdate  = true;
+		mNeedsMeasuring		  = true;
+		mNeedsMinMaxMeasuring = true;
 
 		markAsDirty(FONT_DIRTY);
 	}
@@ -440,6 +448,7 @@ void Text::setFitMaxFontSize(double fontSize) {
 		mStyle.mFitMaxTextSize = fontSize;
 		mNeedsMeasuring		   = true;
 		mNeedsRefit			   = true;
+		mNeedsMinMaxMeasuring  = true;
 	}
 }
 
@@ -448,6 +457,7 @@ void Text::setFitMinFontSize(double fontSize) {
 		mStyle.mFitMinTextSize = fontSize;
 		mNeedsMeasuring		   = true;
 		mNeedsRefit			   = true;
+		mNeedsMinMaxMeasuring  = true;
 	}
 }
 
@@ -471,6 +481,7 @@ Text& Text::setFont(const std::string& font) {
 		mNeedsMeasuring				  = true;
 		mNeedsRefit					  = true;
 		mNeedsMaxResizeFontSizeUpdate = true;
+		mNeedsMinMaxMeasuring		  = true;
 		markAsDirty(FONT_DIRTY);
 	}
 	return *this;
@@ -492,6 +503,34 @@ float Text::getHeight() const {
 		(const_cast<Text*>(this))->measurePangoText();
 	}
 	return mHeight;
+}
+
+float Text::getWidthMin() const {
+	if (mNeedsMinMaxMeasuring) {
+		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+	}
+	return mMinWidth.asUser(this, css::Value::HORIZONTAL);
+}
+
+float Text::getWidthMax() const {
+	if (mNeedsMinMaxMeasuring) {
+		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+	}
+	return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
+}
+
+float Text::getHeightMin() const {
+	if (mNeedsMinMaxMeasuring) {
+		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+	}
+	return mMinHeight.asUser(this, css::Value::VERTICAL);
+}
+
+float Text::getHeightMax() const {
+	if (mNeedsMinMaxMeasuring) {
+		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+	}
+	return mMaxHeight.asUser(this, css::Value::VERTICAL);
 }
 
 void Text::setEllipsizeMode(EllipsizeMode theMode) {
@@ -702,18 +741,23 @@ bool Text::setAvailableSize(const ci::vec2& size) {
 	// Adjust resize limits.
 	setResizeLimit(size.x, size.y);
 
-	// Measure minimum required space.
-	bool hasChanged = false;
-	if (!mMinWidth.isDefined() || !approxEqual(mMinWidth.asUser(this, css::Value::HORIZONTAL), getWidth())) {
-		mMinWidth  = css::Value(getWidth(), css::Value::PIXELS);
-		hasChanged = true;
-	}
-	if (!mMinHeight.isDefined() || !approxEqual(mMinHeight.asUser(this, css::Value::VERTICAL), getHeight())) {
-		mMinHeight = css::Value(getHeight(), css::Value::PIXELS);
-		hasChanged = true;
+	if (mNeedsMeasuring) {
+		measurePangoText();
 	}
 
-	// Notify layout if settings have changed.
+	const auto w = getWidth();// mTrimWhiteSpace ? mPixelWidth - glm::max(mRenderOffset.x, 0.0f) : mWidth;
+	const auto h = getHeight();// mTrimWhiteSpace ? mPixelHeight - glm::max(mRenderOffset.y, 0.0f) : mHeight;
+
+	bool hasChanged = !approxEqual(w, mMinWidth.asUser(this, css::Value::HORIZONTAL));
+	hasChanged |= !approxEqual(w, mMaxWidth.asUser(this, css::Value::HORIZONTAL));
+	hasChanged |= !approxEqual(h, mMinHeight.asUser(this, css::Value::VERTICAL));
+	hasChanged |= !approxEqual(h, mMaxHeight.asUser(this, css::Value::VERTICAL));
+
+	mMinWidth.set(w, css::Value::Unit::PIXELS);
+	mMaxWidth.set(w, css::Value::Unit::PIXELS);
+	mMinHeight.set(h, css::Value::Unit::PIXELS);
+	mMaxHeight.set(h, css::Value::Unit::PIXELS);
+
 	return hasChanged;
 }
 
@@ -862,7 +906,7 @@ void Text::findFitFontSize() {
 
 			// inital height measurement
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-			double h = std::max(extentRect.height, inkRect.height);
+			double h = mTrimWhiteSpace ? inkRect.height : std::max(extentRect.height, inkRect.height);
 
 			while (h < mResizeLimitHeight) {
 
@@ -873,7 +917,7 @@ void Text::findFitFontSize() {
 
 				// get the height
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-				h = std::max(extentRect.height, inkRect.height);
+				h = mTrimWhiteSpace ? inkRect.height : std::max(extentRect.height, inkRect.height);
 
 				// check if we are over the limit now and out last increment was greater than 1.
 				// if both of those are true, we reset the increment to one, and try again from the last working
@@ -888,7 +932,7 @@ void Text::findFitFontSize() {
 
 					// remeasure the height
 					pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-					h = std::max(extentRect.height, inkRect.height);
+					h = mTrimWhiteSpace ? inkRect.height : std::max(extentRect.height, inkRect.height);
 
 					continue;
 				}
@@ -911,15 +955,15 @@ void Text::findFitFontSize() {
 				_setFontSize(fs);
 
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-				double w = std::max(extentRect.width, inkRect.width);
+				double w = mTrimWhiteSpace ? inkRect.width : std::max(extentRect.width, inkRect.width);
 				while (w < mResizeLimitWidth) {
 
 					// set font
 					_setFontSize(fs + increment);
 
-					// get height
+					// get width
 					pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-					w = std::max(extentRect.width, inkRect.width);
+					w = mTrimWhiteSpace ? inkRect.width : std::max(extentRect.width, inkRect.width);
 
 
 					if (w >= mResizeLimitWidth && increment > 1) {
@@ -928,7 +972,7 @@ void Text::findFitFontSize() {
 						_setFontSize(fs);
 						// h = getHeight();
 						pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-						w = std::max(extentRect.width, inkRect.width);
+						w = mTrimWhiteSpace ? inkRect.width : std::max(extentRect.width, inkRect.width);
 						continue;
 					}
 					fs = fs + increment;
@@ -1497,6 +1541,57 @@ void Text::renderPangoText() {
 			cairo_surface_destroy(cairoSurface);
 		}
 	}
+}
+
+void Text::measureMinMaxTextSize() {
+	const auto resizeLimit = ci::vec2(getResizeLimitWidth(), getResizeLimitHeight());
+
+	auto style = mStyle;
+	std::sort(style.mFitSizes.begin(), style.mFitSizes.end());
+
+
+	// Use smallest font size.
+	if (!style.mFitSizes.empty()) {
+		setFitFontSizes({style.mFitSizes.front()});
+	} else {
+		setFitMinFontSize(style.mFitMinTextSize);
+		setFitMaxFontSize(style.mFitMinTextSize);
+	}
+
+	setResizeLimit(1, 0);
+	measurePangoText();
+	mMinWidth = css::Value(mPixelWidth, css::Value::PIXELS);
+
+	setResizeLimit(0, 1);
+	measurePangoText();
+	mMinHeight = css::Value(mPixelHeight, css::Value::PIXELS);
+
+	// Use largest font size.
+	if (!style.mFitSizes.empty()) {
+		setFitFontSizes({style.mFitSizes.back()});
+	} else {
+		setFitMinFontSize(style.mFitMaxTextSize);
+		setFitMaxFontSize(style.mFitMaxTextSize);
+	}
+	
+	setResizeLimit(1, 0);
+	measurePangoText();
+	mMaxHeight = css::Value(mPixelHeight, css::Value::PIXELS);
+	
+	setResizeLimit(0, 1);
+	measurePangoText();
+	mMaxWidth = css::Value(mPixelWidth, css::Value::PIXELS);
+
+	// Restore the original resize limits.
+	setResizeLimit(resizeLimit.x, resizeLimit.y);
+	if (!style.mFitSizes.empty()) {
+		setFitFontSizes(style.mFitSizes);
+	} else {
+		setFitMinFontSize(style.mFitMinTextSize);
+		setFitMaxFontSize(style.mFitMaxTextSize);
+	}
+
+	mNeedsMinMaxMeasuring = false;
 }
 
 void Text::writeAttributesTo(ds::DataBuffer& buf) {

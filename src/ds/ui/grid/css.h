@@ -46,6 +46,11 @@ class Value {
 	[[nodiscard]] bool isFlex() const { return mUnit == FLEX; }
 	[[nodiscard]] bool isFixed() const { return !(mUnit == UNDEFINED || mUnit == FLEX); }
 
+	void set(float value, Unit unit) {
+		mValue = value;
+		mUnit  = unit;
+	}
+
 	/// Makes it easier to use, see: GridSprite::sumFlex().
 	explicit operator float() const { return mValue; }
 
