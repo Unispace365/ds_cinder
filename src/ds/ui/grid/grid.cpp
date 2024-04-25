@@ -135,6 +135,16 @@ std::vector<Grid::Track*> getSpannedTracks(const std::vector<Grid::Track>& track
 }
 
 // Returns the set of grid tracks whose MaxTrackSizingFunction is a flexible length.
+std::vector<Grid::Track*> getFlexTracks(const std::vector<Grid::Track>& tracks) {
+	std::vector<Grid::Track*> result;
+
+	for (auto track : tracks)
+		if (track.max.isFlex()) result.push_back(&track);
+
+	return result;
+}
+
+// Returns the set of grid tracks whose MaxTrackSizingFunction is a flexible length.
 std::vector<Grid::Track*> getFlexTracks(const std::vector<Grid::Track*>& tracks) {
 	std::vector<Grid::Track*> result;
 
@@ -622,6 +632,12 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item), gap);
 			normalizedFlexBreadth				 = glm::max(normalizedFlexBreadth, itemNormalizedFlexBreadth);
 		}
+	}
+
+	// Apply gap correction to normalizedFlexBreadth.
+	if (!approxZero(normalizedFlexBreadth)) {
+		const auto count = getFlexTracks(tracks).size();
+		if (count > 1) normalizedFlexBreadth = glm::max(0.f, normalizedFlexBreadth - gap * (count - 1));
 	}
 
 	for (auto& track : tracks)
