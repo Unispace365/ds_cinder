@@ -558,7 +558,7 @@ int Grid::countGaps(size_t index, const std::vector<Track*>& tracks) {
 	int count = -1;
 	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
-		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/ // Note: counting flex tracks would be incorrect if flex tracks end up being zero.)
+		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/) // Note: counting flex tracks would be incorrect if flex tracks end up being zero.)
 			++count;
 	}
 	return glm::max(0, count);
