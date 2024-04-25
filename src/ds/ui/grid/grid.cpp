@@ -552,8 +552,8 @@ int Grid::countGaps(size_t index, const std::vector<Track>& tracks) {
 	int count = -1;
 	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
-		if (tracks.at(i).usedBreadth > 0 || tracks.at(i).isFlex())
-			++count; // Note: Incorrect if flex tracks end up being zero.
+		if (tracks.at(i).usedBreadth > 0 /*|| tracks.at(i).isFlex()*/) // Note: counting flex tracks would be incorrect if flex tracks end up being zero.
+			++count;
 	}
 	return glm::max(0, count);
 }
@@ -562,8 +562,8 @@ int Grid::countGaps(size_t index, const std::vector<Track*>& tracks) {
 	int count = -1;
 	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
-		if (tracks.at(i)->usedBreadth > 0 || tracks.at(i)->isFlex())
-			++count; // Note: Incorrect if flex tracks end up being zero.
+		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/ // Note: counting flex tracks would be incorrect if flex tracks end up being zero.)
+			++count;
 	}
 	return glm::max(0, count);
 }
@@ -857,9 +857,11 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 			  [](const Track* a, const Track* b) { return a->normalizedFlexValue < b->normalizedFlexValue; });
 
 	// 5 + 6.
-	float spaceNeededFromFlexTracks	 = spaceToFill - allocatedSpace;
+	float spaceNeededFromFlexTracks	 = glm::max(0.f, spaceToFill - allocatedSpace);
 	float currentBandFractionBreadth = 0;
 	float accumulatedFractions		 = 0;
+
+	if(flexTracks.empty()) return 0;
 
 	// 7.
 	for (const auto track : flexTracks) {
