@@ -192,6 +192,11 @@ class Text : public ds::ui::Sprite {
 	/// Returns the actual render size of the text
 	ci::ivec2 getPixelSize() const { return {mPixelWidth, mPixelHeight}; }
 
+	float getWidthMin() const override;
+	float getWidthMax() const override;
+	float getHeightMin() const override;
+	float getHeightMax() const override;
+
 	/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
 	/// calculations. Returns whether anything changed.
 	bool setAvailableSize(const ci::vec2& size) override;
@@ -305,6 +310,9 @@ class Text : public ds::ui::Sprite {
 	/// Renders text into the texture.
 	void renderPangoText();
 
+	/// Measures min/max size of the text for layout purposes
+	void measureMinMaxTextSize();
+
 	// pango references;
 	PangoContext* mPangoContext;
 	PangoLayout*  mPangoLayout;
@@ -353,6 +361,7 @@ class Text : public ds::ui::Sprite {
 	bool mNeedsTextRender;
 	bool mNeedsFontOptionUpdate;
 	bool mNeedsMarkupDetection;
+	bool mNeedsMinMaxMeasuring;
 
 	/// simply stored to check for change across renders
 	int mPixelWidth;
