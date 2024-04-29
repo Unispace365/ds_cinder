@@ -308,15 +308,19 @@ void Image::clearImage() {
 }
 
 bool Image::setAvailableSize(const vec2& size) {
-	const auto bounds = Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, bounds);
-	const auto width  = fit[0][0] * bounds.getWidth();
-	const auto height = fit[1][1] * bounds.getHeight();
+	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
 
-	mMinWidth = mMaxWidth = css::Value(width, css::Value::PIXELS);
-	mMinHeight = mMaxHeight = css::Value(height, css::Value::PIXELS);
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(ci::Rectf{0, 0, size.x, size.y}, bounds);
+	const auto width  = fit[0][0] * getWidth();
+	const auto height = fit[1][1] * getHeight();
 
-	return !approxEqual(width, getWidth()) || !approxEqual(height, getHeight());
+	mMinWidth  = css::Value(width, css::Value::PIXELS);
+	mMaxWidth  = css::Value(width, css::Value::PIXELS);
+	mMinHeight = css::Value(height, css::Value::PIXELS);
+	mMaxHeight = css::Value(height, css::Value::PIXELS);
+
+	return true;
 }
 
 float Image::getWidthMin() const {
