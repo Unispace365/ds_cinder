@@ -121,6 +121,9 @@
     <Filter Include="src\imgui_components">
       <UniqueIdentifier>{6e8dd3c8-2605-44f6-b63a-4d39d6e9cca2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\grid">
+      <UniqueIdentifier>{ed058117-6d7c-45f5-8f11-cb859d03d47f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -705,6 +708,18 @@
     <ClInclude Include="..\src\imgui_components\TextAnsi.h">
       <Filter>src\imgui_components</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\grid\grid.h">
+      <Filter>src\ds\ui\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\grid\css.h">
+      <Filter>src\ds\ui\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\float_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\fit.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1156,6 +1171,15 @@
     </ClCompile>
     <ClCompile Include="..\src\imgui_components\TextAnsi.cpp">
       <Filter>src\imgui_components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\grid\css.cpp">
+      <Filter>src\ds\ui\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\grid\grid.cpp">
+      <Filter>src\ds\ui\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\fit.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

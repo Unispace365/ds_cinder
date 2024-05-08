@@ -10,6 +10,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
+#include <ds/util/float_util.h>
 
 #include <ds/data/resource.h>
 
@@ -186,6 +187,14 @@ auto INIT = []() {
 				mvs.mVideoNVDecode = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_keep_if_same",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs		   = mediaPlayer.getSettings();
+				mvs.mKeepIfSame = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 	});
 	return true;
 }();
@@ -233,7 +242,19 @@ void MediaPlayer::loadMedia(const std::string& mediaPath, const bool initializeI
 }
 
 void MediaPlayer::loadMedia(const ds::Resource& reccy, const bool initializeImmediately) {
-	if (mInitialized) uninitialize();
+	if (mInitialized) {
+		// If the resource is the same, don't do anything.
+		if (mMediaViewerSettings.mKeepIfSame && reccy.getAbsoluteFilePath() == mResource.getAbsoluteFilePath()) {
+			// ci::Rectf does not support operator==(const ci::Rectf&), so we'll have to do it the hard way.
+			bool cropIsSame = approxEqual(reccy.getCrop().x1, mResource.getCrop().x1);
+			cropIsSame &= approxEqual(reccy.getCrop().x2, mResource.getCrop().x2);
+			cropIsSame &= approxEqual(reccy.getCrop().y1, mResource.getCrop().y1);
+			cropIsSame &= approxEqual(reccy.getCrop().y2, mResource.getCrop().y2);
+			if (cropIsSame) return;
+		}
+		// If the resource is different, uninitialize and then set the new resource.
+		uninitialize();
+	}
 
 	mResource = reccy;
 
@@ -589,6 +610,22 @@ void MediaPlayer::exit() {
 	if (mVideoPlayer) mVideoPlayer->pause();
 	if (mPanoramicPlayer) mPanoramicPlayer->pause();
 	if (mYouTubePlayer) mYouTubePlayer->pause();
+}
+
+bool MediaPlayer::setAvailableSize(const ci::vec2& size) {
+	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
+
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(ci::Rectf{0, 0, size.x, size.y}, bounds);
+	const auto width  = fit[0][0] * getWidth();
+	const auto height = fit[1][1] * getHeight();
+
+	mMinWidth  = css::Value(width, css::Value::PIXELS);
+	mMaxWidth  = css::Value(width, css::Value::PIXELS);
+	mMinHeight = css::Value(height, css::Value::PIXELS);
+	mMaxHeight = css::Value(height, css::Value::PIXELS);
+
+	return true;
 }
 
 void MediaPlayer::userInputReceived() {

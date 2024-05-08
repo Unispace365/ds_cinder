@@ -39,7 +39,7 @@ class Image : public Sprite {
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
 
-	virtual ~Image();
+	~Image() override;
 
 	/** Loads an image based on the filename.
 	 * \param filename is the file path or url to the resource.
@@ -69,13 +69,33 @@ class Image : public Sprite {
 	const std::string& getImageFilename() { return mFilename; }
 
 	/// Returns the ds::Resource if it was set as a full resource or as an id.
-	ds::Resource getImageResource() { return mResource; }
+	const ds::Resource& getImageResource() const { return mResource; }
 
 	/// Returns the loaded image, if not loaded returns an empty ref (nullptr)
-	const ci::gl::TextureRef getImageTexture() { return mTextureRef; }
+	const ci::gl::TextureRef &getImageTexture() const { return mTextureRef; }
 
 	/// Clears the image from this sprite. Removes a reference in the image store if not cached
 	void clearImage();
+
+	/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+	/// calculations. Returns whether anything changed.
+	bool setAvailableSize(const ci::vec2& size) override;
+
+	/// Returns the minimum width of the Image. If minimum width hasn't been set, but minimum height has, it will
+	/// calculate minimum width based on the aspect ratio.
+	float getWidthMin() const override;
+	/// Returns the maximum width of the Image. If maximum width hasn't been set, but maximum height has, it will
+	/// calculate maximum width based on the aspect ratio.
+	float getWidthMax() const override;
+	/// Returns the minimum height of the Image. If minimum height hasn't been set, but minimum width has, it will
+	/// calculate minimum height based on the aspect ratio.
+	float getHeightMin() const override;
+	/// Returns the maximum height of the Image. If maximum height hasn't been set, but maximum width has, it will
+	/// calculate minimum height based on the aspect ratio.
+	float getHeightMax() const override;
+
+	/// Since images can be cropped, we need to make sure any cropping is taken into account.
+	void fitInsideArea(const ci::Rectf& area) override;
 
 	/// \note calls Image::setSizeAll(...) internally.
 	/// \see Image::setSizeAll(...)
@@ -98,10 +118,15 @@ class Image : public Sprite {
 	/// Returns if this is set to crop to a circle
 	virtual bool getCircleCrop() { return mCircleCropped; }
 	/// Enables circle cropping and also automatically centers the rect
-	void cicleCropAutoCenter(); /// whoopsies
+	void cicleCropAutoCenter() { circleCropAutoCenter(); } /// whoopsies
 	void circleCropAutoCenter();
 	/// Turns off the above functionality
 	void disableCircleCropCentered();
+
+	/// Returns the width in pixels of the image. If circle cropping is applied, it will return the cropped width.
+	float getWidth() const override { return mCircleCropped ? mShaderExtraData.z - mShaderExtraData.x : mWidth; }
+	/// Returns the height in pixels of the image. If circle cropping is applied, it will return the cropped height.
+	float getHeight() const override { return mCircleCropped ? mShaderExtraData.w - mShaderExtraData.y : mHeight; }
 
 	struct Status {
 		static const int STATUS_EMPTY	= 0;
