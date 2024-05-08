@@ -94,7 +94,7 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
 				//Default path on production
-				sync_path = "%APP%/bridgesync/bridge_sync_console.exe";
+				sync_path = ds::Environment::expand("%APP%/bridgesync/bridge_sync_console.exe");
 			}
 			else {
 				sync_path = settings.syncPath;
