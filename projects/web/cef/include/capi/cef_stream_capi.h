@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=bbb4153d5d7325ac9a410d7f85a8d47eadcfaf6e$
+// $hash=f55fa17800b9a63d128fb78201372754f9250875$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
@@ -70,13 +70,13 @@ typedef struct _cef_read_handler_t {
   /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_read_handler_t* self,
-                          int64 offset,
+                          int64_t offset,
                           int whence);
 
   ///
   /// Return the current offset position.
   ///
-  int64(CEF_CALLBACK* tell)(struct _cef_read_handler_t* self);
+  int64_t(CEF_CALLBACK* tell)(struct _cef_read_handler_t* self);
 
   ///
   /// Return non-zero if at end of file.
@@ -115,13 +115,13 @@ typedef struct _cef_stream_reader_t {
   /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_stream_reader_t* self,
-                          int64 offset,
+                          int64_t offset,
                           int whence);
 
   ///
   /// Return the current offset position.
   ///
-  int64(CEF_CALLBACK* tell)(struct _cef_stream_reader_t* self);
+  int64_t(CEF_CALLBACK* tell)(struct _cef_stream_reader_t* self);
 
   ///
   /// Return non-zero if at end of file.
@@ -178,13 +178,13 @@ typedef struct _cef_write_handler_t {
   /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_write_handler_t* self,
-                          int64 offset,
+                          int64_t offset,
                           int whence);
 
   ///
   /// Return the current offset position.
   ///
-  int64(CEF_CALLBACK* tell)(struct _cef_write_handler_t* self);
+  int64_t(CEF_CALLBACK* tell)(struct _cef_write_handler_t* self);
 
   ///
   /// Flush the stream.
@@ -223,13 +223,13 @@ typedef struct _cef_stream_writer_t {
   /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_stream_writer_t* self,
-                          int64 offset,
+                          int64_t offset,
                           int whence);
 
   ///
   /// Return the current offset position.
   ///
-  int64(CEF_CALLBACK* tell)(struct _cef_stream_writer_t* self);
+  int64_t(CEF_CALLBACK* tell)(struct _cef_stream_writer_t* self);
 
   ///
   /// Flush the stream.

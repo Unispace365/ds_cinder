@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fed784c5de6718569cc5c0828a1856831148146$
+// $hash=2579eb0e6c593fb14e8beedeb457d27fd7a09acb$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
@@ -167,7 +167,7 @@ CefRefPtr<CefResourceBundleHandler> CefCppToCRefCounted<
     cef_resource_bundle_handler_t>::UnwrapDerived(CefWrapperType type,
                                                   cef_resource_bundle_handler_t*
                                                       s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

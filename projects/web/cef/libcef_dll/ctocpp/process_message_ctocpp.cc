@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac50966059a1ba14d20824a27bcc19e9c0c0d910$
+// $hash=033778168503e09a5e3087a886a181e38ce6c674$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -165,7 +165,7 @@ cef_process_message_t* CefCToCppRefCounted<
     CefProcessMessage,
     cef_process_message_t>::UnwrapDerived(CefWrapperType type,
                                           CefProcessMessage* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

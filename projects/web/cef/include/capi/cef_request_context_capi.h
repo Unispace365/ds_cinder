@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c2a6265e8e9acce475a8b5755a8c58b97b495207$
+// $hash=2c496139ca9a59303b1493ee93d2c3ae96a956c0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -46,6 +46,7 @@
 #include "include/capi/cef_extension_handler_capi.h"
 #include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_preference_capi.h"
+#include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,6 +253,8 @@ typedef struct _cef_request_context_t {
   /// See https://developer.chrome.com/extensions for extension implementation
   /// and usage documentation.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   void(CEF_CALLBACK* load_extension)(struct _cef_request_context_t* self,
                                      const cef_string_t* root_directory,
                                      struct _cef_dictionary_value_t* manifest,
@@ -263,6 +266,8 @@ typedef struct _cef_request_context_t {
   /// access to the extension (see HasExtension). This function must be called
   /// on the browser process UI thread.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   int(CEF_CALLBACK* did_load_extension)(struct _cef_request_context_t* self,
                                         const cef_string_t* extension_id);
 
@@ -271,6 +276,8 @@ typedef struct _cef_request_context_t {
   /// |extension_id|. This may not be the context that was used to load the
   /// extension (see DidLoadExtension). This function must be called on the
   /// browser process UI thread.
+  ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
   ///
   int(CEF_CALLBACK* has_extension)(struct _cef_request_context_t* self,
                                    const cef_string_t* extension_id);
@@ -281,6 +288,8 @@ typedef struct _cef_request_context_t {
   /// extension ID values. Returns true (1) on success. This function must be
   /// called on the browser process UI thread.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   int(CEF_CALLBACK* get_extensions)(struct _cef_request_context_t* self,
                                     cef_string_list_t extension_ids);
 
@@ -288,6 +297,8 @@ typedef struct _cef_request_context_t {
   /// Returns the extension matching |extension_id| or NULL if no matching
   /// extension is accessible in this context (see HasExtension). This function
   /// must be called on the browser process UI thread.
+  ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
   ///
   struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
       struct _cef_request_context_t* self,
@@ -301,6 +312,105 @@ typedef struct _cef_request_context_t {
   struct _cef_media_router_t*(CEF_CALLBACK* get_media_router)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
+
+  ///
+  /// Returns the current value for |content_type| that applies for the
+  /// specified URLs. If both URLs are NULL the default value will be returned.
+  /// Returns nullptr if no value is configured. Must be called on the browser
+  /// process UI thread.
+  ///
+  struct _cef_value_t*(CEF_CALLBACK* get_website_setting)(
+      struct _cef_request_context_t* self,
+      const cef_string_t* requesting_url,
+      const cef_string_t* top_level_url,
+      cef_content_setting_types_t content_type);
+
+  ///
+  /// Sets the current value for |content_type| for the specified URLs in the
+  /// default scope. If both URLs are NULL, and the context is not incognito,
+  /// the default value will be set. Pass nullptr for |value| to remove the
+  /// default value for this content type.
+  ///
+  /// WARNING: Incorrect usage of this function may cause instability or
+  /// security issues in Chromium. Make sure that you first understand the
+  /// potential impact of any changes to |content_type| by reviewing the related
+  /// source code in Chromium. For example, if you plan to modify
+  /// CEF_CONTENT_SETTING_TYPE_POPUPS, first review and understand the usage of
+  /// ContentSettingsType::POPUPS in Chromium:
+  /// https://source.chromium.org/search?q=ContentSettingsType::POPUPS
+  ///
+  void(CEF_CALLBACK* set_website_setting)(
+      struct _cef_request_context_t* self,
+      const cef_string_t* requesting_url,
+      const cef_string_t* top_level_url,
+      cef_content_setting_types_t content_type,
+      struct _cef_value_t* value);
+
+  ///
+  /// Returns the current value for |content_type| that applies for the
+  /// specified URLs. If both URLs are NULL the default value will be returned.
+  /// Returns CEF_CONTENT_SETTING_VALUE_DEFAULT if no value is configured. Must
+  /// be called on the browser process UI thread.
+  ///
+  cef_content_setting_values_t(CEF_CALLBACK* get_content_setting)(
+      struct _cef_request_context_t* self,
+      const cef_string_t* requesting_url,
+      const cef_string_t* top_level_url,
+      cef_content_setting_types_t content_type);
+
+  ///
+  /// Sets the current value for |content_type| for the specified URLs in the
+  /// default scope. If both URLs are NULL, and the context is not incognito,
+  /// the default value will be set. Pass CEF_CONTENT_SETTING_VALUE_DEFAULT for
+  /// |value| to use the default value for this content type.
+  ///
+  /// WARNING: Incorrect usage of this function may cause instability or
+  /// security issues in Chromium. Make sure that you first understand the
+  /// potential impact of any changes to |content_type| by reviewing the related
+  /// source code in Chromium. For example, if you plan to modify
+  /// CEF_CONTENT_SETTING_TYPE_POPUPS, first review and understand the usage of
+  /// ContentSettingsType::POPUPS in Chromium:
+  /// https://source.chromium.org/search?q=ContentSettingsType::POPUPS
+  ///
+  void(CEF_CALLBACK* set_content_setting)(
+      struct _cef_request_context_t* self,
+      const cef_string_t* requesting_url,
+      const cef_string_t* top_level_url,
+      cef_content_setting_types_t content_type,
+      cef_content_setting_values_t value);
+
+  ///
+  /// Sets the Chrome color scheme for all browsers that share this request
+  /// context. |variant| values of SYSTEM, LIGHT and DARK change the underlying
+  /// color mode (e.g. light vs dark). Other |variant| values determine how
+  /// |user_color| will be applied in the current color mode. If |user_color| is
+  /// transparent (0) the default color will be used.
+  ///
+  void(CEF_CALLBACK* set_chrome_color_scheme)(
+      struct _cef_request_context_t* self,
+      cef_color_variant_t variant,
+      cef_color_t user_color);
+
+  ///
+  /// Returns the current Chrome color scheme mode (SYSTEM, LIGHT or DARK). Must
+  /// be called on the browser process UI thread.
+  ///
+  cef_color_variant_t(CEF_CALLBACK* get_chrome_color_scheme_mode)(
+      struct _cef_request_context_t* self);
+
+  ///
+  /// Returns the current Chrome color scheme color, or transparent (0) for the
+  /// default color. Must be called on the browser process UI thread.
+  ///
+  cef_color_t(CEF_CALLBACK* get_chrome_color_scheme_color)(
+      struct _cef_request_context_t* self);
+
+  ///
+  /// Returns the current Chrome color scheme variant. Must be called on the
+  /// browser process UI thread.
+  ///
+  cef_color_variant_t(CEF_CALLBACK* get_chrome_color_scheme_variant)(
+      struct _cef_request_context_t* self);
 } cef_request_context_t;
 
 ///

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f104fb8a49bd3ad2cfc7f638995bbd04e1bbbd5b$
+// $hash=227fb7d50e74e240e92a2702af12bbfff4ab4542$
 //
 
 #include "libcef_dll/ctocpp/views/overlay_controller_ctocpp.h"
@@ -355,7 +355,7 @@ cef_overlay_controller_t* CefCToCppRefCounted<
     CefOverlayController,
     cef_overlay_controller_t>::UnwrapDerived(CefWrapperType type,
                                              CefOverlayController* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

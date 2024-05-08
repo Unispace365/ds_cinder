@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=185ce5e8dabe003ad884d6ad9dca1947c9c6e27a$
+// $hash=09ea98cc6bfbc87b8bfc9d30c24a3713e1a63be7$
 //
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
@@ -94,7 +94,8 @@ NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Wait() {
   _struct->wait(_struct);
 }
 
-NO_SANITIZE("cfi-icall") bool CefWaitableEventCToCpp::TimedWait(int64 max_ms) {
+NO_SANITIZE("cfi-icall")
+bool CefWaitableEventCToCpp::TimedWait(int64_t max_ms) {
   shutdown_checker::AssertNotShutdown();
 
   cef_waitable_event_t* _struct = GetStruct();
@@ -127,7 +128,7 @@ CefCToCppRefCounted<CefWaitableEventCToCpp,
                     CefWaitableEvent,
                     cef_waitable_event_t>::UnwrapDerived(CefWrapperType type,
                                                          CefWaitableEvent* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

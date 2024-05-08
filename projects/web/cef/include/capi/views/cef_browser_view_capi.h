@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f72e94f6bd63b6ea623c4d3170b5ad4333c136d6$
+// $hash=1c2fbbffaf51e90a2d55bfa7eb3fa3a4e315f4ac$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
@@ -77,16 +77,29 @@ typedef struct _cef_browser_view_t {
       struct _cef_browser_view_t* self);
 
   ///
-  /// Sets whether accelerators registered with cef_window_t::SetAccelerator are
-  /// triggered before or after the event is sent to the cef_browser_t. If
-  /// |prefer_accelerators| is true (1) then the matching accelerator will be
-  /// triggered immediately and the event will not be sent to the cef_browser_t.
-  /// If |prefer_accelerators| is false (0) then the matching accelerator will
-  /// only be triggered if the event is not handled by web content or by
-  /// cef_keyboard_handler_t. The default value is false (0).
+  /// Sets whether normal priority accelerators are first forwarded to the web
+  /// content (`keydown` event handler) or cef_keyboard_handler_t. Normal
+  /// priority accelerators can be registered via cef_window_t::SetAccelerator
+  /// (with |high_priority|=false (0)) or internally for standard accelerators
+  /// supported by the Chrome runtime. If |prefer_accelerators| is true (1) then
+  /// the matching accelerator will be triggered immediately (calling
+  /// cef_window_delegate_t::OnAccelerator or
+  /// cef_command_handler_t::OnChromeCommand respectively) and the event will
+  /// not be forwarded to the web content or cef_keyboard_handler_t first. If
+  /// |prefer_accelerators| is false (0) then the matching accelerator will only
+  /// be triggered if the event is not handled by web content (`keydown` event
+  /// handler that calls `event.preventDefault()`) or by cef_keyboard_handler_t.
+  /// The default value is false (0).
   ///
   void(CEF_CALLBACK* set_prefer_accelerators)(struct _cef_browser_view_t* self,
                                               int prefer_accelerators);
+
+  ///
+  /// Returns the runtime style for this BrowserView (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_runtime_style)(
+      struct _cef_browser_view_t* self);
 } cef_browser_view_t;
 
 ///

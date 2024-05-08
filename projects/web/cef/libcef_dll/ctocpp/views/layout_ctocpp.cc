@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=312e5c15b26db94513fe213fbcfba6d1c43e39b7$
+// $hash=30753c2d5046bf76c24d0373dcd4e6a35869164e$
 //
 
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
@@ -95,7 +95,7 @@ CefCToCppRefCounted<CefLayoutCToCpp, CefLayout, cef_layout_t>::UnwrapDerived(
     return reinterpret_cast<cef_layout_t*>(
         CefFillLayoutCToCpp::Unwrap(reinterpret_cast<CefFillLayout*>(c)));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

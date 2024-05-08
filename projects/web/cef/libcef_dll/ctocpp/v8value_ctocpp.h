@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec4b3cb221b3fcfb0f8f5e35aa351d3696cb78bb$
+// $hash=962bf2f9c8f5628a19f96d379edbf5e83313a858$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -50,8 +50,8 @@ class CefV8ValueCToCpp
   bool IsPromise() override;
   bool IsSame(CefRefPtr<CefV8Value> that) override;
   bool GetBoolValue() override;
-  int32 GetIntValue() override;
-  uint32 GetUIntValue() override;
+  int32_t GetIntValue() override;
+  uint32_t GetUIntValue() override;
   double GetDoubleValue() override;
   CefBaseTime GetDateValue() override;
   CefString GetStringValue() override;
@@ -83,6 +83,8 @@ class CefV8ValueCToCpp
   CefRefPtr<CefV8ArrayBufferReleaseCallback> GetArrayBufferReleaseCallback()
       override;
   bool NeuterArrayBuffer() override;
+  size_t GetArrayBufferByteLength() override;
+  void* GetArrayBufferData() override;
   CefString GetFunctionName() override;
   CefRefPtr<CefV8Handler> GetFunctionHandler() override;
   CefRefPtr<CefV8Value> ExecuteFunction(

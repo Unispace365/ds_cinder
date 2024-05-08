@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a832a32c3a3d5c43676c7bc76bafbe77a964a5f1$
+// $hash=d2c4416fa5e7ee4f64ffe552a9289c26ebe982c2$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -216,7 +216,7 @@ cef_navigation_entry_t* CefCToCppRefCounted<
     CefNavigationEntry,
     cef_navigation_entry_t>::UnwrapDerived(CefWrapperType type,
                                            CefNavigationEntry* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

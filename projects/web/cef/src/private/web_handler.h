@@ -14,6 +14,8 @@
 #include <functional>
 #include <list>
 
+#include <d3d11.h>
+
 #include "web_callbacks.h"
 
 namespace ds { namespace web {
@@ -84,7 +86,8 @@ namespace ds { namespace web {
 
 		virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects,
 							 const void* buffer, int width, int height) override;
-
+		virtual void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
+										const RectList& dirtyRects, const CefAcceleratedPaintInfo& info) override;
 		virtual bool OnCursorChange(CefRefPtr<CefBrowser> browser, HCURSOR cursor, cef_cursor_type_t type,
 									const CefCursorInfo& custom_cursor_info) override;
 
@@ -181,6 +184,9 @@ namespace ds { namespace web {
 		void deleteCookies(const std::string& url, const std::string& cookieName);
 
 	  private:
+		// A directx device for interop
+		ID3D11Device* mD3DDevice = nullptr;
+
 		// switch to a map for faster lookup
 		// List of existing browser windows. Only accessed on the CEF UI thread.
 		std::map<int, CefRefPtr<CefBrowser>> mBrowserList;

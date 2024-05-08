@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0e814467a4d428a493930a3e72123dfd6721786e$
+// $hash=63f55ceeec4a649ad2331bb0304557b7c0e4cb31$
 //
 
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
@@ -96,7 +96,7 @@ audio_handler_on_audio_stream_packet(struct _cef_audio_handler_t* self,
                                      struct _cef_browser_t* browser,
                                      const float** data,
                                      int frames,
-                                     int64 pts) {
+                                     int64_t pts) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -195,7 +195,7 @@ CefRefPtr<CefAudioHandler> CefCppToCRefCounted<
     CefAudioHandler,
     cef_audio_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_audio_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=220cf66311a9b87b0edfadf9617138d7cf3273f8$
+// $hash=f250db632dc9f127b3aaff303d6105ca235ff462$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -162,6 +162,7 @@ enum CefWrapperType {
   WT_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CHILD,
   WT_URLREQUEST,
   WT_URLREQUEST_CLIENT,
+  WT_UNRESPONSIVE_PROCESS_CALLBACK,
   WT_V8ACCESSOR,
   WT_V8ARRAY_BUFFER_RELEASE_CALLBACK,
   WT_V8CONTEXT,

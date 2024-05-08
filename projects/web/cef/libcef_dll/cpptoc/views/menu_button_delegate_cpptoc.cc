@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9758823653e71b6f40a07d1ccf051dd10e92b5b5$
+// $hash=e279bb0412c82b1235a5f4cd860ad2d5aab07042$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
@@ -376,6 +376,29 @@ menu_button_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+menu_button_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                      cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefMenuButtonDelegateCppToC::Get(
+      reinterpret_cast<cef_menu_button_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -404,6 +427,8 @@ CefMenuButtonDelegateCppToC::CefMenuButtonDelegateCppToC() {
       menu_button_delegate_on_layout_changed;
   GetStruct()->base.base.on_focus = menu_button_delegate_on_focus;
   GetStruct()->base.base.on_blur = menu_button_delegate_on_blur;
+  GetStruct()->base.base.on_theme_changed =
+      menu_button_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.
@@ -418,7 +443,7 @@ CefRefPtr<CefMenuButtonDelegate> CefCppToCRefCounted<
     CefMenuButtonDelegate,
     cef_menu_button_delegate_t>::UnwrapDerived(CefWrapperType type,
                                                cef_menu_button_delegate_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

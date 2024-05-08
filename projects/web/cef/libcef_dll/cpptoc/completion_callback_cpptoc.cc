@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=71f2ac1fe5be9a4783d35211352a92b19f1a84c0$
+// $hash=0b1eec74eb4e40370f04f75a2fb7ef67e288c9a4$
 //
 
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
@@ -54,7 +54,7 @@ CefRefPtr<CefCompletionCallback> CefCppToCRefCounted<
     CefCompletionCallback,
     cef_completion_callback_t>::UnwrapDerived(CefWrapperType type,
                                               cef_completion_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

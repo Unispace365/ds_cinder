@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3029a85a03d6d8d68350bea5ad3448e0b142bce0$
+// $hash=8b75c3c7e31574cd02f52b30d748f7e13070594c$
 //
 
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
@@ -299,7 +299,7 @@ template <>
 cef_domdocument_t*
 CefCToCppRefCounted<CefDOMDocumentCToCpp, CefDOMDocument, cef_domdocument_t>::
     UnwrapDerived(CefWrapperType type, CefDOMDocument* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

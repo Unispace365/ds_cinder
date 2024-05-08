@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=808efb0b2702ab12ea55c67846d9159a45cc0bd7$
+// $hash=75c577ebbecd4471ec13ecec6020afa6e84e185c$
 //
 
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
@@ -45,7 +45,7 @@ size_t CEF_CALLBACK read_handler_read(struct _cef_read_handler_t* self,
 }
 
 int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
-                                   int64 offset,
+                                   int64_t offset,
                                    int whence) {
   shutdown_checker::AssertNotShutdown();
 
@@ -63,7 +63,7 @@ int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
   return _retval;
 }
 
-int64 CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
+int64_t CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -74,7 +74,7 @@ int64 CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
   }
 
   // Execute
-  int64 _retval = CefReadHandlerCppToC::Get(self)->Tell();
+  int64_t _retval = CefReadHandlerCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
@@ -136,7 +136,7 @@ template <>
 CefRefPtr<CefReadHandler>
 CefCppToCRefCounted<CefReadHandlerCppToC, CefReadHandler, cef_read_handler_t>::
     UnwrapDerived(CefWrapperType type, cef_read_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

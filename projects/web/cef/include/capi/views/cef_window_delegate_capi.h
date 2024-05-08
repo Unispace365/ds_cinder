@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=019abf16be4e151d31181a6bdcb1ad8dfef03d00$
+// $hash=e8c9e32caa8d317a7cb6ff2f0ad6be49cf1b7ad1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -97,6 +97,20 @@ typedef struct _cef_window_delegate_t {
       const cef_rect_t* new_bounds);
 
   ///
+  /// Called when |window| is transitioning to or from fullscreen mode. On MacOS
+  /// the transition occurs asynchronously with |is_competed| set to false (0)
+  /// when the transition starts and true (1) after the transition completes. On
+  /// other platforms the transition occurs synchronously with |is_completed|
+  /// set to true (1) after the transition completes. With the Alloy runtime you
+  /// must also implement cef_display_handler_t::OnFullscreenModeChange to
+  /// handle fullscreen transitions initiated by browser content.
+  ///
+  void(CEF_CALLBACK* on_window_fullscreen_transition)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int is_completed);
+
+  ///
   /// Return the parent for |window| or NULL if the |window| does not have a
   /// parent. Windows with parents will not get a taskbar button. Set |is_menu|
   /// to true (1) if |window| will be displayed as a menu, in which case it will
@@ -109,6 +123,18 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_t* window,
       int* is_menu,
       int* can_activate_menu);
+
+  ///
+  /// Return true (1) if |window| should be created as a window modal dialog.
+  /// Only called when a Window is returned via get_parent_window() with
+  /// |is_menu| set to false (0). All controls in the parent Window will be
+  /// disabled while |window| is visible. This functionality is not supported by
+  /// all Linux window managers. Alternately, use
+  /// cef_window_t::show_as_browser_modal_dialog() for a browser modal dialog
+  /// that works on all platforms.
+  ///
+  int(CEF_CALLBACK* is_window_modal_dialog)(struct _cef_window_delegate_t* self,
+                                            struct _cef_window_t* window);
 
   ///
   /// Return the initial bounds for |window| in density independent pixel (DIP)
@@ -136,6 +162,39 @@ typedef struct _cef_window_delegate_t {
   ///
   int(CEF_CALLBACK* is_frameless)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window);
+
+  ///
+  /// Return true (1) if |window| should be created with standard window buttons
+  /// like close, minimize and zoom. This function is only supported on macOS.
+  ///
+  int(CEF_CALLBACK* with_standard_window_buttons)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
+
+  ///
+  /// Return whether the titlebar height should be overridden, and sets the
+  /// height of the titlebar in |titlebar_height|. On macOS, it can also be used
+  /// to adjust the vertical position of the traffic light buttons in frameless
+  /// windows. The buttons will be positioned halfway down the titlebar at a
+  /// height of |titlebar_height| / 2.
+  ///
+  int(CEF_CALLBACK* get_titlebar_height)(struct _cef_window_delegate_t* self,
+                                         struct _cef_window_t* window,
+                                         float* titlebar_height);
+
+  ///
+  /// Return whether the view should accept the initial mouse-down event,
+  /// allowing it to respond to click-through behavior. If STATE_ENABLED is
+  /// returned, the view will be sent a mouseDown: message for an initial mouse-
+  /// down event, activating the view with one click, instead of clicking first
+  /// to make the window active and then clicking the view.
+  ///
+  /// This function is only supported on macOS. For more details, refer to the
+  /// documentation of acceptsFirstMouse.
+  ///
+  cef_state_t(CEF_CALLBACK* accepts_first_mouse)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
 
   ///
   /// Return true (1) if |window| can be resized.
@@ -179,6 +238,50 @@ typedef struct _cef_window_delegate_t {
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,
                                   const cef_key_event_t* event);
+
+  ///
+  /// Called after the native/OS or Chrome theme for |window| has changed.
+  /// |chrome_theme| will be true (1) if the notification is for a Chrome theme.
+  ///
+  /// Native/OS theme colors are configured globally and do not need to be
+  /// customized for each Window individually. An example of a native/OS theme
+  /// change that triggers this callback is when the user switches between dark
+  /// and light mode during application lifespan. Native/OS theme changes can be
+  /// disabled by passing the `--force-dark-mode` or `--force-light-mode`
+  /// command-line flag.
+  ///
+  /// Chrome theme colors will be applied and this callback will be triggered
+  /// if/when a BrowserView is added to the Window's component hierarchy. Chrome
+  /// theme colors can be configured on a per-RequestContext basis using
+  /// cef_request_context_t::SetChromeColorScheme or (Chrome runtime only) by
+  /// visiting chrome://settings/manageProfile. Any theme changes using those
+  /// mechanisms will also trigger this callback. Chrome theme colors will be
+  /// persisted and restored from disk cache with the Chrome runtime, and with
+  /// the Alloy runtime if persist_user_preferences is set to true (1) via
+  /// CefSettings or cef_request_context_tSettings.
+  ///
+  /// This callback is not triggered on Window creation so clients that wish to
+  /// customize the initial native/OS theme must call
+  /// cef_window_t::SetThemeColor and cef_window_t::ThemeChanged before showing
+  /// the first Window.
+  ///
+  /// Theme colors will be reset to standard values before this callback is
+  /// called for the first affected Window. Call cef_window_t::SetThemeColor
+  /// from inside this callback to override a standard color or add a custom
+  /// color. cef_view_delegate_t::OnThemeChanged will be called after this
+  /// callback for the complete |window| component hierarchy.
+  ///
+  void(CEF_CALLBACK* on_theme_colors_changed)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int chrome_theme);
+
+  ///
+  /// Optionally change the runtime style for this Window. See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_window_runtime_style)(
+      struct _cef_window_delegate_t* self);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

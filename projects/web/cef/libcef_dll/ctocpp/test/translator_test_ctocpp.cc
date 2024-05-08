@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af7948baa27d1ea9ad277f294014affb8bf3ba49$
+// $hash=d0ef4a40a0f4b30b492ff115dacc8b9248a78c22$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
@@ -1652,7 +1652,7 @@ cef_translator_test_t* CefCToCppRefCounted<
     CefTranslatorTest,
     cef_translator_test_t>::UnwrapDerived(CefWrapperType type,
                                           CefTranslatorTest* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

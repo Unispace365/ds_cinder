@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=598c6f530b2e2553197d8c6a72ad9e2bf72b5443$
+// $hash=76ba2e59636aa71c8c6286093198a1e64d012c62$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -126,8 +126,8 @@ typedef struct _cef_cookie_manager_t {
 /// cef_settings_t.cache_path if specified or in memory otherwise. If |callback|
 /// is non-NULL it will be executed asnychronously on the UI thread after the
 /// manager's storage has been initialized. Using this function is equivalent to
-/// calling cef_request_context_t::cef_request_context_get_global_context()->Get
-/// DefaultCookieManager().
+/// calling cef_request_context_t::cef_request_context_get_global_context()-
+/// >GetDefaultCookieManager().
 ///
 CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
     struct _cef_completion_callback_t* callback);

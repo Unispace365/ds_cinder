@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=91c121d4353a80d7fff3ef582c5a56ac86e0a34c$
+// $hash=6a8ed2646d767d3c42ea79f7586f19769c1df742$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
@@ -158,8 +158,8 @@ typedef struct _cef_urlrequest_client_t {
   ///
   void(CEF_CALLBACK* on_upload_progress)(struct _cef_urlrequest_client_t* self,
                                          struct _cef_urlrequest_t* request,
-                                         int64 current,
-                                         int64 total);
+                                         int64_t current,
+                                         int64_t total);
 
   ///
   /// Notifies the client of download progress. |current| denotes the number of
@@ -169,8 +169,8 @@ typedef struct _cef_urlrequest_client_t {
   void(CEF_CALLBACK* on_download_progress)(
       struct _cef_urlrequest_client_t* self,
       struct _cef_urlrequest_t* request,
-      int64 current,
-      int64 total);
+      int64_t current,
+      int64_t total);
 
   ///
   /// Called when some part of the response is read. |data| contains the current
