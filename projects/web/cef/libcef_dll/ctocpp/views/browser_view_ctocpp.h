@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3369ae36dfebd0283661566cf91fa57dbfec29e4$
+// $hash=a61b633e9b8e4156fd4cdcb778ad54e38106dc0d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -37,6 +37,7 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefView> GetChromeToolbar() override;
   void SetPreferAccelerators(bool prefer_accelerators) override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 
   // CefView methods.
   CefRefPtr<CefBrowserView> AsBrowserView() override;
@@ -83,6 +84,7 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
+  cef_color_t GetThemeColor(int color_id) override;
   bool ConvertPointToScreen(CefPoint& point) override;
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;

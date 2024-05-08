@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5737d6b536a99ac844904acaa8977c25476ed524$
+// $hash=56ccd4e409a0567c10ffcdebcb3ab932cdec6db3$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -306,7 +306,7 @@ CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<
     cef_render_process_handler_t>::UnwrapDerived(CefWrapperType type,
                                                  cef_render_process_handler_t*
                                                      s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

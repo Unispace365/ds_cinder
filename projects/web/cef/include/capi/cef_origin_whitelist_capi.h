@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b564dfe24017a0805e393854d12791a71c46c454$
+// $hash=f146fd9172033e77e90994841df9fa55ff71aa4b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
@@ -70,7 +70,7 @@ extern "C" {
 /// qualified |source_origin| URL (like http://www.example.com) will be allowed
 /// access to all resources hosted on the specified |target_protocol| and
 /// |target_domain|. If |target_domain| is non-NULL and
-/// |allow_target_subdomains| if false (0) only exact domain matches will be
+/// |allow_target_subdomains| is false (0) only exact domain matches will be
 /// allowed. If |target_domain| contains a top- level domain component (like
 /// "example.com") and |allow_target_subdomains| is true (1) sub-domain matches
 /// will be allowed. If |target_domain| is NULL and |allow_target_subdomains| if

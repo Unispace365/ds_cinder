@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78a2561a28bab409e06b44eaff38cac7e156bdf4$
+// $hash=28fb82efb43251449255e957b818bad7fe520728$
 //
 
 #include "libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.h"
@@ -184,7 +184,7 @@ CefCppToCRefCounted<CefDevToolsMessageObserverCppToC,
                     CefDevToolsMessageObserver,
                     cef_dev_tools_message_observer_t>::
     UnwrapDerived(CefWrapperType type, cef_dev_tools_message_observer_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

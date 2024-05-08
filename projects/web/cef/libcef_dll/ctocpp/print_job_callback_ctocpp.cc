@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6d7e2581786609dd5b472dd72dae47f26c1e7e7d$
+// $hash=95a30459a8c409beef0f72b5301b0ee655240126$
 //
 
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
@@ -47,7 +47,7 @@ cef_print_job_callback_t* CefCToCppRefCounted<
     CefPrintJobCallback,
     cef_print_job_callback_t>::UnwrapDerived(CefWrapperType type,
                                              CefPrintJobCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

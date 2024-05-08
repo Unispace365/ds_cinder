@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5a00cba2b704ea26cf404ca0aab08be98ce08154$
+// $hash=0b80e4860f8dc4ff4368c09a2a124e52438d5c94$
 //
 
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
@@ -103,7 +103,7 @@ resource_handler_process_request(struct _cef_resource_handler_t* self,
 void CEF_CALLBACK
 resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
                                       struct _cef_response_t* response,
-                                      int64* response_length,
+                                      int64_t* response_length,
                                       cef_string_t* redirectUrl) {
   shutdown_checker::AssertNotShutdown();
 
@@ -130,7 +130,7 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
   }
 
   // Translate param: response_length; type: simple_byref
-  int64 response_lengthVal = response_length ? *response_length : 0;
+  int64_t response_lengthVal = response_length ? *response_length : 0;
   // Translate param: redirectUrl; type: string_byref
   CefString redirectUrlStr(redirectUrl);
 
@@ -145,8 +145,8 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
 }
 
 int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
-                                       int64 bytes_to_skip,
-                                       int64* bytes_skipped,
+                                       int64_t bytes_to_skip,
+                                       int64_t* bytes_skipped,
                                        cef_resource_skip_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -168,7 +168,7 @@ int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
   }
 
   // Translate param: bytes_skipped; type: simple_byref
-  int64 bytes_skippedVal = bytes_skipped ? *bytes_skipped : 0;
+  int64_t bytes_skippedVal = bytes_skipped ? *bytes_skipped : 0;
 
   // Execute
   bool _retval = CefResourceHandlerCppToC::Get(self)->Skip(
@@ -318,7 +318,7 @@ CefRefPtr<CefResourceHandler> CefCppToCRefCounted<
     CefResourceHandler,
     cef_resource_handler_t>::UnwrapDerived(CefWrapperType type,
                                            cef_resource_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

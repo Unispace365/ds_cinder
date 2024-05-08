@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c55b3c940044e1ba8614366bc005404fb34f6cb1$
+// $hash=5bf30d95450936e08196c289f3c897634d89cd1a$
 //
 
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -92,7 +92,7 @@ NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsFormControlElement() {
 
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_form_control_element)) {
-    return false;
+    return DOM_NODE_TYPE_UNSUPPORTED;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -105,24 +105,22 @@ NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsFormControlElement() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefString CefDOMNodeCToCpp::GetFormControlElementType() {
+CefDOMNode::FormControlType CefDOMNodeCToCpp::GetFormControlElementType() {
   shutdown_checker::AssertNotShutdown();
 
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_form_control_element_type)) {
-    return CefString();
+    return DOM_FORM_CONTROL_TYPE_UNSUPPORTED;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval =
+  cef_dom_form_control_type_t _retval =
       _struct->get_form_control_element_type(_struct);
 
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")
@@ -552,7 +550,7 @@ cef_domnode_t*
 CefCToCppRefCounted<CefDOMNodeCToCpp, CefDOMNode, cef_domnode_t>::UnwrapDerived(
     CefWrapperType type,
     CefDOMNode* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

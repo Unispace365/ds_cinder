@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1b8f7f620685c30b91c8fa656e1a01d182684ae6$
+// $hash=f1ac6a6d5605078a38b7fa7e898619623eca6d51$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_VALUES_CAPI_H_
@@ -264,6 +264,12 @@ typedef struct _cef_binary_value_t {
   ///
   struct _cef_binary_value_t*(CEF_CALLBACK* copy)(
       struct _cef_binary_value_t* self);
+
+  ///
+  /// Returns a pointer to the beginning of the memory block. The returned
+  /// pointer is valid as long as the cef_binary_value_t is alive.
+  ///
+  const void*(CEF_CALLBACK* get_raw_data)(struct _cef_binary_value_t* self);
 
   ///
   /// Returns the data size.

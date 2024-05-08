@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=820d68c7a5b1ccc305da5f644b2875a5db6fabc9$
+// $hash=48d5bd712540c85c83360d4342acedd2412fcf30$
 //
 
 #include "libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h"
@@ -37,7 +37,7 @@ void CEF_CALLBACK media_sink_device_info_callback_on_media_sink_device_info(
     return;
   }
   if (!template_util::has_valid_size(device_info)) {
-    NOTREACHED() << "invalid device_info->[base.]size";
+    DCHECK(false) << "invalid device_info->[base.]size";
     return;
   }
 
@@ -74,7 +74,7 @@ CefCppToCRefCounted<CefMediaSinkDeviceInfoCallbackCppToC,
                     cef_media_sink_device_info_callback_t>::
     UnwrapDerived(CefWrapperType type,
                   cef_media_sink_device_info_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

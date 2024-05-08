@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=952c6b775c3954a28e87a4c15625dcfa14829ec4$
+// $hash=22439b9a3a1b58f756a1729b8fb0fdc8b008271f$
 //
 
 #include "libcef_dll/ctocpp/preference_registrar_ctocpp.h"
@@ -60,7 +60,7 @@ cef_preference_registrar_t* CefCToCppScoped<CefPreferenceRegistrarCToCpp,
                                             CefPreferenceRegistrar,
                                             cef_preference_registrar_t>::
     UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<CefPreferenceRegistrar> c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
@@ -69,7 +69,7 @@ cef_preference_registrar_t* CefCToCppScoped<CefPreferenceRegistrarCToCpp,
                                             CefPreferenceRegistrar,
                                             cef_preference_registrar_t>::
     UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<CefPreferenceRegistrar> c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

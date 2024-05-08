@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=bc44eb70b7f0b48e0646825e919cb9996ac99781$
+// $hash=c9b3913701581cd6a1077fa3a39d197f338a2507$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
@@ -66,7 +66,7 @@ typedef struct _cef_media_access_callback_t {
   /// OnRequestMediaAccessPermission.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_media_access_callback_t* self,
-                           uint32 allowed_permissions);
+                           uint32_t allowed_permissions);
 
   ///
   /// Cancel the media access request.
@@ -119,7 +119,7 @@ typedef struct _cef_permission_handler_t {
       struct _cef_browser_t* browser,
       struct _cef_frame_t* frame,
       const cef_string_t* requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       struct _cef_media_access_callback_t* callback);
 
   ///
@@ -136,9 +136,9 @@ typedef struct _cef_permission_handler_t {
   int(CEF_CALLBACK* on_show_permission_prompt)(
       struct _cef_permission_handler_t* self,
       struct _cef_browser_t* browser,
-      uint64 prompt_id,
+      uint64_t prompt_id,
       const cef_string_t* requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       struct _cef_permission_prompt_callback_t* callback);
 
   ///
@@ -153,7 +153,7 @@ typedef struct _cef_permission_handler_t {
   void(CEF_CALLBACK* on_dismiss_permission_prompt)(
       struct _cef_permission_handler_t* self,
       struct _cef_browser_t* browser,
-      uint64 prompt_id,
+      uint64_t prompt_id,
       cef_permission_request_result_t result);
 } cef_permission_handler_t;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6706f5bf43d926b749840fb27aa7931111f1a638$
+// $hash=15c0d95a3a8228b58f57e4350c5060ba7a1b41f3$
 //
 
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
@@ -39,7 +39,7 @@ int CEF_CALLBACK cookie_visitor_visit(struct _cef_cookie_visitor_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(cookie)) {
-    NOTREACHED() << "invalid cookie->[base.]size";
+    DCHECK(false) << "invalid cookie->[base.]size";
     return 0;
   }
   // Verify param: deleteCookie; type: bool_byref
@@ -89,7 +89,7 @@ CefRefPtr<CefCookieVisitor> CefCppToCRefCounted<
     CefCookieVisitor,
     cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
                                          cef_cookie_visitor_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

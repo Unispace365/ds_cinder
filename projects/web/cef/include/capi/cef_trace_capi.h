@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8d275bd73854b2b8d5a7a5bc55fa737e020705ee$
+// $hash=740d6eb5bea1bfc7c4ea413fefd3bf6586a81f20$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
@@ -80,8 +80,10 @@ typedef struct _cef_end_tracing_callback_t {
 /// have an optional '-' prefix to make it an excluded category. Having both
 /// included and excluded categories in the same list is not supported.
 ///
-/// Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" -
-/// "-excluded_category1,-excluded_category2"
+/// Examples:
+/// - "test_MyTest*"
+/// - "test_MyTest*,test_OtherStuff"
+/// - "-excluded_category1,-excluded_category2"
 ///
 /// This function must be called on the browser process UI thread.
 ///
@@ -109,7 +111,7 @@ CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
 /// high-res time. Can be used by clients to synchronize with the time
 /// information in trace events.
 ///
-CEF_EXPORT int64 cef_now_from_system_trace_time(void);
+CEF_EXPORT int64_t cef_now_from_system_trace_time(void);
 
 #ifdef __cplusplus
 }

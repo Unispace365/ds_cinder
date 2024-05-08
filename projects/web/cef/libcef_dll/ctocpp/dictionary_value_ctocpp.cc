@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1ff8df1cf72415529b26fe90318d43bfe07939f1$
+// $hash=b495bbe7a2721bdf22569007aa10183948819dc8$
 //
 
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
@@ -756,7 +756,7 @@ cef_dictionary_value_t* CefCToCppRefCounted<
     CefDictionaryValue,
     cef_dictionary_value_t>::UnwrapDerived(CefWrapperType type,
                                            CefDictionaryValue* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

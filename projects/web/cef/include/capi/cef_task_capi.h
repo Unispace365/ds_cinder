@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=273a6abfd4ac030701be00c45811c19e74e128bd$
+// $hash=d6055c4567fec4f3e9c72b0536812f40a97c0c3c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
@@ -114,7 +114,7 @@ typedef struct _cef_task_runner_t {
   ///
   int(CEF_CALLBACK* post_delayed_task)(struct _cef_task_runner_t* self,
                                        struct _cef_task_t* task,
-                                       int64 delay_ms);
+                                       int64_t delay_ms);
 } cef_task_runner_t;
 
 ///
@@ -149,7 +149,7 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, cef_task_t* task);
 ///
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
                                      cef_task_t* task,
-                                     int64 delay_ms);
+                                     int64_t delay_ms);
 
 #ifdef __cplusplus
 }

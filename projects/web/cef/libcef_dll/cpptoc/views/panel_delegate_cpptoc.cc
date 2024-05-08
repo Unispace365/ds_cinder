@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5738293c290214f784a22e3144475247cd4ee3b4$
+// $hash=cb2d1231eb279cea9a132af8bded03032307cb45$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
@@ -282,6 +282,28 @@ void CEF_CALLBACK panel_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+panel_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -299,6 +321,7 @@ CefPanelDelegateCppToC::CefPanelDelegateCppToC() {
   GetStruct()->base.on_layout_changed = panel_delegate_on_layout_changed;
   GetStruct()->base.on_focus = panel_delegate_on_focus;
   GetStruct()->base.on_blur = panel_delegate_on_blur;
+  GetStruct()->base.on_theme_changed = panel_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.
@@ -317,7 +340,7 @@ CefRefPtr<CefPanelDelegate> CefCppToCRefCounted<
     return CefWindowDelegateCppToC::Unwrap(
         reinterpret_cast<cef_window_delegate_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

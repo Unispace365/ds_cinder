@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77226fbe14eaa99f4adbf6573d6ee2a8687b936d$
+// $hash=bda6f1c15445d32a8f86b0c62724c01e6a014208$
 //
 
 #include "libcef_dll/cpptoc/media_observer_cpptoc.h"
@@ -159,7 +159,7 @@ CefRefPtr<CefMediaObserver> CefCppToCRefCounted<
     CefMediaObserver,
     cef_media_observer_t>::UnwrapDerived(CefWrapperType type,
                                          cef_media_observer_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

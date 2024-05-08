@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8db930f01e1f9ea8f170d55c5a9a6b0961f2a40e$
+// $hash=5a26f2bf1cc72b53b999645e9cef73b2f6483027$
 //
 
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -87,7 +87,7 @@ size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n) {
 }
 
 NO_SANITIZE("cfi-icall")
-int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
+int CefStreamWriterCToCpp::Seek(int64_t offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
@@ -104,7 +104,7 @@ int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64_t CefStreamWriterCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
@@ -115,7 +115,7 @@ NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->tell(_struct);
+  int64_t _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;
@@ -171,7 +171,7 @@ CefCToCppRefCounted<CefStreamWriterCToCpp,
                     CefStreamWriter,
                     cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
                                                         CefStreamWriter* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

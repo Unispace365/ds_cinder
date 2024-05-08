@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9262abf05b3c8486a7b8bb0488d8b59a667d6b44$
+// $hash=2a9862aaf02e64b32d50e31fd0e61e17007f53de$
 //
 
 #include "libcef_dll/ctocpp/permission_prompt_callback_ctocpp.h"
@@ -49,7 +49,7 @@ CefCToCppRefCounted<CefPermissionPromptCallbackCToCpp,
                     CefPermissionPromptCallback,
                     cef_permission_prompt_callback_t>::
     UnwrapDerived(CefWrapperType type, CefPermissionPromptCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -31,10 +31,14 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_H_
 #pragma once
 
-#include "include/base/cef_basictypes.h"
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"
+#include "include/internal/cef_types_content_settings.h"
 #include "include/internal/cef_types_geometry.h"
 
 // Bring in platform-specific definitions.
@@ -48,7 +52,7 @@
 
 // 32-bit ARGB color value, not premultiplied. The color components are always
 // in a known order. Equivalent to the SkColor type.
-typedef uint32 cef_color_t;
+typedef uint32_t cef_color_t;
 
 // Return the alpha byte from a cef_color_t value.
 #define CefColorGetA(color) (((color) >> 24) & 0xFF)
@@ -65,17 +69,18 @@ typedef uint32 cef_color_t;
       (static_cast<unsigned>(a) << 24) | (static_cast<unsigned>(r) << 16) | \
       (static_cast<unsigned>(g) << 8) | (static_cast<unsigned>(b) << 0))
 
-// Return an int64 value with the specified low and high int32 component values.
-#define CefInt64Set(int32_low, int32_high)                                \
-  static_cast<int64>((static_cast<uint32>(int32_low)) |                   \
-                     (static_cast<int64>(static_cast<int32>(int32_high))) \
-                         << 32)
+// Return an int64_t value with the specified low and high int32_t component
+// values.
+#define CefInt64Set(int32_low, int32_high) \
+  static_cast<int64_t>(                    \
+      (static_cast<uint32_t>(int32_low)) | \
+      (static_cast<int64_t>(static_cast<int32_t>(int32_high))) << 32)
 
-// Return the low int32 value from an int64 value.
-#define CefInt64GetLow(int64_val) static_cast<int32>(int64_val)
-// Return the high int32 value from an int64 value.
+// Return the low int32_t value from an int64_t value.
+#define CefInt64GetLow(int64_val) static_cast<int32_t>(int64_val)
+// Return the high int32_t value from an int64_t value.
 #define CefInt64GetHigh(int64_val) \
-  static_cast<int32>((static_cast<int64>(int64_val) >> 32) & 0xFFFFFFFFL)
+  static_cast<int32_t>((static_cast<int64_t>(int64_val) >> 32) & 0xFFFFFFFFL)
 
 #ifdef __cplusplus
 extern "C" {
@@ -126,6 +131,42 @@ typedef enum {
   ///
   LOGSEVERITY_DISABLE = 99
 } cef_log_severity_t;
+
+///
+/// Log items prepended to each log line.
+///
+typedef enum {
+  ///
+  /// Prepend the default list of items.
+  ///
+  LOG_ITEMS_DEFAULT = 0,
+
+  ///
+  /// Prepend no items.
+  ///
+  LOG_ITEMS_NONE = 1,
+
+  ///
+  /// Prepend the process ID.
+  ///
+  LOG_ITEMS_FLAG_PROCESS_ID = 1 << 1,
+
+  ///
+  /// Prepend the thread ID.
+  ///
+  LOG_ITEMS_FLAG_THREAD_ID = 1 << 2,
+
+  ///
+  /// Prepend the timestamp.
+  ///
+  LOG_ITEMS_FLAG_TIME_STAMP = 1 << 3,
+
+  ///
+  /// Prepend the tickcount.
+  ///
+  LOG_ITEMS_FLAG_TICK_COUNT = 1 << 4,
+
+} cef_log_items_t;
 
 ///
 /// Represents the state of a setting.
@@ -238,41 +279,48 @@ typedef struct _cef_settings_t {
   int command_line_args_disabled;
 
   ///
-  /// The location where data for the global browser cache will be stored on
+  /// The directory where data for the global browser cache will be stored on
   /// disk. If this value is non-empty then it must be an absolute path that is
   /// either equal to or a child directory of CefSettings.root_cache_path. If
   /// this value is empty then browsers will be created in "incognito mode"
-  /// where in-memory caches are used for storage and no data is persisted to
-  /// disk. HTML5 databases such as localStorage will only persist across
-  /// sessions if a cache path is specified. Can be overridden for individual
-  /// CefRequestContext instances via the CefRequestContextSettings.cache_path
-  /// value. When using the Chrome runtime the "default" profile will be used if
-  /// |cache_path| and |root_cache_path| have the same value.
+  /// where in-memory caches are used for storage and no profile-specific data
+  /// is persisted to disk (installation-specific data will still be persisted
+  /// in root_cache_path). HTML5 databases such as localStorage will only
+  /// persist across sessions if a cache path is specified. Can be overridden
+  /// for individual CefRequestContext instances via the
+  /// CefRequestContextSettings.cache_path value. When using the Chrome runtime
+  /// any child directory value will be ignored and the "default" profile (also
+  /// a child directory) will be used instead.
   ///
   cef_string_t cache_path;
 
   ///
-  /// The root directory that all CefSettings.cache_path and
-  /// CefRequestContextSettings.cache_path values must have in common. If this
-  /// value is empty and CefSettings.cache_path is non-empty then it will
-  /// default to the CefSettings.cache_path value. If this value is non-empty
-  /// then it must be an absolute path. Failure to set this value correctly may
-  /// result in the sandbox blocking read/write access to the cache_path
-  /// directory.
-  ///
-  cef_string_t root_cache_path;
-
-  ///
-  /// The location where user data such as the Widevine CDM module and spell
-  /// checking dictionary files will be stored on disk. If this value is empty
-  /// then the default platform-specific user data directory will be used
+  /// The root directory for installation-specific data and the parent directory
+  /// for profile-specific data. All CefSettings.cache_path and
+  /// CefRequestContextSettings.cache_path values must have this parent
+  /// directory in common. If this value is empty and CefSettings.cache_path is
+  /// non-empty then it will default to the CefSettings.cache_path value. Any
+  /// non-empty value must be an absolute path. If both values are empty then
+  /// the default platform-specific directory will be used
   /// ("~/.config/cef_user_data" directory on Linux, "~/Library/Application
   /// Support/CEF/User Data" directory on MacOS, "AppData\Local\CEF\User Data"
-  /// directory under the user profile directory on Windows). If this value is
-  /// non-empty then it must be an absolute path. When using the Chrome runtime
-  /// this value will be ignored in favor of the |root_cache_path| value.
+  /// directory under the user profile directory on Windows). Use of the default
+  /// directory is not recommended in production applications (see below).
   ///
-  cef_string_t user_data_path;
+  /// Multiple application instances writing to the same root_cache_path
+  /// directory could result in data corruption. A process singleton lock based
+  /// on the root_cache_path value is therefore used to protect against this.
+  /// This singleton behavior applies to all CEF-based applications using
+  /// version 120 or newer. You should customize root_cache_path for your
+  /// application and implement CefBrowserProcessHandler::
+  /// OnAlreadyRunningAppRelaunch, which will then be called on any app relaunch
+  /// with the same root_cache_path value.
+  ///
+  /// Failure to set the root_cache_path value correctly may result in startup
+  /// crashes or other unexpected behaviors (for example, the sandbox blocking
+  /// read/write access to certain files).
+  ///
+  cef_string_t root_cache_path;
 
   ///
   /// To persist session cookies (cookies without an expiry date or validity
@@ -340,6 +388,14 @@ typedef struct _cef_settings_t {
   cef_log_severity_t log_severity;
 
   ///
+  /// The log items prepended to each log line. If not set the default log items
+  /// will be used. Also configurable using the "log-items" command-line switch
+  /// with a value of "none" for no log items, or a comma-delimited list of
+  /// values "pid", "tid", "timestamp" or "tickcount" for custom log items.
+  ///
+  cef_log_items_t log_items;
+
+  ///
   /// Custom flags that will be used when initializing the V8 JavaScript engine.
   /// The consequences of using custom flags may not be well tested. Also
   /// configurable using the "js-flags" command-line switch.
@@ -377,10 +433,14 @@ typedef struct _cef_settings_t {
   ///
   /// Set to a value between 1024 and 65535 to enable remote debugging on the
   /// specified port. Also configurable using the "remote-debugging-port"
-  /// command-line switch. Remote debugging can be accessed by loading the
-  /// chrome://inspect page in Google Chrome. Port numbers 9222 and 9229 are
-  /// discoverable by default. Other port numbers may need to be configured via
-  /// "Discover network targets" on the Devices tab.
+  /// command-line switch. Specifying 0 via the command-line switch will result
+  /// in the selection of an ephemeral port and the port number will be printed
+  /// as part of the WebSocket endpoint URL to stderr. If a cache directory path
+  /// is provided the port will also be written to the
+  /// <cache-dir>/DevToolsActivePort file. Remote debugging can be accessed by
+  /// loading the chrome://inspect page in Google Chrome. Port numbers 9222 and
+  /// 9229 are discoverable by default. Other port numbers may need to be
+  /// configured via "Discover network targets" on the Devices tab.
   ///
   int remote_debugging_port;
 
@@ -408,10 +468,9 @@ typedef struct _cef_settings_t {
 
   ///
   /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. May be overridden on a
-  /// per-browser basis using the CefBrowserSettings.accept_language_list value.
-  /// If both values are empty then "en-US,en" will be used. Can be overridden
-  /// for individual CefRequestContext instances via the
+  /// will be used in the "Accept-Language" HTTP request header and
+  /// "navigator.language" JS attribute. Can be overridden for individual
+  /// CefRequestContext instances via the
   /// CefRequestContextSettings.accept_language_list value.
   ///
   cef_string_t accept_language_list;
@@ -429,6 +488,30 @@ typedef struct _cef_settings_t {
   ///
   cef_string_t cookieable_schemes_list;
   int cookieable_schemes_exclude_defaults;
+
+  ///
+  /// Specify an ID to enable Chrome policy management via Platform and OS-user
+  /// policies. On Windows, this is a registry key like
+  /// "SOFTWARE\\Policies\\Google\\Chrome". On MacOS, this is a bundle ID like
+  /// "com.google.Chrome". On Linux, this is an absolute directory path like
+  /// "/etc/opt/chrome/policies". Only supported with the Chrome runtime. See
+  /// https://support.google.com/chrome/a/answer/9037717 for details.
+  ///
+  /// Chrome Browser Cloud Management integration, when enabled via the
+  /// "enable-chrome-browser-cloud-management" command-line flag, will also use
+  /// the specified ID. See https://support.google.com/chrome/a/answer/9116814
+  /// for details.
+  ///
+  cef_string_t chrome_policy_id;
+
+  ///
+  /// Specify an ID for an ICON resource that can be loaded from the main
+  /// executable and used when creating default Chrome windows such as DevTools
+  /// and Task Manager. If unspecified the default Chromium ICON (IDR_MAINFRAME
+  /// [101]) will be loaded from libcef.dll. Only supported with the Chrome
+  /// runtime on Windows.
+  ///
+  int chrome_app_icon_id;
 } cef_settings_t;
 
 ///
@@ -442,14 +525,15 @@ typedef struct _cef_request_context_settings_t {
   size_t size;
 
   ///
-  /// The location where cache data for this request context will be stored on
+  /// The directory where cache data for this request context will be stored on
   /// disk. If this value is non-empty then it must be an absolute path that is
   /// either equal to or a child directory of CefSettings.root_cache_path. If
   /// this value is empty then browsers will be created in "incognito mode"
-  /// where in-memory caches are used for storage and no data is persisted to
-  /// disk. HTML5 databases such as localStorage will only persist across
-  /// sessions if a cache path is specified. To share the global browser cache
-  /// and related configuration set this value to match the
+  /// where in-memory caches are used for storage and no profile-specific data
+  /// is persisted to disk (installation-specific data will still be persisted
+  /// in root_cache_path). HTML5 databases such as localStorage will only
+  /// persist across sessions if a cache path is specified. To share the global
+  /// browser cache and related configuration set this value to match the
   /// CefSettings.cache_path value.
   ///
   cef_string_t cache_path;
@@ -474,11 +558,11 @@ typedef struct _cef_request_context_settings_t {
 
   ///
   /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. Can be set globally
-  /// using the CefSettings.accept_language_list value or overridden on a per-
-  /// browser basis using the CefBrowserSettings.accept_language_list value. If
-  /// all values are empty then "en-US,en" will be used. This value will be
-  /// ignored if |cache_path| matches the CefSettings.cache_path value.
+  /// will be used in the "Accept-Language" HTTP request header and
+  /// "navigator.language" JS attribute. Can be set globally using the
+  /// CefSettings.accept_language_list value. If all values are empty then
+  /// "en-US,en" will be used. This value will be ignored if |cache_path|
+  /// matches the CefSettings.cache_path value.
   ///
   cef_string_t accept_language_list;
 
@@ -633,19 +717,17 @@ typedef struct _cef_browser_settings_t {
   cef_color_t background_color;
 
   ///
-  /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. May be set globally
-  /// using the CefSettings.accept_language_list value. If both values are
-  /// empty then "en-US,en" will be used.
-  ///
-  cef_string_t accept_language_list;
-
-  ///
   /// Controls whether the Chrome status bubble will be used. Only supported
   /// with the Chrome runtime. For details about the status bubble see
   /// https://www.chromium.org/user-experience/status-bubble/
   ///
   cef_state_t chrome_status_bubble;
+
+  ///
+  /// Controls whether the Chrome zoom bubble will be shown when zooming. Only
+  /// supported with the Chrome runtime.
+  ///
+  cef_state_t chrome_zoom_bubble;
 } cef_browser_settings_t;
 
 ///
@@ -835,6 +917,16 @@ typedef enum {
   /// Out of memory. Some platforms may use TS_PROCESS_CRASHED instead.
   ///
   TS_PROCESS_OOM,
+
+  ///
+  /// Child process never launched.
+  ///
+  TS_LAUNCH_FAILED,
+
+  ///
+  /// On Windows, the OS terminated the process due to code integrity failure.
+  ///
+  TS_INTEGRITY_FAILURE,
 } cef_termination_status_t;
 
 ///
@@ -946,57 +1038,151 @@ typedef enum {
 } cef_cert_status_t;
 
 ///
+/// Process result codes. This is not a comprehensive list, as result codes
+/// might also include platform-specific crash values (Posix signal or Windows
+/// hardware exception), or internal-only implementation values.
+///
+typedef enum {
+  // The following values should be kept in sync with Chromium's
+  // content::ResultCode type.
+
+  CEF_RESULT_CODE_NORMAL_EXIT,
+
+  /// Process was killed by user or system.
+  CEF_RESULT_CODE_KILLED,
+
+  /// Process hung.
+  CEF_RESULT_CODE_HUNG,
+
+  /// A bad message caused the process termination.
+  CEF_RESULT_CODE_KILLED_BAD_MESSAGE,
+
+  /// The GPU process exited because initialization failed.
+  CEF_RESULT_CODE_GPU_DEAD_ON_ARRIVAL,
+
+  // The following values should be kept in sync with Chromium's
+  // chrome::ResultCode type. Unused chrome values are excluded.
+
+  CEF_RESULT_CODE_CHROME_FIRST,
+
+  /// A critical chrome file is missing.
+  CEF_RESULT_CODE_MISSING_DATA = 7,
+
+  /// Command line parameter is not supported.
+  CEF_RESULT_CODE_UNSUPPORTED_PARAM = 13,
+
+  /// The profile was in use on another host.
+  CEF_RESULT_CODE_PROFILE_IN_USE = 21,
+
+  /// Failed to pack an extension via the command line.
+  CEF_RESULT_CODE_PACK_EXTENSION_ERROR = 22,
+
+  /// The browser process exited early by passing the command line to another
+  /// running browser.
+  CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED = 24,
+
+  /// A browser process was sandboxed. This should never happen.
+  CEF_RESULT_CODE_INVALID_SANDBOX_STATE = 31,
+
+  /// Cloud policy enrollment failed or was given up by user.
+  CEF_RESULT_CODE_CLOUD_POLICY_ENROLLMENT_FAILED = 32,
+
+  /// The GPU process was terminated due to context lost.
+  CEF_RESULT_CODE_GPU_EXIT_ON_CONTEXT_LOST = 34,
+
+  /// An early startup command was executed and the browser must exit.
+  CEF_RESULT_CODE_NORMAL_EXIT_PACK_EXTENSION_SUCCESS = 36,
+
+  /// The browser process exited because system resources are exhausted. The
+  /// system state can't be recovered and will be unstable.
+  CEF_RESULT_CODE_SYSTEM_RESOURCE_EXHAUSTED = 37,
+
+  CEF_RESULT_CODE_CHROME_LAST = 39,
+
+  // The following values should be kept in sync with Chromium's
+  // sandbox::TerminationCodes type.
+
+  CEF_RESULT_CODE_SANDBOX_FATAL_FIRST = 7006,
+
+  /// Windows sandbox could not set the integrity level.
+  CEF_RESULT_CODE_SANDBOX_FATAL_INTEGRITY = CEF_RESULT_CODE_SANDBOX_FATAL_FIRST,
+
+  /// Windows sandbox could not lower the token.
+  CEF_RESULT_CODE_SANDBOX_FATAL_DROPTOKEN,
+
+  /// Windows sandbox failed to flush registry handles.
+  CEF_RESULT_CODE_SANDBOX_FATAL_FLUSHANDLES,
+
+  /// Windows sandbox failed to forbid HCKU caching.
+  CEF_RESULT_CODE_SANDBOX_FATAL_CACHEDISABLE,
+
+  /// Windows sandbox failed to close pending handles.
+  CEF_RESULT_CODE_SANDBOX_FATAL_CLOSEHANDLES,
+
+  /// Windows sandbox could not set the mitigation policy.
+  CEF_RESULT_CODE_SANDBOX_FATAL_MITIGATION,
+
+  /// Windows sandbox exceeded the job memory limit.
+  CEF_RESULT_CODE_SANDBOX_FATAL_MEMORY_EXCEEDED,
+
+  /// Windows sandbox failed to warmup.
+  CEF_RESULT_CODE_SANDBOX_FATAL_WARMUP,
+
+  CEF_RESULT_CODE_SANDBOX_FATAL_LAST,
+} cef_resultcode_t;
+
+///
 /// The manner in which a link click should be opened. These constants match
 /// their equivalents in Chromium's window_open_disposition.h and should not be
 /// renumbered.
 ///
 typedef enum {
-  WOD_UNKNOWN,
+  CEF_WOD_UNKNOWN,
 
   ///
   /// Current tab. This is the default in most cases.
   ///
-  WOD_CURRENT_TAB,
+  CEF_WOD_CURRENT_TAB,
 
   ///
   /// Indicates that only one tab with the url should exist in the same window.
   ///
-  WOD_SINGLETON_TAB,
+  CEF_WOD_SINGLETON_TAB,
 
   ///
   /// Shift key + Middle mouse button or meta/ctrl key while clicking.
   ///
-  WOD_NEW_FOREGROUND_TAB,
+  CEF_WOD_NEW_FOREGROUND_TAB,
 
   ///
   /// Middle mouse button or meta/ctrl key while clicking.
   ///
-  WOD_NEW_BACKGROUND_TAB,
+  CEF_WOD_NEW_BACKGROUND_TAB,
 
   ///
   /// New popup window.
   ///
-  WOD_NEW_POPUP,
+  CEF_WOD_NEW_POPUP,
 
   ///
   /// Shift key while clicking.
   ///
-  WOD_NEW_WINDOW,
+  CEF_WOD_NEW_WINDOW,
 
   ///
   /// Alt key while clicking.
   ///
-  WOD_SAVE_TO_DISK,
+  CEF_WOD_SAVE_TO_DISK,
 
   ///
   /// New off-the-record (incognito) window.
   ///
-  WOD_OFF_THE_RECORD,
+  CEF_WOD_OFF_THE_RECORD,
 
   ///
   /// Special case error condition from the renderer.
   ///
-  WOD_IGNORE_ACTION,
+  CEF_WOD_IGNORE_ACTION,
 
   ///
   /// Activates an existing tab containing the url, rather than navigating.
@@ -1006,12 +1192,14 @@ typedef enum {
   /// no session history; and behaves like CURRENT_TAB instead of
   /// NEW_FOREGROUND_TAB when no existing tab is found.
   ///
-  WOD_SWITCH_TO_TAB,
+  CEF_WOD_SWITCH_TO_TAB,
 
   ///
   /// Creates a new document picture-in-picture window showing a child WebView.
   ///
-  WOD_NEW_PICTURE_IN_PICTURE,
+  CEF_WOD_NEW_PICTURE_IN_PICTURE,
+
+  CEF_WOD_MAX_VALUE = CEF_WOD_NEW_PICTURE_IN_PICTURE,
 } cef_window_open_disposition_t;
 
 ///
@@ -1778,7 +1966,7 @@ typedef struct _cef_mouse_event_t {
   /// Bit flags describing any pressed modifier keys. See
   /// cef_event_flags_t for values.
   ///
-  uint32 modifiers;
+  uint32_t modifiers;
 } cef_mouse_event_t;
 
 ///
@@ -1856,7 +2044,7 @@ typedef struct _cef_touch_event_t {
   /// Bit flags describing any pressed modifier keys. See
   /// cef_event_flags_t for values.
   ///
-  uint32 modifiers;
+  uint32_t modifiers;
 
   ///
   /// The device type that caused the event.
@@ -2069,7 +2257,7 @@ typedef struct _cef_key_event_t {
   /// Bit flags describing any pressed modifier keys. See
   /// cef_event_flags_t for values.
   ///
-  uint32 modifiers;
+  uint32_t modifiers;
 
   ///
   /// The Windows key code for the key event. This value is used by the DOM
@@ -2094,13 +2282,13 @@ typedef struct _cef_key_event_t {
   ///
   /// The character generated by the keystroke.
   ///
-  char16 character;
+  char16_t character;
 
   ///
   /// Same as |character| but unmodified by any concurrently-held modifiers
   /// (except shift). This is useful for working out shortcut keys.
   ///
-  char16 unmodified_character;
+  char16_t unmodified_character;
 
   ///
   /// True if the focus is currently on an editable field on the page. This is
@@ -2241,6 +2429,47 @@ typedef enum {
   DOM_NODE_TYPE_DOCUMENT_TYPE,
   DOM_NODE_TYPE_DOCUMENT_FRAGMENT,
 } cef_dom_node_type_t;
+
+///
+/// DOM form control types. Should be kept in sync with Chromium's
+/// blink::mojom::FormControlType type.
+///
+typedef enum {
+  DOM_FORM_CONTROL_TYPE_UNSUPPORTED = 0,
+  DOM_FORM_CONTROL_TYPE_BUTTON_BUTTON,
+  DOM_FORM_CONTROL_TYPE_BUTTON_SUBMIT,
+  DOM_FORM_CONTROL_TYPE_BUTTON_RESET,
+  DOM_FORM_CONTROL_TYPE_BUTTON_SELECT_LIST,
+  DOM_FORM_CONTROL_TYPE_BUTTON_POPOVER,
+  DOM_FORM_CONTROL_TYPE_FIELDSET,
+  DOM_FORM_CONTROL_TYPE_INPUT_BUTTON,
+  DOM_FORM_CONTROL_TYPE_INPUT_CHECKBOX,
+  DOM_FORM_CONTROL_TYPE_INPUT_COLOR,
+  DOM_FORM_CONTROL_TYPE_INPUT_DATE,
+  DOM_FORM_CONTROL_TYPE_INPUT_DATETIME_LOCAL,
+  DOM_FORM_CONTROL_TYPE_INPUT_EMAIL,
+  DOM_FORM_CONTROL_TYPE_INPUT_FILE,
+  DOM_FORM_CONTROL_TYPE_INPUT_HIDDEN,
+  DOM_FORM_CONTROL_TYPE_INPUT_IMAGE,
+  DOM_FORM_CONTROL_TYPE_INPUT_MONTH,
+  DOM_FORM_CONTROL_TYPE_INPUT_NUMBER,
+  DOM_FORM_CONTROL_TYPE_INPUT_PASSWORD,
+  DOM_FORM_CONTROL_TYPE_INPUT_RADIO,
+  DOM_FORM_CONTROL_TYPE_INPUT_RANGE,
+  DOM_FORM_CONTROL_TYPE_INPUT_RESET,
+  DOM_FORM_CONTROL_TYPE_INPUT_SEARCH,
+  DOM_FORM_CONTROL_TYPE_INPUT_SUBMIT,
+  DOM_FORM_CONTROL_TYPE_INPUT_TELEPHONE,
+  DOM_FORM_CONTROL_TYPE_INPUT_TEXT,
+  DOM_FORM_CONTROL_TYPE_INPUT_TIME,
+  DOM_FORM_CONTROL_TYPE_INPUT_URL,
+  DOM_FORM_CONTROL_TYPE_INPUT_WEEK,
+  DOM_FORM_CONTROL_TYPE_OUTPUT,
+  DOM_FORM_CONTROL_TYPE_SELECT_ONE,
+  DOM_FORM_CONTROL_TYPE_SELECT_MULTIPLE,
+  DOM_FORM_CONTROL_TYPE_SELECT_LIST,
+  DOM_FORM_CONTROL_TYPE_TEXT_AREA,
+} cef_dom_form_control_type_t;
 
 ///
 /// Supported file dialog modes.
@@ -2583,6 +2812,16 @@ typedef struct _cef_pdf_print_settings_t {
   /// |header_template|.
   ///
   cef_string_t footer_template;
+
+  ///
+  /// Set to true (1) to generate tagged (accessible) PDF.
+  ///
+  int generate_tagged_pdf;
+
+  ///
+  /// Set to true (1) to generate a document outline.
+  ///
+  int generate_document_outline;
 } cef_pdf_print_settings_t;
 
 ///
@@ -2687,21 +2926,6 @@ typedef enum {
 } cef_response_filter_status_t;
 
 ///
-/// Describes how to interpret the components of a pixel.
-///
-typedef enum {
-  ///
-  /// RGBA with 8 bits per pixel (32bits total).
-  ///
-  CEF_COLOR_TYPE_RGBA_8888,
-
-  ///
-  /// BGRA with 8 bits per pixel (32bits total).
-  ///
-  CEF_COLOR_TYPE_BGRA_8888,
-} cef_color_type_t;
-
-///
 /// Describes how to interpret the alpha component of a pixel.
 ///
 typedef enum {
@@ -2733,51 +2957,22 @@ typedef enum {
 } cef_text_style_t;
 
 ///
-/// Specifies where along the main axis the CefBoxLayout child views should be
-/// laid out.
+/// Specifies where along the axis the CefBoxLayout child views should be laid
+/// out. Should be kept in sync with Chromium's views::LayoutAlignment type.
 ///
 typedef enum {
-  ///
-  /// Child views will be left-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_START,
+  /// Child views will be left/top-aligned.
+  CEF_AXIS_ALIGNMENT_START,
 
-  ///
   /// Child views will be center-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_CENTER,
+  CEF_AXIS_ALIGNMENT_CENTER,
 
-  ///
-  /// Child views will be right-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_END,
-} cef_main_axis_alignment_t;
+  /// Child views will be right/bottom-aligned.
+  CEF_AXIS_ALIGNMENT_END,
 
-///
-/// Specifies where along the cross axis the CefBoxLayout child views should be
-/// laid out.
-///
-typedef enum {
-  ///
   /// Child views will be stretched to fit.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_STRETCH,
-
-  ///
-  /// Child views will be left-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_START,
-
-  ///
-  /// Child views will be center-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_CENTER,
-
-  ///
-  /// Child views will be right-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_END,
-} cef_cross_axis_alignment_t;
+  CEF_AXIS_ALIGNMENT_STRETCH,
+} cef_axis_alignment_t;
 
 ///
 /// Settings used when initializing a CefBoxLayout.
@@ -2814,12 +3009,12 @@ typedef struct _cef_box_layout_settings_t {
   ///
   /// Specifies where along the main axis the child views should be laid out.
   ///
-  cef_main_axis_alignment_t main_axis_alignment;
+  cef_axis_alignment_t main_axis_alignment;
 
   ///
   /// Specifies where along the cross axis the child views should be laid out.
   ///
-  cef_cross_axis_alignment_t cross_axis_alignment;
+  cef_axis_alignment_t cross_axis_alignment;
 
   ///
   /// Minimum cross axis size.
@@ -3000,8 +3195,8 @@ typedef enum {
 /// Structure representing a range.
 ///
 typedef struct _cef_range_t {
-  int from;
-  int to;
+  uint32_t from;
+  uint32_t to;
 } cef_range_t;
 
 ///
@@ -3088,64 +3283,65 @@ typedef enum {
   /// Front L, Front R, Front C, LFE, Back L, Back R
   CEF_CHANNEL_LAYOUT_5_1_BACK = 12,
 
-  /// Front L, Front R, Front C, Side L, Side R, Back L, Back R
+  /// Front L, Front R, Front C, Back L, Back R, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_0 = 13,
 
-  /// Front L, Front R, Front C, LFE, Side L, Side R, Back L, Back R
+  /// Front L, Front R, Front C, LFE, Back L, Back R, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_1 = 14,
 
-  /// Front L, Front R, Front C, LFE, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front C, LFE, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_1_WIDE = 15,
 
-  /// Stereo L, Stereo R
+  /// Front L, Front R
   CEF_CHANNEL_LAYOUT_STEREO_DOWNMIX = 16,
 
-  /// Stereo L, Stereo R, LFE
+  /// Front L, Front R, LFE
   CEF_CHANNEL_LAYOUT_2POINT1 = 17,
 
-  /// Stereo L, Stereo R, Front C, LFE
+  /// Front L, Front R, Front C, LFE
   CEF_CHANNEL_LAYOUT_3_1 = 18,
 
-  /// Stereo L, Stereo R, Front C, Rear C, LFE
+  /// Front L, Front R, Front C, LFE, Back C
   CEF_CHANNEL_LAYOUT_4_1 = 19,
 
-  /// Stereo L, Stereo R, Front C, Side L, Side R, Back C
+  /// Front L, Front R, Front C, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_0 = 20,
 
-  /// Stereo L, Stereo R, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_0_FRONT = 21,
 
-  /// Stereo L, Stereo R, Front C, Rear L, Rear R, Rear C
+  /// Front L, Front R, Front C, Back L, Back R, Back C
   CEF_CHANNEL_LAYOUT_HEXAGONAL = 22,
 
-  /// Stereo L, Stereo R, Front C, LFE, Side L, Side R, Rear Center
+  /// Front L, Front R, Front C, LFE, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_1 = 23,
 
-  /// Stereo L, Stereo R, Front C, LFE, Back L, Back R, Rear Center
+  /// Front L, Front R, Front C, LFE, Back L, Back R, Back C
   CEF_CHANNEL_LAYOUT_6_1_BACK = 24,
 
-  /// Stereo L, Stereo R, Side L, Side R, Front LofC, Front RofC, LFE
+  /// Front L, Front R, LFE, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_1_FRONT = 25,
 
-  /// Front L, Front R, Front C, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front C, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_0_FRONT = 26,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R, Front LofC, Front RofC
   CEF_CHANNEL_LAYOUT_7_1_WIDE_BACK = 27,
 
-  /// Front L, Front R, Front C, Side L, Side R, Rear L, Back R, Back C.
+  /// Front L, Front R, Front C, Back L, Back R, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_OCTAGONAL = 28,
 
   /// Channels are not explicitly mapped to speakers.
   CEF_CHANNEL_LAYOUT_DISCRETE = 29,
 
+  /// Deprecated, but keeping the enum value for UMA consistency.
   /// Front L, Front R, Front C. Front C contains the keyboard mic audio. This
   /// layout is only intended for input for WebRTC. The Front C channel
   /// is stripped away in the WebRTC audio input pipeline and never seen outside
   /// of that.
   CEF_CHANNEL_LAYOUT_STEREO_AND_KEYBOARD_MIC = 30,
 
-  /// Front L, Front R, Side L, Side R, LFE
+  /// Front L, Front R, LFE, Side L, Side R
   CEF_CHANNEL_LAYOUT_4_1_QUAD_SIDE = 31,
 
   /// Actual channel layout is specified in the bitstream and the actual channel
@@ -3159,8 +3355,14 @@ typedef enum {
   /// kMaxConcurrentChannels
   CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX = 33,
 
+  /// Front C, LFE
+  CEF_CHANNEL_LAYOUT_1_1 = 34,
+
+  /// Front L, Front R, LFE, Back C
+  CEF_CHANNEL_LAYOUT_3_1_BACK = 35,
+
   /// Max value, must always equal the largest entry ever logged.
-  CEF_CHANNEL_LAYOUT_MAX = CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX
+  CEF_CHANNEL_LAYOUT_MAX = CEF_CHANNEL_LAYOUT_3_1_BACK
 } cef_channel_layout_t;
 
 ///
@@ -3251,13 +3453,61 @@ typedef enum {
 } cef_text_field_commands_t;
 
 ///
-/// Supported Chrome toolbar types.
+/// Chrome toolbar types.
 ///
 typedef enum {
   CEF_CTT_NONE = 1,
   CEF_CTT_NORMAL,
   CEF_CTT_LOCATION,
 } cef_chrome_toolbar_type_t;
+
+///
+/// Chrome page action icon types. Should be kept in sync with Chromium's
+/// PageActionIconType type.
+///
+typedef enum {
+  CEF_CPAIT_BOOKMARK_STAR = 0,
+  CEF_CPAIT_CLICK_TO_CALL,
+  CEF_CPAIT_COOKIE_CONTROLS,
+  CEF_CPAIT_FILE_SYSTEM_ACCESS,
+  CEF_CPAIT_FIND,
+  CEF_CPAIT_HIGH_EFFICIENCY,
+  CEF_CPAIT_INTENT_PICKER,
+  CEF_CPAIT_LOCAL_CARD_MIGRATION,
+  CEF_CPAIT_MANAGE_PASSWORDS,
+  CEF_CPAIT_PAYMENTS_OFFER_NOTIFICATION,
+  CEF_CPAIT_PRICE_TRACKING,
+  CEF_CPAIT_PWA_INSTALL,
+  CEF_CPAIT_QR_CODE_GENERATOR,
+  CEF_CPAIT_READER_MODE,
+  CEF_CPAIT_SAVE_AUTOFILL_ADDRESS,
+  CEF_CPAIT_SAVE_CARD,
+  CEF_CPAIT_SEND_TAB_TO_SELF,
+  CEF_CPAIT_SHARING_HUB,
+  CEF_CPAIT_SIDE_SEARCH,
+  CEF_CPAIT_SMS_REMOTE_FETCHER,
+  CEF_CPAIT_TRANSLATE,
+  CEF_CPAIT_VIRTUAL_CARD_ENROLL,
+  CEF_CPAIT_VIRTUAL_CARD_MANUAL_FALLBACK,
+  CEF_CPAIT_ZOOM,
+  CEF_CPAIT_SAVE_IBAN,
+  CEF_CPAIT_MANDATORY_REAUTH,
+  CEF_CPAIT_PRICE_INSIGHTS,
+  CEF_CPAIT_PRICE_READ_ANYTHING,
+  CEF_CPAIT_MAX_VALUE = CEF_CPAIT_PRICE_READ_ANYTHING,
+} cef_chrome_page_action_icon_type_t;
+
+///
+/// Chrome toolbar button types. Should be kept in sync with CEF's internal
+/// ToolbarButtonType type.
+///
+typedef enum {
+  CEF_CTBT_CAST = 0,
+  CEF_CTBT_DOWNLOAD,
+  CEF_CTBT_SEND_TAB_TO_SELF,
+  CEF_CTBT_SIDE_PANEL,
+  CEF_CTBT_MAX_VALUE = CEF_CTBT_SIDE_PANEL,
+} cef_chrome_toolbar_button_type_t;
 
 ///
 /// Docking modes supported by CefWindow::AddOverlay.
@@ -3274,10 +3524,21 @@ typedef enum {
 /// Show states supported by CefWindowDelegate::GetInitialShowState.
 ///
 typedef enum {
+  // Show the window as normal.
   CEF_SHOW_STATE_NORMAL = 1,
+
+  // Show the window as minimized.
   CEF_SHOW_STATE_MINIMIZED,
+
+  // Show the window as maximized.
   CEF_SHOW_STATE_MAXIMIZED,
+
+  // Show the window as fullscreen.
   CEF_SHOW_STATE_FULLSCREEN,
+
+  // Show the window as hidden (no dock thumbnail).
+  // Only supported on MacOS.
+  CEF_SHOW_STATE_HIDDEN,
 } cef_show_state_t;
 
 ///
@@ -3301,7 +3562,7 @@ typedef struct _cef_touch_handle_state_t {
   /// Combination of cef_touch_handle_state_flags_t values indicating what state
   /// is set.
   ///
-  uint32 flags;
+  uint32_t flags;
 
   ///
   /// Enabled state. Only set if |flags| contains CEF_THS_FLAG_ENABLED.
@@ -3367,22 +3628,24 @@ typedef enum {
   CEF_PERMISSION_TYPE_AR_SESSION = 1 << 1,
   CEF_PERMISSION_TYPE_CAMERA_PAN_TILT_ZOOM = 1 << 2,
   CEF_PERMISSION_TYPE_CAMERA_STREAM = 1 << 3,
-  CEF_PERMISSION_TYPE_CLIPBOARD = 1 << 4,
-  CEF_PERMISSION_TYPE_DISK_QUOTA = 1 << 5,
-  CEF_PERMISSION_TYPE_LOCAL_FONTS = 1 << 6,
-  CEF_PERMISSION_TYPE_GEOLOCATION = 1 << 7,
-  CEF_PERMISSION_TYPE_IDLE_DETECTION = 1 << 8,
-  CEF_PERMISSION_TYPE_MIC_STREAM = 1 << 9,
-  CEF_PERMISSION_TYPE_MIDI_SYSEX = 1 << 10,
-  CEF_PERMISSION_TYPE_MULTIPLE_DOWNLOADS = 1 << 11,
-  CEF_PERMISSION_TYPE_NOTIFICATIONS = 1 << 12,
-  CEF_PERMISSION_TYPE_PROTECTED_MEDIA_IDENTIFIER = 1 << 13,
-  CEF_PERMISSION_TYPE_REGISTER_PROTOCOL_HANDLER = 1 << 14,
-  CEF_PERMISSION_TYPE_SECURITY_ATTESTATION = 1 << 15,
-  CEF_PERMISSION_TYPE_STORAGE_ACCESS = 1 << 16,
-  CEF_PERMISSION_TYPE_U2F_API_REQUEST = 1 << 17,
-  CEF_PERMISSION_TYPE_VR_SESSION = 1 << 18,
-  CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT = 1 << 19,
+  CEF_PERMISSION_TYPE_CAPTURED_SURFACE_CONTROL = 1 << 4,
+  CEF_PERMISSION_TYPE_CLIPBOARD = 1 << 5,
+  CEF_PERMISSION_TYPE_TOP_LEVEL_STORAGE_ACCESS = 1 << 6,
+  CEF_PERMISSION_TYPE_DISK_QUOTA = 1 << 7,
+  CEF_PERMISSION_TYPE_LOCAL_FONTS = 1 << 8,
+  CEF_PERMISSION_TYPE_GEOLOCATION = 1 << 9,
+  CEF_PERMISSION_TYPE_IDENTITY_PROVIDER = 1 << 10,
+  CEF_PERMISSION_TYPE_IDLE_DETECTION = 1 << 11,
+  CEF_PERMISSION_TYPE_MIC_STREAM = 1 << 12,
+  CEF_PERMISSION_TYPE_MIDI_SYSEX = 1 << 13,
+  CEF_PERMISSION_TYPE_MULTIPLE_DOWNLOADS = 1 << 14,
+  CEF_PERMISSION_TYPE_NOTIFICATIONS = 1 << 15,
+  CEF_PERMISSION_TYPE_PROTECTED_MEDIA_IDENTIFIER = 1 << 16,
+  CEF_PERMISSION_TYPE_REGISTER_PROTOCOL_HANDLER = 1 << 17,
+  CEF_PERMISSION_TYPE_STORAGE_ACCESS = 1 << 18,
+  CEF_PERMISSION_TYPE_VR_SESSION = 1 << 19,
+  CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT = 1 << 20,
+  CEF_PERMISSION_TYPE_FILE_SYSTEM_ACCESS = 1 << 21,
 } cef_permission_request_types_t;
 
 ///
@@ -3441,6 +3704,154 @@ typedef enum {
   /// is created.
   CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
 } cef_preferences_type_t;
+
+///
+/// Download interrupt reasons. Should be kept in sync with
+/// Chromium's download::DownloadInterruptReason type.
+///
+typedef enum {
+  CEF_DOWNLOAD_INTERRUPT_REASON_NONE = 0,
+
+  /// Generic file operation failure.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_FAILED = 1,
+
+  /// The file cannot be accessed due to security restrictions.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_ACCESS_DENIED = 2,
+
+  /// There is not enough room on the drive.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_NO_SPACE = 3,
+
+  /// The directory or file name is too long.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_NAME_TOO_LONG = 5,
+
+  /// The file is too large for the file system to handle.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TOO_LARGE = 6,
+
+  /// The file contains a virus.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_VIRUS_INFECTED = 7,
+
+  /// The file was in use. Too many files are opened at once. We have run out of
+  /// memory.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TRANSIENT_ERROR = 10,
+
+  /// The file was blocked due to local policy.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_BLOCKED = 11,
+
+  /// An attempt to check the safety of the download failed due to unexpected
+  /// reasons. See http://crbug.com/153212.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_SECURITY_CHECK_FAILED = 12,
+
+  /// An attempt was made to seek past the end of a file in opening
+  /// a file (as part of resuming a previously interrupted download).
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TOO_SHORT = 13,
+
+  /// The partial file didn't match the expected hash.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_HASH_MISMATCH = 14,
+
+  /// The source and the target of the download were the same.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_SAME_AS_SOURCE = 15,
+
+  // Network errors.
+
+  /// Generic network failure.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_FAILED = 20,
+
+  /// The network operation timed out.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_TIMEOUT = 21,
+
+  /// The network connection has been lost.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_DISCONNECTED = 22,
+
+  /// The server has gone down.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_SERVER_DOWN = 23,
+
+  /// The network request was invalid. This may be due to the original URL or a
+  /// redirected URL:
+  /// - Having an unsupported scheme.
+  /// - Being an invalid URL.
+  /// - Being disallowed by policy.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_INVALID_REQUEST = 24,
+
+  // Server responses.
+
+  /// The server indicates that the operation has failed (generic).
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_FAILED = 30,
+
+  /// The server does not support range requests.
+  /// Internal use only:  must restart from the beginning.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_NO_RANGE = 31,
+
+  /// The server does not have the requested data.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_BAD_CONTENT = 33,
+
+  /// Server didn't authorize access to resource.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_UNAUTHORIZED = 34,
+
+  /// Server certificate problem.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CERT_PROBLEM = 35,
+
+  /// Server access forbidden.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_FORBIDDEN = 36,
+
+  /// Unexpected server response. This might indicate that the responding server
+  /// may not be the intended server.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_UNREACHABLE = 37,
+
+  /// The server sent fewer bytes than the content-length header. It may
+  /// indicate that the connection was closed prematurely, or the Content-Length
+  /// header was invalid. The download is only interrupted if strong validators
+  /// are present. Otherwise, it is treated as finished.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CONTENT_LENGTH_MISMATCH = 38,
+
+  /// An unexpected cross-origin redirect happened.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CROSS_ORIGIN_REDIRECT = 39,
+
+  // User input.
+
+  /// The user canceled the download.
+  CEF_DOWNLOAD_INTERRUPT_REASON_USER_CANCELED = 40,
+
+  /// The user shut down the browser.
+  /// Internal use only:  resume pending downloads if possible.
+  CEF_DOWNLOAD_INTERRUPT_REASON_USER_SHUTDOWN = 41,
+
+  // Crash.
+
+  /// The browser crashed.
+  /// Internal use only:  resume pending downloads if possible.
+  CEF_DOWNLOAD_INTERRUPT_REASON_CRASH = 50,
+} cef_download_interrupt_reason_t;
+
+///
+/// Specifies the gesture commands.
+///
+typedef enum {
+  CEF_GESTURE_COMMAND_BACK,
+  CEF_GESTURE_COMMAND_FORWARD,
+} cef_gesture_command_t;
+
+///
+/// Specifies the zoom commands supported by CefBrowserHost::Zoom.
+///
+typedef enum {
+  CEF_ZOOM_COMMAND_OUT,
+  CEF_ZOOM_COMMAND_RESET,
+  CEF_ZOOM_COMMAND_IN,
+} cef_zoom_command_t;
+
+///
+/// Specifies the color variants supported by
+/// CefRequestContext::SetChromeThemeColor.
+///
+typedef enum {
+  CEF_COLOR_VARIANT_SYSTEM,
+  CEF_COLOR_VARIANT_LIGHT,
+  CEF_COLOR_VARIANT_DARK,
+  CEF_COLOR_VARIANT_TONAL_SPOT,
+  CEF_COLOR_VARIANT_NEUTRAL,
+  CEF_COLOR_VARIANT_VIBRANT,
+  CEF_COLOR_VARIANT_EXPRESSIVE,
+} cef_color_variant_t;
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=46ea8d3dc2d9f2c1f430eb15fecc16768e6adb6a$
+// $hash=fb10148445f36dc1712cf760b9754911bbbcdf13$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -315,7 +315,7 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
                                     cef_paint_element_type_t type,
                                     size_t dirtyRectsCount,
                                     cef_rect_t const* dirtyRects,
-                                    void* shared_handle) {
+                                    const cef_accelerated_paint_info_t* info) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -334,9 +334,9 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
   if (dirtyRectsCount > 0 && !dirtyRects) {
     return;
   }
-  // Verify param: shared_handle; type: simple_byaddr
-  DCHECK(shared_handle);
-  if (!shared_handle) {
+  // Verify param: info; type: simple_byref_const
+  DCHECK(info);
+  if (!info) {
     return;
   }
 
@@ -348,10 +348,12 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
       dirtyRectsList.push_back(dirtyRectsVal);
     }
   }
+  // Translate param: info; type: simple_byref_const
+  CefAcceleratedPaintInfo infoVal = info ? *info : CefAcceleratedPaintInfo();
 
   // Execute
   CefRenderHandlerCppToC::Get(self)->OnAcceleratedPaint(
-      CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, shared_handle);
+      CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, infoVal);
 }
 
 void CEF_CALLBACK
@@ -644,7 +646,7 @@ CefRefPtr<CefRenderHandler> CefCppToCRefCounted<
     CefRenderHandler,
     cef_render_handler_t>::UnwrapDerived(CefWrapperType type,
                                          cef_render_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

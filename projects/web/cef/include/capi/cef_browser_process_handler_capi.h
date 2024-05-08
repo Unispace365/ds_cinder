@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4ef8b73a5218531b370fdd76c23153a1f83b7f7b$
+// $hash=d958d5bed7f909f6313facef3440fb8ba07a5c01$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -44,6 +44,7 @@
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_command_line_capi.h"
 #include "include/capi/cef_preference_capi.h"
+#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -107,6 +108,29 @@ typedef struct _cef_browser_process_handler_t {
       struct _cef_command_line_t* command_line);
 
   ///
+  /// Implement this function to provide app-specific behavior when an already
+  /// running app is relaunched with the same CefSettings.root_cache_path value.
+  /// For example, activate an existing app window or create a new app window.
+  /// |command_line| will be read-only. Do not keep a reference to
+  /// |command_line| outside of this function. Return true (1) if the relaunch
+  /// is handled or false (0) for default relaunch behavior. Default behavior
+  /// will create a new default styled Chrome window.
+  ///
+  /// To avoid cache corruption only a single app instance is allowed to run for
+  /// a given CefSettings.root_cache_path value. On relaunch the app checks a
+  /// process singleton lock and then forwards the new launch arguments to the
+  /// already running app process before exiting early. Client apps should
+  /// therefore check the cef_initialize() return value for early exit before
+  /// proceeding.
+  ///
+  /// This function will be called on the browser process UI thread.
+  ///
+  int(CEF_CALLBACK* on_already_running_app_relaunch)(
+      struct _cef_browser_process_handler_t* self,
+      struct _cef_command_line_t* command_line,
+      const cef_string_t* current_directory);
+
+  ///
   /// Called from any thread when work has been scheduled for the browser
   /// process main (UI) thread. This callback is used in combination with
   /// cef_settings_t.external_message_pump and cef_do_message_loop_work() in
@@ -121,16 +145,28 @@ typedef struct _cef_browser_process_handler_t {
   ///
   void(CEF_CALLBACK* on_schedule_message_pump_work)(
       struct _cef_browser_process_handler_t* self,
-      int64 delay_ms);
+      int64_t delay_ms);
 
   ///
-  /// Return the default client for use with a newly created browser window. If
-  /// null is returned the browser will be unmanaged (no callbacks will be
-  /// executed for that browser) and application shutdown will be blocked until
-  /// the browser window is closed manually. This function is currently only
-  /// used with the chrome runtime.
+  /// Return the default client for use with a newly created browser window
+  /// (cef_browser_t object). If null is returned the cef_browser_t will be
+  /// unmanaged (no callbacks will be executed for that cef_browser_t) and
+  /// application shutdown will be blocked until the browser window is closed
+  /// manually. This function is currently only used with the Chrome runtime
+  /// when creating new browser windows via Chrome UI.
   ///
   struct _cef_client_t*(CEF_CALLBACK* get_default_client)(
+      struct _cef_browser_process_handler_t* self);
+
+  ///
+  /// Return the default handler for use with a new user or incognito profile
+  /// (cef_request_context_t object). If null is returned the
+  /// cef_request_context_t will be unmanaged (no callbacks will be executed for
+  /// that cef_request_context_t). This function is currently only used with the
+  /// Chrome runtime when creating new browser windows via Chrome UI.
+  ///
+  struct _cef_request_context_handler_t*(
+      CEF_CALLBACK* get_default_request_context_handler)(
       struct _cef_browser_process_handler_t* self);
 } cef_browser_process_handler_t;
 

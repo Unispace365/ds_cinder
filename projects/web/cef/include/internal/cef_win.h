@@ -73,6 +73,7 @@ struct CefWindowInfoTraits {
     target->shared_texture_enabled = src->shared_texture_enabled;
     target->external_begin_frame_enabled = src->external_begin_frame_enabled;
     target->window = src->window;
+    target->runtime_style = src->runtime_style;
   }
 };
 
@@ -130,6 +131,7 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   void SetAsWindowless(CefWindowHandle parent) {
     windowless_rendering_enabled = TRUE;
     parent_window = parent;
+    runtime_style = CEF_RUNTIME_STYLE_ALLOY;
   }
 };
 
@@ -167,13 +169,6 @@ int CefRunWinMainWithPreferredStackSize(wWinMainPtr wWinMain,
                                         int nCmdShow);
 int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]);
 #endif  // defined(ARCH_CPU_32_BITS)
-
-///
-/// Call during process startup to enable High-DPI support on Windows 7 or
-/// newer. Older versions of Windows should be left DPI-unaware because they do
-/// not support DirectWrite and GDI fonts are kerned very badly.
-///
-void CefEnableHighDPISupport();
 
 ///
 /// Set to true before calling Windows APIs like TrackPopupMenu that enter a

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=479c82d8c72edba5bc48bdd8e32677ebe0bc720e$
+// $hash=25a465591349b3f68e292affc099ad40fa39cb01$
 //
 
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -453,7 +453,7 @@ CefCToCppRefCounted<CefPrintSettingsCToCpp,
                     CefPrintSettings,
                     cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
                                                          CefPrintSettings* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

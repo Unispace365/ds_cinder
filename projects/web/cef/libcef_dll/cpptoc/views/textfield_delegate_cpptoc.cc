@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=00fd32a1d0bf034760f3afe3fb62ba58aba6a61b$
+// $hash=3a3696160ea6f07beb0a7c68e415e2c71490963e$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
@@ -344,6 +344,29 @@ void CEF_CALLBACK textfield_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+textfield_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                    cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefTextfieldDelegateCppToC::Get(
+      reinterpret_cast<cef_textfield_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -364,6 +387,7 @@ CefTextfieldDelegateCppToC::CefTextfieldDelegateCppToC() {
   GetStruct()->base.on_layout_changed = textfield_delegate_on_layout_changed;
   GetStruct()->base.on_focus = textfield_delegate_on_focus;
   GetStruct()->base.on_blur = textfield_delegate_on_blur;
+  GetStruct()->base.on_theme_changed = textfield_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.
@@ -378,7 +402,7 @@ CefRefPtr<CefTextfieldDelegate> CefCppToCRefCounted<
     CefTextfieldDelegate,
     cef_textfield_delegate_t>::UnwrapDerived(CefWrapperType type,
                                              cef_textfield_delegate_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

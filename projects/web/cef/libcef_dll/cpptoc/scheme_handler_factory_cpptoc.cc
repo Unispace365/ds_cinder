@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf6605b9c5545c7b739ee45b368b8b8d657c7961$
+// $hash=0e2aa65ff279e6c61cb4314b4ff483ef3a0ae3fd$
 //
 
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -75,7 +75,7 @@ CefRefPtr<CefSchemeHandlerFactory> CefCppToCRefCounted<
     cef_scheme_handler_factory_t>::UnwrapDerived(CefWrapperType type,
                                                  cef_scheme_handler_factory_t*
                                                      s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

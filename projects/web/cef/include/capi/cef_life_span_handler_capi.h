@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1c807597b96889f44a1e5199e860e8db4948b473$
+// $hash=54edf9e9c2a12acdc4cab55079a4a5cb8e2a1e43$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -101,6 +101,34 @@ typedef struct _cef_life_span_handler_t {
       int* no_javascript_access);
 
   ///
+  /// Called on the UI thread before a new DevTools popup browser is created.
+  /// The |browser| value represents the source of the popup request. Optionally
+  /// modify |windowInfo|, |client|, |settings| and |extra_info| values. The
+  /// |client|, |settings| and |extra_info| values will default to the source
+  /// browser's values. Any modifications to |windowInfo| will be ignored if the
+  /// parent browser is Views-hosted (wrapped in a cef_browser_view_t).
+  ///
+  /// The |extra_info| parameter provides an opportunity to specify extra
+  /// information specific to the created popup browser that will be passed to
+  /// cef_render_process_handler_t::on_browser_created() in the render process.
+  /// The existing |extra_info| object, if any, will be read-only but may be
+  /// replaced with a new object.
+  ///
+  /// Views-hosted source browsers will create Views-hosted DevTools popups
+  /// unless |use_default_window| is set to to true (1). DevTools popups can be
+  /// blocked by returning true (1) from cef_command_handler_t::OnChromeCommand
+  /// for IDC_DEV_TOOLS. Only used with the Chrome runtime.
+  ///
+  void(CEF_CALLBACK* on_before_dev_tools_popup)(
+      struct _cef_life_span_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_window_info_t* windowInfo,
+      struct _cef_client_t** client,
+      struct _cef_browser_settings_t* settings,
+      struct _cef_dictionary_value_t** extra_info,
+      int* use_default_window);
+
+  ///
   /// Called after a new browser is created. It is now safe to begin performing
   /// actions with |browser|. cef_frame_handler_t callbacks related to initial
   /// main frame creation will arrive before this callback. See
@@ -110,7 +138,7 @@ typedef struct _cef_life_span_handler_t {
                                        struct _cef_browser_t* browser);
 
   ///
-  /// Called when a browser has recieved a request to close. This may result
+  /// Called when a browser has received a request to close. This may result
   /// directly from a call to cef_browser_host_t::*close_browser() or indirectly
   /// if the browser is parented to a top-level window created by CEF and the
   /// user attempts to close that window (by clicking the 'X', for example). The
