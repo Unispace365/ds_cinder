@@ -91,7 +91,14 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			if (settings.verbose) {
 				args.push_back("-v");
 			}
-			auto sync_path = ds::Environment::expand("%APP%/bridgesync/bridge_sync_console.exe");
+			std::string sync_path;
+			if (settings.syncPath.empty()) {
+				//Default path on production
+				sync_path = "%APP%/bridgesync/bridge_sync_console.exe";
+			}
+			else {
+				sync_path = settings.syncPath;
+			}
 
 			if (std::filesystem::exists(sync_path)) {
 				// mLock.lock();

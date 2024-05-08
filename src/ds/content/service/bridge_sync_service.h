@@ -15,6 +15,7 @@ namespace ds::content {
 
 struct BridgeSyncSettings {
 	// std::string name		 = "";
+	std::string syncPath	 = "";
 	std::string server		 = "";
 	std::string authServer	 = "";
 	std::string clientId	 = "";
