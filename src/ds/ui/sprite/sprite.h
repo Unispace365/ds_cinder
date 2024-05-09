@@ -210,7 +210,8 @@ namespace ui {
 
 		// Returns the minimum width of the Sprite.
 		virtual float getWidthMin() const {
-			return mMinWidth.isDefined() ? mMinWidth.asUser(this, css::Value::HORIZONTAL) : getScaleWidth();
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMinWidth.asUser(this, css::Value::HORIZONTAL);
 		}
 		// Sets the minimum width of the Sprite.
 		void setWidthMin(float width) { mMinWidth = css::Value(width, css::Value::PIXELS); }
@@ -218,7 +219,8 @@ namespace ui {
 		void setWidthMin(const std::string& css) { mMinWidth = css::Value(css); }
 		// Returns the maximum width of the Sprite.
 		virtual float getWidthMax() const {
-			return mMaxWidth.isDefined() ? mMaxWidth.asUser(this, css::Value::HORIZONTAL) : getScaleWidth();
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
 		}
 		// Sets the maximum width of the Sprite.
 		void setWidthMax(float width) { mMaxWidth = css::Value(width, css::Value::PIXELS); }
@@ -232,7 +234,8 @@ namespace ui {
 
 		// Returns the minimum height of the Sprite.
 		virtual float getHeightMin() const {
-			return mMinHeight.isDefined() ? mMinHeight.asUser(this, css::Value::VERTICAL) : getScaleHeight();
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMinHeight.asUser(this, css::Value::VERTICAL);
 		}
 		// Sets the minimum height of the Sprite.
 		void setHeightMin(float height) { mMinHeight = css::Value(height, css::Value::PIXELS); }
@@ -240,7 +243,8 @@ namespace ui {
 		void setHeightMin(const std::string& css) { mMinHeight = css::Value(css); }
 		// Returns the maximum height of the Sprite.
 		virtual float getHeightMax() const {
-			return mMaxHeight.isDefined() ? mMaxHeight.asUser(this, css::Value::VERTICAL) : getScaleHeight();
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMaxHeight.asUser(this, css::Value::VERTICAL);
 		}
 		// Sets the maximum height of the Sprite.
 		void setHeightMax(float height) { mMaxHeight = css::Value(height, css::Value::PIXELS); }
@@ -250,9 +254,12 @@ namespace ui {
 		/// Returns the sprite fitting mode, allowing access to the proper transform.
 		const Fit& getFit() const { return mFit; }
 		/// Sets sprite fitting mode.
-		void setFit(Fit fit) { mFit = fit; }
+		void setFit(Fit fit) {
+			mFit		 = fit;
+			mMinMaxDirty = true;
+		}
 		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
-		void setFit(const std::string& css) { mFit = Fit(css); }
+		void setFit(const std::string& css) { setFit( Fit(css) ); }
 		/// Adjusts the sprite's transform to precisely fit inside the given area.
 		virtual void fitInsideArea(const ci::Rectf& area);
 
@@ -882,6 +889,7 @@ namespace ui {
 		bool		 hasTapInfo() const;
 		void		 updateCheckBounds() const;
 		bool		 checkBounds() const;
+		void		 measureMinMaxSize() const;
 
 		/// Once the sprite has passed the getHit() sprite bounds, this is a second
 		/// stage that allows the sprite itself to determine if the point is interior,
@@ -956,6 +964,7 @@ namespace ui {
 		css::Value mMinWidth, mMaxWidth;
 		css::Value mMinHeight, mMaxHeight;
 		Fit		   mFit;
+		bool	   mMinMaxDirty;
 
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;

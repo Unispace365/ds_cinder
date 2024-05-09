@@ -20,12 +20,14 @@
 #include "ds/params/draw_params.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/tween/tweenline.h"
+#include "ds/util/float_util.h"
 #include "ds/util/string_util.h"
 #include "util/clip_plane.h"
 
 #include <numeric>
 
 // #include <glm/gtx/rotate_vector.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "util/flexbox_parser.h"
@@ -153,6 +155,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mWidth				  = 0.f;
 	mHeight				  = 0.f;
 	mDepth				  = 1.f;
+	mMinMaxDirty		  = true;
 	mCenter				  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotation			  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotationOrderZYX	  = false;
@@ -553,6 +556,7 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	mScale				= scale;
 	mUpdateTransform	= true;
 	mBoundsNeedChecking = true;
+	mMinMaxDirty		= true;
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
@@ -1378,6 +1382,24 @@ bool Sprite::checkBounds() const {
 
 	mInBounds = true;
 	return true;
+}
+
+void Sprite::measureMinMaxSize() const {
+	const auto w = getScaleWidth();
+	const auto h = getScaleHeight();
+	if (approxZero(w) || approxZero(h)) return;
+
+	const auto fit =
+		mFit.calcTransform(ci::Rectf{0, 0, mEngine.getWorldWidth(), mEngine.getWorldHeight()}, ci::Rectf{0, 0, w, h});
+	const auto width  = fit[0][0] * w;
+	const auto height = fit[1][1] * h;
+
+	const auto self = const_cast<Sprite*>(this); // Instead of 'mutable'.
+	if (!mMinWidth.isDefined()) self->mMinWidth.set(glm::min(w, width), css::Value::PIXELS);
+	if (!mMaxWidth.isDefined()) self->mMaxWidth.set(glm::max(w, width), css::Value::PIXELS);
+	if (!mMinHeight.isDefined()) self->mMinHeight.set(glm::min(h, height), css::Value::PIXELS);
+	if (!mMaxHeight.isDefined()) self->mMaxHeight.set(glm::max(h, height), css::Value::PIXELS);
+	self->mMinMaxDirty = false;
 }
 
 void Sprite::setCheckBounds(bool checkBounds) {
