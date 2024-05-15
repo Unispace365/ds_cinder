@@ -686,6 +686,8 @@ void App::launchBridgeSyncService() {
 		settings.interval = mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
 		settings.verbose  = mEngine.getEngineSettings().getBool("bridgesync:verbose", 0, false);
 
+		settings.syncPath  = mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
+
 		mBridgeSyncService->initialize(settings);
 		/* registerKeyPress(
 			"Toggle BridgeSync output",
