@@ -284,8 +284,12 @@ void Image::drawLocalClient() {
 	if (!inBounds() || !isLoaded()) return;
 
 	if (mTextureRef) {
-
 		mTextureRef->bind();
+
+		// Adjust position if circle cropping is applied.
+		ci::gl::ScopedModelMatrix sm;
+		ci::gl::translate(-mShaderExtraData.x, -mShaderExtraData.y); // Compensate for cropping.
+
 		if (mRenderBatch) {
 			mRenderBatch->draw();
 		} else {
@@ -303,6 +307,57 @@ void Image::clearImage() {
 	mFilename	= "";
 	mResource	= ds::Resource();
 	imageChanged();
+}
+
+bool Image::setAvailableSize(const vec2& size) {
+	const auto bounds = Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(Rectf{0, 0, size.x, size.y}, bounds);
+	const auto width  = fit[0][0] * bounds.getWidth();
+	const auto height = fit[1][1] * bounds.getHeight();
+
+	mMinWidth = mMaxWidth = css::Value(width, Value::PIXELS);
+	mMinHeight = mMaxHeight = css::Value(height, Value::PIXELS);
+
+	return !approxEqual(width, getWidth()) || !approxEqual(height, getHeight());
+}
+
+float Image::getWidthMin() const {
+	if (!mMinWidth.isDefined() && mMinHeight.isDefined()) {
+		const float aspect = getWidth() / getHeight();
+		return mMinHeight.asUser(this, Value::VERTICAL) * aspect;
+	}
+	return Sprite::getWidthMin();
+}
+
+float Image::getWidthMax() const {
+	if (!mMaxWidth.isDefined() && mMaxHeight.isDefined()) {
+		const float aspect = getWidth() / getHeight();
+		return mMaxHeight.asUser(this, Value::VERTICAL) * aspect;
+	}
+	return Sprite::getWidthMax();
+}
+
+float Image::getHeightMin() const {
+	if (!mMinHeight.isDefined() && mMinWidth.isDefined()) {
+		const float aspect = getHeight() / getWidth();
+		return mMinWidth.asUser(this, Value::HORIZONTAL) * aspect;
+	}
+	return Sprite::getHeightMin();
+}
+
+float Image::getHeightMax() const {
+	if (!mMaxHeight.isDefined() && mMaxWidth.isDefined()) {
+		const float aspect = getHeight() / getWidth();
+		return mMaxWidth.asUser(this, Value::HORIZONTAL) * aspect;
+	}
+	return Sprite::getHeightMax();
+}
+
+void Image::fitInsideArea(const Rectf& area) {
+	const auto bounds = Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 void Image::setSize(float width, float height) {
@@ -346,8 +401,8 @@ void Image::cicleCropAutoCenter() {
 void Image::circleCropAutoCenter() {
 	mCircleCropCentered = true;
 	setCircleCrop(true);
-	const float scw = getWidth();
-	const float sch = getHeight();
+	const float scw = mWidth;  // We need to know the actual size of the image, not the cropped size.
+	const float sch = mHeight; // So, we can't use getWidth() and getHeight() here.
 	if (scw > sch) {
 		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
 	} else {
