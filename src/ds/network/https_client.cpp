@@ -295,7 +295,7 @@ namespace ds { namespace net {
 			if (res != CURLE_OK) {
 				mError		  = true;
 				mErrorMessage = curl_easy_strerror(res);
-				DS_LOG_WARNING(mErrorMessage);
+				DS_LOG_WARNING("HttpsRequest: Got error '" << mErrorMessage << "' when trying URL " << mInput);
 			}
 
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
