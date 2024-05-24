@@ -182,6 +182,11 @@ inline void skipUntil(const char** sInOut, char c) {
 	while (**sInOut && **sInOut != c)
 		++(*sInOut);
 }
+/// Skips any of the \a chars in the ASCII string.
+inline void skipAnyOf(const char** sInOut, const std::string &chars) {
+	while (**sInOut && chars.find(**sInOut) != std::string::npos)
+		++(*sInOut);
+}
 /// Returns the part before the first occurrence of the given character in the ASCII string.
 inline std::string fetchUntil(const char** sInOut, char c) {
 	const char* from = *sInOut;
