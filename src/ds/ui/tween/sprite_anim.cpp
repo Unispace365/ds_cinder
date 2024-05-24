@@ -98,10 +98,9 @@ namespace ds { namespace ui {
 	}
 
 	const SpriteAnim<float>& SpriteAnimatable::ANIM_REVEAL() {
-		static ds::ui::SpriteAnim<float> ANIM(
-			[](ds::ui::Sprite& s) -> ci::Anim<float>& { return s.mAnimReveal; },
-			[](ds::ui::Sprite& s) -> float { return s.getReveal(); },
-			[](float v, ds::ui::Sprite& s) { s.setReveal(v); });
+		static ds::ui::SpriteAnim<float> ANIM([](ds::ui::Sprite& s) -> ci::Anim<float>& { return s.mAnimReveal; },
+											  [](ds::ui::Sprite& s) -> float { return s.getReveal(); },
+											  [](float v, ds::ui::Sprite& s) { s.setReveal(v); });
 		return ANIM;
 	}
 
@@ -178,8 +177,8 @@ namespace ds { namespace ui {
 	}
 
 	void SpriteAnimatable::tweenNormalized(const float duration, const float delay, const ci::EaseFn& ease,
-	                                       const std::function<void(void)>& finishFn,
-	                                       const std::function<void(void)>& updateFn) {
+										   const std::function<void(void)>& finishFn,
+										   const std::function<void(void)>& updateFn) {
 		animNormalizedStop();
 		auto options =
 			mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
@@ -444,7 +443,7 @@ namespace ds { namespace ui {
 		mAnimateOnScaleTarget	 = mOwner.getScale();
 		mAnimateOnPositionTarget = mOwner.getPosition();
 		mAnimateOnOpacityTarget	 = mOwner.getOpacity();
-		mAnimateOnRevealTarget   = mOwner.getReveal();
+		mAnimateOnRevealTarget	 = mOwner.getReveal();
 	}
 
 	void SpriteAnimatable::setAnimateOnTargetsIfNeeded() {
@@ -492,6 +491,47 @@ namespace ds { namespace ui {
 
 	void SpriteAnimatable::setAnimateOffScript(const std::string& animateOffScript) {
 		mAnimateOffScript = animateOffScript;
+	}
+
+	SpriteAnimatable::AnimScript SpriteAnimatable::parseAnimationScript(const std::string& animScript,
+																		const ci::vec3&	   defaultValue,
+																		float			   addedDelay) const {
+		AnimScript result;
+
+		// Set default parameters, if they're not supplied by the string.
+		result.startValue = defaultValue;
+		result.endValue	  = defaultValue;
+		result.easing	= ci::EaseInOutCubic();
+		result.duration = mEngine.getAnimDur();
+		result.delay	= addedDelay;
+
+		// Find all the commands in the string.
+		const auto commands = ds::split(animScript, "; ", true);
+		if (commands.empty()) return result;
+
+		// Parse the commands.
+		for (const auto& command : commands) {
+			const auto commandProperties = ds::split(command, ":", true);
+			if (commandProperties.empty()) continue;
+
+			if (commandProperties.size() < 2)
+				result.type = commandProperties.front();
+			else if (!ci::asciiCaseCmp(commandProperties.front().c_str(), "start"))
+				result.startValue = ds::parseVector(commandProperties.back());
+			else if (!ci::asciiCaseCmp(commandProperties.front().c_str(), "end"))
+				result.endValue = ds::parseVector(commandProperties.back());
+			else if (!ci::asciiCaseCmp(commandProperties.front().c_str(), "ease"))
+				result.easing = getEasingByString(commandProperties.back());
+			else if (!ci::asciiCaseCmp(commandProperties.front().c_str(), "duration"))
+				ds::string_to_value<float>(commandProperties.back(), result.duration);
+			else if (!ci::asciiCaseCmp(commandProperties.front().c_str(), "delay")) {
+				float rootDelay = 0.0f;
+				ds::string_to_value<float>(commandProperties.back(), rootDelay);
+				result.delay += rootDelay;
+			}
+		}
+
+		return result;
 	}
 
 	float SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay) {
@@ -625,8 +665,8 @@ namespace ds { namespace ui {
 					tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
 				} else if (animType == "reveal") {
 					setAnimateOnTargetsIfNeeded();
-					mOwner.setReveal( dest.x );
-					tweenReveal( mAnimateOnRevealTarget, dur, delayey, easing);
+					mOwner.setReveal(dest.x);
+					tweenReveal(mAnimateOnRevealTarget, dur, delayey, easing);
 				}
 			} else {
 				if (animType == "slide") {
@@ -653,8 +693,8 @@ namespace ds { namespace ui {
 					}
 				} else if (animType == "reveal") {
 					// setAnimateOnTargetsIfNeeded();
-					mOwner.setReveal( mAnimateOnRevealTarget );
-					tweenReveal( dest.x, dur, delayey, easing);
+					mOwner.setReveal(mAnimateOnRevealTarget);
+					tweenReveal(dest.x, dur, delayey, easing);
 				}
 			}
 		}

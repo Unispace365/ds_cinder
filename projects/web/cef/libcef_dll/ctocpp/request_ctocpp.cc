@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3454ad8f0a09ee48d7376f8e3eabcf967959de82$
+// $hash=e4c27505eec2a9b0327bc6e182f73ca4c1496809$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -432,7 +432,7 @@ CefRequest::TransitionType CefRequestCToCpp::GetTransitionType() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") uint64 CefRequestCToCpp::GetIdentifier() {
+NO_SANITIZE("cfi-icall") uint64_t CefRequestCToCpp::GetIdentifier() {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_identifier)) {
     return 0;
@@ -441,7 +441,7 @@ NO_SANITIZE("cfi-icall") uint64 CefRequestCToCpp::GetIdentifier() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  uint64 _retval = _struct->get_identifier(_struct);
+  uint64_t _retval = _struct->get_identifier(_struct);
 
   // Return type: simple
   return _retval;
@@ -460,7 +460,7 @@ cef_request_t*
 CefCToCppRefCounted<CefRequestCToCpp, CefRequest, cef_request_t>::UnwrapDerived(
     CefWrapperType type,
     CefRequest* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=efb9652f9e2a17079ff20457264e8b0ecfd19499$
+// $hash=49a57ddaa276428bd39c6597a0461fe5455831f0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SERVER_CTOCPP_H_
@@ -49,7 +49,7 @@ class CefServerCToCpp
   void SendHttpResponse(int connection_id,
                         int response_code,
                         const CefString& content_type,
-                        int64 content_length,
+                        int64_t content_length,
                         const HeaderMap& extra_headers) override;
   void SendRawData(int connection_id,
                    const void* data,

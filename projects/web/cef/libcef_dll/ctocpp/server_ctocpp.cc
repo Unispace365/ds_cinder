@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac37df1c5a9a759393e0c7b33e60af3477ec8ce8$
+// $hash=a3c8e5188e462ca35ced2a8d1992b4ac0bac3b35$
 //
 
 #include "libcef_dll/ctocpp/server_ctocpp.h"
@@ -22,7 +22,7 @@
 
 NO_SANITIZE("cfi-icall")
 void CefServer::CreateServer(const CefString& address,
-                             uint16 port,
+                             uint16_t port,
                              int backlog,
                              CefRefPtr<CefServerHandler> handler) {
   shutdown_checker::AssertNotShutdown();
@@ -222,7 +222,7 @@ NO_SANITIZE("cfi-icall")
 void CefServerCToCpp::SendHttpResponse(int connection_id,
                                        int response_code,
                                        const CefString& content_type,
-                                       int64 content_length,
+                                       int64_t content_length,
                                        const HeaderMap& extra_headers) {
   shutdown_checker::AssertNotShutdown();
 
@@ -334,7 +334,7 @@ cef_server_t*
 CefCToCppRefCounted<CefServerCToCpp, CefServer, cef_server_t>::UnwrapDerived(
     CefWrapperType type,
     CefServer* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

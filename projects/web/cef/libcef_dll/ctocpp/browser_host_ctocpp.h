@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=95d1cd8a96633dc2338a636c3c4eda9a15442846$
+// $hash=4b9914613aed142228d0cfe181a6ac65e9b6e494$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -46,6 +46,9 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   bool HasView() override;
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
+  bool CanZoom(cef_zoom_command_t command) override;
+  void Zoom(cef_zoom_command_t command) override;
+  double GetDefaultZoomLevel() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
   void RunFileDialog(FileDialogMode mode,
@@ -56,7 +59,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
-                     uint32 max_image_size,
+                     uint32_t max_image_size,
                      bool bypass_cache,
                      CefRefPtr<CefDownloadImageCallback> callback) override;
   void Print() override;
@@ -131,6 +134,13 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   bool IsBackgroundHost() override;
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
+  bool IsFullscreen() override;
+  void ExitFullscreen(bool will_cause_resize) override;
+  bool CanExecuteChromeCommand(int command_id) override;
+  void ExecuteChromeCommand(int command_id,
+                            cef_window_open_disposition_t disposition) override;
+  bool IsRenderProcessUnresponsive() override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_

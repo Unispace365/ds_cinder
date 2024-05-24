@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=93f9d3b5ef4e7f4746529d2d1e0ee61952e56be0$
+// $hash=fae5e9e76aed000f5009696ef1166b6563d749fe$
 //
 
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
@@ -70,7 +70,7 @@ cef_print_dialog_callback_t* CefCToCppRefCounted<
     CefPrintDialogCallback,
     cef_print_dialog_callback_t>::UnwrapDerived(CefWrapperType type,
                                                 CefPrintDialogCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

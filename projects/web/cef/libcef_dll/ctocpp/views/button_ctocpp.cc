@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=21ad12e2611fc02420e4105826b5e38fed399c1c$
+// $hash=f71e4f87086a3fb6d20a922af417bc47c81dbc7c$
 //
 
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
@@ -862,6 +862,24 @@ NO_SANITIZE("cfi-icall") cef_color_t CefButtonCToCpp::GetBackgroundColor() {
 }
 
 NO_SANITIZE("cfi-icall")
+cef_color_t CefButtonCToCpp::GetThemeColor(int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_theme_color)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_t _retval = _struct->get_theme_color(_struct, color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
 bool CefButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1008,7 +1026,7 @@ CefCToCppRefCounted<CefButtonCToCpp, CefButton, cef_button_t>::UnwrapDerived(
     return reinterpret_cast<cef_button_t*>(
         CefMenuButtonCToCpp::Unwrap(reinterpret_cast<CefMenuButton*>(c)));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9cb7b2760f04201aaf79feceb2db8c0d3036892c$
+// $hash=6ebaa8a85615b3a4ea46cf32893e4297667f81a4$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -63,6 +63,29 @@ NO_SANITIZE("cfi-icall") void CefWindowCToCpp::Show() {
 
   // Execute
   _struct->show(_struct);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowCToCpp::ShowAsBrowserModalDialog(
+    CefRefPtr<CefBrowserView> browser_view) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, show_as_browser_modal_dialog)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser_view; type: refptr_same
+  DCHECK(browser_view.get());
+  if (!browser_view.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->show_as_browser_modal_dialog(
+      _struct, CefBrowserViewCToCpp::Unwrap(browser_view));
 }
 
 NO_SANITIZE("cfi-icall") void CefWindowCToCpp::Hide() {
@@ -438,7 +461,8 @@ CefRefPtr<CefImage> CefWindowCToCpp::GetWindowAppIcon() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefOverlayController> CefWindowCToCpp::AddOverlayView(
     CefRefPtr<CefView> view,
-    cef_docking_mode_t docking_mode) {
+    cef_docking_mode_t docking_mode,
+    bool can_activate) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_t* _struct = GetStruct();
@@ -456,7 +480,7 @@ CefRefPtr<CefOverlayController> CefWindowCToCpp::AddOverlayView(
 
   // Execute
   cef_overlay_controller_t* _retval = _struct->add_overlay_view(
-      _struct, CefViewCToCpp::Unwrap(view), docking_mode);
+      _struct, CefViewCToCpp::Unwrap(view), docking_mode, can_activate);
 
   // Return type: refptr_same
   return CefOverlayControllerCToCpp::Wrap(_retval);
@@ -589,7 +613,7 @@ NO_SANITIZE("cfi-icall") CefWindowHandle CefWindowCToCpp::GetWindowHandle() {
 }
 
 NO_SANITIZE("cfi-icall")
-void CefWindowCToCpp::SendKeyPress(int key_code, uint32 event_flags) {
+void CefWindowCToCpp::SendKeyPress(int key_code, uint32_t event_flags) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_t* _struct = GetStruct();
@@ -640,7 +664,8 @@ void CefWindowCToCpp::SetAccelerator(int command_id,
                                      int key_code,
                                      bool shift_pressed,
                                      bool ctrl_pressed,
-                                     bool alt_pressed) {
+                                     bool alt_pressed,
+                                     bool high_priority) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_t* _struct = GetStruct();
@@ -652,7 +677,7 @@ void CefWindowCToCpp::SetAccelerator(int command_id,
 
   // Execute
   _struct->set_accelerator(_struct, command_id, key_code, shift_pressed,
-                           ctrl_pressed, alt_pressed);
+                           ctrl_pressed, alt_pressed, high_priority);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -682,6 +707,53 @@ NO_SANITIZE("cfi-icall") void CefWindowCToCpp::RemoveAllAccelerators() {
 
   // Execute
   _struct->remove_all_accelerators(_struct);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowCToCpp::SetThemeColor(int color_id, cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_theme_color)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_theme_color(_struct, color_id, color);
+}
+
+NO_SANITIZE("cfi-icall") void CefWindowCToCpp::ThemeChanged() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, theme_changed)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->theme_changed(_struct);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_runtime_style_t CefWindowCToCpp::GetRuntimeStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_runtime_style)) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_runtime_style_t _retval = _struct->get_runtime_style(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefWindowCToCpp::AsWindow() {
@@ -1643,6 +1715,24 @@ NO_SANITIZE("cfi-icall") cef_color_t CefWindowCToCpp::GetBackgroundColor() {
 }
 
 NO_SANITIZE("cfi-icall")
+cef_color_t CefWindowCToCpp::GetThemeColor(int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_theme_color)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_t _retval = _struct->get_theme_color(_struct, color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
 bool CefWindowCToCpp::ConvertPointToScreen(CefPoint& point) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1781,7 +1871,7 @@ cef_window_t*
 CefCToCppRefCounted<CefWindowCToCpp, CefWindow, cef_window_t>::UnwrapDerived(
     CefWrapperType type,
     CefWindow* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

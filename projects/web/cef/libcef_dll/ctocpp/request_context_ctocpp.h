@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a05f4583cacc076519f6505f8f8952c5e471a49$
+// $hash=daa5d7e0fa0e6b882ca98d9b4be5e6f5c81ddbde$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -68,6 +68,27 @@ class CefRequestContextCToCpp
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
+  CefRefPtr<CefValue> GetWebsiteSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) override;
+  void SetWebsiteSetting(const CefString& requesting_url,
+                         const CefString& top_level_url,
+                         cef_content_setting_types_t content_type,
+                         CefRefPtr<CefValue> value) override;
+  cef_content_setting_values_t GetContentSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) override;
+  void SetContentSetting(const CefString& requesting_url,
+                         const CefString& top_level_url,
+                         cef_content_setting_types_t content_type,
+                         cef_content_setting_values_t value) override;
+  void SetChromeColorScheme(cef_color_variant_t variant,
+                            cef_color_t user_color) override;
+  cef_color_variant_t GetChromeColorSchemeMode() override;
+  cef_color_t GetChromeColorSchemeColor() override;
+  cef_color_variant_t GetChromeColorSchemeVariant() override;
 
   // CefPreferenceManager methods.
   bool HasPreference(const CefString& name) override;

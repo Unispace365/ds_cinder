@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7a541729b4ac664b22cdea625f19f1dba1b6a685$
+// $hash=e20d330e3d1cd3ac5bcd3ce7ee09bc1025490f63$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_X509_CERTIFICATE_CAPI_H_
@@ -94,13 +94,6 @@ typedef struct _cef_x509cert_principal_t {
       struct _cef_x509cert_principal_t* self);
 
   ///
-  /// Retrieve the list of street addresses.
-  ///
-  void(CEF_CALLBACK* get_street_addresses)(
-      struct _cef_x509cert_principal_t* self,
-      cef_string_list_t addresses);
-
-  ///
   /// Retrieve the list of organization names.
   ///
   void(CEF_CALLBACK* get_organization_names)(
@@ -113,13 +106,6 @@ typedef struct _cef_x509cert_principal_t {
   void(CEF_CALLBACK* get_organization_unit_names)(
       struct _cef_x509cert_principal_t* self,
       cef_string_list_t names);
-
-  ///
-  /// Retrieve the list of domain components.
-  ///
-  void(CEF_CALLBACK* get_domain_components)(
-      struct _cef_x509cert_principal_t* self,
-      cef_string_list_t components);
 } cef_x509cert_principal_t;
 
 ///

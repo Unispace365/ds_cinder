@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9555d03b779dde190621989b6c8a433392093e87$
+// $hash=24809d9106881d5e59cf9fcdff2bd0506701a515$
 //
 
 #include "libcef_dll/cpptoc/task_cpptoc.h"
@@ -47,7 +47,7 @@ CefRefPtr<CefTask>
 CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::UnwrapDerived(
     CefWrapperType type,
     cef_task_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

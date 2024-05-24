@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae437028fb869b3a569bb45d150cf772a309a1f2$
+// $hash=740a136b543a32de5788c9395fca7f808d1b363c$
 //
 
 #include "libcef_dll/cpptoc/resource_request_handler_cpptoc.h"
@@ -234,7 +234,7 @@ void CEF_CALLBACK resource_request_handler_on_resource_load_complete(
     cef_request_t* request,
     struct _cef_response_t* response,
     cef_urlrequest_status_t status,
-    int64 received_content_length) {
+    int64_t received_content_length) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -332,7 +332,7 @@ CefCppToCRefCounted<CefResourceRequestHandlerCppToC,
                     CefResourceRequestHandler,
                     cef_resource_request_handler_t>::
     UnwrapDerived(CefWrapperType type, cef_resource_request_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

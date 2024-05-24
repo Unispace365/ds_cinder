@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0d787ac7676ba90d3a1fe68d5e2494b985b1db0e$
+// $hash=3a188f380f8044060ea93fdca0b3d231df88979d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -474,12 +474,12 @@ typedef struct _cef_v8value_t {
   ///
   /// Return an int value.
   ///
-  int32(CEF_CALLBACK* get_int_value)(struct _cef_v8value_t* self);
+  int32_t(CEF_CALLBACK* get_int_value)(struct _cef_v8value_t* self);
 
   ///
   /// Return an unsigned int value.
   ///
-  uint32(CEF_CALLBACK* get_uint_value)(struct _cef_v8value_t* self);
+  uint32_t(CEF_CALLBACK* get_uint_value)(struct _cef_v8value_t* self);
 
   ///
   /// Return a double value.
@@ -680,6 +680,19 @@ typedef struct _cef_v8value_t {
   int(CEF_CALLBACK* neuter_array_buffer)(struct _cef_v8value_t* self);
 
   ///
+  /// Returns the length (in bytes) of the ArrayBuffer.
+  ///
+  size_t(CEF_CALLBACK* get_array_buffer_byte_length)(
+      struct _cef_v8value_t* self);
+
+  ///
+  /// Returns a pointer to the beginning of the memory block for this
+  /// ArrayBuffer backing store. The returned pointer is valid as long as the
+  /// cef_v8value_t is alive.
+  ///
+  void*(CEF_CALLBACK* get_array_buffer_data)(struct _cef_v8value_t* self);
+
+  ///
   /// Returns the function name.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
@@ -764,12 +777,12 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value);
 ///
 /// Create a new cef_v8value_t object of type int.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32 value);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32_t value);
 
 ///
 /// Create a new cef_v8value_t object of type unsigned int.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32 value);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32_t value);
 
 ///
 /// Create a new cef_v8value_t object of type double.

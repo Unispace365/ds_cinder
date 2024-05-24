@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=addccca2d817966a80bf0f33aa17b4cc2bab968c$
+// $hash=f9d3988a2c25d4079109b89ff555f27c05e45eb7$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
@@ -69,7 +69,7 @@ CefCppToCRefCounted<CefNavigationEntryVisitorCppToC,
                     CefNavigationEntryVisitor,
                     cef_navigation_entry_visitor_t>::
     UnwrapDerived(CefWrapperType type, cef_navigation_entry_visitor_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

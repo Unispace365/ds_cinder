@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d43fde9a3c77573a0939afc7c7d2016c5b291a40$
+// $hash=eef2f0ecf9926338406fd0adb69827f075a417b5$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
@@ -65,7 +65,7 @@ CefCToCppRefCounted<CefAuthCallbackCToCpp,
                     CefAuthCallback,
                     cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
                                                         CefAuthCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

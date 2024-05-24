@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d097e0275625031a367f9d2734f372c62ff6dfeb$
+// $hash=2fc7e28909287ddaf20efa9f3ded39c65d3ff8be$
 //
 
 #include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
@@ -67,7 +67,7 @@ CefRefPtr<CefDownloadImageCallback> CefCppToCRefCounted<
     cef_download_image_callback_t>::UnwrapDerived(CefWrapperType type,
                                                   cef_download_image_callback_t*
                                                       s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

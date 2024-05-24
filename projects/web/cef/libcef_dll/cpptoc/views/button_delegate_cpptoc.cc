@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=87511af5e1a3eebefe2fa90759274ac14cdbda62$
+// $hash=0e5cf49bf903204aa1241520c8acf1cb5767da65$
 //
 
 #include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
@@ -327,6 +327,28 @@ void CEF_CALLBACK button_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+button_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefButtonDelegateCppToC::Get(reinterpret_cast<cef_button_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -347,6 +369,7 @@ CefButtonDelegateCppToC::CefButtonDelegateCppToC() {
   GetStruct()->base.on_layout_changed = button_delegate_on_layout_changed;
   GetStruct()->base.on_focus = button_delegate_on_focus;
   GetStruct()->base.on_blur = button_delegate_on_blur;
+  GetStruct()->base.on_theme_changed = button_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.
@@ -365,7 +388,7 @@ CefRefPtr<CefButtonDelegate> CefCppToCRefCounted<
     return CefMenuButtonDelegateCppToC::Unwrap(
         reinterpret_cast<cef_menu_button_delegate_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

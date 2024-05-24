@@ -315,6 +315,8 @@ set(LIBCEF_CTOCPP_SRCS
   ctocpp/task_runner_ctocpp.h
   ctocpp/thread_ctocpp.cc
   ctocpp/thread_ctocpp.h
+  ctocpp/unresponsive_process_callback_ctocpp.cc
+  ctocpp/unresponsive_process_callback_ctocpp.h
   ctocpp/urlrequest_ctocpp.cc
   ctocpp/urlrequest_ctocpp.h
   ctocpp/v8context_ctocpp.cc
@@ -472,6 +474,7 @@ set(LIBCEF_INCLUDE_SRCS
   ../include/cef_task.h
   ../include/cef_thread.h
   ../include/cef_trace.h
+  ../include/cef_unresponsive_process_callback.h
   ../include/cef_urlrequest.h
   ../include/cef_v8.h
   ../include/cef_values.h
@@ -495,7 +498,6 @@ set(LIBCEF_INCLUDE_BASE_SRCS
   ../include/base/cef_atomic_flag.h
   ../include/base/cef_atomic_ref_count.h
   ../include/base/cef_auto_reset.h
-  ../include/base/cef_basictypes.h
   ../include/base/cef_bind.h
   ../include/base/cef_build.h
   ../include/base/cef_callback.h
@@ -511,7 +513,6 @@ set(LIBCEF_INCLUDE_BASE_SRCS
   ../include/base/cef_ptr_util.h
   ../include/base/cef_ref_counted.h
   ../include/base/cef_scoped_refptr.h
-  ../include/base/cef_template_util.h
   ../include/base/cef_thread_checker.h
   ../include/base/cef_trace_event.h
   ../include/base/cef_tuple.h
@@ -526,6 +527,7 @@ source_group(include\\\\base FILES ${LIBCEF_INCLUDE_BASE_SRCS})
 set(LIBCEF_INCLUDE_BASE_INTERNAL_SRCS
   ../include/base/internal/cef_bind_internal.h
   ../include/base/internal/cef_callback_internal.h
+  ../include/base/internal/cef_color_id_macros.inc
   ../include/base/internal/cef_lock_impl.h
   ../include/base/internal/cef_raw_scoped_refptr_mismatch_checker.h
   ../include/base/internal/cef_scoped_policy.h
@@ -610,6 +612,7 @@ set(LIBCEF_INCLUDE_CAPI_SRCS
   ../include/capi/cef_task_capi.h
   ../include/capi/cef_thread_capi.h
   ../include/capi/cef_trace_capi.h
+  ../include/capi/cef_unresponsive_process_callback_capi.h
   ../include/capi/cef_urlrequest_capi.h
   ../include/capi/cef_v8_capi.h
   ../include/capi/cef_values_capi.h
@@ -667,7 +670,10 @@ set(LIBCEF_INCLUDE_INTERNAL_SRCS
   ../include/internal/cef_time_wrappers.h
   ../include/internal/cef_trace_event_internal.h
   ../include/internal/cef_types.h
+  ../include/internal/cef_types_color.h
+  ../include/internal/cef_types_content_settings.h
   ../include/internal/cef_types_geometry.h
+  ../include/internal/cef_types_runtime.h
   ../include/internal/cef_types_wrappers.h
   )
 set(LIBCEF_INCLUDE_INTERNAL_SRCS_LINUX
@@ -740,6 +746,8 @@ set(LIBCEF_WRAPPER_SRCS
   wrapper/cef_byte_read_handler.cc
   wrapper/cef_closure_task.cc
   wrapper/cef_message_router.cc
+  wrapper/cef_message_router_utils.cc
+  wrapper/cef_message_router_utils.h
   wrapper/cef_resource_manager.cc
   wrapper/cef_scoped_temp_dir.cc
   wrapper/cef_stream_resource_handler.cc

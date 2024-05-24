@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=08d37db545a632813585805e01cdd6b1e1705fe3$
+// $hash=2069df4f435511a2f0d4cabe118003aa86219d8d$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -137,7 +137,7 @@ NO_SANITIZE("cfi-icall") CefString CefZipReaderCToCpp::GetFileName() {
   return _retvalStr;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::GetFileSize() {
+NO_SANITIZE("cfi-icall") int64_t CefZipReaderCToCpp::GetFileSize() {
   shutdown_checker::AssertNotShutdown();
 
   cef_zip_reader_t* _struct = GetStruct();
@@ -148,7 +148,7 @@ NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::GetFileSize() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->get_file_size(_struct);
+  int64_t _retval = _struct->get_file_size(_struct);
 
   // Return type: simple
   return _retval;
@@ -232,7 +232,7 @@ int CefZipReaderCToCpp::ReadFile(void* buffer, size_t bufferSize) {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64_t CefZipReaderCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_zip_reader_t* _struct = GetStruct();
@@ -243,7 +243,7 @@ NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::Tell() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->tell(_struct);
+  int64_t _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;
@@ -280,7 +280,7 @@ template <>
 cef_zip_reader_t*
 CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::
     UnwrapDerived(CefWrapperType type, CefZipReader* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

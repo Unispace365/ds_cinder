@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a7d0c28420e88fe055cc18eda55d9cae1f3ee33f$
+// $hash=cacfa45dda332eb2841b671a67983e26d46d0a5b$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
@@ -45,7 +45,7 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
 }
 
 int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
-                                    int64 offset,
+                                    int64_t offset,
                                     int whence) {
   shutdown_checker::AssertNotShutdown();
 
@@ -63,7 +63,7 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
   return _retval;
 }
 
-int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
+int64_t CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -74,7 +74,7 @@ int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
   }
 
   // Execute
-  int64 _retval = CefWriteHandlerCppToC::Get(self)->Tell();
+  int64_t _retval = CefWriteHandlerCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
@@ -138,7 +138,7 @@ CefRefPtr<CefWriteHandler> CefCppToCRefCounted<
     CefWriteHandler,
     cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_write_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

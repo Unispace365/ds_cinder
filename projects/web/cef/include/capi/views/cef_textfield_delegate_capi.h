@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=482b091326684014bd799fef864e3dfdfc8693a1$
+// $hash=c894c96b089861c183059c54876af9ed9382e349$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_DELEGATE_CAPI_H_
@@ -60,7 +60,7 @@ typedef struct _cef_textfield_delegate_t {
   cef_view_delegate_t base;
 
   ///
-  /// Called when |textfield| recieves a keyboard event. |event| contains
+  /// Called when |textfield| receives a keyboard event. |event| contains
   /// information about the keyboard event. Return true (1) if the keyboard
   /// event was handled or false (0) otherwise for default handling.
   ///

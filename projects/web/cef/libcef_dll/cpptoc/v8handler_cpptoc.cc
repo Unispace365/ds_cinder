@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=27cf2c55d79ea035daa2c3b595d6a6bbe4e36b86$
+// $hash=39f6fa253c177c735048523acbe98898b67cd93a$
 //
 
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -111,7 +111,7 @@ template <>
 CefRefPtr<CefV8Handler>
 CefCppToCRefCounted<CefV8HandlerCppToC, CefV8Handler, cef_v8handler_t>::
     UnwrapDerived(CefWrapperType type, cef_v8handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

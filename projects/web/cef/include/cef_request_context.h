@@ -46,6 +46,7 @@
 #include "include/cef_extension_handler.h"
 #include "include/cef_media_router.h"
 #include "include/cef_preference.h"
+#include "include/cef_values.h"
 
 class CefRequestContextHandler;
 class CefSchemeHandlerFactory;
@@ -265,6 +266,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// See https://developer.chrome.com/extensions for extension implementation
   /// and usage documentation.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef(optional_param=manifest,optional_param=handler)--*/
   virtual void LoadExtension(const CefString& root_directory,
                              CefRefPtr<CefDictionaryValue> manifest,
@@ -276,6 +279,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// access to the extension (see HasExtension). This method must be called on
   /// the browser process UI thread.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef()--*/
   virtual bool DidLoadExtension(const CefString& extension_id) = 0;
 
@@ -284,6 +289,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// |extension_id|. This may not be the context that was used to load the
   /// extension (see DidLoadExtension). This method must be called on the
   /// browser process UI thread.
+  ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
   ///
   /*--cef()--*/
   virtual bool HasExtension(const CefString& extension_id) = 0;
@@ -294,6 +301,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// extension ID values. Returns true on success. This method must be called
   /// on the browser process UI thread.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef()--*/
   virtual bool GetExtensions(std::vector<CefString>& extension_ids) = 0;
 
@@ -301,6 +310,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// Returns the extension matching |extension_id| or NULL if no matching
   /// extension is accessible in this context (see HasExtension). This method
   /// must be called on the browser process UI thread.
+  ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefExtension> GetExtension(
@@ -314,6 +325,104 @@ class CefRequestContext : public CefPreferenceManager {
   /*--cef(optional_param=callback)--*/
   virtual CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) = 0;
+
+  ///
+  /// Returns the current value for |content_type| that applies for the
+  /// specified URLs. If both URLs are empty the default value will be returned.
+  /// Returns nullptr if no value is configured. Must be called on the browser
+  /// process UI thread.
+  ///
+  /*--cef(optional_param=requesting_url,optional_param=top_level_url)--*/
+  virtual CefRefPtr<CefValue> GetWebsiteSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) = 0;
+
+  ///
+  /// Sets the current value for |content_type| for the specified URLs in the
+  /// default scope. If both URLs are empty, and the context is not incognito,
+  /// the default value will be set. Pass nullptr for |value| to remove the
+  /// default value for this content type.
+  ///
+  /// WARNING: Incorrect usage of this method may cause instability or security
+  /// issues in Chromium. Make sure that you first understand the potential
+  /// impact of any changes to |content_type| by reviewing the related source
+  /// code in Chromium. For example, if you plan to modify
+  /// CEF_CONTENT_SETTING_TYPE_POPUPS, first review and understand the usage of
+  /// ContentSettingsType::POPUPS in Chromium:
+  /// https://source.chromium.org/search?q=ContentSettingsType::POPUPS
+  ///
+  /*--cef(optional_param=requesting_url,optional_param=top_level_url,
+          optional_param=value)--*/
+  virtual void SetWebsiteSetting(const CefString& requesting_url,
+                                 const CefString& top_level_url,
+                                 cef_content_setting_types_t content_type,
+                                 CefRefPtr<CefValue> value) = 0;
+
+  ///
+  /// Returns the current value for |content_type| that applies for the
+  /// specified URLs. If both URLs are empty the default value will be returned.
+  /// Returns CEF_CONTENT_SETTING_VALUE_DEFAULT if no value is configured. Must
+  /// be called on the browser process UI thread.
+  ///
+  /*--cef(optional_param=requesting_url,optional_param=top_level_url,
+          default_retval=CEF_CONTENT_SETTING_VALUE_DEFAULT)--*/
+  virtual cef_content_setting_values_t GetContentSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) = 0;
+
+  ///
+  /// Sets the current value for |content_type| for the specified URLs in the
+  /// default scope. If both URLs are empty, and the context is not incognito,
+  /// the default value will be set. Pass CEF_CONTENT_SETTING_VALUE_DEFAULT for
+  /// |value| to use the default value for this content type.
+  ///
+  /// WARNING: Incorrect usage of this method may cause instability or security
+  /// issues in Chromium. Make sure that you first understand the potential
+  /// impact of any changes to |content_type| by reviewing the related source
+  /// code in Chromium. For example, if you plan to modify
+  /// CEF_CONTENT_SETTING_TYPE_POPUPS, first review and understand the usage of
+  /// ContentSettingsType::POPUPS in Chromium:
+  /// https://source.chromium.org/search?q=ContentSettingsType::POPUPS
+  ///
+  /*--cef(optional_param=requesting_url,optional_param=top_level_url)--*/
+  virtual void SetContentSetting(const CefString& requesting_url,
+                                 const CefString& top_level_url,
+                                 cef_content_setting_types_t content_type,
+                                 cef_content_setting_values_t value) = 0;
+
+  ///
+  /// Sets the Chrome color scheme for all browsers that share this request
+  /// context. |variant| values of SYSTEM, LIGHT and DARK change the underlying
+  /// color mode (e.g. light vs dark). Other |variant| values determine how
+  /// |user_color| will be applied in the current color mode. If |user_color| is
+  /// transparent (0) the default color will be used.
+  ///
+  /*--cef()--*/
+  virtual void SetChromeColorScheme(cef_color_variant_t variant,
+                                    cef_color_t user_color) = 0;
+
+  ///
+  /// Returns the current Chrome color scheme mode (SYSTEM, LIGHT or DARK). Must
+  /// be called on the browser process UI thread.
+  ///
+  /*--cef(default_retval=CEF_COLOR_VARIANT_SYSTEM)--*/
+  virtual cef_color_variant_t GetChromeColorSchemeMode() = 0;
+
+  ///
+  /// Returns the current Chrome color scheme color, or transparent (0) for the
+  /// default color. Must be called on the browser process UI thread.
+  ///
+  /*--cef(default_retval=0)--*/
+  virtual cef_color_t GetChromeColorSchemeColor() = 0;
+
+  ///
+  /// Returns the current Chrome color scheme variant. Must be called on the
+  /// browser process UI thread.
+  ///
+  /*--cef(default_retval=CEF_COLOR_VARIANT_SYSTEM)--*/
+  virtual cef_color_variant_t GetChromeColorSchemeVariant() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

@@ -71,7 +71,7 @@
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
@@ -84,7 +84,6 @@
 
 #include "include/base/cef_build.h"
 #include "include/base/cef_compiler_specific.h"
-#include "include/base/cef_template_util.h"
 #include "include/base/internal/cef_bind_internal.h"
 
 #if defined(OS_APPLE) && !HAS_FEATURE(objc_arc)
@@ -105,7 +104,7 @@ BindOnce(Functor&& functor, Args&&... args) {
                 "BindOnce requires non-const rvalue for OnceCallback binding."
                 " I.e.: base::BindOnce(std::move(callback)).");
   static_assert(
-      conjunction<cef_internal::AssertBindArgIsNotBasePassed<
+      std::conjunction<cef_internal::AssertBindArgIsNotBasePassed<
           std::decay_t<Args>>...>::value,
       "Use std::move() instead of base::Passed() with base::BindOnce()");
 

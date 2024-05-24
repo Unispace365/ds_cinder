@@ -107,7 +107,7 @@ class CefXmlObjectLoader {
               cur_object->GetName() != reader->GetQualifiedName()) {
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
-            NOTREACHED();
+            DCHECK(false);
             std::stringstream ss;
             ss << "Mismatched end tag for "
                << std::string(cur_object->GetName()) << ", line "
@@ -158,10 +158,9 @@ class CefXmlObjectLoader {
 
 }  // namespace
 
-CefXmlObject::CefXmlObject(const CefString& name)
-    : name_(name), parent_(nullptr) {}
+CefXmlObject::CefXmlObject(const CefString& name) : name_(name) {}
 
-CefXmlObject::~CefXmlObject() {}
+CefXmlObject::~CefXmlObject() = default;
 
 bool CefXmlObject::Load(CefRefPtr<CefStreamReader> stream,
                         CefXmlReader::EncodingType encodingType,

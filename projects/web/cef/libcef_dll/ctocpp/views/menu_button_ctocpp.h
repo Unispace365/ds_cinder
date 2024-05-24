@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0323c84d6099ab582a71a40f8065013cecc126cd$
+// $hash=fbe53f51eb991aeebc5d66da40a894880374e248$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_CTOCPP_H_
@@ -106,6 +106,7 @@ class CefMenuButtonCToCpp : public CefCToCppRefCounted<CefMenuButtonCToCpp,
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
+  cef_color_t GetThemeColor(int color_id) override;
   bool ConvertPointToScreen(CefPoint& point) override;
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;

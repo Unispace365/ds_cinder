@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3c1bf66c510b9f2d4a63bb400b37b93e9f555349$
+// $hash=de134596eb11df5c41c982332177d8e903fdc9b0$
 //
 
 #include "libcef_dll/ctocpp/media_router_ctocpp.h"
@@ -171,7 +171,7 @@ template <>
 cef_media_router_t*
 CefCToCppRefCounted<CefMediaRouterCToCpp, CefMediaRouter, cef_media_router_t>::
     UnwrapDerived(CefWrapperType type, CefMediaRouter* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

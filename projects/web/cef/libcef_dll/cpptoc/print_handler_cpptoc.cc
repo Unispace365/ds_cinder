@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ddbbddf37b581bf4fc29bcc7ccff2e1129fb14ad$
+// $hash=495825d5c3d119323101d93eac3fd25bfa905c97$
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
@@ -225,7 +225,7 @@ CefRefPtr<CefPrintHandler> CefCppToCRefCounted<
     CefPrintHandler,
     cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_print_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

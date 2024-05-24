@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aad33efa7cb9fe4904f1fcafecd960e2b3c86ab1$
+// $hash=8db751f9d33c0279c801c0820d8a15d4c14fede6$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -234,6 +234,56 @@ CefRefPtr<CefRequestContext> CefBrowserHostCToCpp::GetRequestContext() {
   return CefRequestContextCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::CanZoom(cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_zoom)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->can_zoom(_struct, command);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::Zoom(cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, zoom)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->zoom(_struct, command);
+}
+
+NO_SANITIZE("cfi-icall") double CefBrowserHostCToCpp::GetDefaultZoomLevel() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_default_zoom_level)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  double _retval = _struct->get_default_zoom_level(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
 NO_SANITIZE("cfi-icall") double CefBrowserHostCToCpp::GetZoomLevel() {
   shutdown_checker::AssertNotShutdown();
 
@@ -332,7 +382,7 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserHostCToCpp::DownloadImage(
     const CefString& image_url,
     bool is_favicon,
-    uint32 max_image_size,
+    uint32_t max_image_size,
     bool bypass_cache,
     CefRefPtr<CefDownloadImageCallback> callback) {
   shutdown_checker::AssertNotShutdown();
@@ -1179,6 +1229,109 @@ NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsAudioMuted() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsFullscreen() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_fullscreen)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_fullscreen(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::ExitFullscreen(bool will_cause_resize) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, exit_fullscreen)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->exit_fullscreen(_struct, will_cause_resize);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::CanExecuteChromeCommand(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_execute_chrome_command)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->can_execute_chrome_command(_struct, command_id);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::ExecuteChromeCommand(
+    int command_id,
+    cef_window_open_disposition_t disposition) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, execute_chrome_command)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->execute_chrome_command(_struct, command_id, disposition);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::IsRenderProcessUnresponsive() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_render_process_unresponsive)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_render_process_unresponsive(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_runtime_style_t CefBrowserHostCToCpp::GetRuntimeStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_runtime_style)) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_runtime_style_t _retval = _struct->get_runtime_style(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserHostCToCpp::CefBrowserHostCToCpp() {}
@@ -1193,7 +1346,7 @@ template <>
 cef_browser_host_t*
 CefCToCppRefCounted<CefBrowserHostCToCpp, CefBrowserHost, cef_browser_host_t>::
     UnwrapDerived(CefWrapperType type, CefBrowserHost* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
