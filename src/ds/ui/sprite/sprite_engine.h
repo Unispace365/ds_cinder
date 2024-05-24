@@ -65,6 +65,7 @@ class SpriteEngine {
 	virtual ds::WorkManager&	 getWorkManager() final { return mWorkManager; };
 	virtual ds::ResourceList&	 getResources()										   = 0;
 	virtual const ds::ColorList& getColors() const									   = 0;
+	virtual ds::ColorList&		 getColors()										   = 0;
 	virtual const ds::FontList&	 getFonts() const									   = 0;
 	virtual ds::AutoUpdateList&	 getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&	 getLoadImageService()								   = 0;
