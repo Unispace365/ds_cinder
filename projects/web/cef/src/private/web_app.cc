@@ -59,7 +59,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 
 	command_line->AppendSwitch("off-screen-rendering-enabled");
 	command_line->AppendSwitch("transparent-painting-enabled");
-	command_line->AppendSwitch("shared-texture-enabled");
+	//command_line->AppendSwitch("shared-texture-enabled");
 	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 }
@@ -111,7 +111,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
 	window_info.windowless_rendering_enabled = true;
-	window_info.shared_texture_enabled = true;
+	window_info.shared_texture_enabled = false;
 	window_info.SetAsWindowless(window);// , isTransparent);
 
 	if(mHandler){
