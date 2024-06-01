@@ -4,6 +4,7 @@
 #include "string_util.h"
 
 #include "ds/util/sundown/markdown.h"
+#include <cctype>
 
 namespace ds { namespace ui {
 
@@ -304,6 +305,10 @@ namespace ds { namespace ui {
 
 			outputty.append(thisLine);
 			outputty.append("\n");
+		}
+
+		while(!outputty.empty() && std::isspace(outputty.back())){
+			outputty.pop_back();
 		}
 
 		return outputty;
