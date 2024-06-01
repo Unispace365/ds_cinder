@@ -552,6 +552,14 @@ namespace ui {
 			\return True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		bool getTransparent() const;
 
+		/** Sets (animated) value for audio volume, to be used by derived classes.
+		    \param value between 0 and 1. */
+		virtual void setVolume( float value );
+
+		/** Returns (animated) value for audio volume, to be used by derived classes.
+		    \return value between 0 and 1. */
+		virtual float getVolume() const;
+
 		/** Sets (animated) value, to be used by derived classes.
 		    \param value between 0 and 1. */
 		void setReveal( float value );
@@ -975,6 +983,7 @@ namespace ui {
 		bool	  mRotationOrderZYX;
 		float	  mOpacity;
 		ci::Color mColor;
+		float	  mVolume;
 		float	  mReveal;
 		ci::Rectf mClippingBounds;
 		bool	  mClippingBoundsDirty;

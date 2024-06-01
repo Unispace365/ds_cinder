@@ -76,6 +76,7 @@ namespace ds { namespace ui {
 		static const SpriteAnim<ci::vec3>&	ANIM_SCALE();
 		static const SpriteAnim<ci::vec3>&	ANIM_SIZE();
 		static const SpriteAnim<ci::vec3>&	ANIM_ROTATION();
+		static const SpriteAnim<float>&		ANIM_VOLUME();
 		static const SpriteAnim<float>&		ANIM_REVEAL();
 		static const SpriteAnim<float>&		ANIM_NORMALIZED();
 
@@ -98,6 +99,9 @@ namespace ds { namespace ui {
 		void tweenSize(const ci::vec3& size, const float duration = 1.0f, const float delay = 0.0f,
 					   const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
 					   const std::function<void(void)>& updateFn = nullptr);
+		void tweenVolume(float value, const float duration = 1.0f, const float delay = 0.0f,
+						 const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
+						 const std::function<void(void)>& updateFn = nullptr);
 		void tweenReveal(float value, const float duration = 1.0f, const float delay = 0.0f,
 						 const ci::EaseFn& = ci::easeNone, const std::function<void(void)>& finishFn = nullptr,
 						 const std::function<void(void)>& updateFn = nullptr);
@@ -116,6 +120,7 @@ namespace ds { namespace ui {
 		const bool getSizeTweenIsRunning();
 		const bool getOpacityTweenIsRunning();
 		const bool getColorTweenIsRunning();
+		const bool getVolumeTweenIsRunning();
 		const bool getRevealTweenIsRunning();
 		const bool getNormalizeTweenIsRunning();
 
@@ -128,6 +133,7 @@ namespace ds { namespace ui {
 		void animSizeStop();
 		void animOpacityStop();
 		void animColorStop();
+		void animVolumeStop();
 		void animRevealStop();
 		void animNormalizedStop();
 
@@ -140,6 +146,7 @@ namespace ds { namespace ui {
 		void completeTweenSize(const bool callFinishFunction = false);
 		void completeTweenOpacity(const bool callFinishFunction = false);
 		void completeTweenColor(const bool callFinishFunction = false);
+		void completeTweenVolume(const bool callFinishFunction = false);
 		void completeTweenReveal(const bool callFinishFunction = false);
 		void completeTweenNormalized(const bool callFinishFunction = false);
 
@@ -231,6 +238,7 @@ namespace ds { namespace ui {
 		ci::Anim<ci::vec3>	mAnimScale;
 		ci::Anim<ci::vec3>	mAnimSize;
 		ci::Anim<ci::vec3>	mAnimRotation;
+		ci::Anim<float>		mAnimVolume;
 		ci::Anim<float>		mAnimReveal;
 		ci::Anim<float>		mAnimNormalized;
 
@@ -247,6 +255,7 @@ namespace ds { namespace ui {
 		float		mAnimateOnOpacityTarget;
 		ci::vec3	mAnimateOnPositionTarget;
 		ci::vec3	mAnimateOnScaleTarget;
+		float		mAnimateOnVolumeTarget;
 		float		mAnimateOnRevealTarget;
 
 		float mNormalizedTweenValue;
@@ -258,6 +267,7 @@ namespace ds { namespace ui {
 		ci::TweenRef<ci::vec3>	mInternalSizeCinderTweenRef;
 		ci::TweenRef<ci::vec3>	mInternalRotationCinderTweenRef;
 		ci::TweenRef<ci::Color> mInternalColorCinderTweenRef;
+		ci::TweenRef<float>		mInternalVolumeCinderTweenRef;
 		ci::TweenRef<float>		mInternalRevealCinderTweenRef;
 		ci::TweenRef<float>		mInternalNormalizedCinderTweenRef;
 

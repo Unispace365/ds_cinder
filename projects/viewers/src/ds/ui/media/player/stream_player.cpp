@@ -26,8 +26,7 @@ namespace ds { namespace ui {
 	  , mShowInterfaceAtStart(true)
 	  , mIsPlaying(false)
 	  , mLetterbox(true)
-	  , mInterfaceBelowMedia(false)
-	  , mVolume(1.0f) {
+	  , mInterfaceBelowMedia(false) {
 		mLayoutFixedAspect = true;
 	}
 

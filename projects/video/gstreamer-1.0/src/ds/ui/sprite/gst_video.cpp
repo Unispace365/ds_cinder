@@ -19,6 +19,7 @@
 #include <ds/debug/computer_info.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/util/float_util.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/video_meta_cache.h"
@@ -180,7 +181,6 @@ GstVideo::GstVideo(SpriteEngine& engine)
   , mVideoCompleteFn(void_noop)
   , mStatusFn(noop<const Status&>)
   , mErrorFn(nullptr)
-  , mVolume(1.0f)
   , mPan(0.0f)
   , mLooping(false)
   , mMuted(false)
@@ -912,17 +912,13 @@ bool GstVideo::getIsMuted() const {
 	return mMuted;
 }
 
-void GstVideo::setVolume(const float volume) {
-	if (mVolume == volume) return;
-
+void GstVideo::setVolume(float volume) {
+	if (approxEqual(mVolume, volume)) return;
+	
 	mVolume = volume;
 	applyMovieVolume();
 
 	markAsDirty(mVolumeDirty);
-}
-
-float GstVideo::getVolume() const {
-	return mVolume;
 }
 
 void GstVideo::setPan(const float pan) {

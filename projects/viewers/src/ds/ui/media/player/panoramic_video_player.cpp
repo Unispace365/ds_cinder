@@ -32,7 +32,6 @@ namespace ds { namespace ui {
 	  , mAutoPlayFirstFrame(true)
 	  , mAllowOutOfBoundsMuted(true)
 	  , mPanning(0.0f)
-	  , mVolume(1.0f)
 	  , mLooping(true) {
 		mLayoutFixedAspect = true;
 	}

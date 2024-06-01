@@ -628,6 +628,15 @@ bool MediaPlayer::setAvailableSize(const ci::vec2& size) {
 	return true;
 }
 
+void MediaPlayer::setVolume(float volume) {
+	if (mVideoPlayer) mVideoPlayer->setVolume(volume);
+	if (mPanoramicPlayer) mPanoramicPlayer->setVolume(volume);
+	if (mStreamPlayer) mStreamPlayer->setVolume(volume);
+	if (mPDFPlayer) mPDFPlayer->setVolume(volume);
+	if (mWebPlayer) mWebPlayer->setVolume(volume);
+	if (mYouTubePlayer) mYouTubePlayer->setVolume(volume);
+}
+
 void MediaPlayer::userInputReceived() {
 	ds::ui::Sprite::userInputReceived();
 

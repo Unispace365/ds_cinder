@@ -48,7 +48,7 @@ namespace ui {
 		void setStreamLatency(const double latencyInSeconds);
 
 		/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
-		void setVolume(const float volume);
+		void setVolume(float volume) override;
 
 		ds::ui::GstVideo* getVideo();
 
@@ -60,7 +60,6 @@ namespace ui {
 		virtual void							onSizeChanged() override;
 		VideoInterface*							mVideoInterface;
 		ds::ui::GstVideo*						mVideo;
-		float									mVolume;
 		bool									mIsPlaying;
 		bool									mEmbedInterface;
 		bool									mShowInterfaceAtStart;

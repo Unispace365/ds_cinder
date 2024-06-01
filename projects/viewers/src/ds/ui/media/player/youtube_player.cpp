@@ -109,7 +109,7 @@ float YouTubeWeb::getVolume() {
 	return mVolume;
 }
 
-void YouTubeWeb::setVolume(const float theVolume) {
+void YouTubeWeb::setVolume(float theVolume) {
 	float newVolume = theVolume;
 	if (theVolume < 0.0f) newVolume = 0.0f;
 	if (theVolume > 1.0f) newVolume = 1.0f;
@@ -127,8 +127,7 @@ YouTubePlayer::YouTubePlayer(ds::ui::SpriteEngine& eng, const bool embedInterfac
   , mLetterbox(true)
   , mAllowTouchToggle(true)
   , mStartInteractable(false)
-  , mInterfaceBelowMedia(false)
-  , mVolume(1.0f) {
+  , mInterfaceBelowMedia(false) {
 	mLayoutFixedAspect = true;
 	enable(false);
 }

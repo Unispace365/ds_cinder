@@ -97,6 +97,13 @@ namespace ds { namespace ui {
 		return ANIM;
 	}
 
+	const SpriteAnim<float>& SpriteAnimatable::ANIM_VOLUME() {
+		static ds::ui::SpriteAnim<float> ANIM([](ds::ui::Sprite& s) -> ci::Anim<float>& { return s.mAnimVolume; },
+											  [](ds::ui::Sprite& s) -> float { return s.getVolume(); },
+											  [](float v, ds::ui::Sprite& s) { s.setVolume(v); });
+		return ANIM;
+	}
+
 	const SpriteAnim<float>& SpriteAnimatable::ANIM_REVEAL() {
 		static ds::ui::SpriteAnim<float> ANIM([](ds::ui::Sprite& s) -> ci::Anim<float>& { return s.mAnimReveal; },
 											  [](ds::ui::Sprite& s) -> float { return s.getReveal(); },
@@ -168,6 +175,15 @@ namespace ds { namespace ui {
 		mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 	}
 
+	void SpriteAnimatable::tweenVolume(float value, const float duration, const float delay, const ci::EaseFn& ease,
+									   const std::function<void()>& finishFn, const std::function<void()>& updateFn) {
+		DS_LOG_INFO("ANIMATING VOLUME TO " << value )
+		animVolumeStop();
+		auto options =
+			mEngine.getTweenline().apply(mOwner, ANIM_VOLUME(), value, duration, ease, finishFn, delay, updateFn);
+		mInternalVolumeCinderTweenRef = options.operator ci::TweenRef<float>();
+	}
+
 	void SpriteAnimatable::tweenReveal(float value, const float duration, const float delay, const ci::EaseFn& ease,
 									   const std::function<void()>& finishFn, const std::function<void()>& updateFn) {
 		animRevealStop();
@@ -193,6 +209,19 @@ namespace ds { namespace ui {
 				mOwner.setColor(mInternalColorCinderTweenRef->getEndValue());
 				if (callFinishFunction) {
 					auto finishFunc = mInternalColorCinderTweenRef->getFinishFn();
+					if (finishFunc) finishFunc();
+				}
+			}
+		}
+	}
+
+	void SpriteAnimatable::completeTweenVolume(const bool callFinishFunction) {
+		if (mInternalVolumeCinderTweenRef) {
+			if (getVolumeTweenIsRunning()) {
+				mAnimVolume.stop();
+				mOwner.setVolume(mInternalVolumeCinderTweenRef->getEndValue());
+				if (callFinishFunction) {
+					auto finishFunc = mInternalVolumeCinderTweenRef->getFinishFn();
 					if (finishFunc) finishFunc();
 				}
 			}
@@ -313,7 +342,9 @@ namespace ds { namespace ui {
 	const bool SpriteAnimatable::getColorTweenIsRunning() {
 		return (mInternalColorCinderTweenRef && !mAnimColor.isComplete());
 	}
-
+	const bool SpriteAnimatable::getVolumeTweenIsRunning() {
+		return (mInternalVolumeCinderTweenRef && !mAnimVolume.isComplete());
+	}
 	const bool SpriteAnimatable::getRevealTweenIsRunning() {
 		return (mInternalRevealCinderTweenRef && !mAnimReveal.isComplete());
 	}
@@ -369,6 +400,11 @@ namespace ds { namespace ui {
 	void SpriteAnimatable::animColorStop() {
 		mAnimColor.stop();
 		mInternalColorCinderTweenRef = nullptr;
+	}
+
+	void SpriteAnimatable::animVolumeStop() {
+		mAnimVolume.stop();
+		mInternalVolumeCinderTweenRef = nullptr;
 	}
 
 	void SpriteAnimatable::animRevealStop() {
@@ -443,6 +479,7 @@ namespace ds { namespace ui {
 		mAnimateOnScaleTarget	 = mOwner.getScale();
 		mAnimateOnPositionTarget = mOwner.getPosition();
 		mAnimateOnOpacityTarget	 = mOwner.getOpacity();
+		mAnimateOnVolumeTarget	 = mOwner.getVolume();
 		mAnimateOnRevealTarget	 = mOwner.getReveal();
 	}
 
@@ -663,6 +700,10 @@ namespace ds { namespace ui {
 						mOwner.setScale(mAnimateOnScaleTarget + dest);
 					}
 					tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
+				} else if (animType == "volume") {
+					setAnimateOnTargetsIfNeeded();
+					mOwner.setVolume(dest.x);
+					tweenVolume(mAnimateOnVolumeTarget, dur, delayey, easing);
 				} else if (animType == "reveal") {
 					setAnimateOnTargetsIfNeeded();
 					mOwner.setReveal(dest.x);
@@ -691,6 +732,10 @@ namespace ds { namespace ui {
 					} else {
 						tweenScale(mAnimateOnScaleTarget + dest, dur, delayey, easing);
 					}
+				} else if (animType == "volume") {
+					// setAnimateOnTargetsIfNeeded();
+					mOwner.setVolume(mAnimateOnVolumeTarget);
+					tweenVolume(dest.x, dur, delayey, easing);
 				} else if (animType == "reveal") {
 					// setAnimateOnTargetsIfNeeded();
 					mOwner.setReveal(mAnimateOnRevealTarget);
