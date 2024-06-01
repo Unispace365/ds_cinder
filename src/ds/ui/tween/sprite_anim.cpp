@@ -177,7 +177,6 @@ namespace ds { namespace ui {
 
 	void SpriteAnimatable::tweenVolume(float value, const float duration, const float delay, const ci::EaseFn& ease,
 									   const std::function<void()>& finishFn, const std::function<void()>& updateFn) {
-		DS_LOG_INFO("ANIMATING VOLUME TO " << value )
 		animVolumeStop();
 		auto options =
 			mEngine.getTweenline().apply(mOwner, ANIM_VOLUME(), value, duration, ease, finishFn, delay, updateFn);
