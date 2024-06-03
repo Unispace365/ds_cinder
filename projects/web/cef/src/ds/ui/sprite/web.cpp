@@ -461,7 +461,7 @@ void Web::update(const ds::UpdateParams& p) {
 	}
 
 
-	if (mBuffer && mHasBuffer) {
+	if (mBuffer && mHasBuffer && visible()) {
 		// Anything that modifies mBuffer needs to be locked
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -480,7 +480,7 @@ void Web::update(const ds::UpdateParams& p) {
 		mHasBuffer = false;
 	}
 
-	if (mPopupBuffer && mHasPopupBuffer) {
+	if (mPopupBuffer && mHasPopupBuffer && visible()) {
 		// Anything that modifies mBuffer needs to be locked
 		std::lock_guard<std::mutex> lock(mMutex);
 
