@@ -118,20 +118,26 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 
 			if (std::filesystem::exists(sync_path)) {
 				// mLock.lock();
-				auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
+				try {
+					auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
 
-				if (Poco::Process::isRunning(process)) {
-					// get the win32 (as opposed to Poco) handle for the process we just started.
-					HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
-					// add it to our job.
-					AssignProcessToJobObject(mJobObj, procHandle);
+					if (Poco::Process::isRunning(process)) {
+						// get the win32 (as opposed to Poco) handle for the process we just started.
+						HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
+						// add it to our job.
+						AssignProcessToJobObject(mJobObj, procHandle);
 
-					mProcessId = process.id();
-					mStarted   = true;
-					DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
-				} else {
-					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
-					mExit	 = true;
+						mProcessId = process.id();
+						mStarted   = true;
+						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
+					} else {
+						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
+						mExit	 = true;
+						mStarted = false;
+					}
+				} catch (const std::exception& e) {
+					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: " << e.what());
+					mExit	 = false;
 					mStarted = false;
 				}
 
