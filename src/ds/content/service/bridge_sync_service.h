@@ -15,14 +15,15 @@ namespace ds::content {
 
 struct BridgeSyncSettings {
 	// std::string name		 = "";
-	std::string syncPath	 = "";
-	std::string server		 = "";
-	std::string authServer	 = "";
-	std::string clientId	 = "";
-	std::string clientSecret = "";
-	std::string directory	 = "";
-	std::string interval	 = "";
-	bool		verbose		 = false;
+	std::string syncPath	   = "";
+	std::string server		   = "";
+	std::string authServer	   = "";
+	std::string clientId	   = "";
+	std::string clientSecret   = "";
+	std::string directory	   = "";
+	std::string interval	   = "";
+	std::string additionalArgs = "";
+	bool		verbose		   = false;
 };
 
 /**

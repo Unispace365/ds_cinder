@@ -91,6 +91,11 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			if (settings.verbose) {
 				args.push_back("-v");
 			}
+			if (!settings.additionalArgs.empty()) {
+				for(auto arg : ds::split(settings.additionalArgs, " ")){
+					args.push_back(arg);
+				}
+			}
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
 				//Default path on production

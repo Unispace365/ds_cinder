@@ -139,7 +139,7 @@ App::App(const RootList& roots)
   , mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
   , mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f) {
 
- 	setupKeyPresses();
+	setupKeyPresses();
 
 	mEngineSettings.printStartupInfo();
 
@@ -410,7 +410,6 @@ void App::resetupServer() {
 		// Restart bridge sync in case endpoint has changed
 		launchBridgeSyncService();
 	}
-
 }
 
 void App::preServerSetup() {
@@ -448,7 +447,6 @@ void App::update() {
 		mNeedsDockingWindow = false;
 		// re-set to true after draw...
 	}
-	
 
 
 #ifdef _WIN32
@@ -652,7 +650,7 @@ void App::launchSyncService() {
 
 void App::launchBridgeSyncService() {
 	// fireup downsync
-	if(mBridgeSyncService == nullptr){
+	if (mBridgeSyncService == nullptr) {
 		registerKeyPress(
 			"Toggle BridgeSync output",
 			[this] {
@@ -678,15 +676,17 @@ void App::launchBridgeSyncService() {
 		settings.clientSecret = mEngine.getEngineSettings().getString("bridgesync:client_secret", 0, "");
 		settings.directory =
 			ds::Environment::expand(mEngine.getEngineSettings().getString("bridgesync:directory", 0, ""));
-		if(settings.directory.empty()){
-			settings.directory = ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, ""));
-
+		if (settings.directory.empty()) {
+			settings.directory =
+				ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, ""));
 		}
 		// optional settings
-		settings.interval = mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
-		settings.verbose  = mEngine.getEngineSettings().getBool("bridgesync:verbose", 0, false);
+		settings.interval		= mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
+		settings.verbose		= mEngine.getEngineSettings().getBool("bridgesync:verbose", 0, false);
+		settings.additionalArgs = mEngine.getEngineSettings().getString("bridgesync:additional_args", 0, "");
 
-		settings.syncPath  = mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
+		settings.syncPath =
+			mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
 
 		mBridgeSyncService->initialize(settings);
 		/* registerKeyPress(
