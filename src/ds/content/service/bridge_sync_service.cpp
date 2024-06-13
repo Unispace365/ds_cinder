@@ -12,6 +12,7 @@
 #include <cinder/CinderImGuiConfig.h>
 
 #include <ds/debug/logger.h>
+#include <ds/util/string_util.h>
 
 #include <imgui_components/TextAnsi.h>
 
@@ -92,9 +93,22 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 				args.push_back("-v");
 			}
 			if (!settings.additionalArgs.empty()) {
-				for(auto arg : ds::split(settings.additionalArgs, " ")){
-					args.push_back(arg);
+				auto splitAdditional = ds::split(settings.additionalArgs, ";");
+				for (auto kv : splitAdditional) {
+					auto pair = ds::split(kv, ":");
+					if (pair.size() >= 1) {
+						args.push_back(pair[0]);
+					}
+					if (pair.size() >= 2) {
+						args.push_back(pair[1]);
+					}
+					
 				}
+				//args.push_back(settings.additionalArgs);
+				/* auto splitAdditional = ds::split(settings.additionalArgs, " ");
+				for(auto& arg : splitAdditional){
+					args.push_back(arg);
+				}*/
 			}
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
