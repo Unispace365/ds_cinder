@@ -398,7 +398,7 @@ void Grid::runLayout() {
 
 			if (!hasChanged) break;
 
-			DS_LOG_VERBOSE(0, "Restarting layout because content size has changed.");
+			DS_LOG_VERBOSE(1, "Restarting layout because content size has changed.");
 		}
 	} catch (const std::exception& exc) {
 		DS_LOG_ERROR(exc.what())
@@ -408,7 +408,7 @@ void Grid::runLayout() {
 	std::stringstream ss;
 	ss << std::string("Running layout on ds::ui::Grid took ");
 	ss << t.getSeconds() << " seconds.";
-	DS_LOG_VERBOSE(0, ss.str());
+	DS_LOG_VERBOSE(1, ss.str());
 
 	// Position anything that's not auto-positioned.
 	size_t colCursor{0};
