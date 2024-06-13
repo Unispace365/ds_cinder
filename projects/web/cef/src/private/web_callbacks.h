@@ -45,6 +45,9 @@ namespace web {
 		std::function<void(const bool isProxy, const std::string& host, const int port, const std::string& realm,
 						   const std::string& scheme)>
 			mAuthCallback;
+
+		std::function<void(const std::string& message, const std::string& source, const int line)>
+			mConsoleMessageCallback;
 	};
 
 } // namespace web

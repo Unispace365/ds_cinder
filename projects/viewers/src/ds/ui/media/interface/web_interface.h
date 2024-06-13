@@ -33,6 +33,10 @@ class WebInterface : public MediaInterface {
 	void setKeyboardAbove(const bool kerboardAbove);
 	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
+	void setMessageCallback(std::function<void(const std::string&, const std::string&, int line)> func) {
+		mMessageCallback = func;
+	}
+
 	void setAllowTouchToggle(const bool allowTouchToggling);
 
 	/// If true, will keep the interface onscreen when the keyboard is on
@@ -78,6 +82,8 @@ class WebInterface : public MediaInterface {
 	bool					  mKeyboardAbove;
 	bool					  mKeyboardAutoDisablesTimeout;
 	std::function<void(bool)> mKeyboardStatusCallback = nullptr;
+
+	std::function<void(const std::string&, const std::string&, int line)> mMessageCallback = nullptr;
 
 	float mKeyboardKeyScale;
 

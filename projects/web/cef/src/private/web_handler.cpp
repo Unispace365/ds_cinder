@@ -63,8 +63,17 @@ namespace ds { namespace web {
 
 	bool WebHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser, cef_log_severity_t level, const CefString& message,
 									  const CefString& source, int line) {
-		DS_LOG_VERBOSE(1,
-					   "Web console: " << message.ToString() << " source: " << source.ToString() << " line: " << line);
+		// be sure this is locked with other requests to the browser lists
+		base::AutoLock lock_scope(mLock);
+
+		int	 browserId = browser->GetIdentifier();
+		auto findy	   = mWebCallbacks.find(browserId);
+		if (findy != mWebCallbacks.end()) {
+			if (findy->second.mConsoleMessageCallback) {
+				findy->second.mConsoleMessageCallback(message, source, line);
+			}
+		}
+
 		return false;
 	}
 

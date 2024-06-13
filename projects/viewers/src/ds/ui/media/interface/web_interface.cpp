@@ -339,6 +339,7 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 	if (mLinkedWeb) {
 		mLinkedWeb->setAuthCallback(nullptr);
 		mLinkedWeb->setLoadingUpdatedCallback(nullptr);
+		mLinkedWeb->setConsoleMessageCallback(nullptr);
 	}
 
 	mLinkedWeb = linkedWeb;
@@ -348,6 +349,9 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 			[this](ds::ui::Web::AuthCallback callback) { startAuthCallback(callback.mHost, callback.mRealm); });
 
 		mLinkedWeb->setLoadingUpdatedCallback([this](const bool isLoading) { updateWidgets(); });
+		mLinkedWeb->setConsoleMessageCallback([this](ds::ui::Web::ConsoleMessage console) {
+			if (mMessageCallback) mMessageCallback(console.mMessage, console.mSource, console.mLine);
+		});
 	}
 
 	updateWidgets();
