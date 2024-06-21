@@ -259,11 +259,10 @@ namespace ds { namespace ui {
 	}
 
 	void PanoramicVideoPlayer::setVolume(const float volume) {
+		Sprite::setVolume(volume);
 		if (mVideo) {
 			mVideo->setVolume(volume);
 		}
-
-		mVolume = volume;
 	}
 
 	void PanoramicVideoPlayer::setAutoSynchronize(const bool doSync) {

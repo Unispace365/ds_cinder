@@ -915,7 +915,7 @@ bool GstVideo::getIsMuted() const {
 void GstVideo::setVolume(float volume) {
 	if (approxEqual(mVolume, volume)) return;
 	
-	mVolume = volume;
+	Sprite::setVolume(volume);
 	applyMovieVolume();
 
 	markAsDirty(mVolumeDirty);

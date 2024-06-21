@@ -26,7 +26,7 @@ class VideoVolumeControl : public ds::ui::Sprite {
 
 	void linkVideo(ds::ui::GstVideo* linkedVideo);
 	void linkYouTube(ds::ui::YouTubeWeb* linkedYouTube);
-	void setVolume(const float v);
+	void setVolume(float volume) override;
 
 	void			 setStyle(VideoVolumeStyle newStyle);
 	VideoVolumeStyle getStyle() { return mStyle; }

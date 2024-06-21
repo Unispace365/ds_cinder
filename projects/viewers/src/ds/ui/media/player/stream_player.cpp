@@ -171,11 +171,10 @@ namespace ds { namespace ui {
 	}
 
 	void StreamPlayer::setVolume(const float volume) {
+		Sprite::setVolume(volume);
 		if (mVideo) {
 			mVideo->setVolume(volume);
 		}
-
-		mVolume = volume;
 	}
 
 	void StreamPlayer::play() {

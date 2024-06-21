@@ -114,7 +114,7 @@ void YouTubeWeb::setVolume(float theVolume) {
 	if (theVolume < 0.0f) newVolume = 0.0f;
 	if (theVolume > 1.0f) newVolume = 1.0f;
 	executeJavascript("setVolume(\"" + std::to_string(newVolume * 100.0f) + "\");");
-	mVolume = newVolume; // we just assume everything went to plan
+	Sprite::setVolume(newVolume); // we just assume everything went to plan
 }
 
 YouTubePlayer::YouTubePlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
@@ -324,7 +324,7 @@ void YouTubePlayer::setNativeTouches(const bool isNative) {
 }
 
 void YouTubePlayer::setVolume(const float volume) {
-	mVolume = volume;
+	Sprite::setVolume(volume);
 	if (mYouTubeWeb) {
 		mYouTubeWeb->setVolume(volume);
 	}

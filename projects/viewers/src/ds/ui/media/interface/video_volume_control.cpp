@@ -139,16 +139,17 @@ void VideoVolumeControl::linkYouTube(ds::ui::YouTubeWeb* linkedYouTube) {
 	mLinkedYouTube = linkedYouTube;
 }
 
-void VideoVolumeControl::setVolume(const float v) {
+void VideoVolumeControl::setVolume(float volume) {
+	Sprite::setVolume(volume);
 	if (mLinkedVideo) {
-		if (mLinkedVideo->getIsMuted() && v > 0.0f) {
+		if (mLinkedVideo->getIsMuted() && volume > 0.0f) {
 			mLinkedVideo->setMute(false);
 		}
-		mLinkedVideo->setVolume(v);
+		mLinkedVideo->setVolume(volume);
 	}
 
 	if (mLinkedYouTube) {
-		mLinkedYouTube->setVolume(v);
+		mLinkedYouTube->setVolume(volume);
 	}
 }
 

@@ -659,6 +659,7 @@ ci::vec3 Sprite::getRotation() const {
 }
 
 void Sprite::setVolume(float value) {
+	if (!approxEqual(mVolume, value)) clearAnimateOnTargets();
 	mVolume = value;
 }
 

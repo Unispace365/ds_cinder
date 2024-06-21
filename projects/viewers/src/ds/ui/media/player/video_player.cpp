@@ -264,12 +264,11 @@ void VideoPlayer::setPan(const float newPan) {
 	mPanning = newPan;
 }
 
-void VideoPlayer::setVolume(const float volume) {
+void VideoPlayer::setVolume(float volume) {
+	Sprite::setVolume(volume);
 	if (mVideo) {
 		mVideo->setVolume(volume);
 	}
-
-	mVolume = volume;
 }
 
 void VideoPlayer::setAutoSynchronize(const bool doSync) {
