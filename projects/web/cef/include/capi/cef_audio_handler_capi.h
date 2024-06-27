@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=936274d5539f225ff7adb7e0acba517fd9a8e2f8$
+// $hash=d98482eba93dcd8b6a6f69b2732162733c73203d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_AUDIO_HANDLER_CAPI_H_
@@ -93,7 +93,7 @@ typedef struct _cef_audio_handler_t {
                                              struct _cef_browser_t* browser,
                                              const float** data,
                                              int frames,
-                                             int64 pts);
+                                             int64_t pts);
 
   ///
   /// Called on the UI thread when the stream has stopped. OnAudioSteamStopped

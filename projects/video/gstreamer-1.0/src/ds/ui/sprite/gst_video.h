@@ -133,8 +133,7 @@ class GstVideo : public Sprite {
 	bool getIsMuted() const;
 
 	// Volume control. value between 0.0f and 1.0f
-	void  setVolume(const float volume);
-	float getVolume() const;
+	void setVolume(float volume) override;
 
 	/// Control which speaker to play out of (left/right/both)
 	///-1.0f == full left, 0.0f == center, 1.0f == right
@@ -299,7 +298,6 @@ class GstVideo : public Sprite {
 	std::function<void()>					mVideoCompleteFn;
 	std::function<void(const Status&)>		mStatusFn;
 	std::function<void(const std::string&)> mErrorFn;
-	float									mVolume;
 	float									mPan;
 	bool									mLooping;
 	bool									mMuted;

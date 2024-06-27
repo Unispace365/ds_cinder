@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=84d7a315d04726c8f80067ea2207618d7dfdd798$
+// $hash=10d0c2aea10137a06b9e291e2a340f74595e3087$
 //
 
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
@@ -585,7 +585,7 @@ template <>
 cef_list_value_t*
 CefCToCppRefCounted<CefListValueCToCpp, CefListValue, cef_list_value_t>::
     UnwrapDerived(CefWrapperType type, CefListValue* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -32,7 +32,6 @@ namespace ds { namespace ui {
 	  , mAutoPlayFirstFrame(true)
 	  , mAllowOutOfBoundsMuted(true)
 	  , mPanning(0.0f)
-	  , mVolume(1.0f)
 	  , mLooping(true) {
 		mLayoutFixedAspect = true;
 	}
@@ -260,11 +259,10 @@ namespace ds { namespace ui {
 	}
 
 	void PanoramicVideoPlayer::setVolume(const float volume) {
+		Sprite::setVolume(volume);
 		if (mVideo) {
 			mVideo->setVolume(volume);
 		}
-
-		mVolume = volume;
 	}
 
 	void PanoramicVideoPlayer::setAutoSynchronize(const bool doSync) {

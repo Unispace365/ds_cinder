@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7d5a43282c9847c5c842abd5de023f4c5c69a9f0$
+// $hash=f47d33d79e9f321536aa87921d973745f6ec8b5e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_CAPI_H_
@@ -183,14 +183,15 @@ typedef struct _cef_textfield_t {
 
   ///
   /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
-  /// where: - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  /// where:
+  /// - FONT_FAMILY_LIST is a comma-separated list of font family names,
   /// - STYLES is an optional space-separated list of style names (case-
-  /// sensitive
-  ///   "Bold" and "Italic" are supported), and
+  ///   sensitive "Bold" and "Italic" are supported), and
   /// - SIZE is an integer font size in pixels with the suffix "px".
   ///
-  /// Here are examples of valid font description strings: - "Arial, Helvetica,
-  /// Bold Italic 14px" - "Arial, 14px"
+  /// Here are examples of valid font description strings:
+  /// - "Arial, Helvetica, Bold Italic 14px"
+  /// - "Arial, 14px"
   ///
   void(CEF_CALLBACK* set_font_list)(struct _cef_textfield_t* self,
                                     const cef_string_t* font_list);

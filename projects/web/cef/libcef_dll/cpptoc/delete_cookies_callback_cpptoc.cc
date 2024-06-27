@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b464cf54dd6dbbe3b7f45adaf8defd0b0015c9c3$
+// $hash=f2245c2b49be3224592b77ad22c66ac95181332a$
 //
 
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
@@ -56,7 +56,7 @@ CefRefPtr<CefDeleteCookiesCallback> CefCppToCRefCounted<
     cef_delete_cookies_callback_t>::UnwrapDerived(CefWrapperType type,
                                                   cef_delete_cookies_callback_t*
                                                       s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

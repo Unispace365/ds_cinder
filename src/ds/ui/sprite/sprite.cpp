@@ -20,12 +20,14 @@
 #include "ds/params/draw_params.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/tween/tweenline.h"
+#include "ds/util/float_util.h"
 #include "ds/util/string_util.h"
 #include "util/clip_plane.h"
 
 #include <numeric>
 
 // #include <glm/gtx/rotate_vector.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "util/flexbox_parser.h"
@@ -88,6 +90,9 @@ namespace {
 	const int NO_REPLICATION_F	= (1 << 6);
 	const int ROTATE_TOUCHES_F	= (1 << 7);
 	const int DRAW_DEBUG_F		= (1 << 8);
+	const int SPAN_COLUMN_SET_F = (1 << 9);
+	const int SPAN_ROW_SET_F	= (1 << 10);
+	const int DEBUG_F			= (1 << 11);
 
 	const ds::BitMask SPRITE_LOG = ds::Logger::newModule("sprite");
 } // namespace
@@ -150,6 +155,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mWidth				  = 0.f;
 	mHeight				  = 0.f;
 	mDepth				  = 1.f;
+	mMinMaxDirty		  = true;
 	mCenter				  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotation			  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotationOrderZYX	  = false;
@@ -158,6 +164,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mParent				  = nullptr;
 	mOpacity			  = 1.0f;
 	mColor				  = ci::Color(1.0f, 1.0f, 1.0f);
+	mVolume				  = 1.0f;
 	mReveal				  = 1.0f;
 	mMultiTouchEnabled	  = false;
 	mCheckBounds		  = false;
@@ -550,9 +557,13 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	mScale				= scale;
 	mUpdateTransform	= true;
 	mBoundsNeedChecking = true;
+	mMinMaxDirty		= true;
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 const ci::vec3& Sprite::getPosition() const {
@@ -647,7 +658,16 @@ ci::vec3 Sprite::getRotation() const {
 	return mRotation;
 }
 
-void Sprite::setReveal( float value ) {
+void Sprite::setVolume(float value) {
+	if (!approxEqual(mVolume, value)) clearAnimateOnTargets();
+	mVolume = value;
+}
+
+float Sprite::getVolume() const {
+	return mVolume;
+}
+
+void Sprite::setReveal(float value) {
 	mReveal = value;
 }
 
@@ -828,8 +848,8 @@ void Sprite::buildTransform() const {
 		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
-	mTransformation =
-		glm::translate(mTransformation, glm::vec3(-mCenter.x * mWidth, -mCenter.y * mHeight, -mCenter.z * mDepth));
+	mTransformation = glm::translate(mTransformation,
+									 glm::vec3(-mCenter.x * getWidth(), -mCenter.y * getHeight(), -mCenter.z * getDepth()));
 
 	mInverseTransform = glm::inverse(mTransformation);
 }
@@ -857,6 +877,9 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	mNeedsBatchUpdate = true;
 	markAsDirty(SIZE_DIRTY);
 	dimensionalStateChanged();
+
+	// Notify listeners about size change.
+	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
 }
 
 void Sprite::setSizeAll(const ci::vec3& size3d) {
@@ -1183,6 +1206,30 @@ bool Sprite::hasMultiTouchConstraint(const BitMask& constraint) const {
 	return mMultiTouchConstraints & constraint;
 }
 
+void Sprite::setColumnSpan(const Range<size_t>& span) {
+	mGridColumnSpan = span;
+}
+
+void Sprite::setRowSpan(const Range<size_t>& span) {
+	mGridRowSpan = span;
+}
+
+bool Sprite::isColumnSpanAuto() const {
+	return !(mSpriteFlags & SPAN_COLUMN_SET_F);
+}
+
+void Sprite::setColumnSpanAuto(bool flag) {
+	mSpriteFlags |= flag ? 0 : SPAN_COLUMN_SET_F;
+}
+
+bool Sprite::isRowSpanAuto() const {
+	return !(mSpriteFlags & SPAN_ROW_SET_F);
+}
+
+void Sprite::setRowSpanAuto(bool flag) {
+	mSpriteFlags |= flag ? 0 : SPAN_ROW_SET_F;
+}
+
 void Sprite::swipe(const ci::vec3& swipeVector) {
 	if (mSwipeCallback) mSwipeCallback(this, swipeVector);
 }
@@ -1347,6 +1394,24 @@ bool Sprite::checkBounds() const {
 	return true;
 }
 
+void Sprite::measureMinMaxSize() const {
+	const auto w = getScaleWidth();
+	const auto h = getScaleHeight();
+	if (approxZero(w) || approxZero(h)) return;
+
+	const auto fit =
+		mFit.calcTransform(ci::Rectf{0, 0, mEngine.getWorldWidth(), mEngine.getWorldHeight()}, ci::Rectf{0, 0, w, h});
+	const auto width  = fit[0][0] * w;
+	const auto height = fit[1][1] * h;
+
+	const auto self = const_cast<Sprite*>(this); // Instead of 'mutable'.
+	if (!mMinWidth.isDefined()) self->mMinWidth.set(glm::min(w, width), css::Value::PIXELS);
+	if (!mMaxWidth.isDefined()) self->mMaxWidth.set(glm::max(w, width), css::Value::PIXELS);
+	if (!mMinHeight.isDefined()) self->mMinHeight.set(glm::min(h, height), css::Value::PIXELS);
+	if (!mMaxHeight.isDefined()) self->mMaxHeight.set(glm::max(h, height), css::Value::PIXELS);
+	self->mMinMaxDirty = false;
+}
+
 void Sprite::setCheckBounds(bool checkBounds) {
 	mCheckBounds		= checkBounds;
 	mInBounds			= !mCheckBounds;
@@ -1369,6 +1434,14 @@ bool Sprite::inBounds() const {
 
 bool Sprite::isLoaded() const {
 	return true;
+}
+
+void Sprite::fitInsideArea(const ci::Rectf& area) {
+	// Fit the sprite to the area.
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 float Sprite::getDepth() const {
@@ -2305,6 +2378,18 @@ void Sprite::setDrawDebug(const bool doDebug) {
 
 bool Sprite::getDrawDebug() const {
 	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
+}
+
+
+void Sprite::enableDebugging(const bool doDebug) {
+	if (doDebug)
+		mSpriteFlags |= DEBUG_F;
+	else
+		mSpriteFlags &= ~DEBUG_F;
+}
+
+bool Sprite::getDebugging() const {
+		return getFlag(DEBUG_F, mSpriteFlags);
 }
 
 

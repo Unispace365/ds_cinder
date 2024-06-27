@@ -6,6 +6,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/util/float_util.h>
 #include <ds/util/string_util.h>
 
 #include <yoga/YGNode.h>
@@ -211,6 +212,15 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 	}
 	setSize(layoutWidth, layoutHeight);
 
+	// Keep track of max width and height, useful if running this layout inside a grid.
+	if (vertical) {
+		mMinWidth = mMaxWidth = css::Value(maxWidth, css::Value::PIXELS);
+		mMinHeight = mMaxHeight = css::Value(totalSize, css::Value::PIXELS);
+	} else {
+		mMinWidth = mMaxWidth = css::Value(totalSize, css::Value::PIXELS);
+		mMinHeight = mMaxHeight = css::Value(maxHeight, css::Value::PIXELS);
+	}
+
 	// figure out what's left over and how to use it properly
 	float leftOver	 = 0.0f;
 	float perStretch = 0.0f;
@@ -414,6 +424,21 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 		// node->setDirty(false);
 		//}
 	}
+}
+
+bool LayoutSprite::setAvailableSize(const ci::vec2& size) {
+	mWidth			  = size.x;
+	mHeight			  = size.y;
+	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
+
+	const auto minWidth = mMinWidth;
+	const auto minHeight = mMinHeight;
+	const auto maxWidth = mMaxWidth;
+	const auto maxHeight = mMaxHeight;
+
+	runLayout();
+
+	return mMinWidth != minWidth || minHeight != mMinHeight || maxWidth != mMaxWidth || maxHeight != mMaxHeight;
 }
 
 void LayoutSprite::addChild(Sprite& child) {

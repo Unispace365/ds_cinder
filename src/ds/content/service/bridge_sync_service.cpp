@@ -12,6 +12,7 @@
 #include <cinder/CinderImGuiConfig.h>
 
 #include <ds/debug/logger.h>
+#include <ds/util/string_util.h>
 
 #include <imgui_components/TextAnsi.h>
 
@@ -91,6 +92,21 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			if (settings.verbose) {
 				args.push_back("-v");
 			}
+			// Handle additonal args in format "--singleArg;--Another"
+			// and/or in format "-s: server; --singleArg"
+			if (!settings.additionalArgs.empty()) {
+				auto splitAdditional = ds::split(settings.additionalArgs, ";");
+				for (auto kv : splitAdditional) {
+					auto pair = ds::split(kv, ":");
+					if (pair.size() >= 1) {
+						args.push_back(pair[0]);
+					}
+					if (pair.size() >= 2) {
+						args.push_back(pair[1]);
+					}
+					
+				}
+			}
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
 				//Default path on production
@@ -102,20 +118,26 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 
 			if (std::filesystem::exists(sync_path)) {
 				// mLock.lock();
-				auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
+				try {
+					auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
 
-				if (Poco::Process::isRunning(process)) {
-					// get the win32 (as opposed to Poco) handle for the process we just started.
-					HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
-					// add it to our job.
-					AssignProcessToJobObject(mJobObj, procHandle);
+					if (Poco::Process::isRunning(process)) {
+						// get the win32 (as opposed to Poco) handle for the process we just started.
+						HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
+						// add it to our job.
+						AssignProcessToJobObject(mJobObj, procHandle);
 
-					mProcessId = process.id();
-					mStarted   = true;
-					DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
-				} else {
-					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
-					mExit	 = true;
+						mProcessId = process.id();
+						mStarted   = true;
+						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
+					} else {
+						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
+						mExit	 = true;
+						mStarted = false;
+					}
+				} catch (const std::exception& e) {
+					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: " << e.what());
+					mExit	 = false;
 					mStarted = false;
 				}
 
@@ -151,6 +173,8 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 					mStdoutBuffer.pop_front();
 				}
 			}
+
+			if (!mExit) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	});
 }

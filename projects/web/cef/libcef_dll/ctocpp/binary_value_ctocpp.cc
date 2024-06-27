@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1bfb92cdbb050816ed3387ad596fa8af7327479$
+// $hash=e5fd79e6dbb20737b5c3a5b6e4bf547336c62398$
 //
 
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
@@ -139,6 +139,24 @@ CefRefPtr<CefBinaryValue> CefBinaryValueCToCpp::Copy() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall") const void* CefBinaryValueCToCpp::GetRawData() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_binary_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_raw_data)) {
+    return nullptr;
+  }
+
+  // This manual implementation can be removed once support for 'const void*'
+  // is integrated into the CEF translator tool (issue #3591).
+
+  // Execute
+  const void* _retval = _struct->get_raw_data(_struct);
+
+  // Return type: simple_byaddr
+  return _retval;
+}
+
 NO_SANITIZE("cfi-icall") size_t CefBinaryValueCToCpp::GetSize() {
   shutdown_checker::AssertNotShutdown();
 
@@ -196,7 +214,7 @@ template <>
 cef_binary_value_t*
 CefCToCppRefCounted<CefBinaryValueCToCpp, CefBinaryValue, cef_binary_value_t>::
     UnwrapDerived(CefWrapperType type, CefBinaryValue* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

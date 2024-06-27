@@ -82,7 +82,8 @@ WebCefService::~WebCefService() {
 }
 
 void WebCefService::start() {
-	CefEnableHighDPISupport();
+	// This was removed in CEF as Chromimum now handles high DPI scaling. This is here for reference
+	//CefEnableHighDPISupport();
 
 	mCefSimpleApp = CefRefPtr<WebApp>(new WebApp);
 

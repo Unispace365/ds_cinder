@@ -103,8 +103,8 @@ Web::Web(ds::ui::SpriteEngine& engine, float width, float height)
   , mHasFullCallback(false)
   , mHasLoadingCallback(false)
   , mHasAuthCallback(false)
+  , mHasConsoleMessageCallback(false)
   , mDocumentReadyFn(nullptr)
-  , mUrl("")
   , mHasError(false)
   , mIsLoading(false)
   , mCanBack(false)
@@ -206,6 +206,8 @@ Web::~Web() {
 	mLoadingUpdatedCallback = nullptr;
 	mHasAuthCallback		= false;
 	mAuthRequestCallback	= nullptr;
+	mHasConsoleMessageCallback = false;
+	mConsoleMessageCallback	   = nullptr;
 }
 
 void Web::setWebTransparent(const bool isTransparent) {
@@ -390,6 +392,21 @@ void Web::initializeBrowser() {
 		}
 	};
 
+	wcc.mConsoleMessageCallback = [this](const std::string& message, const std::string& source, const int line) {
+		// This callback comes back from the CEF IO thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		mConsoleMessage = ConsoleMessage(message, source, line);
+
+		mHasConsoleMessageCallback = true;
+
+		if (!mHasCallbacks) {
+			auto& t		  = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this] { dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
+	};
+
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
@@ -438,6 +455,16 @@ void Web::dispatchCallbacks() {
 		mHasAuthCallback = false;
 	}
 
+	if(mHasConsoleMessageCallback) {
+		if (mConsoleMessageCallback) {
+			mConsoleMessageCallback(mConsoleMessage);
+		} else {
+			DS_LOG_VERBOSE(1, "Web console: " << mConsoleMessage.mMessage << " source: " << mConsoleMessage.mSource
+											  << " line: " << mConsoleMessage.mLine);
+		}
+		mHasConsoleMessageCallback = false;
+	}
+
 	mHasCallbacks = false;
 	mCallbacksCue = nullptr;
 }
@@ -461,7 +488,7 @@ void Web::update(const ds::UpdateParams& p) {
 	}
 
 
-	if (mBuffer && mHasBuffer) {
+	if (mBuffer && mHasBuffer && visible()) {
 		// Anything that modifies mBuffer needs to be locked
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -480,7 +507,7 @@ void Web::update(const ds::UpdateParams& p) {
 		mHasBuffer = false;
 	}
 
-	if (mPopupBuffer && mHasPopupBuffer) {
+	if (mPopupBuffer && mHasPopupBuffer && visible()) {
 		// Anything that modifies mBuffer needs to be locked
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -993,6 +1020,10 @@ void Web::authCallbackCancel() {
 
 void Web::authCallbackContinue(const std::string& username, const std::string& password) {
 	mService.authCallbackContinue(mBrowserId, username, password);
+}
+
+void Web::setConsoleMessageCallback(std::function<void(ConsoleMessage)> func) {
+	mConsoleMessageCallback = func;
 }
 
 void Web::setErrorMessage(const std::string& message) {

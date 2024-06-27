@@ -1291,6 +1291,10 @@ const ds::ColorList& Engine::getColors() const {
 	return mColors;
 }
 
+ds::ColorList& Engine::getColors() {
+	return mColors;
+}
+
 ds::ColorList& Engine::editColors() {
 	return mColors;
 }

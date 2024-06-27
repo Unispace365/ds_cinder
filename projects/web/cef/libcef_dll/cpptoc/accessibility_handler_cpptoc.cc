@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1ed29ea773cbebaa14bbd019d7902d98e336e964$
+// $hash=9ce35c9de37d66355402b640df7068f40ff47d1c$
 //
 
 #include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
@@ -88,7 +88,7 @@ CefRefPtr<CefAccessibilityHandler> CefCppToCRefCounted<
     cef_accessibility_handler_t>::UnwrapDerived(CefWrapperType type,
                                                 cef_accessibility_handler_t*
                                                     s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

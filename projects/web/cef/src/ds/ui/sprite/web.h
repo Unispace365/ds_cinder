@@ -45,6 +45,17 @@ class Web : public ds::ui::IEntryField {
 		std::string mScheme;
 	};
 
+	struct ConsoleMessage {
+		ConsoleMessage()
+		  : mLine(0) {}
+		ConsoleMessage(const std::string& message, const std::string& source, const int line)
+		  : mMessage(message)
+		  , mSource(source)
+		  , mLine(line) {}
+		std::string mMessage;
+		std::string mSource;
+		int			mLine;
+	};
 
 	Web(ds::ui::SpriteEngine& engine, float width = 0.0f, float height = 0.0f);
 	~Web();
@@ -151,6 +162,9 @@ class Web : public ds::ui::IEntryField {
 	void authCallbackCancel();
 	// After an authorization request, this responds with the user / pass to try to continue to the page
 	void authCallbackContinue(const std::string& username, const std::string& password);
+
+	// The page has sent a console message. This is usually a warning or error from the page's javascript
+	void setConsoleMessageCallback(std::function<void(ConsoleMessage)> func);
 
 	// An error has occurred. No longer displays a text sprite for errors, simply calls back the error callback.
 	// You're responsible for displaying the error message yourself
@@ -301,6 +315,7 @@ class Web : public ds::ui::IEntryField {
 	bool mHasFullCallback;
 	bool mHasLoadingCallback;
 	bool mHasAuthCallback;
+	bool mHasConsoleMessageCallback;
 
 	std::function<void(void)>				 mDocumentReadyFn;
 	std::function<void(const std::string&)>	 mErrorCallback;
@@ -310,6 +325,8 @@ class Web : public ds::ui::IEntryField {
 	std::function<void(const bool)>			 mLoadingUpdatedCallback;
 	std::function<void(AuthCallback)>		 mAuthRequestCallback;
 	AuthCallback							 mAuthCallback;
+	std::function<void(ConsoleMessage)>		 mConsoleMessageCallback;
+	ConsoleMessage							 mConsoleMessage;
 
 	// Replicated state
 	std::string					  mUrl;

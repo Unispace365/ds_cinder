@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c28a94226a89e94a765d19e7d59bfa8a50efe295$
+// $hash=335ba2623eec3e7d910dbe2e5fc8ce58cd00c1f9$
 //
 
 #include "libcef_dll/ctocpp/test/test_server_ctocpp.h"
@@ -20,7 +20,7 @@
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTestServer> CefTestServer::CreateAndStart(
-    uint16 port,
+    uint16_t port,
     bool https_server,
     cef_test_cert_type_t https_cert_type,
     CefRefPtr<CefTestServerHandler> handler) {
@@ -92,7 +92,7 @@ template <>
 cef_test_server_t*
 CefCToCppRefCounted<CefTestServerCToCpp, CefTestServer, cef_test_server_t>::
     UnwrapDerived(CefWrapperType type, CefTestServer* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

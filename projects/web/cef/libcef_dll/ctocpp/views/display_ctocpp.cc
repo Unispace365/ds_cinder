@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ce835458848e642bc1f9a8231a7d6996f4db85ee$
+// $hash=700deacdc1aaea681d23c6b26539f8c305d8a6de$
 //
 
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
@@ -164,7 +164,7 @@ CefRect CefDisplay::ConvertScreenRectFromPixels(const CefRect& rect) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-NO_SANITIZE("cfi-icall") int64 CefDisplayCToCpp::GetID() {
+NO_SANITIZE("cfi-icall") int64_t CefDisplayCToCpp::GetID() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
@@ -175,7 +175,7 @@ NO_SANITIZE("cfi-icall") int64 CefDisplayCToCpp::GetID() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->get_id(_struct);
+  int64_t _retval = _struct->get_id(_struct);
 
   // Return type: simple
   return _retval;
@@ -294,7 +294,7 @@ cef_display_t*
 CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay, cef_display_t>::UnwrapDerived(
     CefWrapperType type,
     CefDisplay* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

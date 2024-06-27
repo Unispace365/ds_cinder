@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c3a6ea0e93d96381917a52439f8ee86822bcfce2$
+// $hash=75d7578ec42e69a55c2f3c2c55d2c396f3839dfc$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
@@ -46,8 +46,8 @@ urlrequest_client_on_request_complete(struct _cef_urlrequest_client_t* self,
 void CEF_CALLBACK
 urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
                                      cef_urlrequest_t* request,
-                                     int64 current,
-                                     int64 total) {
+                                     int64_t current,
+                                     int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -70,8 +70,8 @@ urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
 void CEF_CALLBACK
 urlrequest_client_on_download_progress(struct _cef_urlrequest_client_t* self,
                                        cef_urlrequest_t* request,
-                                       int64 current,
-                                       int64 total) {
+                                       int64_t current,
+                                       int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -186,7 +186,7 @@ CefRefPtr<CefURLRequestClient> CefCppToCRefCounted<
     CefURLRequestClient,
     cef_urlrequest_client_t>::UnwrapDerived(CefWrapperType type,
                                             cef_urlrequest_client_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

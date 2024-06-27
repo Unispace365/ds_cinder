@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=367c7e71f4d0e57f08b1c2fc63d54dcb475ee59e$
+// $hash=40cef032768f31dff7ecb4cbbd1da366b21ab28b$
 //
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
@@ -119,7 +119,7 @@ template <>
 cef_sslstatus_t*
 CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t>::
     UnwrapDerived(CefWrapperType type, CefSSLStatus* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

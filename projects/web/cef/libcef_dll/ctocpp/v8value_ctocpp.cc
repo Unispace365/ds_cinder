@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f60bd8d4d46c4b8ae247f9a0e0b9827f450635d3$
+// $hash=3f2600b370dd8fbcb78b1728e458584bf24358f3$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -56,7 +56,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value) {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
+CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32_t value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -67,7 +67,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32 value) {
+CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32_t value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -147,16 +147,12 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
     CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: buffer; type: simple_byaddr
-  DCHECK(buffer);
-  if (!buffer) {
-    return nullptr;
-  }
   // Verify param: release_callback; type: refptr_diff
   DCHECK(release_callback.get());
   if (!release_callback.get()) {
     return nullptr;
   }
+  // Unverified params: buffer
 
   // Execute
   cef_v8value_t* _retval = cef_v8value_create_array_buffer(
@@ -451,7 +447,7 @@ NO_SANITIZE("cfi-icall") bool CefV8ValueCToCpp::GetBoolValue() {
   return _retval ? true : false;
 }
 
-NO_SANITIZE("cfi-icall") int32 CefV8ValueCToCpp::GetIntValue() {
+NO_SANITIZE("cfi-icall") int32_t CefV8ValueCToCpp::GetIntValue() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_int_value)) {
     return 0;
@@ -460,13 +456,13 @@ NO_SANITIZE("cfi-icall") int32 CefV8ValueCToCpp::GetIntValue() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int32 _retval = _struct->get_int_value(_struct);
+  int32_t _retval = _struct->get_int_value(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") uint32 CefV8ValueCToCpp::GetUIntValue() {
+NO_SANITIZE("cfi-icall") uint32_t CefV8ValueCToCpp::GetUIntValue() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_uint_value)) {
     return 0;
@@ -475,7 +471,7 @@ NO_SANITIZE("cfi-icall") uint32 CefV8ValueCToCpp::GetUIntValue() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  uint32 _retval = _struct->get_uint_value(_struct);
+  uint32_t _retval = _struct->get_uint_value(_struct);
 
   // Return type: simple
   return _retval;
@@ -957,6 +953,37 @@ NO_SANITIZE("cfi-icall") bool CefV8ValueCToCpp::NeuterArrayBuffer() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall") size_t CefV8ValueCToCpp::GetArrayBufferByteLength() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_array_buffer_byte_length)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  size_t _retval = _struct->get_array_buffer_byte_length(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall") void* CefV8ValueCToCpp::GetArrayBufferData() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_array_buffer_data)) {
+    return nullptr;
+  }
+
+  // This manual implementation can be removed once support for 'void*'
+  // is integrated into the CEF translator tool (issue #3591).
+
+  // Execute
+  void* _retval = _struct->get_array_buffer_data(_struct);
+
+  // Return type: simple_byaddr
+  return _retval;
+}
+
 NO_SANITIZE("cfi-icall") CefString CefV8ValueCToCpp::GetFunctionName() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_function_name)) {
@@ -1129,7 +1156,7 @@ cef_v8value_t*
 CefCToCppRefCounted<CefV8ValueCToCpp, CefV8Value, cef_v8value_t>::UnwrapDerived(
     CefWrapperType type,
     CefV8Value* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

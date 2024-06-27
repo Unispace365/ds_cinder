@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=04b75e77074493307543f443a11d0b3ffade1ff8$
+// $hash=d3ea78e15cdd0a858bd302b4c1c05ddd9970b2ff$
 //
 
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
@@ -1195,7 +1195,7 @@ template <>
 cef_menu_model_t*
 CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>::
     UnwrapDerived(CefWrapperType type, CefMenuModel* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

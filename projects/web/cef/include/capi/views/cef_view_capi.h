@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=cb5950b283944d06312903eb554cc4c980713e98$
+// $hash=08f13de764f30261616372dfffb7f97c57957f73$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
@@ -338,15 +338,29 @@ typedef struct _cef_view_t {
   void(CEF_CALLBACK* request_focus)(struct _cef_view_t* self);
 
   ///
-  /// Sets the background color for this View.
+  /// Sets the background color for this View. The background color will be
+  /// automatically reset when cef_view_delegate_t::OnThemeChanged is called.
   ///
   void(CEF_CALLBACK* set_background_color)(struct _cef_view_t* self,
                                            cef_color_t color);
 
   ///
-  /// Returns the background color for this View.
+  /// Returns the background color for this View. If the background color is
+  /// unset then the current `GetThemeColor(CEF_ColorPrimaryBackground)` value
+  /// will be returned. If this View belongs to an overlay (created with
+  /// cef_window_t::AddOverlayView), and the background color is unset, then a
+  /// value of transparent (0) will be returned.
   ///
   cef_color_t(CEF_CALLBACK* get_background_color)(struct _cef_view_t* self);
+
+  ///
+  /// Returns the current theme color associated with |color_id|, or the
+  /// placeholder color (red) if unset. See cef_color_ids.h for standard ID
+  /// values. Standard colors can be overridden and custom colors can be added
+  /// using cef_window_t::SetThemeColor.
+  ///
+  cef_color_t(CEF_CALLBACK* get_theme_color)(struct _cef_view_t* self,
+                                             int color_id);
 
   ///
   /// Convert |point| from this View's coordinate system to DIP screen

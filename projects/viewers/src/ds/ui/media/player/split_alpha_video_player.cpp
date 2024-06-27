@@ -59,7 +59,7 @@ void main() {
     fragColor = texture(tex0, vec2(TexCoord0.x,0.5+TexCoord0.y*0.5));
 	vec4 alphaColor = texture(tex0, vec2(TexCoord0.x, TexCoord0.y*0.5));
 	//fragColor.rgb = vec3(1.0);
-	fragColor.a = alphaColor.r;
+	fragColor.a = alphaColor.r*vColor.a;
 }
 )glsl";
 
@@ -91,7 +91,7 @@ void SplitAlphaVideoPlayer::drawLocalClient() {
 
 	if (mTex && mSplitAlphaShader) {
 		mTex->bind(0);
-		ci::gl::color(1.0, 1.0, 1.0, 1.0);
+		ci::gl::color(1.0, 1.0, 1.0, getDrawOpacity());
 		// ci::gl::draw(mTex);
 		mSplitAlphaShader->bind();
 		ci::gl::drawSolidRect(ci::Rectf(0, 0, getWidth(), getHeight()));

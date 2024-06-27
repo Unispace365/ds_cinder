@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=488fdead59657c8bdb17e6d3d6a970f6b65e970e$
+// $hash=b2e33c91a598c69f92031e0624bf96803247439c$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -51,7 +51,7 @@ NO_SANITIZE("cfi-icall") size_t CefSharedMemoryRegionCToCpp::Size() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
+NO_SANITIZE("cfi-icall") void* CefSharedMemoryRegionCToCpp::Memory() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_memory_region_t* _struct = GetStruct();
@@ -59,12 +59,13 @@ NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
     return NULL;
   }
 
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+  // This manual implementation can be removed once support for 'void*'
+  // is integrated into the CEF translator tool (issue #3591).
 
   // Execute
-  const void* _retval = _struct->memory(_struct);
+  void* _retval = _struct->memory(_struct);
 
-  // Return type: simple
+  // Return type: simple_byaddr
   return _retval;
 }
 
@@ -84,7 +85,7 @@ cef_shared_memory_region_t* CefCToCppRefCounted<
     CefSharedMemoryRegion,
     cef_shared_memory_region_t>::UnwrapDerived(CefWrapperType type,
                                                CefSharedMemoryRegion* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

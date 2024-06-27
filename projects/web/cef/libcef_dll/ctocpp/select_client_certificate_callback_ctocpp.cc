@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6949f8943b86edf4d444adbb8e20b8cff183eadb$
+// $hash=f2c75557e03ed0b788372f3e1b57e3a70e4ca736$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
@@ -54,7 +54,7 @@ CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
                     CefSelectClientCertificateCallback,
                     cef_select_client_certificate_callback_t>::
     UnwrapDerived(CefWrapperType type, CefSelectClientCertificateCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

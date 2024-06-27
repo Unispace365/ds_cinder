@@ -20,8 +20,12 @@ namespace web {
 		// Gets called when the browser sends new paint info, aka new buffers
 		std::function<void(const void*, const int, const int)> mPaintCallback;
 
+		// Gets called when the browser sends new paint info, aka new buffers
+		std::function<void(const void*, const int, const int)> mPaintAccCallback;
+
 		// Popups here are most commonly HTML select elements (drop down menus)
 		std::function<void(const void*, const int, const int)>							 mPopupPaintCallback;
+		std::function<void(const void*, const int, const int)>							 mPopupPaintAccCallback;
 		std::function<void(const int xp, const int yp, const int wid, const int height)> mPopupRectCallback;
 		std::function<void(const bool showing)>											 mPopupShowCallback;
 
@@ -41,6 +45,9 @@ namespace web {
 		std::function<void(const bool isProxy, const std::string& host, const int port, const std::string& realm,
 						   const std::string& scheme)>
 			mAuthCallback;
+
+		std::function<void(const std::string& message, const std::string& source, const int line)>
+			mConsoleMessageCallback;
 	};
 
 } // namespace web

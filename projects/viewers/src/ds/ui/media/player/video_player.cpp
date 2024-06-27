@@ -27,7 +27,6 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
   , mLetterbox(true)
   , mResetOnVideoComplete(true)
   , mPanning(0.0f)
-  , mVolume(1.0f)
   , mAutoSyncronize(true)
   , mAutoPlayFirstFrame(true)
   , mAllowOutOfBoundsMuted(true)
@@ -265,12 +264,11 @@ void VideoPlayer::setPan(const float newPan) {
 	mPanning = newPan;
 }
 
-void VideoPlayer::setVolume(const float volume) {
+void VideoPlayer::setVolume(float volume) {
+	Sprite::setVolume(volume);
 	if (mVideo) {
 		mVideo->setVolume(volume);
 	}
-
-	mVolume = volume;
 }
 
 void VideoPlayer::setAutoSynchronize(const bool doSync) {

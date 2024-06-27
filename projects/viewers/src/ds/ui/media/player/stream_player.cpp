@@ -26,8 +26,7 @@ namespace ds { namespace ui {
 	  , mShowInterfaceAtStart(true)
 	  , mIsPlaying(false)
 	  , mLetterbox(true)
-	  , mInterfaceBelowMedia(false)
-	  , mVolume(1.0f) {
+	  , mInterfaceBelowMedia(false) {
 		mLayoutFixedAspect = true;
 	}
 
@@ -172,11 +171,10 @@ namespace ds { namespace ui {
 	}
 
 	void StreamPlayer::setVolume(const float volume) {
+		Sprite::setVolume(volume);
 		if (mVideo) {
 			mVideo->setVolume(volume);
 		}
-
-		mVolume = volume;
 	}
 
 	void StreamPlayer::play() {

@@ -20,7 +20,9 @@
 #include "ds/data/data_buffer.h"
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
+#include "ds/ui/grid/css.h"
 #include "ds/ui/sprite/dirty_state.h"
+#include "ds/ui/sprite/fit.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/sprite/util/blend.h"
@@ -108,7 +110,7 @@ namespace ui {
 		/** Update function for when this app is set to be a client.
 			Don't override this function, use onUpdateClient if you need it
 			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void updateClient(const ds::UpdateParams& updateParams) final;
+		virtual void updateClient(const ds::UpdateParams& updateParams);
 
 		/** Update function for when this app is set to be a client.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
@@ -121,7 +123,7 @@ namespace ui {
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
 			Don't override this function (you can't in fact). Override onUpdateServer() for stuff that should change
 		   each frame. \param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void updateServer(const ds::UpdateParams& updateParams) final;
+		virtual void updateServer(const ds::UpdateParams& updateParams);
 
 
 		/** Update function for when this app is set to be a server.
@@ -177,7 +179,7 @@ namespace ui {
 			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should
 		   not call this function yourself. This is identical to setSize(), except it also sets the depth. \param size3d
 		   The size to set in the form of ci::vec2f(width, height, depth).		*/
-		virtual void setSizeAll(const ci::vec3& size3d);
+		void setSizeAll(const ci::vec3& size3d);
 
 		/** Sets the width, height, and depth of the Sprite.
 			This does not affect the scale of the Sprite.
@@ -197,15 +199,69 @@ namespace ui {
 		   value.		 */
 		virtual ci::vec3 getPreferredSize() const;
 
+		/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+		/// calculations. Returns whether anything changed.
+		virtual bool setAvailableSize(const ci::vec2& size) { return false; }
+
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
 		virtual float getWidth() const;
 
+		// Returns the minimum width of the Sprite.
+		virtual float getWidthMin() const {
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMinWidth.asUser(this, css::Value::HORIZONTAL);
+		}
+		// Sets the minimum width of the Sprite.
+		void setWidthMin(float width) { mMinWidth = css::Value(width, css::Value::PIXELS); }
+		// Sets the minimum width of the Sprite.
+		void setWidthMin(const std::string& css) { mMinWidth = css::Value(css); }
+		// Returns the maximum width of the Sprite.
+		virtual float getWidthMax() const {
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
+		}
+		// Sets the maximum width of the Sprite.
+		void setWidthMax(float width) { mMaxWidth = css::Value(width, css::Value::PIXELS); }
+		// Sets the maximum width of the Sprite.
+		void setWidthMax(const std::string& css) { mMaxWidth = css::Value(css); }
+
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
+
+		// Returns the minimum height of the Sprite.
+		virtual float getHeightMin() const {
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMinHeight.asUser(this, css::Value::VERTICAL);
+		}
+		// Sets the minimum height of the Sprite.
+		void setHeightMin(float height) { mMinHeight = css::Value(height, css::Value::PIXELS); }
+		// Sets the minimum height of the Sprite.
+		void setHeightMin(const std::string& css) { mMinHeight = css::Value(css); }
+		// Returns the maximum height of the Sprite.
+		virtual float getHeightMax() const {
+			if (mMinMaxDirty) measureMinMaxSize();
+			return mMaxHeight.asUser(this, css::Value::VERTICAL);
+		}
+		// Sets the maximum height of the Sprite.
+		void setHeightMax(float height) { mMaxHeight = css::Value(height, css::Value::PIXELS); }
+		// Sets the maximum height of the Sprite.
+		void setHeightMax(const std::string& css) { mMaxHeight = css::Value(css); }
+
+		/// Returns the sprite fitting mode, allowing access to the proper transform.
+		const Fit& getFit() const { return mFit; }
+		/// Sets sprite fitting mode.
+		void setFit(Fit fit) {
+			mFit		 = fit;
+			mMinMaxDirty = true;
+		}
+		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
+		void setFit(const std::string& css) { setFit( Fit(css) ); }
+		/// Adjusts the sprite's transform to precisely fit inside the given area.
+		virtual void fitInsideArea(const ci::Rectf& area);
 
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
@@ -496,6 +552,14 @@ namespace ui {
 			\return True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		bool getTransparent() const;
 
+		/** Sets (animated) value for audio volume, to be used by derived classes.
+		    \param value between 0 and 1. */
+		virtual void setVolume( float value );
+
+		/** Returns (animated) value for audio volume, to be used by derived classes.
+		    \return value between 0 and 1. */
+		virtual float getVolume() const;
+
 		/** Sets (animated) value, to be used by derived classes.
 		    \param value between 0 and 1. */
 		void setReveal( float value );
@@ -750,6 +814,11 @@ namespace ui {
 		/// disabled.
 		bool getDrawDebug() const;
 
+		/// If this sprite has support for it, will enable debug drawing. Every sprite type has its own implementation.
+		void enableDebugging(bool doDebug);
+		/// Returns whether this sprite has debugging enabled.
+		bool getDebugging() const;
+
 		/// Set the name of this sprite. No guarantee of uniqueness
 		void setSpriteName(const std::wstring& name);
 
@@ -759,6 +828,9 @@ namespace ui {
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
 		ds::cfg::Settings* getLayoutSettings() const;
 		void               setLayoutSettings(const ds::cfg::Settings& settings);
+
+		/// Returns whether XML layout should parse the sprite's children. Defaults to TRUE, but can be overridden.
+		virtual bool parseChildren() const { return true; }
 
 		// Flexbox
 		virtual void setFlexboxFromStyleString(std::string style);
@@ -787,7 +859,19 @@ namespace ui {
 
 		bool mExportWithXml;
 
-	  protected:
+		// Grid
+
+		const Range<size_t>& getColumnSpan() const { return mGridColumnSpan; }
+		void				 setColumnSpan(const Range<size_t>& span);
+		const Range<size_t>& getRowSpan() const { return mGridRowSpan; }
+		void				 setRowSpan(const Range<size_t>& span);
+		bool				 isColumnSpanAuto() const;
+		bool				 isRowSpanAuto() const;
+
+		void setColumnSpanAuto(bool flag);
+		void setRowSpanAuto(bool flag);
+
+	protected:
 		friend class TouchManager;
 		friend class TouchProcess;
 		friend class ds::gl::ClipPlaneState;
@@ -813,6 +897,7 @@ namespace ui {
 		bool		 hasTapInfo() const;
 		void		 updateCheckBounds() const;
 		bool		 checkBounds() const;
+		void		 measureMinMaxSize() const;
 
 		/// Once the sprite has passed the getHit() sprite bounds, this is a second
 		/// stage that allows the sprite itself to determine if the point is interior,
@@ -884,6 +969,11 @@ namespace ui {
 
 		float mWidth, mHeight, mDepth;
 
+		css::Value mMinWidth, mMaxWidth;
+		css::Value mMinHeight, mMaxHeight;
+		Fit		   mFit;
+		bool	   mMinMaxDirty;
+
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;
 		mutable bool	 mUpdateTransform;
@@ -893,6 +983,7 @@ namespace ui {
 		bool	  mRotationOrderZYX;
 		float	  mOpacity;
 		ci::Color mColor;
+		float	  mVolume;
 		float	  mReveal;
 		ci::Rectf mClippingBounds;
 		bool	  mClippingBoundsDirty;
@@ -911,6 +1002,9 @@ namespace ui {
 
 		mutable ci::mat4 mGlobalTransform;
 		mutable ci::mat4 mInverseGlobalTransform;
+
+		Range<size_t> mGridColumnSpan{0, 0}; // Used by Grid layouts.
+		Range<size_t> mGridRowSpan{0, 0};	 // Used by Grid layouts.
 
 		ds::UserData mUserData;
 
@@ -1086,6 +1180,22 @@ namespace ui {
 			}
 		}
 	}
+
+	class SpriteDimensionsChangedEvent : public ds::RegisteredEvent<SpriteDimensionsChangedEvent> {
+		Sprite* mSprite;
+
+	  public:
+		SpriteDimensionsChangedEvent(Sprite* sprite)
+		  : mSprite(sprite) {}
+
+		Sprite*	 getParent() const { return mSprite->getParent(); }
+		Sprite*	 getSprite() const { return mSprite; }
+		ci::vec3 getSize() const { return mSprite->getSize(); }
+		ci::vec3 getScale() const { return mSprite->getScale(); }
+		float	 getScaleWidth() const { return mSprite->getScaleWidth(); }
+		float	 getScaleHeight() const { return mSprite->getScaleHeight(); }
+		float	 getScaleDepth() const { return mSprite->getScaleDepth(); }
+	};
 
 } // namespace ui
 } // namespace ds

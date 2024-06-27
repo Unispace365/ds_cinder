@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=60bb1af4e6451440a44e3469e69e34fd6f711d62$
+// $hash=23f943f8e59a48f29ba3095642bc05d7f987a2f2$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -66,7 +66,7 @@ CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return 0;
   }
 
@@ -90,7 +90,7 @@ CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
@@ -104,6 +104,16 @@ CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") CEF_GLOBAL int CefGetExitCode() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_get_exit_code();
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefShutdown() {
@@ -760,7 +770,7 @@ CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
 NO_SANITIZE("cfi-icall")
 CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
                                    CefRefPtr<CefTask> task,
-                                   int64 delay_ms) {
+                                   int64_t delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: task; type: refptr_diff
@@ -807,11 +817,11 @@ CEF_GLOBAL bool CefEndTracing(const CefString& tracing_file,
   return _retval ? true : false;
 }
 
-NO_SANITIZE("cfi-icall") CEF_GLOBAL int64 CefNowFromSystemTraceTime() {
+NO_SANITIZE("cfi-icall") CEF_GLOBAL int64_t CefNowFromSystemTraceTime() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = cef_now_from_system_trace_time();
+  int64_t _retval = cef_now_from_system_trace_time();
 
   // Return type: simple
   return _retval;

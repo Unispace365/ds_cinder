@@ -196,6 +196,7 @@ class Engine : public ui::SpriteEngine {
 	ds::FontList&				editFonts();
 
 	virtual const ds::ColorList& getColors() const override;
+	virtual ds::ColorList&		 getColors() override;
 	ds::ColorList&				 editColors();
 
 	void						   markCameraDirty();

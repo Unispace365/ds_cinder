@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=081d829156aaa2d8fbf4dd77c359c6be60f2daf8$
+// $hash=c0a7e805dd9c63153e261a3d465c4876528fa7d1$
 //
 
 #include "libcef_dll/ctocpp/media_access_callback_ctocpp.h"
@@ -18,7 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-void CefMediaAccessCallbackCToCpp::Continue(uint32 allowed_permissions) {
+void CefMediaAccessCallbackCToCpp::Continue(uint32_t allowed_permissions) {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_access_callback_t* _struct = GetStruct();
@@ -62,7 +62,7 @@ cef_media_access_callback_t* CefCToCppRefCounted<
     CefMediaAccessCallback,
     cef_media_access_callback_t>::UnwrapDerived(CefWrapperType type,
                                                 CefMediaAccessCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -46,7 +46,7 @@ class YouTubeWeb : public ds::ui::Web {
 	bool getIsPlaying() { return mPlaying; }
 
 	// 0.0f = no sound, 1.0f = full volume
-	void setVolume(const float theVolume);
+	void setVolume(float theVolume) override;
 	// 0.0f - 1.0f
 	float getVolume();
 
@@ -55,7 +55,6 @@ class YouTubeWeb : public ds::ui::Web {
 	std::string						 mVideoId;
 	double							 mCurrentPosition = 0.0;
 	double							 mDuration		  = 0.0;
-	float							 mVolume		  = 0.0f; // 0.0 - 100.0
 	bool							 mPlaying		  = false;
 	bool							 mAutoStart		  = true;
 	std::function<void(std::string)> mTitleChangedCallback;
@@ -99,7 +98,7 @@ class YouTubePlayer : public ds::ui::Sprite {
 	void setStartInteractable(const bool startInteractable);
 	void setLetterbox(const bool doLetterbox);
 	void setNativeTouches(const bool isNative);
-	void setVolume(const float volume);
+	void setVolume(float volume) override;
 
   protected:
 	virtual void onSizeChanged();
@@ -119,7 +118,6 @@ class YouTubePlayer : public ds::ui::Sprite {
 	float mInterfaceBottomPad = 50.0f;
 	bool  mNativeTouches;
 	bool  mAutoStart;
-	float mVolume;
 };
 
 } // namespace ds::ui

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba28121d699be43841a82405922a22ef280bcaad$
+// $hash=577ad6d065acb15db81c827be8174f97f71e8f26$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
@@ -116,7 +116,7 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
                 reinterpret_cast<CefTranslatorTestScopedLibraryChildChild*>(
                     c.release()))));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
@@ -134,7 +134,7 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
                 reinterpret_cast<CefTranslatorTestScopedLibraryChildChild*>(
                     c))));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=70d6b393cbdc96a75864911d7ca3568cc8dcdebf$
+// $hash=c4416644786e3c1999cdcd7e6bf78af94ff7f0da$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -188,7 +188,7 @@ typedef struct _cef_resource_request_handler_t {
       struct _cef_request_t* request,
       struct _cef_response_t* response,
       cef_urlrequest_status_t status,
-      int64 received_content_length);
+      int64_t received_content_length);
 
   ///
   /// Called on the IO thread to handle requests for URLs with an unknown

@@ -18,6 +18,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include <iostream>
 #include <thread>
+#include <glad/glad_wgl.h>
 
 #include <ds/debug/logger.h>
 
@@ -62,8 +63,17 @@ namespace ds { namespace web {
 
 	bool WebHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser, cef_log_severity_t level, const CefString& message,
 									  const CefString& source, int line) {
-		DS_LOG_VERBOSE(1,
-					   "Web console: " << message.ToString() << " source: " << source.ToString() << " line: " << line);
+		// be sure this is locked with other requests to the browser lists
+		base::AutoLock lock_scope(mLock);
+
+		int	 browserId = browser->GetIdentifier();
+		auto findy	   = mWebCallbacks.find(browserId);
+		if (findy != mWebCallbacks.end()) {
+			if (findy->second.mConsoleMessageCallback) {
+				findy->second.mConsoleMessageCallback(message, source, line);
+			}
+		}
+
 		return false;
 	}
 
@@ -449,7 +459,6 @@ namespace ds { namespace web {
 		// TODO: Handle dirty rects
 
 		int browserId = browser->GetIdentifier();
-
 		// std::cout << "OnPaint, " << browserId << " type: " << type << " " << width << " " << height << std::endl;
 		/* for(auto&& rect : dirtyRects){
 			DS_LOG_INFO("DIRTY: (x, y) " << rect.x << ", "  << rect.y << " (w, h) " << rect.width << ", " << rect.height);
@@ -468,6 +477,35 @@ namespace ds { namespace web {
 			}
 		}
 	}
+
+	void WebHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
+										const RectList& dirtyRects, const CefAcceleratedPaintInfo& info) {
+		// This callback comes back on the UI thread (so will need to be synchronized to the main app thread)
+		// be sure this is locked with other requests to the browser list
+		base::AutoLock lock_scope(mLock);
+		
+
+		
+		// this is how each browser instance get the callback
+		/*
+		int browserId = browser->GetIdentifier();
+		auto findy = mWebCallbacks.find(browserId);
+		if (findy != mWebCallbacks.end()) {
+			if (type == PaintElementType::PET_VIEW) {
+				if (findy->second.mPaintAccCallback) {
+					findy->second.mPaintAccCallback(buffer, width, height);
+				}
+			} else if (type == PaintElementType::PET_POPUP) {
+				if (findy->second.mPopupPaintAccCallback) {
+					findy->second.mPopupPaintAccCallback(buffer, width, height);
+				}
+			}
+		}
+		*/
+
+	}
+
+	
 
 	bool WebHandler::OnCursorChange(CefRefPtr<CefBrowser> browser, HCURSOR cursor, cef_cursor_type_t type,
 									const CefCursorInfo& custom_cursor_info) {
