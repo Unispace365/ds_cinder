@@ -27,22 +27,18 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 		refreshContent();
 	});
 	mPlatform = getRecordByUid(engine, platformKey);
+	
 	if (mPlatform.empty()) {
 		DS_LOG_WARNING("Platform not found: " << platformKey);
 	}
 
+	mEvents = mPlatform.getChildByName("current_events");
+
 	mPlatformKey = platformKey;
+
 }
 
 Platform::~Platform() {}
-
-void Platform::setCurrentPlaylist(std::string playlistKey) {
-	mCurrentPlaylist = getRecordByUid(mEngine, playlistKey);
-}
-
-ds::model::ContentModelRef Platform::getCurrentPlaylist() {
-	return mCurrentPlaylist;
-}
 
 std::string Platform::getPlatformKey() {
 	return mPlatformKey;
@@ -50,21 +46,12 @@ std::string Platform::getPlatformKey() {
 
 void Platform::refreshContent() {
 	mPlatform = getRecordByUid(mEngine, mPlatformKey);
-
-	// Consider making the playlist type key a member variable? Not every platform has a default playlist?
-	auto defaultPlaylist = mPlatform.getPropertyString("default_playlist");
-	if (!defaultPlaylist.empty()) {
-		mCurrentPlaylist	 = getRecordByUid(mEngine, defaultPlaylist);
-	}
+	mEvents = mPlatform.getChildByName("current_events");
 }
 
 ds::model::ContentModelRef Platform::getPlatform()
 {
 	return mPlatform;
-}
-
-ds::model::ContentModelRef Platform::getPlatformProperty(const std::string& key) {
-	return mPlatform.getPropertyString(key);
 }
 
 } // namespace ds::model
