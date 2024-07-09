@@ -77,6 +77,7 @@ Source: "/downsync/*"; DestDir: "{app}/downsync/"; Flags: recursesubdirs
 
 #ifdef USE_BRIDGESYNC
 Source: "/bridgesync/*"; DestDir: "{app}/bridgesync/"; Flags: recursesubdirs
+Source: "{#DS_PLATFORM}/install/msvcr140.dll"; DestDir: "{app}/bridgesync/"
 #endif
 
 #ifexist "README.md"
@@ -89,6 +90,7 @@ Source: "install/readme.txt"; DestDir: "{app}/release_notes.txt"; Flags: isreadm
 
 Source: "{#DS_PLATFORM}/install/msvcr100.dll"; DestDir: "{app}"
 Source: "{#DS_PLATFORM}/install/msvcr120.dll"; DestDir: "{app}"
+Source: "{#DS_PLATFORM}/install/msvcr140.dll"; DestDir: "{app}"
 ;Source: "{#DS_PLATFORM}/.git/HEAD"; DestDir: "{app}/data"; DestName: "ds_cinder_commit.txt"
 
 #ifdef USE_GSTREAMER
