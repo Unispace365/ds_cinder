@@ -20,7 +20,7 @@ class Platform {
 	static ds::model::ContentModelRef getRecordByUid(const ds::model::ContentModelRef& model, const std::string& uid);
 	static ds::model::ContentModelRef getRecordByUid(const ds::ui::SpriteEngine& engine, const std::string& uid);
 	
-	void							  refreshContent();
+	virtual void					  refreshContent();
 	std::string						  getPlatformKey();
 	ds::model::ContentModelRef		  getPlatform();
 

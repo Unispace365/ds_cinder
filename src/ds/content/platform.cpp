@@ -46,7 +46,7 @@ std::string Platform::getPlatformKey() {
 
 void Platform::refreshContent() {
 	mPlatform = getRecordByUid(mEngine, mPlatformKey);
-	mEvents = mPlatform.getChildByName("current_events");
+	mEvents = mPlatform.getChildByName("current_events");	// Does this belong here? Does anything belong in this function?
 }
 
 ds::model::ContentModelRef Platform::getPlatform()
