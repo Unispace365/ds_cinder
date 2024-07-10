@@ -1,0 +1,83 @@
+#pragma once
+
+#include <cinder/Json.h>
+
+#include <Poco/DateTime.h>
+
+#include <ds/app/event_client.h>
+#include <ds/network/helper/delayed_node_watcher.h>
+#include <ds/network/https_client.h>
+#include <ds/network/node_watcher.h>
+#include <ds/ui/sprite/sprite_engine.h>
+#include <ds/content/platform.h>
+
+namespace ds::content {
+
+	
+class BridgeService {
+	public:
+		explicit BridgeService(ds::ui::SpriteEngine& eng);
+		~BridgeService();
+
+		void start();
+		void stop();
+
+		//
+		void refreshDatabase(bool force = false);
+		//
+		void refreshEvents(bool force = false);
+
+		bool isRunning() const { return mThread.isRunning(); }
+
+	private:
+		class Loop final : public Poco::Runnable {
+		public:
+			explicit Loop(ds::ui::SpriteEngine& engine);
+
+			void run() override;
+
+			//
+			void refreshDatabase(bool force = false);
+			//
+			void refreshEvents(bool force = false);
+
+			// Signal the background thread that it should abort.
+			void abort();
+
+		private:
+		///
+			bool eventIsNow(ds::model::ContentModelRef& event, Poco::DateTime& ldt) const;
+			///
+			void loadContent();
+			///
+			void updatePlatformEvents() const;
+
+			ci::app::AppBase* mApp =
+				nullptr; // Pointer to main application, allowing us to execute code on the main thread.
+
+			ds::ui::SpriteEngine& mEngine;			 // Reference to the sprite engine.
+			Poco::Mutex				   mContentMutex;	 // Controls access to content.
+			ds::model::ContentModelRef mContent;		 //
+			ds::model::ContentModelRef mPlatforms;		 //
+			ds::model::ContentModelRef mEvents;			 //
+			ds::model::ContentModelRef mRecords;		 //
+			ds::model::ContentModelRef mTags;			 // all the tags
+			Poco::Mutex				   mMutex;			 // Controls access to abort, force and refresh flags.
+			bool					   mAbort;			 // If true, will abort the background thread.
+			bool					   mForce;			 // If true, will force a refresh of the content.
+			bool					   mRefreshDatabase; // If true, will refresh the database content.
+			bool					   mRefreshEvents;	 // If true, will refresh (only) the events.
+			const long				   mRefreshRateMs;	 // in milliseconds
+			int						   mResourceId = 1;	 //
+		};
+
+		ds::ui::SpriteEngine& mEngine;		 //
+		ds::time::Callback	   mRefreshTimer;
+		ds::DelayedNodeWatcher mNodeWatcher; //
+		Poco::Thread		   mThread;		 //
+		Loop				   mLoop;		 //
+
+};
+
+
+}

@@ -9,6 +9,8 @@ namespace ds {
 /// ContentQuery has completed and there is new content available
 class ContentUpdatedEvent : public ds::RegisteredEvent<ContentUpdatedEvent> {};
 
+class PlatformEventsUpdatedEvent : public ds::RegisteredEvent<PlatformEventsUpdatedEvent> {};
+
 /// A request to re-query content (all queries are asynchronous)
 class RequestContentQueryEvent : public ds::RegisteredEvent<RequestContentQueryEvent> {};
 

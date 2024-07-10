@@ -59,6 +59,8 @@
     <ClInclude Include="..\src\ds\content\content_wrangler.h" />
     <ClInclude Include="..\src\ds\content\nw_query_handler.h" />
     <ClInclude Include="..\src\ds\content\nw_schedule_handler.h" />
+    <ClInclude Include="..\src\ds\content\platform.h" />
+    <ClInclude Include="..\src\ds\content\service\bridge_service.h" />
     <ClInclude Include="..\src\ds\content\service\bridge_sync_service.h" />
     <ClInclude Include="..\src\ds\content\service\sync_service.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
@@ -255,6 +257,8 @@
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
     <ClCompile Include="..\src\ds\content\nw_query_handler.cpp" />
     <ClCompile Include="..\src\ds\content\nw_schedule_handler.cpp" />
+    <ClCompile Include="..\src\ds\content\platform.cpp" />
+    <ClCompile Include="..\src\ds\content\service\bridge_service.cpp" />
     <ClCompile Include="..\src\ds\content\service\bridge_sync_service.cpp" />
     <ClCompile Include="..\src\ds\content\service\sync_service.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
