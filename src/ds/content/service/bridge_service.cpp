@@ -24,6 +24,7 @@ namespace ds::content {
 		, mNodeWatcher(engine, "localhost", 7788)
 		, mLoop(engine) {
 		mThread.setName("BridgeService");
+
 	}
 
 	BridgeService::~BridgeService() {
@@ -101,7 +102,10 @@ namespace ds::content {
 		, mForce(false)
 		, mRefreshDatabase(true) // Force refresh on start.
 		, mRefreshEvents(false)
-		, mRefreshRateMs(10000) {
+		, mRefreshRateMs(10000)
+	    , mValidator([](const ds::model::ContentModelRef&) { return true; })
+	{
+
 	}
 
 	void BridgeService::Loop::run() {
@@ -155,6 +159,8 @@ namespace ds::content {
 							mEngine.mContent.replaceChild(mEvents);
 							mEngine.mContent.replaceChild(mRecords);
 							mEngine.mContent.replaceChild(mTags);
+							mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, mRecordMap);
+							mEngine.mContent.setKeyReferences(ds::model::VALID_MAP, mValidMap);
 						}
 						mEngine.getNotifier().notify(ds::CmsDataLoadCompleteEvent());
 						mEngine.getNotifier().notify(ds::ContentUpdatedEvent());
@@ -408,11 +414,11 @@ namespace ds::content {
 				std::reverse((rankOrderedRecords.begin() + sectionStart), (rankOrderedRecords.begin() + sectionEnd));
 			} */
 
-			mContent = ds::model::ContentModelRef("content");
-			mPlatforms = ds::model::ContentModelRef("platform");
-			mEvents = ds::model::ContentModelRef("all_events");
-			mRecords = ds::model::ContentModelRef("all_records");
-			mTags = ds::model::ContentModelRef("all_tags");
+			mContent = ds::model::ContentModelRef(ds::model::CONTENT);
+			mPlatforms = ds::model::ContentModelRef(ds::model::PLATFORM);
+			mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS);
+			mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS);
+			mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS);
 
 			for (const auto& record : rankOrderedRecords) {
 				mRecords.addChild(record);
@@ -795,6 +801,30 @@ namespace ds::content {
 				}
 			}
 		}
+
+		mRecordMap = recordMap;
+		//mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
+		validateContent();
+		
+	}
+
+	void BridgeService::Loop::validateContent() {
+		std::unordered_map<std::string, ds::model::ContentModelRef> validMap;
+		auto recordMap = mEngine.mContent.getKeyReferences(ds::model::RECORD_MAP);
+		if (mValidator) {
+			for (auto pair : recordMap) {
+				auto record = pair.second;
+				auto uid	= pair.first;
+				if (mValidator(record)) {
+					validMap[uid] = record;
+				}
+			}
+			mValidMap = validMap;
+		}
+		else {
+			mValidMap = recordMap;
+		}
+		
 	}
 
 	void BridgeService::Loop::updatePlatformEvents() const {

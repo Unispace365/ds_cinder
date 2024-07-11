@@ -1,0 +1,27 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		overall_alignment="top"
+		clipping="true"
+	>
+
+		<!-- <triangle_transition name="tris"
+			layout_size_mode="fill"
+			triangle_radius="$_ambient:triangle_transition:radius"
+			transition_duration="$_ambient:triangle_transition:duration"
+			rest_duration="$_ambient:triangle_transition:rest"
+			triangle_anim_variation="$_ambient:triangle_transition:variation"
+			triangle_transition_colors="$_ambient:triangle:colors" />
+
+		<triangle_transition name="tris2"
+			layout_size_mode="fill"
+			triangle_radius="$_ambient:triangle_transition:radius"
+			transition_duration="$_ambient:triangle_transition:duration"
+			rest_duration="$_ambient:triangle_transition:rest"
+			triangle_anim_variation="$_ambient:triangle_transition:variation"
+			triangle_transition_colors="$_ambient:triangle:colors" /> -->
+
+	</layout>
+</interface>
+
+

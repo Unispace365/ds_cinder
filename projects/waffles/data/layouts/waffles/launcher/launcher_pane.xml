@@ -1,0 +1,23 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="horiz"
+			layout_size_mode="stretch"
+		>
+		
+		<scroll_list name="scroll_list"
+					 scroll_fade_colors="#FFE8EAED, #00E8EAED"
+					 scroll_list_animate="0, 0.0025"
+					 layout_size_mode="stretch"
+					 scroll_list_layout="0, 0, #expr{ 2.0 + $_info_list:item:height }"
+						/>
+		<scroll_bar name="scroll_bar"
+					layout_size_mode="flex"
+					size="50, 200"
+					animate_on="grow:0, -1; ease:outQuint"
+					/>
+	</layout>
+
+	
+</interface>
+

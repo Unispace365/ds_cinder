@@ -1,0 +1,10 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		clipping="true"
+	>
+
+	</layout>
+</interface>
+
+

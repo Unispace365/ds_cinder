@@ -1,0 +1,65 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="300, 40"
+		layout_type="vert"
+		>
+
+		<layout name="up_state"
+			attach_state="normal"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			>
+			<sprite name="background" 
+				layout_size_mode="fill"
+				color="ui_background"	
+				corner_radius="$_ui:corner_radius"
+				/>
+			<image name="normal_icon"
+					layout_size_mode="flex"
+					color="ui_normal" 
+					pad_all="#expr 0.5 * $_ui:padding"
+					layout_v_align="middle"
+					animate_on="$_animation:item_on"
+				/>			
+			
+			<text name="normal_label"
+					font="viewer:body"
+					layout_size_mode="flex"
+					attach_state="high"
+					color="ui_normal"
+					layout_v_align="middle"
+					animate_on="$_animation:item_on"
+					layout_fudge="$_ui:text_fudge"
+				/>	
+		</layout>
+			
+		<layout name="down_state"
+			attach_state="high"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			>
+			<sprite name="down_color" 
+					layout_size_mode="fill"
+					color="ui_selected_background"
+					corner_radius="$_ui:corner_radius"
+				/>	
+			<image name="high_icon"
+					layout_size_mode="flex"
+					color="ui_selected" 
+					pad_all="#expr 0.5 * $_ui:padding"
+					layout_v_align="middle"
+				/>			
+			
+			<text name="high_label"
+					font="viewer:body"
+					layout_size_mode="flex"
+					color="ui_selected"
+					layout_v_align="middle"
+					layout_fudge="$_ui:text_fudge"
+				/>	
+		</layout>
+	</layout_button>
+		
+</interface>
+

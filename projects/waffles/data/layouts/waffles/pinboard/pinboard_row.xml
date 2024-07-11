@@ -1,0 +1,18 @@
+<interface>
+
+
+						
+	<layout name="gallery_row"
+			layout_type="horiz"
+			layout_size_mode="fixed"
+			size="#expr{  $_world_width - $_ui:title_offset * 2.0 }, #expr{ $_world_height / 3 - $_arrange:padding }"
+			shrink_to_children="width"
+			layout_spacing="$_arrange:padding"/>
+							
+					
+						
+			
+	
+</interface>
+
+

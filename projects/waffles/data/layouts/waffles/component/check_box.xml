@@ -1,0 +1,57 @@
+<interface>
+
+<layout_button name="check_box"
+    layout_type="size"
+    layout_size_mode="fixed"
+    size="50, 50"
+    layout_size="50, 50"
+    overall_alignment="center"
+    layout_v_align="center"
+    layout_h_align="center"
+>
+
+    <layout name="normal_hodler"
+        attach_state="normal"
+        layout_type="vert"
+        layout_size_mode="fill"
+        layout_h_align="center"
+        size="50, 50"
+        layout_size="50, 50"
+        >
+
+        <sprite name="checked"
+            size="50, 50"
+            attach_state="normal"
+            layout_size_mode="flex"
+            layout_h_align="center"
+            corner_radius="10"
+            color="purple"
+        />
+        <image name="icon"
+            pad_all="10"
+            layout_size_mode="fill"
+            layout_h_align="center"
+            src="%APP%/data/images/check_mark.png"
+        />
+
+    </layout>
+
+    <layout name="high_hodler" 
+        attach_state="high" 
+        size="50, 50"
+        layout_size="50, 50"
+        layout_h_align="center" 
+        layout_type="vert"
+        layout_size_mode="fill"
+        overall_alignment="center">
+
+        <border name="purple_bordy" 
+            corner_radius="10"  
+            layout_size_mode="fill" 
+            color="purple" 
+            border_width="4"  />
+    </layout>
+
+</layout_button>
+
+</interface>

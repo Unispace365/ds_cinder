@@ -1,0 +1,114 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		visible="false"
+		opacity="0"
+	>
+
+		<layout name="header_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			shrink_to_children="height"
+			layout_spacing="$_ui:padding"
+		>
+
+			<gradient name="background"
+				gradient_colors="#55000000, #FF000000, #FF000000, #cc000000"
+				opacity="0.5"
+				blend_mode="normal"
+				width="300"
+				layout_size_mode="flex"
+			/>
+
+			<layout name="text_holdy"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				l_pad="430"
+				t_pad="100"
+			>
+				<layout name="time_date_holdy"
+					layout_type="horiz"
+					shrink_to_children="both"
+					layout_size_mode="flex"
+				>
+					<shadow_layout name="text_shade2"
+						layout_type="vert"
+						layout_size_mode="flex"
+						shrink_to_children="both"
+						shadow_size="16"
+						shadow_sigma="4"
+						shadow_color="brand_dark"
+						shadow_opacity="0.3"
+						shadow_offset="0, 0"
+						shadow_iterations="12"
+						layout_v_align="middle"
+						layout_h_align="center"
+						animate_on="$_animation:ambient_on"
+						animate_off="$_animation:ambient_off"
+					>
+						<text name="time"
+							font="ambient:title"
+							font_size="100"
+							color="ui_background"
+							text_align="left"
+							layout_fudge="$_ui:text_fudge"
+						/>
+					</shadow_layout>
+					<shadow_layout name="text_shade3"
+						layout_type="vert"
+						layout_size_mode="flex"
+						shrink_to_children="both"
+						shadow_size="16"
+						shadow_sigma="20"
+						shadow_color="brand_dark"
+						shadow_opacity="0.3"
+						shadow_offset="0, 0"
+						shadow_iterations="12"
+						layout_v_align="middle"
+						animate_on="$_animation:ambient_on"
+						animate_off="$_animation:ambient_off"
+						l_pad="200"
+					>
+						<text name="date"
+							font="ambient:title"
+							color="ui_background"
+							font_size="100"
+							text_align="left"
+							text="8th Dec 2016"
+							layout_fudge="$_ui:text_fudge"
+						/>
+					</shadow_layout>
+				</layout>
+				<shadow_layout name="text_shade"
+					layout_type="vert"
+					layout_size_mode="flex"
+					shrink_to_children="both"
+					shadow_size="16"
+					shadow_sigma="4"
+					shadow_color="brand_dark"
+					shadow_opacity="0.3"
+					shadow_offset="0, 0"
+					shadow_iterations="12"
+					animate_on="$_animation:ambient_on"
+					animate_off="$_animation:ambient_off"
+				>
+					<text name="title"
+						font="ambient:big_title"
+						color="ui_background"
+						layout_h_align="center"
+						text_align="left"
+						text="$_ambient:title"
+						layout_fudge="$_ui:text_fudge"
+					/>
+				</shadow_layout>
+
+
+			</layout>
+		</layout>
+	</layout>
+
+</interface>

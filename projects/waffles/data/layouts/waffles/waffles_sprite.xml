@@ -1,0 +1,24 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="none"
+		clipping="true"
+		size="$_world_size"
+		>
+
+		<!-- <layout name="background_holdy"
+			layout_type="vert"
+			layout_size_mode="fill"
+		/> -->
+		
+		<layout name="viewer_controller_holdy"
+			layout_type="vert"
+			layout_size_mode="fill"
+		/>
+		
+		<layout name="five_finger_holdy"
+			layout_type="vert"
+			layout_size_mode="fill"
+		/>
+
+	</layout>
+</interface>

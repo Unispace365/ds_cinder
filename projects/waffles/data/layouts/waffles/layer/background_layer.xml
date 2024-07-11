@@ -1,0 +1,46 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		overall_alignment="top"
+		clipping="true"
+	>
+
+		<sprite name="app_bg"
+			color="$_app:background"
+			layout_size_mode="fill"
+		/>
+
+		<sprite name="bg_fill"
+			color="$_ambient:background:color"
+			layout_size_mode="fill"
+			/>
+
+		<gradient_background name="grad_bg"
+			color="white"
+			opacity="$_gradient:background:opacity"
+			layout_size_mode="fill"
+			gradient_background_colors="$_ambient:gradient:colors"
+			/>
+		
+		<media_player name="background_media"
+			layout_size_mode="fill"
+			media_player_auto_start="true"
+			media_player_show_interface="false"
+			media_player_animation_duration="0.0"
+			media_player_cache_images="true"
+			media_player_video_volume="0.0"/>
+			
+		<particle_background name="bg"
+			layout_size_mode="fill"
+			opacity="0.8"
+			bg_particle_colors="$_ambient:particle:colors" />
+
+		<layout name="bg_holder"
+			layout_type="size"
+			layout_size_mode="fill"
+		/>
+			
+	</layout>
+</interface>
+
+

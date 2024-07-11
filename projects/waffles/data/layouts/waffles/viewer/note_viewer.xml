@@ -1,0 +1,61 @@
+<interface>
+
+	<layout name="root_layout"
+			size="800, 1080"
+			layout_type="horiz"
+		>
+	
+		<sprite name="background"
+			layout_size_mode="fill"
+			color="brand_accent_1"
+			corner_radius="$_ui:corner_radius"
+			animate_on="fade"
+			/>
+	
+		<sprite name="darkener"
+			layout_size_mode="fill"
+			color="darkener"
+			opacity="0.5"
+			corner_radius="$_ui:corner_radius"
+			/>
+		
+		<layout name="title_layout"
+			layout_type="vert"
+			layout_size_mode="stretch"
+			pad_all="60"
+			overall_alignment="center"
+			layout_spacing="20"
+			>	
+			<text name="primary_text"
+					font="note_view:text"
+					model="text:this->text"
+					center="0.5, 0.5"
+					animate_on="fade"
+					layout_size_mode="stretch"
+					fit_to_limit="true"
+					/>
+					
+			<override target="tablet" pad_all="30" />
+			<override target="wide" pad_all="30" />
+		</layout>
+		
+		<layout 
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="bottom"
+			pad_all="60"
+			>
+		<xml name="edit_note" src="%APP%/data/layouts/waffles/common/label_button.xml" >
+				<property name="the_button" size="50, $_ui:button_size"  layout_h_align="right"/>
+				<property name="up_color"  visible="false"/>
+				<property name="normal_label" text="Edit" color="white" />
+				<property name="high_label" text="Edit" color="white" />
+			</xml>
+		</layout>
+	</layout>
+		
+	
+	
+</interface>
+
+

@@ -1,0 +1,77 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		opacity="0"
+		animate_on="$_ambient:media:anim_on"
+		animate_off="$_ambient:media:anim_off"
+		overall_alignment="center"
+	>
+
+		<triangle_transition name="tris"
+			layout_size_mode="fill"
+			triangle_radius="$_ambient:triangle_transition:radius"
+			transition_duration="1.25"
+			rest_duration="1500"
+			triangle_anim_variation="$_ambient:triangle_transition:variation"
+			triangle_transition_colors="$_ambient:triangle:colors" 
+
+			/>
+		<triangle_transition name="tris2"
+			layout_size_mode="fill"
+			triangle_radius="$_ambient:triangle_transition:radius"
+			transition_duration="8.25"
+			rest_duration="0"
+			triangle_anim_loop="true"
+			triangle_anim_variation="1.0"
+			triangle_transition_colors="$_ambient:triangle:colors" 
+			/>
+
+		<media_player name="media"
+			layout_size_mode="fill"
+			model="media_player_video_loop:this->loop; resource:this->media;"
+			media_player_can_display_interface="false"
+			media_player_auto_start="true"
+			media_player_show_interface="false"
+			media_player_video_volume="0.5"
+		/>
+
+		<layout layout_size_mode="fill"
+			overall_alignment="bottom"
+		>
+			<layout name="text_box"
+				layout_h_align="right"
+				overall_alignment="middle"
+				size="$_ambient:triangle_message:box_size"
+				animate_on="slide: 0, #expr{$_world_height / 2.5}; fade; ease: outQuart; duration: 0.8; delay: 1.5"
+			>
+
+				<layout layout_size_mode="fill">
+					<gradient name="top_grad"
+						height="190"
+						layout_size_mode="flex"
+						gradient_colors="bright_blue:transparent, bright_blue:transparent, bright_blue, bright_blue"
+					/>
+
+					<sprite name="fill"
+						layout_size_mode="stretch"
+						color="bright_blue"
+					/>
+				</layout>
+				<text name="message_template_text"
+					font="template:triangle_message:headline"
+					color="white"
+					text_align="left"
+					padding="$_message_template:text:padding"
+					layout_size_mode="flex"
+					text="Message Template Text"
+					model="text:this->text"
+					center="0.0, 0.5"
+				/>
+			</layout>
+		</layout>
+
+	</layout>
+</interface>
+
+

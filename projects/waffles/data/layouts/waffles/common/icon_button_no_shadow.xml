@@ -1,0 +1,55 @@
+<interface>
+	<layout_button name="the_button"
+		size="$_ui:button_size, $_ui:button_size"
+		b_pad="#expr -1.0 * $_ui:button_size"
+		layout_h_align="left"
+		layout_fudge="#expr{-1.0 * $_ui:button_size - 8.0 }, #expr{ -1.0 * $_ui:button_size }"
+		layout_type="size"
+		center="0.5, 0.5"
+		animate_on="grow; ease:outQuint"
+	>
+        <layout name="normal_holder"
+            layout_size_mode="fill"
+            layout_type="vert"
+            blend_mode="premultiply"
+            attach_state="normal"
+        >
+            <sprite name="backy"
+                layout_size_mode="fill"
+                color="black"
+                blend_mode="premultiply"
+            />
+			<sprite name="up_color"
+				layout_size_mode="fill"
+				color="hpi_white"
+				pad_all="2"
+			/>
+            <image name="up_image"
+                src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png"
+                color="black"
+                layout_size_mode="stretch"
+                pad_all="$_ui:padding"
+                blend_mode="fbo_in"
+            />
+        </layout>
+
+		<layout name="high_holder"
+			layout_size_mode="fill"
+			layout_type="vert"
+			attach_state="high"
+		>
+			<sprite name="backy_high"
+				layout_size_mode="fill"
+				color="black"
+			/>
+			<image name="down_image"
+				src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png"
+				color="hpi_white"
+				layout_size_mode="stretch"
+				pad_all="$_ui:padding"
+			/>
+		</layout>
+
+	</layout_button>
+</interface>
+

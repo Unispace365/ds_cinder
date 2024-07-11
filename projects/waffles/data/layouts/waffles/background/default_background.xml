@@ -1,0 +1,6 @@
+<interface>
+    <background_view name="background"
+		size="$_world_size"
+		layout_type="size"
+		layout_size_mode="fill" />
+</interface>

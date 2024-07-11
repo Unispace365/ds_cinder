@@ -1,0 +1,34 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		opacity="0"
+		animate_on="$_ambient:media:anim_on"
+		animate_off="$_ambient:media:anim_off"
+		overall_alignment="center"
+	>
+		<!-- <sprite name="scrim"
+			color="black"
+			opacity="0.5"
+			layout_size_mode="fill"
+		/> -->
+
+		<!-- <media_player name="media"
+			layout_h_align="middle"
+			layout_size_mode="stretch"
+			model="resource:this->media"
+			media_player_auto_start="true"
+			media_player_can_display_interface="true"
+			media_player_show_interface="true"
+			media_player_show_interface_at_start="false"
+			center="0.5, 0.5"
+			layout_v_align="middle"
+			enable="true"
+			animate_on="fade; grow:0.25, 0.25; duration: 0.4;"
+			animate_off="fade; grow:0.25, 0.25; duration: 0.4;"
+		/> -->
+
+	</layout>
+</interface>
+
+

@@ -1,0 +1,47 @@
+<interface>
+	<layout_button name="background_button"
+		size="750, 1400"
+		layout_type="vert"
+		layout_size_mode="fixed"
+	>
+		<layout name="normal_hodler"
+				attach_state="normal"
+				layout_size_mode="fill"
+				layout_type="horiz"
+				layout_spacing="20"
+				overall_alignment="center"
+			>
+				<sprite name="backy"
+					layout_size_mode="fill"
+					color="white"
+					corner_radius="30"
+				/>
+				<text name="label"
+					font="component:text_button:label"
+					color="zoom_blue"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+			/>
+		</layout>
+
+		<layout name="high_hodler"
+			attach_state="high"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			layout_spacing="20"
+			overall_alignment="center"
+		>
+			<sprite name="down_color"
+				layout_size_mode="fill"
+				color="zoom_blue"
+				corner_radius="30"
+			/>
+			<text name="high_label"
+				font="component:text_button:label"
+				color="white"
+				layout_size_mode="flex"
+				layout_v_align="middle"
+			/>
+		</layout>
+	</layout_button>
+</interface>

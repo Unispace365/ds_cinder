@@ -1,0 +1,91 @@
+<interface>
+	<layout name="headline_subheadline_layout"
+		layout_type="horiz"
+		layout_size_mode="flex"
+		shrink_to_children="height"
+		b_pad="$_template:headline_padding"
+	>
+
+		<layout name="headsubhead"
+			shrink_to_children="height"
+			layout_type="vert"
+			width="#expr ($_world_width * 2)  / 3"
+			animate_on="fade; duration: 0.25; ease:outQuad;"
+			animate_off="fade; duration: 0.15; ease:inQuad;"
+		>
+
+			<shadow_layout name="head_shadow"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				shadow_size="$_shadow:size"
+				shadow_sigma="$_shadow:sigma"
+				shadow_color="$_shadow:color"
+				shadow_opacity="$_shadow:opacity"
+				shadow_offset="0.0, 0.0"
+				shadow_iterations="$_shadow:iterations"
+				blend_mode="$_shadow:blend_mode"
+				b_pad="$_template:headline_subheadline_padding"
+			>
+				<text name="headline"
+					font="template:headline"
+					text_align="left"
+					text="Default Feature Story headline"
+					model="text:this->headline"
+					layout_size_mode="flex"
+				/>
+			</shadow_layout>
+
+			<shadow_layout name="sub_head_shadow"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				shadow_size="$_shadow:size"
+				shadow_sigma="$_shadow:sigma"
+				shadow_color="$_shadow:color"
+				shadow_opacity="$_shadow:opacity"
+				shadow_offset="0.0, 0.0"
+				blend_mode="$_shadow:blend_mode"
+				shadow_iterations="$_shadow:iterations"
+			>
+				<text name="sub_headline"
+					font="template:sub_headline"
+					text_align="left"
+					text="Default feature story sub headline"
+					model="text:this->sub_headline"
+					layout_size_mode="flex"
+				/>
+			</shadow_layout>
+
+		</layout>
+
+		<layout name="tagline_hodler"
+			layout_size_mode="stretch"
+			overall_alignment="center"
+			animate_on="fade; duration: 0.25; ease:outQuad;"
+			animate_off="fade; duration: 0.15; ease:inQuad;"
+		>
+
+			<shadow_layout name="tagline_shadow"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				shadow_size="$_shadow:size"
+				shadow_sigma="$_shadow:sigma"
+				shadow_color="$_shadow:color"
+				shadow_opacity="$_shadow:opacity"
+				shadow_offset="0.0, 0.0"
+				shadow_iterations="$_shadow:iterations"
+				blend_mode="$_shadow:blend_mode"
+			>
+				<text name="tag_line"
+					font="template:tag_line"
+					text_align="right"
+					text="Default feature story tag line"
+					model="text:this->tagline"
+					layout_size_mode="flex"
+				/>
+			</shadow_layout>
+		</layout>
+	</layout>
+</interface>

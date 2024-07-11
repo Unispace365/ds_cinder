@@ -1,0 +1,35 @@
+<interface>
+	<layout name="gallery_item"
+      		enable="true"
+      		layout_size_mode="flex"
+      		layout_type="horiz"
+			shrink_to_children="width"
+			skip_hidden_children="true"
+			animate_off="fade"
+			>
+		<custom_media_player name="the_image"
+				media_player_auto_start="true"
+				media_player_video_volume="0"
+				media_player_show_interface="false"
+				media_player_standard_click="true"
+				media_player_video_loop="true"
+				media_player_video_reset_on_complete="false"
+				media_player_web_size="1920, 1080"
+				media_player_letterbox="false"
+				layout_fixed_aspect="true"
+     			layout_size_mode="flex"
+     			model="resource_c_m:this->media_res; visible_if_exists:this->media_thumb_res" 
+				animate_on="fade"
+				/>
+				
+		<xml name="the_note" src="%APP%/data/layouts/waffles/viewer/note_viewer.xml" >
+			<property name="root_layout" 
+				size="800, 1080" 
+				model="visible_if_exists:this->text"
+				layout_size_mode="fixed" /> 
+				
+			<property name="edit_note.the_button" visible="false" />
+			
+		</xml>
+	</layout>
+</interface>

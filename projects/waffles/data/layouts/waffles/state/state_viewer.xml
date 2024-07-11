@@ -1,0 +1,85 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		size="900, 700"
+	>
+
+		<shadow_layout name="bg_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="19"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="4.0, 4.0"
+			shadow_iterations="13"
+		>
+			<sprite name="background"
+				color="viewer_background"
+				blend_mode="normal"
+				layout_size_mode="fill"
+				corner_radius="$_ui:corner_radius"
+			/>
+		</shadow_layout>
+
+		<layout name="content_layout"
+			layout_type="vert"
+			layout_size_mode="stretch"
+			layout_spacing="$_ui:padding"
+			pad_all="$_ui:padding"
+		>
+
+
+			<text name="title"
+				font="viewer:title"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				text="States"
+			/>
+
+
+			<layout name="screens_layout"
+				layout_type="horiz"
+				layout_size_mode="stretch"
+				pad_all="$_ui:padding"
+				skip_hidden_children="true"
+			>
+
+				<scroll_list name="scroll_list"
+					scroll_fade_colors="#FFE8EAED, #00E8EAED"
+					scroll_list_animate="0, 0.0025"
+					layout_size_mode="stretch"
+					scroll_list_layout="0, 0, #expr{ 2.0 + $_info_list:item:height }"
+				/>
+				<scroll_bar name="scroll_bar"
+					layout_size_mode="flex"
+					size="50, 200"
+					animate_on="grow:0, -1; ease:outQuint"
+				/>
+
+			</layout>
+			<xml name="new_button" src="%APP%/data/layouts/waffles/common/icon_label_button.xml">
+				<property name="the_button" layout_h_align="right" />
+				<property name="high_label" text="New State" />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/NewState_64.png" />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/NewState_64.png" />
+				<property name="label" text="New State" />
+			</xml>
+		</layout>
+
+		<layout name="detail_holder"
+			layout_size_mode="fill"
+		/>
+
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml" />
+
+	</layout>
+
+
+</interface>
+

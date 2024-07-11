@@ -13,7 +13,11 @@
 
 namespace ds::content {
 
-	
+/**
+ * \class BridgeService
+ * \brief A service that runs in the background and refreshes the database content.
+ */
+
 class BridgeService {
 	public:
 		explicit BridgeService(ds::ui::SpriteEngine& eng);
@@ -28,6 +32,10 @@ class BridgeService {
 		void refreshEvents(bool force = false);
 
 		bool isRunning() const { return mThread.isRunning(); }
+
+		void setValidator(const std::function<bool(const ds::model::ContentModelRef&)> validator){
+			mLoop.setValidator(validator);
+		};
 
 	private:
 		class Loop final : public Poco::Runnable {
@@ -44,11 +52,18 @@ class BridgeService {
 			// Signal the background thread that it should abort.
 			void abort();
 
+			void setValidator(const std::function<bool(const ds::model::ContentModelRef&)> validator) {
+				mValidator = validator;
+			};
+
 		private:
 		///
 			bool eventIsNow(ds::model::ContentModelRef& event, Poco::DateTime& ldt) const;
+
 			///
 			void loadContent();
+			///
+			void validateContent();
 			///
 			void updatePlatformEvents() const;
 
@@ -62,6 +77,8 @@ class BridgeService {
 			ds::model::ContentModelRef mEvents;			 //
 			ds::model::ContentModelRef mRecords;		 //
 			ds::model::ContentModelRef mTags;			 // all the tags
+			std::unordered_map<std::string, ds::model::ContentModelRef> mRecordMap;	  // all the records
+			std::unordered_map<std::string, ds::model::ContentModelRef> mValidMap;	  // all the valid records (as determined by the validator)
 			Poco::Mutex				   mMutex;			 // Controls access to abort, force and refresh flags.
 			bool					   mAbort;			 // If true, will abort the background thread.
 			bool					   mForce;			 // If true, will force a refresh of the content.
@@ -69,6 +86,7 @@ class BridgeService {
 			bool					   mRefreshEvents;	 // If true, will refresh (only) the events.
 			const long				   mRefreshRateMs;	 // in milliseconds
 			int						   mResourceId = 1;	 //
+			std::function<bool(const ds::model::ContentModelRef&)> mValidator = nullptr;
 		};
 
 		ds::ui::SpriteEngine& mEngine;		 //
@@ -76,7 +94,7 @@ class BridgeService {
 		ds::DelayedNodeWatcher mNodeWatcher; //
 		Poco::Thread		   mThread;		 //
 		Loop				   mLoop;		 //
-
+		
 };
 
 

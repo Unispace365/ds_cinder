@@ -1,0 +1,72 @@
+<interface>
+
+	<layout_button name="the_button"
+		size="$_drawing:control_button_size"
+		layout_size_mode="fixed"
+		layout_type="size"
+		center="0.5, 0.5"
+		animate_on="$_animation:item_on"
+	>
+
+
+		<layout name="normal_state"
+			attach_state="normal"
+			layout_type="horiz"
+			layout_size_mode="fill"
+		>
+			<sprite name="norder_normal_border"
+				layout_size_mode="fill"
+				color="#000000"
+				corner_radius="$_ui:corner_radius"
+			/>
+			<sprite name="norder_normal"
+				layout_size_mode="fill"
+				color="ui_icon_background"
+				pad_all="1"
+			/>
+
+			<image name="icon_normal"
+				layout_size_mode="flex"
+				color="ui_normal"
+				pad_all="#expr 0.25 * $_ui:padding"
+			/>
+			<text name="label_normal"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_fudge="$_ui:text_fudge"
+			/>
+		</layout>
+
+
+		<layout name="high_state"
+			attach_state="high"
+			layout_type="horiz"
+			layout_size_mode="fill"
+		>
+
+			<sprite name="norder_high"
+				layout_size_mode="fill"
+				color="#000000"
+				corner_radius="$_ui:corner_radius"
+			/>
+
+			<image name="icon_high"
+				layout_size_mode="flex"
+				color="ui_white"
+				pad_all="#expr 0.25 * $_ui:padding"
+			/>
+			<text name="label_high"
+				font="viewer:tiny"
+				color="ui_white"
+				layout_v_align="middle"
+				layout_fudge="$_ui:text_fudge"
+			/>
+		</layout>
+
+
+	</layout_button>
+
+
+</interface>
+

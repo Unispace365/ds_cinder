@@ -1,0 +1,34 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		pad_all="$_template:padding"
+		opacity="0"
+		animate_on="$_ambient:media:anim_on"
+		animate_off="$_ambient:media:anim_off"
+		skip_hidden_children="true"
+	>
+		<xml name="headline_subheadline" src="%APP%/data/layouts/waffles/component/headline_subheadline.xml">
+		</xml>
+
+		<!-- <sprite name="bg_fill"
+			color="$_ambient:background:color"
+			layout_size_mode="fill"
+			/>
+		<gradient_background name="grad_bg"
+			opacity="0.7"
+			layout_size_mode="fill"
+			gradient_background_colors="$_ambient:gradient:colors"
+			/>
+		<media_player name="background_media"
+			layout_size_mode="fill"
+			model="resource:this->background_media"/>
+
+		<layout name="composite_holder"
+			layout_size_mode="fill"
+			layout_type="none"/> -->
+
+	</layout>
+</interface>
+
+

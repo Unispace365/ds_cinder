@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\waffles\background\background_view.cpp" />
+    <ClCompile Include="src\waffles\background\media_background.cpp" />
+    <ClCompile Include="src\waffles\common\list_item.cpp" />
+    <ClCompile Include="src\waffles\common\ui_utils.cpp" />
+    <ClCompile Include="src\waffles\controllers\engage_controller.cpp" />
+    <ClCompile Include="src\waffles\layer\asset_layer.cpp" />
+    <ClCompile Include="src\waffles\layer\interface_layer.cpp" />
+    <ClCompile Include="src\waffles\layer\template_layer.cpp" />
+    <ClCompile Include="src\waffles\layer\transition_layer.cpp" />
+    <ClCompile Include="src\waffles\pinboard\pinboard_button.cpp" />
+    <ClCompile Include="src\waffles\pinboard\pinboard_view.cpp" />
+    <ClCompile Include="src\waffles\query\directory_query.cpp" />
+    <ClCompile Include="src\waffles\query\search_query.cpp" />
+    <ClCompile Include="src\waffles\service\drawing_upload_service.cpp" />
+    <ClCompile Include="src\waffles\service\file_list_save_service.cpp" />
+    <ClCompile Include="src\waffles\service\file_save_request.cpp" />
+    <ClCompile Include="src\waffles\service\file_upload_request.cpp" />
+    <ClCompile Include="src\waffles\service\pinboard_service.cpp" />
+    <ClCompile Include="src\waffles\service\recent_files_service.cpp" />
+    <ClCompile Include="src\waffles\service\screen_state_service.cpp" />
+    <ClCompile Include="src\waffles\service\settings_service.cpp" />
+    <ClCompile Include="src\waffles\template\composite_slide.cpp" />
+    <ClCompile Include="src\waffles\template\template_config.cpp" />
+    <ClCompile Include="src\waffles\touch_menu\touch_menu_graphics.cpp" />
+    <ClCompile Include="src\waffles\util\capture_player.cpp" />
+    <ClCompile Include="src\waffles\util\shadow_layout.cpp" />
+    <ClCompile Include="src\waffles\viewers\base_element.cpp" />
+    <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.cpp" />
+    <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\drawing\drawing_area.cpp" />
+    <ClCompile Include="src\waffles\viewers\drawing\drawing_tools.cpp" />
+    <ClCompile Include="src\waffles\viewers\error_viewer\error_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.cpp" />
+    <ClCompile Include="src\waffles\viewers\launcher\launcher.cpp" />
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_cms_content.cpp" />
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_local_content.cpp" />
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_pane.cpp" />
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_search_content.cpp" />
+    <ClCompile Include="src\waffles\viewers\presentation_controller\presentation_controller.cpp" />
+    <ClCompile Include="src\waffles\viewers\search\search_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\settings_viewer\ambient_chooser.cpp" />
+    <ClCompile Include="src\waffles\viewers\settings_viewer\background_chooser.cpp" />
+    <ClCompile Include="src\waffles\viewers\settings_viewer\settings_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_detail.cpp" />
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_item.cpp" />
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\titled_media_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\viewer_controller.cpp" />
+    <ClCompile Include="src\waffles\waffles_sprite.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="src\app\app_defs.h" />
+    <ClInclude Include="src\events\state_events.h" />
+    <ClInclude Include="src\waffles\background\background_view.h" />
+    <ClInclude Include="src\waffles\background\media_background.h" />
+    <ClInclude Include="src\waffles\common\list_item.h" />
+    <ClInclude Include="src\waffles\common\ui_utils.h" />
+    <ClInclude Include="src\waffles\controllers\engage_controller.h" />
+    <ClInclude Include="src\waffles\layer\asset_layer.h" />
+    <ClInclude Include="src\waffles\layer\interface_layer.h" />
+    <ClInclude Include="src\waffles\layer\template_layer.h" />
+    <ClInclude Include="src\waffles\layer\transition_layer.h" />
+    <ClInclude Include="src\waffles\model\viewer_creation_args.h" />
+    <ClInclude Include="src\waffles\pinboard\pinboard_button.h" />
+    <ClInclude Include="src\waffles\pinboard\pinboard_view.h" />
+    <ClInclude Include="src\waffles\query\directory_query.h" />
+    <ClInclude Include="src\waffles\query\search_query.h" />
+    <ClInclude Include="src\waffles\service\drawing_upload_service.h" />
+    <ClInclude Include="src\waffles\service\file_list_save_service.h" />
+    <ClInclude Include="src\waffles\service\file_save_request.h" />
+    <ClInclude Include="src\waffles\service\file_upload_request.h" />
+    <ClInclude Include="src\waffles\service\pinboard_service.h" />
+    <ClInclude Include="src\waffles\service\recent_files_service.h" />
+    <ClInclude Include="src\waffles\service\screen_state_service.h" />
+    <ClInclude Include="src\waffles\service\settings_service.h" />
+    <ClInclude Include="src\waffles\template\composite_slide.h" />
+    <ClInclude Include="src\waffles\template\template_base.h" />
+    <ClInclude Include="src\waffles\template\template_config.h" />
+    <ClInclude Include="src\waffles\touch_menu\touch_menu_graphics.h" />
+    <ClInclude Include="src\waffles\util\capture_player.h" />
+    <ClInclude Include="src\waffles\util\shadow_layout.h" />
+    <ClInclude Include="src\waffles\viewers\base_element.h" />
+    <ClInclude Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.h" />
+    <ClInclude Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\drawing\drawing_area.h" />
+    <ClInclude Include="src\waffles\viewers\drawing\drawing_tools.h" />
+    <ClInclude Include="src\waffles\viewers\error_viewer\error_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.h" />
+    <ClInclude Include="src\waffles\viewers\launcher\launcher.h" />
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_cms_content.h" />
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_local_content.h" />
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_pane.h" />
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_search_content.h" />
+    <ClInclude Include="src\waffles\viewers\presentation_controller\presentation_controller.h" />
+    <ClInclude Include="src\waffles\viewers\search\search_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\settings_viewer\ambient_chooser.h" />
+    <ClInclude Include="src\waffles\viewers\settings_viewer\background_chooser.h" />
+    <ClInclude Include="src\waffles\viewers\settings_viewer\settings_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_detail.h" />
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_item.h" />
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\titled_media_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\viewer_controller.h" />
+    <ClInclude Include="src\waffles\waffles_events.h" />
+    <ClInclude Include="src\waffles\waffles_sprite.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d645a8cb-9e8a-41f2-9bea-bc1fe7c840bf}</ProjectGuid>
+    <RootNamespace>waffles</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\web\cef\PropertySheets\Web_CEF64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\viewers\PropertySheets\Viewers64_d.props" />
+    <Import Project="PropertySheets\Waffles64_d.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\web\cef\PropertySheets\Web_CEF64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\viewers\PropertySheets\Viewers64.props" />
+    <Import Project="PropertySheets\Waffles64.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>lib64\</OutDir>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>lib64</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

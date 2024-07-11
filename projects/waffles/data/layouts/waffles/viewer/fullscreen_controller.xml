@@ -1,0 +1,73 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fixed"
+		size="650, 180"
+		animate_off="$_animation:fade_off"
+	>
+
+		<shadow_layout name="bg_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="19"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="-2.0, 2.0"
+			shadow_iterations="5"
+		>
+			<sprite name="background"
+				color="viewer_background"
+				layout_size_mode="fill"
+			/>
+		</shadow_layout>
+
+		<text name="title"
+			font="viewer:body"
+			color="ui_normal"
+			layout_v_align="middle"
+			layout_size_mode="flex"
+			pad_all="$_ui:padding"
+			animate_on="$_animation:item_on"
+			model="text:this->record_name"
+			layout_fudge="$_ui:text_fudge"
+			text_ellipses="end"
+		/>
+
+		<layout name="controller_layout"
+			layout_type="horiz"
+			layout_size_mode="stretch"
+			pad_all="$_ui:padding"
+			layout_spacing="#expr 0.5 * $_ui:padding"
+		>
+			<!--
+			<xml name="drawing" src="%APP%/data/layouts/waffles/common/icon_button_no_shadow.xml">
+				<property name="the_button" layout_fudge="0, 0" layout_v_align="middle"
+					r_pad="$_ui:padding" />
+				<property name="up_image" src="%APP%/data/images/waffles/icons/4x/Annotation Tool_256.png" pad_all="0" />
+				<property name="down_image" src="%APP%/data/images/waffles/icons/4x/Annotation Tool_256.png" pad_all="0" />
+			</xml>
+			-->
+			<xml name="fullscreen" src="%APP%/data/layouts/waffles/common/icon_button_no_shadow.xml">
+				<property name="the_button" layout_fudge="0, 0" layout_v_align="middle"
+					r_pad="$_ui:padding" />
+				<property name="up_image" src="%APP%/data/images/waffles/icons/4x/Collapse_256.png" pad_all="0" />
+				<property name="down_image" src="%APP%/data/images/waffles/icons/4x/Collapse_256.png" pad_all="0" />
+			</xml>
+			<pinboard_button name="pinboard" />
+			<layout name="controller_holder"
+				layout_type="vert"
+				layout_size_mode="stretch"
+			>
+			</layout>
+		</layout>
+
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml">
+			<property name="the_button"
+				layout_fudge="#expr{-1.0 * $_ui:button_size }, #expr{ ( -1 * $_ui:button_size ) - $_ui:corner_radius }" />
+		</xml>
+	</layout>
+
+</interface>
+

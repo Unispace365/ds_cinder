@@ -1,0 +1,36 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		opacity="0"
+		animate_on="$_ambient:media:anim_on"
+		animate_off="$_ambient:media:anim_off"
+		pad_all="$_template:padding"
+		skip_hidden_children="true"
+	>
+		<xml name="headline_subheadline" src="%APP%/data/layouts/waffles/component/headline_subheadline.xml" />
+
+		<layout name="squisher"
+			layout_size_mode="stretch"
+			overall_alignment="middle">
+			<layout name="content_surround"
+				layout_size_mode="fill">
+
+				<layout name="content_area"
+					layout_size_mode="stretch"
+					overall_alignment="middle">
+				</layout>
+
+				<image name="down_arrow"
+					visible="false"
+					layout_h_align="center"
+					src_c_m="%APP%/data/images/ui/scroll_arrow.png"
+					color="corporate_blue"
+					scale="0.3, 0.3"
+				/>
+			</layout>
+		</layout>
+
+
+	</layout>
+</interface>

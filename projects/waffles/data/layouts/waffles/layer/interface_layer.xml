@@ -1,0 +1,27 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		animate_on="opacity: 1; duration: 1; delay: 1.0"
+		animate_off="opacity: 0; duration: 1; delay: 0.0"
+		clipping="true"
+	>
+
+		<layout name="persistent_menu"
+			layout_size_mode="fill"
+			layout_type="horiz"
+			overall_alignment="middle"
+			shrink_to_children="height"
+			visible="$_enable:persistent:menu"
+			layout_v_align="middle"
+			l_pad="150"
+			r_pad="150"
+		>
+			<xml name="left_menu" src="%APP%/data/layouts/waffles/component/shadow_icon_button.xml"/>
+			<sprite layout_size_mode="stretch" />
+			<xml name="right_menu" src="%APP%/data/layouts/waffles/component/shadow_icon_button.xml"/>
+		</layout>
+
+	</layout>
+</interface>
+
+

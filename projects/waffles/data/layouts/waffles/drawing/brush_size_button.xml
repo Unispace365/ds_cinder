@@ -1,0 +1,44 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="28, 28"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		center="0.5, 0.5"
+		animate_on="$_animation:item_on"
+		overall_alignment="center"
+		>
+
+		<sprite name="the_border" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="#000000"
+			corner_radius="$_ui:corner_radius"
+			/>		
+
+		<sprite name="the_fill" 
+			layout_size_mode="fill"
+			pad_all="1"
+			color="viewer_background"
+			/>
+
+		<circle name="sizer"
+			radius="5"
+			color="#000000"
+			opacity="1"
+			center="0.5, 0.5"
+			layout_h_align="center"
+			/>
+			
+
+
+	
+				
+		
+	</layout_button>
+		
+	
+	
+		
+</interface>
+

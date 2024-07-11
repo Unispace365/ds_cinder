@@ -1,0 +1,66 @@
+<interface>
+
+	<layout name="layout"
+			layout_type="horiz"
+			layout_size_mode="fixed"
+			enable="true"
+			multitouch="info"
+			size="500, $_info_list:item:height"
+		>
+	
+		<sprite name="background_highlight"
+			layout_size_mode="fill"
+			color="ui_background"
+			corner_radius="$_ui:corner_radius"
+			animate_on="$_animation:item_on"
+			/>
+			
+		<xml name="open_state_button" src="%APP%/data/layouts/waffles/common/close_button_no_shadow.xml" >
+			<property name="the_button"  layout_fudge="0, 0" layout_v_align="middle" l_pad="$_ui:padding" />
+			<property name="up_image" src="%APP%/data/images/waffles/icons/1x/States_64.png" />
+			<property name="down_image" src="%APP%/data/images/waffles/icons/1x/States_64.png" />
+		</xml>
+		
+		<layout name="text_layout"
+			layout_type="vert"
+			layout_v_align="middle"
+			overall_alignment="middle"
+			layout_size_mode="stretch"
+			pad_all="$_ui:padding"
+			>				
+			<text name="date"
+				font="viewer:tiny"
+				color="ui_normal"
+				l_pad="#expr{ 0.5 * $_ui:padding }"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				/>				
+			<text name="title"
+				font="viewer:subtitle"
+				color="ui_normal"
+				l_pad="10"
+				l_pad="#expr{ 0.5 * $_ui:padding }"
+				animate_on="$_animation:item_on"
+				model="text:this->name"
+				layout_fudge="$_ui:text_fudge"
+				/>
+		
+		</layout>			
+		<text name="count"
+			font="viewer:body"
+			color="ui_normal"
+			layout_v_align="middle"
+			l_pad="$_ui:padding"
+			r_pad="#expr 2.0 * $_ui:padding"
+			animate_on="$_animation:item_on"
+			layout_fudge="$_ui:text_fudge"
+			/>
+		<xml name="delete_state_button" src="%APP%/data/layouts/waffles/common/close_button_no_shadow.xml" >
+			<property name="the_button" layout_fudge="0, 0" layout_v_align="middle" r_pad="$_ui:padding"/>
+			<property name="up_image" src="%APP%/data/images/waffles/icons/1x/Delete_64.png" />
+			<property name="down_image" src="%APP%/data/images/waffles/icons/1x/Delete_64.png" />
+		</xml>
+	</layout>
+
+</interface>
+

@@ -1,0 +1,93 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			size="900, 600"
+			t_pad="100"
+		>
+		
+		<sprite name="background"
+			color="viewer_background"
+			blend_mode="normal"
+			layout_size_mode="fill"
+			corner_radius="$_ui:corner_radius"
+			/>
+		
+		<layout name="content_layout"
+			layout_type="vert"
+			layout_size_mode="stretch"
+			layout_spacing="$_ui:padding"
+			pad_all="$_ui:padding"
+			
+		>
+		
+			<layout name="buttons_layouta"
+					layout_type="horiz"
+					layout_size_mode="flex"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+					pad_all="$_ui:padding"
+						>
+				<text name="count"
+					font="viewer:tiny"
+					color="ui_normal"
+					layout_fudge="$_ui:text_fudge"
+					/>
+				<text name="dash"
+					font="viewer:tiny"
+					color="ui_normal"
+					text="-"
+					layout_fudge="$_ui:text_fudge"
+					/>
+				<text name="date"
+					font="viewer:tiny"
+					color="ui_normal"
+					layout_fudge="$_ui:text_fudge"
+					/>	
+			</layout>
+			<entry_field 
+					name="entry_field"
+					pad_all="$_ui:padding"
+					sprite_link="primary_keyboard"
+					>text_config:keyboard:key:up; cursor_offset:4, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:ui_normal</entry_field>
+					
+	
+			<soft_keyboard name="primary_keyboard"
+				l_pad="45"
+				>type:standard; key_up_text_config:keyboard:key:up; key_dn_text_config:keyboard:key:down; key_scale:1; key_up_color:ui_icon_background; key_down_color:ui_highlight; key_touch_padding:4; graphic_keys:true; graphic_type:solid; graphic_corner_radius:5</soft_keyboard>
+					
+			<layout name="buttons_layout"
+					layout_type="horiz"
+					layout_size_mode="flex"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+					>
+			<xml name="cancel_button" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="right" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Previous_64.png" />
+					<property name="high_label" text="Back" />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/Previous_64.png" />
+					<property name="label" text="Back" />
+				</xml>
+				<sprite layout_size_mode="stretch" />
+				<xml name="open_button" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="right" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/LoadState_64.png" />
+					<property name="high_label" text="Load"  />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/LoadState_64.png" />
+					<property name="label" text="Load"  />
+				</xml>
+				<xml name="save_state" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" layout_h_align="right" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/States_64.png"  />
+					<property name="high_label" text="Save" />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/States_64.png"  />
+					<property name="label" text="Save" />
+				</xml>
+			</layout>
+		</layout>
+		
+		
+	</layout>
+
+	
+</interface>
+

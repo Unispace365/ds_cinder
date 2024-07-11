@@ -1,0 +1,70 @@
+<interface>
+	<layout_button name="the_button"
+		size="$_ui:button_size, $_ui:button_size"
+		b_pad="#expr -1.0 * $_ui:button_size"
+		layout_fudge="#expr{-1.0 * $_ui:button_size - 8.0 }, #expr{ -1.0 * $_ui:button_size }"
+		layout_type="size"
+		center="0.5, 0.5"
+		animate_on="grow; ease:outQuint"
+	>
+		<shadow_layout name="norm_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="5"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="-2.0, 2.0"
+			shadow_iterations="5"
+			attach_state="normal"
+			shadow_every_frame="true"
+		>
+			<layout name="normal_holder"
+				layout_size_mode="fill"
+				layout_type="vert"
+				attach_state="normal"
+			>
+				<sprite name="backy"
+					layout_size_mode="fill"
+					color="waffles:close_button"
+				/>
+				<image name="up_image"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png"
+					color="ui_white"
+					layout_size_mode="stretch"
+					pad_all="#expr{ $_ui:padding * 0.15 }"
+					blend_mode="fbo_in"
+				/>
+			</layout>
+		</shadow_layout>
+		<shadow_layout name="high_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="3"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="-2.0, 2.0"
+			shadow_iterations="5"
+			attach_state="high"
+			shadow_every_frame="true"
+		>
+			<layout name="high_holder"
+				layout_size_mode="fill"
+				layout_type="vert"
+			>
+				<sprite name="backy_high"
+					layout_size_mode="fill"
+					color="waffles:close_button_high"
+				/>
+				<image name="down_image"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png"
+					color="ui_white"
+					layout_size_mode="stretch"
+					pad_all="#expr{ $_ui:padding * 0.15 }"
+				/>
+			</layout>
+		</shadow_layout>
+	</layout_button>
+</interface>
+

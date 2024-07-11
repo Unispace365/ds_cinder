@@ -1,0 +1,12 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="none"
+		layout_size_mode="fill"
+		overall_alignment="center"
+		color="black"
+	>
+
+	</layout>
+
+</interface>

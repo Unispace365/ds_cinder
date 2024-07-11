@@ -1,0 +1,220 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		size="100, 0"
+		enable="false"
+		multitouch="info"
+		overall_alignment="bottom"
+		animate_off="$_animation:fade_off"
+	>
+
+		<layout name="inner_holdy"
+			layout_size_mode="fill"
+			layout_type="size"
+			animate_on="$_animation:media_viewer_on"
+			center="0.5, 0.5"
+		>
+
+
+			<layout name="player_outer"
+				layout_size_mode="fill"
+				layout_type="size"
+				overall_alignment="center"
+				skip_hidden_children="true"
+			>
+
+
+				<layout name="player_hodler"
+					layout_size_mode="fill"
+					layout_type="size"
+					overall_alignment="center"
+					skip_hidden_children="true"
+				>
+
+					<layout name="ui_holder"
+						layout_type="vert"
+						overall_alignment="bottom"
+						layout_size_mode="fill"
+					>
+						<layout name="inner_sidebar"
+							layout_type="vert"
+							shrink_to_children="both"
+							skip_hidden_children="true"
+							visible="false"
+							layout_spacing="0"
+							layout_fudge="-$_ui:button_size, 0"
+						>
+							<pinboard_button_menu name="pinboard" />
+							<xml name="duplicate"
+								src="%APP%/data/layouts/waffles/common/icon_button.xml">
+								<property name="icon"
+									src="%APP%/data/images/waffles/icons/2x/Duplicate_128.png"
+									pad_all="0" />
+								<property name="icon_high"
+									src="%APP%/data/images/waffles/icons/2x/Duplicate_128.png"
+									pad_all="0" />
+							</xml>
+							<sprite size="$_ui:button_size, 2" color="black" />
+							<!--
+							<xml name="drawing"
+								src="%APP%/data/layouts/waffles/common/icon_button.xml">
+								<property name="icon"
+									src="%APP%/data/images/waffles/icons/2x/Annotation Tool_128.png"
+									pad_all="0" />
+								<property name="icon_high"
+									src="%APP%/data/images/waffles/icons/2x/Annotation Tool_128.png"
+									pad_all="0" />
+							</xml>
+							<sprite size="$_ui:button_size, 2" color="black" />
+							-->
+							<xml name="fullscreen"
+								src="%APP%/data/layouts/waffles/common/icon_button.xml">
+								<property name="icon"
+									src="%APP%/data/images/waffles/icons/2x/Full screen_128.png"
+									pad_all="0" />
+								<property name="icon_high"
+									src="%APP%/data/images/waffles/icons/2x/Full screen_128.png"
+									pad_all="0" />
+							</xml>
+							<sprite size="$_ui:button_size, 2" color="black" />
+							<xml name="close_button"
+								src="%APP%/data/layouts/waffles/common/close_button.xml">
+								<property name="the_button" b_pad="0" layout_h_align="right"
+									layout_fudge="0, 0" />
+							</xml>
+						</layout>
+					</layout>
+
+					<shadow_layout name="player_shade"
+						layout_type="vert"
+						layout_size_mode="fill"
+						shadow_size="19"
+						shadow_sigma="5"
+						shadow_color="black"
+						shadow_opacity="0.4"
+						shadow_offset="4.0, 4.0"
+						shadow_iterations="13"
+					>
+						<sprite name="bg_filler"
+							layout_size_mode="fill"
+							color="white"
+							opacity="0.0"
+							b_pad="$_ui:corner_radius"
+							animate_on="$_animation:fade_on"
+						/>
+					</shadow_layout>
+					<sprite name="loading_placeholder"
+						layout_size_mode="fill"
+						color="ui_background"
+						opacity="0.8"
+						animate_on="$_animation:fade_on"
+						visible="false"
+					/>
+					<layout name="thumb_hodler"
+						layout_type="vert"
+						layout_size_mode="fill"
+						clipping="true"
+						overall_alignment="center"
+						visible="false"
+					>
+						<image name="video_thumb"
+							layout_size_mode="fill"
+							animate_on="$_animation:fade_on"
+						/>
+						<image name="play_icon"
+							src_c_m="%APP%/data/images/waffles/icons/4x/Play big_256.png"
+							layout_h_align="center"
+						/>
+					</layout>
+
+					<media_player name="media_player"
+						media_player_auto_start="false"
+						media_player_show_interface="true"
+						media_player_standard_click="false"
+						media_player_video_loop="true"
+						media_player_video_reset_on_complete="true"
+						media_player_letterbox="true"
+						layout_fixed_aspect="false"
+						layout_size_mode="fill"
+						enable="false"
+						center="0.5, 0.5"
+						animate_on="$_animation:fade_on"
+					/>
+					<capture_player name="capture_player"
+						layout_size_mode="fill"
+						visible="false"
+					/>
+
+
+				</layout>
+			</layout>
+
+
+			<layout
+				name="title_layout"
+				layout_type="vert"
+				overall_alignment="bottom"
+				layout_size_mode="fill"
+				visible="false"
+				opacity="0.0"
+			>
+
+				<layout name="title_inner"
+					layout_type="vert"
+					layout_size_mode="flex"
+				>
+
+					<shadow_layout name="title_shade"
+						layout_type="vert"
+						layout_size_mode="flex"
+						shrink_to_children="height"
+						shadow_size="5"
+						shadow_sigma="5"
+						shadow_color="black"
+						shadow_opacity="0.4"
+						shadow_offset="-2.0, 2.0"
+						shadow_iterations="5"
+					>
+						<layout name="title_hodler"
+							layout_size_mode="flex"
+							shrink_to_children="height"
+							layout_type="vert"
+							skip_hidden_children="true"
+							clipping="true"
+						>
+							<sprite name="background"
+								color="hpi_white"
+								enable="true"
+								layout_size_mode="fill"
+								t_pad="#expr -1.0 * $_ui:corner_radius"
+							/>
+							<text name="name"
+								font="viewer:body"
+								color="black"
+								layout_size_mode="flex"
+								pad_all="#expr 1.0 * $_ui:padding"
+								model="text:this->record_name"
+								layout_fudge="$_ui:text_fudge"
+							/>
+							<!-- <text name="body"
+								font="viewer:body"
+								color="ui_normal"
+								layout_size_mode="flex"
+								pad_all="#expr 1.0 * $_ui:padding"
+								t_pad="0"
+								layout_fudge="$_ui:text_fudge"
+								visible="false"
+							/> -->
+						</layout>
+					</shadow_layout>
+				</layout>
+
+			</layout>
+		</layout>
+	</layout>
+
+
+</interface>
+
+

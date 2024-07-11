@@ -1,0 +1,56 @@
+<interface>
+
+	<layout name="layout"
+			layout_type="horiz"
+			layout_size_mode="fixed"
+			enable="true"
+			multitouch="info"
+			size="$_launcher:scroll_content_width, $_info_list:item:height"
+		>
+		
+		<sprite name="background_highlight"
+			layout_size_mode="fill"
+			color="waffles:button:bg:normal:light"
+			animate_on="$_animation:fade_on"
+			corner_radius="$_ui:corner_radius"
+			/>
+		<layout name="thumbnail_clipper"
+			layout_fixed_aspect="true"
+			size="10, 10"
+			layout_size_mode="flex"
+			clipping="true"
+			pad_all="$_ui:padding"
+			layout_type="horiz"
+			overall_alignment="right"
+		>			
+			<image name="thumbnail" 
+				layout_size_mode="fill"
+				center="0.5, 0.5"
+				layout_h_align="center"
+				layout_v_align="middle"
+				model="resource_cache:this->media_thumb_res"
+				animate_on="$_animation:item_on"
+			/>			
+		</layout>
+		
+		<image name="icon" 
+			pad_all="$_ui:padding"
+			layout_size_mode="flex"
+			color="ui_normal"
+			center="0.5, 0.5"
+			layout_h_align="center"
+			layout_v_align="middle"
+			animate_on="$_animation:item_on"
+		/>
+		<text name="name"
+			font="viewer:body"
+			layout_v_align="middle"
+			layout_fudge="$_ui:text_fudge"
+			model="text:this->record_name"
+			color="black"
+			/>
+		
+	</layout>
+	
+</interface>
+

@@ -1,0 +1,91 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+	>
+		<layout name="body_area"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			pad_all="$_ui:padding"
+			layout_spacing="$_ui:padding"
+		>
+
+			<layout name="main_panel"
+				layout_size_mode="stretch"
+				layout_type="vert"
+				layout_spacing="#expr 0.5 * $_ui:padding"
+				clipping="true"
+			>
+
+				<text name="title"
+					font="viewer:title"
+					color="ui_normal"
+					layout_v_align="middle"
+					layout_size_mode="flex"
+					pad_all="$_ui:padding"
+					animate_on="$_animation:item_on"
+					layout_fudge="$_ui:text_fudge"
+				/>
+
+
+				<xml name="filter_bar" src="%APP%/data/layouts/waffles/search/filter_bar.xml" />
+
+				<xml name="back_button" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml">
+					<property name="the_button" size="455, 45" animate_on="fade"
+						layout_size_mode="flex" opacity="0.5" visible="false" />
+					<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Backward_64.png" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Backward_64.png" />
+					<property name="normal_label" text="Back" animate_on="$_animation:item_on" />
+					<property name="high_label" text="Back" animate_on="$_animation:item_on" />
+					<property name="background" opacity="0" />
+				</xml>
+
+				<layout name="scroller_layout"
+					layout_type="horiz"
+					layout_size_mode="stretch"
+					l_pad="20"
+				>
+					<smart_scroll_list name="scroll_list"
+						scroll_fade_colors="#FFE8EAED, #00E8EAED"
+						scroll_list_animate="0, 0.0025"
+						layout_size_mode="stretch"
+						smart_scroll_item_layout="search/search_item.xml"
+					/>
+					<scroll_bar name="scroll_bar"
+						layout_size_mode="flex"
+						size="50, 200"
+						animate_on="$_animation:fade_on"
+					/>
+				</layout>
+
+				<entry_field
+					layout_h_align="left"
+					name="entry_field"
+					pad_all="$_ui:padding"
+					sprite_link="primary_keyboard"
+					animate_on="$_animation:item_on"
+				>text_config:keyboard:key:up; cursor_offset:4,
+					-10; cursor_size:1, 40; field_size:800, 40; cursor_color:ui_normal</entry_field>
+				<sprite name="spacer"
+					layout_size_mode="flex"
+					pad_all="$_ui:padding"
+					size="600, 4"
+					color="ui_background"
+					animate_on="$_animation:item_on"
+				/>
+				<soft_keyboard name="primary_keyboard"
+					layout_h_align="middle"
+					pad_all="$_ui:padding"
+					animate_on="$_animation:item_on"
+				>type:lowercase;
+					key_up_text_config:keyboard:key:up; key_dn_text_config:keyboard:key:down;
+					key_scale:1; key_up_color:ui_icon_background; key_down_color:ui_highlight;
+					key_touch_padding:4; graphic_keys:true; graphic_type:solid;
+					graphic_corner_radius:5</soft_keyboard>
+
+			</layout>
+		</layout>
+	</layout>
+
+</interface>
+

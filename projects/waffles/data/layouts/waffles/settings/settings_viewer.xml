@@ -1,0 +1,85 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			position="0, 0"
+			shrink_to_children="both"
+			size="800"
+		>
+		
+		<sprite name="background"
+			color="viewer_background"
+			layout_size_mode="fill"
+			corner_radius="$_ui:corner_radius"
+			/>
+		
+		<layout name="content_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			layout_spacing="$_ui:padding"
+			pad_all="#expr 2.0 * $_ui:padding"
+			shrink_to_children="true"
+		>
+				
+			<text name="title"
+				font="viewer:title"
+				color="ui_normal"
+				text="Settings"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<sprite name="spacer_top" 
+				layout_size_mode="flex"
+				size="600, 1"
+				color="ui_highlight"
+				opacity="0.5"
+			/>
+			
+			<layout name="holder" 
+				 layout_type="vert"
+				 shrink_to_children="both"
+				 layout_size_mode="flex"
+				 layout_spacing="#expr 2.0 * $_ui:padding"
+				 />
+				 
+			<sprite name="spacer" 
+				layout_size_mode="flex"
+				size="600, 1"
+				color="ui_highlight"
+				opacity="0.5"
+			/>
+			
+			<layout layout_type="horiz"
+				shrink_to_children="both"
+				layout_spacing="2"
+				>
+				<!-- <xml name="diagnostics" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" on_click_event="RequestViewerLaunchEvent; data:view_type:diagnostic_viewer ! start_width:1920"  />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+					<property name="high_label" text="Diagnostics" />
+				</xml> -->
+				
+				<xml name="exit_app" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" on_click_event="RequestAppExit" visible="$_exit:allow" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Close_64.png"  />
+					<property name="high_label" text="Exit App"/>
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/Close_64.png"  />
+					<property name="label" text="Exit App"/>
+				</xml>
+			
+			</layout>
+		</layout>
+		
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml">
+			<property name="the_button" layout_fudge="#expr{-1.0 * $_ui:button_size }, #expr{ ( -1 * $_ui:button_size ) - $_ui:corner_radius }" />
+		</xml>
+		
+	</layout>
+
+
+</interface>
+

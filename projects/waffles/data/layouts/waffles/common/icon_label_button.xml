@@ -1,0 +1,72 @@
+<interface>
+	<layout name="root"
+		size="$_ui:label_button_width, $_ui:button_size"
+		center="0.5, 0.5"
+		layout_type="vert"
+		layout_size_mode="fixed">
+
+		<layout_button name="the_button"
+			center="0.5, 0.5"
+			layout_type="vert"
+			layout_size_mode="fill"
+			animate_on="$_animation:item_on"
+		>
+			<layout name="normal_hodler"
+				attach_state="normal"
+				layout_size_mode="fill"
+				layout_type="horiz"
+				layout_spacing="$_ui:padding"
+				overall_alignment="center"
+			>
+				<sprite name="backy"
+					layout_size_mode="fill"
+					color="ui_background"
+				/>
+				<image name="icon"
+					color="ui_normal"
+					center="0.5, 0.5"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+				/>
+				<text name="label"
+					font="viewer:body"
+					color="ui_normal"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					model="text:this->record_name"
+				/>
+			</layout>
+
+
+			<layout name="high_hodler"
+				attach_state="high"
+				layout_type="horiz"
+				layout_size_mode="fill"
+				layout_spacing="$_ui:padding"
+				overall_alignment="center"
+			>
+				<sprite name="down_color"
+					layout_size_mode="fill"
+					color="ui_highlight"
+				/>
+
+				<image name="high_icon"
+					center="0.5, 0.5"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					color="ui_white"
+				/>
+
+				<text name="high_label"
+					font="viewer:body"
+					color="ui_white"
+					layout_size_mode="flex"
+					layout_v_align="middle"
+					model="text:this->record_name"
+				/>
+			</layout>
+		</layout_button>
+	</layout>
+
+</interface>
+

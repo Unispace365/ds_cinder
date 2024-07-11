@@ -1,0 +1,243 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		size="$_launcher:content_width, $_launcher:content_height"
+		layout_size="$_launcher:content_width, $_launcher:content_height"
+	>
+		<layout name="anim_layer"
+			layout_size_mode="fill"
+			center="0.5, 0.5"
+			animate_on="$_animation:media_viewer_on"
+			animate_off="$_animation:media_viewer_off"
+			shrink_to_children="height"
+		>
+			<layout layout_size_mode="fill"
+				overall_alignment="bottom">
+				<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml">
+					<property name="the_button" layout_fudge="$_launcher:close:start:offset" />
+				</xml>
+
+			</layout>
+
+			<layout name="holdy"
+				layout_type="size"
+				layout_size_mode="fill"
+			>
+
+				
+			</layout>
+
+			<shadow_layout name="bg_shade"
+				layout_size_mode="fill"
+				shadow_size="30"
+				shadow_sigma="3"
+				shadow_color="black"
+				shadow_opacity="0.3"
+				shadow_offset="8.0, 8.0"
+				shadow_iterations="8"
+				blend_mode="fbo_out"
+			>
+				<sprite name="background"
+					color="white"
+					layout_size_mode="fill"
+				/>
+			</shadow_layout>
+			
+			<layout name="content_holdery"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				b_pad="$_ui:corner_radius"
+			>
+				<layout name="content_header"
+					layout_type="horiz"
+					size="$_launcher:content_width, 125"
+					layout_size="$_launcher:content_width, 125"
+				>
+					<text name="menu_title"
+						size="111, 68"
+						font="waffles:menu:title"
+						font_size="40"
+						color="menu_title"
+						text_wrap="wordchar"
+						text_ellipses="end"
+						text="Launcher Menu"
+						layout_v_align="middle"
+						l_pad="30"
+					/>
+					
+					<layout name="fixed_buttons_top"
+						layout_type="horiz"
+						l_pad="60"
+						t_pad="29"
+						layout_spacing="-75">
+					</layout>
+				</layout>
+				<smart_scroll_list name="content_holder"
+					layout_size_mode="flex"
+					height="$_launcher:scroll:height"
+					scroll_fade_colors="#ffffffff, #00ffffff"
+					scroll_fade_size="#expr{$_info_list:item:height}"
+					smart_scroll_item_layout="waffles/common/list_item.xml"
+				/>
+				<layout layout_size_mode="flex"
+					height="0"
+					layout_fudge="0, -2"
+				>
+					<sprite layout_size_mode="flex"
+						color="ui_separator"
+						height="2"
+					/>
+				</layout>
+				<layout name="fixed_buttons_bottom"
+					layout_type="vert"
+					layout_size="294, 630"
+					size="294, 630"
+					layout_spacing="10"
+					t_pad="19"
+					layout_fudge="-1, 0"
+				/>
+				
+						
+				<layout name="side_panel"
+					layout_type="vert"
+					layout_size_mode="fill"
+					width="350"
+					layout_fudge="352, 120">
+
+					<shadow_layout name="side_panel_shadow"
+						layout_size_mode="fill"
+						shadow_size="30"
+						shadow_sigma="3"
+						shadow_color="black"
+						shadow_opacity="0.2"
+						shadow_offset="4.0, 4.0"
+						shadow_iterations="8"
+						blend_mode="fbo_out"
+						layout_fudge="0, 0"
+					>
+						<!--
+						<sprite name="panel_bg"
+							color="viewer_background"
+							size="592, 750"
+							corner_radius="$_ui:corner_radius"
+						/>
+						-->
+					</shadow_layout>
+
+					<layout name="panel_header"
+						layout_size_mode="flex"
+						overall_alignment="bottom"
+						height="$_menu_title:height"
+					>
+						<layout layout_type="horiz"
+							layout_size_mode="flex"
+							shrink_to_children="height">
+
+							<sprite name="side_panel_spacer"
+								layout_size="$_info_list:item:height, $_info_list:item:height"
+							/>
+							
+						</layout>
+					</layout>
+					
+					<layout_button name="back_button"
+						layout_type="horiz"
+						size="120, 50"
+						layout_fudge="15, -2"
+					>
+						
+						<layout name="normal_layout"
+							attach_state="normal"
+							layout_size_mode="fill"
+							skip_hidden_children="true"
+							layout_type="horiz"
+						>
+							
+							<image name="back_arrow"
+								src="%APP%/data/images/waffles/arrows/back_arrow.png"
+								size="18, 31"
+								layout_fudge="0, 8" />
+								
+							<text name="back_text"
+								font="viewer:body"
+								font_size="20"
+								color="black"
+								layout_v_align="middle"
+								layout_size_mode="stretch"
+								l_pad="10"
+								text="Back"
+							/>
+							
+						</layout>
+
+						<layout name="high_layout"
+							attach_state="high"
+							layout_size_mode="fill"
+							skip_hidden_children="true"
+							layout_type="horiz"
+						>
+							
+							<image name="back_arrow_high"
+								src="%APP%/data/images/waffles/arrows/back_arrow_high.png"
+								size="18, 31"
+								layout_fudge="0, 8"/>
+
+							<text name="back_text_high"
+								font="viewer:body"
+								font_size="20"
+								color="#0096d6"
+								layout_v_align="middle"
+								layout_size_mode="stretch"
+								l_pad="10"
+								text="Back"
+							/>
+							
+						</layout>
+					
+					</layout_button>
+					
+					<smart_scroll_list name="side_panel_content"
+						layout_size="608, 557"
+						scroll_fade_colors="#fff7f7f7, #00f7f7f7"
+						smart_scroll_item_layout="waffles/common/list_item.xml"
+						b_pad="$_ui:corner_radius"
+						l_pad="20"
+						scroll_list_layout="0, 0, #expr{ $_info_list:item:height + 2 }"
+					/>
+						
+				</layout>
+			</layout>
+
+			<layout name="ethereal_dimension"
+				layout_type="none"
+				layout_size_mode="fill">
+				
+				<sprite name="left_right_separator"
+						layout_size="2, 650"
+						size="2, 650"
+						color="black"
+						position="352, 125" />
+						
+				<layout layout_type="vert" 
+					layout_size="6, 554"
+					size="6, 554"
+					position="904, 203"
+					clipping="true">
+					<scroll_bar name="side_scroll_bar"
+						layout_size_mode="stretch"
+						scroll_bar_nub_color="scroll_bar:nub_color"
+						scroll_bar_background_color="scroll_bar:background_color"
+						/>
+				</layout>
+				
+			</layout>
+			<!-- <sprite layout_size_mode="stretch" /> -->
+
+		</layout>
+	</layout>
+
+
+</interface>
+

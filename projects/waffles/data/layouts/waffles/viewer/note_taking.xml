@@ -1,0 +1,150 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			position="0, 0"
+			shrink_to_children="both"
+			size="500, 600"
+		>
+		<stretchy_shadow name="the_shadow"
+			layout_size_mode="fill"
+			pad_all="$_shadow_stretch:padding"
+			opacity="$_shadow_stretch:opacity"
+			/>
+		<layout layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="bottom"
+			>
+
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml" />	
+		</layout>
+		
+		<sprite name="background"
+			color="viewer_background"
+			blend_mode="normal"
+			layout_size_mode="fill"
+			corner_radius="$_ui:corner_radius"
+			/>
+		
+		<layout name="content_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			layout_spacing="$_ui:padding"
+			pad_all="$_ui:padding"
+			shrink_to_children="both"
+		>
+		
+			<layout name="header"
+				layout_type="horiz"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				>
+				
+				<text name="title"
+					font="viewer:title"
+					layout_v_align="middle"
+					layout_size_mode="flex"
+					pad_all="$_ui:padding"
+					text="Note"
+					/>
+					
+				<sprite layout_size_mode="stretch" />
+				
+			</layout>
+				
+			<layout name="entry_area"
+				layout_type="vert"
+				layout_size_mode="flex"
+				size="500, 300"
+				pad_all="$_ui:padding"
+				>
+				<sprite name="entry_background"
+					color="keyboard_background"
+					layout_size_mode="fill"
+					corner_radius="$_ui:corner_radius"
+					animate_on="$_animation:item_on"
+					/>
+				<scroll_area name="scroller"
+						scroll_shader_fade="true"
+						scroll_fade_size="50"
+						layout_size_mode="fill"
+						pad_all="#expr 2.0 * $_ui:padding"
+						>
+						
+					<entry_field 
+						name="entry_field"
+						layout_size_mode="fill"
+						sprite_link="primary_keyboard"
+						>text_config:keyboard:key:up; cursor_offset:-1, -12; cursor_size:2, 40; field_size:500, 500; cursor_color:brand_primary; auto_expand:true</entry_field>
+					
+				</scroll_area>
+							
+				<layout name="write_layout"
+					pad_all="#expr 2.0 * $_ui:padding"
+					layout_type="vert"
+					layout_size_mode="fill"
+					animate_on="$_animation:item_on"
+					>
+					<text name="write_message"
+						text_style="keyboard:key:up"
+						text="Type your note"
+						opacity="0.5"
+						l_pad="#expr 2.0 * $_ui:padding"
+						/>
+				</layout>		
+			</layout>					
+			<layout name="the_butts"
+				layout_size_mode="flex"
+				layout_type="horiz"
+				shrink_to_children="height"
+				overall_alignment="right"
+				>
+			<xml name="clear" src="%APP%/data/layouts/waffles/common/label_button.xml" >
+					<property name="the_button" 
+								layout_h_align="right" 								
+								pad_all="$_ui:padding"
+								opacity="0.0"
+								visible="false"
+								/>
+					<property name="normal_label" text="Clear"  />
+					<property name="high_label"   text="Clear" />
+				</xml>		
+				<!--
+					<xml name="save_action" src="%APP%/data/layouts/waffles/common/label_button.xml" >
+					<property name="the_button" 
+								layout_h_align="right" 								
+								pad_all="$_ui:padding"
+								/>
+					<property name="up_color" color="brand_primary_dark" />
+					<property name="down_color" color="ui_highlight" />
+					<property name="normal_label" text="$_note:action_label" color="white" />
+					<property name="high_label"   text="$_note:action_label"  color="white"/>
+				</xml>	
+-->				
+				
+				<xml name="save_pinboard" src="%APP%/data/layouts/waffles/common/label_button.xml" >
+					<property name="the_button" 
+								layout_h_align="right" 					
+								pad_all="$_ui:padding"
+								/>
+					<property name="up_color" color="brand_primary_dark" />
+					<property name="down_color" color="ui_highlight" />
+					<property name="normal_label" text="$_note:pinboard_label" color="white" />
+					<property name="high_label"   text="$_note:pinboard_label"  color="white"/>
+				</xml>
+			</layout>
+			<soft_keyboard name="primary_keyboard"
+				pad_all="#expr 0.5 * $_ui:padding"
+					>type:extended; key_up_text_config:keyboard:key:up; key_dn_text_config:keyboard:key:down; key_up_color:keyboard_background; key_down_color:brand_primary_dark; key_touch_padding:$_keyboard:key_pad; graphic_keys:true; graphic_type:solid; graphic_corner_radius:$_ui:corner_radius; graphic_key_size:$_keyboard:key_size</soft_keyboard>
+			
+				
+		</layout>
+		
+		
+		
+	</layout>
+	
+	
+</interface>
+

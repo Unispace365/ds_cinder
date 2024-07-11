@@ -1,0 +1,71 @@
+<interface>
+
+		<layout_button name="the_button"
+				layout_size_mode="flex"
+				size="100, 120"
+				layout_type="size"
+			>
+			
+			<layout
+				layout_type="vert"
+				layout_size_mode="fill"
+				overall_alignment="middle"
+				attach_state="normal"
+				>			
+				<sprite 
+					layout_size_mode="fill"
+					color="ui_background"
+					corner_radius="$_ui:corner_radius"
+					animate_on="$_animation:item_on"
+				/>
+				<image
+					name="icon"
+					layout_h_align="center"
+					color="ui_normal"
+					animate_on="$_animation:item_on"
+					/>
+				<text name="button_title"
+					layout_size_mode="flex"
+					font="viewer:subtitle"
+					color="ui_normal"
+					layout_h_align="center"
+					text_align="center"
+					layout_size_mode="flex"
+					animate_on="$_animation:item_on"
+					layout_fudge="$_ui:text_fudge"
+					/>
+			</layout>
+			
+			<layout
+				layout_type="vert"
+				layout_size_mode="fill"
+				overall_alignment="middle"
+				attach_state="high"
+				>			
+				<sprite 
+					layout_size_mode="fill"
+					color="ui_selected_background"
+					corner_radius="$_ui:corner_radius"
+				/>
+				<image
+					name="icon_high"
+					layout_h_align="center"
+					color="ui_selected"
+					/>
+				<text name="button_title_high"
+					layout_size_mode="flex"
+					font="viewer:subtitle"
+					color="ui_selected"
+					layout_h_align="center"
+					text_align="center"
+					layout_size_mode="flex"
+					animate_on="fade; ease:none; duration:0.3"
+					layout_fudge="$_ui:text_fudge"
+					model="text:this->record_name"
+					/>
+			</layout>
+			
+			
+		</layout>
+</interface>
+

@@ -1,0 +1,113 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			size="550, 350"
+			shrink_to_children="height"
+		>
+		<shadow_layout name="bg_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="19"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="4.0, 4.0"
+			shadow_iterations="13"
+		>
+		<sprite name="background"
+			color="viewer_background"
+			blend_mode="normal"
+			layout_size_mode="fill"
+			corner_radius="$_ui:corner_radius"
+			/>
+		</shadow_layout>
+		<layout layout_size_mode="flex"
+			layout_type="vert"
+			overall_alignment="center"
+			pad_all="$_ui:padding"
+			skip_hidden_children="true"
+			shrink_to_children="height"
+			layout_spacing="#expr 0.25 * $_ui:padding"
+			>
+			<text name="main_title"
+				text="Sorry!"
+				font="viewer:title"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<text name="error_message"
+				font="viewer:subtitle"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				t_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				model="text:this->error; visible_if_exists:this->error"
+				/>
+				
+			<text name="media_title"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				b_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				text="NAME"
+				model="visible_if_exists:this->media_name"
+				/>
+			<text name="media_name"
+				font="viewer:subtitle"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				t_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				model="text:this->media_name; visible_if_exists:this->media_name"
+				/>
+				
+			<text name="path_title"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				b_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				text="PATH"
+				model="visible_if_exists:this->media_path"
+				/>
+			<text name="path"
+				font="viewer:subtitle"
+				color="ui_normal"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				t_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				model="text:this->media_path; visible_if_exists:this->media_path"
+				/>
+		
+		</layout>
+		<layout layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="bottom"
+			>
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml">
+			<property name="the_button" layout_fudge="#expr{-1.0 * $_ui:button_size }, #expr{ ( -1 * $_ui:button_size ) - $_ui:corner_radius }" />
+		</xml>
+			
+		</layout>
+	</layout>
+
+
+</interface>
+

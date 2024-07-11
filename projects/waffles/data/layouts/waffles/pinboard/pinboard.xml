@@ -1,0 +1,63 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+	>
+
+
+		<layout name="no_items"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+		>
+
+			<text name="no_items_message"
+				font="pinboard:no_items"
+				text="Add some items to the pinboard to see them here"
+				layout_h_align="center"
+				text_align="center"
+				pad_all="$_ui:title_offset"
+				animate_on="fade"
+				layout_size_mode="flex"
+			/>
+		</layout>
+
+
+		<layout name="content_area"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+			l_pad="$_ui:title_offset"
+			r_pad="$_ui:title_offset"
+		>
+			<override target="4k"
+				t_pad="#expr 1.0 * $_ui:title_offset"
+			/>
+			<override target="wide"
+				t_pad="#expr 1.2 * $_ui:title_offset"
+			/>
+			<scroll_area name="gallery_scroll"
+				scroll_area_vert="false"
+				layout_h_align="center"
+				layout_size_mode="fixed"
+				size="#expr{  $_world_width - $_ui:title_offset * 2.0 }, $_pinboard:height"
+				scroll_shader_fade="true"
+				scroll_fade_size="60"
+			>
+
+				<layout name="rows_scroller"
+					layout_type="vert"
+					layout_spacing="$_arrange:padding"
+					shrink_to_children="width"
+					size="#expr{  $_world_width - $_ui:title_offset * 2.0 }, $_pinboard:height"
+				/>
+			</scroll_area>
+
+		</layout>
+
+	</layout>
+
+</interface>
+
+

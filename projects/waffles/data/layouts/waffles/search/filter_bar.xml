@@ -1,0 +1,83 @@
+<interface>
+
+	<layout name="layout"
+		layout_type="horiz"
+		layout_size_mode="flex"
+		shrink_to_children="height"
+		pad_all="$_ui:padding"
+		l_pad="12"
+		layout_spacing="#expr 0.5 * $_ui:padding"
+	>
+
+		<sprite name="background_highlight"
+			layout_size_mode="fill"
+			color="ui_icon_background"
+			animate_on="$_animation:fade_on"
+			corner_radius="$_ui:corner_radius"
+		/>
+
+
+		<text name="title"
+			font="viewer:tiny"
+			color="black"
+			pad_all="$_ui:padding"
+			layout_v_align="middle"
+			text="FILTER BY"
+			animate_on="$_animation:item_on"
+			layout_fudge="0, 2"
+		/>
+
+		<layout name="icons_hodler"
+			layout_size_mode="flex"
+			layout_type="horiz"
+			overall_alignment="left"
+			layout_spacing="20"
+		>
+
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<!-- <xml name="folder" src="%APP%/data/layouts/waffles/search/filter_button.xml" >
+						<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+						<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+					</xml> -->
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<!-- <xml name="presentations" src="%APP%/data/layouts/waffles/search/filter_button.xml"
+			>
+						<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+						<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+					</xml> -->
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<xml name="videos" src="%APP%/data/layouts/waffles/search/filter_button.xml">
+				<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Video_64.png" />
+				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Video_64.png" />
+
+			</xml>
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<xml name="images" src="%APP%/data/layouts/waffles/search/filter_button.xml">
+				<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+			</xml>
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<xml name="pdfs" src="%APP%/data/layouts/waffles/search/filter_button.xml">
+				<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/PDF_64.png" />
+				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/PDF_64.png" />
+			</xml>
+			<!-- <sprite layout_size_mode="stretch" /> -->
+			<xml name="links" src="%APP%/data/layouts/waffles/search/filter_button.xml">
+				<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Link_64.png" />
+				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Link_64.png" />
+			</xml>
+			<!-- <sprite layout_size_mode="stretch" /> -->
+		</layout>
+
+
+		<!-- <border name="the_border"
+				layout_size_mode="fill"
+				color="ui_normal"
+				border_width="1"
+				corner_radius="$_ui:corner_radius"
+				animate_on="$_animation:fade_on"
+				/> -->
+	</layout>
+
+</interface>
+

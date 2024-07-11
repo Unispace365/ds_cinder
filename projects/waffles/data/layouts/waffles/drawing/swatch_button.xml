@@ -1,0 +1,69 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="28, 28"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		center="0.5, 0.5"
+		animate_on="$_animation:item_on"
+		overall_alignment="middle"
+		>
+
+		<sprite name="the_border" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="black"
+			layout_h_align="center"
+			opacity="1.0"
+			/>
+			
+		<sprite name="white_part" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="white"
+			layout_h_align="center"
+			position="1, 1"
+			pad_all="1"
+			/>
+
+		<sprite name="black_border" 
+			attach_state="normal"
+			layout_size_mode="fill"
+			color="black"
+			layout_h_align="center"
+			opacity="1.0"
+			visible="false"
+			/>	
+
+		<sprite name="swatch" 
+			attach_state="normal"
+			layout_size_mode="fill"
+			color="white"
+			layout_h_align="center"
+			/>
+		<sprite name="swatch_high" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="white"
+			layout_h_align="center"
+			position="2, 2"
+			pad_all="2"
+			/>
+			
+		<image name="icon"
+			layout_size_mode="fill"
+			color="light_grey"
+			pad_all="#expr -0.25 * $_ui:padding"
+			/>
+			
+
+	
+				
+		
+	</layout_button>
+		
+	
+	
+		
+</interface>
+

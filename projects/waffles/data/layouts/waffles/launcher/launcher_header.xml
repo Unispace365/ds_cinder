@@ -1,0 +1,110 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="fill"
+			size="1300, 400"
+			shrink_to_children="height"
+		>
+		<layout name="top_buttons_and_title"
+			layout_type="horiz"
+			layout_size_mode="flex"
+			layout_spacing="#expr 0.5 * $_ui:padding"
+			pad_all="$_ui:padding"
+			shrink_to_children="height"
+			skip_hidden_children="true"
+		>
+			<text name="title"
+				font="viewer:title"
+				text="$_overall:title"
+				color="ui_normal"
+				l_pad="$_ui:padding"
+				resize_limit="400"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<sprite name="spacer_one" 
+				layout_size_mode="stretch"
+			/>
+			
+			<xml name="states" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+				<property name="the_button" visible="$_screen:state:manual_saves" on_click_event="RequestViewerLaunchEvent; data:view_type:state_viewer" />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/States_64.png"  />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/States_64.png"  />
+				<property name="high_label" text="States" />
+				<property name="label" text="States" />
+			</xml>
+			<xml name="ambient" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+				<property name="the_button" visible="$_ambient:enabled" />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Ambient_64.png"/>
+				<property name="high_label" text="Ambient" />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Ambient_64.png"/>
+				<property name="label" text="Ambient" />
+			</xml>
+			<xml name="settings" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+				<property name="the_button" on_click_event="RequestViewerLaunchEvent; data:view_type:settings"  />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Settings_64.png" />
+				<property name="high_label" text="Settings"  />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Settings_64.png" />
+				<property name="label" text="Settings"  />
+			</xml>			
+			<xml name="login" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+				<property name="the_button" visible="$_login:enabled" on_click_event="RequestViewerLaunchEvent; data:view_type:login"  />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Login_64.png" />
+				<property name="high_label" text="Login"  />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Login_64.png" />
+				<property name="label" text="Login"  />
+			</xml>
+			<xml name="search" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+				<!-- <property name="the_button" visible="$_cms_files:allow" on_click_event="RequestViewerLaunchEvent; data:view_type:search" /> -->
+				<property name="the_button" />
+				<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Search_64.png" />
+				<property name="high_label" text="Search" />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Search_64.png" />
+				<property name="label" text="Search" />
+			</xml>
+		
+		</layout>
+		
+		<layout name="primary_buttons"
+			layout_type="horiz"
+			layout_size_mode="flex"
+			pad_all="$_ui:padding"
+			size="120, 120"
+			layout_spacing="#expr 0.5 * $_ui:padding"
+		>
+		<xml name="quick_launch_button" src="%APP%/data/layouts/waffles/launcher/single_button_chooser.xml" >		
+ 				<property name="the_button"  layout_size_mode="stretch" visible="$_cms_files:allow"/>		
+ 				<property name="icon" src="%APP%/data/images/waffles/icons/1x/PictureStack_64.png" />		
+ 				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/PictureStack_64.png" />		
+ 				<property name="button_title" text="Launcher"  />		
+ 				<property name="button_title_high" text="Launcher"  />		
+ 			</xml>		
+ 					
+ 			<xml name="presentations" src="%APP%/data/layouts/waffles/launcher/single_button_chooser.xml" >		
+ 				<property name="the_button"  layout_size_mode="stretch" visible="$_cms_files:allow" />		
+ 				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png"   />		
+ 				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png"   />		
+ 				<property name="button_title" text="Presentations"  />		
+ 				<property name="button_title_high" text="Presentations"  />		
+ 			</xml>
+			
+			<xml name="documents" src="%APP%/data/layouts/waffles/launcher/single_button_chooser.xml" >
+				<property name="the_button"  layout_size_mode="stretch" visible="$_local_files:allow" />
+				<property name="icon" src="%APP%/data/images/waffles/icons/1x/Local_Files_64.png"   />
+				<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Local_Files_64.png"   />
+				<property name="button_title" text="Local Files"  />
+				<property name="button_title_high" text="Local Files"  />
+			</xml>
+		
+		</layout>
+		
+		<layout name="launcher_holder" 
+			layout_size_mode="fixed"
+			clipping="true"
+			/>
+	</layout>
+		
+</interface>
+

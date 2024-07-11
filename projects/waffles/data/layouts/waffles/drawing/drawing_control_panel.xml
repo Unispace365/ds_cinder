@@ -1,0 +1,262 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="flex"
+		shrink_to_children="both"
+		layout_h_align="center"
+		size="360, 180"
+		animate_on="$_animation:fade_on"
+		animate_off="$_animation:fade_off"
+	>
+
+		<layout name="shadow_child" layout_type="vert"
+			layout_size_mode="flex"
+			shrink_to_children="height"
+		>
+			<shadow_layout name="norm_shade"
+				layout_type="vert"
+				layout_size_mode="fill"
+				shadow_size="5"
+				shadow_sigma="5"
+				shadow_color="black"
+				shadow_opacity="0.4"
+				shadow_offset="-2.0, 2.0"
+				shadow_iterations="5"
+			>
+					<sprite name="the_background"
+						color="viewer_background"
+						corner_radius="$_ui:corner_radius"
+						t_pad="#expr -1.0 * $_ui:corner_radius"
+						layout_size_mode="fill"
+						enable="true"
+					/>
+			</shadow_layout>
+
+			<layout name="tools"
+				layout_type="horiz"
+				layout_spacing="#expr 2.0 * $_ui:padding"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				pad_all="#expr $_ui:padding"
+			>
+
+				<sprite layout_size_mode="stretch" />
+				<layout name="brush_types"
+					layout_type="vert"
+					layout_size_mode="flex"
+					shrink_to_children="both"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+				>
+
+					<xml name="brush_pen"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Pen" />
+						<property name="label_high" text="Pen" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Pen_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Pen_64.png" />
+					</xml>
+
+					<xml name="brush_highlighter"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Highlighter" />
+						<property name="label_high" text="Highlighter" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Marker_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Marker_64.png" />
+					</xml>
+
+					<xml name="brush_erase"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Erase" />
+						<property name="label_high" text="Erase" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Eraser_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Eraser_64.png" />
+					</xml>
+
+				</layout>
+				<layout name="colours"
+					layout_type="vert"
+					layout_size_mode="flex"
+					shrink_to_children="both"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+				>
+					<layout name="colors_row_1"
+						layout_type="horiz"
+						layout_size_mode="flex"
+						shrink_to_children="both"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+					>
+						<xml name="brush_1"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_1" />
+							<property name="swatch_high" color="brush_1" />
+						</xml>
+						<xml name="brush_2"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_2" />
+							<property name="swatch_high" color="brush_2" />
+						</xml>
+						<xml name="brush_3"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_3" />
+							<property name="swatch_high" color="brush_3" />
+						</xml>
+						<xml name="brush_4"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_4" />
+							<property name="swatch_high" color="brush_4" />
+						</xml>
+					</layout>
+					<layout name="colors_row_2"
+						layout_type="horiz"
+						layout_size_mode="flex"
+						shrink_to_children="both"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+					>
+						<xml name="brush_5"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_5" />
+							<property name="swatch_high" color="brush_5" />
+						</xml>
+						<xml name="brush_6"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_6" />
+							<property name="swatch_high" color="brush_6" />
+						</xml>
+						<xml name="brush_7"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_7" />
+							<property name="swatch_high" color="brush_7" />
+						</xml>
+						<xml name="brush_8"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_8" />
+							<property name="swatch_high" color="brush_8" />
+						</xml>
+					</layout>
+					<layout name="colors_row_3"
+						layout_type="horiz"
+						layout_size_mode="flex"
+						shrink_to_children="both"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+					>
+
+						<xml name="brush_9"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_9" />
+							<property name="swatch_high" color="brush_9" />
+						</xml>
+						<xml name="brush_10"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_10" />
+							<property name="swatch_high" color="brush_10" />
+						</xml>
+						<xml name="brush_11"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_11" />
+							<property name="swatch_high" color="brush_11" />
+						</xml>
+						<xml name="brush_12"
+							src="%APP%/data/layouts/waffles/drawing/swatch_button.xml">
+							<property name="swatch" color="brush_12" />
+							<property name="swatch_high" color="brush_12" />
+						</xml>
+					</layout>
+				</layout>
+				<layout name="sizes"
+					layout_type="vert"
+					layout_size_mode="flex"
+					shrink_to_children="both"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+				>
+					<xml name="small"
+						src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
+						<property name="sizer" radius="4" />
+					</xml>
+					<xml
+						name="large" src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
+						<property name="sizer" radius="6" />
+					</xml>
+					<xml
+						name="xxlarge"
+						src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
+						<property name="sizer" radius="10" />
+					</xml>
+				</layout>
+
+
+				<layout name="buttons"
+					layout_type="vert"
+					layout_size_mode="flex"
+					shrink_to_children="both"
+					skip_hidden_children="true"
+					layout_spacing="#expr 0.5 * $_ui:padding"
+				>
+					<xml name="clear_button"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Clear" />
+						<property name="label_high" text="Clear" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Close_64.png" />
+						<property name="the_button" size="$_drawing:control_button_size:small" />
+					</xml>
+					<xml name="undo_button"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Undo" />
+						<property name="label_high" text="Undo" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Undo_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Undo_64.png" />
+						<property name="the_button" size="$_drawing:control_button_size:small" />
+					</xml>
+					<xml name="redo_button"
+						src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+						<property name="label_normal" text="Redo" />
+						<property name="label_high" text="Redo" />
+						<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Redo_64.png" />
+						<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Redo_64.png" />
+						<property name="the_button" size="$_drawing:control_button_size:small" />
+					</xml>
+				</layout>
+				<sprite layout_size_mode="stretch" />
+			</layout>
+			<sprite size="455, 1" layout_h_align="center" color="#000000" />
+			<layout name="saveaandsaveas"
+				layout_type="horiz"
+				shrink_to_children="both"
+				skip_hidden_children="true"
+				layout_spacing="#expr 0.5 * $_ui:padding"
+				b_pad="#expr 0.5 * $_ui:padding"
+				overall_alignment="center"
+				layout_h_align="center"
+			>
+
+				<xml name="save_button"
+					src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+					<property name="label_normal" text="Save" layout_fudge="-2, 0" />
+					<property name="label_high" text="Save" layout_fudge="-2, 0" />
+					<property name="the_button" visible="$_cms:can_save_drawings" pad_all="10" />
+					<property name="normal_state" overall_alignment="center" />
+					<property name="high_state" overall_alignment="center" />
+					<!--<property
+						name="norder_normal" color="ui_highlight" /> -->
+				</xml>
+				<xml name="save_as_button"
+					src="%APP%/data/layouts/waffles/drawing/drawing_tool_button.xml">
+					<property name="label_normal" text="Save As..." />
+					<property name="label_high" text="Save As..." />
+					<property name="icon_normal" src_c_m="%APP%/data/images/waffles/icons/1x/Plus_64.png" />
+					<property name="icon_high" src_c_m="%APP%/data/images/waffles/icons/1x/Plus_64.png" />
+					<property name="the_button" visible="$_drawings:can_save_as"
+						size="$_drawing:control_button_size:small"
+					/>
+				</xml>
+			</layout>
+
+		</layout>
+
+
+	</layout>
+
+
+</interface>
+

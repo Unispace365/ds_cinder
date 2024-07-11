@@ -1,0 +1,141 @@
+<interface>
+
+	<settings>
+		<setting name="icon_src" value="%APP%/data/images/waffles/icons/2x/Menu_128.png" />
+		<setting name="label" value="" />
+		<setting name="align" value="left" />
+		<setting name="is_left" value="false" />
+		<setting name="is_right" value="false" />
+	</settings>
+
+	<layout_button name="the_btn"
+		layout_size_mode="stretch"
+		layout_type="vert"
+		size="570, #expr$_info_list:item:height"
+	>
+		<layout layout_size_mode="fill"
+			overall_alignment="top">
+				<sprite name="underbar"
+					layout_size_mode="flex"
+					color="ui_separator"
+					height="2"
+				/>
+
+		</layout>
+
+		<layout layout_type="horiz"
+			layout_size_mode="fill"
+			visible="$_is_right"
+			>
+				<sprite name="underbar"
+					layout_size_mode="flex"
+					color="ui_separator"
+					width="2"
+					b_pad="-$_ui:corner_radius"
+				/>
+
+		</layout>
+
+		<layout name="layout_normal"
+			attach_state="normal"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			skip_hidden_children="true"
+		>
+
+			<image name="left_icon"
+				pad_all="$_ui:padding"
+				layout_size_mode="flex"
+				center="0.5, 0.5"
+				layout_h_align="center"
+				layout_v_align="middle"
+				l_pad="#expr{2 * $_ui:padding}"
+				r_pad="#expr{1 * $_ui:padding}"
+				color="ui_normal"
+				src_c_m="$_icon_src"
+				visible="$_is_left"
+			/>
+
+			<text name="name_normal"
+				font="viewer:body"
+				color="ui_normal"
+				layout_v_align="middle"
+				text_ellipses="end"
+				text_wrap="off"
+				layout_size_mode="stretch"
+				text="$_label"
+				layout_fudge="$_ui:text_fudge"
+				text_align="$_align"
+			/>
+
+
+			<image name="right_icon"
+				pad_all="$_ui:padding"
+				layout_size_mode="flex"
+				center="0.5, 0.5"
+				layout_h_align="center"
+				layout_v_align="middle"
+				l_pad="#expr{1 * $_ui:padding}"
+				r_pad="#expr{2 * $_ui:padding}"
+				color="ui_normal"
+				src_c_m="$_icon_src"
+				visible="$_is_right"
+			/>
+		</layout>
+		<layout name="layout_high"
+			attach_state="high"
+			layout_type="horiz"
+			layout_size_mode="fill"
+			skip_hidden_children="true"
+		>
+
+			<sprite name="background_highlight_high"
+					layout_size_mode="fill"
+					transparent="false"
+					color="light_blue"
+					opacity="0.5"
+				/>
+
+			<image name="left_icon_high"
+				pad_all="$_ui:padding"
+				layout_size_mode="flex"
+				center="0.5, 0.5"
+				layout_h_align="center"
+				layout_v_align="middle"
+				l_pad="#expr{2 * $_ui:padding}"
+				r_pad="#expr{1 * $_ui:padding}"
+				color="ui_normal"
+				src_cache="$_icon_src"
+				visible="$_is_left"
+			/>
+
+			<text name="name_high"
+				font="viewer:body"
+				color="ui_normal"
+				layout_v_align="middle"
+				text_ellipses="end"
+				text_wrap="off"
+				layout_size_mode="stretch"
+				layout_fudge="$_ui:text_fudge"
+				text="$_label"
+				text_align="$_align"
+			/>
+
+
+			<image name="right_icon_high"
+				pad_all="$_ui:padding"
+				layout_size_mode="flex"
+				center="0.5, 0.5"
+				layout_h_align="center"
+				layout_v_align="middle"
+				l_pad="#expr{1 * $_ui:padding}"
+				r_pad="#expr{2 * $_ui:padding}"
+				color="ui_normal"
+				src_c_m="$_icon_src"
+				visible="$_is_right"
+			/>
+		</layout>
+	</layout_button>
+
+</interface>
+

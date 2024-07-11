@@ -1,0 +1,152 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		size="$_presentation_controller:size"
+		layout_size="$_presentation_controller:size"
+		shrink_to_children="height"
+		animate_off="$_animation:fade_off"
+	>
+
+		<shadow_layout name="bg_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="19"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="4.0, 4.0"
+			shadow_iterations="13"
+			animate_on="$_animation:media_viewer_on"
+			animate_off="$_animation:fade_off"
+			center="0.5, 0.5"
+		>
+			<sprite name="background"
+				color="ui_icon_background"
+				layout_size_mode="fill"
+				enable="true"
+				multitouch="info"
+			/>
+		</shadow_layout>
+
+
+		<layout name="content_layout"
+			layout_type="vert"
+			pad_all="$_ui:padding"
+			layout_size_mode="flex"
+			height="300"
+			shrink_to_children="height"
+		>
+			<text name="slide_title"
+				font="waffles:presentation_controller:title"
+				color="black"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				b_pad="0"
+				animate_on="$_animation:item_on"
+				layout_fudge="$_ui:text_fudge"
+			/>
+
+			<text name="name"
+				font="viewer:body"
+				font_size="22"
+				color="black"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				animate_on="$_animation:item_on"
+				model="text:this->name"
+				layout_fudge="$_ui:text_fudge"
+			/>
+
+
+			<layout layout_type="horiz"
+				layout_size_mode="flex"
+				pad_all="$_ui:padding"
+				shrink_to_children="height"
+			>
+				<image_button name="prev_step"
+					up_image="%APP%/data/images/waffles/arrows/presentation_left.png"
+					down_image="%APP%/data/images/waffles/arrows/presentation_left_down.png"
+					scale="0.5, 0.5"
+					center="0.5, 0.5"
+					on_tap_event="RequestPresentationAdvanceEvent; data:false"
+					layout_v_align="middle"
+				/>
+
+				<sprite layout_size_mode="stretch" />
+
+				<text name="slide_count"
+					font="viewer:body:italic"
+					color="black"
+					layout_v_align="middle"
+					animate_on="$_animation:item_on"
+					layout_fudge="$_ui:text_fudge"
+				/>
+
+				<sprite layout_size_mode="stretch" />
+
+				<image_button name="next_step"
+					up_image="%APP%/data/images/waffles/arrows/presentation_right.png"
+					down_image="%APP%/data/images/waffles/arrows/presentation_right_down.png"
+					scale="0.5, 0.5"
+					center="0.5, 0.5"
+					on_tap_event="RequestPresentationAdvanceEvent; data:true"
+					layout_v_align="middle"
+				/>
+			</layout>
+
+			<layout name="thumbs_holder"
+				layout_size_mode="flex"
+				height="0"
+				pad_all="#expr 0.5 * $_ui:padding"
+			>
+				<smart_scroll_list_horizontal name="thumb_scrolly"
+					layout_size_mode="flex"
+					height="#expr $_presentation_controller:slides_thumb:height + 2*$_ui:padding"
+					scroll_fade_colors="#fff7f7f7, #00f7f7f7"
+					scroll_fade_size="25"
+					visible="false"
+					smart_scroll_item_layout="component/slide_thumb.xml" />
+			</layout>
+			<layout
+				layout_type="horiz"
+				shrink_to_children="both"
+				pad_all="$_ui:padding"
+				layout_spacing="#expr 0.5 * $_ui:padding"
+				layout_h_align="center"
+				overall_alignment="center"
+			>
+
+				<xml name="thumbs_toggle"
+					src="%APP%/data/layouts/waffles/component/presentation_button.xml">
+					<property name="high_label" text="Slide Select" />
+					<property name="normal_label" text="Slide Select" />
+				</xml>
+
+				<xml name="refresh_layout"
+					src="%APP%/data/layouts/waffles/component/presentation_button.xml">
+					<property name="high_label" text="Reset Slide" />
+					<property name="normal_label" text="Reset Slide" />
+				</xml>
+
+				<xml name="end_presentation"
+					src="%APP%/data/layouts/waffles/component/presentation_button.xml">
+					<property name="high_label" text="End" />
+					<property name="normal_label" text="End" />
+				</xml>
+
+			</layout>
+
+		</layout>
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml">
+			<property name="the_button"
+				layout_fudge="#expr{-1.0 * $_ui:button_size }, #expr{ -$_ui:button_size - $_ui:corner_radius }" />
+		</xml>
+
+	</layout>
+
+
+</interface>
+

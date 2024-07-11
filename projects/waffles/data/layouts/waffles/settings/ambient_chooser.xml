@@ -1,0 +1,146 @@
+<interface>
+
+		<layout name="layout"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="true"
+				layout_spacing="#expr{ 1.0 * $_ui:padding }"
+			>
+			
+			<text name="title"
+				font="viewer:subtitle"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Ambient"
+				/>
+					
+			
+			<layout name="buttons"
+				layout_type="horiz"
+				layout_size_mode="flex"
+				layout_spacing="$_ui:padding"
+				shrink_to_children="true"
+				>
+				
+			<xml name="toggle" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="the_button"  />
+					<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Ambient_text_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Ambient_text_64.png"  />
+					<property name="label_normal" text="Title and Date" />
+					<property name="label_high" text="Title and Date" />
+				</xml>
+				
+			<!--
+				<xml name="default_image" src="%APP%/data/layouts/waffles/background_chooser_button.xml" >
+					<property name="the_button" visible="$_cms_files:allow" />
+					<property name="icon_normal" src="%APP%/data/images/ui/Camera.png" />
+					<property name="icon_high" src="%APP%/data/images/ui/Camera.png" />
+					<property name="label_normal" text="Default Image" />
+					<property name="label_high" text="Default Image" />
+				</xml>
+				
+				<xml name="default_video" src="%APP%/data/layouts/waffles/background_chooser_button.xml" >
+					<property name="the_button" visible="$_cms_files:allow" />
+					<property name="icon_normal" src="%APP%/data/images/ui/Movie.png" />
+					<property name="icon_high" src="%APP%/data/images/ui/Movie.png" />
+					<property name="label_normal" text="Default Video" />
+					<property name="label_high" text="Default Video" />
+				</xml>
+				-->
+				
+				<xml name="user_media" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="the_button" visible="$_cms_files:allow" />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/Up_fill_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Up_fill_64.png" />
+					<property name="label" text="Custom Media" />
+					<property name="label_high" text="Custom Media" />
+				</xml>
+				
+				<layout layout_type="vert" 
+					layout_v_align="middle"
+					shrink_to_children="both"
+					layout_spacing="#expr{ 0.5 * $_ui:padding }"
+				>
+				
+				<xml name="select_media" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button" visible="$_cms_files:allow" />
+					<property name="high_icon"  src="%APP%/data/images/waffles/icons/1x/Up_64.png"/>
+					<property name="high_label" text="Select Media..." />
+					<property name="icon"  src="%APP%/data/images/waffles/icons/1x/Up_64.png"/>
+					<property name="label" text="Select Media..." />
+				</xml>
+				
+				<xml name="start_ambient" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="the_button"  layout_v_align="middle" />
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Ambient_64.png"  />
+					<property name="high_label" text="Start Ambient" />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/Ambient_64.png"  />
+					<property name="label" text="Start Ambient" />
+				</xml>
+				
+				</layout>
+				
+			</layout>
+				
+			<text name="timeout_title"
+				font="viewer:body"
+				color="ui_normal"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Idle Timeout"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<text name="timeout_time"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="0 Seconds"
+				layout_fudge="$_ui:text_fudge"
+				>0 Seconds</text>
+				
+			<control_slider  name="timeout_slider"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+			/>
+			
+			
+			
+				
+			<!-- <text name="slide_title"
+				font="viewer:body"
+				color="ui_normal"
+				visible="$_cms_files:allow"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Seconds Per Slide (Presentations Only)"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<text name="slide_time"
+				font="viewer:tiny"
+				color="ui_normal"
+				visible="$_cms_files:allow"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="0 Seconds"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<control_slider  name="slide_slider"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+			/> -->
+			
+			
+			
+			
+		</layout>
+	
+</interface>
+

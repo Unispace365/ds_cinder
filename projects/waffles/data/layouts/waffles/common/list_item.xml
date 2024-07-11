@@ -1,0 +1,136 @@
+<interface>
+	<settings>
+		<setting name="icon_src" value="%APP%/data/images/waffles/icons/2x/Menu_128.png" />
+		<setting name="label" value="AHHHHH" />
+		<setting name="has_arrow" value="false" />
+	</settings>
+
+
+	<layout name="layout"
+		layout_type="horiz"
+		enable="true"
+		multitouch="info"
+		size="$_info_list:item:width, $_info_list:item:height"
+	>
+		<layout_button name="the_btn"
+			layout_size_mode="fill"
+			layout_type="horiz"
+			enable="false"
+		>
+			<layout name="normal_layout"
+				attach_state="normal"
+				layout_size_mode="fill"
+				skip_hidden_children="true"
+				layout_type="horiz"
+			>
+				<sprite name="background_highlight"
+					layout_size_mode="fill"
+					color="waffles:button:bg:normal:light"
+				/>
+
+				<image name="icon"
+					pad_all="$_ui:padding"
+					layout_size_mode="flex"
+					center="0.5, 0.5"
+					layout_h_align="center"
+					layout_v_align="middle"
+					l_pad="#expr{2 * $_ui:padding}"
+					r_pad="#expr{1 * $_ui:padding}"
+					src_c_m="$_icon_src"
+					color="waffles:button:text:normal:light"
+				/>
+
+				<text name="name"
+					font="viewer:body"
+					font_size="20"
+					color="waffles:button:text:normal:light"
+					layout_v_align="middle"
+					text_ellipses="end"
+					text_wrap="off"
+					layout_fudge="$_ui:text_fudge"
+					resize_limit="450"
+					text="$_label"
+				/>
+
+				<!-- <sprite layout_size_mode="stretch" /> -->
+
+				<image_button name="the_arrow"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Next_64.png"
+					down_image_color="ui_highlight"
+					layout_size_mode="flex"
+					up_image_color="ui_normal"
+					layout_v_align="middle"
+					btn_touch_padding="$_ui:padding"
+					pad_all="$_ui:padding"
+					enable="false"
+					visible="$_has_arrow"
+				/>
+			</layout>
+
+			<layout name="high_layout"
+				attach_state="high"
+				layout_size_mode="fill"
+				skip_hidden_children="true"
+				layout_type="horiz"
+			>
+				<sprite name="background_highlight_high"
+					layout_size_mode="fill"
+					transparent="false"
+					color="waffles:button:bg:high:light"
+					opacity="1.0"
+				/>
+
+				<image name="icon_high"
+					pad_all="$_ui:padding"
+					layout_size_mode="flex"
+					center="0.5, 0.5"
+					layout_h_align="center"
+					layout_v_align="middle"
+					l_pad="#expr{2 * $_ui:padding}"
+					r_pad="#expr{1 * $_ui:padding}"
+					src_c_m="$_icon_src"
+					color="waffles:button:text:high:light"
+				/>
+
+				<text name="name_high"
+					font="viewer:body"
+					font_size="20"
+					color="waffles:button:text:high:light"
+					layout_v_align="middle"
+					text_ellipses="end"
+					text_wrap="off"
+					layout_fudge="$_ui:text_fudge"
+					resize_limit="450"
+					text="$_label"
+				/>
+
+				<!-- <sprite layout_size_mode="stretch" /> -->
+
+				<image_button name="the_arrow_high"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Next_64.png"
+					down_image_color="ui_highlight"
+					up_image_color="ui_normal"
+					layout_v_align="middle"
+					btn_touch_padding="$_ui:padding"
+					layout_size_mode="flex"
+					pad_all="$_ui:padding"
+					enable="false"
+					visible="$_has_arrow"
+				/>
+			</layout>
+		</layout_button>
+
+
+		<!-- <layout layout_size_mode="fill"
+			overall_alignment="top">
+				<sprite name="underbar"
+					layout_size_mode="flex"
+					color="ui_separator"
+					height="1"
+				/>
+
+		</layout> -->
+	</layout>
+
+</interface>
+

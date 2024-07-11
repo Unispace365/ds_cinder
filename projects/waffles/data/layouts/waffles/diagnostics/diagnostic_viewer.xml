@@ -1,0 +1,110 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			position="0, 0"
+			shrink_to_children="both"
+			size="1000, 1000"
+		>
+		
+		<sprite name="background"
+			color="viewer_background"
+			layout_size_mode="fill"
+			corner_radius="$_ui:corner_radius"
+			/>
+		
+		<layout name="content_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			layout_spacing="$_ui:padding"
+			pad_all="$_ui:padding"
+			shrink_to_children="both"
+		>
+		
+			<text name="title"
+				font="viewer:title"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Diagnostics"
+				layout_fudge="$_ui:text_fudge"
+				/>
+				
+			<sprite name="spacer" 
+				layout_size_mode="flex"
+				size="600, 1"
+				color="ui_highlight"
+				opacity="0.5"
+			/>
+			<text name="user_label"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_h_align="left"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Run a series of diagnostics for connectivity and environmental conditions"
+				layout_fudge="$_ui:text_fudge"
+				/>
+			
+			<layout name="buttons_layout"
+				layout_type="horiz"
+				shrink_to_children="both"
+				layout_spacing="$_ui:padding"
+				>
+				<xml name="run_button" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+					<property name="high_label" text="Run" />
+					<property name="icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+					<property name="label" text="Run" />
+				</xml>
+				<xml name="show_logs" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+					<property name="high_icon"  />
+					<property name="high_label" text="Show Logs" />
+					<property name="icon"  />
+					<property name="label" text="Show Logs" />
+				</xml>
+			</layout>
+			
+			<sprite 
+				layout_size_mode="flex"
+				size="600, 1"
+				pad_all="$_ui:padding"
+				color="ui_highlight"
+				opacity="0.5"
+			/>
+			
+			<layout name="holder" 
+				 layout_type="vert"
+				 shrink_to_children="height"
+				 layout_size_mode="fixed"
+				 t_pad="$_ui:padding"
+				 size="1080, 100"
+				 />
+				 
+			
+			<layout name="status_and_button"
+				layout_type="horiz"
+				layout_h_align="right"
+				shrink_to_children="both"
+				>
+				<text name="status_text"
+					font="viewer:tiny"
+					color="ui_highlight"
+					pad_all="$_ui:padding"
+					layout_v_align="middle"
+					layout_size_mode="flex"
+					animate_on="$_animation:item_on"
+					layout_fudge="$_ui:text_fudge"
+					/>
+			
+			</layout>
+		</layout>
+		
+		<xml name="close_button" src="%APP%/data/layouts/waffles/common/close_button.xml" />
+		
+	</layout>
+	
+</interface>
+

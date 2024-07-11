@@ -1,0 +1,62 @@
+<interface>
+
+	<layout_button name="the_button"
+		size="$_ui:label_button:size"
+		center="0.5, 0.5"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		animate_on="$_animation:item_on"
+		pad_all="10"
+	>
+
+
+		<layout
+			attach_state="normal"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+		>
+			<sprite name="backy"
+				layout_size_mode="fill"
+				color="black"
+			/>
+			<sprite name="up_color"
+				layout_size_mode="fill"
+				color="white"
+				pad_all="2"
+			/>
+			<text
+				name="normal_label"
+				font="viewer:body:tiny"
+				color="black"
+				layout_h_align="center"
+				layout_fudge="$_ui:text_fudge"
+			/>
+		</layout>
+
+		<layout
+			attach_state="high"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+		>
+
+			<sprite name="down_color"
+				layout_size_mode="fill"
+				color="ui_highlight"
+			/>
+			<text
+				name="high_label"
+				font="viewer:body:tiny"
+				color="ui_white"
+				layout_h_align="center"
+				layout_fudge="$_ui:text_fudge"
+			/>
+
+		</layout>
+
+	</layout_button>
+
+
+</interface>
+

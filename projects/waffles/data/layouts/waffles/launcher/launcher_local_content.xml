@@ -1,0 +1,79 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="vert"
+				layout_size_mode="fill"
+			>
+			
+			<layout name="body_area"
+					layout_type="horiz"
+					layout_size_mode="fill"
+					pad_all="$_ui:padding"
+					layout_spacing="$_ui:padding"
+					>
+					
+				<layout name="type_buttons"
+						layout_type="vert"
+						shrink_to_children="both"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+						>
+					
+					
+				<xml name="documents" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+						<property name="high_label" text="Documents" />
+						<property name="normal_label" text="Documents" />
+					</xml>
+					<!--
+						<xml name="recent_files" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/ui/Star.png" />
+						<property name="normal_icon" src="%APP%/data/images/ui/Star.png" />
+						<property name="high_label" text="Recent" />
+						<property name="normal_label" text="Recent" />
+					</xml>
+					-->
+					<sprite size="0, $_ui:padding" />
+					
+					<layout name="drives_holder" 
+						layout_type="vert"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+						/>
+					
+					
+				</layout>
+				<layout name="main_panel"
+						layout_size_mode="stretch"
+						layout_type="vert"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+						clipping="true"
+						>
+				<xml name="back_button" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+							<property name="the_button" size="455, 45"  layout_size_mode="flex" opacity="0.5"/>
+							<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Backwards_64.png"  />
+							<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Backwards_64.png" />
+							<property name="normal_label" text="Back" animate_on="$_animation:item_on"/>
+							<property name="high_label" text="Back" animate_on="$_animation:item_on"/>
+							<property name="background" opacity="0" />						
+						</xml>
+						<text name="current_title"
+							font="viewer:subtitle"
+							color="ui_normal"
+							animate_on="$_animation:item_on"
+							pad_all="$_ui:padding"
+							text="Content"
+							layout_fudge="$_ui:text_fudge"
+							/>
+					
+					<layout name="launcher_pane_holder"
+							layout_size_mode="stretch"
+							>
+					</layout>
+				</layout>
+			</layout>
+			
+		</layout>
+	
+	
+</interface>
+

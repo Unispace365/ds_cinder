@@ -1,0 +1,27 @@
+<interface>
+
+	<layout name="rooty"
+		size="$_world_size"
+		layout_type="size"
+		layout_size_mode="fill"
+	>
+		<media_player name="the_player"
+			media_player_auto_start="true"
+			media_player_video_volume="0"
+			media_player_show_interface="false"
+			media_player_standard_click="false"
+			media_player_video_loop="true"
+			media_player_video_reset_on_complete="false"
+			media_player_letterbox="false"
+			layout_fixed_aspect="false"
+			layout_size_mode="fill"
+			enable="false"
+			animate_on="$_animation:fade_on"
+			model="media_player_src:this->media_res"
+		/>
+	</layout>
+
+
+</interface>
+
+

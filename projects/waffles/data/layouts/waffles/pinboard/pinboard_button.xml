@@ -1,0 +1,102 @@
+<interface>
+	<layout name="root_layout"
+		size="$_ui:button_size, $_ui:button_size"
+		b_pad="#expr -1.0 * $_ui:button_size"
+		r_pad="$_ui:padding"
+		layout_v_align="middle"
+		layout_type="size"
+		center="0.5, 0.5"
+		animate_on="grow; ease:outQuint"
+	>
+
+		<layout_button name="the_button"
+			layout_size_mode="fill"
+			layout_type="size"
+		>
+
+			<layout name="icons_normal"
+				layout_type="vert"
+				layout_size_mode="fill"
+				overall_alignment="center"
+				attach_state="normal"
+			>
+				<sprite name="normal_background"
+					layout_size_mode="fill"
+					color="ui_icon_background"
+					corner_radius="$_ui:corner_radius"
+				/>
+				<image
+					name="icon_normal"
+					src_cache="%APP%/data/images/waffles/icons/1x/Pin_64.png"
+					layout_h_align="center"
+					layout_size_mode="fill"
+					color="ui_normal"
+					pad_all="$_ui:padding"
+				/>
+				<image
+					name="icon_filled"
+					src_cache="%APP%/data/images/waffles/icons/1x/Pinned_64.png"
+					layout_h_align="center"
+					layout_size_mode="fill"
+					color="ui_normal"
+					visible="false"
+					pad_all="$_ui:padding"
+				/>
+				<image
+					name="spinner"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Redo_64.png"
+					layout_h_align="center"
+					center="0.5, 0.5"
+					layout_size_mode="fill"
+					color="ui_normal"
+					visible="false"
+					pad_all="$_ui:padding"
+				/>
+			</layout>
+
+
+			<layout name="icons_high"
+				layout_type="vert"
+				layout_size_mode="fill"
+				overall_alignment="center"
+				attach_state="high"
+			>
+				<sprite name="high_background"
+					layout_size_mode="fill"
+					color="ui_highlight"
+					corner_radius="$_ui:corner_radius"
+				/>
+				<image
+					name="icon_high"
+					src_cache="%APP%/data/images/waffles/icons/1x/Pin_64.png"
+					layout_h_align="center"
+					layout_size_mode="fill"
+					color="white"
+					pad_all="$_ui:padding"
+				/>
+				<image
+					name="icon_filled_high"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Pinned_64.png"
+					layout_h_align="center"
+					layout_size_mode="fill"
+					color="white"
+					visible="false"
+					pad_all="$_ui:padding"
+				/>
+				<image
+					name="spinner_high"
+					src_c_m="%APP%/data/images/waffles/icons/1x/Redo_64.png"
+					layout_h_align="center"
+					center="0.5, 0.5"
+					layout_size_mode="fill"
+					color="white"
+					visible="false"
+					pad_all="$_ui:padding"
+				/>
+			</layout>
+		</layout_button>
+	</layout>
+
+
+</interface>
+

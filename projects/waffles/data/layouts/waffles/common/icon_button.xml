@@ -1,0 +1,75 @@
+<interface>
+
+	<layout_button name="the_button"
+		size="$_ui:button_size, $_ui:button_size"
+		layout_type="size"
+		animate_on="$_animation:item_on"
+	>
+
+		<shadow_layout name="norm_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="4"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="-2.0, 2.0"
+			shadow_iterations="5"
+			attach_state="normal"
+			shadow_every_frame="true"
+		>
+			<layout name="normal_holder"
+				layout_size_mode="fill"
+				layout_type="vert"
+				attach_state="normal"
+			>
+				<sprite name="backy"
+					layout_size_mode="fill"
+					color="hpi_white"
+					r_pad="#expr -1.0 * $_ui:corner_radius"
+				/>
+				<image name="icon"
+					color="black"
+					layout_size_mode="stretch"
+					pad_all="$_ui:padding"
+					blend_mode="fbo_in"
+				/>
+			</layout>
+		</shadow_layout>
+
+		<shadow_layout name="high_shade"
+			layout_type="vert"
+			layout_size_mode="fill"
+			shadow_size="4"
+			shadow_sigma="5"
+			shadow_color="black"
+			shadow_opacity="0.4"
+			shadow_offset="-2.0, 2.0"
+			shadow_iterations="5"
+			attach_state="high"
+			shadow_every_frame="true"
+		>
+
+			<layout name="high_holder"
+				layout_size_mode="fill"
+				layout_type="vert"
+				attach_state="high"
+			>
+				<sprite name="backy_high"
+					layout_size_mode="fill"
+					color="black"
+					r_pad="#expr -1.0 * $_ui:corner_radius"
+				/>
+				<image name="icon_high"
+					color="hpi_white"
+					layout_size_mode="stretch"
+					pad_all="$_ui:padding"
+					blend_mode="fbo_in"
+				/>
+			</layout>
+		</shadow_layout>
+
+	</layout_button>
+
+</interface>
+

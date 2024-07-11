@@ -1,0 +1,77 @@
+<interface>
+
+		<layout name="layout"
+				layout_type="vert"
+				layout_size_mode="flex"
+				shrink_to_children="true"
+				layout_spacing="#expr 1.0 * $_ui:padding"
+				skip_hidden_children="true"
+			>
+			
+			<text name="title"
+				font="viewer:subtitle"
+				color="ui_normal"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="$_animation:item_on"
+				text="Backgrounds"
+				layout_fudge="$_ui:text_fudge"
+				/>
+					
+			
+			<layout name="buttons"
+				layout_type="horiz"
+				layout_size_mode="flex"
+				layout_spacing="$_ui:padding"
+				shrink_to_children="true"
+				>
+				
+			<xml name="none" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Close_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Close_64.png"  />
+					<property name="label_normal" text="None" />
+					<property name="label_high" text="None" />
+				</xml>
+				
+			
+				<xml name="particles" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Particles_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Particles_64.png" />
+					<property name="label_normal" text="Particles" />
+					<property name="label_high" text="Particles" />
+				</xml>
+				
+				<xml name="default" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+					<property name="label_normal" text="Default Image" />
+					<property name="label_high" text="Default Image" />
+				</xml>
+				
+				<xml name="media" src="%APP%/data/layouts/waffles/settings/background_chooser_button.xml" >
+					<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Up_fill_64.png" />
+					<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Up_fill_64.png" />
+					<property name="label_normal" text="Custom Media - None Selected" />
+					<property name="label_high" text="Custom Media - None Selected" />
+				</xml>
+				
+				
+				<layout layout_type="vert" 
+					layout_v_align="middle"
+					shrink_to_children="both"
+					layout_spacing="$_ui:padding"
+					visible="$_cms_files:allow"	
+				>
+				
+				<xml name="select_media" src="%APP%/data/layouts/waffles/common/icon_label_button.xml" >
+						<property name="high_icon"  src="%APP%/data/images/waffles/icons/1x/Up_64.png"/>
+						<property name="high_label" text="Select Media..."  />
+						<property name="icon"  src="%APP%/data/images/waffles/icons/1x/Up_64.png"/>
+						<property name="label" text="Select Media..."  />
+					</xml>
+				
+				</layout>
+			</layout>	
+		</layout>
+</interface>
+

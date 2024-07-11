@@ -1,0 +1,24 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_size_mode="fixed"
+			layout_type="vert"
+			size="50, 50"
+			enable="true"
+			multitouch="info"
+			center="0.5, 0.5"
+			animate_on="grow; ease:outQuint"
+		>
+		<circle name="the_spot"
+			radius="5"
+			color="ui_highlight"
+			layout_size_mode="fill"
+			/>
+			
+	</layout>
+		
+	
+	
+</interface>
+
+

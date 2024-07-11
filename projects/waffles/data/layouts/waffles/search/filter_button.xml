@@ -1,0 +1,55 @@
+<interface>
+
+	<layout_button name="the_button"
+		size="75, 50"
+		layout_type="size"
+		layout_v_align="middle"
+	>
+
+		<layout name="normal_stuff"
+			attach_state="normal"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+		>
+
+			<sprite name="bg_normal"
+				layout_size_mode="fill"
+				color="waffles:button:bg:normal:dark"
+				corner_radius="$_ui:corner_radius"
+				pad_all="#expr 0.5 * $_ui:padding"
+				animate_on="$_animation:fade_on"
+			/>
+			<image name="icon_normal"
+				layout_h_align="center"
+				scale="0.5, 0.5"
+				color="black"
+				animate_on="$_animation:fade_on"
+			/>
+		</layout>
+		<layout name="high_stuff"
+			attach_state="high"
+			layout_size_mode="fill"
+			layout_type="vert"
+			overall_alignment="center"
+		>
+
+			<sprite name="bg_high"
+				layout_size_mode="fill"
+				color="waffles:button:bg:high:dark"
+				corner_radius="$_ui:corner_radius"
+				pad_all="#expr 0.5 * $_ui:padding"
+			/>
+			<image name="icon_high"
+				layout_h_align="center"
+				scale="0.5, 0.5"
+				color="waffles:button:text:high:dark"
+			/>
+		</layout>
+
+
+	</layout_button>
+
+
+</interface>
+

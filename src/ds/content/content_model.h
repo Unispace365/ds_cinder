@@ -12,7 +12,6 @@
 #include <memory>
 #include <vector>
 
-
 namespace ds::ui {
 class SpriteEngine;
 }
@@ -20,6 +19,13 @@ class SpriteEngine;
 
 namespace ds::model {
 
+const std::string VALID_MAP	 = "valid_map";
+const std::string RECORD_MAP	 = "record_map";
+const std::string CONTENT	 = "content";
+const std::string PLATFORM	 = "platform";
+const std::string ALL_EVENTS	 = "all_events";
+const std::string ALL_RECORDS = "all_records";
+const std::string ALL_TAGS	 = "all_tags";
 
 /**
  * \class ContentProperty
@@ -95,6 +101,8 @@ class ContentProperty {
  *			* An Id, which has no guarantee of uniqueness, that typically comes from a database, and can be used to
  *look up models
  */
+
+
 class ContentModelRef {
   public:
 	/// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
@@ -102,13 +110,17 @@ class ContentModelRef {
 
 	ContentModelRef();
 	ContentModelRef(const std::string& name, const int id = 0, const std::string& label = "");
+	ContentModelRef(const std::string& name, const std::string& uid, const std::string& label = "");
 
 	/// Enables doing `if (mModel) ...` to check if model is valid
 	operator bool() const { return !empty(); }
 
 	/// Get the id for this item
 	const int& getId() const;
+	const std::string& getUid() const;
 	void	   setId(const int& id);
+	void	   setUid(const std::string& uid);
+	
 
 	/// Get the name of this item
 	/// Name is generally inherited by the table or thing this belongs to
@@ -222,6 +234,8 @@ class ContentModelRef {
 	/// Get the first child that matches this id
 	/// If no children exist or match that id, returns an empty data model
 	ContentModelRef getChildById(const int id);
+	ContentModelRef getChildById(const std::string& id) { return getChildByUid(id); };
+	ContentModelRef getChildByUid(const std::string& uid);
 
 	/// Get the first child that matches this name
 	/// Can get nested children using dot notation. for example:
@@ -233,6 +247,7 @@ class ContentModelRef {
 	/// For instance, if you have a branched tree several levels deep and need to find a specific node.
 	/// Depends on children having a consistent name and unique id.
 	ContentModelRef getDescendant(const std::string& childName, const int childId) const;
+	ContentModelRef getDescendant(const std::string& childName, const std::string& childUid) const;
 
 	/// Looks through all direct children, and returns all children that have a given label.
 	/// Useful for models that have children from more than one table
@@ -265,16 +280,21 @@ class ContentModelRef {
 
 	/// Adds a reference map with the corresponding string name
 	void setReferences(const std::string& referenceName, std::map<int, ds::model::ContentModelRef>& reference);
+	void setKeyReferences(const std::string&									referenceName,
+					   std::unordered_map<std::string, ds::model::ContentModelRef>& reference);
 
 	/// Gets a map of all the references for the given name. If you need to modify the map, make a copy and set it
 	/// again using setReference
 	const std::map<int, ds::model::ContentModelRef>& getReferences(const std::string& referenceName) const;
+	const std::unordered_map<std::string, ds::model::ContentModelRef>& getKeyReferences(const std::string& referenceName) const;
 
 	/// Returns a content model from a specific reference by the reference name and the node id
 	ds::model::ContentModelRef getReference(const std::string& referenceName, const int nodeId) const;
+	ds::model::ContentModelRef getKeyReference(const std::string& referenceName, const std::string& key) const;
 
 	/// Clears the reference map at the specified name
 	void clearReferences(const std::string& name) const;
+	void clearKeyReferences(const std::string& name) const;
 
 	/// Removes all references
 	void clearAllReferences() const;

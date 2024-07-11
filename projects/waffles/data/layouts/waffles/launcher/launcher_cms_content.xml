@@ -1,0 +1,112 @@
+<interface>
+		<layout name="root_layout"
+				layout_type="vert"
+				layout_size_mode="fill"
+			>			
+			<layout name="body_area"
+					layout_type="horiz"
+					layout_size_mode="fill"
+					pad_all="$_ui:padding"
+					layout_spacing="$_ui:padding"
+					>					
+				<layout name="type_buttons"
+						layout_type="vert"
+						shrink_to_children="both"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+						>
+										
+				<xml name="recent_files" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/General_Template_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/General_Template_64.png" />
+						<property name="high_label" text="Recent" />
+						<property name="normal_label" text="Recent" />
+					</xml>
+					<sprite size="0, $_ui:padding" />
+					<xml name="images" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Image_64.png" />
+						<property name="high_label" text="Images" />
+						<property name="normal_label" text="Images" />
+					</xml>
+					<xml name="web" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Link_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Link_64.png" />
+						<property name="high_label" text="Links" />
+						<property name="normal_label" text="Links" />
+					</xml>
+					<xml name="pdfs" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/PDF_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/PDF_64.png" />
+						<property name="high_label" text="PDFs" />
+						<property name="normal_label" text="PDFs" />
+					</xml>
+					<xml name="presentations" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
+						<property name="high_label" text="Presentations" />
+						<property name="normal_label" text="Presentations" />
+					</xml>
+					<xml name="streams" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Stream_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Stream_64.png" />
+						<property name="high_label" text="Streams" />
+						<property name="normal_label" text="Streams" />
+					</xml>
+					<xml name="videos" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Video_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Video_64.png" />
+						<property name="high_label" text="Videos" />
+						<property name="normal_label" text="Videos" />
+					</xml>
+					
+					<sprite size="0, $_ui:padding" />
+					
+					<xml name="folders" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
+						<property name="high_label" text="Folders" />
+						<property name="normal_label" text="Folders" />
+					</xml>
+					<xml name="pinboards" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Pin_64.png" />
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Pin_64.png" />
+						<property name="high_label" text="Pinboard" />
+						<property name="normal_label" text="Pinboard" />
+					</xml>
+				</layout>
+				
+				<layout name="main_panel"
+						layout_size_mode="stretch"
+						layout_type="vert"
+						layout_spacing="#expr 0.5 * $_ui:padding"
+						clipping="true"
+						>
+				
+				<xml name="back_button" src="%APP%/data/layouts/waffles/launcher/launcher_type_button.xml" >
+						<property name="the_button" size="475, 45" animate_on="$_animation:fade_on" layout_size_mode="flex" opacity="0.5"/>
+						<property name="normal_icon" src="%APP%/data/images/waffles/icons/1x/Backward_64.png"  />
+						<property name="high_icon" src="%APP%/data/images/waffles/icons/1x/Backward_64.png" />
+						<property name="normal_label" text="Back" animate_on="$_animation:item_on"/>
+						<property name="high_label" text="Back" animate_on="$_animation:item_on"/>
+						<property name="background" opacity="0" />						
+					</xml>
+					
+					<text name="current_title"
+						font="viewer:subtitle"
+						color="ui_normal"
+						animate_on="$_animation:item_on"
+						pad_all="$_ui:padding"
+						text="Content"
+						layout_fudge="$_ui:text_fudge"
+						/>
+					
+					<layout name="launcher_pane_holder"
+							layout_size_mode="stretch"
+							>
+					</layout>
+				</layout>
+			</layout>			
+		</layout>	
+	
+</interface>
+

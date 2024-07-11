@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\waffles\waffles_sprite.cpp">
+      <Filter>src\waffles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\background\background_view.cpp">
+      <Filter>src\waffles\background</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\background\media_background.cpp">
+      <Filter>src\waffles\background</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\common\list_item.cpp">
+      <Filter>src\waffles\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\common\ui_utils.cpp">
+      <Filter>src\waffles\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\controllers\engage_controller.cpp">
+      <Filter>src\waffles\controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\layer\asset_layer.cpp">
+      <Filter>src\waffles\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\layer\interface_layer.cpp">
+      <Filter>src\waffles\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\layer\template_layer.cpp">
+      <Filter>src\waffles\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\layer\transition_layer.cpp">
+      <Filter>src\waffles\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\base_element.cpp">
+      <Filter>src\waffles\viewers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\titled_media_viewer.cpp">
+      <Filter>src\waffles\viewers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\viewer_controller.cpp">
+      <Filter>src\waffles\viewers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.cpp">
+      <Filter>src\waffles\viewers\diagnostic_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.cpp">
+      <Filter>src\waffles\viewers\diagnostic_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\drawing\drawing_area.cpp">
+      <Filter>src\waffles\viewers\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\drawing\drawing_tools.cpp">
+      <Filter>src\waffles\viewers\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\error_viewer\error_viewer.cpp">
+      <Filter>src\waffles\viewers\error_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.cpp">
+      <Filter>src\waffles\viewers\fullscreen_controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\launcher\launcher.cpp">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_cms_content.cpp">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_local_content.cpp">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_pane.cpp">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\launcher\launcher_search_content.cpp">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_detail.cpp">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_item.cpp">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\state_viewer\state_viewer.cpp">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\settings_viewer\ambient_chooser.cpp">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\settings_viewer\background_chooser.cpp">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\settings_viewer\settings_viewer.cpp">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\search\search_viewer.cpp">
+      <Filter>src\waffles\viewers\search</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\presentation_controller\presentation_controller.cpp">
+      <Filter>src\waffles\viewers\presentation_controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\util\capture_player.cpp">
+      <Filter>src\waffles\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\util\shadow_layout.cpp">
+      <Filter>src\waffles\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\touch_menu\touch_menu_graphics.cpp">
+      <Filter>src\waffles\touch_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\template\composite_slide.cpp">
+      <Filter>src\waffles\template</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\template\template_config.cpp">
+      <Filter>src\waffles\template</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\query\directory_query.cpp">
+      <Filter>src\waffles\query</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\query\search_query.cpp">
+      <Filter>src\waffles\query</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\pinboard\pinboard_button.cpp">
+      <Filter>src\waffles\pinboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\pinboard\pinboard_view.cpp">
+      <Filter>src\waffles\pinboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\drawing_upload_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\file_list_save_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\file_save_request.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\file_upload_request.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\pinboard_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\recent_files_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\screen_state_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\service\settings_service.cpp">
+      <Filter>src\waffles\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\app\app_defs.h">
+      <Filter>src\app</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\state_events.h">
+      <Filter>src\events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\waffles_events.h">
+      <Filter>src\waffles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\waffles_sprite.h">
+      <Filter>src\waffles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\background\background_view.h">
+      <Filter>src\waffles\background</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\background\media_background.h">
+      <Filter>src\waffles\background</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\common\list_item.h">
+      <Filter>src\waffles\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\common\ui_utils.h">
+      <Filter>src\waffles\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\controllers\engage_controller.h">
+      <Filter>src\waffles\controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\layer\asset_layer.h">
+      <Filter>src\waffles\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\layer\interface_layer.h">
+      <Filter>src\waffles\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\layer\template_layer.h">
+      <Filter>src\waffles\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\layer\transition_layer.h">
+      <Filter>src\waffles\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\model\viewer_creation_args.h">
+      <Filter>src\waffles\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\base_element.h">
+      <Filter>src\waffles\viewers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\titled_media_viewer.h">
+      <Filter>src\waffles\viewers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\viewer_controller.h">
+      <Filter>src\waffles\viewers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.h">
+      <Filter>src\waffles\viewers\diagnostic_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.h">
+      <Filter>src\waffles\viewers\diagnostic_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\drawing\drawing_area.h">
+      <Filter>src\waffles\viewers\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\drawing\drawing_tools.h">
+      <Filter>src\waffles\viewers\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\error_viewer\error_viewer.h">
+      <Filter>src\waffles\viewers\error_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.h">
+      <Filter>src\waffles\viewers\fullscreen_controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\launcher\launcher.h">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_cms_content.h">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_local_content.h">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_pane.h">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\launcher\launcher_search_content.h">
+      <Filter>src\waffles\viewers\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_detail.h">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_item.h">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\state_viewer\state_viewer.h">
+      <Filter>src\waffles\viewers\state_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\settings_viewer\ambient_chooser.h">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\settings_viewer\background_chooser.h">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\settings_viewer\settings_viewer.h">
+      <Filter>src\waffles\viewers\settings_viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\search\search_viewer.h">
+      <Filter>src\waffles\viewers\search</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\presentation_controller\presentation_controller.h">
+      <Filter>src\waffles\viewers\presentation_controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\util\capture_player.h">
+      <Filter>src\waffles\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\util\shadow_layout.h">
+      <Filter>src\waffles\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\touch_menu\touch_menu_graphics.h">
+      <Filter>src\waffles\touch_menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\template\composite_slide.h">
+      <Filter>src\waffles\template</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\template\template_base.h">
+      <Filter>src\waffles\template</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\template\template_config.h">
+      <Filter>src\waffles\template</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\query\directory_query.h">
+      <Filter>src\waffles\query</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\query\search_query.h">
+      <Filter>src\waffles\query</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\pinboard\pinboard_button.h">
+      <Filter>src\waffles\pinboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\pinboard\pinboard_view.h">
+      <Filter>src\waffles\pinboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\drawing_upload_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\file_list_save_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\file_save_request.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\file_upload_request.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\pinboard_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\recent_files_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\screen_state_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\service\settings_service.h">
+      <Filter>src\waffles\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{dc94df9b-6764-4425-8e97-0f94c4e29555}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles">
+      <UniqueIdentifier>{fff484db-919e-4b8f-be0c-dc6af08ad42d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\events">
+      <UniqueIdentifier>{5077e7dd-535c-430b-9b11-d7651422946d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\background">
+      <UniqueIdentifier>{94f67678-0812-4433-9638-07f277e620c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\common">
+      <UniqueIdentifier>{bb304f74-263c-4534-8d40-9cef7729234d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\controllers">
+      <UniqueIdentifier>{0b2e143b-fc77-462c-acae-a059d82b884e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\layer">
+      <UniqueIdentifier>{c42602fe-b9b5-4993-898e-12d32efd2abe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\model">
+      <UniqueIdentifier>{4c955a3b-5ad6-420f-98f8-5ce34d75fd4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\pinboard">
+      <UniqueIdentifier>{321878da-bb24-4bec-8f8a-ca7662db9fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\query">
+      <UniqueIdentifier>{a1ed3730-5267-47cd-a9af-5b9a429fc66e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\service">
+      <UniqueIdentifier>{d9c7ab8f-3766-422c-9b0f-a64446921de7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\template">
+      <UniqueIdentifier>{f94bc868-702b-4209-913e-895891e1bd90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\touch_menu">
+      <UniqueIdentifier>{d7b132c0-af1e-4719-9c00-0f10ca5656d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\util">
+      <UniqueIdentifier>{d0a8eceb-84d2-4401-92ff-d5eeab6a916c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers">
+      <UniqueIdentifier>{8b5f96c1-346f-4fb8-b3a0-3c311316f7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\app">
+      <UniqueIdentifier>{647a65d9-34d4-4f6d-9461-830b64ff22f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\diagnostic_viewer">
+      <UniqueIdentifier>{75c8c3be-14ec-4086-bedd-bced7115b257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\drawing">
+      <UniqueIdentifier>{c42b2936-dc6c-42ca-b6ce-c263fb4e806f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\error_viewer">
+      <UniqueIdentifier>{fd0bc94b-d237-4ff8-a93e-3311b394b943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\fullscreen_controller">
+      <UniqueIdentifier>{c1f75de5-5840-4bc8-a42b-79df62889c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\launcher">
+      <UniqueIdentifier>{f034abb9-c67b-4551-965e-9cda73b8e21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\presentation_controller">
+      <UniqueIdentifier>{4821293c-4815-438c-907a-565b2678f410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\search">
+      <UniqueIdentifier>{3a976141-04d3-4b60-b1c4-0512b6317c8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\settings_viewer">
+      <UniqueIdentifier>{d85833e4-dbeb-4547-a632-cd2bde37970d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\state_viewer">
+      <UniqueIdentifier>{be629fe3-52af-4641-86e0-fbf9b8158ad9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

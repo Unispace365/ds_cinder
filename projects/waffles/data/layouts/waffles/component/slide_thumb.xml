@@ -1,0 +1,33 @@
+<interface>
+	<layout name="root"
+		layout_type="vert"
+		size="$_presentation_controller:slides_thumb:size"
+		enable="true"
+	>
+		<layout layout_size_mode="fill"
+			padding="4"
+			overall_alignment="middle"
+		>
+			<sprite name="bg"
+				layout_size_mode="fill"
+				color="waffles:button:bg:normal:dark"
+				corner_radius="10.0"
+			/>
+
+			<text name="label"
+				layout_size="150, 130"
+				layout_size_mode="flex"
+				layout_h_align="center"
+				font="waffles:presentation_controller:slide_thumb:label"
+				font_size="16"
+				text_align="center"
+				text_wrap="word"
+				text_ellipses="end"
+				resize_limit="150, 130"
+				color="corporate_blue"
+				model="text:this->record_name"
+			/>
+
+		</layout>
+	</layout>
+</interface>

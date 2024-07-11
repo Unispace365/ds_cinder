@@ -1,0 +1,30 @@
+<interface>
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fill"
+		opacity="1"
+		animate_on="$_ambient:media:anim_on"
+		animate_off="$_ambient:media:anim_off"
+		overall_alignment="center"
+	>
+		<!-- <sprite name="bg_fill"
+			color="#FF0000"
+			layout_size_mode="fill"
+			/> -->
+		<!--
+		<gradient_background name="grad_bg"
+			color="white"
+			opacity="$_gradient:background:opacity"
+			layout_size_mode="fill"
+			gradient_background_colors="$_ambient:gradient:colors"
+			/>
+		-->
+		<!-- <particle_background name="bg"
+			layout_size_mode="fill"
+			opacity="0.9"
+			bg_particle_colors="#00FF00" /> -->
+
+	</layout>
+</interface>
+
+

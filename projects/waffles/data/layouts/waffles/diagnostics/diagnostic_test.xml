@@ -1,0 +1,63 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_type="vert"
+		layout_size_mode="fixed"
+		layout_spacing="#expr{ $_ui:padding * 0.5 }"
+		shrink_to_children="height"
+		pad_all="#expr{ $_ui:padding * 1.0 }"
+	>
+		<layout name="content_layout"
+			layout_type="horiz"
+			layout_size_mode="flex"
+			layout_spacing="$_ui:padding"
+			shrink_to_children="height"
+			b_pad="#expr{ $_ui:padding * 2.0 }"
+		>		
+			<text name="title"
+				font="viewer:body"
+				color="ui_normal"
+				layout_size_mode="fixed"
+				resize_limit="200"
+				animate_on="$_animation:item_on"
+				text="Diagnostics"
+				/>
+			<sprite layout_size_mode="stretch" />
+				
+			<text name="details"
+				font="viewer:tiny"
+				color="ui_normal"
+				layout_size_mode="fixed"
+				resize_limit="700"
+				text_align="center"
+				animate_on="$_animation:item_on"
+				text="Details"
+				layout_fudge="$_ui:text_fudge"
+				/>
+			
+			<sprite layout_size_mode="stretch" />
+			<text name="status"
+				font="viewer:body"
+				color="ui_normal"
+				layout_size_mode="fixed"
+				resize_limit="300"
+				animate_on="$_animation:item_on"
+				text_align="right"
+				text="Ready"
+				layout_fudge="$_ui:text_fudge"
+				r_pad="#expr{ $_ui:padding * 2.0 }"
+				/>
+				
+		</layout>
+		<sprite 
+			layout_size_mode="flex"
+			size="600, 1"
+			color="ui_highlight"
+			opacity="0.5"
+			r_pad="#expr{ $_ui:padding * 2.0 }"
+		/>
+	</layout>
+		
+
+</interface>
+

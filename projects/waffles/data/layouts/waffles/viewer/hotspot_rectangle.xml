@@ -1,0 +1,22 @@
+<interface>
+
+	<layout name="root_layout"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		size="50, 50"
+		enable="true"
+		multitouch="info"
+	>
+
+		<sprite name="the_fill"
+			layout_size_mode="fill"
+			color="ui_highlight"
+			opacity="0.5"
+			visible="false"
+		/>
+
+	</layout>
+
+</interface>
+
+
