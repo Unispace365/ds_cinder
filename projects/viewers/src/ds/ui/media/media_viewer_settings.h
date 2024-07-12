@@ -47,7 +47,8 @@ struct MediaViewerSettings {
 	  , mPanoramicVideoInteractive(true)
 	  , mVideoStreamingLatency(0.2)
 	  , mVideoSplitAlpha(false)
-	  , mKeepIfSame(false) {}
+	  , mKeepIfSame(false)
+	  , mCanShowThumbnail(false) {}
 
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
@@ -168,6 +169,9 @@ struct MediaViewerSettings {
 
 	/// don't unload the media if the same resource is set again
 	bool mKeepIfSame;
+
+	/// show thumbnail if it is available
+	bool mCanShowThumbnail;
 };
 
 } // namespace ds::ui

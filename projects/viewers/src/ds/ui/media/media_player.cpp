@@ -195,6 +195,14 @@ auto INIT = []() {
 				mvs.mKeepIfSame = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_can_show_thumbnail",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			  = mediaPlayer.getSettings();
+				mvs.mCanShowThumbnail = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 	});
 	return true;
 }();
@@ -288,7 +296,7 @@ void MediaPlayer::initialize() {
 
 	mContentAspectRatio = 1.0f;
 
-	bool showThumbnail = true;
+	bool showThumbnail = mMediaViewerSettings.mCanShowThumbnail;
 
 	if (mediaType == ds::Resource::IMAGE_TYPE) {
 		initializeImage();
