@@ -505,7 +505,7 @@ void Sprite::buildRenderBatch() {
 void Sprite::onBuildRenderBatch() {
 	const auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
 	if (mCornerRadius > 0.0f) {
-		const auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		const auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius * (1.f / getGlobalTransform()[0][0]));
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -558,6 +558,7 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	mUpdateTransform	= true;
 	mBoundsNeedChecking = true;
 	mMinMaxDirty		= true;
+	mNeedsBatchUpdate	= true;
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();

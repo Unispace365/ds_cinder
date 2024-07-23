@@ -43,6 +43,9 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 	clear();
 
 	mVideo = new ds::ui::GstVideo(mEngine);
+
+	mVideo->setCornerRadius(mCornerRadius);
+
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 

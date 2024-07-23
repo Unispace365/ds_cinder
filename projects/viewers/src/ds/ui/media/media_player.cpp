@@ -361,6 +361,8 @@ void MediaPlayer::initializeImage() {
 	mPrimaryImage = new ds::ui::Image(mEngine);
 	addChildPtr(mPrimaryImage);
 
+	mPrimaryImage->setCornerRadius(mCornerRadius);
+
 	mPrimaryImage->setOpacity(0.0f);
 	mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status) {
 		if (status.mCode == status.STATUS_LOADED && mPrimaryImage) {
@@ -390,6 +392,8 @@ void MediaPlayer::initializeVideo() {
 	}
 	addChildPtr(mVideoPlayer);
 
+	mVideoPlayer->setCornerRadius(mCornerRadius);
+
 	mVideoPlayer->setErrorCallback([this](const std::string& msg) {
 		if (mErrorCallback) mErrorCallback(msg);
 	});
@@ -410,6 +414,8 @@ void MediaPlayer::initializeVideoPanoramic() {
 	// Depends on base initialize to check already initialized case
 	mPanoramicPlayer = new PanoramicVideoPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mPanoramicPlayer);
+
+	mPanoramicPlayer->setCornerRadius(mCornerRadius);
 
 	mPanoramicPlayer->setErrorCallback([this](const std::string& msg) {
 		if (mErrorCallback) mErrorCallback(msg);
@@ -439,6 +445,8 @@ void MediaPlayer::initializeVideoStream() {
 	mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mStreamPlayer);
 
+	mStreamPlayer->setCornerRadius(mCornerRadius);
+
 	mStreamPlayer->setErrorCallback([this](const std::string& msg) {
 		if (mErrorCallback) mErrorCallback(msg);
 	});
@@ -459,6 +467,8 @@ void MediaPlayer::initializePdf() {
 	// Depends on base initialize to check already initialized case
 	mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mPDFPlayer);
+
+	mPDFPlayer->setCornerRadius(mCornerRadius);
 
 	mPDFPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mPDFPlayer->setResource(mResource);
@@ -494,6 +504,9 @@ void MediaPlayer::initializeWeb() {
 	// Depends on base initialize to check already initialized case
 	mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 	addChildPtr(mWebPlayer);
+
+	mWebPlayer->setCornerRadius(mCornerRadius);
+
 	mWebPlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mWebPlayer->setResource(mResource);
 	setCanDisplayInterface(mMediaViewerSettings.mCanDisplayInterface);
@@ -520,6 +533,9 @@ void MediaPlayer::initializeYouTube() {
 	// Depends on base initialize to check already initialized case
 	mYouTubePlayer = new YouTubePlayer(mEngine, mEmbedInterface);
 	addChildPtr(mYouTubePlayer);
+
+	mYouTubePlayer->setCornerRadius(mCornerRadius);
+
 	mYouTubePlayer->setMediaViewerSettings(mMediaViewerSettings);
 	mYouTubePlayer->setResource(mResource);
 	///STUB: this is untested:
