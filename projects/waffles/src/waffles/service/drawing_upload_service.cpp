@@ -12,7 +12,7 @@
 
 //#include "app/helpers.h"
 #include "waffles/waffles_events.h"
-using namespace downstream;
+//using namespace downstream;
 
 namespace waffles {
 
@@ -31,13 +31,14 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 	});
 
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) {
+		auto helper = WafflesHelperFactory::getDefault();
 		ci::Surface theSurface = e.mSurface;
 		int			requestId  = e.mRequestId;
 
 		bool allowCmsStuff = mEngine.getAppSettings().getBool("cms_files:allow", 0, true);
 		if (allowCmsStuff) {
 
-			auto parentUid = getAnnotationFolder(mEngine).getPropertyString("uid");
+			auto parentUid = helper->getAnnotationFolder().getPropertyString("uid");
 			if (parentUid.empty()) {
 				DS_LOG_WARNING("Trying to save drawing with no Annotation Folder. Aborting");
 				return;

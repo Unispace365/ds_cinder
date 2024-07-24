@@ -14,7 +14,8 @@
 
 
 namespace {
-auto INIT = []() {
+auto INIT_RIGHT = []() {
+	DS_LOG_INFO("Adding shadow layout sprite");
 	ds::App::AddStartup([](ds::Engine& e) {
 		e.installSprite([](ds::BlobRegistry& r) { waffles::ShadowLayout::installAsServer(r); },
 						[](ds::BlobRegistry& r) { waffles::ShadowLayout::installAsClient(r); });
@@ -28,9 +29,8 @@ auto INIT = []() {
 		});
 
 		e.registerSpritePropertySetter<waffles::ShadowLayout>(
-			"shadow_size", [](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
-				texty.setShadowSize(ds::string_to_int(theValue));
-			});
+			"shadow_size", [](waffles::ShadowLayout& texty, const std::string& theValue,
+							  const std::string& fileReferrer) { texty.setShadowSize(ds::string_to_int(theValue)); });
 
 		e.registerSpritePropertySetter<waffles::ShadowLayout>(
 			"shadow_iterations",
@@ -45,17 +45,20 @@ auto INIT = []() {
 			});
 
 		e.registerSpritePropertySetter<waffles::ShadowLayout>(
-			"shadow_sigma", [](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
+			"shadow_sigma",
+			[](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
 				texty.setShadowSigma(ds::string_to_float(theValue));
 			});
 
 		e.registerSpritePropertySetter<waffles::ShadowLayout>(
-			"shadow_color", [](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
+			"shadow_color",
+			[](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
 				texty.setShadowColor(ds::parseColor(theValue, texty.getEngine()));
 			});
 
 		e.registerSpritePropertySetter<waffles::ShadowLayout>(
-			"shadow_offset", [](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
+			"shadow_offset",
+			[](waffles::ShadowLayout& texty, const std::string& theValue, const std::string& fileReferrer) {
 				texty.setShadowOffset(ci::vec2(ds::parseVector(theValue)));
 			});
 
@@ -67,8 +70,9 @@ auto INIT = []() {
 	});
 	return true;
 }();
+}
 
-
+namespace sub_waffles {
 /// these are the same shaders as the text sprite! wee!
 const std::string opacityFrag = R"FRAG(
 uniform sampler2D	tex0;
@@ -199,6 +203,7 @@ const char SHADOW_ATT = 80;
 } // namespace
 
 namespace waffles {
+	using namespace sub_waffles;
 void ShadowLayout::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromClient(r); });
 }
@@ -213,7 +218,10 @@ ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
 	, mIterations(2)
 	, mShadowOpacity(1.0)
 	, mShadowOffset(0.0f, 0.0f)
-	, mBlurShader(nullptr) {
+	, mBlurShader(nullptr)
+	, mBlurStart(0) 
+	, mBlurTarget(0)
+	, mPaddedSize(0) {
 
 	mBlobType = BLOB_TYPE;
 

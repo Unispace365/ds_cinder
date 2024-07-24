@@ -119,7 +119,8 @@ void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 
 	if (tmv != nullptr) {
 		if (auto pb = mRootLayout->getSprite<PinboardButton>("pinboard")) {
-			pb->setContentModel(mLinkedMediaViewer->getMedia());
+			auto med = mLinkedMediaViewer->getMedia();
+			pb->setContentModel(med);
 		}
 	}
 	

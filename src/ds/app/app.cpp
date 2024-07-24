@@ -73,6 +73,8 @@ static ds::Engine& new_engine(ds::App&, ds::EngineSettings&, ds::EngineData&, co
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>> VEC;
+
+	DS_LOG_INFO("Getting vector "<<&VEC)
 	return VEC;
 }
 

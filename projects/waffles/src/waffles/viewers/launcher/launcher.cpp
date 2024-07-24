@@ -27,7 +27,7 @@
 #include "waffles/query/search_query.h"
 #include "waffles/common/ui_utils.h"
 
-using namespace downstream;
+//using namespace downstream;
 
 namespace waffles {
 
@@ -96,6 +96,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
 
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
+		auto helper = WafflesHelperFactory::getDefault();
 		if (ev.mType == mFilterSelected) return;
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
@@ -111,11 +112,16 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		}
 		std::vector<ds::model::ContentModelRef> allContent;
 
-		auto pinny = getPinboard(mEngine);
+		auto pinny = helper->getPinboard();
 		if (!pinny.empty()) allContent.push_back(pinny);
 
-		auto allValid = getAllValid(mEngine);
-		allContent.insert(allContent.end(), allValid.begin(), allValid.end());
+		auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
+
+		
+		for (auto& [key, value] : allValid) {
+			allContent.push_back(value);
+		}
+		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
 		if (mFilterSelected != "Folders") {
 			allContent = recurseContent(allContent);

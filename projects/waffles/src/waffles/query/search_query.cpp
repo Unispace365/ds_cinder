@@ -14,10 +14,9 @@
 #include <ds/query/query_client.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
+#include <waffles/util/waffles_helper.h>
 
 #include "app/app_defs.h"
-//#include "app/helpers.h"
-using namespace downstream;
 
 namespace waffles {
 
@@ -51,11 +50,12 @@ void SearchQuery::run() {
 }
 
 void SearchQuery::queryGeneral() {
+	auto helper = WafflesHelperFactory::getDefault();
 	// Add all media items matching the search query to the output
 	if (mFilterType.empty() || mFilterType == "media") {
-		auto allValid = getAllValid(*mEngine);
+		auto allValid = mEngine->mContent.getKeyReferences(ds::model::VALID_MAP);
 		for (auto item : allValid) {
-			recursiveMatch(item);
+			recursiveMatch(item.second);
 		}
 
 		std::sort(mOutput.begin(), mOutput.end(), [](auto& a, auto& b) { return alphaSort(a, b); });

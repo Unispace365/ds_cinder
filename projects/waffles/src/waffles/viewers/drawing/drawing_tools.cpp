@@ -23,12 +23,12 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
+#include <waffles/util/waffles_helper.h>
 
 #include "app/app_defs.h"
 //#include "app/helpers.h"
 #include "drawing_area.h"
-#include "events/app_events.h"
-using namespace downstream;
+
 
 namespace waffles {
 
@@ -131,8 +131,9 @@ DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
 
 
 void DrawingTools::updateSaveButton() {
+	auto helper = WafflesHelperFactory::getDefault();
 	if (auto saveBtn = getSprite("save_button.the_button")) {
-		if (getAnnotationFolder(mEngine).empty()) {
+		if (helper->getAnnotationFolder().empty()) {
 			saveBtn->hide();
 		} else {
 			saveBtn->show();

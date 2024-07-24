@@ -22,8 +22,10 @@ namespace {
 class Init {
   public:
 	Init() {
+		DS_LOG_INFO("Registering media_slideshow");
 		ds::App::AddStartup([](ds::Engine& e) {
 			e.registerSpriteImporter("media_slideshow", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
+				
 				return new ds::ui::MediaSlideshow(enginey);
 			});
 

@@ -43,8 +43,9 @@ void SettingsService::initialize() {
 		cinder::XmlTree xml(cinder::loadFile(fileName));
 
 		if (xml.hasChild("ambient") && xml.hasChild("ambient_custom")) {
+
 			ci::XmlTree ambientCusomt	  = xml.getChild("ambient_custom");
-			auto&		modelAmbient	  = mEngine.mContent.getChildByName("ambient");
+			auto		modelAmbient	  = mEngine.mContent.getChildByName("ambient");
 			auto		modelAmbientMedia = ds::model::ContentModelRef();
 			readMediaItem(ambientCusomt, modelAmbientMedia);
 

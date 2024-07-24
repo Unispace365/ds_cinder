@@ -149,6 +149,12 @@
       <Filter>src\waffles\service</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\stdafx.cpp" />
+    <ClCompile Include="src\waffles\util\base_waffles_helper.cpp">
+      <Filter>src\waffles\util</Filter>
+    </ClCompile>
+    <ClCompile Include="waffles_helper.cpp">
+      <Filter>src\waffles\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\app_defs.h">
@@ -314,6 +320,12 @@
       <Filter>src\waffles\service</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="src\waffles\util\waffles_helper.h">
+      <Filter>src\waffles\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\util\base_waffles_helper.h">
+      <Filter>src\waffles\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

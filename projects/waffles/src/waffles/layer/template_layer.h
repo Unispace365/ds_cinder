@@ -21,7 +21,7 @@ class TemplateLayer : public ds::ui::SmartLayout {
 	TemplateBase* getCurrentTemplate() { return mCurrentTemplate; }
 
   private:
-	void changeTemplate(const waffles::ChangeTemplateRequest& event);
+	virtual void changeTemplate(const waffles::ChangeTemplateRequest& event);
 
 
 	TemplateBase* mCurrentTemplate = nullptr;

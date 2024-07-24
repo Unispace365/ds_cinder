@@ -51,11 +51,12 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	});
 
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
+		auto helper = WafflesHelperFactory::getDefault();
 		auto model = ds::model::ContentModelRef("Empty");
 		model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
-		ds::Resource r = downstream::getBackground(mEngine);
+		ds::Resource r = helper->getBackgroundForPlatform();
 		DS_LOG_INFO("BackgroundView got from getBackground: " << r.getAbsoluteFilePath());
-		if (downstream::getApplyParticles(mEngine)) {
+		if (helper->getApplyParticles()) {
 			mEngine.getNotifier().notify(waffles::RequestBackgroundChange(
 				waffles::BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef())); // 1 = BACKGROUND_TYPE_PARTICLES
 		} else if (!r.empty()) {
@@ -139,7 +140,8 @@ void BackgroundView::startBackground(const int type, ds::model::ContentModelRef 
 
 	} else if (type == BACKGROUND_TYPE_DEFAULT) {
 		auto mb = new MediaBackground(mEngine);
-		mb->setContentModel(mEngine.mContent.getChildByName("background.default"));
+		auto mediaModel = mEngine.mContent.getChildByName("background.default");
+		mb->setContentModel(mediaModel);
 		mCurrentBackground = addChildPtr(mb);
 	}
 

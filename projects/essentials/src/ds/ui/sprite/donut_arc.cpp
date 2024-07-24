@@ -94,6 +94,7 @@ namespace ds::ui{
 namespace {
 // Auto-running static function for using this sprite with the XML layout system
 auto INIT = []() {
+	
 	using ds::ui::DonutArc;
 	ds::App::AddStartup([](ds::Engine& e) {
 		/* e.registerSpriteImporter(

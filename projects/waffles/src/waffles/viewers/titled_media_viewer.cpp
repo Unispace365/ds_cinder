@@ -26,15 +26,15 @@
 #include <ds/ui/sprite/web.h>
 #include <ds/util/file_meta_data.h>
 
+
 #include "app/app_defs.h"
-//#include "app/helpers.h"
-#include "events/app_events.h"
+
 #include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"
 #include "waffles/pinboard/pinboard_button.h"
 #include "waffles/util/capture_player.h"
 #include "waffles/util/shadow_layout.h"
-using namespace downstream;
+#include "waffles/util/waffles_helper.h"
 
 
 namespace waffles {
@@ -665,10 +665,11 @@ void TitledMediaViewer::loadHotspots() {
 		mHotspots.emplace_back(hotspot);
 
 		hotspot->setTapCallback([this, hotspot](ds::ui::Sprite* bs, const ci::vec3& pos) {
+			auto helper = WafflesHelperFactory::getDefault();
 			auto destId = hotspot->getContentModel().getPropertyString("destination");
 			if (!destId.empty()) {
 				// launch the thing for the hotspot at pos
-				ds::model::ContentModelRef linkMedia = getRecordByUid(mEngine, destId);
+				ds::model::ContentModelRef linkMedia = helper->getRecordByUid(destId);
 				if (linkMedia.empty()) {
 					DS_LOG_WARNING("Hotspot node not found for id == " << destId);
 				} else {

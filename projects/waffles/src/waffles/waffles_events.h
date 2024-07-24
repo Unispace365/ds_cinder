@@ -232,7 +232,7 @@ struct EngageEnded : public ds::RegisteredEvent<EngageEnded> {};
 struct RequestEngagePresentation : public ds::RegisteredEvent<RequestEngagePresentation> {
 	RequestEngagePresentation(ds::model::ContentModelRef content, bool hide_launcher = true)
 		: mContent(content), mHideLauncher(hide_launcher){}
-	RequestEngagePresentation() {}
+	RequestEngagePresentation(): mHideLauncher(false) {}
 
 	ds::model::ContentModelRef mContent;
 	bool mHideLauncher;

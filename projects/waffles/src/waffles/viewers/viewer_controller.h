@@ -4,9 +4,14 @@
 #include <ds/ui/panel/base_panel.h>
 #include <ds/ui/sprite/sprite.h>
 
+#include <waffles/util/waffles_helper.h>
+namespace ds::model {
+class Platform;
+}
 namespace waffles {
 class ViewerCreationArgs;
 class BaseElement;
+struct RequestViewerLaunchEvent;
 
 /**
  * \class waffles::ViewerController
@@ -56,7 +61,7 @@ class ViewerController : public ds::ui::Sprite {
 		return mFullscreenDarkeners;
 	}
 
-  private:
+  protected:
 	// immediately releases the viewer with no animation
 	void removeViewer(BaseElement* viewer);
 	void removeFullscreenDarkener(BaseElement* be);
@@ -79,8 +84,9 @@ class ViewerController : public ds::ui::Sprite {
 
 	void viewerActivated(BaseElement* be);
 
+
 	//handlers
-	void handleRequestViewerLaunch(const RequestViewerLaunchEvent& e);
+	virtual void handleRequestViewerLaunch(const RequestViewerLaunchEvent& e);
 	std::function <void(const RequestViewerLaunchEvent&)> mRequestViewerLaunchCallback;
 	
 	ds::ui::Sprite* mTopLayer		 = nullptr;
@@ -91,7 +97,6 @@ class ViewerController : public ds::ui::Sprite {
 
 	std::vector<BaseElement*>				mViewers;
 	std::map<BaseElement*, ds::ui::Sprite*> mFullscreenDarkeners;
-
 	ci::vec2 mDisplaySize;
 };
 

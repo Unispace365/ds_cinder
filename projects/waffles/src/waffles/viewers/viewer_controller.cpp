@@ -718,7 +718,8 @@ void ViewerController::setPresentationSlide(int slideId) {
 }
 
 void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef) {
-	auto thePres	 = getRecordByUid(mEngine, slideRef.getPropertyString("parent_uid"));
+	auto helper = waffles::WafflesHelperFactory::getDefault();
+	auto thePres	 = helper->getRecordByUid(slideRef.getPropertyString("parent_uid"));
 	auto actualSlide = slideRef;
 
 	auto theType = slideRef.getPropertyString("type_key");
@@ -757,6 +758,7 @@ void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef
 }
 
 void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
+	auto helper = waffles::WafflesHelperFactory::getDefault();
 	std::vector<BaseElement*> leftoverViewers;
 	for (auto it : mViewers) {
 		if (it->getViewerLayer() != ViewerCreationArgs::kViewLayerNormal ||
@@ -823,7 +825,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		ci::vec3 thePos	  = ci::vec3(ww / 2.0f, wh / 2.0f, 0.0f);
 		float	 theWidth = -100.0f;
 
-		auto compositeKey = getPlatformCompositeFrameKey(mEngine);
+		auto compositeKey = helper->getCompositeKeyForPlatform();
 
 		auto posX = (newMedia.getPropertyFloat(compositeKey+"_x") > 0.f) ? newMedia.getPropertyFloat(compositeKey+"_x")
 																		: newMedia.getPropertyFloat(compositeKey+"_x");

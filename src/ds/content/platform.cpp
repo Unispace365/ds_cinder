@@ -1,10 +1,13 @@
+#include "platform.h"
 #include "stdafx.h"
 #include <ds/content/platform.h>
 #include <ds/content/content_events.h>
 
 namespace ds::model {
 
-ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentModelRef& model, const std::string& uid) {
+const PlatformType		   Platform::UNDEFINED = "undefined";
+ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentModelRef& model,
+														 const std::string&				   uid) {
 	const auto& children = model.getChildren();
 	const auto findy = std::find_if(children.begin(), children.end(),
 		[&uid](auto model) { return model.getPropertyString("uid") == uid; });
@@ -22,19 +25,24 @@ ds::model::ContentModelRef Platform::getRecordByUid(const ds::ui::SpriteEngine& 
 Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
   : mEngine(engine) 
   , mEventClient(engine) {
-
+	auto key = platformKey;
+	if (key.empty()) {
+		key = engine.getAppSettings().getString("platform:key", 0, "");
+	}
+	auto recordsSize = engine.mContent.getKeyReferences(ds::model::RECORD_MAP).size();
 	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) {
 		refreshContent();
 	});
-	mPlatform = getRecordByUid(engine, platformKey);
+	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, key);
 	
-	if (mPlatform.empty()) {
-		DS_LOG_WARNING("Platform not found: " << platformKey);
+	if (mPlatformModel.empty()) {
+		DS_LOG_WARNING("Platform not found: " << key << "in " << recordsSize << " records");
+		mInitialized = false;
 	}
 
-	mEvents = mPlatform.getChildByName("current_events");
+	mEvents = mPlatformModel.getChildByName("current_events");
 
-	mPlatformKey = platformKey;
+	mPlatformKey = key;
 
 }
 
@@ -45,13 +53,17 @@ std::string Platform::getPlatformKey() {
 }
 
 void Platform::refreshContent() {
-	mPlatform = getRecordByUid(mEngine, mPlatformKey);
-	mEvents = mPlatform.getChildByName("current_events");	// Does this belong here? Does anything belong in this function?
+	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, mPlatformKey);
+	mEvents = mPlatformModel.getChildByName("current_events");	// Does this belong here? Does anything belong in this function?
 }
 
-ds::model::ContentModelRef Platform::getPlatform()
+ds::model::ContentModelRef Platform::getPlatformModel()
 {
-	return mPlatform;
+	return mPlatformModel;
+}
+
+PlatformType Platform::getPlatformType() {
+	return mPlatformType;
 }
 
 } // namespace ds::model

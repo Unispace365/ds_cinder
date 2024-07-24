@@ -6,6 +6,7 @@
 #include <ds/content/content_events.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
+#include <ds/content/platform.h>
 
 #include "app/app_defs.h"
 //#include "app/cms_definitions.hpp"
@@ -25,7 +26,7 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 	, mEventClient(eng) {
 
 	DS_LOG_INFO("Creating an Engage Controller");
-
+	auto helper = WafflesHelperFactory::getDefault();
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
 		if (mEngine.getAppSettings().getBool("app:editor_mode", 0, false)) {
 			// In "editor mode", refresh the currentl slide whenever it changes
@@ -58,7 +59,7 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 		startEngage();
 	});
 
-	mEventClient.listenToEvents<waffles::RequestEngagePresentation>([this](const waffles::RequestEngagePresentation& ev) {
+	mEventClient.listenToEvents<waffles::RequestEngagePresentation>([this,helper](const waffles::RequestEngagePresentation& ev) {
 		DS_LOG_INFO("got a request engage presentation event in engage controller");
 		auto content = ev.mContent;
 		if (content.getPropertyString("type_key") == "pinboard_event") {
@@ -101,7 +102,7 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 			// Might be a new pres, might not be
 
 			auto theSlide = content;
-			content		  = getRecordByUid(mEngine, theSlide.getPropertyString("parent_uid"));
+			content		  = helper->getRecordByUid(theSlide.getPropertyString("parent_uid"));
 			auto uid	  = content.getPropertyString("uid");
 			if (uid != mPlaylistUid) {
 				// New pres
@@ -128,11 +129,11 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 		}
 
 		if (newPres) {
-			setPresentation(getRecordByUid(mEngine, mPlaylistUid));
+			setPresentation(helper->getRecordByUid(mPlaylistUid));
 		}
 
 		if (newSlide) {
-			setSlide(getRecordByUid(mEngine, mSlideUid));
+			setSlide(helper->getRecordByUid(mSlideUid));
 		} else {
 			setData();
 			if (!mPlaylist.getChildren().empty()) setSlide(mPlaylist.getChildren().front());
@@ -181,9 +182,9 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 
 void EngageController::setData() {
 	ds::model::ContentModelRef thePlaylist;
-
+	auto helper = WafflesHelperFactory::getDefault();
 	if (!mPlaylistUid.empty()) {
-		thePlaylist = getRecordByUid(mEngine, mPlaylistUid);
+		thePlaylist = helper->getRecordByUid(mPlaylistUid);
 	} else {
 		thePlaylist = ds::model::ContentModelRef("Empty Playlist");
 		thePlaylist.setProperty("type_key", getTemplateDefFromName("empty").name);
@@ -199,8 +200,10 @@ void EngageController::setData() {
 }
 
 void EngageController::setDefaultPresentation() {
-	if (getPlatformType(mEngine) == UNDEFINED) return;
-	auto thePlaylist = getInteractivePlaylist(mEngine);
+	auto helper = WafflesHelperFactory::getDefault();
+	ds::model::Platform platformObj(mEngine);
+	if (platformObj.getPlatformType() == ds::model::Platform::UNDEFINED) return;
+	auto thePlaylist = helper->getPresentation();
 	if (!thePlaylist.empty() && !thePlaylist.getChildren().empty()) {
 		mPlaylist	  = thePlaylist;
 		mPlaylistUid  = thePlaylist.getPropertyString("uid");

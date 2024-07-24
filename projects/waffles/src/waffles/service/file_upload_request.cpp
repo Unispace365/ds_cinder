@@ -180,7 +180,8 @@ void FileUploadRequest::uploadToS3() {
 		struct curl_httppost* post = NULL;
 		struct curl_httppost* last = NULL;
 
-		FILE* file = fopen(mFullFilePath.c_str(), "rb");
+		FILE* file;
+		fopen_s(&file, mFullFilePath.c_str(), "rb");
 		fseek(file, 0L, SEEK_END);
 		auto fz = ftell(file);
 		fseek(file, 0L, SEEK_SET);

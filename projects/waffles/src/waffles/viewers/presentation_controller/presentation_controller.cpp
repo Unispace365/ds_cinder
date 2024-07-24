@@ -17,10 +17,10 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
-
+#include <ds/content/content_events.h>
 #include "app/app_defs.h"
 //#include "app/helpers.h"
-//#include "events/app_events.h"
+
 #include "waffles/waffles_events.h"
 #include "waffles/layer/template_layer.h"
 
@@ -318,11 +318,11 @@ void PresentationController::togglePins() {
 		pinsTog->showDown();
 		destSize = ci::vec3(pinsLayout->getWidth(), 100.f, 0.0f);
 		updatePins();
-		mRootLayout->listenToEvents<ScheduleUpdated>([this](const auto& e) { updatePins(); });
+		mRootLayout->listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& e) { updatePins(); });
 	} else {
 		pinsTog->showUp();
 		destSize = ci::vec3(pinsLayout->getWidth(), 0.0f, 0.0f);
-		mRootLayout->stopListeningToEvents<ScheduleUpdated>();
+		mRootLayout->stopListeningToEvents<ds::ScheduleUpdatedEvent>();
 	}
 	tweenStarted();
 	pinsLayout->tweenSize(

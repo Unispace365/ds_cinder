@@ -12,9 +12,8 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
-//#include "app/helpers.h"
 #include "waffles/waffles_events.h"
-using namespace downstream;
+
 
 namespace waffles {
 
@@ -42,8 +41,8 @@ void PinboardService::saveToPinboard(ds::model::ContentModelRef model, const boo
 }
 
 void PinboardService::addToPinboard(ds::model::ContentModelRef model) {
-
-	auto pinboard	 = getPinboard(mEngine);
+	auto helper = WafflesHelperFactory::getDefault();
+	auto pinboard	 = helper->getPinboard();
 	auto pinboardUid = pinboard.getPropertyString("uid");
 
 	auto typeKey  = model.getPropertyString("type_key");
@@ -97,7 +96,8 @@ void PinboardService::addToPinboard(ds::model::ContentModelRef model) {
 }
 
 void PinboardService::removeFromPinboard(ds::model::ContentModelRef model) {
-	auto pinboard	 = getPinboard(mEngine);
+	auto helper = WafflesHelperFactory::getDefault();
+	auto pinboard	 = helper->getPinboard();
 	auto pinboardUid = pinboard.getPropertyString("uid");
 
 	for (auto pinboardItem : pinboard.getChildren()) {

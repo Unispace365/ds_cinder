@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ds/ui/layout/smart_layout.h>
-
+#include <waffles/util/waffles_helper.h>
 namespace waffles {
 
 // This is a button that gets linked to an item. When tapped, toggles the item being on the pinboard. Updates the status
@@ -18,6 +18,7 @@ class PinboardButton : public ds::ui::SmartLayout {
 
   private:
   	bool mAmSaving = false;
+	WafflesHelperPtr mHelper;
 };
 
 } // namespace waffles

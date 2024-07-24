@@ -11,7 +11,6 @@
 //#include "events/app_events.h"
 #include "waffles/waffles_events.h"
 #include "waffles/model/viewer_creation_args.h"
-using namespace downstream;
 
 namespace {
 auto INIT = []() {
@@ -36,7 +35,7 @@ PinboardButton::PinboardButton(ds::ui::SpriteEngine& eng, std::string theLayout)
 
 
 	setSpriteClickFn("the_button", [this] { toggleOnPinboard(); });
-
+	mHelper = WafflesHelperFactory::getDefault();
 
 	// listenToEvents<ds::ContentUpdatedEvent>([this](auto& e) { callAfterDelay([this] { setPinnedStatus(); }, 0.1f);
 	// });
@@ -48,7 +47,8 @@ PinboardButton::PinboardButton(ds::ui::SpriteEngine& eng, std::string theLayout)
 
 
 bool PinboardButton::itemIsOnPinboard(ds::ui::SpriteEngine& eng, ds::model::ContentModelRef model) {
-	auto thePinboard = getPinboard(eng);
+	auto helper		 = WafflesHelperFactory::getDefault();
+	auto thePinboard = helper->getPinboard();
 	for (auto item : thePinboard.getChildren()) {
 		if (item.getPropertyResource("media").getAbsoluteFilePath() ==
 			model.getPropertyResource("media").getAbsoluteFilePath()) {
@@ -79,7 +79,7 @@ void PinboardButton::setPinnedStatus() {
 		canBePinned = true;
 	} */
 
-	if (canBePinned && !getPinboard(mEngine).empty()) {
+	if (canBePinned && !mHelper->getPinboard().empty()) {
 		show();
 	} else {
 		hide();
