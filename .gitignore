@@ -92,3 +92,7 @@ projects/pdf/lib64/v143/pdf_mupdf.lib
 projects/pdf/lib64/v142/pdf_mupdf.lib
 projects/pdf/lib64/v143/pdf_mupdf_d.lib
 projects/pdf/lib64/v142/pdf_mupdf_d.lib
+
+projects/waffles/lib64/waffles.lib
+
+projects/waffles/lib64/waffles_d.lib

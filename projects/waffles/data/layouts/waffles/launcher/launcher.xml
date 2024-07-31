@@ -30,11 +30,11 @@
 
 			<shadow_layout name="bg_shade"
 				layout_size_mode="fill"
-				shadow_size="30"
+				shadow_size="#expr{ 30 * $_waffles:sprite:scale }"
 				shadow_sigma="3"
 				shadow_color="black"
 				shadow_opacity="0.3"
-				shadow_offset="8.0, 8.0"
+				shadow_offset="#expr{ 8.0 * $_waffles:sprite:scale }, #expr{ 8.0 * $_waffles:sprite:scale }"
 				shadow_iterations="8"
 				blend_mode="fbo_out"
 			>
@@ -52,26 +52,26 @@
 			>
 				<layout name="content_header"
 					layout_type="horiz"
-					size="$_launcher:content_width, 125"
-					layout_size="$_launcher:content_width, 125"
+					size="$_launcher:content_width, #expr{ 125 * $_waffles:sprite:scale }"
+					layout_size="$_launcher:content_width, #expr{ 125 * $_waffles:sprite:scale }"
 				>
 					<text name="menu_title"
-						size="111, 68"
+						size="#expr{ 111 * $_waffles:sprite:scale }, #expr{ 68 * $_waffles:sprite:scale }"
 						font="waffles:menu:title"
-						font_size="40"
+						font_size="#expr{ 40 * $_waffles:sprite:scale }"
 						color="menu_title"
 						text_wrap="wordchar"
 						text_ellipses="end"
 						text="Launcher Menu"
 						layout_v_align="middle"
-						l_pad="30"
+						l_pad="#expr{ 30 * $_waffles:sprite:scale }"
 					/>
 					
 					<layout name="fixed_buttons_top"
 						layout_type="horiz"
-						l_pad="60"
-						t_pad="29"
-						layout_spacing="-75">
+						l_pad="#expr{ 60 * $_waffles:sprite:scale }"
+						t_pad="#expr{ 29 * $_waffles:sprite:scale }"
+						layout_spacing="#expr{ -75 * $_waffles:sprite:scale }">
 					</layout>
 				</layout>
 				<smart_scroll_list name="content_holder"
@@ -82,40 +82,41 @@
 					smart_scroll_item_layout="waffles/common/list_item.xml"
 				/>
 				<layout layout_size_mode="flex"
-					height="0"
-					layout_fudge="0, -2"
+					height="#expr{ 0 * $_waffles:sprite:scale }"
+					layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ -2 * $_waffles:sprite:scale }"
 				>
 					<sprite layout_size_mode="flex"
 						color="ui_separator"
-						height="2"
+						height="#expr{ 2 * $_waffles:sprite:scale }"
 					/>
 				</layout>
 				<layout name="fixed_buttons_bottom"
 					layout_type="vert"
-					layout_size="294, 630"
-					size="294, 630"
-					layout_spacing="10"
-					t_pad="19"
-					layout_fudge="-1, 0"
+					layout_size="#expr{ 294 * $_waffles:sprite:scale }, #expr{ 630 * $_waffles:sprite:scale }"
+					size="#expr{ 294 * $_waffles:sprite:scale }, #expr{ 630 * $_waffles:sprite:scale }"
+					layout_spacing="#expr{ 10 * $_waffles:sprite:scale }"
+					t_pad="#expr{ 19 * $_waffles:sprite:scale }"
+					layout_fudge="#expr{ -1 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }"
 				/>
 				
 						
 				<layout name="side_panel"
 					layout_type="vert"
 					layout_size_mode="fill"
-					width="350"
-					layout_fudge="352, 120">
+					width="#expr{ 350 * $_waffles:sprite:scale }"
+					layout_fudge="#expr{ 352 * $_waffles:sprite:scale }, #expr{ 120 * $_waffles:sprite:scale }"
+					>
 
 					<shadow_layout name="side_panel_shadow"
 						layout_size_mode="fill"
-						shadow_size="30"
+						shadow_size="#expr{ 30 * $_waffles:sprite:scale }"
 						shadow_sigma="3"
 						shadow_color="black"
 						shadow_opacity="0.2"
-						shadow_offset="4.0, 4.0"
+						shadow_offset="#expr{ 4.0 * $_waffles:sprite:scale }, #expr{ 4.0 * $_waffles:sprite:scale }"
 						shadow_iterations="8"
 						blend_mode="fbo_out"
-						layout_fudge="0, 0"
+						layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }"
 					>
 						<!--
 						<sprite name="panel_bg"
@@ -144,8 +145,8 @@
 					
 					<layout_button name="back_button"
 						layout_type="horiz"
-						size="120, 50"
-						layout_fudge="15, -2"
+						size="#expr{ 120 * $_waffles:sprite:scale }, #expr{ 50 * $_waffles:sprite:scale }"
+						layout_fudge="#expr{ 15 * $_waffles:sprite:scale }, #expr{ -2 * $_waffles:sprite:scale }"
 					>
 						
 						<layout name="normal_layout"
@@ -157,16 +158,16 @@
 							
 							<image name="back_arrow"
 								src="%APP%/data/images/waffles/arrows/back_arrow.png"
-								size="18, 31"
-								layout_fudge="0, 8" />
+								size="#expr{ 18 * $_waffles:sprite:scale }, #expr{ 31 * $_waffles:sprite:scale }"
+								layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 8 * $_waffles:sprite:scale }" />
 								
 							<text name="back_text"
 								font="viewer:body"
-								font_size="20"
+								font_size="#expr{ 20 * $_waffles:sprite:scale }"
 								color="black"
 								layout_v_align="middle"
 								layout_size_mode="stretch"
-								l_pad="10"
+								l_pad="#expr{ 10 * $_waffles:sprite:scale }"
 								text="Back"
 							/>
 							
@@ -181,16 +182,16 @@
 							
 							<image name="back_arrow_high"
 								src="%APP%/data/images/waffles/arrows/back_arrow_high.png"
-								size="18, 31"
-								layout_fudge="0, 8"/>
+								size="#expr{ 18 * $_waffles:sprite:scale }, #expr{ 31 * $_waffles:sprite:scale }"
+								layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 8 * $_waffles:sprite:scale }"/>
 
 							<text name="back_text_high"
 								font="viewer:body"
-								font_size="20"
+								font_size="#expr{ 20 * $_waffles:sprite:scale }"
 								color="#0096d6"
 								layout_v_align="middle"
 								layout_size_mode="stretch"
-								l_pad="10"
+								l_pad="#expr{ 10 * $_waffles:sprite:scale }"
 								text="Back"
 							/>
 							
@@ -199,12 +200,12 @@
 					</layout_button>
 					
 					<smart_scroll_list name="side_panel_content"
-						layout_size="608, 557"
+						layout_size="#expr{ 608 * $_waffles:sprite:scale }, #expr{ 557 * $_waffles:sprite:scale }"
 						scroll_fade_colors="#fff7f7f7, #00f7f7f7"
 						smart_scroll_item_layout="waffles/common/list_item.xml"
 						b_pad="$_ui:corner_radius"
-						l_pad="20"
-						scroll_list_layout="0, 0, #expr{ $_info_list:item:height + 2 }"
+						l_pad="#expr{ 20 * $_waffles:sprite:scale }"
+						scroll_list_layout="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }, #expr{ $_info_list:item:height + 2 * $_waffles:sprite:scale }"
 					/>
 						
 				</layout>
@@ -215,16 +216,17 @@
 				layout_size_mode="fill">
 				
 				<sprite name="left_right_separator"
-						layout_size="2, 650"
-						size="2, 650"
+						layout_size="#expr{ 2 * $_waffles:sprite:scale }, #expr{ 650 * $_waffles:sprite:scale }"
+						size="#expr{ 2 * $_waffles:sprite:scale }, #expr{ 650 * $_waffles:sprite:scale }"
 						color="black"
-						position="352, 125" />
+						position="#expr{ 352 * $_waffles:sprite:scale }, #expr{ 125 * $_waffles:sprite:scale }" />
 						
 				<layout layout_type="vert" 
-					layout_size="6, 554"
-					size="6, 554"
-					position="904, 203"
-					clipping="true">
+					layout_size="#expr{ 6 * $_waffles:sprite:scale }, #expr{ 554 * $_waffles:sprite:scale }"
+					size="#expr{ 6 * $_waffles:sprite:scale }, #expr{ 554 * $_waffles:sprite:scale }"
+					position="#expr{ 904 * $_waffles:sprite:scale }, #expr{ 203 * $_waffles:sprite:scale }"
+					clipping="true"
+					>
 					<scroll_bar name="side_scroll_bar"
 						layout_size_mode="stretch"
 						scroll_bar_nub_color="scroll_bar:nub_color"

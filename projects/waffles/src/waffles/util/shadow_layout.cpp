@@ -21,7 +21,7 @@ auto INIT_RIGHT = []() {
 						[](ds::BlobRegistry& r) { waffles::ShadowLayout::installAsClient(r); });
 
 		e.registerSpriteImporter("shadow_layout", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
-			if (enginey.getAppSettings().getBool("shadows:enabled", 0, true)) {
+			if (enginey.getWafflesSettings().getBool("shadows:enabled", 0, true)) {
 				return new waffles::ShadowLayout(enginey);
 			} else {
 				return new ds::ui::LayoutSprite(enginey);
@@ -225,14 +225,14 @@ ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
 
 	mBlobType = BLOB_TYPE;
 
-	mShadowSize	   = mEngine.getAppSettings().getInt("shadow:default_size", 0, 32);
-	mShadowSigma   = mEngine.getAppSettings().getFloat("shadow:default_sigma", 0, 3.0f);
-	mShadowOffset  = mEngine.getAppSettings().getVec2("shadow:default_offset", 0, ci::vec2());
-	mShadowOpacity = mEngine.getAppSettings().getFloat("shadow:default_opacity", 0, 1.0f);
-	mShadowScale   = mEngine.getAppSettings().getFloat("shadow:default_scale", 0, 1.0f);
-	mIterations	   = mEngine.getAppSettings().getInt("shadow:default_iterations", 0, 3);
+	mShadowSize	   = mEngine.getWafflesSettings().getInt("shadow:default_size", 0, 32);
+	mShadowSigma   = mEngine.getWafflesSettings().getFloat("shadow:default_sigma", 0, 3.0f);
+	mShadowOffset  = mEngine.getWafflesSettings().getVec2("shadow:default_offset", 0, ci::vec2());
+	mShadowOpacity = mEngine.getWafflesSettings().getFloat("shadow:default_opacity", 0, 1.0f);
+	mShadowScale   = mEngine.getWafflesSettings().getFloat("shadow:default_scale", 0, 1.0f);
+	mIterations	   = mEngine.getWafflesSettings().getInt("shadow:default_iterations", 0, 3);
 	mShadowColor =
-		mEngine.getColors().getColorFromName(mEngine.getAppSettings().getString("shadow:default_color", 0, "black"));
+		mEngine.getColors().getColorFromName(mEngine.getWafflesSettings().getString("shadow:default_color", 0, "black"));
 
 	if (!sBlurShader || !sDrawShader) {
 		try {
@@ -300,7 +300,7 @@ void ShadowLayout::setShadowEveryFrame(bool renderEveryFrame) {
 }
 
 void ShadowLayout::onSizeChanged() {
-	float maxShadowDim = mEngine.getAppSettings().getFloat("shadow:max_dimension", 0, 7680.f);
+	float maxShadowDim = mEngine.getWafflesSettings().getFloat("shadow:max_dimension", 0, 7680.f);
 	bool  canShadow	   = (getWidth() < maxShadowDim && getHeight() < maxShadowDim);
 
 	if (mShadowEnabled && !canShadow) {
@@ -471,7 +471,7 @@ void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawPar
 		info.format = ci::gl::Fbo::Format();
 		info.format.setSamples(4);
 		auto colFmt = info.format.getColorTextureFormat();
-		colFmt.mipmap(mEngine.getAppSettings().getBool("shadow:mipmap", 0, false));
+		colFmt.mipmap(mEngine.getWafflesSettings().getBool("shadow:mipmap", 0, false));
 		info.format.setColorTextureFormat(colFmt);
 		blurSource->setFinalRenderToTexture(true, info);
 

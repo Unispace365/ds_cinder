@@ -108,6 +108,9 @@ namespace {
 								if (sit.second[i].mPossibleValues.empty()) {
 									sit.second[i].mPossibleValues = dit.second[i].mPossibleValues;
 								}
+								if (sit.second[i].mMultiplier.empty()) {
+									sit.second[i].mMultiplier = dit.second[i].mMultiplier;
+								}
 
 								dit.second[i] = sit.second[i];
 							}
@@ -136,6 +139,7 @@ namespace {
 				dst.emplace_back(sit);
 			}
 		}
+
 	}
 
 } // namespace
@@ -194,6 +198,10 @@ void Settings::Setting::replaceSettingVariablesAndExpressions() {
 	auto		testValue = mRawValue;
 	std::string value	  = ds::cfg::SettingsVariables::replaceVariables(testValue);
 	value				  = ds::cfg::SettingsVariables::parseAllExpressions(value);
+	if (!mMultiplier.empty()) {
+		value = ds::cfg::SettingsVariables::doMultiply(value, mMultiplier, mType);
+	}
+	
 	if (value != mRawValue) {
 		// save the originalRawValue
 		mOriginalValue = mRawValue;
@@ -201,6 +209,9 @@ void Settings::Setting::replaceSettingVariablesAndExpressions() {
 	} else if (!mOriginalValue.empty()) {
 		std::string value = ds::cfg::SettingsVariables::replaceVariables(mOriginalValue);
 		value			  = ds::cfg::SettingsVariables::parseAllExpressions(value);
+		if (!mMultiplier.empty()) {
+			value = ds::cfg::SettingsVariables::doMultiply(value, mMultiplier, mType);
+		}
 		mRawValue		  = value;
 	}
 }
@@ -212,6 +223,56 @@ Settings::Settings()
 
 void Settings::mergeSettings(const Settings& mergeIn) {
 	merge_settings(mSettings, mergeIn.mSettings);
+}
+
+void Settings::applyMultiplier() {
+	for (auto& dit : mSettings) {
+		for (auto& sit : dit.second) {
+			if (!sit.mMultiplier.empty()) {
+				auto multiplierKey = sit.mMultiplier;
+				
+				//if the multiplier key starts with an !, the we inverse the multiplier
+				if (multiplierKey[0] == '!') {
+					multiplierKey = multiplierKey.substr(1);
+					float multiplier = getFloat(multiplierKey);
+					if (multiplier != 0.0f) {
+						if (sit.mType == SETTING_TYPE_INT) {
+							int value = ds::string_to_int(sit.mRawValue);
+							value /= multiplier;
+							sit.mRawValue = std::to_string(value);
+						}
+						else if (sit.mType == SETTING_TYPE_FLOAT) {
+							float value = ds::string_to_float(sit.mRawValue);
+							value /= multiplier;
+							sit.mRawValue = std::to_string(value);
+						}
+						else if (sit.mType == SETTING_TYPE_DOUBLE) {
+							double value = ds::string_to_double(sit.mRawValue);
+							value /= multiplier;
+							sit.mRawValue = std::to_string(value);
+						}
+					}
+				} else {
+					float multiplier = getFloat(multiplierKey);
+					if (multiplier != 0.0f) {
+						if (sit.mType == SETTING_TYPE_INT) {
+							int value = ds::string_to_int(sit.mRawValue);
+							value *= multiplier;
+							sit.mRawValue = std::to_string(value);
+						} else if (sit.mType == SETTING_TYPE_FLOAT) {
+							float value = ds::string_to_float(sit.mRawValue);
+							value *= multiplier;
+							sit.mRawValue = std::to_string(value);
+						} else if (sit.mType == SETTING_TYPE_DOUBLE) {
+							double value = ds::string_to_double(sit.mRawValue);
+							value *= multiplier;
+							sit.mRawValue = std::to_string(value);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void Settings::readFrom(const std::string& filename, const bool append) {
@@ -297,7 +358,7 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 		if (it->hasAttribute("max_value")) theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
 		if (it->hasAttribute("type")) theSetting.mType = it->getAttributeValue<std::string>("type");
 		if (it->hasAttribute("possibles")) theSetting.mPossibleValues = it->getAttributeValue<std::string>("possibles");
-
+		if (it->hasAttribute("multiplier")) theSetting.mMultiplier = it->getAttributeValue<std::string>("multiplier");
 
 		if (!validateType(theSetting.mType)) {
 			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType

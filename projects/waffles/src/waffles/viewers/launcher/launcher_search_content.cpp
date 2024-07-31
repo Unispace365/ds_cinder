@@ -28,7 +28,7 @@ LauncherSearchContent::LauncherSearchContent(ds::ui::SpriteEngine& g)
 
 	mSearchQuery.setReplyHandler([this](SearchQuery& q) { onSearchResults(q); });
 
-	const float itemSize = mEngine.getAppSettings().getFloat("info_list:item:height", 0, 100.0f);
+	const float itemSize = mEngine.getWafflesSettings().getFloat("info_list:item:height", 0, 100.0f);
 
 	auto fileList = getSprite<ds::ui::SmartScrollList>("scroll_list");
 	if (!fileList) {
@@ -68,7 +68,7 @@ LauncherSearchContent::LauncherSearchContent(ds::ui::SpriteEngine& g)
 			auto findy = uppername.find(upperserc);
 			if (findy != std::string::npos) {
 				std::stringstream wss;
-				std::string notoBoldName = mEngine.getAppSettings().getString("search:bold_font", 0, "BrownPro Bold");
+				std::string notoBoldName = mEngine.getWafflesSettings().getString("search:bold_font", 0, "BrownPro Bold");
 				if (!notoBoldName.empty()) {
 					wss << titleName.substr(0, findy) << "<span font='" << notoBoldName << "'>"
 						<< titleName.substr(findy, mSearchText.size()) << "</span>"
@@ -154,7 +154,7 @@ LauncherSearchContent::LauncherSearchContent(ds::ui::SpriteEngine& g)
 
 
 	if (auto entryField = getSprite<ds::ui::EntryField>("entry_field")) {
-		const auto maxChars = mEngine.getAppSettings().getInt("search:max_characters", 0, 50);
+		const auto maxChars = mEngine.getWafflesSettings().getInt("search:max_characters", 0, 50);
 		entryField->setTextUpdatedCallback([this, entryField, maxChars](const std::wstring& text) {
 			if (text.length() > maxChars) {
 				// Trim the text back to the limit for the next frame
@@ -184,7 +184,7 @@ LauncherSearchContent::LauncherSearchContent(ds::ui::SpriteEngine& g)
 
 	callAfterDelay([this] { startSearch(""); }, mEngine.getAnimDur());
 
-	setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
+	setAnimateOnScript(mEngine.getWafflesSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
 
 void LauncherSearchContent::setupFilterButton(const std::string& buttonName, const std::string& mediaType,

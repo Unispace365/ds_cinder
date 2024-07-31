@@ -810,7 +810,7 @@ namespace ds::content {
 
 	void BridgeService::Loop::validateContent() {
 		std::unordered_map<std::string, ds::model::ContentModelRef> validMap;
-		auto recordMap = mEngine.mContent.getKeyReferences(ds::model::RECORD_MAP);
+		auto														recordMap = mRecordMap;
 		if (mValidator) {
 			for (auto pair : recordMap) {
 				auto record = pair.second;

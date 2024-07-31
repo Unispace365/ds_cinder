@@ -24,9 +24,23 @@ class Init {
 			VARIABLE_MAP["anim_dur"]	 = std::to_string(e.getAnimDur());
 
 			e.getAppSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
+				
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, theSetting.mRawValue);
 			});
 			e.getAppSettings().replaceSettingVariablesAndExpressions();
+			e.getWafflesSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
+				std::string value = theSetting.mRawValue;
+				if (!theSetting.mMultiplier.empty()) {
+					value = ds::cfg::SettingsVariables::doMultiply(
+						theSetting.mOriginalValue.empty() ? theSetting.mRawValue : theSetting.mOriginalValue,
+						theSetting.mMultiplier, theSetting.mType);
+					DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
+													   << value << " (" << theSetting.mRawValue << ")");
+				}
+				ds::cfg::SettingsVariables::addVariable(theSetting.mName, value);
+				
+			});
+			e.getWafflesSettings().replaceSettingVariablesAndExpressions();
 		});
 	}
 	void doNothing() {}
@@ -193,6 +207,94 @@ std::string SettingsVariables::replaceSingleVariable(const std::string& value, c
 	}
 
 	return value;
+}
+
+std::string SettingsVariables::doMultiply(const std::string& value, const std::string& multiplyKey, const std::string& type) {
+	bool inverse = false;
+	auto mkey	 = multiplyKey;
+	//if the first character is an !, then set the inverse flag to true and remove the !
+	if (mkey[0] == '!') {
+		inverse = true;
+		mkey	= mkey.substr(1);
+	}
+
+	VariableMap& combined_map = VARIABLE_MAP;
+	//if (local_map.size() > 0) {
+	//	combined_map = local_map;
+	//}
+	std::string val	  = value;
+	auto findy = combined_map.find(mkey);
+	if (findy != combined_map.end()) {
+		float multiplier = ds::string_to_float(findy->second);
+		
+		//do multiplication for each of the following types int, float, double, vec2, vec3, rect
+		if (type == "int") {
+			int valInt = ds::string_to_int(val);
+			if (inverse) {
+				valInt /= multiplier;
+			}
+			else {
+				valInt *= multiplier;
+			}
+			val = std::to_string(valInt);
+		}
+		else if (type == "float") {
+			float valFloat = ds::string_to_float(val);
+			if (inverse) {
+				valFloat /= multiplier;
+			}
+			else {
+				valFloat *= multiplier;
+			}
+			val = std::to_string(valFloat);
+		}
+		else if (type == "double") {
+			double valDouble = ds::string_to_double(val);
+			if (inverse) {
+				valDouble /= multiplier;
+			}
+			else {
+				valDouble *= multiplier;
+			}
+			val = std::to_string(valDouble);
+		}
+		else if (type == "vec2") {
+			ci::vec2 valVec2 = ds::parseVector(val);
+			if (inverse) {
+				valVec2 /= multiplier;
+			}
+			else {
+				valVec2 *= multiplier;
+			}
+			val = ds::unparseVector(valVec2);
+		}
+		else if (type == "vec3") {
+			ci::vec3 valVec3 = ds::parseVector(val);
+			if (inverse) {
+				valVec3 /= multiplier;
+			}
+			else {
+				valVec3 *= multiplier;
+			}
+			val = ds::unparseVector(valVec3);
+		}
+		else if (type == "rect") {
+			ci::Rectf valRect = ds::parseRect(val);
+			if (inverse) {
+				valRect /= multiplier;
+			}
+			else {
+				valRect *= multiplier;
+			}
+			val = ds::unparseRect(valRect);
+		}
+		else {
+			return val;
+		}
+	} else {
+		DS_LOG_WARNING("SettingsVariables::doMultiply() parameter not found! Name=" << mkey);
+	}
+	return val;
 }
 
 void SettingsVariables::addVariable(const std::string& varName, const std::string& varValue) {

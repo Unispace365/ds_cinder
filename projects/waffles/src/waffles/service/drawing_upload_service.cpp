@@ -35,7 +35,7 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 		ci::Surface theSurface = e.mSurface;
 		int			requestId  = e.mRequestId;
 
-		bool allowCmsStuff = mEngine.getAppSettings().getBool("cms_files:allow", 0, true);
+		bool allowCmsStuff = mEngine.getWafflesSettings().getBool("cms_files:allow", 0, true);
 		if (allowCmsStuff) {
 
 			auto parentUid = helper->getAnnotationFolder().getPropertyString("uid");
@@ -57,8 +57,8 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 
 			cmsUrl.append("/editing/record/create");
 
-			auto dateName	= mEngine.getAppSettings().getString("drawings:save_name", 0, "Saved Drawing ");
-			auto dateFormat = mEngine.getAppSettings().getString("drawings:date_time_format", 0, "%B %e, %Y %h:%M %a");
+			auto dateName	= mEngine.getWafflesSettings().getString("drawings:save_name", 0, "Saved Drawing ");
+			auto dateFormat = mEngine.getWafflesSettings().getString("drawings:date_time_format", 0, "%B %e, %Y %h:%M %a");
 
 			Poco::LocalDateTime ldt;
 			dateName.append(Poco::DateTimeFormatter().format(ldt, dateFormat));
@@ -69,7 +69,7 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 				});
 		} else {
 			std::string localPath =
-				mEngine.getAppSettings().getString("drawings:drawings:can_save_as", 0, "%DOCUMENTS%/ds_screenshots/");
+				mEngine.getWafflesSettings().getString("drawings:drawings:can_save_as", 0, "%DOCUMENTS%/ds_screenshots/");
 			bool isFullPath = false;
 			if (!e.mLocalPath.empty()) {
 				localPath  = e.mLocalPath;

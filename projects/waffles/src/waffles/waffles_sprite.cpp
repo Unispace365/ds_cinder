@@ -43,7 +43,7 @@ void WafflesSprite::onIdleEnded(const ds::app::IdleEndedEvent& e) {
 
 //template <class VC>
 void WafflesSprite::onScheduleUpdated(const ds::ScheduleUpdatedEvent& e) {
-	if (mEngine.getAppSettings().getBool("app:editor_mode", 0, false)) {
+	if (mEngine.getWafflesSettings().getBool("app:editor_mode", 0, false)) {
 		// In "editor mode", refresh the current slide whenever it changes
 		auto currPres		   = mEngine.mContent.getChildByName("current_presentation");
 		auto currSlide		   = currPres.getPropertyInt("current_slide");
@@ -239,9 +239,9 @@ void WafflesSprite::gotoItem(int index) {
 //template <class VC>
 void WafflesSprite::setupTouchMenu() {
 	mTouchMenu = nullptr;
-	if (!mEngine.getAppSettings().getBool("five_finger_menu:enable", 0, true)) return;
-
-	const float baseClusterRadius = mEngine.getAppSettings().getFloat("five_finger_menu:radius", 0, 300.0f);
+	if (!mEngine.getWafflesSettings().getBool("five_finger_menu:enable", 0, true)) return;
+	
+	const float baseClusterRadius = mEngine.getWafflesSettings().getFloat("five_finger_menu:radius", 0, 300.0f);
 	ds::ui::TouchMenu::TouchMenuConfig tmc;
 	tmc.mBackgroundImage	 = "%APP%/data/images/ui/Touch_Menu_Blur_faded_600.png";
 	tmc.mItemTitleTextConfig = "touch:menu";
@@ -251,8 +251,8 @@ void WafflesSprite::setupTouchMenu() {
 	tmc.mBackgroundScale	 = 2.0f;
 	tmc.mBackgroundColor	 = mEngine.getColors().getColorFromName("waffles:five_finger:circle");
 	tmc.mBackgroundBlendMode = ds::ui::BlendMode::NORMAL;
-	tmc.mItemSize			 = ci::vec2(mEngine.getAppSettings().getFloat("touch_menu:icon_size"));
-	tmc.mItemIconHeight		 = mEngine.getAppSettings().getFloat("touch_menu:icon_height");
+	tmc.mItemSize			 = ci::vec2(mEngine.getWafflesSettings().getFloat("touch_menu:icon_size"));
+	tmc.mItemIconHeight		 = mEngine.getWafflesSettings().getFloat("touch_menu:icon_height");
 	tmc.mDoClipping			 = false;
 	tmc.mAnimationDuration	 = mEngine.getAnimDur();
 	tmc.mAnimationStyle		 = ds::ui::TouchMenu::TouchMenuConfig::kAnimateRadial;
@@ -290,8 +290,8 @@ void WafflesSprite::setupTouchMenu() {
 	ci::ColorA	 menuBg = mEngine.getColors().getColorFromName("waffles:five_finger:button:fg");
 	std::wstring emptySubtitle;
 
-	std::wstring overallTitle  = mEngine.getAppSettings().getWString("overall:title", 0, L"Waffles");
-	bool		 allowCmsStuff = mEngine.getAppSettings().getBool("cms_files:allow", 0, true);
+	std::wstring overallTitle  = mEngine.getWafflesSettings().getWString("overall:title", 0, L"Waffles");
+	bool		 allowCmsStuff = mEngine.getWafflesSettings().getBool("cms_files:allow", 0, true);
 
 	auto closeModel = ds::ui::TouchMenu::MenuItemModel(
 		L"Close Assets", "%APP%/data/images/waffles/icons/4x/Close_256.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_256.png",
@@ -361,7 +361,7 @@ void WafflesSprite::setupTouchMenu() {
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 
-	std::string menuOrder = mEngine.getAppSettings().getString("five_finger_menu:order", 0, "");
+	std::string menuOrder = mEngine.getWafflesSettings().getString("five_finger_menu:order", 0, "");
 	if (menuOrder.empty()) {
 		menuItemModels.push_back(closeModel);
 
@@ -377,7 +377,7 @@ void WafflesSprite::setupTouchMenu() {
 
 		menuItemModels.push_back(states);
 
-		if (mEngine.getAppSettings().getBool("exit_app:allow", 0, false)) menuItemModels.push_back(exitApp);
+		if (mEngine.getWafflesSettings().getBool("exit_app:allow", 0, false)) menuItemModels.push_back(exitApp);
 
 	} else {
 		auto theOrder = ds::split(menuOrder, ", ", true);

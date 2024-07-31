@@ -20,7 +20,7 @@ class SettingsVariables {
 	/// Runs until no more variables are found, so be careful with circular references!
 	static std::string replaceVariables(const std::string& value, const VariableMap& local_map = VariableMap());
 	static std::string replaceSingleVariable(const std::string& value, const VariableMap& local_map = VariableMap());
-
+	static std::string doMultiply(const std::string& value,const std::string& multiplyKey,const std::string& type);
 	/// Add a variable to use when replacing variables in layouts
 	static void addVariable(const std::string& varName, const std::string& varValue);
 

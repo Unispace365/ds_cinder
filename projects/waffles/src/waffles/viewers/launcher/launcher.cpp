@@ -43,7 +43,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	mCanArrange			  = false;
 
 	mPrimaryLayout = new ds::ui::SmartLayout(mEngine, "waffles/launcher/launcher.xml");
-
+	mWafflesScale  = mEngine.getWafflesSettings().getFloat("waffles:sprite:scale", 0, 1.f);
 	addChildPtr(mPrimaryLayout);
 
 	if (auto closeBtn = mPrimaryLayout->getSprite("close_button.the_button")) {
@@ -107,7 +107,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		if (ev.mFromButton) {
 			if (mSecondCloseButton) {
 				mPrimaryLayout->getSprite("close_button.the_button")->mLayoutFudge =
-					mEngine.getAppSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
+					mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
 			}
 		}
 		std::vector<ds::model::ContentModelRef> allContent;
@@ -156,8 +156,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		filterButtonDown(mFilterSelected);
 	});
 
-	float startWidth  = mEngine.getAppSettings().getFloat("launcher:content_width", 0, 570.f);
-	float startHeight = mEngine.getAppSettings().getFloat("launcher:content_height", 0, 700.f);
+	float startWidth  = mEngine.getWafflesSettings().getFloat("launcher:content_width", 0, 570.f);
+	float startHeight = mEngine.getWafflesSettings().getFloat("launcher:content_height", 0, 700.f);
 
 	BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
 
@@ -170,7 +170,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	auto side_panel_content = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("side_panel_content");
 	if (scroll_bar && side_panel_content) {
 		scroll_bar->linkScrollList(side_panel_content);
-		scroll_bar->enableAutoHiding(mEngine.getAppSettings().getBool("launcher:scroller:auto_hide", 0, false));
+		scroll_bar->enableAutoHiding(mEngine.getWafflesSettings().getBool("launcher:scroller:auto_hide", 0, false));
 	}
 
 	if (auto back_button = mPrimaryLayout->getSprite<ds::ui::LayoutButton>("back_button")) {
@@ -256,7 +256,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 			onLayout();
 			closeButtonPlacement();
 		},
-		0.5f);
+		0.1f);
 }
 
 void Launcher::updateItem(ds::ui::SmartLayout* item) {
@@ -312,7 +312,7 @@ void Launcher::handleSelection() {
 
 void Launcher::updateMenuItems() {
 
-	auto tops_size = mEngine.getAppSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
+	auto tops_size = mEngine.getWafflesSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
 
 	auto ambient = ds::model::ContentModelRef("Ambient");
 	ambient.setProperty("type_key", std::string("ambient"));
@@ -398,8 +398,8 @@ void Launcher::setupMenuItems() {
 	}
 
 	if (auto smarty = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("content_holder")) {
-		auto itemHeight		 = mEngine.getAppSettings().getFloat("info_list:item:height", 0, 60.f);
-		auto scrollMaxHeight = mEngine.getAppSettings().getFloat("launcher:scroll:height", 0, 375.f);
+		auto itemHeight		 = mEngine.getWafflesSettings().getFloat("info_list:item:height", 0, 60.f);
+		auto scrollMaxHeight = mEngine.getWafflesSettings().getFloat("launcher:scroll:height", 0, 375.f);
 		if (mMenuItemsScrolling.size() * itemHeight < scrollMaxHeight) {
 			smarty->setSize(smarty->getWidth(), mMenuItemsScrolling.size() * itemHeight);
 			smarty->getScrollArea()->enableScrolling(false);
@@ -447,8 +447,8 @@ ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 		if (!item.getProperty("width_override").empty()) {
 			auto value = item.getProperty("width_override").getFloat();
 			assetBtn->setSize(ci::vec2(value, assetBtn->getHeight()));
-			if (right_bar) right_bar->mLayoutLPad = value - 102.f;
-			btn->setSize(ci::vec2(value - 100.f, btn->getHeight()));
+			if (right_bar) right_bar->mLayoutLPad = value - 102.f * mWafflesScale;
+			btn->setSize(ci::vec2(value - 100.f*mWafflesScale, btn->getHeight()));
 		}
 		if (!item.getProperty("height_override").empty()) {
 			auto value = item.getProperty("height_override").getFloat();
@@ -471,7 +471,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	auto btn = dynamic_cast<ds::ui::SmartLayout*>(sp);
 	if (!btn) return;
 	updateRecent(btn->getContentModel());
-	auto offset = mEngine.getAppSettings().getVec3("launcher:media_open:offset", 0, ci::vec3(1000.f, 0, 0)) *
+	auto offset = mEngine.getWafflesSettings().getVec3("launcher:media_open:offset", 0, ci::vec3(1000.f, 0, 0)) *
 				  ((pos.x > (mEngine.getWorldWidth() / 2.f)) ? ci::vec3(-1.f, 1.f, 1.f) : ci::vec3(1.f, 1.f, 1.f));
 	bool alreadyHandled = handleListItemTap(mEngine, btn, pos + offset);
 	if (alreadyHandled) return;
@@ -622,7 +622,7 @@ void Launcher::updateRecent(ds::model::ContentModelRef content) {
 										  uid)); // remove from list before adding to front
 	}
 	mRecentFilterUids.insert(mRecentFilterUids.begin(), uid); // add to front
-	if (mRecentFilterUids.size() > mEngine.getAppSettings().getInt("waffles:recent:max", 0, 10)) {
+	if (mRecentFilterUids.size() > mEngine.getWafflesSettings().getInt("waffles:recent:max", 0, 10)) {
 		mRecentFilterUids.pop_back(); // remove last item, if hit max
 	}
 	saveRecent();
@@ -698,10 +698,10 @@ void Launcher::closeButtonPlacement() {
 		if (mFirstCloseButton) {
 			mFirstCloseButton  = false;
 			mSecondCloseButton = true;
-			fudge			   = mEngine.getAppSettings().getVec3("launcher:close:start:offset", 0, ci::vec3(0, 0, 0));
+			fudge			   = mEngine.getWafflesSettings().getVec3("launcher:close:start:offset", 0, ci::vec3(0, 0, 0));
 		} else {
 			mSecondCloseButton = false;
-			fudge			   = mEngine.getAppSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
+			fudge			   = mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
 		}
 		closeBtn->mLayoutFudge = fudge;
 	}

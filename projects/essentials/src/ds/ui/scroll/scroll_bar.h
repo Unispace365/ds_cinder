@@ -17,8 +17,8 @@ class ScrollBar : public ds::ui::Sprite {
   public:
 	// Make a scroll bar with a grey background and lighter grey flexible nub.
 	// Feel free to get the nub and background and change the parameters if you need a different look
-	ScrollBar(ds::ui::SpriteEngine& engine, const bool verticalScrolling = true, const float uiWidth = 10.0f,
-			  const float touchPadding = 20.0f, const bool autoHide = true);
+	ScrollBar(ds::ui::SpriteEngine& engine, const bool verticalScrolling = true, const float uiWidth = 5.0f,
+			  const float touchPadding = 10.0f, const bool autoHide = true);
 
 	// Someone has touched the scroll bar, and some action should be taken
 	// Note that the UI hasn't been updated before this callback is called.

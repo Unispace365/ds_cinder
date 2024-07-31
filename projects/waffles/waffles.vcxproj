@@ -15,7 +15,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="waffles_helper.cpp" />
     <ClCompile Include="src\waffles\background\background_view.cpp" />
     <ClCompile Include="src\waffles\background\media_background.cpp" />
     <ClCompile Include="src\waffles\common\list_item.cpp" />
@@ -42,7 +41,10 @@
     <ClCompile Include="src\waffles\touch_menu\touch_menu_graphics.cpp" />
     <ClCompile Include="src\waffles\util\base_waffles_helper.cpp" />
     <ClCompile Include="src\waffles\util\capture_player.cpp" />
-    <ClCompile Include="src\waffles\util\shadow_layout.cpp" />
+    <ClCompile Include="src\waffles\util\shadow_layout.cpp">
+      <RemoveUnreferencedCodeData Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RemoveUnreferencedCodeData>
+    </ClCompile>
+    <ClCompile Include="src\waffles\util\waffles_helper.cpp" />
     <ClCompile Include="src\waffles\viewers\base_element.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.cpp" />
@@ -126,6 +128,11 @@
     <ClInclude Include="src\waffles\waffles_events.h" />
     <ClInclude Include="src\waffles\waffles_sprite.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="settings\waffles.xml" />
+    <Xml Include="settings\waffles_fonts.xml" />
+    <Xml Include="settings\waffles_styles.xml" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -176,6 +183,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>lib64\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
+    <CustomBuildAfterTargets>ClCompile</CustomBuildAfterTargets>
+    <CustomBuildBeforeTargets>Link</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>lib64\</OutDir>
@@ -184,20 +193,39 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zm256 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_093)\projects\waffles\src;src;lib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuildStep>
+      <Command>echo Copying waffles assets to output directory
+set NOIMAGE=0
+set NOLAYOUT=0
+if not exist "$(SolutionDir)..\data\images\waffles" mkdir "$(SolutionDir)..\data\images\waffles" &amp; set NOIMAGE=1
+if not exist "$(SolutionDir)..\data\layouts\waffles" mkdir "$(SolutionDir)..\data\layouts\waffles" &amp; set NOLAYOUT=1
+
+if %NOIMAGE%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\images\waffles\" "$(SolutionDir)..\data\images\waffles\"
+if %NOLAYOUT%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\layouts\waffles\" "$(SolutionDir)..\data\layouts\waffles\"
+xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\fonts" "$(SolutionDir)..\data\fonts\"
+if not exist "$(Solutiondir)..\settings\waffles.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles.xml" "$(SolutionDir)..\settings"
+if not exist "$(Solutiondir)..\settings\waffles_fonts.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_fonts.xml" "$(SolutionDir)..\settings"
+if not exist "$(Solutiondir)..\settings\waffles_styles.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_styles.xml" "$(SolutionDir)..\settings"</Command>
+      <Message>Copying waffles assets</Message>
+      <Outputs>$(SolutionDir)..\settings\waffles.xml</Outputs>
+      <Inputs>$(DS_PLATFORM_093)\projects\waffles\settings\waffles.xml</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

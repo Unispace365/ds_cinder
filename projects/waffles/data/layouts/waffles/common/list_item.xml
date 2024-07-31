@@ -42,13 +42,13 @@
 
 				<text name="name"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:sprite:scale }"
 					color="waffles:button:text:normal:light"
 					layout_v_align="middle"
 					text_ellipses="end"
 					text_wrap="off"
 					layout_fudge="$_ui:text_fudge"
-					resize_limit="450"
+					resize_limit="#expr{ 450 * $_waffles:sprite:scale }"
 					text="$_label"
 				/>
 
@@ -94,13 +94,13 @@
 
 				<text name="name_high"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:sprite:scale }"
 					color="waffles:button:text:high:light"
 					layout_v_align="middle"
 					text_ellipses="end"
 					text_wrap="off"
 					layout_fudge="$_ui:text_fudge"
-					resize_limit="450"
+					resize_limit="#expr{ 450 * $_waffles:sprite:scale }"
 					text="$_label"
 				/>
 

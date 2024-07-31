@@ -72,7 +72,6 @@ class Settings {
 		/// Goes through each setting to replace variables and parse expressions
 		void replaceSettingVariablesAndExpressions();
 
-
 		/// \code <setting name="the_name" value="sample" type="string" comment="Detailed description"
 		/// default="null" /> \endcode \code <setting name="the_name" value="1.0" type="double" min_value="0.01"
 		/// max_value="10.0" default="1.5" /> \endcode
@@ -105,11 +104,17 @@ class Settings {
 		/// auto determined by the file path of the settings file
 		std::string mSource;
 
+		/// name of float setting to use as a multiplier for this setting
+		std::string mMultiplier;
+
 		/// an id that's auto-assigned to this setting to determine overall sort order
 		unsigned int mReadIndex;
 	};
 	/// static method to merge settings
 	void mergeSettings(const Settings& mergeIn);
+
+	/// apply multiplier to Settings
+	void applyMultiplier();
 
 	/// The name of these settings (e.g. engine, layout, text, etc)
 	void			   setName(const std::string& theType) { mName = theType; }

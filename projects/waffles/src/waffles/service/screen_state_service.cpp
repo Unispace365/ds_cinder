@@ -55,7 +55,7 @@ void ScreenStateService::initialize() {
 
 	mInitialized = true;
 
-	bool allowManualSaves = mEngine.getAppSettings().getBool("screen:state:manual_saves", 0, true);
+	bool allowManualSaves = mEngine.getWafflesSettings().getBool("screen:state:manual_saves", 0, true);
 
 	try {
 		if (allowManualSaves) {
@@ -73,8 +73,8 @@ void ScreenStateService::initialize() {
 		mSaveStateXml.push_back(statesChild);
 	}
 
-	mAutoSave		  = mEngine.getAppSettings().getBool("screen:state:auto_restore", 0, false);
-	mAutoSaveDuration = mEngine.getAppSettings().getInt("screen:state:auto_save_seconds", 0, 5);
+	mAutoSave		  = mEngine.getWafflesSettings().getBool("screen:state:auto_restore", 0, false);
+	mAutoSaveDuration = mEngine.getWafflesSettings().getInt("screen:state:auto_save_seconds", 0, 5);
 	if (mAutoSave) {
 		restoreAutoSaveState();
 	}
@@ -339,7 +339,7 @@ void ScreenStateService::readMediaItem(ci::XmlTree& theTree) {
 	vca.mLocation.x		   = theX;
 	vca.mLocation.y		   = theY;
 	vca.mLocation.z		   = 0.0f;
-	vca.mStartWidth		   = theWidth * mEngine.getAppSettings().getFloat("viewer:master_scale", 0, 1.0f);
+	vca.mStartWidth		   = theWidth * mEngine.getWafflesSettings().getFloat("viewer:master_scale", 0, 1.0f);
 	vca.mViewType		   = viewType;
 	vca.mViewLayer		   = viewLayer;
 	vca.mLooped			   = videoLoop;

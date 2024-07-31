@@ -201,8 +201,8 @@ void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
 	auto& mEngine = interfacey->getEngine();
 
-	auto cornerRad		= mEngine.getAppSettings().getFloat("ui:corner_radius", 0, 0.0f);
-	auto interfaceScale = mEngine.getAppSettings().getFloat("ui:interface_scale", 0, 1.0f);
+	auto cornerRad		= mEngine.getWafflesSettings().getFloat("ui:corner_radius", 0, 0.0f);
+	auto interfaceScale = mEngine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
 
 	auto viewerBackground = mEngine.getColors().getColorFromName("viewer_background");
 	auto backgroundColor  = mEngine.getColors().getColorFromName("ui_background");
@@ -417,7 +417,7 @@ void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	interfacey->getBackground()->setCornerRadius(cornerRad);
 	interfacey->setScale(interfaceScale, interfaceScale);
 	if (mEngine.getAppSettings().getString("app:mode", 0, "single") == "multi") {
-		interfacey->move(mEngine.getAppSettings().getFloat("media_viewer:multi_offset", 0, 0.f), 0.f);
+		interfacey->move(mEngine.getWafflesSettings().getFloat("media_viewer:multi_offset", 0, 0.f), 0.f);
 	}
 }
 

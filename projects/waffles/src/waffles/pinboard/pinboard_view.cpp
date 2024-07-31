@@ -15,12 +15,12 @@ namespace waffles {
 PinboardView::PinboardView(ds::ui::SpriteEngine& g)
 	: ds::ui::SmartLayout(g, "waffles/pinboard/pinboard.xml") {
 
-	float theHeight = mEngine.getAppSettings().getFloat("pinboard:height", 0, mEngine.getWorldHeight() / 1.5f);
-	int numRows = mEngine.getAppSettings().getInt("pinboard:num_rows", 0, 2);
+	float theHeight = mEngine.getWafflesSettings().getFloat("pinboard:height", 0, mEngine.getWorldHeight() / 1.5f);
+	int numRows = mEngine.getWafflesSettings().getInt("pinboard:num_rows", 0, 2);
 	auto row_scr = getSprite<ds::ui::LayoutSprite>("rows_scroller");
 	if (numRows < 1) numRows = 1;
 	float floatRows = (float)numRows;
-	float rowHeight = theHeight / floatRows - (floatRows - 1.0f) * mEngine.getAppSettings().getFloat("arrange:padding", 0, 20.0f);
+	float rowHeight = theHeight / floatRows - (floatRows - 1.0f) * mEngine.getWafflesSettings().getFloat("arrange:padding", 0, 20.0f);
 	 
 	if (row_scr) {
 		for (int i = 0; i < numRows; i++) {

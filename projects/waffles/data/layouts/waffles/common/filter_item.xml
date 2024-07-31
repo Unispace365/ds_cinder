@@ -17,7 +17,7 @@
 			layout_type="horiz"
 			enable="false"
 			size="$_filter_list:item:width, $_filter_list:item:height"
-			padding="20, 0, 20, 0"
+			padding="#expr{ 20 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }, #expr{ 20 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }"
 		>
 			
 			<layout name="normal_layout"
@@ -31,17 +31,17 @@
 					transparent="false"
 					color="waffles:button:bg:normal:dark"
 					opacity="1.0"
-					corner_radius="10.0"
+					corner_radius="#expr{ 10.0 * $_waffles:sprite:scale }"
 				/>
 
 				<image name="icon"
 					pad_all="$_ui:padding"
-					layout_size="45, 45"
+					layout_size="#expr{ 45 * $_waffles:sprite:scale }, #expr{ 45 * $_waffles:sprite:scale }"
 					center="0.5, 0.5"
 					layout_h_align="center"
 					layout_v_align="middle"
-					l_pad="#expr{1 * $_ui:padding}"
-					r_pad="#expr{1 * $_ui:padding}"
+					l_pad="#expr{1 * $_ui:padding * $_waffles:sprite:scale}"
+					r_pad="#expr{1 * $_ui:padding * $_waffles:sprite:scale}"
 					src_c_m="$_icon_src"
 					color="waffles:button:text:normal:dark"
 				/>
@@ -70,12 +70,12 @@
 					transparent="false"
 					color="waffles:button:bg:high:dark"
 					opacity="1.0"
-					corner_radius="10.0"
+					corner_radius="#expr{ 10.0 * $_waffles:sprite:scale }"
 				/>
 
 				<image name="icon_high"
 					pad_all="$_ui:padding"
-					layout_size="45, 45"
+					layout_size="#expr{ 45 * $_waffles:sprite:scale }, #expr{ 45 * $_waffles:sprite:scale }"
 					center="0.5, 0.5"
 					layout_h_align="center"
 					layout_v_align="middle"
@@ -87,7 +87,7 @@
 
 				<text name="name_high"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:sprite:scale }"
 					color="waffles:button:text:high:dark"
 					layout_v_align="middle"
 					text_ellipses="end"

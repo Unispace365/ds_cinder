@@ -88,6 +88,7 @@ class Launcher : public BaseElement {
 
 	bool mPanelOpen			 = false;
 	bool mPanelTransitioning = false;
+	float mWafflesScale = 1.0f;
 };
 
 } // namespace waffles

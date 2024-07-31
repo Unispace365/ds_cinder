@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+
+	<!-- START WAFFLES COLORS -->
+	<setting name="" value="#ff000000" type="color"/>
+	<setting name="white" value="#ffffffff" type="color"/>
+	<setting name="black" value="#ff000000" type="color"/>
+	<setting name="red" value="#ffff0000" type="color"/>
+	<setting name="dark_grey" value="#ff333435" type="color"/>
+	<setting name="stone_grey" value="#ff777777" type="color"/>
+	<setting name="light_grey" value="#ff999999" type="color"/>
+	<setting name="media_preload" value="#ffF6F6F6" type="color" />
+	<setting name="hpi_white" value="#ffF6F6F6" type="color" />
+	<setting name="hpi_gray" value="#ffb8b8b8" type="color" />
+	
+	
+	<setting name="light_blue" value="#ffc0cfe1" type="color" comment="lightest"/>
+	<setting name="steel_blue" value="#ff416fa6" type="color" comment="light"/>
+	<setting name="navy_blue" value="#ff062b5f" type="color" comment="mid"/>
+	<setting name="denim_blue" value="#ff011536" type="color" comment="dark"/>
+	<setting name="corporate_blue" value="#ff023F88" type="color" comment="Tetrapak blue"/>
+	<setting name="bright_blue" value="#ffb8b8b8" type="color"/>
+	<setting name="subtle_blue" value="#ffb9e5fb" type="color"/>
+	<setting name="bright_blue:transparent" value="#6600bdf4" type="color"/>
+	
+	<setting name="scroll_bar:nub_color" value="#FF777777" type="color"/>
+	<setting name="scroll_bar:background_color" value="#FFFFFFFF" type="color"/>
+
+	<setting name="brand_highlight" value="#ff023F88" type="color" comment="Tetrapak Corporate blue"/>
+	<setting name="brand_dark" value="#ff202124" type="color" comment="almost black"/>
+	<setting name="brand_light" value="#fffefefe" type="color" comment="almost white"/>
+	<setting name="brand_grey" value="#ff515151" type="color" comment="grey"/>
+	<setting name="viewer_background" value="#ffffffff" type="color" comment="The background of all viewers like the launcher"/>
+	<setting name="ui_background" value="#fff7f7f7" type="color" comment="What's behind most ui elements, like the background of buttons"/>
+	<setting name="ui_icon_background" value="#fff6f6f6" type="color" comment="background of buttons darker"/>
+	<setting name="ui_normal" value="#ff000000" type="color" comment="The primary color of ui elements like text and icons"/>
+	<setting name="ui_highlight" value="#ff023F88" type="color" comment="Special color for ui elements like the close button or highlighted areas. White should be visible on top of this color"/>
+	<setting name="ui_selected" value="#ff253237" type="color" comment="The primary color of ui elements when selected like text and icons when a button is pressed"/>
+	<setting name="ui_selected_background" value="#fff8f9fa" type="color" comment="The background color of items like buttons when they're pressed."/>
+	<setting name="ui_white" value="#ffffff" type="color" comment="White color for icons"/>
+	<setting name="ui_separator" value="black" type="color" comment="Separator lines"/>
+	<setting name="menu_title" value="#000000" type="color" comment="Separator lines"/>
+	<setting name="close_button_background_selected" value="#ff00bdf4" type="color" comment="The background color of close button when it is pressed."/>
+
+	<setting name="brush_1" value="#ffff63bb" type="color" comment="pink"/>
+	<setting name="brush_2" value="#ffb655f5" type="color" comment="purple"/>
+	<setting name="brush_3" value="#ff000000" type="color" comment="black"/>
+	<setting name="brush_4" value="#ffeeeeee" type="color" comment="white/cream"/>
+	<setting name="brush_5" value="#ff4759f5" type="color" comment="blueberry"/>
+	<setting name="brush_6" value="#ff0096d6" type="color" comment="hp blue"/>
+	<setting name="brush_7" value="#ff00d072" type="color" comment="green"/>
+	<setting name="brush_8" value="#ffd3fb66" type="color" comment="lime"/>
+	<setting name="brush_9" value="#ffff948a" type="color" comment="peach"/>
+	<setting name="brush_10" value="#ffff8900" type="color" comment="orange"/>
+	<setting name="brush_11" value="#ffffbd3b" type="color" comment="tangerine"/>
+	<setting name="brush_12" value="#fffcf54b" type="color" comment="yellow"/>
+	
+	<setting name="waffles:close_button" value="#ff1356F8" type="color" comment=""/>
+	<setting name="waffles:close_button_high" value="#ff828099" type="color" comment=""/>
+	<setting name="waffles:grey" value="#fffbfbfb" type="color" comment="" />
+	<setting name="waffles:five_finger:circle" value="#ff000000" type="color" comment="" />
+	<setting name="waffles:five_finger:button:bg" value="#ffFFFFFF" type="color" />
+	<setting name="waffles:five_finger:button:fg" value="#ff0096d6" type="color" />
+	
+	<setting name="waffles:button:bg:normal:dark" value="#ffececec" type="color"/>
+	<setting name="waffles:button:bg:high:dark" value="#ff2b40ff" type="color"/>
+	<setting name="waffles:button:text:normal:dark" value="#ff10134A" type="color"/>
+	<setting name="waffles:button:text:high:dark" value="white" type="color"/>
+	
+	<setting name="waffles:button:bg:normal:light" value="#ffF7F7F6" type="color"/>
+	<setting name="waffles:button:bg:high:light" value="#ffBCB7BE" type="color"/>
+	<setting name="waffles:button:text:normal:light" value="black" type="color"/>
+	<setting name="waffles:button:text:high:light" value="black" type="color"/>
+	<!-- END WAFFLES COLORS -->
+
+	
+	<!-- START WAFFLES TEXTS -->
+	<setting name="component:text_button:label" value="font:Helvetica; size:20.0" type="text_style"/>
+	<setting name="default:error" value="font:Helvetica; size:20.0; color:brand_light" type="text_style"/>
+	<setting name="keyboard:key:up" value="font:Helvetica; size:20.0; color:black" type="text_style"/>
+	<setting name="keyboard:key:down" value="font:Helvetica; size:20.0; color:white" type="text_style"/>
+	<setting name="touch:menu" value="font:Helvetica; size:16.0; color:brand_light; leading:0.750" type="text_style"/>
+	<setting name="viewer:widget" value="font:Helvetica; size:16.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:title" value="font:Helvetica; size:30.0; color:brand_light; leading:0.750" type="text_style"/>
+	<setting name="viewer:body" value="font:Helvetica; size:20.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:body:bold" value="font:Helvetica; size:22.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:body:italic" value="font:Helvetica; size:22.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:body:tiny" value="font:Helvetica; size:18.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:subtitle" value="font:Helvetica; size:18.0; color:brand_light" type="text_style"/>
+	<setting name="viewer:tiny" value="font:Helvetica; size:12.0; color:brand_light" type="text_style"/>
+
+	<setting name="ambient:big_title" value="font:Helvetica; size:160.0; color:brand_light; leading:0.750" type="text_style"/>
+	<setting name="ambient:title" value="font:Helvetica; size:68.0; color:brand_light; leading:0.750" type="text_style"/>
+	<setting name="ambient:subtitle" value="font:Helvetica; size:42.0; color:brand_light" type="text_style"/>
+
+	<setting name="waffles:menu:title" value="font:Helvetica; size:30.0; color:black; leading:0.750" type="text_style"/>
+	<setting name="waffles:side_panel:title" value="font:Helvetica; size:26.0; color:black; leading:0.750" type="text_style"/>
+	<setting name="waffles:menu:item" value="font:Helvetica; size:24.0; color:black; leading:0.750" type="text_style"/>
+
+	<setting name="waffles:presentation_controller:slide_thumb:label" value="font:Helvetica; size:14.0; color:black; leading:0.750" type="text_style"/>
+	<setting name="waffles:presentation_controller:title" value="font:Helvetica; size:30.0; color:brand_light; leading:0.750" type="text_style"/>
+	<!-- END WAFFLES TEXTS -->
+</settings>
+
+

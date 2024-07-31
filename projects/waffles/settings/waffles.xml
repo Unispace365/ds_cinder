@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<!-- START WAFFLES SETTINGS -->
+	<setting name="waffles:enabled" value="true" type="bool" />
+	
+	<setting name="presentation_controller:size" value="900, 300" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="presentation_controller:slides_thumb:height" value="150.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="presentation_controller:slides_thumb:size" value="200, 150" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="presentation_controller:slides_thumb:corner_radius" value="4" type="float"/>
+	<setting name="presentation_controller:icon:scale" value="0.3, 0.3" type="vec2"/>
+
+	<setting name="waffles:sprite:scale" value="0.5" type="float"/>
+	<setting name="waffles:font:scale" value="0.5" type="float"/>
+	<setting name="waffles:stacked_asset_offset" value="80, 50" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="ambient:enabled" value="false" type="bool"/>
+	<setting name="ambient:title" value="Welcome" type="string"/>
+	<setting name="animation:ambient_off" value="fade; slide:-500, 0; ease:outQuint; duration: 0.3" type="string"/>
+	<setting name="animation:ambient_on" value="fade; slide:-500, 0; ease:outQuint; duration: 1.0" type="string"/>
+	<setting name="animation:fade_on" value="fade; duration: 0.3" type="string"/>
+	<setting name="animation:fade_off" value="fade; duration: 0.3" type="string"/>
+	<setting name="animation:item_on" value="fade; slide:200, 0; ease:outQuint" type="string"/>
+	<setting name="animation:viewer_on" value="grow; ease:outQuint" type="string"/>
+
+	<setting name="animation:media_viewer_on" value="fade; grow; duration: 0.3; ease:outQuint" type="string"/>
+	<setting name="animation:media_viewer_off" value="fade; grow; duration: 0.3; ease:outQuint" type="string"/>
+
+	<setting name="cms:can_save_drawings" value="true" type="bool"/>
+	<setting name="cms_files:allow" value="true" type="bool"/>
+	<setting name="composite:aspect_ratio" value="16, 9" type="vec2"/>
+	<setting name="date:format" value="%e %b %Y" type="string"/>
+	<setting name="diagnostics:connectivity" value="http://portquiz.net:1883" type="string"/>
+	<setting name="diagnostics:connectivity" value="http://portquiz.net:1883" type="string"/>
+	<setting name="diagnostics:connectivity" value="http://portquiz.net:443" type="string"/>
+	<setting name="diagnostics:connectivity" value="http://portquiz.net:5671" type="string"/>
+	<setting name="diagnostics:connectivity" value="http://portquiz.net:80" type="string"/>
+
+	<setting name="drawing:brush_size:large" value="80" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:brush_size:med" value="40" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:brush_size:small" value="15" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:brush_size:xlarge" value="150" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:brush_size:xxlarge" value="300" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:control_button_size" value="120, 28" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:control_button_size:small" value="120, 28" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:swatch_size" value="28, 28" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:initial_resolution" value="3840" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawings:can_save_as" value="false" type="bool"/>
+	<setting name="drawings:date_time_format" value="%B %e, %Y %H:%M" type="string" comment="this is added after drawings:save_name"/>
+	<setting name="drawings:local_save_path" value="%DOCUMENTS%/ds_screenshots/" type="string"/>
+	<setting name="drawings:save_name" value="Annotation" type="string" comment="this is prepended to drawings:date_time_format"/>
+
+	<setting name="exit:allow" value="true" type="bool"/>
+	<setting name="five_finger_menu:enable" value="true" type="bool"/>
+	<setting name="five_finger_menu:order" value="close, search, pres_next, arrange, home, gather, pres_back, pres_cont" type="string"/>
+	<setting name="five_finger_menu:radius" value="300" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="info_list:item:width" value="527" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="info_list:item:height" value="72" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="search_list:item:height" value="82" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="filter_list:item:width" value="320" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="filter_list:item:height" value="60" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="menu_title:height" value="32.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:content_width" value="1000.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:content_height" value="700.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:scroll:height" value="169" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:search_height" value="360.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:search_entry_size" value="800, 18" type="float"/>
+	<setting name="launcher:search_scroll_height" value="500.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:scroll_content_width" value="166.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:interface_scale" value="1.0" type="float"/>
+	<setting name="search:keyboard:scale" value="1.0" type="float"/>
+	<setting name="search:max_characters" value="50" type="float"/>
+	<setting name="media_backgrounds:app_key" value="background_media" type="string"/>
+	<setting name="media_viewer:control_timeout" value="8" type="float"/>
+	<setting name="media_viewer:default_size" value="1150" type="int" multiplier="waffles:sprite:scale"/>
+	<setting name="media_viewer:min_size" value="850" type="int" multiplier="waffles:sprite:scale"/>
+	<setting name="media_viewer:max_size" value="40960" type="int" multiplier="waffles:sprite:scale"/>
+	<setting name="media_viewer:multi_offset" value="30.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="overall:title" value="Menu" type="string"/>
+	<setting name="screen:app:mode" value="wall" type="string" comment="single or walle"/>
+	<setting name="screen:state:auto_restore" value="false" type="bool"/>
+	<setting name="screen:state:auto_save_seconds" value="5" type="int"/>
+	<setting name="screen:state:manual_saves" value="true" type="bool"/>
+	<setting name="screens_viewer:item:height" value="150" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="shadows:enabled" value="true" type="bool"/>
+	<setting name="shadow:max_dimension" value="2160" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="single_app:y_panel_percent" value="0.5" type="float"/>
+	<setting name="state_viewer:item:height" value="75" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="streaming:latency" value="0.5" type="float" comment="Original value: 0.2"/>
+	<setting name="time:format" value="%h:%M" type="string"/>
+	<setting name="touch_menu:icon_size" value="200" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="touch_menu:icon_height" value="170" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:button_size" value="40" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:corner_radius" value="0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:fullscreen_darkener_opacity" value="0.8" type="float"/>
+	<setting name="ui:label_button_width" value="230" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:label_button:size" value="160, 40" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:padding" value="8" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:text_fudge" value="0, 0" type="vec2" multiplier="waffles:sprite:scale"/>
+	<setting name="web:default_size" value="1920, 1080" type="vec2"/>
+	<setting name="web:default_zoom" value="1.0" type="float"/>
+	<setting name="disable_transition" value="true" type="bool"/>
+	<setting name="ambient:triangle_transition:duration" value="3.2" type="float" />
+	<setting name="ambient:triangle_transition:rest" value="0.35" type="float" />
+	<setting name="ambient:triangle_transition:variation" value="0.25" type="float" />
+	<setting name="ambient:triangle_transition:rows" value="20" type="float" />
+	<setting name="ambient:triangle:colors" value="white, light_blue, steel_blue, navy_blue, corporate_blue, denim_blue" type="string" />
+	<setting name="ambient:triangle_transition:radius" value="40" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="message_template:text:padding" value="180, 90, 180, 90" type="vec4"/>
+	<setting name="message_list:spacing" value="20" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="template:icon:message_template" value="%APP%/data/images/ui/Message_256.png" type="string"/>
+	<setting name="ambient:triangle_message:box_size" value="#expr{$_world_width / 2.0}, #expr{$_world_height / 2.5}" type="vec2" />
+	<setting name="ambient:media:anim_on" value="opacity: 0; duration: 0.1; delay: 0.0; ease:outQuad" type="string" />
+	<setting name="ambient:media:anim_off" value="opacity: 0; duration: 0.1; delay: 0.0; ease:inQuad" type="string" />
+	<setting name="app:background" value="black" type="string" />
+	<setting name="ambient:background:color" value="black" type="string" />
+	<setting name="enable:persistent:menu" value="false" type="bool" />
+	<setting name="waffles:recent:max" value="10" type="int" />
+
+	<setting name="particles:num" value="20000" type="int"/>
+	<setting name="particles:touch_radius" value="85" type="float"/>
+	<setting name="particles:touch_power" value="-0.01" type="float"/>
+	<setting name="particles:touch_time" value="1" type="int"/>
+	<setting name="particles:lifespan_min" value="0.5" type="float"/>
+	<setting name="particles:lifespan_max" value="5" type="float"/>
+	<setting name="particles:counter_multiplier" value="100000.0" type="float"/>
+	<setting name="particles:perlin_scale" value="0.1" type="float"/>
+	<setting name="particles:anim_speed" value="0.1" type="float"/>
+	<setting name="particles:min_vel" value="-0.5" type="float"/>
+	<setting name="particles:max_vel" value="0.5" type="float"/>
+	<setting name="particles:scale" value="6" type="float"/>
+	<setting name="particles:friction" value="0.9" type="float"/>
+	<setting name="particles:repulsor:factor" value="0.25" type="float"/>
+	<setting name="particles:repulsor:border" value="-20" type="float"/>
+	
+	<setting name="ui:waffles:launcher:top:button:size" value="300, 65" type="vec2" multiplier="waffles:sprite:scale" />
+	<setting name="launcher:close:start:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale" />
+	<setting name="launcher:close:normal:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:presentation:hotspot:asset:offset" value="45, 45, 0" type="vec3" multiplier="waffles:sprite:scale"/>
+	
+	<setting name="launcher:scroller:auto_hide" value="true" type="bool" />
+	
+	<setting name="launcher:media_open:offset" value="1000.0, 0.0, 0.0" type="vec3" multiplier="waffles:sprite:scale"/>
+
+	<!-- END WAFFLES SETTINGS -->
+</settings>
+
+

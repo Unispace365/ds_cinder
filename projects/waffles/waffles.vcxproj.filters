@@ -152,7 +152,7 @@
     <ClCompile Include="src\waffles\util\base_waffles_helper.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
-    <ClCompile Include="waffles_helper.cpp">
+    <ClCompile Include="src\waffles\util\waffles_helper.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -403,5 +403,25 @@
     <Filter Include="src\waffles\viewers\state_viewer">
       <UniqueIdentifier>{be629fe3-52af-4641-86e0-fbf9b8158ad9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\_data">
+      <UniqueIdentifier>{896f5fe5-d55f-4049-b225-a1afdfd94c6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_data\layouts">
+      <UniqueIdentifier>{d8183f9f-98e7-4dda-84b5-e4fdd4809e5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\_data\settings">
+      <UniqueIdentifier>{542fd08f-122b-4193-8d6c-cc7763fe1a02}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="settings\waffles.xml">
+      <Filter>src\_data\settings</Filter>
+    </Xml>
+    <Xml Include="settings\waffles_fonts.xml">
+      <Filter>src\_data\settings</Filter>
+    </Xml>
+    <Xml Include="settings\waffles_styles.xml">
+      <Filter>src\_data\settings</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

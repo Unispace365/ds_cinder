@@ -103,7 +103,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 			keyboard->setSoftKeyboardSettings(setty);
 			for (auto button : keyboard->getButtonVector()) {}
 		}
-		const auto maxChars = mEngine.getAppSettings().getInt("search:max_characters", 0, 50);
+		const auto maxChars = mEngine.getWafflesSettings().getInt("search:max_characters", 0, 50);
 		entryField->setTextUpdatedCallback([this, entryField, maxChars](const std::wstring& text) {
 			if (text.length() > maxChars) {
 				// Trim the text back to the limit for the next frame
@@ -147,7 +147,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 
 	callAfterDelay([this] { startSearch(""); }, mEngine.getAnimDur());
 
-	// setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
+	// setAnimateOnScript(mEngine.getWafflesSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 
 
 	// these are to hide this from showing up in saved drawings

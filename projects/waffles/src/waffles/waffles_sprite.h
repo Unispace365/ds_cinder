@@ -5,7 +5,7 @@
 #include <ds/app/engine/engine_events.h>
 #include <ds/content/content_events.h>
 #include <ds/content/content_model.h>
-
+#include "waffles/util/shadow_layout.h"
 namespace ds::ui {
 class TouchMenu;
 }
@@ -32,7 +32,9 @@ class WafflesSprite : public ds::ui::SmartLayout {
 			mViewerController = new VC(mEngine, ci::vec2(getSize()));
 			holdy->addChildPtr(mViewerController);
 		}
-
+		auto sh = new waffles::ShadowLayout(eng);
+		sh->release();
+		
 		enable(false);
 
 		runLayout();

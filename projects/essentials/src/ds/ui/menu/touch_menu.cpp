@@ -9,7 +9,7 @@ namespace ds { namespace ui {
 
 	TouchMenu::TouchMenu(ds::ui::SpriteEngine& enginey)
 	  : ds::ui::Sprite(enginey)
-	  , mFiveFingerCluster(2.0f, 4, 200.0f) {
+	  , mFiveFingerCluster(2.0f, 4, 100.0f) {
 
 		mFiveFingerCluster.setClusterUpdateCallback(
 			[this](const ds::ui::TouchInfo::Phase cp, const ds::ui::FiveFingerCluster::Cluster& starCluster) {

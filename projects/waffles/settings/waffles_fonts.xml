@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="Noto Sans Bold" value="%APP%/data/fonts/NotoSans-Bold.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<!-- START WAFFLES FONTS -->
+	<setting name="Helvetica Bold" value="%APP%/data/fonts/Helvetica-Bold.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<setting name="Helvetica Bold Oblique" value="%APP%/data/fonts/Helvetica-BoldOblique.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<setting name="Helvetica Light" value="%APP%/data/fonts/Helvetica-Light.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<setting name="Helvetica Obligque" value="%APP%/data/fonts/Helvetica-Obligque.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<setting name="Helvetica" value="%APP%/data/fonts/Helvetica.ttf" type="string" comment=" Link together a font name and a font file "/>
+	<!-- END WAFFLES FONTS -->
+</settings>
+
+

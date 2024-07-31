@@ -106,8 +106,16 @@ class SpriteEngine {
 	/// Returns the settings for app_settings.xml (convenience)
 	ds::cfg::Settings& getAppSettings() const;
 
+	/// Returns the settings for waffles.xml (convenience)
+	ds::cfg::Settings& getWafflesSettings() const;
+
 	/// Returns the settings for colors.xml (deprecated)
 	ds::cfg::Settings& getColorSettings() const;
+
+	/// Returns the settings for colors.xml (convienece)
+	ds::cfg::Settings& getWflColorSettings() const;
+
+	
 
 	/// Sprite management
 	virtual ds::sprite_id_t nextSpriteId()					  = 0;

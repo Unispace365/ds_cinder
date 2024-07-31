@@ -47,10 +47,10 @@ LauncherLocalContent::LauncherLocalContent(ds::ui::SpriteEngine& g)
 
 	mDrivesHolder = getSprite("drives_holder");
 	if (mDrivesHolder) {
-		auto localLocationCount = mEngine.getAppSettings().countSetting("local_files:path");
+		auto localLocationCount = mEngine.getWafflesSettings().countSetting("local_files:path");
 		for (int i = 0; i < localLocationCount; ++i) {
 			auto nameAndPath =
-				ds::split(mEngine.getAppSettings().getString("local_files:path", i, "Documents;%DOCUMENTS%/"), ";");
+				ds::split(mEngine.getWafflesSettings().getString("local_files:path", i, "Documents;%DOCUMENTS%/"), ";");
 			if (nameAndPath.size() != 2) continue;
 
 			std::map<std::string, ds::ui::Sprite*> driveSpriteMap;

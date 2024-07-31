@@ -11,14 +11,14 @@
 	<layout_button name="the_btn"
 		layout_size_mode="stretch"
 		layout_type="vert"
-		size="570, #expr$_info_list:item:height"
+		size="^570^, #expr$_info_list:item:height"
 	>
 		<layout layout_size_mode="fill"
 			overall_alignment="top">
 				<sprite name="underbar"
 					layout_size_mode="flex"
 					color="ui_separator"
-					height="2"
+					height="^2^"
 				/>
 
 		</layout>
@@ -30,7 +30,7 @@
 				<sprite name="underbar"
 					layout_size_mode="flex"
 					color="ui_separator"
-					width="2"
+					width="^2^"
 					b_pad="-$_ui:corner_radius"
 				/>
 

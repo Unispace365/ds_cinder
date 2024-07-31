@@ -58,8 +58,16 @@ ds::cfg::Settings& SpriteEngine::getAppSettings() const {
 	return mData.mEngineCfg.getSettings("app_settings");
 }
 
+ds::cfg::Settings& SpriteEngine::getWafflesSettings() const {
+	return mData.mEngineCfg.getSettings("waffles");
+}
+
 ds::cfg::Settings& SpriteEngine::getColorSettings() const {
 	return mData.mEngineCfg.getSettings("styles");
+}
+
+ds::cfg::Settings& SpriteEngine::getWflColorSettings() const {
+	return mData.mEngineCfg.getSettings("waffles_styles");
 }
 
 float SpriteEngine::getMinTouchDistance() const {

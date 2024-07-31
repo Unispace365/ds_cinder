@@ -113,9 +113,9 @@ TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentMod
 																								: std::string("fill");
 
 					auto targetOffset =
-						engine.getAppSettings().getVec2("template:media:waffles_offset", 0, ci::vec2(0.f, 2160.f));
+						engine.getWafflesSettings().getVec2("template:media:waffles_offset", 0, ci::vec2(0.f, 2160.f));
 					auto targetSize =
-						engine.getAppSettings().getVec2("template:media:waffles_size", 0, ci::vec2(2560.f, 1080.f));
+						engine.getWafflesSettings().getVec2("template:media:waffles_size", 0, ci::vec2(2560.f, 1080.f));
 					float startWidth   = targetSize.x;
 					float targetAspect = targetSize.x / targetSize.y;
 					auto  aspect =

@@ -31,7 +31,7 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 		if (auto menuBtn = getSprite<ds::ui::LayoutButton>(name)) {
 			menuBtn->setClickFn([this, menuBtn, idx = idx] {
 				auto pos = menuBtn->getGlobalPosition(); // + ci::vec3(60.f, 150.f, 0.f);
-				pos += mEngine.getAppSettings().getVec3("persistent_menu:offset:" + ds::value_to_string(idx), 0,
+				pos += mEngine.getWafflesSettings().getVec3("persistent_menu:offset:" + ds::value_to_string(idx), 0,
 														ci::vec3(0.f));
 				/* pos.x -= 180.f;
 				pos.y += 200.f; */

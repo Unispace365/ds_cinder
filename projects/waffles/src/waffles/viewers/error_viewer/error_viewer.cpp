@@ -42,7 +42,7 @@ ErrorViewer::ErrorViewer(ds::ui::SpriteEngine& g)
 
 	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
 
-	setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
+	setAnimateOnScript(mEngine.getWafflesSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
 
 void ErrorViewer::onMediaSet() {

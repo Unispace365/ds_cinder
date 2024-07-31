@@ -307,12 +307,12 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 	newViewer->setCreationArgs(args);
 	newViewer->setViewerLayer(args.mViewLayer);
 
-	const float viewerScale = mEngine.getAppSettings().getFloat("viewer:master_scale", 0, 1.0f);
+	const float viewerScale = mEngine.getWafflesSettings().getFloat("viewer:master_scale", 0, 1.0f);
 
 	if (newViewer->canResize()) {
 		if (args.mEnforceMinSize &&
-			args.mStartWidth < mEngine.getAppSettings().getFloat("media_viewer:min_size", 0, 100.0f)) {
-			newViewer->setViewerWidth(mEngine.getAppSettings().getFloat("media_viewer:default_size", 0, 400.0f) /
+			args.mStartWidth < mEngine.getWafflesSettings().getFloat("media_viewer:min_size", 0, 100.0f)) {
+			newViewer->setViewerWidth(mEngine.getWafflesSettings().getFloat("media_viewer:default_size", 0, 400.0f) /
 									  viewerScale);
 		} else {
 			newViewer->setAbsoluteSizeLimits(ci::vec2(args.mStartWidth / viewerScale, 200.f),
@@ -782,7 +782,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 	const float wh		   = mNormalLayer->getHeight();
 	const float wasp	   = ww / wh;
 
-	const ci::vec2 compositeRatio = mEngine.getAppSettings().getVec2("composite:aspect_ratio", 0, ci::vec2(16.f, 9.f));
+	const ci::vec2 compositeRatio = mEngine.getWafflesSettings().getVec2("composite:aspect_ratio", 0, ci::vec2(16.f, 9.f));
 	const float	   slideAspect	  = compositeRatio.x / compositeRatio.y;
 
 	// effective sizes
@@ -1232,7 +1232,7 @@ void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immedi
 		if (auto mp = tmv->getMediaPlayer()) {
 			if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
 
-				auto webSize = mEngine.getAppSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
+				auto webSize = mEngine.getWafflesSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
 				mp->setWebViewSize(webSize);
 				mp->setSize(ci::vec2(destRect.getWidth(), destRect.getHeight()));
 				viewer->mContentAspectRatio = destRect.getAspectRatio();
