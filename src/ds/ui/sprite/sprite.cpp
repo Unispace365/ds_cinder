@@ -2032,6 +2032,8 @@ void Sprite::sendSpriteToFront(Sprite& sprite) {
 	mChildren.push_back(&sprite);
 
 	markAsDirty(SORTORDER_DIRTY);
+
+	onOrderChanged();
 }
 
 void Sprite::sendSpriteToBack(Sprite& sprite) {
@@ -2043,6 +2045,8 @@ void Sprite::sendSpriteToBack(Sprite& sprite) {
 	mChildren.insert(mChildren.begin(), &sprite);
 
 	markAsDirty(SORTORDER_DIRTY);
+
+	onOrderChanged();
 }
 
 Sprite* Sprite::getFirstDescendantWithName(const std::wstring& name) {
@@ -2074,16 +2078,22 @@ void Sprite::sendToBack() {
 }
 
 void Sprite::setSpriteOrder(const std::vector<sprite_id_t>& order) {
+	bool   orderChanged = false;
+
 	for (auto it = order.begin(), end = order.end(); it != end; ++it) {
 		const sprite_id_t id(*it);
 		auto			  found =
 			std::find_if(mChildren.begin(), mChildren.end(), [id](Sprite* s) -> bool { return s && s->getId() == id; });
 		if (found != mChildren.end()) {
+			orderChanged |= std::distance(mChildren.begin(), found) != 0;
+
 			Sprite* s(*found);
 			mChildren.erase(found);
 			mChildren.push_back(s);
 		}
 	}
+
+	if (orderChanged) onOrderChanged();
 }
 
 ds::ui::SpriteShader& Sprite::getBaseShader() {

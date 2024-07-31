@@ -914,6 +914,7 @@ namespace ui {
 		virtual void onScaleChanged() {}
 		virtual void onSizeChanged() {}
 		virtual void onRotationChanged() {}
+		virtual void onOrderChanged() {}
 		virtual void onChildAdded(Sprite& child) {}
 		virtual void onChildRemoved(Sprite& child) {}
 		virtual void onParentSet() {}
