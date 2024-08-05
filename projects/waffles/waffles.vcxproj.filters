@@ -152,9 +152,6 @@
     <ClCompile Include="src\waffles\util\base_waffles_helper.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
-    <ClCompile Include="src\waffles\util\waffles_helper.cpp">
-      <Filter>src\waffles\util</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\app_defs.h">

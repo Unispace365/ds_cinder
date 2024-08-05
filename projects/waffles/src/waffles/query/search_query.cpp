@@ -50,7 +50,7 @@ void SearchQuery::run() {
 }
 
 void SearchQuery::queryGeneral() {
-	auto helper = WafflesHelperFactory::getDefault();
+	auto helper = ds::model::ContentHelperFactory::getDefault();
 	// Add all media items matching the search query to the output
 	if (mFilterType.empty() || mFilterType == "media") {
 		auto allValid = mEngine->mContent.getKeyReferences(ds::model::VALID_MAP);

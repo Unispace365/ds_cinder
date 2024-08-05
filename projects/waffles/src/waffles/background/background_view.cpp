@@ -51,7 +51,7 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	});
 
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
-		auto helper = WafflesHelperFactory::getDefault();
+		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		auto model = ds::model::ContentModelRef("Empty");
 		model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
 		ds::Resource r = helper->getBackgroundForPlatform();

@@ -41,7 +41,7 @@ void PinboardService::saveToPinboard(ds::model::ContentModelRef model, const boo
 }
 
 void PinboardService::addToPinboard(ds::model::ContentModelRef model) {
-	auto helper = WafflesHelperFactory::getDefault();
+	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto pinboard	 = helper->getPinboard();
 	auto pinboardUid = pinboard.getPropertyString("uid");
 
@@ -96,7 +96,7 @@ void PinboardService::addToPinboard(ds::model::ContentModelRef model) {
 }
 
 void PinboardService::removeFromPinboard(ds::model::ContentModelRef model) {
-	auto helper = WafflesHelperFactory::getDefault();
+	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto pinboard	 = helper->getPinboard();
 	auto pinboardUid = pinboard.getPropertyString("uid");
 

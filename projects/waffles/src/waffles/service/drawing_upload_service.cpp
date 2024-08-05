@@ -31,7 +31,7 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 	});
 
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) {
-		auto helper = WafflesHelperFactory::getDefault();
+		auto		helper	   = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		ci::Surface theSurface = e.mSurface;
 		int			requestId  = e.mRequestId;
 

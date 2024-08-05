@@ -131,7 +131,7 @@ DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
 
 
 void DrawingTools::updateSaveButton() {
-	auto helper = WafflesHelperFactory::getDefault();
+	auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
 	if (auto saveBtn = getSprite("save_button.the_button")) {
 		if (helper->getAnnotationFolder().empty()) {
 			saveBtn->hide();

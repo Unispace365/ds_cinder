@@ -718,7 +718,7 @@ void ViewerController::setPresentationSlide(int slideId) {
 }
 
 void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef) {
-	auto helper = waffles::WafflesHelperFactory::getDefault();
+	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto thePres	 = helper->getRecordByUid(slideRef.getPropertyString("parent_uid"));
 	auto actualSlide = slideRef;
 
@@ -758,7 +758,7 @@ void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef
 }
 
 void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
-	auto helper = waffles::WafflesHelperFactory::getDefault();
+	auto					  helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	std::vector<BaseElement*> leftoverViewers;
 	for (auto it : mViewers) {
 		if (it->getViewerLayer() != ViewerCreationArgs::kViewLayerNormal ||

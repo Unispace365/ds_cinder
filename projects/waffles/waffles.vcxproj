@@ -44,7 +44,6 @@
     <ClCompile Include="src\waffles\util\shadow_layout.cpp">
       <RemoveUnreferencedCodeData Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RemoveUnreferencedCodeData>
     </ClCompile>
-    <ClCompile Include="src\waffles\util\waffles_helper.cpp" />
     <ClCompile Include="src\waffles\viewers\base_element.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.cpp" />
@@ -224,7 +223,7 @@ if not exist "$(Solutiondir)..\settings\waffles_fonts.xml" xcopy /y /E "$(DS_PLA
 if not exist "$(Solutiondir)..\settings\waffles_styles.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_styles.xml" "$(SolutionDir)..\settings"</Command>
       <Message>Copying waffles assets</Message>
       <Outputs>$(SolutionDir)..\settings\waffles.xml</Outputs>
-      <Inputs>$(DS_PLATFORM_093)\projects\waffles\settings\waffles.xml</Inputs>
+      <Inputs>$(DS_PLATFORM_093)\projects\waffles\settings</Inputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

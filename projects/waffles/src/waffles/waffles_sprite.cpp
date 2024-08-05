@@ -73,7 +73,7 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 //template <class VC>
 void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePresentation& ev) {
 	DS_LOG_INFO("got a request engage presentation event in engage controller");
-	auto helper	 = waffles::WafflesHelperFactory::getDefault();
+	auto helper	 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto content = ev.mContent;
 	if (content.getPropertyString("type_key") == "pinboard_event") {
 		if (mPlaylist.getPropertyString("type_key") != "pinboard_event") {
@@ -429,7 +429,7 @@ void WafflesSprite::setupTouchMenu() {
 
 //template <class VC>
 void WafflesSprite::setDefaultPresentation() {
-	auto				helper = waffles::WafflesHelperFactory::getDefault();
+	auto				helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	ds::model::Platform platformObj(mEngine);
 	if (platformObj.getPlatformType() == ds::model::Platform::UNDEFINED) return;
 	auto thePlaylist = helper->getPresentation();
@@ -524,7 +524,7 @@ void WafflesSprite::endPresentationMode() {
 //template <class VC>
 void WafflesSprite::setData() {
 	ds::model::ContentModelRef thePlaylist;
-	auto					   helper = waffles::WafflesHelperFactory::getDefault();
+	auto					   helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	if (!mPlaylistUid.empty()) {
 		thePlaylist = helper->getRecordByUid(mPlaylistUid);
 	} else {
@@ -574,7 +574,7 @@ void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 	userInputReceived();
 	callAfterDelay(
 		[this] {
-			auto helper = waffles::WafflesHelperFactory::getDefault();
+			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 			// auto alreadyPres = !mEngine.mContent.getChildByName("current_presentation").getChildren().empty();
 			// if (!alreadyPres) {
 			auto pres_id = helper->getInitialPresentationUid();

@@ -26,7 +26,7 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 	, mEventClient(eng) {
 
 	DS_LOG_INFO("Creating an Engage Controller");
-	auto helper = WafflesHelperFactory::getDefault();
+	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
 		if (mEngine.getAppSettings().getBool("app:editor_mode", 0, false)) {
 			// In "editor mode", refresh the currentl slide whenever it changes
@@ -182,7 +182,7 @@ EngageController::EngageController(ds::ui::SpriteEngine& eng)
 
 void EngageController::setData() {
 	ds::model::ContentModelRef thePlaylist;
-	auto helper = WafflesHelperFactory::getDefault();
+	auto					   helper = ds::model::ContentHelperFactory::getDefault();
 	if (!mPlaylistUid.empty()) {
 		thePlaylist = helper->getRecordByUid(mPlaylistUid);
 	} else {
@@ -200,7 +200,7 @@ void EngageController::setData() {
 }
 
 void EngageController::setDefaultPresentation() {
-	auto helper = WafflesHelperFactory::getDefault();
+	auto				helper = ds::model::ContentHelperFactory::getDefault();
 	ds::model::Platform platformObj(mEngine);
 	if (platformObj.getPlatformType() == ds::model::Platform::UNDEFINED) return;
 	auto thePlaylist = helper->getPresentation();

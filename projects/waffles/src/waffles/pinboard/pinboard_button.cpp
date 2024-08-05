@@ -35,7 +35,7 @@ PinboardButton::PinboardButton(ds::ui::SpriteEngine& eng, std::string theLayout)
 
 
 	setSpriteClickFn("the_button", [this] { toggleOnPinboard(); });
-	mHelper = WafflesHelperFactory::getDefault();
+	mHelper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 
 	// listenToEvents<ds::ContentUpdatedEvent>([this](auto& e) { callAfterDelay([this] { setPinnedStatus(); }, 0.1f);
 	// });
@@ -47,7 +47,7 @@ PinboardButton::PinboardButton(ds::ui::SpriteEngine& eng, std::string theLayout)
 
 
 bool PinboardButton::itemIsOnPinboard(ds::ui::SpriteEngine& eng, ds::model::ContentModelRef model) {
-	auto helper		 = WafflesHelperFactory::getDefault();
+	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto thePinboard = helper->getPinboard();
 	for (auto item : thePinboard.getChildren()) {
 		if (item.getPropertyResource("media").getAbsoluteFilePath() ==

@@ -96,7 +96,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
 
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
-		auto helper = WafflesHelperFactory::getDefault();
+		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		if (ev.mType == mFilterSelected) return;
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");

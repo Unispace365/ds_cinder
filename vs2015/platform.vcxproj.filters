@@ -726,6 +726,12 @@
     <ClInclude Include="..\src\ds\content\platform.h">
       <Filter>src\ds\content</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\content\content_helper.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\content\base_content_helper.h">
+      <Filter>src\ds\content</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1191,6 +1197,12 @@
       <Filter>src\ds\content\service</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\content\platform.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\content_helper.cpp">
+      <Filter>src\ds\content</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\content\base_content_helper.cpp">
       <Filter>src\ds\content</Filter>
     </ClCompile>
   </ItemGroup>

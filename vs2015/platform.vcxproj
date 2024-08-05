@@ -53,7 +53,9 @@
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings_editor.h" />
     <ClInclude Include="..\src\ds\cfg\settings_variables.h" />
+    <ClInclude Include="..\src\ds\content\base_content_helper.h" />
     <ClInclude Include="..\src\ds\content\content_events.h" />
+    <ClInclude Include="..\src\ds\content\content_helper.h" />
     <ClInclude Include="..\src\ds\content\content_model.h" />
     <ClInclude Include="..\src\ds\content\content_query.h" />
     <ClInclude Include="..\src\ds\content\content_wrangler.h" />
@@ -252,6 +254,8 @@
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_editor.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings_variables.cpp" />
+    <ClCompile Include="..\src\ds\content\base_content_helper.cpp" />
+    <ClCompile Include="..\src\ds\content\content_helper.cpp" />
     <ClCompile Include="..\src\ds\content\content_model.cpp" />
     <ClCompile Include="..\src\ds\content\content_query.cpp" />
     <ClCompile Include="..\src\ds\content\content_wrangler.cpp" />
