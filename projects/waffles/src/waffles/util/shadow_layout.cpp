@@ -70,9 +70,7 @@ auto INIT_RIGHT = []() {
 	});
 	return true;
 }();
-}
 
-namespace sub_waffles {
 /// these are the same shaders as the text sprite! wee!
 const std::string opacityFrag = R"FRAG(
 uniform sampler2D	tex0;
@@ -203,7 +201,7 @@ const char SHADOW_ATT = 80;
 } // namespace
 
 namespace waffles {
-	using namespace sub_waffles;
+	//using namespace sub_waffles;
 void ShadowLayout::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromClient(r); });
 }
@@ -219,9 +217,7 @@ ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
 	, mShadowOpacity(1.0)
 	, mShadowOffset(0.0f, 0.0f)
 	, mBlurShader(nullptr)
-	, mBlurStart(0) 
-	, mBlurTarget(0)
-	, mPaddedSize(0) {
+	 {
 
 	mBlobType = BLOB_TYPE;
 

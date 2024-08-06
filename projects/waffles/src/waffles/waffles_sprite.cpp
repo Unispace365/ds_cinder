@@ -243,7 +243,7 @@ void WafflesSprite::setupTouchMenu() {
 	
 	const float baseClusterRadius = mEngine.getWafflesSettings().getFloat("five_finger_menu:radius", 0, 300.0f);
 	ds::ui::TouchMenu::TouchMenuConfig tmc;
-	tmc.mBackgroundImage	 = "%APP%/data/images/ui/Touch_Menu_Blur_faded_600.png";
+	tmc.mBackgroundImage	 = "%APP%/data/images/waffles/ui/Touch_Menu_Blur_faded_600.png";
 	tmc.mItemTitleTextConfig = "touch:menu";
 	tmc.mItemTitleOpacity	 = 0.9f;
 	tmc.mClusterRadius		 = baseClusterRadius;

@@ -34,8 +34,8 @@ class Init {
 					value = ds::cfg::SettingsVariables::doMultiply(
 						theSetting.mOriginalValue.empty() ? theSetting.mRawValue : theSetting.mOriginalValue,
 						theSetting.mMultiplier, theSetting.mType);
-					DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
-													   << value << " (" << theSetting.mRawValue << ")");
+					//DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
+					//								   << value << " (" << theSetting.mRawValue << ")");
 				}
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, value);
 				

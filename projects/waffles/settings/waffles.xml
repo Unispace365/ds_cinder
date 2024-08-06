@@ -10,8 +10,8 @@
 	<setting name="presentation_controller:slides_thumb:corner_radius" value="4" type="float"/>
 	<setting name="presentation_controller:icon:scale" value="0.3, 0.3" type="vec2"/>
 
-	<setting name="waffles:sprite:scale" value="0.5" type="float"/>
-	<setting name="waffles:font:scale" value="0.5" type="float"/>
+	<setting name="waffles:sprite:scale" value="1.0" type="float"/>
+	<setting name="waffles:font:scale" value="1.0" type="float"/>
 	<setting name="waffles:stacked_asset_offset" value="80, 50" type="vec2" multiplier="waffles:sprite:scale"/>
 	<setting name="ambient:enabled" value="false" type="bool"/>
 	<setting name="ambient:title" value="Welcome" type="string"/>
@@ -82,7 +82,7 @@
 	<setting name="screen:state:manual_saves" value="true" type="bool"/>
 	<setting name="screens_viewer:item:height" value="150" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="shadows:enabled" value="true" type="bool"/>
-	<setting name="shadow:max_dimension" value="2160" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="shadow:max_dimension" value="7068" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="single_app:y_panel_percent" value="0.5" type="float"/>
 	<setting name="state_viewer:item:height" value="75" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="streaming:latency" value="0.5" type="float" comment="Original value: 0.2"/>
