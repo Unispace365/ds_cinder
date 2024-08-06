@@ -834,9 +834,7 @@ namespace ds::content {
 		Poco::DateTime		thisDayTime;
 		thisDayTime.makeLocal(ldt.tzd());
 
-		// Obtain currently active platform.
-		//auto platform = ds::model::Platform::getRecordByUid(mRecords, platform_key);
-		//auto platformEvents = platform.getChildByName("scheduled_events").getChildren();
+		bool updated = false;
 		
 		for (auto platform : mPlatforms.getChildren()) {
 			auto platformEvents = platform.getChildByName("scheduled_events").getChildren();
@@ -867,12 +865,14 @@ namespace ds::content {
 				if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 					platformCurrentEvents.setName("current_events");
 					platformCurrentEvents.setChildren(currentEvents);
-
 					platform.replaceChild(platformCurrentEvents);
+					updated = true;
 				}
 			}
 
-			mEngine.getNotifier().notify(ds::PlatformEventsUpdatedEvent());
+
+			if (updated)
+				mEngine.getNotifier().notify(ds::PlatformEventsUpdatedEvent());
 
 			// Use helper to obtain the appropriate playlist.
 			auto updatedPlaylist = ds::model::ContentModelRef();
