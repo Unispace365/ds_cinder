@@ -36,7 +36,7 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, key);
 	
 	if (mPlatformModel.empty()) {
-		DS_LOG_WARNING("Platform not found: " << key << "in " << recordsSize << " records");
+		DS_LOG_WARNING("Platform not found: " << key << " in " << recordsSize << " records");
 		mInitialized = false;
 	}
 
