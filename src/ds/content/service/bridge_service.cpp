@@ -129,7 +129,7 @@ void BridgeService::Loop::run() {
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
 				loadContent();
-				//updatePlatformEvents();
+				updatePlatformEvents();
 
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mPlatforms.getName()) == mPlatforms);
@@ -802,7 +802,7 @@ void BridgeService::Loop::updatePlatformEvents() const {
 
 	bool				updated = false;
 	ds::model::Platform platformObj(mEngine);
-	auto				platform = mRecordMap.at(platformObj.getPlatformKey());
+	auto				platform = platformObj.getPlatformModel();
 
 	auto platformEvents = platform.getChildByName("scheduled_events").getChildren();
 	if (!platformEvents.empty()) {
@@ -837,6 +837,8 @@ void BridgeService::Loop::updatePlatformEvents() const {
 		}
 	} else {
 		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
+
+		// Probably don't want to get rid of ALL the children...
 		currentContent.clearChildren();
 		updated = true;
 	}
