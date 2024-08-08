@@ -129,7 +129,7 @@ void BridgeService::Loop::run() {
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
 				loadContent();
-				updatePlatformEvents();
+				//updatePlatformEvents();
 
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mPlatforms.getName()) == mPlatforms);
@@ -802,7 +802,7 @@ void BridgeService::Loop::updatePlatformEvents() const {
 
 	bool				updated = false;
 	ds::model::Platform platformObj(mEngine);
-	auto				platform = platformObj.getPlatformModel();
+	auto				platform = mRecordMap.at(platformObj.getPlatformKey());
 
 	auto platformEvents = platform.getChildByName("scheduled_events").getChildren();
 	if (!platformEvents.empty()) {
@@ -835,6 +835,10 @@ void BridgeService::Loop::updatePlatformEvents() const {
 			platformObj.getCurrentContent().replaceChild(platformCurrentEvents);
 			updated = true;
 		}
+	} else {
+		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
+		currentContent.clearChildren();
+		updated = true;
 	}
 
 	if (updated) mEngine.getNotifier().notify(ds::PlatformEventsUpdatedEvent());
