@@ -827,16 +827,18 @@ void BridgeService::Loop::updatePlatformEvents() const {
 		});
 
 		//	// For interoperability, store current events.
-		auto platformCurrentEvents = platform.getChildByName("current_events");
+		auto platformCurrentEvents = platformObj.getCurrentContent().getChildByName("current_events");
+		
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
 			platformCurrentEvents.setChildren(currentEvents);
-			platform.replaceChild(platformCurrentEvents);
+			platformObj.getCurrentContent().replaceChild(platformCurrentEvents);
 			updated = true;
 		}
 	}
 
 	if (updated) mEngine.getNotifier().notify(ds::PlatformEventsUpdatedEvent());
+
 
 	// Use helper to obtain the appropriate playlist.
 	auto updatedPlaylist = ds::model::ContentModelRef();

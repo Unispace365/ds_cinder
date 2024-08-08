@@ -25,6 +25,13 @@ ds::model::ContentModelRef Platform::getRecordByUid(const ds::ui::SpriteEngine& 
 Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
   : mEngine(engine) 
   , mEventClient(engine) {
+
+	mCurrentContent = mEngine.mContent.getChildByName("current_content");
+	if (mCurrentContent.empty()) {
+		mCurrentContent.setName("current_content");
+		mEngine.mContent.replaceChild(mCurrentContent);
+	}
+
 	auto key = platformKey;
 	if (key.empty()) {
 		key = engine.getAppSettings().getString("platform:key", 0, "");
@@ -40,7 +47,7 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 		mInitialized = false;
 	}
 
-	mEvents = mPlatformModel.getChildByName("current_events");
+	mEvents = mCurrentContent.getChildByName("current_events");
 
 	mPlatformKey = key;
 
@@ -54,16 +61,18 @@ std::string Platform::getPlatformKey() {
 
 void Platform::refreshContent() {
 	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, mPlatformKey);
-	mEvents = mPlatformModel.getChildByName("current_events");	// Does this belong here? Does anything belong in this function?
 }
 
-ds::model::ContentModelRef Platform::getPlatformModel()
-{
+ds::model::ContentModelRef Platform::getPlatformModel() {
 	return mPlatformModel;
 }
 
 PlatformType Platform::getPlatformType() {
 	return mPlatformType;
+}
+
+ds::model::ContentModelRef Platform::getCurrentContent() {
+	return mCurrentContent;
 }
 
 } // namespace ds::model

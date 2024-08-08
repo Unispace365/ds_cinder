@@ -7,7 +7,7 @@
 #include "content_model.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include <ds/app/event_client.h>
-
+#include <ds/content/content_events.h>
 
 namespace ds::model {
 
@@ -31,6 +31,8 @@ class Platform {
 	virtual std::string						  getPlatformKey();
 	virtual ds::model::ContentModelRef		  getPlatformModel();
 	virtual PlatformType					  getPlatformType();
+	virtual ds::model::ContentModelRef		  getCurrentContent();
+
 
   protected:
 	std::string					mPlatformKey;
@@ -38,6 +40,7 @@ class Platform {
 	ds::ui::SpriteEngine&		mEngine;
 	ds::EventClient				mEventClient;
 	ds::model::ContentModelRef	mPlatformModel;
+	ds::model::ContentModelRef	mCurrentContent;
 	ds::model::ContentModelRef	mEvents;
   private:
 	bool mInitialized = false;
