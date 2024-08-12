@@ -16,7 +16,7 @@
 			/>
 		<layout name="thumbnail_clipper"
 			layout_fixed_aspect="true"
-			size="10, 10"
+			size="#expr{ 10 * $_waffles:sprite:scale }, #expr{ 10 * $_waffles:sprite:scale }"
 			layout_size_mode="flex"
 			clipping="true"
 			pad_all="$_ui:padding"
@@ -44,6 +44,7 @@
 		/>
 		<text name="name"
 			font="viewer:body"
+			font_size="#expr{ 20 * $_waffles:sprite:scale }"
 			layout_v_align="middle"
 			layout_fudge="$_ui:text_fudge"
 			model="text:this->record_name"

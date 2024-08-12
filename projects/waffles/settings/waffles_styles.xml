@@ -40,7 +40,8 @@
 	<setting name="ui_selected_background" value="#fff8f9fa" type="color" comment="The background color of items like buttons when they're pressed."/>
 	<setting name="ui_white" value="#ffffff" type="color" comment="White color for icons"/>
 	<setting name="ui_separator" value="black" type="color" comment="Separator lines"/>
-	<setting name="menu_title" value="#000000" type="color" comment="Separator lines"/>
+	<setting name="menu:title:background" value="#000000" type="color" comment="Separator lines"/>
+	<setting name="menu:title:text" value="#ffffff" type="color" comment="Separator lines"/>
 	<setting name="close_button_background_selected" value="#ff00bdf4" type="color" comment="The background color of close button when it is pressed."/>
 
 	<setting name="brush_1" value="#ffff63bb" type="color" comment="pink"/>
@@ -78,8 +79,8 @@
 	<!-- START WAFFLES TEXTS -->
 	<setting name="component:text_button:label" value="font:Helvetica; size:20.0" type="text_style"/>
 	<setting name="default:error" value="font:Helvetica; size:20.0; color:brand_light" type="text_style"/>
-	<setting name="keyboard:key:up" value="font:Helvetica; size:20.0; color:black" type="text_style"/>
-	<setting name="keyboard:key:down" value="font:Helvetica; size:20.0; color:white" type="text_style"/>
+	<setting name="keyboard:key:up" value="font:Helvetica; size:30.0; color:black" type="text_style"/>
+	<setting name="keyboard:key:down" value="font:Helvetica; size:30.0; color:white" type="text_style"/>
 	<setting name="touch:menu" value="font:Helvetica; size:16.0; color:brand_light; leading:0.750" type="text_style"/>
 	<setting name="viewer:widget" value="font:Helvetica; size:16.0; color:brand_light" type="text_style"/>
 	<setting name="viewer:title" value="font:Helvetica; size:30.0; color:brand_light; leading:0.750" type="text_style"/>

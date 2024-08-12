@@ -5,19 +5,19 @@
 		layout_size_mode="flex"
 		position="0, 0"
 		shrink_to_children="both"
-		size="$_launcher:scroll_content_width, $_launcher:content_height"
+		size="$_launcher:content_width, $_launcher:content_height"
 	>
 
 		<shadow_layout name="shadow"
 			layout_size_mode="fill"
-			shadow_size="30"
+			shadow_size="#expr{ 30 * $_waffles:sprite:scale }"
 			shadow_sigma="3"
 			shadow_color="black"
 			shadow_opacity="0.2"
-			shadow_offset="4.0, 4.0"
+			shadow_offset="#expr{ 4.0 * $_waffles:sprite:scale }, #expr{ 4.0 * $_waffles:sprite:scale }"
 			shadow_iterations="8"
 			blend_mode="fbo_out"
-			layout_fudge="0, 0"
+			layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }"
 		>
 			<sprite name="background"
 				color="white"
@@ -26,6 +26,23 @@
 			/>
 		</shadow_layout>
 
+		<layout name="title_layout"
+				layout_type="horiz"
+				layout_size_mode="fixed"
+				size="$_launcher:content_width, $_menu:title:height"
+				color = "menu:title:background"
+			>
+			<text name="title"
+				font="waffles:menu:title"
+				font_size="$_menu:title:fontsize"
+				color = "menu:title:text"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				pad_all="#expr{2 * $_ui:padding}"
+				animate_on="$_animation:item_on"
+			/>
+		</layout>
+		<xml name="filter_bar" src="%APP%/data/layouts/waffles/search/filter_bar.xml" />
 		<layout name="content_layout"
 			layout_type="vert"
 			layout_size_mode="flex"
@@ -34,18 +51,8 @@
 			shrink_to_children="both"
 		>
 
-
-			<text name="title"
-				font="waffles:menu:title"
-				font_size="40"
-				color="black"
-				layout_v_align="middle"
-				layout_size_mode="flex"
-				pad_all="#expr{2 * $_ui:padding}"
-				animate_on="$_animation:item_on"
-				layout_fudge="$_ui:text_fudge"
-			/>
-			<xml name="filter_bar" src="%APP%/data/layouts/waffles/search/filter_bar.xml" />
+			
+			
 			<!--
 			
 			<xml name="back_button"
@@ -62,9 +69,9 @@
 			<layout name="scroller_layout"
 				layout_type="horiz"
 				layout_size_mode="flex"
-				t_pad="20"
-				l_pad="4"
-				r_pad="-15"
+				t_pad="#expr{ 20 * $_waffles:sprite:scale }"
+				l_pad="#expr{ 4 * $_waffles:sprite:scale }"
+				r_pad="#expr{ -15 * $_waffles:sprite:scale }"
 				size="$_launcher:scroll_content_width, $_launcher:search_scroll_height"
 			>
 				<smart_scroll_list name="scroll_list"
@@ -72,7 +79,7 @@
 					scroll_list_animate="0, 0.0025"
 					layout_size_mode="stretch"
 					smart_scroll_item_layout="waffles/common/search_list_item.xml"
-					scroll_list_layout="0, 0, #expr{ $_search_list:item:height + 2 }"
+					scroll_list_layout="0, 0, #expr{ $_search:list:item:height + 2 }"
 				/>
 				<scroll_bar name="scroll_bar"
 					layout_size_mode="flex"
@@ -91,11 +98,11 @@
 
 			<layout name="entry_holdy"
 				layout_size_mode="flex"
-				height="55"
+				height="#expr{ 55 * $_waffles:sprite:scale }"
 				pad_all="$_ui:padding"
-				l_pad="4"
-				r_pad="4"
-				b_pad="-20"
+				l_pad="#expr{ 4 * $_waffles:sprite:scale }"
+				r_pad="#expr{ 4 * $_waffles:sprite:scale }"
+				b_pad="#expr{ -20 * $_waffles:sprite:scale }"
 			>
 				<sprite name="entry_field_background"
 					color="white"
@@ -103,22 +110,22 @@
 					/>
 				<text name="entry_field_default"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:font:scale }"
 					color="#888888"
 					layout_v_align="middle"
 					layout_size_mode="fill"
-					l_pad="8"
-					r_pad="8"
+					l_pad="#expr{ 8 * $_waffles:sprite:scale }"
+					r_pad="#expr{ 8 * $_waffles:sprite:scale }"
 					text="Type to search" />
 				<entry_field
 					name="entry_field"
 					sprite_link="primary_keyboard"
 					layout_size_mode="fill"
-					layout_fudge="0, 10"
-					l_pad="8"
-					r_pad="8"
+					layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 10 * $_waffles:sprite:scale }"
+					l_pad="#expr{ 8 * $_waffles:sprite:scale }"
+					r_pad="#expr{ 8 * $_waffles:sprite:scale }"
 					animate_on="$_animation:item_on"
-				>text_config:keyboard:key:up; cursor_offset:0, -8;
+				>text_config:keyboard:key:up; cursor_offset:#expr{ 0 * $_waffles:sprite:scale }, #expr{ -8 * $_waffles:sprite:scale };
 					cursor_size:1, $_launcher:search_entry_cursor;
 					field_size:$_launcher:search_entry_size; cursor_color:ui_normal</entry_field>
 			</layout>
@@ -132,12 +139,13 @@
 				opacity="0"
 			/>
 			<soft_keyboard name="primary_keyboard"
+				layout_h_align="center"
 				pad_all="$_ui:padding"
 				animate_on="$_animation:item_on"
 				scale="$_search:keyboard:scale, $_search:keyboard:scale"
 			>type:lowercase;
 				key_up_text_config:keyboard:key:up;
-				key_up_color:ui_icon_background; key_touch_padding:4; graphic_keys:true;
+				key_up_color:ui_icon_background; key_touch_padding:#expr{ 4 * $_waffles:sprite:scale }; graphic_keys:true;
 				graphic_corner_radius:5</soft_keyboard>
 		</layout>
 
@@ -152,10 +160,10 @@
 			layout_size_mode="fill">
 
 			<sprite name="top_bottom_separator"
-				layout_size="852, 2"
-				size="852, 2"
+				layout_size="$_launcher:scroll_content_width, #expr{ 2 * $_waffles:sprite:scale }"
+				size="$_launcher:scroll_content_width, #expr{ 2 * $_waffles:sprite:scale }"
 				color="black"
-				position="0, 115" />
+				position="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 115 * $_waffles:sprite:scale }" />
 
 
 		</layout>

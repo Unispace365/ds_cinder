@@ -240,15 +240,15 @@ void WafflesSprite::gotoItem(int index) {
 void WafflesSprite::setupTouchMenu() {
 	mTouchMenu = nullptr;
 	if (!mEngine.getWafflesSettings().getBool("five_finger_menu:enable", 0, true)) return;
-	
+	auto scale = mEngine.getWafflesSettings().getFloat("waffles:sprite:scale", 0, 1.0f);
 	const float baseClusterRadius = mEngine.getWafflesSettings().getFloat("five_finger_menu:radius", 0, 300.0f);
 	ds::ui::TouchMenu::TouchMenuConfig tmc;
-	tmc.mBackgroundImage	 = "%APP%/data/images/waffles/ui/Touch_Menu_Blur_faded_600.png";
+	tmc.mBackgroundImage = mEngine.getWafflesSettings().getString("five_finger_menu:background:image", 0, "%APP%/data/images/waffles/ui/Touch_Menu_Blur_faded_600.png");
 	tmc.mItemTitleTextConfig = "touch:menu";
 	tmc.mItemTitleOpacity	 = 0.9f;
 	tmc.mClusterRadius		 = baseClusterRadius;
 	tmc.mBackgroundOpacity	 = 0.95f;
-	tmc.mBackgroundScale	 = 2.0f;
+	tmc.mBackgroundScale	 = mEngine.getWafflesSettings().getFloat("five_finger_menu:background:scale", 0, 2.0f*scale);
 	tmc.mBackgroundColor	 = mEngine.getColors().getColorFromName("waffles:five_finger:circle");
 	tmc.mBackgroundBlendMode = ds::ui::BlendMode::NORMAL;
 	tmc.mItemSize			 = ci::vec2(mEngine.getWafflesSettings().getFloat("touch_menu:icon_size"));

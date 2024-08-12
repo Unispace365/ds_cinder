@@ -1,7 +1,7 @@
 <interface>
 
 	<layout_button name="the_button"
-		size="75, 50"
+		size="#expr{ 75 * $_waffles:sprite:scale }, #expr{ 50 * $_waffles:sprite:scale }"
 		layout_type="size"
 		layout_v_align="middle"
 	>

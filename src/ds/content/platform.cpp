@@ -15,6 +15,7 @@ ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentMode
 		return *findy;
 	}
 
+
 	return {};
 }
 
@@ -25,6 +26,7 @@ ds::model::ContentModelRef Platform::getRecordByUid(const ds::ui::SpriteEngine& 
 Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
   : mEngine(engine) 
   , mEventClient(engine) {
+
 	auto key = platformKey;
 	if (key.empty()) {
 		key = engine.getAppSettings().getString("platform:key", 0, "");

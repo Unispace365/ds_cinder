@@ -23,8 +23,10 @@ class Platform {
 	
 	
 	// Static methods for retrieving records.
+	// These should be deprecated. *DO NOT USE*
 	static ds::model::ContentModelRef getRecordByUid(const ds::model::ContentModelRef& model, const std::string& uid);
 	static ds::model::ContentModelRef getRecordByUid(const ds::ui::SpriteEngine& engine, const std::string& uid);
+	/**--**/
 	
 	virtual void					  refreshContent();
 	bool							  isInitialized() { return mInitialized; }

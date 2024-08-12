@@ -4,8 +4,8 @@
 		layout_type="horiz"
 		layout_size_mode="flex"
 		shrink_to_children="height"
-		pad_all="$_ui:padding"
-		l_pad="12"
+		_pad_all="$_ui:padding"
+		l_pad="#expr{ 12 * $_waffles:sprite:scale }"
 		layout_spacing="#expr 0.5 * $_ui:padding"
 	>
 
@@ -21,17 +21,20 @@
 			font="viewer:tiny"
 			color="black"
 			pad_all="$_ui:padding"
+			shrink_to_children="height"
 			layout_v_align="middle"
 			text="FILTER BY"
 			animate_on="$_animation:item_on"
-			layout_fudge="0, 2"
+			layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 2 * $_waffles:sprite:scale }"
 		/>
 
 		<layout name="icons_hodler"
 			layout_size_mode="flex"
 			layout_type="horiz"
+			shrink_to_children="height"
 			overall_alignment="left"
-			layout_spacing="20"
+			layout_spacing="#expr{ 20 * $_waffles:sprite:scale }"
+			color="#ff0000"
 		>
 
 			<!-- <sprite layout_size_mode="stretch" /> -->

@@ -10,7 +10,7 @@
 		layout_type="horiz"
 		enable="true"
 		multitouch="info"
-		size="$_info_list:item:width, $_search_list:item:height"
+		size="$_info_list:item:width, $_search:list:item:height"
 	>
 		<layout_button name="the_btn"
 			layout_size_mode="fill"
@@ -34,15 +34,15 @@
 					center="0.5, 0.5"
 					layout_h_align="center"
 					layout_v_align="middle"
-					l_pad="#expr{2 * $_ui:padding}"
-					r_pad="#expr{1 * $_ui:padding}"
+					l_pad="#expr{2 * $_ui:padding * $_waffles:sprite:scale}"
+					r_pad="#expr{1 * $_ui:padding * $_waffles:sprite:scale}"
 					src_c_m="$_icon_src"
 					color="waffles:button:text:normal:light"
 				/>
 
 				<text name="name"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:font:scale }"
 					color="waffles:button:text:normal:light"
 					layout_v_align="middle"
 					text_ellipses="end"

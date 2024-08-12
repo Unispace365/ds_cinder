@@ -35,6 +35,31 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	: BaseElement(g)
 	, mEventClient(g) {
 
+	//read in acceptable content from waffles settings
+	auto foldersCount = mEngine.getWafflesSettings().countSetting("launcher:folder:key");
+	for (int i = 0; i < foldersCount; ++i) {
+		auto folder = mEngine.getWafflesSettings().getString("launcher:folder:key", i, "");
+		mAcceptableFolders.push_back(folder);
+	}
+	
+	auto mediaCount = mEngine.getWafflesSettings().countSetting("launcher:media:key");
+	for (int i = 0; i < mediaCount; ++i) {
+		auto media = mEngine.getWafflesSettings().getString("launcher:media:key", i, "");
+		mAcceptableMedia.push_back(media);
+	}
+
+	auto presentationCount = mEngine.getWafflesSettings().countSetting("launcher:presentation:key");
+	for (int i = 0; i < presentationCount; ++i) {
+		auto presentation = mEngine.getWafflesSettings().getString("launcher:presentation:key", i, "");
+		mAcceptablePresentations.push_back(presentation);
+	}
+
+	auto ambientPlaylistCount = mEngine.getWafflesSettings().countSetting("launcher:ambient_playlist:key");
+	for (int i = 0; i < ambientPlaylistCount; ++i) {
+		auto ambientPlaylist = mEngine.getWafflesSettings().getString("launcher:ambient_playlist:key", i, "");
+		mAcceptableAmbientPlaylists.push_back(ambientPlaylist);
+	}
+
 	mEngine.getNotifier().notify(waffles::WafflesLauncherOpened());
 
 	mMaxViewersOfThisType = 1;
@@ -436,6 +461,38 @@ void Launcher::onCreationArgsSet() {
 	mMaxViewersOfThisType = 1;
 }
 
+bool Launcher::isFolder(ds::model::ContentModelRef model) {
+	auto uid = model.getPropertyString("type_uid");
+	auto type = model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), type) != mAcceptableFolders.end();
+	result = result || std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), uid) != mAcceptableFolders.end();
+	return result;
+}
+
+bool Launcher::isMedia(ds::model::ContentModelRef model) {
+	auto uid = model.getPropertyString("type_uid");
+	auto type = model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), type) != mAcceptableMedia.end();
+	result = result || std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), uid) != mAcceptableMedia.end();
+	return result;
+}
+
+bool Launcher::isPresentation(ds::model::ContentModelRef model) {
+	auto uid = model.getPropertyString("type_uid");
+	auto type = model.getPropertyString("type_key");
+	bool result = std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), type) != mAcceptablePresentations.end();
+	result = result || std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), uid) != mAcceptablePresentations.end();
+	return result;
+}
+
+bool Launcher::isAmbientPlaylist(ds::model::ContentModelRef model) {
+	auto uid = model.getPropertyString("type_uid");
+	auto type = model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), type) != mAcceptableAmbientPlaylists.end();
+	result = result || std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), uid) != mAcceptableAmbientPlaylists.end();
+	return result;
+}
+
 ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 	auto assetBtn = new ds::ui::SmartLayout(mEngine, "waffles/common/filter_item.xml");
 	assetBtn->setContentModel(item);
@@ -448,7 +505,7 @@ ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 			auto value = item.getProperty("width_override").getFloat();
 			assetBtn->setSize(ci::vec2(value, assetBtn->getHeight()));
 			if (right_bar) right_bar->mLayoutLPad = value - 102.f * mWafflesScale;
-			btn->setSize(ci::vec2(value - 100.f*mWafflesScale, btn->getHeight()));
+			btn->setSize(ci::vec2(value, btn->getHeight()));
 		}
 		if (!item.getProperty("height_override").empty()) {
 			auto value = item.getProperty("height_override").getFloat();
@@ -581,28 +638,28 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
 	if (type == "Images") {
-		return model.getPropertyString("type_key") == "media" &&
+		return isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::IMAGE_TYPE;
 	} else if (type == "Presentations") {
-		return model.getPropertyString("type_key") == "presentation";
+		return isPresentation(model);
 	} else if (type == "Videos") {
-		return model.getPropertyString("type_key") == "media" &&
+		return isMedia(model) &&
 			   (model.getPropertyResource("media").getType() == ds::Resource::VIDEO_TYPE ||
 				model.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE);
 	} else if (type == "Streams") { // TODO: untested
-		return model.getPropertyString("type_key") == "media" &&
+		return isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::VIDEO_STREAM_TYPE;
 	} else if (type == "PDFs") { // TODO: untested
-		return model.getPropertyString("type_key") == "media" &&
+		return isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::PDF_TYPE;
 	} else if (type == "Links") {
-		return model.getPropertyString("type_key") == "media" &&
+		return isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE;
 	} else if (type == "Recent") {
 		loadRecent();
 		return recentContains(model);
 	} else if (type == "Folders") {
-		return model.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS;
+		return isFolder(model);
 	}
 	return false;
 }

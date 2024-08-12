@@ -30,14 +30,14 @@
 
 			<shadow_layout name="bg_shade"
 				layout_size_mode="fill"
-				shadow_size="5"
-				shadow_sigma="5"
+				shadow_size="#expr{ 30 * $_waffles:sprite:scale }"
+				shadow_sigma="3"
 				shadow_color="black"
 				shadow_opacity="0.2"
 				shadow_offset="#expr{ 8.0 * $_waffles:sprite:scale }, #expr{ 8.0 * $_waffles:sprite:scale }"
-				shadow_iterations="5"
-				_blend_mode="fbo_out"
-				shadow_every_frame="false"
+				shadow_iterations="8"
+				blend_mode="fbo_out"
+				shadow_every_frame="true"
 			>
 				<sprite name="background"
 					color="white"
@@ -54,14 +54,14 @@
 			>
 				<layout name="content_header"
 					layout_type="horiz"
-					size="$_launcher:content_width, $_menu:title:height"
-					layout_size="$_launcher:content_width, $_menu:title:height"
+					size="$_launcher:content_width, #expr{ 125 * $_waffles:sprite:scale }"
+					layout_size="$_launcher:content_width, #expr{ 125 * $_waffles:sprite:scale }"
 					color = "menu:title:background"
 				>
 					<text name="menu_title"
 						size="#expr{ 111 * $_waffles:sprite:scale }, #expr{ 68 * $_waffles:sprite:scale }"
 						font="waffles:menu:title"
-						font_size="$_menu:title:fontsize"
+						font_size="#expr{ 40 * $_waffles:sprite:scale }"
 						color="menu:title:text"
 						text_wrap="wordchar"
 						text_ellipses="end"
@@ -69,15 +69,16 @@
 						layout_v_align="middle"
 						l_pad="#expr{ 30 * $_waffles:sprite:scale }"
 					/>
-					<sprite layout_size_mode="stretch"/>
+					<sprite layout_size_mode="stretch" color="blue"/>
 					<layout name="fixed_buttons_top"
+						color="#ffff00"
 						shrink_to_children="both"
 						layout_type="horiz"
 						overall_alignment="right"
 						r_pad="0"
 						_l_pad="#expr{ 60 * $_waffles:sprite:scale }"
 						t_pad="#expr{ 29 * $_waffles:sprite:scale }"
-						layout_spacing="#expr{ 10 * $_waffles:sprite:scale }">
+						layout_spacing="#expr{ -75 * $_waffles:sprite:scale }">
 					</layout>
 				</layout>
 				<smart_scroll_list name="content_holder"
@@ -230,7 +231,7 @@
 				<layout layout_type="vert" 
 					layout_size="#expr{ 6 * $_waffles:sprite:scale }, #expr{ 554 * $_waffles:sprite:scale }"
 					size="#expr{ 6 * $_waffles:sprite:scale }, #expr{ 554 * $_waffles:sprite:scale }"
-					position="#expr{ $_launcher:content_width - ( 6 * $_waffles:sprite:scale ) }, #expr{ 203 * $_waffles:sprite:scale }"
+					position="#expr{ 904 * $_waffles:sprite:scale }, #expr{ 203 * $_waffles:sprite:scale }"
 					clipping="true"
 					>
 					<scroll_bar name="side_scroll_bar"

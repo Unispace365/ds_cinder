@@ -55,11 +55,11 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 	mViewerType	  = VIEW_TYPE_TITLED_MEDIA_VIEWER;
 	mAnimDuration = mEngine.getAnimDur();
 
-	const float minSize = mEngine.getAppSettings().getFloat("media_viewer:min_size", 0, 400.0f);
+	const float minSize = mEngine.getWafflesSettings().getFloat("media_viewer:min_size", 0, 400.0f);
 	mAbsMinSize.x		= minSize;
 	mAbsMinSize.y		= minSize;
 
-	const float maxSize = mEngine.getAppSettings().getFloat("media_viewer:max_size", 0, 400.0f);
+	const float maxSize = mEngine.getWafflesSettings().getFloat("media_viewer:max_size", 0, 400.0f);
 	mAbsMaxSize.x		= maxSize;
 	mAbsMaxSize.y		= maxSize;
 
@@ -282,7 +282,7 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mWebStartTouchable	  = mCreationArgs.mStartLocked;
 
 
-	auto webSize = mEngine.getAppSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
+	auto webSize = mEngine.getWafflesSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
 	if (primaryResource.getAbsoluteFilePath().find(".gif") != std::string::npos) {
 		try {
 			// Awkwardly load the image from the network so we know how big to make it
@@ -304,7 +304,7 @@ void TitledMediaViewer::onMediaSet() {
 		mvs.mDefaultBounds = webSize;
 	}
 
-	double streamLatency	   = (double)mEngine.getAppSettings().getFloat("streaming:latency", 0, 0.2f);
+	double streamLatency	   = (double)mEngine.getWafflesSettings().getFloat("streaming:latency", 0, 0.2f);
 	mvs.mVideoStreamingLatency = streamLatency;
 
 	mvs.mPdfCanShowLinks	   = true;
@@ -351,7 +351,9 @@ void TitledMediaViewer::onMediaSet() {
 			mShowingVideo = false;
 
 			auto prePipe  = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, "");
+			prePipe = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe);
 			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, "");
+			postPipe = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe);
 
 			// Testing some additional streaming options
 			if (!prePipe.empty() && !postPipe.empty()) {
@@ -393,6 +395,7 @@ void TitledMediaViewer::onMediaSet() {
 				hideTitle();
 
 				float keyboardHeight = mEngine.getAppSettings().getFloat("media_viewer:keyboard_height", 0, 420.0f);
+				keyboardHeight = mEngine.getWafflesSettings().getFloat("media_viewer:keyboard_height", 0, keyboardHeight);
 				mBoundingArea.y2	 = mEngine.getWorldHeight() - keyboardHeight;
 				if (getPosition().y + getHeight() + keyboardHeight > mEngine.getWorldHeight()) {
 					tweenStarted();
@@ -415,7 +418,9 @@ void TitledMediaViewer::onMediaSet() {
 			if (gifSpecial) {
 				webby->setZoom(1.f);
 			} else {
-				webby->setZoom(mEngine.getAppSettings().getFloat("web:default_waffles", 0, 1.0f));
+				auto zoom = mEngine.getAppSettings().getFloat("web:default_waffles", 0, 1.0f);
+				zoom	  = mEngine.getWafflesSettings().getFloat("web:default_waffles", 0, zoom);
+				webby->setZoom(zoom);
 			}
 
 			webby->setTitleChangedFn([this](const std::wstring& title) {
@@ -472,8 +477,8 @@ void TitledMediaViewer::onMediaSet() {
 			setSize(300.0f, 300.0f);
 			setSizeLimits();
 			setViewerSize(300.0f, 300.0f);
-			// showTitle();
-			mCanResize	= false;
+			//showTitle();
+			//mCanResize	= false;
 			mFatalError = true;
 
 			ds::model::ContentModelRef errorModel;
@@ -686,7 +691,7 @@ void TitledMediaViewer::loadHotspots() {
 				for (auto child : hotspot->getContentModel().getChildren()) {
 					mEngine.getNotifier().notify(
 						RequestViewerLaunchEvent(ViewerCreationArgs(child, VIEW_TYPE_TITLED_MEDIA_VIEWER, position)));
-					position = position + mEngine.getAppSettings().getVec3("launcher:presentation:hotspot:asset:offset",
+					position = position + mEngine.getWafflesSettings().getVec3("launcher:presentation:hotspot:asset:offset",
 																		   0, ci::vec3(45, 45, 0));
 				}
 			} else {
@@ -835,6 +840,8 @@ void TitledMediaViewer::toggleDrawing() {
 		hideTitle();
 		if (!mDrawingArea) {
 			float widdy = mEngine.getAppSettings().getFloat("drawing:initial_resolution", 0, 3000.0f);
+			widdy = mEngine.getWafflesSettings().getFloat("drawing:initial_resolution", 0, widdy);
+
 			float asp	= getWidth() / getHeight();
 
 			mDrawingArea = new DrawingArea(mEngine, widdy, widdy / asp);
@@ -1058,7 +1065,7 @@ void TitledMediaViewer::showTitle() {
 			hideTitle();
 			hideInnerSideBar();
 		},
-		mEngine.getAppSettings().getFloat("media_viewer:control_timeout", 0, 5.f));
+		mEngine.getWafflesSettings().getFloat("media_viewer:control_timeout", 0, 5.f));
 }
 
 void TitledMediaViewer::hideTitle() {

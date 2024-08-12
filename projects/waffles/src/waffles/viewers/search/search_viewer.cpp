@@ -92,6 +92,8 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	if (auto entryField = mPrimaryLayout->getSprite<ds::ui::EntryField>("entry_field")) {
 		auto entryText = entryField->getTextSprite();
 		entryText->setFont("viewer:body");
+		auto font_size = mEngine.getWafflesSettings().getFloat("search:list:item:font_size", 0, 20.0f);
+		entryText->setFontSize(font_size);
 		entryText->setColor(ci::ColorA::black());
 		entryField->setColor(ci::ColorA::white());
 		if (auto keyboard = mPrimaryLayout->getSprite<ds::ui::SoftKeyboard>("primary_keyboard")) {

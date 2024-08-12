@@ -53,12 +53,13 @@
 	<setting name="five_finger_menu:enable" value="true" type="bool"/>
 	<setting name="five_finger_menu:order" value="close, search, pres_next, arrange, home, gather, pres_back, pres_cont" type="string"/>
 	<setting name="five_finger_menu:radius" value="300" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="five_finger_menu:background:scale" value="2.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="info_list:item:width" value="527" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="info_list:item:height" value="72" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="search_list:item:height" value="82" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="filter_list:item:width" value="320" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="filter_list:item:height" value="60" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="menu_title:height" value="32.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="menu:title:height" value="125.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="menu:title:fontsize" value="40" type="float" multiplier="waffles:font:scale"/>
 	<setting name="launcher:content_width" value="1000.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:content_height" value="700.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll:height" value="169" type="float" multiplier="waffles:sprite:scale"/>
@@ -67,8 +68,7 @@
 	<setting name="launcher:search_scroll_height" value="500.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll_content_width" value="166.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:interface_scale" value="1.0" type="float"/>
-	<setting name="search:keyboard:scale" value="1.0" type="float"/>
-	<setting name="search:max_characters" value="50" type="float"/>
+	
 	<setting name="media_backgrounds:app_key" value="background_media" type="string"/>
 	<setting name="media_viewer:control_timeout" value="8" type="float"/>
 	<setting name="media_viewer:default_size" value="1150" type="int" multiplier="waffles:sprite:scale"/>
@@ -132,7 +132,7 @@
 	<setting name="particles:repulsor:factor" value="0.25" type="float"/>
 	<setting name="particles:repulsor:border" value="-20" type="float"/>
 	
-	<setting name="ui:waffles:launcher:top:button:size" value="300, 65" type="vec2" multiplier="waffles:sprite:scale" />
+	<setting name="ui:waffles:launcher:top:button:size" value="200, 65" type="vec2" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:start:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:normal:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:presentation:hotspot:asset:offset" value="45, 45, 0" type="vec3" multiplier="waffles:sprite:scale"/>
@@ -140,6 +140,25 @@
 	<setting name="launcher:scroller:auto_hide" value="true" type="bool" />
 	
 	<setting name="launcher:media_open:offset" value="1000.0, 0.0, 0.0" type="vec3" multiplier="waffles:sprite:scale"/>
+
+	<setting name="launcher:folder:key" value="ggIPKG4RwMZg" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="Z6VTNqQ3iUV4" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="QQwUEq2MYDTc" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="IaQkbFuHnXQd" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="media" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:presentation:key" value="pQtRzG78ffu0" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
+
+	<!-- If the following three fields are all empty then content is pulled from the entire tree-->
+	<setting name="launcher:content:key" value="" comment="This can be either a uid or an app_key. Or the value '#root' for the content tree root. checks app_key first"/>
+	<setting name="launcher:event:field" value="" comment="The name of the a field in any event that contains UID's of content to filter from"/>
+	<setting name="launcher:platform:field" value="asset_browser_content" comment="The name of the a field in the platform that contains UID's of content to filter from"/>
+
+	<setting name="search:keyboard:scale" value="1.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="search:max_characters" value="50" type="float"/>
+	<setting name="search:list:item:height" value="82" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="search:list:item:font_size" value="20" type="float" multiplier="waffles:font:scale"/>
+
 
 	<!-- END WAFFLES SETTINGS -->
 </settings>

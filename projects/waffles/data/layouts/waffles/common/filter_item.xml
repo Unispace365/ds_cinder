@@ -8,15 +8,20 @@
 
 	<layout name="layout"
 		layout_type="horiz"
+		layout_size_mode="fixed"
+		shrink_to_children="both"
 		enable="true"
 		multitouch="info"
+		
 		size="$_filter_list:item:width, $_filter_list:item:height"
 	>
 			
 		<layout_button name="the_btn"
 			layout_type="horiz"
+			layout_size_mode="fixed"
 			enable="false"
 			size="$_filter_list:item:width, $_filter_list:item:height"
+			
 			padding="#expr{ 20 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }, #expr{ 20 * $_waffles:sprite:scale }, #expr{ 0 * $_waffles:sprite:scale }"
 		>
 			

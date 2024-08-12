@@ -40,7 +40,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	setTouchScaleMode(true);
 	setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleTouchInfo(ti); });
 
-	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE );
 	enable(true);
 
 	mBoundingArea = ci::Rectf(0.0f, 0.0f, mEngine.getWorldWidth(), mEngine.getWorldHeight());
