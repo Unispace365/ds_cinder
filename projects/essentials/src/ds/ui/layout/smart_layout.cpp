@@ -308,6 +308,7 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					}
 					if (flags == 0) {
 						child->setResource(theNode.getProperty(theProp).getResource());
+						child->setResourcePreview(theNode.getProperty(theProp + "_preview").getResource());
 					} else {
 						setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
 					}
@@ -320,8 +321,20 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 						metaData.add(ds::Environment::expand(theResource.getAbsoluteFilePath()),
 									 ci::vec2(theResource.getWidth(), theResource.getHeight()));
 					}
-
 					child->setResource(theResource);
+
+					auto thePreview			= theProp + "_preview";
+					auto thePreviewResource = theNode.getProperty(thePreview).getResource();
+					if (thePreviewResource.empty()) {
+						thePreviewResource =
+							ds::Resource(ds::Environment::expand(theNode.getPropertyString(thePreview)));
+					} else if (thePreviewResource.getType() == ds::Resource::IMAGE_TYPE) {
+						ds::ImageMetaData metaData;
+						metaData.add(ds::Environment::expand(thePreviewResource.getAbsoluteFilePath()),
+									 ci::vec2(thePreviewResource.getWidth(), thePreviewResource.getHeight()));
+					}
+					child->setResourcePreview(thePreviewResource);
+
 				} else if (sprPropToSet == "visible_if_exists") {
 					if (theNode.getPropertyString(theProp).empty()) {
 						child->hide();
