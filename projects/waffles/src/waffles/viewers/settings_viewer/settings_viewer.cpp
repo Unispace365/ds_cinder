@@ -13,7 +13,7 @@
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 #include "waffles/waffles_events.h"
 #include "waffles/viewers/settings_viewer/ambient_chooser.h"
 #include "waffles/viewers/settings_viewer/background_chooser.h"

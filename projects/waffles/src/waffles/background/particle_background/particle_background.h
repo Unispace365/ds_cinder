@@ -12,7 +12,7 @@
 #include "cinder/Perlin.h"
 
 
-namespace mv {
+namespace waffles {
 
 /**
  * \class mv::ParticleBackground

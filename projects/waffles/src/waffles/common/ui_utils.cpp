@@ -16,7 +16,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 
 #include "waffles/waffles_events.h"
 

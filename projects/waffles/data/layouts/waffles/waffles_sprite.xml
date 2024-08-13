@@ -5,10 +5,10 @@
 		size="$_world_size"
 		>
 
-		<!-- <layout name="background_holdy"
+		<layout name="background_holdy"
 			layout_type="vert"
 			layout_size_mode="fill"
-		/> -->
+		/> 
 		
 		<layout name="viewer_controller_holdy"
 			layout_type="vert"

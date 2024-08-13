@@ -91,7 +91,9 @@ ds::model::ContentModelRef BaseWafflesHelper::getRecordByUid(std::string uid) {
 	return mBaseContentHelper.getRecordByUid(uid);
 }
 ds::Resource BaseWafflesHelper::getBackgroundForPlatform() {
-	return mBaseContentHelper.getBackgroundForPlatform();
+	//return mBaseContentHelper.getBackgroundForPlatform();
+
+	return ds::Resource(ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg"));
 }
 ds::model::ContentModelRef BaseWafflesHelper::getPresentation() {
 	return mBaseContentHelper.getPresentation();

@@ -6,6 +6,10 @@
 #include <ds/content/content_events.h>
 #include <ds/content/content_model.h>
 #include "waffles/util/shadow_layout.h"
+#include "waffles/background/background_view.h"
+#include "waffles/service/settings_service.h"
+#include "app/waffles_app_defs.h"
+
 namespace ds::ui {
 class TouchMenu;
 }
@@ -25,13 +29,20 @@ class WafflesSprite : public ds::ui::SmartLayout {
   public:
 	template <class VC = waffles::ViewerController>
 	WafflesSprite(ds::ui::SpriteEngine& eng)
-	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml") {
+	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng) {
 		static_assert(std::is_base_of_v<waffles::ViewerController, VC>,
 					  "VC must be a subclass of waffles::ViewerController");
 		if (auto holdy = getSprite("viewer_controller_holdy")) {
 			mViewerController = new VC(mEngine, ci::vec2(getSize()));
 			holdy->addChildPtr(mViewerController);
 		}
+
+		if (auto holdy = getSprite("background_holdy")) {
+			mBackgroundView = new BackgroundView(mEngine);
+			mBackgroundView->setSize(getWidth(), getHeight());
+			holdy->addChildPtr(mBackgroundView);
+		}
+
 		auto sh = new waffles::ShadowLayout(eng);
 		sh->release();
 		
@@ -54,7 +65,24 @@ class WafflesSprite : public ds::ui::SmartLayout {
 		listenToEvents<waffles::RequestPresentationAdvanceEvent>(
 			[this](const auto& ev) { onPresentationAdvanceRequest(ev); });
 		setDefaultPresentation();
+		if (mDefaultWaffles == nullptr) {
+			mDefaultWaffles = this;
+		}
+
+		//mEngine.timedCallback(
+		//	[this] {
+		//		mEngine.getNotifier().notify(
+		//			RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef(), 0));
+		//	},
+		//	2.f);
 	}
+	~WafflesSprite() {
+		if (mDefaultWaffles == this) {
+			mDefaultWaffles = nullptr;
+		}
+	}
+	static void setDefault(WafflesSprite* defaultWaffles) { mDefaultWaffles = defaultWaffles; }
+	static WafflesSprite* getDefault() { return mDefaultWaffles; }
 
 	virtual void onSizeChanged() override;
 	
@@ -88,10 +116,13 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	
   protected:
 	virtual void gotoItem(int index);
+	static WafflesSprite* mDefaultWaffles;
+	
 	//set playlist uid?
 
   public:
 	virtual waffles::ViewerController * getViewerController() { return mViewerController; }
+	std::map<int, ci::vec2>			   mTouchPoints;
   private:
   	void setupTouchMenu();
 	void setDefaultPresentation();
@@ -105,8 +136,9 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 	void prevItem();
 
-
+	waffles::SettingsService mSettingsService;
 	waffles::ViewerController* mViewerController = nullptr;
+	waffles::BackgroundView*   mBackgroundView = nullptr;
 
 	ds::ui::TouchMenu* mTouchMenu = nullptr;
 	//from old engage controller
@@ -120,6 +152,8 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	ds::model::ContentModelRef mSlide;
 
 	bool mAmEngaged = false;
+
+	
 
 };
 

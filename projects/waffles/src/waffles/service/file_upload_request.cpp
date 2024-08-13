@@ -20,7 +20,7 @@
 #endif
 #include <ds/network/curl/curl.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 
 namespace waffles {
 

@@ -9,7 +9,7 @@
 #include "cinder/Perlin.h"
 #include "cinder/Surface.h"
 
-namespace mv {
+namespace waffles {
 
 /**
  * \class mv::ParticleGenerator

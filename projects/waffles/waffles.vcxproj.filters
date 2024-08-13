@@ -152,9 +152,15 @@
     <ClCompile Include="src\waffles\util\base_waffles_helper.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\waffles\background\particle_background\particle_background.cpp">
+      <Filter>src\waffles\background\particle_background</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\background\particle_background\particle_generator.cpp">
+      <Filter>src\waffles\background\particle_background</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\app\app_defs.h">
+    <ClInclude Include="src\app\waffles_app_defs.h">
       <Filter>src\app</Filter>
     </ClInclude>
     <ClInclude Include="src\events\state_events.h">
@@ -323,6 +329,12 @@
     <ClInclude Include="src\waffles\util\base_waffles_helper.h">
       <Filter>src\waffles\util</Filter>
     </ClInclude>
+    <ClInclude Include="src\waffles\background\particle_background\particle_background.h">
+      <Filter>src\waffles\background\particle_background</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\background\particle_background\particle_generator.h">
+      <Filter>src\waffles\background\particle_background</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -408,6 +420,9 @@
     </Filter>
     <Filter Include="src\_data\settings">
       <UniqueIdentifier>{542fd08f-122b-4193-8d6c-cc7763fe1a02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\background\particle_background">
+      <UniqueIdentifier>{6144fb6d-d4b7-4e68-a665-536ccd735ba1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -17,6 +17,8 @@
     </ClCompile>
     <ClCompile Include="src\waffles\background\background_view.cpp" />
     <ClCompile Include="src\waffles\background\media_background.cpp" />
+    <ClCompile Include="src\waffles\background\particle_background\particle_background.cpp" />
+    <ClCompile Include="src\waffles\background\particle_background\particle_generator.cpp" />
     <ClCompile Include="src\waffles\common\list_item.cpp" />
     <ClCompile Include="src\waffles\common\ui_utils.cpp" />
     <ClCompile Include="src\waffles\controllers\engage_controller.cpp" />
@@ -70,10 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\app\app_defs.h" />
+    <ClInclude Include="src\app\waffles_app_defs.h" />
     <ClInclude Include="src\events\state_events.h" />
     <ClInclude Include="src\waffles\background\background_view.h" />
     <ClInclude Include="src\waffles\background\media_background.h" />
+    <ClInclude Include="src\waffles\background\particle_background\particle_background.h" />
+    <ClInclude Include="src\waffles\background\particle_background\particle_generator.h" />
     <ClInclude Include="src\waffles\common\list_item.h" />
     <ClInclude Include="src\waffles\common\ui_utils.h" />
     <ClInclude Include="src\waffles\controllers\engage_controller.h" />

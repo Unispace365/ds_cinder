@@ -4,7 +4,7 @@
 
 #include <ds/ui/media/media_player.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "app/cms_definitions.hpp"
 #include "waffles/waffles_events.h"
 

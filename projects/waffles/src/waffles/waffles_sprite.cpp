@@ -19,7 +19,7 @@
 #include <ds/util/string_util.h>
 
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "app/helpers.h"
 #include "waffles/waffles_events.h"
 #include "waffles/touch_menu/touch_menu_graphics.h"
@@ -28,6 +28,8 @@
 #include "ds/content/platform.h"
 
 namespace waffles {
+
+WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
 
 //template <class VC>
 void WafflesSprite::onIdleStarted(const ds::app::IdleStartedEvent& e) {
@@ -415,16 +417,22 @@ void WafflesSprite::setupTouchMenu() {
 		holdy->addChildPtr(mTouchMenu);
 	} else {
 		if (auto mainEngine = dynamic_cast<ds::Engine*>(&mEngine)) {
-			mainEngine->getRootSprite().addChildPtr(mTouchMenu);
 		}
 	}
 	// addChildPtr(mTouchMenu);
 
 	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti) {
+		if (ti.mPhase == ds::ui::TouchInfo::Removed) {
+			mTouchPoints[ti.mFingerId] = ci::vec2(-1.0f, -1.0f);
+		} else {
+			mTouchPoints[ti.mFingerId] = ci::vec2(ti.mCurrentGlobalPoint);
+		}
+
 		if (mTouchMenu) {
 			mTouchMenu->handleTouchInfo(ti);
 		}
 	});
+
 }
 
 //template <class VC>

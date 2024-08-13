@@ -11,7 +11,7 @@
 
 #include <ds/ui/button/layout_button.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 #include "waffles/waffles_events.h"
 
 namespace waffles {

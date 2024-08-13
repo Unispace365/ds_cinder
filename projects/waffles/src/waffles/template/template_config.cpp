@@ -15,7 +15,7 @@
 #include "template_base.h"
 #include "composite_slide.h"
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 #include "waffles/waffles_events.h"
 
 namespace waffles {

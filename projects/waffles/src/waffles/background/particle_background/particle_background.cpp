@@ -14,11 +14,11 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-#include "app/waffles_app.h"
-#include "ui/viewers/base_element.h"
-#include "ui/viewers/viewer_controller.h"
+#include "waffles/waffles_sprite.h"
+#include "waffles/viewers/base_element.h"
+#include "waffles/viewers/viewer_controller.h"
 
-namespace mv {
+namespace waffles {
 
 namespace {
 
@@ -87,7 +87,7 @@ ParticleBackground::ParticleBackground(ds::ui::SpriteEngine& eng)
 	, mParticleScale(1.0f) {
 	mBlobType = BLOB_TYPE;
 
-	int numParticles = mEngine.getAppSettings().getInt("particles:num", 0, 100);
+	int numParticles = mEngine.getWafflesSettings().getInt("particles:num", 0, 100);
 #ifdef _DEBUG
 	numParticles /= 10;
 #endif
@@ -96,7 +96,7 @@ ParticleBackground::ParticleBackground(ds::ui::SpriteEngine& eng)
 		resetParticle(mParticles.back());
 	}
 
-	std::string blendName = mEngine.getAppSettings().getString("particles:blend_mode", 0, "normal");
+	std::string blendName = mEngine.getWafflesSettings().getString("particles:blend_mode", 0, "normal");
 	mPerlin.setSeed(clock());
 	setTransparent(false);
 	setBlendMode(ds::ui::getBlendModeByString(blendName));
@@ -104,14 +104,14 @@ ParticleBackground::ParticleBackground(ds::ui::SpriteEngine& eng)
 	setOpacity(0.0f);
 	tweenOpacity(1.0f);
 
-	mParticleScale = mEngine.getAppSettings().getFloat("particles:scale", 0, 1.0f);
+	mParticleScale = mEngine.getWafflesSettings().getFloat("particles:scale", 0, 1.0f);
 
 
 	auto theModel = mEngine.mContent.getChildByName("background.user").getChild(0);
 	mMediaPath	  = theModel.getPropertyResource("media_res").getAbsoluteFilePath();
 	ds::Resource theRec = ds::Resource(mMediaPath);
 	if (mMediaPath.empty()) {
-		mMediaPath = ds::Environment::expand("%APP%/data/images/ui/Google_Cloud_default_background.jpg");
+		mMediaPath = ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg");
 		theRec = ds::Resource::fromImage(mMediaPath);
 	}
 
@@ -279,10 +279,10 @@ void ParticleBackground::readAttributeFrom(const char attributeId, ds::DataBuffe
 }
 
 void ParticleBackground::resetParticle(Particle& p) {
-	float ageMin  = mEngine.getAppSettings().getFloat("particles:lifespan_min", 0, 0.0f);
-	float ageMax  = mEngine.getAppSettings().getFloat("particles:lifespan_max", 0, 0.0f);
-	float minVel  = mEngine.getAppSettings().getFloat("particles:min_vel", 0, 0.0f);
-	float maxVel  = mEngine.getAppSettings().getFloat("particles:max_vel", 0, 0.0f);
+	float ageMin  = mEngine.getWafflesSettings().getFloat("particles:lifespan_min", 0, 0.0f);
+	float ageMax  = mEngine.getWafflesSettings().getFloat("particles:lifespan_max", 0, 0.0f);
+	float minVel  = mEngine.getWafflesSettings().getFloat("particles:min_vel", 0, 0.0f);
+	float maxVel  = mEngine.getWafflesSettings().getFloat("particles:max_vel", 0, 0.0f);
 	p.mPosition.x = ci::randFloat(0, mEngine.getWorldWidth());
 	p.mPosition.y = ci::randFloat(0.0f, mEngine.getWorldHeight());
 	p.mVelocity.x = ci::randFloat(minVel, maxVel);
@@ -301,14 +301,14 @@ void ParticleBackground::onUpdateServer(const ds::UpdateParams& p) {
 		}
 	}
 
-	float		touchRad		  = mEngine.getAppSettings().getFloat("particles:touch_radius", 0, 400.0f);
-	float		touchPow		  = mEngine.getAppSettings().getFloat("particles:touch_power", 0, 4.0f);
-	float		overallSpeed	  = mEngine.getAppSettings().getFloat("particles:anim_speed", 0, 1.0f);
-	float		counterMultiplier = mEngine.getAppSettings().getFloat("particles:counter_multiplier", 0, 10.0f);
-	float		perlinScale		  = mEngine.getAppSettings().getFloat("particles:perlin_scale", 0, 0.001f);
-	float		friction		  = mEngine.getAppSettings().getFloat("particles:friction", 0, 0.99f);
-	const float repulsorFactor	  = mEngine.getAppSettings().getFloat("particles:repulsor:factor", 0, 16.0);
-	const float repulsorBorder	  = mEngine.getAppSettings().getFloat("particles:repulsor:border", 0, 16.0);
+	float		touchRad		  = mEngine.getWafflesSettings().getFloat("particles:touch_radius", 0, 400.0f);
+	float		touchPow		  = mEngine.getWafflesSettings().getFloat("particles:touch_power", 0, 4.0f);
+	float		overallSpeed	  = mEngine.getWafflesSettings().getFloat("particles:anim_speed", 0, 1.0f);
+	float		counterMultiplier = mEngine.getWafflesSettings().getFloat("particles:counter_multiplier", 0, 10.0f);
+	float		perlinScale		  = mEngine.getWafflesSettings().getFloat("particles:perlin_scale", 0, 0.001f);
+	float		friction		  = mEngine.getWafflesSettings().getFloat("particles:friction", 0, 0.99f);
+	const float repulsorFactor	  = mEngine.getWafflesSettings().getFloat("particles:repulsor:factor", 0, 16.0);
+	const float repulsorBorder	  = mEngine.getWafflesSettings().getFloat("particles:repulsor:border", 0, 16.0);
 	mAnimationCounter += p.getDeltaTime() * counterMultiplier;
 	for (auto& repulsor : mRepulsors) {
 		auto repSprit	 = repulsor.mSprite;
@@ -323,9 +323,10 @@ void ParticleBackground::onUpdateServer(const ds::UpdateParams& p) {
 
 	std::vector<ci::vec2> touchRespulsors;
 
-	auto wallFools = Waffles::getWaffles();
+	auto wallFools = WafflesSprite::getDefault();
 	if (wallFools) {
-		for (auto it : wallFools->mTouchPoints) {
+		auto tp = wallFools->mTouchPoints;
+		for (auto it : tp) {
 			ci::vec2 curPoint = it.second;
 			if (curPoint.x < 0.0f || curPoint.y < 0.0f) continue;
 			touchRespulsors.push_back(curPoint);

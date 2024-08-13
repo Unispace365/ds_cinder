@@ -8,7 +8,7 @@
 #include <ds/util/string_util.h>
 #include <ds/content/platform.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "app/cms_definitions.hpp"
 //#include "app/helpers.h"
 //#include "events/app_events.h"

@@ -14,7 +14,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-namespace mv {
+namespace waffles {
 
 ParticleGenerator::ParticleGenerator(ds::ui::SpriteEngine& g)
 	: ds::ui::Sprite(g) {

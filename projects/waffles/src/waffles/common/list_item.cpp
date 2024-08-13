@@ -9,7 +9,7 @@
 
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 
 namespace waffles {
 

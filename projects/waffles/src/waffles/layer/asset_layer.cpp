@@ -18,7 +18,7 @@
 #include <ds/ui/sprite/web.h>
 #include <ds/util/string_util.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "events/app_events.h"
 #include "waffles/waffles_events.h"
 #include "waffles/viewers/base_element.h"

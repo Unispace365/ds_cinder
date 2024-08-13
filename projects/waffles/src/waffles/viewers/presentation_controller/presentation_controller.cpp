@@ -18,7 +18,7 @@
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
 #include <ds/content/content_events.h>
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "app/helpers.h"
 
 #include "waffles/waffles_events.h"

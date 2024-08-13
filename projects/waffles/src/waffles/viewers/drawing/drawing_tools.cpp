@@ -25,7 +25,7 @@
 #include <ds/util/string_util.h>
 #include <waffles/util/waffles_helper.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "app/helpers.h"
 #include "drawing_area.h"
 

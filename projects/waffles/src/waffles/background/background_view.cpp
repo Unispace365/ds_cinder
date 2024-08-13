@@ -12,14 +12,14 @@
 #include <ds/ui/media/player/pdf_player.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-#include "app/app_defs.h"
-//#include "app/cms_definitions.hpp"
-//#include "app/helpers.h"
+#include "app/waffles_app_defs.h"
+
 
 #include "waffles/waffles_events.h"
 #include "waffles/template/template_config.h"
 #include "waffles/background/background_view.h"
 #include "waffles/background/media_background.h"
+#include "waffles/background/particle_background/particle_background.h"
 
 namespace {
 
@@ -44,7 +44,9 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	, mEventClient(g) {
 
 	setTransparent(false);
-	setColor(0, 0, 0);
+	//set background color from waffles settings
+	auto& color = mEngine.getColors().getColorFromName("waffles:background");
+	setColor(color);
 
 	mEventClient.listenToEvents<RequestBackgroundChange>([this](auto& e) { //
 		startBackground(e.mBackgroundType, e.mMedia, e.mPdfPage);
@@ -78,7 +80,18 @@ void BackgroundView::startBackground(const int type, ds::model::ContentModelRef 
 		mEngine.getNotifier().notify(BackgroundChangeComplete());
 		return;
 	} else if (type == BACKGROUND_TYPE_PARTICLES) {
-		DS_LOG_INFO("Particle background was removed (from this project)");
+		auto partBackground = dynamic_cast<ParticleBackground*>(mCurrentBackground);
+		std::string mp = mEngine.mContent.getChildByName("background.particle")
+							 .getPropertyResource("media_res")
+							 .getAbsoluteFilePath();
+
+		if (pdfPage < 2 && partBackground &&
+			partBackground->getMediaPath() == mEngine.mContent.getChildByName("background.particle")
+												  .getPropertyResource("media_res")
+												  .getAbsoluteFilePath()) {
+			mEngine.getNotifier().notify(BackgroundChangeComplete());
+			return; // samesies
+		}
 	} else if (type == BACKGROUND_TYPE_DEFAULT || type == BACKGROUND_TYPE_USER_MEDIA) {
 		auto medBackground = dynamic_cast<MediaBackground*>(mCurrentBackground);
 		if (medBackground) {
@@ -112,7 +125,7 @@ void BackgroundView::startBackground(const int type, ds::model::ContentModelRef 
 		// no background
 	} else if (type == BACKGROUND_TYPE_PARTICLES) {
 		// particles
-		DS_LOG_INFO("Particle background was removed (from this project)");
+		mCurrentBackground = addChildPtr(new ParticleBackground(mEngine));
 
 	} else if (type == BACKGROUND_TYPE_USER_MEDIA) {
 		if (media.empty()) {

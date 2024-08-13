@@ -6,7 +6,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/scroll/scroll_area.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 #include "waffles/model/viewer_creation_args.h"
 #include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"

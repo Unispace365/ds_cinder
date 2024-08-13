@@ -15,7 +15,7 @@
 
 #include <ds/data/resource.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 //#include "events/app_events.h"
 
 #include "waffles/viewers/launcher/launcher_pane.h"

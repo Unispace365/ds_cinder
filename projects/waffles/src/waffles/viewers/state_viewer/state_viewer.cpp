@@ -18,7 +18,7 @@
 
 #include <ds/data/resource.h>
 
-#include "app/app_defs.h"
+#include "app/waffles_app_defs.h"
 #include "waffles/waffles_events.h"
 #include "events/state_events.h"
 #include "state_detail.h"
