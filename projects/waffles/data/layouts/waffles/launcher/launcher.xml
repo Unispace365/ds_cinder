@@ -136,7 +136,7 @@
 					<layout name="panel_header"
 						layout_size_mode="flex"
 						overall_alignment="bottom"
-						height="$_menu_title:height"
+						height="$_panel:title:height"
 					>
 						<layout layout_type="horiz"
 							layout_size_mode="flex"
