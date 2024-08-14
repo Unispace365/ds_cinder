@@ -276,7 +276,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
 
-	callAfterDelay(
+	mEngine.timedCallback(
 		[this] {
 			onLayout();
 			closeButtonPlacement();
@@ -339,30 +339,37 @@ void Launcher::updateMenuItems() {
 
 	auto tops_size = mEngine.getWafflesSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
 
-	auto ambient = ds::model::ContentModelRef("Ambient");
-	ambient.setProperty("type_key", std::string("ambient"));
-	ambient.setProperty("record_name", std::string("Ambient"));
-	ambient.setProperty("width_override", tops_size.x);
-	ambient.setProperty("height_override", tops_size.y);
+	auto topNames = std::vector<std::string>();
+	auto configTop = mEngine.getWafflesSettings().getString("launcher:top:functions", 0, "Ambient,Search");
+	topNames = ds::split(configTop, ",");
+	auto top = std::vector<ds::model::ContentModelRef>();
+	for (std::string name : topNames) {
+		auto mode = ds::model::ContentModelRef(name);
+		mode.setProperty("type_key", std::string(name));
+		mode.setProperty("record_name", std::string(name));
+		mode.setProperty("width_override", tops_size.x);
+		mode.setProperty("height_override", tops_size.y);
+		top.push_back(mode);
+	}
 
-	auto search = ds::model::ContentModelRef("Search");
-	search.setProperty("type_key", std::string("search"));
-	search.setProperty("record_name", std::string("Search"));
-	search.setProperty("width_override", tops_size.x);
-	search.setProperty("height_override", tops_size.y);
+	
 
 	mNeedsTopRefresh	   = false;
 	mNeedsScrollingRefresh = false;
 	mNeedsBottomRefresh	   = false;
 
-	if (mMenuItemsTop != std::vector<ds::model::ContentModelRef>{ambient}) {
+
+	//????? why check if just ambient is there?
+	if (mMenuItemsTop != top) {
 		mMenuItemsTop.clear();
-		mMenuItemsTop	 = {ambient, search};
+		mMenuItemsTop	 = top;
 		mNeedsTopRefresh = true;
 	}
 
-	auto leftSideNames = std::vector<std::string>{
-		"Recent", "Images", "Links", "PDFs", "Presentations", /*"Streams", */ "Videos", "Folders"};
+	auto leftSideNames = std::vector<std::string>();
+	auto configLeftSide = mEngine.getWafflesSettings().getString(
+		"launcher:main:filters", 0, "Recent,Images,Links,PDFs,Presentations,Streams,Videos,Folders");
+	leftSideNames = ds::split(configLeftSide, ",");
 	auto leftSide = std::vector<ds::model::ContentModelRef>();
 	for (std::string name : leftSideNames) {
 		auto mode = ds::model::ContentModelRef(name);

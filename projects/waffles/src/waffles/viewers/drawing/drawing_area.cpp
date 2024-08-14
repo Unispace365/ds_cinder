@@ -38,7 +38,7 @@ DrawingArea::DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float
 
 	enable(false);
 
-	mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, "%APP%/data/images/ui/Circle_256.png");
+	mDrawingCanvas = new ds::ui::DrawingCanvas(mEngine, "%APP%/data/images/waffles/ui/Circle_256.png");
 	addChildPtr(mDrawingCanvas);
 	mDrawingCanvas->setBrushColor(ci::Color::white());
 	mDrawingCanvas->setBrushSize(16.0f);

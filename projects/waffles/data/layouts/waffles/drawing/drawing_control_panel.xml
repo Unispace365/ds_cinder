@@ -171,16 +171,16 @@
 				>
 					<xml name="small"
 						src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
-						<property name="sizer" radius="4" />
+						<property name="sizer" radius="#expr{ 4 * $_waffles:sprite:scale }" />
 					</xml>
 					<xml
 						name="large" src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
-						<property name="sizer" radius="6" />
+						<property name="sizer" radius="#expr{ 6 * $_waffles:sprite:scale }" />
 					</xml>
 					<xml
 						name="xxlarge"
 						src="%APP%/data/layouts/waffles/drawing/brush_size_button.xml">
-						<property name="sizer" radius="10" />
+						<property name="sizer" radius="#expr{ 10 * $_waffles:sprite:scale }" />
 					</xml>
 				</layout>
 
@@ -219,7 +219,7 @@
 				</layout>
 				<sprite layout_size_mode="stretch" />
 			</layout>
-			<sprite size="455, 1" layout_h_align="center" color="#000000" />
+			<sprite size="#expr{ 455  * $_waffles:sprite:scale }, 1" layout_h_align="center" color="#000000" />
 			<layout name="saveaandsaveas"
 				layout_type="horiz"
 				shrink_to_children="both"

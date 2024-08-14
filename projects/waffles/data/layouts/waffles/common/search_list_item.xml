@@ -94,7 +94,7 @@
 
 				<text name="name_high"
 					font="viewer:body"
-					font_size="20"
+					font_size="#expr{ 20 * $_waffles:font:scale }"
 					color="waffles:button:text:high:light"
 					layout_v_align="middle"
 					text_ellipses="end"

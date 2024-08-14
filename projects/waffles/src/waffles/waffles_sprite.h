@@ -6,9 +6,13 @@
 #include <ds/content/content_events.h>
 #include <ds/content/content_model.h>
 #include "waffles/util/shadow_layout.h"
+#include "waffles/pinboard/pinboard_button.h"
+#include "waffles/util/capture_player.h"
 #include "waffles/background/background_view.h"
 #include "waffles/service/settings_service.h"
 #include "app/waffles_app_defs.h"
+
+
 
 namespace ds::ui {
 class TouchMenu;
@@ -45,6 +49,10 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 		auto sh = new waffles::ShadowLayout(eng);
 		sh->release();
+		auto pb = new waffles::PinboardButton(eng, "");
+		pb->release();
+		auto cap = new waffles::CapturePlayer(eng);
+		cap->release();
 		
 		enable(false);
 

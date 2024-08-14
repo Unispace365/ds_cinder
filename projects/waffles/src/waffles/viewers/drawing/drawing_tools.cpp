@@ -68,8 +68,8 @@ DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
 
 
 	/// The default button can be small or medium, depending on what's in the layout file
-	float smSize  = mEngine.getAppSettings().getFloat("drawing:brush_size:small", 0, 10.0f);
-	float medSize = mEngine.getAppSettings().getFloat("drawing:brush_size:med", 0, 40.0f);
+	float smSize  = mEngine.getWafflesSettings().getFloat("drawing:brush_size:small", 0, 10.0f);
+	float medSize = mEngine.getWafflesSettings().getFloat("drawing:brush_size:med", 0, 40.0f);
 	auto  smButt  = configureBrushSizeButton("small", smSize);
 	auto  medButt = configureBrushSizeButton("med", medSize);
 	configureBrushSizeButton("large", mEngine.getAppSettings().getFloat("drawing:brush_size:large", 0, 80.0f));

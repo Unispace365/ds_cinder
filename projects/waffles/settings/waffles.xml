@@ -41,7 +41,7 @@
 	<setting name="drawing:brush_size:xlarge" value="150" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="drawing:brush_size:xxlarge" value="300" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="drawing:control_button_size" value="120, 28" type="vec2" multiplier="waffles:sprite:scale"/>
-	<setting name="drawing:control_button_size:small" value="120, 28" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="drawing:control_button_size:small" value="120, 28" type="vec2" multiplier="waffles:sprite:scale"/>
 	<setting name="drawing:swatch_size" value="28, 28" type="vec2" multiplier="waffles:sprite:scale"/>
 	<setting name="drawing:initial_resolution" value="3840" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="drawings:can_save_as" value="false" type="bool"/>
