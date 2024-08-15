@@ -488,7 +488,11 @@ void Sprite::drawLocalServer() {
 
 void Sprite::buildRenderBatch() {
 	if (mCornerRadius != 0.f) {
-		auto newGlobalScale = 1.f / getGlobalTransform()[0][0];
+		auto globalScale	= getGlobalTransform()[0][0];
+		if (globalScale <= std::numeric_limits<float>::epsilon()) {
+			globalScale = std::numeric_limits<float>::epsilon();
+		}
+		auto newGlobalScale = std::min(1.f / getGlobalTransform()[0][0], 1000.f);
 		if (newGlobalScale != mGlobalScale) {
 			mGlobalScale = newGlobalScale;
 			mNeedsBatchUpdate = true;
