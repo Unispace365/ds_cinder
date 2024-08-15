@@ -974,6 +974,8 @@ namespace ui {
 
 		float mWidth, mHeight, mDepth;
 
+		float mGlobalScale = 1.f;
+
 		css::Value mMinWidth, mMaxWidth;
 		css::Value mMinHeight, mMaxHeight;
 		Fit		   mFit;
