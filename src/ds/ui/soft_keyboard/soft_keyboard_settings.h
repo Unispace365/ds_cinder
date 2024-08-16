@@ -42,7 +42,8 @@ namespace ds { namespace ui {
 		  , mKeyUpTextConfig("keyboard:key:up")
 		  , mKeyDnTextConfig("keyboard:key:down")
 		  , mEmailMode(false) // Only applies to the "extended" keyboard (adds @ and .com keys)
-		  , mKeyScale(1.0f) {}
+		  , mKeyScale(1.0f)
+		  , mBackgroundOpacity(0.98f) {}
 
 		void normalizeSettings() {
 			if (mKeyLetterDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyLetterDnImage))) {
@@ -127,6 +128,9 @@ namespace ds { namespace ui {
 
 		/// For image keys, scales the images up or down
 		float mKeyScale;
+
+		/// Opacity of the keyboard holder (if applicable)
+		float mBackgroundOpacity;
 	};
 
 }} // namespace ds::ui

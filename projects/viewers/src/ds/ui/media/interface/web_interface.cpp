@@ -521,7 +521,7 @@ void WebInterface::updateWidgets() {
 
 			if (!mKeyboardArea->visible()) {
 				mKeyboardArea->show();
-				mKeyboardArea->tweenOpacity(0.98f, mAnimateDuration, 0.0f, ci::easeNone);
+				mKeyboardArea->tweenOpacity(mKeyboard->getSoftKeyboardSettings().mBackgroundOpacity, mAnimateDuration, 0.0f, ci::easeNone);
 			}
 		} else {
 			if (mKeyboardAutoDisablesTimeout) {
