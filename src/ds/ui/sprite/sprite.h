@@ -753,6 +753,10 @@ namespace ui {
 		/// can take a Resource (Image, Video, PDF, etc)
 		virtual void setResource(const ds::Resource&);
 
+		/// Set the resource preview content for a sprite. This is a base function that should be overridden by anything that
+		/// can take a Resource (Image, Video, PDF, etc)
+		virtual void setResourcePreview(const ds::Resource&);
+
 		SpriteShader&	 getBaseShader();
 		std::string		 getBaseShaderName() const;
 		ds::gl::Uniform& getUniform();

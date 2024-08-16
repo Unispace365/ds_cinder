@@ -39,10 +39,15 @@ class MediaPlayer : public ds::ui::Sprite {
 	void loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	/// Support the base sprite setting function, which is the same as loadMedia and initialize immediately
-	virtual void setResource(const ds::Resource& reccy) override { loadMedia(reccy); }
+	void setResource(const ds::Resource& reccy) override { loadMedia(reccy); }
+
+	void setResourcePreview(const ds::Resource& reccy) override { mResourcePreview = reccy; }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
 	const ds::Resource& getResource() { return mResource; }
+
+	/// Returns the data model for the currently set media (may be blank or errored)
+	const ds::Resource& getResourcePreview() { return mResourcePreview; }
 
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have
 	/// an effect
@@ -175,6 +180,7 @@ class MediaPlayer : public ds::ui::Sprite {
 	bool mInterfaceLocked	= false;
 
 	ds::Resource mResource;
+	ds::Resource mResourcePreview;
 	float		 mContentAspectRatio;
 	float		 mAnimDuration;
 

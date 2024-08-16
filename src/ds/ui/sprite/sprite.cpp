@@ -1785,6 +1785,11 @@ void Sprite::setResource(const ds::Resource&) {
 				   << ds::utf8_from_wstr(getSpriteName(true)));
 }
 
+void Sprite::setResourcePreview(const ds::Resource&) {
+	DS_LOG_WARNING("Set preview resource hasn't been implemented for this sprite type. Sprite name="
+				   << ds::utf8_from_wstr(getSpriteName(true)));
+}
+
 void Sprite::setupFinalRenderBuffer() {
 	if (mIsRenderFinalToTexture) {
 
