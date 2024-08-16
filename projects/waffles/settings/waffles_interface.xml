@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+
+	<!--<setting name="launcher:main:filters" value="Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders" type="string"/>-->
+	<setting name="launcher:main:filters" value="Folders|Folders,Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Videos|Videos" type="string"/>
+	<setting name="launcher:folder:key" value="ggIPKG4RwMZg" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="Z6VTNqQ3iUV4" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="QQwUEq2MYDTc" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="IaQkbFuHnXQd" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="media" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:presentation:key" value="pQtRzG78ffu0" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
+
+	<!-- If the following three fields are all empty then content is pulled from the entire tree-->
+	<setting name="launcher:content:key" value="" comment="This can be either a uid or an app_key. Or the value '#root' for the content tree root. checks app_key first"/>
+	<setting name="launcher:event:field" value="" comment="The name of the a field in any event that contains UID's of content to filter from"/>
+	<setting name="launcher:platform:field" value="asset_browser_content" comment="The name of the a field in the platform that contains UID's of content to filter from"/>
+
+
+
+	<!-- END WAFFLES SETTINGS -->
+</settings>
+
+

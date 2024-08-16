@@ -252,6 +252,13 @@ void App::loadAppSettings() {
 		mEngine.loadSettings("waffles", "waffles.xml");
 	}
 
+	if (ds::Environment::hasSettings("waffles_interface.xml")) {
+		mEngine.loadSettings("waffles_interface", "waffles_interface.xml");
+		mEngine.getSettings("waffles_interface").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+			mEngine.getSettings("waffles").addSetting(theSetting);
+		});
+	}
+
 	//load waffles_styles.xml
 	if (ds::Environment::hasSettings("waffles_styles.xml")) {
 		mEngine.loadSettings("waffles_styles", "waffles_styles.xml");
