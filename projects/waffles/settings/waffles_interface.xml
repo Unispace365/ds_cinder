@@ -2,6 +2,9 @@
 <settings>
 
 	<!--<setting name="launcher:main:filters" value="Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders" type="string"/>-->
+	<setting name="layers:background:mode" value="createAndPlace" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a Background Sprite in the waffles sprite"/>
+	<setting name="layers:template:mode" value="createAndPlace" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a template Sprite in the waffles sprite"/>
+	<setting name="layers:ambient:mode" value="off" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a ambient Sprite in the waffles sprite"/>
 	<setting name="launcher:main:filters" value="Folders|Folders,Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Videos|Videos" type="string"/>
 	<setting name="launcher:folder:key" value="ggIPKG4RwMZg" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="Z6VTNqQ3iUV4" comment="This can be either a type uid or an app_key. checks app_key first"/>

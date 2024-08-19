@@ -17,7 +17,7 @@
 #include <ds/ui/sprite/video.h>
 #include <ds/ui/sprite/web.h>
 #include <ds/util/string_util.h>
-
+#include <ds\app\engine\engine_standalone.h>
 
 #include "app/waffles_app_defs.h"
 //#include "app/helpers.h"
@@ -25,11 +25,94 @@
 #include "waffles/touch_menu/touch_menu_graphics.h"
 #include "waffles/viewers/viewer_controller.h"
 #include "waffles/template/template_config.h"
+
 #include "ds/content/platform.h"
 
 namespace waffles {
 
 WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
+
+void WafflesSprite::initializeWaffles() {
+	if (auto holdy = getSprite("viewer_controller_holdy")) {
+
+		holdy->addChildPtr(mViewerController);
+	}
+	auto backgroundMode = mEngine.getWafflesSettings().getString("layers:background:mode", 0, "createAndPlace");
+
+	if (backgroundMode != "off") {
+		mBackgroundView = new BackgroundView(mEngine);
+		mBackgroundView->setSize(getWidth(), getHeight());
+		auto holdy = getSprite("background_holdy");
+		if (backgroundMode == "createAndPlace" && holdy ) {
+			holdy->addChildPtr(mBackgroundView);
+		}
+	}
+
+	auto templateMode = mEngine.getWafflesSettings().getString("layers:template:mode", 0, "createAndPlace");
+
+	/* if (templateMode != "off") {
+		mTemplateLayer = new TemplateLayer(mEngine, ci::vec2(getSize()), ci::vec2(0.0f, 0.0f));
+		auto holdy = getSprite("template_holder");
+		if (templateMode == "createAndPlace" && holdy) {
+			holdy->addChildPtr(mTemplateLayer);
+		}
+	}*/
+
+	//** These are here to get initializers to run **//
+	auto sh = new waffles::ShadowLayout(mEngine);
+	sh->release();
+	auto pb = new waffles::PinboardButton(mEngine, "");
+	pb->release();
+	auto cap = new waffles::CapturePlayer(mEngine);
+	cap->release();
+	//** End: These are here to get initializers to run **//
+
+	enable(false);
+
+	runLayout();
+
+	setupTouchMenu();
+
+	listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
+
+	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { onIdleStarted(ev); });
+	listenToEvents<waffles::HideWaffles>([this](const auto& ev) { onHide(ev); });
+	listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { onIdleEnded(ev); });
+	listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) { onScheduleUpdated(ev); });
+	listenToEvents<waffles::RequestPresentationEndEvent>([this](const auto& ev) { onPresentationEndRequest(ev); });
+	listenToEvents<waffles::RequestEngagePresentation>([this](const auto& ev) { onPresentationStartRequest(ev); });
+	listenToEvents<waffles::RequestEngageNext>([this](const auto& ev) { onNextRequest(ev); });
+	listenToEvents<waffles::RequestEngageBack>([this](const auto& ev) { onBackRequest(ev); });
+	listenToEvents<waffles::RequestPresentationAdvanceEvent>(
+		[this](const auto& ev) { onPresentationAdvanceRequest(ev); });
+	setDefaultPresentation();
+	if (mDefaultWaffles == nullptr) {
+		mDefaultWaffles = this;
+	}
+
+	mEngine.timedCallback(
+		[this]() {
+			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+			auto model = ds::model::ContentModelRef("Empty");
+			model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
+			ds::Resource r = helper->getBackgroundForPlatform();
+			if (helper->getApplyParticles()) {
+				mEngine.getNotifier().notify(waffles::RequestBackgroundChange(
+					waffles::BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef())); // 1 = BACKGROUND_TYPE_PARTICLES
+			}
+			else if (!r.empty()) {
+				model.setPropertyResource("media_res", r);
+				mEngine.getNotifier().notify(waffles::RequestBackgroundChange(waffles::BACKGROUND_TYPE_USER_MEDIA, model));
+			}
+			else {
+				mEngine.getNotifier().notify(
+					waffles::RequestBackgroundChange(waffles::BACKGROUND_TYPE_DEFAULT, ds::model::ContentModelRef()));
+			}
+		},
+	0.1f);
+
+
+}
 
 //template <class VC>
 void WafflesSprite::onIdleStarted(const ds::app::IdleStartedEvent& e) {
@@ -558,7 +641,9 @@ void WafflesSprite::prevItem() {
 	gotoItem(mPlaylistIdx - 1);
 }
 
-//template <class VC>
+
+
+// template <class VC>
 void WafflesSprite::onSizeChanged() {
 	clearChildren();
 
@@ -602,4 +687,6 @@ void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 void WafflesSprite::onHide(const waffles::HideWaffles& e) {}
 
 
-} // namespace downstream
+
+
+} // namespace waffles

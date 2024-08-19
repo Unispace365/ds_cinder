@@ -6,6 +6,8 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
+#include <tuple>
+
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
@@ -36,6 +38,8 @@
 #include <cinder/CinderImGui.h>
 #include <cinder/ImageIo.h>
 #include <cinder/ip/Flip.h>
+
+
 
 #ifndef _WIN32
 // For access to Linux native GLFW window calls
@@ -71,8 +75,8 @@ void linuxImplRegisterWindowFiledropHandler(ci::app::WindowRef cinderWindow) {
 // Answer a new engine based on the current settings
 static ds::Engine& new_engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
-static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
-	static std::vector<std::function<void(ds::Engine&)>> VEC;
+static std::vector<std::tuple<std::string, std::function<void(ds::Engine&)>>>& get_startups() {
+	static std::vector<std::tuple<std::string,std::function<void(ds::Engine&)>>> VEC;
 
 	DS_LOG_INFO("Getting vector "<<&VEC)
 	return VEC;
@@ -118,7 +122,11 @@ void EngineSettingsPreloader::earlyPrepareAppSettings(ci::app::AppBase::Settings
 
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
-	if (fn != nullptr) get_startups().push_back(fn);
+	if (fn != nullptr) get_startups().push_back({"unamed", fn});
+}
+
+void App::AddStartup(std::string name, const std::function<void(ds::Engine&)>& fn) {
+	if (fn != nullptr) get_startups().push_back({name, fn});
 }
 
 void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
@@ -164,9 +172,12 @@ App::App(const RootList& roots)
 						  [](ds::BlobRegistry& r) { ds::ui::CircleBorder::installAsClient(r); });
 
 	// Run all the statically-created initialization code.
-	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();
+	std::vector< std::tuple<std::string,std::function<void(ds::Engine&)> > >& startups = get_startups();
 	for (auto it = startups.begin(), end = startups.end(); it != end; ++it) {
-		if (*it) (*it)(mEngine);
+		auto [name,func]  = (*it);
+		if (func) {
+			func(mEngine);
+		};
 	}
 	startups.clear();
 

@@ -460,7 +460,7 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	if (!mShowingWebcam) {
-		setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+		ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
 
 	// setting size is necessary to get size limits to work
@@ -579,7 +579,7 @@ void TitledMediaViewer::startVideo() {
 	}
 
 	mMediaPlayer->loadMedia(primaryResource);
-	setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+	ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	mRootLayout->runLayout();
 	mMediaPlayer->enter();
 }

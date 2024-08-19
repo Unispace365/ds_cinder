@@ -54,6 +54,8 @@ class App : public EngineSettingsPreloader, public cinder::app::App {
 	/// Note that throwing an exception in the function will exit the app.
 	static void AddStartup(const std::function<void(ds::Engine&)>&);
 
+	static void AddStartup(std::string name, const std::function<void(ds::Engine&)>& fn);
+
 	/// Called just before the main app setupServer() virtual function
 	static void AddServerSetup(const std::function<void(ds::Engine&)>&);
 

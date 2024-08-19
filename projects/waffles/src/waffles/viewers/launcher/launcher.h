@@ -27,10 +27,7 @@ class Launcher : public BaseElement {
   protected:
 	virtual void onLayout();
 	virtual void onCreationArgsSet();
-	virtual bool isFolder(ds::model::ContentModelRef model);
-	virtual bool isMedia(ds::model::ContentModelRef model);
-	virtual bool isPresentation(ds::model::ContentModelRef model);
-	virtual bool isAmbientPlaylist(ds::model::ContentModelRef model);
+
 
 	ds::EventClient mEventClient;
 
@@ -94,10 +91,7 @@ class Launcher : public BaseElement {
 	bool mPanelTransitioning = false;
 	float mWafflesScale = 1.0f;
 
-	std::vector<std::string> mAcceptableFolders;
-	std::vector<std::string> mAcceptableMedia;
-	std::vector<std::string> mAcceptablePresentations;
-	std::vector<std::string> mAcceptableAmbientPlaylists;
+	
 
 };
 

@@ -9,6 +9,7 @@
 #include "waffles/pinboard/pinboard_button.h"
 #include "waffles/util/capture_player.h"
 #include "waffles/background/background_view.h"
+#include "waffles/layer/template_layer.h"
 #include "waffles/service/settings_service.h"
 #include "app/waffles_app_defs.h"
 
@@ -36,16 +37,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng) {
 		static_assert(std::is_base_of_v<waffles::ViewerController, VC>,
 					  "VC must be a subclass of waffles::ViewerController");
-		if (auto holdy = getSprite("viewer_controller_holdy")) {
-			mViewerController = new VC(mEngine, ci::vec2(getSize()));
-			holdy->addChildPtr(mViewerController);
-		}
-
-		if (auto holdy = getSprite("background_holdy")) {
-			mBackgroundView = new BackgroundView(mEngine);
-			mBackgroundView->setSize(getWidth(), getHeight());
-			holdy->addChildPtr(mBackgroundView);
-		}
+		mViewerController = new VC(mEngine, ci::vec2(getSize()));
 
 		auto sh = new waffles::ShadowLayout(eng);
 		sh->release();
@@ -53,36 +45,8 @@ class WafflesSprite : public ds::ui::SmartLayout {
 		pb->release();
 		auto cap = new waffles::CapturePlayer(eng);
 		cap->release();
-		
-		enable(false);
 
-		runLayout();
-
-		setupTouchMenu();
-
-		listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
-
-		listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { onIdleStarted(ev); });
-		listenToEvents<waffles::HideWaffles>([this](const auto& ev) { onHide(ev); });
-		listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { onIdleEnded(ev); });
-		listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) { onScheduleUpdated(ev); });
-		listenToEvents<waffles::RequestPresentationEndEvent>([this](const auto& ev) { onPresentationEndRequest(ev); });
-		listenToEvents<waffles::RequestEngagePresentation>([this](const auto& ev) { onPresentationStartRequest(ev); });
-		listenToEvents<waffles::RequestEngageNext>([this](const auto& ev) { onNextRequest(ev); });
-		listenToEvents<waffles::RequestEngageBack>([this](const auto& ev) { onBackRequest(ev); });
-		listenToEvents<waffles::RequestPresentationAdvanceEvent>(
-			[this](const auto& ev) { onPresentationAdvanceRequest(ev); });
-		setDefaultPresentation();
-		if (mDefaultWaffles == nullptr) {
-			mDefaultWaffles = this;
-		}
-
-		//mEngine.timedCallback(
-		//	[this] {
-		//		mEngine.getNotifier().notify(
-		//			RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef(), 0));
-		//	},
-		//	2.f);
+		initializeWaffles();
 	}
 	~WafflesSprite() {
 		if (mDefaultWaffles == this) {
@@ -92,6 +56,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	static void setDefault(WafflesSprite* defaultWaffles) { mDefaultWaffles = defaultWaffles; }
 	static WafflesSprite* getDefault() { return mDefaultWaffles; }
 
+	virtual void initializeWaffles();
 	virtual void onSizeChanged() override;
 	
 	/**
@@ -147,6 +112,8 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	waffles::SettingsService mSettingsService;
 	waffles::ViewerController* mViewerController = nullptr;
 	waffles::BackgroundView*   mBackgroundView = nullptr;
+	waffles::TemplateLayer* mTemplateView = nullptr;
+
 
 	ds::ui::TouchMenu* mTouchMenu = nullptr;
 	//from old engage controller

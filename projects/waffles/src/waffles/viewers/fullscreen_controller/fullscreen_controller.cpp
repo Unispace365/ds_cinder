@@ -156,7 +156,7 @@ void FullscreenController::updateUi() {
 			mMediaInterface =
 				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mediaPlayer->getPlayer(), interfaceHolder);
 
-			setMediaInterfaceStyle(mMediaInterface);
+			ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;

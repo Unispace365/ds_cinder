@@ -35,30 +35,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	: BaseElement(g)
 	, mEventClient(g) {
 
-	//read in acceptable content from waffles settings
-	auto foldersCount = mEngine.getWafflesSettings().countSetting("launcher:folder:key");
-	for (int i = 0; i < foldersCount; ++i) {
-		auto folder = mEngine.getWafflesSettings().getString("launcher:folder:key", i, "");
-		mAcceptableFolders.push_back(folder);
-	}
 	
-	auto mediaCount = mEngine.getWafflesSettings().countSetting("launcher:media:key");
-	for (int i = 0; i < mediaCount; ++i) {
-		auto media = mEngine.getWafflesSettings().getString("launcher:media:key", i, "");
-		mAcceptableMedia.push_back(media);
-	}
-
-	auto presentationCount = mEngine.getWafflesSettings().countSetting("launcher:presentation:key");
-	for (int i = 0; i < presentationCount; ++i) {
-		auto presentation = mEngine.getWafflesSettings().getString("launcher:presentation:key", i, "");
-		mAcceptablePresentations.push_back(presentation);
-	}
-
-	auto ambientPlaylistCount = mEngine.getWafflesSettings().countSetting("launcher:ambient_playlist:key");
-	for (int i = 0; i < ambientPlaylistCount; ++i) {
-		auto ambientPlaylist = mEngine.getWafflesSettings().getString("launcher:ambient_playlist:key", i, "");
-		mAcceptableAmbientPlaylists.push_back(ambientPlaylist);
-	}
 
 	mEngine.getNotifier().notify(waffles::WafflesLauncherOpened());
 
@@ -287,7 +264,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 void Launcher::updateItem(ds::ui::SmartLayout* item) {
 	if (!mPrimaryLayout) return;
 
-	configureListItem(mEngine, item, ci::vec2(mPrimaryLayout->getWidth(), item->getHeight()));
+	ContentUtils::configureListItem(mEngine, item, ci::vec2(mPrimaryLayout->getWidth(), item->getHeight()));
 	item->setSize(mPrimaryLayout->getWidth(), item->getHeight());
 	setButtonCallbacks(item);
 }
@@ -368,12 +345,21 @@ void Launcher::updateMenuItems() {
 
 	auto leftSideNames = std::vector<std::string>();
 	auto configLeftSide = mEngine.getWafflesSettings().getString(
-		"launcher:main:filters", 0, "Recent,Images,Links,PDFs,Presentations,Streams,Videos,Folders");
+		"launcher:main:filters", 0, "Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders");
 	leftSideNames = ds::split(configLeftSide, ",");
 	auto leftSide = std::vector<ds::model::ContentModelRef>();
-	for (std::string name : leftSideNames) {
+	for (std::string btnConfig : leftSideNames) {
+		auto parts = ds::split(btnConfig, "|");
+		if (parts.size() != 2) {
+			DS_LOG_WARNING("Invalid launcher button config: " << btnConfig);
+			continue;
+		}
+
+
+		auto type = std::string(parts[1]);
+		auto name = std::string(parts[0]);
 		auto mode = ds::model::ContentModelRef(name);
-		mode.setProperty("type_key", std::string(name));
+		mode.setProperty("type_key", std::string(type));
 		mode.setProperty("record_name", std::string(name));
 		leftSide.push_back(mode);
 	}
@@ -468,37 +454,6 @@ void Launcher::onCreationArgsSet() {
 	mMaxViewersOfThisType = 1;
 }
 
-bool Launcher::isFolder(ds::model::ContentModelRef model) {
-	auto uid = model.getPropertyString("type_uid");
-	auto type = model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), type) != mAcceptableFolders.end();
-	result = result || std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), uid) != mAcceptableFolders.end();
-	return result;
-}
-
-bool Launcher::isMedia(ds::model::ContentModelRef model) {
-	auto uid = model.getPropertyString("type_uid");
-	auto type = model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), type) != mAcceptableMedia.end();
-	result = result || std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), uid) != mAcceptableMedia.end();
-	return result;
-}
-
-bool Launcher::isPresentation(ds::model::ContentModelRef model) {
-	auto uid = model.getPropertyString("type_uid");
-	auto type = model.getPropertyString("type_key");
-	bool result = std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), type) != mAcceptablePresentations.end();
-	result = result || std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), uid) != mAcceptablePresentations.end();
-	return result;
-}
-
-bool Launcher::isAmbientPlaylist(ds::model::ContentModelRef model) {
-	auto uid = model.getPropertyString("type_uid");
-	auto type = model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), type) != mAcceptableAmbientPlaylists.end();
-	result = result || std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), uid) != mAcceptableAmbientPlaylists.end();
-	return result;
-}
 
 ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 	auto assetBtn = new ds::ui::SmartLayout(mEngine, "waffles/common/filter_item.xml");
@@ -537,15 +492,14 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	updateRecent(btn->getContentModel());
 	auto offset = mEngine.getWafflesSettings().getVec3("launcher:media_open:offset", 0, ci::vec3(1000.f, 0, 0)) *
 				  ((pos.x > (mEngine.getWorldWidth() / 2.f)) ? ci::vec3(-1.f, 1.f, 1.f) : ci::vec3(1.f, 1.f, 1.f));
-	bool alreadyHandled = handleListItemTap(mEngine, btn, pos + offset);
+	bool alreadyHandled = ContentUtils::handleListItemTap(mEngine, btn, pos + offset);
 	if (alreadyHandled) return;
 
 	auto model	 = btn->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
 
-	if (type == "playlist_folder" || type == "assets_folder" || type == "assets" ||
-		type == waffles::MEDIA_TYPE_DIRECTORY_CMS) {
+	if (ContentUtils::getDefault(mEngine)->isFolder(model) || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
 		panelButtonTapped(btn);
 	} else if (type == "presentation") {
 		if (model.getChildren().size() > 0) { // activate first slide
@@ -645,35 +599,35 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
 	if (type == "Images") {
-		return isMedia(model) &&
+		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::IMAGE_TYPE;
 	} else if (type == "Presentations") {
-		return isPresentation(model);
+		return ContentUtils::getDefault(mEngine)->isPresentation(model);
 	} else if (type == "Videos") {
-		return isMedia(model) &&
+		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   (model.getPropertyResource("media").getType() == ds::Resource::VIDEO_TYPE ||
 				model.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE);
 	} else if (type == "Streams") { // TODO: untested
-		return isMedia(model) &&
+		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::VIDEO_STREAM_TYPE;
 	} else if (type == "PDFs") { // TODO: untested
-		return isMedia(model) &&
+		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::PDF_TYPE;
 	} else if (type == "Links") {
-		return isMedia(model) &&
+		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE;
 	} else if (type == "Recent") {
 		loadRecent();
 		return recentContains(model);
 	} else if (type == "Folders") {
-		return isFolder(model);
+		return ContentUtils::getDefault(mEngine)->isFolder(model);
 	}
 	return false;
 }
 
 void Launcher::updateRecent(ds::model::ContentModelRef content) {
 	if (std::find(mFolderStack.begin(), mFolderStack.end(), content) == mFolderStack.end() &&
-		content.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS) {
+		(content.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS || ContentUtils::getDefault(mEngine)->isFolder(content))) {
 		mFolderStack.push_back(content);
 		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
 			back_button->show();

@@ -58,7 +58,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	}
 
 	fileList->setContentItemTappedCallback([this](ds::ui::SmartLayout* sl, ds::model::ContentModelRef theModel) {
-		bool handled = handleListItemTap(mEngine, sl, sl->getGlobalPosition());
+		bool handled = ContentUtils::handleListItemTap(mEngine, sl, sl->getGlobalPosition());
 		if (!handled) {
 			DS_LOG_INFO("Possibly unhandled item in search_viewer: " << theModel.getPropertyString("type_key") << " : "
 																	 << theModel.getPropertyString("record_name"));
@@ -66,7 +66,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	});
 
 	fileList->setContentItemUpdatedCallback([this, fileList](ds::ui::SmartLayout* sl) {
-		configureListItem(mEngine, sl, ci::vec2(fileList->getWidth(), sl->getHeight()));
+		ContentUtils::configureListItem(mEngine, sl, ci::vec2(fileList->getWidth(), sl->getHeight()));
 	});
 
 	fileList->setStateChangeCallback([this](ds::ui::Sprite* sp, const bool highlighted) {

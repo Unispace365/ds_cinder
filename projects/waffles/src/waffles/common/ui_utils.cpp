@@ -22,8 +22,83 @@
 
 namespace waffles {
 
-void configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
+ContentUtils::ContentUtils(ds::ui::SpriteEngine& g)
+  : ds::ui::Sprite(g) {
+	// read in acceptable content from waffles settings
+	auto foldersCount = mEngine.getWafflesSettings().countSetting("launcher:folder:key");
+	for (int i = 0; i < foldersCount; ++i) {
+		auto folder = mEngine.getWafflesSettings().getString("launcher:folder:key", i, "");
+		mAcceptableFolders.push_back(folder);
+	}
+
+	auto mediaCount = mEngine.getWafflesSettings().countSetting("launcher:media:key");
+	for (int i = 0; i < mediaCount; ++i) {
+		auto media = mEngine.getWafflesSettings().getString("launcher:media:key", i, "");
+		mAcceptableMedia.push_back(media);
+	}
+
+	auto presentationCount = mEngine.getWafflesSettings().countSetting("launcher:presentation:key");
+	for (int i = 0; i < presentationCount; ++i) {
+		auto presentation = mEngine.getWafflesSettings().getString("launcher:presentation:key", i, "");
+		mAcceptablePresentations.push_back(presentation);
+	}
+
+	auto ambientPlaylistCount = mEngine.getWafflesSettings().countSetting("launcher:ambient_playlist:key");
+	for (int i = 0; i < ambientPlaylistCount; ++i) {
+		auto ambientPlaylist = mEngine.getWafflesSettings().getString("launcher:ambient_playlist:key", i, "");
+		mAcceptableAmbientPlaylists.push_back(ambientPlaylist);
+	}
+}
+
+bool ContentUtils::isFolder(ds::model::ContentModelRef model) {
+	auto uid	= model.getPropertyString("type_uid");
+	auto type	= model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), type) != mAcceptableFolders.end();
+	result = result || std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), uid) != mAcceptableFolders.end();
+	return result;
+}
+
+bool ContentUtils::isMedia(ds::model::ContentModelRef model) {
+	auto uid	= model.getPropertyString("type_uid");
+	auto type	= model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), type) != mAcceptableMedia.end();
+	result		= result || std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), uid) != mAcceptableMedia.end();
+	return result;
+}
+
+bool ContentUtils::isPresentation(ds::model::ContentModelRef model) {
+	auto uid	= model.getPropertyString("type_uid");
+	auto type	= model.getPropertyString("type_key");
+	bool result = std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), type) !=
+				  mAcceptablePresentations.end();
+	result = result || std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), uid) !=
+						   mAcceptablePresentations.end();
+	return result;
+}
+
+bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) {
+	auto uid	= model.getPropertyString("type_uid");
+	auto type	= model.getPropertyString("type_key");
+	bool result = std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), type) !=
+				  mAcceptableAmbientPlaylists.end();
+	result = result || std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), uid) !=
+						   mAcceptableAmbientPlaylists.end();
+	return result;
+}
+
+
+ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
+	static ContentUtils* sDefault = nullptr;
+	if (!sDefault) {
+		sDefault = new ContentUtils(g);
+	}
+	return sDefault;
+}
+
+void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
+
 	std::string thumbPath  = "";
+	auto		theModel = item->getContentModel();
 	auto		theType	   = item->getContentModel().getPropertyString("type_key");
 	auto		theTypeUid = item->getContentModel().getPropertyString("type_uid");
 	auto		mediaType  = item->getContentModel().getPropertyResource("media").getType();
@@ -31,19 +106,19 @@ void configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 	bool showArrow = false;
 	bool validy	   = true;
 
-	if (theType == "assets_folder" || theType == "playlist_folder" || theType == waffles::MEDIA_TYPE_DIRECTORY_CMS) {
+	if (theType == "assets_folder" || theType == "playlist_folder" || theType == waffles::MEDIA_TYPE_DIRECTORY_CMS || getDefault(engine)->isFolder(theModel)) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
 		showArrow = true;
-	} else if (theType == "current_playlist") {
+	} else if (theType == "current_playlist" ) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Playlist_256.png";
 		showArrow = true;
-	} else if (theType == "ambient") {
+	} else if (theType == "ambient" || getDefault(engine)->isAmbientPlaylist(theModel)) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Ambient_256.png";
 	} else if (theType == "presentation_controller") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Presentations_256.png";
 	} else if (theType == "close_assets") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Close_256.png";
-	} else if (theType == "presentation") {
+	} else if (theType == "presentation" || getDefault(engine)->isPresentation(theModel)) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Presentations_256.png";
 		showArrow = true;
 	} else if (theType == "pinboard") {
@@ -68,21 +143,21 @@ void configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 	} else if (theType == "search") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Search_256.png";
 	} else if (theType == "custom_layout_template") {
-		thumbPath = "%APP%/data/images/ui/Custom Layout_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Custom Layout_256.png";
 	} else if (theType == "particle_text_template") {
-		thumbPath = "%APP%/data/images/ui/Particle_Text_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Particle_Text_256.png";
 	} else if (theType == "message_template") {
-		thumbPath = "%APP%/data/images/ui/Message_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Message_256.png";
 	} else if (theType == "bubbles_template") {
-		thumbPath = "%APP%/data/images/ui/Bubbles_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Bubbles_256.png";
 	} else if (theType == "media_gallery") {
-		thumbPath = "%APP%/data/images/ui/Media_Gallery_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Media_Gallery_256.png";
 	} else if (theType == "feature_story_template") {
-		thumbPath = "%APP%/data/images/ui/Feature Story_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Feature Story_256.png";
 	} else if (theType == "cards_template") {
-		thumbPath = "%APP%/data/images/ui/Cards_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Cards_256.png";
 	} else if (theType == "carrousel_cards_template") {
-		thumbPath = "%APP%/data/images/ui/Carrousel Cards_256.png";
+		thumbPath = "%APP%/data/images/waffles/ui/Carrousel Cards_256.png";
 	} else if (theType == "asset_mode") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Asset viewing_256.png";
 	} else if (theType == "assets") {
@@ -92,7 +167,7 @@ void configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Asset viewing_256.png";
 	} else if (theTypeUid == "ykAdRYGJeuXI") {
 		thumbPath = "%APP%/data/images/ui/Media_256.png";
-	} else if (theType == "media") {
+	} else if (theType == "media" || getDefault(engine)->isMedia(theModel)) {
 		if (mediaType == ds::Resource::IMAGE_TYPE) {
 			thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
 		} else if (mediaType == ds::Resource::PDF_TYPE) {
@@ -140,7 +215,7 @@ void configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 	item->runLayout();
 }
 
-bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec3 pos) {
+bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec3 pos) {
 	auto model	 = item->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
@@ -150,15 +225,15 @@ bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 	} else if (type == "media_template") {
 		// Special case for disambiguating media template from media item
 		engine.getNotifier().notify(waffles::RequestEngagePresentation(model));
-	} else if (type == "media") {
-		engine.getNotifier().notify(
-			waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
+		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
 		auto browserRes	  = ds::Resource("https://google.com");
 		auto browserModel = ds::model::ContentModelRef();
 		browserModel.setPropertyResource("media", browserRes);
-		engine.getNotifier().notify(
-			waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			waffles::ViewerCreationArgs(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "asset_mode") {
 		engine.getNotifier().notify(waffles::RequestEngagePresentation(ds::model::ContentModelRef("assets")));
 		engine.getNotifier().notify(waffles::ChangeTemplateRequest());
@@ -174,19 +249,19 @@ bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 		auto streamModel = ds::model::ContentModelRef();
 		streamModel.setProperty("record_name", model.getPropertyString("record_name"));
 		streamModel.setPropertyResource("media", streamRes);
-		engine.getNotifier().notify(
-			waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			waffles::ViewerCreationArgs(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "pinboard_event") {
 		engine.getNotifier().notify(waffles::RequestEngagePresentation(model));
 		engine.getNotifier().notify(waffles::ChangeTemplateRequest(model));
 	} else if (type == "presentation_controller") {
 		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
-								   waffles::ViewerCreationArgs::kViewLayerTop)));
+										waffles::ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
 		engine.getNotifier().notify(waffles::RequestCloseAllEvent(pos));
-	} else if (type == "Recent" || type == "Images" || type == "Links" || type == "PDFs" ||
-			   type == "Presentations" || type == "Streams" || type == "Videos" || type == "Folders") {
+	} else if (type == "Recent" || type == "Images" || type == "Links" || type == "PDFs" || type == "Presentations" ||
+			   type == "Streams" || type == "Videos" || type == "Folders") {
 		engine.getNotifier().notify(waffles::WafflesFilterEvent(type, true));
 	} else {
 		// engine.getNotifier().notify(RequestEngagePresentation(model));
@@ -197,7 +272,7 @@ bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 }
 
 
-void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
+void ContentUtils::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
 	auto& mEngine = interfacey->getEngine();
 
@@ -421,4 +496,4 @@ void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	}
 }
 
-} // namespace mv
+} // namespace waffles

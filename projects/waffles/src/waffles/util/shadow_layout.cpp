@@ -15,8 +15,7 @@
 
 namespace {
 auto INIT_RIGHT = []() {
-	DS_LOG_INFO("Adding shadow layout sprite");
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("shadow_layout", [](ds::Engine& e) {
 		e.installSprite([](ds::BlobRegistry& r) { waffles::ShadowLayout::installAsServer(r); },
 						[](ds::BlobRegistry& r) { waffles::ShadowLayout::installAsClient(r); });
 
@@ -71,8 +70,40 @@ auto INIT_RIGHT = []() {
 	return true;
 }();
 
-/// these are the same shaders as the text sprite! wee!
-const std::string opacityFrag = R"FRAG(
+
+
+ci::gl::GlslProgRef sBlurShader; // = ci::gl::GlslProg::create(shadowVert, shadowFrag);
+ci::gl::GlslProgRef sDrawShader; // = ci::gl::GlslProg::create(vertShader, opacityFrag);
+
+char BLOB_TYPE = 0;
+
+const ds::ui::DirtyState& DIRTYSHADOW = ds::ui::INTERNAL_A_DIRTY;
+
+const char SHADOW_ATT = 80;
+
+} // namespace
+
+namespace waffles {
+	//using namespace sub_waffles;
+void ShadowLayout::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromClient(r); });
+}
+
+void ShadowLayout::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromServer<ShadowLayout>(r); });
+}
+
+ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
+	: ds::ui::LayoutSprite(g)
+	, mShadowColor(0.0f, 0.0f, 0.0f)
+	, mIterations(2)
+	, mShadowOpacity(1.0)
+	, mShadowOffset(0.0f, 0.0f)
+	, mBlurShader(nullptr)
+	 {
+
+	/// these are the same shaders as the text sprite! wee!
+	const std::string opacityFrag = R"FRAG(
 uniform sampler2D	tex0;
 in vec4			Color;
 in vec2			TexCoord0;
@@ -88,7 +119,7 @@ void main()
 }
 )FRAG";
 
-const std::string vertShader = R"VERT(
+	const std::string vertShader = R"VERT(
 uniform mat4		ciModelMatrix;
 uniform mat4		ciModelViewProjection;
 uniform vec4		uClipPlane0;
@@ -112,7 +143,7 @@ void main()
 }
 )VERT";
 
-const std::string shadowFrag = R"FRAG(
+	const std::string shadowFrag = R"FRAG(
 // Fragment shader
 #version 150
 
@@ -171,7 +202,7 @@ void main() {
 )FRAG";
 
 
-const std::string shadowVert = R"VERT(
+	const std::string shadowVert = R"VERT(
 #version 150
 uniform mat4       ciModelMatrix;
 uniform mat4       ciModelViewProjection;
@@ -189,36 +220,6 @@ void main()
 }
 )VERT";
 
-ci::gl::GlslProgRef sBlurShader; // = ci::gl::GlslProg::create(shadowVert, shadowFrag);
-ci::gl::GlslProgRef sDrawShader; // = ci::gl::GlslProg::create(vertShader, opacityFrag);
-
-char BLOB_TYPE = 0;
-
-const ds::ui::DirtyState& DIRTYSHADOW = ds::ui::INTERNAL_A_DIRTY;
-
-const char SHADOW_ATT = 80;
-
-} // namespace
-
-namespace waffles {
-	//using namespace sub_waffles;
-void ShadowLayout::installAsServer(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromClient(r); });
-}
-
-void ShadowLayout::installAsClient(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](ds::BlobReader& r) { ds::ui::Sprite::handleBlobFromServer<ShadowLayout>(r); });
-}
-
-ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
-	: ds::ui::LayoutSprite(g)
-	, mShadowColor(0.0f, 0.0f, 0.0f)
-	, mIterations(2)
-	, mShadowOpacity(1.0)
-	, mShadowOffset(0.0f, 0.0f)
-	, mBlurShader(nullptr)
-	 {
-
 	mBlobType = BLOB_TYPE;
 
 	mShadowSize	   = mEngine.getWafflesSettings().getInt("shadow:default_size", 0, 32);
@@ -234,10 +235,24 @@ ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
 		try {
 			mBlurShader = ci::gl::GlslProg::create(shadowVert, shadowFrag);
 			mBlurShader->uniform("tex0", 0);
-			mDrawShader = ci::gl::GlslProg::create(vertShader, opacityFrag);
+			DS_LOG_INFO("Shadow Blur loaded");
 		} catch (std::exception& e) {
+			auto x = e.what();
 			DS_LOG_WARNING("Couldn't load shadow blur shader! " << e.what());
 		}
+		try {
+			mDrawShader = ci::gl::GlslProg::create(vertShader, opacityFrag);
+			DS_LOG_INFO("Shadow Draw loaded");
+		} catch (std::exception& e) {
+			auto x = e.what();
+			DS_LOG_WARNING("Couldn't load shadow draw shader! " << e.what(););
+		}
+		sBlurShader = mBlurShader;
+		sDrawShader = mDrawShader;
+	}
+	else {
+		mBlurShader = sBlurShader;
+		mDrawShader = sDrawShader;
 	}
 
 	markAsDirty(DIRTYSHADOW);
