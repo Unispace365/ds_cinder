@@ -179,8 +179,8 @@ namespace ds { namespace ui {
 	// Layout is called when the size is changed, so don't change the size in the layout
 	void VideoInterface::onLayout() {
 
-		float w = getWidth();
-		if (w < mMinWidth) w = mMinWidth;
+		float w = glm::clamp(getWidth(), mMinWidth, mMaxWidth);
+		// if (w < mMinWidth) w = mMinWidth;
 		const float h		  = getHeight();
 		const float padding	  = h / 2.0f; // config?
 		float		xp		  = getWidth() / 2.0f - w / 2.0f + padding;

@@ -58,11 +58,12 @@ void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
 void MediaInterface::layout() {
 	const float w = getWidth();
 	const float h = getHeight();
+	const float ww = mEngine.getWorldWidth();
 	onLayout();
 	if (mBackground) {
-		float newW = w;
-		if (newW < mMinWidth) newW = mMinWidth;
-		if (newW > mMaxWidth) newW = mMaxWidth;
+		// Ensure the maximum width always fits within the window
+		mMaxWidth = glm::min(mMaxWidth, ww);
+		float newW = glm::clamp(w, mMinWidth, mMaxWidth);
 
 		mBackground->setSize(newW, h);
 		mBackground->setCenter(0.5f, 0.0f);
