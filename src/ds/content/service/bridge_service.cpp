@@ -128,7 +128,22 @@ void BridgeService::Loop::run() {
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
-				loadContent();
+				//loadContent();
+
+				if (!loadContent()) {
+					// If loading the content failed, try again soon.
+					DS_LOG_WARNING("Failed to load content. Retrying...")
+					Poco::Thread::trySleep(100);
+
+					mMutex.lock();
+					mForce			 = contentChanged;
+					mRefreshDatabase = refreshDatabase;
+					mRefreshEvents	 = refreshEvents;
+					mMutex.unlock();
+
+					continue;
+				}
+
 				updatePlatformEvents();
 
 				// Prevent frequent events by checking if the content has changed.
@@ -290,7 +305,7 @@ bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::Da
 	return false;
 }
 
-void BridgeService::Loop::loadContent() {
+bool BridgeService::Loop::loadContent() {
 	// DS_LOG_INFO("BridgeService::loadContent")
 
 	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
@@ -313,6 +328,8 @@ void BridgeService::Loop::loadContent() {
 				slotReverseOrderingMap[it.getString(0)] = {it.getString(1), it.getInt(2)};
 				++it;
 			}
+		} else {
+			return false;
 		}
 	}
 
@@ -377,6 +394,8 @@ void BridgeService::Loop::loadContent() {
 				rankOrderedRecords.push_back(record);
 				++it;
 			}
+		} else {
+			return false;
 		}
 
 
@@ -520,6 +539,8 @@ void BridgeService::Loop::loadContent() {
 				selectMap[it.getString(0)] = it.getString(1);
 				++it;
 			}
+		} else {
+			return false;
 		}
 	}
 
@@ -588,6 +609,8 @@ void BridgeService::Loop::loadContent() {
 				record.setProperty(field_uid + "_field_uid", it.getString(1));
 				++it;
 			}
+		} else {
+			return false;
 		}
 	}
 
@@ -768,12 +791,16 @@ void BridgeService::Loop::loadContent() {
 
 				++it;
 			}
+		} else {
+			return false;
 		}
+	
 	}
 
 	mRecordMap = recordMap;
 	// mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
 	validateContent();
+	return true; 
 }
 
 void BridgeService::Loop::validateContent() {

@@ -61,7 +61,7 @@ class BridgeService {
 			bool eventIsNow(ds::model::ContentModelRef& event, Poco::DateTime& ldt) const;
 
 			///
-			void loadContent();
+			bool loadContent();
 			///
 			void validateContent();
 			///
