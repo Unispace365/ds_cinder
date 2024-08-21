@@ -23,6 +23,7 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual std::string getCompositeKeyForPlatform() override;
 	virtual ds::model::ContentModelRef getRecordByUid(std::string uid) override;
 	virtual  ds::Resource			   getBackgroundForPlatform() override;
+	virtual int						   getBackgroundPdfPage() override;
 	virtual ds::model::ContentModelRef getPresentation() override;
 	virtual ds::model::ContentModelRef getAmbientPlaylist() override;
 	virtual std::string				   getInitialPresentationUid() override;

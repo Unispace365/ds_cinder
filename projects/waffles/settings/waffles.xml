@@ -3,7 +3,7 @@
 
 	<!-- START WAFFLES SETTINGS -->
 	<setting name="waffles:enabled" value="true" type="bool" />
-	
+
 	<setting name="presentation_controller:size" value="900, 300" type="vec2" multiplier="waffles:sprite:scale"/>
 	<setting name="presentation_controller:slides_thumb:height" value="150.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="presentation_controller:slides_thumb:size" value="200, 150" type="vec2" multiplier="waffles:sprite:scale"/>
@@ -68,7 +68,7 @@
 	<setting name="launcher:search_scroll_height" value="500.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll_content_width" value="166.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:interface_scale" value="1.0" type="float"/>
-	
+
 	<setting name="media_backgrounds:app_key" value="background_media" type="string"/>
 	<setting name="media_viewer:control_timeout" value="8" type="float"/>
 	<setting name="media_viewer:default_size" value="1150" type="int" multiplier="waffles:sprite:scale"/>
@@ -116,6 +116,7 @@
 	<setting name="enable:persistent:menu" value="false" type="bool" />
 	<setting name="waffles:recent:max" value="10" type="int" />
 
+	<setting name="particles:enabled" value="true" type="bool"/>
 	<setting name="particles:num" value="20000" type="int"/>
 	<setting name="particles:touch_radius" value="85" type="float"/>
 	<setting name="particles:touch_power" value="-0.01" type="float"/>
@@ -131,16 +132,16 @@
 	<setting name="particles:friction" value="0.9" type="float"/>
 	<setting name="particles:repulsor:factor" value="0.25" type="float"/>
 	<setting name="particles:repulsor:border" value="-20" type="float"/>
-	
+
 	<setting name="ui:waffles:launcher:top:button:size" value="200, 65" type="vec2" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:start:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:normal:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:presentation:hotspot:asset:offset" value="45, 45, 0" type="vec3" multiplier="waffles:sprite:scale"/>
-	
+
 	<setting name="launcher:scroller:auto_hide" value="true" type="bool" />
-	
+
 	<setting name="launcher:media_open:offset" value="1000.0, 0.0, 0.0" type="vec3" multiplier="waffles:sprite:scale"/>
-	
+
 	<setting name="search:keyboard:scale" value="1.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="search:max_characters" value="50" type="float"/>
 	<setting name="search:list:item:height" value="82" type="float" multiplier="waffles:sprite:scale"/>
@@ -149,5 +150,3 @@
 
 	<!-- END WAFFLES SETTINGS -->
 </settings>
-
-

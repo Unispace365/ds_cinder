@@ -17,6 +17,7 @@
 #include "waffles/waffles_sprite.h"
 #include "waffles/viewers/base_element.h"
 #include "waffles/viewers/viewer_controller.h"
+#include "waffles/util/waffles_helper.h"
 
 namespace waffles {
 
@@ -106,17 +107,21 @@ ParticleBackground::ParticleBackground(ds::ui::SpriteEngine& eng)
 
 	mParticleScale = mEngine.getWafflesSettings().getFloat("particles:scale", 0, 1.0f);
 
+	///POTENTIAL TODO: Handle things from video, like size, volume, playback features etc.
+	ds::Resource theRec;
+	int thePage = 0;
+	float theVolume = 0.0;
+	if (auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper> ()) {
+		theRec = helper->getBackgroundForPlatform();
+		thePage = helper->getBackgroundPdfPage();
+	}
 
-	auto theModel = mEngine.mContent.getChildByName("background.user").getChild(0);
-	mMediaPath	  = theModel.getPropertyResource("media_res").getAbsoluteFilePath();
-	ds::Resource theRec = ds::Resource(mMediaPath);
-	if (mMediaPath.empty()) {
+	if (theRec.empty()) {
 		mMediaPath = ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg");
 		theRec = ds::Resource::fromImage(mMediaPath);
 	}
 
 	DS_LOG_INFO("Particle background starting : " << mMediaPath);
-
 
 	if (theRec.getType() == ds::Resource::IMAGE_TYPE) {
 		mImageBacky = new ds::ui::Image(mEngine, theRec);
@@ -145,7 +150,6 @@ ParticleBackground::ParticleBackground(ds::ui::SpriteEngine& eng)
 		mPdfBacky = new ds::ui::Pdf(mEngine);
 		mPdfBacky->setResourceFilename(mMediaPath);
 
-		int thePage = theModel.getPropertyInt("pdf_page");
 		if (thePage > 0) {
 			mPdfBacky->setPageNum(thePage);
 		}

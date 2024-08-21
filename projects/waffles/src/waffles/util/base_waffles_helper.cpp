@@ -95,6 +95,9 @@ ds::Resource BaseWafflesHelper::getBackgroundForPlatform() {
 
 	return ds::Resource(ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg"));
 }
+int BaseWafflesHelper::getBackgroundPdfPage() {
+	return 0;
+}
 ds::model::ContentModelRef BaseWafflesHelper::getPresentation() {
 	return mBaseContentHelper.getPresentation();
 }
