@@ -20,31 +20,31 @@
 
 namespace waffles {
 
-const TemplateDef& getTemplateDefFromName(const std::string& name) {
-	auto findy = std::find_if(Config::TemplateDefinitions.begin(), Config::TemplateDefinitions.end(),
+	const TemplateDef& TemplateConfig::getTemplateDefFromName(const std::string& name) {
+	auto findy = std::find_if(mTemplateDefinitions.begin(), mTemplateDefinitions.end(),
 							  [name](const auto& a) { return name == a.name; });
 
-	if (findy != Config::TemplateDefinitions.end()) {
+	if (findy != mTemplateDefinitions.end()) {
 		return *findy;
 	} else {
 		DS_LOG_ERROR("Failed to load template named " << name << "! Showing Invalid template");
-		return Config::TemplateDefinitions[0]; // Fallback to 'invalid' template
+		return mTemplateDefinitions[0]; // Fallback to 'invalid' template
 	}
 }
 
-const TemplateDef& getTemplateDefFromId(const std::string& id) {
-	auto findy = std::find_if(Config::TemplateDefinitions.begin(), Config::TemplateDefinitions.end(),
+const TemplateDef& TemplateConfig::getTemplateDefFromId(const std::string& id) {
+	auto findy = std::find_if(mTemplateDefinitions.begin(), mTemplateDefinitions.end(),
 							  [id](const auto& a) { return id == a.id; });
 
-	if (findy != Config::TemplateDefinitions.end()) {
+	if (findy != mTemplateDefinitions.end()) {
 		return *findy;
 	} else {
 		DS_LOG_ERROR("Failed to load template with ID " << id << "! Showing Invalid template");
-		return Config::TemplateDefinitions[0]; // Fallback to 'invalid' template
+		return mTemplateDefinitions[0]; // Fallback to 'invalid' template
 	}
 }
 
-TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model) {
+TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model) {
 	auto def = getTemplateDefFromId(model.getPropertyString("type_uid"));
 
 	DS_LOG_INFO("\n\n\nDEF " << def.name << "\n\n\n");
@@ -72,38 +72,7 @@ TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentMod
 	} else if (def.name == "pinboard_event" || def.name == "pinboard") {
 		return new PinboardTemplate(engine, def, model);
 
-	} */ else if (def.name == "triangle_message") {
-		DS_LOG_INFO("\n\n\n--- START TRIANGLE MESSAGE ---\n\n\n");
-
-		auto templ = new TemplateBase(engine, def, model);
-
-		auto mediaPlayer = templ->getSprite<ds::ui::MediaPlayer>("media");
-		if (mediaPlayer) {
-			auto vidPlayer = dynamic_cast<ds::ui::VideoPlayer*>(mediaPlayer->getPlayer());
-			if (vidPlayer) {
-				auto video = vidPlayer->getVideo();
-				if (video) {
-					video->setVolume(model.getPropertyFloat("volume") / 100.0f);
-				}
-			}
-		}
-
-		auto res			= model.getPropertyResource("media");
-		auto triangles		= templ->getSprite("tris");
-		auto extraTriangles = templ->getSprite("tris2");
-		if (triangles && extraTriangles) {
-			if (res.empty()) {
-				triangles->show();
-				extraTriangles->show();
-			} else {
-				triangles->hide();
-				extraTriangles->hide();
-			}
-		}
-
-		return templ;
-
-	} else if (def.name == "media") {
+	} */ else if (def.name == "media") {
 		auto mediaTemplate = new TemplateBase(engine, def, model);
 		mediaTemplate->setAnimStartCb([mediaTemplate, model, &engine] {
 			mediaTemplate->callAfterDelay(
@@ -166,6 +135,37 @@ TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentMod
 		return new TemplateBase(engine, def, model);
 	}
 }
+
+
+
+
+TemplateConfig::TemplateConfig(ds::ui::SpriteEngine& eng) : mEngine(eng) {
+	//load all the templated from the waffles_integration.xml file
+	initializeTemplateDefs();
+}
+
+void TemplateConfig::initializeTemplateDefs() {
+	// Load the template definitions from the settings
+	auto cnt = mEngine.getWafflesSettings().countSetting("template:config");
+	for (int i = 0; i < cnt; i++) {
+		auto setting = mEngine.getWafflesSettings().getString("template:config", i, "");
+		if (setting.empty()) continue;
+
+		TemplateDef def;
+		std::vector<std::string> configStr = ds::split(setting, ":");
+		if (configStr.size() != 3) {
+			DS_LOG_WARNING("Invalid template config setting: " << setting);
+			continue;
+		}
+		auto& [name, uid, path] = std::tie(configStr[0], configStr[1], configStr[2]);
+		def.name = name;
+		def.id = uid;
+		def.layoutXml = path;
+		//def.requiresClear = ds::parseBoolean(clear);
+		mTemplateDefinitions.push_back(def);
+	}
+}
+
 
 
 } // namespace waffles

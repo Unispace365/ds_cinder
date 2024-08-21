@@ -20,7 +20,7 @@
 
 
 namespace waffles {
-
+/*
 EngageController::EngageController(ds::ui::SpriteEngine& eng)
 	: ds::ui::Sprite(eng)
 	, mEventClient(eng) {
@@ -339,5 +339,5 @@ void EngageController::endEngage() {
 	// Notify listeners.
 	mEngine.getNotifier().notify(waffles::EngageEnded());
 }
-
+*/
 } // namespace waffles

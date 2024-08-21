@@ -7,6 +7,7 @@ namespace waffles {
 
 struct ChangeTemplateRequest;
 class TemplateBase;
+class TemplateConfig;
 
 /**
  * \class waffles::TemplateLayer
@@ -25,6 +26,7 @@ class TemplateLayer : public ds::ui::SmartLayout {
 
 
 	TemplateBase* mCurrentTemplate = nullptr;
+	TemplateConfig* mTemplateConfig = nullptr;
 };
 
 } // namespace waffles

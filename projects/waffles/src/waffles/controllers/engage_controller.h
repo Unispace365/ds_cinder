@@ -9,6 +9,7 @@ namespace waffles {
  * \class hpi::EngageController
  *			The background layer for interactive playlists and templates
  */
+/*
 class EngageController : public ds::ui::Sprite {
   public:
 	EngageController(ds::ui::SpriteEngine& eng);
@@ -39,5 +40,5 @@ class EngageController : public ds::ui::Sprite {
 
 	bool mAmEngaged = false;
 };
-
+*/
 } // namespace waffles

@@ -23,7 +23,7 @@ namespace waffles {
 class ViewerController;
 class WafflesController;
 class BackgroundView;
-
+class TemplateConfig;
 
 /**
  * \class waffles::AssetLayer
@@ -48,10 +48,21 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 		initializeWaffles();
 	}
+
 	~WafflesSprite() {
 		if (mDefaultWaffles == this) {
 			mDefaultWaffles = nullptr;
 		}
+		if(mTemplateLayer->getParent() == nullptr){
+			mTemplateLayer->release();
+		}
+		if(mBackgroundView->getParent() == nullptr){
+			mBackgroundView->release();
+		}
+		if(mViewerController->getParent() == nullptr){
+			mViewerController->release();
+		}
+
 	}
 	static void setDefault(WafflesSprite* defaultWaffles) { mDefaultWaffles = defaultWaffles; }
 	static WafflesSprite* getDefault() { return mDefaultWaffles; }
@@ -112,7 +123,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	waffles::SettingsService mSettingsService;
 	waffles::ViewerController* mViewerController = nullptr;
 	waffles::BackgroundView*   mBackgroundView = nullptr;
-	waffles::TemplateLayer* mTemplateView = nullptr;
+	waffles::TemplateLayer* mTemplateLayer = nullptr;
 
 
 	ds::ui::TouchMenu* mTouchMenu = nullptr;
@@ -125,6 +136,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 	ds::model::ContentModelRef mPlaylist;
 	ds::model::ContentModelRef mSlide;
+	TemplateConfig* mTemplateConfig = nullptr;
 
 	bool mAmEngaged = false;
 

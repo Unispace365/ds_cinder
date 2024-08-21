@@ -9,7 +9,7 @@
 //#include "events/app_events.h"
 #include "waffles/waffles_events.h"
 #include "waffles/template/template_base.h"
-
+#include "waffles/template/template_config.h"
 
 
 
@@ -22,6 +22,7 @@ namespace waffles {
 TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 pos)
 	: ds::ui::SmartLayout(eng, "waffles/layer/template_layer.xml") {
 
+	mTemplateConfig = TemplateConfig::getDefault();
 	theTemplateLayer = this;
 	
 	setSize(size);
@@ -30,7 +31,9 @@ TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 
 
 	// Handle background change requests
 	listenToEvents<waffles::ChangeTemplateRequest>(
-		[this](const waffles::ChangeTemplateRequest& event) { changeTemplate(event); });
+		[this](const waffles::ChangeTemplateRequest& event) { 
+			changeTemplate(event); 
+		});
 }
 
 TemplateLayer* TemplateLayer::get() {
@@ -52,7 +55,7 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 
 		if (!event.mContent.empty()) {
 			auto model		 = event.mContent.duplicate();
-			mCurrentTemplate = createTemplate(mEngine, model);
+			mCurrentTemplate = mTemplateConfig->createTemplate(mEngine, model);
 		} else {
 			// Create empty background type
 			mCurrentTemplate = nullptr;
@@ -63,9 +66,9 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 			float delay = 0.f;
 			if (mCurrentTemplate) {
 				bool needsClear =
-					getTemplateDefFromId(mCurrentTemplate->getContentModel().getPropertyString("type_uid"))
+					mTemplateConfig->getTemplateDefFromId(mCurrentTemplate->getContentModel().getPropertyString("type_uid"))
 						.requiresClear ||
-					getTemplateDefFromId(oldTemplate->getContentModel().getPropertyString("type_uid")).requiresClear;
+					mTemplateConfig->getTemplateDefFromId(oldTemplate->getContentModel().getPropertyString("type_uid")).requiresClear;
 
 				if (needsClear) {
 					delay = oldTemplate->animateOff(0.f, [oldTemplate] { oldTemplate->release(); });

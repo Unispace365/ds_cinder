@@ -13,7 +13,7 @@ namespace waffles {
 class TemplateBase : public ds::ui::SmartLayout {
   public:
 	TemplateBase(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef content = ds::model::ContentModelRef())
-		: ds::ui::SmartLayout(engine, getTemplateDefFromName(content.getPropertyString("template_type")).layoutXml) {
+		: ds::ui::SmartLayout(engine, TemplateConfig::getDefault()->getTemplateDefFromName(content.getPropertyString("template_type")).layoutXml) {
 		setContentModel(content);
 	}
 
@@ -36,6 +36,7 @@ class TemplateBase : public ds::ui::SmartLayout {
 
   protected:
 	std::function<void(void)> mAnimStartCb;
+	
 };
 
 } // namespace waffles

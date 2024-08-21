@@ -6,7 +6,7 @@
 #include <ds/ui/sprite/text.h>
 
 namespace waffles {
-
+	class TemplateConfig;
 /**
  * \class waffles::BackgroundView
  *			Show something in the background
@@ -21,6 +21,7 @@ class BackgroundView final : public ds::ui::Sprite {
 
 	ds::EventClient mEventClient;
 	ds::ui::Sprite* mCurrentBackground = nullptr;
+	TemplateConfig* mTemplateConfig = nullptr;
 };
 
 } // namespace waffles

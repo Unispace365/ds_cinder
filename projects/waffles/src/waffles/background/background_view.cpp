@@ -43,6 +43,7 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	: ds::ui::Sprite(g)
 	, mEventClient(g) {
 
+	mTemplateConfig = TemplateConfig::getDefault();
 	setTransparent(false);
 	//set background color from waffles settings
 	auto& color = mEngine.getColors().getColorFromName("waffles:background");
@@ -55,7 +56,7 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		auto model = ds::model::ContentModelRef("Empty");
-		model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
+		model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 		ds::Resource r = helper->getBackgroundForPlatform();
 		DS_LOG_INFO("BackgroundView got from getBackground: " << r.getAbsoluteFilePath());
 		if (helper->getApplyParticles()) {

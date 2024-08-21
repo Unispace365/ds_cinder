@@ -33,6 +33,7 @@ namespace waffles {
 WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
 
 void WafflesSprite::initializeWaffles() {
+	mTemplateConfig = TemplateConfig::getDefault();
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
 
 		holdy->addChildPtr(mViewerController);
@@ -50,13 +51,13 @@ void WafflesSprite::initializeWaffles() {
 
 	auto templateMode = mEngine.getWafflesSettings().getString("layers:template:mode", 0, "createAndPlace");
 
-	/* if (templateMode != "off") {
+	if (templateMode != "off") {
 		mTemplateLayer = new TemplateLayer(mEngine, ci::vec2(getSize()), ci::vec2(0.0f, 0.0f));
-		auto holdy = getSprite("template_holder");
+		auto holdy = getSprite("template_holdy");
 		if (templateMode == "createAndPlace" && holdy) {
 			holdy->addChildPtr(mTemplateLayer);
 		}
-	}*/
+	}
 
 	//** These are here to get initializers to run **//
 	auto sh = new waffles::ShadowLayout(mEngine);
@@ -94,7 +95,7 @@ void WafflesSprite::initializeWaffles() {
 		[this]() {
 			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 			auto model = ds::model::ContentModelRef("Empty");
-			model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
+			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 			ds::Resource r = helper->getBackgroundForPlatform();
 			if (helper->getApplyParticles()) {
 				mEngine.getNotifier().notify(waffles::RequestBackgroundChange(
@@ -165,10 +166,10 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 
 			cancelDelayedCall();
 			auto playlist = ds::model::ContentModelRef("Pinboard");
-			playlist.setProperty("type_key", waffles::getTemplateDefFromName("pinboard_event").name);
+			playlist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("pinboard_event").name);
 			playlist.setProperty("record_name", content.getPropertyString("record_name"));
 			auto model = ds::model::ContentModelRef("Pinboard");
-			model.setProperty("type_uid", waffles::getTemplateDefFromName("pinboard_event").id);
+			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("pinboard_event").id);
 			model.setProperty("record_name", content.getPropertyString("record_name"));
 			playlist.addChild(model);
 			setPresentation(playlist);
@@ -180,10 +181,10 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 		if (mPlaylist.getPropertyString("type_key") != "assets_mode") {
 			cancelDelayedCall();
 			auto playlist = ds::model::ContentModelRef("Assets");
-			playlist.setProperty("type_key", waffles::getTemplateDefFromName("assets_mode").name);
+			playlist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("assets_mode").name);
 			playlist.setProperty("record_name", std::string("Asset Mode"));
 			auto model = ds::model::ContentModelRef("Assets");
-			model.setProperty("type_uid", waffles::getTemplateDefFromName("assets_mode").id);
+			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("assets_mode").id);
 			playlist.addChild(model);
 			setPresentation(playlist);
 			gotoItem(0);
@@ -396,6 +397,7 @@ void WafflesSprite::setupTouchMenu() {
 	auto homeView = ds::ui::TouchMenu::MenuItemModel(
 		overallTitle, "%APP%/data/images/waffles/icons/4x/Home_256.png", "%APP%/data/images/waffles/icons/4x/Home_Glow_256.png",
 		[this](ci::vec3 pos) {
+			mAmEngaged = true;
 			mEngine.getNotifier().notify(waffles::ShowWaffles());
 			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_LAUNCHER, pos, waffles::ViewerCreationArgs::kViewLayerTop)));
@@ -620,9 +622,9 @@ void WafflesSprite::setData() {
 		thePlaylist = helper->getRecordByUid(mPlaylistUid);
 	} else {
 		thePlaylist = ds::model::ContentModelRef("Empty Playlist");
-		thePlaylist.setProperty("type_key", waffles::getTemplateDefFromName("empty").name);
+		thePlaylist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("empty").name);
 		auto model = ds::model::ContentModelRef("Empty");
-		model.setProperty("type_uid", waffles::getTemplateDefFromName("empty").id);
+		model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 		thePlaylist.addChild(model);
 		mPlaylistUid.clear();
 	}

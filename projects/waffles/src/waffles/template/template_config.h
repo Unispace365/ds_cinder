@@ -3,7 +3,7 @@
 #include <optional>
 
 #include <ds/ui/layout/smart_layout.h>
-
+#include <ds/ui/sprite/sprite_engine.h>
 namespace waffles {
 class TemplateBase;
 
@@ -15,7 +15,34 @@ struct TemplateDef {
 	bool		requiresClear = false;
 };
 
-namespace Config {
+typedef std::tuple<std::string, std::string, std::string, std::string> TemplateDefTuple;
+
+class TemplateConfig {
+public:
+	TemplateConfig(ds::ui::SpriteEngine& eng);
+
+	template<class T>
+	static void initDefault(ds::ui::SpriteEngine& eng) {
+		auto config = TemplateConfig::getDefault<T>(&eng);
+	}
+
+	template<class T=TemplateConfig>
+	static TemplateConfig* getDefault(ds::ui::SpriteEngine* e=nullptr) {
+		static TemplateConfig* sDefault = new T(*e);
+		return sDefault;
+	}
+	virtual const TemplateDef& getTemplateDefFromName(const std::string& name);
+	virtual const TemplateDef& getTemplateDefFromId(const std::string& id);
+	virtual TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model);
+	virtual void initializeTemplateDefs();
+private:
+	
+	std::vector<TemplateDef> mTemplateDefinitions;
+	ds::ui::SpriteEngine& mEngine;
+};
+
+/*
+namespace config {
 	// All the valid templates for the application
 	const std::vector<TemplateDef> TemplateDefinitions = {
 		{"invalid",				"FiddleSticks", "template/invalid.xml",				false},
@@ -45,5 +72,5 @@ const TemplateDef& getTemplateDefFromName(const std::string& name);
 const TemplateDef& getTemplateDefFromId(const std::string& id);
 
 TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model);
-
+*/
 } // namespace waffles

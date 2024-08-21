@@ -264,7 +264,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			   type == "Streams" || type == "Videos" || type == "Folders") {
 		engine.getNotifier().notify(waffles::WafflesFilterEvent(type, true));
 	} else {
-		// engine.getNotifier().notify(RequestEngagePresentation(model));
+		//engine.getNotifier().notify(RequestEngagePresentation(model));
 		return false;
 	}
 
