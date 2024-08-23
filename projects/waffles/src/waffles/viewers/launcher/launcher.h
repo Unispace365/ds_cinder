@@ -32,7 +32,7 @@ class Launcher : public BaseElement {
 	ds::EventClient mEventClient;
 
 	void closePanel();
-
+	ds::model::ContentModelRef buttonCfgFromString(std::string str);
 	void				 updateItem(ds::ui::SmartLayout* item);
 	void				 updateSelection(ds::ui::Sprite* bs, const bool highlighted);
 	void				 handleSelection();

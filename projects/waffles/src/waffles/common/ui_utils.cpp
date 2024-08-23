@@ -180,21 +180,21 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			thumbPath = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
 		}
 
-	} else if (theType == "Recent") {
+	} else if (theType == "recent") {
 		thumbPath = "%APP%/data/images/waffles/icons/1x/Star_64.png";
-	} else if (theType == "Images") {
+	} else if (theType == "images") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
-	} else if (theType == "Links") {
+	} else if (theType == "links") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
-	} else if (theType == "PDFs") {
+	} else if (theType == "pdfs") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
-	} else if (theType == "Presentations") {
+	} else if (theType == "presentations") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Presentations_256.png";
-	} else if (theType == "Streams") {
+	} else if (theType == "streams") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
-	} else if (theType == "Videos") {
+	} else if (theType == "videos") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
-	} else if (theType == "Folders") {
+	} else if (theType == "folders") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
 	} else {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Asset viewing_256.png";
@@ -260,8 +260,8 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 										waffles::ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
 		engine.getNotifier().notify(waffles::RequestCloseAllEvent(pos));
-	} else if (type == "Recent" || type == "Images" || type == "Links" || type == "PDFs" || type == "Presentations" ||
-			   type == "Streams" || type == "Videos" || type == "Folders") {
+	} else if (type == "recent" || type == "images" || type == "links" || type == "pdfs" || type == "presentations" ||
+			   type == "streams" || type == "videos" || type == "folders") {
 		engine.getNotifier().notify(waffles::WafflesFilterEvent(type, true));
 	} else {
 		//engine.getNotifier().notify(RequestEngagePresentation(model));

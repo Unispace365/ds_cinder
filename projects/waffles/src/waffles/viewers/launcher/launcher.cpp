@@ -125,7 +125,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		}
 		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
-		if (mFilterSelected != "Folders") {
+		if (mFilterSelected != "folders") {
 			allContent = recurseContent(allContent);
 		}
 
@@ -137,7 +137,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		}
 
 		// recent files need to be sorted correctly, not by all content ordering :(
-		if (mFilterSelected == "Recent") {
+		if (mFilterSelected == "recent") {
 			auto unorderedPanelContent = panel_content.getChildren();
 			panel_content.clearChildren();
 			for (auto uid : mRecentFilterUids) {
@@ -312,18 +312,31 @@ void Launcher::handleSelection() {
 	}
 }
 
+ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string btnConfig)
+{
+	auto parts = ds::split(btnConfig, "|");
+	if (parts.size() != 2) {
+		DS_LOG_WARNING("Invalid launcher button config: " << btnConfig);
+		return ds::model::ContentModelRef();
+	}
+	auto type = std::string(parts[1]);
+	auto name = std::string(parts[0]);
+	auto mode = ds::model::ContentModelRef(name);
+	mode.setProperty("type_key", std::string(type));
+	mode.setProperty("record_name", std::string(name));
+	return mode;
+}
+
 void Launcher::updateMenuItems() {
 
 	auto tops_size = mEngine.getWafflesSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
 
 	auto topNames = std::vector<std::string>();
-	auto configTop = mEngine.getWafflesSettings().getString("launcher:top:functions", 0, "Ambient,Search");
+	auto configTop = mEngine.getWafflesSettings().getString("launcher:top:functions", 0, "Ambient|ambient,Search|search");
 	topNames = ds::split(configTop, ",");
 	auto top = std::vector<ds::model::ContentModelRef>();
-	for (std::string name : topNames) {
-		auto mode = ds::model::ContentModelRef(name);
-		mode.setProperty("type_key", std::string(name));
-		mode.setProperty("record_name", std::string(name));
+	for (std::string btnConfig : topNames) {
+		auto mode = buttonCfgFromString(btnConfig);
 		mode.setProperty("width_override", tops_size.x);
 		mode.setProperty("height_override", tops_size.y);
 		top.push_back(mode);
@@ -349,18 +362,7 @@ void Launcher::updateMenuItems() {
 	leftSideNames = ds::split(configLeftSide, ",");
 	auto leftSide = std::vector<ds::model::ContentModelRef>();
 	for (std::string btnConfig : leftSideNames) {
-		auto parts = ds::split(btnConfig, "|");
-		if (parts.size() != 2) {
-			DS_LOG_WARNING("Invalid launcher button config: " << btnConfig);
-			continue;
-		}
-
-
-		auto type = std::string(parts[1]);
-		auto name = std::string(parts[0]);
-		auto mode = ds::model::ContentModelRef(name);
-		mode.setProperty("type_key", std::string(type));
-		mode.setProperty("record_name", std::string(name));
+		auto mode = buttonCfgFromString(btnConfig);
 		leftSide.push_back(mode);
 	}
 
@@ -598,28 +600,28 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 }
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
-	if (type == "Images") {
+	if (type == "images") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::IMAGE_TYPE;
-	} else if (type == "Presentations") {
+	} else if (type == "presentations") {
 		return ContentUtils::getDefault(mEngine)->isPresentation(model);
-	} else if (type == "Videos") {
+	} else if (type == "videos") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   (model.getPropertyResource("media").getType() == ds::Resource::VIDEO_TYPE ||
 				model.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE);
-	} else if (type == "Streams") { // TODO: untested
+	} else if (type == "streams") { // TODO: untested
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::VIDEO_STREAM_TYPE;
-	} else if (type == "PDFs") { // TODO: untested
+	} else if (type == "pdfs") { // TODO: untested
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::PDF_TYPE;
-	} else if (type == "Links") {
+	} else if (type == "links") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE;
-	} else if (type == "Recent") {
+	} else if (type == "recent") {
 		loadRecent();
 		return recentContains(model);
-	} else if (type == "Folders") {
+	} else if (type == "folders") {
 		return ContentUtils::getDefault(mEngine)->isFolder(model);
 	}
 	return false;
@@ -676,7 +678,7 @@ void Launcher::saveRecent() {
 
 void Launcher::filterButtonDown(std::string type) {
 	auto filter_names =
-		std::vector<std::string>{"Recent", "Images", "Links", "PDFs", "Presentations", "Streams", "Videos", "Folders"};
+		std::vector<std::string>{"recent", "images", "links", "pdfs", "presentations", "streams", "videos", "folders"};
 	auto normal_bg			= mEngine.getColors().getColorFromName("waffles:button:bg:normal:dark");
 	auto high_bg			= mEngine.getColors().getColorFromName("waffles:button:bg:high:dark");
 	auto normal_text		= mEngine.getColors().getColorFromName("waffles:button:text:normal:dark");
