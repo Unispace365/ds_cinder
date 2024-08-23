@@ -30,8 +30,13 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual std::vector<ds::model::ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
 	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform() override;
 	virtual std::vector<ds::Resource>				findMediaResources() override;
-
+protected:
+	virtual void loadIntegration();
   private:
 	ds::model::BaseContentHelper mBaseContentHelper;
+	std::string mEventFieldKey;
+	std::string mPlatformFieldKey;
+	std::vector<std::string> mAnnotationFolderKeys;
+	bool mUseRoot;
 };
 }

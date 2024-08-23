@@ -11,6 +11,7 @@
 #include "waffles/background/background_view.h"
 #include "waffles/layer/template_layer.h"
 #include "waffles/service/settings_service.h"
+#include "waffles/service/drawing_upload_service.h"
 #include "app/waffles_app_defs.h"
 
 
@@ -41,7 +42,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 		auto sh = new waffles::ShadowLayout(eng);
 		sh->release();
-		auto pb = new waffles::PinboardButton(eng, "");
+		auto pb = new waffles::PinboardButton(eng, "waffles/pinboard/pinboard_button.xml");
 		pb->release();
 		auto cap = new waffles::CapturePlayer(eng);
 		cap->release();
@@ -137,6 +138,8 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	ds::model::ContentModelRef mPlaylist;
 	ds::model::ContentModelRef mSlide;
 	TemplateConfig* mTemplateConfig = nullptr;
+
+	waffles::DrawingUploadService* mDrawingUploadService=nullptr;
 
 	bool mAmEngaged = false;
 

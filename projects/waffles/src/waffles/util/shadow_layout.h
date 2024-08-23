@@ -9,6 +9,8 @@ class ShadowLayout : public ds::ui::LayoutSprite {
   public:
 	ShadowLayout(ds::ui::SpriteEngine& g);
 
+	void loadShaders();
+
 	// how wide the blur is in pixels
 	void setShadowSize(int blueSize);
 	// How many times to run the blur (more = moar blur)
@@ -38,6 +40,7 @@ class ShadowLayout : public ds::ui::LayoutSprite {
 	static void installAsClient(ds::BlobRegistry&);
 
   protected:
+
 	virtual void drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) override;
 	void		 drawBlur();
 

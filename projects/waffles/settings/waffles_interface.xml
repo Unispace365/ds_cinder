@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 
-	<!--<setting name="launcher:main:filters" value="Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders" type="string"/>-->
 	<setting name="layers:background:mode" value="createAndPlace" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a Background Sprite in the waffles sprite"/>
 	<setting name="layers:template:mode" value="createAndPlace" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a template Sprite in the waffles sprite"/>
 	<setting name="layers:ambient:mode" value="off" type="string" possibles="createOnly, createAndPlace, off" comment="controls the creation and placement of a ambient Sprite in the waffles sprite"/>
+
+	<!--<setting name="launcher:main:filters" value="Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders" type="string"/>-->
 	<setting name="launcher:main:filters" value="Folders|Folders,Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Videos|Videos" type="string"/>
-	<setting name="launcher:folder:key" value="ggIPKG4RwMZg" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:folder:key" value="folder" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="Z6VTNqQ3iUV4" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="QQwUEq2MYDTc" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="IaQkbFuHnXQd" comment="This can be either a type uid or an app_key. checks app_key first"/>
@@ -15,11 +16,24 @@
 	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
 
 	<!-- If the following three fields are all empty then content is pulled from the entire tree-->
-	<setting name="launcher:content:key" value="" comment="This can be either a uid or an app_key. Or the value '#root' for the content tree root. checks app_key first"/>
-	<setting name="launcher:event:field" value="" comment="The name of the a field in any event that contains UID's of content to filter from"/>
-	<setting name="launcher:platform:field" value="asset_browser_content" comment="The name of the a field in the platform that contains UID's of content to filter from"/>
+	<setting name="waffles:use_root_as_fallback" value="true" comment=""/>
+	<setting name="waffles:content:event_field" value="" comment="The name of the a field in any event that contains UID's of content to filter from"/>
+	<setting name="waffles:content:platform_field" value="asset_browser_content" comment="The name of the a field in the platform that contains UID's of content to filter from"/>
 
+	<!-- Config for templates. template_name:template_uid:template_path -->
+	
+	<setting name="template:config" value="invalid:FiddleSticks:waffles/template/invalid.xml" comment="This is a template config"/>
+	<setting name="template:config" value="media:ykAdRYGJeuXI:waffles/template/media.xml" comment="This is a template config"/>
+	<setting name="template:config" value="composite_slide:s1rsXn8QWRBM:waffles/template/composite_slide.xml" comment="This is a template config"/>
+	<setting name="template:config" value="empty:EMPTY:waffles/template/empty.xml" comment="This is a template config"/>                                               
+	<setting name="template:config" value="pinboard_event:wVSdlIunhl7D:waffles/template/pinboard.xml" comment="This is a template config"/>
 
+	<setting name="hotspot:destination:field_name" value="hotspot_link" comment="name of the field on a hotspot that contains the link uid"/>
+
+	<setting name="annotation:type:id" value="rWnv2Wuvnd7z" comment="This is the type of annotation to use"/>
+	<setting name="annotation:field:id" value="6MaBMCdc6L9u" comment="This is the id of the field of annotation to use"/>
+	<setting name="annotation:parent_slot:id" value="qcH1a43qZPXo" comment="This is the id of annotation's parents slot to use"/>
+	<setting name="annotation:folder:key" value="annotation_folder" comment="This is the app_key of the folder to use for annotations"/>
 
 	<!-- END WAFFLES SETTINGS -->
 </settings>

@@ -671,7 +671,8 @@ void TitledMediaViewer::loadHotspots() {
 
 		hotspot->setTapCallback([this, hotspot](ds::ui::Sprite* bs, const ci::vec3& pos) {
 			auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-			auto destId = hotspot->getContentModel().getPropertyString("destination");
+			auto field_name = mEngine.getWafflesSettings().getString("hotspot:destination:field_name", 0, "destination");
+			auto destId = hotspot->getContentModel().getPropertyString(field_name);
 			if (!destId.empty()) {
 				// launch the thing for the hotspot at pos
 				ds::model::ContentModelRef linkMedia = helper->getRecordByUid(destId);

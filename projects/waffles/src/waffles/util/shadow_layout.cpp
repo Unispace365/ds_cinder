@@ -102,6 +102,12 @@ ShadowLayout::ShadowLayout(ds::ui::SpriteEngine& g)
 	, mBlurShader(nullptr)
 	 {
 
+	markAsDirty(DIRTYSHADOW);
+	mBlurDirty = true;
+	setLayoutUpdatedFunction([this] { onSizeChanged(); });
+}
+
+void ShadowLayout::loadShaders() {
 	/// these are the same shaders as the text sprite! wee!
 	const std::string opacityFrag = R"FRAG(
 uniform sampler2D	tex0;
@@ -222,41 +228,43 @@ void main()
 
 	mBlobType = BLOB_TYPE;
 
-	mShadowSize	   = mEngine.getWafflesSettings().getInt("shadow:default_size", 0, 32);
-	mShadowSigma   = mEngine.getWafflesSettings().getFloat("shadow:default_sigma", 0, 3.0f);
-	mShadowOffset  = mEngine.getWafflesSettings().getVec2("shadow:default_offset", 0, ci::vec2());
+	mShadowSize = mEngine.getWafflesSettings().getInt("shadow:default_size", 0, 32);
+	mShadowSigma = mEngine.getWafflesSettings().getFloat("shadow:default_sigma", 0, 3.0f);
+	mShadowOffset = mEngine.getWafflesSettings().getVec2("shadow:default_offset", 0, ci::vec2());
 	mShadowOpacity = mEngine.getWafflesSettings().getFloat("shadow:default_opacity", 0, 1.0f);
-	mShadowScale   = mEngine.getWafflesSettings().getFloat("shadow:default_scale", 0, 1.0f);
-	mIterations	   = mEngine.getWafflesSettings().getInt("shadow:default_iterations", 0, 3);
+	mShadowScale = mEngine.getWafflesSettings().getFloat("shadow:default_scale", 0, 1.0f);
+	mIterations = mEngine.getWafflesSettings().getInt("shadow:default_iterations", 0, 3);
 	mShadowColor =
 		mEngine.getColors().getColorFromName(mEngine.getWafflesSettings().getString("shadow:default_color", 0, "black"));
 
-	if (!sBlurShader || !sDrawShader) {
+	//if (!sBlurShader || !sDrawShader) {
 		try {
 			mBlurShader = ci::gl::GlslProg::create(shadowVert, shadowFrag);
 			mBlurShader->uniform("tex0", 0);
 			DS_LOG_INFO("Shadow Blur loaded");
-		} catch (std::exception& e) {
+		}
+		catch (std::exception& e) {
 			auto x = e.what();
 			DS_LOG_WARNING("Couldn't load shadow blur shader! " << e.what());
 		}
 		try {
 			mDrawShader = ci::gl::GlslProg::create(vertShader, opacityFrag);
 			DS_LOG_INFO("Shadow Draw loaded");
-		} catch (std::exception& e) {
+		}
+		catch (std::exception& e) {
 			auto x = e.what();
 			DS_LOG_WARNING("Couldn't load shadow draw shader! " << e.what(););
 		}
-		sBlurShader = mBlurShader;
-		sDrawShader = mDrawShader;
-	}
-	else {
-		mBlurShader = sBlurShader;
-		mDrawShader = sDrawShader;
-	}
+		//sBlurShader = mBlurShader;
+		//sDrawShader = mDrawShader;
+	//}
+	//else {
+	//	mBlurShader = sBlurShader;
+	//	mDrawShader = sDrawShader;
+	//}
 
-	markAsDirty(DIRTYSHADOW);
-	setLayoutUpdatedFunction([this] { onSizeChanged(); });
+	//mBlurDirty = true;
+	//onSizeChanged();
 }
 
 void ShadowLayout::setShadowSize(int ammount) {
@@ -443,7 +451,14 @@ void ShadowLayout::drawBlur() {
 	// mFbo1.reset();
 }
 
+
+
 void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) {
+	if (!mBlurShader || !mDrawShader) {
+		loadShaders();
+		mBlurDirty = true;
+	}
+
 	if (!visible() || getOpacity() * drawParams.mParentOpacity < std::numeric_limits<float>::epsilon()) return;
 
 

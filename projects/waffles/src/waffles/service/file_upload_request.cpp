@@ -73,11 +73,20 @@ std::vector<std::string> FileUploadRequest::getHeaders() {
 
 void FileUploadRequest::createRecord() {
 	// NOTE: Hardcoded slot_uids here! Should be replaced with an appsetting or something
+	// NOTE: Done:
+	auto typeId = mEngine.getWafflesSettings().getString("annotation:type:id", 0, "");
+	auto slotId = mEngine.getWafflesSettings().getString("annotation:parent_slot:id", 0, "");
+
+	if (typeId.empty() || slotId.empty()) {
+		DS_LOG_WARNING("No annotation record type or parent slot id found in waffles interface app settings! Save attempt expected to fail.");
+	}
 	std::string thePayload =
-		R"JSON( {"type": "JfDgLbj9vxT8","parent": {"variant": "RECORD","record": "%RECORD%","slot": "vRvbnAxGIDJ7"},"name": "%NAME%"} )JSON";
+		R"JSON( {"type": "%TYPE%","parent": {"variant": "RECORD","record": "%RECORD%","slot": "%SLOT%"},"name": "%NAME%"} )JSON";
 
 	ds::replace(thePayload, "%RECORD%", mParentUid);
 	ds::replace(thePayload, "%NAME%", mSaveName);
+	ds::replace(thePayload, "%TYPE%", typeId);
+	ds::replace(thePayload, "%SLOT%", slotId);
 
 	mCreateRecordRequest.setReplyFunction(
 		[this, thePayload](const bool erroed, const std::string& reply, long httpCode) {
@@ -232,12 +241,18 @@ void FileUploadRequest::uploadToS3() {
 void FileUploadRequest::setMediaOnRecord() {
 	std::string thePayload =
 		R"JSON(
-		{"field": "S2ex3AuxOtS3", "record": "%RECORDUID%", "url": "%DOWNLOADURL%", "filename": "%FILENAME%"}
+		{"field": "%FIELD%", "record": "%RECORDUID%", "url": "%DOWNLOADURL%", "filename": "%FILENAME%"}
 		)JSON";
 
+	auto field = mEngine.getWafflesSettings().getString("annotation:field:id", 0, "");
+	if (field.empty()) {
+		DS_LOG_WARNING("No annotation field id found in waffles interface settings! Save attempt expected to fail.");
+	}
 	ds::replace(thePayload, "%RECORDUID%", mRecordUid);
 	ds::replace(thePayload, "%DOWNLOADURL%", mDownloadUrl);
 	ds::replace(thePayload, "%FILENAME%", mSaveName);
+	ds::replace(thePayload, "%FIELD%", field);
+
 
 	mAddUploadToRecordRequest.setReplyFunction([this](const bool erroed, const std::string& reply, long httpCode) {
 		if (httpCode == 200 && !erroed) {

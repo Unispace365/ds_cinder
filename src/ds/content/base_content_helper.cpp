@@ -8,7 +8,8 @@ BaseContentHelper::~BaseContentHelper() {}
 
 std::string BaseContentHelper::getCompositeKeyForPlatform() {
 	//TODO: get key value pairs from waffles_app.xml
-	return std::string();
+	auto key=mEngine.getWafflesSettings().getString("composite:key",0,"");
+	return key;
 }
 ds::model::ContentModelRef BaseContentHelper::getRecordByUid(std::string uid) {
 	return mEngine.mContent.getKeyReference(ds::model::VALID_MAP, uid);
@@ -76,38 +77,14 @@ std::string BaseContentHelper::getInitialPresentationUid() {
 }
 
 std::vector<ds::model::ContentModelRef> BaseContentHelper::getContentForPlatform() {
-	ds::model::Platform platformObj(mEngine);
-	auto				platform = platformObj.getPlatformModel();
-	if (platform.empty()) return std::vector<ds::model::ContentModelRef>();
-
-	// get all the events scheduled for this platform
-	auto allPlatformEvents = platform.getChildByName("current_events").getChildren();
-
-	std::vector<ds::model::ContentModelRef> theList;
-	// check if events have playlists
-	if (!allPlatformEvents.empty()) {
-		for (const auto& event : allPlatformEvents) {
-			if (!event.getPropertyString("additional_content").empty()) {
-
-				auto contentUids = ci::split(event.getPropertyString("additional_content"), ",");
-				for (auto& uid : contentUids) {
-					auto content = getRecordByUid(uid);
-					theList.push_back(content);
-				}
-			}
-		}
-	} else {
-		//DS_LOG_VERBOSE(1, "No scheduled ambient for platform" << myPlatform.getPropertyString("name"))
-	}
-
 	
-	auto defaultContentUids = ci::split(platform.getPropertyString("default_content"), ",");
-	for (auto& uid : defaultContentUids) {
-		auto content = getRecordByUid(uid);
-		theList.push_back(content);
-	}
+	auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
+	auto allContent = std::vector<ds::model::ContentModelRef>();
 
-	return theList;
+	for (auto& [key, value] : allValid) {
+		allContent.push_back(value);
+	}
+	return allContent;
 }
 
 std::vector<ds::Resource> BaseContentHelper::findMediaResources() {

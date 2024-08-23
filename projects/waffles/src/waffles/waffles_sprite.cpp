@@ -83,7 +83,7 @@ void WafflesSprite::initializeWaffles() {
 	//** These are here to get initializers to run **//
 	auto sh = new waffles::ShadowLayout(mEngine);
 	sh->release();
-	auto pb = new waffles::PinboardButton(mEngine, "");
+	auto pb = new waffles::PinboardButton(mEngine, "waffles/pinboard/pinboard_button.xml");
 	pb->release();
 	auto cap = new waffles::CapturePlayer(mEngine);
 	cap->release();
@@ -111,6 +111,9 @@ void WafflesSprite::initializeWaffles() {
 	if (mDefaultWaffles == nullptr) {
 		mDefaultWaffles = this;
 	}
+
+	//drawing uploads
+	mDrawingUploadService = new DrawingUploadService(mEngine);
 
 	mEngine.timedCallback(
 		[this]() {
@@ -175,6 +178,10 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 	auto currPres = mEngine.mContent.getChildByName("current_presentation");
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
+	auto backer = getSprite("presentation_backer");
+	if (backer) {
+		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
+	}
 }
 
 //template <class VC>
@@ -261,6 +268,12 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 
 	if (!mEngine.isIdling() && mAmEngaged) {
 		gotoItem(mPlaylistIdx);
+	}
+
+	auto backer = getSprite("presentation_backer");
+	backer->show();
+	if (backer) {
+		backer->tweenOpacity(1.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone());
 	}
 }
 
@@ -402,7 +415,7 @@ void WafflesSprite::setupTouchMenu() {
 
 	auto closeModel = ds::ui::TouchMenu::MenuItemModel(
 		L"Close Assets", "%APP%/data/images/waffles/icons/4x/Close_256.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(pos));  }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto presNext = ds::ui::TouchMenu::MenuItemModel(
@@ -496,14 +509,14 @@ void WafflesSprite::setupTouchMenu() {
 				menuItemModels.emplace_back(searchy);
 			} else if (it == "pres_next" && allowCmsStuff) {
 				menuItemModels.emplace_back(presNext);
-			} /* else if (it == "arrange") {
+			} else if (it == "arrange") {
 				menuItemModels.emplace_back(arrange);
-			} */
+			} 
 			else if (it == "home") {
 				menuItemModels.emplace_back(homeView);
-			} /* else if (it == "gather") {
+			} else if (it == "gather") {
 				menuItemModels.emplace_back(gather);
-			} */
+			}
 			else if (it == "pres_back" && allowCmsStuff) {
 				menuItemModels.emplace_back(presBack);
 			} else if (it == "pres_cont" && allowCmsStuff) {

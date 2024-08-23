@@ -1,6 +1,6 @@
 <interface>
 	<layout name="root_layout"
-		layout_type="none"
+		layout_type="size"
 		clipping="true"
 		size="$_world_size"
 		>
@@ -9,6 +9,11 @@
 			layout_type="vert"
 			layout_size_mode="fill"
 		/> 
+		<sprite name="presentation_backer" layout_size_mode="fill" color="#000000" opacity="0.0" />
+		<layout name="template_holdy"
+			layout_type="vert"
+			layout_size_mode="fill"
+		/>
 		
 		<layout name="viewer_controller_holdy"
 			layout_type="vert"
