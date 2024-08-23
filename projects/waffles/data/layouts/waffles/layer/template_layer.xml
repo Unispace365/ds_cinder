@@ -3,7 +3,7 @@
 		layout_type="vert"
 		clipping="true"
 	>
-
+		
 		<layout name="template_holder"
 			layout_type="vert"
 			layout_size_mode="fill"

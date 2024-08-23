@@ -48,7 +48,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 		mEngine.getNotifier().notify(RequestPresentationEndEvent());
 		mEngine.getNotifier().notify(RequestCloseAllEvent(true));
 
-		mEngine.mContent.setProperty("presentation_controller_blocked", true);
+		//mEngine.mContent.setProperty("presentation_controller_blocked", true);
 
 		mCloseRequestCallback();
 	});

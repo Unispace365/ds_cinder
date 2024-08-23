@@ -33,7 +33,28 @@ namespace waffles {
 WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
 
 void WafflesSprite::initializeWaffles() {
+	//init the template config
 	mTemplateConfig = TemplateConfig::getDefault();
+
+	// Setup waffles events
+	auto& reg = ds::event::Registry::get();
+	reg.addEventCreator(waffles::RequestCloseAllEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestCloseAllEvent(); });
+	reg.addEventCreator(waffles::RequestAppExit::NAME(), []() -> ds::Event* { return new waffles::RequestAppExit(); });
+	reg.addEventCreator(waffles::RequestArrangeEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestArrangeEvent(ci::vec3()); });
+	reg.addEventCreator(waffles::RequestGatherEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestGatherEvent(ci::vec3()); });
+	reg.addEventCreator(waffles::RequestViewerLaunchEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs()); });
+	reg.addEventCreator(waffles::RequestPresentationAdvanceEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestPresentationAdvanceEvent(); });
+	reg.addEventCreator(waffles::RequestPresentationStepRefresh::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestPresentationStepRefresh(); });
+	reg.addEventCreator(waffles::RequestPresentationEndEvent::NAME(),
+		[]() -> ds::Event* { return new waffles::RequestPresentationEndEvent(); });
+
+
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
 
 		holdy->addChildPtr(mViewerController);

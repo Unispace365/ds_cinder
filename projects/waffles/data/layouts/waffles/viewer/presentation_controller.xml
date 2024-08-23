@@ -108,7 +108,7 @@
 					scroll_fade_colors="#fff7f7f7, #00f7f7f7"
 					scroll_fade_size="25"
 					visible="false"
-					smart_scroll_item_layout="component/slide_thumb.xml" />
+					smart_scroll_item_layout="waffles/component/slide_thumb.xml" />
 			</layout>
 			<layout
 				layout_type="horiz"
