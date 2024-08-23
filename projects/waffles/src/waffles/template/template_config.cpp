@@ -157,8 +157,7 @@ void TemplateConfig::initializeTemplateDefs() {
 			DS_LOG_WARNING("Invalid template config setting: " << setting);
 			continue;
 		}
-		auto [name, uid, path] = std::tie(configStr[0], configStr[1], configStr[2]);
-
+		
 		auto [name, uid, path] = std::tie(configStr[0], configStr[1], configStr[2]);
 		def.name = name;
 		def.id = uid;
