@@ -712,7 +712,7 @@ void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 				auto pres = helper->getRecordByUid(pres_id);
 				if (pres.getChildren().size() > 0) { // activate first slide
 					mEngine.getNotifier().notify(waffles::RequestEngagePresentation(pres.getChild(0), false));
-					mEngine.mContent.setProperty("presentation_controller_blocked", false);
+					//mEngine.mContent.setProperty("presentation_controller_blocked", false);
 				}
 			}
 			// }

@@ -506,7 +506,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	} else if (type == "presentation" || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
 		if (model.getChildren().size() > 0) { // activate first slide
 			mEngine.getNotifier().notify(RequestEngagePresentation(model.getChild(0)));
-			mEngine.mContent.setProperty("presentation_controller_blocked", false);
+			//mEngine.mContent.setProperty("presentation_controller_blocked", false);
 		}
 	} else if (type == "current_playlist") {
 		panelButtonTapped(btn);

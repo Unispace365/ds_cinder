@@ -43,7 +43,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	addChildPtr(mRootLayout);
 
 	mRootLayout->setSpriteClickFn("end_presentation.the_button", [this] {
-		if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
+		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
 
 		mEngine.getNotifier().notify(RequestPresentationEndEvent());
 		mEngine.getNotifier().notify(RequestCloseAllEvent(true));
@@ -54,7 +54,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	});
 
 	mRootLayout->setSpriteClickFn("refresh_layout.the_button", [this] {
-		if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
+		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
 
 		auto thePres = mEngine.mContent.getChildByName("current_presentation");
 		if (thePres.empty()) return;
@@ -128,7 +128,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	}
 
 	mRootLayout->setSpriteClickFn("thumbs_toggle.the_button", [this] {
-		if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
+		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
 		toggleThumbs();
 	});
 	// mRootLayout->setSpriteClickFn("pins_toggle.the_button", [this] { togglePins(); });
@@ -170,7 +170,7 @@ void PresentationController::onLayout() {
 void PresentationController::updateUi() {
 	if (!mRootLayout) return;
 
-	bool hide_slides = mEngine.mContent.getPropertyBool("presentation_controller_blocked");
+	bool hide_slides = false; //mEngine.mContent.getPropertyBool("presentation_controller_blocked");
 
 	auto thePres = mEngine.mContent.getChildByName("current_presentation");
 	auto currentPresentation =
