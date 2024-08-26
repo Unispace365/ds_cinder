@@ -515,8 +515,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	} else if (type == "streams") {
 		panelButtonTapped(btn);
 	} else {
-		mEngine.getNotifier().notify(RequestEngagePresentation(model));
-		DS_LOG_INFO("Possibly unhandled menu item! " << type << " : " << model.getPropertyString("record_name") << " ("
+		DS_LOG_INFO("Unhandled menu item! " << type << " : " << model.getPropertyString("record_name") << " ("
 													 << type << ")");
 	}
 }
