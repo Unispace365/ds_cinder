@@ -729,11 +729,22 @@ void Launcher::closeButtonPlacement() {
 
 void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 	button->setClickFn([this] {
+		std::vector<std::string> folder_enabled_filters = ds::split(
+			mEngine.getWafflesSettings().getString("launcher:folder_enabled:filters", 0, "Folders,folders,Recent,recent"),
+			","
+		);
+		bool folder_enabled = false;
+		for (std::string filter : folder_enabled_filters) {
+			if (filter == mFilterSelected) {
+				folder_enabled = true;
+				break;
+			}
+		}
 		if (mFolderStack.size() > 1) {
 			updatePanelContent(mFolderStack[mFolderStack.size() - 2]);
 			mFolderStack.pop_back();
-		} else if (mFilterSelected == "Folders" || mFilterSelected == "Recent") {
-			auto filter		= mFilterSelected;
+		} else if (folder_enabled) {
+			auto filter = mFilterSelected;
 			mFilterSelected = ""; // to let the next thing happen
 			mEngine.getNotifier().notify(waffles::WafflesFilterEvent(filter));
 		}
