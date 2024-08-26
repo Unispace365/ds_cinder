@@ -101,7 +101,8 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto		theModel = item->getContentModel();
 	auto		theType	   = item->getContentModel().getPropertyString("type_key");
 	auto		theTypeUid = item->getContentModel().getPropertyString("type_uid");
-	auto		mediaType  = item->getContentModel().getPropertyResource("media").getType();
+	auto        media_property_key = engine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
+	auto		mediaType		   = item->getContentModel().getPropertyResource(media_property_key).getType();
 
 	bool showArrow = false;
 	bool validy	   = true;

@@ -13,6 +13,7 @@
 	<setting name="launcher:media:key" value="QQwUEq2MYDTc" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="IaQkbFuHnXQd" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:media:key" value="media" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:property_key" value="media" comment="This is the app_key for the media field under a Bridge item found from above launcher:media:key searches"/>
 	<setting name="launcher:presentation:key" value="pQtRzG78ffu0" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
 

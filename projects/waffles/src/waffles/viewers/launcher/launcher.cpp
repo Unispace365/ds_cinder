@@ -599,24 +599,25 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 }
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
+	auto property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
 	if (type == "images") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource("media").getType() == ds::Resource::IMAGE_TYPE;
+			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;
 	} else if (type == "presentations") {
 		return ContentUtils::getDefault(mEngine)->isPresentation(model);
 	} else if (type == "videos") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   (model.getPropertyResource("media").getType() == ds::Resource::VIDEO_TYPE ||
-				model.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE);
+			   (model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_TYPE ||
+				model.getPropertyResource(property_key).getType() == ds::Resource::YOUTUBE_TYPE);
 	} else if (type == "streams") { // TODO: untested
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource("media").getType() == ds::Resource::VIDEO_STREAM_TYPE;
+			   model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_STREAM_TYPE;
 	} else if (type == "pdfs") { // TODO: untested
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource("media").getType() == ds::Resource::PDF_TYPE;
+			   model.getPropertyResource(property_key).getType() == ds::Resource::PDF_TYPE;
 	} else if (type == "links") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE;
+			   model.getPropertyResource(property_key).getType() == ds::Resource::WEB_TYPE;
 	} else if (type == "recent") {
 		loadRecent();
 		return recentContains(model);
