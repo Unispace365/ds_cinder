@@ -501,9 +501,9 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
 
-	if (ContentUtils::getDefault(mEngine)->isFolder(model) || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
+	if (ContentUtils::getDefault(mEngine)->isFolder(model)) {
 		panelButtonTapped(btn);
-	} else if (type == "presentation") {
+	} else if (type == "presentation" || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
 		if (model.getChildren().size() > 0) { // activate first slide
 			mEngine.getNotifier().notify(RequestEngagePresentation(model.getChild(0)));
 			mEngine.mContent.setProperty("presentation_controller_blocked", false);
