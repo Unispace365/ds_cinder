@@ -562,12 +562,12 @@ void Launcher::updatePanelContent(ds::model::ContentModelRef model) {
 
 	mPrimaryLayout->setSpriteText("side_panel_title", model.getPropertyString("record_name"));
 
+	bool restricitve   = mEngine.getWafflesSettings().getBool("launcher:restrictive:enabled", 0, true);
 	auto filteredModel = ds::model::ContentModelRef(model.getName());
 	filteredModel.setProperties(model.getProperties());
 	for (auto child : model.getChildren()) {
-		if (child.getPropertyString("type_key") != "ambient_playlist") {
-			filteredModel.addChild(child);
-		}
+		if (restricitve && !restrictiveType(child)) continue;
+		filteredModel.addChild(child);
 	}
 
 	sidePanelContent->setContentList(filteredModel.getChildren());
@@ -599,7 +599,7 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 }
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
-	auto property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
+	auto property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "asset_media");
 	if (type == "images") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;
@@ -625,6 +625,12 @@ bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
 		return ContentUtils::getDefault(mEngine)->isFolder(model);
 	}
 	return false;
+}
+
+bool Launcher::restrictiveType(ds::model::ContentModelRef model) {
+	return ContentUtils::getDefault(mEngine)->isMedia(model) ||
+		  ContentUtils::getDefault(mEngine)->isPresentation(model) ||
+		  ContentUtils::getDefault(mEngine)->isFolder(model);
 }
 
 void Launcher::updateRecent(ds::model::ContentModelRef content) {

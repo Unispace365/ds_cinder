@@ -9,13 +9,11 @@
 	<setting name="launcher:main:filters" value="Folders|folders,Recent|recent,Images|images,Links|links,PDFs|pdfs,Presentations|presentations,Videos|videos" type="string"/>
 	<setting name="launcher:folder_enabled:filters" value="Folders,folders,Recent,recent" type="string" comment="should match with relevant filter name(s) defined by launcher:main:filters" />
 	<setting name="launcher:folder:key" value="folder" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:media:key" value="Z6VTNqQ3iUV4" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:media:key" value="QQwUEq2MYDTc" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:media:key" value="IaQkbFuHnXQd" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:media:key" value="media" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:media:property_key" value="media" comment="This is the app_key for the media field under a Bridge item found from above launcher:media:key searches"/>
-	<setting name="launcher:presentation:key" value="pQtRzG78ffu0" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:key" value="asset_media" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:media:property_key" value="asset_media" comment="This is the app_key for the media field under a Bridge item found from above launcher:media:key searches"/>
+	<setting name="launcher:presentation:key" value="presentation" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="launcher:restrictive:enabled" value="true" comment="Only show types that are 'media' 'folder' or 'presentation' in the panel"/>
 
 	<!-- If the following three fields are all empty then content is pulled from the entire tree-->
 	<setting name="waffles:use_root_as_fallback" value="true" comment=""/>
