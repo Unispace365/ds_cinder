@@ -38,6 +38,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	mCanFullscreen		  = false;
 	mMaxViewersOfThisType = 1;
 	mViewerType			  = VIEW_TYPE_PRESENTATION_CONTROLLER;
+	mResetButtonEnabled	  = mEngine.getWafflesSettings().getBool("presentation_controller:reset_button:enabled", 0, true);
 
 	mRootLayout = new ds::ui::SmartLayout(mEngine, "waffles/viewer/presentation_controller.xml");
 	addChildPtr(mRootLayout);
@@ -77,6 +78,13 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 			}
 		});
 	}
+
+	if (!mResetButtonEnabled) {
+		auto reset_button = mRootLayout->getSprite("refresh_layout.the_button");
+		reset_button->hide();
+		reset_button->setSize(ci::vec3(0));
+		reset_button->enable(false);
+	} // TODO: I'd prefer a release() call here and proper setting checking elsewhere, but cannot get working so here we are
 
 	mRootLayout->runLayout();
 

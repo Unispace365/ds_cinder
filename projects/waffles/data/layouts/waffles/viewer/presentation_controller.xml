@@ -117,6 +117,7 @@
 				layout_spacing="#expr 0.5 * $_ui:padding"
 				layout_h_align="center"
 				overall_alignment="center"
+				skip_hidden_children="true"
 			>
 
 				<xml name="thumbs_toggle"

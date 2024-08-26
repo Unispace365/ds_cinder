@@ -34,6 +34,8 @@ class PresentationController : public BaseElement {
 
 	std::map<std::string, ds::Resource> mPinMap;
 	bool								mShowingPins;
+
+	bool mResetButtonEnabled = true;
 };
 
 } // namespace waffles
