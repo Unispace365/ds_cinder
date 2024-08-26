@@ -143,6 +143,7 @@ void WafflesSprite::initializeWaffles() {
 void WafflesSprite::onIdleStarted(const ds::app::IdleStartedEvent& e) {
 	mEngine.getNotifier().notify(waffles::HideWaffles());
 	endPresentationMode();
+	//do ambient
 }
 
 //template <class VC>

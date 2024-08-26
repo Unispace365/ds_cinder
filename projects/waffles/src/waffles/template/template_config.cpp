@@ -73,14 +73,21 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 		return new PinboardTemplate(engine, def, model);
 
 	} */ else if (def.name == "media") {
+		//get the resource name from the extra params if there are any
+		auto resourceName = def.extra.size() > 0 ? def.extra[0] : "media";
+		auto res = model.getPropertyResource(resourceName);
+		if(resourceName!="media") model.setPropertyResource("media", res);
 		auto mediaTemplate = new TemplateBase(engine, def, model);
-		mediaTemplate->setAnimStartCb([mediaTemplate, model, &engine] {
+		/*
+		mediaTemplate->setAnimStartCb([mediaTemplate, resourceName, model, &engine] {
 			mediaTemplate->callAfterDelay(
-				[mediaTemplate, model, &engine] {
+				[mediaTemplate, model,resourceName, &engine] {
 					auto arrg		 = model.duplicate();
-					auto displayType = arrg.getPropertyString("display_mode") == "pioTM16AbaGQ" ? std::string("fit") // TODO: not straight UUID
-																								: std::string("fill");
-
+					
+					auto displayType = std::string("fit");
+					//auto displayType = arrg.getPropertyString("display_mode") == "pioTM16AbaGQ" ? std::string("fit") // TODO: not straight UUID
+					//																			: std::string("fill");
+					auto res = arrg.getPropertyResource(resourceName);
 					auto targetOffset =
 						engine.getWafflesSettings().getVec2("template:media:waffles_offset", 0, ci::vec2(0.f, 2160.f));
 					auto targetSize =
@@ -88,25 +95,24 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 					float startWidth   = targetSize.x;
 					float targetAspect = targetSize.x / targetSize.y;
 					auto  aspect =
-						arrg.getPropertyResource("media").getWidth() / arrg.getPropertyResource("media").getHeight();
+						res.getWidth() / res.getHeight();
 					if (displayType == "fit") {
 						if (aspect > targetAspect) {
 							startWidth = targetSize.x;
 						} else {
-							auto scale = targetSize.y / arrg.getPropertyResource("media").getHeight();
-							startWidth = arrg.getPropertyResource("media").getWidth() * scale;
+							auto scale = targetSize.y / res.getHeight();
+							startWidth = res.getWidth() * scale;
 						}
 						// Ensure height fits, otherwise startWidth = full width
 					} else {
 						if (aspect > targetAspect) {
-							auto scale = targetSize.y / arrg.getPropertyResource("media").getHeight();
-							startWidth = arrg.getPropertyResource("media").getWidth() * scale;
+							auto scale = targetSize.y / res.getHeight();
+							startWidth = res.getWidth() * scale;
 						} else {
 							startWidth = targetSize.x;
 						}
 					}
-					auto args = waffles::ViewerCreationArgs(
-						model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER,
+					auto args = waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER,
 						ci::vec3((targetSize.x / 2.f) + targetOffset.x, (targetSize.y / 2.f) + targetOffset.y, 0.f),
 						waffles::ViewerCreationArgs::kViewLayerBackground, startWidth, true, false);
 
@@ -129,6 +135,7 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 				},
 				0.01f);
 		});
+		*/
 		return mediaTemplate;
 
 	} else {
@@ -141,7 +148,15 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 
 TemplateConfig::TemplateConfig(ds::ui::SpriteEngine& eng) : mEngine(eng) {
 	//load all the templated from the waffles_integration.xml file
+	//invalid
+	TemplateDef invalid;
+	invalid.id = "FiddleSticks";
+	invalid.name = "invalid";
+	invalid.layoutXml = "waffles/template/invalid.xml";
+	invalid.requiresClear = false;
+	mTemplateDefinitions.push_back(invalid);
 	initializeTemplateDefs();
+	
 }
 
 void TemplateConfig::initializeTemplateDefs() {
@@ -153,12 +168,15 @@ void TemplateConfig::initializeTemplateDefs() {
 
 		TemplateDef def;
 		std::vector<std::string> configStr = ds::split(setting, ":");
-		if (configStr.size() != 3) {
+		if (configStr.size() < 4) {
 			DS_LOG_WARNING("Invalid template config setting: " << setting);
 			continue;
 		}
-		
-		auto [name, uid, path] = std::tie(configStr[0], configStr[1], configStr[2]);
+		if (configStr.size() > 4) {
+			def.extra = std::vector<std::string>(configStr.begin() + 4, configStr.end());
+		}
+	
+		auto [name, uid, path,clear] = std::tie(configStr[0], configStr[1], configStr[2], configStr[3]);
 		def.name = name;
 		def.id = uid;
 		def.layoutXml = path;

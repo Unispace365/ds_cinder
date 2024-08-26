@@ -15,7 +15,8 @@ class CompositeSlide : public TemplateBase {
 	CompositeSlide(ds::ui::SpriteEngine& engine, TemplateDef& def,
 				   ds::model::ContentModelRef content = ds::model::ContentModelRef());
 
-	virtual float animateOn(float delay, std::function<void(void)> finishedCb = nullptr);
+	virtual float animateOn(float delay, std::function<void(void)> finishedCb = nullptr) override;
+	virtual float animateOff(float delay, std::function<void(void)> finishedCb) override; 
 };
 
 } // namespace waffles

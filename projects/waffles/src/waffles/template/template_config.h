@@ -12,6 +12,7 @@ struct TemplateDef {
 	std::string name;	   // Human readable name
 	std::string id;		   // Bridge UUID of the schema type
 	std::string layoutXml; // XML layout for template
+	std::vector<std::string> extra;
 	bool		requiresClear = false;
 };
 

@@ -103,9 +103,10 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 				}
 			} else {
 				mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+				oldTemplate->animateOff(0.f, [oldTemplate] { oldTemplate->release(); });
 			}
 
-			oldTemplate->animateOff(0.f, [oldTemplate] { oldTemplate->release(); });
+			
 		} else {
 			if (mCurrentTemplate) {
 				bg->addChildPtr(mCurrentTemplate);

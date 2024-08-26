@@ -17,10 +17,18 @@ CompositeSlide::CompositeSlide(ds::ui::SpriteEngine& engine, TemplateDef& def, d
 float CompositeSlide::animateOn(float delay, std::function<void(void)> finishedCb) {
 	// onSizeChanged();
 	if (mAnimStartCb) mAnimStartCb();
-	mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
-		waffles::ViewerCreationArgs(mContentModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, getLocalCenterPosition())));
-	return tweenAnimateOn(true, delay, 0.05f, finishedCb);
+	
+	return tweenAnimateOn(true, delay, 0.05f, [this, finishedCb]() {
+		mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			waffles::ViewerCreationArgs(mContentModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, getLocalCenterPosition())));
+		if(finishedCb) finishedCb();
+		});
 }
 
+float CompositeSlide::animateOff(float delay, std::function<void(void)> finishedCb) {
+	mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(mContentModel));
+	return tweenAnimateOff(true, delay, 0.00f, finishedCb);
+}
 
 } // namespace waffles
+

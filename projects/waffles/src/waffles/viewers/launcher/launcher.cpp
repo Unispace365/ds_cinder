@@ -220,7 +220,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	setupMenuItems();
 	handleSelection();
 
-	mEngine.getNotifier().notify(waffles::WafflesFilterEvent("Recent"));
+	mEngine.getNotifier().notify(waffles::WafflesFilterEvent("recent"));
 
 	// TODO: idk why this is needed, but otherwise filter color starts wrong
 	auto force_color = [this] {
