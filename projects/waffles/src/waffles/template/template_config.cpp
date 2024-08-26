@@ -47,7 +47,7 @@ const TemplateDef& TemplateConfig::getTemplateDefFromId(const std::string& id) {
 TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model) {
 	auto def = getTemplateDefFromId(model.getPropertyString("type_uid"));
 
-	DS_LOG_INFO("\n\n\nDEF " << def.name << "\n\n\n");
+	auto media_property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "asset_media");
 
 	// Add special case templates here
 	
@@ -72,10 +72,11 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 	} else if (def.name == "pinboard_event" || def.name == "pinboard") {
 		return new PinboardTemplate(engine, def, model);
 
-	} */ else if (def.name == "media") {
+	} */ else if (def.name == "media" || def.name == media_property_key) {
 		//get the resource name from the extra params if there are any
 		auto resourceName = def.extra.size() > 0 ? def.extra[0] : "media";
 		auto res = model.getPropertyResource(resourceName);
+		if (res.empty()) res = model.getPropertyResource(media_property_key);
 		if(resourceName!="media") model.setPropertyResource("media", res);
 		auto mediaTemplate = new TemplateBase(engine, def, model);
 		/*

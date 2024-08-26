@@ -28,7 +28,8 @@ ListItem::ListItem(ds::ui::SpriteEngine& g, std::string layout_file)
 		if (icony) {
 			std::string thumbPath = "";
 			auto		theType	  = getContentModel().getPropertyString("type_key");
-			auto		mediaType = getContentModel().getPropertyResource("media").getType();
+			auto		mediaPropertyKey = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "asset_media");
+			auto		mediaType = getContentModel().getPropertyResource(mediaPropertyKey).getType();
 
 			if (arrowy) {
 				arrowy->hide();
