@@ -179,6 +179,7 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 	auto currPres = mEngine.mContent.getChildByName("current_presentation");
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
+	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest(ds::model::ContentModelRef()));
 	auto backer = getSprite("presentation_backer");
 	if (backer) {
 		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
