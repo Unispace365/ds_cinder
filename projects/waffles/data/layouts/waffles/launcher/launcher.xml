@@ -58,6 +58,14 @@
 					layout_size="$_launcher:content_width, $_menu:title:height"
 					color = "menu:title:background"
 				>
+					<sprite layout_size_mode="fixed" width="#expr{ 30 * $_waffles:sprite:scale }"/>
+					<image name="menu_icon"
+						src="$_launcher:title:icon"
+						layout_size="#expr{ 300 * $_waffles:sprite:scale }, #expr{ 68 * $_waffles:sprite:scale }"
+						layout_v_align="middle"
+						r_pad="#expr{ 30 * $_waffles:sprite:scale }"
+						visible="$_launcher:title:icon:on"
+						/>
 					<text name="menu_title"
 						size="#expr{ 111 * $_waffles:sprite:scale }, #expr{ 68 * $_waffles:sprite:scale }"
 						font="waffles:menu:title"
@@ -65,9 +73,9 @@
 						color="menu:title:text"
 						text_wrap="wordchar"
 						text_ellipses="end"
-						text="Launcher Menu"
+						text="$_launcher:title:text"
 						layout_v_align="middle"
-						l_pad="#expr{ 30 * $_waffles:sprite:scale }"
+						visible="$_launcher:title:text:on"
 					/>
 					<sprite layout_size_mode="stretch"/>
 					<layout name="fixed_buttons_top"

@@ -60,7 +60,11 @@
 	<setting name="filter_list:item:width" value="320" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="filter_list:item:height" value="60" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="menu:title:height" value="125.0" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="menu:title:fontsize" value="40" type="float" multiplier="waffles:font:scale"/>
+	<setting name="menu:title:fontsize" value="35" type="float" multiplier="waffles:font:scale"/>
+	<setting name="launcher:title:text:on" value="false" type="bool"/>
+	<setting name="launcher:title:icon:on" value="true" type="bool"/>
+	<setting name="launcher:title:text" value="Menu" type="string"/>
+	<setting name="launcher:title:icon" value="%APP%/data/images/logo.png" type="string"/>
 	<setting name="launcher:content_width" value="1000.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:content_height" value="700.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll:height" value="169" type="float" multiplier="waffles:sprite:scale"/>

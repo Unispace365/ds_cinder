@@ -35,7 +35,12 @@
 	<setting name="annotation:parent_slot:id" value="qcH1a43qZPXo" comment="This is the id of annotation's parents slot to use"/>
 	<setting name="annotation:folder:key" value="annotation_folder" comment="This is the app_key of the folder to use for annotations"/>
 
-	<!-- END WAFFLES SETTINGS -->
+	<setting name="playlist:event:type" value="XmN6VB0WaQVe" />
+	<setting name="playlist:presentation:event:field" value="playlist" />
+	<setting name="playlist:ambient:event:field" value="playlist" />
+	<setting name="playlist:presentation:platform:field" value="playlist" />
+	<setting name="playlist:ambient:platform:field" value="playlist" />
+<!-- END WAFFLES SETTINGS -->
 </settings>
 
 
