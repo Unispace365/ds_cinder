@@ -117,10 +117,10 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 		auto pinny = helper->getPinboard();
 		if (!pinny.empty()) allContent.push_back(pinny);
 
-		auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
-
+		//auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
+		auto allValid = helper->getContentForPlatform();
 		
-		for (auto& [key, value] : allValid) {
+		for (auto& value : allValid) {
 			allContent.push_back(value);
 		}
 		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
@@ -759,8 +759,8 @@ void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 
 std::vector<ds::model::ContentModelRef> Launcher::recurseContent(std::vector<ds::model::ContentModelRef> the_content) {
 	std::vector<ds::model::ContentModelRef> out_content;
-	for (auto child : the_content) {
-		if (child.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS) {
+	for (auto& child : the_content) {
+		if (ContentUtils::getDefault(mEngine)->isFolder(child)) {
 			for (auto sub : recurseContent(child.getChildren())) {
 				out_content.push_back(sub);
 			}

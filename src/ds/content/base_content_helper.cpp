@@ -78,10 +78,10 @@ std::string BaseContentHelper::getInitialPresentationUid() {
 
 std::vector<ds::model::ContentModelRef> BaseContentHelper::getContentForPlatform() {
 	
-	auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
+	auto allValid = mEngine.mContent.getChildByName(ds::model::CONTENT).getChildren();
 	auto allContent = std::vector<ds::model::ContentModelRef>();
 
-	for (auto& [key, value] : allValid) {
+	for (auto value : allValid) {
 		allContent.push_back(value);
 	}
 	return allContent;

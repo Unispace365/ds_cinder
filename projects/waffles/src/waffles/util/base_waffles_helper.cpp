@@ -114,11 +114,12 @@ std::vector<ds::model::ContentModelRef> BaseWafflesHelper::getFilteredPlaylists(
 }
 std::vector<ds::model::ContentModelRef> BaseWafflesHelper::getContentForPlatform() {
 	ds::model::Platform platformObj(mEngine);
-	auto				platform = platformObj.getPlatformModel();
-	if (platform.empty()) return std::vector<ds::model::ContentModelRef>();
+	auto				platformCurrent = platformObj.getCurrentContent();
+	auto 			    platform = platformObj.getPlatformModel();
+	//if (platformCurrent.empty()) return std::vector<ds::model::ContentModelRef>();
 
 	// get all the events scheduled for this platform
-	auto allPlatformEvents = platform.getChildByName("current_events").getChildren();
+	auto allPlatformEvents = platformCurrent.getChildByName("current_events").getChildren();
 
 	std::vector<ds::model::ContentModelRef> theList;
 	
@@ -131,7 +132,9 @@ std::vector<ds::model::ContentModelRef> BaseWafflesHelper::getContentForPlatform
 				auto contentUids = ci::split(event.getPropertyString(mEventFieldKey), ",");
 				for (auto& uid : contentUids) {
 					auto content = getRecordByUid(uid);
-					theList.push_back(content);
+					if (!content.empty()) {
+						theList.push_back(content);
+					}
 				}
 			}
 			
@@ -145,7 +148,9 @@ std::vector<ds::model::ContentModelRef> BaseWafflesHelper::getContentForPlatform
 	auto defaultContentUids = ci::split(platform.getPropertyString(mPlatformFieldKey), ",");
 	for (auto& uid : defaultContentUids) {
 		auto content = getRecordByUid(uid);
-		theList.push_back(content);
+		if (!content.empty()) {
+			theList.push_back(content);
+		}
 	}
 
 	if (theList.empty() && mUseRoot) {
