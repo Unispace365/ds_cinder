@@ -498,7 +498,7 @@ void Sprite::buildRenderBatch() {
 			mNeedsBatchUpdate = true;
 		}
 	}
-	// if (!mNeedsBatchUpdate) return;
+	if (!mNeedsBatchUpdate) return;
 	mNeedsBatchUpdate = false;
 
 	if (getTransparent()) {
