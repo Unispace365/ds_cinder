@@ -92,8 +92,8 @@ namespace ds { namespace ui {
 		mUnLoopButton->getHighImage().setColor(buttonColor / 2.0f);
 		mUnLoopButton->setScale(sizey.y / mUnLoopButton->getHeight());
 
-		const float padding = sizey.y / 2.0f; // config?
-		mMinWidth = mPlayButton->getScaleWidth() + mLoopButton->getScaleWidth() + mVolumeControl->getScaleWidth() +
+		const float padding = sizey.y / 1.5f; // config?
+		mMinWidth = mPlayButton->getScaleWidth() + mLoopButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 2.f +
 					padding * 3 + sizey.y * 4.0f; // last sizey is for the scrub bar
 		mMaxWidth = 10000.0f;					  // WHOOOOOOOO
 
@@ -182,9 +182,9 @@ namespace ds { namespace ui {
 		float w = glm::clamp(getWidth(), mMinWidth, mMaxWidth);
 		// if (w < mMinWidth) w = mMinWidth;
 		const float h		  = getHeight();
-		const float padding	  = h / 2.0f; // config?
+		const float padding	  = h / 1.5f; // config?
 		float		xp		  = getWidth() / 2.0f - w / 2.0f + padding;
-		float		spaceLeft = w - padding;
+		float		spaceLeft = w - padding * 2.f;
 
 		// Streaming videos only have the volume control thingy
 		if (mLinkedVideo && mLinkedVideo->getIsStreaming() && mVolumeControl) {
@@ -201,16 +201,16 @@ namespace ds { namespace ui {
 		}
 
 		if (mVolumeControl) {
-			mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding,
-										h / 2.0f - mVolumeControl->getHeight() / 2.0f);
-			spaceLeft -= mVolumeControl->getScaleWidth() + padding * 2.0f;
+			mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getScaleWidth() - padding * 1.5f,
+										h / 2.0f - mVolumeControl->getScaleHeight() / 2.0f);
+			spaceLeft -= mVolumeControl->getScaleWidth() + padding * 1.0f;
 		}
 
 		if (mLoopButton && mUnLoopButton && mVolumeControl) {
-			mLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding * 2.0f -
+			mLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getScaleWidth() - padding * 2.5f -
 										 mLoopButton->getScaleWidth(),
 									 h / 2.0f - mLoopButton->getScaleHeight() / 2.0f);
-			mUnLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding * 2.0f -
+			mUnLoopButton->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getScaleWidth() - padding * 2.5f -
 										   mUnLoopButton->getScaleWidth(),
 									   h / 2.0f - mUnLoopButton->getScaleHeight() / 2.0f);
 			spaceLeft -= mLoopButton->getScaleWidth() + padding;

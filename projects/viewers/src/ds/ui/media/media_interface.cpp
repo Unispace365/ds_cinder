@@ -3,6 +3,8 @@
 #include "media_interface.h"
 
 
+#include "glm/gtx/matrix_decompose.hpp"
+
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/image.h>
@@ -52,18 +54,29 @@ void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
 			animateOn();
 		}
 	}
+
+	if (visible()) {
+
+		ci::vec3  scale, translation, skew;
+		ci::vec4  persp;
+		glm::quat orient;
+		glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
+		setScale(1.f / scale.x, 1.f / scale.y);
+	}
 }
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void MediaInterface::layout() {
-	const float w = getWidth();
-	const float h = getHeight();
+	const float w  = getWidth();
+	const float h  = getHeight();
 	const float ww = mEngine.getWorldWidth();
 	onLayout();
 	if (mBackground) {
 		// Ensure the maximum width always fits within the window
-		mMaxWidth = glm::min(mMaxWidth, ww);
+		mMaxWidth  = glm::min(mMaxWidth, ww);
+		// mMaxWidth  = glm::min(mMaxWidth, 900.f);
 		float newW = glm::clamp(w, mMinWidth, mMaxWidth);
+
 
 		mBackground->setSize(newW, h);
 		mBackground->setCenter(0.5f, 0.0f);
