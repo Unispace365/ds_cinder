@@ -336,13 +336,13 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					child->setResourcePreview(thePreviewResource);
 
 				} else if (sprPropToSet == "visible_if_exists") {
-					if (theNode.getPropertyString(theProp).empty()) {
+					if (theNode.getPropertyString(theProp).empty() && theNode.getPropertyResource(theProp).empty()) {
 						child->hide();
 					} else {
 						child->show();
 					}
 				} else if (sprPropToSet == "hidden_if_exists") {
-					if (theNode.getPropertyString(theProp).empty()) {
+					if (theNode.getPropertyString(theProp).empty() && theNode.getPropertyResource(theProp).empty()) {
 						child->show();
 					} else {
 						child->hide();
