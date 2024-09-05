@@ -23,12 +23,14 @@ class ContentUtils : ds::ui::Sprite {
 	bool isMedia(ds::model::ContentModelRef model);
 	bool isPresentation(ds::model::ContentModelRef model);
 	bool isAmbientPlaylist(ds::model::ContentModelRef model);
+	std::string getMediaPropertyKey(ds::model::ContentModelRef model);
 
   protected:
 	std::vector<std::string> mAcceptableFolders;
 	std::vector<std::string> mAcceptableMedia;
 	std::vector<std::string> mAcceptablePresentations;
 	std::vector<std::string> mAcceptableAmbientPlaylists;
+	std::unordered_map<std::string, std::string> mMediaProps;
 };
 
 } // namespace waffles

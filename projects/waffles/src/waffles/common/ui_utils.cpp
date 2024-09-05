@@ -33,7 +33,9 @@ ContentUtils::ContentUtils(ds::ui::SpriteEngine& g)
 
 	auto mediaCount = mEngine.getWafflesSettings().countSetting("launcher:media:key");
 	for (int i = 0; i < mediaCount; ++i) {
-		auto media = mEngine.getWafflesSettings().getString("launcher:media:key", i, "");
+		auto media		   = mEngine.getWafflesSettings().getString("launcher:media:key", i);
+		auto mediaProp	   = mEngine.getWafflesSettings().getAttribute("launcher:media:key", i, "property_key", "");
+		mMediaProps[media] = mediaProp;
 		mAcceptableMedia.push_back(media);
 	}
 
@@ -86,6 +88,16 @@ bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) {
 	return result;
 }
 
+std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model)
+{
+	auto		theType = model.getPropertyString("type_key");
+	auto		theTypeUid = model.getPropertyString("type_uid");
+	auto		media_property_key = mMediaProps[theTypeUid];
+	media_property_key = media_property_key.empty() ? mMediaProps[theType] : media_property_key;
+	media_property_key = media_property_key.empty() ? "media" : media_property_key;
+	return media_property_key;
+}
+
 
 ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
 	static ContentUtils* sDefault = nullptr;
@@ -97,20 +109,23 @@ ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
 
 void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
 
-	std::string thumbPath  = "";
-	auto		theModel = item->getContentModel();
-	auto		theType	   = item->getContentModel().getPropertyString("type_key");
-	auto		theTypeUid = item->getContentModel().getPropertyString("type_uid");
-	auto        media_property_key = engine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
-	auto		mediaType		   = item->getContentModel().getPropertyResource(media_property_key).getType();
+	std::string thumbPath		   = "";
+	auto		theModel		   = item->getContentModel();
+	auto		theType			   = item->getContentModel().getPropertyString("type_key");
+	auto		theTypeUid		   = item->getContentModel().getPropertyString("type_uid");
+	auto		media_property_key = getDefault(engine)->mMediaProps[theTypeUid];
+	media_property_key = media_property_key.empty() ? getDefault(engine)->mMediaProps[theType] : media_property_key;
+	media_property_key = media_property_key.empty() ? "media" : media_property_key;
+	auto mediaType	   = item->getContentModel().getPropertyResource(media_property_key).getType();
 
 	bool showArrow = false;
 	bool validy	   = true;
 
-	if (theType == "assets_folder" || theType == "playlist_folder" || theType == waffles::MEDIA_TYPE_DIRECTORY_CMS || getDefault(engine)->isFolder(theModel)) {
+	if (theType == "assets_folder" || theType == "playlist_folder" || theType == waffles::MEDIA_TYPE_DIRECTORY_CMS ||
+		getDefault(engine)->isFolder(theModel)) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
 		showArrow = true;
-	} else if (theType == "current_playlist" ) {
+	} else if (theType == "current_playlist") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Playlist_256.png";
 		showArrow = true;
 	} else if (theType == "ambient" || getDefault(engine)->isAmbientPlaylist(theModel)) {
@@ -265,7 +280,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			   type == "streams" || type == "videos" || type == "folders") {
 		engine.getNotifier().notify(waffles::WafflesFilterEvent(type, true));
 	} else {
-		//engine.getNotifier().notify(RequestEngagePresentation(model));
+		// engine.getNotifier().notify(RequestEngagePresentation(model));
 		return false;
 	}
 

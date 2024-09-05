@@ -599,7 +599,7 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 }
 
 bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
-	auto property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "asset_media");
+	auto property_key = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(model);
 	if (type == "images") {
 		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
 			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;

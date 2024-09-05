@@ -17,6 +17,7 @@
 
 #include "app/waffles_app_defs.h"
 #include "waffles/waffles_events.h"
+#include "waffles/common/ui_utils.h"
 
 namespace waffles {
 
@@ -47,7 +48,7 @@ const TemplateDef& TemplateConfig::getTemplateDefFromId(const std::string& id) {
 TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model) {
 	auto def = getTemplateDefFromId(model.getPropertyString("type_uid"));
 
-	auto media_property_key = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "asset_media");
+	auto media_property_key = ContentUtils::getDefault(engine)->getMediaPropertyKey(model);
 
 	// Add special case templates here
 	
