@@ -112,6 +112,7 @@ void SettingsEditor::drawMenu() {
 				mContentOpen	   = true;
 				mShortcutsOpen	   = true;
 				mImguiStyleOpen	   = true;
+				mWafflesSettingsOpen = true;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Close All")) {
@@ -127,6 +128,7 @@ void SettingsEditor::drawMenu() {
 				mContentOpen	   = false;
 				mShortcutsOpen	   = false;
 				mImguiStyleOpen	   = false;
+                mWafflesSettingsOpen = false;
 			}
 
 			drawAppStatusInfo();
@@ -166,6 +168,7 @@ void SettingsEditor::drawMenu() {
 				mStylesOpen		 = true;
 				mFontsOpen		 = true;
 				mTuioOpen		 = true;
+				mWafflesSettingsOpen = true;
 			}
 
 			if (ImGui::MenuItem("Engine", nullptr, mEngineOpen)) {
@@ -183,6 +186,10 @@ void SettingsEditor::drawMenu() {
 			if (ImGui::MenuItem("Tuio", nullptr, mTuioOpen)) {
 				mTuioOpen = !mTuioOpen;
 			}
+            if (ImGui::MenuItem("Waffles", nullptr, mWafflesSettingsOpen)) {
+                mWafflesSettingsOpen = !mWafflesSettingsOpen;
+            }
+           
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Content")) {
@@ -211,7 +218,9 @@ void SettingsEditor::drawMenu() {
 void SettingsEditor::drawSettings() {
 	if (mEngineOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("engine"), mEngineOpen);
 	if (mAppSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("app_settings"), mAppSettingsOpen);
-
+	if (mWafflesSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("waffles"), mWafflesSettingsOpen);
+	
+	
 	if (mStylesOpen) {
 		if (!mEngine.getEngineCfg().getSettings("styles").empty()) {
 			drawSettingFile(mEngine.getEngineCfg().getSettings("styles"), mStylesOpen);
@@ -567,7 +576,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 	if (!showMe) {
 		return;
 	}
-
+	
 	if (!setting.mPossibleValues.empty()) {
 		if (ImGui::BeginCombo(drawName.data(), setting.mRawValue.data())) {
 
@@ -693,6 +702,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 				ImGui::EndCombo();
 			}
 			ImGui::NewLine();
+			
 			if (changed) {
 				DS_LOG_INFO("Text StyleSetting Changed!");
 				DS_LOG_INFO(style.settingFromTextStyle(mEngine, style));
@@ -700,6 +710,8 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			}
 		}
 	}
+	
+
 
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled | ImGuiHoveredFlags_DelayNormal |
 							 ImGuiHoveredFlags_NoSharedDelay)) {
@@ -720,6 +732,15 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			if (needsNewline) tooltip += "\n\n";
 
 			tooltip += "Source\n\t" + setting.mSource;
+			needsNewline = true;
+		}
+
+		if (setting.mHasExtraAttributes) {
+			if (needsNewline) tooltip += "\n\n";
+			tooltip += "Extra Attributes\n";
+			for (auto& extra : setting.getExtraAttributes()) {
+				tooltip += extra.first + " = "+extra.second + "\n";
+			}
 			needsNewline = true;
 		}
 

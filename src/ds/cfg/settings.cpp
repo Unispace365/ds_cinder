@@ -32,6 +32,8 @@ const std::string& SETTING_TYPE_RECT		   = "rect";
 const std::string& SETTING_TYPE_SECTION_HEADER = "section_header";
 const std::string& SETTING_TYPE_TEXT_STYLE	   = "text_style";
 
+const std::vector<std::string> WELL_KNOWN_ATTRIBUTES = { "name","target","value","comment","default","min_value","max_value","type","possibles","multiplier" };
+
 namespace {
 
 	static const int SETTINGS_INCREMENT = 200;
@@ -193,6 +195,22 @@ std::vector<std::string> Settings::Setting::getPossibleValues() const {
 	return possibles;
 }
 
+const std::map<std::string, std::string>& Settings::Setting::getAttributes() const
+{
+	return mAttributeMap;
+}
+
+const std::map<std::string, std::string> Settings::Setting::getExtraAttributes() const
+{
+	std::map<std::string, std::string> extras;
+	for (auto attr : mAttributeMap) {
+		if (std::find(WELL_KNOWN_ATTRIBUTES.begin(), WELL_KNOWN_ATTRIBUTES.end(), attr.first) == std::end(WELL_KNOWN_ATTRIBUTES)) {
+			extras[attr.first] = attr.second;
+		}
+	}
+	return extras;
+}
+
 void Settings::Setting::replaceSettingVariablesAndExpressions() {
 
 	auto		testValue = mRawValue;
@@ -213,6 +231,19 @@ void Settings::Setting::replaceSettingVariablesAndExpressions() {
 			value = ds::cfg::SettingsVariables::doMultiply(value, mMultiplier, mType);
 		}
 		mRawValue		  = value;
+	}
+
+	for (auto attr : mAttributeMap) {
+		if (mOriginalAttributeMap.find(attr.first) == mOriginalAttributeMap.end()) {
+			mOriginalAttributeMap[attr.first] = attr.second;
+		}
+		auto value = attr.second;
+		value	   = ds::cfg::SettingsVariables::replaceVariables(value);
+		value	   = ds::cfg::SettingsVariables::parseAllExpressions(value);
+		if (!mMultiplier.empty()) {
+			value = ds::cfg::SettingsVariables::doMultiply(value, mMultiplier, mType);
+		}
+		mAttributeMap[attr.first] = value;
 	}
 }
 
@@ -336,6 +367,8 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 			continue;
 		}
 
+		
+
 		if (engPtr) {
 			if (it->hasAttribute("target")) {
 				auto target = it->getAttributeValue<std::string>("target");
@@ -363,6 +396,15 @@ void Settings::directReadFromXml(ci::XmlTree& tree, const std::string& reference
 		if (!validateType(theSetting.mType)) {
 			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType
 													   << " source: " << referenceFilename);
+		}
+
+		
+
+		for (auto& attr : it->getAttributes()) {
+			if (std::find(WELL_KNOWN_ATTRIBUTES.begin(), WELL_KNOWN_ATTRIBUTES.end(), attr.getName()) == std::end(WELL_KNOWN_ATTRIBUTES)) {
+				theSetting.mHasExtraAttributes = true;
+			}
+			theSetting.mAttributeMap[attr.getName()] = attr.getValue();
 		}
 
 		theSetting.mSource = referenceFilename;
@@ -429,6 +471,12 @@ void Settings::writeTo(const std::string& filename) {
 		if (!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
 		if (!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
 		if (!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mPossibleValues);
+		for (auto& attr : sit.mOriginalAttributeMap) {
+			if (std::find(WELL_KNOWN_ATTRIBUTES.begin(), WELL_KNOWN_ATTRIBUTES.end(), attr.first) == WELL_KNOWN_ATTRIBUTES.end()) {
+				
+			}
+			settingNode.setAttribute(attr.first, attr.second);
+		}
 		rootNode.push_back(settingNode);
 	}
 
@@ -537,6 +585,11 @@ const cinder::Rectf Settings::getRect(const std::string& name, const int index) 
 
 const cinder::Rectf Settings::getRect(const std::string& name, const int index, const ci::Rectf& defaultValue) {
 	return getSetting(name, index, ds::unparseRect(defaultValue)).getRect();
+}
+
+const std::map<std::string, std::string>& Settings::getAttributes(const std::string& name, const int index)
+{
+	return getSetting(name, index).mAttributeMap;
 }
 
 bool Settings::validateType(const std::string& inputType) {

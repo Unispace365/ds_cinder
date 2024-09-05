@@ -54,19 +54,20 @@ class SettingsEditor : public ds::ui::Sprite {
 	std::unordered_map<std::string, std::string> mSearchMap;
 	std::unordered_map<std::string, std::string> mFilterMap;
 
-	bool mOpen				= false;
-	bool mAppStatusOpen		= false;
-	bool mSyncStatusOpen	= false;
-	bool mAppHostStatusOpen = false;
-	bool mEngineOpen		= false;
-	bool mAppSettingsOpen	= false;
-	bool mStylesOpen		= false;
-	bool mFontsOpen			= false;
-	bool mTuioOpen			= false;
-	bool mContentOpen		= false;
-	bool mShortcutsOpen		= false;
-	bool mImguiStyleOpen	= false;
-	bool mLogOpen			= false;
+	bool mOpen						   = false;
+	bool mAppStatusOpen				   = false;
+	bool mSyncStatusOpen			   = false;
+	bool mAppHostStatusOpen			   = false;
+	bool mEngineOpen				   = false;
+	bool mAppSettingsOpen			   = false;
+	bool mWafflesSettingsOpen		   = false;
+	bool mStylesOpen				   = false;
+	bool mFontsOpen					   = false;
+	bool mTuioOpen					   = false;
+	bool mContentOpen				   = false;
+	bool mShortcutsOpen				   = false;
+	bool mImguiStyleOpen			   = false;
+	bool mLogOpen					   = false;
 
 	// App Status
 	int			mSpriteCount = 0;

@@ -69,6 +69,8 @@ class Settings {
 		const cinder::Rectf getRect() const;
 
 		std::vector<std::string> getPossibleValues() const;
+		const std::map<std::string, std::string>& getAttributes() const;
+		const std::map < std::string, std::string> getExtraAttributes() const;
 		/// Goes through each setting to replace variables and parse expressions
 		void replaceSettingVariablesAndExpressions();
 
@@ -106,6 +108,11 @@ class Settings {
 
 		/// name of float setting to use as a multiplier for this setting
 		std::string mMultiplier;
+
+		/// Map of all the attributes on the setting xml
+		std::map<std::string, std::string> mAttributeMap;
+		std::map<std::string, std::string> mOriginalAttributeMap;
+		bool mHasExtraAttributes = false;
 
 		/// an id that's auto-assigned to this setting to determine overall sort order
 		unsigned int mReadIndex;
@@ -197,6 +204,10 @@ class Settings {
 	/// \code <setting name="the_name" value="0, 0, 1920, 1080" type="rect" />  \endcode
 	const cinder::Rectf getRect(const std::string& name, const int index = 0);
 	const cinder::Rectf getRect(const std::string& name, const int index, const ci::Rectf& defaultValue);
+
+	/// std::map of Attributes. Contains all the attributes on the setting xml
+	/// \code <setting name="the_name" value="sample" random_value="string" other_value="string" default="null"/>
+	const std::map<std::string, std::string>& getAttributes(const std::string& name, const int index = 0);
 
 	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting)
