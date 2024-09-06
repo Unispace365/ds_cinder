@@ -72,7 +72,7 @@ class Settings {
 		const std::map<std::string, std::string>& getAttributes() const;
 		const std::map < std::string, std::string> getExtraAttributes() const;
 		const bool hasAttribute(std::string) const;
-		const std::string& getAttribute(std::string key, std::string default) const;
+		const std::string& getAttribute(std::string key, std::string defaultValue) const;
 		/// Goes through each setting to replace variables and parse expressions
 		void replaceSettingVariablesAndExpressions();
 
