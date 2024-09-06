@@ -71,6 +71,8 @@ class Settings {
 		std::vector<std::string> getPossibleValues() const;
 		const std::map<std::string, std::string>& getAttributes() const;
 		const std::map < std::string, std::string> getExtraAttributes() const;
+		const bool hasAttribute(std::string) const;
+		const std::string& getAttribute(std::string key, std::string default) const;
 		/// Goes through each setting to replace variables and parse expressions
 		void replaceSettingVariablesAndExpressions();
 
@@ -208,7 +210,8 @@ class Settings {
 	/// std::map of Attributes. Contains all the attributes on the setting xml
 	/// \code <setting name="the_name" value="sample" random_value="string" other_value="string" default="null"/>
 	const std::map<std::string, std::string>& getAttributes(const std::string& name, const int index = 0);
-
+	const std::string getAttribute(const std::string& name, const int index, const std::string& key,
+								   const std::string& defaultValue);
 	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting)
 	Setting& getSetting(const std::string& name, const int index);

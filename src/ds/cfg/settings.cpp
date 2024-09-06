@@ -211,6 +211,15 @@ const std::map<std::string, std::string> Settings::Setting::getExtraAttributes()
 	return extras;
 }
 
+const bool Settings::Setting::hasAttribute(std::string key) const {
+	return mAttributeMap.find(key) != mAttributeMap.end();
+}
+
+const std::string& Settings::Setting::getAttribute(std::string key, std::string default) const
+{
+	return hasAttribute(key) ? mAttributeMap.at(key) : default;
+}
+
 void Settings::Setting::replaceSettingVariablesAndExpressions() {
 
 	auto		testValue = mRawValue;
@@ -590,6 +599,11 @@ const cinder::Rectf Settings::getRect(const std::string& name, const int index, 
 const std::map<std::string, std::string>& Settings::getAttributes(const std::string& name, const int index)
 {
 	return getSetting(name, index).mAttributeMap;
+}
+
+const std::string Settings::getAttribute(const std::string& name, const int index, const std::string& key, const std::string& defaultValue)
+{
+	return getSetting(name, index).getAttribute(key, defaultValue);
 }
 
 bool Settings::validateType(const std::string& inputType) {
