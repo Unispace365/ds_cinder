@@ -95,6 +95,19 @@ void YouTubeWeb::toggleMute() {
 	executeJavascript("toggleMute();");
 }
 
+void YouTubeWeb::mute(const bool mute) {
+	if (mute) {
+		executeJavascript("mute();");
+	}
+	else {
+		executeJavascript("unMute();");
+	}
+}
+
+void YouTubeWeb::unmute() {
+	mute(false);
+}
+
 void YouTubeWeb::seekPercent(const float percenty) {
 	executeJavascript("seekPercent(\"" + std::to_string(percenty) + "\");");
 }
@@ -283,6 +296,18 @@ void YouTubePlayer::togglePlayPause() {
 void YouTubePlayer::toggleMute() {
 	if (mYouTubeWeb) {
 		mYouTubeWeb->toggleMute();
+	}
+}
+
+void YouTubePlayer::mute(const bool mute) {
+	if (mYouTubeWeb) {
+		mYouTubeWeb->mute(mute);
+	}
+}
+
+void YouTubePlayer::unmute() {
+	if (mYouTubeWeb) {
+		mYouTubeWeb->unmute();
 	}
 }
 

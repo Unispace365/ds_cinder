@@ -28,6 +28,8 @@
 #include "waffles/viewers/state_viewer/state_viewer.h"
 #include "waffles/viewers/titled_media_viewer.h"
 
+#include "waffles/common/ui_utils.h"
+
 //using namespace downstream;
 
 namespace {
@@ -40,7 +42,7 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	: ds::ui::Sprite(g)
 	, mEventClient(g) {
 
-	mMediaPropertyKey = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
+	
 
 	THIS_INSTANCE = this;
 
@@ -132,7 +134,8 @@ std::vector<BaseElement*> ViewerController::getViewersWithResourceId(const ds::R
 	std::vector<BaseElement*> returnElements;
 	auto					  allViewers = getViewersOfType(VIEW_TYPE_TITLED_MEDIA_VIEWER);
 	for (auto vit : allViewers) {
-		if (vit && vit->getMedia().getPropertyResource(mMediaPropertyKey).getDbId() == resourceId) {
+		auto propKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(vit->getMedia());
+		if (vit && vit->getMedia().getPropertyResource(propKey).getDbId() == resourceId) {
 			returnElements.push_back(vit);
 		}
 	}
@@ -154,6 +157,7 @@ void ViewerController::setLayerBounds(int viewLayer, ci::Rectf bounds) {
 }
 
 void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
+	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(args.mMediaRef);
 	const float screenWidth	 = mDisplaySize.x;
 	const float screenHeight = mDisplaySize.y;
 	if (!mNormalLayer) {
@@ -219,7 +223,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 	BaseElement* newViewer = nullptr;
 
 	if (args.mViewType == VIEW_TYPE_TITLED_MEDIA_VIEWER) {
-		auto theResource = args.mMediaRef.getPropertyResource(mMediaPropertyKey);
+		auto theResource = args.mMediaRef.getPropertyResource(mediaPropertyKey);
 		if (args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 			theResource.getType() != ds::Resource::WEB_TYPE && theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
 			theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
@@ -233,7 +237,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 
 				errorModel.setProperty("name", std::string("Sorry!"));
 				errorModel.setProperty("error", errorMessage);
-				errorModel.setPropertyResource(mMediaPropertyKey, theResource); // TODO
+				errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
 				errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
 				errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
 				mEngine.getNotifier().notify(RequestViewerLaunchEvent(
@@ -301,7 +305,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 	}
 
 	DS_LOG_INFO("Launching viewer of type " << newViewer->getViewerType() << " "
-											<< args.mMediaRef.getPropertyResource(mMediaPropertyKey).getAbsoluteFilePath());
+											<< args.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath());
 
 	mViewers.push_back(newViewer);
 
@@ -340,8 +344,8 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 
 	if (newViewer->canFullScreen() && args.mFullscreen) {
 		fullscreenViewer(newViewer, true, args.mShowFullscreenController);
-		const bool webEnough = args.mMediaRef.getPropertyResource(mMediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
-							   args.mMediaRef.getPropertyResource(mMediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
+		const bool webEnough = args.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
+							   args.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
 		if (webEnough && args.mTouchEvents) {
 			if (auto tmv = dynamic_cast<waffles::TitledMediaViewer*>(newViewer)) {
 				tmv->setInterfaceLocked(true);
@@ -394,6 +398,7 @@ void ViewerController::viewerActivated(BaseElement* be) {
 
 void ViewerController::handleRequestViewerLaunch(const RequestViewerLaunchEvent& event) {
 	auto e = event;
+	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(e.mViewerArgs.mMediaRef);
 	if (e.mUserStringData.empty()) {
 		if (e.mViewerArgs.mMediaRef.getPropertyString("type") == MEDIA_TYPE_PRESENTATION) {
 			startPresentation(e.mViewerArgs.mMediaRef, e.mViewerArgs.mLocation,
@@ -448,7 +453,7 @@ void ViewerController::handleRequestViewerLaunch(const RequestViewerLaunchEvent&
 					args.mViewLayer = ds::string_to_int(paramValue);
 				} else if (paramType == "media_path") {
 					if (args.mViewType == VIEW_TYPE_TITLED_MEDIA_VIEWER) {
-						args.mMediaRef.setPropertyResource(mMediaPropertyKey, ds::Resource(ds::Environment::expand(paramValue))); // TODO: unsure if should use mMediaPropertyKey
+						args.mMediaRef.setPropertyResource(mediaPropertyKey, ds::Resource(ds::Environment::expand(paramValue))); // TODO: unsure if should use mediaPropertyKey
 					} else {
 						args.mMediaRef.setProperty("media_path", paramValue);
 					}
@@ -904,9 +909,9 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 			thePos.x = theCenter.x - theWidth / 2.0f;
 			thePos.y = theCenter.y - (theWidth / mediaA) / 2.0f;
 		}
-
-		if (newMedia.getProperty(mMediaPropertyKey).empty()) {
-			newMedia.setPropertyResource(mMediaPropertyKey,
+		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(newMedia);
+		if (newMedia.getProperty(mediaPropertyKey).empty()) {
+			newMedia.setPropertyResource(mediaPropertyKey,
 										 newMedia.getPropertyResource("media")); // TODO: handle multiple medias
 		}
 		ViewerCreationArgs args =
@@ -1008,7 +1013,8 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 
 	// if there was no media backgrounds, fall back to this slide
 	if (backgroundMediaRes.empty()) {
-		backgroundMediaRes = slideRef.getPropertyResource(mMediaPropertyKey); // TODO: cannot tell if want to use mMediaPropertyKey
+		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(slideRef);
+		backgroundMediaRes = slideRef.getPropertyResource(mediaPropertyKey); // TODO: cannot tell if want to use mediaPropertyKey
 	}
 
 	// if this slide doesn't have a background, check to see if it's in a presentation that does
@@ -1022,7 +1028,8 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 
 	for (auto it : mViewers) {
 		if (it->getViewerLayer() == ViewerCreationArgs::kViewLayerBackground) {
-			auto viewerMedia = it->getMedia().getPropertyResource(mMediaPropertyKey);
+			auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(it->getMedia());
+			auto viewerMedia = it->getMedia().getPropertyResource(mediaPropertyKey);
 
 			if (!it->getIsAboutToBeRemoved() &&
 				viewerMedia.getAbsoluteFilePath() == backgroundMediaRes.getAbsoluteFilePath() &&
@@ -1045,7 +1052,8 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 	if (!alreadyExists && !backgroundMediaRes.empty()) {
 
 		ds::model::ContentModelRef backgroundMedia;
-		backgroundMedia.setPropertyResource(mMediaPropertyKey, backgroundMediaRes); // TODO: unsure if should use mMediaPropertyKey
+		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(backgroundMedia);
+		backgroundMedia.setPropertyResource(mediaPropertyKey, backgroundMediaRes); // TODO: unsure if should use mediaPropertyKey
 		backgroundMedia.setProperty("type", MEDIA_TYPE_FILE_CMS);
 
 		float outWid = scW;

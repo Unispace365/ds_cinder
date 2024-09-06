@@ -715,6 +715,17 @@ void MediaPlayer::toggleMute() {
 	if (mYouTubePlayer) mYouTubePlayer->toggleMute();
 }
 
+void MediaPlayer::mute(bool mute) {
+	if (mVideoPlayer) mVideoPlayer->mute(mute);
+	if (mPanoramicPlayer) mPanoramicPlayer->mute(mute);
+	if (mStreamPlayer) mStreamPlayer->mute(mute);
+	if (mYouTubePlayer) mYouTubePlayer->mute(mute);
+}
+
+void MediaPlayer::unmute() {
+	mute(false);
+}
+
 ds::ui::Sprite* MediaPlayer::getPlayer() {
 	if (mVideoPlayer) return mVideoPlayer;
 	if (mPanoramicPlayer) return mPanoramicPlayer;

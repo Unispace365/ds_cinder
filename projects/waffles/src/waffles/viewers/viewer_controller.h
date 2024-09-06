@@ -100,7 +100,7 @@ class ViewerController : public ds::ui::Sprite {
 	std::vector<BaseElement*>				mViewers;
 	std::map<BaseElement*, ds::ui::Sprite*> mFullscreenDarkeners;
 	ci::vec2								mDisplaySize;
-	std::string								mMediaPropertyKey = "media";
+	//std::string								mMediaPropertyKey = "media";
 };
 
 } // namespace waffles

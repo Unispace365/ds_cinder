@@ -58,7 +58,7 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 		// show the interface if we have one
 		if (mVideoInterface && mResetOnVideoComplete) {
 			mVideoInterface->resetIdleTimer();
-			//mVideoInterface->userInputReceived();
+			// mVideoInterface->userInputReceived();
 		}
 
 		if (mVideoCompleteCallback) {
@@ -254,6 +254,17 @@ void VideoPlayer::toggleMute() {
 			mVideo->setMute(true);
 		}
 	}
+}
+
+
+void VideoPlayer::mute(bool mute) {
+	if (mVideo) {
+		mVideo->setMute(mute);
+	}
+}
+
+void VideoPlayer::unmute() {
+	mute(false);
 }
 
 void VideoPlayer::setPan(const float newPan) {

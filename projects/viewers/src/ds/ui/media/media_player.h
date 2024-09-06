@@ -81,6 +81,8 @@ class MediaPlayer : public ds::ui::Sprite {
 	void pauseContent();
 	void togglePlayPause();
 	void toggleMute();
+	void mute(bool mute=true);
+	void unmute();
 
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using

@@ -36,6 +36,9 @@ namespace ui {
 		void togglePlayPause();
 		void toggleMute();
 
+		void mute(bool mute=true);
+		void unmute();
+
 		void			showInterface();
 		void			hideInterface();
 		VideoInterface* getVideoInterface() { return mVideoInterface; }

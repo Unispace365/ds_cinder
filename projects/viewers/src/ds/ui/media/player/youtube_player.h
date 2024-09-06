@@ -35,6 +35,8 @@ class YouTubeWeb : public ds::ui::Web {
 	void stop();
 	void togglePlayPause();
 	void toggleMute();
+	void mute(bool mute = true);
+	void unmute();
 
 	/// seeks to this percent in the video
 	void  seekPercent(const float percenty);
@@ -80,6 +82,8 @@ class YouTubePlayer : public ds::ui::Sprite {
 	void stop();
 	void togglePlayPause();
 	void toggleMute();
+	void mute(bool mute = true);
+	void unmute();
 
 	void showInterface();
 	void hideInterface();

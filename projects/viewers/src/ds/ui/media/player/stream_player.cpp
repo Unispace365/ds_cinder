@@ -219,6 +219,16 @@ namespace ds { namespace ui {
 		}
 	}
 
+	void StreamPlayer::mute(bool mute) {
+		if (mVideo) {
+			mVideo->setMute(mute);
+		}
+	}
+
+	void StreamPlayer::unmute() {
+		mute(false);
+	}
+
 	ds::ui::GstVideo* StreamPlayer::getVideo() {
 		return mVideo;
 	}

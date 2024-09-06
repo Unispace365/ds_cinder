@@ -74,6 +74,8 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual void playContent() {}
 	virtual void pauseContent() {}
 	virtual void toggleMute() {}
+	virtual void mute() {}
+	virtual void unmute() {}
 
 	virtual void showTitle() {}
 	virtual void hideTitle() {}

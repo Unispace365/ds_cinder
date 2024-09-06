@@ -33,6 +33,8 @@ namespace ui {
 		void togglePlayPause();
 		void stop();
 		void toggleMute();
+		void mute(bool mute = true);
+		void unmute();
 
 		void			showInterface();
 		void			hideInterface();

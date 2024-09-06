@@ -34,6 +34,8 @@ class VideoPlayer : public ds::ui::Sprite {
 	void stop();
 	void togglePlayPause();
 	void toggleMute();
+	void mute(bool mute = true);
+	void unmute();
 
 	void			showInterface();
 	void			hideInterface();

@@ -44,6 +44,8 @@ class TitledMediaViewer : public BaseElement {
 	void		 startVideo();
 	virtual void pauseContent() override;
 	virtual void toggleMute() override;
+	virtual void mute() override;
+	virtual void unmute() override;
 
 	ViewerCreationArgs getDuplicateCreationArgs();
 
@@ -82,7 +84,7 @@ class TitledMediaViewer : public BaseElement {
 	bool mShowingVideo		  = false;
 	bool mShowingWeb		  = false;
 	bool mShowingWebcam		  = false;
-	std::string mMediaPropertyKey = "media";
+	//std::string mMediaPropertyKey = "media";
 
 	// 0 = normal, 1 = 90 degs, 2 = 180 degs, 3 = 270
 	int mMediaRotation = 0;

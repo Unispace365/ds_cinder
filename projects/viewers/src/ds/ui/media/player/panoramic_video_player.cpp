@@ -237,6 +237,16 @@ namespace ds { namespace ui {
 		}
 	}
 
+	void PanoramicVideoPlayer::mute(bool mute) {
+		if (mVideo) {
+			mVideo->setMute(mute);
+		}
+	}
+
+	void PanoramicVideoPlayer::unmute() {
+		mute(false);
+	}
+
 	void PanoramicVideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 		setPan(settings.mVideoPanning);
 		setVolume(settings.mVideoVolume);

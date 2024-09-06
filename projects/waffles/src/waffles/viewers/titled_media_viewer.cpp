@@ -63,7 +63,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 	mAbsMaxSize.x		= maxSize;
 	mAbsMaxSize.y		= maxSize;
 
-	mMediaPropertyKey = mEngine.getWafflesSettings().getString("launcher:media:property_key", 0, "media");
+	
 
 	/* setTransparent(false);
 	setColor(ci::Color(1.f, 0.f, 1.f)); */
@@ -183,6 +183,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		if (pdfPage != 0) {
 			particleBackground.setProperty("pdf_page", pdfPage);
 		}
+		auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(particleBackground);
 		particleBackground.setPropertyResource(mMediaPropertyKey, getMedia().getPropertyResource(mMediaPropertyKey));// TODO: cannot tell if this wants mMediaPropertyKey
 		mEngine.getNotifier().notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef()));
 	});
@@ -265,6 +266,7 @@ void TitledMediaViewer::onMediaSet() {
 		pb->setContentModel(mMediaRef);
 	}
 
+	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
 	if (primaryResource.empty()) primaryResource = mMediaRef.getPropertyResource("media_media_res");
 
@@ -563,6 +565,7 @@ void TitledMediaViewer::onMediaSet() {
 void TitledMediaViewer::startVideo() {
 	if (!mMediaPlayer || !mRootLayout) return;
 	auto mvs			 = mMediaPlayer->getSettings();
+	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
 
 	if (primaryResource.getType() != ds::Resource::VIDEO_TYPE &&
@@ -681,8 +684,8 @@ void TitledMediaViewer::loadHotspots() {
 				if (linkMedia.empty()) {
 					DS_LOG_WARNING("Hotspot node not found for id == " << destId);
 				} else {
-
-					if (linkMedia.getPropertyString("type_key") == mMediaPropertyKey) {
+					
+					if (ContentUtils::getDefault(mEngine)->isMedia(linkMedia)) {
 						mEngine.getNotifier().notify(RequestViewerLaunchEvent(
 							ViewerCreationArgs(linkMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 					} else {
@@ -861,6 +864,7 @@ void TitledMediaViewer::toggleDrawing() {
 
 		if (mMediaPlayer) {
 			// let streams keep on playing
+			auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
 			if (mMediaRef.getPropertyResource(mMediaPropertyKey).getType() != ds::Resource::VIDEO_STREAM_TYPE) {
 				mMediaPlayer->pauseContent();
 			}
@@ -917,6 +921,20 @@ void TitledMediaViewer::pauseContent() {
 void TitledMediaViewer::toggleMute() {
 	if (mMediaPlayer) {
 		mMediaPlayer->toggleMute();
+	}
+}
+
+void TitledMediaViewer::mute()
+{
+	if (mMediaPlayer) {
+		mMediaPlayer->mute();
+	}
+}
+
+
+void TitledMediaViewer::unmute() {
+	if (mMediaPlayer) {
+		mMediaPlayer->unmute();
 	}
 }
 
