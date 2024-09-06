@@ -51,6 +51,9 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	}
 
 	~WafflesSprite() {
+		if (mTimedCallback) {
+			mEngine.cancelTimedCallback(mTimedCallback);
+		}
 		if (mDefaultWaffles == this) {
 			mDefaultWaffles = nullptr;
 		}
@@ -142,6 +145,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	waffles::DrawingUploadService* mDrawingUploadService=nullptr;
 
 	bool mAmEngaged = false;
+	int mTimedCallback = 0;
 
 	
 

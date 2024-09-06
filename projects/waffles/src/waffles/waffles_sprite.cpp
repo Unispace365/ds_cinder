@@ -26,6 +26,8 @@
 #include "waffles/viewers/viewer_controller.h"
 #include "waffles/template/template_config.h"
 
+#include "waffles/common/ui_utils.h"
+
 #include "ds/content/platform.h"
 
 namespace waffles {
@@ -115,7 +117,7 @@ void WafflesSprite::initializeWaffles() {
 	//drawing uploads
 	mDrawingUploadService = new DrawingUploadService(mEngine);
 
-	mEngine.timedCallback(
+	mTimedCallback = mEngine.timedCallback(
 		[this]() {
 			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 			auto model = ds::model::ContentModelRef("Empty");
@@ -225,8 +227,8 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 	cancelDelayedCall();
 	bool newPres  = false;
 	bool newSlide = false;
-	if (content.getPropertyString("type_key") != "interactive_playlist" &&
-		content.getPropertyString("type_key") != "ambient_playlist") {
+	if (!ContentUtils::getDefault(mEngine)->isPresentation(content) &&
+		!ContentUtils::getDefault(mEngine)->isAmbientPlaylist(content)) {
 		// This is a slide
 		// Might be a new pres, might not be
 
