@@ -61,6 +61,7 @@
 	<setting name="filter_list:item:height" value="60" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="menu:title:height" value="125.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="menu:title:fontsize" value="35" type="float" multiplier="waffles:font:scale"/>
+	<setting name="menu:scroll" value="#ff2b2b2b, #002b2b2b" type="string" />
 	<setting name="launcher:title:text:on" value="false" type="bool"/>
 	<setting name="launcher:title:icon:on" value="true" type="bool"/>
 	<setting name="launcher:title:text" value="Menu" type="string"/>

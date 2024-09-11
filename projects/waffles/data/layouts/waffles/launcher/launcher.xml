@@ -40,7 +40,7 @@
 				_shadow_every_frame="true"
 			>
 				<sprite name="background"
-					color="white"
+					color="menu:background"
 					layout_size_mode="fill"
 				/>
 				
@@ -91,7 +91,7 @@
 				<smart_scroll_list name="content_holder"
 					layout_size_mode="flex"
 					height="$_launcher:scroll:height"
-					scroll_fade_colors="#ffffffff, #00ffffff"
+					scroll_fade_colors="$_menu:background, $_menu:background_transparent"
 					scroll_fade_size="#expr{$_info_list:item:height}"
 					smart_scroll_item_layout="waffles/common/list_item.xml"
 				/>
@@ -215,7 +215,7 @@
 					
 					<smart_scroll_list name="side_panel_content"
 						layout_size="#expr{ 608 * $_waffles:sprite:scale }, #expr{ 557 * $_waffles:sprite:scale }"
-						scroll_fade_colors="#fff7f7f7, #00f7f7f7"
+						scroll_fade_colors="$_menu:scroll"
 						smart_scroll_item_layout="waffles/common/list_item.xml"
 						b_pad="$_ui:corner_radius"
 						l_pad="#expr{ 20 * $_waffles:sprite:scale }"

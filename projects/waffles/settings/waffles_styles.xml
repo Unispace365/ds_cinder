@@ -42,6 +42,8 @@
 	<setting name="ui_separator" value="black" type="color" comment="Separator lines"/>
 	<setting name="menu:title:background" value="#000000" type="color" comment="Separator lines"/>
 	<setting name="menu:title:text" value="#ffffff" type="color" comment="Separator lines"/>
+	<setting name="menu:background" value="#FF2B2B2B" type="color" />
+	<setting name="menu:background_transparent" value="#002B2B2B" type="color" />
 	<setting name="close_button_background_selected" value="#ff00bdf4" type="color" comment="The background color of close button when it is pressed."/>
 	<setting name="waffles:background" value="#101010" type="color"/>
 
@@ -58,21 +60,21 @@
 	<setting name="brush_11" value="#ffffbd3b" type="color" comment="tangerine"/>
 	<setting name="brush_12" value="#fffcf54b" type="color" comment="yellow"/>
 	
-	<setting name="waffles:close_button" value="#ff1356F8" type="color" comment=""/>
-	<setting name="waffles:close_button_high" value="#ff828099" type="color" comment=""/>
+	<setting name="waffles:close_button" value="#ff2B2B2B" type="color" comment=""/>
+	<setting name="waffles:close_button_high" value="#ffffffff" type="color" comment=""/>
 	<setting name="waffles:grey" value="#fffbfbfb" type="color" comment="" />
 	<setting name="waffles:five_finger:circle" value="#ff000000" type="color" comment="" />
-	<setting name="waffles:five_finger:button:bg" value="#ffFFFFFF" type="color" />
-	<setting name="waffles:five_finger:button:fg" value="#ff0096d6" type="color" />
+	<setting name="waffles:five_finger:button:bg" value="#ff999999" type="color" />
+	<setting name="waffles:five_finger:button:fg" value="#ffffffff" type="color" />
 	
-	<setting name="waffles:button:bg:normal:dark" value="#ffececec" type="color"/>
-	<setting name="waffles:button:bg:high:dark" value="#ff2b40ff" type="color"/>
-	<setting name="waffles:button:text:normal:dark" value="#ff10134A" type="color"/>
-	<setting name="waffles:button:text:high:dark" value="white" type="color"/>
+	<setting name="waffles:button:bg:normal:dark" value="#ff999999" type="color"/>
+	<setting name="waffles:button:bg:high:dark" value="white" type="color"/>
+	<setting name="waffles:button:text:normal:dark" value="black" type="color"/>
+	<setting name="waffles:button:text:high:dark" value="black" type="color"/>
 	
-	<setting name="waffles:button:bg:normal:light" value="#ffF7F7F6" type="color"/>
-	<setting name="waffles:button:bg:high:light" value="#ffBCB7BE" type="color"/>
-	<setting name="waffles:button:text:normal:light" value="black" type="color"/>
+	<setting name="waffles:button:bg:normal:light" value="#FF2b2b2b" type="color"/>
+	<setting name="waffles:button:bg:high:light" value="white" type="color"/>
+	<setting name="waffles:button:text:normal:light" value="white" type="color"/>
 	<setting name="waffles:button:text:high:light" value="black" type="color"/>
 	<!-- END WAFFLES COLORS -->
 
