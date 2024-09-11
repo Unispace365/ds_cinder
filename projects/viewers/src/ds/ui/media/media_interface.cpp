@@ -56,7 +56,6 @@ void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
 	}
 
 	if (visible()) {
-
 		ci::vec3  scale, translation, skew;
 		ci::vec4  persp;
 		glm::quat orient;
@@ -73,7 +72,7 @@ void MediaInterface::layout() {
 	onLayout();
 	if (mBackground) {
 		// Ensure the maximum width always fits within the window
-		mMaxWidth  = glm::min(mMaxWidth, ww);
+		mMaxWidth = glm::min(mMaxWidth, ww);
 		// mMaxWidth  = glm::min(mMaxWidth, 900.f);
 		float newW = glm::clamp(w, mMinWidth, mMaxWidth);
 
@@ -120,6 +119,12 @@ void MediaInterface::animateOff() {
 
 void MediaInterface::onSizeChanged() {
 	layout();
+
+	ci::vec3  scale, translation, skew;
+	ci::vec4  persp;
+	glm::quat orient;
+	glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
+	setScale(1.f / scale.x, 1.f / scale.y);
 }
 
 } // namespace ds::ui
