@@ -215,9 +215,9 @@ const bool Settings::Setting::hasAttribute(std::string key) const {
 	return mAttributeMap.find(key) != mAttributeMap.end();
 }
 
-const std::string& Settings::Setting::getAttribute(std::string key, std::string default) const
+const std::string& Settings::Setting::getAttribute(std::string key, std::string defaultValue) const
 {
-	return hasAttribute(key) ? mAttributeMap.at(key) : default;
+	return hasAttribute(key) ? mAttributeMap.at(key) : defaultValue;
 }
 
 void Settings::Setting::replaceSettingVariablesAndExpressions() {
