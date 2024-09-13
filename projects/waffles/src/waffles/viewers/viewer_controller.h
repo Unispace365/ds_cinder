@@ -20,7 +20,7 @@ struct RequestViewerLaunchEvent;
 class ViewerController : public ds::ui::Sprite {
   public:
 	ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f));
-
+	void					 setChannel(const std::string& channel);
 	static ViewerController* getInstance();
 
 	virtual void setLayerBounds(int viewLayer, ci::Rectf bounds);
@@ -96,6 +96,7 @@ class ViewerController : public ds::ui::Sprite {
 	ds::ui::Sprite* mBackgroundLayer = nullptr;
 
 	ds::EventClient mEventClient;
+	ds::EventClient mChannelClient;
 
 	std::vector<BaseElement*>				mViewers;
 	std::map<BaseElement*, ds::ui::Sprite*> mFullscreenDarkeners;

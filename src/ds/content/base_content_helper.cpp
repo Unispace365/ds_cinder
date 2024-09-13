@@ -67,6 +67,14 @@ ds::model::ContentModelRef BaseContentHelper::getAmbientPlaylist() {
 	return playlists.front();
 }
 std::string BaseContentHelper::getInitialPresentationUid() {
+
+	auto model = getPresentation();
+	if (model.empty()) {
+		return "";
+	}
+	return model.getUid();
+
+
 	PlaylistFilter filter;
 	filter.playlistTypeKey = "presentation";
 	auto playlists = getFilteredPlaylists(filter);

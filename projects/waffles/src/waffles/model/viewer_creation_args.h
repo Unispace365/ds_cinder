@@ -1,4 +1,5 @@
 #pragma once
+#include <ds/ui/sprite/sprite.h>
 
 namespace waffles {
 
@@ -59,6 +60,7 @@ class ViewerCreationArgs {
 		, mStartDrawing(false) {}
 
 	ds::model::ContentModelRef mMediaRef;
+	ds::ui::Sprite*			   mTargetSprite = nullptr;
 	std::string				   mViewType;
 	ci::vec3				   mLocation;
 	int						   mViewLayer;

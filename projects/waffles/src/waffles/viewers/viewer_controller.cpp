@@ -40,9 +40,10 @@ namespace waffles {
 
 ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	: ds::ui::Sprite(g)
-	, mEventClient(g) {
+	, mEventClient(g),mChannelClient(g) {
 
-	
+	// stop the channel client. we only start it again if we have a channel name
+	mChannelClient.stop();
 
 	THIS_INSTANCE = this;
 
@@ -65,13 +66,14 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	mTopLayer = new ds::ui::Sprite(mEngine);
 	mTopLayer->setSize(mDisplaySize.x, mDisplaySize.y);
 	addChildPtr(mTopLayer);
+	auto clients = { &mEventClient,&mChannelClient };
 
-	mEventClient.listenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
+	ds::EventClient::clientsListenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
 		handleRequestViewerLaunch(event);
 		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
-	});
+	}, clients);
 
-	mEventClient.listenToEvents<RequestCloseAllEvent>([this](const RequestCloseAllEvent& e) {
+	ds::EventClient::clientsListenToEvents<RequestCloseAllEvent>([this](const RequestCloseAllEvent& e) {
 		const float deltaAnim = mEngine.getAnimDur() / (float)mViewers.size();
 		float		delayey	  = deltaAnim * (float)mViewers.size();
 		for (auto it : mViewers) {
@@ -92,27 +94,38 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 			}
 			delayey -= deltaAnim;
 		}
-	});
+	}, clients);
+	
 
-	mEventClient.listenToEvents<RequestArrangeEvent>([this](auto& e) { arrangeViewers(); });
+	ds::EventClient::clientsListenToEvents<RequestArrangeEvent>([this](auto& e) { arrangeViewers(); }, clients);
 
-	mEventClient.listenToEvents<RequestGatherEvent>([this](auto& e) { gatherViewers(e.mEventOrigin); });
+	ds::EventClient::clientsListenToEvents<RequestGatherEvent>([this](auto& e) { gatherViewers(e.mEventOrigin); }, clients);
 
-	mEventClient.listenToEvents<RequestFullscreenViewer>([this](auto& e) { fullscreenViewer(e.mViewer, false); });
+	ds::EventClient::clientsListenToEvents<RequestFullscreenViewer>([this](auto& e) { fullscreenViewer(e.mViewer, false); }, clients);
 
-	mEventClient.listenToEvents<RequestUnFullscreenViewer>([this](auto& e) { unfullscreenViewer(e.mViewer, false); });
+	ds::EventClient::clientsListenToEvents<RequestUnFullscreenViewer>([this](auto& e) { unfullscreenViewer(e.mViewer, false); }, clients);
 
-	mEventClient.listenToEvents<RequestGenericAdvance>([this](auto& e) {
+	ds::EventClient::clientsListenToEvents<RequestGenericAdvance>([this](auto& e) {
 		bool hadPdf = advancePDF(e.mForwards);
 		if (!hadPdf) advancePresentation(e.mForwards);
-	});
+	}, clients);
 
-	mEventClient.listenToEvents<RequestPDFPageChange>([this](auto& e) { advancePDF(e.mForwards); });
+	ds::EventClient::clientsListenToEvents<RequestPDFPageChange>([this](auto& e) { advancePDF(e.mForwards); }, clients);
 
-	mEventClient.listenToEvents<RequestAppExit>([this](auto& e) {
+	ds::EventClient::clientsListenToEvents<RequestAppExit>([this](auto& e) {
 		mEngine.getNotifier().notify(RequestCloseAllEvent());
 		callAfterDelay([] { ci::app::App::get()->quit(); }, 2.0f);
-	});
+	}, clients);
+}
+
+void ViewerController::setChannel(const std::string& channel)
+{
+	if (channel.empty()) {
+		mChannelClient.stop();
+		return;
+	}
+	mChannelClient.setNotifier(mEngine.getChannel(channel));
+	mChannelClient.start();
 }
 
 ViewerController* ViewerController::getInstance() {
@@ -821,13 +834,17 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		// filter out the specific background nodes
 		// if (newMedia.getName() != "waffles_nodes") continue;
 
+		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(newMedia);
+		if (mediaPropertyKey.empty()) {
+			mediaPropertyKey = "media";
+		}
 		// if this is blank and it's NOT a video stream, ditch it.
-		if (newMedia.getPropertyResource("media").getDbId().empty() &&
-			newMedia.getPropertyResource("media").getAbsoluteFilePath().empty() &&
-			newMedia.getPropertyResource("media").getType() != ds::Resource::VIDEO_STREAM_TYPE)
+		if (newMedia.getPropertyResource(mediaPropertyKey).getDbId().empty() &&
+			newMedia.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath().empty() &&
+			newMedia.getPropertyResource(mediaPropertyKey).getType() != ds::Resource::VIDEO_STREAM_TYPE)
 			continue;
 
-		auto theResource = newMedia.getPropertyResource("media");
+		auto theResource = newMedia.getPropertyResource(mediaPropertyKey);
 
 		ci::vec3 thePos	  = ci::vec3(ww / 2.0f, wh / 2.0f, 0.0f);
 		float	 theWidth = -100.0f;
@@ -909,7 +926,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 			thePos.x = theCenter.x - theWidth / 2.0f;
 			thePos.y = theCenter.y - (theWidth / mediaA) / 2.0f;
 		}
-		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(newMedia);
+		
 		if (newMedia.getProperty(mediaPropertyKey).empty()) {
 			newMedia.setPropertyResource(mediaPropertyKey,
 										 newMedia.getPropertyResource("media")); // TODO: handle multiple medias
@@ -927,6 +944,8 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		// newMedia.getPropertyBool("media_float_touch");
 		args.mStartLocked = args.mTouchEvents;
 		args.mAutoStart	  = newMedia.getPropertyBool("autoplay");
+		args.mAutoStart = true;
+		args.mShowFullscreenController = true;
 		// newMedia.getPropertyBool("media_float_autoplay");
 		args.mLooped = newMedia.getPropertyBool("loop");
 		// newMedia.getPropertyBool("media_float_loop");
@@ -945,7 +964,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 			if (leViewer->getIsAboutToBeRemoved()) continue;
 			if (leViewer->getIsFatalErrored()) continue;
 			if (leViewer->getMediaRotation() != 0) continue; // discard rotated viewers
-			if (leViewer->getMedia().getPropertyResource("media") == newMedia.getPropertyResource("media")) {
+			if (leViewer->getMedia().getPropertyResource(mediaPropertyKey) == newMedia.getPropertyResource(mediaPropertyKey)) {
 				leViewer->sendToFront();
 				leViewer->hideTitle();
 				leViewer->setCreationArgs(args);

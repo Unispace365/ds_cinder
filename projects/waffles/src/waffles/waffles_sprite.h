@@ -14,6 +14,7 @@
 #include "waffles/service/drawing_upload_service.h"
 #include "app/waffles_app_defs.h"
 
+#include "ds/app/event_client.h"
 
 
 namespace ds::ui {
@@ -34,11 +35,23 @@ class TemplateConfig;
 class WafflesSprite : public ds::ui::SmartLayout {
   public:
 	template <class VC = waffles::ViewerController>
-	WafflesSprite(ds::ui::SpriteEngine& eng)
-	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng) {
+	WafflesSprite(ds::ui::SpriteEngine& eng,std::string eventChannel="")
+	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng),mChannelClient(eng) {
+		
+
+		
 		static_assert(std::is_base_of_v<waffles::ViewerController, VC>,
 					  "VC must be a subclass of waffles::ViewerController");
 		mViewerController = new VC(mEngine, ci::vec2(getSize()));
+
+		// stop the channel client. we only start it again if we have a channel name
+		mChannelClient.stop();
+
+		if (!eventChannel.empty()) {
+			mChannelClient.setNotifier(eng.getChannel(eventChannel));
+			mChannelClient.start();
+			mViewerController->setChannel(eventChannel);
+		}
 
 		auto sh = new waffles::ShadowLayout(eng);
 		sh->release();
@@ -57,13 +70,13 @@ class WafflesSprite : public ds::ui::SmartLayout {
 		if (mDefaultWaffles == this) {
 			mDefaultWaffles = nullptr;
 		}
-		if(mTemplateLayer->getParent() == nullptr){
+		if(mTemplateLayer && mTemplateLayer->getParent() == nullptr){
 			mTemplateLayer->release();
 		}
-		if(mBackgroundView->getParent() == nullptr){
+		if(mBackgroundView && mBackgroundView->getParent() == nullptr){
 			mBackgroundView->release();
 		}
-		if(mViewerController->getParent() == nullptr){
+		if(mViewerController && mViewerController->getParent() == nullptr){
 			mViewerController->release();
 		}
 
@@ -146,7 +159,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 	bool mAmEngaged = false;
 	int mTimedCallback = 0;
-
+	ds::EventClient mChannelClient;
 	
 
 };
