@@ -51,6 +51,7 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 	mEvents = mCurrentContent.getChildByName("current_events");
 
 	mPlatformKey = key;
+	mPlatformType = mPlatformModel.getPropertyString("type_key");
 
 }
 

@@ -50,6 +50,7 @@ ds::Resource BaseContentHelper::getBackgroundForPlatform() {
 ds::model::ContentModelRef BaseContentHelper::getPresentation() {
 	PlaylistFilter filter;
 	filter.playlistTypeKey = "presentation";
+	filter.platformPropertyName = "default_presentation";
 	auto playlists = getFilteredPlaylists(filter);
 	if (playlists.empty()) {
 		return ds::model::ContentModelRef();
@@ -77,6 +78,7 @@ std::string BaseContentHelper::getInitialPresentationUid() {
 
 	PlaylistFilter filter;
 	filter.playlistTypeKey = "presentation";
+	filter.platformPropertyName = "default_presentation";
 	auto playlists = getFilteredPlaylists(filter);
 	if (playlists.empty()) {
 		return "";

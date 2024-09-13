@@ -99,9 +99,13 @@ void WafflesSprite::initializeWaffles() {
 
 	listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
 
-	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { onIdleStarted(ev); });
+	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { 
+		onIdleStarted(ev); 
+	});
 	listenToEvents<waffles::HideWaffles>([this](const auto& ev) { onHide(ev); });
-	listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { onIdleEnded(ev); });
+	listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { 
+		onIdleEnded(ev); 
+	});
 	listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) { onScheduleUpdated(ev); });
 	listenToEvents<waffles::RequestPresentationEndEvent>([this](const auto& ev) { onPresentationEndRequest(ev); });
 	listenToEvents<waffles::RequestEngagePresentation>([this](const auto& ev) { onPresentationStartRequest(ev); });
@@ -143,15 +147,15 @@ void WafflesSprite::initializeWaffles() {
 
 //template <class VC>
 void WafflesSprite::onIdleStarted(const ds::app::IdleStartedEvent& e) {
-	mEngine.getNotifier().notify(waffles::HideWaffles());
-	endPresentationMode();
+	//mEngine.getNotifier().notify(waffles::HideWaffles());
+	//endPresentationMode();
 	//do ambient
 }
 
 //template <class VC>
 void WafflesSprite::onIdleEnded(const ds::app::IdleEndedEvent& e) {
-	setDefaultPresentation();
-	startPresentationMode();
+	//setDefaultPresentation();
+	//startPresentationMode();
 }
 
 //template <class VC>
@@ -190,6 +194,7 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 
 //template <class VC>
 void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePresentation& ev) {
+	mAmEngaged = true;
 	DS_LOG_INFO("got a request engage presentation event in engage controller");
 	auto helper	 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	auto content = ev.mContent;
@@ -640,16 +645,23 @@ void WafflesSprite::endPresentationMode() {
 
 	mAmEngaged	 = false;
 	mPlaylistIdx = -1;
-	// Revert to no template
-	mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(true));
-	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest());
 
 	auto currPres = mEngine.mContent.getChildByName("current_presentation");
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
 
+	// Revert to no template
+	mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(true));
+	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest());
+
+	
+
 	// Notify listeners.
 	mEngine.getNotifier().notify(waffles::EngageEnded());
+	auto backer = getSprite("presentation_backer");
+	if (backer) {
+		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
+	}
 }
 
 //template <class VC>
