@@ -60,6 +60,9 @@ class SpriteEngine {
 	/** New-style notifier, access a  named channel. Create the
 		 channel if it doesn't exist. */
 	virtual ds::EventNotifier& getChannel(const std::string&) = 0;
+	virtual void notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso = false) = 0;
+	virtual void notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso = false)= 0;
+
 
 	/// General engine services
 	virtual ds::WorkManager&	 getWorkManager() final { return mWorkManager; };

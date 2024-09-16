@@ -73,8 +73,8 @@ class Engine : public ui::SpriteEngine {
 	virtual void update() = 0;
 	virtual void draw()	  = 0;
 
-	void notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso = false);
-	void notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso=false);
+	virtual void notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso = false) override;
+	virtual void notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso=false) override;
 	virtual ds::EventNotifier&		  getChannel(const std::string&) override;
 	void							  addChannel(const std::string& name, const std::string& description);
 	virtual ds::AutoUpdateList&		  getAutoUpdateList(const int = AutoUpdateType::SERVER) override;
