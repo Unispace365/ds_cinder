@@ -46,6 +46,7 @@
     <ClCompile Include="src\waffles\util\shadow_layout.cpp">
       <RemoveUnreferencedCodeData Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RemoveUnreferencedCodeData>
     </ClCompile>
+    <ClCompile Include="src\waffles\util\waffles_helper.cpp" />
     <ClCompile Include="src\waffles\viewers\base_element.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_test.cpp" />
     <ClCompile Include="src\waffles\viewers\diagnostic_viewer\diagnostic_viewer.cpp" />

@@ -38,12 +38,17 @@ class ContentHelper {
   public:
 	  struct PlaylistFilter {
 		enum class FilterMode { All, PlatformFallback, PlatformOverride };
-		std::string eventTypeKey;
-		std::string	eventPropertyName;
-		std::string platformPropertyName;
-		std::string playlistTypeKey;
+		std::string eventTypeKey; //what type of event has the playlist
+		std::string	eventPropertyName; //what is the property name on the event
+		std::string platformPropertyName; // what is the property name on the platform
+		std::string playlistTypeKey;	  // what type of playlist
 		FilterMode filterMode = FilterMode::PlatformFallback;
 	};
+	  static const std::string DEFAULTCATEGORY;
+	  static const std::string ANYCATEGORY;
+	  static const std::string WAFFLESCATEGORY; 
+	  static const std::string PRESENTATIONCATEGORY;
+	  static const std::string AMBIENTCATEGORY;
 	ContentHelper(ds::ui::SpriteEngine& eng)
 	  : mEngine(eng){};
 	virtual std::string						getCompositeKeyForPlatform()	= 0;
@@ -58,9 +63,14 @@ class ContentHelper {
 	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform()=0; //getAssets
 
 	virtual std::vector<ds::Resource>				findMediaResources()=0;
-
+	virtual bool									isValidFolder(ds::model::ContentModelRef model,std::string category=DEFAULTCATEGORY) = 0;
+	virtual bool									isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)  = 0;
+	virtual bool									isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)		= 0;
+	virtual std::string								getMediaPropertyKey(ds::model::ContentModelRef model,std::string category = DEFAULTCATEGORY) = 0;
   protected:
 	ds::ui::SpriteEngine& mEngine;
 };
+
+
 
 } // namespace waffles

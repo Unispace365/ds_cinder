@@ -265,7 +265,7 @@ class SpriteEngine {
 			if (auto derived = dynamic_cast<DERIVED_SPRITE*>(&sp)) {
 				setter(*derived, value, fileReferrer);
 			} else {
-				DS_LOG_WARNING("Tried to set the property "
+				DS_LOG_VERBOSE(1,"Tried to set the property "
 							   << property << " for something other than: " << typeid(DERIVED_SPRITE).name());
 			}
 		});

@@ -151,6 +151,12 @@ std::string unparseBoolean(const bool b);
 std::vector<std::pair<int, std::string>> extractPairs(const std::string& value, const std::string& leftDelim,
 													  const std::string& rightDelim);
 
+std::string ltrim(const std::string& str);
+
+std::string rtrim(const std::string& str);
+
+std::string trim(const std::string& str);
+
 
 /// Parser functions.
 

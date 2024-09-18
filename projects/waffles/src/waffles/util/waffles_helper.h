@@ -27,6 +27,8 @@ class WafflesHelper : public ds::model::ContentHelper {
 	virtual std::vector<ds::model::ContentModelRef> getValidPinboards()	  = 0;
 	virtual std::vector<ds::Resource>				findMediaResources()  = 0;
 	virtual int										getBackgroundPdfPage()= 0;
+
+
 };
 
 } // namespace waffles

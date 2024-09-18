@@ -30,7 +30,21 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual std::vector<ds::model::ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
 	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform() override;
 	virtual std::vector<ds::Resource>				findMediaResources() override;
-protected:
+
+	virtual bool isValidFolder(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	virtual bool isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	virtual bool isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	virtual std::string getMediaPropertyKey(ds::model::ContentModelRef model,
+											std::string				   category = DEFAULTCATEGORY) override;
+
+  protected:
+	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
+	std::unordered_map<std::string, std::vector<std::string>> mAcceptableMedia;
+	//std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
+	std::unordered_map<std::string, std::vector<std::string>> mAcceptablePlaylists;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mMediaProps;
+
+  protected:
 	virtual void loadIntegration();
   private:
 	ds::model::BaseContentHelper mBaseContentHelper;

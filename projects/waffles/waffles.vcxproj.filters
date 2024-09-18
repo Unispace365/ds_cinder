@@ -158,6 +158,7 @@
     <ClCompile Include="src\waffles\background\particle_background\particle_generator.cpp">
       <Filter>src\waffles\background\particle_background</Filter>
     </ClCompile>
+    <ClCompile Include="src\waffles\util\waffles_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\waffles_app_defs.h">

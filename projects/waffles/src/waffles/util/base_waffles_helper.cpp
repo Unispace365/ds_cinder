@@ -3,7 +3,37 @@
 #include "ds/content/platform.h"
 
 namespace waffles {
-	BaseWafflesHelper::BaseWafflesHelper(ds::ui::SpriteEngine& eng) :WafflesHelper(eng), mBaseContentHelper(eng) { loadIntegration(); }
+	BaseWafflesHelper::BaseWafflesHelper(ds::ui::SpriteEngine& eng) :WafflesHelper(eng), mBaseContentHelper(eng) { 
+		loadIntegration(); 
+	
+		auto foldersCount = mEngine.getAppSettings().countSetting("content:folder:key");
+
+		for (int i = 0; i < foldersCount; ++i) {
+			auto folder = mEngine.getAppSettings().getString("content:folder:key", i, "");
+			auto category = mEngine.getAppSettings().getAttribute("content:folder:key", 0, "category", DEFAULTCATEGORY);
+			mAcceptableFolders[category].push_back(folder);
+			if (mAcceptableFolders[DEFAULTCATEGORY].empty()) mAcceptableFolders[DEFAULTCATEGORY].push_back(folder);
+		}
+
+		auto mediaCount = mEngine.getAppSettings().countSetting("content:media:key");
+		for (int i = 0; i < mediaCount; ++i) {
+			auto media = mEngine.getAppSettings().getString("content:media:key", i);
+			auto mediaProp = mEngine.getAppSettings().getAttribute("content:media:key", i, "property_key", "");
+			auto category = mEngine.getAppSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
+			mMediaProps[category][media] = mediaProp;
+			if (mMediaProps[DEFAULTCATEGORY][media].empty()) mMediaProps[DEFAULTCATEGORY][media] = mediaProp;
+			mAcceptableMedia[category].push_back(media);
+			if (mAcceptableMedia[DEFAULTCATEGORY].empty()) mAcceptableMedia[DEFAULTCATEGORY].push_back(media);
+		}
+
+		auto playlistCount = mEngine.getAppSettings().countSetting("content:playlist:key");
+		for (int i = 0; i < playlistCount; ++i) {
+			auto playlist = mEngine.getAppSettings().getString("content:playlist:key", i, "");
+			auto category = mEngine.getAppSettings().getAttribute("content:playlist:key", i, "category", DEFAULTCATEGORY);
+			mAcceptablePlaylists[category].push_back(playlist);
+			if (mAcceptablePlaylists[DEFAULTCATEGORY].empty()) mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
+		}
+	}
 BaseWafflesHelper::~BaseWafflesHelper() {}
 
 
@@ -180,4 +210,21 @@ void BaseWafflesHelper::loadIntegration()
 
 
 }
+
+bool BaseWafflesHelper::isValidFolder(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.isValidFolder(model, category);
+}
+
+bool BaseWafflesHelper::isValidMedia(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.isValidMedia(model, category);
+}
+
+bool BaseWafflesHelper::isValidPlaylist(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.isValidPlaylist(model, category);
+}
+
+std::string BaseWafflesHelper::getMediaPropertyKey(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.getMediaPropertyKey(model, category);
+}
+
 } // namespace waffles

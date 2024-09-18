@@ -19,84 +19,17 @@
 #include "app/waffles_app_defs.h"
 
 #include "waffles/waffles_events.h"
+#include "waffles/util/waffles_helper.h"
 
 namespace waffles {
 
 ContentUtils::ContentUtils(ds::ui::SpriteEngine& g)
   : ds::ui::Sprite(g) {
 	// read in acceptable content from waffles settings
-	auto foldersCount = mEngine.getWafflesSettings().countSetting("launcher:folder:key");
-	for (int i = 0; i < foldersCount; ++i) {
-		auto folder = mEngine.getWafflesSettings().getString("launcher:folder:key", i, "");
-		mAcceptableFolders.push_back(folder);
-	}
-
-	auto mediaCount = mEngine.getWafflesSettings().countSetting("launcher:media:key");
-	for (int i = 0; i < mediaCount; ++i) {
-		auto media		   = mEngine.getWafflesSettings().getString("launcher:media:key", i);
-		auto mediaProp	   = mEngine.getWafflesSettings().getAttribute("launcher:media:key", i, "property_key", "");
-		mMediaProps[media] = mediaProp;
-		mAcceptableMedia.push_back(media);
-	}
-
-	auto presentationCount = mEngine.getWafflesSettings().countSetting("launcher:presentation:key");
-	for (int i = 0; i < presentationCount; ++i) {
-		auto presentation = mEngine.getWafflesSettings().getString("launcher:presentation:key", i, "");
-		mAcceptablePresentations.push_back(presentation);
-	}
-
-	auto ambientPlaylistCount = mEngine.getWafflesSettings().countSetting("launcher:ambient_playlist:key");
-	for (int i = 0; i < ambientPlaylistCount; ++i) {
-		auto ambientPlaylist = mEngine.getWafflesSettings().getString("launcher:ambient_playlist:key", i, "");
-		mAcceptableAmbientPlaylists.push_back(ambientPlaylist);
-	}
+	
 }
 
-bool ContentUtils::isFolder(ds::model::ContentModelRef model) {
-	auto uid	= model.getPropertyString("type_uid");
-	auto type	= model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), type) != mAcceptableFolders.end();
-	result = result || std::find(mAcceptableFolders.begin(), mAcceptableFolders.end(), uid) != mAcceptableFolders.end();
-	return result;
-}
 
-bool ContentUtils::isMedia(ds::model::ContentModelRef model) {
-	auto uid	= model.getPropertyString("type_uid");
-	auto type	= model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), type) != mAcceptableMedia.end();
-	result		= result || std::find(mAcceptableMedia.begin(), mAcceptableMedia.end(), uid) != mAcceptableMedia.end();
-	return result;
-}
-
-bool ContentUtils::isPresentation(ds::model::ContentModelRef model) {
-	auto uid	= model.getPropertyString("type_uid");
-	auto type	= model.getPropertyString("type_key");
-	bool result = std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), type) !=
-				  mAcceptablePresentations.end();
-	result = result || std::find(mAcceptablePresentations.begin(), mAcceptablePresentations.end(), uid) !=
-						   mAcceptablePresentations.end();
-	return result;
-}
-
-bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) {
-	auto uid	= model.getPropertyString("type_uid");
-	auto type	= model.getPropertyString("type_key");
-	bool result = std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), type) !=
-				  mAcceptableAmbientPlaylists.end();
-	result = result || std::find(mAcceptableAmbientPlaylists.begin(), mAcceptableAmbientPlaylists.end(), uid) !=
-						   mAcceptableAmbientPlaylists.end();
-	return result;
-}
-
-std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model)
-{
-	auto		theType = model.getPropertyString("type_key");
-	auto		theTypeUid = model.getPropertyString("type_uid");
-	auto		media_property_key = mMediaProps[theTypeUid];
-	media_property_key = media_property_key.empty() ? mMediaProps[theType] : media_property_key;
-	media_property_key = media_property_key.empty() ? "media" : media_property_key;
-	return media_property_key;
-}
 
 
 ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
@@ -107,14 +40,38 @@ ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
 	return sDefault;
 }
 
-void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
+bool ContentUtils::isFolder(ds::model::ContentModelRef model) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	return content->isValidFolder(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+}
 
+bool ContentUtils::isMedia(ds::model::ContentModelRef model) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	return content->isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+}
+
+bool ContentUtils::isPresentation(ds::model::ContentModelRef model) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	return content->isValidPlaylist(model, ds::model::ContentHelper::PRESENTATIONCATEGORY);
+}
+
+bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	return content->isValidPlaylist(model, ds::model::ContentHelper::AMBIENTCATEGORY);
+}
+
+std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	return content->getMediaPropertyKey(model,ds::model::ContentHelper::WAFFLESCATEGORY);
+}
+
+void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
+	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
 	std::string thumbPath		   = "";
 	auto		theModel		   = item->getContentModel();
 	auto		theType			   = item->getContentModel().getPropertyString("type_key");
 	auto		theTypeUid		   = item->getContentModel().getPropertyString("type_uid");
-	auto		media_property_key = getDefault(engine)->mMediaProps[theTypeUid];
-	media_property_key = media_property_key.empty() ? getDefault(engine)->mMediaProps[theType] : media_property_key;
+	auto		media_property_key = content->getMediaPropertyKey(item->getContentModel());
 	media_property_key = media_property_key.empty() ? "media" : media_property_key;
 	auto mediaType	   = item->getContentModel().getPropertyResource(media_property_key).getType();
 

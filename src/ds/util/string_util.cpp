@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+
+
 // using namespace std;
 using namespace ds;
 
@@ -753,6 +755,29 @@ std::vector<std::pair<int, std::string>> extractPairs(const std::string& value, 
 	}
 
 	return output;
+}
+
+// Trim whitespace from the beginning of a string
+std::string ltrim(const std::string& str) {
+	std::string trimmed = str;
+	trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](int ch) {
+		return !std::isspace(ch);
+		}));
+	return trimmed;
+}
+
+// Trim whitespace from the end of a string
+std::string rtrim(const std::string& str) {
+	std::string trimmed = str;
+	trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](int ch) {
+		return !std::isspace(ch);
+		}).base(), trimmed.end());
+	return trimmed;
+}
+
+// Trim whitespace from both ends of a string
+std::string trim(const std::string& str) {
+	return rtrim(ltrim(str));
 }
 
 } // namespace ds
