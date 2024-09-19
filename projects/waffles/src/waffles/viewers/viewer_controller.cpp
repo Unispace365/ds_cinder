@@ -40,10 +40,10 @@ namespace waffles {
 
 ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	: ds::ui::Sprite(g)
-	, mEventClient(g),mChannelClient(g) {
+	, mEventClient(g),mChannelClient() {
 
-	// stop the channel client. we only start it again if we have a channel name
-	mChannelClient.stop();
+	
+	mChannelClient.setNotifier(mEngine.getNotifier());
 
 	THIS_INSTANCE = this;
 
@@ -113,7 +113,7 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	ds::EventClient::clientsListenToEvents<RequestPDFPageChange>([this](auto& e) { advancePDF(e.mForwards); }, clients);
 
 	ds::EventClient::clientsListenToEvents<RequestAppExit>([this](auto& e) {
-		mEngine.getNotifier().notify(RequestCloseAllEvent());
+		mChannelClient.notify(RequestCloseAllEvent());
 		callAfterDelay([] { ci::app::App::get()->quit(); }, 2.0f);
 	}, clients);
 }
@@ -121,11 +121,10 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 void ViewerController::setChannel(const std::string& channel)
 {
 	if (channel.empty()) {
-		mChannelClient.stop();
 		return;
 	}
 	mChannelClient.setNotifier(mEngine.getChannel(channel));
-	mChannelClient.start();
+	//mChannelClient.start();
 }
 
 ViewerController* ViewerController::getInstance() {
@@ -253,7 +252,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 				errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
 				errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
 				errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
-				mEngine.getNotifier().notify(RequestViewerLaunchEvent(
+				mChannelClient.notify(RequestViewerLaunchEvent(
 					ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation, ViewerCreationArgs::kViewLayerTop,
 									   0, args.mFromCenter)));
 
@@ -373,8 +372,8 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 
 	enforceViewerLimits(newViewer);
 
-	mEngine.getNotifier().notify(ViewerUpdatedEvent());
-	mEngine.getNotifier().notify(ViewerAddedEvent(args.mMediaRef));
+	mChannelClient.notify(ViewerUpdatedEvent());
+	mChannelClient.notify(ViewerAddedEvent(args.mMediaRef));
 }
 
 void ViewerController::enforceViewerLimits(BaseElement* viewer) {
@@ -404,7 +403,7 @@ void ViewerController::viewerActivated(BaseElement* be) {
 		if (found != mViewers.end() && be != mViewers.back()) {
 			mViewers.erase(found);
 			mViewers.push_back(be);
-			mEngine.getNotifier().notify(ViewerUpdatedEvent());
+			mChannelClient.notify(ViewerUpdatedEvent());
 		}
 	}
 }
@@ -511,8 +510,8 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 		viewer->tweenScale(viewer->getScale() / 2.0f, mEngine.getAnimDur(), delayey, ci::easeInCubic, completeCallback);
 	} */
 
-	mEngine.getNotifier().notify(ViewerUpdatedEvent());
-	mEngine.getNotifier().notify(ViewerRemovedEvent(viewer));
+	mChannelClient.notify(ViewerUpdatedEvent());
+	mChannelClient.notify(ViewerRemovedEvent(viewer));
 }
 
 void ViewerController::removeViewer(BaseElement* viewer) {
@@ -527,7 +526,7 @@ void ViewerController::removeViewer(BaseElement* viewer) {
 		viewer->release();
 	}
 
-	mEngine.getNotifier().notify(ViewerUpdatedEvent());
+	mChannelClient.notify(ViewerUpdatedEvent());
 }
 
 void ViewerController::arrangeViewers() {
@@ -652,7 +651,7 @@ void ViewerController::startPresentation(ds::model::ContentModelRef newPresentat
 	if (showController) {
 		auto vca =
 			ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_PRESENTATION_CONTROLLER, startLocation, 2);
-		mEngine.getNotifier().notify(RequestViewerLaunchEvent(vca));
+		mChannelClient.notify(RequestViewerLaunchEvent(vca));
 	}
 }
 
@@ -669,7 +668,7 @@ void ViewerController::advancePresentation(const bool forwards) {
 						  .getDescendant("waffles_nodes", thePres.getPropertyInt("presentation_id"));
 	if (actualPres.getChildren().empty()) {
 		DS_LOG_WARNING("Tried to advance a presentation slide, but it doesn't have any slides");
-		mEngine.getNotifier().notify(PresentationStatusUpdatedEvent());
+		mChannelClient.notify(PresentationStatusUpdatedEvent());
 		return;
 	}
 
@@ -710,14 +709,14 @@ void ViewerController::setPresentationSlide(int slideId) {
 	auto actualSlide = mEngine.mContent.getChildByName("cms_root").getDescendant("waffles_nodes", slideId);
 	if (actualSlide.empty()) {
 		DS_LOG_WARNING("Tried to set a presentation slide, but it's empty!");
-		mEngine.getNotifier().notify(PresentationStatusUpdatedEvent());
+		mChannelClient.notify(PresentationStatusUpdatedEvent());
 		return;
 	}
 	auto actualPres = mEngine.mContent.getChildByName("cms_root")
 						  .getDescendant("waffles_nodes", actualSlide.getPropertyInt("parent_id"));
 	if (actualPres.getChildren().empty()) {
 		DS_LOG_WARNING("Tried to set a presentation slide, but it doesn't have any slides");
-		mEngine.getNotifier().notify(PresentationStatusUpdatedEvent());
+		mChannelClient.notify(PresentationStatusUpdatedEvent());
 		return;
 	}
 
@@ -774,7 +773,7 @@ void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef
 		loadSlideComposite(slideRef);
 	}
 
-	mEngine.getNotifier().notify(PresentationStatusUpdatedEvent());
+	mChannelClient.notify(PresentationStatusUpdatedEvent());
 }
 
 void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
@@ -1197,7 +1196,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 		fullscreenDarkener->enable(true);
 		fullscreenDarkener->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 		fullscreenDarkener->setTapCallback([this](ds::ui::Sprite*, const ci::vec3& pos) {
-			mEngine.getNotifier().notify(RequestViewerLaunchEvent(
+			mChannelClient.notify(RequestViewerLaunchEvent(
 				ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
 								   ViewerCreationArgs::kViewLayerTop)));
 		});
@@ -1212,7 +1211,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	viewer->activatePanel();
 
 	if (showController) {
-		mEngine.getNotifier().notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
+		mChannelClient.notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
 	}
 }
 

@@ -36,7 +36,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
   public:
 	template <class VC = waffles::ViewerController>
 	WafflesSprite(ds::ui::SpriteEngine& eng,std::string eventChannel="")
-	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng),mChannelClient(eng) {
+	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng),mChannelClient() {
 		
 
 		
@@ -51,6 +51,10 @@ class WafflesSprite : public ds::ui::SmartLayout {
 			mChannelClient.setNotifier(eng.getChannel(eventChannel));
 			mChannelClient.start();
 			mViewerController->setChannel(eventChannel);
+		}
+		else {
+			mChannelClient.setNotifier(eng.getNotifier());
+			mChannelClient.start();
 		}
 
 		auto sh = new waffles::ShadowLayout(eng);

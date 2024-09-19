@@ -26,6 +26,8 @@ namespace ds {
 class EventClient {
   public:
 	/// Uses sprite engine's default event notifier. Use the listenToEvents() callback with this constructor
+	EventClient();
+	  
 	EventClient(ds::ui::SpriteEngine&);
 
 	/// Uses sprite engine's default event notifier. Use the listenToEvents() callback with this constructor
@@ -84,7 +86,7 @@ class EventClient {
 
   private:
 	  bool mStopped = false;
-	EventNotifier& mNotifier;
+	EventNotifier* mNotifier=nullptr;
 	
 	using eventCallback = std::function<void(const ds::Event&)>;
 	using eventMap		= std::unordered_map<size_t, eventCallback>;

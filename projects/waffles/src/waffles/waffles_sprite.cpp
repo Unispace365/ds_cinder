@@ -128,15 +128,15 @@ void WafflesSprite::initializeWaffles() {
 			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 			ds::Resource r = helper->getBackgroundForPlatform();
 			if (helper->getApplyParticles()) {
-				mEngine.getNotifier().notify(waffles::RequestBackgroundChange(
+				mChannelClient.notify(waffles::RequestBackgroundChange(
 					waffles::BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef())); // 1 = BACKGROUND_TYPE_PARTICLES
 			}
 			else if (!r.empty()) {
 				model.setPropertyResource("media_res", r);
-				mEngine.getNotifier().notify(waffles::RequestBackgroundChange(waffles::BACKGROUND_TYPE_USER_MEDIA, model));
+				mChannelClient.notify(waffles::RequestBackgroundChange(waffles::BACKGROUND_TYPE_USER_MEDIA, model));
 			}
 			else {
-				mEngine.getNotifier().notify(
+				mChannelClient.notify(
 					waffles::RequestBackgroundChange(waffles::BACKGROUND_TYPE_DEFAULT, ds::model::ContentModelRef()));
 			}
 		},
@@ -185,7 +185,7 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 	auto currPres = mEngine.mContent.getChildByName("current_presentation");
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
-	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest(ds::model::ContentModelRef()));
+	mChannelClient.notify(waffles::ChangeTemplateRequest(ds::model::ContentModelRef()));
 	auto backer = getSprite("presentation_backer");
 	if (backer) {
 		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
@@ -352,8 +352,8 @@ void WafflesSprite::gotoItem(int index) {
 		mPlaylistUid.clear();
 	}
 
-	mEngine.getNotifier().notify(waffles::PresentationStateChanged(mPlaylist));
-	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest(mSlide));
+	mChannelClient.notify(waffles::PresentationStateChanged(mPlaylist));
+	mChannelClient.notify(waffles::ChangeTemplateRequest(mSlide));
 
 	if (mPlaylist.getPropertyString("type_key") == "empty") {
 		callAfterDelay(
@@ -424,25 +424,25 @@ void WafflesSprite::setupTouchMenu() {
 
 	auto closeModel = ds::ui::TouchMenu::MenuItemModel(
 		L"Close Assets", "%APP%/data/images/waffles/icons/4x/Close_256.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(pos));  }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestCloseAllEvent(pos));  }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto presNext = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Next", "%APP%/data/images/waffles/icons/4x/Forward_256.png",
 		"%APP%/data/images/waffles/icons/4x/Forward_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestEngageNext()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestEngageNext()); }, emptySubtitle, menuFg, menuBg);
 
 	auto arrange = ds::ui::TouchMenu::MenuItemModel(
 		L"Arrange", "%APP%/data/images/waffles/icons/4x/Arrange_256.png", "%APP%/data/images/waffles/icons/4x/Arrange_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto homeView = ds::ui::TouchMenu::MenuItemModel(
 		overallTitle, "%APP%/data/images/waffles/icons/4x/Home_256.png", "%APP%/data/images/waffles/icons/4x/Home_Glow_256.png",
 		[this](ci::vec3 pos) {
 			mAmEngaged = true;
-			mEngine.getNotifier().notify(waffles::ShowWaffles());
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mChannelClient.notify(waffles::ShowWaffles());
+			mChannelClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_LAUNCHER, pos, waffles::ViewerCreationArgs::kViewLayerTop)));
 		},
 		emptySubtitle, menuFg, menuBg);
@@ -451,7 +451,7 @@ void WafflesSprite::setupTouchMenu() {
 		L"Search", "%APP%/data/images/waffles/icons/4x/Search_256.png", "%APP%/data/images/waffles/icons/4x/Search_Glow_256.png",
 		[this](ci::vec3 pos) {
 			// mEngine.getNotifier().notify(waffles::ShowWaffles());
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mChannelClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
 		},
 		emptySubtitle, menuFg, menuBg);
@@ -471,7 +471,7 @@ void WafflesSprite::setupTouchMenu() {
 		"%APP%/data/images/waffles/icons/4x/Presentations_Glow_256.png",
 		[this](ci::vec3 pos) {
 			// mEngine.getNotifier().notify(waffles::ShowWaffles());
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mChannelClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
 									   waffles::ViewerCreationArgs::kViewLayerTop)));
 		},
@@ -480,14 +480,14 @@ void WafflesSprite::setupTouchMenu() {
 	auto states = ds::ui::TouchMenu::MenuItemModel(
 		L"States", "%APP%/data/images/waffles/icons/4x/States_64.png", "%APP%/data/images/waffles/icons/4x/States_glow_64.png",
 		[this](ci::vec3 pos) {
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mChannelClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_STATE_VIEWER, pos)));
 		},
 		emptySubtitle, menuFg, menuBg);
 
 	auto exitApp = ds::ui::TouchMenu::MenuItemModel(
 		L"Exit", "%APP%/data/images/waffles/icons/4x/Close_64.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_64.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestAppExit()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestAppExit()); }, emptySubtitle, menuFg, menuBg);
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 
@@ -609,7 +609,7 @@ void WafflesSprite::startPresentationMode() {
 	mPlaylistIdx = 0;
 
 	// Notify listeners.
-	mEngine.getNotifier().notify(waffles::EngageStarted());
+	mChannelClient.notify(waffles::EngageStarted());
 
 	if (!mPlaylistUid.empty()) {
 		// Always start on the first playlist item when starting the engage
@@ -617,17 +617,17 @@ void WafflesSprite::startPresentationMode() {
 
 
 		// Wait for background to finish transitioning to empty, then trigger the template
-		mEventClient.listenToEvents<waffles::BackgroundChangeComplete>([this](const auto& ev) {
+		mChannelClient.listenToEvents<waffles::BackgroundChangeComplete>([this](const auto& ev) {
 			if (mAmEngaged) {
 				// Only trigger the template if we're still in engage mode
 				gotoItem(mPlaylistIdx);
 			}
 
 			// Stop listening
-			mEventClient.stopListeningToEvents<waffles::BackgroundChangeComplete>();
+			mChannelClient.stopListeningToEvents<waffles::BackgroundChangeComplete>();
 		});
 	} else {
-		mEngine.getNotifier().notify(waffles::ChangeTemplateRequest());
+		mChannelClient.notify(waffles::ChangeTemplateRequest());
 
 		callAfterDelay(
 			[this] {
@@ -651,13 +651,13 @@ void WafflesSprite::endPresentationMode() {
 	mEngine.mContent.replaceChild(currPres);
 
 	// Revert to no template
-	mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(true));
-	mEngine.getNotifier().notify(waffles::ChangeTemplateRequest());
+	mChannelClient.notify(waffles::RequestCloseAllEvent(true));
+	mChannelClient.notify(waffles::ChangeTemplateRequest());
 
 	
 
 	// Notify listeners.
-	mEngine.getNotifier().notify(waffles::EngageEnded());
+	mChannelClient.notify(waffles::EngageEnded());
 	auto backer = getSprite("presentation_backer");
 	if (backer) {
 		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
@@ -726,7 +726,7 @@ void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 			if (!pres_id.empty()) {
 				auto pres = helper->getRecordByUid(pres_id);
 				if (pres.getChildren().size() > 0) { // activate first slide
-					mEngine.getNotifier().notify(waffles::RequestEngagePresentation(pres.getChild(0), false));
+					mChannelClient.notify(waffles::RequestEngagePresentation(pres.getChild(0), false));
 					//mEngine.mContent.setProperty("presentation_controller_blocked", false);
 				}
 			}

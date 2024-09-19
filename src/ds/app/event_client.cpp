@@ -12,9 +12,13 @@ namespace ds {
 /**
  * \class EventClient
  */
+
+EventClient::EventClient() {
+	mNotifier = nullptr;
+}
 EventClient::EventClient(EventNotifier& n, const std::function<void(const ds::Event*)>& fn,
 						 const std::function<void(ds::Event&)>& requestFn)
-  : mNotifier(n) {
+  : mNotifier(&n) {
 	if (fn) {
 		n.mEventNotifier.addListener(this, [this, fn](const ds::Event* m) {
 			if (this->mStopped) return;
@@ -34,15 +38,15 @@ EventClient::EventClient(EventNotifier& n, const std::function<void(const ds::Ev
 }
 
 EventClient::EventClient(ds::ui::SpriteEngine& eng)
-  : mNotifier(eng.getNotifier()) {
-	mNotifier.mEventNotifier.addListener(this, [this](const ds::Event* m) {
+  : mNotifier(&eng.getNotifier()) {
+	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
 		if (m) this->onAppEvent(*m);
 	});
 }
 
 EventClient::EventClient(EventNotifier& notifier)
-  : mNotifier(notifier) {
-	mNotifier.mEventNotifier.addListener(this, [this](const ds::Event* m) {
+  : mNotifier(&notifier) {
+	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
 		if (m) this->onAppEvent(*m);
 	});
 }
@@ -50,8 +54,8 @@ EventClient::EventClient(EventNotifier& notifier)
 
 
 EventClient::~EventClient() {
-	mNotifier.mEventNotifier.removeListener(this);
-	mNotifier.mEventNotifier.removeRequestListener(this);
+	mNotifier->mEventNotifier.removeListener(this);
+	mNotifier->mEventNotifier.removeRequestListener(this);
 }
 
 void EventClient::stop()
@@ -65,22 +69,35 @@ void EventClient::start() {
 
 void EventClient::notify(const ds::Event& e) {
 	if (mStopped) return;
-	mNotifier.mEventNotifier.notify(&e);
+	if (!mNotifier) return;
+	mNotifier->mEventNotifier.notify(&e);
 }
 
 void EventClient::notify(const std::string& eventName) {
 	if (mStopped) return;
-	mNotifier.notify(eventName);
+	if (!mNotifier) return;
+	mNotifier->notify(eventName);
 }
 
 void EventClient::request(ds::Event& e) {
 	if (mStopped) return;
-	mNotifier.mEventNotifier.request(e);
+	if (!mNotifier) return;
+	mNotifier->mEventNotifier.request(e);
 }
 
 void EventClient::setNotifier(EventNotifier& notifier)
 {
-	mNotifier = notifier;
+	if (mNotifier == &notifier) {
+		return;
+	}
+	if (mNotifier) {
+		mNotifier->mEventNotifier.removeListener(this);
+		mNotifier->mEventNotifier.removeRequestListener(this);
+	}
+	mNotifier = &notifier;
+	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
+		if (m) this->onAppEvent(*m);
+	});
 }
 
 void EventClient::onAppEvent(const ds::Event& in_e) {
