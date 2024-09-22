@@ -38,6 +38,8 @@ static waffles::ViewerController* THIS_INSTANCE;
 
 namespace waffles {
 
+
+
 ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	: ds::ui::Sprite(g)
 	, mEventClient(g),mChannelClient() {

@@ -34,6 +34,53 @@ namespace waffles {
 
 WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
 
+WafflesSprite::WafflesSprite(ds::ui::SpriteEngine & eng, std::string eventChannel)
+: ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng), mChannelClient() {
+
+	mViewerController = ViewerControllerFactory<ViewerController>::getInstanceOf(ci::vec2(getSize()));
+
+	// stop the channel client. we only start it again if we have a channel name
+	mChannelClient.stop();
+
+	if (!eventChannel.empty()) {
+		mChannelClient.setNotifier(eng.getChannel(eventChannel));
+		mChannelClient.start();
+		mViewerController->setChannel(eventChannel);
+	}
+	else {
+		mChannelClient.setNotifier(eng.getNotifier());
+		mChannelClient.start();
+	}
+
+	auto sh = new waffles::ShadowLayout(eng);
+	sh->release();
+	auto pb = new waffles::PinboardButton(eng, "waffles/pinboard/pinboard_button.xml");
+	pb->release();
+	auto cap = new waffles::CapturePlayer(eng);
+	cap->release();
+
+	
+}
+
+WafflesSprite::~WafflesSprite() {
+	if (mTimedCallback) {
+		mEngine.cancelTimedCallback(mTimedCallback);
+	}
+	if (mDefaultWaffles == this) {
+		mDefaultWaffles = nullptr;
+	}
+	if (mTemplateLayer && mTemplateLayer->getParent() == nullptr) {
+		mTemplateLayer->release();
+	}
+	if (mBackgroundView && mBackgroundView->getParent() == nullptr) {
+		mBackgroundView->release();
+	}
+	if (mViewerController && mViewerController->getParent() == nullptr) {
+		mViewerController->release();
+	}
+
+}
+
 void WafflesSprite::initializeWaffles() {
 	//init the template config
 	mTemplateConfig = TemplateConfig::getDefault();
@@ -187,7 +234,7 @@ void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationE
 	mEngine.mContent.replaceChild(currPres);
 	mChannelClient.notify(waffles::ChangeTemplateRequest(ds::model::ContentModelRef()));
 	auto backer = getSprite("presentation_backer");
-	if (backer) {
+	if (backer && mEngine.getWafflesSettings().getBool("template:use_backer", 0, true)) {
 		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
 	}
 }
@@ -280,8 +327,8 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 	}
 
 	auto backer = getSprite("presentation_backer");
-	backer->show();
-	if (backer) {
+	if (backer && mEngine.getWafflesSettings().getBool("template:use_backer",0,true)) {
+		backer->show();
 		backer->tweenOpacity(1.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone());
 	}
 }
@@ -489,6 +536,12 @@ void WafflesSprite::setupTouchMenu() {
 		L"Exit", "%APP%/data/images/waffles/icons/4x/Close_64.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_64.png",
 		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestAppExit()); }, emptySubtitle, menuFg, menuBg);
 
+	auto blank = ds::ui::TouchMenu::MenuItemModel(
+		L"", "", "",
+		[this](ci::vec3 pos) {/*do nothing*/ }, emptySubtitle, menuFg, menuBg);
+
+
+
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 
 	std::string menuOrder = mEngine.getWafflesSettings().getString("five_finger_menu:order", 0, "");
@@ -534,6 +587,9 @@ void WafflesSprite::setupTouchMenu() {
 				menuItemModels.emplace_back(states);
 			} else if (it == "exit") {
 				menuItemModels.emplace_back(exitApp);
+			}
+			else if (it == "blank") {
+				menuItemModels.emplace_back(blank);
 			}
 		}
 	}
@@ -659,7 +715,7 @@ void WafflesSprite::endPresentationMode() {
 	// Notify listeners.
 	mChannelClient.notify(waffles::EngageEnded());
 	auto backer = getSprite("presentation_backer");
-	if (backer) {
+	if (backer && mEngine.getWafflesSettings().getBool("template:use_backer", 0, true)) {
 		backer->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::EaseNone(), [backer] { backer->hide(); });
 	}
 }
@@ -697,14 +753,19 @@ void WafflesSprite::prevItem() {
 
 // template <class VC>
 void WafflesSprite::onSizeChanged() {
-	clearChildren();
+	
 
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
-		mViewerController = new waffles::ViewerController(mEngine, ci::vec2(getSize()));
+		holdy->clearChildren();
+		auto size = getSize();
+		mViewerController = ViewerControllerFactory<ViewerController>::getInstanceOf(ci::vec2(size));
 		holdy->addChildPtr(mViewerController);
 	} else {
 		mViewerController = nullptr;
 	}
+	//if (mViewerController) {
+	//	mViewerController->setSize(ci::vec2(getSize()));
+	//}
 	runLayout();
 
 	auto bounds = ci::Rectf(0.f, 0.f, getWidth(), getHeight());

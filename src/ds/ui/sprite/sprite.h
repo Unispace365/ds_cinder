@@ -1107,6 +1107,9 @@ namespace ui {
 		/// if this sprite was an interface root (or <xml> root) then this will hold the settings; null otherwise;
 		ds::cfg::Settings* mSettings = nullptr;
 
+	    /// used to have descenndents treat this as a the global root.
+		bool mIsGlobalBreak = false;
+
 	  public:
 		// #ifdef _DEBUG
 		/// Debugging aids to write out my state. write() calls writeState

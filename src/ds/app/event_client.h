@@ -101,9 +101,15 @@ class EventClient {
 template<class EVENT>
 inline void EventClient::clientsListenToEvents(std::function<void(const EVENT&)> callback, std::initializer_list<EventClient*> list) {
 	static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
+	std::vector<ds::EventNotifier*> notifiers;
 	for (auto client : list) {
+
 		if (client) {
-			client->listenToEvents<EVENT>(callback);
+			if (std::find(notifiers.begin(), notifiers.end(), client->mNotifier) == notifiers.end()) {
+
+				notifiers.push_back(client->mNotifier);
+				client->listenToEvents<EVENT>(callback);
+			}
 		}
 	}
 }

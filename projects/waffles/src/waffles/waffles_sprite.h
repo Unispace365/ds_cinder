@@ -34,57 +34,10 @@ class TemplateConfig;
 //template <class VC=waffles::ViewerController>
 class WafflesSprite : public ds::ui::SmartLayout {
   public:
-	template <class VC = waffles::ViewerController>
-	WafflesSprite(ds::ui::SpriteEngine& eng,std::string eventChannel="")
-	  : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng),mChannelClient() {
-		
 
-		
-		static_assert(std::is_base_of_v<waffles::ViewerController, VC>,
-					  "VC must be a subclass of waffles::ViewerController");
-		mViewerController = new VC(mEngine, ci::vec2(getSize()));
+	  WafflesSprite(ds::ui::SpriteEngine& eng, std::string eventChannel = "");
 
-		// stop the channel client. we only start it again if we have a channel name
-		mChannelClient.stop();
-
-		if (!eventChannel.empty()) {
-			mChannelClient.setNotifier(eng.getChannel(eventChannel));
-			mChannelClient.start();
-			mViewerController->setChannel(eventChannel);
-		}
-		else {
-			mChannelClient.setNotifier(eng.getNotifier());
-			mChannelClient.start();
-		}
-
-		auto sh = new waffles::ShadowLayout(eng);
-		sh->release();
-		auto pb = new waffles::PinboardButton(eng, "waffles/pinboard/pinboard_button.xml");
-		pb->release();
-		auto cap = new waffles::CapturePlayer(eng);
-		cap->release();
-
-		initializeWaffles();
-	}
-
-	~WafflesSprite() {
-		if (mTimedCallback) {
-			mEngine.cancelTimedCallback(mTimedCallback);
-		}
-		if (mDefaultWaffles == this) {
-			mDefaultWaffles = nullptr;
-		}
-		if(mTemplateLayer && mTemplateLayer->getParent() == nullptr){
-			mTemplateLayer->release();
-		}
-		if(mBackgroundView && mBackgroundView->getParent() == nullptr){
-			mBackgroundView->release();
-		}
-		if(mViewerController && mViewerController->getParent() == nullptr){
-			mViewerController->release();
-		}
-
-	}
+	  ~WafflesSprite();
 	static void setDefault(WafflesSprite* defaultWaffles) { mDefaultWaffles = defaultWaffles; }
 	static WafflesSprite* getDefault() { return mDefaultWaffles; }
 
@@ -121,15 +74,18 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	
   protected:
 	virtual void gotoItem(int index);
+	virtual void setupTouchMenu();
 	static WafflesSprite* mDefaultWaffles;
+	ds::ui::TouchMenu* mTouchMenu = nullptr;
+	ds::EventClient mChannelClient;
 	
 	//set playlist uid?
 
   public:
-	virtual waffles::ViewerController * getViewerController() { return mViewerController; }
+	virtual waffles::ViewerController* getViewerController() { return mViewerController; }
 	std::map<int, ci::vec2>			   mTouchPoints;
   private:
-  	void setupTouchMenu();
+  	
 	void setDefaultPresentation();
 	void setPresentation(ds::model::ContentModelRef thePlaylist);
 	bool setSlide(ds::model::ContentModelRef theSlide);
@@ -147,7 +103,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	waffles::TemplateLayer* mTemplateLayer = nullptr;
 
 
-	ds::ui::TouchMenu* mTouchMenu = nullptr;
+	
 	//from old engage controller
 	float					   mInteractiveDuration = 5.f;
 
@@ -163,7 +119,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 
 	bool mAmEngaged = false;
 	int mTimedCallback = 0;
-	ds::EventClient mChannelClient;
+	
 	
 
 };

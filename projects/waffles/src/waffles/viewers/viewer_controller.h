@@ -13,6 +13,46 @@ class ViewerCreationArgs;
 class BaseElement;
 struct RequestViewerLaunchEvent;
 
+
+class ViewerController;
+
+
+
+typedef std::shared_ptr<ViewerController> ViewerControllerPtr;
+
+
+template<class T=ViewerController>
+class ViewerControllerFactory {
+public:
+	ViewerControllerFactory() = delete;
+
+	static void InitViewerController(ds::ui::SpriteEngine& eng) {
+		mEngine = &eng;
+		if (mDefault) {
+			DS_LOG_WARNING("ViewerControllerFactory::InitViewerController() called more than once");
+		}
+		mDefault = std::make_shared<T>(*mEngine);
+	}
+	template<class Tx = ViewerController> static std::shared_ptr<Tx> getDefault() { return std::dynamic_pointer_cast<Tx>(mDefault); }
+	template <class Tx = ViewerController>
+	static Tx* getInstanceOf(ci::vec2& size) {
+		if (!mEngine) return nullptr;
+		auto instance = new T(*mEngine,size);
+		return dynamic_cast<Tx*>(instance);
+	}
+
+private:
+	static std::shared_ptr<T> mDefault;
+	static ds::ui::SpriteEngine*		mEngine;
+
+};
+
+template<class T>
+std::shared_ptr<T> ViewerControllerFactory<T>::mDefault = nullptr;
+
+template<class T>
+ds::ui::SpriteEngine* ViewerControllerFactory<T>::mEngine = nullptr;
+
 /**
  * \class waffles::ViewerController
  *			Manages and mediates all media viewers
