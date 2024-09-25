@@ -593,6 +593,12 @@ namespace ui {
 		 */
 		Sprite* getParent() const;
 
+		/**Get an eventClient if one was defined for this sprite. 
+		If not then it looks up the chain for one. 
+		Will return on set to default eventNotifier is none is found */
+		virtual std::string getChannelName();
+		virtual void setChannelName(std::string name);
+
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not
 		   work for perspective Sprites. For example, if you have a global touch point, you can find it's local location
 		   like this: \code	if(getParent()){ ci::vec3 localPoint =
@@ -1050,6 +1056,8 @@ namespace ui {
 		/// Transport uniform data to the shader
 		ds::gl::Uniform mUniform;
 
+		std::string mSpriteChannelName;
+
 	  private:
 		/// Utility to reorder the sprites
 		void setSpriteOrder(const std::vector<sprite_id_t>&);
@@ -1107,8 +1115,7 @@ namespace ui {
 		/// if this sprite was an interface root (or <xml> root) then this will hold the settings; null otherwise;
 		ds::cfg::Settings* mSettings = nullptr;
 
-	    /// used to have descenndents treat this as a the global root.
-		bool mIsGlobalBreak = false;
+	    
 
 	  public:
 		// #ifdef _DEBUG

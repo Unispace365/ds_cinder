@@ -1025,6 +1025,23 @@ Sprite* Sprite::getParent() const {
 	return mParent;
 }
 
+std::string Sprite::getChannelName()
+{
+	if (!mSpriteChannelName.empty()) {
+		return mSpriteChannelName;
+	}
+	auto p = mParent;
+	if (p) {
+		return p->getChannelName();
+	}
+	return "";
+}
+
+void Sprite::setChannelName(std::string name)
+{
+	mSpriteChannelName = name;
+}
+
 const ci::mat4& Sprite::getGlobalTransform() const {
 	buildGlobalTransform();
 
