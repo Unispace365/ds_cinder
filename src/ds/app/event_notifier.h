@@ -45,7 +45,8 @@ class EventNotifier {
 	 * \param onAddListenerFunction The function to be called when a new listener has been added
 	 */
 	void setOnAddListenerFn(const std::function<ds::Event*(void)>& onAddListenerFunction);
-
+	void setName(const std::string& n) { mName = n; }
+	std::string mName = "unnamed";
   protected:
 	friend class EventClient;
 
