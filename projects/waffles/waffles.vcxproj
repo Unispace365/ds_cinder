@@ -223,12 +223,13 @@ if not exist "$(SolutionDir)..\data\layouts\waffles" mkdir "$(SolutionDir)..\dat
 if %NOIMAGE%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\images\waffles\" "$(SolutionDir)..\data\images\waffles\"
 if %NOLAYOUT%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\layouts\waffles\" "$(SolutionDir)..\data\layouts\waffles\"
 xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\data\fonts" "$(SolutionDir)..\data\fonts\"
+if not exist "$(Solutiondir)..\settings\dummy.txt" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\dummy.txt" "$(SolutionDir)..\settings"
 if not exist "$(Solutiondir)..\settings\waffles.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles.xml" "$(SolutionDir)..\settings"
 if not exist "$(Solutiondir)..\settings\waffles_interface.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_interface.xml" "$(SolutionDir)..\settings"
 if not exist "$(Solutiondir)..\settings\waffles_fonts.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_fonts.xml" "$(SolutionDir)..\settings"
 if not exist "$(Solutiondir)..\settings\waffles_styles.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\waffles\settings\waffles_styles.xml" "$(SolutionDir)..\settings"</Command>
       <Message>Copying waffles assets</Message>
-      <Outputs>$(SolutionDir)..\settings\waffles.xml</Outputs>
+      <Outputs>$(SolutionDir)..\settings\dummy.txt</Outputs>
       <Inputs>$(DS_PLATFORM_093)\projects\waffles\settings</Inputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
