@@ -14,7 +14,9 @@ BaseElement::BaseElement(ds::ui::SpriteEngine& g)
 	, mViewerType(VIEW_TYPE_BASE)
 	, mMaxViewersOfThisType(512)
 	, mUnfullscreenRect(0.0f, 0.0f, g.getWorldWidth(), g.getWorldHeight())
-	, mFatalError(false) {
+	, mFatalError(false)
+	, mEventClient(g){
+
 
 	mAnimDuration = mEngine.getAnimDur();
 }
