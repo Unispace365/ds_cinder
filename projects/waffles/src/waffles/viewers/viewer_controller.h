@@ -165,7 +165,9 @@ public:
 		if (mViewerControllers.find(channelName) == mViewerControllers.end()) {
 			auto instance = mType->allocate(*mEngine, size, channel);
 			mViewerControllers[channelName] = instance;
-			instance->setDeletingCallback([channelName]() { mViewerControllers.erase(channelName); });
+			instance->setDeletingCallback([channelName]() { 
+				mViewerControllers.erase(channelName); 
+			});
 			return dynamic_cast<Tx*>(instance);
 		}
 		else {

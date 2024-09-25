@@ -87,11 +87,6 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size,std::s
 		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
 	}, clients);
 
-	mChannelClient.listenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
-		handleRequestViewerLaunch(event);
-		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
-		});
-
 	ds::EventClient::clientsListenToEvents<RequestCloseAllEvent>([this](const RequestCloseAllEvent& e) {
 		const float deltaAnim = mEngine.getAnimDur() / (float)mViewers.size();
 		float		delayey	  = deltaAnim * (float)mViewers.size();
