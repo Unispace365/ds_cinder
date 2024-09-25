@@ -54,8 +54,10 @@ EventClient::EventClient(EventNotifier& notifier)
 
 
 EventClient::~EventClient() {
-	mNotifier->mEventNotifier.removeListener(this);
-	mNotifier->mEventNotifier.removeRequestListener(this);
+	if (mNotifier) {
+		mNotifier->mEventNotifier.removeListener(this);
+		mNotifier->mEventNotifier.removeRequestListener(this);
+	}
 }
 
 void EventClient::stop()
