@@ -2,7 +2,8 @@
 	<layout name="root_layout"
 		layout_type="size"
 		clipping="true"
-		size="$_world_size"
+		layout_size_mode="fill"
+		
 		>
 
 		<layout name="background_holdy"
@@ -21,8 +22,9 @@
 		/>
 		
 		<layout name="five_finger_holdy"
-			layout_type="vert"
-			layout_size_mode="fill"
+			layout_type="none"
+			layout_size_mode="fixed"
+			_color="red"
 		/>
 
 	</layout>

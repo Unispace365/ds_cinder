@@ -70,7 +70,8 @@
 	<setting name="launcher:content_height" value="700.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll:height" value="169" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:search_height" value="360.0" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="launcher:search_entry_size" value="800, 18" type="float"/>
+	<setting name="launcher:search_entry_size" value="800, 18" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:search_entry_cursor" value="30" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:search_scroll_height" value="500.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll_content_width" value="166.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:interface_scale" value="1.0" type="float"/>

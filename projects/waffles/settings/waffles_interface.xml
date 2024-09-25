@@ -8,14 +8,14 @@
 	<!-- launcher settings -->
 	<setting name="launcher:top:functions" value="Ambient|ambient,Search|search" type="string"/>
 	<setting name="launcher:main:filters" value="Folders|folders,Recent|recent,Images|images,Links|links,PDFs|pdfs,Presentations|presentations,Videos|videos" type="string"/>
-	<setting name="launcher:folder:key" value="assets-folder" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="content:folder:key" value="assets-folder" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<!--<setting name="launcher:folder:key" value="3uecB7IlOQnt" comment="This can be either a type uid or an app_key. checks app_key first"/>-->
 
-	<setting name="launcher:media:key" value="asset_media" property_key="asset_media" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="content:media:key" value="asset_media" property_key="asset_media" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<!--<setting name="launcher:media:key" value="rWnv2Wuvnd7z" property_key="annotated_media" comment="This can be either a type uid or an app_key. checks app_key first"/>-->
 	
-	<setting name="launcher:presentation:key" value="presentation" comment="This can be either a type uid or an app_key. checks app_key first"/>
-	<setting name="launcher:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="content:presentation:key" value="presentation" comment="This can be either a type uid or an app_key. checks app_key first"/>
+	<setting name="content:ambient:key" value="" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="launcher:restrictive:enabled" value="true" comment="Only show types that are 'media' 'folder' or 'presentation' in the panel"/>
 
 	<!-- waffles content locator settings-->
