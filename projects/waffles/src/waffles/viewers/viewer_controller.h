@@ -15,66 +15,13 @@ struct RequestViewerLaunchEvent;
 
 
 class ViewerController;
-
+class ViewerControllerFactory;
 
 
 typedef std::shared_ptr<ViewerController> ViewerControllerPtr;
 
 
-class Type
-{
-public:
-	virtual ~Type() {}
-	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel="")const = 0;
-	virtual ViewerController* cast(ViewerController* obj)const = 0;
-};
 
-template<typename T> class TypeImpl : public Type
-{
-public:
-	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel="")const { return new T(g, size, channel); }
-	virtual ViewerController* cast(ViewerController* obj)const { return static_cast<T*>(obj); }
-};
-
-
-
-class ViewerControllerFactory {
-public:
-
-	template<class T = ViewerController>
-	static void InitViewerController(ds::ui::SpriteEngine& eng) {
-		mEngine = &eng;
-		
-		mType = new TypeImpl<T>();
-	}
-
-	template <class Tx = ViewerController>
-	static Tx* getInstanceOf(ci::vec2& size,std::string channel="") {
-		if (!mEngine) return nullptr;
-		if (mType == nullptr) return nullptr;
-		auto channelName = channel;
-		if (channel.empty()) {
-			channelName = "_default_";
-		}
-		if (mViewerControllers.find(channelName) == mViewerControllers.end()) {
-			auto instance = mType->allocate(*mEngine,size,channel);
-			mViewerControllers[channelName] = instance;
-			instance->setDeletingCallback([channelName]() { mViewerControllers.erase(channelName); });
-			return dynamic_cast<Tx*>(instance);
-		}
-		else {
-			return dynamic_cast<Tx*>(mViewerControllers[channelName]);
-		}
-	}
-
-
-private:
-	ViewerControllerFactory() {};
-	static Type* mType;
-	static ds::ui::SpriteEngine*		mEngine;
-	static std::unordered_map<std::string, ViewerController*> mViewerControllers;
-
-};
 
 
 
@@ -178,6 +125,61 @@ private:
 		mDeletingCallback = callback;
 	};
 	//std::string								mMediaPropertyKey = "media";
+};
+
+class Type
+{
+public:
+	virtual ~Type() {}
+	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel = "")const = 0;
+	virtual ViewerController* cast(ViewerController* obj)const = 0;
+};
+
+template<typename T> class TypeImpl : public Type
+{
+public:
+	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel = "")const { return new T(g, size, channel); }
+	virtual ViewerController* cast(ViewerController* obj)const { return static_cast<T*>(obj); }
+};
+
+
+
+class ViewerControllerFactory {
+public:
+
+	template<class T = ViewerController>
+	static void InitViewerController(ds::ui::SpriteEngine& eng) {
+		mEngine = &eng;
+
+		mType = new TypeImpl<T>();
+	}
+
+	template <class Tx = ViewerController>
+	static Tx* getInstanceOf(ci::vec2 size, std::string channel = "") {
+		if (!mEngine) return nullptr;
+		if (mType == nullptr) return nullptr;
+		auto channelName = channel;
+		if (channel.empty()) {
+			channelName = "_default_";
+		}
+		if (mViewerControllers.find(channelName) == mViewerControllers.end()) {
+			auto instance = mType->allocate(*mEngine, size, channel);
+			mViewerControllers[channelName] = instance;
+			instance->setDeletingCallback([channelName]() { mViewerControllers.erase(channelName); });
+			return dynamic_cast<Tx*>(instance);
+		}
+		else {
+			return dynamic_cast<Tx*>(mViewerControllers[channelName]);
+		}
+	}
+
+
+private:
+	ViewerControllerFactory() {};
+	static Type* mType;
+	static ds::ui::SpriteEngine* mEngine;
+	static std::unordered_map<std::string, ViewerController*> mViewerControllers;
+
 };
 
 } // namespace waffles
