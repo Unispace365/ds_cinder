@@ -72,7 +72,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		if (mIsFullscreen) {
 			hideTitle();
 			hideInnerSideBar();
-			mEngine.getNotifier().notify(RequestViewerLaunchEvent(
+			mEventClient.notify(RequestViewerLaunchEvent(
 				ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
 								   ViewerCreationArgs::kViewLayerTop)));
 		} else {
@@ -84,9 +84,9 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		callAfterDelay(
 			[this] {
 				if (getIsFullscreen()) {
-					mEngine.getNotifier().notify(RequestUnFullscreenViewer(this));
+					mEventClient.notify(RequestUnFullscreenViewer(this));
 				} else {
-					mEngine.getNotifier().notify(RequestFullscreenViewer(this));
+					mEventClient.notify(RequestFullscreenViewer(this));
 				}
 			},
 			0.01f);
@@ -164,7 +164,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		if (pdfPlayer && pdfPlayer->getPDF()) {
 			pdfPage = pdfPlayer->getPDF()->getPageNum();
 		}
-		mEngine.getNotifier().notify(RequestBackgroundChange(BACKGROUND_TYPE_USER_MEDIA, mMediaRef, pdfPage));
+		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_USER_MEDIA, mMediaRef, pdfPage));
 	});
 
 	mRootLayout->setSpriteClickFn("particles.the_button", [this] {
@@ -176,7 +176,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		}
 
 		// First save the actual background as the user background
-		mEngine.getNotifier().notify(RequestBackgroundChange(BACKGROUND_TYPE_USER_MEDIA, mMediaRef, 0));
+		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_USER_MEDIA, mMediaRef, 0));
 
 		// Then send that same background into the particles mode
 		auto particleBackground = mEngine.mContent.getChildByName("background.user").getChild(0);
@@ -185,20 +185,20 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		}
 		auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(particleBackground);
 		particleBackground.setPropertyResource(mMediaPropertyKey, getMedia().getPropertyResource(mMediaPropertyKey));// TODO: cannot tell if this wants mMediaPropertyKey
-		mEngine.getNotifier().notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef()));
+		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef()));
 	});
 	mRootLayout->setSpriteClickFn("duplicate.the_button", [this] {
 		ViewerCreationArgs args = getDuplicateCreationArgs();
 		args.mLocation.x += 50.0f;
 		args.mLocation.y += 50.0f;
-		mEngine.getNotifier().notify(RequestViewerLaunchEvent(args));
+		mEventClient.notify(RequestViewerLaunchEvent(args));
 	});
 
 	mRootLayout->setSpriteClickFn("fullscreen.the_button", [this] {
 		if (getIsFullscreen()) {
-			mEngine.getNotifier().notify(RequestUnFullscreenViewer(this));
+			mEventClient.notify(RequestUnFullscreenViewer(this));
 		} else {
-			mEngine.getNotifier().notify(RequestFullscreenViewer(this));
+			mEventClient.notify(RequestFullscreenViewer(this));
 		}
 	});
 }
@@ -315,7 +315,7 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mPdfLinkTappedCallback = [this](ds::pdf::PdfLinkInfo linkInfo) {
 		ds::model::ContentModelRef fakeThing;
 		fakeThing.setPropertyResource("media", ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
-		mEngine.getNotifier().notify(RequestViewerLaunchEvent(
+		mEventClient.notify(RequestViewerLaunchEvent(
 			ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition())));
 	};
 
@@ -435,9 +435,9 @@ void TitledMediaViewer::onMediaSet() {
 
 			webby->setFullscreenChangedCallback([this](bool isFullscreen) {
 				if (isFullscreen && !getIsFullscreen()) {
-					mEngine.getNotifier().notify(RequestFullscreenViewer(this));
+					mEventClient.notify(RequestFullscreenViewer(this));
 				} else if (!isFullscreen && getIsFullscreen()) {
-					mEngine.getNotifier().notify(RequestUnFullscreenViewer(this));
+					mEventClient.notify(RequestUnFullscreenViewer(this));
 				}
 			});
 		}
@@ -456,9 +456,9 @@ void TitledMediaViewer::onMediaSet() {
 
 		pdfPlayer->setDoubleTapCallback([this](ds::ui::Sprite*, const ci::vec3&) {
 			if (getIsFullscreen()) {
-				mEngine.getNotifier().notify(RequestUnFullscreenViewer(this));
+				mEventClient.notify(RequestUnFullscreenViewer(this));
 			} else {
-				mEngine.getNotifier().notify(RequestFullscreenViewer(this));
+				mEventClient.notify(RequestFullscreenViewer(this));
 			}
 		});
 	}
@@ -502,7 +502,7 @@ void TitledMediaViewer::onMediaSet() {
 
 			callAfterDelay(
 				[this, errorModel] {
-					mEngine.getNotifier().notify(RequestViewerLaunchEvent(ViewerCreationArgs(
+					mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
 						errorModel, VIEW_TYPE_ERROR, getCenterPosition(), ViewerCreationArgs::kViewLayerTop)));
 					if (mCloseRequestCallback) mCloseRequestCallback();
 				},
@@ -686,16 +686,16 @@ void TitledMediaViewer::loadHotspots() {
 				} else {
 					
 					if (ContentUtils::getDefault(mEngine)->isMedia(linkMedia)) {
-						mEngine.getNotifier().notify(RequestViewerLaunchEvent(
+						mEventClient.notify(RequestViewerLaunchEvent(
 							ViewerCreationArgs(linkMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 					} else {
-						mEngine.getNotifier().notify(waffles::RequestEngagePresentation(linkMedia));
+						mEventClient.notify(waffles::RequestEngagePresentation(linkMedia));
 					}
 				}
 			} else if (!hotspot->getContentModel().getChildren().empty()) {
 				auto position = pos;
 				for (auto child : hotspot->getContentModel().getChildren()) {
-					mEngine.getNotifier().notify(
+					mEventClient.notify(
 						RequestViewerLaunchEvent(ViewerCreationArgs(child, VIEW_TYPE_TITLED_MEDIA_VIEWER, position)));
 					position = position + mEngine.getWafflesSettings().getVec3("launcher:presentation:hotspot:asset:offset",
 																		   0, ci::vec3(45, 45, 0));

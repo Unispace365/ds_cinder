@@ -30,7 +30,7 @@ class Event {
 	virtual ~Event();
 
 	const std::string getName() const;
-
+	
 	/*
 	 * \fn as()
 	 * \brief convenience to cast the Event to a derived type.

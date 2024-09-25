@@ -25,7 +25,7 @@ class SearchViewer : public BaseElement {
 
 	void listFolder(ds::model::ContentModelRef theFolder);
 
-	ds::EventClient		 mEventClient;
+	
 	ds::ui::SmartLayout* mPrimaryLayout;
 
 	ds::SerialRunnable<SearchQuery> mSearchQuery;

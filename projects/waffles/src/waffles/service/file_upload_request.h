@@ -18,7 +18,7 @@ class FileUploadRequest : public Poco::Runnable {
 
 	virtual void run();
 	void		 setInput(const std::string& cmsLocation, const std::string& authHash, ci::Surface theSurface,
-						  const int requestId, const std::string& saveName, const std::string& parentUid);
+						  const int requestId, const std::string& saveName, const std::string& parentUid,const std::string& eventChannel="");
 
 	std::vector<std::string> getHeaders();
 	void createRecord();
@@ -29,6 +29,7 @@ class FileUploadRequest : public Poco::Runnable {
 	bool		mError;
 	std::string mErrorMessage;
 	int			mRequestId;
+	std::string mEventChannel;
 
   private:
 	ds::ui::SpriteEngine& mEngine;
@@ -45,6 +46,7 @@ class FileUploadRequest : public Poco::Runnable {
 
 	ci::Surface mSurface;
 	std::string mOutput;
+	
 
 	long		mHttpStatus;
 

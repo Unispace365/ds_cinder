@@ -27,9 +27,10 @@ class Launcher : public BaseElement {
   protected:
 	virtual void onLayout();
 	virtual void onCreationArgsSet();
+	virtual void onParentSet() override;
+	
 
-
-	ds::EventClient mEventClient;
+	
 
 	void closePanel();
 	ds::model::ContentModelRef buttonCfgFromString(std::string str);

@@ -103,4 +103,14 @@ void BaseElement::onPanelActivated() {
 	}
 }
 
+void BaseElement::onParentSet()
+{
+	auto channel = getChannelName();
+	if (!channel.empty()) {
+		mEngine.timedCallback([this, channel]() {
+			mEventClient.setNotifier(mEngine.getChannel(channel));
+			}, 0.001);
+	}
+}
+
 } // namespace waffles

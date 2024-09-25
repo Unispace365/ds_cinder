@@ -57,6 +57,7 @@ class DrawingArea : public ds::ui::Sprite {
 	void redoMark();
 	void clearFutureHistory();
 	void clearAllDrawing();
+	virtual void onParentSet() override;
 
   protected:
 	virtual void onSizeChanged() override;

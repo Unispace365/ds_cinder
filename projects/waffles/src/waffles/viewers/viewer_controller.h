@@ -21,37 +21,62 @@ class ViewerController;
 typedef std::shared_ptr<ViewerController> ViewerControllerPtr;
 
 
-template<class T=ViewerController>
+class Type
+{
+public:
+	virtual ~Type() {}
+	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel="")const = 0;
+	virtual ViewerController* cast(ViewerController* obj)const = 0;
+};
+
+template<typename T> class TypeImpl : public Type
+{
+public:
+	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel="")const { return new T(g, size, channel); }
+	virtual ViewerController* cast(ViewerController* obj)const { return static_cast<T*>(obj); }
+};
+
+
+
 class ViewerControllerFactory {
 public:
-	ViewerControllerFactory() = delete;
 
+	template<class T = ViewerController>
 	static void InitViewerController(ds::ui::SpriteEngine& eng) {
 		mEngine = &eng;
-		if (mDefault) {
-			DS_LOG_WARNING("ViewerControllerFactory::InitViewerController() called more than once");
-		}
-		mDefault = std::make_shared<T>(*mEngine);
-	}
-	template<class Tx = ViewerController> static std::shared_ptr<Tx> getDefault() { return std::dynamic_pointer_cast<Tx>(mDefault); }
-	template <class Tx = ViewerController>
-	static Tx* getInstanceOf(ci::vec2& size) {
-		if (!mEngine) return nullptr;
-		auto instance = new T(*mEngine,size);
-		return dynamic_cast<Tx*>(instance);
+		
+		mType = new TypeImpl<T>();
 	}
 
+	template <class Tx = ViewerController>
+	static Tx* getInstanceOf(ci::vec2& size,std::string channel="") {
+		if (!mEngine) return nullptr;
+		if (mType == nullptr) return nullptr;
+		auto channelName = channel;
+		if (channel.empty()) {
+			channelName = "_default_";
+		}
+		if (mViewerControllers.find(channelName) == mViewerControllers.end()) {
+			auto instance = mType->allocate(*mEngine,size,channel);
+			mViewerControllers[channelName] = instance;
+			instance->setDeletingCallback([channelName]() { mViewerControllers.erase(channelName); });
+			return dynamic_cast<Tx*>(instance);
+		}
+		else {
+			return dynamic_cast<Tx*>(mViewerControllers[channelName]);
+		}
+	}
+
+
 private:
-	static std::shared_ptr<T> mDefault;
+	ViewerControllerFactory() {};
+	static Type* mType;
 	static ds::ui::SpriteEngine*		mEngine;
+	static std::unordered_map<std::string, ViewerController*> mViewerControllers;
 
 };
 
-template<class T>
-std::shared_ptr<T> ViewerControllerFactory<T>::mDefault = nullptr;
 
-template<class T>
-ds::ui::SpriteEngine* ViewerControllerFactory<T>::mEngine = nullptr;
 
 /**
  * \class waffles::ViewerController
@@ -59,7 +84,11 @@ ds::ui::SpriteEngine* ViewerControllerFactory<T>::mEngine = nullptr;
  */
 class ViewerController : public ds::ui::Sprite {
   public:
-	ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f));
+	ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f),std::string channel="");
+	~ViewerController() {
+		if (mDeletingCallback) mDeletingCallback(); 
+	}
+
 	void					 setChannel(const std::string& channel);
 	static ViewerController* getInstance();
 
@@ -101,6 +130,7 @@ class ViewerController : public ds::ui::Sprite {
 		return mFullscreenDarkeners;
 	}
 
+	friend ViewerControllerFactory;
 
 
   protected:
@@ -141,6 +171,12 @@ class ViewerController : public ds::ui::Sprite {
 	std::vector<BaseElement*>				mViewers;
 	std::map<BaseElement*, ds::ui::Sprite*> mFullscreenDarkeners;
 	ci::vec2								mDisplaySize;
+
+private:
+	std::function<void()>					mDeletingCallback;
+	void setDeletingCallback(std::function<void()> callback) {
+		mDeletingCallback = callback;
+	};
 	//std::string								mMediaPropertyKey = "media";
 };
 

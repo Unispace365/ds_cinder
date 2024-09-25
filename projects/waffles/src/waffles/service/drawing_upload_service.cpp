@@ -16,21 +16,27 @@
 
 namespace waffles {
 
-DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
+DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g,std::string eventChannel)
 	: mEngine(g)
 	, mEventClient(g)
 	, mUploadRequests(g, [&g] { return new FileUploadRequest(g); })
 	, mSaveRequests(g, [] { return new FileSaveRequest(); }) {
 
+	if (!eventChannel.empty()) {
+		mEventClient.setNotifier(mEngine.getChannel(eventChannel));
+	}
+
 	mUploadRequests.setReplyHandler([this](FileUploadRequest& ur) {
-		mEngine.getNotifier().notify(DrawingSaveComplete(ur.mRequestId, ur.mError, ur.mErrorMessage));
+		
+		mEventClient.notify(DrawingSaveComplete(ur.mRequestId, ur.mError, ur.mErrorMessage));
 	});
 
 	mSaveRequests.setReplyHandler([this](FileSaveRequest& ur) {
-		mEngine.getNotifier().notify(DrawingSaveComplete(ur.mRequestId, ur.mError, ur.mErrorMessage));
+		
+		mEventClient.notify(DrawingSaveComplete(ur.mRequestId, ur.mError, ur.mErrorMessage));
 	});
 
-	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) {
+	mEventClient.listenToEvents<RequestDrawingSave>([this, eventChannel](auto& e) {
 		auto		helper	   = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		ci::Surface theSurface = e.mSurface;
 		int			requestId  = e.mRequestId;
@@ -64,8 +70,8 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 			dateName.append(Poco::DateTimeFormatter().format(ldt, dateFormat));
 
 			mUploadRequests.start(
-				[this, theSurface, authHash, requestId, cmsUrl, dateName, parentUid](FileUploadRequest& ur) {
-					ur.setInput(cmsUrl, authHash, theSurface, requestId, dateName, parentUid);
+				[this, theSurface, authHash, requestId, cmsUrl, dateName, parentUid, eventChannel](FileUploadRequest& ur) {
+					ur.setInput(cmsUrl, authHash, theSurface, requestId, dateName, parentUid, eventChannel);
 				});
 		} else {
 			std::string localPath =
@@ -75,11 +81,13 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g)
 				localPath  = e.mLocalPath;
 				isFullPath = true;
 			}
-			mSaveRequests.start([this, theSurface, isFullPath, localPath, requestId](FileSaveRequest& ur) {
-				ur.setInput(localPath, isFullPath, theSurface, requestId);
+			mSaveRequests.start([this, theSurface, isFullPath, localPath, requestId,eventChannel](FileSaveRequest& ur) {
+				ur.setInput(localPath, isFullPath, theSurface, requestId,eventChannel);
 			});
 		}
 	});
 }
+
+
 
 } // namespace waffles

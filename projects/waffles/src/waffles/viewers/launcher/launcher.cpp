@@ -33,11 +33,11 @@ namespace waffles {
 
 Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	: BaseElement(g)
-	, mEventClient(g) {
+	 {
 
 	
 
-	mEngine.getNotifier().notify(waffles::WafflesLauncherOpened());
+	mEventClient.notify(waffles::WafflesLauncherOpened());
 
 	mMaxViewersOfThisType = 1;
 	mViewerType			  = VIEW_TYPE_LAUNCHER;
@@ -220,7 +220,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 	setupMenuItems();
 	handleSelection();
 
-	mEngine.getNotifier().notify(waffles::WafflesFilterEvent("recent"));
+	
+	
 
 	// TODO: idk why this is needed, but otherwise filter color starts wrong
 	auto force_color = [this] {
@@ -413,7 +414,7 @@ void Launcher::setupMenuItems() {
 				bot->addChildPtr(btn);
 				mFilterButtons[btnContent.getPropertyString("type_key")] = btn;
 			}
-			mEngine.getNotifier().notify(waffles::WafflesFilterEvent(mFilterSelected));
+			mEventClient.notify(waffles::WafflesFilterEvent(mFilterSelected));
 		}
 	}
 
@@ -456,6 +457,13 @@ void Launcher::onCreationArgsSet() {
 	mMaxViewersOfThisType = 1;
 }
 
+void Launcher::onParentSet()
+{
+	BaseElement::onParentSet();
+	mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); }, 0.01);
+	
+}
+
 
 ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 	auto assetBtn = new ds::ui::SmartLayout(mEngine, "waffles/common/filter_item.xml");
@@ -494,7 +502,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	updateRecent(btn->getContentModel());
 	auto offset = mEngine.getWafflesSettings().getVec3("launcher:media_open:offset", 0, ci::vec3(1000.f, 0, 0)) *
 				  ((pos.x > (mEngine.getWorldWidth() / 2.f)) ? ci::vec3(-1.f, 1.f, 1.f) : ci::vec3(1.f, 1.f, 1.f));
-	bool alreadyHandled = ContentUtils::handleListItemTap(mEngine, btn, pos + offset);
+	bool alreadyHandled = ContentUtils::handleListItemTap(mEngine, btn, getChannelName(), pos + offset);
 	if (alreadyHandled) return;
 
 	auto model	 = btn->getContentModel();
@@ -505,7 +513,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 		panelButtonTapped(btn);
 	} else if (type == "presentation" || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
 		if (model.getChildren().size() > 0) { // activate first slide
-			mEngine.getNotifier().notify(RequestEngagePresentation(model.getChild(0)));
+			mEventClient.notify(RequestEngagePresentation(model.getChild(0)));
 			//mEngine.mContent.setProperty("presentation_controller_blocked", false);
 		}
 	} else if (type == "current_playlist") {
@@ -752,7 +760,7 @@ void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 		} else if (folder_enabled) {
 			auto filter = mFilterSelected;
 			mFilterSelected = ""; // to let the next thing happen
-			mEngine.getNotifier().notify(waffles::WafflesFilterEvent(filter));
+			mEventClient.notify(waffles::WafflesFilterEvent(filter));
 		}
 	});
 }

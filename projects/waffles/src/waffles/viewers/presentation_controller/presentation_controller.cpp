@@ -29,7 +29,6 @@ namespace waffles {
 
 PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	: BaseElement(g)
-	, mEventClient(g)
 	, mRootLayout(nullptr)
 	, mShowingThumbs(false)
 	, mShowingPins(false) {

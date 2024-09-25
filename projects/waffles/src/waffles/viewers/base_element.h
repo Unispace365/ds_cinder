@@ -100,6 +100,7 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual void onFullscreenSet() {}
 
 	virtual void onPanelActivated() override;
+	virtual void onParentSet() override;
 
 	friend class ViewerController;
 
@@ -113,6 +114,7 @@ class BaseElement : public ds::ui::BasePanel {
 	ci::Rectf				   mUnfullscreenRect;
 	ds::model::ContentModelRef mMediaRef;
 	ViewerCreationArgs		   mCreationArgs;
+	ds::EventClient mEventClient;
 
 	bool mFatalError;
 

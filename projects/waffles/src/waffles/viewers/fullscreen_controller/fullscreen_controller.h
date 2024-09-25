@@ -29,14 +29,14 @@ class FullscreenController : public BaseElement {
 	void		 setDrawingToolsState();
 	void		 removeDrawingTools();
 	void		 setKeyboardButtonImage(std::string imageFile, ds::ui::ImageButton* keyboardBtn);
-
+	void	init();
 	virtual void onAboutToBeRemoved();
+	virtual void onParentSet();
 
-
-	ds::EventClient			mEventClient;
 	ds::ui::SmartLayout*	mRootLayout;
 	ds::ui::MediaInterface* mMediaInterface;
 	DrawingTools*			mDrawingTools;
+	bool mInitalizeded = false;
 
 	TitledMediaViewer* mLinkedMediaViewer;
 };

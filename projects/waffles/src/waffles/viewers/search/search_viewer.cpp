@@ -25,7 +25,6 @@ namespace waffles {
 
 SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchType)
 	: BaseElement(g)
-	, mEventClient(g)
 	, mPrimaryLayout(nullptr)
 	, mSearchQuery(g, []() { return new SearchQuery(); })
 	, mResourceFilter(0) {
@@ -58,7 +57,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	}
 
 	fileList->setContentItemTappedCallback([this](ds::ui::SmartLayout* sl, ds::model::ContentModelRef theModel) {
-		bool handled = ContentUtils::handleListItemTap(mEngine, sl, sl->getGlobalPosition());
+		bool handled = ContentUtils::handleListItemTap(mEngine, sl, getChannelName(), sl->getGlobalPosition());
 		if (!handled) {
 			DS_LOG_INFO("Possibly unhandled item in search_viewer: " << theModel.getPropertyString("type_key") << " : "
 																	 << theModel.getPropertyString("record_name"));

@@ -34,23 +34,10 @@ namespace waffles {
 
 WafflesSprite* WafflesSprite::mDefaultWaffles = nullptr;
 
-WafflesSprite::WafflesSprite(ds::ui::SpriteEngine & eng, std::string eventChannel)
+WafflesSprite::WafflesSprite(ds::ui::SpriteEngine & eng)
 : ds::ui::SmartLayout(eng, "waffles/waffles_sprite.xml"), mSettingsService(eng), mChannelClient() {
 
-	mViewerController = ViewerControllerFactory<ViewerController>::getInstanceOf(ci::vec2(getSize()));
-
-	// stop the channel client. we only start it again if we have a channel name
-	mChannelClient.stop();
-
-	if (!eventChannel.empty()) {
-		mChannelClient.setNotifier(eng.getChannel(eventChannel));
-		mChannelClient.start();
-		mViewerController->setChannel(eventChannel);
-	}
-	else {
-		mChannelClient.setNotifier(eng.getNotifier());
-		mChannelClient.start();
-	}
+	
 
 	auto sh = new waffles::ShadowLayout(eng);
 	sh->release();
@@ -81,12 +68,30 @@ WafflesSprite::~WafflesSprite() {
 
 }
 
-void WafflesSprite::initializeWaffles() {
+void WafflesSprite::initializeWaffles(std::string eventChannel) {
+
+
+	
+
+	
+	mChannelName = eventChannel;
+	if (!eventChannel.empty()) {
+		mChannelClient.setNotifier(mEngine.getChannel(eventChannel));
+		mChannelClient.start();
+
+	}
+	else {
+		mChannelClient.setNotifier(mEngine.getNotifier());
+		mChannelClient.start();
+	}
+
+
 	//init the template config
 	mTemplateConfig = TemplateConfig::getDefault();
 
 	// Setup waffles events
 	auto& reg = ds::event::Registry::get();
+	
 	reg.addEventCreator(waffles::RequestCloseAllEvent::NAME(),
 		[]() -> ds::Event* { return new waffles::RequestCloseAllEvent(); });
 	reg.addEventCreator(waffles::RequestAppExit::NAME(), []() -> ds::Event* { return new waffles::RequestAppExit(); });
@@ -102,6 +107,8 @@ void WafflesSprite::initializeWaffles() {
 		[]() -> ds::Event* { return new waffles::RequestPresentationStepRefresh(); });
 	reg.addEventCreator(waffles::RequestPresentationEndEvent::NAME(),
 		[]() -> ds::Event* { return new waffles::RequestPresentationEndEvent(); });
+
+	mViewerController = ViewerControllerFactory::getInstanceOf(ci::vec2(getSize()), eventChannel);
 
 
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
@@ -166,7 +173,7 @@ void WafflesSprite::initializeWaffles() {
 	}
 
 	//drawing uploads
-	mDrawingUploadService = new DrawingUploadService(mEngine);
+	mDrawingUploadService = new DrawingUploadService(mEngine,eventChannel);
 
 	mTimedCallback = mEngine.timedCallback(
 		[this]() {
@@ -758,7 +765,7 @@ void WafflesSprite::onSizeChanged() {
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
 		holdy->clearChildren();
 		auto size = getSize();
-		mViewerController = ViewerControllerFactory<ViewerController>::getInstanceOf(ci::vec2(size));
+		mViewerController = ViewerControllerFactory::getInstanceOf(ci::vec2(size),mChannelName);
 		holdy->addChildPtr(mViewerController);
 	} else {
 		mViewerController = nullptr;

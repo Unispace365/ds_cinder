@@ -39,13 +39,24 @@ static waffles::ViewerController* THIS_INSTANCE;
 namespace waffles {
 
 
+Type* ViewerControllerFactory::mType = nullptr;
+ds::ui::SpriteEngine* ViewerControllerFactory::mEngine = nullptr;
+std::unordered_map<std::string, ViewerController*> ViewerControllerFactory::mViewerControllers;
 
-ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
+
+ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size,std::string channel)
 	: ds::ui::Sprite(g)
 	, mEventClient(g),mChannelClient() {
 
 	
-	mChannelClient.setNotifier(mEngine.getNotifier());
+	
+	setChannelName(channel);
+	if (!channel.empty()) {
+		mChannelClient.setNotifier(mEngine.getChannel(channel));
+	}
+	else {
+		mChannelClient.setNotifier(mEngine.getNotifier());
+	}
 
 	THIS_INSTANCE = this;
 
@@ -68,12 +79,18 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size)
 	mTopLayer = new ds::ui::Sprite(mEngine);
 	mTopLayer->setSize(mDisplaySize.x, mDisplaySize.y);
 	addChildPtr(mTopLayer);
+	
 	auto clients = { &mEventClient,&mChannelClient };
 
 	ds::EventClient::clientsListenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
 		handleRequestViewerLaunch(event);
 		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
 	}, clients);
+
+	mChannelClient.listenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
+		handleRequestViewerLaunch(event);
+		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
+		});
 
 	ds::EventClient::clientsListenToEvents<RequestCloseAllEvent>([this](const RequestCloseAllEvent& e) {
 		const float deltaAnim = mEngine.getAnimDur() / (float)mViewers.size();
@@ -125,6 +142,7 @@ void ViewerController::setChannel(const std::string& channel)
 	if (channel.empty()) {
 		return;
 	}
+	setChannelName(channel);
 	mChannelClient.setNotifier(mEngine.getChannel(channel));
 	//mChannelClient.start();
 }

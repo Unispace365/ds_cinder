@@ -188,30 +188,37 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	item->runLayout();
 }
 
-bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec3 pos) {
+bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, std::string channel, ci::vec3 pos) {
+
 	auto model	 = item->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
+
+	auto notifier = engine.getNotifier();
+	if (!channel.empty()) {
+		notifier = engine.getChannel(channel);
+	}
+
 
 	if (type == "ambient") {
 		engine.startIdling();
 	} else if (type == "media_template") {
 		// Special case for disambiguating media template from media item
-		engine.getNotifier().notify(waffles::RequestEngagePresentation(model));
+		notifier.notify(waffles::RequestEngagePresentation(model));
 	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
-		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
 		auto browserRes	  = ds::Resource("https://google.com");
 		auto browserModel = ds::model::ContentModelRef();
 		browserModel.setPropertyResource("media", browserRes);
-		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "asset_mode") {
-		engine.getNotifier().notify(waffles::RequestEngagePresentation(ds::model::ContentModelRef("assets")));
-		engine.getNotifier().notify(waffles::ChangeTemplateRequest());
+		notifier.notify(waffles::RequestEngagePresentation(ds::model::ContentModelRef("assets")));
+		notifier.notify(waffles::ChangeTemplateRequest());
 	} else if (type == "search") {
-		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
 	} else if (type == "stream") {
 		auto streamRes = ds::Resource(model.getPropertyString("stream_uri"));
@@ -222,22 +229,22 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		auto streamModel = ds::model::ContentModelRef();
 		streamModel.setProperty("record_name", model.getPropertyString("record_name"));
 		streamModel.setPropertyResource("media", streamRes);
-		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "pinboard_event") {
-		engine.getNotifier().notify(waffles::RequestEngagePresentation(model));
-		engine.getNotifier().notify(waffles::ChangeTemplateRequest(model));
+		notifier.notify(waffles::RequestEngagePresentation(model));
+		notifier.notify(waffles::ChangeTemplateRequest(model));
 	} else if (type == "presentation_controller") {
-		engine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
 										waffles::ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
-		engine.getNotifier().notify(waffles::RequestCloseAllEvent(pos));
+		notifier.notify(waffles::RequestCloseAllEvent(pos));
 	} else if (type == "recent" || type == "images" || type == "links" || type == "pdfs" || type == "presentations" ||
 			   type == "streams" || type == "videos" || type == "folders") {
-		engine.getNotifier().notify(waffles::WafflesFilterEvent(type, true));
+		notifier.notify(waffles::WafflesFilterEvent(type, true));
 	} else {
-		// engine.getNotifier().notify(RequestEngagePresentation(model));
+		// notifier.notify(RequestEngagePresentation(model));
 		return false;
 	}
 

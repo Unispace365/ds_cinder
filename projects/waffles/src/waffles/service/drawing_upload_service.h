@@ -14,8 +14,8 @@ namespace waffles {
  */
 class DrawingUploadService {
   public:
-	DrawingUploadService(ds::ui::SpriteEngine&);
-
+	DrawingUploadService(ds::ui::SpriteEngine&, std::string eventChannel);
+	
   private:
 	ds::ui::SpriteEngine&				  mEngine;
 	ds::EventClient						  mEventClient;

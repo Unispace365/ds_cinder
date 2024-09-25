@@ -252,6 +252,16 @@ void DrawingArea::clearAllDrawing() {
 	mCurrentAction = (int)mActions.size();
 }
 
+void DrawingArea::onParentSet()
+{
+	auto eventChannel = getChannelName();
+	if (!eventChannel.empty()) {
+		callAfterDelay([this, eventChannel]() {
+			mEventClient.setNotifier(mEngine.getChannel(eventChannel));
+			}, 0.01);
+	}
+}
+
 void DrawingArea::undoMark() {
 	auto curAction = mCurrentAction;
 	mCurrentAction--;
@@ -274,12 +284,18 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 	if (!getParent()) return;
 
 	/// Tell anything to hide itself
-	mEngine.getNotifier().notify(RequestPreDrawingSave());
+	auto channel = getChannelName();
+	auto& notifier = mEngine.getNotifier();
+	if (!channel.empty()) {
+		notifier = mEngine.getChannel(channel);
+	}
+
+	notifier.notify(RequestPreDrawingSave());
 
 	if (mDrawingTools) mDrawingTools->hide();
 	float delayey = 0.05f;
 	callAfterDelay(
-		[this, localSavePath] {
+		[this, localSavePath,&notifier] {
 			const auto temp	   = getBoundingBox();
 			auto	   leftTop = localToGlobal(ci::vec3(temp.x1, temp.y1, 0));
 			// float	   toolsHeight = 0;
@@ -305,7 +321,8 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 
 			mRequestId = NEXT_REQUEST++;
 
-			mEngine.getNotifier().notify(RequestDrawingSave(s, mRequestId, localSavePath));
+			notifier.notify(RequestDrawingSave(s, mRequestId, localSavePath));
+			//mEngine.getNotifier().notify(RequestDrawingSave(s, mRequestId, localSavePath));
 			if (mDrawingTools) mDrawingTools->show();
 		},
 		delayey);

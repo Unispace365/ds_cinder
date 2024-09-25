@@ -47,12 +47,13 @@ void FileSaveRequest::run() {
 }
 
 void FileSaveRequest::setInput(const std::string& fileLocation, const bool isFullPath, ci::Surface surf,
-							   const int requestId) {
+							   const int requestId,const std::string& eventChannel) {
 	mFileLocation	= fileLocation;
 	mSurface		= surf;
 	mRequestId		= requestId;
 	mError			= false;
 	mIsFullFilePath = isFullPath;
+	mEventChannel = eventChannel;
 }
 
 } // namespace waffles

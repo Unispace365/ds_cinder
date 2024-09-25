@@ -35,13 +35,13 @@ class TemplateConfig;
 class WafflesSprite : public ds::ui::SmartLayout {
   public:
 
-	  WafflesSprite(ds::ui::SpriteEngine& eng, std::string eventChannel = "");
+	  WafflesSprite(ds::ui::SpriteEngine& eng);
 
 	  ~WafflesSprite();
 	static void setDefault(WafflesSprite* defaultWaffles) { mDefaultWaffles = defaultWaffles; }
 	static WafflesSprite* getDefault() { return mDefaultWaffles; }
 
-	virtual void initializeWaffles();
+	virtual void initializeWaffles(std::string eventChannel="");
 	virtual void onSizeChanged() override;
 	
 	/**
@@ -78,6 +78,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	static WafflesSprite* mDefaultWaffles;
 	ds::ui::TouchMenu* mTouchMenu = nullptr;
 	ds::EventClient mChannelClient;
+	std::string mChannelName;
 	
 	//set playlist uid?
 

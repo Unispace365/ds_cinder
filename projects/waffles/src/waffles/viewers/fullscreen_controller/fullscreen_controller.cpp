@@ -25,92 +25,17 @@
 #include "waffles/viewers/titled_media_viewer.h"
 #include "waffles/viewers/viewer_controller.h"
 
+
 namespace waffles {
 
 FullscreenController::FullscreenController(ds::ui::SpriteEngine& g)
 	: BaseElement(g)
-	, mEventClient(g)
 	, mRootLayout(nullptr)
 	, mMediaInterface(nullptr)
 	, mDrawingTools(nullptr)
 	, mLinkedMediaViewer(nullptr) {
 
-	mMaxViewersOfThisType = 1;
-	mViewerType			  = VIEW_TYPE_FULLSCREEN_CONTROLLER;
-
-	mRootLayout = new ds::ui::SmartLayout(mEngine, "waffles/viewer/fullscreen_controller.xml");
-	addChildPtr(mRootLayout);
-
-
-	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
-		// if you close the controlelr while drawing, it's possible to not be able to bring the FSC back up
-		if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
-		if (mMediaInterface && mMediaInterface->isLocked()) {
-			return;
-		}
-
-		removeDrawingTools();
-
-		if (mCloseRequestCallback) mCloseRequestCallback();
-	});
-
-
-	mRootLayout->setSpriteClickFn("fullscreen.the_button", [this] {
-		if (mLinkedMediaViewer) {
-			if (mLinkedMediaViewer->getIsFullscreen()) {
-				mEngine.getNotifier().notify(RequestUnFullscreenViewer(mLinkedMediaViewer));
-			} else {
-				ci::vec3 pos = getPosition();
-				mEngine.getNotifier().notify(RequestFullscreenViewer(mLinkedMediaViewer));
-				// immediately send a request for this viewer, otherwise it gets sent to the center of the screen by
-				// default
-				mEngine.getNotifier().notify(RequestViewerLaunchEvent(
-					ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-									   ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
-			}
-		}
-	});
-
-
-	mRootLayout->setSpriteClickFn("drawing.the_button", [this] {
-		if (mLinkedMediaViewer) {
-			mLinkedMediaViewer->toggleDrawing();
-			setDrawingToolsState();
-		}
-	});
-
-	mEventClient.listenToEvents<ViewerRemovedEvent>([this](auto& e) {
-		if (e.mViewer == mLinkedMediaViewer) {
-			linkMediaViewer(nullptr);
-		}
-	});
-	//	mEventClient.listenToEvents<ViewerUpdatedEvent>([this](auto& e) { updateUi(); });
-
-	// these are to hide this from showing up in saved drawings
-	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
-	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
-
-
-	mRootLayout->runLayout();
-	const float startWidth	= mRootLayout->getWidth();
-	const float startHeight = mRootLayout->getHeight();
-	mContentAspectRatio		= startWidth / startHeight;
-
-	BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
-
-	setSize(startWidth, startHeight);
-	setSizeLimits();
-	setViewerSize(startWidth, startHeight);
-
-	auto vc = ViewerController::getInstance();
-	if (vc) {
-		auto tmvs = vc->getViewersOfType(VIEW_TYPE_TITLED_MEDIA_VIEWER);
-		if (!tmvs.empty()) {
-			linkMediaViewer(dynamic_cast<TitledMediaViewer*>(tmvs.back()));
-		}
-	}
-
-	setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
+	
 }
 
 void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
@@ -125,6 +50,86 @@ void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	}
 	
 	updateUi();
+}
+
+void FullscreenController::init() {
+	mMaxViewersOfThisType = 1;
+	mViewerType = VIEW_TYPE_FULLSCREEN_CONTROLLER;
+
+	mRootLayout = new ds::ui::SmartLayout(mEngine, "waffles/viewer/fullscreen_controller.xml");
+	addChildPtr(mRootLayout);
+
+	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
+		// if you close the controlelr while drawing, it's possible to not be able to bring the FSC back up
+		if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
+		if (mMediaInterface && mMediaInterface->isLocked()) {
+			return;
+		}
+
+		removeDrawingTools();
+
+		if (mCloseRequestCallback) mCloseRequestCallback();
+		});
+
+
+	mRootLayout->setSpriteClickFn("fullscreen.the_button", [this] {
+		if (mLinkedMediaViewer) {
+			if (mLinkedMediaViewer->getIsFullscreen()) {
+				mEventClient.notify(RequestUnFullscreenViewer(mLinkedMediaViewer));
+			}
+			else {
+				ci::vec3 pos = getPosition();
+				mEventClient.notify(RequestFullscreenViewer(mLinkedMediaViewer));
+				// immediately send a request for this viewer, otherwise it gets sent to the center of the screen by
+				// default
+				mEventClient.notify(RequestViewerLaunchEvent(
+					ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
+						ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
+			}
+		}
+		});
+
+
+	mRootLayout->setSpriteClickFn("drawing.the_button", [this] {
+		if (mLinkedMediaViewer) {
+			mLinkedMediaViewer->toggleDrawing();
+			setDrawingToolsState();
+		}
+		});
+
+	mEventClient.listenToEvents<ViewerRemovedEvent>([this](auto& e) {
+		if (e.mViewer == mLinkedMediaViewer) {
+			linkMediaViewer(nullptr);
+		}
+		});
+	//	mEventClient.listenToEvents<ViewerUpdatedEvent>([this](auto& e) { updateUi(); });
+
+	// these are to hide this from showing up in saved drawings
+	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
+	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
+
+
+	mRootLayout->runLayout();
+	const float startWidth = mRootLayout->getWidth();
+	const float startHeight = mRootLayout->getHeight();
+	mContentAspectRatio = startWidth / startHeight;
+
+	BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
+
+	setSize(startWidth, startHeight);
+	setSizeLimits();
+	setViewerSize(startWidth, startHeight);
+
+	auto vc = ViewerControllerFactory::getInstanceOf(ci::vec2(0, 0), getChannelName());
+
+	if (vc) {
+		auto tmvs = vc->getViewersOfType(VIEW_TYPE_TITLED_MEDIA_VIEWER);
+		if (!tmvs.empty()) {
+			linkMediaViewer(dynamic_cast<TitledMediaViewer*>(tmvs.back()));
+		}
+	}
+
+	setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
 
 void FullscreenController::onLayout() {
@@ -272,6 +277,12 @@ void FullscreenController::onAboutToBeRemoved() {
 			webInterface->linkWeb(nullptr);
 		}
 	}
+}
+
+void FullscreenController::onParentSet()
+{
+	BaseElement::onParentSet();
+	callAfterDelay([this] { init(); }, 0.1f);
 }
 
 void FullscreenController::setKeyboardButtonImage(std::string imagePath, ds::ui::ImageButton* keyboardBtn) {

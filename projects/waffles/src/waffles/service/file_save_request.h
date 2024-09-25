@@ -17,11 +17,12 @@ class FileSaveRequest : public Poco::Runnable {
 	FileSaveRequest();
 
 	virtual void run();
-	void setInput(const std::string& fileLocation, bool isFullFilePath, ci::Surface theSurface, const int requestId);
+	void setInput(const std::string& fileLocation, bool isFullFilePath, ci::Surface theSurface, const int requestId,const std::string& eventChannel="");
 
 	bool		mError;
 	std::string mErrorMessage;
 	int			mRequestId;
+	std::string mEventChannel;
 
   private:
 	bool		mIsFullFilePath;

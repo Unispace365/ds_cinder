@@ -24,7 +24,6 @@ class PresentationController : public BaseElement {
 	void togglePins();
 	void reconfigureSize();
 
-	ds::EventClient		 mEventClient;
 	ds::ui::SmartLayout* mRootLayout;
 
 	ds::model::ContentModelRef mCurrentSlide;

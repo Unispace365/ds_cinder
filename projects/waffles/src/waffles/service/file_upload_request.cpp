@@ -270,7 +270,7 @@ void FileUploadRequest::setMediaOnRecord() {
 }
 
 void FileUploadRequest::setInput(const std::string& cmsLocation, const std::string& authHash, ci::Surface surf,
-								 const int requestId, const std::string& saveName, const std::string& parentUid) {
+								 const int requestId, const std::string& saveName, const std::string& parentUid, const std::string& eventChannel) {
 	mCmsLocation = cmsLocation;
 	mAuthHash	 = authHash;
 	mSurface	 = surf;
@@ -278,6 +278,7 @@ void FileUploadRequest::setInput(const std::string& cmsLocation, const std::stri
 	mError		 = false;
 	mSaveName	 = saveName;
 	mParentUid	 = parentUid;
+	mEventChannel = eventChannel;
 }
 
 } // namespace waffles
