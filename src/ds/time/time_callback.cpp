@@ -58,7 +58,7 @@ namespace ds { namespace time {
 
 	void Callback::update(const ds::UpdateParams& p) {
 		if (mRunning && mCallback) {
-			if ((Poco::Timestamp().epochMicroseconds() - mStart) / Poco::Timestamp::resolution() > mDelay) {
+			if (double(Poco::Timestamp().epochMicroseconds() - mStart) / Poco::Timestamp::resolution() > mDelay) {
 				mCallback();
 				if (mRepeated) {
 					mStart = Poco::Timestamp().epochMicroseconds();
