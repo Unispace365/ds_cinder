@@ -91,6 +91,7 @@ class VideoPlayer : public ds::ui::Sprite {
 	bool									mResetOnVideoComplete;
 	std::function<void(void)>				mGoodStatusCallback;
 	std::function<void(void)>				mVideoCompleteCallback;
+	std::function<bool(VideoPlayer*)>		mVideoSetupCompleteCallback;
 	std::function<void(const std::string&)> mErrorMsgCallback;
 
 	/// Settings - these are kept locally here so the settings can be applied at any time
@@ -105,6 +106,7 @@ class VideoPlayer : public ds::ui::Sprite {
 	float						mInterfaceBottomPad = 50.0f;
 	bool						mGlMode				= false;
 	bool						mNVDecode			= false;
+
 };
 
 } // namespace ds::ui

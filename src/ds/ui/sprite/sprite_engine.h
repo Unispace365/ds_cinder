@@ -28,6 +28,7 @@ class ResourceList;
 class WorkManager;
 class ComputerInfo;
 class TuioObject;
+class Event;
 } // namespace ds
 
 namespace ds::cfg {
@@ -40,6 +41,7 @@ class IEntryField;
 class LoadImageService;
 class PangoFontService;
 class Sprite;
+class VideoPlayer;
 class Tweenline;
 class TouchEvent;
 struct TouchInfo;
@@ -301,6 +303,11 @@ class SpriteEngine {
 	/// If this engine has been set to restart soon. Resets the variable to false after calling
 	bool getRestartAfterNextUpdate();
 
+	std::function<void(ds::ui::VideoPlayer*)> getGlobalVideoPlayerCreatedCallback();
+	void setGlobalVideoPlayerCreatedCallback(std::function<void(ds::ui::VideoPlayer*)> func);
+
+	
+
 	/// Content delivered by ContentWrangler
 	ds::model::ContentModelRef mContent;
 
@@ -327,6 +334,8 @@ class SpriteEngine {
 	friend class ds::time::Callback;
 	std::vector<ds::time::Callback*> mTimedCallbacks;
 	size_t							 mCallbackId; // for tracking the above
+
+	std::function<void(ds::ui::VideoPlayer*)> mGlobalVideoPlayerCreatedCallback=nullptr;
 
   private:
 	ds::EngineService& private_getService(const std::string&);

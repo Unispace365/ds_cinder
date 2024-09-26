@@ -460,8 +460,9 @@ void Launcher::onCreationArgsSet() {
 void Launcher::onParentSet()
 {
 	BaseElement::onParentSet();
-	mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); }, 0.00001);
-	
+	if (mParent) {
+		mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); }, 0.001);
+	}
 }
 
 

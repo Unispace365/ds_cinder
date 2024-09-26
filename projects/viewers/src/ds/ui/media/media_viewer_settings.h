@@ -115,7 +115,9 @@ struct MediaViewerSettings {
 	bool mPdfLoop;
 
 	/// Called back when a PDF link is tapped
-	std::function<void(ds::pdf::PdfLinkInfo)> mPdfLinkTappedCallback;
+	std::function<void(ds::pdf::PdfLinkInfo)> mPdfLinkTappedCallback=nullptr;
+
+	std::function<bool(VideoPlayer*)> mVideoPlayerCreatedCallback=nullptr;
 
 	//--------------------Video Settings -------------------------------------------//
 

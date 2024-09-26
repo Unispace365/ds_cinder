@@ -1,3 +1,5 @@
+#include "sprite_engine.h"
+#include "sprite_engine.h"
 #include "stdafx.h"
 
 #include <cinder/app/App.h>
@@ -338,6 +340,16 @@ bool SpriteEngine::getRestartAfterNextUpdate() {
 	bool doRestart		= mRestartAfterUpdate;
 	mRestartAfterUpdate = false;
 	return doRestart;
+}
+
+std::function<void(ds::ui::VideoPlayer*)> SpriteEngine::getGlobalVideoPlayerCreatedCallback()
+{
+	return mGlobalVideoPlayerCreatedCallback;
+}
+
+void SpriteEngine::setGlobalVideoPlayerCreatedCallback(std::function<void(ds::ui::VideoPlayer*)> func)
+{
+	mGlobalVideoPlayerCreatedCallback = func;
 }
 
 const float SpriteEngine::getAnimDur() const {

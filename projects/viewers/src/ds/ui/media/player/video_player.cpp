@@ -64,7 +64,7 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 		if (mVideoCompleteCallback) {
 			mVideoCompleteCallback();
 		}
-	});
+		});
 
 	setPan(mPanning);
 	setVolume(mVolume);
@@ -76,14 +76,14 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 
 	mVideo->setErrorCallback([this](const std::string& msg) {
 		if (mErrorMsgCallback) mErrorMsgCallback(msg);
-	});
+		});
 
 	mVideo->setStatusCallback([this](const ds::ui::GstVideo::Status& status) {
 		bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
 		if (mGoodStatusCallback) {
 			mGoodStatusCallback();
 		}
-	});
+		});
 
 	if (mAutoPlayFirstFrame) {
 		mVideo->setMute(true);
@@ -98,6 +98,15 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 
 	if (mNVDecode) {
 		mVideo->setNVDecode(true);
+	}
+
+	bool callGlobal = true;
+	if (mVideoSetupCompleteCallback) {
+		callGlobal = mVideoSetupCompleteCallback(this);
+	}
+
+	if (callGlobal && mEngine.getGlobalVideoPlayerCreatedCallback()) {
+		mEngine.getGlobalVideoPlayerCreatedCallback()(this);
 	}
 
 	mVideo->setResource(resource);
@@ -229,6 +238,7 @@ void VideoPlayer::setMediaViewerSettings(MediaViewerSettings& settings) {
 	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
 	mNVDecode			 = settings.mVideoNVDecode;
 	mGlMode				 = settings.mVideoGlMode;
+	mVideoSetupCompleteCallback = settings.mVideoPlayerCreatedCallback;
 }
 
 void VideoPlayer::setLetterbox(const bool doLetterBox) {
