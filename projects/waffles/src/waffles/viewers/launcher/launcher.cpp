@@ -110,6 +110,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, bool hideClose)
 			if (mSecondCloseButton) {
 				mPrimaryLayout->getSprite("close_button.the_button")->mLayoutFudge =
 					mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
+				mPrimaryLayout->runLayout();
 			}
 		}
 		std::vector<ds::model::ContentModelRef> allContent;
@@ -461,7 +462,7 @@ void Launcher::onParentSet()
 {
 	BaseElement::onParentSet();
 	if (mParent) {
-		mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); }, 0.001);
+		mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); closeButtonPlacement(); }, 0.001);
 	}
 }
 

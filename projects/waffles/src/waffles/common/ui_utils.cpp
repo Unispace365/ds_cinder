@@ -93,7 +93,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Close_256.png";
 	} else if (theType == "presentation" || getDefault(engine)->isPresentation(theModel)) {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Presentations_256.png";
-		showArrow = true;
+		showArrow = false; 
 	} else if (theType == "pinboard") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Pin_256.png";
 		showArrow = true;

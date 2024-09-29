@@ -245,8 +245,8 @@ void SearchViewer::listFolder(ds::model::ContentModelRef theFolder) {
 
 void SearchViewer::onLayout() {
 	if (mPrimaryLayout) {
+		
 		mPrimaryLayout->runLayout();
-
 
 		if (auto fileList = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("scroll_list")) {
 
@@ -258,6 +258,8 @@ void SearchViewer::onLayout() {
 				}
 			});
 		}
+		
+		
 	}
 }
 

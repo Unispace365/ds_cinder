@@ -13,20 +13,23 @@ class SearchQuery : public Poco::Runnable {
 	SearchQuery();
 
 	// SearchMode: 0 = general, 1 = ?
-	void		 setInput(ds::ui::SpriteEngine& eng, const std::string& leQuery, const std::string& filterType,
+	virtual void		 setInput(ds::ui::SpriteEngine& eng, const std::string& leQuery, const std::string& filterType,
 						  const int& resourceFilter);
 	virtual void run();
 
 	std::vector<ds::model::ContentModelRef> mOutput;
+	std::vector<std::string> mSeenFiles;
 
-  private:
-	ds::ui::SpriteEngine* mEngine;
+  protected:
+	ds::ui::SpriteEngine* mEngine=nullptr;
 	std::string			  mInput;
 	std::string			  mFilterType;
-	int					  mResourceFilter; // video, pdf, image, link
+	int					  mResourceFilter=0; // video, pdf, image, link, (presentation?)
 
-	void queryGeneral();
-	void recursiveMatch(ds::model::ContentModelRef item);
+
+	virtual void queryGeneral();
+	
+	virtual void recursiveMatch(ds::model::ContentModelRef item);
 };
 
 } // namespace waffles
