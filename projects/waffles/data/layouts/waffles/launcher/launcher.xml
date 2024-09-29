@@ -160,7 +160,7 @@
 					<layout_button name="back_button"
 						layout_type="horiz"
 						size="#expr{ 120 * $_waffles:sprite:scale }, #expr{ 50 * $_waffles:sprite:scale }"
-						layout_fudge="#expr{ 15 * $_waffles:sprite:scale }, #expr{ -2 * $_waffles:sprite:scale }"
+						layout_fudge="#expr{ 15 * $_waffles:sprite:scale }, #expr{ 4 * $_waffles:sprite:scale }"
 					>
 						
 						<layout name="normal_layout"
@@ -168,17 +168,19 @@
 							layout_size_mode="fill"
 							skip_hidden_children="true"
 							layout_type="horiz"
+							overall_alignment="center"
 						>
 							
 							<image name="back_arrow"
-								src="%APP%/data/images/waffles/arrows/back_arrow.png"
+								src="%APP%/data/images/waffles/arrows/back-arrow.png"
 								size="#expr{ 18 * $_waffles:sprite:scale }, #expr{ 31 * $_waffles:sprite:scale }"
+								color="waffles:button:text:normal:light"
 								layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 8 * $_waffles:sprite:scale }" />
 								
 							<text name="back_text"
 								font="viewer:body"
 								font_size="#expr{ 20 * $_waffles:sprite:scale }"
-								color="black"
+								color="waffles:button:text:normal:light"
 								layout_v_align="middle"
 								layout_size_mode="stretch"
 								l_pad="#expr{ 10 * $_waffles:sprite:scale }"
@@ -192,17 +194,20 @@
 							layout_size_mode="fill"
 							skip_hidden_children="true"
 							layout_type="horiz"
+							overall_alignment="center"
+							
 						>
 							
 							<image name="back_arrow_high"
-								src="%APP%/data/images/waffles/arrows/back_arrow_high.png"
+								src="%APP%/data/images/waffles/arrows/back-arrow.png"
 								size="#expr{ 18 * $_waffles:sprite:scale }, #expr{ 31 * $_waffles:sprite:scale }"
+								color="waffles:button:bg:normal:dark"
 								layout_fudge="#expr{ 0 * $_waffles:sprite:scale }, #expr{ 8 * $_waffles:sprite:scale }"/>
 
 							<text name="back_text_high"
 								font="viewer:body"
 								font_size="#expr{ 20 * $_waffles:sprite:scale }"
-								color="#0096d6"
+								color="waffles:button:bg:normal:dark"
 								layout_v_align="middle"
 								layout_size_mode="stretch"
 								l_pad="#expr{ 10 * $_waffles:sprite:scale }"

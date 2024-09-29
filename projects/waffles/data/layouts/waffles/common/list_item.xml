@@ -56,9 +56,9 @@
 
 				<image_button name="the_arrow"
 					src_c_m="%APP%/data/images/waffles/icons/1x/Next_64.png"
-					down_image_color="ui_highlight"
+					down_image_color="waffles:button:text:high:light"
 					layout_size_mode="flex"
-					up_image_color="ui_normal"
+					up_image_color="waffles:button:text:normal:light"
 					layout_v_align="middle"
 					btn_touch_padding="$_ui:padding"
 					pad_all="$_ui:padding"

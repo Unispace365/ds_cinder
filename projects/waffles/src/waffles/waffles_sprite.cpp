@@ -151,6 +151,19 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 
 	setupTouchMenu();
 
+	auto singleTap = mEngine.getWafflesSettings().getBool("five_finger_menu:double_tappable", 0, false);
+	if (singleTap) {
+		enable(true);
+		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		setDoubleTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) {
+			// have to delay this a bit, otherwise the receding touch from the double tap call back will immediately invalidate the new menu
+			mEngine.timedCallback([this, pos] {
+				if (mTouchMenu) mTouchMenu->startTappableMenu(pos, 10.0f);
+
+				}, 0.01f);
+			});
+	}
+
 	listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
 
 	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { 

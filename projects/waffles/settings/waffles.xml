@@ -55,6 +55,7 @@
 	<setting name="five_finger_menu:order" value="close, search, pres_next, arrange, home, gather, pres_back, pres_cont" type="string"/>
 	<setting name="five_finger_menu:radius" value="300" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="five_finger_menu:background:scale" value="2.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="five_finger_menu:double_tappable" value="true" type="bool"/>
 	<setting name="info_list:item:width" value="527" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="info_list:item:height" value="72" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="filter_list:item:width" value="320" type="float" multiplier="waffles:sprite:scale"/>

@@ -43,11 +43,10 @@
 						<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Folder_64.png" />
 					</xml> -->
 			<!-- <sprite layout_size_mode="stretch" /> -->
-			<!-- <xml name="presentations" src="%APP%/data/layouts/waffles/search/filter_button.xml"
-			>
+			<xml name="presentations" src="%APP%/data/layouts/waffles/search/filter_button.xml">
 						<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
 						<property name="icon_high" src="%APP%/data/images/waffles/icons/1x/Presentations_64.png" />
-					</xml> -->
+			</xml>
 			<!-- <sprite layout_size_mode="stretch" /> -->
 			<xml name="videos" src="%APP%/data/layouts/waffles/search/filter_button.xml">
 				<property name="icon_normal" src="%APP%/data/images/waffles/icons/1x/Video_64.png" />
