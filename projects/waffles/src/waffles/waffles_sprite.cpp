@@ -773,7 +773,6 @@ void WafflesSprite::prevItem() {
 
 // template <class VC>
 void WafflesSprite::onSizeChanged() {
-	
 
 	if (auto holdy = getSprite("viewer_controller_holdy")) {
 		holdy->clearChildren();
@@ -786,6 +785,9 @@ void WafflesSprite::onSizeChanged() {
 	//if (mViewerController) {
 	//	mViewerController->setSize(ci::vec2(getSize()));
 	//}
+	if (mTemplateLayer) {
+		mTemplateLayer->setSize(ci::vec2(getSize()));
+	}
 	runLayout();
 
 	auto bounds = ci::Rectf(0.f, 0.f, getWidth(), getHeight());
