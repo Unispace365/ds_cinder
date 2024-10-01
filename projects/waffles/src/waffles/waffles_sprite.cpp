@@ -618,6 +618,9 @@ void WafflesSprite::setupTouchMenu() {
 	mTouchMenu->setMenuConfig(tmc);
 	mTouchMenu->setMenuItemModels(menuItemModels);
 	if (auto holdy = getSprite("five_finger_holdy")) {
+		auto pos = ci::vec2(this->globalToLocal(ci::vec3(0.0f, 0.0f, 0)));
+		holdy->setPosition(pos);
+		holdy->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 		holdy->addChildPtr(mTouchMenu);
 	} else {
 		if (auto mainEngine = dynamic_cast<ds::Engine*>(&mEngine)) {
@@ -769,8 +772,6 @@ void WafflesSprite::prevItem() {
 	gotoItem(mPlaylistIdx - 1);
 }
 
-
-
 // template <class VC>
 void WafflesSprite::onSizeChanged() {
 
@@ -794,6 +795,14 @@ void WafflesSprite::onSizeChanged() {
 
 	/* mViewerController->setLayerBounds(waffles::ViewerCreationArgs::kViewLayerBackground, bounds);
 	mViewerController->setLayerBounds(waffles::ViewerCreationArgs::kViewLayerNormal, bounds); */
+
+	if (auto holdy = getSprite("five_finger_holdy")) {
+		auto pos = ci::vec2(this->globalToLocal(ci::vec3(0.0f, 0.0f, 0)));
+		holdy->setPosition(pos);
+		holdy->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+		holdy->addChildPtr(mTouchMenu);
+		holdy->setColor(ci::randFloat(), ci::randFloat(), ci::randFloat());
+	}
 }
 
 //template <class VC>
