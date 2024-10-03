@@ -201,7 +201,21 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 			mEventClient.notify(RequestFullscreenViewer(this));
 		}
 	});
+
+	/// this attempts to escape a bug where
+	/// saving annotated drawings loses context for the TMV it came from
+	/// and keeps the drawn on area visible after the TMV is gone
+	mEventClient.listenToEvents<DrawingSaveComplete>([this](auto& e) { cleanupDrawing(); });
+	/// similarly, this is an escape hatch for a bug
+	/// that happens when a drawing is left open and the idle timeout occurs
+	/// or ambient button is pressed
+	mEventClient.listenToEvents<RequestCloseAllEvent>([this](auto& e) {
+		mMediaPlayer->pauseContent();
+		mMediaPlayer->mute();
+		cleanupDrawing();
+	});
 }
+
 
 void TitledMediaViewer::calculateSizeLimits() {
 	if (!mMediaPlayer) return;
@@ -267,6 +281,7 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+	//DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
 	if (primaryResource.empty()) primaryResource = mMediaRef.getPropertyResource("media_media_res");
 
@@ -843,6 +858,7 @@ void TitledMediaViewer::toggleDrawing() {
 	mDrawingMode = !mDrawingMode;
 
 	if (mDrawingMode) {
+		//DS_LOG_INFO("DRAWING ENABLED FOR VIEWER TYPE: " << this->getViewerType() << mMediaPlayer->getSpriteName().c_str());
 		hideTitle();
 		if (!mDrawingArea) {
 			float widdy = mEngine.getAppSettings().getFloat("drawing:initial_resolution", 0, 3000.0f);
@@ -903,6 +919,12 @@ void TitledMediaViewer::toggleDrawing() {
 			// mBoundingArea.y2 += /*getHeight() -*/ mDrawingArea->getControlHeight();
 			// checkBounds(false);
 		}
+	}
+}
+
+void TitledMediaViewer::cleanupDrawing() {
+	if (getIsDrawingMode()) {
+		toggleDrawing();
 	}
 }
 

@@ -38,6 +38,8 @@ class TitledMediaViewer : public BaseElement {
 	void		 toggleDrawing();
 	DrawingArea* getDrawingArea() { return mDrawingArea; }
 
+	/// Hack to handle drawings not closing properly after saving
+	void cleanupDrawing();
 	/// Will only affect content that can be played (videos)
 	virtual void playContent() override;
 	/// If this was a video and started as just a thumbnail with a play icon, start the actual video
