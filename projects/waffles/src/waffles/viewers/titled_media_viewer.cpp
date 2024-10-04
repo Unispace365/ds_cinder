@@ -202,17 +202,13 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 		}
 	});
 
-	/// this attempts to escape a bug where
-	/// saving annotated drawings loses context for the TMV it came from
-	/// and keeps the drawn on area visible after the TMV is gone
-	mEventClient.listenToEvents<DrawingSaveComplete>([this](auto& e) { cleanupDrawing(); });
-	/// similarly, this is an escape hatch for a bug
-	/// that happens when a drawing is left open and the idle timeout occurs
-	/// or ambient button is pressed
+	/// This is an escape hatch for video players when drawing is happening and the mode changes
+	/// e.g. the idle timeout occurs, or an ambient button is pressed etc.
+	/// The sprite will likely still exist and be an orphan, which is likely a big TODO.
 	mEventClient.listenToEvents<RequestCloseAllEvent>([this](auto& e) {
 		mMediaPlayer->pauseContent();
 		mMediaPlayer->mute();
-		cleanupDrawing();
+		cleanupDrawing(true);
 	});
 }
 
@@ -922,8 +918,13 @@ void TitledMediaViewer::toggleDrawing() {
 	}
 }
 
-void TitledMediaViewer::cleanupDrawing() {
+void TitledMediaViewer::cleanupDrawing(bool clearDrawArea = false) {
 	if (getIsDrawingMode()) {
+		/// in some cases we might want to keep the current draw context alive
+		/// but still hide it just in case with the toggle
+		if (clearDrawArea) {
+			mDrawingArea->clearAllDrawing();
+		}
 		toggleDrawing();
 	}
 }
