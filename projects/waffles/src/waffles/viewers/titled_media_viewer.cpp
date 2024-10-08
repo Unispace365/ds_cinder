@@ -201,7 +201,17 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 			mEventClient.notify(RequestFullscreenViewer(this));
 		}
 	});
+
+	/// This is an escape hatch for video players when drawing is happening and the mode changes
+	/// e.g. the idle timeout occurs, or an ambient button is pressed etc.
+	/// The sprite will likely still exist and be an orphan, which is likely a big TODO.
+	mEventClient.listenToEvents<RequestCloseAllEvent>([this](auto& e) {
+		mMediaPlayer->pauseContent();
+		mMediaPlayer->mute();
+		cleanupDrawing(true);
+	});
 }
+
 
 void TitledMediaViewer::calculateSizeLimits() {
 	if (!mMediaPlayer) return;
@@ -267,6 +277,7 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+	//DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
 	if (primaryResource.empty()) primaryResource = mMediaRef.getPropertyResource("media_media_res");
 
@@ -843,6 +854,7 @@ void TitledMediaViewer::toggleDrawing() {
 	mDrawingMode = !mDrawingMode;
 
 	if (mDrawingMode) {
+		//DS_LOG_INFO("DRAWING ENABLED FOR VIEWER TYPE: " << this->getViewerType() << mMediaPlayer->getSpriteName().c_str());
 		hideTitle();
 		if (!mDrawingArea) {
 			float widdy = mEngine.getAppSettings().getFloat("drawing:initial_resolution", 0, 3000.0f);
@@ -903,6 +915,17 @@ void TitledMediaViewer::toggleDrawing() {
 			// mBoundingArea.y2 += /*getHeight() -*/ mDrawingArea->getControlHeight();
 			// checkBounds(false);
 		}
+	}
+}
+
+void TitledMediaViewer::cleanupDrawing(bool clearDrawArea = false) {
+	if (getIsDrawingMode()) {
+		/// in some cases we might want to keep the current draw context alive
+		/// but still hide it just in case with the toggle
+		if (clearDrawArea) {
+			mDrawingArea->clearAllDrawing();
+		}
+		toggleDrawing();
 	}
 }
 

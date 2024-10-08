@@ -38,6 +38,8 @@ class TitledMediaViewer : public BaseElement {
 	void		 toggleDrawing();
 	DrawingArea* getDrawingArea() { return mDrawingArea; }
 
+	/// In case viewer gets destroyed while drawing was happening
+	void cleanupDrawing(bool clearDrawArea);
 	/// Will only affect content that can be played (videos)
 	virtual void playContent() override;
 	/// If this was a video and started as just a thumbnail with a play icon, start the actual video

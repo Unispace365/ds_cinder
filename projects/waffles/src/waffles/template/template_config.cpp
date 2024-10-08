@@ -45,8 +45,9 @@ const TemplateDef& TemplateConfig::getTemplateDefFromId(const std::string& id) {
 	}
 }
 
-TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model) {
-	auto def = getTemplateDefFromId(model.getPropertyString("type_uid"));
+TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef inModel) {
+	auto model	= inModel.duplicate();
+	auto def	= getTemplateDefFromId(model.getPropertyString("type_uid"));
 
 	auto media_property_key = ContentUtils::getDefault(engine)->getMediaPropertyKey(model);
 
