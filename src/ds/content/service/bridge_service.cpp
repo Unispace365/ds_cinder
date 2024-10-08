@@ -42,7 +42,7 @@ void BridgeService::start() {
 			DS_LOG_WARNING("BridgeService::start() threw an exception: " << ex.what())
 		}
 
-		mNodeWatcher.setDelayTime(0.3f);
+		mNodeWatcher.setDelayTime(1.0f);
 		mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& msg) {
 			// Will be called from the main thread.
 
@@ -201,7 +201,7 @@ void BridgeService::Loop::run() {
 				});
 			}
 		}
-
+		DS_LOG_VERBOSE(2, "BridgeService::Loop going to sleep")
 		// Sleep until woken up externally.
 		while (Poco::Thread::trySleep(mRefreshRateMs)) {}
 	}
@@ -306,7 +306,7 @@ bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::Da
 }
 
 bool BridgeService::Loop::loadContent() {
-	// DS_LOG_INFO("BridgeService::loadContent")
+	DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent start")
 
 	const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
 
@@ -360,6 +360,11 @@ bool BridgeService::Loop::loadContent() {
 
 		if (ds::query::Client::query(cms.getDatabasePath(), recordQuery, result)) {
 			ds::query::Result::RowIterator it(result);
+			int rows = result.getRowSize();
+			if (rows == 0) {
+				DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent no records?");
+				return false;
+			}
 			int							   recordId = 1;
 			while (it.hasValue()) {
 				auto record = ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")");
@@ -430,7 +435,7 @@ bool BridgeService::Loop::loadContent() {
 		mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS);
 		mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS);
 		mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS);
-
+		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count "<<rankOrderedRecords.size())
 		for (const auto& record : rankOrderedRecords) {
 			mRecords.addChild(record);
 			auto type = record.getPropertyString("variant");
