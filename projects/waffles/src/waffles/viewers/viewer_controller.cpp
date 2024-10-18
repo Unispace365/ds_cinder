@@ -940,11 +940,12 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 			thePos.x = theCenter.x - theWidth / 2.0f;
 			thePos.y = theCenter.y - (theWidth / mediaA) / 2.0f;
 		}
-		
+
 		if (newMedia.getProperty(mediaPropertyKey).empty()) {
 			newMedia.setPropertyResource(mediaPropertyKey,
 										 newMedia.getPropertyResource("media")); // TODO: handle multiple medias
 		}
+
 		ViewerCreationArgs args =
 			ViewerCreationArgs(newMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER, mNormalLayer->localToGlobal(thePos),
 							   ViewerCreationArgs::kViewLayerNormal, theWidth, false, false, false);

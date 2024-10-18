@@ -34,7 +34,9 @@ public:
 	}
 	virtual const TemplateDef& getTemplateDefFromName(const std::string& name);
 	virtual const TemplateDef& getTemplateDefFromId(const std::string& id);
-	virtual TemplateBase* createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef model);
+	virtual TemplateBase*	   createTemplate(ds::ui::SpriteEngine& engine, 
+										      ds::model::ContentModelRef model,
+											  std::string channel_name = "");
 	virtual void initializeTemplateDefs();
 private:
 	

@@ -19,8 +19,13 @@ static waffles::TemplateLayer* theTemplateLayer = nullptr;
 
 namespace waffles {
 
-TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 pos)
+TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 pos, std::string channel_name)
 	: ds::ui::SmartLayout(eng, "waffles/layer/template_layer.xml") {
+
+	if (!channel_name.empty()) {
+		mEventClient.setNotifier(mEngine.getChannel(channel_name));
+		setChannelName(channel_name);
+	}
 
 	mTemplateConfig = TemplateConfig::getDefault();
 	theTemplateLayer = this;
@@ -30,7 +35,7 @@ TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 
 	runLayout();
 
 	// Handle background change requests
-	listenToEvents<waffles::ChangeTemplateRequest>(
+	mEventClient.listenToEvents<waffles::ChangeTemplateRequest>(
 		[this](const waffles::ChangeTemplateRequest& event) { 
 			changeTemplate(event); 
 		});
@@ -55,7 +60,7 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 
 		if (!event.mContent.empty()) {
 			auto model		 = event.mContent.duplicate();
-			mCurrentTemplate = mTemplateConfig->createTemplate(mEngine, model);
+			mCurrentTemplate = mTemplateConfig->createTemplate(mEngine, model, getChannelName());
 		} else {
 			// Create empty background type
 			mCurrentTemplate = nullptr;
@@ -79,13 +84,13 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 						[this] {
 							if (mCurrentTemplate->getContentModel().getPropertyString("type_key") != "pinboard_event" &&
 								mCurrentTemplate->getContentModel().getPropertyString("type_key") != "assets_mode") {
-								//mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(true));
+								//mEventClient.notify(waffles::RequestCloseAllEvent(true));
 							}
 							mCurrentTemplate->animateOn(0.f, [this] {
 								// Notify that the background change has completed (after animation!)
-								mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+								mEventClient.notify(waffles::TemplateChangeComplete());
 							});
-							mEngine.getNotifier().notify(
+							mEventClient.notify(
 								waffles::TemplateChangeStarted(mCurrentTemplate->getContentModel()));
 						},
 						delay);
@@ -95,14 +100,14 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 					runLayout();
 					delay = mCurrentTemplate->animateOn(0.f, [this] {
 						// Notify that the background change has completed (after animation!)
-						mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+						mEventClient.notify(waffles::TemplateChangeComplete());
 					});
-					mEngine.getNotifier().notify(waffles::TemplateChangeStarted(mCurrentTemplate->getContentModel()));
+					mEventClient.notify(waffles::TemplateChangeStarted(mCurrentTemplate->getContentModel()));
 
 					oldTemplate->animateOff(delay, [oldTemplate] { oldTemplate->release(); });
 				}
 			} else {
-				mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+				mEventClient.notify(waffles::TemplateChangeComplete());
 				oldTemplate->animateOff(0.f, [oldTemplate] { oldTemplate->release(); });
 			}
 
@@ -114,11 +119,11 @@ void TemplateLayer::changeTemplate(const waffles::ChangeTemplateRequest& event) 
 				runLayout();
 				mCurrentTemplate->animateOn(0.f, [this] {
 					// Notify that the background change has completed (after animation!)
-					mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+					mEventClient.notify(waffles::TemplateChangeComplete());
 				});
-				mEngine.getNotifier().notify(waffles::TemplateChangeStarted(mCurrentTemplate->getContentModel()));
+				mEventClient.notify(waffles::TemplateChangeStarted(mCurrentTemplate->getContentModel()));
 			} else {
-				mEngine.getNotifier().notify(waffles::TemplateChangeComplete());
+				mEventClient.notify(waffles::TemplateChangeComplete());
 			}
 		}
 	};

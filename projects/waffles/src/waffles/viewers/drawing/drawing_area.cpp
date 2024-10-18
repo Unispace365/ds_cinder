@@ -295,7 +295,7 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 	if (mDrawingTools) mDrawingTools->hide();
 	float delayey = 0.05f;
 	callAfterDelay(
-		[this, localSavePath,&notifier] {
+		[this, localSavePath, &notifier] {
 			const auto temp	   = getBoundingBox();
 			auto	   leftTop = localToGlobal(ci::vec3(temp.x1, temp.y1, 0));
 			// float	   toolsHeight = 0;
@@ -317,7 +317,9 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 						 s.getData());
 			glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
 			ci::ip::flipVertical(&s);
-
+			DS_LOG_INFO("screenie area: " << area);
+			DS_LOG_INFO("screenie scale: " << scale);
+			DS_LOG_INFO("screenie bounds: " << s.getBounds());
 
 			mRequestId = NEXT_REQUEST++;
 

@@ -45,7 +45,7 @@ const TemplateDef& TemplateConfig::getTemplateDefFromId(const std::string& id) {
 	}
 }
 
-TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef inModel) {
+TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::model::ContentModelRef inModel, std::string channel_name) {
 	auto model	= inModel.duplicate();
 	auto def	= getTemplateDefFromId(model.getPropertyString("type_uid"));
 
@@ -54,7 +54,7 @@ TemplateBase* TemplateConfig::createTemplate(ds::ui::SpriteEngine& engine, ds::m
 	// Add special case templates here
 	
 	if (def.name == "composite_slide") {
-		return new CompositeSlide(engine, def, model);
+		return new CompositeSlide(engine, def, model, channel_name);
 		
 	}/* else if (def.name == "feature_story") {
 		return new FeatureStory(engine, def, model);

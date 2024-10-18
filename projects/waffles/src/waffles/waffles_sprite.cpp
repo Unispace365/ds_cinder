@@ -129,7 +129,7 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 	auto templateMode = mEngine.getWafflesSettings().getString("layers:template:mode", 0, "createAndPlace");
 
 	if (templateMode != "off") {
-		mTemplateLayer = new TemplateLayer(mEngine, ci::vec2(getSize()), ci::vec2(0.0f, 0.0f));
+		mTemplateLayer = new TemplateLayer(mEngine, ci::vec2(getSize()), ci::vec2(0.0f, 0.0f), mChannelName);
 		auto holdy = getSprite("template_holdy");
 		if (templateMode == "createAndPlace" && holdy) {
 			holdy->addChildPtr(mTemplateLayer);
@@ -164,21 +164,23 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 			});
 	}
 
-	listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
+	mChannelClient.listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
 
-	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { 
+	mChannelClient.listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) { 
 		onIdleStarted(ev); 
 	});
-	listenToEvents<waffles::HideWaffles>([this](const auto& ev) { onHide(ev); });
-	listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { 
+	mChannelClient.listenToEvents<waffles::HideWaffles>([this](const auto& ev) { onHide(ev); });
+	mChannelClient.listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { 
 		onIdleEnded(ev); 
 	});
-	listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) { onScheduleUpdated(ev); });
-	listenToEvents<waffles::RequestPresentationEndEvent>([this](const auto& ev) { onPresentationEndRequest(ev); });
-	listenToEvents<waffles::RequestEngagePresentation>([this](const auto& ev) { onPresentationStartRequest(ev); });
-	listenToEvents<waffles::RequestEngageNext>([this](const auto& ev) { onNextRequest(ev); });
-	listenToEvents<waffles::RequestEngageBack>([this](const auto& ev) { onBackRequest(ev); });
-	listenToEvents<waffles::RequestPresentationAdvanceEvent>(
+	mChannelClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) { onScheduleUpdated(ev); });
+	mChannelClient.listenToEvents<waffles::RequestPresentationEndEvent>(
+		[this](const auto& ev) { onPresentationEndRequest(ev); });
+	mChannelClient.listenToEvents<waffles::RequestEngagePresentation>(
+		[this](const auto& ev) { onPresentationStartRequest(ev); });
+	mChannelClient.listenToEvents<waffles::RequestEngageNext>([this](const auto& ev) { onNextRequest(ev); });
+	mChannelClient.listenToEvents<waffles::RequestEngageBack>([this](const auto& ev) { onBackRequest(ev); });
+	mChannelClient.listenToEvents<waffles::RequestPresentationAdvanceEvent>(
 		[this](const auto& ev) { onPresentationAdvanceRequest(ev); });
 	setDefaultPresentation();
 	if (mDefaultWaffles == nullptr) {

@@ -35,18 +35,18 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 														ci::vec3(0.f));
 				/* pos.x -= 180.f;
 				pos.y += 200.f; */
-				mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+				mEventClient.notify(waffles::RequestViewerLaunchEvent(
 					waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_LAUNCHER_PERSISTANT, pos,
 										   waffles::ViewerCreationArgs::kViewLayerNormal, 0.f, true, false, false)));
 			});
 		}
 	}
 
-	listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) {
+	mEventClient.listenToEvents<ds::app::IdleStartedEvent>([this](const auto& ev) {
 		mAllDialsInactive = true;
 		tweenAnimateOff(true, 0.f, 0.0f);
 	});
-	listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { tweenAnimateOn(true, 0.f, 0.0f); });
+	mEventClient.listenToEvents<ds::app::IdleEndedEvent>([this](const auto& ev) { tweenAnimateOn(true, 0.f, 0.0f); });
 
 	if (!isReceiver) {
 		// Setup the touch menu
@@ -55,7 +55,7 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 		if (mEngine.getAppSettings().getString("app:mode", 0, "single") == "multi" &&
 			mEngine.getAppSettings().getBool("app:fake_dials", 0, false)) {
 			// Create a fake dial for each new presentation visited
-			listenToEvents<waffles::PresentationStateChanged>([this](const waffles::PresentationStateChanged& ev) {
+			mEventClient.listenToEvents<waffles::PresentationStateChanged>([this](const waffles::PresentationStateChanged& ev) {
 				auto requestedItem = ev.mContent;
 				auto requestedType = requestedItem.getPropertyString("type_key");
 				if (requestedType == "pinboard_event" || requestedType == "assets_mode") {
@@ -127,24 +127,24 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 					auto model = ds::model::ContentModelRef("dial");
 					model.setProperty("id", obj.getObjectId());
 					model.setProperty("pos", finalPos);
-					mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
+					mEventClient.notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
 						model, waffles::VIEW_TYPE_CUSTOM_MENU, finalPos, waffles::ViewerCreationArgs::kViewLayerNormal)));
 
 					mNextFakeCode -= 1;
 				} else if (!isActive || mAllDialsInactive || (foundFakeCode < 0 && foundFakeCode != foundCode)) {
 					if (foundFakeCode < 0 && foundFakeCode != foundCode) {
-						mEngine.getNotifier().notify(waffles::RequestTuioObjectRelease(foundFakeCode));
+						mEventClient.notify(waffles::RequestTuioObjectRelease(foundFakeCode));
 					}
 					auto findy = std::find(mLiveObjects.begin(), mLiveObjects.end(), foundCode);
 					if (findy == mLiveObjects.end()) return;
 					mLiveObjects.erase(findy);
 					mLiveObjects.push_back(foundCode);
-					mEngine.getNotifier().notify(waffles::RequestTuioObjectTrigger(foundCode));
+					mEventClient.notify(waffles::RequestTuioObjectTrigger(foundCode));
 				}
 			});
 		}
 
-		listenToEvents<waffles::TuioObjectReleased>([this](const waffles::TuioObjectReleased& ev) {
+		mEventClient.listenToEvents<waffles::TuioObjectReleased>([this](const waffles::TuioObjectReleased& ev) {
 			DS_LOG_INFO("Got obj released " << ev.mId);
 			auto findy = std::find(mLiveObjects.begin(), mLiveObjects.end(), ev.mId);
 			if (findy == mLiveObjects.end()) return;
@@ -153,14 +153,14 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 			if (!mEngine.isIdling()) {
 				if (!mLiveObjects.empty()) {
 					DS_LOG_INFO("Should trigger! ID:" << mLiveObjects.back());
-					mEngine.getNotifier().notify(waffles::RequestTuioObjectTrigger(mLiveObjects.back()));
+					mEventClient.notify(waffles::RequestTuioObjectTrigger(mLiveObjects.back()));
 				} else {
 					mEngine.startIdling();
 				}
 			}
 		});
 
-		listenToEvents<waffles::TuioObjectTriggered>([this](const waffles::TuioObjectTriggered& ev) {
+		mEventClient.listenToEvents<waffles::TuioObjectTriggered>([this](const waffles::TuioObjectTriggered& ev) {
 			DS_LOG_INFO("Got obj (re)triggered " << ev.mId);
 			if (ev.mId == 0) {
 				mAllDialsInactive = true;
@@ -175,7 +175,7 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 			mAllDialsInactive = false;
 		});
 
-		listenToEvents<waffles::TuioObjectEvent>([this](const waffles::TuioObjectEvent& ev) {
+		mEventClient.listenToEvents<waffles::TuioObjectEvent>([this](const waffles::TuioObjectEvent& ev) {
 			if (std::find(mLiveObjects.begin(), mLiveObjects.end(), ev.mObj.getObjectId()) != mLiveObjects.end())
 				return;
 
@@ -189,7 +189,7 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
 				auto model = ds::model::ContentModelRef("dial");
 				model.setProperty("id", ev.mObj.getObjectId());
 				model.setProperty("pos", pos);
-				mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
+				mEventClient.notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
 					model, waffles::VIEW_TYPE_CUSTOM_MENU, pos, waffles::ViewerCreationArgs::kViewLayerNormal)));
 
 			} break;
@@ -304,23 +304,23 @@ void InterfaceLayer::setupTouchMenu() {
 
 	auto closeModel = ds::ui::TouchMenu::MenuItemModel(
 		L"Close Assets", "%APP%/data/images/waffles/icons/4x/Close_256.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestCloseAllEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestCloseAllEvent(pos)); }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto presNext = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Next", "%APP%/data/images/waffles/icons/4x/Forward_256.png",
 		"%APP%/data/images/waffles/icons/4x/Forward_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestEngageNext()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestEngageNext()); }, emptySubtitle, menuFg, menuBg);
 
 	auto arrange = ds::ui::TouchMenu::MenuItemModel(
 		L"Arrange", "%APP%/data/images/waffles/icons/4x/Arrange_256.png", "%APP%/data/images/waffles/icons/4x/Arrange_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto homeView = ds::ui::TouchMenu::MenuItemModel(
 		overallTitle, "%APP%/data/images/waffles/icons/4x/Home_256.png", "%APP%/data/images/waffles/icons/4x/Home_Glow_256.png",
 		[this](ci::vec3 pos) {
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mEventClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_LAUNCHER, pos)));
 		},
 		emptySubtitle, menuFg, menuBg);
@@ -328,26 +328,26 @@ void InterfaceLayer::setupTouchMenu() {
 	auto searchy = ds::ui::TouchMenu::MenuItemModel(
 		L"Search", "%APP%/data/images/waffles/icons/4x/Search_256.png", "%APP%/data/images/waffles/icons/4x/Search_Glow_256.png",
 		[this](ci::vec3 pos) {
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mEventClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
 		},
 		emptySubtitle, menuFg, menuBg);
 
 	auto gather = ds::ui::TouchMenu::MenuItemModel(
 		L"Gather", "%APP%/data/images/waffles/icons/4x/Gather_256.png", "%APP%/data/images/waffles/icons/4x/Gather_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto presBack = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Back", "%APP%/data/images/waffles/icons/4x/Backward_256.png",
 		"%APP%/data/images/waffles/icons/4x/Backward_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestEngageBack()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestEngageBack()); }, emptySubtitle, menuFg, menuBg);
 
 	auto presContr = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Control", "%APP%/data/images/waffles/icons/4x/Presentations_256.png",
 		"%APP%/data/images/waffles/icons/4x/Presentations_Glow_256.png",
 		[this](ci::vec3 pos) {
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mEventClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
 									   waffles::ViewerCreationArgs::kViewLayerTop)));
 		},
@@ -356,14 +356,14 @@ void InterfaceLayer::setupTouchMenu() {
 	auto states = ds::ui::TouchMenu::MenuItemModel(
 		L"States", "%APP%/data/images/waffles/icons/4x/States_64.png", "%APP%/data/images/waffles/icons/4x/States_glow_64.png",
 		[this](ci::vec3 pos) {
-			mEngine.getNotifier().notify(waffles::RequestViewerLaunchEvent(
+			mEventClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_STATE_VIEWER, pos)));
 		},
 		emptySubtitle, menuFg, menuBg);
 
 	auto exitApp = ds::ui::TouchMenu::MenuItemModel(
 		L"Exit", "%APP%/data/images/waffles/icons/4x/Close_64.png", "%APP%/data/images/waffles/icons/4x/Close_Glow_64.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestAppExit()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mEventClient.notify(waffles::RequestAppExit()); }, emptySubtitle, menuFg, menuBg);
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 

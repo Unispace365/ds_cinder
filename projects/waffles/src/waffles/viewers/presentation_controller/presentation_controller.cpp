@@ -43,10 +43,9 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	addChildPtr(mRootLayout);
 
 	mRootLayout->setSpriteClickFn("end_presentation.the_button", [this] {
-		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
-
-		mEngine.getNotifier().notify(RequestPresentationEndEvent());
-		mEngine.getNotifier().notify(RequestCloseAllEvent(true));
+		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return
+		mEngine.notifyOnChannel(RequestPresentationEndEvent(), getChannelName());
+		mEngine.notifyOnChannel(RequestCloseAllEvent(true), getChannelName());
 
 		//mEngine.mContent.setProperty("presentation_controller_blocked", true);
 
@@ -61,8 +60,9 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 		auto currentPresentation = thePres.getChildren().front();
 		auto currentSlide		 = currentPresentation.getChildren()[thePres.getPropertyInt("current_slide") - 1];
 
-		mEngine.getNotifier().notify(waffles::RequestCloseAllEvent());
-		mEngine.getNotifier().notify(waffles::RequestEngagePresentation(currentSlide));
+		
+		mEngine.notifyOnChannel(waffles::RequestCloseAllEvent(), getChannelName());
+		mEngine.notifyOnChannel(waffles::RequestEngagePresentation(currentSlide), getChannelName());
 	});
 
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
@@ -90,7 +90,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	if (auto smarty = mRootLayout->getSprite<ds::ui::SmartScrollList>("thumb_scrolly")) {
 		smarty->setContentItemTappedCallback([this](ds::ui::SmartLayout* item, ds::model::ContentModelRef model) {
 			if (model != mCurrentSlide) {
-				mEngine.getNotifier().notify(waffles::RequestEngagePresentation(model));
+				mEngine.notifyOnChannel(waffles::RequestEngagePresentation(model), getChannelName());
 			}
 		});
 

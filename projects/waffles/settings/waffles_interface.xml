@@ -8,7 +8,8 @@
 	<!-- launcher settings -->
 	<setting name="launcher:top:functions" value="Ambient|ambient,Search|search" type="string"/>
 	<setting name="launcher:main:filters" value="Folders|folders,Recent|recent,Images|images,Links|links,PDFs|pdfs,Presentations|presentations,Videos|videos" type="string"/>
-	
+	<setting name="launcher:start:filter" value="recent" type="string"/>
+
 	<setting name="content:folder:key" value="LJ4aU7RleELr" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="content:folder:key" value="v0zyL1TzurTx" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="content:folder:key" value="mQDdXrKTshYg" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>

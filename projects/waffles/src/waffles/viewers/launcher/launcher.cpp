@@ -462,7 +462,12 @@ void Launcher::onParentSet()
 {
 	BaseElement::onParentSet();
 	if (mParent) {
-		mEngine.timedCallback([this] { mEventClient.notify(waffles::WafflesFilterEvent("recent")); closeButtonPlacement(); }, 0.001);
+		mEngine.timedCallback(
+			[this] {
+				auto starting_filter = mEngine.getWafflesSettings().getString("launcher:start:filter", 0, "recent");
+				mEventClient.notify(waffles::WafflesFilterEvent(starting_filter));
+				closeButtonPlacement();
+			}, 0.001);
 	}
 }
 

@@ -15,7 +15,7 @@ class TemplateConfig;
  */
 class TemplateLayer : public ds::ui::SmartLayout {
   public:
-	TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 pos);
+	TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 pos, std::string channel_name = "");
 
 	static TemplateLayer* get();
 
