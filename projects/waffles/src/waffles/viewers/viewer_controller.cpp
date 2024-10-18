@@ -653,7 +653,7 @@ bool ViewerController::advancePDF(const bool forwards) {
 void ViewerController::startPresentation(ds::model::ContentModelRef newPresentation, const ci::vec3& startLocation,
 										 const bool showController) {
 
-	auto thePres = mEngine.mContent.getChildByName("current_presentation");
+	auto thePres = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	thePres.setProperty("presentation_id", newPresentation.getId());
 	if (!newPresentation.getChildren().empty()) {
 		thePres.setProperty("slide_id", newPresentation.getChildren().front().getId());
@@ -671,14 +671,14 @@ void ViewerController::startPresentation(ds::model::ContentModelRef newPresentat
 }
 
 void ViewerController::endPresentation() {
-	auto thePres = mEngine.mContent.getChildByName("current_presentation");
+	auto thePres = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	thePres.setProperty("presentation_id", 0);
 	thePres.setProperty("slide_id", 0);
 }
 
 void ViewerController::advancePresentation(const bool forwards) {
 
-	auto thePres	= mEngine.mContent.getChildByName("current_presentation");
+	auto thePres	= mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	auto actualPres = mEngine.mContent.getChildByName("cms_root")
 						  .getDescendant("waffles_nodes", thePres.getPropertyInt("presentation_id"));
 	if (actualPres.getChildren().empty()) {
@@ -720,7 +720,7 @@ void ViewerController::advancePresentation(const bool forwards) {
 
 void ViewerController::setPresentationSlide(int slideId) {
 
-	auto thePres	 = mEngine.mContent.getChildByName("current_presentation");
+	auto thePres	 = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	auto actualSlide = mEngine.mContent.getChildByName("cms_root").getDescendant("waffles_nodes", slideId);
 	if (actualSlide.empty()) {
 		DS_LOG_WARNING("Tried to set a presentation slide, but it's empty!");
@@ -958,8 +958,8 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		args.mTouchEvents = newMedia.getPropertyBool("touch_events");
 		// newMedia.getPropertyBool("media_float_touch");
 		args.mStartLocked = args.mTouchEvents;
-		args.mAutoStart	  = newMedia.getPropertyBool("autoplay");
 		args.mAutoStart = true;
+		args.mAutoStart	  = newMedia.getPropertyBool("autoplay");
 		args.mShowFullscreenController = true;
 		// newMedia.getPropertyBool("media_float_autoplay");
 		args.mLooped = newMedia.getPropertyBool("loop");

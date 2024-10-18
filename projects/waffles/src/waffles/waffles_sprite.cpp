@@ -231,7 +231,7 @@ void WafflesSprite::onIdleEnded(const ds::app::IdleEndedEvent& e) {
 void WafflesSprite::onScheduleUpdated(const ds::ScheduleUpdatedEvent& e) {
 	if (mEngine.getWafflesSettings().getBool("app:editor_mode", 0, false)) {
 		// In "editor mode", refresh the current slide whenever it changes
-		auto currPres		   = mEngine.mContent.getChildByName("current_presentation");
+		auto currPres		   = mEngine.mContent.getChildByName("current_presentation" + mChannelName);
 		auto currSlide		   = currPres.getPropertyInt("current_slide");
 		auto currentSlideModel = currPres.getChild(0).getChild(currSlide - 1);
 		if (!currPres.empty() && !currentSlideModel.empty()) {
@@ -251,7 +251,7 @@ void WafflesSprite::onScheduleUpdated(const ds::ScheduleUpdatedEvent& e) {
 
 //template <class VC>
 void WafflesSprite::onPresentationEndRequest(const waffles::RequestPresentationEndEvent& e) {
-	auto currPres = mEngine.mContent.getChildByName("current_presentation");
+	auto currPres = mEngine.mContent.getChildByName("current_presentation" + mChannelName);
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
 	mChannelClient.notify(waffles::ChangeTemplateRequest(ds::model::ContentModelRef()));
@@ -405,8 +405,8 @@ void WafflesSprite::gotoItem(int index) {
 	}
 
 	mPlaylistIdx  = index;
-	auto currPres = mEngine.mContent.getChildByName("current_presentation");
-	currPres.setName("current_presentation");
+	auto currPres = mEngine.mContent.getChildByName("current_presentation" + mChannelName);
+	currPres.setName("current_presentation" + mChannelName);
 	currPres.setChildren({mPlaylist});
 	currPres.setProperty("current_slide", mPlaylistIdx + 1);
 	mEngine.mContent.replaceChild(currPres);
@@ -727,7 +727,7 @@ void WafflesSprite::endPresentationMode() {
 	mAmEngaged	 = false;
 	mPlaylistIdx = -1;
 
-	auto currPres = mEngine.mContent.getChildByName("current_presentation");
+	auto currPres = mEngine.mContent.getChildByName("current_presentation" + mChannelName);
 	currPres.clearChildren();
 	mEngine.mContent.replaceChild(currPres);
 

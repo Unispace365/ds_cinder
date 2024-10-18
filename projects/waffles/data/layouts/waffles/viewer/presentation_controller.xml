@@ -71,7 +71,6 @@
 					down_image="%APP%/data/images/waffles/arrows/presentation_left_down.png"
 					scale="0.5, 0.5"
 					center="0.5, 0.5"
-					on_tap_event="RequestPresentationAdvanceEvent; data:false"
 					layout_v_align="middle"
 				/>
 
@@ -92,7 +91,6 @@
 					down_image="%APP%/data/images/waffles/arrows/presentation_right_down.png"
 					scale="0.5, 0.5"
 					center="0.5, 0.5"
-					on_tap_event="RequestPresentationAdvanceEvent; data:true"
 					layout_v_align="middle"
 				/>
 			</layout>

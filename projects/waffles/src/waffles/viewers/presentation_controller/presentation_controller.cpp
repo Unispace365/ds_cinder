@@ -20,9 +20,11 @@
 #include <ds/content/content_events.h>
 #include "app/waffles_app_defs.h"
 //#include "app/helpers.h"
+#include <ds/ui/button/image_button.h>
 
 #include "waffles/waffles_events.h"
 #include "waffles/layer/template_layer.h"
+#include <ds/app/engine/engine_events.h>
 
 
 namespace waffles {
@@ -55,7 +57,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	mRootLayout->setSpriteClickFn("refresh_layout.the_button", [this] {
 		//if (mEngine.mContent.getPropertyBool("presentation_controller_blocked")) return;
 
-		auto thePres = mEngine.mContent.getChildByName("current_presentation");
+		auto thePres = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 		if (thePres.empty()) return;
 		auto currentPresentation = thePres.getChildren().front();
 		auto currentSlide		 = currentPresentation.getChildren()[thePres.getPropertyInt("current_slide") - 1];
@@ -68,6 +70,20 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
 		if (mCloseRequestCallback) mCloseRequestCallback();
 	});
+
+	mRootLayout->getSprite<ds::ui::ImageButton>("prev_step")->setTapCallback(
+		[this] (ds::ui::Sprite* s, const ci::vec3& v) {
+			mEngine.notifyOnChannel(waffles::RequestEngageBack(), getChannelName());
+			updateUi();
+		}
+	);
+
+	mRootLayout->getSprite<ds::ui::ImageButton>("next_step")->setTapCallback(
+		[this] (ds::ui::Sprite* s, const ci::vec3& v) {
+			mEngine.notifyOnChannel(waffles::RequestEngageNext(), getChannelName());
+			updateUi();
+		}
+	);
 
 	if (auto background = mRootLayout->getSprite("background")) {
 		background->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
@@ -91,6 +107,7 @@ PresentationController::PresentationController(ds::ui::SpriteEngine& g)
 		smarty->setContentItemTappedCallback([this](ds::ui::SmartLayout* item, ds::model::ContentModelRef model) {
 			if (model != mCurrentSlide) {
 				mEngine.notifyOnChannel(waffles::RequestEngagePresentation(model), getChannelName());
+				updateUi();
 			}
 		});
 
@@ -179,7 +196,7 @@ void PresentationController::updateUi() {
 
 	bool hide_slides = false; //mEngine.mContent.getPropertyBool("presentation_controller_blocked");
 
-	auto thePres = mEngine.mContent.getChildByName("current_presentation");
+	auto thePres = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	auto currentPresentation =
 		thePres.getChildren().empty() ? ds::model::ContentModelRef() : thePres.getChildren().front();
 	auto currentSlide = currentPresentation.empty()

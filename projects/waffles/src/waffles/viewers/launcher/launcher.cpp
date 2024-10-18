@@ -285,7 +285,7 @@ void Launcher::updateSelection(ds::ui::Sprite* bs, const bool highlighted) {
 }
 
 void Launcher::handleSelection() {
-	auto curPres		  = mEngine.mContent.getChildByName("current_presentation");
+	auto curPres		  = mEngine.mContent.getChildByName("current_presentation" + getChannelName());
 	auto interactive	  = curPres.getChild(0);
 	auto interactiveSlide = interactive.getChild(curPres.getPropertyInt("current_slide") - 1);
 
