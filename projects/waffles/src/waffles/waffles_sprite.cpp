@@ -527,13 +527,13 @@ void WafflesSprite::setupTouchMenu() {
 
 	auto gather = ds::ui::TouchMenu::MenuItemModel(
 		L"Gather", "%APP%/data/images/waffles/icons/4x/Gather_256.png", "%APP%/data/images/waffles/icons/4x/Gather_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
 		menuBg);
 
 	auto presBack = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Back", "%APP%/data/images/waffles/icons/4x/Backward_256.png",
 		"%APP%/data/images/waffles/icons/4x/Backward_Glow_256.png",
-		[this](ci::vec3 pos) { mEngine.getNotifier().notify(waffles::RequestEngageBack()); }, emptySubtitle, menuFg, menuBg);
+		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestEngageBack()); }, emptySubtitle, menuFg, menuBg);
 
 	auto presContr = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Control", "%APP%/data/images/waffles/icons/4x/Presentations_256.png",

@@ -18,7 +18,7 @@ class CodiceDial;
  */
 class InterfaceLayer : public ds::ui::SmartLayout {
   public:
-	InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver = false);
+	InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver = false, std::string channel_name = "");
 
   private:
 	struct CodiceObject {

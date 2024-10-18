@@ -20,9 +20,18 @@
 
 namespace waffles {
 
-InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver)
+InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver, std::string channel_name)
 	: ds::ui::SmartLayout(eng, "waffles/layer/interface_layer.xml")
 	, mPulseTimer(mEngine) {
+
+	if (!channel_name.empty()) {
+		mEventClient.setNotifier(mEngine.getChannel(channel_name));
+		mEventClient.start();
+
+	} else {
+		mEventClient.setNotifier(mEngine.getNotifier());
+		mEventClient.start();
+	}
 
 	for (auto [name, idx] : std::vector<std::pair<std::string, int>>{
 			 {"left_menu.the_btn",  0},
