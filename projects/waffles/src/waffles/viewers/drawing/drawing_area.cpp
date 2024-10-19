@@ -312,7 +312,8 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 			GLint oldPackAlignment;
 			glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
 			glPixelStorei(GL_PACK_ALIGNMENT, 1);
-			glReadPixels((GLint)area.x1 * scale, (GLint)(mEngine.getWorldHeight() - area.y2) * scale,
+			auto wh = src.getHeight();
+			glReadPixels((GLint)area.x1 * scale, (GLint)(wh - area.y2) * scale,
 						 (GLint)area.getWidth() * scale, (GLint)area.getHeight() * scale, GL_RGB, GL_UNSIGNED_BYTE,
 						 s.getData());
 			glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
