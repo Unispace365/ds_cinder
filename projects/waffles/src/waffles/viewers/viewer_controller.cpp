@@ -44,7 +44,7 @@ ds::ui::SpriteEngine* ViewerControllerFactory::mEngine = nullptr;
 std::unordered_map<std::string, ViewerController*> ViewerControllerFactory::mViewerControllers;
 
 
-ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size,std::string channel)
+ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel)
 	: ds::ui::Sprite(g)
 	, mEventClient(g),mChannelClient() {
 
@@ -1099,7 +1099,7 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 
 		ViewerCreationArgs bacckyArgs =
 			ViewerCreationArgs(backgroundMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER,
-							   ci::vec3(mDisplaySize.x / 2.0f, mDisplaySize.y / 2.0f, 0.0f),
+							   getGlobalPosition() + ci::vec3(mDisplaySize.x / 2.0f, mDisplaySize.y / 2.0f, 0.0f),
 							   ViewerCreationArgs::kViewLayerBackground, outWid, true, false, false);
 		bacckyArgs.mTouchEvents	   = false;
 		bacckyArgs.mLooped		   = true;
