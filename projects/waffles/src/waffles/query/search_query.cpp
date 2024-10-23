@@ -93,9 +93,9 @@ void SearchQuery::recursiveMatch(ds::model::ContentModelRef item) {
 				auto name = item.getPropertyString("record_name");
 				ds::to_uppercase(name);
 
-				name = item.getPropertyResource(mediaKey).getFileName();
-				ds::to_uppercase(name);
-				if (name.find(mInput) != std::string::npos) {
+				auto filename = item.getPropertyResource(mediaKey).getFileName();
+				ds::to_uppercase(filename);
+				if (name.find(mInput) != std::string::npos || filename.find(mInput) != std::string::npos) {
 					auto fake = item.duplicate();
 					fake.setProperty("type_key", std::string("media"));
 					fake.setProperty("type_uid", std::string("media"));
