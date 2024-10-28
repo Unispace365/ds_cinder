@@ -97,9 +97,11 @@ void EventClient::setNotifier(EventNotifier& notifier)
 		mNotifier->mEventNotifier.removeRequestListener(this);
 	}
 	mNotifier = &notifier;
-	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
-		if (m) this->onAppEvent(*m);
-	});
+	if (mNotifier) {
+		mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
+			if (m) this->onAppEvent(*m);
+		});
+	}
 }
 
 void EventClient::onAppEvent(const ds::Event& in_e) {

@@ -18,7 +18,7 @@ class ListItem;
  */
 class Launcher : public BaseElement {
   public:
-	Launcher(ds::ui::SpriteEngine& g, bool hideClose = false);
+	Launcher(ds::ui::SpriteEngine& g, std::string eventChannel = "", bool hideClose = false);
 
 	void updateMenuItems();
 	void setupMenuItems();

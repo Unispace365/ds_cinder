@@ -32,7 +32,7 @@
 
 namespace waffles {
 
-DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
+DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area, std::string eventChannel)
 	: ds::ui::SmartLayout(g, "waffles/drawing/drawing_control_panel.xml")
 	, mDrawingArea(area)
 	, mDrawingCanvas(area->getDrawingCanvas()) {
@@ -41,6 +41,8 @@ DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
 		DS_LOG_WARNING("Can't setup drawing tools without a drawing canvas!");
 		return;
 	}
+
+	setChannelName(eventChannel);
 
 	auto penny = configureToolButton("brush_pen", TOOL_TYPE_PEN);
 	configureToolButton("brush_highlighter", TOOL_TYPE_HIGHLIGHTER);
@@ -126,7 +128,14 @@ DrawingTools::DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area)
 
 
 	updateSaveButton();
-	listenToEvents<ds::ScheduleUpdatedEvent>([this](auto& e) { updateSaveButton(); });
+	mEngine.getChannel(getChannelName()).addListener(
+		this,
+		[this](const ds::Event* e) {
+			if (e ->getName() == "ScheduleUpdatedEvent") {
+				updateSaveButton();
+			}
+		}
+	);
 }
 
 

@@ -5,7 +5,7 @@
 
 namespace waffles {
 
-BaseElement::BaseElement(ds::ui::SpriteEngine& g)
+BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
 	: BasePanel(g)
 	, mCanArrange(true)
 	, mCanResize(true)
@@ -17,6 +17,13 @@ BaseElement::BaseElement(ds::ui::SpriteEngine& g)
 	, mFatalError(false)
 	, mEventClient(g){
 
+	setChannelName(eventChannel);
+	if (eventChannel.empty()) {
+		mEventClient.setNotifier(g.getNotifier());
+	} else {
+		mEventClient.setNotifier(g.getChannel(eventChannel));
+	}
+	mEventClient.start();
 
 	mAnimDuration = mEngine.getAnimDur();
 }
@@ -105,8 +112,7 @@ void BaseElement::onPanelActivated() {
 	}
 }
 
-void BaseElement::onParentSet()
-{
+void BaseElement::onParentSet() {
 	auto channel = getChannelName();
 	if (!channel.empty()) {
 		mEngine.timedCallback([this, channel]() {

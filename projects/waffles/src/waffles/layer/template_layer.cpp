@@ -25,6 +25,8 @@ TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 
 	if (!channel_name.empty()) {
 		mEventClient.setNotifier(mEngine.getChannel(channel_name));
 		setChannelName(channel_name);
+	} else {
+		mEventClient.setNotifier(mEngine.getNotifier());
 	}
 
 	mTemplateConfig = TemplateConfig::getDefault();

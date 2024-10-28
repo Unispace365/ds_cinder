@@ -40,7 +40,7 @@ struct Action {
  */
 class DrawingArea : public ds::ui::Sprite {
   public:
-	DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float hiddy);
+	DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float hiddy, std::string eventChannel = "");
 
 	const float getControlHeight();
 

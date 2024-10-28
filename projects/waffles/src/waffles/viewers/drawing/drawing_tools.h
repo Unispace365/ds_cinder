@@ -13,7 +13,7 @@ class DrawingArea;
  */
 class DrawingTools : public ds::ui::SmartLayout {
   public:
-	DrawingTools(ds::ui::SpriteEngine& g, DrawingArea*);
+	DrawingTools(ds::ui::SpriteEngine& g, DrawingArea* area, std::string eventChannel = "");
 
 	const float getControlHeight();
 

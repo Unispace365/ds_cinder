@@ -19,7 +19,7 @@ class TitledMediaViewer;
  */
 class BaseElement : public ds::ui::BasePanel {
   public:
-	BaseElement(ds::ui::SpriteEngine& g);
+	BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel = "");
 
 	/// Set the content for this panel
 	virtual void setMedia(const ds::model::ContentModelRef& newMedia) final;

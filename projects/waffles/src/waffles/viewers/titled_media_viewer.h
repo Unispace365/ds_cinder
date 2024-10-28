@@ -16,7 +16,7 @@ class PresetMediaHotspotRef;
  */
 class TitledMediaViewer : public BaseElement {
   public:
-	TitledMediaViewer(ds::ui::SpriteEngine& g);
+	TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "");
 
 	virtual void onMediaSet() override;
 

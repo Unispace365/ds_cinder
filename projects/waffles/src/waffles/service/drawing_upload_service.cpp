@@ -16,7 +16,7 @@
 
 namespace waffles {
 
-DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g,std::string eventChannel)
+DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g, std::string eventChannel)
 	: mEngine(g)
 	, mEventClient(g)
 	, mUploadRequests(g, [&g] { return new FileUploadRequest(g); })
@@ -24,6 +24,8 @@ DrawingUploadService::DrawingUploadService(ds::ui::SpriteEngine& g,std::string e
 
 	if (!eventChannel.empty()) {
 		mEventClient.setNotifier(mEngine.getChannel(eventChannel));
+	} else {
+		mEventClient.setNotifier(mEngine.getNotifier());
 	}
 
 	mUploadRequests.setReplyHandler([this](FileUploadRequest& ur) {

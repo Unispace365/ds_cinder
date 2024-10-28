@@ -39,7 +39,7 @@
 
 namespace waffles {
 
-TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
+TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel)
 	: BaseElement(g)
 	, mMediaPlayer(nullptr)
 	, mDrawingMode(false)
@@ -51,6 +51,14 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g)
 	, mMediaRotation(0)
 	, mPlayerLoadedTimer(mEngine)
 	, mControlsTimeoutTimer(mEngine) {
+
+	setChannelName(eventChannel);
+	if (eventChannel.empty()) {
+		mEventClient.setNotifier(g.getNotifier());
+	} else {
+		mEventClient.setNotifier(g.getChannel(eventChannel));
+	}
+	mEventClient.start();
 
 	mViewerType	  = VIEW_TYPE_TITLED_MEDIA_VIEWER;
 	mAnimDuration = mEngine.getAnimDur();
@@ -862,7 +870,7 @@ void TitledMediaViewer::toggleDrawing() {
 
 			float asp	= getWidth() / getHeight();
 
-			mDrawingArea = new DrawingArea(mEngine, widdy, widdy / asp);
+			mDrawingArea = new DrawingArea(mEngine, widdy, widdy / asp, getChannelName());
 			mDrawingArea->setOpacity(0.0f);
 			addChildPtr(mDrawingArea);
 		}

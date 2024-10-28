@@ -57,6 +57,7 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::
 	else {
 		mChannelClient.setNotifier(mEngine.getNotifier());
 	}
+	mChannelClient.start();
 
 	THIS_INSTANCE = this;
 
@@ -256,7 +257,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 			theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
 
 			if (ds::safeFileExistsCheck(theResource.getAbsoluteFilePath())) {
-				newViewer = new TitledMediaViewer(mEngine);
+				newViewer = new TitledMediaViewer(mEngine, getChannelName());
 			} else {
 
 				ds::model::ContentModelRef errorModel;
@@ -274,14 +275,14 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 				return;
 			}
 		} else {
-			newViewer = new TitledMediaViewer(mEngine);
+			newViewer = new TitledMediaViewer(mEngine, getChannelName());
 		}
 
 	} else if (args.mViewType == VIEW_TYPE_LAUNCHER) {
-		newViewer = new Launcher(mEngine);
+		newViewer = new Launcher(mEngine, getChannelName());
 		// args.mViewLayer = ViewerCreationArgs::kViewLayerTop;
 	} else if (args.mViewType == VIEW_TYPE_LAUNCHER_PERSISTANT) {
-		newViewer = new Launcher(mEngine, true);
+		newViewer = new Launcher(mEngine, getChannelName(), true);
 		// args.mViewLayer = ViewerCreationArgs::kViewLayerTop;
 	} else if (args.mViewType == VIEW_TYPE_SEARCH) {
 		newViewer = new SearchViewer(mEngine, VIEW_TYPE_SEARCH);

@@ -28,13 +28,21 @@
 namespace waffles {
 static int NEXT_REQUEST = 0;
 
-DrawingArea::DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float hiddy)
+DrawingArea::DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float hiddy, std::string eventChannel)
 	: ds::ui::Sprite(g)
 	, mEventClient(g)
 	, mDrawingCanvas(nullptr)
 	, mDrawingTools(nullptr)
 	, mToolsEmbedded(true)
 	, mRequestId(-1) {
+
+	setChannelName(eventChannel);
+	if (eventChannel.empty()) {
+		mEventClient.setNotifier(g.getNotifier());
+	} else {
+		mEventClient.setNotifier(g.getChannel(eventChannel));
+	}
+	mEventClient.start();
 
 	enable(false);
 
@@ -52,7 +60,7 @@ DrawingArea::DrawingArea(ds::ui::SpriteEngine& g, const float widdy, const float
 		mCurrentAction = (int)mActions.size();
 	});
 
-	mDrawingTools = new DrawingTools(mEngine, this);
+	mDrawingTools = new DrawingTools(mEngine, this, eventChannel);
 	addChildPtr(mDrawingTools);
 
 	setSize(widdy, hiddy);
@@ -284,18 +292,12 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 	if (!getParent()) return;
 
 	/// Tell anything to hide itself
-	auto channel = getChannelName();
-	auto& notifier = mEngine.getNotifier();
-	if (!channel.empty()) {
-		notifier = mEngine.getChannel(channel);
-	}
-
-	notifier.notify(RequestPreDrawingSave());
+	mEventClient.notify(RequestPreDrawingSave());
 
 	if (mDrawingTools) mDrawingTools->hide();
 	float delayey = 0.05f;
 	callAfterDelay(
-		[this, localSavePath, &notifier] {
+		[this, localSavePath] {
 			const auto temp	   = getBoundingBox();
 			auto	   leftTop = localToGlobal(ci::vec3(temp.x1, temp.y1, 0));
 			// float	   toolsHeight = 0;
@@ -324,7 +326,7 @@ void DrawingArea::saveDrawing(const std::string& localSavePath) {
 
 			mRequestId = NEXT_REQUEST++;
 
-			notifier.notify(RequestDrawingSave(s, mRequestId, localSavePath));
+			mEventClient.notify(RequestDrawingSave(s, mRequestId, localSavePath));
 			//mEngine.getNotifier().notify(RequestDrawingSave(s, mRequestId, localSavePath));
 			if (mDrawingTools) mDrawingTools->show();
 		},
