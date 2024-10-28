@@ -113,12 +113,14 @@ void BaseElement::onPanelActivated() {
 }
 
 void BaseElement::onParentSet() {
+	/* TODO: this seems fair, but running into crashes, so best I can find to do is remove
 	auto channel = getChannelName();
 	if (!channel.empty()) {
 		mEngine.timedCallback([this, channel]() {
 			mEventClient.setNotifier(mEngine.getChannel(channel));
 			}, 0.001);
 	}
+	*/
 }
 
 } // namespace waffles
