@@ -40,6 +40,13 @@ class VideoPlayer : public ds::ui::Sprite {
 	VideoInterface* getVideoInterface() { return mVideoInterface; }
 	void			setShowInterfaceAtStart(bool showInterfaceAtStart);
 
+	float getPanning() const { return mPanning; }
+	bool  getAutoSynchronize() const { return mAutoSyncronize; }
+	bool  getAutoPlayFirstFrame() const { return mAutoPlayFirstFrame; }
+	bool  getAllowOutOfBoundMuted() const { return mAllowOutOfBoundsMuted; }
+	bool  getLooping() const { return mLooping; }
+	bool  getInterfaceBelowMedia() const { return mInterfaceBelowMedia; }
+
 	ds::ui::GstVideo* getVideo();
 
 	/// Sets all applicable settings from a MediaViewerSettings
