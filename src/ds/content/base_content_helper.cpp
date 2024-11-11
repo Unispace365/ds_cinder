@@ -28,8 +28,11 @@ namespace ds::model {
 		for (int i = 0; i < playlistCount; ++i) {
 			auto playlist = mEngine.getWafflesSettings().getString("content:playlist:key", i, "");
 			auto category = mEngine.getWafflesSettings().getAttribute("content:playlist:key", i, "category", DEFAULTCATEGORY);
-			mAcceptablePlaylists[category].push_back(playlist);
-			if (mAcceptablePlaylists[DEFAULTCATEGORY].empty()) mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
+			if (!playlist.empty()) {
+				mAcceptablePlaylists[category].push_back(playlist);
+				if (mAcceptablePlaylists[DEFAULTCATEGORY].empty())
+					mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
+			}
 		}
 
 	}
