@@ -18,16 +18,18 @@ AutoUpdateList::AutoUpdateList() {
 }
 
 void AutoUpdateList::update(const ds::UpdateParams& p) {
+	
+	if (!mRunning.empty()) {
+		for (auto it : mRunning) {
+			it->update(p);
+		}
+	}
+
 	if (!mWaiting.empty()) {
 		for (auto it = mWaiting.begin(), end = mWaiting.end(); it != end; ++it) {
 			mRunning.push_back(*it);
 		}
 		mWaiting.clear();
-	}
-	if (mRunning.empty()) return;
-
-	for (auto it : mRunning) {
-		it->update(p);
 	}
 }
 
