@@ -39,6 +39,11 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void show() override;
 
 	ds::ui::Sprite* getBackground() { return mBackground; }
+	virtual void	setMaxWidth(float width) {
+		   mMaxWidth = width;
+		   layout();
+	}
+
 	virtual void	setMinWidth(float width) {
 		   mMinWidth = width;
 		   layout();

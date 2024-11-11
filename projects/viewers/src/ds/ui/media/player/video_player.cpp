@@ -43,6 +43,9 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 	clear();
 
 	mVideo = new ds::ui::GstVideo(mEngine);
+
+	mVideo->setCornerRadius(mCornerRadius);
+
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 
@@ -172,15 +175,20 @@ void VideoPlayer::layout() {
 	if (mVideoInterface && mEmbedInterface) {
 		mVideoInterface->setSize(getWidth() / 2.0f, mVideoInterface->getHeight());
 		float yPos = getHeight() - mVideoInterface->getScaleHeight() - mInterfaceBottomPad;
+
 		if (yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+
 		if (yPos + mVideoInterface->getScaleHeight() > getHeight())
 			yPos = getHeight() - mVideoInterface->getScaleHeight();
+
 		if (mInterfaceBelowMedia) yPos = getHeight();
+
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getScaleWidth() / 2.0f, yPos);
 	}
 }
 
 void VideoPlayer::showInterface() {
+	layout();
 	if (mVideoInterface) {
 		mVideoInterface->animateOn();
 	}

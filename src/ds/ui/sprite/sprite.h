@@ -759,6 +759,10 @@ namespace ui {
 		/// can take a Resource (Image, Video, PDF, etc)
 		virtual void setResource(const ds::Resource&);
 
+		/// Set the resource preview content for a sprite. This is a base function that should be overridden by anything that
+		/// can take a Resource (Image, Video, PDF, etc)
+		virtual void setResourcePreview(const ds::Resource&);
+
 		SpriteShader&	 getBaseShader();
 		std::string		 getBaseShaderName() const;
 		ds::gl::Uniform& getUniform();
@@ -920,6 +924,7 @@ namespace ui {
 		virtual void onScaleChanged() {}
 		virtual void onSizeChanged() {}
 		virtual void onRotationChanged() {}
+		virtual void onOrderChanged() {}
 		virtual void onChildAdded(Sprite& child) {}
 		virtual void onChildRemoved(Sprite& child) {}
 		virtual void onParentSet() {}
@@ -974,6 +979,8 @@ namespace ui {
 		ci::Color8u		mUniqueColor;
 
 		float mWidth, mHeight, mDepth;
+
+		float mGlobalScale = 1.f;
 
 		css::Value mMinWidth, mMaxWidth;
 		css::Value mMinHeight, mMaxHeight;

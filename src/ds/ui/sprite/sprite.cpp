@@ -109,7 +109,7 @@ void Sprite::handleBlobFromClient(ds::BlobReader& r) {
 	ds::DataBuffer& buf(r.mDataBuffer);
 	if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
 	const ds::sprite_id_t id = buf.read<ds::sprite_id_t>();
-	Sprite*			s  = r.mSpriteEngine.findSprite(id);
+	Sprite*				  s	 = r.mSpriteEngine.findSprite(id);
 	if (s) s->readFrom(r);
 }
 
@@ -315,7 +315,8 @@ void Sprite::drawLocalClientInternal(const ci::mat4& totalTransformation, const 
 
 		DS_REPORT_GL_ERRORS();
 
-		mDrawOpacity = getOpacity() * drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
+		mDrawOpacity =
+			getOpacity() * drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
 
 		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 
@@ -391,7 +392,7 @@ void Sprite::drawClient(const ci::mat4& trans, const DrawParams& drawParams) {
 
 	if (mIsRenderFinalToTexture && mOutputFbo) {
 		// set the viewport and maticies to match the w/h of this object and fbo
-		const ci::CameraOrtho			  camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
+		const ci::CameraOrtho	  camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
 		ci::gl::ScopedMatrices	  sMat;
 		ci::gl::ScopedViewport	  sVp(ci::ivec2(0), mOutputFbo->getSize());
 		ci::gl::ScopedFramebuffer sFb(mOutputFbo);
@@ -428,7 +429,8 @@ void Sprite::drawServer(const ci::mat4& trans, const DrawParams& drawParams) {
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
 
-			mDrawOpacity = getOpacity() * drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
+			mDrawOpacity = getOpacity() *
+						   drawParams.mParentOpacity; // Use getOpacity() to allow sprites to override this behavior.
 			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 		} else {
 			ci::gl::disableAlphaBlending();
@@ -485,7 +487,18 @@ void Sprite::drawLocalServer() {
 }
 
 void Sprite::buildRenderBatch() {
-	if (!mNeedsBatchUpdate) return;
+	if (mCornerRadius != 0.f) {
+		auto globalScale	= getGlobalTransform()[0][0];
+		if (globalScale <= std::numeric_limits<float>::epsilon()) {
+			globalScale = std::numeric_limits<float>::epsilon();
+		}
+		auto newGlobalScale = std::min(1.f / getGlobalTransform()[0][0], 1000.f);
+		if (newGlobalScale != mGlobalScale) {
+			mGlobalScale = newGlobalScale;
+			mNeedsBatchUpdate = true;
+		}
+	}
+	// if (!mNeedsBatchUpdate) return;
 	mNeedsBatchUpdate = false;
 
 	if (getTransparent()) {
@@ -505,7 +518,7 @@ void Sprite::buildRenderBatch() {
 void Sprite::onBuildRenderBatch() {
 	const auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
 	if (mCornerRadius > 0.0f) {
-		const auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		const auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius * mGlobalScale);
 		if (mRenderBatch) {
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
@@ -558,6 +571,7 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	mUpdateTransform	= true;
 	mBoundsNeedChecking = true;
 	mMinMaxDirty		= true;
+	mNeedsBatchUpdate	= true;
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
@@ -848,8 +862,8 @@ void Sprite::buildTransform() const {
 		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
-	mTransformation = glm::translate(mTransformation,
-									 glm::vec3(-mCenter.x * getWidth(), -mCenter.y * getHeight(), -mCenter.z * getDepth()));
+	mTransformation = glm::translate(
+		mTransformation, glm::vec3(-mCenter.x * getWidth(), -mCenter.y * getHeight(), -mCenter.z * getDepth()));
 
 	mInverseTransform = glm::inverse(mTransformation);
 }
@@ -1672,7 +1686,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			markClippingDirty();
 		} else if (id == CORNERRADIUS_ATT) {
 			const float cornerRad = buf.read<float>();
-			mCornerRadius	= cornerRad;
+			mCornerRadius		  = cornerRad;
 		} else if (id == SORTORDER_ATT) {
 			const int32_t size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
@@ -1785,6 +1799,11 @@ void Sprite::setBaseShader(const std::string& vertShader, const std::string& fra
 
 void Sprite::setResource(const ds::Resource&) {
 	DS_LOG_WARNING("Set resource hasn't been implemented for this sprite type. Sprite name="
+				   << ds::utf8_from_wstr(getSpriteName(true)));
+}
+
+void Sprite::setResourcePreview(const ds::Resource&) {
+	DS_LOG_WARNING("Set preview resource hasn't been implemented for this sprite type. Sprite name="
 				   << ds::utf8_from_wstr(getSpriteName(true)));
 }
 
@@ -2048,6 +2067,8 @@ void Sprite::sendSpriteToFront(Sprite& sprite) {
 	mChildren.push_back(&sprite);
 
 	markAsDirty(SORTORDER_DIRTY);
+
+	onOrderChanged();
 }
 
 void Sprite::sendSpriteToBack(Sprite& sprite) {
@@ -2059,6 +2080,8 @@ void Sprite::sendSpriteToBack(Sprite& sprite) {
 	mChildren.insert(mChildren.begin(), &sprite);
 
 	markAsDirty(SORTORDER_DIRTY);
+
+	onOrderChanged();
 }
 
 Sprite* Sprite::getFirstDescendantWithName(const std::wstring& name) {
@@ -2090,16 +2113,22 @@ void Sprite::sendToBack() {
 }
 
 void Sprite::setSpriteOrder(const std::vector<sprite_id_t>& order) {
+	bool orderChanged = false;
+
 	for (auto it = order.begin(), end = order.end(); it != end; ++it) {
 		const sprite_id_t id(*it);
 		auto			  found =
 			std::find_if(mChildren.begin(), mChildren.end(), [id](Sprite* s) -> bool { return s && s->getId() == id; });
 		if (found != mChildren.end()) {
+			orderChanged |= std::distance(mChildren.begin(), found) != 0;
+
 			Sprite* s(*found);
 			mChildren.erase(found);
 			mChildren.push_back(s);
 		}
 	}
+
+	if (orderChanged) onOrderChanged();
 }
 
 ds::ui::SpriteShader& Sprite::getBaseShader() {
@@ -2213,14 +2242,14 @@ void Sprite::setFlexboxAutoSizes() {
 
 void Sprite::setSpriteFromFlexbox() {
 	// position and size
-	auto       layout = mYogaNode->getLayout();
-	auto       r      = YGNodeLayoutGetRight(mYogaNode);
-	auto       b      = YGNodeLayoutGetBottom(mYogaNode);
-	const auto x      = YGNodeLayoutGetLeft(mYogaNode);
-	const auto y      = YGNodeLayoutGetTop(mYogaNode);
-	const auto w      = YGNodeLayoutGetWidth(mYogaNode);
-	const auto h      = YGNodeLayoutGetHeight(mYogaNode);
-	auto       bt     = YGNodeLayoutGetBorder(mYogaNode, YGEdgeTop);
+	auto	   layout = mYogaNode->getLayout();
+	auto	   r	  = YGNodeLayoutGetRight(mYogaNode);
+	auto	   b	  = YGNodeLayoutGetBottom(mYogaNode);
+	const auto x	  = YGNodeLayoutGetLeft(mYogaNode);
+	const auto y	  = YGNodeLayoutGetTop(mYogaNode);
+	const auto w	  = YGNodeLayoutGetWidth(mYogaNode);
+	const auto h	  = YGNodeLayoutGetHeight(mYogaNode);
+	auto	   bt	  = YGNodeLayoutGetBorder(mYogaNode, YGEdgeTop);
 
 	setPosition(x, y);
 	setSize(w, h);
@@ -2406,7 +2435,7 @@ void Sprite::enableDebugging(const bool doDebug) {
 }
 
 bool Sprite::getDebugging() const {
-		return getFlag(DEBUG_F, mSpriteFlags);
+	return getFlag(DEBUG_F, mSpriteFlags);
 }
 
 

@@ -188,6 +188,7 @@ void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 		if (!firsty && thePage > mNumPages + 1) break;
 
 		auto newPdf = new ds::ui::Pdf(mEngine);
+		newPdf->setCornerRadius(mCornerRadius);
 
 		newPdf->setPageLoadedCallback([this, thePage] {
 			// std::cout << "Page loaded: " << thePage << std::endl;

@@ -14,9 +14,9 @@ namespace ds { namespace ui {
 
 	SoftKeyboard::SoftKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings)
 	  : ds::ui::Sprite(engine)
-	  , mSoftKeyboardSettings(settings)
+	  , mCurrentText(L"")
 	  , mUpperCase(false)
-	  , mCurrentText(L"") {
+	  , mSoftKeyboardSettings(settings) {
 		mSoftKeyboardSettings.normalizeSettings();
 
 		mLayoutFixedAspect = true;

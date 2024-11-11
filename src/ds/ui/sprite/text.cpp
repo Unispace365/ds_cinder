@@ -1544,6 +1544,8 @@ void Text::renderPangoText() {
 }
 
 void Text::measureMinMaxTextSize() {
+	static constexpr int kCompensateRoundingErrors = 2;
+
 	const auto resizeLimit = ci::vec2(getResizeLimitWidth(), getResizeLimitHeight());
 
 	auto style = mStyle;
@@ -1560,11 +1562,11 @@ void Text::measureMinMaxTextSize() {
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMinWidth = css::Value(mPixelWidth, css::Value::PIXELS);
+	mMinWidth = css::Value(mPixelWidth + kCompensateRoundingErrors, css::Value::PIXELS);
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMinHeight = css::Value(mPixelHeight, css::Value::PIXELS);
+	mMinHeight = css::Value(mPixelHeight + kCompensateRoundingErrors, css::Value::PIXELS);
 
 	// Use largest font size.
 	if (!style.mFitSizes.empty()) {
@@ -1573,14 +1575,14 @@ void Text::measureMinMaxTextSize() {
 		setFitMinFontSize(style.mFitMaxTextSize);
 		setFitMaxFontSize(style.mFitMaxTextSize);
 	}
-	
+
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMaxHeight = css::Value(mPixelHeight, css::Value::PIXELS);
-	
+	mMaxHeight = css::Value(mPixelHeight + kCompensateRoundingErrors, css::Value::PIXELS);
+
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMaxWidth = css::Value(mPixelWidth, css::Value::PIXELS);
+	mMaxWidth = css::Value(mPixelWidth + kCompensateRoundingErrors, css::Value::PIXELS);
 
 	// Restore the original resize limits.
 	setResizeLimit(resizeLimit.x, resizeLimit.y);

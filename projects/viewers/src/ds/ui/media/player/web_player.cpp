@@ -96,6 +96,7 @@ void WebPlayer::setResource(const ds::Resource& resource) {
 	}
 
 	mWeb = new ds::ui::Web(mEngine);
+	mWeb->setCornerRadius(mCornerRadius);
 	mWeb->setDragScrolling(true);
 	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
