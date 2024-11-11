@@ -86,6 +86,7 @@ class BridgeService {
 			bool					   mRefreshEvents;	 // If true, will refresh (only) the events.
 			const long				   mRefreshRateMs;	 // in milliseconds
 			int						   mResourceId = 1;	 //
+			int						   mLoadContentCount					  = 0;
 			std::function<bool(const ds::model::ContentModelRef&)> mValidator = nullptr;
 		};
 

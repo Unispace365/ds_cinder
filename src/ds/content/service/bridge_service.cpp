@@ -124,7 +124,7 @@ void BridgeService::Loop::run() {
 
 		if (refreshDatabase) {
 			DS_LOG_VERBOSE(2, "BridgeService::Loop is refreshing content")
-
+			DS_LOG_INFO("BridgeService has been asked to refresh the content models");
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
@@ -362,7 +362,7 @@ bool BridgeService::Loop::loadContent() {
 			ds::query::Result::RowIterator it(result);
 			int rows = result.getRowSize();
 			if (rows == 0) {
-				DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent no records?");
+				DS_LOG_WARNING("BridgeService::Loop::loadContent rankOrderRecords query returned 0! returning false to retry loadContent");
 				return false;
 			}
 			int							   recordId = 1;
