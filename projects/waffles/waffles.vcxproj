@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -135,6 +135,7 @@
   <ItemGroup>
     <Xml Include="settings\waffles.xml" />
     <Xml Include="settings\waffles_fonts.xml" />
+    <Xml Include="settings\waffles_interface.xml" />
     <Xml Include="settings\waffles_styles.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
