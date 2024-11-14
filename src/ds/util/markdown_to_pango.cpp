@@ -5,6 +5,7 @@
 
 #include "ds/util/sundown/markdown.h"
 #include <cctype>
+#include <locale>
 
 namespace ds { namespace ui {
 
@@ -307,7 +308,7 @@ namespace ds { namespace ui {
 			outputty.append("\n");
 		}
 
-		while(!outputty.empty() && std::isspace(outputty.back())){
+		while (!outputty.empty() && std::isspace(outputty.back(), std::locale("en_US.UTF8"))) {
 			outputty.pop_back();
 		}
 
