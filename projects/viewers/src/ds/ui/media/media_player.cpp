@@ -693,8 +693,6 @@ void MediaPlayer::showInterface() {
 	if (mPDFPlayer) mPDFPlayer->showInterface();
 	if (mWebPlayer) mWebPlayer->showInterface();
 	if (mYouTubePlayer) mYouTubePlayer->showInterface();
-
-	mEngine.getNotifier().notify(MediaPlayerInterfaceShownEvent(this));
 }
 
 void MediaPlayer::hideInterface() {
@@ -704,8 +702,6 @@ void MediaPlayer::hideInterface() {
 	if (mPDFPlayer) mPDFPlayer->hideInterface();
 	if (mWebPlayer) mWebPlayer->hideInterface();
 	if (mYouTubePlayer) mYouTubePlayer->hideInterface();
-
-	mEngine.getNotifier().notify(MediaPlayerInterfaceHiddenEvent(this));
 }
 
 void MediaPlayer::stopContent() {

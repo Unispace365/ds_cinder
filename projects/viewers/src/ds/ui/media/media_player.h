@@ -203,24 +203,4 @@ class MediaPlayer : public ds::ui::Sprite {
 	void setDefaultProperties();
 };
 
-class MediaPlayerInterfaceShownEvent : public ds::RegisteredEvent<MediaPlayerInterfaceShownEvent> {
-	MediaPlayer* mMediaPlayer = nullptr;
-
-  public:
-	MediaPlayerInterfaceShownEvent(MediaPlayer* mp)
-	  : mMediaPlayer(mp) {}
-
-	MediaPlayer* getMediaPlayer() const { return mMediaPlayer; }
-};
-
-class MediaPlayerInterfaceHiddenEvent : public ds::RegisteredEvent<MediaPlayerInterfaceHiddenEvent> {
-	MediaPlayer* mMediaPlayer = nullptr;
-
-  public:
-	MediaPlayerInterfaceHiddenEvent(MediaPlayer* mp)
-	  : mMediaPlayer(mp) {}
-
-	MediaPlayer* getMediaPlayer() const { return mMediaPlayer; }
-};
-
 } // namespace ds::ui

@@ -19,7 +19,7 @@ namespace ds::ui {
 
 PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
 						   const ci::Color buttonColor, const ci::Color backgroundColor)
-  : MediaInterface(eng, sizey, backgroundColor)
+  : MediaInterface(eng, ds::Resource::PDF_TYPE, sizey, backgroundColor)
   , mLinkedPDF(nullptr)
   , mLinkedEnabled(false)
   , mUpButton(nullptr)
