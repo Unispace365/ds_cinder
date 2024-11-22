@@ -87,7 +87,7 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 
 
 	//init the template config
-	mTemplateConfig = TemplateConfig::getDefault();
+	mTemplateConfig = TemplateConfig::getDefault(&mEngine);
 
 	// Setup waffles events
 	auto& reg = ds::event::Registry::get();

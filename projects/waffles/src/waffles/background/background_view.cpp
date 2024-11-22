@@ -43,7 +43,7 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 	: ds::ui::Sprite(g)
 	, mEventClient(g) {
 
-	mTemplateConfig = TemplateConfig::getDefault();
+	mTemplateConfig = TemplateConfig::getDefault(&mEngine);
 	setTransparent(false);
 	//set background color from waffles settings
 	auto& color = mEngine.getColors().getColorFromName("waffles:background");

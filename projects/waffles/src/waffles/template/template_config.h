@@ -28,7 +28,11 @@ public:
 	}
 
 	template<class T=TemplateConfig>
-	static TemplateConfig* getDefault(ds::ui::SpriteEngine* e=nullptr) {
+	static TemplateConfig* getDefault(ds::ui::SpriteEngine* e) {
+		if (e == nullptr) {
+			DS_LOG_ERROR("SpriteEngine is null when trying to get TemplateConfig. Returning NULL.")
+			return nullptr;
+		}
 		static TemplateConfig* sDefault = new T(*e);
 		return sDefault;
 	}

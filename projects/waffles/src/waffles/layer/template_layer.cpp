@@ -29,7 +29,7 @@ TemplateLayer::TemplateLayer(ds::ui::SpriteEngine& eng, ci::vec2 size, ci::vec2 
 		mEventClient.setNotifier(mEngine.getNotifier());
 	}
 
-	mTemplateConfig = TemplateConfig::getDefault();
+	mTemplateConfig = TemplateConfig::getDefault(&mEngine);
 	theTemplateLayer = this;
 	
 	setSize(size);
