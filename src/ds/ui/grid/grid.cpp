@@ -216,6 +216,22 @@ Grid::Grid(SpriteEngine& engine)
 	});
 }
 
+float Grid::getTrackWidth() const {
+	float w = 0;
+	for (const auto& track : mColumns) {
+		w += track.usedBreadth;
+	}
+	return w;
+}
+
+float Grid::getTrackHeight() const {
+	float h = 0;
+	for (const auto& track : mRows) {
+		h += track.usedBreadth;
+	}
+	return h;
+}
+
 void Grid::setColumns(const std::string& def) {
 	mColumns.clear();
 	try {
@@ -321,7 +337,7 @@ bool Grid::setAvailableSize(const ci::vec2& size) {
 
 void Grid::fitInsideArea(const ci::Rectf& area) {
 	const auto changed = setAvailableSize(area.getSize());
-	const auto bounds  = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto bounds  = ci::Rectf{0, 0, getTrackWidth(), getTrackHeight()};
 	const auto fit	   = mFit.calcTransform(area, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
