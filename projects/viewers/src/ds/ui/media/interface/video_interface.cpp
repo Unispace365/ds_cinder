@@ -19,7 +19,7 @@ namespace ds { namespace ui {
 
 	VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
 								   const ci::Color buttonColor, const ci::Color backgroundColor)
-	  : MediaInterface(eng, sizey, backgroundColor)
+	  : MediaInterface(eng, ds::Resource::VIDEO_TYPE, sizey, backgroundColor)
 	  , mLinkedVideo(nullptr)
 	  , mPlayButton(nullptr)
 	  , mPauseButton(nullptr)

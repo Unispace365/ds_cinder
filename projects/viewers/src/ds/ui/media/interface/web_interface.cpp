@@ -26,7 +26,7 @@ namespace ds::ui {
 
 WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
 						   const ci::Color buttonColor, const ci::Color backgroundColor)
-  : MediaInterface(eng, sizey, backgroundColor)
+  : MediaInterface(eng, ds::Resource::WEB_TYPE, sizey, backgroundColor)
   , mEventClient(mEngine)
   , mLinkedWeb(nullptr)
   , mKeyboardArea(nullptr)

@@ -34,6 +34,11 @@ class Grid : public Sprite {
 
 	Grid(SpriteEngine& engine);
 
+	// Returns the actual width of the grid, as calculated from the grid tracks.
+	float getTrackWidth() const;
+	// Returns the actual height of the grid, as calculated from the grid tracks.
+	float getTrackHeight() const;
+
 	// Accepts CSS-style definition, e.g. "100px 1fr 20%".
 	void setColumns(const std::string& def);
 	// Accepts CSS-style definition, e.g. "100px 1fr 20%".
