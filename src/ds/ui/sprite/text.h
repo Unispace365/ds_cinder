@@ -308,7 +308,7 @@ class Text : public ds::ui::Sprite {
 	bool measurePangoText();
 
 	/// Renders text into the texture.
-	void renderPangoText();
+	virtual void renderPangoText();
 
 	/// Measures min/max size of the text for layout purposes
 	void measureMinMaxTextSize();

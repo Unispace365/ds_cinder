@@ -19,6 +19,9 @@
     <ClCompile Include="src\nvpath\NvPathSvg.cpp">
       <Filter>src\nvpath</Filter>
     </ClCompile>
+    <ClCompile Include="src\nvpath\NvPathText.cpp">
+      <Filter>src\nvpath</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
@@ -33,6 +36,9 @@
     </ClInclude>
     <ClInclude Include="src\cy\cyCore.h">
       <Filter>src\cy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvpath\NvPathText.h">
+      <Filter>src\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\cy\cyPolynomial.h">
       <Filter>src\cy</Filter>

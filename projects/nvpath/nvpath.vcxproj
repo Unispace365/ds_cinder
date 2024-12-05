@@ -32,6 +32,7 @@
     </ClCompile>
     <ClCompile Include="src\nvpath\NvPath.cpp" />
     <ClCompile Include="src\nvpath\NvPathSvg.cpp" />
+    <ClCompile Include="src\nvpath\NvPathText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="src\cy\cyPolynomial.h" />
     <ClInclude Include="src\nvpath\NvPath.h" />
     <ClInclude Include="src\nvpath\NvPathSvg.h" />
+    <ClInclude Include="src\nvpath\NvPathText.h" />
     <ClInclude Include="src\nvpath\NvPathUtil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

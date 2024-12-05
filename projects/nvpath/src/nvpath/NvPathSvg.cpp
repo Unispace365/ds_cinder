@@ -31,6 +31,7 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #include <cinder/Text.h>
 #include <cinder/Utilities.h>
 
+#include <ds/util/float_util.h>
 #include <ds/util/string_util.h>
 
 #include "nvpath/NvPathSvg.h"
@@ -303,11 +304,11 @@ const ColorA8u& Style::getColorDefault() {
 }
 
 const Paint& Style::getFillDefault() {
-	static const Paint sPaintBlack = Paint(Color::black());
+	static Paint sPaintBlack = Paint(Color::black());
 	return sPaintBlack;
 }
 const Paint& Style::getStrokeDefault() {
-	static const Paint sPaintNone = Paint();
+	static Paint sPaintNone = Paint();
 	return sPaintNone;
 }
 
@@ -341,6 +342,8 @@ void Style::parseStyleAttribute(const std::string& stylePropertyString, const Sv
 }
 
 bool Style::parseProperty(const std::string& key, const std::string& value, const SvgNode* parent) {
+	if (key.empty() || value.empty()) return false;
+
 	if (key == "color") {
 		mColor = parsePaint(value.c_str(), &mSpecifiesColor, parent).getColor();
 		return true;
@@ -2877,6 +2880,7 @@ SvgNode* SvgGroup::create(SvgNode* parent, const XmlTree& xml) {
 	if (xml.getTag() == "linearGradient") return new SvgLinearGradient(parent, xml);
 	if (xml.getTag() == "radialGradient") return new SvgRadialGradient(parent, xml);
 	if (xml.getTag() == "style") return new SvgStyles(parent, xml);
+	if (xml.getTag() == "symbol") return new SvgSymbol(parent, xml);
 	if (xml.getTag() == "text") return new SvgText(parent, xml);
 
 	// Treat <switch> tags as normal groups and parse their contents.
@@ -3085,10 +3089,15 @@ void SvgGroup::iterate(const std::function<void(SvgNode*)>& fn) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+// Symbol
+SvgSymbol::SvgSymbol(SvgNode* parent, const XmlTree& xml)
+  : SvgGroup(parent, xml) {
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 // Use
 SvgUse::SvgUse(SvgNode* parent, const XmlTree& xml)
-  : SvgNode(parent, xml)
-  , mReferenced(nullptr) {
+  : SvgNode(parent, xml) {
 	parse(xml);
 }
 

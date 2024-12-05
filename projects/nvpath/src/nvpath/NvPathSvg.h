@@ -22,7 +22,7 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 #pragma once
 
-#include "NvPath.h"
+#include "nvpath/NvPath.h"
 
 #include <cinder/Cinder.h>
 #include <cinder/Color.h>
@@ -33,8 +33,6 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #include <cinder/Shape2d.h>
 #include <cinder/Surface.h>
 #include <cinder/Xml.h>
-
-#include <ds/util/float_util.h>
 
 #include <functional>
 #include <map>
@@ -955,14 +953,14 @@ class Svg : public Renderer {
 	//! Returns the stencil mask based on the current fill rule.
 	GLuint getStencilMask() const { return mStacks.fillRule.back() == FILL_RULE_EVEN_ODD ? 0x01 : 0xFF; }
 
-	SvgDocRef                                        mDoc;
-	ci::gl::Context*                                 mCtx = nullptr;
-	Stacks                                           mStacks;
-	ci::Rectf                                        mBounds{0, 0, 0, 0};
-	Paints                                           mPaints;
+	SvgDocRef										 mDoc;
+	ci::gl::Context*								 mCtx = nullptr;
+	Stacks											 mStacks;
+	ci::Rectf										 mBounds{0, 0, 0, 0};
+	Paints											 mPaints;
 	std::unordered_map<GLuint, ci::gl::Texture2dRef> mTextures;
-	std::unordered_map<GLuint, Path>                 mPaths;
-	float                                            mOpacity{1};
+	std::unordered_map<GLuint, Path>				 mPaths;
+	float											 mOpacity{1};
 };
 
 //! SVG Circle element: http://www.w3.org/TR/SVG/shapes.html#CircleElement
@@ -1378,111 +1376,120 @@ class SvgGroup : public SvgNode, private ci::Noncopyable {
 };
 
 //!
-class SvgDefs : public SvgGroup {
+class SvgSymbol : public SvgGroup {
   public:
-	SvgDefs(SvgNode* parent)
+	explicit SvgSymbol(SvgNode* parent)
 	  : SvgGroup(parent) {}
-	SvgDefs(SvgNode* parent, const ci::XmlTree& xml);
+	SvgSymbol(SvgNode* parent, const ci::XmlTree& xml);
+};
 
-	const SvgNode* findNode(const std::string& id, bool recurse) const override;
+//!
+class SvgDefs : public SvgGroup {
+	  public:
+		SvgDefs(SvgNode* parent)
+		  : SvgGroup(parent) {}
+		SvgDefs(SvgNode* parent, const ci::XmlTree& xml);
 
-  protected:
-	void renderSelf(Renderer& renderer) const override { /* never render */
-	}
+		const SvgNode* findNode(const std::string& id, bool recurse) const override;
 
-	ci::Rectf calcBoundingBox() const override { return {0, 0, 0, 0}; }
+	  protected:
+		void renderSelf(Renderer& renderer) const override { /* never render */
+		}
 
-	ci::XmlTree mXml;
+		ci::Rectf calcBoundingBox() const override { return {0, 0, 0, 0}; }
+
+		ci::XmlTree mXml;
 };
 
 //! SVG ClipPath element: https://www.w3.org/TR/SVG/render.html#ClippingAndMasking
 class SvgClipPath : public SvgGroup {
-  public:
-	explicit SvgClipPath(SvgNode* parent)
-	  : SvgGroup(parent) {}
-	SvgClipPath(SvgNode* parent, const ci::XmlTree& xml);
+	  public:
+		explicit SvgClipPath(SvgNode* parent)
+		  : SvgGroup(parent) {}
+		SvgClipPath(SvgNode* parent, const ci::XmlTree& xml);
 
-	bool useObjectBoundingBox() const { return mUseObjectBoundingBox; }
+		bool useObjectBoundingBox() const { return mUseObjectBoundingBox; }
 
-	//! Returns whether all children are set to 'display="none"'.
-	bool isDisplayNone() const override { return mIsDisplayNone; }
+		//! Returns whether all children are set to 'display="none"'.
+		bool isDisplayNone() const override { return mIsDisplayNone; }
 
-  protected:
-	void renderSelf(Renderer& renderer) const override { /* never render */
-	}
+	  protected:
+		void renderSelf(Renderer& renderer) const override { /* never render */
+		}
 
-	bool mUseObjectBoundingBox = false;
-	bool mIsDisplayNone		   = true;
+		bool mUseObjectBoundingBox = false;
+		bool mIsDisplayNone		   = true;
 };
 
 //!
 class SvgStyles : public SvgNode {
-  public:
-	explicit SvgStyles(SvgNode* parent)
-	  : SvgNode(parent) {}
-	SvgStyles(SvgNode* parent, const ci::XmlTree& xml);
+	  public:
+		explicit SvgStyles(SvgNode* parent)
+		  : SvgNode(parent) {}
+		SvgStyles(SvgNode* parent, const ci::XmlTree& xml);
 
-	bool   empty() const { return mStyleList.empty(); }
-	size_t size() const { return mStyleList.size(); }
+		bool   empty() const { return mStyleList.empty(); }
+		size_t size() const { return mStyleList.size(); }
 
-	Style findStyle(const std::string& id) const;
+		Style findStyle(const std::string& id) const;
 
-	void renderSelf(Renderer& renderer) const override {}
+		void renderSelf(Renderer& renderer) const override {}
 
-  protected:
-	std::unordered_map<std::string, Style> mStyleList;
+	  protected:
+		std::unordered_map<std::string, Style> mStyleList;
 };
 
 //! Represents an SVG Document. See SVG Document Structure http://www.w3.org/TR/SVG/struct.html
 class SvgDoc : public SvgGroup {
-  public:
-	SvgDoc();
-	SvgDoc(SvgNode* parent, const ci::XmlTree& xml);
-	SvgDoc(const ci::fs::path& filePath);
-	SvgDoc(const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
-	SvgDoc(SvgNode* parent, const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
+	  public:
+		SvgDoc();
+		SvgDoc(SvgNode* parent, const ci::XmlTree& xml);
+		SvgDoc(const ci::fs::path& filePath);
+		SvgDoc(const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
+		SvgDoc(SvgNode* parent, const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
 
-	static SvgDocRef create(SvgNode* parent, const ci::XmlTree& xml);
-	static SvgDocRef create(const ci::fs::path& filePath);
-	static SvgDocRef create(const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
-	static SvgDocRef create(SvgNode* parent, const ci::DataSourceRef& dataSource,
-							const ci::fs::path& filePath = ci::fs::path());
-	static SvgDocRef createFromSvgz(const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
+		static SvgDocRef create(SvgNode* parent, const ci::XmlTree& xml);
+		static SvgDocRef create(const ci::fs::path& filePath);
+		static SvgDocRef create(const ci::DataSourceRef& dataSource, const ci::fs::path& filePath = ci::fs::path());
+		static SvgDocRef create(SvgNode* parent, const ci::DataSourceRef& dataSource,
+								const ci::fs::path& filePath = ci::fs::path());
+		static SvgDocRef createFromSvgz(const ci::DataSourceRef& dataSource,
+										const ci::fs::path&		 filePath = ci::fs::path());
 
-	//! Returns the file path of the document. Can be relative or empty.
-	const ci::fs::path& getFilePath() const { return mFilePath; }
+		//! Returns the file path of the document. Can be relative or empty.
+		const ci::fs::path& getFilePath() const { return mFilePath; }
 
-	//! Returns the width of the document in pixels
-	float getWidth() const { return mBounds.getWidth(); }
-	//! Returns the height of the document in pixels
-	float getHeight() const { return mBounds.getHeight(); }
-	//! Returns the size of the document in pixels
-	glm::vec2 getSize() const { return {getWidth(), getHeight()}; }
-	//! Returns the aspect ratio of the Doc (width / height)
-	float getAspectRatio() const { return getWidth() / getHeight(); }
-	//! Returns the bounds of the Doc (0,0,width,height)
-	const ci::Rectf& getBounds() const { return mBounds; }
+		//! Returns the width of the document in pixels
+		float getWidth() const { return mBounds.getWidth(); }
+		//! Returns the height of the document in pixels
+		float getHeight() const { return mBounds.getHeight(); }
+		//! Returns the size of the document in pixels
+		glm::vec2 getSize() const { return {getWidth(), getHeight()}; }
+		//! Returns the aspect ratio of the Doc (width / height)
+		float getAspectRatio() const { return getWidth() / getHeight(); }
+		//! Returns the bounds of the Doc (0,0,width,height)
+		const ci::Rectf& getBounds() const { return mBounds; }
 
-	//! Returns the document's dots-per-inch. Currently hardcoded to 72.
-	static float getDpi() { return 72.0f; }
+		//! Returns the document's dots-per-inch. Currently hardcoded to 72.
+		static float getDpi() { return 72.0f; }
 
-	//! Returns the top-most Node which contains \a pt. Returns NULL if no Node contains the point.
-	SvgNode* nodeUnderPoint(const glm::vec2& pt) const;
+		//! Returns the top-most Node which contains \a pt. Returns NULL if no Node contains the point.
+		SvgNode* nodeUnderPoint(const glm::vec2& pt) const;
 
-	//! Utility function to load an image relative to the document. Caches results.
-	std::shared_ptr<ci::Surface8u> loadImage(const ci::fs::path& relativePath) const;
+		//! Utility function to load an image relative to the document. Caches results.
+		std::shared_ptr<ci::Surface8u> loadImage(const ci::fs::path& relativePath) const;
 
-  private:
-	void loadDoc(const ci::XmlTree& xml);
-	void loadDoc(const ci::DataSourceRef& source, const ci::fs::path& filePath);
+	  private:
+		void loadDoc(const ci::XmlTree& xml);
+		void loadDoc(const ci::DataSourceRef& source, const ci::fs::path& filePath);
 
-	void renderSelf(Renderer& renderer) const override;
+		void renderSelf(Renderer& renderer) const override;
 
-	mutable std::map<ci::fs::path, std::shared_ptr<ci::Surface8u>> mImageCache;
+		mutable std::map<ci::fs::path, std::shared_ptr<ci::Surface8u>> mImageCache;
 
-	ci::fs::path mFilePath;
-	ci::Rectf	 mBounds;
-	ci::Rectf	 mViewBox;
+		ci::fs::path mFilePath;
+		ci::Rectf	 mBounds;
+		ci::Rectf	 mViewBox;
 };
 
 //! SVG Exception base-class
@@ -1497,8 +1504,8 @@ class SvgPathParseExc : public SvgExc {};
 class SvgTransformParseExc : public SvgExc {};
 
 class SvgChildNotFoundExc : public SvgExc {
-  public:
-	SvgChildNotFoundExc(const std::string& child);
+	  public:
+		SvgChildNotFoundExc(const std::string& child);
 };
 
 
