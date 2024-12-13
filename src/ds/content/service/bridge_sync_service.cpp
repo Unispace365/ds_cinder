@@ -92,19 +92,12 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			if (settings.verbose) {
 				args.push_back("-v");
 			}
-			// Handle additonal args in format "--singleArg;--Another"
+			// Handle additional args in format "--singleArg;--Another"
 			// and/or in format "-s: server; --singleArg"
 			if (!settings.additionalArgs.empty()) {
-				auto splitAdditional = ds::split(settings.additionalArgs, ";");
-				for (auto kv : splitAdditional) {
-					auto pair = ds::split(kv, ":");
-					if (pair.size() >= 1) {
-						args.push_back(pair[0]);
-					}
-					if (pair.size() >= 2) {
-						args.push_back(pair[1]);
-					}
-					
+				auto splitAdditional = ci::split(settings.additionalArgs, " :;");
+				for (const auto& kv : splitAdditional) {
+					args.push_back(kv);
 				}
 			}
 			std::string sync_path;
