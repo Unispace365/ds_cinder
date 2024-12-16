@@ -5,13 +5,6 @@ rem prevent an error only present on HP computers
 set Platform=
 set platformcode=
 
-:permissions
-rem check admin permissions
-net session >nul 2>&1
-if not errorlevel 1 goto environment
-echo Run this script as administrator.
-goto done 
-
 :environment
 echo.
 echo Preparing environment...
