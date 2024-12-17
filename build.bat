@@ -67,6 +67,8 @@ cmd /c msbuild ".\projects\web\cef\cef_web.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\essentials\essentials.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
+cmd /c msbuild ".\projects\nvpath\nvpath.vcxproj" /m /p:Configuration=Debug
+if errorlevel 1 goto error
 cmd /c msbuild ".\projects\pdf\mupdf\pdf.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\physics\box2d\physics.vcxproj" /m /p:Configuration=Debug
@@ -75,11 +77,15 @@ cmd /c msbuild ".\projects\video\gstreamer-1.0\video.vcxproj" /m /p:Configuratio
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\viewers\viewers.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
+cmd /c msbuild ".\projects\waffles\waffles.vcxproj" /m /p:Configuration=Debug
+if errorlevel 1 goto error
 cmd /c msbuild ".\vs2015\platform.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\web\cef\cef_web.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\essentials\essentials.vcxproj" /m /p:Configuration=Release
+if errorlevel 1 goto error
+cmd /c msbuild ".\projects\nvpath\nvpath.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\pdf\mupdf\pdf.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
@@ -88,6 +94,8 @@ if errorlevel 1 goto error
 cmd /c msbuild ".\projects\video\gstreamer-1.0\video.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\viewers\viewers.vcxproj" /m /p:Configuration=Release
+if errorlevel 1 goto error
+cmd /c msbuild ".\projects\waffles\waffles.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 echo Done.
 goto done
