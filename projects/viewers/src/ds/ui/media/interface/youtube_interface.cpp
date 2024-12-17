@@ -25,7 +25,7 @@ namespace ds { namespace ui {
 
 	YoutubeInterface::YoutubeInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
 									   const ci::Color buttonColor, const ci::Color backgroundColor)
-	  : MediaInterface(eng, sizey, backgroundColor)
+	  : MediaInterface(eng, ds::Resource::YOUTUBE_TYPE, sizey, backgroundColor)
 	  , mLinkedYouTube(nullptr)
 	  , mPlayButton(nullptr)
 	  , mPauseButton(nullptr)

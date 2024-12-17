@@ -19,8 +19,10 @@
 
 namespace ds::ui {
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroundColor)
+MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey,
+							   const ci::Color backgroundColor)
   : ds::ui::Sprite(eng, sizey.x, sizey.y)
+  , mType(type)
   , mBackground(nullptr)
   , mAnimateDuration(0.35f)
   , mMinWidth(sizey.y)
@@ -110,11 +112,15 @@ void MediaInterface::animateOn() {
 	if (opacityDiff > 0.0f) {
 		tweenOpacity(1.0f, mAnimateDuration * opacityDiff, 0.0f, ci::EaseNone());
 	}
+
+	mEngine.getNotifier().notify(MediaInterfaceShownEvent(this));
 }
 
 void MediaInterface::animateOff() {
 	// TODO: settings
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this] { hide(); });
+
+	mEngine.getNotifier().notify(MediaInterfaceHiddenEvent(this));
 }
 
 void MediaInterface::onSizeChanged() {

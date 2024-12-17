@@ -12,9 +12,11 @@ namespace ds::ui {
  */
 class MediaInterface : public ds::ui::Sprite {
   public:
-	MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f),
+	MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f),
 				   const ci::Color backgroundColor = ci::Color::black());
 
+	/// Returns the type of interface (PDF, Web, Video), see ds::Resource.
+	int getType() const { return mType; }
 
 	virtual void animateOn();
 	virtual void animateOff();
@@ -63,6 +65,8 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void onLayout(){};
 	virtual void onSizeChanged() override;
 
+	int mType = ds::Resource::ERROR_TYPE;
+
 	ds::ui::Sprite* mBackground;
 
 	float mAnimateDuration;
@@ -77,6 +81,26 @@ class MediaInterface : public ds::ui::Sprite {
 	std::function<void(bool)> mLockChangeCallback;
 
 	float mInterfaceIdleSettings;
+};
+
+class MediaInterfaceShownEvent : public ds::RegisteredEvent<MediaInterfaceShownEvent> {
+	MediaInterface* mMediaInterface = nullptr;
+
+  public:
+	MediaInterfaceShownEvent(MediaInterface* mp)
+	  : mMediaInterface(mp) {}
+
+	MediaInterface* getMediaInterface() const { return mMediaInterface; }
+};
+
+class MediaInterfaceHiddenEvent : public ds::RegisteredEvent<MediaInterfaceHiddenEvent> {
+	MediaInterface* mMediaInterface = nullptr;
+
+  public:
+	MediaInterfaceHiddenEvent(MediaInterface* mp)
+	  : mMediaInterface(mp) {}
+
+	MediaInterface* getMediaInterface() const { return mMediaInterface; }
 };
 
 } // namespace ds::ui
