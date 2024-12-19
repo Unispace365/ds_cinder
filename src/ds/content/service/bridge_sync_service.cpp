@@ -16,24 +16,47 @@
 
 #include <imgui_components/TextAnsi.h>
 
+namespace {
+
+std::string errorToString(DWORD errorMessageId) {
+	if (errorMessageId == 0) return {};
+
+	// Ask Win32 to give us the string version of that message ID.
+	// The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet
+	// know how long the message string will be).
+	LPSTR  messageBuffer = nullptr;
+	size_t size			 = FormatMessageA(
+		 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+		 errorMessageId, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&messageBuffer), 0, nullptr);
+
+	// Copy the error message into a std::string.
+	std::string message(messageBuffer, size - 2); // remove the \r\n
+
+	// Free the Win32's string's buffer.
+	LocalFree(messageBuffer);
+
+	return message;
+}
+
+} // namespace
 
 namespace ds::content {
 
 BridgeSyncService::BridgeSyncService(ds::ui::SpriteEngine& eng)
   : AutoUpdate(eng)
-  , mEngine(eng)
-  , mProcessId(0) {
+  , mEngine(eng) {
 
 	mStdoutBuffer.clear();
 }
 
 BridgeSyncService::~BridgeSyncService() {
 	// clean up if we are destroyed properly
-	if (mStarted && Poco::Process::isRunning(mProcessId)) {
+	if (mStarted) {
 		mExit = true;
-		Poco::Process::kill(mProcessId);
+		mThreadObj.join();
+		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
+		mExit = false;
 	}
-	mThreadObj.join();
 }
 
 void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
@@ -51,10 +74,10 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 	}
 
 	// if we are already tracking a process, kill it for restart.
-	if (mStarted && Poco::Process::isRunning(mProcessId)) {
+	if (mStarted) {
 		mExit = true;
 		mThreadObj.join();
-		Poco::Process::kill(mProcessId);
+		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
 		mExit = false;
 	}
 
@@ -131,7 +154,8 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 						mStarted   = true;
 						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
 					} else {
-						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
+						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: "
+									 << errorToString(process.wait()));
 						mExit	 = true;
 						mStarted = false;
 					}
