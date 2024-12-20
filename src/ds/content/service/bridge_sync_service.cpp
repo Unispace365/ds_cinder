@@ -127,15 +127,13 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 					if (pair.size() >= 2) {
 						args.push_back(pair[1]);
 					}
-					
 				}
 			}
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
-				//Default path on production
+				// Default path on production
 				sync_path = ds::Environment::expand("%APP%/bridgesync/bridge_sync_console.exe");
-			}
-			else {
+			} else {
 				sync_path = ds::Environment::expand(settings.syncPath);
 			}
 
@@ -168,7 +166,8 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 				// mLock.unlock();
 			} else {
 				DS_LOG_ERROR("BridgeSyncService (bridgesync): bridge_sync_console.exe not found at " << sync_path
-																									 << std::endl << std::flush);
+																									 << std::endl
+																									 << std::flush);
 				mExit	 = true;
 				mStarted = false;
 			}

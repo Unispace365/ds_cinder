@@ -113,20 +113,23 @@ void NodeWatcher::Loop::run() {
 
 	try {
 
-
-		// theSocket.setReuseAddress(true);
-		// theSocket.setReusePort(true);
+		
 		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true, true);
 		theSocket.setBlocking(false);
 		theSocket.setReceiveTimeout(0);
+
+		//theSocket.connect(Poco::Net::SocketAddress(mHost, mPort));
 
 		while (true) {
 			int length = 0;
 
 			try {
 				length = theSocket.receiveBytes(buf, BUF_SIZE);
-			} catch (const Poco::TimeoutException&) {
-			} catch (const std::exception&) {}
+			} catch (const Poco::TimeoutException& e) {
+				// No data, that's fine
+			} catch (const std::exception& e) {
+				DS_LOG_WARNING("NodeWatcher::Loop::run() Exception receiving bytes: " << e.what());
+			}
 
 			if (length > 0) {
 				try {

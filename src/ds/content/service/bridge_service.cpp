@@ -5,6 +5,7 @@
 #include <Poco/DateTime.h>
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/DateTimeParser.h>
+#include <Poco/SHA2Engine.h>
 
 #include <ds/content/content_events.h>
 #include <ds/debug/logger.h>
@@ -15,15 +16,109 @@
 
 namespace ds::content {
 
+struct BridgeSyncUpdateEvent : public ds::RegisteredEvent<BridgeSyncUpdateEvent> {};
+
+void BridgeConnection::run() {
+	DS_LOG_INFO("BridgeConnection::run() Address: " << mSocket.address().toString());
+
+	std::vector<char> buffer(1024);
+
+	const ds::Resource::Id		cms(ds::Resource::Id::CMS_TYPE, 0);
+	const std::filesystem::path file = cms.getDatabasePath();
+
+	Poco::SHA2Engine sha256(Poco::SHA2Engine::SHA_256);
+	sha256.update(file.generic_string());
+	std::string payload = Poco::DigestEngine::digestToHex(sha256.digest());
+
+	int refreshConnection = 0;
+
+	mSocket.setBlocking(false);
+	mSocket.setReceiveTimeout(500);
+
+	while (!mAbort) {
+		Poco::Net::SocketAddress sender;
+		int						 length;
+		int						 size = 0;
+
+		try {
+			// Send payload to listening server.
+			if (--refreshConnection <= 0 && !payload.empty()) {
+				mSocket.sendTo(payload.data(), payload.length() + 1 /* Include null byte. */, {"127.0.0.1", 7790});
+				refreshConnection = 10;
+			}
+
+			do {
+				length = mSocket.receiveFrom(buffer.data() + size, int(buffer.size()) - size, sender);
+				if (length > 0) size += length;
+			} while (size < buffer.size() && length > 0);
+
+			if (size > 0) {
+				// Check if payload is valid.
+				std::string_view v(buffer.data(), size);
+
+				const auto msg	 = v.substr(0, std::min(v.find_first_of('\0'), size_t(size)));
+				const auto parts = ci::split(std::string(msg), ':', false);
+				if (parts.size() < 3) continue;
+				if (parts[0] != "BridgeSync") continue;
+
+				refreshConnection = 500;
+
+				// Process message.
+				if (parts[2] == "OK") {
+					// No action needed.
+					DS_LOG_VERBOSE(0, "BridgeConnection::run() Received OK from: " << sender.toString());
+				} else if (parts[2] == "Auth" && parts.size() > 3) {
+					// Authentication hash in parts[3].
+					const auto& authHash = parts[3];
+					if (!authHash.empty()) {
+						DS_LOG_VERBOSE(
+							0, "BridgeConnection::run() Received authentication hash from: " << sender.toString());
+
+						auto server = mEngine.mContent.getChildByName("server");
+						server.setName("server");
+						server.setProperty("auth", authHash);
+						mEngine.mContent.replaceChild(server);
+					}
+				} else if (parts[2] == "Update") {
+					// Update content.
+					DS_LOG_VERBOSE(0, "BridgeConnection::run() Received update from: " << sender.toString());
+					mEngine.getNotifier().notify(BridgeSyncUpdateEvent());
+				}
+
+				// Acknowledge.
+				const std::string acknowledge = "ACK";
+				mSocket.sendTo(acknowledge.data(), acknowledge.length() + 1 /* Include null byte. */,
+							   {"127.0.0.1", 7790});
+
+				continue; // Don't sleep.
+			}
+		} catch (const Poco::TimeoutException&) {
+			continue; // No data received.
+		} catch (const std::exception&) {
+			// DS_LOG_WARNING("BridgeConnection::run() Exception: " << e.what());
+		}
+
+		Poco::Thread::trySleep(10);
+	}
+}
+
 struct SchemaCompleteEvent : public ds::RegisteredEvent<SchemaCompleteEvent> {};
 struct IndexCompleteEvent : public ds::RegisteredEvent<IndexCompleteEvent> {};
 
 BridgeService::BridgeService(ds::ui::SpriteEngine& engine)
-  : mEngine(engine)
+  : mEventClient(engine)
+  , mEngine(engine)
   , mRefreshTimer(engine)
-  , mNodeWatcher(engine, "localhost", 7788)
   , mLoop(engine) {
 	mThread.setName("BridgeService");
+	mBridgeConnectionThread.setName("BridgeConnection");
+
+	mEventClient.listenToEvents<BridgeSyncUpdateEvent>([this](const BridgeSyncUpdateEvent& e) {
+		DS_LOG_VERBOSE(2, "BridgeService::BridgeSyncUpdateEvent received")
+		refreshDatabase();
+	});
+
+	mBridgeConnection = new BridgeConnection(mEngine);
 }
 
 BridgeService::~BridgeService() {
@@ -31,49 +126,52 @@ BridgeService::~BridgeService() {
 
 	try {
 		mThread.join();
+		mBridgeConnectionThread.join();
 	} catch (std::exception&) {}
 }
 
 void BridgeService::start() {
-	if (!mThread.isRunning()) {
-		try {
-			mThread.start(mLoop);
-		} catch (std::exception& ex) {
-			DS_LOG_WARNING("BridgeService::start() threw an exception: " << ex.what())
-		}
+	// mNodeWatcher.setDelayTime(1.0f);
+	// mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& msg) {
+	//	// Will be called from the main thread.
 
-		mNodeWatcher.setDelayTime(1.0f);
-		mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& msg) {
-			// Will be called from the main thread.
+	//	std::string authHash;
+	//	for (const auto& m : msg.mData) {
+	//		authHash.append(m);
+	//	}
 
-			std::string authHash;
-			for (const auto& m : msg.mData) {
-				authHash.append(m);
-			}
+	//	if (!authHash.empty()) {
+	//		auto server = mEngine.mContent.getChildByName("server");
+	//		server.setName("server");
+	//		server.setProperty("auth", authHash);
+	//		mEngine.mContent.replaceChild(server);
+	//	}
 
-			if (!authHash.empty()) {
-				auto server = mEngine.mContent.getChildByName("server");
-				server.setName("server");
-				server.setProperty("auth", authHash);
-				mEngine.mContent.replaceChild(server);
-			}
+	//	refreshDatabase();
+	//});
 
-			refreshDatabase();
-		});
+	// mNodeWatcher.startWatching();
 
-		mNodeWatcher.startWatching();
+	try {
+		if (!mThread.isRunning()) mThread.start(mLoop);
+		if (!mBridgeConnectionThread.isRunning()) mBridgeConnectionThread.start(mBridgeConnection);
+	} catch (std::exception& ex) {
+		DS_LOG_WARNING("BridgeService::start() threw an exception: " << ex.what())
 	}
 
-	// Refresh content regularly.
-	mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.f);
+	//// Refresh content regularly.
+	// mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.f);
 
-	refreshDatabase(mThread.isRunning());
+	// refreshDatabase(mThread.isRunning());
 }
 
 void BridgeService::stop() {
-	if (!mThread.isRunning()) return;
 	try {
 		mRefreshTimer.cancel();
+
+		mBridgeConnection->abort();
+		mBridgeConnectionThread.wakeUp();
+
 		mLoop.abort();
 		mThread.wakeUp();
 	} catch (std::exception& ex) {
@@ -96,7 +194,7 @@ BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   , mEngine(engine)
   , mAbort(false)
   , mForce(false)
-  , mRefreshDatabase(true) // Force refresh on start.
+  , mRefreshDatabase(false)
   , mRefreshEvents(false)
   , mRefreshRateMs(10000)
   , mValidator([](const ds::model::ContentModelRef&) { return true; }) {}
@@ -128,7 +226,7 @@ void BridgeService::Loop::run() {
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
-				//loadContent();
+				// loadContent();
 
 				if (!loadContent()) {
 					// If loading the content failed, try again soon.
@@ -360,12 +458,13 @@ bool BridgeService::Loop::loadContent() {
 
 		if (ds::query::Client::query(cms.getDatabasePath(), recordQuery, result)) {
 			ds::query::Result::RowIterator it(result);
-			int rows = result.getRowSize();
+			int							   rows = result.getRowSize();
 			if (rows == 0) {
-				DS_LOG_WARNING("BridgeService::Loop::loadContent rankOrderRecords query returned 0! returning false to retry loadContent");
+				DS_LOG_WARNING("BridgeService::Loop::loadContent rankOrderRecords query returned 0! returning false to "
+							   "retry loadContent");
 				return false;
 			}
-			int							   recordId = 1;
+			int recordId = 1;
 			while (it.hasValue()) {
 				auto record = ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")");
 				record.setId(recordId);
@@ -435,7 +534,7 @@ bool BridgeService::Loop::loadContent() {
 		mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS);
 		mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS);
 		mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS);
-		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count "<<rankOrderedRecords.size())
+		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count " << rankOrderedRecords.size())
 		for (const auto& record : rankOrderedRecords) {
 			mRecords.addChild(record);
 			auto type = record.getPropertyString("variant");
@@ -799,13 +898,12 @@ bool BridgeService::Loop::loadContent() {
 		} else {
 			return false;
 		}
-	
 	}
 
 	mRecordMap = recordMap;
 	// mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
 	validateContent();
-	return true; 
+	return true;
 }
 
 void BridgeService::Loop::validateContent() {
@@ -860,7 +958,7 @@ void BridgeService::Loop::updatePlatformEvents() const {
 
 		//	// For interoperability, store current events.
 		auto platformCurrentEvents = platformObj.getCurrentContent().getChildByName("current_events");
-		
+
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
 			platformCurrentEvents.setChildren(currentEvents);

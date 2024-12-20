@@ -1,16 +1,15 @@
-#include "platform.h"
 #include "stdafx.h"
-#include <ds/content/platform.h>
+
 #include <ds/content/content_events.h>
+#include <ds/content/platform.h>
 
 namespace ds::model {
 
 const PlatformType		   Platform::UNDEFINED = "undefined";
-ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentModelRef& model,
-														 const std::string&				   uid) {
+ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentModelRef& model, const std::string& uid) {
 	const auto& children = model.getChildren();
-	const auto findy = std::find_if(children.begin(), children.end(),
-		[&uid](auto model) { return model.getPropertyString("uid") == uid; });
+	const auto	findy	 = std::find_if(children.begin(), children.end(),
+										[&uid](auto model) { return model.getPropertyString("uid") == uid; });
 	if (findy != children.end()) {
 		return *findy;
 	}
@@ -24,7 +23,8 @@ ds::model::ContentModelRef Platform::getRecordByUid(const ds::ui::SpriteEngine& 
 }
 
 Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
-  : mEngine(engine) 
+  : mPlatformKey(platformKey)
+  , mEngine(engine)
   , mEventClient(engine) {
 
 	mCurrentContent = mEngine.mContent.getChildByName("current_content");
@@ -33,29 +33,19 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 		mEngine.mContent.replaceChild(mCurrentContent);
 	}
 
-	auto key = platformKey;
-	if (key.empty()) {
-		key = engine.getAppSettings().getString("platform:key", 0, "");
+	if (mPlatformKey.empty()) {
+		mPlatformKey = engine.getAppSettings().getString("platform:key", 0, "");
 	}
-	auto recordsSize = engine.mContent.getKeyReferences(ds::model::RECORD_MAP).size();
-	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) {
-		refreshContent();
-	});
-	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, key);
-	
-	if (mPlatformModel.empty()) {
-		DS_LOG_WARNING("Platform not found: " << key << " in " << recordsSize << " records");
-		mInitialized = false;
-	}
+
+	mEventClient.listenToEvents<ds::ContentUpdatedEvent>(
+		[this](const ds::ContentUpdatedEvent& e) { refreshContent(); });
+
+	Platform::refreshContent();
 
 	mEvents = mCurrentContent.getChildByName("current_events");
-
-	mPlatformKey = key;
-	mPlatformType = mPlatformModel.getPropertyString("type_key");
-
 }
 
-Platform::~Platform() {}
+Platform::~Platform() = default;
 
 std::string Platform::getPlatformKey() {
 	return mPlatformKey;
@@ -63,6 +53,16 @@ std::string Platform::getPlatformKey() {
 
 void Platform::refreshContent() {
 	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, mPlatformKey);
+	mPlatformType  = mPlatformModel.getPropertyString("type_key");
+
+	if (mPlatformModel.empty()) {
+		const auto recordsSize = mEngine.mContent.getKeyReferences(ds::model::RECORD_MAP).size();
+		DS_LOG_WARNING("Platform not found: " << mPlatformKey << " in " << recordsSize << " records");
+		mInitialized = false;
+	} else {
+		DS_LOG_WARNING("Platform found: " << mPlatformKey << " (" << mPlatformType << ")");
+		mInitialized = true;
+	}
 }
 
 ds::model::ContentModelRef Platform::getPlatformModel() {
