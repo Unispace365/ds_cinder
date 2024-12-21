@@ -16,22 +16,24 @@
 namespace ds::content {
 
 /**
- * \class BridgeConnection
- * \brief A service that runs in the background and connects to the BridgeSync service.
+ * \class BridgeClient
+ * \brief A service that runs in the background and communicates with the BridgeSync application.
  */
 
-class BridgeConnection : public Poco::Runnable {
+class BridgeClient : public Poco::Runnable {
+	inline static char SEPARATOR = '/';
+
   public:
-	BridgeConnection(ui::SpriteEngine& engine)
+	BridgeClient(ui::SpriteEngine& engine)
 	  : mEngine(engine)
 	  , mSocket(Poco::Net::SocketAddress{"127.0.0.1", 0 /* Let OS find an unused port. */}, false, false) {}
 
-	~BridgeConnection() override = default;
+	~BridgeClient() override = default;
 
-	BridgeConnection(const BridgeConnection&)			 = delete;
-	BridgeConnection(BridgeConnection&&)				 = delete;
-	BridgeConnection& operator=(const BridgeConnection&) = delete;
-	BridgeConnection& operator=(BridgeConnection&&)		 = delete;
+	BridgeClient(const BridgeClient&)			 = delete;
+	BridgeClient(BridgeClient&&)				 = delete;
+	BridgeClient& operator=(const BridgeClient&) = delete;
+	BridgeClient& operator=(BridgeClient&&)		 = delete;
 
 	void run() override;
 
@@ -39,6 +41,11 @@ class BridgeConnection : public Poco::Runnable {
 	bool isAborted() const { return mAbort; }
 
   private:
+	// Send a message to the server.
+	bool sendToServer(const std::vector<std::string>& parts);
+	// Send a message to the server.
+	bool sendToServer(const std::string& msg);
+
 	ui::SpriteEngine&		  mEngine;		 //
 	mutable Poco::Mutex		  mMutex;		 //
 	Poco::Net::DatagramSocket mSocket;		 //
@@ -124,13 +131,13 @@ class BridgeService {
 		std::function<bool(const ds::model::ContentModelRef&)> mValidator = nullptr;
 	};
 
-	ds::EventClient					  mEventClient;			   //
-	ds::ui::SpriteEngine&			  mEngine;				   //
-	ds::time::Callback				  mRefreshTimer;		   //
-	Poco::Thread					  mThread;				   //
-	Loop							  mLoop;				   //
-	Poco::SharedPtr<BridgeConnection> mBridgeConnection;	   //
-	Poco::Thread					  mBridgeConnectionThread; //
+	ds::EventClient				  mEventClient;			   //
+	ds::ui::SpriteEngine&		  mEngine;				   //
+	ds::time::Callback			  mRefreshTimer;		   //
+	Poco::Thread				  mThread;				   //
+	Loop						  mLoop;				   //
+	Poco::SharedPtr<BridgeClient> mBridgeConnection;	   //
+	Poco::Thread				  mBridgeConnectionThread; //
 };
 
 

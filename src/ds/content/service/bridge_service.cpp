@@ -18,10 +18,11 @@ namespace ds::content {
 
 struct BridgeSyncUpdateEvent : public ds::RegisteredEvent<BridgeSyncUpdateEvent> {};
 
-void BridgeConnection::run() {
-	DS_LOG_INFO("BridgeConnection::run() Address: " << mSocket.address().toString());
+void BridgeClient::run() {
+	DS_LOG_INFO("BridgeClient::run() Address: " << mSocket.address().toString());
 
-	std::vector<char> buffer(1024);
+	Poco::Net::SocketAddress sender;
+	std::vector<char>		 buffer(1024);
 
 	const ds::Resource::Id		cms(ds::Resource::Id::CMS_TYPE, 0);
 	const std::filesystem::path file = cms.getDatabasePath();
@@ -36,70 +37,103 @@ void BridgeConnection::run() {
 	mSocket.setReceiveTimeout(500);
 
 	while (!mAbort) {
-		Poco::Net::SocketAddress sender;
-		int						 length;
-		int						 size = 0;
-
+		size_t size = 0;
 		try {
-			// Send payload to listening server.
+			// Send payload to listening server, which will establish a connection if the server is listening.
 			if (--refreshConnection <= 0 && !payload.empty()) {
 				mSocket.sendTo(payload.data(), payload.length() + 1 /* Include null byte. */, {"127.0.0.1", 7790});
 				refreshConnection = 10;
 			}
 
+			// Receive data and obtain the sender's address.
+			int length;
 			do {
-				length = mSocket.receiveFrom(buffer.data() + size, int(buffer.size()) - size, sender);
+				length = mSocket.receiveFrom(buffer.data() + size, int(buffer.size() - size), sender);
 				if (length > 0) size += length;
 			} while (size < buffer.size() && length > 0);
 
-			if (size > 0) {
-				// Check if payload is valid.
-				std::string_view v(buffer.data(), size);
+			// Process the data.
+			std::string_view v(buffer.data(), size);
+			while (!v.empty()) {
+				// Find null byte terminator.
+				const auto count = v.find_first_of('\0');
+				if (count == std::string::npos) break; // No null byte found, incomplete message.
 
-				const auto msg	 = v.substr(0, std::min(v.find_first_of('\0'), size_t(size)));
-				const auto parts = ci::split(std::string(msg), ':', false);
+				// Break message into parts.
+				const auto msg	 = v.substr(0, count);
+				const auto parts = ci::split(std::string(msg), SEPARATOR, false);
+
+				// Check if message is valid.
 				if (parts.size() < 3) continue;
 				if (parts[0] != "BridgeSync") continue;
 
-				refreshConnection = 500;
-
 				// Process message.
 				if (parts[2] == "OK") {
-					// No action needed.
-					DS_LOG_VERBOSE(0, "BridgeConnection::run() Received OK from: " << sender.toString());
+					DS_LOG_VERBOSE(1, "BridgeClient::run() Received OK from: " << sender.toString());
+
+					// Acknowledge.
+					sendToServer("ACK");
 				} else if (parts[2] == "Auth" && parts.size() > 3) {
 					// Authentication hash in parts[3].
 					const auto& authHash = parts[3];
 					if (!authHash.empty()) {
-						DS_LOG_VERBOSE(
-							0, "BridgeConnection::run() Received authentication hash from: " << sender.toString());
+						DS_LOG_VERBOSE(1,
+									   "BridgeClient::run() Received authentication hash from: " << sender.toString());
 
 						auto server = mEngine.mContent.getChildByName("server");
 						server.setName("server");
 						server.setProperty("auth", authHash);
 						mEngine.mContent.replaceChild(server);
+
+						// Acknowledge.
+						sendToServer({"ACK", "Auth", authHash.substr(0, std::min(size_t(16), authHash.length()))});
 					}
-				} else if (parts[2] == "Update") {
+				} else if (parts[2] == "Update" && parts.size() > 3) {
+					// Last delta in parts[3].
+					const auto& lastDelta = parts[3];
 					// Update content.
-					DS_LOG_VERBOSE(0, "BridgeConnection::run() Received update from: " << sender.toString());
+					DS_LOG_VERBOSE(1, "BridgeClient::run() Received update from: " << sender.toString());
 					mEngine.getNotifier().notify(BridgeSyncUpdateEvent());
+
+					// Acknowledge.
+					sendToServer({"ACK", "Update", lastDelta});
 				}
 
-				// Acknowledge.
-				const std::string acknowledge = "ACK";
-				mSocket.sendTo(acknowledge.data(), acknowledge.length() + 1 /* Include null byte. */,
-							   {"127.0.0.1", 7790});
+				// Reset refresh connection.
+				refreshConnection = 500;
 
-				continue; // Don't sleep.
+				// Message is valid, remove from buffer.
+				v.remove_prefix(count + 1);
 			}
-		} catch (const Poco::TimeoutException&) {
-			continue; // No data received.
-		} catch (const std::exception&) {
-			// DS_LOG_WARNING("BridgeConnection::run() Exception: " << e.what());
-		}
 
+			// Any remaining data is incomplete, ignore it.
+		} catch (const Poco::TimeoutException&) {
+		} catch (const std::exception&) {}
+
+		// Sleep for a bit.
 		Poco::Thread::trySleep(10);
 	}
+}
+
+bool BridgeClient::sendToServer(const std::vector<std::string>& parts) {
+	std::string msg;
+	for (const auto& part : parts)
+		msg.append(part).append(&SEPARATOR, 1);
+	msg.pop_back(); // Remove trailing separator.
+
+	return sendToServer(msg);
+}
+
+bool BridgeClient::sendToServer(const std::string& msg) {
+	try {
+		mSocket.sendTo(msg.data(), int(msg.length() + 1) /* Include null byte. */, {"127.0.0.1", 7790});
+	} catch (const Poco::IOException&) {
+		return false;
+	} catch (const std::exception&) {
+		return false;
+	}
+
+	return true;
 }
 
 struct SchemaCompleteEvent : public ds::RegisteredEvent<SchemaCompleteEvent> {};
@@ -118,7 +152,7 @@ BridgeService::BridgeService(ds::ui::SpriteEngine& engine)
 		refreshDatabase();
 	});
 
-	mBridgeConnection = new BridgeConnection(mEngine);
+	mBridgeConnection = new BridgeClient(mEngine);
 }
 
 BridgeService::~BridgeService() {
