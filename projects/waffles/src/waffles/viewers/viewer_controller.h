@@ -76,7 +76,9 @@ class ViewerController : public ds::ui::Sprite {
 	std::map<BaseElement*, ds::ui::Sprite*> getFullscreenDarkeners(){
 		return mFullscreenDarkeners;
 	}
-
+	virtual ds::ui::Sprite*					getTopLayer() { return mTopLayer; }
+	virtual ds::ui::Sprite*                 getNormalLayer() { return mNormalLayer; }
+	virtual ds::ui::Sprite*					getBackgroundLayer() { return mBackgroundLayer; }
 	friend ViewerControllerFactory;
 
 
