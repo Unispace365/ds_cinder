@@ -120,7 +120,7 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 				// mLock.lock();
 				try {
 					auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
-
+					Sleep(100);
 					if (Poco::Process::isRunning(process)) {
 						// get the win32 (as opposed to Poco) handle for the process we just started.
 						HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
@@ -131,7 +131,18 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 						mStarted   = true;
 						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
 					} else {
-						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
+						Poco::PipeInputStream inErr(mErrPipe);
+						Poco::PipeInputStream inStd(mOutPipe);
+						for (std::string line; std::getline(inErr, line);) {
+							DS_LOG_ERROR("BridgeSync Error: "<<line);
+						}
+
+						for (std::string line; std::getline(inStd, line);) {
+							DS_LOG_ERROR("BridgeSync Std: " << line);
+						}
+						
+						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync")
+					
 						mExit	 = true;
 						mStarted = false;
 					}
