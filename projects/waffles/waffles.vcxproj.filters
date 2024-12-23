@@ -34,9 +34,6 @@
     <ClCompile Include="src\waffles\viewers\base_element.cpp">
       <Filter>src\waffles\viewers</Filter>
     </ClCompile>
-    <ClCompile Include="src\waffles\viewers\titled_media_viewer.cpp">
-      <Filter>src\waffles\viewers</Filter>
-    </ClCompile>
     <ClCompile Include="src\waffles\viewers\viewer_controller.cpp">
       <Filter>src\waffles\viewers</Filter>
     </ClCompile>
@@ -161,6 +158,12 @@
     <ClCompile Include="src\waffles\util\waffles_helper.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\waffles\viewers\titled_media_viewer.cpp">
+      <Filter>src\waffles\viewers\titled_media_viewers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\viewers\framed_media_viewer.cpp">
+      <Filter>src\waffles\viewers\titled_media_viewers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\waffles_app_defs.h">
@@ -206,9 +209,6 @@
       <Filter>src\waffles\model</Filter>
     </ClInclude>
     <ClInclude Include="src\waffles\viewers\base_element.h">
-      <Filter>src\waffles\viewers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\waffles\viewers\titled_media_viewer.h">
       <Filter>src\waffles\viewers</Filter>
     </ClInclude>
     <ClInclude Include="src\waffles\viewers\viewer_controller.h">
@@ -338,6 +338,12 @@
     <ClInclude Include="src\waffles\background\particle_background\particle_generator.h">
       <Filter>src\waffles\background\particle_background</Filter>
     </ClInclude>
+    <ClInclude Include="src\waffles\viewers\titled_media_viewer.h">
+      <Filter>src\waffles\viewers\titled_media_viewers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\viewers\framed_media_viewer.h">
+      <Filter>src\waffles\viewers\titled_media_viewers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -426,6 +432,9 @@
     </Filter>
     <Filter Include="src\waffles\background\particle_background">
       <UniqueIdentifier>{6144fb6d-d4b7-4e68-a665-536ccd735ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\waffles\viewers\titled_media_viewers">
+      <UniqueIdentifier>{75f4f895-ca96-406f-9a91-785901b38461}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
