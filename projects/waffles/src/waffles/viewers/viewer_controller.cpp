@@ -39,7 +39,8 @@ static waffles::ViewerController* THIS_INSTANCE;
 namespace waffles {
 
 
-Type* ViewerControllerFactory::mType = nullptr;
+ControllerType* ViewerControllerFactory::mType = nullptr;
+TitledViewerType* ViewerControllerFactory::mViewerType = nullptr;
 ds::ui::SpriteEngine* ViewerControllerFactory::mEngine = nullptr;
 std::unordered_map<std::string, ViewerController*> ViewerControllerFactory::mViewerControllers;
 
@@ -257,7 +258,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 			theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
 
 			if (ds::safeFileExistsCheck(theResource.getAbsoluteFilePath())) {
-				newViewer = new TitledMediaViewer(mEngine, getChannelName());
+				newViewer = ViewerControllerFactory::createViewer(getChannelName());
 			} else {
 
 				ds::model::ContentModelRef errorModel;
@@ -275,7 +276,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 				return;
 			}
 		} else {
-			newViewer = new TitledMediaViewer(mEngine, getChannelName());
+			newViewer = ViewerControllerFactory::createViewer(getChannelName());
 		}
 
 	} else if (args.mViewType == VIEW_TYPE_LAUNCHER) {
@@ -1117,7 +1118,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	if (!mNormalLayer) {
 		return;
 	}
-
+	
 	auto viewerPos		 = viewer->getPosition();
 	auto viewerGlobalPos = viewer->getGlobalPosition();
 	viewer->setUnfullscreenRect(
@@ -1138,10 +1139,12 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 
 
 	bool didWebSpecial = false;
+	
 	if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
 		if (auto mp = tmv->getMediaPlayer()) {
 			if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
 				mp->setWebViewSize(ci::vec2(screenWidth, screenHeight));
+			}
 				mp->setSize(ci::vec2(screenWidth, screenHeight));
 				viewer->mContentAspectRatio = screenAsp;
 				if (immediate) {
@@ -1152,7 +1155,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 					viewer->tweenPosition(ci::vec3(0.0f), viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
 				}
 				didWebSpecial = true;
-			}
+			//}
 		}
 	}
 
@@ -1287,8 +1290,7 @@ void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immedi
 				viewer->mContentAspectRatio = destRect.getAspectRatio();
 			}
 		}
-		tmv->showTitle();
-		tmv->showInnerSideBar();
+		
 	}
 
 	if (immediate) {

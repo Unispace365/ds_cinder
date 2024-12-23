@@ -3,7 +3,7 @@
 #include <ds/app/event_client.h>
 #include <ds/ui/panel/base_panel.h>
 #include <ds/ui/sprite/sprite.h>
-
+#include <waffles/viewers/titled_media_viewer.h>
 #include <waffles/util/waffles_helper.h>
 namespace ds::model {
 class Platform;
@@ -104,7 +104,7 @@ class ViewerController : public ds::ui::Sprite {
 	virtual void loadSlideComposite(ds::model::ContentModelRef slideRef);
 
 	virtual void viewerActivated(BaseElement* be);
-
+	
 
 	//handlers
 	virtual void handleRequestViewerLaunch(const RequestViewerLaunchEvent& e);
@@ -129,31 +129,49 @@ private:
 	//std::string								mMediaPropertyKey = "media";
 };
 
-class Type
+class ControllerType
 {
 public:
-	virtual ~Type() {}
+	virtual ~ControllerType() {}
 	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel = "")const = 0;
 	virtual ViewerController* cast(ViewerController* obj)const = 0;
 };
 
-template<typename T> class TypeImpl : public Type
+template<typename T> class ControllerTypeImpl : public ControllerType
 {
 public:
 	virtual ViewerController* allocate(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel = "")const { return new T(g, size, channel); }
 	virtual ViewerController* cast(ViewerController* obj)const { return static_cast<T*>(obj); }
 };
 
+class TitledViewerType {
+  public:
+	virtual ~TitledViewerType() {}
+	virtual TitledMediaViewer* allocate(ds::ui::SpriteEngine& g,
+									   std::string channel = "") const = 0;
+	virtual TitledMediaViewer* cast(TitledMediaViewer* obj) const		= 0;
+};
+
+template <typename T>
+class TitledViewerTypeImpl : public TitledViewerType {
+  public:
+	virtual TitledMediaViewer* allocate(ds::ui::SpriteEngine& g,
+									   std::string channel = "") const {
+		return new T(g, channel);
+	}
+	virtual TitledMediaViewer* cast(TitledMediaViewer* obj) const { return static_cast<T*>(obj); }
+};
 
 
 class ViewerControllerFactory {
 public:
 
-	template<class T = ViewerController>
+	template<class T = ViewerController,class V = TitledMediaViewer>
 	static void InitViewerController(ds::ui::SpriteEngine& eng) {
 		mEngine = &eng;
 
-		mType = new TypeImpl<T>();
+		mType = new ControllerTypeImpl<T>();
+		mViewerType = new TitledViewerTypeImpl<V>();
 	}
 
 	template <class Tx = ViewerController>
@@ -177,10 +195,25 @@ public:
 		}
 	}
 
+	
+	static TitledMediaViewer* createViewer(std::string channel = "") {
+		if (!mEngine) return nullptr;
+		if (mViewerType == nullptr) return nullptr;
+		auto channelName = channel;
+		if (channel.empty()) {
+			channelName = "_default_";
+		}
+		
+			auto instance					= mViewerType->allocate(*mEngine, channel);
+			return dynamic_cast<TitledMediaViewer*>(instance);
+		
+	}
+
 
 private:
 	ViewerControllerFactory() {};
-	static Type* mType;
+	static ControllerType* mType;
+	static TitledViewerType* mViewerType;
 	static ds::ui::SpriteEngine* mEngine;
 	static std::unordered_map<std::string, ViewerController*> mViewerControllers;
 

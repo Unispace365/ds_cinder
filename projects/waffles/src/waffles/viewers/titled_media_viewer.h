@@ -60,7 +60,7 @@ class TitledMediaViewer : public BaseElement {
 	// rotates media 90 degrees clockwise
 	void rotateMedia();
 
-  private:
+  protected:
 	virtual void userInputReceived() override;
 	virtual void onLayout() override;
 	virtual void onCreationArgsSet() override;
