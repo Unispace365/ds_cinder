@@ -14,12 +14,13 @@ namespace waffles {
  */
 class FramedMediaViewer : public TitledMediaViewer {
   public:
-	FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "");
+	FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "",const std::string layoutPath="waffles/viewer/framed_media_viewer.xml" );
 
   protected:
-
+	virtual void setToFullscreen(const bool immediate, const bool showController);
 	virtual void onLayout() override;
 	virtual void onFullscreenSet() override;
+	virtual void showTitle() override;
 	//virtual void hideTitle() override;
 	//virtual void hideInnerSideBar() override;
 	

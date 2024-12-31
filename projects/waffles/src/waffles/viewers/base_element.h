@@ -23,6 +23,7 @@ class BaseElement : public ds::ui::BasePanel {
 
 	/// Set the content for this panel
 	virtual void setMedia(const ds::model::ContentModelRef& newMedia) final;
+	
 	/// Not all viewer types use this, so use with discretion
 	ds::model::ContentModelRef getMedia() { return mMediaRef; }
 
@@ -66,6 +67,8 @@ class BaseElement : public ds::ui::BasePanel {
 	/// fullscreened)
 	void	  setUnfullscreenRect(ci::Rectf recty);
 	ci::Rectf getUnfullscreenRect();
+
+	virtual void setToFullscreen(const bool immediate,const bool showController);
 
 	virtual int getMediaRotation() { return 0; }
 

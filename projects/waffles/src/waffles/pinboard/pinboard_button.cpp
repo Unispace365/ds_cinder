@@ -75,11 +75,14 @@ void PinboardButton::setPinnedStatus() {
 		canBePinned = false;
 	}
 
+	auto allow_pinboard = mEngine.getWafflesSettings().getBool("media_viewer:allow_pinboard", 0, true);
+	
+
 	/* if (getContentModel().getPropertyString("kind") == "note") {
 		canBePinned = true;
 	} */
 
-	if (canBePinned && !mHelper->getPinboard().empty()) {
+	if (canBePinned && !mHelper->getPinboard().empty() && allow_pinboard) {
 		show();
 	} else {
 		hide();

@@ -54,6 +54,7 @@
     <ClCompile Include="src\waffles\viewers\drawing\drawing_tools.cpp" />
     <ClCompile Include="src\waffles\viewers\error_viewer\error_viewer.cpp" />
     <ClCompile Include="src\waffles\viewers\framed_media_viewer.cpp" />
+    <ClCompile Include="src\waffles\viewers\framed_viewer_controller.cpp" />
     <ClCompile Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.cpp" />
     <ClCompile Include="src\waffles\viewers\launcher\launcher.cpp" />
     <ClCompile Include="src\waffles\viewers\launcher\launcher_cms_content.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="src\waffles\viewers\drawing\drawing_tools.h" />
     <ClInclude Include="src\waffles\viewers\error_viewer\error_viewer.h" />
     <ClInclude Include="src\waffles\viewers\framed_media_viewer.h" />
+    <ClInclude Include="src\waffles\viewers\framed_viewer_controller.h" />
     <ClInclude Include="src\waffles\viewers\fullscreen_controller\fullscreen_controller.h" />
     <ClInclude Include="src\waffles\viewers\launcher\launcher.h" />
     <ClInclude Include="src\waffles\viewers\launcher\launcher_cms_content.h" />

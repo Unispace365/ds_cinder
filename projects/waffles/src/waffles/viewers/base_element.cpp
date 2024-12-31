@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "base_element.h"
+#include "viewer_controller.h"
 #include "app/waffles_app_defs.h"
 
 namespace waffles {
@@ -32,6 +33,8 @@ void BaseElement::setMedia(const ds::model::ContentModelRef& newMedia) {
 	mMediaRef = newMedia;
 	onMediaSet();
 }
+
+
 
 bool BaseElement::canArrange() {
 	return mCanArrange;
@@ -98,6 +101,45 @@ void BaseElement::setUnfullscreenRect(ci::Rectf recty) {
 
 ci::Rectf BaseElement::getUnfullscreenRect() {
 	return mUnfullscreenRect;
+}
+
+void BaseElement::setToFullscreen(const bool immediate,const bool showController) {
+	auto normalLayer = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
+	const float screenWidth	 = normalLayer->getWidth();  // mDisplaySize.x;
+	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;
+	const float screenAsp	 = screenWidth / screenHeight;
+
+	float viewerAsp	  = getWidth() / getHeight();
+	float viewerScale = getScale().x;
+
+	if (viewerScale == 0.0f) viewerScale = 0.001f;
+	if (viewerAsp > screenAsp) {
+		auto width = screenWidth / viewerScale;
+		auto height = screenWidth / viewerAsp;
+		auto x		= 0;
+		auto y		= screenHeight * 0.5 - height * 0.5;
+		if (immediate) {
+			setViewerWidth(width);
+			setPosition(x, y);
+		} else {
+			animateWidthTo(width);
+			tweenPosition(ci::vec3(x, y, 0.0f),getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+		}
+	} else {
+		auto height	= screenHeight / viewerScale;
+		auto width = screenHeight * viewerAsp;
+		auto y		= 0;
+		auto x		= screenWidth * 0.5 - width * 0.5;
+		if (immediate) {
+			setViewerHeight(width);
+			setPosition(x, y);
+		} else {
+			animateHeightTo(height);
+			tweenPosition(ci::vec3(x, y, 0.0f), getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+		}
+	}
+	setIsFullscreen(true);
+
 }
 
 void BaseElement::setCreationArgs(ViewerCreationArgs args) {

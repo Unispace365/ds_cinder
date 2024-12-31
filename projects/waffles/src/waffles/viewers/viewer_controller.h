@@ -4,7 +4,9 @@
 #include <ds/ui/panel/base_panel.h>
 #include <ds/ui/sprite/sprite.h>
 #include <waffles/viewers/titled_media_viewer.h>
+#include <app/waffles_app_defs.h>
 #include <waffles/util/waffles_helper.h>
+
 namespace ds::model {
 class Platform;
 }
@@ -21,8 +23,9 @@ class ViewerControllerFactory;
 typedef std::shared_ptr<ViewerController> ViewerControllerPtr;
 
 
+enum class CreationError { OK = 0, INVALID_TYPE, INVALID_MEDIA };
 
-
+typedef std::function<std::tuple<BaseElement*, CreationError>(const ViewerCreationArgs)> CreatorFunc;
 
 
 /**
@@ -35,6 +38,8 @@ class ViewerController : public ds::ui::Sprite {
 	~ViewerController() {
 		if (mDeletingCallback) mDeletingCallback(); 
 	}
+	
+	virtual void initCreators();
 
 	void					 setChannel(const std::string& channel);
 	static ViewerController* getInstance();
@@ -83,6 +88,10 @@ class ViewerController : public ds::ui::Sprite {
 
 
   protected:
+	// create viewers
+	virtual std::tuple < BaseElement*, CreationError> createViewer(const ViewerCreationArgs args);
+	virtual void		 setCreator(const std::string viewType, CreatorFunc creator);
+
 	// immediately releases the viewer with no animation
 	virtual void removeViewer(BaseElement* viewer);
 	virtual void removeFullscreenDarkener(BaseElement* be);
@@ -120,6 +129,7 @@ class ViewerController : public ds::ui::Sprite {
 	std::vector<BaseElement*>				mViewers;
 	std::map<BaseElement*, ds::ui::Sprite*> mFullscreenDarkeners;
 	ci::vec2								mDisplaySize;
+	std::unordered_map<std::string, CreatorFunc> mCreatorFunctions;
 
 private:
 	std::function<void()>					mDeletingCallback;
@@ -144,34 +154,14 @@ public:
 	virtual ViewerController* cast(ViewerController* obj)const { return static_cast<T*>(obj); }
 };
 
-class TitledViewerType {
-  public:
-	virtual ~TitledViewerType() {}
-	virtual TitledMediaViewer* allocate(ds::ui::SpriteEngine& g,
-									   std::string channel = "") const = 0;
-	virtual TitledMediaViewer* cast(TitledMediaViewer* obj) const		= 0;
-};
-
-template <typename T>
-class TitledViewerTypeImpl : public TitledViewerType {
-  public:
-	virtual TitledMediaViewer* allocate(ds::ui::SpriteEngine& g,
-									   std::string channel = "") const {
-		return new T(g, channel);
-	}
-	virtual TitledMediaViewer* cast(TitledMediaViewer* obj) const { return static_cast<T*>(obj); }
-};
-
-
 class ViewerControllerFactory {
 public:
 
-	template<class T = ViewerController,class V = TitledMediaViewer>
+	template<class T = ViewerController>
 	static void InitViewerController(ds::ui::SpriteEngine& eng) {
 		mEngine = &eng;
 
 		mType = new ControllerTypeImpl<T>();
-		mViewerType = new TitledViewerTypeImpl<V>();
 	}
 
 	template <class Tx = ViewerController>
@@ -184,6 +174,7 @@ public:
 		}
 		if (mViewerControllers.find(channelName) == mViewerControllers.end()) {
 			auto instance = mType->allocate(*mEngine, size, channel);
+			instance->initCreators();
 			mViewerControllers[channelName] = instance;
 			instance->setDeletingCallback([channelName]() { 
 				mViewerControllers.erase(channelName); 
@@ -196,24 +187,13 @@ public:
 	}
 
 	
-	static TitledMediaViewer* createViewer(std::string channel = "") {
-		if (!mEngine) return nullptr;
-		if (mViewerType == nullptr) return nullptr;
-		auto channelName = channel;
-		if (channel.empty()) {
-			channelName = "_default_";
-		}
-		
-			auto instance					= mViewerType->allocate(*mEngine, channel);
-			return dynamic_cast<TitledMediaViewer*>(instance);
-		
-	}
+	
 
 
 private:
 	ViewerControllerFactory() {};
 	static ControllerType* mType;
-	static TitledViewerType* mViewerType;
+
 	static ds::ui::SpriteEngine* mEngine;
 	static std::unordered_map<std::string, ViewerController*> mViewerControllers;
 

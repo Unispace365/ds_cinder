@@ -40,7 +40,6 @@ namespace waffles {
 
 
 ControllerType* ViewerControllerFactory::mType = nullptr;
-TitledViewerType* ViewerControllerFactory::mViewerType = nullptr;
 ds::ui::SpriteEngine* ViewerControllerFactory::mEngine = nullptr;
 std::unordered_map<std::string, ViewerController*> ViewerControllerFactory::mViewerControllers;
 
@@ -134,8 +133,84 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::
 	}, clients);
 }
 
-void ViewerController::setChannel(const std::string& channel)
-{
+
+void ViewerController::initCreators() {
+
+	setCreator(VIEW_TYPE_TITLED_MEDIA_VIEWER,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(args.mMediaRef);
+				   auto theResource		 = args.mMediaRef.getPropertyResource(mediaPropertyKey);
+				   if (args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
+					   theResource.getType() != ds::Resource::WEB_TYPE &&
+					   theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
+					   theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
+
+					   if (ds::safeFileExistsCheck(theResource.getAbsoluteFilePath())) {
+						   return {new TitledMediaViewer(mEngine, getChannelName()), CreationError::OK};
+					   } else {
+
+						   ds::model::ContentModelRef errorModel;
+						   std::string				  errorMessage =
+							   "We couldn't load this piece of media because the file couldn't be found.";
+
+						   errorModel.setProperty("name", std::string("Sorry!"));
+						   errorModel.setProperty("error", errorMessage);
+						   errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
+						   errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
+						   errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
+						   mChannelClient.notify(RequestViewerLaunchEvent(
+							   ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
+												  ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter)));
+
+						   return {nullptr, CreationError::INVALID_MEDIA};
+					   }
+				   } else {
+					   return {new TitledMediaViewer(mEngine, getChannelName()), CreationError::OK};
+				   }
+			   });
+	setCreator(VIEW_TYPE_LAUNCHER, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+		return {new Launcher(mEngine, getChannelName()), CreationError::OK};
+	});
+	setCreator(VIEW_TYPE_LAUNCHER_PERSISTANT,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new Launcher(mEngine, getChannelName()), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_SEARCH, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+		return {new SearchViewer(mEngine, VIEW_TYPE_SEARCH), CreationError::OK};
+	});
+	setCreator(VIEW_TYPE_SELECT_MEDIA_AMBIENT,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new SearchViewer(mEngine, VIEW_TYPE_SELECT_MEDIA_AMBIENT), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_SELECT_MEDIA_BACKGROUND,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new SearchViewer(mEngine, VIEW_TYPE_SELECT_MEDIA_BACKGROUND), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_PRESENTATION_CONTROLLER,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new PresentationController(mEngine), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_SETTINGS, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+		return {new SettingsViewer(mEngine), CreationError::OK};
+	});
+	setCreator(VIEW_TYPE_FULLSCREEN_CONTROLLER,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new FullscreenController(mEngine), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_DIAGNOSTIC, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+		return {new DiagnosticViewer(mEngine), CreationError::OK};
+	});
+	setCreator(VIEW_TYPE_STATE_VIEWER,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new StateViewer(mEngine), CreationError::OK};
+			   });
+	setCreator(VIEW_TYPE_ERROR, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+		return {new ErrorViewer(mEngine), CreationError::OK};
+	});
+
+}
+
+void ViewerController::setChannel(const std::string& channel) {
 	if (channel.empty()) {
 		return;
 	}
@@ -249,60 +324,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 		}
 	}
 
-	BaseElement* newViewer = nullptr;
-
-	if (args.mViewType == VIEW_TYPE_TITLED_MEDIA_VIEWER) {
-		auto theResource = args.mMediaRef.getPropertyResource(mediaPropertyKey);
-		if (args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
-			theResource.getType() != ds::Resource::WEB_TYPE && theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
-			theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
-
-			if (ds::safeFileExistsCheck(theResource.getAbsoluteFilePath())) {
-				newViewer = ViewerControllerFactory::createViewer(getChannelName());
-			} else {
-
-				ds::model::ContentModelRef errorModel;
-				std::string errorMessage = "We couldn't load this piece of media because the file couldn't be found.";
-
-				errorModel.setProperty("name", std::string("Sorry!"));
-				errorModel.setProperty("error", errorMessage);
-				errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
-				errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
-				errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
-				mChannelClient.notify(RequestViewerLaunchEvent(
-					ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation, ViewerCreationArgs::kViewLayerTop,
-									   0, args.mFromCenter)));
-
-				return;
-			}
-		} else {
-			newViewer = ViewerControllerFactory::createViewer(getChannelName());
-		}
-
-	} else if (args.mViewType == VIEW_TYPE_LAUNCHER) {
-		newViewer = new Launcher(mEngine, getChannelName());
-		// args.mViewLayer = ViewerCreationArgs::kViewLayerTop;
-	} else if (args.mViewType == VIEW_TYPE_LAUNCHER_PERSISTANT) {
-		newViewer = new Launcher(mEngine, getChannelName(), true);
-		// args.mViewLayer = ViewerCreationArgs::kViewLayerTop;
-	} else if (args.mViewType == VIEW_TYPE_SEARCH) {
-		newViewer = new SearchViewer(mEngine, VIEW_TYPE_SEARCH);
-	} else if (args.mViewType == VIEW_TYPE_SELECT_MEDIA_AMBIENT ||
-			   args.mViewType == VIEW_TYPE_SELECT_MEDIA_BACKGROUND) {
-		newViewer = new SearchViewer(mEngine, args.mViewType);
-	} else if (args.mViewType == VIEW_TYPE_PRESENTATION_CONTROLLER) {
-		newViewer = new PresentationController(mEngine);
-	} else if (args.mViewType == VIEW_TYPE_SETTINGS) {
-		newViewer = new SettingsViewer(mEngine);
-	} else if (args.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
-		newViewer = new FullscreenController(mEngine);
-	} else if (args.mViewType == VIEW_TYPE_DIAGNOSTIC) {
-		newViewer = new DiagnosticViewer(mEngine);
-	} else if (args.mViewType == VIEW_TYPE_STATE_VIEWER) {
-		newViewer = new StateViewer(mEngine);
-	} else if (args.mViewType == VIEW_TYPE_ERROR) {
-		newViewer = new ErrorViewer(mEngine);
-	}
+	auto [newViewer,result] = createViewer(args);
 
 	if (!newViewer) {
 		DS_LOG_WARNING("View type not recognized! " << args.mViewType);
@@ -529,6 +551,20 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 
 	mChannelClient.notify(ViewerUpdatedEvent());
 	mChannelClient.notify(ViewerRemovedEvent(viewer));
+}
+
+std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
+	auto viewType = args.mViewType;
+	if (viewType.empty() || mCreatorFunctions.find(viewType)==mCreatorFunctions.end() || mCreatorFunctions.at(viewType)==nullptr) {
+		return {nullptr, CreationError::INVALID_TYPE};
+	}
+	auto viewer = mCreatorFunctions[viewType](args);
+	return viewer;
+
+}
+
+void ViewerController::setCreator(const std::string viewType, CreatorFunc creator) {
+	mCreatorFunctions[viewType] = creator;
 }
 
 void ViewerController::removeViewer(BaseElement* viewer) {
@@ -1121,6 +1157,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	
 	auto viewerPos		 = viewer->getPosition();
 	auto viewerGlobalPos = viewer->getGlobalPosition();
+	
 	viewer->setUnfullscreenRect(
 		ci::Rectf(viewerPos.x, viewerPos.y, viewer->getWidth() + viewerPos.x, viewer->getHeight() + viewerPos.y));
 
@@ -1139,12 +1176,12 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 
 
 	bool didWebSpecial = false;
+	viewer->setToFullscreen(immediate,showController);
 	
-	if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
+	/*if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
 		if (auto mp = tmv->getMediaPlayer()) {
 			if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
 				mp->setWebViewSize(ci::vec2(screenWidth, screenHeight));
-			}
 				mp->setSize(ci::vec2(screenWidth, screenHeight));
 				viewer->mContentAspectRatio = screenAsp;
 				if (immediate) {
@@ -1155,35 +1192,39 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 					viewer->tweenPosition(ci::vec3(0.0f), viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
 				}
 				didWebSpecial = true;
-			//}
+			}
 		}
 	}
 
 	if (!didWebSpecial) {
 		if (viewerScale == 0.0f) viewerScale = 0.001f;
-
-		if (viewerAsp > screenAsp) {
-			if (immediate) {
-				viewer->setViewerWidth(screenWidth / viewerScale);
-				viewer->setPosition(0.0f, screenHeight / 2.0f - viewer->getHeight() / 2.0f);
-			} else {
-				viewer->animateWidthTo(screenWidth / viewerScale);
-				float finalHeight = screenWidth / viewerAsp;
-				viewer->tweenPosition(ci::vec3(0.0f, screenHeight / 2.0f - finalHeight / 2.0f, 0.0f),
-									  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
-			}
-		} else {
-			if (immediate) {
-				viewer->setViewerHeight(screenHeight / viewerScale);
-				viewer->setPosition(screenWidth / 2.0f - viewer->getScaleWidth() / 2.0f, 0.0f);
-			} else {
-				viewer->animateHeightTo(screenHeight / viewerScale);
-				float finalWidth = screenHeight * viewerAsp;
-				viewer->tweenPosition(ci::vec3(screenWidth / 2.0f - finalWidth / 2.0f, 0.0f, 0.0f),
-									  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+		if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
+			if (auto mp = tmv->getMediaPlayer()) {
+				auto tmvAsp = tmv->getWidth() / tmv->getHeight();
+				if (tmvAsp > screenAsp) {
+					if (immediate) {
+						tmv->setViewerWidth(screenWidth / viewerScale);
+						tmv->setPosition(0.0f, screenHeight / 2.0f - viewer->getHeight() / 2.0f);
+					} else {
+						tmv->animateWidthTo(screenWidth / viewerScale);
+						float finalHeight = screenWidth / viewerAsp;
+						viewer->tweenPosition(ci::vec3(0.0f, screenHeight / 2.0f - finalHeight / 2.0f, 0.0f),
+											  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+					}
+				} else {
+					if (immediate) {
+						viewer->setViewerHeight(screenHeight / viewerScale);
+						viewer->setPosition(screenWidth / 2.0f - viewer->getScaleWidth() / 2.0f, 0.0f);
+					} else {
+						viewer->animateHeightTo(screenHeight / viewerScale);
+						float finalWidth = screenHeight * viewerAsp;
+						viewer->tweenPosition(ci::vec3(screenWidth / 2.0f - finalWidth / 2.0f, 0.0f, 0.0f),
+											  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+					}
+				}
 			}
 		}
-	}
+	}*/
 
 	viewer->setIsFullscreen(true);
 

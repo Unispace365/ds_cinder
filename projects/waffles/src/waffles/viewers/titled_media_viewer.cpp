@@ -29,28 +29,28 @@
 
 #include "app/waffles_app_defs.h"
 
-#include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"
 #include "waffles/pinboard/pinboard_button.h"
 #include "waffles/util/capture_player.h"
 #include "waffles/util/shadow_layout.h"
 #include "waffles/util/waffles_helper.h"
+#include "waffles/waffles_events.h"
 
 
 namespace waffles {
 
-TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel)
-	: BaseElement(g)
-	, mMediaPlayer(nullptr)
-	, mDrawingMode(false)
-	, mShowingOptions(false)
-	, mShowingTitle(false)
-	, mInitialLoadError(false)
-	, mShowingVideo(false)
-	, mShowingWeb(false)
-	, mMediaRotation(0)
-	, mPlayerLoadedTimer(mEngine)
-	, mControlsTimeoutTimer(mEngine) {
+TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel, std::string layoutPath)
+  : BaseElement(g)
+  , mMediaPlayer(nullptr)
+  , mDrawingMode(false)
+  , mShowingOptions(false)
+  , mShowingTitle(false)
+  , mInitialLoadError(false)
+  , mShowingVideo(false)
+  , mShowingWeb(false)
+  , mMediaRotation(0)
+  , mPlayerLoadedTimer(mEngine)
+  , mControlsTimeoutTimer(mEngine) {
 
 	setChannelName(eventChannel);
 	if (eventChannel.empty()) {
@@ -72,7 +72,6 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	mAbsMaxSize.y		= maxSize;
 
 	
-
 	/* setTransparent(false);
 	setColor(ci::Color(1.f, 0.f, 1.f)); */
 
@@ -80,9 +79,9 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		if (mIsFullscreen) {
 			hideTitle();
 			hideInnerSideBar();
-			mEventClient.notify(RequestViewerLaunchEvent(
-				ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-								   ViewerCreationArgs::kViewLayerTop)));
+			mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(ds::model::ContentModelRef(),
+																			VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
+																			ViewerCreationArgs::kViewLayerTop)));
 		} else {
 			showTitle();
 			showInnerSideBar();
@@ -100,7 +99,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 			0.01f);
 	};
 
-	mRootLayout = new ds::ui::SmartLayout(mEngine, "waffles/viewer/titled_media_viewer.xml");
+	mRootLayout = new ds::ui::SmartLayout(mEngine, layoutPath);
 	addChildPtr(mRootLayout);
 	mRootLayout->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
 		if (ti.mPhase == ds::ui::TouchInfo::Moved) {
@@ -110,6 +109,8 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	});
 	mRootLayout->setTapCallback(tapCallback);
 	mRootLayout->setDoubleTapCallback(doubleTapCallback);
+	
+	processAllowedButtons();
 
 	auto background = mRootLayout->getSprite("background");
 	if (background) {
@@ -192,7 +193,9 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 			particleBackground.setProperty("pdf_page", pdfPage);
 		}
 		auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(particleBackground);
-		particleBackground.setPropertyResource(mMediaPropertyKey, getMedia().getPropertyResource(mMediaPropertyKey));// TODO: cannot tell if this wants mMediaPropertyKey
+		particleBackground.setPropertyResource(
+			mMediaPropertyKey,
+			getMedia().getPropertyResource(mMediaPropertyKey)); // TODO: cannot tell if this wants mMediaPropertyKey
 		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef()));
 	});
 	mRootLayout->setSpriteClickFn("duplicate.the_button", [this] {
@@ -210,6 +213,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		}
 	});
 
+
 	/// This is an escape hatch for video players when drawing is happening and the mode changes
 	/// e.g. the idle timeout occurs, or an ambient button is pressed etc.
 	/// The sprite will likely still exist and be an orphan, which is likely a big TODO.
@@ -224,7 +228,8 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 void TitledMediaViewer::calculateSizeLimits() {
 	if (!mMediaPlayer) return;
 
-	mContentAspectRatio = mMediaPlayer->getContentAspectRatio();
+	auto width	= getWidth();
+	auto height = mContentAspectRatio = mMediaPlayer->getContentAspectRatio();
 
 	float contentWidth	= mMediaPlayer->getWidth();
 	float contentHeight = mMediaPlayer->getHeight();
@@ -285,7 +290,7 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
-	//DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
+	// DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
 	if (primaryResource.empty()) primaryResource = mMediaRef.getPropertyResource("media_media_res");
 
@@ -333,7 +338,8 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mPdfCanShowLinks	   = true;
 	mvs.mPdfLinkTappedCallback = [this](ds::pdf::PdfLinkInfo linkInfo) {
 		ds::model::ContentModelRef fakeThing;
-		fakeThing.setPropertyResource("media", ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
+		fakeThing.setPropertyResource("media",
+									  ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
 		mEventClient.notify(RequestViewerLaunchEvent(
 			ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition())));
 	};
@@ -374,9 +380,9 @@ void TitledMediaViewer::onMediaSet() {
 			mShowingVideo = false;
 
 			auto prePipe  = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, "");
-			prePipe = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe);
+			prePipe		  = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe);
 			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, "");
-			postPipe = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe);
+			postPipe	  = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe);
 
 			// Testing some additional streaming options
 			if (!prePipe.empty() && !postPipe.empty()) {
@@ -418,8 +424,9 @@ void TitledMediaViewer::onMediaSet() {
 				hideTitle();
 
 				float keyboardHeight = mEngine.getAppSettings().getFloat("media_viewer:keyboard_height", 0, 420.0f);
-				keyboardHeight = mEngine.getWafflesSettings().getFloat("media_viewer:keyboard_height", 0, keyboardHeight);
-				mBoundingArea.y2	 = mEngine.getWorldHeight() - keyboardHeight;
+				keyboardHeight =
+					mEngine.getWafflesSettings().getFloat("media_viewer:keyboard_height", 0, keyboardHeight);
+				mBoundingArea.y2 = mEngine.getWorldHeight() - keyboardHeight;
 				if (getPosition().y + getHeight() + keyboardHeight > mEngine.getWorldHeight()) {
 					tweenStarted();
 					tweenPosition(
@@ -500,8 +507,8 @@ void TitledMediaViewer::onMediaSet() {
 			setSize(300.0f, 300.0f);
 			setSizeLimits();
 			setViewerSize(300.0f, 300.0f);
-			//showTitle();
-			//mCanResize	= false;
+			// showTitle();
+			// mCanResize	= false;
 			mFatalError = true;
 
 			ds::model::ContentModelRef errorModel;
@@ -515,7 +522,8 @@ void TitledMediaViewer::onMediaSet() {
 
 			errorModel.setProperty("name", std::string("Sorry!"));
 			errorModel.setProperty("error", errorMessage);
-			errorModel.setPropertyResource("media", primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
+			errorModel.setPropertyResource("media",
+										   primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
 			errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
 			errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
 
@@ -583,9 +591,9 @@ void TitledMediaViewer::onMediaSet() {
 
 void TitledMediaViewer::startVideo() {
 	if (!mMediaPlayer || !mRootLayout) return;
-	auto mvs			 = mMediaPlayer->getSettings();
+	auto mvs			   = mMediaPlayer->getSettings();
 	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
-	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
+	auto primaryResource   = mMediaRef.getPropertyResource(mMediaPropertyKey);
 
 	if (primaryResource.getType() != ds::Resource::VIDEO_TYPE &&
 		primaryResource.getType() != ds::Resource::YOUTUBE_TYPE) {
@@ -608,7 +616,52 @@ void TitledMediaViewer::startVideo() {
 	mMediaPlayer->enter();
 }
 
+void TitledMediaViewer::processAllowedButtons() {
+	auto allow_drawing	  = mEngine.getWafflesSettings().getBool("media_viewer:allow_drawing", 0, true);
+	auto allow_rotation	  = mEngine.getWafflesSettings().getBool("media_viewer:allow_rotation", 0, true);
+	auto allow_duplicate  = mEngine.getWafflesSettings().getBool("media_viewer:allow_duplicate", 0, true);
+	auto allow_fullscreen = mEngine.getWafflesSettings().getBool("media_viewer:allow_fullscreen", 0, true);
+
+	auto drawingSpr = mRootLayout->getSprite("drawing.the_button");
+	if (drawingSpr) {
+		if (allow_drawing) {
+			drawingSpr->show();
+		} else {
+			drawingSpr->hide();
+		}
+	}
+
+	auto rotationSpr = mRootLayout->getSprite("rotation.the_button");
+	if (rotationSpr) {
+		if (allow_rotation) {
+			rotationSpr->show();
+		} else {
+			rotationSpr->hide();
+		}
+	}
+
+	auto duplicateSpr = mRootLayout->getSprite("duplicate.the_button");
+	if (duplicateSpr) {
+		if (allow_duplicate) {
+			duplicateSpr->show();
+		} else {
+			duplicateSpr->hide();
+		}
+	}
+
+	auto fullscreenSpr = mRootLayout->getSprite("fullscreen.the_button");
+	if (fullscreenSpr) {
+		if (allow_fullscreen) {
+			fullscreenSpr->show();
+		} else {
+			fullscreenSpr->hide();
+		}
+	}
+}
+
 void TitledMediaViewer::onLayout() {
+
+	
 
 	if (mMediaPlayer) {
 		float w = getWidth();
@@ -695,7 +748,8 @@ void TitledMediaViewer::loadHotspots() {
 
 		hotspot->setTapCallback([this, hotspot](ds::ui::Sprite* bs, const ci::vec3& pos) {
 			auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-			auto field_name = mEngine.getWafflesSettings().getString("hotspot:destination:field_name", 0, "destination");
+			auto field_name =
+				mEngine.getWafflesSettings().getString("hotspot:destination:field_name", 0, "destination");
 			auto destId = hotspot->getContentModel().getPropertyString(field_name);
 			if (!destId.empty()) {
 				// launch the thing for the hotspot at pos
@@ -703,7 +757,7 @@ void TitledMediaViewer::loadHotspots() {
 				if (linkMedia.empty()) {
 					DS_LOG_WARNING("Hotspot node not found for id == " << destId);
 				} else {
-					
+
 					if (ContentUtils::getDefault(mEngine)->isMedia(linkMedia)) {
 						mEventClient.notify(RequestViewerLaunchEvent(
 							ViewerCreationArgs(linkMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
@@ -716,8 +770,8 @@ void TitledMediaViewer::loadHotspots() {
 				for (auto child : hotspot->getContentModel().getChildren()) {
 					mEventClient.notify(
 						RequestViewerLaunchEvent(ViewerCreationArgs(child, VIEW_TYPE_TITLED_MEDIA_VIEWER, position)));
-					position = position + mEngine.getWafflesSettings().getVec3("launcher:presentation:hotspot:asset:offset",
-																		   0, ci::vec3(45, 45, 0));
+					position = position + mEngine.getWafflesSettings().getVec3(
+											  "launcher:presentation:hotspot:asset:offset", 0, ci::vec3(45, 45, 0));
 				}
 			} else {
 				// Not a valid hotspot
@@ -862,13 +916,14 @@ void TitledMediaViewer::toggleDrawing() {
 	mDrawingMode = !mDrawingMode;
 
 	if (mDrawingMode) {
-		//DS_LOG_INFO("DRAWING ENABLED FOR VIEWER TYPE: " << this->getViewerType() << mMediaPlayer->getSpriteName().c_str());
+		// DS_LOG_INFO("DRAWING ENABLED FOR VIEWER TYPE: " << this->getViewerType() <<
+		// mMediaPlayer->getSpriteName().c_str());
 		hideTitle();
 		if (!mDrawingArea) {
 			float widdy = mEngine.getAppSettings().getFloat("drawing:initial_resolution", 0, 3000.0f);
-			widdy = mEngine.getWafflesSettings().getFloat("drawing:initial_resolution", 0, widdy);
+			widdy		= mEngine.getWafflesSettings().getFloat("drawing:initial_resolution", 0, widdy);
 
-			float asp	= getWidth() / getHeight();
+			float asp = getWidth() / getHeight();
 
 			mDrawingArea = new DrawingArea(mEngine, widdy, widdy / asp, getChannelName());
 			mDrawingArea->setOpacity(0.0f);
@@ -955,8 +1010,7 @@ void TitledMediaViewer::toggleMute() {
 	}
 }
 
-void TitledMediaViewer::mute()
-{
+void TitledMediaViewer::mute() {
 	if (mMediaPlayer) {
 		mMediaPlayer->mute();
 	}
@@ -1178,6 +1232,36 @@ void TitledMediaViewer::toggleInnerSideBar() {
 	}
 }
 
+void TitledMediaViewer::setToFullscreen(const bool immediate, const bool showController) {
+
+	auto		normalLayer	 = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
+	const float screenWidth	 = normalLayer->getWidth();	 // mDisplaySize.x;
+	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;
+	const float screenAsp	 = screenWidth / screenHeight;
+
+	bool didWebSpecial = false;
+
+	if (auto mp = getMediaPlayer()) {
+		if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
+			mp->setWebViewSize(ci::vec2(screenWidth, screenHeight));
+			mp->setSize(ci::vec2(screenWidth, screenHeight));
+			mContentAspectRatio = screenAsp;
+			if (immediate) {
+				setViewerWidth(screenWidth);
+				setPosition(0.0f, 0.0f);
+			} else {
+				animateWidthTo(screenWidth);
+				tweenPosition(ci::vec3(0.0f), getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+			}
+			setIsFullscreen(true);
+			didWebSpecial = true;
+		}
+	}
+	if (!didWebSpecial) {
+		BaseElement::setToFullscreen(immediate, showController);
+	}
+}
+
 void TitledMediaViewer::userInputReceived() {
 	BasePanel::userInputReceived();
 	// Input = focus = keyboard
@@ -1200,4 +1284,4 @@ void TitledMediaViewer::setKeyboardButtonImage(std::string imagePath, ds::ui::Im
 	keyboardBtn->setCornerRadius(0.f);
 }
 
-} // namespace mv
+} // namespace waffles

@@ -16,7 +16,8 @@ class PresetMediaHotspotRef;
  */
 class TitledMediaViewer : public BaseElement {
   public:
-	TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "");
+	TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "",
+					  std::string layoutPath = "waffles/viewer/titled_media_viewer.xml");
 
 	virtual void onMediaSet() override;
 
@@ -27,6 +28,8 @@ class TitledMediaViewer : public BaseElement {
 	virtual void showInnerSideBar() override;
 	virtual void hideInnerSideBar() override;
 	virtual void toggleInnerSideBar() override;
+
+	virtual void setToFullscreen(const bool immediate,const bool showController) override;
 
 	// 0 = normal, 1 = 90 degs, 2 = 180 degs, 3 = 270
 	virtual int getMediaRotation() override { return mMediaRotation; }
@@ -62,9 +65,11 @@ class TitledMediaViewer : public BaseElement {
 
   protected:
 	virtual void userInputReceived() override;
+	void		 processAllowedButtons();
 	virtual void onLayout() override;
 	virtual void onCreationArgsSet() override;
 	virtual void onFullscreenSet() override;
+	
 
 	void loadHotspots();
 	void layoutHotspots();
