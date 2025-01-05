@@ -38,14 +38,14 @@ Platform::Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey)
 		key = engine.getAppSettings().getString("platform:key", 0, "");
 	}
 	auto recordsSize = engine.mContent.getKeyReferences(ds::model::RECORD_MAP).size();
-	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const ds::ContentUpdatedEvent& e) {
-		refreshContent();
-	});
+	
 	mPlatformModel = mEngine.mContent.getKeyReference(ds::model::RECORD_MAP, key);
 	
 	if (mPlatformModel.empty()) {
 		DS_LOG_WARNING("Platform not found: " << key << " in " << recordsSize << " records");
 		mInitialized = false;
+	} else {
+		mInitialized = true;
 	}
 
 	mEvents = mCurrentContent.getChildByName("current_events");
@@ -66,6 +66,7 @@ void Platform::refreshContent() {
 }
 
 ds::model::ContentModelRef Platform::getPlatformModel() {
+	refreshContent();
 	return mPlatformModel;
 }
 
@@ -75,6 +76,11 @@ PlatformType Platform::getPlatformType() {
 
 ds::model::ContentModelRef Platform::getCurrentContent() {
 	return mCurrentContent;
+}
+
+void Platform::setupContentListener() {
+	mEventClient.listenToEvents<ds::ContentUpdatedEvent>(
+		[this](const ds::ContentUpdatedEvent& e) { refreshContent(); });
 }
 
 } // namespace ds::model

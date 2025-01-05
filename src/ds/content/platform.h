@@ -34,6 +34,7 @@ class Platform {
 	virtual ds::model::ContentModelRef		  getPlatformModel();
 	virtual PlatformType					  getPlatformType();
 	virtual ds::model::ContentModelRef		  getCurrentContent();
+	virtual void							  setupContentListener();
 
 
   protected:
@@ -44,6 +45,7 @@ class Platform {
 	ds::model::ContentModelRef	mPlatformModel;
 	ds::model::ContentModelRef	mCurrentContent;
 	ds::model::ContentModelRef	mEvents;
+
   private:
 	bool mInitialized = false;
 };
