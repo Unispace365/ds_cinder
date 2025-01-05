@@ -47,7 +47,7 @@ struct MediaViewerSettings {
 	  , mPanoramicVideoInteractive(true)
 	  , mVideoStreamingLatency(0.2)
 	  , mVideoSplitAlpha(false)
-	  , mKeepIfSame(false)
+	  , mKeepIfSame(true)
 	  , mCanShowThumbnail(false) {}
 
 	//--------------------Overall Settings -----------------------------------------//
