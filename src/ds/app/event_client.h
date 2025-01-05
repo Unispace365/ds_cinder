@@ -7,6 +7,7 @@
 #include <initializer_list>
 
 #include <string>
+#include <mutex>
 
 namespace ds {
 class Event;
@@ -56,7 +57,7 @@ class EventClient {
 	void listenToEvents(std::function<void(const EVENT&)> callback) {
 		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
 		const auto type = EVENT::WHAT();
-
+		std::unique_lock lock(mEventsMtx);
 		mEventCallbacks[type] = [callback](const ds::Event& e) {
 			callback(static_cast<const EVENT&>(e));
 		};
@@ -67,7 +68,7 @@ class EventClient {
 	void stopListeningToEvents() {
 		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
 		auto type = EVENT::WHAT();
-
+		std::unique_lock lock(mEventsMtx);
 		auto findy = mEventCallbacks.find(type);
 		if (findy != end(mEventCallbacks)) {
 			mEventCallbacks.erase(findy);
@@ -93,6 +94,7 @@ class EventClient {
 
 	void	 onAppEvent(const ds::Event&);
 	eventMap mEventCallbacks;
+	std::mutex mEventsMtx;
 };
 
 

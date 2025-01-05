@@ -107,9 +107,13 @@ void EventClient::setNotifier(EventNotifier& notifier)
 void EventClient::onAppEvent(const ds::Event& in_e) {
 	if (mStopped) return;
 	if (mEventCallbacks.empty()) return;
-
-	auto callbackIt = mEventCallbacks.find(in_e.mWhat);
-	if (callbackIt != end(mEventCallbacks)) {
+	std::unordered_map<size_t, eventCallback> cbs;
+	{ 
+		std::unique_lock lock(mEventsMtx);
+		cbs = mEventCallbacks; 
+	}
+	auto callbackIt = cbs.find(in_e.mWhat);
+	if (callbackIt != end(cbs)) {
 		(callbackIt->second)(in_e);
 	}
 }
