@@ -194,10 +194,8 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
 
-	auto notifier = engine.getNotifier();
-	if (!channel.empty()) {
-		notifier = engine.getChannel(channel);
-	}
+	auto& notifier = channel.empty() ? engine.getNotifier() : engine.getChannel(channel);
+	
 
 
 	if (type == "ambient") {
