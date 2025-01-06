@@ -36,6 +36,7 @@
 #include "waffles/util/waffles_helper.h"
 #include "waffles/waffles_events.h"
 
+#include <ds/content/content_helper.h>
 
 namespace waffles {
 
@@ -490,7 +491,11 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	if (!mShowingWebcam) {
-		ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+		auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+		if (wafflesHelper) {
+			wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+		}
+		//ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
 
 	// setting size is necessary to get size limits to work
@@ -611,7 +616,11 @@ void TitledMediaViewer::startVideo() {
 	}
 
 	mMediaPlayer->loadMedia(primaryResource);
-	ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+	auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	if (wafflesHelper) {
+		wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+	}
+	//ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	mRootLayout->runLayout();
 	mMediaPlayer->enter();
 }

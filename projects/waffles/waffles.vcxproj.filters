@@ -167,6 +167,9 @@
     <ClCompile Include="src\waffles\viewers\framed_viewer_controller.cpp">
       <Filter>src\waffles\viewers</Filter>
     </ClCompile>
+    <ClCompile Include="src\waffles\util\framed_waffles_helper.cpp">
+      <Filter>src\waffles\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\waffles_app_defs.h">
@@ -349,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="src\waffles\viewers\framed_viewer_controller.h">
       <Filter>src\waffles\viewers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\util\framed_waffles_helper.h">
+      <Filter>src\waffles\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

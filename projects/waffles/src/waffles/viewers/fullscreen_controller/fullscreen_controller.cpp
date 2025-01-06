@@ -152,7 +152,9 @@ void FullscreenController::updateUi() {
 		mMediaInterface = nullptr;
 	}
 	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
+	
 	if (mLinkedMediaViewer && interfaceHolder) {
+		interfaceHolder->show();
 		auto contentRef	 = mLinkedMediaViewer->getMedia();
 		auto mediaPlayer = mLinkedMediaViewer->getMediaPlayer();
 		mRootLayout->setContentModel(contentRef);
@@ -161,7 +163,11 @@ void FullscreenController::updateUi() {
 			mMediaInterface =
 				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mediaPlayer->getPlayer(), interfaceHolder);
 
-			ContentUtils::setMediaInterfaceStyle(mMediaInterface);
+			auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+			if (wafflesHelper) {
+				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
+			}
+			//ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
@@ -205,7 +211,7 @@ void FullscreenController::updateUi() {
 	} else {
 		removeDrawingTools();
 	}
-
+	mRootLayout->runLayout();
 	layout();
 }
 

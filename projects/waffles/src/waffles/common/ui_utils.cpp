@@ -250,7 +250,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 }
 
 
-void ContentUtils::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
+[[deprecated]] void ContentUtils::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
 	auto& mEngine = interfacey->getEngine();
 

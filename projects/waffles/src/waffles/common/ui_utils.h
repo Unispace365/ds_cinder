@@ -16,7 +16,7 @@ class ContentUtils : ds::ui::Sprite {
 	static void			 configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, 
 										   ci::vec2 size = ci::vec2(-1));
 	static bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, std::string channel, ci::vec3 pos = ci::vec3(-1));
-	static void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey);
+	[[deprecated]] static void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey);
 
  
 	bool isFolder(ds::model::ContentModelRef model);

@@ -4,6 +4,7 @@
 #include <ds/content/content_helper.h>
 #include <ds/ui/sprite/sprite.h>
 #include <memory>
+#include <ds/ui/media/media_interface.h>
 namespace waffles {
 
 /**
@@ -27,6 +28,7 @@ class WafflesHelper : public ds::model::ContentHelper {
 	virtual std::vector<ds::model::ContentModelRef> getValidPinboards()	  = 0;
 	virtual std::vector<ds::Resource>				findMediaResources()  = 0;
 	virtual int										getBackgroundPdfPage()= 0;
+	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey)=0;
 
 
 };

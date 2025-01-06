@@ -4,6 +4,12 @@
 #include "waffles/waffles_events.h"
 #include "waffles/model/viewer_creation_args.h"
 #include "app/waffles_app_defs.h"
+#include <ds/ui/media/interface/web_interface.h>
+#include <ds/ui/media/media_interface_builder.h>
+#include <ds/ui/media/media_player.h>
+#include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/sprite/image.h>
+#include "waffles/common/ui_utils.h"
 namespace waffles {
 
 FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel,const std::string layoutPath)
@@ -66,6 +72,7 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	
 	setTapCallback(tapCallback);
 	setDoubleTapCallback(doubleTapCallback);
+
 	showTitle();
 	showInnerSideBar();
 };
@@ -150,7 +157,12 @@ void FramedMediaViewer::onFullscreenSet() {
 			background->show();
 		}
 	}
+	auto mediaInterface = mMediaPlayer->getMediaInterface();
+	if (mediaInterface) {
+		mediaInterface->setAllowDisplay(false);
+	}
 	mRootLayout->runLayout();
+	
 }
 
 void FramedMediaViewer::showTitle() {
@@ -164,8 +176,93 @@ void FramedMediaViewer::showTitle() {
 
 }
 
+void FramedMediaViewer::onMediaSet() {
+	TitledMediaViewer::onMediaSet();
+
+	if (mMediaInterface) {
+		mMediaInterface->release();
+		mMediaInterface = nullptr;
+	}
+
+
+	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
+	auto mediaPlayer	 = getMediaPlayer();
+	if (mediaPlayer) {
+		auto mps = mediaPlayer->getSettings();
+		mps.mCanDisplayInterface = false;
+		mediaPlayer->setSettings(mps);
+		auto mediaInterface = mediaPlayer->getMediaInterface();
+		if (mediaInterface) {
+			mediaInterface->setAllowDisplay(false);
+		}
+	}
+	if (interfaceHolder) {
+		interfaceHolder->show();
+		auto contentRef	 = getMedia();
+		
+		
+		
+		if (mediaPlayer && mediaPlayer->getPlayer()) {
+			mMediaInterface =
+				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mediaPlayer->getPlayer(), interfaceHolder);
+
+			auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+			if (wafflesHelper) {
+				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
+			}
+			//ContentUtils::setMediaInterfaceStyle(mMediaInterface);
+
+			if (mMediaInterface) {
+				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+
+				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
+					webInterface->setKeyboardDisablesTimeout(false);
+					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
+					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
+						if (onScreen) {
+							auto	  keeb		= webInterface->getSoftKeyboard();
+							auto&	  setty		= keeb->getSoftKeyboardSettings();
+							ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
+
+
+							setty.mKeyDownColor				  = ci::Color::black();
+							setty.mKeyUpColor				  = ci::Color(lightGrey);
+							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
+							setty.mGraphicRoundedCornerRadius = 0;
+							keeb->setSoftKeyboardSettings(setty);
+
+							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
+												   keyboardBtn);
+
+						} else if (!onScreen) {
+							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
+						}
+					});
+				}
+
+				mMediaInterface->setCanTimeout(false);
+
+				// Handle lock state changes
+				//mMediaInterface->setLockStateCallback([this](bool lock) { updateLockedState(); });
+
+				// Make sure we have the correct lock state right away too
+				//updateLockedState();
+			}
+		}
+
+		//setDrawingToolsState();
+
+	} else {
+		//removeDrawingTools();
+	}
+	//mRootLayout->runLayout();
+	layout();
+}
+
 void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showController) {
 
+	setUnfullscreenRect(
+		ci::Rectf(mPosition.x, mPosition.y, getWidth() + mPosition.x - (mRightPad+mLeftPad), getHeight() + mPosition.y - (mBottomPad+mTopPad)));
 	auto		normalLayer	 = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
 	const float screenWidth	 = normalLayer->getWidth();	 // mDisplaySize.x;
 	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;

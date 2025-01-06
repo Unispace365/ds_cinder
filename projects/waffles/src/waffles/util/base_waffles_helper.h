@@ -1,7 +1,7 @@
 #pragma once
 #include <waffles/util/waffles_helper.h>
 #include <ds/content/base_content_helper.h>
-
+#include <ds/ui/media/media_interface.h>
 namespace waffles {
 
 using namespace ds::model;
@@ -17,6 +17,7 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual ds::model::ContentModelRef		getPinboard() override;
 	virtual std::vector<ds::model::ContentModelRef> getValidPinboards() override;
 	virtual ds::model::ContentModelRef				getAnnotationFolder() override;
+	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) override;
 
 
 	// Inherited via WafflesHelper these are from WaffleHelper's base class ContentHelper

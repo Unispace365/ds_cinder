@@ -1,7 +1,7 @@
 #pragma once
 
 #include "waffles/viewers/titled_media_viewer.h"
-
+#include <ds/ui/media/media_interface.h>
 
 
 namespace waffles {
@@ -21,6 +21,8 @@ class FramedMediaViewer : public TitledMediaViewer {
 	virtual void onLayout() override;
 	virtual void onFullscreenSet() override;
 	virtual void showTitle() override;
+	virtual void onMediaSet() override;
+	ds::ui::MediaInterface* mMediaInterface = nullptr;
 	//virtual void hideTitle() override;
 	//virtual void hideInnerSideBar() override;
 	

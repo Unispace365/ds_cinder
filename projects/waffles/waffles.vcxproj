@@ -43,6 +43,7 @@
     <ClCompile Include="src\waffles\touch_menu\touch_menu_graphics.cpp" />
     <ClCompile Include="src\waffles\util\base_waffles_helper.cpp" />
     <ClCompile Include="src\waffles\util\capture_player.cpp" />
+    <ClCompile Include="src\waffles\util\framed_waffles_helper.cpp" />
     <ClCompile Include="src\waffles\util\shadow_layout.cpp">
       <RemoveUnreferencedCodeData Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RemoveUnreferencedCodeData>
     </ClCompile>
@@ -107,6 +108,7 @@
     <ClInclude Include="src\waffles\touch_menu\touch_menu_graphics.h" />
     <ClInclude Include="src\waffles\util\base_waffles_helper.h" />
     <ClInclude Include="src\waffles\util\capture_player.h" />
+    <ClInclude Include="src\waffles\util\framed_waffles_helper.h" />
     <ClInclude Include="src\waffles\util\shadow_layout.h" />
     <ClInclude Include="src\waffles\util\waffles_helper.h" />
     <ClInclude Include="src\waffles\viewers\base_element.h" />
