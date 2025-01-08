@@ -26,24 +26,24 @@ class PDFInterface : public MediaInterface {
 	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
 				 const ci::Color buttonColor, const ci::Color backgroundColor);
 
-	void linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource);
-	void updateWidgets();
-	void setPageFont(std::string fontName, float fontSize);
+	virtual void linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource);
+	virtual void updateWidgets();
+	virtual void setPageFont(std::string fontName, float fontSize);
 
 	/// For visual customization - don't release these sprites from here
-	void				   addNubToScrubBar(ds::ui::Sprite* newNub);
-	ds::ui::ImageButton*   getUpButton() { return mUpButton; }
-	ds::ui::ImageButton*   getDownButton() { return mDownButton; }
-	ds::ui::ImageButton*   getTouchToggle() { return mTouchToggle; }
-	ds::ui::ImageButton*   getThumbsButton() { return mThumbsButton; }
-	ds::ui::VideoScrubBar* getScrubBar() { return mScrubBar; }
-	ds::ui::Sprite*		   getScrubBarProgress();
-	ds::ui::Text*		   getPageCounter() { return mPageCounter; }
-	ds::ui::Sprite*		   getScrubBarBackground();
+	virtual void				   addNubToScrubBar(ds::ui::Sprite* newNub);
+	virtual ds::ui::ImageButton* getUpButton() { return mUpButton; }
+	virtual ds::ui::ImageButton*	   getDownButton() { return mDownButton; }
+	virtual ds::ui::ImageButton*	   getTouchToggle() { return mTouchToggle; }
+	virtual ds::ui::ImageButton*		   getThumbsButton() { return mThumbsButton; }
+	virtual ds::ui::VideoScrubBar*	   getScrubBar() { return mScrubBar; }
+	virtual ds::ui::Sprite*				   getScrubBarProgress();
+	virtual ds::ui::Text*				   getPageCounter() { return mPageCounter; }
+	virtual ds::ui::Sprite*				   getScrubBarBackground();
 
-	void toggleTouch(); // what the "touch lock" does
-	void startTouch();	// pdf is tappable to go forwards/back
-	void stopTouch();	// pdf is not tappable
+	virtual void toggleTouch(); // what the "touch lock" does
+	virtual void	 startTouch();	// pdf is tappable to go forwards/back
+	virtual void	 stopTouch();	// pdf is not tappable
 
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
