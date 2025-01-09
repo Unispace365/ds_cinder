@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\oneline_pdf_interface.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\pdf_interface.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\thumbnail_bar.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\video_interface.cpp" />
@@ -60,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="src\ds\ui\media\interface\oneline_pdf_interface.h" />
     <ClInclude Include="src\ds\ui\media\interface\pdf_interface.h" />
     <ClInclude Include="src\ds\ui\media\interface\thumbnail_bar.h" />
     <ClInclude Include="src\ds\ui\media\interface\video_interface.h" />

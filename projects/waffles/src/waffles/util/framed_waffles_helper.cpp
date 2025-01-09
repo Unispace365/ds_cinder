@@ -114,16 +114,16 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	if (auto ytInterface = dynamic_cast<ds::ui::YoutubeInterface*>(interfacey)) {
 		auto interfaceHeight = ytInterface->getHeight();
 		if (auto play = ytInterface->getPlayButton()) {
-			play->setNormalImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
-			play->setHighImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
+			play->setNormalImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
+			play->setHighImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
 			play->setScale(interfaceHeight / play->getHeight());
 			play->setNormalImageColor(normalColor);
 			play->setHighImageColor(highColor);
 		}
 
 		if (auto pause = ytInterface->getPauseButton()) {
-			pause->setNormalImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
-			pause->setHighImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
+			pause->setNormalImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
+			pause->setHighImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
 			pause->setScale(interfaceHeight / pause->getHeight());
 			pause->setNormalImageColor(normalColor);
 			pause->setHighImageColor(highColor);
@@ -139,9 +139,9 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 		if (ytInterface->getVolumeControl()) {
 			auto volumeControl = ytInterface->getVolumeControl();
-			volumeControl->setMuteImage("%APP%/data/images/waffles/icons/4x/Mute_256.png");
-			volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons/4x/Volume low_256.png");
-			volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons/4x/Volume high_256.png");
+			volumeControl->setMuteImage("%APP%/data/images/waffles/icons2/4x/mute.png");
+			volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons2/4x/volume_down.png");
+			volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons2/4x/volume_up.png");
 			volumeControl->setSliderHeight(8.f);
 			volumeControl->setNubSize(12.f);
 
@@ -174,6 +174,7 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 	auto webInterface = dynamic_cast<ds::ui::WebInterface*>(interfacey);
 	if (webInterface) {
+		auto interfaceHeight = webInterface->getHeight();
 		webInterface->setKeyboardDisablesTimeout(false);
 		/* TODO: getKeyboardArea() doesn't exist
 		if (auto keebArea = webInterface->getKeyboardArea()) {
@@ -181,11 +182,17 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 		}
 		*/
 		if (auto uppy = webInterface->getKeyboardButton()) {
+			uppy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
+			uppy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
 			uppy->setNormalImageColor(normalColor);
 			uppy->setHighImageColor(highColor);
+			uppy->setScale(interfaceHeight / uppy->getHeight());
 			uppy->setCornerRadius(0.f);
 		}
 		if (auto downy = webInterface->getBackButton()) {
+			downy->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			downy->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			downy->setScale(interfaceHeight / downy->getHeight());
 			downy->setNormalImageColor(normalColor);
 			downy->setHighImageColor(highColor);
 			downy->setCornerRadius(0.f);
@@ -209,11 +216,18 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 	auto pdfInterface = dynamic_cast<ds::ui::PDFInterface*>(interfacey);
 	if (pdfInterface) {
+		auto interfaceHeight = pdfInterface->getHeight();
 		if (auto uppy = pdfInterface->getUpButton()) {
+			uppy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
+			uppy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
+			uppy->setScale(interfaceHeight / uppy->getHeight());
 			uppy->setNormalImageColor(normalColor);
 			uppy->setHighImageColor(highColor);
 		}
 		if (auto downy = pdfInterface->getDownButton()) {
+			downy->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			downy->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			downy->setScale(interfaceHeight / downy->getHeight());
 			downy->setNormalImageColor(normalColor);
 			downy->setHighImageColor(highColor);
 		}
