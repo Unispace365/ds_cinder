@@ -122,6 +122,7 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
   }) {
 
 	getNotifier().setName("_engine_");
+	getNotifier().setEngine(this);
 
 	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(),
 											   []() -> ds::Event* { return new ds::app::RequestAppExitEvent(); });
@@ -873,6 +874,7 @@ ds::EventNotifier& Engine::getChannel(const std::string& name) {
 		DS_LOG_WARNING("Engine::getChannel() no channel named " << name << ". Creating now");
 		mChannels[name] = Channel(name);
 		mChannels[name].mNotifier.setName(name);
+		mChannels[name].mNotifier.setEngine(this);
 	}
 	return mChannels[name].mNotifier;
 }
@@ -883,6 +885,8 @@ void Engine::addChannel(const std::string& name, const std::string& description)
 		return;
 	}
 	mChannels[name] = Channel(description);
+	mChannels[name].mNotifier.setName(name);
+	mChannels[name].mNotifier.setEngine(this);
 }
 
 ds::AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
