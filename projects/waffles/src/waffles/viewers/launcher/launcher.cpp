@@ -706,12 +706,19 @@ void Launcher::filterButtonDown(std::string type) {
 																		   ds::ui::LayoutButton* button, bool up) {
 		if (!(layout && button)) return;
 		up ? button->showUp() : button->showDown();
-		layout->getSprite("background_highlight")->setColor(up ? normal_bg : high_bg);
-		layout->getSprite("background_highlight_high")->setColor(up ? normal_bg : high_bg);
-		layout->getSprite("icon")->setColor(up ? normal_text : high_text);
-		layout->getSprite("icon_high")->setColor(up ? high_text : normal_text);
-		layout->getSprite("name")->setColor(up ? normal_text : high_text);
-		layout->getSprite("name_high")->setColor(up ? high_text : normal_text);
+		auto set_color = [](ds::ui::SmartLayout* sl, std::string child_name, ci::ColorA color){
+			if (sl) {
+				if (auto child = sl->getSprite(child_name)) {
+					child->setColor(color);
+				}
+			}
+		};
+		set_color(layout, "background_highlight", up ? normal_bg : high_bg);
+		set_color(layout, "background_highlight_high", up ? normal_bg : high_bg);
+		set_color(layout, "icon", up ? normal_text : high_text);
+		set_color(layout, "icon_high", up ? high_text : normal_text);
+		set_color(layout, "name", up ? normal_text : high_text);
+		set_color(layout, "name_high", up ? high_text : normal_text);
 	};
 	for (auto name : filter_names) {
 		if (mFilterButtons.count(name) > 0) {
