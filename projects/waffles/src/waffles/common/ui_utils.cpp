@@ -238,12 +238,8 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 										waffles::ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
 		notifier.notify(waffles::RequestCloseAllEvent(pos));
-	} else if (type == "recent" || type == "images" || type == "links" || type == "pdfs" || type == "presentations" ||
-			   type == "streams" || type == "videos" || type == "folders") {
-		notifier.notify(waffles::WafflesFilterEvent(type, true));
 	} else {
-		// notifier.notify(RequestEngagePresentation(model));
-		return false;
+		notifier.notify(waffles::WafflesFilterEvent(type, true));
 	}
 
 	return true;
