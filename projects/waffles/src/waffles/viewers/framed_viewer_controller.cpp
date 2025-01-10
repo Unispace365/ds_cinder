@@ -5,6 +5,9 @@
 #include "waffles/waffles_events.h"
 #include "waffles/viewers/framed_media_viewer.h"
 
+#include "waffles/viewers/fullscreen_controller/fullscreen_controller.h"
+
+
 namespace waffles {
 FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel):ViewerController(g,size,channel) {}
 void FramedViewerController::initCreators() {
@@ -40,6 +43,11 @@ void FramedViewerController::initCreators() {
 				   } else {
 					   return {new FramedMediaViewer(mEngine, getChannelName()), CreationError::OK};
 				   }
+			   });
+	setCreator(VIEW_TYPE_FULLSCREEN_CONTROLLER,
+			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
+				   return {new FullscreenController(mEngine, "waffles/viewer/framed_fsc.xml"),
+						   CreationError::OK};
 			   });
 }
 } // namespace waffles

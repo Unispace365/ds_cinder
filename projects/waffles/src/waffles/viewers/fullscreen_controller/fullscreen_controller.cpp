@@ -28,12 +28,13 @@
 
 namespace waffles {
 
-FullscreenController::FullscreenController(ds::ui::SpriteEngine& g)
+FullscreenController::FullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
 	: BaseElement(g)
 	, mRootLayout(nullptr)
 	, mMediaInterface(nullptr)
 	, mDrawingTools(nullptr)
-	, mLinkedMediaViewer(nullptr) {
+	, mLinkedMediaViewer(nullptr)
+	, mLayoutFile(layout) {
 
 	
 }
@@ -56,7 +57,7 @@ void FullscreenController::init() {
 	mMaxViewersOfThisType = 1;
 	mViewerType = VIEW_TYPE_FULLSCREEN_CONTROLLER;
 
-	mRootLayout = new ds::ui::SmartLayout(mEngine, "waffles/viewer/fullscreen_controller.xml");
+	mRootLayout = new ds::ui::SmartLayout(mEngine,mLayoutFile);
 	addChildPtr(mRootLayout);
 
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
