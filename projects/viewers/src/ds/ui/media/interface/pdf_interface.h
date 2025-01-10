@@ -40,6 +40,8 @@ class PDFInterface : public MediaInterface {
 	virtual ds::ui::Sprite*				   getScrubBarProgress();
 	virtual ds::ui::Text*				   getPageCounter() { return mPageCounter; }
 	virtual ds::ui::Sprite*				   getScrubBarBackground();
+	virtual void						   setToggleLockedImage(std::string imgPath);
+	virtual void						   setToggleUnlockedImage(std::string imgPath);
 
 	virtual void toggleTouch(); // what the "touch lock" does
 	virtual void	 startTouch();	// pdf is tappable to go forwards/back
@@ -61,8 +63,12 @@ class PDFInterface : public MediaInterface {
 	ds::ui::VideoScrubBar* mScrubBar;
 	float				   mInitialHeight;
 
+	std::string mToggleLockedImage	 = "%APP%/data/images/media_interface/touch_locked.png";
+	std::string mToggleUnlockedImage = "%APP%/data/images/media_interface/touch_unlocked.png";
+
 	ds::ui::ThumbnailBar* mThumbnailBar;
 	bool				  mShowingThumbs;
+
 };
 
 } // namespace ds::ui

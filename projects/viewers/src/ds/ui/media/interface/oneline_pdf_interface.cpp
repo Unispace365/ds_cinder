@@ -63,24 +63,22 @@ void OnelinePDFInterface::updateWidgets() {
 	if (mLinkedPDF) {
 		if (mLinkedPDF->isEnabled() && !mLinkedEnabled) {
 			mLinkedEnabled = true;
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
-													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
-														ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
 		} else if (!mLinkedPDF->isEnabled() && mLinkedEnabled) {
 			mLinkedEnabled = false;
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
-													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
-														ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
 		}
-
+		
+		mTouchToggle->layout();
+		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 		if (mThumbnailBar) {
 			int pageNum = mLinkedPDF->getPageNum() - 1;
 			mThumbnailBar->setHighlightedItem(pageNum);
 		}
 	}
-
+	
 	layout();
 }
 

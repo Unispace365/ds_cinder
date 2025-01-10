@@ -130,7 +130,7 @@ void MediaInterface::onSizeChanged() {
 	ci::vec4  persp;
 	glm::quat orient;
 	glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
-	setScale(1.f / scale.x*0.5, 1.f / scale.y*0.5);
+	setScale(1.f / scale.x, 1.f / scale.y);
 }
 
 } // namespace ds::ui

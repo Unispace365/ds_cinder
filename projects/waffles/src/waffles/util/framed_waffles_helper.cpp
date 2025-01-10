@@ -181,36 +181,44 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 			keebArea->setCornerRadius(0.f);
 		}
 		*/
-		if (auto uppy = webInterface->getKeyboardButton()) {
-			uppy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			uppy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			uppy->setNormalImageColor(normalColor);
-			uppy->setHighImageColor(highColor);
-			uppy->setScale(interfaceHeight / uppy->getHeight());
-			uppy->setCornerRadius(0.f);
+		if (auto keyboard = webInterface->getKeyboardButton()) {
+			keyboard->setNormalImage("%APP%/data/images/waffles/icons2/4x/keyboard.png", imageFlags);
+			keyboard->setHighImage("%APP%/data/images/waffles/icons2/4x/keyboard.png", imageFlags);
+			keyboard->setNormalImageColor(normalColor);
+			keyboard->setHighImageColor(highColor);
+			keyboard->setScale(interfaceHeight / keyboard->getHeight());
+			keyboard->setCornerRadius(0.f);
 		}
-		if (auto downy = webInterface->getBackButton()) {
-			downy->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			downy->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			downy->setScale(interfaceHeight / downy->getHeight());
-			downy->setNormalImageColor(normalColor);
-			downy->setHighImageColor(highColor);
-			downy->setCornerRadius(0.f);
+		if (auto backy = webInterface->getBackButton()) {
+			backy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
+			backy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
+			backy->setScale(interfaceHeight / backy->getHeight());
+			backy->setNormalImageColor(normalColor);
+			backy->setHighImageColor(highColor);
+			backy->setCornerRadius(0.f);
 		}
-		if (auto toggy = webInterface->getForwardButton()) {
+		if (auto forward = webInterface->getForwardButton()) {
+			forward->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			forward->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
+			forward->setScale(interfaceHeight / forward->getHeight());
+			forward->setNormalImageColor(normalColor);
+			forward->setHighImageColor(highColor);
+			forward->setCornerRadius(0.f);
+		}
+		if (auto reload = webInterface->getRefreshButton()) {
+			reload->setNormalImage("%APP%/data/images/waffles/icons2/4x/reload.png", imageFlags);
+			reload->setHighImage("%APP%/data/images/waffles/icons2/4x/reload.png", imageFlags);
+			reload->setScale(interfaceHeight / reload->getHeight());
+			reload->setNormalImageColor(normalColor);
+			reload->setHighImageColor(highColor);
+			reload->setCornerRadius(0.f);
+		}
+		if (auto toggy = webInterface->getTouchToggleButton()) {
+			webInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/4x/locked.png");
+			webInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/4x/unlocked.png");
 			toggy->setNormalImageColor(normalColor);
 			toggy->setHighImageColor(highColor);
 			toggy->setCornerRadius(0.f);
-		}
-		if (auto thumbs = webInterface->getRefreshButton()) {
-			thumbs->setNormalImageColor(normalColor);
-			thumbs->setHighImageColor(highColor);
-			thumbs->setCornerRadius(0.f);
-		}
-		if (auto thumbs = webInterface->getTouchToggleButton()) {
-			thumbs->setNormalImageColor(normalColor);
-			thumbs->setHighImageColor(highColor);
-			thumbs->setCornerRadius(0.f);
 		}
 	}
 
@@ -232,6 +240,8 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 			downy->setHighImageColor(highColor);
 		}
 		if (auto toggy = pdfInterface->getTouchToggle()) {
+			pdfInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/4x/locked.png");
+			pdfInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/4x/unlocked.png");
 			toggy->setNormalImageColor(normalColor);
 			toggy->setHighImageColor(highColor);
 		}

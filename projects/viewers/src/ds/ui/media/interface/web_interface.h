@@ -22,6 +22,7 @@ class WebInterface : public MediaInterface {
 				 const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	virtual void animateOff();
+	virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
 	void linkWeb(ds::ui::Web* linkedWeb);
 	void updateWidgets();
@@ -57,6 +58,9 @@ class WebInterface : public MediaInterface {
 	void stopTouch();	// web is not tappable
 
 	bool isLocked() { return mWebLocked; }
+
+	virtual void setToggleLockedImage(std::string imgPath);
+	virtual void setToggleUnlockedImage(std::string imgPath);
 
 
 	ds::ui::ImageButton* getKeyboardButton() { return mKeyboardButton; }
@@ -102,6 +106,10 @@ class WebInterface : public MediaInterface {
 	ds::ui::LayoutSprite* mAuthLayout;
 	ds::ui::EntryField*	  mUserField;
 	ds::ui::EntryField*	  mPasswordField;
+	std::string			  mToggleLockedImage   = "%APP%/data/images/media_interface/touch_locked.png";
+	std::string			  mToggleUnlockedImage = "%APP%/data/images/media_interface/touch_unlocked.png";
+	std::string			  mLastUrl			   = "";
+	int					  mInitialSize;
 };
 
 } // namespace ds::ui
