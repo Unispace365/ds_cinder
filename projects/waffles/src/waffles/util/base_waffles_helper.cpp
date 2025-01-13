@@ -459,4 +459,46 @@ std::string BaseWafflesHelper::getMediaPropertyKey(ds::model::ContentModelRef mo
 	return mBaseContentHelper.getMediaPropertyKey(model, category);
 }
 
+void BaseWafflesHelper::setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) {
+	mLauncherCustomFilters = cf;
+}
+
+std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> BaseWafflesHelper::getLauncherCustomFilters() {
+	return mLauncherCustomFilters;
+}
+
+bool BaseWafflesHelper::isValidForFilter(std::string filter, ds::model::ContentModelRef model) {
+	auto property_key = getMediaPropertyKey(model);
+	if (filter == "images") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) && 
+			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;
+	} else if (filter == "presentations") {
+		return isValidPlaylist(model, ds::model::ContentHelper::PRESENTATIONCATEGORY); // TODO: untested
+	} else if (filter == "videos") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) &&
+			   (model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_TYPE ||
+				model.getPropertyResource(property_key).getType() == ds::Resource::YOUTUBE_TYPE);
+	} else if (filter == "streams") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) &&
+			   model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_STREAM_TYPE;
+	} else if (filter == "pdfs") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) &&
+			   model.getPropertyResource(property_key).getType() == ds::Resource::PDF_TYPE;
+	} else if (filter == "links") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) &&
+			   model.getPropertyResource(property_key).getType() == ds::Resource::WEB_TYPE;
+	} else if (filter == "folders") {
+		return isValidFolder(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+	} else if (filter == "content") {
+		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) ||
+			   isValidFolder(model, ds::model::ContentHelper::WAFFLESCATEGORY) ||
+			   isValidPlaylist(model, ds::model::ContentHelper::PRESENTATIONCATEGORY);
+	} else { // TODO: have everything above map based like the customs
+		if (mLauncherCustomFilters.find(filter) != mLauncherCustomFilters.end()) {
+			return mLauncherCustomFilters[filter](model);
+		}
+	}
+	return false;
+}
+
 } // namespace waffles

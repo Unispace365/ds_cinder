@@ -29,7 +29,9 @@ class WafflesHelper : public ds::model::ContentHelper {
 	virtual std::vector<ds::Resource>				findMediaResources()  = 0;
 	virtual int										getBackgroundPdfPage()= 0;
 	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey)=0;
-
+	virtual bool									isValidForFilter(std::string filter, ds::model::ContentModelRef model) = 0;
+	virtual void                                    setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) = 0;
+	virtual std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> getLauncherCustomFilters() = 0;
 
 };
 

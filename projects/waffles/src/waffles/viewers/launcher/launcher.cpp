@@ -26,6 +26,7 @@
 #include "waffles/waffles_events.h"
 #include "waffles/query/search_query.h"
 #include "waffles/common/ui_utils.h"
+#include "waffles/util/waffles_helper.h"
 
 //using namespace downstream;
 
@@ -95,10 +96,6 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
 
-	mEventClient.listenToEvents<waffles::WafflesCustomFiltersSet>([this](const waffles::WafflesCustomFiltersSet& ev) {
-		mCustomFilters = ev.mCustomFilters; 
-	});
-
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		if (ev.mType == mFilterSelected) return;
@@ -134,7 +131,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 		auto panel_content = ds::model::ContentModelRef(mFilterSelected);
 		for (auto content : allContent) {
-			if (filterValid(mFilterSelected, content) && unrepeatedContent(panel_content, content)) {
+			if (ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->isValidForFilter(mFilterSelected, content)
+				&& unrepeatedContent(panel_content, content)) {
 				panel_content.addChild(content);
 			}
 		}
@@ -256,6 +254,14 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	// these are to hide this from showing up in saved drawings
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
+
+	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	auto custom_filters = helper->getLauncherCustomFilters();
+	custom_filters["recent"] = [this](ds::model::ContentModelRef model) {
+		loadRecent();
+		return recentContains(model);
+	};
+	helper->setLauncherCustomFilters(custom_filters);
 
 	mEngine.timedCallback(
 		[this] {
@@ -612,43 +618,6 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 		}
 	}
 	return true;
-}
-
-bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
-	auto property_key = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(model);
-	if (type == "images") {
-		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;
-	} else if (type == "presentations") {
-		return ContentUtils::getDefault(mEngine)->isPresentation(model);
-	} else if (type == "videos") {
-		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   (model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_TYPE ||
-				model.getPropertyResource(property_key).getType() == ds::Resource::YOUTUBE_TYPE);
-	} else if (type == "streams") { // TODO: untested
-		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource(property_key).getType() == ds::Resource::VIDEO_STREAM_TYPE;
-	} else if (type == "pdfs") { // TODO: untested
-		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource(property_key).getType() == ds::Resource::PDF_TYPE;
-	} else if (type == "links") {
-		return ContentUtils::getDefault(mEngine)->isMedia(model) &&
-			   model.getPropertyResource(property_key).getType() == ds::Resource::WEB_TYPE;
-	} else if (type == "recent") {
-		loadRecent();
-		return recentContains(model);
-	} else if (type == "folders") {
-		return ContentUtils::getDefault(mEngine)->isFolder(model);
-	} else if (type == "content") {
-		return ContentUtils::getDefault(mEngine)->isMedia(model) ||
-			   ContentUtils::getDefault(mEngine)->isFolder(model) ||
-			   ContentUtils::getDefault(mEngine)->isPresentation(model);
-	} else {
-		if (mCustomFilters.find(type) != mCustomFilters.end()) {
-			return mCustomFilters[type](model);
-		}
-	}
-	return false;
 }
 
 bool Launcher::restrictiveType(ds::model::ContentModelRef model) {

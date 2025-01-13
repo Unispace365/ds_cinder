@@ -43,7 +43,6 @@ class Launcher : public BaseElement {
 	void				 panelButtonTapped(ds::ui::SmartLayout* button);
 	void				 updatePanelContent(ds::model::ContentModelRef model);
 	bool				 unrepeatedContent(ds::model::ContentModelRef existing, ds::model::ContentModelRef addition);
-	bool				 filterValid(std::string type, ds::model::ContentModelRef model);
 	bool				 restrictiveType(ds::model::ContentModelRef model);
 	void				 updateRecent(ds::model::ContentModelRef model);
 	void				 loadRecent();
@@ -92,8 +91,6 @@ class Launcher : public BaseElement {
 	bool mPanelOpen			 = false;
 	bool mPanelTransitioning = false;
 	float mWafflesScale = 1.0f;
-
-	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mCustomFilters;
 
 };
 

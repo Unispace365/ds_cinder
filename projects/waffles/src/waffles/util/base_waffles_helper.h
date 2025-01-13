@@ -37,6 +37,9 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual bool isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
 	virtual std::string getMediaPropertyKey(ds::model::ContentModelRef model,
 											std::string				   category = DEFAULTCATEGORY) override;
+	virtual bool isValidForFilter(std::string filter, ds::model::ContentModelRef model) override;
+	virtual void setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) override;
+	virtual std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> getLauncherCustomFilters() override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
@@ -53,5 +56,6 @@ class BaseWafflesHelper : public WafflesHelper {
 	std::string mPlatformFieldKey;
 	std::vector<std::string> mAnnotationFolderKeys;
 	bool mUseRoot;
+	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mLauncherCustomFilters;
 };
 }
