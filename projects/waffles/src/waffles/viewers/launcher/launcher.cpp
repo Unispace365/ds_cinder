@@ -128,7 +128,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		}
 		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
-		if (mFilterSelected != "folders") {
+		if (mFilterSelected != "folders" && mFilterSelected != "content") {
 			allContent = recurseContent(allContent);
 		}
 
@@ -444,7 +444,6 @@ void Launcher::showSearch() {
 
 void Launcher::onLayout() {
 	if (!mPrimaryLayout) return;
-
 	if (auto contHoldy = mPrimaryLayout->getSprite("content_holdery")) {
 		if (mPanelOpen) { // required: app crashes without this check
 			setSize(contHoldy->getSize());
@@ -640,6 +639,10 @@ bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
 		return recentContains(model);
 	} else if (type == "folders") {
 		return ContentUtils::getDefault(mEngine)->isFolder(model);
+	} else if (type == "content") {
+		return ContentUtils::getDefault(mEngine)->isMedia(model) ||
+			   ContentUtils::getDefault(mEngine)->isFolder(model) ||
+			   ContentUtils::getDefault(mEngine)->isPresentation(model);
 	} else {
 		if (mCustomFilters.find(type) != mCustomFilters.end()) {
 			return mCustomFilters[type](model);
