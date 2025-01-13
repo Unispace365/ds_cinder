@@ -95,6 +95,10 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
 
+	mEventClient.listenToEvents<waffles::WafflesCustomFiltersSet>([this](const waffles::WafflesCustomFiltersSet& ev) {
+		mCustomFilters = ev.mCustomFilters; 
+	});
+
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		if (ev.mType == mFilterSelected) return;
@@ -636,6 +640,10 @@ bool Launcher::filterValid(std::string type, ds::model::ContentModelRef model) {
 		return recentContains(model);
 	} else if (type == "folders") {
 		return ContentUtils::getDefault(mEngine)->isFolder(model);
+	} else {
+		if (mCustomFilters.find(type) != mCustomFilters.end()) {
+			return mCustomFilters[type](model);
+		}
 	}
 	return false;
 }
@@ -696,8 +704,6 @@ void Launcher::saveRecent() {
 }
 
 void Launcher::filterButtonDown(std::string type) {
-	auto filter_names =
-		std::vector<std::string>{"recent", "images", "links", "pdfs", "presentations", "streams", "videos", "folders"};
 	auto normal_bg			= mEngine.getColors().getColorFromName("waffles:button:bg:normal:dark");
 	auto high_bg			= mEngine.getColors().getColorFromName("waffles:button:bg:high:dark");
 	auto normal_text		= mEngine.getColors().getColorFromName("waffles:button:text:normal:dark");
@@ -720,18 +726,16 @@ void Launcher::filterButtonDown(std::string type) {
 		set_color(layout, "name", up ? normal_text : high_text);
 		set_color(layout, "name_high", up ? high_text : normal_text);
 	};
-	for (auto name : filter_names) {
-		if (mFilterButtons.count(name) > 0) {
-			auto button_layout = mFilterButtons[name];
-			if (button_layout) {
-				auto button_sprite = button_layout->getSprite("the_btn");
-				if (button_sprite) {
-					auto button = dynamic_cast<ds::ui::LayoutButton*>(button_sprite);
-					if (button) {
-						bool up = name != type;
-						force_button_state(button_layout, button, up);
-						button->enable(up);
-					}
+	for (const auto& filter : mFilterButtons) {
+		auto button_layout = mFilterButtons[filter.first];
+		if (button_layout) {
+			auto button_sprite = button_layout->getSprite("the_btn");
+			if (button_sprite) {
+				auto button = dynamic_cast<ds::ui::LayoutButton*>(button_sprite);
+				if (button) {
+					bool up = filter.first != type;
+					force_button_state(button_layout, button, up);
+					button->enable(up);
 				}
 			}
 		}

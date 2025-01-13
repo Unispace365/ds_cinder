@@ -71,6 +71,10 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	virtual void onNextRequest(const waffles::RequestEngageNext& e);
 	virtual void onBackRequest(const waffles::RequestEngageBack& e);
 	virtual void onPresentationAdvanceRequest(const waffles::RequestPresentationAdvanceEvent& e);
+
+	void setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) {
+		mLauncherCustomFilters = cf;
+	}
 	
   protected:
 	virtual void gotoItem(int index);
@@ -121,7 +125,7 @@ class WafflesSprite : public ds::ui::SmartLayout {
 	bool mAmEngaged = false;
 	int mTimedCallback = 0;
 	
-	
+	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mLauncherCustomFilters;
 
 };
 

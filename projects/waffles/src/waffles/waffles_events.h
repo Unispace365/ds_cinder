@@ -199,6 +199,13 @@ struct WafflesFilterEvent : public ds::RegisteredEvent<WafflesFilterEvent> {
 	bool mFromButton;
 };
 
+struct WafflesCustomFiltersSet : public ds::RegisteredEvent<WafflesCustomFiltersSet> {
+	WafflesCustomFiltersSet(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) {
+		mCustomFilters = cf;
+	}
+	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mCustomFilters;
+};
+
 struct WafflesTouchEvent : public ds::RegisteredEvent<WafflesTouchEvent> {
 	WafflesTouchEvent(ci::vec3 point)
 		: mPoint(point) {}

@@ -513,6 +513,9 @@ void WafflesSprite::setupTouchMenu() {
 			mChannelClient.notify(waffles::ShowWaffles());
 			mChannelClient.notify(waffles::RequestViewerLaunchEvent(
 				waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_LAUNCHER, pos, waffles::ViewerCreationArgs::kViewLayerTop)));
+			if (!mLauncherCustomFilters.empty()) {
+				mChannelClient.notify(waffles::WafflesCustomFiltersSet(mLauncherCustomFilters));
+			}
 		},
 		emptySubtitle, menuFg, menuBg);
 

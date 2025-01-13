@@ -93,7 +93,7 @@ class Launcher : public BaseElement {
 	bool mPanelTransitioning = false;
 	float mWafflesScale = 1.0f;
 
-	
+	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mCustomFilters;
 
 };
 
