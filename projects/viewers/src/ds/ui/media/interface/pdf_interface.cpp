@@ -83,15 +83,18 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		mPageCounter->enable(false);
 	}
 
-	mTouchToggle = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/touch_unlocked.png",
-										   "%APP%/data/images/media_interface/touch_unlocked.png",
+	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
+										   mToggleUnlockedImage,
 										   (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mTouchToggle);
 	mTouchToggle->setClickFn([this]() { toggleTouch(); });
 
 	mTouchToggle->getNormalImage().setColor(buttonColor);
 	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
-	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
+	auto tt_height = mTouchToggle->getHeight();
+	mTouchToggle->setScale(sizey.y /tt_height);
+
+	
 
 	mThumbsButton =
 		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/thumbnails.png",
@@ -253,18 +256,19 @@ void PDFInterface::updateWidgets() {
 	if (mLinkedPDF) {
 		if (mLinkedPDF->isEnabled() && !mLinkedEnabled) {
 			mLinkedEnabled = true;
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
+			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage,
 													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
+			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage,
 														ds::ui::Image::IMG_CACHE_F);
 		} else if (!mLinkedPDF->isEnabled() && mLinkedEnabled) {
 			mLinkedEnabled = false;
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
+			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
 													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
+			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage,
 														ds::ui::Image::IMG_CACHE_F);
 		}
-
+		mTouchToggle->layout();
+		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 		if (mThumbnailBar) {
 			int pageNum = mLinkedPDF->getPageNum() - 1;
 			mThumbnailBar->setHighlightedItem(pageNum);
@@ -284,6 +288,25 @@ void PDFInterface::setPageFont(std::string fontName, float fontSize) {
 ds::ui::Sprite* PDFInterface::getScrubBarBackground() {
 	if (!mScrubBar) return nullptr;
 	return mScrubBar->getBacker();
+}
+
+void PDFInterface::setToggleLockedImage(std::string imgPath) {
+	mToggleLockedImage = imgPath;
+	
+		mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+		mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+		//mTouchToggle->layout();
+		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	
+}
+
+void PDFInterface::setToggleUnlockedImage(std::string imgPath) {
+	mToggleUnlockedImage = imgPath;
+		mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+		mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+		//mTouchToggle->layout();
+		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	
 }
 
 void PDFInterface::toggleTouch() {

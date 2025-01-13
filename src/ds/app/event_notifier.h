@@ -24,14 +24,17 @@ class EventNotifier {
 	/// Send an event to the system, for clients that don't need
 	/// an EventClient (i.e. don't need to receive events)
 	void notify(const ds::Event&);
+	void notifyOnEngineThread(const ds::Event&);
 
 	/// Send an event to the system, for clients that don't need
 	/// an EventClient (i.e. don't need to receive events)
 	void notify(const ds::Event*);
+	void notifyOnEngineThread(const ds::Event*);
 
 	/// Send an event to the system, looks up the event's name in the event registry.
 	/// If the name does not match, will fail without warning in release, with a warning in debug
 	void notify(const std::string& eventName);
+	void notifyOnEngineThread(const std::string& eventName);
 
 	/**
 	 * Request information from the system.
@@ -46,11 +49,16 @@ class EventNotifier {
 	 */
 	void setOnAddListenerFn(const std::function<ds::Event*(void)>& onAddListenerFunction);
 	void setName(const std::string& n) { mName = n; }
+	void setEngine(ds::ui::SpriteEngine* engine) { mEngine = engine; }
+
+  private:
 	std::string mName = "unnamed";
   protected:
 	friend class EventClient;
 
 	ds::Notifier<ds::Event> mEventNotifier;
+	ds::ui::SpriteEngine*	mEngine;
+	std::thread::id			mThreadId;
 };
 
 } // namespace ds

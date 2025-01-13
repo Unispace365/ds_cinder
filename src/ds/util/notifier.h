@@ -43,29 +43,12 @@ class Notifier {
 	 * outside the scope of the fn.
 	 */
 	void setOnAddListenerFn(const std::function<T*(void)>& fn);
-	Notifier<T>& operator=(const Notifier<T>& o);
+
   private:
-	mutable std::mutex									   mFunc_mtx;
 	std::map<void*, std::function<void(const T*)>> mFunctions;
 	std::map<void*, std::function<void(T&)>>	   mRequestFn;
 	std::function<T*(void)>						   mOnAddListenerFn;
 };
-
-template <typename T>
- Notifier<T>& Notifier<T>::operator=(const Notifier<T>& o) {
-	if (this != &o) {
-		//std::lock(mFunctions_mtx, o.mFunctions_mtx);
-		//std::lock_guard<std::mutex> lhs_lk(mFunctions_mtx, std::adopt_lock);
-		//std::lock_guard<std::mutex> rhs_lk(o.mFunctions_mtx, std::adopt_lock);
-		std::scoped_lock guard(mFunc_mtx,o.mFunc_mtx);
-		mFunctions = o.mFunctions;
-		mRequestFn = o.mRequestFn;
-		mOnAddListenerFn = o.mOnAddListenerFn;
-		
-	}
-	return *this;
-}
-
 
 template <typename T>
 Notifier<T>::Notifier()
@@ -73,7 +56,6 @@ Notifier<T>::Notifier()
 
 template <typename T>
 void Notifier<T>::clear() {
-	std::unique_lock lock(mFunc_mtx);
 	mFunctions.clear();
 	mRequestFn.clear();
 }
@@ -87,10 +69,7 @@ template <typename T>
 void Notifier<T>::addListener(void* id, const std::function<void(const T*)>& func) {
 	if (!func) return;
 	try {
-		{ 
-			std::unique_lock lock(mFunc_mtx);
-			mFunctions[id] = func; 
-		}
+		mFunctions[id] = func;
 		if (mOnAddListenerFn) {
 			T* t = mOnAddListenerFn();
 			if (t) func(t);
@@ -104,7 +83,6 @@ void Notifier<T>::removeListener(void* id) {
 	/// This is required, otherwise the app can hit an exception during shutdown
 	/// if the map is empty but clients still exist.
 	if (mFunctions.empty()) return;
-	std::unique_lock lock(mFunc_mtx);
 	auto found = mFunctions.find(id);
 	if (found != mFunctions.end()) {
 		mFunctions.erase(found);
@@ -113,17 +91,7 @@ void Notifier<T>::removeListener(void* id) {
 
 template <typename T>
 void Notifier<T>::notify(const T* v /*= nullptr */) {
-	
-	
-
-	// add any functions that have been added
-	std::map<void*, std::function<void(const T*)>> temp;
-	{ 
-		std::unique_lock lock(mFunc_mtx);
-		temp = mFunctions;
-	}
-
-	for (auto it = temp.begin(), it2 = temp.end(); it != it2; ++it) {
+	for (auto it = mFunctions.begin(), it2 = mFunctions.end(); it != it2; ++it) {
 		if (it->second) (it->second)(v);
 	}
 }

@@ -181,6 +181,9 @@ namespace ui {
 		   The size to set in the form of ci::vec2f(width, height, depth).		*/
 		void setSizeAll(const ci::vec3& size3d);
 
+		/** Set the suppression of SpriteDimensionsChangedEvent during setSizeAll **/
+		void suppressSpriteDimensionsChangedEvent(bool suppress) { mSupressSpriteDimensionsChangedEvent = suppress; };
+
 		/** Sets the width, height, and depth of the Sprite.
 			This does not affect the scale of the Sprite.
 			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should
@@ -986,6 +989,7 @@ namespace ui {
 		css::Value mMinHeight, mMaxHeight;
 		Fit		   mFit;
 		bool	   mMinMaxDirty;
+		bool	   mSupressSpriteDimensionsChangedEvent=false;
 
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;

@@ -893,7 +893,9 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	dimensionalStateChanged();
 
 	// Notify listeners about size change.
-	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
+	if (!mSupressSpriteDimensionsChangedEvent) {
+		mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
+	}
 }
 
 void Sprite::setSizeAll(const ci::vec3& size3d) {

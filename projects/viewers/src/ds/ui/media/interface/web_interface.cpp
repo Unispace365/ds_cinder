@@ -48,6 +48,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
   , mUserField(nullptr)
   , mPasswordField(nullptr) {
 
+	mInitialSize = sizey.y;
 	mCanLock = true;
 
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
@@ -125,8 +126,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mRefreshButton->setScale(sizey.y / mRefreshButton->getHeight());
 
 
-	mTouchToggle = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/touch_unlocked.png",
-										   "%APP%/data/images/media_interface/touch_unlocked.png",
+	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
+										   mToggleUnlockedImage,
 										   (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mTouchToggle);
 	mTouchToggle->setClickFn([this]() { toggleTouch(); });
@@ -335,11 +336,22 @@ void WebInterface::animateOff() {
 	});
 }
 
+void WebInterface::onUpdateServer(const ds::UpdateParams& p) {
+	if (mLinkedWeb) {
+		auto currentUrl = mLinkedWeb->getCurrentUrl();
+		if (currentUrl != mLastUrl) {
+			//updateWidgets();
+			mLastUrl = currentUrl;
+		}
+	}
+}
+
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 	if (mLinkedWeb) {
 		mLinkedWeb->setAuthCallback(nullptr);
 		mLinkedWeb->setLoadingUpdatedCallback(nullptr);
 		mLinkedWeb->setConsoleMessageCallback(nullptr);
+		
 	}
 
 	mLinkedWeb = linkedWeb;
@@ -435,24 +447,23 @@ void WebInterface::updateWidgets() {
 			mForwardButton->setOpacity(0.25f);
 		}
 
-		if (mLinkedWeb->isEnabled()) {
+		if (mLinkedWeb) {
 			if (!mWebLocked) {
-				mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
-														  ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
-															ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getHighImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
 				mWebLocked = true;
 				setLocked(mWebLocked);
 			}
-		} else {
+		else 
 			if (mWebLocked) {
-				mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
+				mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
 														  ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png",
+				mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage,
 															ds::ui::Image::IMG_CACHE_F);
 				mWebLocked = false;
 				setLocked(mWebLocked);
 			}
+			//mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
 		}
 	}
 
@@ -552,6 +563,23 @@ void WebInterface::updateWidgets() {
 			mEngine.registerEntryField(nullptr);
 		}
 	}
+}
+
+void WebInterface::setToggleLockedImage(std::string imgPath) {
+	mToggleLockedImage = imgPath;
+
+	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+	mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+	// mTouchToggle->layout();
+	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
+}
+
+void WebInterface::setToggleUnlockedImage(std::string imgPath) {
+	mToggleUnlockedImage = imgPath;
+	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+	mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+	// mTouchToggle->layout();
+	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
 }
 
 void WebInterface::showKeyboard(bool show) {

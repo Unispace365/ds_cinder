@@ -1237,7 +1237,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	if (!fullscreenDarkener) {
 		fullscreenDarkener = new ds::ui::Sprite(mEngine, getWidth(), getHeight());
 		fullscreenDarkener->setTransparent(false);
-		fullscreenDarkener->setColor(ci::Color::black());
+		fullscreenDarkener->setColor(mEngine.getColors().getColorFromName("ui:fullscreen_scrim"));
 		fullscreenDarkener->setOpacity(0.0f);
 	}
 

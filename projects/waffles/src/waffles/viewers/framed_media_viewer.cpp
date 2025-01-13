@@ -152,9 +152,16 @@ void FramedMediaViewer::onFullscreenSet() {
 		if (background) {
 			background->hide();
 		}
+		if (mMediaInterface) {
+			mMediaInterface->tweenOpacity(0, 0.25, 0, ci::easeNone, [this]() { mMediaInterface->hide(); });
+		}
 	} else {
 		if (background) {
 			background->show();
+		}
+		if (mMediaInterface) {
+			mMediaInterface->show();
+			mMediaInterface->tweenOpacity(1.0f, 0.25);
 		}
 	}
 	auto mediaInterface = mMediaPlayer->getMediaInterface();

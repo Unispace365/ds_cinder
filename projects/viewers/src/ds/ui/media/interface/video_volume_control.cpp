@@ -56,7 +56,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		}
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
-		setSize(mTheSize * 2.f, mTheSize);
+		setSize(mTheSize * 4.f, mTheSize);
 		const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 		// Slider is made up of 3 parts:
 		// 'mute' - Button to toggle between muted / unmuted
@@ -64,10 +64,10 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		// 'fill' - the filled portion of the slider
 		// 'nub' - the visual handle at the current slider position
 		mSliderSprites.mMuteButton =
-			new ds::ui::ImageButton(mEngine, "", "", (mTheSize - mButtHeight) / 2.0f);
+			new ds::ui::ImageButton(mEngine, "", "", (mTheSize - mButtHeight) * 0.5f);
 		mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
 		mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
-		mSliderSprites.mMuteButton->setScale((mTheSize - (mButtHeight * 0.5f)) /
+		mSliderSprites.mMuteButton->setScale((mTheSize - (mButtHeight * 0.2f)) /
 											 mSliderSprites.mMuteButton->getHeight());
 		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
 		mSliderSprites.mMuteButton->setPosition(0.0f, getHeight() / 2.f);
@@ -81,7 +81,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		addChildPtr(mSliderSprites.mMuteButton);
 
 		auto muteOffset = mSliderSprites.mMuteButton->getScaleWidth() / 2.f; // Mute button is centered, only need half
-		const auto padding	= mSliderHeight;
+		const auto padding	= mNubSize;
 		ci::vec2   trackPos = ci::vec2(muteOffset + padding, getHeight() / 2.f);
 
 		mSliderSprites.mSliderTrack = new ds::ui::Sprite(mEngine, getWidth() - (trackPos.x), mSliderHeight);

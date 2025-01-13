@@ -18,7 +18,7 @@ class DrawingTools;
  */
 class FullscreenController : public BaseElement {
   public:
-	FullscreenController(ds::ui::SpriteEngine& g);
+	FullscreenController(ds::ui::SpriteEngine& g, const std::string layout = "waffles/viewer/fullscreen_controller.xml");
 
 	void linkMediaViewer(TitledMediaViewer* tmv);
 
@@ -39,6 +39,7 @@ class FullscreenController : public BaseElement {
 	bool mInitalizeded = false;
 
 	TitledMediaViewer* mLinkedMediaViewer;
+	std::string		   mLayoutFile = "waffles/viewer/fullscreen_controller.xml";
 };
 
 } // namespace waffles

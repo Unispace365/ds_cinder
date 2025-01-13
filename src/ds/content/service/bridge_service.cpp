@@ -875,7 +875,7 @@ void BridgeService::Loop::updatePlatformEvents() const {
 		updated = true;
 	}
 
-	if (updated) mEngine.getNotifier().notify(ds::PlatformEventsUpdatedEvent());
+	if (updated) mEngine.getNotifier().notifyOnEngineThread(ds::PlatformEventsUpdatedEvent());
 
 
 	// Use helper to obtain the appropriate playlist.
