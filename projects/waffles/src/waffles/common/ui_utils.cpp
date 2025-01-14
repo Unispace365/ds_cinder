@@ -203,6 +203,8 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (type == "media_template") {
 		// Special case for disambiguating media template from media item
 		notifier.notify(waffles::RequestEngagePresentation(model));
+	} else if (getDefault(engine)->isFolder(model)) {
+		return false;
 	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
 		notifier.notify(waffles::RequestViewerLaunchEvent(
 			waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
