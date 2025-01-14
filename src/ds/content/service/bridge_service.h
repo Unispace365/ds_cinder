@@ -65,7 +65,7 @@ class BridgeService {
 			///
 			void validateContent();
 			///
-			void updatePlatformEvents() const;
+			bool updatePlatformEvents() const;
 
 			ci::app::AppBase* mApp =
 				nullptr; // Pointer to main application, allowing us to execute code on the main thread.

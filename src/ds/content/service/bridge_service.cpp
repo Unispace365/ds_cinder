@@ -181,7 +181,8 @@ void BridgeService::Loop::run() {
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
-				updatePlatformEvents();
+				// Make sure we catch it if the current_events change, not just if the event models change
+				contentChanged |= updatePlatformEvents();
 
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mEvents.getName()) == mEvents);
@@ -825,7 +826,7 @@ void BridgeService::Loop::validateContent() {
 	}
 }
 
-void BridgeService::Loop::updatePlatformEvents() const {
+bool BridgeService::Loop::updatePlatformEvents() const {
 	// DS_LOG_VERBOSE(2, "BridgeService::Loop is updating platform events.")
 
 	Poco::LocalDateTime ldt = Poco::LocalDateTime();
@@ -880,6 +881,7 @@ void BridgeService::Loop::updatePlatformEvents() const {
 
 	// Use helper to obtain the appropriate playlist.
 	auto updatedPlaylist = ds::model::ContentModelRef();
+	return updated;
 }
 
 } // namespace ds::content
