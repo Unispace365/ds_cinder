@@ -27,7 +27,7 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	auto cornerRad		= mEngine.getWafflesSettings().getFloat("ui:corner_radius", 0, 0.0f);
 	auto interfaceScale = mEngine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
 
-	auto viewerBackground = mEngine.getColors().getColorFromName("transparent_white");
+	auto viewerBackground = mEngine.getColors().getColorFromName("viewer_background");
 	auto backgroundColor  = mEngine.getColors().getColorFromName("ui_background");
 	auto normalColor	  = mEngine.getColors().getColorFromName("ui_normal");
 	auto highColor		  = mEngine.getColors().getColorFromName("ui_selected");

@@ -223,26 +223,29 @@ void FramedMediaViewer::onMediaSet() {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
+					webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
 							auto	  keeb		= webInterface->getSoftKeyboard();
 							auto&	  setty		= keeb->getSoftKeyboardSettings();
-							ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
+							ci::ColorA up = mEngine.getColors().getColorFromName("waffles_key_up");
+							ci::ColorA down		= mEngine.getColors().getColorFromName("waffles_key_down");
 
-
-							setty.mKeyDownColor				  = ci::Color::black();
-							setty.mKeyUpColor				  = ci::Color(lightGrey);
+							setty.mKeyDownColor				  = down;
+							setty.mKeyUpColor				  = up;
+							auto tc							  = setty.mKeyDnTextConfig;
 							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
-							setty.mGraphicRoundedCornerRadius = 0;
+							setty.mGraphicRoundedCornerRadius = 8;
 							keeb->setSoftKeyboardSettings(setty);
+							
 
-							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
-												   keyboardBtn);
+							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
+							//					   keyboardBtn);
 
 						} else if (!onScreen) {
-							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
+							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
 						}
 					});
 				}
