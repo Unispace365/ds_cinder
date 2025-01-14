@@ -50,13 +50,12 @@ BridgeSyncService::BridgeSyncService(ds::ui::SpriteEngine& eng)
 }
 
 BridgeSyncService::~BridgeSyncService() {
-	// clean up if we are destroyed properly
-	if (mStarted) {
-		mExit = true;
-		mThreadObj.join();
-		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
-		mExit = false;
-	}
+	// clean up properly
+	mExit = true;
+	if (mThreadObj.joinable()) mThreadObj.join();
+	if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
+	mExit = false;
+	mStarted = false;
 }
 
 void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
@@ -74,12 +73,11 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 	}
 
 	// if we are already tracking a process, kill it for restart.
-	if (mStarted) {
-		mExit = true;
-		mThreadObj.join();
-		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
-		mExit = false;
-	}
+	mExit = true;
+	if (mThreadObj.joinable()) mThreadObj.join();
+	if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
+	mExit	 = false;
+	mStarted = false;
 
 	// mPath = path;
 	mThreadObj = std::thread([this, settings]() {
