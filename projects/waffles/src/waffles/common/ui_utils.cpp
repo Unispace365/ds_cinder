@@ -196,9 +196,10 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 	auto& notifier = channel.empty() ? engine.getNotifier() : engine.getChannel(channel);
 	
-
-
-	if (type == "ambient") {
+	auto customs = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>()->getLauncherCustomContent();
+	if (customs.find(type) != customs.end()) {
+		customs[type](model);
+	} else if (type == "ambient") {
 		engine.startIdling();
 	} else if (type == "media_template") {
 		// Special case for disambiguating media template from media item

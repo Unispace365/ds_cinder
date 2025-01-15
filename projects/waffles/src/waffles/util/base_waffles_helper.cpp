@@ -467,6 +467,14 @@ std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>>
 	return mLauncherCustomFilters;
 }
 
+void BaseWafflesHelper::setLauncherCustomContent(std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> cc) {
+	mLauncherCustomContent = cc;
+}
+
+std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> BaseWafflesHelper::getLauncherCustomContent() {
+	return mLauncherCustomContent;
+}
+
 bool BaseWafflesHelper::isValidForFilter(std::string filter, ds::model::ContentModelRef model) {
 	auto property_key = getMediaPropertyKey(model);
 	if (filter == "images") {

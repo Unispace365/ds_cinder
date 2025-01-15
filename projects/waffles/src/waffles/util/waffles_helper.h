@@ -32,6 +32,8 @@ class WafflesHelper : public ds::model::ContentHelper {
 	virtual bool									isValidForFilter(std::string filter, ds::model::ContentModelRef model) = 0;
 	virtual void                                    setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) = 0;
 	virtual std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> getLauncherCustomFilters() = 0;
+	virtual void                                    setLauncherCustomContent(std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> cc) = 0;
+	virtual std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> getLauncherCustomContent() = 0;
 
 };
 

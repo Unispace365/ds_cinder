@@ -40,6 +40,8 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual bool isValidForFilter(std::string filter, ds::model::ContentModelRef model) override;
 	virtual void setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) override;
 	virtual std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> getLauncherCustomFilters() override;
+	virtual void setLauncherCustomContent(std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> cc) override;
+	virtual std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> getLauncherCustomContent() override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
@@ -57,5 +59,6 @@ class BaseWafflesHelper : public WafflesHelper {
 	std::vector<std::string> mAnnotationFolderKeys;
 	bool mUseRoot;
 	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mLauncherCustomFilters;
+	std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> mLauncherCustomContent;
 };
 }
