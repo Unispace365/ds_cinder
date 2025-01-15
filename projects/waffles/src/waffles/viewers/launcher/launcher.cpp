@@ -102,6 +102,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
 		mFolderStack.clear();
+		updateBreadcrumbText();
 		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
 			back_button->hide();
 		}
@@ -630,6 +631,7 @@ void Launcher::updateRecent(ds::model::ContentModelRef content) {
 	if (std::find(mFolderStack.begin(), mFolderStack.end(), content) == mFolderStack.end() &&
 		(content.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS || ContentUtils::getDefault(mEngine)->isFolder(content))) {
 		mFolderStack.push_back(content);
+		updateBreadcrumbText();
 		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
 			back_button->show();
 		}
@@ -745,6 +747,7 @@ void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 		if (mFolderStack.size() > 1) {
 			updatePanelContent(mFolderStack[mFolderStack.size() - 2]);
 			mFolderStack.pop_back();
+			updateBreadcrumbText();
 		} else if (folder_enabled) {
 			auto filter = mFilterSelected;
 			mFilterSelected = ""; // to let the next thing happen
@@ -778,6 +781,19 @@ void Launcher::closePanel() {
 			sidePanel->hide();
 		});
 	}
+}
+
+void Launcher::updateBreadcrumbText() {
+	if (!mPrimaryLayout) return;
+	auto breadcrumb = mPrimaryLayout->getSprite<ds::ui::Text>("breadcrumb");
+	if (!breadcrumb) return;
+	std::string filter = mFilterSelected;
+	if (!filter.empty()) { filter[0] = std::toupper(filter[0]); }
+	std::string text = filter;
+	for (auto folder : mFolderStack) {
+		text += " / " + folder.getPropertyString("record_name");
+	}
+	breadcrumb->setText(text);
 }
 
 } // namespace waffles

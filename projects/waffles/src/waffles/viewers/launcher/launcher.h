@@ -57,6 +57,7 @@ class Launcher : public BaseElement {
 		return std::find(mRecentFilterUids.begin(), mRecentFilterUids.end(), model.getPropertyString("uid")) != mRecentFilterUids.end();
 	}
 	std::vector<ds::model::ContentModelRef> recurseContent(std::vector<ds::model::ContentModelRef> content);
+	void updateBreadcrumbText();
 
 	std::vector<ds::model::ContentModelRef> mFolderStack;
 
