@@ -144,7 +144,7 @@ void BridgeService::Loop::run() {
 					continue;
 				}
 
-				updatePlatformEvents();
+				contentChanged |= updatePlatformEvents();
 
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mPlatforms.getName()) == mPlatforms);
