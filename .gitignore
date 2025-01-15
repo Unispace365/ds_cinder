@@ -96,3 +96,4 @@ projects/pdf/lib64/v142/pdf_mupdf_d.lib
 projects/waffles/lib64/waffles.lib
 
 projects/waffles/lib64/waffles_d.lib
+projects/nvpath/lib64

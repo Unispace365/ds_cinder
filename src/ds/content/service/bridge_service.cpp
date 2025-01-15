@@ -872,8 +872,10 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
 
 		// Probably don't want to get rid of ALL the children...
-		currentContent.clearChildren();
-		updated = true;
+		if (currentContent.getChildren().size() > 0) {
+			currentContent.clearChildren();
+			updated = true;
+		}
 	}
 
 	if (updated) mEngine.getNotifier().notifyOnEngineThread(ds::PlatformEventsUpdatedEvent());

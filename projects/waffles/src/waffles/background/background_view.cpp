@@ -58,7 +58,7 @@ BackgroundView::BackgroundView(ds::ui::SpriteEngine& g)
 		auto model = ds::model::ContentModelRef("Empty");
 		model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 		ds::Resource r = helper->getBackgroundForPlatform();
-		DS_LOG_INFO("BackgroundView got from getBackground: " << r.getAbsoluteFilePath());
+		
 		if (helper->getApplyParticles()) {
 			mEngine.getNotifier().notify(waffles::RequestBackgroundChange(
 				waffles::BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef())); // 1 = BACKGROUND_TYPE_PARTICLES
