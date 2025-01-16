@@ -477,7 +477,9 @@ std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>>
 
 bool BaseWafflesHelper::isValidForFilter(std::string filter, ds::model::ContentModelRef model) {
 	auto property_key = getMediaPropertyKey(model);
-	if (filter == "images") {
+	if (mLauncherCustomFilters.find(filter) != mLauncherCustomFilters.end()) {
+		return mLauncherCustomFilters[filter](model);
+	} else if (filter == "images") {
 		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) && 
 			   model.getPropertyResource(property_key).getType() == ds::Resource::IMAGE_TYPE;
 	} else if (filter == "presentations") {
@@ -501,10 +503,6 @@ bool BaseWafflesHelper::isValidForFilter(std::string filter, ds::model::ContentM
 		return isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY) ||
 			   isValidFolder(model, ds::model::ContentHelper::WAFFLESCATEGORY) ||
 			   isValidPlaylist(model, ds::model::ContentHelper::PRESENTATIONCATEGORY);
-	} else { // TODO: have everything above map based like the customs
-		if (mLauncherCustomFilters.find(filter) != mLauncherCustomFilters.end()) {
-			return mLauncherCustomFilters[filter](model);
-		}
 	}
 	return false;
 }
