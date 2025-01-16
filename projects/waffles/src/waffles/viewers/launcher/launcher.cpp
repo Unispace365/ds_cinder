@@ -126,7 +126,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		}
 		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
-		if (mFilterSelected != "folders" && mFilterSelected != "content") {
+		auto non_recursive = mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "folders,content");
+		if (non_recursive.find(mFilterSelected) == std::string::npos) {
 			allContent = recurseContent(allContent);
 		}
 
