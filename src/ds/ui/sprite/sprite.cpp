@@ -923,24 +923,22 @@ void Sprite::sizeToChildBounds() {
 }
 
 ci::vec3 Sprite::getPreferredSize() const {
-	return ci::vec3(0.0f, 0.0f, 0.0f);
+	return getSize();
 }
 
 bool Sprite::setAvailableSize(const ci::vec2& size) {
 	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
 
 	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(ci::Rectf{0, 0, size.x, size.y}, bounds);
+	const auto fit	  = mFit.calcTransform(
+		   ci::Rectf{0, 0, size.x - mLayoutLPad - mLayoutRPad, size.y - mLayoutTPad - mLayoutBPad}, bounds);
 
-	const auto scale = glm::min(getWidth() / (getWidth() + mLayoutLPad + mLayoutRPad),
-								getHeight() / (getHeight() + mLayoutTPad + mLayoutBPad));
+	const auto width  = fit[0][0] * getWidth();
+	const auto height = fit[1][1] * getHeight();
 
-	const auto width  = scale * fit[0][0] * getWidth();
-	const auto height = scale * fit[1][1] * getHeight();
-
-	mMinWidth  = css::Value(width, css::Value::PIXELS);
+	mMinWidth  = css::Value(0, css::Value::PIXELS);
 	mMaxWidth  = css::Value(width, css::Value::PIXELS);
-	mMinHeight = css::Value(height, css::Value::PIXELS);
+	mMinHeight = css::Value(0, css::Value::PIXELS);
 	mMaxHeight = css::Value(height, css::Value::PIXELS);
 
 	return true;
@@ -1448,20 +1446,20 @@ bool Sprite::checkBounds() const {
 }
 
 void Sprite::measureMinMaxSize() const {
-	const auto w = getScaleWidth();
-	const auto h = getScaleHeight();
+	const auto w = getWidth();
+	const auto h = getHeight();
 	if (approxZero(w) || approxZero(h)) return;
 
-	const auto fit =
-		mFit.calcTransform(ci::Rectf{0, 0, mEngine.getWorldWidth(), mEngine.getWorldHeight()}, ci::Rectf{0, 0, w, h});
-	const auto width  = fit[0][0] * w;
-	const auto height = fit[1][1] * h;
+	// const auto fit =
+	//	mFit.calcTransform(ci::Rectf{0, 0, mEngine.getWorldWidth(), mEngine.getWorldHeight()}, ci::Rectf{0, 0, w, h});
+	// const auto width  = fit[0][0] * w;
+	// const auto height = fit[1][1] * h;
 
 	const auto self = const_cast<Sprite*>(this); // Instead of 'mutable'.
-	/*if (!mMinWidth.isDefined())*/ self->mMinWidth.set(glm::min(w, width), css::Value::PIXELS);
-	/*if (!mMaxWidth.isDefined())*/ self->mMaxWidth.set(glm::max(w, width), css::Value::PIXELS);
-	/*if (!mMinHeight.isDefined())*/ self->mMinHeight.set(glm::min(h, height), css::Value::PIXELS);
-	/*if (!mMaxHeight.isDefined())*/ self->mMaxHeight.set(glm::max(h, height), css::Value::PIXELS);
+	/*if (!mMinWidth.isDefined())*/ self->mMinWidth.set(0, css::Value::PIXELS);
+	/*if (!mMaxWidth.isDefined())*/ self->mMaxWidth.set(mEngine.getWorldWidth(), css::Value::PIXELS);
+	/*if (!mMinHeight.isDefined())*/ self->mMinHeight.set(0, css::Value::PIXELS);
+	/*if (!mMaxHeight.isDefined())*/ self->mMaxHeight.set(mEngine.getWorldHeight(), css::Value::PIXELS);
 	self->mMinMaxDirty = false;
 }
 

@@ -985,8 +985,8 @@ namespace ui {
 
 		float mGlobalScale = 1.f;
 
-		css::Value mMinWidth, mMaxWidth;
-		css::Value mMinHeight, mMaxHeight;
+		css::Value mMinWidth{0, css::Value::PIXELS}, mMaxWidth;
+		css::Value mMinHeight{0, css::Value::PIXELS}, mMaxHeight;
 		Fit		   mFit;
 		bool	   mMinMaxDirty;
 		bool	   mSupressSpriteDimensionsChangedEvent=false;
