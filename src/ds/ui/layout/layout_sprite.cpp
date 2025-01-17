@@ -14,7 +14,7 @@
 namespace ds::ui {
 
 LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
-  : ds::ui::Sprite(engine)
+  : LayoutSpriteBase(engine)
   , mLayoutUpdatedFunction(nullptr)
   , mSpacing(0.f)
   , mLayoutType(kLayoutVFlow)
@@ -44,7 +44,7 @@ void LayoutSprite::runLayout() {
 
 void LayoutSprite::runNoneLayout() {
 	for (auto chillin : mChildren) {
-		if (auto layoutSprite = dynamic_cast<LayoutSprite*>(chillin)) {
+		if (auto layoutSprite = dynamic_cast<LayoutSpriteBase*>(chillin)) {
 			layoutSprite->runLayout();
 		}
 	}
@@ -78,8 +78,8 @@ void LayoutSprite::runSizeLayout() {
 			const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
-			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
+			LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
 			if (tp) {
 				tp->setResizeLimit(fixedW, fixedH);
 			} else if (chillin->mLayoutFixedAspect) {
@@ -96,7 +96,7 @@ void LayoutSprite::runSizeLayout() {
 		}
 
 
-		if (auto ls = dynamic_cast<LayoutSprite*>(chillin)) {
+		if (auto ls = dynamic_cast<LayoutSpriteBase*>(chillin)) {
 			ls->runLayout();
 		}
 	}
@@ -128,8 +128,8 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				// stretch sizes will be set later
 				numStretches++;
 			} else {
-				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
-				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
+				LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
 
 				if (chillin->mLayoutUserType == kFixedSize) {
 					// see if we need to force a particular size, since images and text might resize themselves
@@ -255,8 +255,8 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 			const float stretchW = (vertical ? layoutWidth : perStretch) - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
-			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
+			LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
 			if (tp) {
 				tp->setResizeLimit(stretchW, stretchH);
 			} else if (chillin->mLayoutFixedAspect) {
@@ -353,8 +353,8 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
-				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
+				LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
 				if (tp) {
 					tp->setResizeLimit(fixedW, fixedH);
 				} else if (chillin->mLayoutFixedAspect) {

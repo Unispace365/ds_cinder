@@ -8,11 +8,19 @@
 
 namespace ds::ui {
 
+class LayoutSpriteBase : public ds::ui::Sprite {
+  public:
+	LayoutSpriteBase(ds::ui::SpriteEngine& engine)
+	  : Sprite(engine) {}
+
+	virtual void runLayout() = 0;
+};
+
 /**
  * \class LayoutSprite
  *		A sprite that can run recursive flow layouts. Children can be normal sprites or other layouts.
  */
-class LayoutSprite : public ds::ui::Sprite {
+class LayoutSprite : public LayoutSpriteBase {
   public:
 	LayoutSprite(ds::ui::SpriteEngine& engine);
 
@@ -52,7 +60,7 @@ class LayoutSprite : public ds::ui::Sprite {
 	/// Fits the sprite supplied into the target area
 	static void fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const bool letterbox);
 
-	void runLayout();
+	void runLayout() override;
 
 	const LayoutType& getLayoutType() { return mLayoutType; }
 	void			  setLayoutType(const LayoutType& typey) { mLayoutType = typey; }

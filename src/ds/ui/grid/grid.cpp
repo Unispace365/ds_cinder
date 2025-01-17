@@ -11,19 +11,19 @@ using namespace ds::ui;
 // GridItem functions.
 
 float getWidthMin(const Sprite* item) {
-	return item->getWidthMin();
+	return item->getWidthMin() + item->mLayoutLPad + item->mLayoutRPad;
 }
 
 float getWidthMax(const Sprite* item) {
-	return item->getWidthMax();
+	return item->getWidthMax() + item->mLayoutLPad + item->mLayoutRPad;
 }
 
 float getHeightMin(const Sprite* item) {
-	return item->getHeightMin();
+	return item->getHeightMin() + item->mLayoutTPad + item->mLayoutBPad;
 }
 
 float getHeightMax(const Sprite* item) {
-	return item->getHeightMax();
+	return item->getHeightMax() + item->mLayoutTPad + item->mLayoutBPad;
 }
 
 const Range<size_t>& getColumnSpan(const Sprite* item) {
@@ -198,14 +198,17 @@ float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprit
 namespace ds::ui {
 
 Grid::Grid(SpriteEngine& engine)
-  : Sprite(engine)
+  : LayoutSpriteBase(engine)
   , mEventClient(engine) {
 	setTransparent(false); // For debugging.
 
 	// Listen to SpriteDimensionsChangedEvent.
 	mEventClient.listenToEvents<SpriteDimensionsChangedEvent>([this](const SpriteDimensionsChangedEvent& e) {
+		// Ignore if sprite is animated.
+		if (e.getSprite()->animationRunning()) return;
+
 		// No need to flag grid as dirty if it already is dirty.
-		if(mNeedsLayout) return;
+		if (mNeedsLayout) return;
 
 		// Check if sprite is a child of this grid.
 		auto parent = e.getParent();
@@ -285,7 +288,7 @@ float Grid::calcHeight(bool excludeFlex) const {
 }
 
 void Grid::drawLocalClient() {
-	if (mNeedsLayout) runLayout();
+	if (mNeedsLayout) performGridLayout();
 }
 
 void Grid::drawPostLocalClient() {
@@ -322,7 +325,7 @@ void Grid::addChild(Sprite& newChild) {
 bool Grid::setAvailableSize(const ci::vec2& size) {
 	setSize(size);
 
-	if (mNeedsLayout) runLayout();
+	if (mNeedsLayout) performGridLayout();
 
 	const float w = mMinWidth.asUser(this, Value::HORIZONTAL);
 	const float h = mMinHeight.asUser(this, Value::VERTICAL);
@@ -357,9 +360,7 @@ bool Grid::areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& 
 	return false;
 }
 
-void Grid::runLayout() {
-	if (!mNeedsLayout) return;
-
+void Grid::performGridLayout() {
 	ci::Timer t{true};
 
 	// Initialize item spans, taken from the sprites. These are then updated during layout.
@@ -893,7 +894,7 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 	float currentBandFractionBreadth = 0;
 	float accumulatedFractions		 = 0;
 
-	if(flexTracks.empty()) return 0;
+	if (flexTracks.empty()) return 0;
 
 	// 7.
 	for (const auto track : flexTracks) {

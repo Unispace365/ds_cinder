@@ -12,6 +12,7 @@
 
 #include <ds/ui/grid/css.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/ui/layout/layout_sprite.h>
 #include <ds/util/float_util.h>
 
 namespace ds::ui {
@@ -21,7 +22,7 @@ using SpriteFn = std::function<T(const Sprite*)>;
 using SizeFn   = SpriteFn<float>;
 using SpanFn   = SpriteFn<const Range<size_t>&>;
 
-class Grid : public Sprite {
+class Grid : public LayoutSpriteBase {
   public:
 	struct Track;
 
@@ -83,6 +84,8 @@ class Grid : public Sprite {
 
 	void updateLayout() const { mNeedsLayout = true; }
 
+	void runLayout() override { performGridLayout(); }
+
 	void setLayoutUpdatedFunction(const std::function<void()>& layoutUpdatedFunction) {
 		mLayoutUpdatedFunction = layoutUpdatedFunction;
 	}
@@ -115,7 +118,7 @@ class Grid : public Sprite {
 	// Returns the number of gaps.
 	static int countGaps(size_t index, const std::vector<Track*>& tracks);
 	// Performs the layout algorithm.
-	void runLayout();
+	void performGridLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
 	void		computeUsedBreadthOfGridTracks(css::Value::Direction direction, std::vector<Track>& tracks,
 											   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
