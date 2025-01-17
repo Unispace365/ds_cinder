@@ -313,7 +313,7 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 
 		return;
 	}
-
+	
 	// In single-screen mode, only reset the position for non-media viewers after moving the current one
 	if (args.mViewType != VIEW_TYPE_TITLED_MEDIA_VIEWER &&
 		mEngine.getAppSettings().getString("screen:app:mode", 0, "wall") == "single") {
@@ -378,6 +378,12 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 			newViewer->setSizeLimits();
 			newViewer->setViewerWidth(args.mStartWidth / viewerScale);
 		}
+	}
+
+	if (args.mSize.x >= 0 && args.mSize.y >= 0) {
+		auto sizey = getInverseGlobalTransform() * ci::vec4(args.mSize, 0);
+		newViewer->setViewerWidth(sizey.x / viewerScale);
+		newViewer->setViewerHeight(sizey.y / viewerScale);
 	}
 
 	if (args.mFromCenter) {
@@ -551,6 +557,12 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 
 	mChannelClient.notify(ViewerUpdatedEvent());
 	mChannelClient.notify(ViewerRemovedEvent(viewer));
+}
+
+void ViewerController::animateAllViewersOff(const float delayey, const int style) {
+	for (auto it : mViewers) {
+		animateViewerOff(it, delayey, style);
+	}
 }
 
 std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {

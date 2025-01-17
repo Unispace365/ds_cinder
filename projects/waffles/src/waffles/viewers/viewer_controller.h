@@ -50,9 +50,14 @@ class ViewerController : public ds::ui::Sprite {
 	virtual void addViewer(ViewerCreationArgs& creationArgs, const float delay = 0.0f);
 
 	/// Animates a viewer offscreen and releases it when the animation completes.
-	/// Assume the viewer won't exist after calling this
+	/// Assume the viewer won't exist after calling this.
 	/// style: 0 == scale / fade to center; 1 == fade only, 2 == fall off the bottom (see app defs)
 	virtual void animateViewerOff(BaseElement* viewer, const float delayey, const int style);
+
+	/// Removes all viewers from the screen.
+	/// Assume no viewers exist after calling this.
+	/// style: 0 == scale / fade to center; 1 == fade only, 2 == fall off the bottom (see app defs)
+	virtual void animateAllViewersOff(const float delayey, const int style);
 
 	/// Tries to evenly space everything using a bin packing algorithm
 	/// ScreenId is the ID of the screen to arrange. ScreenId < 0 will arrange all screens
