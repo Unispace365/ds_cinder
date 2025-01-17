@@ -307,22 +307,6 @@ void Image::clearImage() {
 	imageChanged();
 }
 
-bool Image::setAvailableSize(const vec2& size) {
-	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
-
-	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(ci::Rectf{0, 0, size.x, size.y}, bounds);
-	const auto width  = fit[0][0] * getWidth();
-	const auto height = fit[1][1] * getHeight();
-
-	mMinWidth  = css::Value(width, css::Value::PIXELS);
-	mMaxWidth  = css::Value(width, css::Value::PIXELS);
-	mMinHeight = css::Value(height, css::Value::PIXELS);
-	mMaxHeight = css::Value(height, css::Value::PIXELS);
-
-	return true;
-}
-
 float Image::getWidthMin() const {
 	if (!mMinWidth.isDefined() && mMinHeight.isDefined()) {
 		const float aspect = getWidth() / getHeight();

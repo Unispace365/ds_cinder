@@ -153,9 +153,7 @@ class MediaPlayer : public ds::ui::Sprite {
 
 	// set the animation duration for incoming media
 	void setAnimationDuration(float duration) { mAnimDuration = duration; };
-
-	bool setAvailableSize(const ci::vec2& size) override;
-
+	
 	// Pass the volume to the player instance.
 	void setVolume(float volume) override;
 
