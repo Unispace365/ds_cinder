@@ -204,7 +204,7 @@ namespace ui {
 
 		/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
 		/// calculations. Returns whether anything changed.
-		virtual bool setAvailableSize(const ci::vec2& size) { return false; }
+		virtual bool setAvailableSize(const ci::vec2& size);
 
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the

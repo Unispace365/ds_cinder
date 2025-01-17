@@ -926,6 +926,26 @@ ci::vec3 Sprite::getPreferredSize() const {
 	return ci::vec3(0.0f, 0.0f, 0.0f);
 }
 
+bool Sprite::setAvailableSize(const ci::vec2& size) {
+	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
+
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(ci::Rectf{0, 0, size.x, size.y}, bounds);
+
+	const auto scale = glm::min(getWidth() / (getWidth() + mLayoutLPad + mLayoutRPad),
+								getHeight() / (getHeight() + mLayoutTPad + mLayoutBPad));
+
+	const auto width  = scale * fit[0][0] * getWidth();
+	const auto height = scale * fit[1][1] * getHeight();
+
+	mMinWidth  = css::Value(width, css::Value::PIXELS);
+	mMaxWidth  = css::Value(width, css::Value::PIXELS);
+	mMinHeight = css::Value(height, css::Value::PIXELS);
+	mMaxHeight = css::Value(height, css::Value::PIXELS);
+
+	return true;
+}
+
 void Sprite::setColor(const ci::Color& color) {
 	if (mColor == color) return;
 
@@ -1438,10 +1458,10 @@ void Sprite::measureMinMaxSize() const {
 	const auto height = fit[1][1] * h;
 
 	const auto self = const_cast<Sprite*>(this); // Instead of 'mutable'.
-	if (!mMinWidth.isDefined()) self->mMinWidth.set(glm::min(w, width), css::Value::PIXELS);
-	if (!mMaxWidth.isDefined()) self->mMaxWidth.set(glm::max(w, width), css::Value::PIXELS);
-	if (!mMinHeight.isDefined()) self->mMinHeight.set(glm::min(h, height), css::Value::PIXELS);
-	if (!mMaxHeight.isDefined()) self->mMaxHeight.set(glm::max(h, height), css::Value::PIXELS);
+	/*if (!mMinWidth.isDefined())*/ self->mMinWidth.set(glm::min(w, width), css::Value::PIXELS);
+	/*if (!mMaxWidth.isDefined())*/ self->mMaxWidth.set(glm::max(w, width), css::Value::PIXELS);
+	/*if (!mMinHeight.isDefined())*/ self->mMinHeight.set(glm::min(h, height), css::Value::PIXELS);
+	/*if (!mMaxHeight.isDefined())*/ self->mMaxHeight.set(glm::max(h, height), css::Value::PIXELS);
 	self->mMinMaxDirty = false;
 }
 
@@ -1471,8 +1491,11 @@ bool Sprite::isLoaded() const {
 
 void Sprite::fitInsideArea(const ci::Rectf& area) {
 	// Fit the sprite to the area.
+	const auto padded =
+		ci::Rectf{area.x1 + mLayoutLPad, area.y1 + mLayoutTPad, glm::max(area.x1 + mLayoutLPad, area.x2 - mLayoutRPad),
+				  glm::max(area.y1 + mLayoutTPad, area.y2 - mLayoutBPad)};
 	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(area, bounds, false);
+	const auto fit	  = mFit.calcTransform(padded, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
 }
