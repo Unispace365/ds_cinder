@@ -113,6 +113,11 @@ class BasePanel : public ds::ui::Sprite {
 	 * and multiple times per actual position change */
 	void setPositionUpdatedCallback(std::function<void()> posUpdateCallback);
 
+	float getTopPad() const { return mTopPad; }
+	float getLeftPad() const { return mLeftPad; }
+	float getRightPad() const { return mRightPad; }
+	float getBottomPad() const { return mBottomPad; }
+
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
 
