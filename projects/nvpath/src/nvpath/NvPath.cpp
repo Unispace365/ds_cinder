@@ -106,7 +106,7 @@ Paint::Paint(Type type, std::string id)
 
 Paint::Paint(const ColorA8u& color)
   : Paint(COLOR) {
-	mStops.emplace_back(0.0f, color);
+	mStops = {{0, color}};
 }
 
 Paint::Paint(std::string url)
