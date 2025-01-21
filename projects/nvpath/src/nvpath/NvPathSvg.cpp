@@ -2735,15 +2735,31 @@ float SvgRect::getRy() const {
 Shape2d SvgRect::getShape() const {
 	Shape2d result;
 
+	const float x1 = mRect.x1;
+	const float y1 = mRect.y1;
+	const float x2 = mRect.x2;
+	const float y2 = mRect.y2;
+
 	const float rx = getRx();
 	const float ry = getRy();
-	if (rx > 0 || ry > 0)
-		throw std::runtime_error("Rounded rectangles are not supported yet");
-	else {
-		result.moveTo(mRect.getUpperLeft());
-		result.lineTo(mRect.getUpperRight());
-		result.lineTo(mRect.getLowerRight());
-		result.lineTo(mRect.getLowerLeft());
+	if (rx > 0 || ry > 0) {
+		// Approximate rounded rectangle with a series of cubic bezier curves.
+		constexpr float magic = 1.0f - 0.552284749830793398402f; // 1-(4/3*(sqrt(2)-1))
+		result.moveTo(x1 + rx, y1);
+		result.lineTo(x2 - rx, y1);
+		result.curveTo(x2 - rx * magic, y1, x2, y1 + ry * magic, x2, y1 + ry);
+		result.lineTo(x2, y2 - ry);
+		result.curveTo(x2, y2 - ry * magic, x2 - rx * magic, y2, x2 - rx, y2);
+		result.lineTo(x1 + rx, y2);
+		result.curveTo(x1 + rx * magic, y2, x1, y2 - ry * magic, x1, y2 - ry);
+		result.lineTo(x1, y1 + ry);
+		result.curveTo(x1, y1 + ry * magic, x1 + rx * magic, y1, x1 + rx, y1);
+		result.close();
+	} else {
+		result.moveTo(x1, y1);
+		result.lineTo(x2, y1);
+		result.lineTo(x2, y2);
+		result.lineTo(x1, y2);
 		result.close();
 	}
 
