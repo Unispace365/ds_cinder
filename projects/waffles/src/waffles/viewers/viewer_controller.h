@@ -46,8 +46,8 @@ class ViewerController : public ds::ui::Sprite {
 
 	virtual void setLayerBounds(int viewLayer, ci::Rectf bounds);
 
-	/// Add a new viewer with the specified type and media
-	virtual void addViewer(ViewerCreationArgs& creationArgs, const float delay = 0.0f);
+	/// Add a new viewer with the specified type and media. Returns the new viewer.
+	virtual BaseElement* addViewer(ViewerCreationArgs& creationArgs, const float delay = 0.0f);
 
 	/// Animates a viewer offscreen and releases it when the animation completes.
 	/// Assume the viewer won't exist after calling this.
@@ -102,6 +102,7 @@ class ViewerController : public ds::ui::Sprite {
 
 	// immediately releases the viewer with no animation
 	virtual void removeViewer(BaseElement* viewer);
+
 	virtual void removeFullscreenDarkener(BaseElement* be);
 	virtual void enforceViewerLimits(BaseElement* viewer);
 	virtual void gatherAviewer(BaseElement* viewer, const ci::vec3& pos);

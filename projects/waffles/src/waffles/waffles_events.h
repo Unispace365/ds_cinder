@@ -104,15 +104,17 @@ struct PresentationStatusUpdatedEvent : public ds::RegisteredEvent<PresentationS
 struct ViewerUpdatedEvent : public ds::RegisteredEvent<ViewerUpdatedEvent> {};
 
 struct ViewerAddedEvent : public ds::RegisteredEvent<ViewerAddedEvent> {
-	ViewerAddedEvent(ds::model::ContentModelRef theNewViewerModel)
-		: mModel(theNewViewerModel){};
-	ds::model::ContentModelRef mModel;
+	ViewerAddedEvent(BaseElement* theViewer)
+	  : mViewer(theViewer){}
+	ds::model::ContentModelRef getModel() const { return mViewer->getMedia(); }
+	BaseElement* mViewer;
 };
 
 /// Sent when a viewer starts animating off, assume it's dead after this
 struct ViewerRemovedEvent : public ds::RegisteredEvent<ViewerRemovedEvent> {
 	ViewerRemovedEvent(BaseElement* theViewer)
-		: mViewer(theViewer){};
+		: mViewer(theViewer){}
+	ds::model::ContentModelRef getModel() const { return mViewer->getMedia(); }
 	BaseElement* mViewer;
 };
 

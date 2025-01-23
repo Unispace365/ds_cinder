@@ -31,7 +31,7 @@ RecentFilesService::RecentFilesService(ds::ui::SpriteEngine& eng)
 	mEventClient.listenToEvents<ViewerAddedEvent>([this](auto& e) {
 		// auto model = e.mModel.duplicate();
 		// model.printTree(true);
-		addToRecentlyOpened(e.mModel);
+		addToRecentlyOpened(e.getModel());
 
 		// write the thing
 

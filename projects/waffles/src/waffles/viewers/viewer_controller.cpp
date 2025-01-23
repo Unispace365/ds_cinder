@@ -266,22 +266,22 @@ void ViewerController::setLayerBounds(int viewLayer, ci::Rectf bounds) {
 	}
 }
 
-void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
-	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(args.mMediaRef);
+BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const float delay) {
+	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(creationArgs.mMediaRef);
 	const float screenWidth	 = mDisplaySize.x;
 	const float screenHeight = mDisplaySize.y;
 	if (!mNormalLayer) {
 		DS_LOG_WARNING("Big problemo!");
-		return;
+		return nullptr;
 	}
 
-	auto loccy = globalToLocal(args.mLocation);
-	if (args.mViewLayer == ViewerCreationArgs::kViewLayerTop) {
-		loccy = mTopLayer->globalToLocal(args.mLocation);
-	} else if (args.mViewLayer == ViewerCreationArgs::kViewLayerBackground) {
-		loccy = mBackgroundLayer->globalToLocal(args.mLocation);
+	auto loccy = globalToLocal(creationArgs.mLocation);
+	if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerTop) {
+		loccy = mTopLayer->globalToLocal(creationArgs.mLocation);
+	} else if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerBackground) {
+		loccy = mBackgroundLayer->globalToLocal(creationArgs.mLocation);
 	} else {
-		loccy = mNormalLayer->globalToLocal(args.mLocation);
+		loccy = mNormalLayer->globalToLocal(creationArgs.mLocation);
 	}
 	if (loccy.x < 0.0f && loccy.y < 0.0f && loccy.z < 0.0f) {
 		loccy.x = mDisplaySize.x / 2.0f;
@@ -290,24 +290,24 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 	}
 
 	// Special case where we just move around the viewer if there's only 1 of that type
-	auto viewers = getViewersOfType(args.mViewType);
+	auto viewers = getViewersOfType(creationArgs.mViewType);
 	if (!viewers.empty() && !viewers.front()->getIsAboutToBeRemoved() &&
 		viewers.front()->getMaxNumberOfThisType() == 1) {
 
 		auto sameType = viewers.front();
 
-		if (args.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
+		if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
 			animateViewerOff(sameType, 0.0f, ANIMATE_OFF_SHRINK);
-			return;
+			return nullptr;
 		}
 
-		if (args.mFromCenter) {
+		if (creationArgs.mFromCenter) {
 			loccy = ci::vec3(loccy.x - sameType->getWidth() / 2.0f, loccy.y - sameType->getHeight() / 2.0f, 0.0f);
 		}
 
-		bool checkBoundsy = args.mCheckBounds;
+		bool checkBoundsy = creationArgs.mCheckBounds;
 
-		sameType->setMedia(args.mMediaRef);
+		sameType->setMedia(creationArgs.mMediaRef);
 		sameType->tweenStarted();
 		sameType->tweenPosition(loccy, mEngine.getAnimDur(), 0.0f, ci::easeInOutQuad, [sameType, checkBoundsy] {
 			sameType->tweenEnded();
@@ -317,34 +317,34 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 		});
 		sameType->activatePanel();
 
-		return;
+		return nullptr;
 	}
 	
 	// In single-screen mode, only reset the position for non-media viewers after moving the current one
-	if (args.mViewType != VIEW_TYPE_TITLED_MEDIA_VIEWER &&
+	if (creationArgs.mViewType != VIEW_TYPE_TITLED_MEDIA_VIEWER &&
 		mEngine.getAppSettings().getString("screen:app:mode", 0, "wall") == "single") {
 		float yPercent = mEngine.getAppSettings().getFloat("single_app:y_panel_percent", 0, 2.0f / 3.0f);
 		loccy		   = ci::vec3(screenWidth / 2.0f, screenHeight * yPercent, 0.0f);
-		if (args.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
+		if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
 			loccy.y += 250.0f; // a little hack so fsc's show up below pres controllers
 		}
 	}
 
-	auto [newViewer,result] = createViewer(args);
+	auto [newViewer,result] = createViewer(creationArgs);
 
 	if (!newViewer) {
-		DS_LOG_WARNING("View type not recognized! " << args.mViewType);
-		return;
+		DS_LOG_WARNING("View type not recognized! " << creationArgs.mViewType);
+		return nullptr;
 	}
 
 
-	if (args.mViewLayer == ViewerCreationArgs::kViewLayerBackground && mBackgroundLayer) {
+	if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerBackground && mBackgroundLayer) {
 		mBackgroundLayer->addChildPtr(newViewer);
 		newViewer->sendToBack();
 		newViewer->setBoundingArea(ci::Rectf(ci::vec2(0.f), mBackgroundLayer->getSize()));
-	} else if (args.mViewLayer == ViewerCreationArgs::kViewLayerNormal && mNormalLayer) {
+	} else if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerNormal && mNormalLayer) {
 		mNormalLayer->addChildPtr(newViewer);
-		if (args.mViewType == VIEW_TYPE_LAUNCHER || args.mViewType == VIEW_TYPE_LAUNCHER_PERSISTANT) {
+		if (creationArgs.mViewType == VIEW_TYPE_LAUNCHER || creationArgs.mViewType == VIEW_TYPE_LAUNCHER_PERSISTANT) {
 			auto widthDifference = (mTopLayer->getWidth() - mNormalLayer->getWidth()) / 2.f;
 			newViewer->setBoundingArea(ci::Rectf(ci::vec2(-widthDifference, 0.f),
 												 ci::vec2(-widthDifference, 0.f) + ci::vec2(mTopLayer->getSize())));
@@ -352,47 +352,47 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 			newViewer->setBoundingArea(ci::Rectf(ci::vec2(0.f), mNormalLayer->getSize()));
 		}
 		// newViewer->setBoundingArea(ci::Rectf(ci::vec2(0.f), mNormalLayer->getSize()));
-	} else if (args.mViewLayer == ViewerCreationArgs::kViewLayerTop && mTopLayer) {
+	} else if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerTop && mTopLayer) {
 		mTopLayer->addChildPtr(newViewer);
 		newViewer->setBoundingArea(ci::Rectf(ci::vec2(0.f), mTopLayer->getSize()));
 	} else {
-		DS_LOG_WARNING("Invalid view layer specified for new viewer " << args.mMediaRef.getPropertyString("name"));
+		DS_LOG_WARNING("Invalid view layer specified for new viewer " << creationArgs.mMediaRef.getPropertyString("name"));
 		newViewer->release();
-		return;
+		return nullptr;
 	}
 
 	DS_LOG_INFO("Launching viewer of type " << newViewer->getViewerType() << " "
-											<< args.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath());
+											<< creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath());
 
 	mViewers.push_back(newViewer);
 
-	newViewer->setMedia(args.mMediaRef);
-	newViewer->setCreationArgs(args);
-	newViewer->setViewerLayer(args.mViewLayer);
+	newViewer->setMedia(creationArgs.mMediaRef);
+	newViewer->setCreationArgs(creationArgs);
+	newViewer->setViewerLayer(creationArgs.mViewLayer);
 
 	const float viewerScale = mEngine.getWafflesSettings().getFloat("viewer:master_scale", 0, 1.0f);
 
 	if (newViewer->canResize()) {
-		if (args.mEnforceMinSize &&
-			args.mStartWidth < mEngine.getWafflesSettings().getFloat("media_viewer:min_size", 0, 100.0f)) {
+		if (creationArgs.mEnforceMinSize &&
+			creationArgs.mStartWidth < mEngine.getWafflesSettings().getFloat("media_viewer:min_size", 0, 100.0f)) {
 			newViewer->setViewerWidth(mEngine.getWafflesSettings().getFloat("media_viewer:default_size", 0, 400.0f) /
 									  viewerScale);
 		} else {
-			newViewer->setAbsoluteSizeLimits(ci::vec2(args.mStartWidth / viewerScale, 200.f),
+			newViewer->setAbsoluteSizeLimits(ci::vec2(creationArgs.mStartWidth / viewerScale, 200.f),
 											 ci::vec2(99999.f, 99999.f));
 			// newViewer->setViewerWidth(args.mStartWidth / viewerScale);
 			newViewer->setSizeLimits();
-			newViewer->setViewerWidth(args.mStartWidth / viewerScale);
+			newViewer->setViewerWidth(creationArgs.mStartWidth / viewerScale);
 		}
 	}
 
-	if (args.mSize.x >= 0 && args.mSize.y >= 0) {
-		auto sizey = getInverseGlobalTransform() * ci::vec4(args.mSize, 0);
+	if (creationArgs.mSize.x >= 0 && creationArgs.mSize.y >= 0) {
+		auto sizey = getInverseGlobalTransform() * ci::vec4(creationArgs.mSize, 0);
 		newViewer->setViewerWidth(sizey.x / viewerScale);
 		newViewer->setViewerHeight(sizey.y / viewerScale);
 	}
 
-	if (args.mFromCenter) {
+	if (creationArgs.mFromCenter) {
 		newViewer->setPosition(loccy.x - newViewer->getWidth() * viewerScale / 2.0f,
 							   loccy.y - newViewer->getHeight() * viewerScale / 2.0f);
 	} else {
@@ -401,15 +401,15 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 
 	newViewer->setScale(viewerScale);
 
-	if (args.mCheckBounds) {
+	if (creationArgs.mCheckBounds) {
 		newViewer->checkBounds(true);
 	}
 
-	if (newViewer->canFullScreen() && args.mFullscreen) {
-		fullscreenViewer(newViewer, true, args.mShowFullscreenController);
-		const bool webEnough = args.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
-							   args.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
-		if (webEnough && args.mTouchEvents) {
+	if (newViewer->canFullScreen() && creationArgs.mFullscreen) {
+		fullscreenViewer(newViewer, true, creationArgs.mShowFullscreenController);
+		const bool webEnough = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
+							   creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
+		if (webEnough && creationArgs.mTouchEvents) {
 			if (auto tmv = dynamic_cast<waffles::TitledMediaViewer*>(newViewer)) {
 				tmv->setInterfaceLocked(true);
 			}
@@ -424,7 +424,9 @@ void ViewerController::addViewer(ViewerCreationArgs& args, const float delay) {
 	enforceViewerLimits(newViewer);
 
 	mChannelClient.notify(ViewerUpdatedEvent());
-	mChannelClient.notify(ViewerAddedEvent(args.mMediaRef));
+	mChannelClient.notify(ViewerAddedEvent(newViewer));
+
+	return newViewer;
 }
 
 void ViewerController::enforceViewerLimits(BaseElement* viewer) {

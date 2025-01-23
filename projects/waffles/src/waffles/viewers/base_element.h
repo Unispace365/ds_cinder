@@ -25,7 +25,7 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual void setMedia(const ds::model::ContentModelRef& newMedia) final;
 	
 	/// Not all viewer types use this, so use with discretion
-	ds::model::ContentModelRef getMedia() { return mMediaRef; }
+	ds::model::ContentModelRef getMedia() const { return mMediaRef; }
 
 	/// If true, will participate in "arrange" commands from the rest of the app. If false, will close when a arrange
 	/// event is requested
