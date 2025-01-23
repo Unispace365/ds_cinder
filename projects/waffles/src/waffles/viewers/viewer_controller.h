@@ -82,6 +82,9 @@ class ViewerController : public ds::ui::Sprite {
 	// Makes the supplied viewer not fullscreen and removes any associated black layers behind it
 	virtual void unfullscreenViewer(BaseElement* viewer, const bool immediate);
 
+	virtual void detachViewer(BaseElement* viewer);
+
+	virtual void attachViewer(BaseElement* viewer);
 
 	std::map<BaseElement*, ds::ui::Sprite*> getFullscreenDarkeners(){
 		return mFullscreenDarkeners;

@@ -214,6 +214,13 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		}
 	});
 
+	mRootLayout->setSpriteClickFn("detach.the_button", [this] {
+		if (getIsDetached()) {
+			mEventClient.notify(RequestAttachViewer(this));
+		} else {
+			mEventClient.notify(RequestDetachViewer(this));
+		}
+	});
 
 	/// This is an escape hatch for video players when drawing is happening and the mode changes
 	/// e.g. the idle timeout occurs, or an ambient button is pressed etc.
@@ -630,6 +637,7 @@ void TitledMediaViewer::processAllowedButtons() {
 	auto allow_rotation	  = mEngine.getWafflesSettings().getBool("media_viewer:allow_rotation", 0, true);
 	auto allow_duplicate  = mEngine.getWafflesSettings().getBool("media_viewer:allow_duplicate", 0, true);
 	auto allow_fullscreen = mEngine.getWafflesSettings().getBool("media_viewer:allow_fullscreen", 0, true);
+	auto allow_detach = mEngine.getWafflesSettings().getBool("media_viewer:allow_detach", 0, true);
 
 	auto drawingSpr = mRootLayout->getSprite("drawing.the_button");
 	if (drawingSpr) {
@@ -664,6 +672,15 @@ void TitledMediaViewer::processAllowedButtons() {
 			fullscreenSpr->show();
 		} else {
 			fullscreenSpr->hide();
+		}
+	}
+
+	auto detachSpr = mRootLayout->getSprite("detach.the_button");
+	if (detachSpr) {
+		if (allow_detach) {
+			detachSpr->show();
+		} else {
+			detachSpr->hide();
 		}
 	}
 }

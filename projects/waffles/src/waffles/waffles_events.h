@@ -128,6 +128,18 @@ struct RequestUnFullscreenViewer : public ds::RegisteredEvent<RequestUnFullscree
 	BaseElement* mViewer;
 };
 
+struct RequestAttachViewer : public ds::RegisteredEvent<RequestAttachViewer> {
+	RequestAttachViewer(BaseElement* viewer)
+		: mViewer(viewer) {}
+	BaseElement* mViewer;
+};
+
+struct RequestDetachViewer : public ds::RegisteredEvent<RequestDetachViewer> {
+	RequestDetachViewer(BaseElement* viewer)
+		: mViewer(viewer) {}
+	BaseElement* mViewer;
+};
+
 /// A drawing is about to be saved, so hide ui and such that could potentially be blocking the drawing
 struct RequestPreDrawingSave : public ds::RegisteredEvent<RequestPreDrawingSave> {};
 

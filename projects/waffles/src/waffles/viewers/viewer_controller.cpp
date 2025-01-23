@@ -120,6 +120,12 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::
 
 	ds::EventClient::clientsListenToEvents<RequestUnFullscreenViewer>([this](auto& e) { unfullscreenViewer(e.mViewer, false); }, clients);
 
+	ds::EventClient::clientsListenToEvents<RequestDetachViewer>(
+		[this](const RequestDetachViewer& e) { detachViewer(e.mViewer); }, clients);
+
+	ds::EventClient::clientsListenToEvents<RequestAttachViewer>(
+		[this](const RequestAttachViewer& e) { attachViewer(e.mViewer); }, clients);
+
 	ds::EventClient::clientsListenToEvents<RequestGenericAdvance>([this](auto& e) {
 		bool hadPdf = advancePDF(e.mForwards);
 		if (!hadPdf) advancePresentation(e.mForwards);
@@ -1358,6 +1364,22 @@ void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immedi
 	}
 
 	viewer->setIsFullscreen(false);
+}
+
+void ViewerController::detachViewer(BaseElement* viewer) {
+	if (!(viewer && viewer->canDetach())) return;
+
+	viewer->setIsDetached(true);
+
+	// TODO give a visual indication that the viewer has been detached.
+}
+
+void ViewerController::attachViewer(BaseElement* viewer) {
+	if (!viewer) return;
+
+	viewer->setIsDetached(false);
+
+	// TODO Move viewer to proper location in layout.
 }
 
 void ViewerController::removeFullscreenDarkener(BaseElement* be) {

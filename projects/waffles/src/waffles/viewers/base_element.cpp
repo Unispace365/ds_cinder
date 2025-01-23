@@ -7,16 +7,18 @@
 namespace waffles {
 
 BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
-	: BasePanel(g)
-	, mCanArrange(true)
-	, mCanResize(true)
-	, mCanFullscreen(true)
-	, mIsFullscreen(false)
-	, mViewerType(VIEW_TYPE_BASE)
-	, mMaxViewersOfThisType(512)
-	, mUnfullscreenRect(0.0f, 0.0f, g.getWorldWidth(), g.getWorldHeight())
-	, mFatalError(false)
-	, mEventClient(g){
+  : BasePanel(g)
+  , mCanArrange(true)
+  , mCanResize(true)
+  , mCanFullscreen(true)
+  , mIsFullscreen(false)
+  , mCanDetach(true)
+  , mIsDetached(true) /* Due to touch events being enabled by default */
+  , mViewerType(VIEW_TYPE_BASE)
+  , mMaxViewersOfThisType(512)
+  , mUnfullscreenRect(0.0f, 0.0f, g.getWorldWidth(), g.getWorldHeight())
+  , mEventClient(g)
+  , mFatalError(false) {
 
 	setChannelName(eventChannel);
 	if (eventChannel.empty()) {
@@ -34,17 +36,15 @@ void BaseElement::setMedia(const ds::model::ContentModelRef& newMedia) {
 	onMediaSet();
 }
 
-
-
-bool BaseElement::canArrange() {
+bool BaseElement::canArrange() const {
 	return mCanArrange;
 }
 
-bool BaseElement::canResize() {
+bool BaseElement::canResize() const {
 	return mCanResize;
 }
 
-bool BaseElement::canFullScreen() {
+bool BaseElement::canFullScreen() const {
 	return mCanFullscreen;
 }
 
@@ -54,11 +54,32 @@ void BaseElement::setIsFullscreen(const bool isFullscreen) {
 	onFullscreenSet();
 }
 
-bool BaseElement::getIsFullscreen() {
+bool BaseElement::getIsFullscreen() const {
 	return mIsFullscreen;
 }
 
-const int BaseElement::getMaxNumberOfThisType() {
+bool BaseElement::canDetach() const {
+	return mCanDetach;
+}
+
+void BaseElement::setIsDetached(const bool isDetached) {
+	mIsDetached = isDetached;
+
+	// Enable/disable touch events but keep constraints.
+	if (mIsDetached) {
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+	} else {
+		disableMultiTouch();
+	}
+
+	onDetachedSet();
+}
+
+bool BaseElement::getIsDetached() const {
+	return mIsDetached;
+}
+
+const int BaseElement::getMaxNumberOfThisType() const {
 	return mMaxViewersOfThisType;
 }
 
@@ -66,7 +87,7 @@ const std::string& BaseElement::getViewerType() {
 	return mViewerType;
 }
 
-bool BaseElement::getIsFatalErrored() {
+bool BaseElement::getIsFatalErrored() const {
 	return mFatalError;
 }
 
@@ -91,7 +112,7 @@ void BaseElement::setViewerLayer(const int viewerLayer) {
 	onViewerLayerSet();
 }
 
-const int BaseElement::getViewerLayer() {
+const int BaseElement::getViewerLayer() const {
 	return mViewerLayer;
 }
 
@@ -99,7 +120,7 @@ void BaseElement::setUnfullscreenRect(ci::Rectf recty) {
 	mUnfullscreenRect = recty;
 }
 
-ci::Rectf BaseElement::getUnfullscreenRect() {
+ci::Rectf BaseElement::getUnfullscreenRect() const {
 	return mUnfullscreenRect;
 }
 

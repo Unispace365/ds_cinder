@@ -29,26 +29,39 @@ class BaseElement : public ds::ui::BasePanel {
 
 	/// If true, will participate in "arrange" commands from the rest of the app. If false, will close when a arrange
 	/// event is requested
-	bool canArrange();
+	bool canArrange() const;
+
+	void allowArrange(bool allow) { mCanArrange = allow; }
 
 	/// If true, can be resized
-	bool canResize();
+	bool canResize() const;
+
+	void allowResize(bool allow) { mCanResize = allow; }
 
 	/// If this element can go into fullscreen mode
-	bool canFullScreen();
+	bool canFullScreen() const;
 
 	/// This should only be set by ViewerContoller, which manages fullscreen-ness
 	void setIsFullscreen(const bool isFullscreen);
-	bool getIsFullscreen();
+	bool getIsFullscreen() const;
+
+	/// If this element can be detached from the layout
+	bool canDetach() const;
+
+	void allowDetach(bool allow) { mCanDetach = allow; }
+
+	/// If this element is detached from the layout
+	void setIsDetached(const bool isDetached);
+	bool getIsDetached() const;
 
 	/// How many of this specific type of viewers can be onscreen at a time
-	const int getMaxNumberOfThisType();
+	const int getMaxNumberOfThisType() const;
 
 	const std::string& getViewerType();
 
 	/// If this element encountered an error it can't recover from. If true, this element may be removed at the next
 	/// layout request or other event
-	bool getIsFatalErrored();
+	bool getIsFatalErrored() const;
 
 	/// For viewerController to clean up this element
 	virtual void setCloseRequestCallback(std::function<void(void)> func) final;
@@ -61,12 +74,12 @@ class BaseElement : public ds::ui::BasePanel {
 
 	/// Sets with layer this is on. See ViewerCreationArgs for possible values
 	virtual void setViewerLayer(const int viewerLayer) final;
-	const int	 getViewerLayer();
+	const int	 getViewerLayer() const;
 
 	/// Sets the size/position of this viewer when it's not in fullscreen mode (so it can return to it after being
 	/// fullscreened)
 	void	  setUnfullscreenRect(ci::Rectf recty);
-	ci::Rectf getUnfullscreenRect();
+	ci::Rectf getUnfullscreenRect() const;
 
 	virtual void setToFullscreen(const bool immediate,const bool showController);
 
@@ -102,6 +115,9 @@ class BaseElement : public ds::ui::BasePanel {
 	// is called
 	virtual void onFullscreenSet() {}
 
+	// Detached has been set.
+	virtual void onDetachedSet() {}
+
 	virtual void onPanelActivated() override;
 	virtual void onParentSet() override;
 
@@ -111,6 +127,8 @@ class BaseElement : public ds::ui::BasePanel {
 	bool					   mCanResize;
 	bool					   mCanFullscreen;
 	bool					   mIsFullscreen;
+	bool					   mCanDetach;
+	bool					   mIsDetached;
 	std::string				   mViewerType;
 	int						   mMaxViewersOfThisType;
 	int						   mViewerLayer;
