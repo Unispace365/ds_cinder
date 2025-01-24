@@ -64,11 +64,12 @@ class TitledMediaViewer : public BaseElement {
 	void rotateMedia();
 
   protected:
+	void processAllowedButtons() const;
 	virtual void userInputReceived() override;
-	void		 processAllowedButtons();
 	virtual void onLayout() override;
 	virtual void onCreationArgsSet() override;
 	virtual void onFullscreenSet() override;
+	virtual void onDetachedSet() override;
 	
 
 	void loadHotspots();

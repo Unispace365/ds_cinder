@@ -12,7 +12,7 @@ BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
   , mCanResize(true)
   , mCanFullscreen(true)
   , mIsFullscreen(false)
-  , mCanDetach(true)
+  , mCanDetach(false) /* Only enable for elements that are part of a layout */
   , mIsDetached(true) /* Due to touch events being enabled by default */
   , mViewerType(VIEW_TYPE_BASE)
   , mMaxViewersOfThisType(512)
@@ -48,9 +48,15 @@ bool BaseElement::canFullScreen() const {
 	return mCanFullscreen;
 }
 
-void BaseElement::setIsFullscreen(const bool isFullscreen) {
-	mIsFullscreen = isFullscreen;
+void BaseElement::allowFullscreen(bool allow) {
+	if (mCanFullscreen == allow) return;
+	mCanFullscreen = allow;
+	onFullscreenSet();
+}
 
+void BaseElement::setIsFullscreen(const bool isFullscreen) {
+	if (mIsFullscreen == isFullscreen) return;
+	mIsFullscreen = isFullscreen;
 	onFullscreenSet();
 }
 
@@ -62,16 +68,22 @@ bool BaseElement::canDetach() const {
 	return mCanDetach;
 }
 
-void BaseElement::setIsDetached(const bool isDetached) {
-	mIsDetached = isDetached;
+void BaseElement::allowDetach(bool allow) {
+	if (mCanDetach == allow) return;
+	mCanDetach = allow;
+	onDetachedSet();
+}
 
+void BaseElement::setIsDetached(const bool isDetached) {
 	// Enable/disable touch events but keep constraints.
-	if (mIsDetached) {
+	if (!mCanDetach || isDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	} else {
 		disableMultiTouch();
 	}
 
+	if (mIsDetached == isDetached) return;
+	mIsDetached = isDetached;
 	onDetachedSet();
 }
 

@@ -337,6 +337,9 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		return nullptr;
 	}
 
+	newViewer->allowFullscreen(creationArgs.mCanFullscreen);
+	newViewer->allowDetach(creationArgs.mCanDetach);
+	newViewer->setIsDetached(creationArgs.mIsDetached);
 
 	if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerBackground && mBackgroundLayer) {
 		mBackgroundLayer->addChildPtr(newViewer);
@@ -405,7 +408,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		newViewer->checkBounds(true);
 	}
 
-	if (newViewer->canFullScreen() && creationArgs.mFullscreen) {
+	if (newViewer->canFullScreen() && creationArgs.mIsFullscreen) {
 		fullscreenViewer(newViewer, true, creationArgs.mShowFullscreenController);
 		const bool webEnough = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
 							   creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
@@ -505,7 +508,7 @@ void ViewerController::handleRequestViewerLaunch(const RequestViewerLaunchEvent&
 
 				if (paramType.empty() || paramValue.empty()) continue;
 				if (paramType == "fullscreen") {
-					args.mFullscreen = ds::parseBoolean(paramValue);
+					args.mIsFullscreen = ds::parseBoolean(paramValue);
 				} else if (paramType == "view_type") {
 					args.mViewType = paramValue;
 				} else if (paramType == "location") {
@@ -836,7 +839,7 @@ void ViewerController::loadPresentationSlide(ds::model::ContentModelRef slideRef
 		bacckyArgs.mViewLayer				 = ViewerCreationArgs::kViewLayerNormal;
 		bacckyArgs.mStartWidth				 = 0.0f;
 		bacckyArgs.mFromCenter				 = true;
-		bacckyArgs.mFullscreen				 = true;
+		bacckyArgs.mIsFullscreen			 = true;
 		bacckyArgs.mShowFullscreenController = false;
 		bacckyArgs.mCheckBounds				 = false;
 
@@ -1011,7 +1014,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		args.mShowFullscreenController = false;
 		args.mEnforceMinSize		   = false; // danger zone? who cares!
 
-		args.mFullscreen = false;
+		args.mIsFullscreen = false;
 		// newMedia.getPropertyBool("media_float_fullscreen");
 		args.mTouchEvents = newMedia.getPropertyBool("touch_events");
 		// newMedia.getPropertyBool("media_float_touch");
@@ -1042,15 +1045,15 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 				leViewer->hideTitle();
 				leViewer->setCreationArgs(args);
 
-				if (leViewer->getIsFullscreen() != args.mFullscreen) {
-					if (args.mFullscreen) {
+				if (leViewer->getIsFullscreen() != args.mIsFullscreen) {
+					if (args.mIsFullscreen) {
 						fullscreenViewer(leViewer, true, false);
 					} else {
 						unfullscreenViewer(leViewer, true);
 					}
 				}
 
-				if (!args.mFullscreen) {
+				if (!args.mIsFullscreen) {
 					// overrides the animation from unfullscreenViewer if applicable and that's what we want
 					float viewerScale = leViewer->getScale().x;
 					if (viewerScale == 0.0f) viewerScale = 0.0001f;

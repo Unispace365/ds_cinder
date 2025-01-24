@@ -41,6 +41,8 @@ class BaseElement : public ds::ui::BasePanel {
 	/// If this element can go into fullscreen mode
 	bool canFullScreen() const;
 
+	void allowFullscreen(bool allow);
+
 	/// This should only be set by ViewerContoller, which manages fullscreen-ness
 	void setIsFullscreen(const bool isFullscreen);
 	bool getIsFullscreen() const;
@@ -48,7 +50,7 @@ class BaseElement : public ds::ui::BasePanel {
 	/// If this element can be detached from the layout
 	bool canDetach() const;
 
-	void allowDetach(bool allow) { mCanDetach = allow; }
+	void allowDetach(bool allow);
 
 	/// If this element is detached from the layout
 	void setIsDetached(const bool isDetached);

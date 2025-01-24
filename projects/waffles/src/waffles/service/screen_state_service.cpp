@@ -335,7 +335,7 @@ void ScreenStateService::readMediaItem(ci::XmlTree& theTree) {
 	ViewerCreationArgs vca;
 	vca.mFromCenter		   = false;
 	vca.mCheckBounds	   = true;
-	vca.mFullscreen		   = isFullscreen == 1;
+	vca.mIsFullscreen	   = isFullscreen == 1;
 	vca.mLocation.x		   = theX;
 	vca.mLocation.y		   = theY;
 	vca.mLocation.z		   = 0.0f;

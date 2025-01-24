@@ -632,16 +632,16 @@ void TitledMediaViewer::startVideo() {
 	mMediaPlayer->enter();
 }
 
-void TitledMediaViewer::processAllowedButtons() {
-	auto allow_drawing	  = mEngine.getWafflesSettings().getBool("media_viewer:allow_drawing", 0, true);
-	auto allow_rotation	  = mEngine.getWafflesSettings().getBool("media_viewer:allow_rotation", 0, true);
-	auto allow_duplicate  = mEngine.getWafflesSettings().getBool("media_viewer:allow_duplicate", 0, true);
-	auto allow_fullscreen = mEngine.getWafflesSettings().getBool("media_viewer:allow_fullscreen", 0, true);
-	auto allow_detach = mEngine.getWafflesSettings().getBool("media_viewer:allow_detach", 0, true);
+void TitledMediaViewer::processAllowedButtons() const {
+	auto allowDrawing	 = mEngine.getWafflesSettings().getBool("media_viewer:allow_drawing", 0, true);
+	auto allowRotation	 = mEngine.getWafflesSettings().getBool("media_viewer:allow_rotation", 0, true);
+	auto allowDuplicate	 = mEngine.getWafflesSettings().getBool("media_viewer:allow_duplicate", 0, true);
+	auto allowFullscreen = mEngine.getWafflesSettings().getBool("media_viewer:allow_fullscreen", 0, true);
+	auto allowDetach	 = mEngine.getWafflesSettings().getBool("media_viewer:allow_detach", 0, true);
 
 	auto drawingSpr = mRootLayout->getSprite("drawing.the_button");
 	if (drawingSpr) {
-		if (allow_drawing) {
+		if (allowDrawing) {
 			drawingSpr->show();
 		} else {
 			drawingSpr->hide();
@@ -650,7 +650,7 @@ void TitledMediaViewer::processAllowedButtons() {
 
 	auto rotationSpr = mRootLayout->getSprite("rotation.the_button");
 	if (rotationSpr) {
-		if (allow_rotation) {
+		if (allowRotation) {
 			rotationSpr->show();
 		} else {
 			rotationSpr->hide();
@@ -659,7 +659,7 @@ void TitledMediaViewer::processAllowedButtons() {
 
 	auto duplicateSpr = mRootLayout->getSprite("duplicate.the_button");
 	if (duplicateSpr) {
-		if (allow_duplicate) {
+		if (allowDuplicate) {
 			duplicateSpr->show();
 		} else {
 			duplicateSpr->hide();
@@ -668,7 +668,7 @@ void TitledMediaViewer::processAllowedButtons() {
 
 	auto fullscreenSpr = mRootLayout->getSprite("fullscreen.the_button");
 	if (fullscreenSpr) {
-		if (allow_fullscreen) {
+		if (allowFullscreen && mCanFullscreen) {
 			fullscreenSpr->show();
 		} else {
 			fullscreenSpr->hide();
@@ -677,12 +677,14 @@ void TitledMediaViewer::processAllowedButtons() {
 
 	auto detachSpr = mRootLayout->getSprite("detach.the_button");
 	if (detachSpr) {
-		if (allow_detach) {
+		if (allowDetach && mCanDetach) {
 			detachSpr->show();
 		} else {
 			detachSpr->hide();
 		}
 	}
+
+	mRootLayout->runLayout();
 }
 
 void TitledMediaViewer::onLayout() {
@@ -934,6 +936,12 @@ void TitledMediaViewer::onFullscreenSet() {
 	if (webPlayer && webPlayer->getWeb()) {
 		mEngine.registerEntryField(webPlayer->getWeb());
 	}
+
+	processAllowedButtons();
+}
+
+void TitledMediaViewer::onDetachedSet() {	
+	processAllowedButtons();
 }
 
 void TitledMediaViewer::toggleDrawing() {
