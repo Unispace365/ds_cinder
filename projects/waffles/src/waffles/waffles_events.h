@@ -142,6 +142,32 @@ struct RequestDetachViewer : public ds::RegisteredEvent<RequestDetachViewer> {
 	BaseElement* mViewer;
 };
 
+struct RequestCollapseAndMoveFullscreenController : public ds::RegisteredEvent<RequestCollapseAndMoveFullscreenController> {
+	RequestCollapseAndMoveFullscreenController(bool move=false, ci::vec3 pos=ci::vec3())
+	  : mShouldMove(move)
+	  , mPos(pos) {}
+	bool mShouldMove;
+	ci::vec3 mPos;
+};
+
+struct RequestToggleCollapseAndMoveFullscreenController
+  : public ds::RegisteredEvent<RequestToggleCollapseAndMoveFullscreenController> {
+	RequestToggleCollapseAndMoveFullscreenController(bool move = false, ci::vec3 pos = ci::vec3())
+	  : mShouldMove(move)
+	  , mPos(pos) {}
+	bool	 mShouldMove;
+	ci::vec3 mPos;
+};
+
+struct RequestUncollapseAndMoveFullscreenController
+  : public ds::RegisteredEvent<RequestUncollapseAndMoveFullscreenController> {
+	RequestUncollapseAndMoveFullscreenController(bool move = false, ci::vec3 pos = ci::vec3())
+	  : mShouldMove(move)
+	  , mPos(pos) {}
+	bool	 mShouldMove;
+	ci::vec3 mPos;
+};
+
 /// A drawing is about to be saved, so hide ui and such that could potentially be blocking the drawing
 struct RequestPreDrawingSave : public ds::RegisteredEvent<RequestPreDrawingSave> {};
 

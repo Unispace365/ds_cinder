@@ -7,7 +7,7 @@ class FramedViewerController : public ViewerController {
 public:
 	FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size = ci::vec2(-1.f), std::string channel = "");
 	virtual void initCreators() override;
-
+	virtual void setupFullscreenDarkener(waffles::BaseElement*& viewer, bool& retFlag);
 
 };
 } // namespace waffles

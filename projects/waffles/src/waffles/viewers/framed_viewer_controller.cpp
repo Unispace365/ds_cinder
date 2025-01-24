@@ -6,7 +6,7 @@
 #include "waffles/viewers/framed_media_viewer.h"
 
 #include "waffles/viewers/fullscreen_controller/fullscreen_controller.h"
-
+#include "waffles/viewers/fullscreen_controller/framed_fullscreen_controller.h"
 
 namespace waffles {
 FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel):ViewerController(g,size,channel) {}
@@ -46,8 +46,14 @@ void FramedViewerController::initCreators() {
 			   });
 	setCreator(VIEW_TYPE_FULLSCREEN_CONTROLLER,
 			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
-				   return {new FullscreenController(mEngine, "waffles/viewer/framed_fsc.xml"),
+				   return {new FramedFullscreenController(mEngine, "waffles/viewer/framed_fsc.xml"),
 						   CreationError::OK};
 			   });
+}
+void FramedViewerController::setupFullscreenDarkener(waffles::BaseElement*& viewer, bool& retFlag) {
+	ViewerController::setupFullscreenDarkener(viewer, retFlag);
+	mFullscreenDarkeners[viewer]->setTapCallback([this,viewer](ds::ui::Sprite*, const ci::vec3& pos) {
+		mEventClient.notify(RequestCollapseAndMoveFullscreenController(true,pos));
+	});
 }
 } // namespace waffles

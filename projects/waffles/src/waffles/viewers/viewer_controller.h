@@ -79,6 +79,8 @@ class ViewerController : public ds::ui::Sprite {
 	// Makes the supplied viewer fullscreen and adds a black layer behind it
 	virtual void fullscreenViewer(BaseElement* viewer, const bool immediate, const bool showController = true);
 
+	virtual void setupFullscreenDarkener(waffles::BaseElement*& viewer, bool& retFlag);
+
 	// Makes the supplied viewer not fullscreen and removes any associated black layers behind it
 	virtual void unfullscreenViewer(BaseElement* viewer, const bool immediate);
 

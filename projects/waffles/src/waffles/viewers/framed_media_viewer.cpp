@@ -19,9 +19,7 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		if (mIsFullscreen) {
 			hideTitle();
 			hideInnerSideBar();
-			mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(ds::model::ContentModelRef(),
-																			VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-																			ViewerCreationArgs::kViewLayerTop)));
+			mEventClient.notify(RequestToggleCollapseAndMoveFullscreenController(false));
 		} else {
 			showTitle();
 			showInnerSideBar();

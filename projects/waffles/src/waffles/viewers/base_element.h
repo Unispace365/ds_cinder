@@ -66,6 +66,8 @@ class BaseElement : public ds::ui::BasePanel {
 	/// For viewerController to clean up this element
 	virtual void setCloseRequestCallback(std::function<void(void)> func) final;
 
+	virtual void close();
+
 	/// For viewerContoller to manage the viewer list
 	virtual void setActivatedCallback(std::function<void(void)> func) final;
 

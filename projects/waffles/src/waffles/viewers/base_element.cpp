@@ -95,6 +95,12 @@ void BaseElement::setCloseRequestCallback(std::function<void(void)> func) {
 	mCloseRequestCallback = func;
 }
 
+void BaseElement::close() {
+	if (mCloseRequestCallback) {
+		mCloseRequestCallback();
+	}
+}
+
 void BaseElement::setActivatedCallback(std::function<void(void)> func) {
 	mActivatedCallback = func;
 }

@@ -1247,7 +1247,21 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	}*/
 
 	viewer->setIsFullscreen(true);
+	
 
+	bool retFlag;
+	setupFullscreenDarkener(viewer, retFlag);
+	if (retFlag) return;
+
+	viewer->activatePanel();
+
+	if (showController) {
+		mChannelClient.notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
+	}
+}
+
+void waffles::ViewerController::setupFullscreenDarkener(waffles::BaseElement*& viewer, bool& retFlag) {
+	retFlag							   = true;
 	ds::ui::Sprite* fullscreenDarkener = nullptr;
 	auto			findy			   = mFullscreenDarkeners.find(viewer);
 	if (findy != mFullscreenDarkeners.end()) {
@@ -1277,9 +1291,9 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 		fullscreenDarkener->enable(true);
 		fullscreenDarkener->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 		fullscreenDarkener->setTapCallback([this](ds::ui::Sprite*, const ci::vec3& pos) {
-			mChannelClient.notify(RequestViewerLaunchEvent(
-				ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-								   ViewerCreationArgs::kViewLayerTop)));
+			mChannelClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(ds::model::ContentModelRef(),
+																			  VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
+																			  ViewerCreationArgs::kViewLayerTop)));
 		});
 		fullscreenDarkener->setDoubleTapCallback(
 			[this, viewer](ds::ui::Sprite*, const ci::vec3&) { unfullscreenViewer(viewer, false); });
@@ -1288,12 +1302,7 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 
 		mFullscreenDarkeners[viewer] = fullscreenDarkener;
 	}
-
-	viewer->activatePanel();
-
-	if (showController) {
-		mChannelClient.notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
-	}
+	retFlag = false;
 }
 
 void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immediate) {

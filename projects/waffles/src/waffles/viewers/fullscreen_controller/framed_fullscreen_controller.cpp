@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "fullscreen_controller.h"
+#include "framed_fullscreen_controller.h"
 
 #include <ds/app/environment.h>
 #include <ds/data/resource.h>
@@ -28,7 +28,7 @@
 
 namespace waffles {
 
-FullscreenController::FullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
+FramedFullscreenController::FramedFullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
 	: BaseElement(g)
 	, mRootLayout(nullptr)
 	, mMediaInterface(nullptr)
@@ -39,7 +39,7 @@ FullscreenController::FullscreenController(ds::ui::SpriteEngine& g, const std::s
 	
 }
 
-void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
+void FramedFullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	if (tmv == mLinkedMediaViewer) return;
 	mLinkedMediaViewer = tmv;
 
@@ -53,7 +53,7 @@ void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	updateUi();
 }
 
-void FullscreenController::init() {
+void FramedFullscreenController::init() {
 	mMaxViewersOfThisType = 1;
 	mViewerType = VIEW_TYPE_FULLSCREEN_CONTROLLER;
 
@@ -77,6 +77,38 @@ void FullscreenController::init() {
 			mLinkedMediaViewer->close();
 		}
 	});
+
+	mRootLayout->setSpriteClickFn("item_close_button.the_button", [this] {
+		if (mLinkedMediaViewer) {
+			mLinkedMediaViewer->close();
+		}
+	});
+
+	auto collapseBtn = mRootLayout->getSprite("controller_collapse_btn.the_button");
+	
+	if (collapseBtn) {
+		collapseBtn->enable(false);
+		setProcessTouchCallback([this,collapseBtn](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) {
+			static ci::vec3 firstTouch = ci::vec3(0, 0, 0);
+			if (ti.mPhase == ds::ui::TouchInfo::Added) {
+				firstTouch = ti.mCurrentGlobalPoint;
+			} else if (ti.mPhase == ds::ui::TouchInfo::Removed && glm::distance(ti.mCurrentGlobalPoint, firstTouch)<2) {
+				sp->passTouchToSprite(collapseBtn, ti);
+				if (collapseBtn->contains(ti.mCurrentGlobalPoint)) {
+					if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
+					if (mMediaInterface && mMediaInterface->isLocked()) {
+						return;
+					}
+					removeDrawingTools();
+					mIsCollapsed ? uncollapse() : collapse();
+				}
+			}
+			
+			
+			
+		});
+	}
+	
 
 	mRootLayout->setSpriteClickFn("fullscreen.the_button", [this] {
 		if (mLinkedMediaViewer) {
@@ -110,6 +142,30 @@ void FullscreenController::init() {
 		});
 	//	mEventClient.listenToEvents<ViewerUpdatedEvent>([this](auto& e) { updateUi(); });
 
+	mEventClient.listenToEvents<RequestToggleCollapseAndMoveFullscreenController>([this](auto& e) {
+		if (e.mShouldMove) {
+			mIsCollapsed ? uncollapseAndMove(e.mPos) : collapseAndMove(e.mPos);
+		} else {
+			mIsCollapsed ? uncollapse() : collapse();
+		}
+		});
+
+	mEventClient.listenToEvents<RequestCollapseAndMoveFullscreenController>([this](auto& e) {
+		if (e.mShouldMove) {
+			collapseAndMove(e.mPos);
+		} else {
+			collapse();
+		}
+	});
+
+	mEventClient.listenToEvents<RequestUncollapseAndMoveFullscreenController>([this](auto& e) {
+		if (e.mShouldMove) {
+			uncollapseAndMove(e.mPos);
+		} else {
+			uncollapse();
+		}
+	});
+
 	// these are to hide this from showing up in saved drawings
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
@@ -138,7 +194,7 @@ void FullscreenController::init() {
 	setAnimateOnScript(mEngine.getAppSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
 
-void FullscreenController::onLayout() {
+void FramedFullscreenController::onLayout() {
 	if (mRootLayout) {
 		mRootLayout->setSize(getWidth(), getHeight());
 		mRootLayout->runLayout();
@@ -150,7 +206,7 @@ void FullscreenController::onLayout() {
 	}
 }
 
-void FullscreenController::updateUi() {
+void FramedFullscreenController::updateUi() {
 	if (!mRootLayout) return;
 
 	if (mMediaInterface) {
@@ -221,7 +277,7 @@ void FullscreenController::updateUi() {
 	layout();
 }
 
-void FullscreenController::updateLockedState() {
+void FramedFullscreenController::updateLockedState() {
 	bool isLocked = (mMediaInterface && mMediaInterface->isLocked() );
 	bool isDrawing = (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode());
 
@@ -236,7 +292,7 @@ void FullscreenController::updateLockedState() {
 	}
 }
 
-void FullscreenController::setDrawingToolsState() {
+void FramedFullscreenController::setDrawingToolsState() {
 	if (!mLinkedMediaViewer || !mRootLayout) return;
 
 	auto drawingButt = mRootLayout->getSprite<ds::ui::LayoutButton>("drawing.the_button");
@@ -270,7 +326,7 @@ void FullscreenController::setDrawingToolsState() {
 	updateLockedState();
 }
 
-void FullscreenController::removeDrawingTools() {
+void FramedFullscreenController::removeDrawingTools() {
 	if (mLinkedMediaViewer && mDrawingTools && mLinkedMediaViewer->getDrawingArea()) {
 		mLinkedMediaViewer->getDrawingArea()->setToolsEmbedded(true);
 		mDrawingTools = nullptr;
@@ -280,7 +336,7 @@ void FullscreenController::removeDrawingTools() {
 	}
 }
 
-void FullscreenController::onAboutToBeRemoved() {
+void FramedFullscreenController::onAboutToBeRemoved() {
 	removeDrawingTools();
 
 	if (mMediaInterface) {
@@ -291,17 +347,76 @@ void FullscreenController::onAboutToBeRemoved() {
 	}
 }
 
-void FullscreenController::onParentSet()
+void FramedFullscreenController::onParentSet()
 {
 	BaseElement::onParentSet();
 	callAfterDelay([this] { init(); }, 0.1f);
 }
 
-void FullscreenController::setKeyboardButtonImage(std::string imagePath, ds::ui::ImageButton* keyboardBtn) {
+void FramedFullscreenController::setKeyboardButtonImage(std::string imagePath, ds::ui::ImageButton* keyboardBtn) {
 	keyboardBtn->setHighImage(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
 	keyboardBtn->setNormalImage(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
 	keyboardBtn->setColor(ci::Color::black());
 	keyboardBtn->setCornerRadius(0.f);
+}
+
+void FramedFullscreenController::collapseAndMove(ci::vec3 pos) {
+	collapse();
+	auto parent = getParent();
+	if (parent) {
+		tweenPosition(parent->globalToLocal(pos), 0.25, 0.0, ci::easeOutCubic);
+	}
+}
+
+void FramedFullscreenController::uncollapseAndMove(ci::vec3 pos) {
+	uncollapse();
+	auto parent = getParent();
+	if (parent) {
+		tweenPosition(parent->globalToLocal(pos), 0.25, 0.0, ci::easeOutCubic);
+	}
+}
+
+
+void FramedFullscreenController::collapse() {
+	if (mIsCollapsed) return;
+	
+	if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
+	if (mMediaInterface && mMediaInterface->isLocked()) {
+		return;
+	}
+
+	removeDrawingTools();
+
+	auto controls = mRootLayout->getSprite("border_layout");
+	auto backRect = mRootLayout->getSprite("bg_filler");
+	auto btn		 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+	if (btn) {
+		
+		btn->setImageFile("%APP%/data/images/waffles/icons2/16x16/expand.png");
+	}
+	mUncollapsedSize = backRect->getSize();
+	if (controls && backRect) {
+		controls->tweenOpacity(0, 0.25);
+		backRect->tweenSize(ci::vec3(0, 0, 0), 0.25, 0.20);
+	}
+	mIsCollapsed = true;
+}
+
+void FramedFullscreenController::uncollapse() {
+	if (!mIsCollapsed) return;
+	auto controls	 = mRootLayout->getSprite("border_layout");
+	auto backRect	 = mRootLayout->getSprite("bg_filler");
+	
+	if (controls && backRect) {
+		controls->tweenOpacity(1, 0.25,0.20);
+		backRect->tweenSize(mUncollapsedSize, 0.25);
+	}
+	auto btn = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+	if (btn) {
+
+		btn->setImageFile("%APP%/data/images/waffles/icons2/16x16/collapse.png");
+	}
+	mIsCollapsed = false;
 }
 
 } // namespace waffles
