@@ -632,9 +632,9 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 	// Grow all grid tracks having a flexible length as the MaxTrackSizingFunction.
 	float normalizedFlexBreadth = 0;
 
-	// If RemainingSpace is defined
 	remainingSpace = calculateRemainingSpace(tracks, spaceToFill, gap);
 	if (!approxZero(remainingSpace)) {
+		// If RemainingSpace is defined
 		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), spaceToFill, gap);
 	} else {
 		// i
@@ -645,7 +645,9 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 		}
 		//  ii
 		for (const auto item : allItems()) {
-			const auto spanned					 = getSpannedTracks(tracks, item, spanFn);
+			// Note: deviation from standard algorithm to prevent the grid from growing beyond the viewport size,
+			// we use all tracks instead of the spanned tracks.
+			const auto spanned					 = getAllTracks(tracks); // getSpannedTracks(tracks, item, spanFn);
 			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item), gap);
 			normalizedFlexBreadth				 = glm::max(normalizedFlexBreadth, itemNormalizedFlexBreadth);
 		}
