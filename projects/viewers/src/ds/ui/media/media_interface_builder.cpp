@@ -132,7 +132,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::VideoPlayer* vidPlayer = dynamic_cast<ds::ui::VideoPlayer*>(mediaPlayer);
 		if (vidPlayer) {
 			ds::ui::VideoInterface* vi =
-				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize*0.5f, buttonColor, backgroundColor);
+				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(vi);
 			vi->linkVideo(vidPlayer->getVideo());
 			outputMi = vi;
@@ -141,7 +141,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::PanoramicVideoPlayer* pvidPlayer = dynamic_cast<ds::ui::PanoramicVideoPlayer*>(mediaPlayer);
 		if (pvidPlayer) {
 			ds::ui::VideoInterface* vi =
-				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize*0.5f, buttonColor, backgroundColor);
+				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(vi);
 			vi->linkVideo(pvidPlayer->getVideo());
 			outputMi = vi;
@@ -150,7 +150,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::StreamPlayer* streamPlayer = dynamic_cast<ds::ui::StreamPlayer*>(mediaPlayer);
 		if (streamPlayer) {
 			ds::ui::VideoInterface* vi =
-				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize*0.5f, buttonColor, backgroundColor);
+				new VideoInterface(engine, ci::vec2(1050.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(vi);
 			vi->linkVideo(streamPlayer->getVideo());
 			outputMi = vi;
@@ -159,7 +159,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 		if (webPlayer) {
 			ds::ui::WebInterface* wi =
-				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize * 0.5f, buttonColor, backgroundColor);
+				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(wi);
 			wi->linkWeb(webPlayer->getWeb());
 			outputMi = wi;
@@ -168,7 +168,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::YouTubePlayer* ytPlayer = dynamic_cast<ds::ui::YouTubePlayer*>(mediaPlayer);
 		if (ytPlayer) {
 			ds::ui::YoutubeInterface* wi =
-				new YoutubeInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize*0.5f, buttonColor, backgroundColor);
+				new YoutubeInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(wi);
 			wi->linkYouTubeWeb(ytPlayer->getYouTubeWeb());
 			outputMi = wi;
@@ -177,7 +177,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 		ds::ui::PDFPlayer* pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mediaPlayer);
 		if (pdfPlayer) {
 			ds::ui::OnelinePDFInterface* pi =
-				new OnelinePDFInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize*0.5f, buttonColor, backgroundColor);
+				new OnelinePDFInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
 			parentSprite->addChildPtr(pi);
 			pi->linkPDF(pdfPlayer->getPDF(), pdfPlayer->getResource());
 			outputMi = pi;

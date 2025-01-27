@@ -67,20 +67,21 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		}
 	});
 
-	mKeyboardButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png",
-								"%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
+	mKeyboardButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:keyboard:normal:file"),
+											  composeIconPath("ui:media_button:keyboard:pressed:file"),
+											  (sizey.y - buttonHeight) / 2.0f);
+	
 	addChildPtr(mKeyboardButton);
 	mKeyboardButton->setClickFn([this]() { toggleKeyboard(); });
 
 	mKeyboardButton->getNormalImage().setColor(buttonColor);
 	mKeyboardButton->getHighImage().setColor(buttonColor / 2.0f);
-	mKeyboardButton->setScale(sizey.y / mKeyboardButton->getHeight());
+	auto scaley = sizey.y / mKeyboardButton->getHeight();
+	mKeyboardButton->setScale(scaley);
 
 
-	mBackButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",
-								"%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
+	mBackButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:back:normal:file"),
+										  composeIconPath("ui:media_button:back:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mBackButton);
 	mBackButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -95,8 +96,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 
 	mForwardButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/next.png",
-								"%APP%/data/images/media_interface/next.png", (sizey.y - buttonHeight) / 2.0f);
+		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:forward:normal:file"),
+								composeIconPath("ui:media_button:forward:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mForwardButton);
 	mForwardButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -111,8 +112,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 
 	mRefreshButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/refresh.png",
-								"%APP%/data/images/media_interface/refresh.png", (sizey.y - buttonHeight) / 2.0f);
+		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:refresh:normal:file"),
+								composeIconPath("ui:media_button:refresh:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mRefreshButton);
 	mRefreshButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -124,6 +125,9 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mRefreshButton->getNormalImage().setColor(buttonColor);
 	mRefreshButton->getHighImage().setColor(buttonColor / 2.0f);
 	mRefreshButton->setScale(sizey.y / mRefreshButton->getHeight());
+
+	mToggleLockedImage = composeIconPath("ui:media_button:lock:normal:file");
+	mToggleUnlockedImage = composeIconPath("ui:media_button:unlock:normal:file");
 
 
 	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
@@ -485,10 +489,16 @@ void WebInterface::updateWidgets() {
 
 				const float keyW  = mKeyboard->getScaleWidth();
 				const float keyH  = mKeyboard->getScaleHeight();
-				const float areaW = keyW + 30.0f;
-				const float areaH = keyH + 30.0f;
+
+				auto areaTop = mEngine.getWafflesSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
+				auto areaLeft = mEngine.getWafflesSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
+				auto areaRight = mEngine.getWafflesSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
+				auto areaBottom = mEngine.getWafflesSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
+
+				const float areaW = keyW + areaLeft + areaRight;
+				const float areaH = keyH + areaTop + areaBottom;
 				mKeyboardArea->setSize(areaW, areaH);
-				mKeyboard->setPosition((areaW - keyW) * 0.5f, (areaH - keyH) * 0.5f);
+				mKeyboard->setPosition((areaW - keyW) * 0.5f + (areaLeft-areaRight)*0.5, (areaH - keyH) * 0.5f + (areaTop - areaBottom)*0.5);
 
 				mKeyboard->setKeyPressFunction(
 					[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {

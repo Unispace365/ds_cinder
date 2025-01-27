@@ -63,6 +63,22 @@ class MediaInterface : public ds::ui::Sprite {
 		mLockChangeCallback = lockChangeCallback;
 	}
 
+	virtual std::string composeIconPath(std::string iconId);
+	static std::string	composeIconPath(ds::ui::SpriteEngine& engine, std::string iconId);
+	
+	static float getPlayButtonHeight() { return mPlayHeight; }
+	static float getPauseButtonHeight() { return mPauseHeight; }
+	static float getKeyboardButtonHeight() { return mKeyboardHeight; }
+	static float getBackButtonHeight() { return mBackHeight; }
+	static float getForwardButtonHeight() { return mForwardHeight; }
+	static float getRefreshButtonHeight() { return mRefreshHeight; }
+	static float getLockButtonHeight() { return mLockHeight; }
+	static float getLoopButtonHeight() { return mLoopHeight; }
+	static float getVolumeButtonHeight() { return mVolumeHeight; }
+	static float getThumbnailButtonHeight() { return mThumbnailHeight; }
+	static float getVolumeSliderHeight() { return mVolumeSliderHeight; }
+	static float getScrubBarHeight() { return mScrubBarHeight; }
+
   protected:
 	virtual void onLayout(){};
 	virtual void onSizeChanged() override;
@@ -83,6 +99,18 @@ class MediaInterface : public ds::ui::Sprite {
 	std::function<void(bool)> mLockChangeCallback;
 
 	float mInterfaceIdleSettings;
+	static float mPlayHeight;
+	static float mPauseHeight;
+	static float mKeyboardHeight;
+	static float mBackHeight;
+	static float mForwardHeight;
+	static float mRefreshHeight;
+	static float mLockHeight;
+	static float mLoopHeight;
+	static float mVolumeHeight;
+	static float mThumbnailHeight;
+	static float mVolumeSliderHeight;
+	static float mScrubBarHeight;
 };
 
 class MediaInterfaceShownEvent : public ds::RegisteredEvent<MediaInterfaceShownEvent> {

@@ -223,6 +223,7 @@ void FramedMediaViewer::onMediaSet() {
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
 					webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
+					webInterface->setKeyboardAbove(false);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
@@ -238,6 +239,11 @@ void FramedMediaViewer::onMediaSet() {
 							setty.mGraphicRoundedCornerRadius = 8;
 							keeb->setSoftKeyboardSettings(setty);
 							
+							auto keyboardArea = webInterface->getKeyboardArea();
+							if (keyboardArea) {
+								keyboardArea->enable(true);
+								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+							}
 
 							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
 							//					   keyboardBtn);

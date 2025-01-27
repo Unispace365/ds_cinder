@@ -19,6 +19,21 @@
 
 namespace ds::ui {
 
+float MediaInterface::mPlayHeight = 0.0f;
+float MediaInterface::mPauseHeight = 0.0f;
+float MediaInterface::mKeyboardHeight = 0.0f;
+float MediaInterface::mBackHeight	  = 0.0f;
+float MediaInterface::mForwardHeight  = 0.0f;
+float MediaInterface::mRefreshHeight  = 0.0f;
+float MediaInterface::mLockHeight	  = 0.0f;
+float MediaInterface::mLoopHeight	  = 0.0f;
+float MediaInterface::mVolumeHeight	  = 0.0f;
+float MediaInterface::mThumbnailHeight = 0.0f;
+float MediaInterface::mVolumeSliderHeight = 0.0f;
+float MediaInterface::mScrubBarHeight	  = 0.0f;
+
+
+
 MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey,
 							   const ci::Color backgroundColor)
   : ds::ui::Sprite(eng, sizey.x, sizey.y)
@@ -34,6 +49,21 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::ve
   , mInterfaceIdleSettings(5.0f) {
 
 	// TODO: settings?
+	auto defaultHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:size", 0, 32.0f);
+	 mPlayHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:play:size", 0, defaultHeight);
+	 mPauseHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:pause:size", 0, defaultHeight);
+	 mKeyboardHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:keyboard:size", 0, defaultHeight);
+	 mBackHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:back:size", 0, defaultHeight);
+	 mForwardHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:forward:size", 0, defaultHeight);
+	 mRefreshHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:refresh:size", 0, defaultHeight);
+	 mLockHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:lock:size", 0, defaultHeight);
+	 mLoopHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:loop:size", 0, defaultHeight);
+	 mVolumeHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:volume:size", 0, defaultHeight);
+	 mThumbnailHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:thumbnail:size", 0, defaultHeight);
+	 mVolumeSliderHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:volume_slider:size", 0, defaultHeight);
+	 mScrubBarHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:scrub_bar:size", 0, defaultHeight);   
+
+
 	const float backOpacccy = 0.95f;
 
 	mBackground = new ds::ui::Sprite(mEngine);
@@ -121,6 +151,26 @@ void MediaInterface::animateOff() {
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this] { hide(); });
 
 	mEngine.getNotifier().notify(MediaInterfaceHiddenEvent(this));
+}
+
+std::string MediaInterface::composeIconPath(std::string iconId) {
+	return composeIconPath(mEngine, iconId);
+}
+
+std::string MediaInterface::composeIconPath(ds::ui::SpriteEngine& engine, std::string iconId) {
+	auto baseFolder	   = engine.getWafflesSettings().getString("ui:media_button:folder", 0, "");
+	auto basePostfix   = engine.getWafflesSettings().getString("ui:media_button:postfix", 0, "");
+	auto baseExtension = engine.getWafflesSettings().getString("ui:media_button:extension", 0, ".png");
+
+	auto iconFileName = engine.getWafflesSettings().getString(iconId, 0, "");
+	auto folder		  = engine.getWafflesSettings().getAttribute(iconId, 0, "folder", baseFolder);
+	auto postfix	  = engine.getWafflesSettings().getAttribute(iconId, 0, "postfix", basePostfix);
+	auto extension	  = engine.getWafflesSettings().getAttribute(iconId, 0, "ext", baseExtension);
+
+	std::string path = folder + iconFileName + postfix + extension;
+	path			 = ds::Environment::expand(path);
+
+	return path;
 }
 
 void MediaInterface::onSizeChanged() {

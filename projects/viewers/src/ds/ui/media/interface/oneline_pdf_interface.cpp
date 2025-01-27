@@ -118,7 +118,7 @@ void OnelinePDFInterface::onLayout() {
 		
 		if (mScrubBar && mScrubBar->visible()) {
 			//yFudge = padding / 2.0f;
-			mScrubBar->setSize(componentsWidth * 0.5, mScrubBar->getHeight());
+			mScrubBar->setSize(componentsWidth * 0.25, mScrubBar->getHeight());
 			mScrubBar->setPosition(xp, (h * 0.5f) - mScrubBar->getHeight() * 0.5f + yFudge);
 			xp += mScrubBar->getWidth() + padding;
 		}

@@ -34,8 +34,9 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	mCanLock = true;
 
-	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",
-										"%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
+	mUpButton =
+		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:back:normal:file"),
+								composeIconPath("ui:media_button:back:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
 	mUpButton->setClickFn([this]() {
 		if (mLinkedPDF) {
@@ -50,11 +51,11 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	mUpButton->getNormalImage().setColor(buttonColor);
 	mUpButton->getHighImage().setColor(buttonColor / 2.0f);
-	mUpButton->setScale(sizey.y / mUpButton->getHeight());
+	mUpButton->setScale(mBackHeight / mUpButton->getHeight());
 
 	mDownButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/next.png",
-								"%APP%/data/images/media_interface/next.png", (sizey.y - buttonHeight) / 2.0f);
+		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:forward:normal:file"),
+								composeIconPath("ui:media_button:forward:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mDownButton);
 	mDownButton->setClickFn([this]() {
 		if (mLinkedPDF) {
@@ -69,10 +70,13 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	mDownButton->getNormalImage().setColor(buttonColor);
 	mDownButton->getHighImage().setColor(buttonColor / 2.0f);
-	mDownButton->setScale(sizey.y / mDownButton->getHeight());
+	mDownButton->setScale(mForwardHeight / mDownButton->getHeight());
 
 	mPageCounter				= new ds::ui::Text(mEngine);
+	auto ts = mEngine.getTextStyle("viewer:pdf:page_number");
+	mPageCounter->setTextStyle(ts);
 	mPageCounter->mLayoutVAlign = ds::ui::LayoutSprite::kMiddle;
+
 
 	if (mPageCounter) {
 		addChildPtr(mPageCounter);
@@ -82,6 +86,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		// mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
+	mToggleLockedImage	 = composeIconPath("ui:media_button:lock:normal:file");
+	mToggleUnlockedImage = composeIconPath("ui:media_button:unlock:normal:file");
 
 	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
 										   mToggleUnlockedImage,
@@ -92,13 +98,13 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mTouchToggle->getNormalImage().setColor(buttonColor);
 	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
 	auto tt_height = mTouchToggle->getHeight();
-	mTouchToggle->setScale(sizey.y /tt_height);
+	mTouchToggle->setScale(mLockHeight /tt_height);
 
 	
 
 	mThumbsButton =
-		new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/thumbnails.png",
-								"%APP%/data/images/media_interface/thumbnails.png", (sizey.y - buttonHeight) / 2.0f);
+		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:thumbnails:normal:file"),
+								composeIconPath("ui:media_button:thumbnails:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mThumbsButton);
 	mThumbsButton->setClickFn([this]() {
 		mShowingThumbs = !mShowingThumbs;
@@ -131,10 +137,10 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	mThumbsButton->getNormalImage().setColor(buttonColor);
 	mThumbsButton->getHighImage().setColor(buttonColor / 2.0f);
-	mThumbsButton->setScale(sizey.y / mThumbsButton->getHeight());
+	mThumbsButton->setScale(mThumbnailHeight / mThumbsButton->getHeight());
 
 
-	mScrubBar = new ds::ui::VideoScrubBar(mEngine, sizey.y, buttonHeight, buttonColor);
+	mScrubBar = new ds::ui::VideoScrubBar(mEngine, sizey.y, mScrubBarHeight, buttonColor);
 	addChildPtr(mScrubBar);
 	mScrubBar->hide();
 

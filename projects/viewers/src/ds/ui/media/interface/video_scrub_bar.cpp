@@ -14,7 +14,7 @@
 
 namespace ds { namespace ui {
 
-	VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float buttHeight,
+	VideoScrubBar::VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float barHeight,
 								 const ci::Color interfaceColor)
 	  : ds::ui::Sprite(eng)
 	  , mBacker(nullptr)
@@ -50,7 +50,7 @@ namespace ds { namespace ui {
 			}
 		});
 
-		mBacker = new ds::ui::Sprite(mEngine, widdyWamWamWozzle, buttHeight / 2.0f);
+		mBacker = new ds::ui::Sprite(mEngine, widdyWamWamWozzle, barHeight);
 		mBacker->setTransparent(false);
 		mBacker->setColor(interfaceColor);
 		mBacker->enable(false);
@@ -59,7 +59,7 @@ namespace ds { namespace ui {
 		mBacker->setOpacity(0.25f);
 		addChild(*mBacker);
 
-		mProgress = new ds::ui::Sprite(mEngine, 0.0f, buttHeight / 2.0f);
+		mProgress = new ds::ui::Sprite(mEngine, 0.0f, barHeight);
 		mProgress->setTransparent(false);
 		mProgress->setColor(interfaceColor);
 		mProgress->enable(false);

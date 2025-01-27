@@ -44,9 +44,9 @@ namespace ds { namespace ui {
 		mVolumeControl = new VideoVolumeControl(mEngine, sizey.y, buttonHeight, buttonColor);
 		addChildPtr(mVolumeControl);
 
-		mPlayButton =
-			new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/play.png",
-									"%APP%/data/images/media_interface/play_down.png", (sizey.y - buttonHeight) / 2.0f);
+		mPlayButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:play:normal:file"),
+											  composeIconPath("ui:media_button:play:pressed:file"),
+											  (sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mPlayButton);
 		mPlayButton->setClickFn([this]() {
 			if (mLinkedYouTube) {
@@ -56,10 +56,10 @@ namespace ds { namespace ui {
 
 		mPlayButton->getNormalImage().setColor(buttonColor);
 		mPlayButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPlayButton->setScale(sizey.y / mPlayButton->getHeight());
+		mPlayButton->setScale(mPlayHeight / mPlayButton->getHeight());
 
-		mPauseButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/pause.png",
-											   "%APP%/data/images/media_interface/pause_down.png",
+		mPauseButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:pause:normal:file"),
+											   composeIconPath("ui:media_button:pause:pressed:file"),
 											   (sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mPauseButton);
 		mPauseButton->setClickFn([this]() {
@@ -70,7 +70,7 @@ namespace ds { namespace ui {
 
 		mPauseButton->getNormalImage().setColor(buttonColor);
 		mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPauseButton->setScale(sizey.y / mPauseButton->getHeight());
+		mPauseButton->setScale(mPauseHeight / mPauseButton->getHeight());
 
 		/*
 		mBackPageButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",

@@ -83,6 +83,12 @@
 	<setting name="media_viewer:min_size" value="850" type="int" multiplier="waffles:sprite:scale"/>
 	<setting name="media_viewer:max_size" value="40960" type="int" multiplier="waffles:sprite:scale"/>
 	<setting name="media_viewer:multi_offset" value="30.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="media_viewer:allow_pinboard" value="false" type="bool" />
+	<setting name="media_viewer:allow_drawing" value="false" type="bool" />
+	<setting name="media_viewer:allow_rotation" value="false" type="bool" />
+	<setting name="media_viewer:allow_duplicate" value="false" type="bool" />
+	<setting name="media_viewer:allow_fullscreen" value="true" type="bool" />
+	
 	<setting name="overall:title" value="Menu" type="string"/>
 	<setting name="screen:app:mode" value="wall" type="string" comment="single or walle"/>
 	<setting name="screen:state:auto_restore" value="false" type="bool"/>
@@ -97,9 +103,13 @@
 	<setting name="time:format" value="%h:%M" type="string"/>
 	<setting name="touch_menu:icon_size" value="200" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="touch_menu:icon_height" value="170" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="ui:button_size" value="40" type="float" multiplier="waffles:sprite:scale"/>
-	<setting name="ui:corner_radius" value="0" type="float" multiplier="waffles:sprite:scale"/>
+
+	<setting name="ui:button_spacing" value="16" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:corner_radius" value="16" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:fullscreen_darkener_opacity" value="0.8" type="float"/>
+	<setting name="ui:fullscreen_controller_opacity" value="0.8" type="float"/>
+	<setting name="ui:fsc_text_width" value="300" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:fsc_min_height" value="600" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:label_button_width" value="230" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:label_button:size" value="160, 40" type="vec2" multiplier="waffles:sprite:scale"/>
 	<setting name="ui:padding" value="8" type="float" multiplier="waffles:sprite:scale"/>
@@ -141,7 +151,7 @@
 	<setting name="particles:repulsor:factor" value="0.25" type="float"/>
 	<setting name="particles:repulsor:border" value="-20" type="float"/>
 
-	<setting name="ui:waffles:launcher:top:button:size" value="200, 65" type="vec2" multiplier="waffles:sprite:scale" />
+	<setting name="ui:waffles:launcher:top:button:size" value="200, 32" type="vec2" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:start:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale" />
 	<setting name="launcher:close:normal:offset" value="-40, -40, 0" type="vec3" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:presentation:hotspot:asset:offset" value="45, 45, 0" type="vec3" multiplier="waffles:sprite:scale"/>
@@ -154,6 +164,89 @@
 	<setting name="search:max_characters" value="50" type="float"/>
 	<setting name="search:list:item:height" value="82" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="search:list:item:font_size" value="20" type="float" multiplier="waffles:font:scale"/>
+
+	<!-- waffles framed-->
+	<setting name="interface:keyboard:top_pad" value="32.0"  type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="interface:keyboard:left_pad" value="16.0"  type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="interface:keyboard:right_pad" value="16.0"  type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="interface:keyboard:bottom_pad" value="16.0"  type="float" multiplier="waffles:sprite:scale"/>
+
+	
+
+	<setting name="w2:border:left" value="24" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="w2:border:right" value="24" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="w2:border:top" value="24" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="w2:border:bottom" value="24" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="w2:corner_radius" value="16" type="float" multiplier="waffles:sprite:scale"/>
+
+	<setting name="w2:fullscreen_controller:close_size" value="24" type="float" multiplier="waffles:sprite:scale"/>
+
+	<setting name="w2:viewer:title_font_size" value="16" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="w2:viewer:title_to_media_spacing" value="16" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:interface_scale" value="1.0" type="float"/>
+
+	<!-- waffles media interface -->
+	<!-- 
+		auto  playHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:play:size", 0, 0.0f);
+	auto  pauseHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:pause:size", 0, 0.0f);
+	auto  keyboardHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:keyboard:size", 0, 0.0f);
+	auto  backHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:back:size", 0, 0.0f);
+	auto  forwardHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:forward:size", 0, 0.0f);
+	auto  refreshHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:refresh:size", 0, 0.0f);
+	auto  lockHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:lock:size", 0, 0.0f);
+	auto  loopHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:loop:size", 0, 0.0f);
+	auto  volumeHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:volume:size", 0, 0.0f);
+	auto  pageIndicatorHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:page_indicator:size", 0, 0.0f);
+	auto  scrubBarHeight	  = mEngine.getWafflesSettings().getFloat("ui:media_button:scrub_bar:size", 0, 0.0f);   
+	-->
+	<setting name="ui:button_size" value="16" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:interface_size" value="16" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:size" value="16" type="float" multiplier="waffles:sprite:scale"/>
+
+	<setting name="ui:media_button:folder" value="%APP%/data/images/waffles/icons(framed)/" type="string"/>
+	<setting name="ui:media_button:postfix" value="" type="string"/>
+	<setting name="ui:media_button:extention" value=".png" type="string"/>
+
+	<setting name="ui:media_button:play:normal:file" value="play and pause=play active"  type="string"/>
+	<setting name="ui:media_button:play:pressed:file" value="play and pause=play active"  type="string"/>
+	<setting name="ui:media_button:pause:normal:file" value="play and pause=pause active"  type="string"/>
+	<setting name="ui:media_button:pause:pressed:file" value="play and pause=pause active"  type="string"/>
+	<setting name="ui:media_button:back:normal:file" value="back=active"  type="string"/>
+	<setting name="ui:media_button:back:pressed:file" value="back=active"  type="string"/>
+	<setting name="ui:media_button:forward:normal:file" value="forward=active"  type="string"/>
+	<setting name="ui:media_button:forward:pressed:file" value="forward=active"  type="string"/>
+	<setting name="ui:media_button:refresh:normal:file" value="refresh=active"  type="string"/>
+	<setting name="ui:media_button:refresh:pressed:file" value="refresh=active"  type="string"/>
+	<setting name="ui:media_button:unlock:normal:file" value="lock=opened - active"  type="string"/>
+	<setting name="ui:media_button:unlock:pressed:file" value="lock=opened - active"  type="string"/>
+	<setting name="ui:media_button:lock:normal:file" value="lock=locked active"  type="string"/>
+	<setting name="ui:media_button:lock:pressed:file" value="lock=locked active"  type="string"/>
+	<setting name="ui:media_button:thumbnails:normal:file" value="%APP%/data/images/media_interface/thumbnails" postfix=""  folder="" type="string"/>
+	<setting name="ui:media_button:thumbnails:pressed:file" value="%APP%/data/images/media_interface/thumbnails" postfix="" folder="" type="string"/>	
+	<setting name="ui:media_button:loop:normal:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:loop:pressed:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:unloop:normal:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:unloop:pressed:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:keyboard:normal:file" value="keyboard=active"  type="string"/>
+	<setting name="ui:media_button:keyboard:pressed:file" value="keyboard=active"  type="string"/>
+
+	<setting name="ui:media_icon:volume_high:file" value="volume - high"  type="string"/>
+	<setting name="ui:media_icon:volume_low:file" value="volume - low"  type="string"/>
+	<setting name="ui:media_icon:volume_mute:file" value="volume - muted"  type="string"/>
+
+	
+	<setting name="ui:media_button:keyboard:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:play:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:pause:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:back:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:forward:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:refresh:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:lock:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:loop:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:volume:size" value="$_ui:media_button:size" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:volume_slider:size" value="#expr{ $_ui:media_button:size * 0.25 }" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="ui:media_button:scrub_bar:size" value="#expr{ $_ui:media_button:size * 0.25 }" type="float" multiplier="waffles:sprite:scale"/>
+
 
 
 	<!-- END WAFFLES SETTINGS -->

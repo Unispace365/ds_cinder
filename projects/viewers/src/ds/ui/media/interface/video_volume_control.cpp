@@ -11,6 +11,7 @@
 
 #include <ds/ui/media/player/youtube_player.h>
 #include <ds/ui/sprite/video.h>
+#include <ds/ui/media/media_interface.h>
 
 namespace ds::ui {
 
@@ -24,6 +25,12 @@ VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float th
   , mTheSize(theSize)
   , mButtHeight(buttHeight)
   , mOffOpacity(0.2f) {
+
+
+
+	mVolumeHighImage = MediaInterface::composeIconPath(eng,"ui:media_icon:volume_high:file");
+	mVolumeLowImage	 = MediaInterface::composeIconPath(eng, "ui:media_icon:volume_low:file");
+	mMuteImage		 = MediaInterface::composeIconPath(eng, "ui:media_icon:volume_mute:file");
 
 	setStyle(mStyle);
 }
@@ -56,7 +63,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		}
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
-		setSize(mTheSize * 4.f, mTheSize);
+		setSize(mTheSize * 3.f, mTheSize);
 		const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 		// Slider is made up of 3 parts:
 		// 'mute' - Button to toggle between muted / unmuted
@@ -67,7 +74,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 			new ds::ui::ImageButton(mEngine, "", "", (mTheSize - mButtHeight) * 0.5f);
 		mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
 		mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
-		mSliderSprites.mMuteButton->setScale((mTheSize - (mButtHeight * 0.2f)) /
+		mSliderSprites.mMuteButton->setScale(MediaInterface::getVolumeButtonHeight() /
 											 mSliderSprites.mMuteButton->getHeight());
 		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
 		mSliderSprites.mMuteButton->setPosition(0.0f, getHeight() / 2.f);

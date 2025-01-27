@@ -13,7 +13,7 @@ namespace ds { namespace ui {
 	 */
 	class VideoScrubBar : public ds::ui::Sprite {
 	  public:
-		VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float buttHeight,
+		VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float barHeight,
 					  const ci::Color interfaceColor);
 
 		void		 linkVideo(ds::ui::GstVideo* linkedVideo);

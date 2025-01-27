@@ -578,7 +578,12 @@ void ViewerController::animateAllViewersOff(const float delayey, const int style
 
 std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
 	auto viewType = args.mViewType;
-	if (viewType.empty() || mCreatorFunctions.find(viewType)==mCreatorFunctions.end() || mCreatorFunctions.at(viewType)==nullptr) {
+
+	auto isEmpty = viewType.empty();
+	auto notFound	 = mCreatorFunctions.find(viewType) == mCreatorFunctions.end();
+	auto isNull	  = mCreatorFunctions.at(viewType) == nullptr;
+
+	if (isEmpty || notFound || isNull) {
 		return {nullptr, CreationError::INVALID_TYPE};
 	}
 	auto viewer = mCreatorFunctions[viewType](args);

@@ -29,14 +29,17 @@ namespace ds { namespace ui {
 	  , mVolumeControl(nullptr) {
 
 
-		mScrubBar = new VideoScrubBar(mEngine, sizey.y, buttonHeight, buttonColor);
+		mScrubBar = new VideoScrubBar(mEngine, sizey.y, mScrubBarHeight, buttonColor);
 		addChildPtr(mScrubBar);
 		mVolumeControl = new VideoVolumeControl(mEngine, sizey.y, buttonHeight, buttonColor);
+		
+		mVolumeControl->setSliderHeight(mVolumeSliderHeight);
+		mVolumeControl->setNubSize(mVolumeSliderHeight * 1.5);
 		addChildPtr(mVolumeControl);
 
-		mPlayButton =
-			new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/play.png",
-									"%APP%/data/images/media_interface/play_down.png", (sizey.y - buttonHeight) / 2.0f);
+		mPlayButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:play:normal:file"),
+											  composeIconPath("ui:media_button:play:pressed:file"),
+											  (sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mPlayButton);
 		mPlayButton->setClickFn([this]() {
 			if (mLinkedVideo) {
@@ -46,10 +49,10 @@ namespace ds { namespace ui {
 
 		mPlayButton->getNormalImage().setColor(buttonColor);
 		mPlayButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPlayButton->setScale(sizey.y / mPlayButton->getHeight());
+		mPlayButton->setScale(mPlayHeight / mPlayButton->getHeight());
 
-		mPauseButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/pause.png",
-											   "%APP%/data/images/media_interface/pause_down.png",
+		mPauseButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:pause:normal:file"),
+											   composeIconPath("ui:media_button:pause:pressed:file"),
 											   (sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mPauseButton);
 		mPauseButton->setClickFn([this]() {
@@ -60,12 +63,12 @@ namespace ds { namespace ui {
 
 		mPauseButton->getNormalImage().setColor(buttonColor);
 		mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPauseButton->setScale(sizey.y / mPauseButton->getHeight());
+		mPauseButton->setScale(mPauseHeight / mPauseButton->getHeight());
 
 
-		mLoopButton =
-			new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/loop.png",
-									"%APP%/data/images/media_interface/loop.png", (sizey.y - buttonHeight) / 2.0f);
+		mLoopButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:loop:normal:file"),
+											  composeIconPath("ui:media_button:loop:pressed:file"),
+											  (sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mLoopButton);
 		mLoopButton->setClickFn([this]() {
 			if (mLinkedVideo) {
@@ -75,11 +78,11 @@ namespace ds { namespace ui {
 
 		mLoopButton->getNormalImage().setColor(buttonColor);
 		mLoopButton->getHighImage().setColor(buttonColor / 2.0f);
-		mLoopButton->setScale(sizey.y / mLoopButton->getHeight());
+		mLoopButton->setScale(mLoopHeight / mLoopButton->getHeight());
 
 
-		mUnLoopButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/loop-straight.png",
-												"%APP%/data/images/media_interface/loop-straight.png",
+		mUnLoopButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:unloop:normal:file"),
+												composeIconPath("ui:media_button:unloop:pressed:file"),
 												(sizey.y - buttonHeight) / 2.0f);
 		addChildPtr(mUnLoopButton);
 		mUnLoopButton->setClickFn([this]() {
@@ -90,11 +93,11 @@ namespace ds { namespace ui {
 
 		mUnLoopButton->getNormalImage().setColor(buttonColor);
 		mUnLoopButton->getHighImage().setColor(buttonColor / 2.0f);
-		mUnLoopButton->setScale(sizey.y / mUnLoopButton->getHeight());
+		mUnLoopButton->setScale(mLoopHeight / mUnLoopButton->getHeight());
 
 		const float padding = sizey.y / 1.5f; // config?
 		mMinWidth = mPlayButton->getScaleWidth() + mLoopButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 2.f +
-					padding * 3 + sizey.y * 4.0f; // last sizey is for the scrub bar
+					padding * 4 + sizey.y * 4.0f; // last sizey is for the scrub bar
 		mMaxWidth = 10000.0f;					  // WHOOOOOOOO
 
 		layout();
@@ -201,7 +204,11 @@ namespace ds { namespace ui {
 		}
 
 		if (mVolumeControl) {
-			mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getScaleWidth() - padding * 1.5f,
+			auto gw = getWidth();
+			auto gw2 = gw / 2.0f;
+			auto w2	 = w / 2.0f;
+
+			mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getScaleWidth() - padding * 0.5f,
 										h / 2.0f - mVolumeControl->getScaleHeight() / 2.0f);
 			spaceLeft -= mVolumeControl->getScaleWidth() + padding * 1.0f;
 		}

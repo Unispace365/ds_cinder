@@ -9,6 +9,8 @@
 #include <ds/ui/media/interface/youtube_interface.h>
 #include <ds/ui/button/image_button.h>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 
 namespace waffles {
 FramedWafflesHelper::FramedWafflesHelper(ds::ui::SpriteEngine& eng) :BaseWafflesHelper(eng) { }
@@ -23,6 +25,17 @@ FramedWafflesHelper::~FramedWafflesHelper() {}
 void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
 	auto& mEngine = interfacey->getEngine();
+	auto  playHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:play:size", 0, 0.0f);
+	auto  pauseHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:pause:size", 0, 0.0f);
+	auto  keyboardHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:keyboard:size", 0, 0.0f);
+	auto  backHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:back:size", 0, 0.0f);
+	auto  forwardHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:forward:size", 0, 0.0f);
+	auto  refreshHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:refresh:size", 0, 0.0f);
+	auto  lockHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:lock:size", 0, 0.0f);
+	auto  loopHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:loop:size", 0, 0.0f);
+	auto  volumeHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:volume:size", 0, 0.0f);
+	auto  pageIndicatorHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:page_indicator:size", 0, 0.0f);
+	auto  scrubBarHeight	  = mEngine.getWafflesSettings().getFloat("ui:media_button:scrub_bar:size", 0, 0.0f);   
 
 	auto cornerRad		= mEngine.getWafflesSettings().getFloat("ui:corner_radius", 0, 0.0f);
 	auto interfaceScale = mEngine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
@@ -37,33 +50,33 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	if (auto vidInterface = dynamic_cast<ds::ui::VideoInterface*>(interfacey)) {
 		auto interfaceHeight = vidInterface->getHeight();
 		if (auto play = vidInterface->getPlayButton()) {
-			play->setNormalImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
-			play->setHighImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
-			play->setScale(interfaceHeight / play->getHeight());
+			//play->setNormalImage("%APP%/data/images/waffles/icons2/2x/play.png", imageFlags);
+			//play->setHighImage("%APP%/data/images/waffles/icons2/2x/pause.png", imageFlags);
+			//play->setScale(interfaceHeight / play->getHeight());
 			play->setNormalImageColor(normalColor);
 			play->setHighImageColor(highColor);
 		}
 
 		if (auto pause = vidInterface->getPauseButton()) {
-			pause->setNormalImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
-			pause->setHighImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
-			pause->setScale(interfaceHeight / pause->getHeight());
+			//pause->setNormalImage("%APP%/data/images/waffles/icons2/2x/pause.png", imageFlags);
+			//pause->setHighImage("%APP%/data/images/waffles/icons2/2x/play.png", imageFlags);
+			//pause->setScale(interfaceHeight / pause->getHeight());
 			pause->setNormalImageColor(normalColor);
 			pause->setHighImageColor(highColor);
 		}
 
 		if (auto loopy = vidInterface->getLoopButton()) {
-			loopy->setNormalImage("%APP%/data/images/waffles/icons2/4x/loop.png", imageFlags);
-			loopy->setHighImage("%APP%/data/images/waffles/icons2/4x/loop.png", imageFlags);
-			loopy->setScale(interfaceHeight / loopy->getHeight());
+			//loopy->setNormalImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
+			//loopy->setHighImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
+			//loopy->setScale(interfaceHeight / loopy->getHeight());
 			loopy->setNormalImageColor(normalColor);
 			loopy->setHighImageColor(highColor);
 		}
 
 		if (auto unloopy = vidInterface->getUnLoopButton()) {
-			unloopy->setNormalImage("%APP%/data/images/waffles/icons2/4x/loop.png", imageFlags);
-			unloopy->setHighImage("%APP%/data/images/waffles/icons2/4x/loop.png", imageFlags);
-			unloopy->setScale(interfaceHeight / unloopy->getHeight());
+			//unloopy->setNormalImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
+			//unloopy->setHighImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
+			//unloopy->setScale(interfaceHeight / unloopy->getHeight());
 			unloopy->setNormalImageColor(highColor);
 			unloopy->setHighImageColor(normalColor);
 		}
@@ -78,17 +91,17 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 		if (vidInterface->getVolumeControl()) {
 			auto volumeControl = vidInterface->getVolumeControl();
-			volumeControl->setMuteImage("%APP%/data/images/waffles/icons2/4x/mute.png");
-			volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons2/4x/volume_down.png");
-			volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons2/4x/volume_up.png");
-			volumeControl->setSliderHeight(8.f);
-			volumeControl->setNubSize(12.f);
+			//volumeControl->setMuteImage("%APP%/data/images/waffles/icons2/2x/mute.png");
+			//volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons2/2x/volume_down.png");
+			//volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons2/2x/volume_up.png");
+			//volumeControl->setSliderHeight(8.f);
+			//volumeControl->setNubSize(12.f);
 
 			volumeControl->setStyle(ds::ui::VideoVolumeStyle::SLIDER);
 			auto sliderSprites = volumeControl->getSliderSprites();
 			sliderSprites.mMuteButton->setNormalImageColor(normalColor);
 			sliderSprites.mMuteButton->setHighImageColor(highColor);
-			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
+			//sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
 			sliderSprites.mSliderTrack->setOpacity(0.25);
@@ -114,17 +127,17 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	if (auto ytInterface = dynamic_cast<ds::ui::YoutubeInterface*>(interfacey)) {
 		auto interfaceHeight = ytInterface->getHeight();
 		if (auto play = ytInterface->getPlayButton()) {
-			play->setNormalImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
-			play->setHighImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
-			play->setScale(interfaceHeight / play->getHeight());
+			//play->setNormalImage("%APP%/data/images/waffles/icons2/2x/play.png", imageFlags);
+			//play->setHighImage("%APP%/data/images/waffles/icons2/2x/pause.png", imageFlags);
+			//play->setScale(interfaceHeight / play->getHeight());
 			play->setNormalImageColor(normalColor);
 			play->setHighImageColor(highColor);
 		}
 
 		if (auto pause = ytInterface->getPauseButton()) {
-			pause->setNormalImage("%APP%/data/images/waffles/icons2/4x/pause.png", imageFlags);
-			pause->setHighImage("%APP%/data/images/waffles/icons2/4x/play.png", imageFlags);
-			pause->setScale(interfaceHeight / pause->getHeight());
+			//pause->setNormalImage("%APP%/data/images/waffles/icons2/2x/pause.png", imageFlags);
+			//pause->setHighImage("%APP%/data/images/waffles/icons2/2x/play.png", imageFlags);
+			//pause->setScale(interfaceHeight / pause->getHeight());
 			pause->setNormalImageColor(normalColor);
 			pause->setHighImageColor(highColor);
 		}
@@ -139,17 +152,17 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 		if (ytInterface->getVolumeControl()) {
 			auto volumeControl = ytInterface->getVolumeControl();
-			volumeControl->setMuteImage("%APP%/data/images/waffles/icons2/4x/mute.png");
-			volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons2/4x/volume_down.png");
-			volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons2/4x/volume_up.png");
-			volumeControl->setSliderHeight(8.f);
-			volumeControl->setNubSize(12.f);
+			//volumeControl->setMuteImage("%APP%/data/images/waffles/icons2/2x/mute.png");
+			//volumeControl->setVolumeLowImage("%APP%/data/images/waffles/icons2/2x/volume_down.png");
+			//volumeControl->setVolumeHighImage("%APP%/data/images/waffles/icons2/2x/volume_up.png");
+			//volumeControl->setSliderHeight(8.f);
+			//volumeControl->setNubSize(12.f);
 
 			volumeControl->setStyle(ds::ui::VideoVolumeStyle::SLIDER);
 			auto sliderSprites = volumeControl->getSliderSprites();
 			sliderSprites.mMuteButton->setNormalImageColor(normalColor);
 			sliderSprites.mMuteButton->setHighImageColor(highColor);
-			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
+			//sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
 			sliderSprites.mSliderTrack->setOpacity(0.2);
@@ -182,40 +195,59 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 		}
 		*/
 		if (auto keyboard = webInterface->getKeyboardButton()) {
-			keyboard->setNormalImage("%APP%/data/images/waffles/icons2/4x/keyboard.png", imageFlags);
-			keyboard->setHighImage("%APP%/data/images/waffles/icons2/4x/keyboard.png", imageFlags);
-			keyboard->setNormalImageColor(normalColor);
-			keyboard->setHighImageColor(highColor);
-			keyboard->setScale(interfaceHeight / keyboard->getHeight());
+			
+			//keyboard->setNormalImage("%APP%/data/images/waffles/icons(framed)/keyboard=active.png", imageFlags);
+			//keyboard->setHighImage("%APP%/data/images/waffles/icons(framed)/keyboard=active.png", imageFlags);
+			//keyboard->setNormalImageColor(normalColor);
+			//keyboard->setHighImageColor(highColor);
+			//keyboard->setSize(keyboardHeight, keyboardHeight);
+			//auto ht =  keyboard->getHeight();
+			//keyboard->layout();
+			//keyboard->setScale(keyboardHeight / keyboard->getNormalImage().getHeight());
+			
+			auto sc = keyboard->getNormalImage().getGlobalTransform();
+			glm::vec3 scale;
+			glm::quat rotation;
+			glm::vec3 translation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(sc, scale, rotation, translation, skew, perspective);
 			keyboard->setCornerRadius(0.f);
 		}
 		if (auto backy = webInterface->getBackButton()) {
-			backy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			backy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			backy->setScale(interfaceHeight / backy->getHeight());
+			//backy->setNormalImage("%APP%/data/images/waffles/icons(framed)/back=active.png", imageFlags);
+			//backy->setHighImage("%APP%/data/images/waffles/icons(framed)/back=active.png", imageFlags);
+			//backy->setScale(backHeight / backy->getNormalImage().getHeight());
 			backy->setNormalImageColor(normalColor);
 			backy->setHighImageColor(highColor);
 			backy->setCornerRadius(0.f);
 		}
 		if (auto forward = webInterface->getForwardButton()) {
-			forward->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			forward->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			forward->setScale(interfaceHeight / forward->getHeight());
+			//forward->setNormalImage("%APP%/data/images/waffles/icons(framed)/forward=active.png", imageFlags);
+			//forward->setHighImage("%APP%/data/images/waffles/icons(framed)/forward=active.png", imageFlags);
+			//forward->setScale(forwardHeight / forward->getNormalImage().getHeight());
+			auto	  sc = forward->getNormalImage().getGlobalTransform();
+			glm::vec3 scale;
+			glm::quat rotation;
+			glm::vec3 translation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(sc, scale, rotation, translation, skew, perspective);
 			forward->setNormalImageColor(normalColor);
 			forward->setHighImageColor(highColor);
 			forward->setCornerRadius(0.f);
 		}
 		if (auto reload = webInterface->getRefreshButton()) {
-			reload->setNormalImage("%APP%/data/images/waffles/icons2/4x/reload.png", imageFlags);
-			reload->setHighImage("%APP%/data/images/waffles/icons2/4x/reload.png", imageFlags);
-			reload->setScale(interfaceHeight / reload->getHeight());
+			//reload->setNormalImage("%APP%/data/images/waffles/icons2/2x/reload.png", imageFlags);
+			//reload->setHighImage("%APP%/data/images/waffles/icons2/2x/reload.png", imageFlags);
+			//reload->setScale(interfaceHeight / reload->getNormalImage().getHeight());
 			reload->setNormalImageColor(normalColor);
 			reload->setHighImageColor(highColor);
 			reload->setCornerRadius(0.f);
 		}
 		if (auto toggy = webInterface->getTouchToggleButton()) {
-			webInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/4x/locked.png");
-			webInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/4x/unlocked.png");
+			//webInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/2x/locked.png");
+			//webInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/2x/unlocked.png");
 			toggy->setNormalImageColor(normalColor);
 			toggy->setHighImageColor(highColor);
 			toggy->setCornerRadius(0.f);
@@ -226,22 +258,22 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	if (pdfInterface) {
 		auto interfaceHeight = pdfInterface->getHeight();
 		if (auto uppy = pdfInterface->getUpButton()) {
-			uppy->setNormalImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			uppy->setHighImage("%APP%/data/images/waffles/icons2/4x/prev.png", imageFlags);
-			uppy->setScale(interfaceHeight / uppy->getHeight());
+			//uppy->setNormalImage("%APP%/data/images/waffles/icons2/2x/prev.png", imageFlags);
+			//uppy->setHighImage("%APP%/data/images/waffles/icons2/2x/prev.png", imageFlags);
+			//uppy->setScale(interfaceHeight / uppy->getHeight());
 			uppy->setNormalImageColor(normalColor);
 			uppy->setHighImageColor(highColor);
 		}
 		if (auto downy = pdfInterface->getDownButton()) {
-			downy->setNormalImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			downy->setHighImage("%APP%/data/images/waffles/icons2/4x/arrow_next.png", imageFlags);
-			downy->setScale(interfaceHeight / downy->getHeight());
+			//downy->setNormalImage("%APP%/data/images/waffles/icons2/2x/arrow_next.png", imageFlags);
+			//downy->setHighImage("%APP%/data/images/waffles/icons2/2x/arrow_next.png", imageFlags);
+			//downy->setScale(interfaceHeight / downy->getHeight());
 			downy->setNormalImageColor(normalColor);
 			downy->setHighImageColor(highColor);
 		}
 		if (auto toggy = pdfInterface->getTouchToggle()) {
-			pdfInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/4x/locked.png");
-			pdfInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/4x/unlocked.png");
+			//pdfInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/2x/locked.png");
+			//pdfInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/2x/unlocked.png");
 			toggy->setNormalImageColor(normalColor);
 			toggy->setHighImageColor(highColor);
 		}
