@@ -371,6 +371,12 @@ void Grid::performGridLayout() {
 		if (item->isRowSpanAuto()) item->setRowSpan({0, 0});
 	}
 
+	// Make sure layout items are updated.
+	for (auto item : items) {
+		auto layout = dynamic_cast<LayoutSpriteBase*>(item);
+		if (layout) layout->runLayout();
+	}
+
 	try {
 		bool hasChanged = false;
 		for (;;) {
