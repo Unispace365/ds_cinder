@@ -215,8 +215,9 @@ const bool Settings::Setting::hasAttribute(std::string key) const {
 	return mAttributeMap.find(key) != mAttributeMap.end();
 }
 
-const std::string& Settings::Setting::getAttribute(std::string key, std::string defaultValue) const
+const std::string& Settings::Setting::getAttribute(const std::string key, const std::string& defaultValue) const
 {
+	std::string value = defaultValue;
 	return hasAttribute(key) ? mAttributeMap.at(key) : defaultValue;
 }
 
