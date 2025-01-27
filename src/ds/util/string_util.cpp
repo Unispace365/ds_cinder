@@ -780,4 +780,10 @@ std::string trim(const std::string& str) {
 	return rtrim(ltrim(str));
 }
 
+std::string join(const std::vector<std::string>& vec, const std::string& separator) {
+	std::ostringstream stream;
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<std::string>(stream, separator.c_str()));
+	return stream.str();
+}
+
 } // namespace ds
