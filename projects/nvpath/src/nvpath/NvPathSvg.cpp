@@ -1516,13 +1516,6 @@ Paint SvgRadialGradient::asPaint() const {
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Svg
-Svg::Svg(const DataSourceRef& src)
-  : Svg(SvgDoc::create(src)) {}
-
-Svg::Svg(const SvgDocRef& svg)
-  : mDoc(svg)
-  , mBounds(svg->getBounds()) {}
-
 const Path* Svg::findPath(size_t uuid) const {
 	if (mPaths.count(static_cast<GLuint>(uuid))) return &mPaths.at(static_cast<GLuint>(uuid));
 

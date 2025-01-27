@@ -864,14 +864,6 @@ class Svg : public Renderer {
   public:
 	Svg() = default;
 
-	explicit Svg(const ci::DataSourceRef& src);
-	explicit Svg(const SvgDocRef& svg);
-
-	float			 getWidth() const { return mBounds.getWidth(); }
-	float			 getHeight() const { return mBounds.getHeight(); }
-	ci::vec2		 getSize() const { return mBounds.getSize(); }
-	const ci::Rectf& getBounds() const { return mBounds; }
-
 	float getOpacity() const { return mOpacity; }
 	void  setOpacity(float opacity) { mOpacity = opacity; }
 
@@ -954,11 +946,9 @@ class Svg : public Renderer {
 
 	//! Returns the stencil mask based on the current fill rule.
 	GLuint getStencilMask() const { return mStacks.fillRule.back() == FILL_RULE_EVEN_ODD ? 0x01 : 0xFF; }
-
-	SvgDocRef                                        mDoc;
+	
 	ci::gl::Context*                                 mCtx = nullptr;
 	Stacks                                           mStacks;
-	ci::Rectf                                        mBounds{0, 0, 0, 0};
 	Paints                                           mPaints;
 	std::unordered_map<GLuint, ci::gl::Texture2dRef> mTextures;
 	std::unordered_map<GLuint, Path>                 mPaths;
