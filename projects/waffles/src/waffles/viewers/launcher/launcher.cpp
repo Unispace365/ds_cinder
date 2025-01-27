@@ -790,11 +790,22 @@ void Launcher::updateBreadcrumbText() {
 	if (!breadcrumb) return;
 	std::string filter = mFilterSelected;
 	if (!filter.empty()) { filter[0] = std::toupper(filter[0]); }
-	std::string text = filter;
+	std::vector<std::string> text_stack = {};
 	for (auto folder : mFolderStack) {
-		text += " / " + folder.getPropertyString("record_name");
+		text_stack.push_back(folder.getPropertyString("record_name"));
 	}
-	breadcrumb->setText(text);
+	breadcrumb->setText(filter + " / " + ds::join(text_stack, " / "));
+	auto max_width = mEngine.getWafflesSettings().getFloat("launcher:breadcrumb:max_width", 0, 500.f);
+	while (breadcrumb->getWidth() > max_width && !text_stack.empty()) {
+		text_stack.erase(text_stack.begin());
+		breadcrumb->setText(filter + " / ... / " + ds::join(text_stack, " / "));
+	}
+	if (text_stack.empty()) {
+		breadcrumb->setText(filter);
+		if (!mFolderStack.empty()) {
+			DS_LOG_INFO("failed to fit waffles launcher breadcrumb text in width of " << max_width);
+		}
+	}
 }
 
 } // namespace waffles

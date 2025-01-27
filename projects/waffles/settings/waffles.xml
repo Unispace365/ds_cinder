@@ -75,6 +75,7 @@
 	<setting name="launcher:search_entry_cursor" value="30" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:search_scroll_height" value="500.0" type="float" multiplier="waffles:sprite:scale"/>
 	<setting name="launcher:scroll_content_width" value="166.0" type="float" multiplier="waffles:sprite:scale"/>
+	<setting name="launcher:breadcrumb:max_width" value="500.0" type="float"/>
 	<setting name="ui:interface_scale" value="1.0" type="float"/>
 
 	<setting name="media_backgrounds:app_key" value="background_media" type="string"/>
