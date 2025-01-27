@@ -10,6 +10,7 @@
 	<setting name="launcher:main:filters" value="Folders|folders,Recent|recent,Images|images,Links|links,PDFs|pdfs,Presentations|presentations,Videos|videos" type="string"/>
 	<setting name="launcher:non-recursive:filters" value="folders,content" type="string"/>
 	<setting name="launcher:start:filter" value="recent" type="string"/>
+	<setting name="launcher:filter_labels:sprite_names" value="" type="string"/>
 
 	<setting name="content:folder:key" value="LJ4aU7RleELr" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="content:folder:key" value="v0zyL1TzurTx" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>

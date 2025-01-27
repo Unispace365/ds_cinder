@@ -159,6 +159,10 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		panel_content.setProperty("record_name", std::string(mFilterSelected));
 		updatePanelContent(panel_content);
 		filterButtonDown(mFilterSelected);
+		for (std::string name :
+				ds::split(mEngine.getWafflesSettings().getString("launcher:filter_labels:sprite_names", 0, ""), ",")) {
+			mPrimaryLayout->setSpriteText(name, upperedFilterText());
+		}
 	});
 
 	float startWidth  = mEngine.getWafflesSettings().getFloat("launcher:content_width", 0, 570.f);
@@ -788,8 +792,7 @@ void Launcher::updateBreadcrumbText() {
 	if (!mPrimaryLayout) return;
 	auto breadcrumb = mPrimaryLayout->getSprite<ds::ui::Text>("breadcrumb");
 	if (!breadcrumb) return;
-	std::string filter = mFilterSelected;
-	if (!filter.empty()) { filter[0] = std::toupper(filter[0]); }
+	std::string filter = upperedFilterText();
 	std::vector<std::string> text_stack = {};
 	for (auto folder : mFolderStack) {
 		text_stack.push_back(folder.getPropertyString("record_name"));
@@ -806,6 +809,14 @@ void Launcher::updateBreadcrumbText() {
 			DS_LOG_INFO("failed to fit waffles launcher breadcrumb text in width of " << max_width);
 		}
 	}
+}
+
+std::string Launcher::upperedFilterText() {
+	std::string filter = mFilterSelected;
+	if (!filter.empty()) {
+		filter[0] = std::toupper(filter[0]);
+	}
+	return filter;
 }
 
 } // namespace waffles
