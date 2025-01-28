@@ -804,7 +804,7 @@ bool BridgeService::Loop::loadContent() {
 	}
 
 	// Sort Scheduled events
-	for (auto platform : mPlatforms.getChildren()) {
+	/* for (auto platform : mPlatforms.getChildren()) {
 		auto scheduledEvents = platform.getChildByName("scheduled_events");
 		auto platformEvents	 = scheduledEvents.getChildren();
 
@@ -827,7 +827,7 @@ bool BridgeService::Loop::loadContent() {
 			scheduledEvents.setChildren(platformEvents);
 			platform.replaceChild(scheduledEvents);
 		}
-	}
+	}*/
 
 	mRecordMap = recordMap;
 	// mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
