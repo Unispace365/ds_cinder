@@ -128,7 +128,7 @@ void BridgeService::Loop::run() {
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
-				//loadContent();
+				// loadContent();
 
 				if (!loadContent()) {
 					// If loading the content failed, try again soon.
@@ -354,19 +354,20 @@ bool BridgeService::Loop::loadContent() {
 								  " r.effective_days"		// 13
 								  " FROM record AS r"
 								  " INNER JOIN lookup AS l ON l.uid = r.type_uid"
-								  " WHERE r.complete = 1 AND r.visible = 1 AND (r.span_end_date IS NULL OR "
-								  " date(r.span_end_date, '+5 day') > date('now'))"
+								  " WHERE r.complete = 1 AND r.visible = 1 AND"
+								  " (r.span_end_date IS NULL OR date(r.span_end_date, '+1 day') > date('now'))"
 								  " ORDER BY r.parent_slot ASC, r.rank ASC;";
 
 
 		if (ds::query::Client::query(cms.getDatabasePath(), recordQuery, result)) {
 			ds::query::Result::RowIterator it(result);
-			int rows = result.getRowSize();
+			int							   rows = result.getRowSize();
 			if (rows == 0) {
-				DS_LOG_WARNING("BridgeService::Loop::loadContent rankOrderRecords query returned 0! returning false to retry loadContent");
+				DS_LOG_WARNING("BridgeService::Loop::loadContent rankOrderRecords query returned 0! returning false to "
+							   "retry loadContent");
 				return false;
 			}
-			int							   recordId = 1;
+			int recordId = 1;
 			while (it.hasValue()) {
 				auto record = ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")");
 				record.setId(recordId);
@@ -436,7 +437,7 @@ bool BridgeService::Loop::loadContent() {
 		mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS);
 		mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS);
 		mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS);
-		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count "<<rankOrderedRecords.size())
+		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count " << rankOrderedRecords.size())
 		for (const auto& record : rankOrderedRecords) {
 			mRecords.addChild(record);
 			auto type = record.getPropertyString("variant");
@@ -800,13 +801,38 @@ bool BridgeService::Loop::loadContent() {
 		} else {
 			return false;
 		}
-	
+	}
+
+	// Sort Scheduled events
+	for (auto platform : mPlatforms.getChildren()) {
+		auto scheduledEvents = platform.getChildByName("scheduled_events");
+		auto platformEvents	 = scheduledEvents.getChildren();
+
+
+		if (!platformEvents.empty()) {
+			// Slightly different sort than used below. This just orders events chronologically
+			std::sort(std::begin(platformEvents), std::end(platformEvents), [](auto& a, auto& b) {
+				// Prioritize scheduled content over recurring content.
+				if (a.getPropertyString("span_type") != "RECURRING" && b.getPropertyString("span_type") == "RECURRING")
+					return true;
+
+				// Prioritize late start times over early start times.
+				if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
+					return a.getPropertyString("start_time") < b.getPropertyString("start_time");
+
+				// Prioritize early end times over late end times.
+				return a.getPropertyString("end_time") < b.getPropertyString("end_time");
+			});
+
+			scheduledEvents.setChildren(platformEvents);
+			platform.replaceChild(scheduledEvents);
+		}
 	}
 
 	mRecordMap = recordMap;
 	// mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
 	validateContent();
-	return true; 
+	return true;
 }
 
 void BridgeService::Loop::validateContent() {
@@ -837,31 +863,35 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 	ds::model::Platform platformObj(mEngine);
 	auto				platform = platformObj.getPlatformModel();
 
-	auto platformEvents = platform.getChildByName("scheduled_events").getChildren();
+	auto scheduledEvents = platform.getChildByName("scheduled_events");
+	auto platformEvents	 = scheduledEvents.getChildren();
+
+
 	if (!platformEvents.empty()) {
+		// Now update current events
 		std::vector<ds::model::ContentModelRef> currentEvents;
 		for (auto& event : platformEvents) {
 			if (eventIsNow(event, thisDayTime)) currentEvents.push_back(event);
 		}
 
-		//	// TODO: handle correct sorting/combining of events
-		//	// Sort playlists by importance.
+		// TODO: handle correct sorting/combining of events
+		// Sort playlists by importance.
 		std::sort(std::begin(currentEvents), std::end(currentEvents), [](auto& a, auto& b) {
-			//		// Prioritize scheduled content over recurring content.
+			// Prioritize scheduled content over recurring content.
 			if (a.getPropertyString("span_type") != "RECURRING" && b.getPropertyString("span_type") == "RECURRING")
 				return true;
 
-			//		// Prioritize late start times over early start times.
+			// Prioritize late start times over early start times.
 			if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
 				return a.getPropertyString("start_time") > b.getPropertyString("start_time");
 
-			//		// Prioritize early end times over late end times.
+			// Prioritize early end times over late end times.
 			return a.getPropertyString("end_time") < b.getPropertyString("end_time");
 		});
 
-		//	// For interoperability, store current events.
+		// For interoperability, store current events.
 		auto platformCurrentEvents = platformObj.getCurrentContent().getChildByName("current_events");
-		
+
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
 			platformCurrentEvents.setChildren(currentEvents);
