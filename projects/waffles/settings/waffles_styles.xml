@@ -46,6 +46,10 @@
 	<setting name="menu:background_transparent" value="#002B2B2B" type="color" />
 	<setting name="close_button_background_selected" value="#ff00bdf4" type="color" comment="The background color of close button when it is pressed."/>
 	<setting name="waffles:background" value="#101010" type="color"/>
+	<setting name="waffles:transparent_background" value="#00101010" type="color"/>
+	<setting name="ui:fullscreen_scrim" value="#110426" type="color" />
+	
+	<setting name="transparent_white" value="#00ffffff" type="color" comment="transparent to white"/>
 
 	<setting name="brush_1" value="#ffff63bb" type="color" comment="pink"/>
 	<setting name="brush_2" value="#ffb655f5" type="color" comment="purple"/>
@@ -75,11 +79,15 @@
 	<setting name="waffles:button:bg:normal:light" value="#FF2b2b2b" type="color"/>
 	<setting name="waffles:button:bg:high:light" value="white" type="color"/>
 	<setting name="waffles:button:text:normal:light" value="white" type="color"/>
-	<setting name="waffles:button:text:high:light" value="black" type="color"/>
+	<setting name="waffles:button:text:high:light" value="redhat_purple" type="color"/>
+	<setting name="waffles_key_up" value="redhat_key_up_purple" type="color"/>
+	<setting name="waffles_key_down" value="redhat_key_down_purple" type="color"/>
+
 	<!-- END WAFFLES COLORS -->
 
 	
 	<!-- START WAFFLES TEXTS -->
+	<setting name="viewer:pdf:page_number" value="font:Red Hat Display; size:16.0; color:white" type="text_style"/>
 	<setting name="component:text_button:label" value="font:Helvetica; size:20.0" type="text_style"/>
 	<setting name="default:error" value="font:Helvetica; size:20.0; color:brand_light" type="text_style"/>
 	<setting name="keyboard:key:up" value="font:Helvetica; size:30.0; color:black" type="text_style"/>
@@ -87,6 +95,7 @@
 	<setting name="touch:menu" value="font:Helvetica; size:16.0; color:brand_light; leading:0.750" type="text_style"/>
 	<setting name="viewer:widget" value="font:Helvetica; size:16.0; color:brand_light" type="text_style"/>
 	<setting name="viewer:title" value="font:Helvetica; size:30.0; color:brand_light; leading:0.750" type="text_style"/>
+	<setting name="w2:viewer:title" value="font:Red Hat Display; size:16.0; color:white; leading:0.750" type="text_style"/>
 	<setting name="viewer:body" value="font:Helvetica; size:20.0; color:brand_light" type="text_style"/>
 	<setting name="viewer:body:bold" value="font:Helvetica; size:22.0; color:brand_light" type="text_style"/>
 	<setting name="viewer:body:italic" value="font:Helvetica; size:22.0; color:brand_light" type="text_style"/>
