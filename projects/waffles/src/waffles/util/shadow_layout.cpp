@@ -154,6 +154,7 @@ void main()
 #version 150
 
 uniform sampler2D tex0;
+uniform sampler2D tex1;
 uniform int blurSize;
 uniform int horizontalPass;
 
@@ -165,6 +166,7 @@ uniform float sigma;
 
 // The inverse of the texture dimensions along X and Y
 uniform vec2 texOffset;
+uniform vec2 maskSize;
 
 in vec4 Color;
 in vec2 TexCoord0;
@@ -175,10 +177,19 @@ const float pi = 3.14159265;
 void main() {
 
     vec4 vertTexCoord = vec4(TexCoord0.x, TexCoord0.y, 0, 0);
+	
     float numBlurPixelsPerSide = float(blurSize / 2.0);
 
     vec2 blurMultiplyVec = (0 == horizontalPass) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
     vec2 invTexOffset = 1.0 / texOffset;
+	vec2 invMaskSize =  1.0 / maskSize;
+	vec2 maskOffset = (texOffset - maskSize) * 0.5 * invTexOffset;
+	vec2 maskNormSize = maskSize*invTexOffset;
+
+	vec2 maskTexCoord = vec2((TexCoord0.x - maskOffset.x)/maskNormSize.x, (TexCoord0.y - maskOffset.y)/maskNormSize.y);
+	vec2 inside = vec2(step(0.0,maskTexCoord.x) - step(1.0,maskTexCoord.x),step(0.0,maskTexCoord.y) - step(1.0,maskTexCoord.y));
+	float shape = step(0.00001,texture2D(tex1,maskTexCoord.xy).a);
+	float mask = (inside.x) * (inside.y) * step(0.00001,shape) ;
 
     // Incremental Gaussian Coefficent Calculation (See GPU Gems 3 pp. 877 - 889)
     vec3 incrementalGaussian;
@@ -190,6 +201,7 @@ void main() {
     float coefficientSum = 0.0;
 
     // Take the central sample first...
+	vec4 raw = texture2D(tex0, vertTexCoord.st);
     avgValue += texture2D(tex0, vertTexCoord.st) * incrementalGaussian.x;
     coefficientSum += incrementalGaussian.x;
     incrementalGaussian.xy *= incrementalGaussian.yz;
@@ -203,7 +215,7 @@ void main() {
     }
 
     oColor = avgValue / coefficientSum;
-	oColor = vec4(1.0, 1.0, 1.0, oColor.a);
+	oColor = vec4(1.0, 1.0, 1.0, (1-mask) * oColor.a );
 }
 )FRAG";
 
@@ -402,8 +414,8 @@ void ShadowLayout::drawBlur() {
 
 		mBlurShader->uniform("texOffset", ci::vec2(w, h));
 	}
-
-
+	mBlurShader->uniform("tex1", 1);
+	mBlurShader->uniform("maskSize", ci::vec2(mSourceTexture->getWidth(), mSourceTexture->getHeight()));
 	mBlurShader->uniform("blurSize", int(float(mShadowSize) * mShadowScale));
 	mBlurShader->uniform("sigma", mShadowSigma * mShadowScale);
 
@@ -427,8 +439,10 @@ void ShadowLayout::drawBlur() {
 	applyBlendingMode(ds::ui::BlendMode::FBO_OUT);
 	for (int i = 0; i < mIterations; ++i) {
 		{
+			mBlurShader->uniform("maskSize", ci::vec2(0,0));
 			ci::gl::ScopedFramebuffer fb(mFbo0);
 			ci::gl::ScopedTextureBind scopedTex(mFbo1->getColorTexture(), (uint8_t)0);
+			ci::gl::ScopedTextureBind scoped2Tex(mSourceTexture, (uint8_t)1);
 			ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
 			// Then do the horizontal pass
@@ -437,8 +451,10 @@ void ShadowLayout::drawBlur() {
 		}
 
 		{
+			mBlurShader->uniform("maskSize", ci::vec2(mSourceTexture->getWidth(), mSourceTexture->getHeight()));
 			ci::gl::ScopedFramebuffer fb(mFbo1);
 			ci::gl::ScopedTextureBind scopedTex(mFbo0->getColorTexture(), (uint8_t)0);
+			ci::gl::ScopedTextureBind scoped2Tex(mSourceTexture, (uint8_t)1);
 			ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
 			// Then do the vertical pass

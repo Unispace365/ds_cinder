@@ -73,10 +73,9 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mDownButton->setScale(mForwardHeight / mDownButton->getHeight());
 
 	mPageCounter				= new ds::ui::Text(mEngine);
-	auto ts = mEngine.getTextStyle("viewer:pdf:page_number");
-	mPageCounter->setTextStyle(ts);
-	mPageCounter->mLayoutVAlign = ds::ui::LayoutSprite::kMiddle;
 
+	mPageCounter->mLayoutVAlign = ds::ui::LayoutSprite::kMiddle;
+	
 
 	if (mPageCounter) {
 		addChildPtr(mPageCounter);
