@@ -13,18 +13,20 @@ class CapturePlayer : public ds::ui::Sprite {
 
 	/// Set the capture source by string.
 	/// sourceIdName in the format "ID;NAME" as reported by the OS
-	void setCaptureSource(const std::string& sourceIdName);
+	/// or "NAME" if capture cards have unique names
+	bool setCaptureSource(const std::string& sourceIdName);
 
 	/// Set the capture source by ID and Name
-	void setCaptureSource(int id, const std::string& sourceName);
+	bool setCaptureSource(int id, const std::string& sourceName);
 
-	void saveImage();
+  private:
+	bool setCaptureSourceWithUniqueName(const std::string& uniqueName);
 
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& up) override;
 	virtual void drawLocalClient() override;
 
-	int			mCaptureId = -1;
+	uint64_t	mCaptureId = 0;
 	std::string mSourceName;
 };
 

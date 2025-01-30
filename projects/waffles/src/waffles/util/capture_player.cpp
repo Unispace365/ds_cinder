@@ -3,7 +3,6 @@
 #include "capture_player.h"
 
 #include <cinder/Capture.h>
-#include <cinder/ip/Resize.h>
 
 #include <ds/util/string_util.h>
 
@@ -26,12 +25,13 @@ struct cap {
 };
 // Holds all open captures, allowing us to display multiple copies of a capture while only using one GPU resource
 // The first CapturePlayer to update for a given Capture source will update the texture
-static std::unordered_map<int, cap> sCaptures;
+static std::unordered_map<int64_t, cap>		sCaptures;
+static std::unordered_map<std::string, cap> sUNCaptures;
 } // namespace
 
 namespace waffles {
 CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
-	: ds::ui::Sprite(g) {
+  : ds::ui::Sprite(g) {
 
 	setTransparent(false);
 	setSize(0.f, 0.f);
@@ -44,36 +44,38 @@ CapturePlayer::~CapturePlayer() {
 	sCaptures[mCaptureId].users -= 1; // Decrement the active users
 	if (sCaptures[mCaptureId].users <= 0) {
 		// And if we were the last user, clean up after ourselves
-		// sCaptures.erase(mCaptureId);
+		sCaptures.erase(mCaptureId);
 	}
 }
 
-void CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
-	auto idSource = ds::split(sourceIdName, ";");
-	if (idSource.size() != 2) {
-		DS_LOG_ERROR("Capture source needs to be in the format 'ID;NAME'");
-		DS_LOG_ERROR("\tFailed Source: " << sourceIdName);
-		return;
+bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
+
+	bool goodCapture = false;
+	auto idSource	 = ds::split(sourceIdName, ";", true);
+	if (idSource.size() == 2) {
+		goodCapture = setCaptureSource(ds::string_to_int(idSource[0]), idSource[1]);
 	}
 
-	setCaptureSource(ds::string_to_int(idSource[0]), idSource[1]);
+	if (!goodCapture) {
+		goodCapture = setCaptureSourceWithUniqueName(sourceIdName);
+	}
+
+	return goodCapture;
 }
 
-void CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
-	if (id < 0 || sourceName.empty()) return;
-
+bool CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
+	if (id < 0 || sourceName.empty()) return false;
 	mCaptureId	= id;
 	mSourceName = sourceName;
 
 	if (sCaptures.find(mCaptureId) != sCaptures.end()) {
 		// If we already have this source, just add ourself to the users
 		sCaptures[mCaptureId].users += 1;
-		// setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+		setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
 	} else {
 		// We haven't opened this source, try to
 		try {
 			for (auto&& dev : ci::Capture::getDevices(true)) {
-				DS_LOG_INFO(dev->getUniqueId() << ";" << dev->getName());
 				// Continue until we find our match
 				if (dev->getUniqueId() != mCaptureId || dev->getName() != mSourceName) continue;
 
@@ -85,13 +87,50 @@ void CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
 				sCaptures[mCaptureId].capture->start();
 				sCaptures[mCaptureId].users = 1;
 
-				// setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+				setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
 			}
 		} catch (const std::exception& e) {
 			DS_LOG_WARNING("Unable to open capture device. ID: " << mCaptureId << ", Name: " << mSourceName);
 			DS_LOG_WARNING("\tDevice not found or unavailable");
+			return false;
 		}
 	}
+	return true;
+}
+
+bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName) {
+	if (uniqueName.empty()) return false;
+	mCaptureId	= (uint64_t)std::hash<std::string>{}(uniqueName);
+	mSourceName = uniqueName;
+	if (sCaptures.find(mCaptureId) != sCaptures.end()) {
+		// If we already have this source, just add ourself to the users
+		sCaptures[mCaptureId].users += 1;
+		setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+	} else {
+		// We haven't opened this source, try to
+		try {
+			for (auto&& dev : ci::Capture::getDevices(true)) {
+				// Continue until we find our match
+				if (dev->getName() != uniqueName) continue;
+
+				sCaptures[mCaptureId].capture = ci::Capture::create(3840, 2160, dev);
+				break;
+			}
+
+			if (sCaptures[mCaptureId].capture) {
+				sCaptures[mCaptureId].capture->start();
+				sCaptures[mCaptureId].users = 1;
+
+				setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+			}
+		} catch (const std::exception& e) {
+			sCaptures.erase(mCaptureId);
+			DS_LOG_WARNING("Unable to open capture device. Name: " << uniqueName);
+			DS_LOG_WARNING("\tDevice not found or unavailable");
+			return false;
+		}
+	}
+	return true;
 }
 
 void CapturePlayer::onUpdateServer(const ds::UpdateParams& up) {
@@ -104,39 +143,7 @@ void CapturePlayer::onUpdateServer(const ds::UpdateParams& up) {
 void CapturePlayer::drawLocalClient() {
 	if (mCaptureId < 0 || !sCaptures[mCaptureId].texture) return;
 
-	auto inBox =
-		ci::Rectf(0.f, 0.f, sCaptures[mCaptureId].texture->getWidth(), sCaptures[mCaptureId].texture->getHeight());
-	auto outBox = ci::Rectf(0.f, 0.f, getWidth(), getHeight());
-
-	// ci::gl::draw(sCaptures[mCaptureId].texture, ci::Area(outBox.getCenteredFit(inBox, true)), outBox);
-
-	auto	 texRect = outBox.getCenteredFit(inBox, true);
-	ci::vec2 uv1, uv2;
-	// things are backwards sometimes - upper left , lower right is opposite
-	uv1.x = texRect.getX2() / inBox.getWidth();
-	uv1.y = texRect.getY2() / inBox.getHeight();
-	uv2.x = texRect.getX1() / inBox.getWidth();
-	uv2.y = texRect.getY1() / inBox.getHeight();
-
-	ci::gl::ScopedTextureBind scTex{sCaptures[mCaptureId].texture};
-	ci::gl::ScopedGlslProg	  scGlsl{ci::gl::getStockShader(ci::gl::ShaderDef().color().texture())};
-	ci::gl::drawSolidRoundedRect(outBox, getCornerRadius(), 0, uv1, uv2);
+	ci::gl::draw(sCaptures[mCaptureId].texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
 }
 
-void CapturePlayer::saveImage() {
-	auto inBox =
-		ci::Rectf(0.f, 0.f, sCaptures[mCaptureId].texture->getWidth(), sCaptures[mCaptureId].texture->getHeight());
-	auto outBox = ci::Rectf(0.f, 0.f, getWidth(), getHeight());
-
-	// ci::gl::draw(sCaptures[mCaptureId].texture, ci::Area(outBox.getCenteredFit(inBox, true)), outBox);
-
-	auto texRect = outBox.getCenteredFit(inBox, true);
-
-	std::string	   localPath = ds::Environment::expand("%LOCAL%/waffles-pics/captured.png");
-	ci::Surface	   surface(sCaptures[mCaptureId].texture->createSource());
-	ci::SurfaceRef outSurface = ci::Surface::create(int(texRect.getWidth()), int(texRect.getHeight()), false);
-	ci::ip::resize(surface, ci::Area(texRect), &*outSurface, ci::Area(0, 0, texRect.getWidth(), texRect.getHeight()));
-	ci::writeImage(localPath, *outSurface);
-}
-
-} // namespace mv
+} // namespace waffles

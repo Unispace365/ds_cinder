@@ -164,6 +164,7 @@ void FramedMediaViewer::onFullscreenSet() {
 	}
 	auto mediaInterface = mMediaPlayer->getMediaInterface();
 	if (mediaInterface) {
+		mediaInterface->hide();
 		mediaInterface->setAllowDisplay(false);
 	}
 	mRootLayout->runLayout();

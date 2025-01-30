@@ -5,6 +5,8 @@
 
 namespace ds::model {
 
+
+
 const PlatformType		   Platform::UNDEFINED = "undefined";
 ds::model::ContentModelRef Platform::getRecordByUid(const ds::model::ContentModelRef& model,
 														 const std::string&				   uid) {

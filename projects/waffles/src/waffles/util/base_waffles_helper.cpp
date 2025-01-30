@@ -443,6 +443,35 @@ void BaseWafflesHelper::loadIntegration()
 
 }
 
+std::vector<ds::model::ContentModelRef> BaseWafflesHelper::getStreamSources(std::string category) {
+	return mBaseContentHelper.getStreamSources(category);
+}
+
+ds::model::ContentModelRef BaseWafflesHelper::getStreamSourceForStream(ds::model::ContentModelRef stream,
+																	   std::string				  category) {
+	return mBaseContentHelper.getStreamSourceForStream(stream, category);
+}
+
+bool BaseWafflesHelper::isValidStreamSource(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.isValidStreamSource(model, category);
+}
+
+bool BaseWafflesHelper::isValidStream(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.isValidStream(model, category);
+}
+
+std::string BaseWafflesHelper::getStreamMatchKey(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.getStreamMatchKey(model, category);
+}
+
+std::string BaseWafflesHelper::getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.getStreamSourceAddressKey(model, category);
+}
+
+std::string BaseWafflesHelper::getStreamSourceTypeKey(ds::model::ContentModelRef model, std::string category) {
+	return mBaseContentHelper.getStreamSourceTypeKey(model, category);
+}
+
 bool BaseWafflesHelper::isValidFolder(ds::model::ContentModelRef model, std::string category) {
 	return mBaseContentHelper.isValidFolder(model, category);
 }

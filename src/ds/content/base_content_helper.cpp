@@ -35,6 +35,43 @@ namespace ds::model {
 			}
 		}
 
+		auto streamCount = mEngine.getWafflesSettings().countSetting("content:stream:key");
+		for (int i = 0; i < streamCount; ++i) {
+			auto stream = mEngine.getWafflesSettings().getString("content:stream:key", i, "");
+			auto streamMatchProp = mEngine.getWafflesSettings().getAttribute("content:stream:key", i, "match_key", "");
+			
+			auto category = mEngine.getWafflesSettings().getAttribute("content:stream:key", i, "category", DEFAULTCATEGORY);
+			mStreamMatchProp[category][stream] = streamMatchProp;
+			if (mStreamMatchProp[DEFAULTCATEGORY][stream].empty()) mStreamMatchProp[DEFAULTCATEGORY][stream] = streamMatchProp;
+			mAcceptableStreams[category].push_back(stream);
+			if (mAcceptableStreams[DEFAULTCATEGORY].empty()) mAcceptableStreams[DEFAULTCATEGORY].push_back(stream);
+		}
+
+		auto streamSourceCount = mEngine.getWafflesSettings().countSetting("content:stream_source:key");
+		for (int i = 0; i < streamSourceCount; ++i) {
+			auto streamSource = mEngine.getWafflesSettings().getString("content:stream_source:key", i, "");
+			auto streamSourceAddressProp =
+				mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "address_key", "");
+			auto streamSourceTypeProp =
+				mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "streamtype_key", "");
+			auto streamMatchProp =
+				mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "match_key", "");
+			auto category =
+				mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "category", DEFAULTCATEGORY);
+			mStreamSourceAddressProps[category][streamSource] = streamSourceAddressProp;
+			if (mStreamSourceAddressProps[DEFAULTCATEGORY][streamSource].empty())
+				mStreamSourceAddressProps[DEFAULTCATEGORY][streamSource] = streamSourceAddressProp;
+			mStreamSourceTypeProps[category][streamSource] = streamSourceTypeProp;
+			if (mStreamSourceTypeProps[DEFAULTCATEGORY][streamSource].empty())
+				mStreamSourceTypeProps[DEFAULTCATEGORY][streamSource] = streamSourceTypeProp;
+			mStreamMatchProp[category][streamSource] = streamMatchProp;
+			if (mStreamMatchProp[DEFAULTCATEGORY][streamSource].empty())
+				mStreamMatchProp[DEFAULTCATEGORY][streamSource] = streamMatchProp;
+			mAcceptableStreamSources[category].push_back(streamSource);
+			if (mAcceptableStreamSources[DEFAULTCATEGORY].empty()) mAcceptableStreamSources[DEFAULTCATEGORY].push_back(streamSource);
+		}
+
+
 	}
 	BaseContentHelper::~BaseContentHelper() {}
 
@@ -286,4 +323,124 @@ namespace ds::model {
 		media_property_key = media_property_key.empty() ? "media" : media_property_key;
 		return media_property_key;
 	}
-}
+	std::vector<ds::model::ContentModelRef> BaseContentHelper::getStreamSources(std::string category) {
+		Platform platform(mEngine);
+
+		auto platformModel = platform.getPlatformModel();
+		auto kids = platformModel.getChildren();
+		std::vector<ds::model::ContentModelRef> sources;
+		for (auto submodel : kids) {
+			if (isValidStreamSource(submodel, category)) {
+				sources.push_back(submodel);
+			}
+		}
+		return sources;
+	}
+	ds::model::ContentModelRef BaseContentHelper::getStreamSourceForStream(ds::model::ContentModelRef stream,std::string category) {
+		if (isValidStream(stream, category)) {
+			auto streamMatchKey = getStreamMatchKey(stream, category);
+			auto sources		= getStreamSources(category);
+			for (auto source : sources) {
+				auto sourceMatchKey = getStreamMatchKey(source, category);
+				auto streamMatch	= stream.getPropertyString(streamMatchKey);
+				auto sourceMatch	= source.getPropertyString(sourceMatchKey);
+				if (sourceMatch == streamMatch) {
+					return source;
+				}
+			}
+		}
+		return ds::model::ContentModelRef();
+	}
+	bool BaseContentHelper::isValidStreamSource(ds::model::ContentModelRef model, std::string category) {
+		if (category.empty()) category = DEFAULTCATEGORY;
+		auto categories = ds::split(category, ",", true);
+		auto type		= model.getPropertyString("type_uid");
+		auto key		= model.getPropertyString("type_key");
+		for (auto& cat : categories) {
+			// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
+			auto cleanCat = ds::trim(cat);
+			auto sources  = mAcceptableStreamSources[cleanCat];
+			if (std::find(sources.begin(), sources.end(), key) != sources.end()) {
+				return true;
+			}
+			if (std::find(sources.begin(), sources.end(), type) != sources.end()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	bool BaseContentHelper::isValidStream(ds::model::ContentModelRef model, std::string category) {
+		if (category.empty()) category = DEFAULTCATEGORY;
+		auto categories = ds::split(category, ",", true);
+		auto type		= model.getPropertyString("type_uid");
+		auto key		= model.getPropertyString("type_key");
+		for (auto& cat : categories) {
+			// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
+			auto cleanCat = ds::trim(cat);
+			auto streams  = mAcceptableStreams[cleanCat];
+			if (std::find(streams.begin(), streams.end(), key) != streams.end()) {
+				return true;
+			}
+			if (std::find(streams.begin(), streams.end(), type) != streams.end()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	std::string BaseContentHelper::getStreamMatchKey(ds::model::ContentModelRef model, std::string category) {
+		if (category.empty()) category = DEFAULTCATEGORY;
+		auto categories = ds::split(category, ",", true);
+		auto type		= model.getPropertyString("type_uid");
+		auto key		= model.getPropertyString("type_key");
+		for (auto& cat : categories) {
+			// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
+			auto cleanCat = ds::trim(cat);
+			auto matchKey = mStreamMatchProp[cleanCat][key];
+			if (!matchKey.empty()) {
+				return matchKey;
+			}
+			matchKey = mStreamMatchProp[cleanCat][type];
+			if (!matchKey.empty()) {
+				return matchKey;
+			}
+		}
+	}
+
+	std::string BaseContentHelper::getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category) {
+		if (category.empty()) category = DEFAULTCATEGORY;
+		auto categories = ds::split(category, ",", true);
+		auto type		= model.getPropertyString("type_uid");
+		auto key		= model.getPropertyString("type_key");
+		for (auto& cat : categories) {
+			// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
+			auto cleanCat  = ds::trim(cat);
+			auto streamKey = mStreamSourceAddressProps[cleanCat][key];
+			if (!streamKey.empty()) {
+				return streamKey;
+			}
+			streamKey = mStreamSourceAddressProps[cleanCat][type];
+			if (!streamKey.empty()) {
+				return streamKey;
+			}
+		}
+	}
+	std::string BaseContentHelper::getStreamSourceTypeKey(ds::model::ContentModelRef model, std::string category) {
+		if (category.empty()) category = DEFAULTCATEGORY;
+		auto categories = ds::split(category, ",", true);
+		auto type		= model.getPropertyString("type_uid");
+		auto key		= model.getPropertyString("type_key");
+		// return the type key for the stream source
+		for (auto& cat : categories) {
+			// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
+			auto cleanCat  = ds::trim(cat);
+			auto streamTypeKey = mStreamSourceTypeProps[cleanCat][key];
+			if (!streamTypeKey.empty()) {
+				return streamTypeKey;
+			}
+			streamTypeKey = mStreamSourceTypeProps[cleanCat][type];
+			if (!streamTypeKey.empty()) {
+				return streamTypeKey;
+			}
+		}
+	}
+	} // namespace ds::model

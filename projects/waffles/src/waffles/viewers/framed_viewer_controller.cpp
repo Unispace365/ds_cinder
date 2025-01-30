@@ -7,6 +7,7 @@
 
 #include "waffles/viewers/fullscreen_controller/fullscreen_controller.h"
 #include "waffles/viewers/fullscreen_controller/framed_fullscreen_controller.h"
+#include "waffles/util/framed_waffles_helper.h"
 
 namespace waffles {
 FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel):ViewerController(g,size,channel) {}
@@ -14,9 +15,11 @@ void FramedViewerController::initCreators() {
 	ViewerController::initCreators();
 	setCreator(VIEW_TYPE_TITLED_MEDIA_VIEWER,
 			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
-				   auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(args.mMediaRef);
+				   auto helper			 = ds::model::ContentHelperFactory::getDefault<FramedWafflesHelper>();
+				   auto mediaPropertyKey = helper->getMediaPropertyKey(args.mMediaRef);
 				   auto theResource		 = args.mMediaRef.getPropertyResource(mediaPropertyKey);
-				   if (args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
+				   auto isStream = helper->isValidStream(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
+				   if (!isStream && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 					   theResource.getType() != ds::Resource::WEB_TYPE &&
 					   theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
 					   theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {

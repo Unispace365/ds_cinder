@@ -277,6 +277,8 @@ void TitledMediaViewer::calculateSizeLimits() {
 }
 
 void TitledMediaViewer::onMediaSet() {
+	
+	auto helper		  = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	mInitialLoadError = false;
 	if (!mMediaPlayer) {
 		mInitialLoadError = true;
@@ -297,6 +299,43 @@ void TitledMediaViewer::onMediaSet() {
 		pb->setContentModel(mMediaRef);
 	}
 
+
+
+	//check for a stream and do special handling. 
+	auto isStream = helper->isValidStream(mMediaRef,WafflesHelper::WAFFLESCATEGORY);
+	if (isStream) {
+		//get the stream source
+		auto streamSource = helper->getStreamSourceForStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
+		auto streamAddressKey	  = helper->getStreamSourceAddressKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
+		auto streamTypeKey = helper->getStreamSourceTypeKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
+		auto streamType			  = streamSource.getPropertyString(streamTypeKey);
+		auto streamAddress		  = streamSource.getPropertyString(streamAddressKey);
+		if (streamType == "rtsp") {
+			DS_LOG_INFO("Got a network stream! " << streamAddress);
+			mMediaRef.setPropertyResource("media_media_res", ds::Resource(streamAddress));
+		} else if(streamType == "capture") {
+			DS_LOG_INFO("Got a capture stream! " << streamAddress);
+			if (auto cappy = mRootLayout->getSprite<waffles::CapturePlayer>("capture_player")) {
+				// DS_LOG_INFO("Got a stream! " << primaryResource.getAbsoluteFilePath());
+			
+				if (cappy->setCaptureSource(streamAddress)) {
+					cappy->show();
+					mMediaPlayer->setSize(cappy->getWidth(), cappy->getHeight());
+					mMediaPlayer->setContentAspectRatio(cappy->getWidth() / cappy->getHeight());
+
+					setSize(cappy->getWidth(), cappy->getHeight());
+					setSizeLimits();
+					setViewerSize(cappy->getWidth(), cappy->getHeight());
+					mShowingWebcam = true;
+
+					mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("name"));
+					mRootLayout->runLayout();
+				}
+			}
+		}
+	}
+
+
 	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
 	// DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
 	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
@@ -307,6 +346,9 @@ void TitledMediaViewer::onMediaSet() {
 	if (mCreationArgs.mEnforceMinSize == false) {
 		mAbsMinSize = ci::vec2(20.f, 20.f);
 	}
+
+	
+
 
 	auto mvs				  = mMediaPlayer->getSettings();
 	mvs.mWebKeyboardAbove	  = false;

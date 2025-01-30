@@ -61,12 +61,22 @@ class ContentHelper {
 
 	virtual std::vector<ds::model::ContentModelRef>	getFilteredPlaylists(const PlaylistFilter& filter)			   = 0;
 	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform()=0; //getAssets
+	virtual std::vector<ds::model::ContentModelRef> getStreamSources(std::string category = DEFAULTCATEGORY) = 0;
+	virtual ds::model::ContentModelRef				getStreamSourceForStream(ds::model::ContentModelRef stream,
+																			 std::string category = DEFAULTCATEGORY) = 0;
 
 	virtual std::vector<ds::Resource>				findMediaResources()=0;
 	virtual bool									isValidFolder(ds::model::ContentModelRef model,std::string category=DEFAULTCATEGORY) = 0;
 	virtual bool									isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)  = 0;
+	virtual bool									isValidStreamSource(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
+	virtual bool									isValidStream(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
 	virtual bool									isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)		= 0;
 	virtual std::string								getMediaPropertyKey(ds::model::ContentModelRef model,std::string category = DEFAULTCATEGORY) = 0;
+	virtual std::string								getStreamMatchKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
+	virtual std::string								getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
+	virtual std::string								getStreamSourceTypeKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
+
+
   protected:
 	ds::ui::SpriteEngine& mEngine;
 };

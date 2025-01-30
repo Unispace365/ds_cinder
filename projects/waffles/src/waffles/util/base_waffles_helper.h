@@ -43,11 +43,27 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual void setLauncherCustomContent(std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> cc) override;
 	virtual std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> getLauncherCustomContent() override;
 
+	virtual std::vector<ds::model::ContentModelRef> getStreamSources(std::string category) override;
+	virtual ds::model::ContentModelRef		getStreamSourceForStream(ds::model::ContentModelRef stream,
+																	 std::string				category) override;
+	virtual bool		isValidStreamSource(ds::model::ContentModelRef model, std::string category) override;
+	virtual bool		isValidStream(ds::model::ContentModelRef model, std::string category) override;
+	virtual std::string getStreamMatchKey(ds::model::ContentModelRef model, std::string category) override;
+	virtual std::string getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category) override;
+	virtual std::string getStreamSourceTypeKey(ds::model::ContentModelRef model,
+											   std::string				  category = DEFAULTCATEGORY) override;
+
+
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableMedia;
 	//std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptablePlaylists;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreamSources;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreams;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamSourceAddressProps;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamSourceTypeProps;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamMatchProp;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mMediaProps;
 
   protected:
@@ -60,5 +76,8 @@ class BaseWafflesHelper : public WafflesHelper {
 	bool mUseRoot;
 	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mLauncherCustomFilters;
 	std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> mLauncherCustomContent;
+
+
+	
 };
 }

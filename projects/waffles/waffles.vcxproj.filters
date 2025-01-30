@@ -94,9 +94,6 @@
     <ClCompile Include="src\waffles\viewers\presentation_controller\presentation_controller.cpp">
       <Filter>src\waffles\viewers\presentation_controller</Filter>
     </ClCompile>
-    <ClCompile Include="src\waffles\util\capture_player.cpp">
-      <Filter>src\waffles\util</Filter>
-    </ClCompile>
     <ClCompile Include="src\waffles\util\shadow_layout.cpp">
       <Filter>src\waffles\util</Filter>
     </ClCompile>
@@ -172,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="src\waffles\viewers\fullscreen_controller\framed_fullscreen_controller.cpp">
       <Filter>src\waffles\viewers\fullscreen_controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\waffles\util\capture_player.cpp">
+      <Filter>src\waffles\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,9 +280,6 @@
     <ClInclude Include="src\waffles\viewers\presentation_controller\presentation_controller.h">
       <Filter>src\waffles\viewers\presentation_controller</Filter>
     </ClInclude>
-    <ClInclude Include="src\waffles\util\capture_player.h">
-      <Filter>src\waffles\util</Filter>
-    </ClInclude>
     <ClInclude Include="src\waffles\util\shadow_layout.h">
       <Filter>src\waffles\util</Filter>
     </ClInclude>
@@ -361,6 +358,9 @@
     </ClInclude>
     <ClInclude Include="src\waffles\viewers\fullscreen_controller\framed_fullscreen_controller.h">
       <Filter>src\waffles\viewers\fullscreen_controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\waffles\util\capture_player.h">
+      <Filter>src\waffles\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
