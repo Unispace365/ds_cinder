@@ -355,7 +355,7 @@ bool BridgeService::Loop::loadContent() {
 								  " FROM record AS r"
 								  " INNER JOIN lookup AS l ON l.uid = r.type_uid"
 								  " WHERE r.complete = 1 AND r.visible = 1 AND"
-								  " (r.span_end_date IS NULL OR date(r.span_end_date, '+1 day') > date('now'))"
+								  " (r.span_end_date IS NULL OR date(r.span_end_date) == date('now'))"
 								  " ORDER BY r.parent_slot ASC, r.rank ASC;";
 
 
@@ -808,11 +808,18 @@ bool BridgeService::Loop::loadContent() {
 		auto scheduledEvents = platform.getChildByName("scheduled_events");
 		auto platformEvents	 = scheduledEvents.getChildren();
 
+		// TODO Only load dates that're today
 
 
 		if (!platformEvents.empty()) {
 			// Slightly different sort than used for current_events. This just orders events chronologically
 			std::sort(std::begin(platformEvents), std::end(platformEvents), [](auto& a, auto& b) {
+				if (a.getPropertyString("start_date") != b.getPropertyString("start_date"))
+					return a.getPropertyString("start_date") < b.getPropertyString("start_date");
+
+				if (a.getPropertyString("end_date") != b.getPropertyString("end_date"))
+					return a.getPropertyString("end_date") < b.getPropertyString("end_date");
+
 				// Prioritize late start times over early start times.
 				if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
 					return a.getPropertyString("start_time") < b.getPropertyString("start_time");
