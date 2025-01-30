@@ -2,9 +2,8 @@
 #ifndef DS_UI_BUTTON_IMAGE_BUTTON
 #define DS_UI_BUTTON_IMAGE_BUTTON
 
+#include <ds/ui/button/button.h>
 #include <ds/ui/sprite/image.h>
-#include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/touch/button_behaviour.h>
 
 namespace ds { namespace ui {
 
@@ -12,63 +11,65 @@ namespace ds { namespace ui {
 	 * \class ImageButton
 	 *	A convenience class to create a button from an image or two
 	 */
-	class ImageButton : public ds::ui::Sprite {
+	class ImageButton : public Sprite, public IButton {
 	  public:
 		static ImageButton& makeButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage,
-									   const float touchPad = 0.0f, ds::ui::Sprite* parent = nullptr);
-		ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage,
-					const float touchPad = 0.0f);
+									   float touchPad = 0.0f, Sprite* parent = nullptr);
 
-		const float getPad() const;
-		void		setTouchPad(const float touchPad);
+		ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, float touchPad = 0.0f);
+
+		float getPad() const override { return mPad; }
+		void  setTouchPad(float touchPad) override;
 
 		/// the amount of time the images take fading between themselves
-		void setAnimationDuration(const float dur);
+		void setAnimationDuration(float dur) override { mAnimDuration = dur; }
 
 		/// When the button has been clicked (touch released inside)
-		void setClickFn(const std::function<void(void)>&);
+		void setClickFn(const std::function<void()>& func) override { mClickFn = func; }
 
 		/// The visual state has been updated (down or up) pressed = down.
-		void setStateChangeFn(const std::function<void(const bool pressed)>&);
+		void setStateChangeFn(const std::function<void(bool pressed)>& func) override { mStateChangeFunction = func; }
 
-		ds::ui::Image& getNormalImage();
-		void		   setNormalImage(const std::string& imageFile, const int flags = 0);
-		std::string	   getNormalImagePath() { return mNormalFilePath; }
+		Sprite& getNormalSprite() const override { return mUp; }
+		Sprite& getHighSprite() const override { return mDown; }
 
-		ds::ui::Image& getHighImage(); // http://i.imgur.com/1qIw7AV.jpg
-		void		   setHighImage(const std::string& imageFile, const int flags = 0);
-		std::string	   getHighImagePath() { return mHighFilePath; }
+		Image&		getNormalImage() const { return mUp; }
+		void		setNormalImage(const std::string& imageFile, int flags = 0);
+		std::string getNormalImagePath() { return mNormalFilePath; }
 
-		void	  setNormalImageColor(const ci::Color& upColor);
-		void	  setNormalImageColor(const ci::ColorA& upColor);
-		ci::Color getNormalImageColor() { return mUp.getColor(); }
+		Image&		getHighImage() const { return mDown; } // http://i.imgur.com/1qIw7AV.jpg
+		void		setHighImage(const std::string& imageFile, int flags = 0);
+		std::string getHighImagePath() { return mHighFilePath; }
+
+		void	  setNormalImageColor(const ci::Color& upColor) const;
+		void	  setNormalImageColor(const ci::ColorA& upColor) const;
+		ci::Color getNormalImageColor() const { return mUp.getColor(); }
 
 		/// Set the color of the image when pressed. Let's you use the same image for both and still have feedback
-		void	  setHighImageColor(const ci::Color& downColor);
-		void	  setHighImageColor(const ci::ColorA& downColor);
-		ci::Color getHighImageColor() { return mDown.getColor(); }
+		void	  setHighImageColor(const ci::Color& downColor) const;
+		void	  setHighImageColor(const ci::ColorA& downColor) const;
+		ci::Color getHighImageColor() const { return mDown.getColor(); }
 
 		void layout();
 
-		void showDown();
-		void showUp();
+		void showDown() const override;
+		void showUp() const override;
 
-		const ButtonBehaviour::State getButtonState() { return mButtonBehaviour.getState(); }
-
+		ButtonBehaviour::State getButtonState() override { return mButtonBehaviour.getState(); }
 
 	  private:
-		void							onClicked();
-		std::function<void(void)>		mClickFn;
-		std::function<void(const bool)> mStateChangeFunction;
+		void					  onClicked() const;
+		std::function<void()>	  mClickFn;
+		std::function<void(bool)> mStateChangeFunction;
 
 		/// VIEW
-		ds::ui::Image& mDown;
-		ds::ui::Image& mUp;
-		std::string	   mHighFilePath;
-		std::string	   mNormalFilePath;
+		Image&		mDown;
+		Image&		mUp;
+		std::string mHighFilePath;
+		std::string mNormalFilePath;
 
 		/// TOUCH
-		ds::ButtonBehaviour mButtonBehaviour;
+		ButtonBehaviour mButtonBehaviour;
 
 		/// SETTINGS
 		float mPad;

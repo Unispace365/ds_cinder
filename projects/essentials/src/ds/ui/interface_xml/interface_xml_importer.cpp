@@ -509,6 +509,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			p.sprite.setFlexboxFromStyleString(p.value);
 		};
 
+		propertyMap["layout_auto"] = [](const SprProps& p) {
+			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
+			if (layoutSprite)
+				layoutSprite->setAutoLayout(parseBoolean(p.value));
+			else
+				logAttributionWarning(p);
+		};
+
 		// LayoutpSprite specific (the other layout stuff could apply to any sprite)
 		propertyMap["layout_type"] = [](const SprProps& p) {
 			auto layoutSprite = dynamic_cast<LayoutSprite*>(&p.sprite);
@@ -1046,9 +1054,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			}
 		};
 		propertyMap["btn_touch_padding"] = [](const SprProps& p) {
-			auto image = dynamic_cast<ImageButton*>(&p.sprite);
-			if (image) {
-				image->setTouchPad(ds::string_to_float(p.value));
+			auto button = dynamic_cast<IButton*>(&p.sprite);
+			if (button) {
+				button->setTouchPad(ds::string_to_float(p.value));
 			} else {
 				logAttributionWarning(p);
 			}

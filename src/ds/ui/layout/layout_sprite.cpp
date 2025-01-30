@@ -14,7 +14,7 @@
 namespace ds::ui {
 
 LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
-  : LayoutSpriteBase(engine)
+  : Sprite(engine)
   , mLayoutUpdatedFunction(nullptr)
   , mSpacing(0.f)
   , mLayoutType(kLayoutVFlow)
@@ -44,7 +44,7 @@ void LayoutSprite::runLayout() {
 
 void LayoutSprite::runNoneLayout() {
 	for (auto chillin : mChildren) {
-		if (auto layoutSprite = dynamic_cast<LayoutSpriteBase*>(chillin)) {
+		if (auto layoutSprite = dynamic_cast<ILayout*>(chillin)) {
 			layoutSprite->runLayout();
 		}
 	}
@@ -78,8 +78,8 @@ void LayoutSprite::runSizeLayout() {
 			const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
-			LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
+			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
+			ILayout*	  ls = dynamic_cast<ILayout*>(chillin);
 			if (tp) {
 				tp->setResizeLimit(fixedW, fixedH);
 			} else if (chillin->mLayoutFixedAspect) {
@@ -88,7 +88,7 @@ void LayoutSprite::runSizeLayout() {
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
 				chillin->setPosition(prePos);
 			} else if (ls) {
-				ls->setSize(fixedW, fixedH);
+				chillin->setSize(fixedW, fixedH);
 				ls->runLayout();
 			} else {
 				chillin->setSize(fixedW, fixedH);
@@ -96,7 +96,7 @@ void LayoutSprite::runSizeLayout() {
 		}
 
 
-		if (auto ls = dynamic_cast<LayoutSpriteBase*>(chillin)) {
+		if (auto ls = dynamic_cast<ILayout*>(chillin)) {
 			ls->runLayout();
 		}
 	}
@@ -128,8 +128,8 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				// stretch sizes will be set later
 				numStretches++;
 			} else {
-				ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
-				LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
+				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
+				ILayout*	  ls = dynamic_cast<ILayout*>(chillin);
 
 				if (chillin->mLayoutUserType == kFixedSize) {
 					// see if we need to force a particular size, since images and text might resize themselves
@@ -255,14 +255,14 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 			const float stretchW = (vertical ? layoutWidth : perStretch) - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
-			LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
+			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
+			ILayout*	  ls = dynamic_cast<ILayout*>(chillin);
 			if (tp) {
 				tp->setResizeLimit(stretchW, stretchH);
 			} else if (chillin->mLayoutFixedAspect) {
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if (ls) {
-				ls->setSize(stretchW, stretchH);
+				chillin->setSize(stretchW, stretchH);
 				ls->runLayout();
 			} else {
 				chillin->setSize(stretchW, stretchH);
@@ -353,14 +353,14 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-				ds::ui::Text*	  tp = dynamic_cast<ds::ui::Text*>(chillin);
-				LayoutSpriteBase* ls = dynamic_cast<LayoutSpriteBase*>(chillin);
+				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
+				ILayout*	  ls = dynamic_cast<ILayout*>(chillin);
 				if (tp) {
 					tp->setResizeLimit(fixedW, fixedH);
 				} else if (chillin->mLayoutFixedAspect) {
 					fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
 				} else if (ls) {
-					ls->setSize(fixedW, fixedH);
+					chillin->setSize(fixedW, fixedH);
 					ls->runLayout();
 				} else {
 					chillin->setSize(fixedW, fixedH);
@@ -431,9 +431,9 @@ bool LayoutSprite::setAvailableSize(const ci::vec2& size) {
 	mHeight			  = size.y;
 	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
 
-	const auto minWidth = mMinWidth;
+	const auto minWidth	 = mMinWidth;
 	const auto minHeight = mMinHeight;
-	const auto maxWidth = mMaxWidth;
+	const auto maxWidth	 = mMaxWidth;
 	const auto maxHeight = mMaxHeight;
 
 	runLayout();
@@ -454,6 +454,23 @@ void LayoutSprite::addChild(Sprite& child) {
 	YGNodeInsertChild(mYogaNode, child.getYogaNode(), static_cast<uint32_t>(mYogaNode->getChildren().size()));
 
 	Sprite::addChild(child);
+}
+
+void LayoutSprite::onUpdateServer(const ds::UpdateParams& updateParams) {
+	if (mAutoLayout && mLayoutUpdated) {
+		mLayoutUpdated = false;
+		runLayout();
+	}
+}
+
+void LayoutSprite::onChildAdded(Sprite& child) {
+	mLayoutUpdated |= mAutoLayout;
+	child.setDimensionsChangedCallback([this](Sprite* s) { mLayoutUpdated |= mAutoLayout; });
+}
+
+void LayoutSprite::onChildRemoved(Sprite& child) {
+	mLayoutUpdated |= mAutoLayout;
+	child.setDimensionsChangedCallback(nullptr);
 }
 
 void LayoutSprite::onLayoutUpdate() {

@@ -577,7 +577,9 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	onScaleChanged();
 
 	// Notify listeners about size change.
-	mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
+	if (!mSuppressSpriteDimensionsChanged && mDimensionsChangedCallback) {
+		mDimensionsChangedCallback(this);
+	}
 }
 
 const ci::vec3& Sprite::getPosition() const {
@@ -893,8 +895,8 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	dimensionalStateChanged();
 
 	// Notify listeners about size change.
-	if (!mSupressSpriteDimensionsChangedEvent) {
-		mEngine.getNotifier().notify(SpriteDimensionsChangedEvent(this));
+	if (!mSuppressSpriteDimensionsChanged && mDimensionsChangedCallback) {
+		mDimensionsChangedCallback(this);
 	}
 }
 
@@ -2167,7 +2169,7 @@ float Sprite::getScaleHeight() const {
 }
 
 float Sprite::getScaleDepth() const {
-	return mScale.z * mDepth;
+	return mScale.z * getDepth();
 }
 
 void Sprite::setSwipeCallback(const std::function<void(Sprite*, const ci::vec3&)>& func) {

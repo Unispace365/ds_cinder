@@ -11,12 +11,19 @@ namespace ds { namespace ui {
 	/**
 	 * \class SpriteButton
 	 */
-	SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hiddy)
-	  : inherited(eng, widdy, hiddy)
-	  , mDown(ds::ui::Sprite::makeSprite(eng, this))
-	  , mUp(ds::ui::Sprite::makeSprite(eng, this))
+	SpriteButton::SpriteButton(SpriteEngine& eng, float width, float height)
+	  : Sprite(eng, width, height)
+	  , mDown(*(new AutoSizeSprite(eng)))
+	  , mUp(*(new AutoSizeSprite(eng)))
 	  , mButtonBehaviour(*this)
+	  , mPad(0)
 	  , mAnimDuration(0.1f) {
+
+		addChild(mUp);
+		addChild(mDown);
+
+		mUp.setDimensionsChangedCallback([this](Sprite*) { handleResize(); });
+		mDown.setDimensionsChangedCallback([this](Sprite*) { handleResize(); });
 
 		mUp.mExportWithXml	 = false;
 		mDown.mExportWithXml = false;
@@ -25,17 +32,18 @@ namespace ds { namespace ui {
 
 		mButtonBehaviour.setOnClickFn([this]() { onClicked(); });
 		// Purely for visual state
-		mButtonBehaviour.setOnDownFn([this](const ds::ui::TouchInfo&) { showDown(); });
+		mButtonBehaviour.setOnDownFn([this](const TouchInfo&) { showDown(); });
 		mButtonBehaviour.setOnEnterFn([this]() { showDown(); });
 		mButtonBehaviour.setOnExitFn([this]() { showUp(); });
 		mButtonBehaviour.setOnUpFn([this]() { showUp(); });
 	}
 
-	void SpriteButton::setClickFn(const std::function<void(void)>& fn) {
-		mClickFn = fn;
+	void SpriteButton::setTouchPad(float touchPad) {
+		mPad = touchPad;
+		handleResize();
 	}
 
-	void SpriteButton::showDown() {
+	void SpriteButton::showDown() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.setOpacity(0.0f);
 			mDown.setOpacity(1.0f);
@@ -49,7 +57,7 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void SpriteButton::showUp() {
+	void SpriteButton::showUp() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.setOpacity(1.0f);
 			mDown.setOpacity(0.0f);
@@ -63,34 +71,26 @@ namespace ds { namespace ui {
 		}
 	}
 
+	void SpriteButton::handleResize() {
+		mDown.setPosition(mPad, mPad);
+		mUp.setPosition(mDown.getPosition());
+
+		auto bounds = mDown.getChildBoundingBox();
+		bounds.include(mUp.getChildBoundingBox());
+		setSize(mPad + bounds.getWidth() + mPad, mPad + bounds.getHeight() + mPad);
+	}
+
 	YGSize SpriteButton::yogaMeasureFunc(YGNodeRef node, float width, YGMeasureMode widthMode, float height,
 										 YGMeasureMode heightMode) {
-		YGSize				  retVal;
-		ds::ui::SpriteButton* spr  = this;
-		auto				  bb_h = spr->getHighSprite().getChildBoundingBox();
-		auto				  bb_n = spr->getNormalSprite().getChildBoundingBox();
-		bb_h.include(bb_n);
-		spr->setSize(bb_h.getSize());
-		retVal.width  = spr->getWidth();
-		retVal.height = spr->getHeight();
+		YGSize retVal;
+		retVal.width  = getWidth();
+		retVal.height = getHeight();
 		return retVal;
 	}
 
-	void SpriteButton::onClicked() {
+	void SpriteButton::onClicked() const {
 		showUp();
 		if (mClickFn) mClickFn();
-	}
-
-	ds::ui::Sprite& SpriteButton::getHighSprite() {
-		return mDown;
-	}
-
-	ds::ui::Sprite& SpriteButton::getNormalSprite() {
-		return mUp;
-	}
-
-	void SpriteButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
-		mStateChangeFunction = func;
 	}
 
 

@@ -11,39 +11,35 @@ namespace ds { namespace ui {
 	/**
 	 * \class LayoutButton
 	 */
-	LayoutButton::LayoutButton(SpriteEngine& eng, const float widdy, const float hiddy)
-	  : ds::ui::LayoutSprite(eng)
-	  , mDown(*(new ds::ui::LayoutSprite(eng)))
-	  , mUp(*(new ds::ui::LayoutSprite(eng)))
+	LayoutButton::LayoutButton(SpriteEngine& eng, float width, float height)
+	  : LayoutSprite(eng)
+	  , mDown(*(new LayoutSprite(eng)))
+	  , mUp(*(new LayoutSprite(eng)))
 	  , mButtonBehaviour(*this)
 	  , mAnimDuration(0.1f) {
 
-		setLayoutType(ds::ui::LayoutSprite::kLayoutNone);
+		setLayoutType(kLayoutNone);
 
 		mUp.mExportWithXml	= false;
-		mUp.mLayoutUserType = ds::ui::LayoutSprite::kFillSize;
-		mUp.setLayoutType(ds::ui::LayoutSprite::kLayoutSize);
+		mUp.mLayoutUserType = kFillSize;
+		mUp.setLayoutType(kLayoutSize);
 		addChild(mUp);
 
 		mDown.mExportWithXml  = false;
-		mDown.mLayoutUserType = ds::ui::LayoutSprite::kFillSize;
-		mDown.setLayoutType(ds::ui::LayoutSprite::kLayoutSize);
+		mDown.mLayoutUserType = kFillSize;
+		mDown.setLayoutType(kLayoutSize);
 		mDown.setOpacity(0.0f);
 		addChild(mDown);
 
 		mButtonBehaviour.setOnClickFn([this]() { onClicked(); });
 		// Purely for visual state
-		mButtonBehaviour.setOnDownFn([this](const ds::ui::TouchInfo&) { showDown(); });
+		mButtonBehaviour.setOnDownFn([this](const TouchInfo&) { showDown(); });
 		mButtonBehaviour.setOnEnterFn([this]() { showDown(); });
 		mButtonBehaviour.setOnExitFn([this]() { showUp(); });
 		mButtonBehaviour.setOnUpFn([this]() { showUp(); });
 	}
 
-	void LayoutButton::setClickFn(const std::function<void(void)>& fn) {
-		mClickFn = fn;
-	}
-
-	void LayoutButton::showDown() {
+	void LayoutButton::showDown() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.setOpacity(0.0f);
 			mDown.setOpacity(1.0f);
@@ -57,7 +53,7 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void LayoutButton::showUp() {
+	void LayoutButton::showUp() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.setOpacity(1.0f);
 			mDown.setOpacity(0.0f);
@@ -71,21 +67,9 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void LayoutButton::onClicked() {
+	void LayoutButton::onClicked() const {
 		showUp();
 		if (mClickFn) mClickFn();
-	}
-
-	ds::ui::LayoutSprite& LayoutButton::getHighSprite() {
-		return mDown;
-	}
-
-	ds::ui::LayoutSprite& LayoutButton::getNormalSprite() {
-		return mUp;
-	}
-
-	void LayoutButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
-		mStateChangeFunction = func;
 	}
 
 

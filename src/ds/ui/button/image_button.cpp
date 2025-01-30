@@ -12,7 +12,7 @@ namespace ds { namespace ui {
 	 * \class ImageButton
 	 */
 	ImageButton& ImageButton::makeButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage,
-										 const float touchPad, ds::ui::Sprite* parent) {
+										 float touchPad, ds::ui::Sprite* parent) {
 		ImageButton* b = new ImageButton(eng, downImage, upImage, touchPad);
 		if (!b) {
 			DS_LOG_WARNING("Can't create ImageButton");
@@ -23,15 +23,15 @@ namespace ds { namespace ui {
 	}
 
 	ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage,
-							 const float touchPad)
+							 float touchPad)
 	  : ds::ui::Sprite(eng)
 	  , mDown(*(new ds::ui::Image(mEngine, downImage, ds::ui::Image::IMG_CACHE_F)))
 	  , mUp(*(new ds::ui::Image(mEngine, upImage, ds::ui::Image::IMG_CACHE_F)))
+	  , mHighFilePath(downImage)
+	  , mNormalFilePath(upImage)
 	  , mButtonBehaviour(*this)
 	  , mPad(touchPad)
-	  , mAnimDuration(0.1f)
-	  , mHighFilePath(downImage)
-	  , mNormalFilePath(upImage) {
+	  , mAnimDuration(0.1f) {
 		// 	setTransparent(false);
 		// 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
 
@@ -60,24 +60,12 @@ namespace ds { namespace ui {
 		setSize(floorf(mPad + mDown.getWidth() + mPad), floorf(mPad + mDown.getHeight() + mPad));
 	}
 
-	void ImageButton::setTouchPad(const float touchPad) {
+	void ImageButton::setTouchPad(float touchPad) {
 		mPad = touchPad;
 		layout();
 	}
 
-	void ImageButton::setAnimationDuration(const float dur) {
-		mAnimDuration = dur;
-	}
-
-	const float ImageButton::getPad() const {
-		return mPad;
-	}
-
-	void ImageButton::setClickFn(const std::function<void(void)>& fn) {
-		mClickFn = fn;
-	}
-
-	void ImageButton::showDown() {
+	void ImageButton::showDown() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.hide();
 			mUp.setOpacity(0.0f);
@@ -94,7 +82,7 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void ImageButton::showUp() {
+	void ImageButton::showUp() const {
 		if (mAnimDuration <= 0.0f) {
 			mUp.show();
 			mUp.setOpacity(1.0f);
@@ -111,27 +99,18 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void ImageButton::onClicked() {
+	void ImageButton::onClicked() const {
 		showUp();
 		if (mClickFn) mClickFn();
 	}
 
-	ds::ui::Image& ImageButton::getHighImage() {
-		return mDown;
-	}
-
-	void ImageButton::setHighImage(const std::string& imageFile, const int flags) {
+	void ImageButton::setHighImage(const std::string& imageFile, int flags) {
 		mHighFilePath = imageFile;
 		mDown.setImageFile(imageFile, flags);
 		layout();
 	}
 
-
-	ds::ui::Image& ImageButton::getNormalImage() {
-		return mUp;
-	}
-
-	void ImageButton::setNormalImage(const std::string& imageFile, const int flags) {
+	void ImageButton::setNormalImage(const std::string& imageFile, int flags) {
 		if (mNormalFilePath == mHighFilePath) {
 			setHighImage(imageFile, flags);
 		}
@@ -140,23 +119,19 @@ namespace ds { namespace ui {
 		layout();
 	}
 
-	void ImageButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
-		mStateChangeFunction = func;
-	}
-
-	void ImageButton::setNormalImageColor(const ci::Color& upColor) {
+	void ImageButton::setNormalImageColor(const ci::Color& upColor) const {
 		mUp.setColor(upColor);
 	}
 
-	void ImageButton::setNormalImageColor(const ci::ColorA& upColor) {
+	void ImageButton::setNormalImageColor(const ci::ColorA& upColor) const {
 		mUp.setColorA(upColor);
 	}
 
-	void ImageButton::setHighImageColor(const ci::Color& downColor) {
+	void ImageButton::setHighImageColor(const ci::Color& downColor) const {
 		mDown.setColor(downColor);
 	}
 
-	void ImageButton::setHighImageColor(const ci::ColorA& downColor) {
+	void ImageButton::setHighImageColor(const ci::ColorA& downColor) const {
 		mDown.setColorA(downColor);
 		showUp();
 	}

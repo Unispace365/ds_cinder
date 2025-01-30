@@ -4,14 +4,12 @@
 
 
 #include <ds/ui/sprite/sprite.h>
-#include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds::ui {
 
-class LayoutSpriteBase : public ds::ui::Sprite {
+class ILayout {
   public:
-	LayoutSpriteBase(ds::ui::SpriteEngine& engine)
-	  : Sprite(engine) {}
+	virtual ~ILayout() = default;
 
 	virtual void runLayout() = 0;
 };
@@ -20,7 +18,7 @@ class LayoutSpriteBase : public ds::ui::Sprite {
  * \class LayoutSprite
  *		A sprite that can run recursive flow layouts. Children can be normal sprites or other layouts.
  */
-class LayoutSprite : public LayoutSpriteBase {
+class LayoutSprite : public Sprite, public ILayout {
   public:
 	LayoutSprite(ds::ui::SpriteEngine& engine);
 
@@ -67,6 +65,9 @@ class LayoutSprite : public LayoutSpriteBase {
 
 	void setLayoutUpdatedFunction(const std::function<void()> layoutUpdatedFunction);
 	void onLayoutUpdate();
+
+	bool isAutoLayout() const { return mAutoLayout; }
+	void setAutoLayout(bool enabled) { mAutoLayout = enabled; }
 
 	/// Returns the spacing between each element in the layout (use padding on each element to do add specific
 	/// spacing)
@@ -123,6 +124,15 @@ class LayoutSprite : public LayoutSpriteBase {
 	int		   mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 	ShrinkType mShrinkToChildren;
 	bool	   mSkipHiddenChildren;
+	bool	   mLayoutUpdated = false;
+	bool	   mAutoLayout	  = false;
+
+  private:
+	void onUpdateServer(const ds::UpdateParams& updateParams) override;
+
+	void onChildAdded(Sprite& child) override;
+
+	void onChildRemoved(Sprite& child) override;
 };
 
 } // namespace ds::ui

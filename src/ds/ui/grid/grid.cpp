@@ -198,25 +198,19 @@ float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprit
 namespace ds::ui {
 
 Grid::Grid(SpriteEngine& engine)
-  : LayoutSpriteBase(engine)
+  : Sprite(engine)
   , mEventClient(engine) {
 	setTransparent(false); // For debugging.
+}
 
-	// Listen to SpriteDimensionsChangedEvent.
-	mEventClient.listenToEvents<SpriteDimensionsChangedEvent>([this](const SpriteDimensionsChangedEvent& e) {
-		// Ignore if sprite is animated.
-		if (e.getSprite()->animationRunning()) return;
+void Grid::onChildAdded(Sprite& sprite) {
+	mNeedsLayout = true;
+	sprite.setDimensionsChangedCallback([&](Sprite* s) { mNeedsLayout |= !s->animationRunning(); });
+}
 
-		// No need to flag grid as dirty if it already is dirty.
-		if (mNeedsLayout) return;
-
-		// Check if sprite is a child of this grid.
-		auto parent = e.getParent();
-		if (parent == this) {
-			// Flag grid as dirty, so we can run the layout on the next update.
-			mNeedsLayout = true;
-		}
-	});
+void Grid::onChildRemoved(Sprite& sprite) {
+	mNeedsLayout = true;
+	sprite.setDimensionsChangedCallback(nullptr);
 }
 
 float Grid::getTrackWidth() const {
@@ -373,7 +367,7 @@ void Grid::performGridLayout() {
 
 	// Make sure layout items are updated.
 	for (auto item : items) {
-		auto layout = dynamic_cast<LayoutSpriteBase*>(item);
+		auto layout = dynamic_cast<ILayout*>(item);
 		if (layout) layout->runLayout();
 	}
 
@@ -585,7 +579,8 @@ int Grid::countGaps(size_t index, const std::vector<Track>& tracks) {
 	int count = -1;
 	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
-		if (tracks.at(i).usedBreadth > 0 /*|| tracks.at(i).isFlex()*/) // Note: counting flex tracks would be incorrect if flex tracks end up being zero.
+		if (tracks.at(i).usedBreadth > 0 /*|| tracks.at(i).isFlex()*/) // Note: counting flex tracks would be incorrect
+																	   // if flex tracks end up being zero.
 			++count;
 	}
 	return glm::max(0, count);
@@ -595,7 +590,8 @@ int Grid::countGaps(size_t index, const std::vector<Track*>& tracks) {
 	int count = -1;
 	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
-		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/) // Note: counting flex tracks would be incorrect if flex tracks end up being zero.)
+		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/) // Note: counting flex tracks would be
+																		 // incorrect if flex tracks end up being zero.)
 			++count;
 	}
 	return glm::max(0, count);

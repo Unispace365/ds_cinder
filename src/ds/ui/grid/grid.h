@@ -11,8 +11,8 @@
  */
 
 #include <ds/ui/grid/css.h>
-#include <ds/ui/sprite/sprite.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/sprite/sprite.h>
 #include <ds/util/float_util.h>
 
 namespace ds::ui {
@@ -22,7 +22,7 @@ using SpriteFn = std::function<T(const Sprite*)>;
 using SizeFn   = SpriteFn<float>;
 using SpanFn   = SpriteFn<const Range<size_t>&>;
 
-class Grid : public LayoutSpriteBase {
+class Grid : public Sprite, public ILayout {
   public:
 	struct Track;
 
@@ -34,6 +34,9 @@ class Grid : public LayoutSpriteBase {
 	using AccumulatorFn						= std::function<float&(Track&)>;
 
 	Grid(SpriteEngine& engine);
+
+	void onChildAdded(Sprite&) override;
+	void onChildRemoved(Sprite&) override;
 
 	// Returns the actual width of the grid, as calculated from the grid tracks.
 	float getTrackWidth() const;

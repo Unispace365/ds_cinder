@@ -182,7 +182,7 @@ namespace ui {
 		void setSizeAll(const ci::vec3& size3d);
 
 		/** Set the suppression of SpriteDimensionsChangedEvent during setSizeAll **/
-		void suppressSpriteDimensionsChangedEvent(bool suppress) { mSupressSpriteDimensionsChangedEvent = suppress; };
+		void suppressSpriteDimensionsChangedEvent(bool suppress) { mSuppressSpriteDimensionsChanged = suppress; };
 
 		/** Sets the width, height, and depth of the Sprite.
 			This does not affect the scale of the Sprite.
@@ -266,10 +266,13 @@ namespace ui {
 		/// Adjusts the sprite's transform to precisely fit inside the given area.
 		virtual void fitInsideArea(const ci::Rectf& area);
 
+		///
+		void setDimensionsChangedCallback(const std::function<void(Sprite*)>& fn) { mDimensionsChangedCallback = fn; }
+
 		/** The depth of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
-		float getDepth() const;
+		virtual float getDepth() const;
 
 		/** The local display width of this sprite.
 			Assuming all parents are scale=1.0, this will return the number of pixels this Sprite displays.
@@ -989,7 +992,9 @@ namespace ui {
 		css::Value mMinHeight{0, css::Value::PIXELS}, mMaxHeight;
 		Fit		   mFit;
 		bool	   mMinMaxDirty;
-		bool	   mSupressSpriteDimensionsChangedEvent=false;
+
+		bool						 mSuppressSpriteDimensionsChanged = false;
+		std::function<void(Sprite*)> mDimensionsChangedCallback;
 
 		mutable ci::mat4 mTransformation;
 		mutable ci::mat4 mInverseTransform;
@@ -1201,22 +1206,6 @@ namespace ui {
 			}
 		}
 	}
-
-	class SpriteDimensionsChangedEvent : public ds::RegisteredEvent<SpriteDimensionsChangedEvent> {
-		Sprite* mSprite;
-
-	  public:
-		SpriteDimensionsChangedEvent(Sprite* sprite)
-		  : mSprite(sprite) {}
-
-		Sprite*	 getParent() const { return mSprite->getParent(); }
-		Sprite*	 getSprite() const { return mSprite; }
-		ci::vec3 getSize() const { return mSprite->getSize(); }
-		ci::vec3 getScale() const { return mSprite->getScale(); }
-		float	 getScaleWidth() const { return mSprite->getScaleWidth(); }
-		float	 getScaleHeight() const { return mSprite->getScaleHeight(); }
-		float	 getScaleDepth() const { return mSprite->getScaleDepth(); }
-	};
 
 } // namespace ui
 } // namespace ds

@@ -732,6 +732,9 @@
     <ClInclude Include="..\src\ds\content\base_content_helper.h">
       <Filter>src\ds\content</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
