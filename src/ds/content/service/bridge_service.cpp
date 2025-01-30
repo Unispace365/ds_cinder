@@ -804,18 +804,15 @@ bool BridgeService::Loop::loadContent() {
 	}
 
 	// Sort Scheduled events
-	/* for (auto platform : mPlatforms.getChildren()) {
+	for (auto platform : mPlatforms.getChildren()) {
 		auto scheduledEvents = platform.getChildByName("scheduled_events");
 		auto platformEvents	 = scheduledEvents.getChildren();
 
 
-		if (!platformEvents.empty()) {
-			// Slightly different sort than used below. This just orders events chronologically
-			std::sort(std::begin(platformEvents), std::end(platformEvents), [](auto& a, auto& b) {
-				// Prioritize scheduled content over recurring content.
-				if (a.getPropertyString("span_type") != "RECURRING" && b.getPropertyString("span_type") == "RECURRING")
-					return true;
 
+		if (!platformEvents.empty()) {
+			// Slightly different sort than used for current_events. This just orders events chronologically
+			std::sort(std::begin(platformEvents), std::end(platformEvents), [](auto& a, auto& b) {
 				// Prioritize late start times over early start times.
 				if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
 					return a.getPropertyString("start_time") < b.getPropertyString("start_time");
@@ -827,7 +824,7 @@ bool BridgeService::Loop::loadContent() {
 			scheduledEvents.setChildren(platformEvents);
 			platform.replaceChild(scheduledEvents);
 		}
-	}*/
+	}
 
 	mRecordMap = recordMap;
 	// mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, recordMap);
