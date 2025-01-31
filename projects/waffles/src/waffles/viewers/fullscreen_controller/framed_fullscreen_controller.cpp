@@ -235,7 +235,7 @@ void FramedFullscreenController::updateUi() {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
-					webInterface->setKeyboardKeyScale(30.0f / 64.0f);
+					//webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();

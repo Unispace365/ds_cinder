@@ -41,7 +41,7 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	auto interfaceScale = mEngine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
 
 	auto viewerBackground = mEngine.getColors().getColorFromName("transparent_white");
-	auto backgroundColor  = mEngine.getColors().getColorFromName("ui_background");
+	auto backgroundColor  = mEngine.getColors().getColorFromName("viewer_background");
 	auto normalColor	  = mEngine.getColors().getColorFromName("ui_normal");
 	auto highColor		  = mEngine.getColors().getColorFromName("ui_selected");
 
@@ -144,7 +144,7 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 
 		if (ytInterface->getScrubBarBackground() && ytInterface->getScrubBarProgress()) {
 			ytInterface->getScrubBarBackground()->setColor(normalColor);
-			ytInterface->getScrubBarBackground()->setOpacity(0.2);
+			ytInterface->getScrubBarBackground()->setOpacity(0.25);
 			ytInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
 			ytInterface->getScrubBarProgress()->setColor(normalColor);
 			ytInterface->getScrubBarProgress()->setCornerRadius(cornerRad);
@@ -165,7 +165,7 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 			//sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
-			sliderSprites.mSliderTrack->setOpacity(0.2);
+			sliderSprites.mSliderTrack->setOpacity(0.25);
 			sliderSprites.mSliderTrack->setCornerRadius(cornerRad);
 
 			sliderSprites.mSliderFill->setColor(normalColor);
@@ -189,11 +189,12 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 	if (webInterface) {
 		auto interfaceHeight = webInterface->getHeight();
 		webInterface->setKeyboardDisablesTimeout(false);
-		/* TODO: getKeyboardArea() doesn't exist
+		
 		if (auto keebArea = webInterface->getKeyboardArea()) {
-			keebArea->setCornerRadius(0.f);
+			//keebArea->setCornerRadius(0.f);
+			keebArea->setColor(backgroundColor);
 		}
-		*/
+	
 		if (auto keyboard = webInterface->getKeyboardButton()) {
 			
 			//keyboard->setNormalImage("%APP%/data/images/waffles/icons(framed)/keyboard=active.png", imageFlags);
@@ -285,7 +286,8 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 			count->setColor(normalColor);
 		}
 		if (pdfInterface->getScrubBarBackground() && pdfInterface->getScrubBarProgress()) {
-			pdfInterface->getScrubBarBackground()->setColor(highColor);
+			pdfInterface->getScrubBarBackground()->setColor(normalColor);
+			pdfInterface->getScrubBarBackground()->setOpacity(0.25);
 			pdfInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
 			pdfInterface->getScrubBarProgress()->setColor(normalColor);
 			pdfInterface->getScrubBarProgress()->setCornerRadius(cornerRad);

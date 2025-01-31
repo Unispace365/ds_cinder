@@ -274,6 +274,9 @@ void TitledMediaViewer::calculateSizeLimits() {
 	setSize(mDefaultSize.x, mDefaultSize.y);
 	setSizeLimits();
 	setViewerSize(mDefaultSize.x, mDefaultSize.y);
+	if (mDefaultSize.x == 0 || mDefaultSize.y == 0) {
+		DS_LOG_ERROR("DEFAULT SIZE IS ZERO");
+	}
 }
 
 void TitledMediaViewer::onMediaSet() {
@@ -310,9 +313,17 @@ void TitledMediaViewer::onMediaSet() {
 		auto streamTypeKey = helper->getStreamSourceTypeKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
 		auto streamType			  = streamSource.getPropertyString(streamTypeKey);
 		auto streamAddress		  = streamSource.getPropertyString(streamAddressKey);
+		auto fakeRes			  = ds::Resource(streamAddress);
+		fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
+		fakeRes.setFileName(streamAddress);
+		fakeRes.setLocalFilePath(streamAddress);
+		fakeRes.setWidth(1920);
+		fakeRes.setHeight(1080);
+		mMediaRef.setPropertyResource("media_media_res", ds::Resource(fakeRes));
+	
 		if (streamType == "rtsp") {
 			DS_LOG_INFO("Got a network stream! " << streamAddress);
-			mMediaRef.setPropertyResource("media_media_res", ds::Resource(streamAddress));
+			
 		} else if(streamType == "capture") {
 			DS_LOG_INFO("Got a capture stream! " << streamAddress);
 			if (auto cappy = mRootLayout->getSprite<waffles::CapturePlayer>("capture_player")) {
@@ -322,7 +333,7 @@ void TitledMediaViewer::onMediaSet() {
 					cappy->show();
 					mMediaPlayer->setSize(cappy->getWidth(), cappy->getHeight());
 					mMediaPlayer->setContentAspectRatio(cappy->getWidth() / cappy->getHeight());
-
+					mMediaPlayer->loadMedia(fakeRes);
 					setSize(cappy->getWidth(), cappy->getHeight());
 					setSizeLimits();
 					setViewerSize(cappy->getWidth(), cappy->getHeight());
@@ -358,7 +369,9 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mWebAllowTouchToggle  = true;
 	mvs.mCanDisplayInterface  = true;
 	mvs.mWebStartTouchable	  = mCreationArgs.mStartLocked;
-
+	if (mShowingWebcam) {
+		mvs.mDefaultBounds = ci::vec2(1920, 1080);
+	}
 
 	auto webSize = mEngine.getWafflesSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
 	if (primaryResource.getAbsoluteFilePath().find(".gif") != std::string::npos) {
@@ -594,8 +607,17 @@ void TitledMediaViewer::onMediaSet() {
 		}
 
 		mMediaPlayer->enter();
-	}
 
+	}
+	/* auto nameSp = mRootLayout->getSprite<ds::ui::Text>("name");
+	if (nameSp) {
+		
+		nameSp->setResizeLimit(mMediaPlayer->getWidth(), nameSp->getResizeLimitHeight());
+		auto txt = mMediaRef.getPropertyString("record_name");
+		nameSp->setText("");
+		nameSp->setText(txt);
+	}*/
+	
 	layout();
 	// mRootLayout->runLayout();
 
@@ -760,9 +782,12 @@ void TitledMediaViewer::onLayout() {
 		}
 	}
 
+	
+
 	if (mRootLayout) {
 		mRootLayout->completeAllTweens(false, true);
 		mRootLayout->setSize(getWidth(), getHeight());
+		
 		mRootLayout->runLayout();
 		mRootLayout->clearAnimateOnTargets(true);
 	}

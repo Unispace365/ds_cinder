@@ -8,6 +8,7 @@
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 #include <ds/ui/sprite/image.h>
 #include "waffles/common/ui_utils.h"
 namespace waffles {
@@ -80,14 +81,17 @@ void FramedMediaViewer::onLayout() {
 	auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("inner_holdy");
 	
 	if (mRootLayout) {
-		mRootLayout->setSize(getWidth(), getHeight());
+		auto w = getWidth();
+		auto h = getHeight();
+		mRootLayout->setSize(w, h);
 		mRootLayout->runLayout();
 	}
-
+	
 	auto nw = theLayout->getWidth();
 	auto oldh = theLayout->getHeight();
 	auto nh = theLayout->getWidth() / mContentAspectRatio;
 	auto diff = nh - oldh;
+	
 	theLayout->setSize(nw, nh);
 
 	if (mMediaPlayer && theLayout) {
@@ -122,6 +126,13 @@ void FramedMediaViewer::onLayout() {
 		
 		mRootLayout->completeAllTweens(false, true);
 		mRootLayout->setSize(getWidth(), getHeight()+diff);
+		/* auto nameSp = mRootLayout->getSprite<ds::ui::Text>("name");
+		if (nameSp) {
+			nameSp->setSize(mMediaPlayer->getWidth(), 300);
+			nameSp->setResizeLimit(mMediaPlayer->getWidth(), -2);
+			auto txt = nameSp->getText();
+			nameSp->setText(txt);
+		}*/
 		mRootLayout->runLayout();
 		mRootLayout->clearAnimateOnTargets(true);
 	}
@@ -222,7 +233,7 @@ void FramedMediaViewer::onMediaSet() {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
-					webInterface->setKeyboardKeyScale(30.0f / 64.0f);
+					//webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
@@ -232,18 +243,22 @@ void FramedMediaViewer::onMediaSet() {
 							auto&	  setty		= keeb->getSoftKeyboardSettings();
 							ci::ColorA up = mEngine.getColors().getColorFromName("waffles_key_up");
 							ci::ColorA down		= mEngine.getColors().getColorFromName("waffles_key_down");
+							ci::ColorA keyb		 = mEngine.getColors().getColorFromName("viewer_background");
 
 							setty.mKeyDownColor				  = down;
 							setty.mKeyUpColor				  = up;
 							auto tc							  = setty.mKeyDnTextConfig;
 							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
 							setty.mGraphicRoundedCornerRadius = 8;
+							setty.mGraphicKeySize			  = 30;
+							
 							keeb->setSoftKeyboardSettings(setty);
 							
 							auto keyboardArea = webInterface->getKeyboardArea();
 							if (keyboardArea) {
 								keyboardArea->enable(true);
 								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+								keyboardArea->setColor(keyb);
 							}
 
 							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
