@@ -65,11 +65,6 @@ bool isPreMultiplied() { // TODO: add this to Cinder.
 	return false;
 }
 
-// Note: to avoid an MSVC compiler error due to an inline definition, we define the static members in the cpp file.
-
-thread_local std::vector<GLuint> Path::sPaths{};
-thread_local std::vector<GLuint> Path::sClipPaths{};
-
 bool Paint::Stop::operator==(const Stop& other) const {
 	return ds::approxEqual(offset, other.offset) && color == other.color;
 }
