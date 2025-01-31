@@ -44,7 +44,7 @@ class BaseElement : public ds::ui::BasePanel {
 	void allowFullscreen(bool allow);
 
 	/// This should only be set by ViewerContoller, which manages fullscreen-ness
-	void setIsFullscreen(const bool isFullscreen);
+	void setIsFullscreen(bool isFullscreen);
 	bool getIsFullscreen() const;
 
 	/// If this element can be detached from the layout
@@ -53,39 +53,39 @@ class BaseElement : public ds::ui::BasePanel {
 	void allowDetach(bool allow);
 
 	/// If this element is detached from the layout
-	void setIsDetached(const bool isDetached);
+	void setIsDetached(bool isDetached);
 	bool getIsDetached() const;
 
 	/// How many of this specific type of viewers can be onscreen at a time
-	const int getMaxNumberOfThisType() const;
+	int getMaxNumberOfThisType() const;
 
-	const std::string& getViewerType();
+	const std::string& getViewerType() const;
 
 	/// If this element encountered an error it can't recover from. If true, this element may be removed at the next
 	/// layout request or other event
-	bool getIsFatalErrored() const;
+	bool getIsFatalErrorred() const;
 
 	/// For viewerController to clean up this element
 	virtual void setCloseRequestCallback(std::function<void(void)> func) final;
 
 	virtual void close();
 
-	/// For viewerContoller to manage the viewer list
+	/// For viewerController to manage the viewer list
 	virtual void setActivatedCallback(std::function<void(void)> func) final;
 
 	virtual void animateOn() final;
-	virtual void animateOn(const float delay) final;
+	virtual void animateOn(float delay) final;
 
 	/// Sets with layer this is on. See ViewerCreationArgs for possible values
-	virtual void setViewerLayer(const int viewerLayer) final;
-	const int	 getViewerLayer() const;
+	virtual void setViewerLayer(int viewerLayer) final;
+	int          getViewerLayer() const;
 
 	/// Sets the size/position of this viewer when it's not in fullscreen mode (so it can return to it after being
 	/// fullscreened)
 	void	  setUnfullscreenRect(ci::Rectf recty);
 	ci::Rectf getUnfullscreenRect() const;
 
-	virtual void setToFullscreen(const bool immediate,const bool showController);
+	virtual void setToFullscreen(bool immediate, bool showController);
 
 	virtual int getMediaRotation() { return 0; }
 
@@ -122,8 +122,8 @@ class BaseElement : public ds::ui::BasePanel {
 	// Detached has been set.
 	virtual void onDetachedSet() {}
 
-	virtual void onPanelActivated() override;
-	virtual void onParentSet() override;
+	void onPanelActivated() override;
+	void onParentSet() override;
 
 	friend class ViewerController;
 

@@ -229,10 +229,10 @@ ViewerController* ViewerController::getInstance() {
 	return THIS_INSTANCE;
 }
 
-std::vector<BaseElement*> ViewerController::getViewersOfType(const std::string& typeOfViewer) {
+std::vector<BaseElement*> ViewerController::getViewersOfType(const std::string& type) const {
 	std::vector<BaseElement*> viewers;
 	for (auto it : mViewers) {
-		if (it->getViewerType() == typeOfViewer) {
+		if (it->getViewerType() == type) {
 			viewers.push_back(it);
 		}
 	}
@@ -240,7 +240,7 @@ std::vector<BaseElement*> ViewerController::getViewersOfType(const std::string& 
 	return viewers;
 }
 
-std::vector<BaseElement*> ViewerController::getViewersWithResourceId(const ds::Resource::Id& resourceId) {
+std::vector<BaseElement*> ViewerController::getViewersWithResourceId(const ds::Resource::Id& resourceId) const {
 	std::vector<BaseElement*> returnElements;
 	auto					  allViewers = getViewersOfType(VIEW_TYPE_TITLED_MEDIA_VIEWER);
 	for (auto vit : allViewers) {
@@ -566,7 +566,7 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 		viewer->tweenScale(viewer->getScale() / 2.0f, mEngine.getAnimDur(), delayey, ci::easeInCubic, completeCallback);
 	} */
 
-	mChannelClient.notify(ViewerUpdatedEvent());
+	// mChannelClient.notify(ViewerUpdatedEvent());
 	mChannelClient.notify(ViewerRemovedEvent(viewer));
 }
 
@@ -627,7 +627,7 @@ void ViewerController::arrangeViewers() {
 			continue;
 		}
 
-		if (be && be->canArrange() && !be->getIsFatalErrored()) {
+		if (be && be->canArrange() && !be->getIsFatalErrorred()) {
 
 			be->hideTitle();
 
@@ -1043,7 +1043,7 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		for (auto mit = leftoverViewers.begin(); mit < leftoverViewers.end(); ++mit) {
 			auto leViewer = (*mit);
 			if (leViewer->getIsAboutToBeRemoved()) continue;
-			if (leViewer->getIsFatalErrored()) continue;
+			if (leViewer->getIsFatalErrorred()) continue;
 			if (leViewer->getMediaRotation() != 0) continue; // discard rotated viewers
 			if (leViewer->getMedia().getPropertyResource(mediaPropertyKey) == newMedia.getPropertyResource(mediaPropertyKey)) {
 				leViewer->sendToFront();

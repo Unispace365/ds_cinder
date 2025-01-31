@@ -70,11 +70,11 @@ class ViewerController : public ds::ui::Sprite {
 	// This is exposed for convenience - for easier querying and interconnection of elements onscreen
 	// The viewers in this list are still owned by this class.
 	// Use the public methods for adding/removing viewers.
-	virtual std::vector<BaseElement*>& getViewers() { return mViewers; }
+	virtual const std::vector<BaseElement*>& getViewers() const { return mViewers; }
 
-	virtual std::vector<BaseElement*> getViewersOfType(const std::string& type);
+	virtual std::vector<BaseElement*> getViewersOfType(const std::string& type) const;
 
-	virtual std::vector<BaseElement*> getViewersWithResourceId(const ds::Resource::Id& resourceId);
+	virtual std::vector<BaseElement*> getViewersWithResourceId(const ds::Resource::Id& resourceId) const;
 
 	// Makes the supplied viewer fullscreen and adds a black layer behind it
 	virtual void fullscreenViewer(BaseElement* viewer, const bool immediate, const bool showController = true);

@@ -163,7 +163,7 @@ void ScreenStateService::saveState(ci::XmlTree& tree) {
 
 void ScreenStateService::writeViewer(ci::XmlTree& theTree, BaseElement* be) {
 	if (!be) return;
-	if (be->getIsFatalErrored()) return;
+	if (be->getIsFatalErrorred()) return;
 	if (be->getIsAboutToBeRemoved()) return;
 
 	auto globalPos = be->getGlobalPosition();

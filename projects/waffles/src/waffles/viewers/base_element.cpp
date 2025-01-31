@@ -91,15 +91,15 @@ bool BaseElement::getIsDetached() const {
 	return mIsDetached;
 }
 
-const int BaseElement::getMaxNumberOfThisType() const {
+int BaseElement::getMaxNumberOfThisType() const {
 	return mMaxViewersOfThisType;
 }
 
-const std::string& BaseElement::getViewerType() {
+const std::string& BaseElement::getViewerType() const {
 	return mViewerType;
 }
 
-bool BaseElement::getIsFatalErrored() const {
+bool BaseElement::getIsFatalErrorred() const {
 	return mFatalError;
 }
 
@@ -130,7 +130,7 @@ void BaseElement::setViewerLayer(const int viewerLayer) {
 	onViewerLayerSet();
 }
 
-const int BaseElement::getViewerLayer() const {
+int BaseElement::getViewerLayer() const {
 	return mViewerLayer;
 }
 
