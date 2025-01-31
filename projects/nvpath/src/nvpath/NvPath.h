@@ -764,10 +764,18 @@ class Path {
 	static void optimizeImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
 	static void reverseImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
 
-	GLuint mPathId{0};
+	//! Contains path id info for instanced rendering. Using lazy initialization to avoid a rare crash in Debug mode.
+	static std::vector<GLuint>& sPaths() {
+		thread_local static std::vector<GLuint> paths;
+		return paths;
+	}
+	//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
+	static std::vector<GLuint>& sClipPaths() {
+		thread_local static std::vector<GLuint> clipPaths;
+		return clipPaths;
+	}
 
-	inline thread_local static std::vector<GLuint> sPaths{};
-	inline thread_local static std::vector<GLuint> sClipPaths{};
+	GLuint mPathId{0};
 };
 
 //! Can be used to construct paths from code. No validation is performed whatsoever.
