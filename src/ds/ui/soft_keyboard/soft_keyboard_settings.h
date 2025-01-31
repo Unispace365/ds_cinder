@@ -14,7 +14,7 @@ namespace ds { namespace ui {
 	  public:
 		typedef enum { kBorder, kSolid, kCircularBorder, kCircularSolid } GraphicType;
 
-		SoftKeyboardSettings()
+		SoftKeyboardSettings(bool empty=false)
 		  : mKeyTouchPadding(4.0f)
 		  , mKeyInitialPosition(0.0f, 0.0f)
 		  , mKeyTextOffset(0.0f, 0.0f)
@@ -43,7 +43,10 @@ namespace ds { namespace ui {
 		  , mKeyDnTextConfig("keyboard:key:down")
 		  , mEmailMode(false) // Only applies to the "extended" keyboard (adds @ and .com keys)
 		  , mKeyScale(1.0f)
-		  , mBackgroundOpacity(0.98f) {}
+		  , mBackgroundOpacity(0.98f)
+		  , mEmpty(empty) {}
+
+		
 
 		void normalizeSettings() {
 			if (mKeyLetterDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyLetterDnImage))) {
@@ -131,6 +134,7 @@ namespace ds { namespace ui {
 
 		/// Opacity of the keyboard holder (if applicable)
 		float mBackgroundOpacity;
+		bool  mEmpty;
 	};
 
 }} // namespace ds::ui

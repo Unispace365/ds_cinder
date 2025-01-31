@@ -2,6 +2,7 @@
 
 #include "ds/app/event_client.h"
 #include "ds/ui/media/media_interface.h"
+#include "ds/ui/soft_keyboard/soft_keyboard_settings.h"
 
 namespace ds::ui {
 
@@ -19,7 +20,7 @@ class LayoutSprite;
 class WebInterface : public MediaInterface {
   public:
 	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-				 const ci::Color buttonColor, const ci::Color backgroundColor);
+				 const ci::Color buttonColor, const ci::Color backgroundColor, ds::ui::SoftKeyboardSettings settings= ds::ui::SoftKeyboardSettings(true));
 
 	virtual void animateOff();
 	virtual void onUpdateServer(const ds::UpdateParams& p) override;
@@ -71,7 +72,7 @@ class WebInterface : public MediaInterface {
 	ds::ui::Sprite*		 getKeyboardArea() { return mKeyboardArea; }
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
-
+	void				  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
   protected:
 	virtual void onLayout();
 
@@ -81,6 +82,7 @@ class WebInterface : public MediaInterface {
 
 	ds::ui::Sprite*			  mKeyboardArea;
 	ds::ui::SoftKeyboard*	  mKeyboard;
+	ds::ui::SoftKeyboardSettings mKeyboardSettings;
 	bool					  mKeyboardShowing;
 	bool					  mKeyboardAllowed;
 	bool					  mKeyboardAbove;

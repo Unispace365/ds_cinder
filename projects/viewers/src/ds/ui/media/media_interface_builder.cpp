@@ -158,8 +158,14 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 
 		ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 		if (webPlayer) {
+			ds::ui::SoftKeyboardSettings sks;
+			sks.mKeyScale					= 1.0;
+			sks.mGraphicKeys				= true;
+			sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
+			sks.mGraphicRoundedCornerRadius = engine.getWafflesSettings().getFloat("ui:keyboard:key_corner_radius", 0, 8.0f);
+			sks.mGraphicKeySize				= engine.getWafflesSettings().getFloat("ui:keyboard:key_size", 0, 30.0f);
 			ds::ui::WebInterface* wi =
-				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor);
+				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor,sks);
 			parentSprite->addChildPtr(wi);
 			wi->linkWeb(webPlayer->getWeb());
 			outputMi = wi;

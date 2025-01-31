@@ -25,7 +25,7 @@
 namespace ds::ui {
 
 WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor)
+						   const ci::Color buttonColor, const ci::Color backgroundColor, ds::ui::SoftKeyboardSettings settings)
   : MediaInterface(eng, ds::Resource::WEB_TYPE, sizey, backgroundColor)
   , mEventClient(mEngine)
   , mLinkedWeb(nullptr)
@@ -46,7 +46,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
   , mAuthorizing(false)
   , mAuthLayout(nullptr)
   , mUserField(nullptr)
-  , mPasswordField(nullptr) {
+  , mPasswordField(nullptr)
+  , mKeyboardSettings(settings){
 
 	mInitialSize = sizey.y;
 	mCanLock = true;
@@ -373,6 +374,7 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 	updateWidgets();
 }
 
+
 // TODO: make this into a layoutsprite
 // Layout is called when the size is changed, so don't change the size in the layout
 void WebInterface::onLayout() {
@@ -478,11 +480,16 @@ void WebInterface::updateWidgets() {
 			}
 			if (!mKeyboard) {
 				ds::ui::SoftKeyboardSettings sks;
-				sks.mKeyScale					= mKeyboardKeyScale;
-				sks.mGraphicKeys				= true;
-				sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
-				sks.mGraphicRoundedCornerRadius = 5;
-				mKeyboard						= ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
+				if (mKeyboardSettings.mEmpty) {
+					sks.mKeyScale					= mKeyboardKeyScale;
+					sks.mGraphicKeys				= true;
+					sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
+					sks.mGraphicRoundedCornerRadius = 5;
+				} else {
+					sks = mKeyboardSettings;
+				}
+					mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
+				
 				mKeyboardArea->addChildPtr(mKeyboard);
 
 				mKeyboardArea->setColor(mBackground->getColor());
