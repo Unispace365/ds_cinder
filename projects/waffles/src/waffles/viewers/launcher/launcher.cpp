@@ -804,7 +804,10 @@ void Launcher::updateBreadcrumbText() {
 		breadcrumb->setText(filter + " / ... / " + ds::join(text_stack, " / "));
 	}
 	if (text_stack.empty()) {
-		breadcrumb->setText(filter);
+		breadcrumb->setText(
+			mEngine.getWafflesSettings().getBool("launcher:breadcrumb:root_says_filter", 0, true)
+				? filter : ""
+		);
 		if (!mFolderStack.empty()) {
 			DS_LOG_INFO("failed to fit waffles launcher breadcrumb text in width of " << max_width);
 		}
