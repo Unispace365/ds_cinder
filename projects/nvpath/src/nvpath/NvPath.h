@@ -766,8 +766,8 @@ class Path {
 
 	GLuint mPathId{0};
 
-	inline thread_local static std::vector<GLuint> sPaths{};
-	inline thread_local static std::vector<GLuint> sClipPaths{};
+	thread_local static std::vector<GLuint> sPaths;
+	thread_local static std::vector<GLuint> sClipPaths;
 };
 
 //! Can be used to construct paths from code. No validation is performed whatsoever.
