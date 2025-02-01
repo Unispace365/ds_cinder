@@ -537,7 +537,7 @@ void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawPar
 		drawBlur();
 		mBlurDirty = mAlwaysRender; // True if rendering shadows every frame, false otherwise
 
-		if (!mBlurDirty && mPendingBlurs < 0) {
+		if (!mBlurDirty && mPendingBlurs <= 0) {
 			blurSource->setFinalRenderToTexture(false);
 		}
 	}
