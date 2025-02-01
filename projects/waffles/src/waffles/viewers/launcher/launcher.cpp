@@ -331,7 +331,7 @@ void Launcher::handleSelection() {
 ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string btnConfig)
 {
 	auto parts = ds::split(btnConfig, "|");
-	if (parts.size() != 2) {
+	if (parts.size() < 2) {
 		DS_LOG_WARNING("Invalid launcher button config: " << btnConfig);
 		return ds::model::ContentModelRef();
 	}
@@ -340,6 +340,14 @@ ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string bt
 	auto mode = ds::model::ContentModelRef(name);
 	mode.setProperty("type_key", std::string(type));
 	mode.setProperty("record_name", std::string(name));
+	mode.setProperty("has_icon", false);
+	if (parts.size() > 2) {
+		auto res = ds::Resource::fromImage(ds::Environment::expand(parts[2]));
+		if (!res.empty()) {
+			mode.setPropertyResource("icon_src", res);
+			mode.setProperty("has_icon", true);
+		}
+	}
 	return mode;
 }
 
@@ -489,6 +497,7 @@ ds::ui::SmartLayout* Launcher::createButton(ds::model::ContentModelRef item) {
 	auto assetBtn = new ds::ui::SmartLayout(mEngine, "waffles/common/filter_item.xml");
 	assetBtn->setContentModel(item);
 	updateItem(assetBtn);
+	filterItemIconHandle(assetBtn);
 	assetBtn->enable(false);
 	if (auto btn = assetBtn->getSprite("the_btn")) {
 		btn->enable(true);
@@ -820,6 +829,20 @@ std::string Launcher::upperedFilterText() {
 		filter[0] = std::toupper(filter[0]);
 	}
 	return filter;
+}
+
+void Launcher::filterItemIconHandle(ds::ui::SmartLayout* item) {
+	auto model = item->getContentModel();
+	for (std::string name : { "icon", "icon_high" }) {
+		if (auto icon = item->getSprite<ds::ui::Image>(name)) {
+			if (model.getPropertyBool("has_icon")) {
+				icon->setImageResource(model.getPropertyResource("icon_src"));
+				icon->show();
+			} else {
+				icon->hide();
+			}
+		} 
+	}
 }
 
 } // namespace waffles

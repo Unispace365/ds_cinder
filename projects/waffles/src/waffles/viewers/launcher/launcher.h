@@ -59,6 +59,7 @@ class Launcher : public BaseElement {
 	std::vector<ds::model::ContentModelRef> recurseContent(std::vector<ds::model::ContentModelRef> content);
 	void updateBreadcrumbText();
 	std::string upperedFilterText();
+	void filterItemIconHandle(ds::ui::SmartLayout* item);
 
 	std::vector<ds::model::ContentModelRef> mFolderStack;
 
