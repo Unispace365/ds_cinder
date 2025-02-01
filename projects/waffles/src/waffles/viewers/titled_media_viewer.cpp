@@ -306,9 +306,14 @@ void TitledMediaViewer::onMediaSet() {
 
 	//check for a stream and do special handling. 
 	auto isStream = helper->isValidStream(mMediaRef,WafflesHelper::WAFFLESCATEGORY);
-	if (isStream) {
+	auto isStreamSource = helper->isValidStreamSource(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
+	if (isStream || isStreamSource) {
+	
 		//get the stream source
-		auto streamSource = helper->getStreamSourceForStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
+		auto streamSource = mMediaRef;
+		if (isStream) {
+			streamSource = helper->getStreamSourceForStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
+		}
 		auto streamAddressKey	  = helper->getStreamSourceAddressKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
 		auto streamTypeKey = helper->getStreamSourceTypeKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
 		auto streamType			  = streamSource.getPropertyString(streamTypeKey);

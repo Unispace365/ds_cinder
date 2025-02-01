@@ -19,7 +19,9 @@ void FramedViewerController::initCreators() {
 				   auto mediaPropertyKey = helper->getMediaPropertyKey(args.mMediaRef);
 				   auto theResource		 = args.mMediaRef.getPropertyResource(mediaPropertyKey);
 				   auto isStream = helper->isValidStream(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
-				   if (!isStream && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
+				   auto isStreamSource =
+					   helper->isValidStreamSource(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
+				   if (!isStream && !isStreamSource && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 					   theResource.getType() != ds::Resource::WEB_TYPE &&
 					   theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
 					   theResource.getType() != ds::Resource::VIDEO_STREAM_TYPE) {
