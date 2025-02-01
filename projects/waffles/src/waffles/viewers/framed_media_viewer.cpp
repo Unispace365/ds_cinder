@@ -204,6 +204,17 @@ void FramedMediaViewer::onMediaSet() {
 
 	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
 	auto mediaPlayer	 = getMediaPlayer();
+	if (mShowingWeb) {
+		auto webBacking = mRootLayout->getSprite("web_backing");
+		if (webBacking) {
+			webBacking->show();
+		}
+		if (auto filly = mRootLayout->getSprite("bg_filler")) {
+			auto borderOpacity = mEngine.getWafflesSettings().getFloat("w2:viewer:border:opacity", 0, 0.8);
+			filly->setOpacity(borderOpacity);
+		}
+	}
+	
 	if (mediaPlayer) {
 		auto mps = mediaPlayer->getSettings();
 		mps.mCanDisplayInterface = false;
