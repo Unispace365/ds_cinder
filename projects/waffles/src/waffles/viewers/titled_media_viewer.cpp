@@ -319,11 +319,14 @@ void TitledMediaViewer::onMediaSet() {
 		auto streamType			  = streamSource.getPropertyString(streamTypeKey);
 		auto streamAddress		  = streamSource.getPropertyString(streamAddressKey);
 		auto fakeRes			  = ds::Resource(streamAddress);
-		fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
+		
 		fakeRes.setFileName(streamAddress);
 		fakeRes.setLocalFilePath(streamAddress);
 		fakeRes.setWidth(1920);
 		fakeRes.setHeight(1080);
+		if (streamType == "rtsp") {
+			fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
+		}
 		mMediaRef.setPropertyResource("media_media_res", ds::Resource(fakeRes));
 	
 		if (streamType == "rtsp") {
