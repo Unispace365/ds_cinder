@@ -245,15 +245,22 @@ void FramedFullscreenController::updateUi() {
 							auto&	   setty = keeb->getSoftKeyboardSettings();
 							ci::ColorA up	 = mEngine.getColors().getColorFromName("waffles_key_up");
 							ci::ColorA down	 = mEngine.getColors().getColorFromName("waffles_key_down");
+							ci::ColorA keyb		= mEngine.getColors().getColorFromName("viewer_background");
 
 							setty.mKeyDownColor				  = down;
 							setty.mKeyUpColor				  = up;
 							auto tc							  = setty.mKeyDnTextConfig;
 							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
 							setty.mGraphicRoundedCornerRadius = 8;
+							setty.mGraphicKeySize			  = 30;
 							keeb->setSoftKeyboardSettings(setty);
 
-
+							auto keyboardArea = webInterface->getKeyboardArea();
+							if (keyboardArea) {
+								keyboardArea->enable(true);
+								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+								keyboardArea->setColor(keyb);
+							}
 							// setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
 							//					   keyboardBtn);
 
