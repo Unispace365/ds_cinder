@@ -52,12 +52,15 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mInitialSize = sizey.y;
 	mCanLock = true;
 
+	
+
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
 	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
 	mKeyboardArea->setCornerRadius(15.0f);
 	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
+	
 	addChildPtr(mKeyboardArea);
 
 	mEventClient.listenToEvents<ds::app::EntryFieldRegisteredEvent>([this](auto&) {
@@ -154,6 +157,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mMaxWidth = mMinWidth;
 
 	updateWidgets();
+
+	setDrawSorted(true);
 }
 
 void WebInterface::setKeyboardAllow(const bool keyboardAllowed) {
@@ -180,6 +185,18 @@ void WebInterface::setKeyboardAbove(const bool kerboardAbove) {
 	mKeyboardAbove = kerboardAbove;
 
 	layout();
+}
+
+void WebInterface::setKeyboardOnTop(const bool keyboardOnTop) {
+	mKeyboardOnTop = keyboardOnTop;
+	if (mKeyboardArea) {
+		auto pos = mKeyboardArea->getPosition();
+		pos.z	 = mKeyboardOnTop ? 1 : -1;
+		mKeyboardArea->setPosition(pos);
+
+		std::sort(mChildren.begin(), mChildren.end(),
+				  [](Sprite* i, Sprite* j) { return i->getPosition().z < j->getPosition().z; });
+	}
 }
 
 void WebInterface::setAllowTouchToggle(const bool allowTouchToggling) {
@@ -424,8 +441,8 @@ void WebInterface::onLayout() {
 		const float keyboardH = mKeyboardArea->getHeight();
 		float		yp		  = h;
 		if (mKeyboardAbove) yp = -keyboardH;
-
-		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp);
+		auto z = mKeyboardOnTop ? 1.0f : -1.0f;
+		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp,z);
 
 		if (mAuthLayout) {
 			mAuthLayout->setSize(keyboardW, mAuthLayout->getHeight());

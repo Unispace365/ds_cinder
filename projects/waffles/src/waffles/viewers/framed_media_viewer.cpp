@@ -247,6 +247,7 @@ void FramedMediaViewer::onMediaSet() {
 					//webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
+					webInterface->setKeyboardOnTop(true);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {

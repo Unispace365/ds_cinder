@@ -33,6 +33,7 @@ class WebInterface : public MediaInterface {
 	void setAllowNativeKeyboard(bool nativeKeyboardAllowed);
 	void setAllowNativeKeyboardOnly(bool nativeKeyboardOnlyAllowed);
 	void setKeyboardAbove(const bool kerboardAbove);
+	void setKeyboardOnTop(const bool keyboardOnTop);
 	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
 	void setMessageCallback(std::function<void(const std::string&, const std::string&, int line)> func) {
@@ -86,6 +87,7 @@ class WebInterface : public MediaInterface {
 	bool					  mKeyboardShowing;
 	bool					  mKeyboardAllowed;
 	bool					  mKeyboardAbove;
+	bool					  mKeyboardOnTop;
 	bool					  mKeyboardAutoDisablesTimeout;
 	std::function<void(bool)> mKeyboardStatusCallback = nullptr;
 
