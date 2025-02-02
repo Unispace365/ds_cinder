@@ -310,7 +310,8 @@ namespace ui {
 			\param x The x (horizontal) position, in pixels.
 			\param y The y (vertical) position, in pixels.
 			\param z The z (depth) position, in pixels. */
-		void setPosition(float x, float y, float z = 0.0f);
+		void setPosition(float x, float y, float z);
+		void setPosition(float x, float y);
 
 		/** Get the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
