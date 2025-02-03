@@ -84,7 +84,7 @@ void FramedFullscreenController::init() {
 		}
 	});
 
-	auto collapseBtn = mRootLayout->getSprite("controller_collapse_btn.the_button");
+	auto collapseBtn = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
 	
 	if (collapseBtn) {
 		collapseBtn->enable(false);
@@ -92,14 +92,24 @@ void FramedFullscreenController::init() {
 			static ci::vec3 firstTouch = ci::vec3(0, 0, 0);
 			if (ti.mPhase == ds::ui::TouchInfo::Added) {
 				firstTouch = ti.mCurrentGlobalPoint;
+				if (collapseBtn->contains(ti.mCurrentGlobalPoint)) {
+					
+					auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+					auto btn = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+					btn->setColorA(highColor);
+				}
+				
 			} else if (ti.mPhase == ds::ui::TouchInfo::Removed && glm::distance(ti.mCurrentGlobalPoint, firstTouch)<2) {
-				sp->passTouchToSprite(collapseBtn, ti);
+				//sp->passTouchToSprite(collapseBtn, ti);
 				if (collapseBtn->contains(ti.mCurrentGlobalPoint)) {
 					if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
 					if (mMediaInterface && mMediaInterface->isLocked()) {
 						return;
 					}
 					removeDrawingTools();
+					auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+					auto btn		 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+					btn->setColorA(normalColor);
 					mIsCollapsed ? uncollapse() : collapse();
 				}
 			}
@@ -416,9 +426,15 @@ void FramedFullscreenController::collapse() {
 	auto controls = mRootLayout->getSprite("border_layout");
 	auto backRect = mRootLayout->getSprite("bg_filler");
 	auto btn		 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
-	if (btn) {
+	auto btnHigh  = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
+	auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+	if (btn && btnHigh) {
 		
-		btn->setImageFile("%APP%/data/images/waffles/icons2/16x16/expand.png");
+		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
+		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
+		//btn->setColorA(normalColor);
+		//btnHigh->setColorA(highColor);
 	}
 	mUncollapsedSize = backRect->getSize();
 	if (controls && backRect) {
@@ -432,15 +448,21 @@ void FramedFullscreenController::uncollapse() {
 	if (!mIsCollapsed) return;
 	auto controls	 = mRootLayout->getSprite("border_layout");
 	auto backRect	 = mRootLayout->getSprite("bg_filler");
-	
+	auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
 	if (controls && backRect) {
 		controls->tweenOpacity(1, 0.25,0.20);
 		backRect->tweenSize(mUncollapsedSize, 0.25);
 	}
 	auto btn = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+	auto btnHigh = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
 	if (btn) {
 
-		btn->setImageFile("%APP%/data/images/waffles/icons2/16x16/collapse.png");
+		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
+		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
+		//btn->setColorA(normalColor);
+		//btnHigh->setColorA(highColor);
 	}
 	mIsCollapsed = false;
 }
