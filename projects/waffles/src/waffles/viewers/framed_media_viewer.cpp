@@ -68,6 +68,12 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		mTopPad	  = border->mLayoutTPad + title->getHeight();
 		mBottomPad = border->mLayoutBPad + sidebar->getHeight();
 	}
+
+	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const RequestFullscreenViewer& e) {
+		if (e.mViewer != this && getIsFullscreen()) {
+			mEventClient.notify(RequestUnFullscreenViewer(this));
+		}
+	});
 	
 	setTapCallback(tapCallback);
 	setDoubleTapCallback(doubleTapCallback);

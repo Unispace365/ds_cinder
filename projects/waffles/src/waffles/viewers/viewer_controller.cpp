@@ -295,10 +295,10 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		viewers.front()->getMaxNumberOfThisType() == 1) {
 
 		auto sameType = viewers.front();
-
+		bool isFSC	  = false;
 		if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
 			animateViewerOff(sameType, 0.0f, ANIMATE_OFF_SHRINK);
-			return nullptr;
+			isFSC = true;
 		}
 
 		if (creationArgs.mFromCenter) {
@@ -307,7 +307,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 		bool checkBoundsy = creationArgs.mCheckBounds;
 
-		sameType->setMedia(creationArgs.mMediaRef);
+		if(!isFSC) sameType->setMedia(creationArgs.mMediaRef);
 		sameType->tweenStarted();
 		sameType->tweenPosition(loccy, mEngine.getAnimDur(), 0.0f, ci::easeInOutQuad, [sameType, checkBoundsy] {
 			sameType->tweenEnded();
@@ -315,9 +315,9 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 				sameType->checkBounds(false);
 			}
 		});
-		sameType->activatePanel();
+		if(!isFSC) sameType->activatePanel();
 
-		return nullptr;
+		if(!isFSC) return nullptr;
 	}
 	
 	// In single-screen mode, only reset the position for non-media viewers after moving the current one
