@@ -369,8 +369,8 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	mViewers.push_back(newViewer);
 
-	newViewer->setMedia(creationArgs.mMediaRef);
 	newViewer->setCreationArgs(creationArgs);
+	newViewer->setMedia(creationArgs.mMediaRef);
 	newViewer->setViewerLayer(creationArgs.mViewLayer);
 
 	const float viewerScale = mEngine.getWafflesSettings().getFloat("viewer:master_scale", 0, 1.0f);
