@@ -45,6 +45,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 	mPrimaryLayout = new ds::ui::SmartLayout(mEngine, "waffles/launcher/launcher.xml");
 	mWafflesScale  = mEngine.getWafflesSettings().getFloat("waffles:sprite:scale", 0, 1.f);
+	mCloseOnViewerFullscreen = mEngine.getWafflesSettings().getBool("launcher:close_when_viewers_fullscreen", 0, true);
 	addChildPtr(mPrimaryLayout);
 
 	if (auto closeBtn = mPrimaryLayout->getSprite("close_button.the_button")) {
@@ -95,7 +96,9 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		[this](const auto& ev) { callAfterDelay([this] { handleSelection(); }, 0.01f); });
 
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
-
+	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const auto& e) {
+		if (mCloseRequestCallback  && mCloseOnViewerFullscreen) mCloseRequestCallback();
+	});
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 		if (ev.mType == mFilterSelected) return;

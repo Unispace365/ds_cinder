@@ -295,29 +295,30 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		viewers.front()->getMaxNumberOfThisType() == 1) {
 
 		auto sameType = viewers.front();
-		bool isFSC	  = false;
+		
 		if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
 			animateViewerOff(sameType, 0.0f, ANIMATE_OFF_SHRINK);
-			isFSC = true;
-		}
+		} else {
 
-		if (creationArgs.mFromCenter) {
-			loccy = ci::vec3(loccy.x - sameType->getWidth() / 2.0f, loccy.y - sameType->getHeight() / 2.0f, 0.0f);
-		}
 
-		bool checkBoundsy = creationArgs.mCheckBounds;
-
-		if(!isFSC) sameType->setMedia(creationArgs.mMediaRef);
-		sameType->tweenStarted();
-		sameType->tweenPosition(loccy, mEngine.getAnimDur(), 0.0f, ci::easeInOutQuad, [sameType, checkBoundsy] {
-			sameType->tweenEnded();
-			if (checkBoundsy) {
-				sameType->checkBounds(false);
+			if (creationArgs.mFromCenter) {
+				loccy = ci::vec3(loccy.x - sameType->getWidth() / 2.0f, loccy.y - sameType->getHeight() / 2.0f, 0.0f);
 			}
-		});
-		if(!isFSC) sameType->activatePanel();
 
-		if(!isFSC) return nullptr;
+			bool checkBoundsy = creationArgs.mCheckBounds;
+
+			sameType->setMedia(creationArgs.mMediaRef);
+			sameType->tweenStarted();
+			sameType->tweenPosition(loccy, mEngine.getAnimDur(), 0.0f, ci::easeInOutQuad, [sameType, checkBoundsy] {
+				sameType->tweenEnded();
+				if (checkBoundsy) {
+					sameType->checkBounds(false);
+				}
+			});
+			sameType->activatePanel();
+
+			return nullptr;
+		}
 	}
 	
 	// In single-screen mode, only reset the position for non-media viewers after moving the current one
