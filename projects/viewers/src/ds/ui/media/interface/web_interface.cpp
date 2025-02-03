@@ -471,19 +471,21 @@ void WebInterface::updateWidgets() {
 		}
 
 		if (mLinkedWeb) {
-			if (!mWebLocked) {
-				mTouchToggle->getHighImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
-				mWebLocked = true;
-				setLocked(mWebLocked);
-			}
-		else 
-			if (mWebLocked) {
-				mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
-														  ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage,
-															ds::ui::Image::IMG_CACHE_F);
+			if (!mLinkedWeb->isEnabled()) {
+				mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->setNormalImageColor(mToggleUnlockedColor);
+				mTouchToggle->setHighImageColor(mToggleLockedColor);
 				mWebLocked = false;
+				setLocked(mWebLocked);
+			} else if (mLinkedWeb->isEnabled()) {
+				mTouchToggle->getHighImage().setImageFile(mToggleLockedImage,
+														  ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage,
+															ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->setNormalImageColor(mToggleLockedColor);
+				mTouchToggle->setHighImageColor(mToggleUnlockedColor);
+				mWebLocked = true;
 				setLocked(mWebLocked);
 			}
 			//mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
@@ -599,7 +601,7 @@ void WebInterface::updateWidgets() {
 	}
 }
 
-void WebInterface::setToggleLockedImage(std::string imgPath) {
+void WebInterface::setToggleLockedImage(const std::string& imgPath) {
 	mToggleLockedImage = imgPath;
 
 	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
@@ -608,12 +610,20 @@ void WebInterface::setToggleLockedImage(std::string imgPath) {
 	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
 }
 
-void WebInterface::setToggleUnlockedImage(std::string imgPath) {
+void WebInterface::setToggleUnlockedImage(const std::string& imgPath) {
 	mToggleUnlockedImage = imgPath;
 	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
 	mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
 	// mTouchToggle->layout();
 	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
+}
+
+void WebInterface::setToggleLockedColor(const ci::ColorAf& color) {
+	mToggleLockedColor = color;
+}
+
+void WebInterface::setToggleUnlockedColor(const ci::ColorAf& color) {
+	mToggleUnlockedColor = color;
 }
 
 void WebInterface::showKeyboard(bool show) {
@@ -650,5 +660,7 @@ void WebInterface::stopTouch() {
 	}
 	updateWidgets();
 }
+
+
 
 } // namespace ds::ui

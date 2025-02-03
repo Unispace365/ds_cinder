@@ -249,8 +249,8 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 		if (auto toggy = webInterface->getTouchToggleButton()) {
 			//webInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/2x/locked.png");
 			//webInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/2x/unlocked.png");
-			toggy->setNormalImageColor(normalColor);
-			toggy->setHighImageColor(highColor);
+			webInterface->setToggleUnlockedColor(normalColor);
+			webInterface->setToggleLockedColor(highColor);
 			toggy->setCornerRadius(0.f);
 		}
 	}
@@ -275,8 +275,8 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 		if (auto toggy = pdfInterface->getTouchToggle()) {
 			//pdfInterface->setToggleLockedImage("%APP%/data/images/waffles/icons2/2x/locked.png");
 			//pdfInterface->setToggleUnlockedImage("%APP%/data/images/waffles/icons2/2x/unlocked.png");
-			toggy->setNormalImageColor(normalColor);
-			toggy->setHighImageColor(highColor);
+			pdfInterface->setToggleUnlockedColor(normalColor);
+			pdfInterface->setToggleLockedColor(highColor);
 		}
 		if (auto thumbs = pdfInterface->getThumbsButton()) {
 			thumbs->setNormalImageColor(normalColor);

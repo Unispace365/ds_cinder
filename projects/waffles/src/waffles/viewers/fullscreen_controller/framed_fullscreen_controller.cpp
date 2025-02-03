@@ -262,10 +262,22 @@ void FramedFullscreenController::updateUi() {
 								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
 								keyboardArea->setColor(keyb);
 							}
+
+							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+							webInterface->getKeyboardButton()->setNormalImageColor(highColor);
+							webInterface->getKeyboardButton()->setHighImageColor(normalColor);
 							// setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
 							//					   keyboardBtn);
 
 						} else if (!onScreen) {
+
+							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+							webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
+							webInterface->getKeyboardButton()->setHighImageColor(highColor);
 							// setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png",
 							// keyboardBtn);
 						}

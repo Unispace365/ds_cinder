@@ -61,9 +61,10 @@ class WebInterface : public MediaInterface {
 
 	bool isLocked() { return mWebLocked; }
 
-	virtual void setToggleLockedImage(std::string imgPath);
-	virtual void setToggleUnlockedImage(std::string imgPath);
-
+	virtual void setToggleLockedImage(const std::string& imgPath);
+	virtual void setToggleUnlockedImage(const std::string& imgPath);
+	virtual void setToggleLockedColor(const ci::ColorAf& color);
+	virtual void setToggleUnlockedColor(const ci::ColorAf& color);
 
 	ds::ui::ImageButton* getKeyboardButton() { return mKeyboardButton; }
 	ds::ui::ImageButton* getBackButton() { return mBackButton; }
@@ -112,6 +113,9 @@ class WebInterface : public MediaInterface {
 	ds::ui::EntryField*	  mPasswordField;
 	std::string			  mToggleLockedImage   = "%APP%/data/images/media_interface/touch_locked.png";
 	std::string			  mToggleUnlockedImage = "%APP%/data/images/media_interface/touch_unlocked.png";
+	ci::ColorAf			  mToggleLockedColor   = ci::ColorAf(0.0, 0.0, 0.0, 1.0);
+	ci::ColorAf			  mToggleUnlockedColor   = ci::ColorAf(1.0, 1.0, 1.0, 1.0);
+
 	std::string			  mLastUrl			   = "";
 	int					  mInitialSize;
 };

@@ -265,12 +265,16 @@ void PDFInterface::updateWidgets() {
 													  ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage,
 														ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->setNormalImageColor(mToggleLockedColor);
+			mTouchToggle->setHighImageColor(mToggleUnlockedColor);
 		} else if (!mLinkedPDF->isEnabled() && mLinkedEnabled) {
 			mLinkedEnabled = false;
 			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
 													  ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage,
 														ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->setNormalImageColor(mToggleUnlockedColor);
+			mTouchToggle->setHighImageColor(mToggleLockedColor);
 		}
 		mTouchToggle->layout();
 		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
@@ -295,23 +299,26 @@ ds::ui::Sprite* PDFInterface::getScrubBarBackground() {
 	return mScrubBar->getBacker();
 }
 
-void PDFInterface::setToggleLockedImage(std::string imgPath) {
+void PDFInterface::setToggleLockedImage(const std::string& imgPath) {
 	mToggleLockedImage = imgPath;
-	
-		mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-		mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-		//mTouchToggle->layout();
-		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	updateWidgets();
+	mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 	
 }
 
-void PDFInterface::setToggleUnlockedImage(std::string imgPath) {
+void PDFInterface::setToggleUnlockedImage(const std::string& imgPath) {
 	mToggleUnlockedImage = imgPath;
-		mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-		mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-		//mTouchToggle->layout();
-		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	updateWidgets();
+	mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 	
+}
+
+void PDFInterface::setToggleLockedColor(const ci::ColorAf& color) {
+	mToggleLockedColor = color;
+}
+
+void PDFInterface::setToggleUnlockedColor(const ci::ColorAf& color) {
+	mToggleUnlockedColor = color;
 }
 
 void PDFInterface::toggleTouch() {
