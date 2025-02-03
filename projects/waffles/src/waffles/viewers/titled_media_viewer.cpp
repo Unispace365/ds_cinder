@@ -280,8 +280,14 @@ void TitledMediaViewer::calculateSizeLimits() {
 }
 
 void TitledMediaViewer::onMediaSet() {
+	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+
+	auto newMediaRef = helper->getRecordByUid(mMediaRef.getUid());
+	if (newMediaRef) {
+		mMediaRef = newMediaRef;
+	}
+
 	
-	auto helper		  = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	mInitialLoadError = false;
 	if (!mMediaPlayer) {
 		mInitialLoadError = true;
@@ -310,7 +316,9 @@ void TitledMediaViewer::onMediaSet() {
 	if (isStream || isStreamSource) {
 	
 		//get the stream source
+		
 		auto streamSource = mMediaRef;
+
 		if (isStream) {
 			streamSource = helper->getStreamSourceForStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
 		}
