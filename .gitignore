@@ -97,3 +97,6 @@ projects/waffles/lib64/waffles.lib
 
 projects/waffles/lib64/waffles_d.lib
 projects/nvpath/lib64
+projects/video/gstreamer-1.0/Release
+projects/web/cef/Release
+vs2015/platform/x64/Release
