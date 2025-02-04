@@ -34,17 +34,17 @@ class BaseElement : public ds::ui::BasePanel {
 	/// event is requested
 	bool canArrange() const;
 
-	void allowArrange(bool allow) { mCanArrange = allow; }
+	virtual void allowArrange(bool allow) { mCanArrange = allow; }
 
 	/// If true, can be resized
 	bool canResize() const;
 
-	void allowResize(bool allow) { mCanResize = allow; }
+	virtual void allowResize(bool allow) { mCanResize = allow; }
 
 	/// If this element can go into fullscreen mode
 	bool canFullScreen() const;
 
-	void allowFullscreen(bool allow);
+	virtual void allowFullscreen(bool allow);
 
 	/// This should only be set by ViewerContoller, which manages fullscreen-ness
 	void setIsFullscreen(bool isFullscreen);
@@ -53,7 +53,7 @@ class BaseElement : public ds::ui::BasePanel {
 	/// If this element can be detached from the layout
 	bool canDetach() const;
 
-	void allowDetach(bool allow);
+	virtual void allowDetach(bool allow);
 
 	/// If this element is detached from the layout
 	void setIsDetached(bool isDetached);

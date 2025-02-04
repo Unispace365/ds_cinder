@@ -66,8 +66,9 @@ void BaseElement::allowFullscreen(bool allow) {
 }
 
 void BaseElement::setIsFullscreen(const bool isFullscreen) {
-	if (mIsFullscreen == isFullscreen) return;
-	mIsFullscreen = isFullscreen;
+	bool wasFullscreen = mIsFullscreen;
+	mIsFullscreen	   = mCanFullscreen && isFullscreen;
+	if (wasFullscreen == isFullscreen) return;
 	onFullscreenSet();
 }
 
@@ -86,15 +87,15 @@ void BaseElement::allowDetach(bool allow) {
 }
 
 void BaseElement::setIsDetached(const bool isDetached) {
+	bool wasDetached = mIsDetached;
+	mIsDetached		 = mCanDetach && isDetached;
 	// Enable/disable touch events but keep constraints.
-	if (!mCanDetach || isDetached) {
+	if (mIsDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	} else {
 		disableMultiTouch();
 	}
-
-	if (mIsDetached == isDetached) return;
-	mIsDetached = isDetached;
+	if (wasDetached == isDetached) return;
 	onDetachedSet();
 }
 
@@ -153,9 +154,9 @@ ci::Rectf BaseElement::getUnfullscreenRect() const {
 	return mUnfullscreenRect;
 }
 
-void BaseElement::setToFullscreen(const bool immediate,const bool showController) {
-	auto normalLayer = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
-	const float screenWidth	 = normalLayer->getWidth();  // mDisplaySize.x;
+void BaseElement::setToFullscreen(const bool immediate, const bool showController) {
+	auto		normalLayer	 = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
+	const float screenWidth	 = normalLayer->getWidth();	 // mDisplaySize.x;
 	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;
 	const float screenAsp	 = screenWidth / screenHeight;
 
@@ -164,7 +165,7 @@ void BaseElement::setToFullscreen(const bool immediate,const bool showController
 
 	if (viewerScale == 0.0f) viewerScale = 0.001f;
 	if (viewerAsp > screenAsp) {
-		auto width = screenWidth / viewerScale;
+		auto width	= screenWidth / viewerScale;
 		auto height = screenWidth / viewerAsp;
 		auto x		= 0;
 		auto y		= screenHeight * 0.5 - height * 0.5;
@@ -173,11 +174,11 @@ void BaseElement::setToFullscreen(const bool immediate,const bool showController
 			setPosition(x, y);
 		} else {
 			animateWidthTo(width);
-			tweenPosition(ci::vec3(x, y, 0.0f),getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+			tweenPosition(ci::vec3(x, y, 0.0f), getAnimateDuration(), 0.0f, ci::easeInOutQuad);
 		}
 	} else {
-		auto height	= screenHeight / viewerScale;
-		auto width = screenHeight * viewerAsp;
+		auto height = screenHeight / viewerScale;
+		auto width	= screenHeight * viewerAsp;
 		auto y		= 0;
 		auto x		= screenWidth * 0.5 - width * 0.5;
 		if (immediate) {
@@ -189,7 +190,6 @@ void BaseElement::setToFullscreen(const bool immediate,const bool showController
 		}
 	}
 	setIsFullscreen(true);
-
 }
 
 void BaseElement::setCreationArgs(ViewerCreationArgs args) {
@@ -212,7 +212,6 @@ void BaseElement::onParentSet() {
 			mEngine.timedCallback([this, channel]() { mEventClient.setNotifier(mEngine.getChannel(channel)); }, 0.001);
 		}
 	}
-	
 }
 
 } // namespace waffles
