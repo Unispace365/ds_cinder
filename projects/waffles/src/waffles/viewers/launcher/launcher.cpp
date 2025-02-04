@@ -21,20 +21,19 @@
 #include <ds/util/string_util.h>
 
 #include "app/waffles_app_defs.h"
-//#include "app/helpers.h"
-//#include "events/app_events.h"
-#include "waffles/waffles_events.h"
-#include "waffles/query/search_query.h"
+// #include "app/helpers.h"
+// #include "events/app_events.h"
 #include "waffles/common/ui_utils.h"
+#include "waffles/query/search_query.h"
 #include "waffles/util/waffles_helper.h"
+#include "waffles/waffles_events.h"
 
-//using namespace downstream;
+// using namespace downstream;
 
 namespace waffles {
 
 Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideClose)
-	: BaseElement(g, eventChannel)
-	 {
+  : BaseElement(g, eventChannel) {
 
 	mEventClient.notify(waffles::WafflesLauncherOpened());
 
@@ -43,8 +42,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	mCanResize			  = true;
 	mCanArrange			  = false;
 
-	mPrimaryLayout = new ds::ui::SmartLayout(mEngine, "waffles/launcher/launcher.xml");
-	mWafflesScale  = mEngine.getWafflesSettings().getFloat("waffles:sprite:scale", 0, 1.f);
+	mPrimaryLayout			 = new ds::ui::SmartLayout(mEngine, "waffles/launcher/launcher.xml");
+	mWafflesScale			 = mEngine.getWafflesSettings().getFloat("waffles:sprite:scale", 0, 1.f);
 	mCloseOnViewerFullscreen = mEngine.getWafflesSettings().getBool("launcher:close_when_viewers_fullscreen", 0, true);
 	addChildPtr(mPrimaryLayout);
 
@@ -97,7 +96,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 	mEventClient.listenToEvents<TemplateChangeComplete>([this](const auto& ev) { activatePanel(); });
 	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const auto& e) {
-		if (mCloseRequestCallback  && mCloseOnViewerFullscreen) mCloseRequestCallback();
+		if (mCloseRequestCallback && mCloseOnViewerFullscreen) mCloseRequestCallback();
 	});
 	mEventClient.listenToEvents<waffles::WafflesFilterEvent>([this](const waffles::WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
@@ -121,23 +120,25 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		auto pinny = helper->getPinboard();
 		if (!pinny.empty()) allContent.push_back(pinny);
 
-		//auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
+		// auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
 		auto allValid = helper->getContentForPlatform();
-		
+
 		for (auto& value : allValid) {
 			allContent.push_back(value);
 		}
-		//allContent.insert(allContent.end(), allValid.begin(), allValid.end());
+		// allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
-		auto non_recursive = mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "folders,content");
+		auto non_recursive =
+			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "folders,content");
 		if (non_recursive.find(mFilterSelected) == std::string::npos) {
 			allContent = recurseContent(allContent);
 		}
 
 		auto panel_content = ds::model::ContentModelRef(mFilterSelected);
 		for (auto content : allContent) {
-			if (ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->isValidForFilter(mFilterSelected, content)
-				&& unrepeatedContent(panel_content, content)) {
+			if (ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->isValidForFilter(mFilterSelected,
+																							   content) &&
+				unrepeatedContent(panel_content, content)) {
 				panel_content.addChild(content);
 			}
 		}
@@ -163,7 +164,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		updatePanelContent(panel_content);
 		filterButtonDown(mFilterSelected);
 		for (std::string name :
-				ds::split(mEngine.getWafflesSettings().getString("launcher:filter_labels:sprite_names", 0, ""), ",")) {
+			 ds::split(mEngine.getWafflesSettings().getString("launcher:filter_labels:sprite_names", 0, ""), ",")) {
 			mPrimaryLayout->setSpriteText(name, upperedFilterText());
 		}
 	});
@@ -230,8 +231,6 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	setupMenuItems();
 	handleSelection();
 
-	
-	
 
 	// TODO: idk why this is needed, but otherwise filter color starts wrong
 	auto force_color = [this] {
@@ -264,8 +263,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
 
-	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-	auto custom_filters = helper->getLauncherCustomFilters();
+	auto helper				 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	auto custom_filters		 = helper->getLauncherCustomFilters();
 	custom_filters["recent"] = [this](ds::model::ContentModelRef model) {
 		loadRecent();
 		return recentContains(model);
@@ -331,8 +330,7 @@ void Launcher::handleSelection() {
 	}
 }
 
-ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string btnConfig)
-{
+ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string btnConfig) {
 	auto parts = ds::split(btnConfig, "|");
 	if (parts.size() < 2) {
 		DS_LOG_WARNING("Invalid launcher button config: " << btnConfig);
@@ -356,10 +354,12 @@ ds::model::ContentModelRef waffles::Launcher::buttonCfgFromString(std::string bt
 
 void Launcher::updateMenuItems() {
 
-	auto tops_size = mEngine.getWafflesSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
+	auto tops_size =
+		mEngine.getWafflesSettings().getVec2("ui:waffles:launcher:top:button:size", 0, ci::vec2(382.f, 114.f));
 
 	auto topNames = std::vector<std::string>();
-	auto configTop = mEngine.getWafflesSettings().getString("launcher:top:functions", 0, "Ambient|ambient,Search|search");
+	auto configTop =
+		mEngine.getWafflesSettings().getString("launcher:top:functions", 0, "Ambient|ambient,Search|search");
 	topNames = ds::split(configTop, ",");
 	auto top = std::vector<ds::model::ContentModelRef>();
 	for (std::string btnConfig : topNames) {
@@ -369,7 +369,6 @@ void Launcher::updateMenuItems() {
 		top.push_back(mode);
 	}
 
-	
 
 	mNeedsTopRefresh	   = false;
 	mNeedsScrollingRefresh = false;
@@ -384,8 +383,10 @@ void Launcher::updateMenuItems() {
 	}
 
 	auto leftSideNames = std::vector<std::string>();
-	auto configLeftSide = mEngine.getWafflesSettings().getString(
-		"launcher:main:filters", 0, "Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|Presentations,Streams|Streams,Videos|Videos,Folders|Folders");
+	auto configLeftSide =
+		mEngine.getWafflesSettings().getString("launcher:main:filters", 0,
+											   "Recent|Recent,Images|Images,Links|Links,PDFs|PDFs,Presentations|"
+											   "Presentations,Streams|Streams,Videos|Videos,Folders|Folders");
 	leftSideNames = ds::split(configLeftSide, ",");
 	auto leftSide = std::vector<ds::model::ContentModelRef>();
 	for (std::string btnConfig : leftSideNames) {
@@ -462,8 +463,7 @@ void Launcher::setupMenuItems() {
 	closeButtonPlacement();
 }
 
-void Launcher::showSearch() {
-}
+void Launcher::showSearch() {}
 
 void Launcher::onLayout() {
 	if (!mPrimaryLayout) return;
@@ -482,8 +482,7 @@ void Launcher::onCreationArgsSet() {
 	mMaxViewersOfThisType = 1;
 }
 
-void Launcher::onParentSet()
-{
+void Launcher::onParentSet() {
 	BaseElement::onParentSet();
 	if (mParent) {
 		mEngine.timedCallback(
@@ -491,7 +490,8 @@ void Launcher::onParentSet()
 				auto starting_filter = mEngine.getWafflesSettings().getString("launcher:start:filter", 0, "recent");
 				mEventClient.notify(waffles::WafflesFilterEvent(starting_filter));
 				closeButtonPlacement();
-			}, 0.001);
+			},
+			0.001);
 	}
 }
 
@@ -546,7 +546,7 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	} else if (type == "presentation" || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
 		if (model.getChildren().size() > 0) { // activate first slide
 			mEventClient.notify(RequestEngagePresentation(model.getChild(0)));
-			//mEngine.mContent.setProperty("presentation_controller_blocked", false);
+			// mEngine.mContent.setProperty("presentation_controller_blocked", false);
 		}
 	} else if (type == "current_playlist") {
 		panelButtonTapped(btn);
@@ -555,8 +555,8 @@ void Launcher::buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos) {
 	} else if (type == "streams") {
 		panelButtonTapped(btn);
 	} else {
-		DS_LOG_INFO("Unhandled menu item! " << type << " : " << model.getPropertyString("record_name") << " ("
-													 << type << ")");
+		DS_LOG_INFO("Unhandled menu item! " << type << " : " << model.getPropertyString("record_name") << " (" << type
+											<< ")");
 	}
 }
 
@@ -640,13 +640,14 @@ bool Launcher::unrepeatedContent(ds::model::ContentModelRef existing, ds::model:
 
 bool Launcher::restrictiveType(ds::model::ContentModelRef model) {
 	return ContentUtils::getDefault(mEngine)->isMedia(model) ||
-		  ContentUtils::getDefault(mEngine)->isPresentation(model) ||
-		  ContentUtils::getDefault(mEngine)->isFolder(model);
+		   ContentUtils::getDefault(mEngine)->isPresentation(model) ||
+		   ContentUtils::getDefault(mEngine)->isFolder(model);
 }
 
 void Launcher::updateRecent(ds::model::ContentModelRef content) {
 	if (std::find(mFolderStack.begin(), mFolderStack.end(), content) == mFolderStack.end() &&
-		(content.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS || ContentUtils::getDefault(mEngine)->isFolder(content))) {
+		(content.getPropertyString("type_key") == waffles::MEDIA_TYPE_DIRECTORY_CMS ||
+		 ContentUtils::getDefault(mEngine)->isFolder(content))) {
 		mFolderStack.push_back(content);
 		updateBreadcrumbText();
 		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
@@ -703,19 +704,6 @@ void Launcher::filterButtonDown(std::string type) {
 																		   ds::ui::LayoutButton* button, bool up) {
 		if (!(layout && button)) return;
 		up ? button->showUp() : button->showDown();
-		auto set_color = [](ds::ui::SmartLayout* sl, std::string child_name, ci::ColorA color){
-			if (sl) {
-				if (auto child = sl->getSprite(child_name)) {
-					child->setColor(color);
-				}
-			}
-		};
-		set_color(layout, "background_highlight", up ? normal_bg : high_bg);
-		set_color(layout, "background_highlight_high", up ? normal_bg : high_bg);
-		set_color(layout, "icon", up ? normal_text : high_text);
-		set_color(layout, "icon_high", up ? high_text : normal_text);
-		set_color(layout, "name", up ? normal_text : high_text);
-		set_color(layout, "name_high", up ? high_text : normal_text);
 	};
 	for (const auto& filter : mFilterButtons) {
 		auto button_layout = mFilterButtons[filter.first];
@@ -725,8 +713,14 @@ void Launcher::filterButtonDown(std::string type) {
 				auto button = dynamic_cast<ds::ui::LayoutButton*>(button_sprite);
 				if (button) {
 					bool up = filter.first != type;
-					force_button_state(button_layout, button, up);
-					button->enable(up);
+					// Since this is triggered during a button tap we need to wait for the next frame before forcing the
+					// button state, otherwise the button interaction handler overwrites our change
+					button->callAfterDelay(
+						[button, up, button_layout, force_button_state] {
+							button->enable(up);
+							force_button_state(button_layout, button, up);
+						},
+						0.01f);
 				}
 			}
 		}
@@ -739,10 +733,10 @@ void Launcher::closeButtonPlacement() {
 		if (mFirstCloseButton) {
 			mFirstCloseButton  = false;
 			mSecondCloseButton = true;
-			fudge			   = mEngine.getWafflesSettings().getVec3("launcher:close:start:offset", 0, ci::vec3(0, 0, 0));
+			fudge = mEngine.getWafflesSettings().getVec3("launcher:close:start:offset", 0, ci::vec3(0, 0, 0));
 		} else {
 			mSecondCloseButton = false;
-			fudge			   = mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
+			fudge = mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
 		}
 		closeBtn->mLayoutFudge = fudge;
 	}
@@ -750,10 +744,10 @@ void Launcher::closeButtonPlacement() {
 
 void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 	button->setClickFn([this] {
-		std::vector<std::string> folder_enabled_filters = ds::split(
-			mEngine.getWafflesSettings().getString("launcher:folder_enabled:filters", 0, "Folders,folders,Recent,recent"),
-			","
-		);
+		std::vector<std::string> folder_enabled_filters =
+			ds::split(mEngine.getWafflesSettings().getString("launcher:folder_enabled:filters", 0,
+															 "Folders,folders,Recent,recent"),
+					  ",");
 		bool folder_enabled = false;
 		for (std::string filter : folder_enabled_filters) {
 			if (filter == mFilterSelected) {
@@ -766,7 +760,7 @@ void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 			mFolderStack.pop_back();
 			updateBreadcrumbText();
 		} else if (folder_enabled) {
-			auto filter = mFilterSelected;
+			auto filter		= mFilterSelected;
 			mFilterSelected = ""; // to let the next thing happen
 			mEventClient.notify(waffles::WafflesFilterEvent(filter));
 		}
@@ -804,7 +798,7 @@ void Launcher::updateBreadcrumbText() {
 	if (!mPrimaryLayout) return;
 	auto breadcrumb = mPrimaryLayout->getSprite<ds::ui::Text>("breadcrumb");
 	if (!breadcrumb) return;
-	std::string filter = upperedFilterText();
+	std::string				 filter		= upperedFilterText();
 	std::vector<std::string> text_stack = {};
 	for (auto folder : mFolderStack) {
 		text_stack.push_back(folder.getPropertyString("record_name"));
@@ -817,9 +811,7 @@ void Launcher::updateBreadcrumbText() {
 	}
 	if (text_stack.empty()) {
 		breadcrumb->setText(
-			mEngine.getWafflesSettings().getBool("launcher:breadcrumb:root_says_filter", 0, true)
-				? filter : ""
-		);
+			mEngine.getWafflesSettings().getBool("launcher:breadcrumb:root_says_filter", 0, true) ? filter : "");
 		if (!mFolderStack.empty()) {
 			DS_LOG_INFO("failed to fit waffles launcher breadcrumb text in width of " << max_width);
 		}
@@ -836,7 +828,7 @@ std::string Launcher::upperedFilterText() {
 
 void Launcher::filterItemIconHandle(ds::ui::SmartLayout* item) {
 	auto model = item->getContentModel();
-	for (std::string name : { "icon", "icon_high" }) {
+	for (std::string name : {"icon", "icon_high"}) {
 		if (auto icon = item->getSprite<ds::ui::Image>(name)) {
 			if (model.getPropertyBool("has_icon")) {
 				icon->setImageResource(model.getPropertyResource("icon_src"));
@@ -844,7 +836,7 @@ void Launcher::filterItemIconHandle(ds::ui::SmartLayout* item) {
 			} else {
 				icon->hide();
 			}
-		} 
+		}
 	}
 }
 
