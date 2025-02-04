@@ -340,6 +340,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	newViewer->allowFullscreen(creationArgs.mCanFullscreen);
 	newViewer->allowDetach(creationArgs.mCanDetach);
+	newViewer->allowAttach(creationArgs.mCanAttach);
 	newViewer->setIsDetached(creationArgs.mIsDetached);
 
 	if (creationArgs.mViewLayer == ViewerCreationArgs::kViewLayerBackground && mBackgroundLayer) {
@@ -1365,7 +1366,7 @@ void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immedi
 
 				auto webSize = mEngine.getWafflesSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
 				mp->setWebViewSize(webSize);
-				mp->setSize(ci::vec2(destRect.getWidth(), destRect.getHeight()));
+				mp->setSize(ci::vec2(destRect.getWidth() - (tmv->getLeftPad()+tmv->getRightPad()), destRect.getHeight() -(tmv->getTopPad()+tmv->getBottomPad()) ));
 				viewer->mContentAspectRatio = destRect.getAspectRatio();
 			}
 		}
@@ -1395,7 +1396,7 @@ void ViewerController::detachViewer(BaseElement* viewer) {
 }
 
 void ViewerController::attachViewer(BaseElement* viewer) {
-	if (!viewer) return;
+	if (!viewer || !viewer->canAttach()) return;
 
 	viewer->setIsDetached(false);
 

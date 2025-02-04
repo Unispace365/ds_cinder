@@ -985,7 +985,8 @@ void TitledMediaViewer::onFullscreenSet() {
 		/* tweenNormalized(
 			getAnimateDuration(), 0.f, ci::easeNone, [this] { layout(); }, [this] { layout(); }); */
 	} else {
-		showTitle();
+
+		if(getIsDetached()) showTitle();
 		showInnerSideBar();
 		if (mMediaPlayer) {
 
@@ -1023,6 +1024,13 @@ void TitledMediaViewer::onFullscreenSet() {
 }
 
 void TitledMediaViewer::onDetachedSet() {
+	if (!mIsDetached) {
+		hideTitle();
+		//hideInnerSideBar();
+	} else {
+		showTitle();
+		//showInnerSideBar();
+	}
 	processAllowedButtons();
 }
 

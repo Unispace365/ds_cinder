@@ -171,7 +171,7 @@ void FramedMediaViewer::onFullscreenSet() {
 			mMediaInterface->tweenOpacity(0, 0.25, 0, ci::easeNone, [this]() { mMediaInterface->hide(); });
 		}
 	} else {
-		if (background) {
+		if (background && mIsDetached) {
 			background->show();
 		}
 		if (mMediaInterface) {
@@ -316,6 +316,36 @@ void FramedMediaViewer::onMediaSet() {
 	}
 	//mRootLayout->runLayout();
 	layout();
+}
+
+void FramedMediaViewer::onDetachedSet() {
+	TitledMediaViewer::onDetachedSet();
+	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
+	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
+	if (!mIsDetached) {
+		if (background) {
+			background->hide();
+		}
+		
+		auto mediaInterface = mMediaPlayer->getMediaInterface();
+		if (mediaInterface) {
+			mediaInterface->hide();
+			mediaInterface->setAllowDisplay(false);
+		}
+	} else {
+		if (background) {
+			background->show();
+		}
+		
+		auto mediaInterface = mMediaPlayer->getMediaInterface();
+		if (mediaInterface) {
+			mediaInterface->hide();
+			mediaInterface->setAllowDisplay(false);
+		}
+	}
+	
+	mRootLayout->runLayout();
+		
 }
 
 void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showController) {

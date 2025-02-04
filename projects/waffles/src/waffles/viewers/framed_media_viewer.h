@@ -22,7 +22,7 @@ class FramedMediaViewer : public TitledMediaViewer {
 	virtual void onFullscreenSet() override;
 	virtual void showTitle() override;
 	virtual void onMediaSet() override;
-	
+	virtual void			onDetachedSet() override;
 	ds::ui::MediaInterface* mMediaInterface = nullptr;
 	//virtual void hideTitle() override;
 	//virtual void hideInnerSideBar() override;

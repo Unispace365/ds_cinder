@@ -208,19 +208,19 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		return false;
 	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
 		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+			waffles::ViewerCreationArgs::detached(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
 		auto browserRes	  = ds::Resource("https://google.com");
 		auto browserModel = ds::model::ContentModelRef();
 		browserModel.setPropertyResource("media", browserRes);
 		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+			waffles::ViewerCreationArgs::detached(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "asset_mode") {
 		notifier.notify(waffles::RequestEngagePresentation(ds::model::ContentModelRef("assets")));
 		notifier.notify(waffles::ChangeTemplateRequest());
 	} else if (type == "search") {
 		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
+			waffles::ViewerCreationArgs::detached(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
 	} else if (type == "stream") {
 		auto streamRes = ds::Resource(model.getPropertyString("stream_uri"));
 		streamRes.setWidth(1920.f);
@@ -231,13 +231,13 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		streamModel.setProperty("record_name", model.getPropertyString("record_name"));
 		streamModel.setPropertyResource("media", streamRes);
 		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+			waffles::ViewerCreationArgs::detached(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "pinboard_event") {
 		notifier.notify(waffles::RequestEngagePresentation(model));
 		notifier.notify(waffles::ChangeTemplateRequest(model));
 	} else if (type == "presentation_controller") {
 		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
+			waffles::ViewerCreationArgs::detached(ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
 										waffles::ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
 		notifier.notify(waffles::RequestCloseAllEvent(pos));
