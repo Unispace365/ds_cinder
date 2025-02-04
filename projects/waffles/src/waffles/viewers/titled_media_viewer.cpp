@@ -111,7 +111,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	});
 	mRootLayout->setTapCallback(tapCallback);
 	mRootLayout->setDoubleTapCallback(doubleTapCallback);
-	
+
 	processAllowedButtons();
 
 	auto background = mRootLayout->getSprite("background");
@@ -310,63 +310,63 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 
-
-	//check for a stream and do special handling. 
-	auto isStream = helper->isValidStream(mMediaRef,WafflesHelper::WAFFLESCATEGORY);
+	// check for a stream and do special handling.
+	auto isStream		= helper->isValidStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
 	auto isStreamSource = helper->isValidStreamSource(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
 	if (isStream || isStreamSource) {
-	
-		//get the stream source
-		
-		auto streamSource = mMediaRef;
+		ds::Resource fakeRes;
+		fakeRes.setWidth(1920);
+		fakeRes.setHeight(1080);
 
+		// get the stream source
+		auto streamSource = mMediaRef;
 		if (isStream) {
 			streamSource = helper->getStreamSourceForStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY);
 		}
-		auto streamAddressKey	  = helper->getStreamSourceAddressKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
-		auto streamTypeKey = helper->getStreamSourceTypeKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
-		auto streamType			  = streamSource.getPropertyString(streamTypeKey);
-		auto streamAddress		  = streamSource.getPropertyString(streamAddressKey);
-		auto fakeRes			  = ds::Resource(streamAddress);
-		
-		fakeRes.setFileName(streamAddress);
-		fakeRes.setLocalFilePath(streamAddress);
-		fakeRes.setWidth(1920);
-		fakeRes.setHeight(1080);
-		if (streamType == "rtsp") {
-			fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
-		}
-		mMediaRef.setPropertyResource("media_media_res", ds::Resource(fakeRes));
-	
-		if (streamType == "rtsp") {
-			DS_LOG_INFO("Got a network stream! " << streamAddress);
-			
-		} else if(streamType == "capture") {
-			DS_LOG_INFO("Got a capture stream! " << streamAddress);
-			if (auto cappy = mRootLayout->getSprite<waffles::CapturePlayer>("capture_player")) {
-				// DS_LOG_INFO("Got a stream! " << primaryResource.getAbsoluteFilePath());
-			
-				if (cappy->setCaptureSource(streamAddress)) {
-					cappy->show();
-					mMediaPlayer->setSize(cappy->getWidth(), cappy->getHeight());
-					mMediaPlayer->setContentAspectRatio(cappy->getWidth() / cappy->getHeight());
-					mMediaPlayer->loadMedia(fakeRes);
-					setSize(cappy->getWidth(), cappy->getHeight());
-					setSizeLimits();
-					setViewerSize(cappy->getWidth(), cappy->getHeight());
-					mShowingWebcam = true;
 
-					mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("name"));
-					mRootLayout->runLayout();
+		if (!streamSource.empty()) { // TODO figure out what to do in case our stream source is empty
+			auto streamAddressKey = helper->getStreamSourceAddressKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
+			auto streamTypeKey	  = helper->getStreamSourceTypeKey(streamSource, WafflesHelper::WAFFLESCATEGORY);
+			auto streamType		  = streamSource.getPropertyString(streamTypeKey);
+			auto streamAddress	  = streamSource.getPropertyString(streamAddressKey);
+
+			fakeRes.setFileName(streamAddress);
+			fakeRes.setLocalFilePath(streamAddress);
+			if (streamType == "rtsp") {
+				fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
+			}
+
+			if (streamType == "rtsp") {
+				DS_LOG_INFO("Got a network stream! " << streamAddress);
+
+			} else if (streamType == "capture") {
+				DS_LOG_INFO("Got a capture stream! " << streamAddress);
+				if (auto cappy = mRootLayout->getSprite<waffles::CapturePlayer>("capture_player")) {
+					// DS_LOG_INFO("Got a stream! " << primaryResource.getAbsoluteFilePath());
+
+					if (cappy->setCaptureSource(streamAddress)) {
+						cappy->show();
+						mMediaPlayer->setSize(cappy->getWidth(), cappy->getHeight());
+						mMediaPlayer->setContentAspectRatio(cappy->getWidth() / cappy->getHeight());
+						mMediaPlayer->loadMedia(fakeRes);
+						setSize(cappy->getWidth(), cappy->getHeight());
+						setSizeLimits();
+						setViewerSize(cappy->getWidth(), cappy->getHeight());
+						mShowingWebcam = true;
+
+						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("name"));
+						mRootLayout->runLayout();
+					}
 				}
 			}
 		}
+
+		mMediaRef.setPropertyResource("media_media_res", ds::Resource(fakeRes));
 	}
 
-
-	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
 	// DS_LOG_INFO("Titled Media Viewer | mMediaPropertyKey " << mMediaPropertyKey.c_str());
-	auto primaryResource = mMediaRef.getPropertyResource(mMediaPropertyKey);
+	auto primaryResource = mMediaRef.getPropertyResource(mediaPropertyKey);
 	if (primaryResource.empty()) primaryResource = mMediaRef.getPropertyResource("media_media_res");
 
 	bool gifSpecial = false;
@@ -374,8 +374,6 @@ void TitledMediaViewer::onMediaSet() {
 	if (mCreationArgs.mEnforceMinSize == false) {
 		mAbsMinSize = ci::vec2(20.f, 20.f);
 	}
-
-	
 
 
 	auto mvs				  = mMediaPlayer->getSettings();
@@ -640,8 +638,8 @@ void TitledMediaViewer::onMediaSet() {
 
 
 	if (!mFatalError) {
-		if (mMediaRef.getPropertyResource(mMediaPropertyKey).getType() == ds::Resource::VIDEO_TYPE ||
-			mMediaRef.getPropertyResource(mMediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE) {
+		if (mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::VIDEO_TYPE ||
+			mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE) {
 			mShowingVideo = true;
 
 			if (mCreationArgs.mCloseOnVideoComplete) {
@@ -658,7 +656,7 @@ void TitledMediaViewer::onMediaSet() {
 			mShowingVideo = false;
 		}
 
-		if (mMediaRef.getPropertyResource(mMediaPropertyKey).getType() == ds::Resource::WEB_TYPE) {
+		if (mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE) {
 			mShowingWeb = true;
 		} else {
 			mShowingWeb = false;
@@ -1024,7 +1022,7 @@ void TitledMediaViewer::onFullscreenSet() {
 	processAllowedButtons();
 }
 
-void TitledMediaViewer::onDetachedSet() {	
+void TitledMediaViewer::onDetachedSet() {
 	processAllowedButtons();
 }
 
