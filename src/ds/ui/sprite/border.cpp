@@ -79,6 +79,11 @@ namespace ds { namespace ui {
 		}
 	}
 
+	void Border::fitInsideArea(const ci::Rectf& area) {
+		setPosition(area.x1,area.y1);
+		setSize(area.x2-area.x1,area.y2-area.y1);
+	}
+
 	void Border::writeAttributesTo(ds::DataBuffer& buf) {
 		ds::ui::Sprite::writeAttributesTo(buf);
 

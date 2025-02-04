@@ -18,6 +18,8 @@ namespace ds { namespace ui {
 
 		virtual void drawLocalClient();
 
+		void fitInsideArea(const ci::Rectf& area) override;
+
 		/// Initialization
 		static void installAsServer(ds::BlobRegistry&);
 		static void installAsClient(ds::BlobRegistry&);
