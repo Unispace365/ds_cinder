@@ -1,8 +1,9 @@
 #include "stdafx.h"
 
+#include "app/waffles_app_defs.h"
 #include "base_element.h"
 #include "viewer_controller.h"
-#include "app/waffles_app_defs.h"
+#include "waffles/common/ui_utils.h"
 
 namespace waffles {
 
@@ -34,6 +35,16 @@ BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
 void BaseElement::setMedia(const ds::model::ContentModelRef& newMedia) {
 	mMediaRef = newMedia;
 	onMediaSet();
+}
+
+ci::vec2 BaseElement::getMediaSize() const {
+	if (mMediaRef) {
+		const auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+		const auto resource			= mMediaRef.getPropertyResource(mediaPropertyKey);
+
+		if (!resource.empty()) return {resource.getWidth(), resource.getHeight()};
+	}
+	return {getWidth(), getHeight()};
 }
 
 bool BaseElement::canArrange() const {

@@ -27,6 +27,9 @@ class BaseElement : public ds::ui::BasePanel {
 	/// Not all viewer types use this, so use with discretion
 	ds::model::ContentModelRef getMedia() const { return mMediaRef; }
 
+	/// Get the size of the media, if available. For viewers without media, the size of its layout will be returned instead.
+	ci::vec2 getMediaSize() const;
+
 	/// If true, will participate in "arrange" commands from the rest of the app. If false, will close when a arrange
 	/// event is requested
 	bool canArrange() const;
