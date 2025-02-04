@@ -2,50 +2,47 @@
 #include "content_helper.h"
 
 namespace ds::model {
+
 class BaseContentHelper : public ContentHelper {
   public:
-	BaseContentHelper(ds::ui::SpriteEngine& eng);
-	~BaseContentHelper();
-	   
+	BaseContentHelper(ui::SpriteEngine& eng);
+
 	// Inherited via ContentHelper
-	virtual std::string getCompositeKeyForPlatform() override;
-	virtual ds::model::ContentModelRef getRecordByUid(std::string uid) override;
-	virtual ds::Resource			   getBackgroundForPlatform() override;
-	virtual ds::model::ContentModelRef getPresentation() override;
-	virtual ds::model::ContentModelRef getAmbientPlaylist() override;
-	virtual std::string				   getInitialPresentationUid() override;
-	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform() override;
-	virtual std::vector<ds::Resource>				findMediaResources() override;
-	virtual std::vector<ds::model::ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
+	std::string					 getCompositeKeyForPlatform() override;
+	ContentModelRef				 getRecordByUid(std::string uid) override;
+	Resource					 getBackgroundForPlatform() override;
+	ContentModelRef				 getPresentation() override;
+	ContentModelRef				 getAmbientPlaylist() override;
+	std::string					 getInitialPresentationUid() override;
+	std::vector<ContentModelRef> getContentForPlatform() override;
+	std::vector<Resource>		 findMediaResources() override;
+	std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
 
-	virtual bool isValidFolder(ds::model::ContentModelRef model,std::string category=DEFAULTCATEGORY) override;
-	virtual bool isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual bool isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool isValidFolder(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool isValidMedia(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool isValidPlaylist(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
 
-	virtual std::string getMediaPropertyKey(ds::model::ContentModelRef model,std::string category= DEFAULTCATEGORY) override;
+	std::string getMediaPropertyKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
 
-	virtual std::vector<ds::model::ContentModelRef> getStreamSources(std::string category = DEFAULTCATEGORY) override;
-	virtual ds::model::ContentModelRef				getStreamSourceForStream(ds::model::ContentModelRef stream,
-																	 std::string				category = DEFAULTCATEGORY) override;
-	virtual bool isValidStreamSource(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual bool isValidStream(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual std::string	getStreamMatchKey(ds::model::ContentModelRef model, std::string category= DEFAULTCATEGORY) override;
-	virtual std::string	getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category= DEFAULTCATEGORY) override;
-	virtual std::string	getStreamSourceTypeKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::vector<ContentModelRef> getStreamSources(std::string category = DEFAULTCATEGORY) override;
+	ContentModelRef getStreamSourceForStream(ContentModelRef stream, std::string category = DEFAULTCATEGORY) override;
+	bool			isValidStreamSource(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool			isValidStream(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::string		getStreamMatchKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::string		getStreamSourceAddressKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::string		getStreamSourceTypeKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
 
-protected:
-	std::unordered_map<std::string,std::vector<std::string>> mAcceptableFolders;
+  protected:
+	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableMedia;
-	//std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
-	std::unordered_map<std::string, std::vector<std::string>> mAcceptablePlaylists;
-	std::unordered_map<std::string, std::vector<std::string>>					 mAcceptableStreamSources;
-	std::unordered_map<std::string, std::vector<std::string>>					 mAcceptableStreams;
+	// std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptablePlaylists;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreamSources;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreams;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamSourceAddressProps;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamSourceTypeProps;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamMatchProp;
-	std::unordered_map<std::string, std::unordered_map<std::string,std::string>> mMediaProps;
-
-
-
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mMediaProps;
 };
-}
+
+} // namespace ds::model

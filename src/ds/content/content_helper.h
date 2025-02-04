@@ -36,6 +36,8 @@ class ContentHelperFactory {
 
 class ContentHelper {
   public:
+	virtual ~ContentHelper() = default;
+
 	  struct PlaylistFilter {
 		enum class FilterMode { All, PlatformFallback, PlatformOverride };
 		std::string eventTypeKey; //what type of event has the playlist
