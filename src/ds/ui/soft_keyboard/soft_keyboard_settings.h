@@ -43,7 +43,7 @@ namespace ds { namespace ui {
 		  , mKeyDnTextConfig("keyboard:key:down")
 		  , mEmailMode(false) // Only applies to the "extended" keyboard (adds @ and .com keys)
 		  , mKeyScale(1.0f)
-		  , mBackgroundOpacity(0.98f)
+		  , mBackgroundOpacity(0.90f)
 		  , mEmpty(empty) {}
 
 		

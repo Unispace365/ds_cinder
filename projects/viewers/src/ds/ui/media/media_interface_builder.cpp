@@ -164,6 +164,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 			sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
 			sks.mGraphicRoundedCornerRadius = engine.getWafflesSettings().getFloat("ui:keyboard:key_corner_radius", 0, 8.0f);
 			sks.mGraphicKeySize				= engine.getWafflesSettings().getFloat("ui:keyboard:key_size", 0, 30.0f);
+			sks.mBackgroundOpacity = engine.getWafflesSettings().getFloat("ui:keyboard:background_opacity", 0, 0.9f);
 			ds::ui::WebInterface* wi =
 				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor,sks);
 			parentSprite->addChildPtr(wi);
