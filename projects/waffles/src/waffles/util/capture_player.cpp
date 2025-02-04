@@ -102,7 +102,7 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 	if (uniqueName.empty()) return false;
 	mCaptureId	= (uint64_t)std::hash<std::string>{}(uniqueName);
 	mSourceName = uniqueName;
-	if (sCaptures.find(mCaptureId) != sCaptures.end()) {
+	if (sCaptures.count(mCaptureId) && sCaptures[mCaptureId].capture) {
 		// If we already have this source, just add ourself to the users
 		sCaptures[mCaptureId].users += 1;
 		setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
