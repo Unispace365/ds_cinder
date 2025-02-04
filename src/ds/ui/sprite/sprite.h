@@ -914,7 +914,7 @@ namespace ui {
 		bool		 hasTapInfo() const;
 		void		 updateCheckBounds() const;
 		bool		 checkBounds() const;
-		void		 measureMinMaxSize() const;
+		virtual void measureMinMaxSize() const;
 
 		/// Once the sprite has passed the getHit() sprite bounds, this is a second
 		/// stage that allows the sprite itself to determine if the point is interior,
