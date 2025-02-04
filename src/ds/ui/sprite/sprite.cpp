@@ -488,13 +488,13 @@ void Sprite::drawLocalServer() {
 
 void Sprite::buildRenderBatch() {
 	if (mCornerRadius != 0.f) {
-		auto globalScale	= getGlobalTransform()[0][0];
+		auto globalScale = getGlobalTransform()[0][0];
 		if (globalScale <= std::numeric_limits<float>::epsilon()) {
 			globalScale = std::numeric_limits<float>::epsilon();
 		}
 		auto newGlobalScale = std::min(1.f / getGlobalTransform()[0][0], 1000.f);
 		if (newGlobalScale != mGlobalScale) {
-			mGlobalScale = newGlobalScale;
+			mGlobalScale	  = newGlobalScale;
 			mNeedsBatchUpdate = true;
 		}
 	}
@@ -942,10 +942,10 @@ bool Sprite::setAvailableSize(const ci::vec2& size) {
 	const auto width  = fit[0][0] * getWidth();
 	const auto height = fit[1][1] * getHeight();
 
-	mMinWidth  = css::Value(0, css::Value::PIXELS);
-	mMaxWidth  = css::Value(width, css::Value::PIXELS);
-	mMinHeight = css::Value(0, css::Value::PIXELS);
-	mMaxHeight = css::Value(height, css::Value::PIXELS);
+	mMinWidth  = css::Value(0 + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
+	mMaxWidth  = css::Value(width + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
+	mMinHeight = css::Value(0 + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
+	mMaxHeight = css::Value(height + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
 
 	return true;
 }
