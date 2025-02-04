@@ -55,6 +55,11 @@ class BaseElement : public ds::ui::BasePanel {
 
 	void allowDetach(bool allow);
 
+	/// If this element can be attached to the layout
+	bool canAttach() const;
+
+	void allowAttach(bool allow);
+
 	/// If this element is detached from the layout
 	void setIsDetached(bool isDetached);
 	bool getIsDetached() const;
@@ -135,6 +140,7 @@ class BaseElement : public ds::ui::BasePanel {
 	bool					   mCanFullscreen;
 	bool					   mIsFullscreen;
 	bool					   mCanDetach;
+	bool					   mCanAttach;
 	bool					   mIsDetached;
 	std::string				   mViewerType;
 	int						   mMaxViewersOfThisType;

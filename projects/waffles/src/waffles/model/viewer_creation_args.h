@@ -78,6 +78,7 @@ class ViewerCreationArgs {
 	bool					   mCanFullscreen;				// Whether or not the viewer can go fullscreen.
 	bool					   mIsFullscreen;				// Whether or not the viewer should be fullscreen.
 	bool					   mCanDetach;					// Whether or not the viewer can be detached.
+	bool					   mCanAttach;					// Whether or not the viewer can be attached.
 	bool					   mIsDetached;					// Whether or not the viewer is detached.
 	bool					   mShowFullscreenController;	//
 	bool					   mShowPresentationController; //
@@ -97,6 +98,18 @@ class ViewerCreationArgs {
 	bool   mTouchEvents;
 	bool   mStartLocked;
 	bool   mStartDrawing;
+	inline static ViewerCreationArgs
+	detached(ds::model::ContentModelRef newMedia, const std::string viewType,
+								   ci::vec3 location = ci::vec3(-1.0f, -1.0f, 0.0f), int viewLayer = kViewLayerNormal,
+								   float startWidth = 0.0f, const bool fromCenter = true, const bool fullscreen = false,
+								   const bool checkBounds = true) {
+		auto result = ViewerCreationArgs(newMedia, viewType, location, viewLayer, startWidth, fromCenter, fullscreen,
+										 checkBounds);
+		result.mCanDetach = false;
+		result.mCanAttach  = false;
+		result.mIsDetached = true;
+		return result;
+	}
 };
 
 } // namespace waffles

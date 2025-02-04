@@ -85,6 +85,17 @@ void BaseElement::allowDetach(bool allow) {
 	onDetachedSet();
 }
 
+
+bool BaseElement::canAttach() const {
+	return mCanAttach;
+}
+
+void BaseElement::allowAttach(bool allow) {
+	if (mCanAttach == allow) return;
+	mCanAttach = allow;
+	onDetachedSet();
+}
+
 void BaseElement::setIsDetached(const bool isDetached) {
 	// Enable/disable touch events but keep constraints.
 	if (!mCanDetach || isDetached) {
