@@ -72,7 +72,8 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	mAbsMaxSize.x		= maxSize;
 	mAbsMaxSize.y		= maxSize;
 
-	
+	mFit = ds::ui::Fit(ds::ui::Fit::Align::X_MID_Y_MID, ds::ui::Fit::MeetOrSlice::MEET);
+
 	/* setTransparent(false);
 	setColor(ci::Color(1.f, 0.f, 1.f)); */
 
