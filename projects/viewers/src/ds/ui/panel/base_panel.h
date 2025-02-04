@@ -41,13 +41,13 @@ class BasePanel : public ds::ui::Sprite {
 
 	/** The content is the resizeable part of the panel.
 	The L/R/T/B padding is added to the content width and height to produce the final size of the panel */
-	void setViewerSize(const float contentWidth, const float contentHeight);
-	void setViewerSize(const ci::vec2 newContentSize);
+	void setViewerSize(float contentWidth, float contentHeight);
+	void setViewerSize(const ci::vec2& newContentSize);
 
 	/** Calls the above function, but using the content aspect ratio so it's proportional, and the padding is added
 	 * to the outside */
-	void setViewerWidth(const float contentWidth);
-	void setViewerHeight(const float contentHeight);
+	void setViewerWidth(float contentWidth);
+	void setViewerHeight(float contentHeight);
 
 	/** If you animate this thing, call this before the tween starts (And be sure to call tweenEnded when it
 	 * completes!) */
@@ -56,11 +56,11 @@ class BasePanel : public ds::ui::Sprite {
 	void tweenEnded();
 
 	/** Sets the flag that this viewer is on it's way out. Usage up to client app*/
-	void setAboutToBeRemoved(const bool isRemoving = true);
+	void setAboutToBeRemoved(bool isRemoving = true);
 
 	/** Gets the flag that this panel will be removed or retired after the current animation. This is primarily for
 	 * client app logic. */
-	bool getIsAboutToBeRemoved() { return mRemoving; }
+	bool getIsAboutToBeRemoved() const { return mRemoving; }
 
 	/** Change the region used in checkBounds(), relative to this sprite's parent. */
 	void setBoundingArea(const ci::Rectf& newBoundingRegion) { mBoundingArea = newBoundingRegion; }
@@ -70,12 +70,13 @@ class BasePanel : public ds::ui::Sprite {
 
 	/** Automatically handles enable/disable and adds padding, so the contentSize should be the x/y of the
 	 * destination of your content */
-	void animateSizeTo(const ci::vec2 newContentSize);
-	void animateWidthTo(const float newWidth);
-	void animateHeightTo(const float newHeight);
+	void animateSizeTo(const ci::vec2& newContentSize);
+	void animateWidthTo(float newWidth);
+	void animateHeightTo(float newHeight);
 
-	const ci::vec2& getMinSize() { return mMinSize; }
-	const ci::vec2& getDefaultSize() { return mDefaultSize; }
+	const ci::vec2& getDefaultSize() const { return mDefaultSize; }
+	const ci::vec2& getMinSize() const { return mMinSize; }
+	const ci::vec2& getMaxSize() const { return mMaxSize; }
 
 	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits.
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the
@@ -88,8 +89,8 @@ class BasePanel : public ds::ui::Sprite {
 	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
 	void setDefaultSize(const ci::vec2& defaultSize) { mDefaultSize = defaultSize; }
 
-	void		setAnimateDuration(const float animDuration) { mAnimDuration = animDuration; }
-	const float getAnimateDuration() { return mAnimDuration; }
+	void  setAnimateDuration(float animDuration) { mAnimDuration = animDuration; }
+	float getAnimateDuration() const { return mAnimDuration; }
 
 	/** Called when the panel lays itself out, so you can add sprites to this panel without extending the panel
 	class. This is called after the base layout function.*/
@@ -98,16 +99,16 @@ class BasePanel : public ds::ui::Sprite {
 	/** Force a refresh of size and position. Do not override, use onLayout() for overrides */
 	virtual void layout() final;
 
-	const float getContentAspectRatio() { return mContentAspectRatio; }
+	float getContentAspectRatio() const { return mContentAspectRatio; }
 
-	void checkBounds(const bool immediate = false);
+	void checkBounds(bool immediate = false);
 
 	/** Sends this panel to the front and calls onPanelActivated() */
 	void activatePanel();
 
 	/** If enabled (the default), will send this panel to the front on any user input. Otherwise leaves the order
 	 * alone */
-	void setAutoKeepInFront(const bool autoBringToFront) { mAutoSendToFront = autoBringToFront; }
+	void setAutoKeepInFront(bool autoBringToFront) { mAutoSendToFront = autoBringToFront; }
 
 	/** The panel was dragged or it's bounds checked. This is very loose, and might be called from the update loop
 	 * and multiple times per actual position change */
@@ -119,7 +120,7 @@ class BasePanel : public ds::ui::Sprite {
 	float getBottomPad() const { return mBottomPad; }
 
   protected:
-	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
+	void onUpdateServer(const ds::UpdateParams& updateParams) override;
 
 
 	/** Override this to layout your ui when the panel changes size .
@@ -132,7 +133,7 @@ class BasePanel : public ds::ui::Sprite {
 	/** When this panel has been sent to the front via activatePanel() */
 	virtual void onPanelActivated() {}
 
-	virtual void userInputReceived() override;
+	void userInputReceived() override;
 
 	void handleTouchInfo(const ds::ui::TouchInfo& ti);
 
@@ -165,12 +166,12 @@ class BasePanel : public ds::ui::Sprite {
 	std::function<void()> mPositionUpdateCallback;
 
   private:
-	// This method is intentially private.
+	// This method is intentionally private.
 	// The reason is that your layout code should go into layout(), and may be called
 	// at any time, not just when the view changes size. So your layout code should be lightweight
 	// Having this be protected or public could lead to duplicate layout codepaths, making debugging tricky
 	// If you need something to update with the size changes, override onLayout() and put your code there.
-	virtual void onSizeChanged() override;
+	void onSizeChanged() override;
 };
 
 } // namespace ds::ui

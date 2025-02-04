@@ -8,6 +8,8 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
+#include <utility>
+
 
 namespace ds::ui {
 
@@ -40,7 +42,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	setTouchScaleMode(true);
 	setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) { handleTouchInfo(ti); });
 
-	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE );
+	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	enable(true);
 
 	mBoundingArea = ci::Rectf(0.0f, 0.0f, mEngine.getWorldWidth(), mEngine.getWorldHeight());
@@ -123,20 +125,21 @@ void BasePanel::setViewerSize(float contentWidth, float contentHeight) {
 		contentHeight = mMaxSize.y;
 	}
 
-	const float nw = contentWidth + mLeftPad + mRightPad, nh = contentHeight + mTopPad + mBottomPad;
+	const float nw = contentWidth + mLeftPad + mRightPad;
+	const float nh = contentHeight + mTopPad + mBottomPad;
 
 	setSize(nw, nh);
 }
 
-void BasePanel::setViewerSize(const ci::vec2 newContentSize) {
+void BasePanel::setViewerSize(const ci::vec2& newContentSize) {
 	setViewerSize(newContentSize.x, newContentSize.y);
 }
 
-void BasePanel::setViewerWidth(const float contentWidth) {
+void BasePanel::setViewerWidth(float contentWidth) {
 	setViewerSize(contentWidth, contentWidth / mContentAspectRatio);
 }
 
-void BasePanel::setViewerHeight(const float contentHeight) {
+void BasePanel::setViewerHeight(float contentHeight) {
 	setViewerSize(contentHeight * mContentAspectRatio, contentHeight);
 }
 
@@ -218,7 +221,7 @@ void BasePanel::setSizeLimits() {
 	mMaxSize	 = maxSize;
 }
 
-void BasePanel::checkBounds(const bool immediate) {
+void BasePanel::checkBounds(bool immediate) {
 
 	if (mPositionUpdateCallback) mPositionUpdateCallback();
 
@@ -326,7 +329,7 @@ void BasePanel::activatePanel() {
 }
 
 void BasePanel::setPositionUpdatedCallback(std::function<void()> posUpdateCallback) {
-	mPositionUpdateCallback = posUpdateCallback;
+	mPositionUpdateCallback = std::move(posUpdateCallback);
 }
 
 void BasePanel::tweenStarted() {
@@ -351,7 +354,7 @@ void BasePanel::tweenEnded() {
 }
 
 
-void BasePanel::setAboutToBeRemoved(const bool isRemoving /*= true*/) {
+void BasePanel::setAboutToBeRemoved(bool isRemoving /*= true*/) {
 	mRemoving = true;
 	onAboutToBeRemoved();
 }
@@ -360,23 +363,23 @@ void BasePanel::animateToDefaultSize() {
 	animateSizeTo(mDefaultSize);
 }
 
-void BasePanel::animateSizeTo(const ci::vec2 newContentSize) {
+void BasePanel::animateSizeTo(const ci::vec2& newContentSize) {
 	ci::vec3 destSize =
 		ci::vec3(newContentSize.x + mLeftPad + mRightPad, newContentSize.y + mTopPad + mBottomPad, 0.0f);
 	tweenStarted();
 	tweenSize(destSize, mAnimDuration, 0.0f, ci::EaseInOutQuad(), [this]() { tweenEnded(); });
 }
 
-void BasePanel::animateWidthTo(const float newWidth) {
+void BasePanel::animateWidthTo(float newWidth) {
 	animateSizeTo(ci::vec2(newWidth, newWidth / mContentAspectRatio));
 }
 
-void BasePanel::animateHeightTo(const float newHeight) {
+void BasePanel::animateHeightTo(float newHeight) {
 	animateSizeTo(ci::vec2(newHeight * mContentAspectRatio, newHeight));
 }
 
 void BasePanel::setLayoutCallback(std::function<void()> layoutCallback) {
-	mLayoutCallback = layoutCallback;
+	mLayoutCallback = std::move(layoutCallback);
 }
 
 } // namespace ds::ui
