@@ -334,7 +334,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 	auto [newViewer,result] = createViewer(creationArgs);
 
 	if (!newViewer) {
-		DS_LOG_WARNING("View type not recognized! " << creationArgs.mViewType);
+		DS_LOG_WARNING("Viewer of type  " << creationArgs.mViewType << " could not be created!");
 		return nullptr;
 	}
 
