@@ -214,11 +214,11 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 
 	// Keep track of max width and height, useful if running this layout inside a grid.
 	if (vertical) {
-		mMinWidth = mMaxWidth = css::Value(maxWidth, css::Value::PIXELS);
-		mMinHeight = mMaxHeight = css::Value(totalSize, css::Value::PIXELS);
+		mMinWidth = mMaxWidth = css::Value(maxWidth + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
+		mMinHeight = mMaxHeight = css::Value(totalSize + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
 	} else {
-		mMinWidth = mMaxWidth = css::Value(totalSize, css::Value::PIXELS);
-		mMinHeight = mMaxHeight = css::Value(maxHeight, css::Value::PIXELS);
+		mMinWidth = mMaxWidth = css::Value(totalSize + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
+		mMinHeight = mMaxHeight = css::Value(maxHeight + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
 	}
 
 	// figure out what's left over and how to use it properly
@@ -411,6 +411,8 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 					} else {
 						updateChildren(ls->getChildren());
 					}
+				} else if (auto ls = dynamic_cast<ILayout*>(chillin)) {
+					ls->runLayout();
 				}
 			}
 		};
@@ -427,8 +429,8 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 }
 
 bool LayoutSprite::setAvailableSize(const ci::vec2& size) {
-	mWidth			  = size.x;
-	mHeight			  = size.y;
+	mWidth			  = size.x - mLayoutLPad - mLayoutRPad;
+	mHeight			  = size.y - mLayoutTPad - mLayoutBPad;
 	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
 
 	const auto minWidth	 = mMinWidth;
