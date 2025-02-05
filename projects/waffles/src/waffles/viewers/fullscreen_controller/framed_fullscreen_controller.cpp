@@ -17,27 +17,20 @@
 #include <ds/util/string_util.h>
 
 #include "app/waffles_app_defs.h"
-#include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"
 #include "waffles/pinboard/pinboard_button.h"
 #include "waffles/viewers/drawing/drawing_area.h"
 #include "waffles/viewers/drawing/drawing_tools.h"
 #include "waffles/viewers/titled_media_viewer.h"
 #include "waffles/viewers/viewer_controller.h"
+#include "waffles/waffles_events.h"
 
 
 namespace waffles {
 
 FramedFullscreenController::FramedFullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
-	: BaseElement(g)
-	, mRootLayout(nullptr)
-	, mMediaInterface(nullptr)
-	, mDrawingTools(nullptr)
-	, mLinkedMediaViewer(nullptr)
-	, mLayoutFile(layout) {
-
-	
-}
+  : BaseElement(g)
+  , mLayoutFile(layout) {}
 
 void FramedFullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	if (tmv == mLinkedMediaViewer) return;
@@ -49,15 +42,15 @@ void FramedFullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 			pb->setContentModel(med);
 		}
 	}
-	
+
 	updateUi();
 }
 
 void FramedFullscreenController::init() {
 	mMaxViewersOfThisType = 1;
-	mViewerType = VIEW_TYPE_FULLSCREEN_CONTROLLER;
+	mViewerType			  = VIEW_TYPE_FULLSCREEN_CONTROLLER;
 
-	mRootLayout = new ds::ui::SmartLayout(mEngine,mLayoutFile);
+	mRootLayout = new ds::ui::SmartLayout(mEngine, mLayoutFile);
 	addChildPtr(mRootLayout);
 
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
@@ -70,7 +63,7 @@ void FramedFullscreenController::init() {
 		removeDrawingTools();
 
 		if (mCloseRequestCallback) mCloseRequestCallback();
-		});
+	});
 
 	mRootLayout->setSpriteClickFn("item_close_button.the_button", [this] {
 		if (mLinkedMediaViewer) {
@@ -85,57 +78,52 @@ void FramedFullscreenController::init() {
 	});
 
 	auto collapseBtn = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
-	
+
 	if (collapseBtn) {
-		collapseBtn->enable(false);
-		setProcessTouchCallback([this,collapseBtn](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) {
-			static ci::vec3 firstTouch = ci::vec3(0, 0, 0);
+		// Horrible little trick to ensure all the button states are configured
+		collapse();
+		uncollapse();
+
+		// Handle button tapping + still allow a drag to start
+		collapseBtn->setProcessTouchCallback([this, collapseBtn](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti) {
 			if (ti.mPhase == ds::ui::TouchInfo::Added) {
-				firstTouch = ti.mCurrentGlobalPoint;
-				if (collapseBtn->contains(ti.mCurrentGlobalPoint)) {
-					
-					auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-					auto btn = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
-					btn->setColorA(highColor);
+				// When touch is first added, show the down state
+				collapseBtn->showDown();
+			} else if (ti.mPhase == ds::ui::TouchInfo::Moved && !collapseBtn->contains(ti.mCurrentGlobalPoint)) {
+				// Moved outside the button, now we want to pass back to our parent and hide the downstate
+				// Since the parent only cares about moves this is all we need
+				collapseBtn->showUp();
+				sp->passTouchToSprite(this, ti);
+			} else if (ti.mPhase == ds::ui::TouchInfo::Removed && collapseBtn->contains(ti.mCurrentGlobalPoint)) {
+				// Finally, if we get the removed before we've passed, we want to collapse/uncollapse and set the button
+				// back to the normal state
+				collapseBtn->showUp();
+				if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
+				if (mMediaInterface && mMediaInterface->isLocked()) {
+					return;
 				}
-				
-			} else if (ti.mPhase == ds::ui::TouchInfo::Removed && glm::distance(ti.mCurrentGlobalPoint, firstTouch)<2) {
-				//sp->passTouchToSprite(collapseBtn, ti);
-				if (collapseBtn->contains(ti.mCurrentGlobalPoint)) {
-					if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
-					if (mMediaInterface && mMediaInterface->isLocked()) {
-						return;
-					}
-					removeDrawingTools();
-					auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
-					auto btn		 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
-					btn->setColorA(normalColor);
-					mIsCollapsed ? uncollapse() : collapse();
-				}
+				removeDrawingTools();
+				mIsCollapsed ? uncollapse() : collapse();
 			}
-			
-			
-			
 		});
 	}
-	
+
 
 	mRootLayout->setSpriteClickFn("fullscreen.the_button", [this] {
 		if (mLinkedMediaViewer) {
 			if (mLinkedMediaViewer->getIsFullscreen()) {
 				mEventClient.notify(RequestUnFullscreenViewer(mLinkedMediaViewer));
-			}
-			else {
+			} else {
 				ci::vec3 pos = getPosition();
 				mEventClient.notify(RequestFullscreenViewer(mLinkedMediaViewer));
 				// immediately send a request for this viewer, otherwise it gets sent to the center of the screen by
 				// default
 				mEventClient.notify(RequestViewerLaunchEvent(
 					ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-						ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
+									   ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
 			}
 		}
-		});
+	});
 
 
 	mRootLayout->setSpriteClickFn("drawing.the_button", [this] {
@@ -143,13 +131,13 @@ void FramedFullscreenController::init() {
 			mLinkedMediaViewer->toggleDrawing();
 			setDrawingToolsState();
 		}
-		});
+	});
 
 	mEventClient.listenToEvents<ViewerRemovedEvent>([this](auto& e) {
 		if (e.mViewer == mLinkedMediaViewer) {
 			linkMediaViewer(nullptr);
 		}
-		});
+	});
 	//	mEventClient.listenToEvents<ViewerUpdatedEvent>([this](auto& e) { updateUi(); });
 
 	mEventClient.listenToEvents<RequestToggleCollapseAndMoveFullscreenController>([this](auto& e) {
@@ -158,7 +146,7 @@ void FramedFullscreenController::init() {
 		} else {
 			mIsCollapsed ? uncollapse() : collapse();
 		}
-		});
+	});
 
 	mEventClient.listenToEvents<RequestCollapseAndMoveFullscreenController>([this](auto& e) {
 		if (e.mShouldMove) {
@@ -182,9 +170,9 @@ void FramedFullscreenController::init() {
 
 
 	mRootLayout->runLayout();
-	const float startWidth = mRootLayout->getWidth();
+	const float startWidth	= mRootLayout->getWidth();
 	const float startHeight = mRootLayout->getHeight();
-	mContentAspectRatio = startWidth / startHeight;
+	mContentAspectRatio		= startWidth / startHeight;
 
 	BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
 
@@ -212,7 +200,7 @@ void FramedFullscreenController::onLayout() {
 
 	if (mDrawingTools) {
 		mDrawingTools->setSize(getWidth(), mDrawingTools->getHeight());
-		mDrawingTools->setPosition(0.0f, getHeight()-8); //stupid thing shoved up so you cant see the janky
+		mDrawingTools->setPosition(0.0f, getHeight() - 8); // stupid thing shoved up so you cant see the janky
 	}
 }
 
@@ -224,7 +212,7 @@ void FramedFullscreenController::updateUi() {
 		mMediaInterface = nullptr;
 	}
 	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
-	
+
 	if (mLinkedMediaViewer && interfaceHolder) {
 		interfaceHolder->show();
 		auto contentRef	 = mLinkedMediaViewer->getMedia();
@@ -239,13 +227,13 @@ void FramedFullscreenController::updateUi() {
 			if (wafflesHelper) {
 				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
 			}
-			//ContentUtils::setMediaInterfaceStyle(mMediaInterface);
+			// ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
-					//webInterface->setKeyboardKeyScale(30.0f / 64.0f);
+					// webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
@@ -256,7 +244,7 @@ void FramedFullscreenController::updateUi() {
 							auto&	   setty = keeb->getSoftKeyboardSettings();
 							ci::ColorA up	 = mEngine.getColors().getColorFromName("waffles_key_up");
 							ci::ColorA down	 = mEngine.getColors().getColorFromName("waffles_key_down");
-							ci::ColorA keyb		= mEngine.getColors().getColorFromName("viewer_background");
+							ci::ColorA keyb	 = mEngine.getColors().getColorFromName("viewer_background");
 
 							setty.mKeyDownColor				  = down;
 							setty.mKeyUpColor				  = up;
@@ -314,7 +302,7 @@ void FramedFullscreenController::updateUi() {
 }
 
 void FramedFullscreenController::updateLockedState() {
-	bool isLocked = (mMediaInterface && mMediaInterface->isLocked() );
+	bool isLocked  = (mMediaInterface && mMediaInterface->isLocked());
 	bool isDrawing = (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode());
 
 	if (auto closeBtn = mRootLayout->getSprite("close_button.the_button")) {
@@ -383,8 +371,7 @@ void FramedFullscreenController::onAboutToBeRemoved() {
 	}
 }
 
-void FramedFullscreenController::onParentSet()
-{
+void FramedFullscreenController::onParentSet() {
 	BaseElement::onParentSet();
 	callAfterDelay([this] { init(); }, 0.1f);
 }
@@ -415,7 +402,7 @@ void FramedFullscreenController::uncollapseAndMove(ci::vec3 pos) {
 
 void FramedFullscreenController::collapse() {
 	if (mIsCollapsed) return;
-	
+
 	if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
 	if (mMediaInterface && mMediaInterface->isLocked()) {
 		return;
@@ -423,20 +410,24 @@ void FramedFullscreenController::collapse() {
 
 	removeDrawingTools();
 
-	auto controls = mRootLayout->getSprite("border_layout");
-	auto backRect = mRootLayout->getSprite("bg_filler");
+	auto controls	 = mRootLayout->getSprite("border_layout");
+	auto backRect	 = mRootLayout->getSprite("bg_filler");
+	auto btnLayout	 = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
 	auto btn		 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
-	auto btnHigh  = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
+	auto btnHigh	 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
 	auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-	if (btn && btnHigh) {
-		
+	if (btn && btnHigh && btnLayout) {
+
 		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
 		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
-		//btn->setColorA(normalColor);
-		//btnHigh->setColorA(highColor);
+		btnLayout->runLayout();
 	}
-	mUncollapsedSize = backRect->getSize();
+
+	// Only set the uncollapsed size once, otherwise repeated taps of the collapse button will use mid-tween values
+	// breaking the layout
+	if (!mUncollapsedSizeSet) mUncollapsedSize = backRect->getSize();
+
 	if (controls && backRect) {
 		controls->tweenOpacity(0, 0.25);
 		backRect->tweenSize(ci::vec3(0, 0, 0), 0.25, 0.20);
@@ -452,17 +443,17 @@ void FramedFullscreenController::uncollapse() {
 	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
 	if (controls && backRect) {
-		controls->tweenOpacity(1, 0.25,0.20);
+		controls->tweenOpacity(1, 0.25, 0.20);
 		backRect->tweenSize(mUncollapsedSize, 0.25);
 	}
-	auto btn = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
-	auto btnHigh = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
-	if (btn) {
+	auto btnLayout = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
+	auto btn	   = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
+	auto btnHigh   = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
+	if (btn && btnHigh && btnLayout) {
 
 		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
 		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
-		//btn->setColorA(normalColor);
-		//btnHigh->setColorA(highColor);
+		btnLayout->runLayout();
 	}
 	mIsCollapsed = false;
 }
