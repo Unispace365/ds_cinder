@@ -123,6 +123,24 @@ ds::model::ContentModelRef BaseWafflesHelper::getAnnotationFolder() {
 	return return_folder;
 }
 
+void BaseWafflesHelper::setKeyboardStyle(ds::ui::SoftKeyboard* keeb){
+	// Note, this only somewhat works. If the keyboard is initalized with the wrong key size this will resize the keys
+	// but not correctly re-size the keyboard. Leading to either overlaps or huge gaps
+	// More refinement needed
+	auto&	  setty		= keeb->getSoftKeyboardSettings();
+	ci::ColorA up = mEngine.getColors().getColorFromName("waffles_key_up");
+	ci::ColorA down		= mEngine.getColors().getColorFromName("waffles_key_down");
+
+	setty.mKeyDownColor				  = down;
+	setty.mKeyUpColor				  = up;
+	auto tc							  = setty.mKeyDnTextConfig;
+	setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
+	setty.mGraphicRoundedCornerRadius = 8;
+	setty.mGraphicKeySize			  = 30;
+	
+	keeb->setSoftKeyboardSettings(setty);
+}
+
 void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
 	auto& mEngine = interfacey->getEngine();

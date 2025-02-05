@@ -257,23 +257,12 @@ void FramedMediaViewer::onMediaSet() {
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
-					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
+					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn, wafflesHelper](const bool onScreen) {
 						if (onScreen) {
 							auto	  keeb		= webInterface->getSoftKeyboard();
-							auto&	  setty		= keeb->getSoftKeyboardSettings();
-							ci::ColorA up = mEngine.getColors().getColorFromName("waffles_key_up");
-							ci::ColorA down		= mEngine.getColors().getColorFromName("waffles_key_down");
 							ci::ColorA keyb		 = mEngine.getColors().getColorFromName("viewer_background");
+							wafflesHelper->setKeyboardStyle(keeb);
 
-							setty.mKeyDownColor				  = down;
-							setty.mKeyUpColor				  = up;
-							auto tc							  = setty.mKeyDnTextConfig;
-							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
-							setty.mGraphicRoundedCornerRadius = 8;
-							setty.mGraphicKeySize			  = 30;
-							
-							keeb->setSoftKeyboardSettings(setty);
-							
 							auto keyboardArea = webInterface->getKeyboardArea();
 							if (keyboardArea) {
 								keyboardArea->enable(true);
@@ -287,16 +276,12 @@ void FramedMediaViewer::onMediaSet() {
 							webInterface->getKeyboardButton()->setNormalImageColor(highColor);
 							webInterface->getKeyboardButton()->setHighImageColor(normalColor);
 
-							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
-							//					   keyboardBtn);
-
 						} else if (!onScreen) {
 							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
 							webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
 							webInterface->getKeyboardButton()->setHighImageColor(highColor);
-							//setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
 						}
 					});
 				}

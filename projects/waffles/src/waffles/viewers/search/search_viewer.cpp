@@ -89,20 +89,24 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	}
 
 	if (auto entryField = mPrimaryLayout->getSprite<ds::ui::EntryField>("entry_field")) {
-		auto entryText = entryField->getTextSprite();
+		/* auto entryText = entryField->getTextSprite();
 		entryText->setFont("viewer:body");
 		auto font_size = mEngine.getWafflesSettings().getFloat("search:list:item:font_size", 0, 20.0f);
 		entryText->setFontSize(font_size);
 		entryText->setColor(ci::ColorA::black());
-		entryField->setColor(ci::ColorA::white());
+		entryField->setColor(ci::ColorA::white()); */
 		if (auto keyboard = mPrimaryLayout->getSprite<ds::ui::SoftKeyboard>("primary_keyboard")) {
-			auto& setty			= keyboard->getSoftKeyboardSettings();
+			auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+			if (wafflesHelper) {
+				wafflesHelper->setKeyboardStyle(keyboard);
+			}
+			/* auto& setty			= keyboard->getSoftKeyboardSettings();
 			setty.mKeyDownColor = ci::Color(mEngine.getColors().getColorFromName("waffles:button:bg:high:dark"));
 			setty.mKeyUpColor	= ci::Color(mEngine.getColors().getColorFromName("waffles:button:bg:normal:dark"));
 			setty.mGraphicType	= ds::ui::SoftKeyboardSettings::kSolid;
 			setty.mGraphicRoundedCornerRadius = 0;
 			keyboard->setSoftKeyboardSettings(setty);
-			for (auto button : keyboard->getButtonVector()) {}
+			for (auto button : keyboard->getButtonVector()) {} */
 		}
 		const auto maxChars = mEngine.getWafflesSettings().getInt("search:max_characters", 0, 50);
 		entryField->setTextUpdatedCallback([this, entryField, maxChars](const std::wstring& text) {

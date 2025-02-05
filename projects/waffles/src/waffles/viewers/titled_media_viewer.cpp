@@ -484,17 +484,11 @@ void TitledMediaViewer::onMediaSet() {
 		ds::ui::WebInterface* webInterface = dynamic_cast<ds::ui::WebInterface*>(webPlayer->getWebInterface());
 		ds::ui::ImageButton*  keyboardBtn  = webInterface->getKeyboardButton();
 
-		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
+		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn, wafflesHelper](const bool onScreen) {
 			if (onScreen) {
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
-				auto&	  setty		= keeb->getSoftKeyboardSettings();
-
-				setty.mKeyDownColor				  = ci::Color::black();
-				setty.mKeyUpColor				  = ci::Color(lightGrey);
-				setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
-				setty.mGraphicRoundedCornerRadius = 0;
-				keeb->setSoftKeyboardSettings(setty);
+				wafflesHelper->setKeyboardStyle(keeb);
 
 				setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png", keyboardBtn);
 

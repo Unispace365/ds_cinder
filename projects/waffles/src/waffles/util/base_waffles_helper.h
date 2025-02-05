@@ -17,6 +17,7 @@ class BaseWafflesHelper : public WafflesHelper {
 	virtual ds::model::ContentModelRef		getPinboard() override;
 	virtual std::vector<ds::model::ContentModelRef> getValidPinboards() override;
 	virtual ds::model::ContentModelRef				getAnnotationFolder() override;
+	virtual void									setKeyboardStyle(ds::ui::SoftKeyboard* keeb) override;
 	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) override;
 
 
