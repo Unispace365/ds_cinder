@@ -47,7 +47,9 @@ EventClient::EventClient(ds::ui::SpriteEngine& eng)
 EventClient::EventClient(EventNotifier& notifier)
   : mNotifier(&notifier) {
 	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
-		if (m) this->onAppEvent(*m);
+		if (m) {
+			this->onAppEvent(*m);
+		}
 	});
 }
 

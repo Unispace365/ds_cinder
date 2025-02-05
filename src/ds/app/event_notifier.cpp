@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include <ds/app/event_notifier.h>
-
+#include <memory>
 
 namespace ds {
 
@@ -39,10 +39,6 @@ void EventNotifier::notify(const ds::Event& e) {
 	mEventNotifier.notify(&e);
 }
 
-void EventNotifier::notifyOnEngineThread(const ds::Event& e) {
-	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << e.getName());
-	mEngine->timedCallback([this, event = e]() { notify(event); }, 0.1);
-}
 
 void EventNotifier::notify(const ds::Event* e) {
 	if (e) DS_LOG_VERBOSE(2, "EventNotifier::notify event " << e->getName());
@@ -53,10 +49,28 @@ void EventNotifier::notify(const ds::Event* e) {
 	mEventNotifier.notify(e);
 }
 
-void EventNotifier::notifyOnEngineThread(const ds::Event* e) {
-	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << e->getName());
-	mEngine->timedCallback([this, event = e]() { notify(event); }, 0.1);
+void EventNotifier::notifyOnEngineThread(std::shared_ptr<ds::Event> event) {
+	//there is no std::dynamic_pointer_cast for unique_ptr in c++17; so we fake it.
+	
+	
+	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << event->getName());
+	mEngine->timedCallback(
+		[this, event]() mutable {
+			notify(event.get());
+		},
+		0.1);
 }
+
+
+//void EventNotifier::notifyOnEngineThread(const ds::Event* e) {
+//	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << e->getName());
+//	mEngine->timedCallback(
+//		[this, event = e]() {
+//			notify(event);
+//			delete event;
+//		},
+//		0.1);
+//}
 
 void EventNotifier::notify(const std::string& eventName) {
 	DS_LOG_VERBOSE(2, "EventNotifier::notify event " << eventName);

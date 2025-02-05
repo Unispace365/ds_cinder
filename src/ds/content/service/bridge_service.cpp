@@ -912,7 +912,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		}
 	}
 
-	if (updated) mEngine.getNotifier().notifyOnEngineThread(ds::PlatformEventsUpdatedEvent());
+	if (updated) mEngine.getNotifier().notifyOnEngineThread(std::make_shared<ds::PlatformEventsUpdatedEvent>());
 
 
 	// Use helper to obtain the appropriate playlist.

@@ -24,12 +24,12 @@ class EventNotifier {
 	/// Send an event to the system, for clients that don't need
 	/// an EventClient (i.e. don't need to receive events)
 	void notify(const ds::Event&);
-	void notifyOnEngineThread(const ds::Event&);
 
 	/// Send an event to the system, for clients that don't need
 	/// an EventClient (i.e. don't need to receive events)
 	void notify(const ds::Event*);
-	void notifyOnEngineThread(const ds::Event*);
+	//void notifyOnEngineThread(const ds::Event*);
+	void notifyOnEngineThread(std::shared_ptr<ds::Event>);
 
 	/// Send an event to the system, looks up the event's name in the event registry.
 	/// If the name does not match, will fail without warning in release, with a warning in debug
