@@ -83,22 +83,24 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 };
 
 void FramedMediaViewer::onLayout() {
-	auto borderLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
-	auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("inner_holdy");
-	
+	float diff = 0;
+
 	if (mRootLayout) {
 		auto w = getWidth();
 		auto h = getHeight();
 		mRootLayout->setSize(w, h);
 		mRootLayout->runLayout();
 	}
-	
-	auto nw = theLayout->getWidth();
-	auto oldh = theLayout->getHeight();
-	auto nh = theLayout->getWidth() / mContentAspectRatio;
-	auto diff = nh - oldh;
-	
-	theLayout->setSize(nw, nh);
+
+	auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("inner_holdy");
+	if (theLayout) {
+		auto nw	  = theLayout->getWidth();
+		auto oldh = theLayout->getHeight();
+		auto nh	  = theLayout->getWidth() / mContentAspectRatio;
+		diff	  = nh - oldh;
+
+		theLayout->setSize(nw, nh);
+	}
 
 	if (mMediaPlayer && theLayout) {
 

@@ -281,14 +281,14 @@ void TitledMediaViewer::calculateSizeLimits() {
 }
 
 void TitledMediaViewer::onMediaSet() {
-	auto helper		 = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 
 	auto newMediaRef = helper->getRecordByUid(mMediaRef.getUid());
 	if (newMediaRef) {
 		mMediaRef = newMediaRef;
 	}
 
-	
+
 	mInitialLoadError = false;
 	if (!mMediaPlayer) {
 		mInitialLoadError = true;
@@ -593,36 +593,47 @@ void TitledMediaViewer::onMediaSet() {
 			// mCanResize	= false;
 			mFatalError = true;
 
-			ds::model::ContentModelRef errorModel;
+			if (mRootLayout) {
+				ds::model::ContentModelRef errorModel;
 
-			std::string errorMessage = "We couldn't load this piece of media because ";
-			if (ds::safeFileExistsCheck(primaryResource.getAbsoluteFilePath())) {
-				errorMessage.append("the size of the media was not found.");
-			} else {
-				errorMessage.append("the media file couldn't be found on the hard disk.");
+				std::string errorMessage = "We couldn't load this piece of media because ";
+				if (ds::safeFileExistsCheck(primaryResource.getAbsoluteFilePath())) {
+					errorMessage.append("the size of the media was not found.");
+				} else {
+					errorMessage.append("the media file couldn't be found on the hard disk.");
+				}
+
+				errorModel.setProperty("name", std::string("Sorry!"));
+				errorModel.setProperty("error", errorMessage);
+				errorModel.setPropertyResource("media",
+											   primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
+				errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
+				errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
+
+				mRootLayout->setLayoutFile("waffles/error/error_viewer.xml");
+				mRootLayout->setContentModel(errorModel);
+				mRootLayout->runLayout();
+
+				mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
+					if (mCloseRequestCallback) mCloseRequestCallback();
+				});
+
+				mMediaPlayer = nullptr; // Delete dangling pointer.
 			}
 
-			errorModel.setProperty("name", std::string("Sorry!"));
-			errorModel.setProperty("error", errorMessage);
-			errorModel.setPropertyResource("media",
-										   primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
-			errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
-			errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
-
-			callAfterDelay(
-				[this, errorModel] {
-					mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
-						errorModel, VIEW_TYPE_ERROR, getCenterPosition(), ViewerCreationArgs::kViewLayerTop)));
-					if (mCloseRequestCallback) mCloseRequestCallback();
-				},
-				0.01f);
+			// callAfterDelay(
+			//	[this, errorModel] {
+			//		mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
+			//			errorModel, VIEW_TYPE_ERROR, getCenterPosition(), ViewerCreationArgs::kViewLayerTop)));
+			//		if (mCloseRequestCallback) mCloseRequestCallback();
+			//	},
+			//	0.01f);
 
 		} else {
 			mFatalError = false;
 		}
 
-		mMediaPlayer->enter();
-
+		if (mMediaPlayer) mMediaPlayer->enter();
 	}
 	/* auto nameSp = mRootLayout->getSprite<ds::ui::Text>("name");
 	if (nameSp) {
@@ -986,7 +997,7 @@ void TitledMediaViewer::onFullscreenSet() {
 			getAnimateDuration(), 0.f, ci::easeNone, [this] { layout(); }, [this] { layout(); }); */
 	} else {
 
-		if(getIsDetached()) showTitle();
+		if (getIsDetached()) showTitle();
 		showInnerSideBar();
 		if (mMediaPlayer) {
 
@@ -1026,10 +1037,10 @@ void TitledMediaViewer::onFullscreenSet() {
 void TitledMediaViewer::onDetachedSet() {
 	if (!mIsDetached) {
 		hideTitle();
-		//hideInnerSideBar();
+		// hideInnerSideBar();
 	} else {
 		showTitle();
-		//showInnerSideBar();
+		// showInnerSideBar();
 	}
 	processAllowedButtons();
 }
@@ -1388,10 +1399,13 @@ void TitledMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 
 void TitledMediaViewer::userInputReceived() {
 	BasePanel::userInputReceived();
+
 	// Input = focus = keyboard
-	auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mMediaPlayer->getPlayer());
-	if (webPlayer && webPlayer->getWeb()) {
-		mEngine.registerEntryField(webPlayer->getWeb());
+	if (mMediaPlayer) {
+		auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mMediaPlayer->getPlayer());
+		if (webPlayer && webPlayer->getWeb()) {
+			mEngine.registerEntryField(webPlayer->getWeb());
+		}
 	}
 
 	if (mMediaPlayer && !mIsFullscreen && !mDrawingMode) {
