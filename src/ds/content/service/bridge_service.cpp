@@ -355,7 +355,7 @@ bool BridgeService::Loop::loadContent() {
 								  " FROM record AS r"
 								  " INNER JOIN lookup AS l ON l.uid = r.type_uid"
 								  " WHERE r.complete = 1 AND r.visible = 1 AND"
-								  " (r.span_end_date IS NULL OR date(r.span_end_date) == date('now'))"
+								  " (r.span_end_date IS NULL OR date(r.span_end_date) == date('now', 'localtime'))"
 								  " ORDER BY r.parent_slot ASC, r.rank ASC;";
 
 
