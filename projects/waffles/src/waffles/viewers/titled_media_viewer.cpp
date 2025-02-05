@@ -35,6 +35,7 @@
 #include "waffles/util/shadow_layout.h"
 #include "waffles/util/waffles_helper.h"
 #include "waffles/waffles_events.h"
+#include "waffles/util/base_waffles_helper.h"
 
 #include <ds/content/content_helper.h>
 
@@ -484,8 +485,10 @@ void TitledMediaViewer::onMediaSet() {
 		ds::ui::WebInterface* webInterface = dynamic_cast<ds::ui::WebInterface*>(webPlayer->getWebInterface());
 		ds::ui::ImageButton*  keyboardBtn  = webInterface->getKeyboardButton();
 
-		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn, wafflesHelper](const bool onScreen) {
+		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
 			if (onScreen) {
+				auto wafflesHelper			 = ds::model::ContentHelperFactory::getDefault<BaseWafflesHelper>();
+
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
 				wafflesHelper->setKeyboardStyle(keeb);
