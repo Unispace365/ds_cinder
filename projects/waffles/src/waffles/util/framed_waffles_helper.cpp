@@ -69,16 +69,16 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 			//loopy->setNormalImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
 			//loopy->setHighImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
 			//loopy->setScale(interfaceHeight / loopy->getHeight());
-			loopy->setNormalImageColor(normalColor);
-			loopy->setHighImageColor(highColor);
+			loopy->setNormalImageColor(highColor);
+			loopy->setHighImageColor(normalColor);
 		}
 
 		if (auto unloopy = vidInterface->getUnLoopButton()) {
 			//unloopy->setNormalImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
 			//unloopy->setHighImage("%APP%/data/images/waffles/icons2/2x/loop.png", imageFlags);
 			//unloopy->setScale(interfaceHeight / unloopy->getHeight());
-			unloopy->setNormalImageColor(highColor);
-			unloopy->setHighImageColor(normalColor);
+			unloopy->setNormalImageColor(normalColor);
+			unloopy->setHighImageColor(highColor);
 		}
 
 		if (vidInterface->getScrubBarBackground() && vidInterface->getScrubBarProgress()) {
