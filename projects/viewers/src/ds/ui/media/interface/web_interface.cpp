@@ -620,10 +620,12 @@ void WebInterface::setToggleUnlockedImage(const std::string& imgPath) {
 
 void WebInterface::setToggleLockedColor(const ci::ColorAf& color) {
 	mToggleLockedColor = color;
+	updateWidgets();
 }
 
 void WebInterface::setToggleUnlockedColor(const ci::ColorAf& color) {
 	mToggleUnlockedColor = color;
+	updateWidgets();
 }
 
 void WebInterface::showKeyboard(bool show) {

@@ -259,7 +259,7 @@ void PDFInterface::updateWidgets() {
 	}
 
 	if (mLinkedPDF) {
-		if (mLinkedPDF->isEnabled() && !mLinkedEnabled) {
+		if (mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = true;
 			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage,
 													  ds::ui::Image::IMG_CACHE_F);
@@ -267,7 +267,7 @@ void PDFInterface::updateWidgets() {
 														ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->setNormalImageColor(mToggleLockedColor);
 			mTouchToggle->setHighImageColor(mToggleUnlockedColor);
-		} else if (!mLinkedPDF->isEnabled() && mLinkedEnabled) {
+		} else if (!mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = false;
 			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
 													  ds::ui::Image::IMG_CACHE_F);
@@ -315,10 +315,12 @@ void PDFInterface::setToggleUnlockedImage(const std::string& imgPath) {
 
 void PDFInterface::setToggleLockedColor(const ci::ColorAf& color) {
 	mToggleLockedColor = color;
+	updateWidgets();
 }
 
 void PDFInterface::setToggleUnlockedColor(const ci::ColorAf& color) {
 	mToggleUnlockedColor = color;
+	updateWidgets();
 }
 
 void PDFInterface::toggleTouch() {

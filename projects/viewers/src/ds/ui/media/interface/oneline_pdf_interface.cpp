@@ -61,13 +61,15 @@ void OnelinePDFInterface::updateWidgets() {
 	}
 
 	if (mLinkedPDF) {
-		if (mLinkedPDF->isEnabled() && !mLinkedEnabled) {
+		auto enabled = mLinkedPDF->isEnabled();
+		
+		if (mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = true;
 			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->setNormalImageColor(mToggleLockedColor);
 			mTouchToggle->setHighImageColor(mToggleUnlockedColor);
-		} else if (!mLinkedPDF->isEnabled() && mLinkedEnabled) {
+		} else if (!mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = false;
 			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
