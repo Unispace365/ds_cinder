@@ -427,7 +427,7 @@ void FramedFullscreenController::collapse() {
 	if (btn && btnHigh && btnLayout) {
 
 		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
-		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
+		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
 		btnLayout->runLayout();
 	}
 
@@ -458,7 +458,7 @@ void FramedFullscreenController::uncollapse() {
 	auto btnHigh   = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
 	if (btn && btnHigh && btnLayout) {
 
-		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
+		btnHigh->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
 		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/collapse2=active2x.png");
 		btnLayout->runLayout();
 	}
