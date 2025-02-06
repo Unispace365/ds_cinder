@@ -54,7 +54,7 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 			mVideo->seekPosition(0);
 		}
 
-		if (!mLooping) {
+		if (!mVideo->getIsLooping()) {
 			mVideo->pause();
 		}
 
