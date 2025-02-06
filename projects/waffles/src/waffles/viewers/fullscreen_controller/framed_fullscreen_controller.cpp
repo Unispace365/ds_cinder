@@ -15,6 +15,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/sprite/web.h>
 
 #include "app/waffles_app_defs.h"
 #include "waffles/common/ui_utils.h"
@@ -456,6 +457,22 @@ void FramedFullscreenController::uncollapse() {
 		btnLayout->runLayout();
 	}
 	mIsCollapsed = false;
+}
+
+void FramedFullscreenController::onUpdateServer(const ds::UpdateParams& p) {
+	BaseElement::onUpdateServer(p);
+	// set our name to our mediaViewers name
+	if (mLinkedMediaViewer && !mIsCollapsed) {
+		auto mediaPlayer = mLinkedMediaViewer->getMediaPlayer();
+		if (mediaPlayer) {
+			auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer->getPlayer());
+			if (webPlayer) {
+				if (auto webby = webPlayer->getWeb()) {				
+					mRootLayout->setSpriteText("title", webby->getPageTitle());
+				}
+			}
+		}
+	}
 }
 
 } // namespace waffles

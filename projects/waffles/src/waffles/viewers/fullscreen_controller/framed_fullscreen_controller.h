@@ -35,7 +35,8 @@ class FramedFullscreenController : public BaseElement {
 	void		 setKeyboardButtonImage(std::string imageFile, ds::ui::ImageButton* keyboardBtn);
 	void		 collapse();
 	void		 uncollapse();
-	void		 init();
+	void		 onUpdateServer(const ds::UpdateParams& p) override;
+	void	init();
 	virtual void onAboutToBeRemoved();
 	virtual void onParentSet();
 
