@@ -66,8 +66,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mEventClient.listenToEvents<ds::app::EntryFieldRegisteredEvent>([this](auto&) {
 		auto newEntryField = mEngine.getRegisteredEntryField();
 		if (newEntryField && newEntryField != mLinkedWeb) {
-			mKeyboardShowing = false;
-			updateWidgets();
+			showKeyboard(false);
 		}
 	});
 
