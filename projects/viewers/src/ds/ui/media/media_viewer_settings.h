@@ -33,6 +33,7 @@ struct MediaViewerSettings {
 	  , mYouTubeSize(1920.0f, 1080.0f)
 	  , mCacheImages(false)
 	  , mMipMapImages(true)
+	  , mPdfStartTouchable(false)
 	  , mPdfCanShowLinks(true)
 	  , mPdfLoop(true)
 	  , mVideoPanning(0.0f)
@@ -108,6 +109,9 @@ struct MediaViewerSettings {
 	bool mMipMapImages;
 
 	//--------------------PDF Settings ---------------------------------------------//
+
+	/// If true, PDF sprites will load interactable. Default = false
+	bool mPdfStartTouchable;
 
 	/// When the PDF gets touch-toggled, show any internal PDF links. default = true
 	bool mPdfCanShowLinks;

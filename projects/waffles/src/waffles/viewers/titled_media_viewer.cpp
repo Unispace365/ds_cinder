@@ -385,6 +385,7 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mWebAllowTouchToggle  = true;
 	mvs.mCanDisplayInterface  = true;
 	mvs.mWebStartTouchable	  = mCreationArgs.mStartLocked;
+	mvs.mPdfStartTouchable	  = mCreationArgs.mStartLocked;
 	if (mShowingWebcam) {
 		mvs.mDefaultBounds = ci::vec2(1920, 1080);
 	}

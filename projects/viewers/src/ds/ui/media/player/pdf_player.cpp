@@ -24,6 +24,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
   , mEmbedInterface(embedInterface)
   , mShowInterfaceAtStart(true)
   , mInterfaceBelowMedia(false)
+  , mStartInteractable(false)
   , mLetterbox(true) {
 
 	enable(false);
@@ -263,6 +264,12 @@ void PDFPlayer::setResource(const ds::Resource& mediaResource) {
 		}
 	}
 
+	if (mStartInteractable) {
+		enable(true);
+	} else {
+		enable(false);
+	}
+
 	if (theW < 1 || theH < 1) {
 		DS_LOG_WARNING("PDF Player loaded a PDF with no size! " << mediaResource.getAbsoluteFilePath());
 		if (mErrorMsgCallback) mErrorMsgCallback("PDF size or file could not be found.");
@@ -313,6 +320,7 @@ void PDFPlayer::setMediaViewerSettings(const MediaViewerSettings& settings) {
 	mInterfaceBottomPad	 = settings.mInterfaceBottomPad;
 	mCanShowLinks		 = settings.mPdfCanShowLinks;
 	mLoopPages			 = settings.mPdfLoop;
+	mStartInteractable	 = settings.mPdfStartTouchable;
 	setLinkClickedCallback(settings.mPdfLinkTappedCallback);
 }
 

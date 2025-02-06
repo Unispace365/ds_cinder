@@ -203,6 +203,14 @@ auto INIT = []() {
 				mvs.mCanShowThumbnail = ds::parseBoolean(theValue);
 				mediaPlayer.setSettings(mvs);
 			});
+
+		e.registerSpritePropertySetter<ds::ui::MediaPlayer>(
+			"media_player_pdf_start_interactive",
+			[](ds::ui::MediaPlayer& mediaPlayer, const std::string& theValue, const std::string& fileReferrer) {
+				auto& mvs			   = mediaPlayer.getSettings();
+				mvs.mPdfStartTouchable = ds::parseBoolean(theValue);
+				mediaPlayer.setSettings(mvs);
+			});
 	});
 	return true;
 }();
