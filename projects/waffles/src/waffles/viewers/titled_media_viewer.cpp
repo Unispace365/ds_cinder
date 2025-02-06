@@ -331,11 +331,12 @@ void TitledMediaViewer::onMediaSet() {
 			auto streamType		  = streamSource.getPropertyString(streamTypeKey);
 			auto streamAddress	  = streamSource.getPropertyString(streamAddressKey);
 
-			fakeRes.setFileName(streamAddress);
-			fakeRes.setLocalFilePath(streamAddress);
+			// the stream type needs to be set before the filenames
 			if (streamType == "rtsp") {
 				fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
 			}
+			fakeRes.setFileName(streamAddress);
+			fakeRes.setLocalFilePath(streamAddress);
 
 			if (streamType == "rtsp") {
 				DS_LOG_INFO("Got a network stream! " << streamAddress);
