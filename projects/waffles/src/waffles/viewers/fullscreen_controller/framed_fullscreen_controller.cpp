@@ -45,6 +45,9 @@ void FramedFullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	}
 
 	updateUi();
+	mUncollapsedSizeSet = false;
+	collapse();
+	uncollapse();
 }
 
 void FramedFullscreenController::init() {
@@ -79,7 +82,7 @@ void FramedFullscreenController::init() {
 	});
 
 	auto collapseBtn = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
-
+	
 	if (collapseBtn) {
 		// Horrible little trick to ensure all the button states are configured
 		collapse();
@@ -197,6 +200,7 @@ void FramedFullscreenController::onLayout() {
 	if (mRootLayout) {
 		mRootLayout->setSize(getWidth(), getHeight());
 		mRootLayout->runLayout();
+		
 	}
 
 	if (mDrawingTools) {
@@ -299,6 +303,8 @@ void FramedFullscreenController::updateUi() {
 		removeDrawingTools();
 	}
 	mRootLayout->runLayout();
+	//debug get size of all components
+
 	layout();
 }
 
@@ -468,7 +474,7 @@ void FramedFullscreenController::onUpdateServer(const ds::UpdateParams& p) {
 			auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer->getPlayer());
 			if (webPlayer) {
 				if (auto webby = webPlayer->getWeb()) {				
-					mRootLayout->setSpriteText("title", webby->getPageTitle());
+					//mRootLayout->setSpriteText("title", webby->getPageTitle());
 				}
 			}
 		}
