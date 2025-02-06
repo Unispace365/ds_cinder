@@ -422,8 +422,16 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 	}
 
 	newViewer->animateOn(delay);
-
-	newViewer->setCloseRequestCallback([this, newViewer]() { animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK); });
+	if (newViewer->getViewerType() == "launcher") {
+		newViewer->setCloseRequestCallback(
+			[this, newViewer]() {
+				animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK);
+				mChannelClient.notify(waffles::WafflesLauncherClosed());
+			}
+		);
+	} else {
+		newViewer->setCloseRequestCallback([this, newViewer]() { animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK); });
+	}
 	newViewer->setActivatedCallback([this, newViewer] { viewerActivated(newViewer); });
 
 	enforceViewerLimits(newViewer);
