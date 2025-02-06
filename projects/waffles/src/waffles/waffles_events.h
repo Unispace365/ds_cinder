@@ -39,6 +39,7 @@ struct RequestGatherEvent : public ds::RegisteredEvent<RequestGatherEvent> {
 };
 
 struct WafflesLauncherOpened : public ds::RegisteredEvent<WafflesLauncherOpened> {};
+struct WafflesLauncherClosed : public ds::RegisteredEvent<WafflesLauncherClosed> {};
 
 struct ShowWaffles : public ds::RegisteredEvent<ShowWaffles> {};
 struct HideWaffles : public ds::RegisteredEvent<HideWaffles> {};
