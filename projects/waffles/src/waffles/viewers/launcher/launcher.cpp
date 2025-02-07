@@ -35,7 +35,7 @@ namespace waffles {
 Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideClose)
   : BaseElement(g, eventChannel) {
 
-	mEventClient.notify(waffles::WafflesLauncherOpened());
+	mEventClient.notify(waffles::WafflesLauncherOpened(this));
 
 	mMaxViewersOfThisType = 1;
 	mViewerType			  = VIEW_TYPE_LAUNCHER;

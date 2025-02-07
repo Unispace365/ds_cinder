@@ -3,7 +3,7 @@
 #include <ds/app/event.h>
 #include <ds/content/content_model.h>
 #include "waffles/model/viewer_creation_args.h"
-
+#include "waffles/viewers/launcher/launcher.h"
 #include "waffles/viewers/viewer_controller.h"
 
 namespace waffles {
@@ -38,7 +38,10 @@ struct RequestGatherEvent : public ds::RegisteredEvent<RequestGatherEvent> {
 	RequestGatherEvent(const ci::vec3& location) { mEventOrigin = location; }
 };
 
-struct WafflesLauncherOpened : public ds::RegisteredEvent<WafflesLauncherOpened> {};
+struct WafflesLauncherOpened : public ds::RegisteredEvent<WafflesLauncherOpened> {
+	WafflesLauncherOpened(Launcher* launcher) : mLauncher(launcher){};
+	Launcher* mLauncher;
+};
 struct WafflesLauncherClosed : public ds::RegisteredEvent<WafflesLauncherClosed> {};
 
 struct ShowWaffles : public ds::RegisteredEvent<ShowWaffles> {};
