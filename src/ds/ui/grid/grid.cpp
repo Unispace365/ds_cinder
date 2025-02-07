@@ -123,10 +123,10 @@ std::vector<Grid::Track*> getAllTracks(const std::vector<Grid::Track>& tracks) {
 
 // Given a set of \a tracks, it returns a set of pointers to all tracks covered by \a item.
 std::vector<Grid::Track*> getSpannedTracks(const std::vector<Grid::Track>& tracks, const Sprite* item,
-										   const SpanFn& spanFn) {
+										   const SpanFn& spanFn, bool hasGaps) {
 	std::vector<Grid::Track*> result;
 
-	const auto& span = spanFn(item);
+	const auto span = Grid::adjustForGaps(spanFn(item), hasGaps);
 	for (size_t i = span.min; i < span.max; ++i) {
 		if (i < tracks.size()) result.push_back(const_cast<Grid::Track*>(tracks.data() + i));
 	}
@@ -155,11 +155,12 @@ std::vector<Grid::Track*> getFlexTracks(const std::vector<Grid::Track*>& tracks)
 }
 
 // Returns the set of grid items whose span count equals \a spanCount.
-std::vector<Sprite*> getItemsWithSpanCount(const std::vector<Sprite*>& items, const SpanFn& spanFn, size_t spanCount) {
+std::vector<Sprite*> getItemsWithSpanCount(const std::vector<Sprite*>& items, const SpanFn& spanFn, size_t spanCount,
+										   bool hasGaps) {
 	std::vector<Sprite*> result;
 
 	for (auto item : items) {
-		const auto& span = spanFn(item);
+		const auto span = Grid::adjustForGaps(spanFn(item), hasGaps);
 		if (span.count() == spanCount) result.push_back(item);
 	}
 
@@ -169,10 +170,10 @@ std::vector<Sprite*> getItemsWithSpanCount(const std::vector<Sprite*>& items, co
 // AdditionalSpace functions.
 
 float calcAdditionSpaceBase(const std::vector<Grid::Track>& tracks, const Sprite* item, const SizeFn& sizeFn,
-							const SpanFn& spanFn) {
+							const SpanFn& spanFn, bool hasGaps) {
 	float result = sizeFn(item);
 
-	for (const auto track : getSpannedTracks(tracks, item, spanFn)) {
+	for (const auto track : getSpannedTracks(tracks, item, spanFn, hasGaps)) {
 		result -= track->usedBreadth;
 	}
 
@@ -180,10 +181,10 @@ float calcAdditionSpaceBase(const std::vector<Grid::Track>& tracks, const Sprite
 }
 
 float calcAdditionSpaceLimit(const std::vector<Grid::Track>& tracks, const Sprite* item, const SizeFn& sizeFn,
-							 const SpanFn& spanFn) {
+							 const SpanFn& spanFn, bool hasGaps) {
 	float result = sizeFn(item);
 
-	for (const auto track : getSpannedTracks(tracks, item, spanFn)) {
+	for (const auto track : getSpannedTracks(tracks, item, spanFn, hasGaps)) {
 		if (std::isfinite(track->maxBreadth))
 			result -= track->maxBreadth;
 		else
@@ -213,72 +214,45 @@ void Grid::onChildRemoved(Sprite& sprite) {
 	sprite.setDimensionsChangedCallback(nullptr);
 }
 
-float Grid::getTrackWidth() const {
-	float w = 0;
-	for (const auto& track : mColumns) {
-		w += track.usedBreadth;
-	}
-	return w;
-}
-
-float Grid::getTrackHeight() const {
-	float h = 0;
-	for (const auto& track : mRows) {
-		h += track.usedBreadth;
-	}
-	return h;
-}
-
 void Grid::setColumns(const std::string& def) {
-	mColumns.clear();
-	try {
-		parse(mColumns, def);
-	} catch (const std::exception& exc) {
-		DS_LOG_ERROR(exc.what() << " in " << def)
-	}
+	mColumnsDef = def;
 }
 
 void Grid::setRows(const std::string& def) {
-	mRows.clear();
-	try {
-		parse(mRows, def);
-	} catch (const std::exception& exc) {
-		DS_LOG_ERROR(exc.what() << " in " << def)
-	}
+	mRowsDef = def;
 }
 
 void Grid::setColumnGap(const std::string& def) {
-	mColumnGap = Value(def);
+	mColumnGapDef = def;
 }
 
 void Grid::setRowGap(const std::string& def) {
-	mRowGap = Value(def);
+	mRowGapDef = def;
 }
 
 void Grid::setGap(const std::string& def) {
-	mColumnGap = mRowGap = Value(def);
+	mColumnGapDef = mRowGapDef = def;
 }
 
 ci::Rectf Grid::calcArea(const Range<size_t>& column, const Range<size_t>& row) const {
 	if (column.min == column.max || row.min == row.max) return {0, 0, getWidth(), getHeight()};
-	if (column.min >= mColumns.size() || column.max > mColumns.size() || row.min >= mRows.size() ||
-		row.max > mRows.size())
+	if (column.min >= mHorizontalGridLines.size() || column.max > mHorizontalGridLines.size() ||
+		row.min >= mVerticalGridLines.size() || row.max > mVerticalGridLines.size())
 		return {0, 0, getWidth(), getHeight()};
 
-	const auto x1 = calcColumnPos(column.min);
-	const auto y1 = calcRowPos(row.min);
-	const auto x2 = calcColumnPos(column.max - 1) + mColumns.at(column.max - 1).usedBreadth;
-	const auto y2 = calcRowPos(row.max - 1) + mRows.at(row.max - 1).usedBreadth;
-
+	const auto x1 = mHorizontalGridLines.at(column.min);
+	const auto y1 = mVerticalGridLines.at(row.min);
+	const auto x2 = mHorizontalGridLines.at(column.max);
+	const auto y2 = mVerticalGridLines.at(row.max);
 	return {x1, y1, x2, y2};
 }
 
-float Grid::calcWidth(bool excludeFlex) const {
-	return calcColumnPos(mColumns.size(), excludeFlex);
+float Grid::calcWidth() const {
+	return mHorizontalGridLines.empty() ? 0 : mHorizontalGridLines.back();
 }
 
-float Grid::calcHeight(bool excludeFlex) const {
-	return calcRowPos(mRows.size(), excludeFlex);
+float Grid::calcHeight() const {
+	return mVerticalGridLines.empty() ? 0 : mVerticalGridLines.back();
 }
 
 void Grid::drawLocalClient() {
@@ -291,22 +265,30 @@ void Grid::drawPostLocalClient() {
 		ci::gl::ScopedBlendAlpha sb;
 		ci::gl::ScopedGlslProg	 sp(getStockShader(ci::gl::ShaderDef().color()));
 
-		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
-		for (size_t row = 0; row < mRows.size(); ++row) {
-			for (size_t col = 0; col < mColumns.size(); ++col) {
-				ci::gl::drawStrokedRect(calcArea({col, col + 1}, {row, row + 1}));
-			}
-		}
-
 		float width	 = calcWidth();
 		float height = calcHeight();
+
+		ci::gl::begin(GL_LINES);
+		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
+		for (float x : mHorizontalGridLines) {
+			ci::gl::vertex(x, 0);
+			ci::gl::vertex(x, height);
+		}
+		for (float y : mVerticalGridLines) {
+			ci::gl::vertex(0, y);
+			ci::gl::vertex(width, y);
+		}
+		ci::gl::end();
 
 		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
 		ci::gl::drawStrokedRect({0, 0, width, height}, 15);
 
+		const bool hasColumnGaps = Value(mColumnGapDef).asUser(this, Value::Direction::HORIZONTAL) > 0;
+		const bool hasRowGaps	 = Value(mRowGapDef).asUser(this, Value::Direction::VERTICAL) > 0;
+
 		ci::gl::color(ci::ColorA8u(255, 102, 0, 128));
 		for (const auto item : allItems()) {
-			ci::gl::drawStrokedRect(calcArea(item), 15);
+			ci::gl::drawStrokedRect(calcArea(item, hasColumnGaps, hasRowGaps), 15);
 		}
 	}
 }
@@ -324,8 +306,8 @@ bool Grid::setAvailableSize(const ci::vec2& size) {
 	const float w = mMinWidth.asUser(this, Value::HORIZONTAL);
 	const float h = mMinHeight.asUser(this, Value::VERTICAL);
 
-	const float width  = calcWidth(true);
-	const float height = calcHeight(true);
+	const float width  = calcWidth();
+	const float height = calcHeight();
 	if (!approxEqual(width, w)) mMinWidth = Value(width, Value::PIXELS);
 	if (!approxEqual(height, h)) mMinHeight = Value(height, Value::PIXELS);
 
@@ -334,7 +316,7 @@ bool Grid::setAvailableSize(const ci::vec2& size) {
 
 void Grid::fitInsideArea(const ci::Rectf& area) {
 	const auto changed = setAvailableSize(area.getSize());
-	const auto bounds  = ci::Rectf{0, 0, getTrackWidth(), getTrackHeight()};
+	const auto bounds  = ci::Rectf{0, 0, calcWidth(), calcHeight()};
 	const auto fit	   = mFit.calcTransform(area, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
@@ -354,16 +336,42 @@ bool Grid::areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& 
 	return false;
 }
 
-void Grid::performGridLayout() {
-	ci::Timer t{true};
+std::vector<Grid::Track> Grid::parseTracks(const std::string& def) {
+	std::vector<Track> result;
+	parse(result, def);
+	return result;
+}
 
+std::vector<Grid::Track> Grid::parseTracks(const std::string& def, const std::string& gap) {
+	std::vector<Track> result;
+	parse(result, def);
+	if (result.size() < 2) return result;
+
+	size_t originalSize = result.size();
+	result.resize(result.size() * 2 - 1);
+	for (size_t i = originalSize - 1; i > 0; --i) {
+		std::swap(result[i * 2], result[i]);
+		result[i * 2 - 1] = Track{gap};
+	}
+	return result;
+}
+
+void Grid::calculateGridLines(const std::vector<Track>& tracks, std::vector<float>& gridLines) {
+	gridLines.clear();
+	gridLines.reserve(tracks.size() + 1);
+
+	float x = 0;
+	for (const auto& track : tracks) {
+		gridLines.push_back(x);
+		x += track.usedBreadth;
+	}
+	gridLines.push_back(x);
+}
+
+void Grid::performGridLayout() {
 	// Initialize item spans, taken from the sprites. These are then updated during layout.
 	// TODO sort items by specified order, see: https://drafts.csswg.org/css-flexbox-1/#order-modified-document-order
 	auto items = allItems();
-	for (auto item : items) {
-		if (item->isColumnSpanAuto()) item->setColumnSpan({0, 0});
-		if (item->isRowSpanAuto()) item->setRowSpan({0, 0});
-	}
 
 	// Make sure layout items are updated.
 	for (auto item : items) {
@@ -371,43 +379,38 @@ void Grid::performGridLayout() {
 		if (layout) layout->runLayout();
 	}
 
+	// Create tracks.
+	const bool hasColumnGaps = Value(mColumnGapDef).asUser(this, Value::Direction::HORIZONTAL) > 0;
+	const bool hasRowGaps	 = Value(mRowGapDef).asUser(this, Value::Direction::VERTICAL) > 0;
+
+	auto columns = hasColumnGaps ? parseTracks(mColumnsDef, mColumnGapDef) : parseTracks(mColumnsDef);
+	auto rows	 = hasRowGaps ? parseTracks(mRowsDef, mRowGapDef) : parseTracks(mRowsDef);
+
 	try {
 		bool hasChanged = false;
 		for (;;) {
 			// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
-			computeUsedBreadthOfGridTracks(Value::Direction::HORIZONTAL, mColumns, ::getColumnSpan, ::getWidthMin,
-										   ::getWidthMax);
+			computeUsedBreadthOfGridTracks(Value::Direction::HORIZONTAL, columns, ::getColumnSpan, ::getWidthMin,
+										   ::getWidthMax, hasColumnGaps);
 
 			// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
 			// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
 			// content-sized grid rows to determine their required height.
-			computeUsedBreadthOfGridTracks(Value::Direction::VERTICAL, mRows, ::getRowSpan, ::getHeightMin,
-										   ::getHeightMax);
+			computeUsedBreadthOfGridTracks(Value::Direction::VERTICAL, rows, ::getRowSpan, ::getHeightMin,
+										   ::getHeightMax, hasRowGaps);
+
+			// Determine the grid lines.
+			calculateGridLines(columns, mHorizontalGridLines);
+			calculateGridLines(rows, mVerticalGridLines);
 
 			// 3. If the minimum content size of any grid item has changed based on available height for the grid
 			// item as computed in step 2, adjust the min content size of the grid item and restart the grid track
 			// sizing algorithm (once only).
 			if (hasChanged) break;
 
-			size_t colCursor{0};
-			size_t rowCursor{0};
-
 			for (auto item : items) {
-				auto col = item->getColumnSpan();
-				auto row = item->getRowSpan();
-
-				// TEMP while we don't have auto grid item placement
-				if (item->isRowSpanAuto()) {
-					if (rowCursor >= mRows.size()) continue;
-					row = {rowCursor, rowCursor + 1};
-				}
-				if (item->isColumnSpanAuto()) {
-					col = {colCursor, colCursor + 1};
-					if (++colCursor >= mColumns.size()) {
-						colCursor = 0;
-						++rowCursor;
-					}
-				}
+				auto col = adjustForGaps(item->getColumnSpan(), hasColumnGaps);
+				auto row = adjustForGaps(item->getRowSpan(), hasRowGaps);
 
 				const auto area = calcArea(col, row);
 				hasChanged |= item->setAvailableSize(area.getSize());
@@ -421,32 +424,10 @@ void Grid::performGridLayout() {
 		DS_LOG_ERROR(exc.what())
 	}
 
-	t.stop();
-	std::stringstream ss;
-	ss << std::string("Running layout on ds::ui::Grid took ");
-	ss << t.getSeconds() << " seconds.";
-	DS_LOG_VERBOSE(1, ss.str());
-
-	// Position anything that's not auto-positioned.
-	size_t colCursor{0};
-	size_t rowCursor{0};
-
+	// Position items.
 	for (auto item : items) {
-		auto col = item->getColumnSpan();
-		auto row = item->getRowSpan();
-
-		// TEMP while we don't have auto grid item placement
-		if (item->isRowSpanAuto()) {
-			if (rowCursor >= mRows.size()) continue;
-			row = {rowCursor, rowCursor + 1};
-		}
-		if (item->isColumnSpanAuto()) {
-			col = {colCursor, colCursor + 1};
-			if (++colCursor >= mColumns.size()) {
-				colCursor = 0;
-				++rowCursor;
-			}
-		}
+		auto col = adjustForGaps(item->getColumnSpan(), hasColumnGaps);
+		auto row = adjustForGaps(item->getRowSpan(), hasRowGaps);
 
 		const auto area = calcArea(col, row);
 		item->fitInsideArea(area);
@@ -553,7 +534,7 @@ void Grid::performGridLayout() {
 	onLayoutUpdate();
 }
 
-float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap, bool excludeFlex) {
+float Grid::calcPos(size_t index, const std::vector<Track>& tracks, bool excludeFlex) {
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
@@ -561,10 +542,10 @@ float Grid::calcPos(size_t index, const std::vector<Track>& tracks, float gap, b
 		allocatedSpace += tracks.at(i).usedBreadth;
 	}
 
-	return allocatedSpace + static_cast<float>(countGaps(index, tracks)) * gap;
+	return allocatedSpace;
 }
 
-float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, float gap, bool excludeFlex) {
+float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, bool excludeFlex) {
 	float allocatedSpace = 0;
 	for (size_t i = 0; i < index && i < tracks.size(); ++i) {
 		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
@@ -572,56 +553,36 @@ float Grid::calcPos(size_t index, const std::vector<Track*>& tracks, float gap, 
 		allocatedSpace += tracks.at(i)->usedBreadth;
 	}
 
-	return allocatedSpace + static_cast<float>(countGaps(index, tracks)) * gap;
+	return allocatedSpace;
 }
 
-int Grid::countGaps(size_t index, const std::vector<Track>& tracks) {
-	int count = -1;
-	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
-		if (!std::isfinite(tracks.at(i).usedBreadth)) continue;
-		if (tracks.at(i).usedBreadth > 0 /*|| tracks.at(i).isFlex()*/) // Note: counting flex tracks would be incorrect
-																	   // if flex tracks end up being zero.
-			++count;
-	}
-	return glm::max(0, count);
-}
-
-int Grid::countGaps(size_t index, const std::vector<Track*>& tracks) {
-	int count = -1;
-	for (size_t i = 0; i <= index && i < tracks.size(); ++i) {
-		if (!std::isfinite(tracks.at(i)->usedBreadth)) continue;
-		if (tracks.at(i)->usedBreadth > 0 /*|| tracks.at(i)->isFlex()*/) // Note: counting flex tracks would be
-																		 // incorrect if flex tracks end up being zero.)
-			++count;
-	}
-	return glm::max(0, count);
+Range<size_t> Grid::adjustForGaps(const Range<size_t>& span, bool hasGaps) {
+	return hasGaps ? Range<size_t>{span.min * 2, span.max * 2 - 1} : span;
 }
 
 void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vector<Track>& tracks, const SpanFn& spanFn,
-										  const SizeFn& minFn, const SizeFn& maxFn) {
+										  const SizeFn& minFn, const SizeFn& maxFn, bool hasGaps) {
 	const auto spaceToFill	= (direction == Value::HORIZONTAL) ? getWidth() : getHeight();
 	const auto viewportSize = glm::vec2{mEngine.getWorldWidth(), mEngine.getWorldHeight()};
-	const auto gap =
-		(direction == Value::HORIZONTAL) ? mColumnGap.asUser(this, direction) : mRowGap.asUser(this, direction);
 
 	// Initialize per grid track variables.
 	for (auto& track : tracks)
 		track.initialize({spaceToFill, viewportSize});
 
 	// Resolve content-based TrackSizingFunctions
-	resolveContentBasedTrackSizingFunctions(tracks, allItems(), spanFn, minFn, maxFn);
+	resolveContentBasedTrackSizingFunctions(tracks, allItems(), spanFn, minFn, maxFn, hasGaps);
 
 	// Grow all grid tracks from their UsedBreadth up to their MaxBreadth value until RemainingSpace is exhausted.
 
 	// If RemainingSpace is defined
-	float remainingSpace = calculateRemainingSpace(tracks, spaceToFill, gap);
+	float remainingSpace = calculateRemainingSpace(tracks, spaceToFill);
 	if (!approxZero(remainingSpace)) {
 		// Iterate over all grid tracks and assign UsedBreadth to UpdatedTrackBreadth.
 		for (auto& track : tracks)
 			track.updatedTrackBreadth = track.usedBreadth;
 
 		// Call DistributeSpaceToTracks
-		distributeSpaceToTracks(tracks, remainingSpace, getTrackMaxBreadth, getAllTracks(tracks), {}, getTrackBase);
+		distributeSpaceToTracks(remainingSpace, getTrackMaxBreadth, getAllTracks(tracks), {}, getTrackBase);
 
 		// Iterate over all grid tracks and assign UpdatedTrackBreadth to UsedBreadth
 		for (auto& track : tracks)
@@ -634,10 +595,10 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 	// Grow all grid tracks having a flexible length as the MaxTrackSizingFunction.
 	float normalizedFlexBreadth = 0;
 
-	remainingSpace = calculateRemainingSpace(tracks, spaceToFill, gap);
+	remainingSpace = calculateRemainingSpace(tracks, spaceToFill);
 	if (!approxZero(remainingSpace)) {
 		// If RemainingSpace is defined
-		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), spaceToFill, gap);
+		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), spaceToFill);
 	} else {
 		// i
 		for (const auto& track : tracks) {
@@ -649,8 +610,8 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 		for (const auto item : allItems()) {
 			// Note: deviation from standard algorithm to prevent the grid from growing beyond the viewport size,
 			// we use all tracks instead of the spanned tracks.
-			const auto spanned					 = getAllTracks(tracks); // getSpannedTracks(tracks, item, spanFn);
-			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item), gap);
+			const auto spanned = getAllTracks(tracks); // getSpannedTracks(tracks, item, spanFn, hasGaps);
+			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item));
 			normalizedFlexBreadth				 = glm::max(normalizedFlexBreadth, itemNormalizedFlexBreadth);
 		}
 	}
@@ -658,7 +619,7 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 	// Apply gap correction to normalizedFlexBreadth.
 	if (!approxZero(normalizedFlexBreadth)) {
 		const auto count = getFlexTracks(tracks).size();
-		if (count > 1) normalizedFlexBreadth = glm::max(0.f, normalizedFlexBreadth - gap * (count - 1));
+		if (count > 1) normalizedFlexBreadth = glm::max(0.f, normalizedFlexBreadth);
 	}
 
 	for (auto& track : tracks)
@@ -666,7 +627,8 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 }
 
 void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
-												   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn) {
+												   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn,
+												   bool hasGaps) {
 	// Filter all grid items into a set, such that each grid item has either a SpanCount of 1 or does not cross a
 	// flex-sized grid track.
 	std::vector<Sprite*> filtered;
@@ -674,7 +636,7 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 	for (auto item : items) {
 		bool isFlex = false;
 
-		const auto& span = spanFn(item);
+		const auto span = adjustForGaps(spanFn(item), hasGaps);
 		if (span.count() > 1) {
 			for (size_t i = span.min; i < span.max; ++i) {
 				if (i < tracks.size() && tracks.at(i).max.isFlex()) {
@@ -689,31 +651,32 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 
 	if (filtered.empty()) return;
 
-	// Group all grid items in the filtered set by their SpanCount ascending.
+	// Group all grid items in the filtered set by their SpanCount ascending. No need to adjust for gaps.
 	std::sort(filtered.begin(), filtered.end(), [spanFn](const Sprite* a, const Sprite* b) { //
 		return spanFn(a).count() < spanFn(b).count();
 	});
 
-	const auto maxSpanCount = spanFn(filtered.back()).count();
+	const auto maxSpanCount = adjustForGaps(spanFn(filtered.back()), hasGaps).count();
 	for (size_t spanCount = 1; spanCount <= maxSpanCount; ++spanCount) {
-		const auto group = getItemsWithSpanCount(filtered, spanFn, spanCount);
+		const auto group = getItemsWithSpanCount(filtered, spanFn, spanCount, hasGaps);
 		if (group.empty()) continue;
 
 		// Resolve content-based MinTrackSizingFunctions.
 		resolveContentBasedTrackSizingFunctionsForItems(
 			tracks, //
 			group,	// All grid items in the current group.
-			[minFn,
-			 spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the min-content size of that
-										// grid item less the summed UsedBreadth of all grid tracks it covers.
-				return calcAdditionSpaceBase(t, i, minFn, spanFn);
+			[minFn, spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the min-content size of that
+										 // grid item less the summed UsedBreadth of all grid tracks it covers.
+				return calcAdditionSpaceBase(t, i, minFn, spanFn, hasGaps);
 			},
 			getTrackMaxBreadth, // A function which given a grid track returns its MaxBreadth.
-			[spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered by
-										// that grid item that have a min-content or max-content MinTrackSizingFunction.
-				const auto spanned = getSpannedTracks(t, i, spanFn);
+			[spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered by
+				// that grid item that have a min-content or max-content MinTrackSizingFunction.
+				const auto spanned = getSpannedTracks(t, i, spanFn, hasGaps);
 				return getTracksMinIsMinOrMax(spanned);
 			},
 			getTracksMaxIsMinOrMax, // A function which given a set of grid tracks returns the subset of grid tracks
@@ -726,17 +689,18 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 		resolveContentBasedTrackSizingFunctionsForItems(
 			tracks, //
 			group,	// All grid items in the current group.
-			[maxFn,
-			 spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the max-content size of that
-										// grid item less the summed UsedBreadth of all Grid tracks it covers.
-				return calcAdditionSpaceBase(t, i, maxFn, spanFn);
+			[maxFn, spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the max-content size of that
+										 // grid item less the summed UsedBreadth of all Grid tracks it covers.
+				return calcAdditionSpaceBase(t, i, maxFn, spanFn, hasGaps);
 			},
 			getTrackMaxBreadth, // A function which given a grid track returns its MaxBreadth.
-			[spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered
-										// by that grid item that have a max-content MinTrackSizingFunction.
-				const auto spanned = getSpannedTracks(t, i, spanFn);
+			[spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered
+										 // by that grid item that have a max-content MinTrackSizingFunction.
+				const auto spanned = getSpannedTracks(t, i, spanFn, hasGaps);
 				return getTracksMinIsMax(spanned);
 			},
 			getTracksMaxIsMax, // A function which given a set of grid tracks returns the subset of grid tracks having a
@@ -750,18 +714,19 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 		resolveContentBasedTrackSizingFunctionsForItems(
 			tracks, //
 			group,	// All grid items in the current group.
-			[minFn,
-			 spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the min-content size of that
-										// grid item less the summed MaxBreadth (unless the MaxBreadth is infinite, in
-										// which case use the UsedBreadth) of all grid tracks it covers.
-				return calcAdditionSpaceLimit(t, i, minFn, spanFn);
+			[minFn, spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the min-content size of that
+										 // grid item less the summed MaxBreadth (unless the MaxBreadth is infinite, in
+										 // which case use the UsedBreadth) of all grid tracks it covers.
+				return calcAdditionSpaceLimit(t, i, minFn, spanFn, hasGaps);
 			},
 			getTrackMaxBreadth, // A function which given a grid track returns its MaxBreadth.
-			[spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { //  A function which given a grid item returns the set of grid tracks covered by
+			[spanFn, hasGaps](
+				const std::vector<Track>& t,
+				const Sprite* i) { //  A function which given a grid item returns the set of grid tracks covered by
 				//  that grid item that have a min-content or max-content MaxTrackSizingFunction.
-				const auto spanned = getSpannedTracks(t, i, spanFn);
+				const auto spanned = getSpannedTracks(t, i, spanFn, hasGaps);
 				return getTracksMaxIsMinOrMax(spanned);
 			},
 			getTracks,			  // The identity function.
@@ -771,12 +736,12 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 		resolveContentBasedTrackSizingFunctionsForItems(
 			tracks, //
 			group,	// All grid items in the current group.
-			[maxFn,
-			 spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the max-content size of that
-										// grid item less the summed MaxBreadth (unless the MaxBreadth is infinite, in
-										// which case use the UsedBreadth) of all grid tracks it covers.
-				return calcAdditionSpaceLimit(t, i, maxFn, spanFn);
+			[maxFn, spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the max-content size of that
+										 // grid item less the summed MaxBreadth (unless the MaxBreadth is infinite, in
+										 // which case use the UsedBreadth) of all grid tracks it covers.
+				return calcAdditionSpaceLimit(t, i, maxFn, spanFn, hasGaps);
 			},
 			[group](const Track& track) { // A function which given a grid track returns infinity if the grid
 										  // track's SpanGroupInWhichMaxBreadthWasMadeFinite is equal to the
@@ -785,10 +750,11 @@ void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, c
 					return std::numeric_limits<float>::infinity();
 				return track.maxBreadth;
 			},
-			[spanFn](const std::vector<Track>& t,
-					 const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered
-										// by that grid item that have a max-content MaxTrackSizingFunction.
-				const auto spanned = getSpannedTracks(t, i, spanFn);
+			[spanFn,
+			 hasGaps](const std::vector<Track>& t,
+					  const Sprite* i) { // A function which given a grid item returns the set of grid tracks covered
+										 // by that grid item that have a max-content MaxTrackSizingFunction.
+				const auto spanned = getSpannedTracks(t, i, spanFn, hasGaps);
 				return getTracksMaxIsMax(spanned);
 			},
 			getTracks,			  // The identity function.
@@ -828,8 +794,8 @@ void Grid::resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>&		
 		const auto tracksForGrowth = tracksFn(tracks, item);
 		if (tracksForGrowth.empty()) continue;
 
-		distributeSpaceToTracks(tracks, spaceToDistribute, constraintFn, tracksForGrowth,
-								tracksBeyondFn(tracksForGrowth), currentBreadthFn);
+		distributeSpaceToTracks(spaceToDistribute, constraintFn, tracksForGrowth, tracksBeyondFn(tracksForGrowth),
+								currentBreadthFn);
 	}
 
 	// Iterate over all grid tracks and assign UpdatedTrackBreadth to UsedBreadth
@@ -840,21 +806,21 @@ void Grid::resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>&		
 	}
 }
 
-void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDistribute,
-								   const TrackGrowthConstraintFn& constraintFn, std::vector<Track*> tracksFn,
-								   const std::vector<Track*>& tracksBeyond, const BreadthFn& currentBreadthFn) {
+void Grid::distributeSpaceToTracks(float spaceToDistribute, const TrackGrowthConstraintFn& constraintFn,
+								   std::vector<Track*> tracks, const std::vector<Track*>& tracksBeyond,
+								   const BreadthFn& currentBreadthFn) {
 	// 1. Sort TracksForGrowth by TrackGrowthConstraint( t ) - CurrentBreadth( t ) ascending.
-	std::sort(tracksFn.begin(), tracksFn.end(), [constraintFn, currentBreadthFn](Track* a, Track* b) {
+	std::sort(tracks.begin(), tracks.end(), [constraintFn, currentBreadthFn](Track* a, Track* b) {
 		const auto na = constraintFn(*a) - currentBreadthFn(*a);
 		const auto nb = constraintFn(*b) - currentBreadthFn(*b);
 		return na < nb;
 	});
 
 	// 2.
-	for (size_t i = 0; i < tracksFn.size(); ++i) {
-		const auto t = tracksFn.at(i);
+	for (size_t i = 0; i < tracks.size(); ++i) {
+		const auto t = tracks.at(i);
 		const auto share =
-			glm::min(spaceToDistribute / float(tracksFn.size() - i), constraintFn(*t) - currentBreadthFn(*t));
+			glm::min(spaceToDistribute / float(tracks.size() - i), constraintFn(*t) - currentBreadthFn(*t));
 		t->tempBreadth = currentBreadthFn(*t) + share;
 		spaceToDistribute -= share;
 	}
@@ -870,7 +836,7 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 	}
 
 	// 4.
-	for (const auto& track : tracksFn) {
+	for (const auto track : tracks) {
 		if (std::isfinite(track->updatedTrackBreadth))
 			track->updatedTrackBreadth = glm::max(track->updatedTrackBreadth, track->tempBreadth);
 		else
@@ -878,9 +844,9 @@ void Grid::distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDist
 	}
 }
 
-float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill, float gap) {
+float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill) {
 	// 1.
-	const float allocatedSpace = calcPos(tracks.size(), tracks, gap);
+	const float allocatedSpace = calcPos(tracks.size(), tracks);
 
 	// 2.
 	auto flexTracks = getFlexTracks(tracks);
@@ -914,9 +880,9 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 	return spaceNeededFromFlexTracks / accumulatedFractions;
 }
 
-float Grid::calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill, float gap) {
+float Grid::calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill) {
 	if (std::isinf(spaceToFill) || std::isnan(spaceToFill)) return std::numeric_limits<float>::signaling_NaN();
-	const float allocatedSpace = calcPos(tracks.size(), tracks, gap);
+	const float allocatedSpace = calcPos(tracks.size(), tracks);
 	return glm::max(0.0f, spaceToFill - allocatedSpace);
 }
 
@@ -924,13 +890,13 @@ std::vector<Sprite*> Grid::allItems() {
 	return getChildren();
 }
 
-std::vector<Sprite*> Grid::nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn) {
+std::vector<Sprite*> Grid::nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn, bool hasGaps) {
 	std::vector<Sprite*> result = allItems();
 
 	for (auto itr = result.begin(); itr != result.end();) {
 		const size_t count = result.size();
 
-		const auto& span = spanFn(*itr);
+		const auto span = adjustForGaps(spanFn(*itr), hasGaps);
 		for (size_t i = span.min; i < span.max; ++i) {
 			if (i < tracks.size() && tracks.at(i).max.isFlex()) {
 				itr = result.erase(itr);
@@ -1134,4 +1100,4 @@ auto INIT = []() {
 	return true;
 }();
 
-}
+} // namespace

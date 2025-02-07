@@ -38,11 +38,6 @@ class Grid : public Sprite, public ILayout {
 	void onChildAdded(Sprite&) override;
 	void onChildRemoved(Sprite&) override;
 
-	// Returns the actual width of the grid, as calculated from the grid tracks.
-	float getTrackWidth() const;
-	// Returns the actual height of the grid, as calculated from the grid tracks.
-	float getTrackHeight() const;
-
 	// Accepts CSS-style definition, e.g. "100px 1fr 20%".
 	void setColumns(const std::string& def);
 	// Accepts CSS-style definition, e.g. "100px 1fr 20%".
@@ -55,29 +50,19 @@ class Grid : public Sprite, public ILayout {
 	// Accepts CSS-style definition, e.g. "10px".
 	void setGap(const std::string& def);
 
-	//
+	// Calculates the area occupied by the given \a column and \a row ranges. Assumes ranges are adjusted for gaps.
 	ci::Rectf calcArea(const Range<size_t>& column, const Range<size_t>& row) const;
-	//
-	ci::Rectf calcArea(const Sprite* item) const {
-		const auto& col = item->getColumnSpan();
-		const auto& row = item->getRowSpan();
+	// Calculates the area occupied by the given \a item.
+	ci::Rectf calcArea(const Sprite* item, bool hasColumnGaps, bool hasRowGaps) const {
+		const auto col = adjustForGaps(item->getColumnSpan(), hasColumnGaps);
+		const auto row = adjustForGaps(item->getRowSpan(), hasRowGaps);
 		return calcArea(col, row);
 	}
 
-	//
-	float calcWidth(bool excludeFlex = false) const;
-	//
-	float calcHeight(bool excludeFlex = false) const;
-	//
-	float calcColumnPos(size_t index, bool excludeFlex = false) const {
-		return calcPos(index, mColumns, mColumnGap.asUser(this, css::Value::HORIZONTAL), excludeFlex);
-	}
-	//
-	float calcRowPos(size_t index, bool excludeFlex = false) const {
-		return calcPos(index, mRows, mRowGap.asUser(this, css::Value::VERTICAL), excludeFlex);
-	}
-
-	static Range<size_t> parseSpan(const char** sInOut);
+	// Returns the width of the grid based on the column tracks, or 0 if the grid is not initialized.
+	float calcWidth() const;
+	// Returns the height of the grid based on the row tracks, or 0 if the grid is not initialized.
+	float calcHeight() const;
 
 	void drawLocalClient() override;
 
@@ -106,27 +91,39 @@ class Grid : public Sprite, public ILayout {
 	bool setAvailableSize(const ci::vec2& size) override;
 
 	void fitInsideArea(const ci::Rectf& area) override;
+	
+	// Parses a span definition into a track range, e.g. "1" or "1 / span 3".
+	static Range<size_t> parseSpan(const char** sInOut);
+	// Returns the track range adjusted for gaps.
+	static Range<size_t> adjustForGaps(const Range<size_t>& span, bool hasGaps);
 
   private:
 	// Returns whether the \a area overlaps the \a span.
 	bool areaOverlapsItem(const ci::Rectf& area, const Sprite* item) const;
 	// Returns whether the \a area overlaps any of the \a spans.
 	bool areaOverlapsItems(const ci::Rectf& area, const std::vector<Sprite*>& items) const;
+
 	// Calculates the position of the grid line with the specified \a index.
-	static float calcPos(size_t index, const std::vector<Track>& tracks, float gap, bool excludeFlex = false);
+	static float calcPos(size_t index, const std::vector<Track>& tracks, bool excludeFlex = false);
 	// Calculates the position of the grid line with the specified \a index.
-	static float calcPos(size_t index, const std::vector<Track*>& tracks, float gap, bool excludeFlex = false);
-	// Returns the number of gaps.
-	static int countGaps(size_t index, const std::vector<Track>& tracks);
-	// Returns the number of gaps.
-	static int countGaps(size_t index, const std::vector<Track*>& tracks);
+	static float calcPos(size_t index, const std::vector<Track*>& tracks, bool excludeFlex = false);
+
+	// Parses the grid track definition.
+	static std::vector<Track> parseTracks(const std::string& def);
+	// Parses the grid track definition including gaps.
+	static std::vector<Track> parseTracks(const std::string& def, const std::string& gap);
+
+	// Calculates the grid lines based on the grid tracks.
+	static void calculateGridLines(const std::vector<Track>& tracks, std::vector<float>& gridLines);
+
 	// Performs the layout algorithm.
 	void performGridLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
 	void		computeUsedBreadthOfGridTracks(css::Value::Direction direction, std::vector<Track>& tracks,
-											   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
+											   const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn, bool hasGaps);
 	static void resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Sprite*>& items,
-														const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
+														const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn,
+														bool hasGaps);
 	static void
 	resolveContentBasedTrackSizingFunctionsForItems(std::vector<Track>& tracks, // Set of tracks that need to be sized.
 													const std::vector<Sprite*>&				 items,			 //
@@ -135,26 +132,28 @@ class Grid : public Sprite, public ILayout {
 													const TracksForGrowthFn&				 tracksFn,		 //
 													const TracksForGrowthBeyondConstraintFn& tracksBeyondFn, //
 													const AccumulatorFn&					 accumulatorFn);
-	static void	 distributeSpaceToTracks(std::vector<Track>& tracks, float spaceToDistribute,
-										 const TrackGrowthConstraintFn& constraintFn, std::vector<Track*> tracksFn,
-										 const std::vector<Track*>& tracksBeyond, const BreadthFn& currentBreadthFn);
-	static float calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill, float gap);
+	static void	 distributeSpaceToTracks(float spaceToDistribute, const TrackGrowthConstraintFn& constraintFn,
+										 std::vector<Track*> tracks, const std::vector<Track*>& tracksBeyond,
+										 const BreadthFn& currentBreadthFn);
+	static float calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, float spaceToFill);
 
-	static float calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill, float gap);
+	static float calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill);
 
 	// Returns a list of all items.
 	std::vector<Sprite*> allItems();
 	// Returns a list of all items that do not span a track with a flexible sizing function, sorted by span count.
 	// The \a spanFn is either `getColumnSpan` or `getRowSpan'.
-	std::vector<Sprite*> nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn);
+	std::vector<Sprite*> nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn, bool hasGaps);
 
 	static void parse(std::vector<Track>& tracks, const std::string& def);
 
 	EventClient			  mEventClient;
-	std::vector<Track>	  mColumns;
-	std::vector<Track>	  mRows;
-	css::Value			  mColumnGap{0, css::Value::PIXELS};
-	css::Value			  mRowGap{0, css::Value::PIXELS};
+	std::string			  mColumnsDef;
+	std::string			  mRowsDef;
+	std::string			  mColumnGapDef;
+	std::string			  mRowGapDef;
+	std::vector<float>	  mHorizontalGridLines;
+	std::vector<float>	  mVerticalGridLines;
 	std::function<void()> mLayoutUpdatedFunction;
 	mutable bool		  mInitialized{false};
 	mutable bool		  mNeedsLayout{true};
