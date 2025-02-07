@@ -356,7 +356,7 @@ void TitledMediaViewer::onMediaSet() {
 						setViewerSize(cappy->getWidth(), cappy->getHeight());
 						mShowingWebcam = true;
 
-						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("name"));
+						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("record_name"));
 						mRootLayout->runLayout();
 					}
 				}
