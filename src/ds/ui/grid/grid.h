@@ -227,9 +227,6 @@ class Grid : public Sprite, public ILayout {
 
 	// Returns a list of all items.
 	std::vector<Item> allItems() const;
-	//// Returns a list of all items that do not span a track with a flexible sizing function, sorted by span count.
-	//// The \a spanFn is either `getColumnSpan` or `getRowSpan'.
-	// std::vector<Item> nonFlexibleItems(const std::vector<Track>& tracks, const SpanFn& spanFn) const;
 
 	static void parse(std::vector<Track>& tracks, const std::string& def);
 
