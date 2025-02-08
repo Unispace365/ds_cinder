@@ -420,4 +420,42 @@ struct TuioObjectReleased : public ds::RegisteredEvent<TuioObjectReleased> {
 	int mId;
 };
 
+// Layout Builder events.
+
+// A media item was selected from the launcher menu.
+struct MediaSelectedEvent : public ds::RegisteredEvent<MediaSelectedEvent> {
+	MediaSelectedEvent(ds::model::ContentModelRef content, const ci::vec3& position)
+	  : mContentModel(std::move(content))
+	  , mPosition(position) {}
+	ds::model::ContentModelRef mContentModel;
+	ci::vec3				   mPosition;
+};
+
+// A media item was deselected from the launcher menu.
+struct MediaDeselectedEvent : public ds::RegisteredEvent<MediaDeselectedEvent> {
+	MediaDeselectedEvent(ds::model::ContentModelRef content, const ci::vec3& position)
+	  : mContentModel(std::move(content))
+	  , mPosition(position) {}
+	ds::model::ContentModelRef mContentModel;
+	ci::vec3				   mPosition;
+};
+
+// A media item was placed in the layout builder.
+struct MediaPlacedEvent : public ds::RegisteredEvent<MediaPlacedEvent> {
+	MediaPlacedEvent(ds::model::ContentModelRef content, const ci::vec3& position)
+	  : mContentModel(std::move(content))
+	  , mPosition(position) {}
+	ds::model::ContentModelRef mContentModel;
+	ci::vec3				   mPosition;
+};
+
+// A media item was removed from the layout builder.
+struct MediaRemovedEvent : public ds::RegisteredEvent<MediaRemovedEvent> {
+	MediaRemovedEvent(ds::model::ContentModelRef content, const ci::vec3& position)
+	  : mContentModel(std::move(content))
+	  , mPosition(position) {}
+	ds::model::ContentModelRef mContentModel;
+	ci::vec3				   mPosition;
+};
+
 } // namespace waffles

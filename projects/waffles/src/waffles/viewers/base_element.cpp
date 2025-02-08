@@ -3,6 +3,7 @@
 #include "app/waffles_app_defs.h"
 #include "base_element.h"
 #include "viewer_controller.h"
+#include "ds/util/float_util.h"
 #include "waffles/common/ui_utils.h"
 
 namespace waffles {
