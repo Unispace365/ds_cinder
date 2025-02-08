@@ -147,9 +147,9 @@ class BasePanel : public ds::ui::Sprite {
 	ci::vec2 mAbsMinSize;
 	// Abs max is used when calculating size limits
 	ci::vec2 mAbsMaxSize;
-	ci::vec2 mMinSize;
-	ci::vec2 mDefaultSize;
-	ci::vec2 mMaxSize;
+	ci::vec2 mMinSize;	   // Minimum size of the viewer excluding padding.
+	ci::vec2 mDefaultSize; // Default size of the viewer excluding padding.
+	ci::vec2 mMaxSize;	   // Maximum size of the viewer excluding padding.
 
 	ds::Momentum mMomentum;
 	bool		 mTouching;

@@ -932,20 +932,28 @@ ci::vec3 Sprite::getPreferredSize() const {
 	return getSize();
 }
 
-bool Sprite::setAvailableSize(const ci::vec2& size) {
-	if (approxZero(getWidth()) || approxZero(getHeight())) return false;
+bool Sprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+							  float& maxHeight) {
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	const auto padded  = size - padding;
 
-	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(
-		   ci::Rectf{0, 0, size.x - mLayoutLPad - mLayoutRPad, size.y - mLayoutTPad - mLayoutBPad}, bounds);
+	if (padded.x < getWidthMin() || padded.y < getHeightMin())
+		DS_LOG_WARNING("Size constraints on Sprite could not be honored by the grid layout!");
 
-	const auto width  = fit[0][0] * getWidth();
-	const auto height = fit[1][1] * getHeight();
+	// Get size.
+	const auto w = getWidth();
+	const auto h = getHeight();
+	if (approxZero(w) || approxZero(h)) return false;
 
-	mMinWidth  = css::Value(0 + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
-	mMaxWidth  = css::Value(width + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
-	mMinHeight = css::Value(0 + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
-	mMaxHeight = css::Value(height + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
+	// Fit content based on available height.
+	const auto aspect = w / h;
+	const auto width  = padded.y * aspect;
+	const auto height = padded.y;
+
+	minWidth  = glm::max(minWidth, padding.x);
+	minHeight = glm::max(minHeight, padding.y);
+	maxWidth  = glm::min(maxWidth, glm::min(width + padding.x, getWidthMax()));
+	maxHeight = glm::min(maxHeight, glm::min(height + padding.y, getHeightMax()));
 
 	return true;
 }

@@ -428,19 +428,15 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 	}
 }
 
-bool LayoutSprite::setAvailableSize(const ci::vec2& size) {
+bool LayoutSprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+									float& maxHeight) {
 	mWidth			  = size.x - mLayoutLPad - mLayoutRPad;
 	mHeight			  = size.y - mLayoutTPad - mLayoutBPad;
 	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
 
-	const auto minWidth	 = mMinWidth;
-	const auto minHeight = mMinHeight;
-	const auto maxWidth	 = mMaxWidth;
-	const auto maxHeight = mMaxHeight;
-
 	runLayout();
 
-	return mMinWidth != minWidth || minHeight != mMinHeight || maxWidth != mMaxWidth || maxHeight != mMaxHeight;
+	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight);
 }
 
 void LayoutSprite::addChild(Sprite& child) {

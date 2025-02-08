@@ -69,11 +69,11 @@ namespace ui {
 	class Sprite : public SpriteAnimatable {
 	  public:
 		struct FinalRenderInfo {
-			FinalRenderInfo()                                  = default;
-			FinalRenderInfo(const FinalRenderInfo&)            = default;
-			FinalRenderInfo(FinalRenderInfo&&)                 = default;
+			FinalRenderInfo()								   = default;
+			FinalRenderInfo(const FinalRenderInfo&)			   = default;
+			FinalRenderInfo(FinalRenderInfo&&)				   = default;
 			FinalRenderInfo& operator=(const FinalRenderInfo&) = default;
-			FinalRenderInfo& operator=(FinalRenderInfo&&)      = default;
+			FinalRenderInfo& operator=(FinalRenderInfo&&)	   = default;
 
 			bool				useLocalTransform = true;
 			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format();
@@ -117,7 +117,7 @@ namespace ui {
 			This is called after everything else in the base updateServer, and allows you to update things on a
 		frame-by-frame basis. This was added to prevent bugs from not calling the inherited updateServer when overriding
 		that function \param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void onUpdateClient(const ds::UpdateParams& updateParams){};
+		virtual void onUpdateClient(const ds::UpdateParams& updateParams) {};
 
 		/** Update function for when this app is set to be a server.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
@@ -204,7 +204,8 @@ namespace ui {
 
 		/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
 		/// calculations. Returns whether anything changed.
-		virtual bool setAvailableSize(const ci::vec2& size);
+		virtual bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+									  float& maxHeight);
 
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
@@ -262,7 +263,7 @@ namespace ui {
 			mMinMaxDirty = true;
 		}
 		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
-		void setFit(const std::string& css) { setFit( Fit(css) ); }
+		void setFit(const std::string& css) { setFit(Fit(css)); }
 		/// Adjusts the sprite's transform to precisely fit inside the given area.
 		virtual void fitInsideArea(const ci::Rectf& area);
 
@@ -560,19 +561,19 @@ namespace ui {
 		bool getTransparent() const;
 
 		/** Sets (animated) value for audio volume, to be used by derived classes.
-		    \param value between 0 and 1. */
-		virtual void setVolume( float value );
+			\param value between 0 and 1. */
+		virtual void setVolume(float value);
 
 		/** Returns (animated) value for audio volume, to be used by derived classes.
-		    \return value between 0 and 1. */
+			\return value between 0 and 1. */
 		virtual float getVolume() const;
 
 		/** Sets (animated) value, to be used by derived classes.
-		    \param value between 0 and 1. */
-		void setReveal( float value );
+			\param value between 0 and 1. */
+		void setReveal(float value);
 
 		/** Returns (animated) value, to be used by derived classes.
-		    \return value between 0 and 1. */
+			\return value between 0 and 1. */
 		float getReveal() const;
 
 		/** The opposite of hide(), affects this Sprite and it's children.
@@ -590,7 +591,7 @@ namespace ui {
 
 		/** Subclasses can handle the event, a convenience for handling events without setting up event clients.
 			\param event The Event to be handled. */
-		virtual void eventReceived(const ds::Event& event){};
+		virtual void eventReceived(const ds::Event& event) {};
 
 		/** A convenience for notifying parents of events. Passes the event up through the parent hierarchy to the root
 		   Sprite. Calls eventReceived() for each parent. \param event The Event to be passed up the chain. */
@@ -600,11 +601,11 @@ namespace ui {
 		 */
 		Sprite* getParent() const;
 
-		/**Get an eventClient if one was defined for this sprite. 
-		If not then it looks up the chain for one. 
+		/**Get an eventClient if one was defined for this sprite.
+		If not then it looks up the chain for one.
 		Will return on set to default eventNotifier is none is found */
 		virtual std::string getChannelName();
-		virtual void setChannelName(std::string name);
+		virtual void		setChannelName(std::string name);
 
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not
 		   work for perspective Sprites. For example, if you have a global touch point, you can find it's local location
@@ -755,7 +756,7 @@ namespace ui {
 
 		// Retrieve the rendered output texture
 		ci::gl::TextureRef getFinalOutTexture() const;
-		void               setupFinalRenderBuffer();
+		void			   setupFinalRenderBuffer();
 
 		/// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		void setBaseShader(const std::string& location, const std::string& shaderName, bool applyToChildren = false);
@@ -766,8 +767,8 @@ namespace ui {
 		/// can take a Resource (Image, Video, PDF, etc)
 		virtual void setResource(const ds::Resource&);
 
-		/// Set the resource preview content for a sprite. This is a base function that should be overridden by anything that
-		/// can take a Resource (Image, Video, PDF, etc)
+		/// Set the resource preview content for a sprite. This is a base function that should be overridden by anything
+		/// that can take a Resource (Image, Video, PDF, etc)
 		virtual void setResourcePreview(const ds::Resource&);
 
 		SpriteShader&	 getBaseShader();
@@ -844,7 +845,7 @@ namespace ui {
 		// the layout for this to work, but one of its ancestor sprite needs to have been.
 		// if this sprite or no ancestor was created via layout, then this will return nullptr
 		ds::cfg::Settings* getLayoutSettings() const;
-		void               setLayoutSettings(const ds::cfg::Settings& settings);
+		void			   setLayoutSettings(const ds::cfg::Settings& settings);
 
 		/// Returns whether XML layout should parse the sprite's children. Defaults to TRUE, but can be overridden.
 		virtual bool parseChildren() const { return true; }
@@ -888,7 +889,7 @@ namespace ui {
 		void setColumnSpanAuto(bool flag);
 		void setRowSpanAuto(bool flag);
 
-	protected:
+	  protected:
 		friend class TouchManager;
 		friend class TouchProcess;
 		friend class ds::gl::ClipPlaneState;
@@ -953,7 +954,7 @@ namespace ui {
 
 		void setSpriteId(const ds::sprite_id_t&);
 		/// Helper utility to set a flag
-		void        setFlag(int newBit, bool on, const DirtyState&, int& oldFlags);
+		void		setFlag(int newBit, bool on, const DirtyState&, int& oldFlags);
 		static bool getFlag(int bit, int flags);
 
 		virtual void markAsDirty(const DirtyState&);
@@ -962,7 +963,7 @@ namespace ui {
 		virtual void writeAttributesTo(ds::DataBuffer&);
 		/// Used during client mode, to let clients get info back to the server. Use the
 		/// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
-		virtual void writeClientAttributesTo(ds::DataBuffer&){};
+		virtual void writeClientAttributesTo(ds::DataBuffer&) {};
 		virtual void readClientAttributeFrom(const char attributeId, ds::DataBuffer&) {}
 		/// Read a single attribute
 		virtual void readAttributeFrom(const char attributeId, ds::DataBuffer&) {}

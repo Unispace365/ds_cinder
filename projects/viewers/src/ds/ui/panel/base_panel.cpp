@@ -2,6 +2,8 @@
 
 #include "base_panel.h"
 
+#include "ds/util/float_util.h"
+
 #include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
 #include <ds/params/update_params.h>
@@ -149,16 +151,19 @@ void BasePanel::setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& ab
 }
 
 void BasePanel::setSizeLimits() {
-	ci::vec2	panelDefaultSize = mDefaultSize;
-	float		cw				 = getWidth() != 0 ? getWidth() : 1.0f;
-	float		ch				 = getHeight() != 0 ? getHeight() : 1.0f;
-	const float aspect			 = cw / ch;
-	ci::vec2	minSize = ci::vec2(cw, ch), defaultSize = ci::vec2(cw, ch), maxSize = ci::vec2(cw * 10.0f, ch * 10.0f);
-	const ci::vec2 absMinSize = mAbsMinSize, idealDefault = ci::vec2(panelDefaultSize.x, panelDefaultSize.y),
-				   absMaxSize	 = mAbsMaxSize;
-	const float absMinArea		 = absMinSize.x * absMinSize.y;
-	const float absMaxArea		 = absMaxSize.x * absMaxSize.y;
-	const float idealDefaultArea = idealDefault.x * idealDefault.y;
+	ci::vec2	   panelDefaultSize = mDefaultSize;
+	float		   cw				= getWidth() != 0 ? getWidth() : 1.0f;
+	float		   ch				= getHeight() != 0 ? getHeight() : 1.0f;
+	const float	   aspect			= cw / ch;
+	ci::vec2	   minSize			= ci::vec2(cw, ch);
+	ci::vec2	   defaultSize		= ci::vec2(cw, ch);
+	ci::vec2	   maxSize			= ci::vec2(cw * 10.0f, ch * 10.0f);
+	const ci::vec2 absMinSize		= mAbsMinSize;
+	const ci::vec2 idealDefault		= ci::vec2(panelDefaultSize.x, panelDefaultSize.y);
+	const ci::vec2 absMaxSize		= mAbsMaxSize;
+	const float	   absMinArea		= absMinSize.x * absMinSize.y;
+	const float	   absMaxArea		= absMaxSize.x * absMaxSize.y;
+	const float	   idealDefaultArea = idealDefault.x * idealDefault.y;
 
 
 	// make the min size the absolute min size

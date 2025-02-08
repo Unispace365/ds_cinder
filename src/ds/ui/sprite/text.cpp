@@ -377,8 +377,8 @@ Text& Text::setResizeLimit(const float maxWidth, const float maxHeight) {
 		if (mResizeLimitHeight == 0.0f) {
 			mResizeLimitHeight = -1.0f;
 		}
-		mNeedsMeasuring		  = true;
-		mNeedsRefit			  = true;
+		mNeedsMeasuring = true;
+		mNeedsRefit		= true;
 		markAsDirty(LAYOUT_DIRTY);
 	}
 
@@ -507,28 +507,28 @@ float Text::getHeight() const {
 
 float Text::getWidthMin() const {
 	if (mNeedsMinMaxMeasuring) {
-		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
 	return mMinWidth.asUser(this, css::Value::HORIZONTAL);
 }
 
 float Text::getWidthMax() const {
 	if (mNeedsMinMaxMeasuring) {
-		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
 	return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
 }
 
 float Text::getHeightMin() const {
 	if (mNeedsMinMaxMeasuring) {
-		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
 	return mMinHeight.asUser(this, css::Value::VERTICAL);
 }
 
 float Text::getHeightMax() const {
 	if (mNeedsMinMaxMeasuring) {
-		(const_cast<Text*>(this))->measureMinMaxTextSize();		
+		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
 	return mMaxHeight.asUser(this, css::Value::VERTICAL);
 }
@@ -737,28 +737,12 @@ float Text::getBaseline() {
 	}
 }
 
-bool Text::setAvailableSize(const ci::vec2& size) {
+bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+							float& maxHeight) {
 	// Adjust resize limits.
 	setResizeLimit(size.x, size.y);
 
-	if (mNeedsMeasuring) {
-		measurePangoText();
-	}
-
-	const auto w = getWidth();// mTrimWhiteSpace ? mPixelWidth - glm::max(mRenderOffset.x, 0.0f) : mWidth;
-	const auto h = getHeight();// mTrimWhiteSpace ? mPixelHeight - glm::max(mRenderOffset.y, 0.0f) : mHeight;
-
-	bool hasChanged = !approxEqual(w, mMinWidth.asUser(this, css::Value::HORIZONTAL));
-	hasChanged |= !approxEqual(w, mMaxWidth.asUser(this, css::Value::HORIZONTAL));
-	hasChanged |= !approxEqual(h, mMinHeight.asUser(this, css::Value::VERTICAL));
-	hasChanged |= !approxEqual(h, mMaxHeight.asUser(this, css::Value::VERTICAL));
-
-	mMinWidth.set(w, css::Value::Unit::PIXELS);
-	mMaxWidth.set(w, css::Value::Unit::PIXELS);
-	mMinHeight.set(h, css::Value::Unit::PIXELS);
-	mMaxHeight.set(h, css::Value::Unit::PIXELS);
-
-	return hasChanged;
+	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight);
 }
 
 void Text::fitInsideArea(const ci::Rectf& area) {

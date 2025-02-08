@@ -209,6 +209,33 @@ void BaseElement::setCreationArgs(ViewerCreationArgs args) {
 	onCreationArgsSet();
 }
 
+bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+								   float& maxHeight) {
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	const auto padded  = size - padding;
+
+	if (padded.x < mMinSize.x || padded.y < mMinSize.y)
+		DS_LOG_WARNING("Size constraints on BaseElement could not be honored by the grid layout!");
+
+	// Get media size.
+	const auto propertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+	const auto resource	   = mMediaRef.getPropertyResource(propertyKey);
+
+	const auto w = resource.empty() ? getWidth() : resource.getWidth();
+	const auto h = resource.empty() ? getHeight() : resource.getHeight();
+	if (ds::approxZero(w) || ds::approxZero(h)) return false;
+
+	// Maintain aspect ratio of content while adjusting for padding.
+	const auto aspect = w / h;
+
+	minWidth  = glm::max(minWidth, padding.x);
+	minHeight = glm::max(minHeight, padding.y);
+	maxWidth  = glm::min(maxWidth, glm::min(padded.y * aspect, mMaxSize.x) + padding.x);
+	maxHeight = glm::min(maxHeight, glm::min(padded.y, mMaxSize.y) + padding.y);
+
+	return true;
+}
+
 void BaseElement::onPanelActivated() {
 	if (mActivatedCallback) {
 		mActivatedCallback();

@@ -104,7 +104,7 @@ class LayoutSprite : public Sprite, public ILayout {
 	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
 
 	/// If nested inside a grid layout, this will set the size of the layout sprite and run the layout algorithm.
-	bool setAvailableSize(const ci::vec2& size) override;
+	bool setAvailableSize(const ci::vec2& size, float &minWidth, float &minHeight, float &maxWidth, float &maxHeight) override;
 
   protected:
 	/// See enum declaration for descriptions
