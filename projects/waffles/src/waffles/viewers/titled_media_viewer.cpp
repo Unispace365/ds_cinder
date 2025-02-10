@@ -228,8 +228,10 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	/// e.g. the idle timeout occurs, or an ambient button is pressed etc.
 	/// The sprite will likely still exist and be an orphan, which is likely a big TODO.
 	mEventClient.listenToEvents<RequestCloseAllEvent>([this](auto& e) {
-		mMediaPlayer->pauseContent();
-		mMediaPlayer->mute();
+		if (mMediaPlayer) {
+			mMediaPlayer->pauseContent();
+			mMediaPlayer->mute();
+		}
 		cleanupDrawing(true);
 	});
 }
@@ -489,7 +491,7 @@ void TitledMediaViewer::onMediaSet() {
 
 		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
 			if (onScreen) {
-				auto wafflesHelper			 = ds::model::ContentHelperFactory::getDefault<BaseWafflesHelper>();
+				auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<BaseWafflesHelper>();
 
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
@@ -571,7 +573,7 @@ void TitledMediaViewer::onMediaSet() {
 		if (wafflesHelper) {
 			wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 		}
-		//ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+		// ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
 
 	// setting size is necessary to get size limits to work
@@ -636,13 +638,13 @@ void TitledMediaViewer::onMediaSet() {
 	}
 	/* auto nameSp = mRootLayout->getSprite<ds::ui::Text>("name");
 	if (nameSp) {
-		
+
 		nameSp->setResizeLimit(mMediaPlayer->getWidth(), nameSp->getResizeLimitHeight());
 		auto txt = mMediaRef.getPropertyString("record_name");
 		nameSp->setText("");
 		nameSp->setText(txt);
 	}*/
-	
+
 	layout();
 	// mRootLayout->runLayout();
 
@@ -716,7 +718,7 @@ void TitledMediaViewer::startVideo() {
 	if (wafflesHelper) {
 		wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
-	//ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+	// ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	mRootLayout->runLayout();
 	mMediaPlayer->enter();
 }
