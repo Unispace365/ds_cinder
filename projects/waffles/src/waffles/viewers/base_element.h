@@ -113,9 +113,6 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual void hideInnerSideBar() {}
 	virtual void toggleInnerSideBar() {}
 
-	bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-						  float& maxHeight) override;
-
   protected:
 	// The layer has been changed (see ViewerCreationArgs for layers)
 	virtual void onViewerLayerSet() {}

@@ -48,14 +48,14 @@ class Grid : public Sprite, public ILayout {
 
 	struct Item {
 		Item() = default;
-		Item(Sprite* s, Range<size_t> colSpan, Range<size_t> rowSpan)
+		Item(Sprite* s, Range<size_t> colSpan, Range<size_t> rowSpan, const ci::vec2& gridSize)
 		  : sprite(s)
 		  , column(colSpan)
 		  , row(rowSpan) {
 			minWidth  = sprite->getWidthMin();
-			maxWidth  = sprite->getWidthMax();
+			maxWidth  = glm::min(gridSize.x, sprite->getWidthMax());
 			minHeight = sprite->getHeightMin();
-			maxHeight = sprite->getHeightMax();
+			maxHeight = glm::min(gridSize.y, sprite->getHeightMax());
 		}
 		Sprite*		  sprite	= nullptr;
 		Range<size_t> column	= {0, 0};
@@ -149,6 +149,8 @@ class Grid : public Sprite, public ILayout {
 	float calcWidth() const { return mHorizontalGridLines.empty() ? 0 : mHorizontalGridLines.back(); }
 	// Returns the height of the grid based on the row tracks, or 0 if the grid is not initialized.
 	float calcHeight() const { return mVerticalGridLines.empty() ? 0 : mVerticalGridLines.back(); }
+	//! Returns the size of the grid based on the column and row tracks, or {0, 0} if the grid is not initialized.
+	ci::vec2 calcSize() const { return {calcWidth(), calcHeight()}; }
 
 	void drawLocalClient() override;
 
@@ -174,7 +176,8 @@ class Grid : public Sprite, public ILayout {
 		Sprite::setSizeAll(width, height, depth);
 	}
 
-	bool setAvailableSize(const ci::vec2& size, float &minWidth, float &minHeight, float &maxWidth, float &maxHeight) override;
+	bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+						  float& maxHeight) override;
 
 	void fitInsideArea(const ci::Rectf& area) override;
 

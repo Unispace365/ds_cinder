@@ -430,9 +430,12 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 
 bool LayoutSprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
 									float& maxHeight) {
-	mWidth			  = size.x - mLayoutLPad - mLayoutRPad;
-	mHeight			  = size.y - mLayoutTPad - mLayoutBPad;
-	mShrinkToChildren = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
+	if (mLayoutType != kLayoutSize) {
+		const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+		mWidth			   = size.x - padding.x;
+		mHeight			   = size.y - padding.y;
+		mShrinkToChildren  = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
+	}
 
 	runLayout();
 

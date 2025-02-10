@@ -202,10 +202,14 @@ namespace ui {
 		   value.		 */
 		virtual ci::vec3 getPreferredSize() const;
 
-		/// Sets the available size for this sprite, allowing it to update its size range. This is used in layout
+		/// Sets the available size for this sprite, allowing it to update its size range. This is used in grid layout
 		/// calculations. Returns whether anything changed.
 		virtual bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
 									  float& maxHeight);
+
+		/// Adjusts the sprite's transform to precisely fit inside the given area. This is used in grid layout
+		/// calculations.
+		virtual void fitInsideArea(const ci::Rectf& area);
 
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
@@ -264,8 +268,6 @@ namespace ui {
 		}
 		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
 		void setFit(const std::string& css) { setFit(Fit(css)); }
-		/// Adjusts the sprite's transform to precisely fit inside the given area.
-		virtual void fitInsideArea(const ci::Rectf& area);
 
 		///
 		void setDimensionsChangedCallback(const std::function<void(Sprite*)>& fn) { mDimensionsChangedCallback = fn; }

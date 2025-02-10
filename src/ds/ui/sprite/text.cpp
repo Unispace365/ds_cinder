@@ -739,14 +739,20 @@ float Text::getBaseline() {
 
 bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
 							float& maxHeight) {
+	if (mText.empty()) return false;
+
 	// Adjust resize limits.
 	setResizeLimit(size.x, size.y);
+	measurePangoText();
 
 	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight);
 }
 
 void Text::fitInsideArea(const ci::Rectf& area) {
+	// Adjust resize limits.
 	setResizeLimit(area.getWidth(), area.getHeight());
+	measurePangoText();
+
 	Sprite::fitInsideArea(area);
 }
 

@@ -937,25 +937,34 @@ bool Sprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minH
 	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
 	const auto padded  = size - padding;
 
-	if (padded.x < getWidthMin() || padded.y < getHeightMin())
-		DS_LOG_WARNING("Size constraints on Sprite could not be honored by the grid layout!");
-
-	// Get size.
-	const auto w = getWidth();
-	const auto h = getHeight();
-	if (approxZero(w) || approxZero(h)) return false;
-
 	// Fit content based on available height.
-	const auto aspect = w / h;
-	const auto width  = padded.y * aspect;
-	const auto height = padded.y;
+	float width	 = getWidth();
+	float height = getHeight();
 
-	minWidth  = glm::max(minWidth, padding.x);
-	minHeight = glm::max(minHeight, padding.y);
+	const auto fit = mFit.calcTransform({0, 0, padded.x, padded.y}, {0, 0, width, height}, false);
+	width *= fit[0][0];
+	height *= fit[1][1];
+
+	minWidth  = glm::max(minWidth, glm::max(width + padding.x, getWidthMin()));
+	minHeight = glm::max(minHeight, glm::max(height + padding.y, getHeightMin()));
 	maxWidth  = glm::min(maxWidth, glm::min(width + padding.x, getWidthMax()));
 	maxHeight = glm::min(maxHeight, glm::min(height + padding.y, getHeightMax()));
 
 	return true;
+}
+
+void Sprite::fitInsideArea(const ci::Rectf& area) {
+	// Fit the sprite to the area, taking padding into account.
+	auto padded = area;
+	padded.x1 += mLayoutLPad;
+	padded.y1 += mLayoutTPad;
+	padded.x2 = glm::max(padded.x1, padded.x2 - mLayoutRPad);
+	padded.y2 = glm::max(padded.y1, padded.y2 - mLayoutBPad);
+
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	const auto fit	  = mFit.calcTransform(padded, bounds, false);
+	setScale(fit[0][0], fit[1][1]);
+	setPosition(fit[2]);
 }
 
 void Sprite::setColor(const ci::Color& color) {
@@ -1499,17 +1508,6 @@ bool Sprite::inBounds() const {
 
 bool Sprite::isLoaded() const {
 	return true;
-}
-
-void Sprite::fitInsideArea(const ci::Rectf& area) {
-	// Fit the sprite to the area.
-	const auto padded =
-		ci::Rectf{area.x1 + mLayoutLPad, area.y1 + mLayoutTPad, glm::max(area.x1 + mLayoutLPad, area.x2 - mLayoutRPad),
-				  glm::max(area.y1 + mLayoutTPad, area.y2 - mLayoutBPad)};
-	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
-	const auto fit	  = mFit.calcTransform(padded, bounds, false);
-	setScale(fit[0][0], fit[1][1]);
-	setPosition(fit[2]);
 }
 
 float Sprite::getDepth() const {

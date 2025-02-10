@@ -61,7 +61,7 @@ void Grid::drawPostLocalClient() {
 		ci::gl::end();
 
 		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
-		ci::gl::drawStrokedRect({0, 0, width, height}, 15);
+		ci::gl::drawStrokedRect({0, 0, width, height}, 5);
 
 		if (!mChildren.empty()) {
 			const bool hasColumnGaps =
@@ -69,11 +69,14 @@ void Grid::drawPostLocalClient() {
 			const bool hasRowGaps =
 				!mRowGapDef.empty() && Value(mRowGapDef).asUser(this, Value::Direction::VERTICAL) > 0;
 
-			ci::gl::color(ci::ColorA8u(255, 102, 0, 128));
 			for (const auto child : mChildren) {
+				ci::gl::color(ci::ColorA8u(204, 51, 0, 128));
+				ci::gl::drawStrokedRect(child->getBoundingBox(), 1);
+
 				const auto col = adjustForGaps(child->getColumnSpan(), hasColumnGaps);
 				const auto row = adjustForGaps(child->getRowSpan(), hasRowGaps);
-				ci::gl::drawStrokedRect(calcArea(col, row), 15);
+				ci::gl::color(ci::ColorA8u(255, 102, 0, 128));
+				ci::gl::drawStrokedRect(calcArea(col, row), 3);
 			}
 		}
 	}
@@ -320,8 +323,10 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 		}
 	}
 
-	for (auto& track : tracks)
-		track.usedBreadth = glm::max(track.usedBreadth, normalizedFlexBreadth * track.flexValue());
+	if (!approxZero(normalizedFlexBreadth)) {
+		for (auto& track : tracks)
+			track.usedBreadth = glm::max(track.usedBreadth, normalizedFlexBreadth * track.flexValue());
+	}
 }
 
 void Grid::resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Item>& items,
@@ -585,11 +590,12 @@ std::vector<Grid::Item> Grid::allItems() const {
 		const bool hasColumnGaps =
 			!mColumnGapDef.empty() && Value(mColumnGapDef).asUser(this, Value::Direction::HORIZONTAL) > 0;
 		const bool hasRowGaps = !mRowGapDef.empty() && Value(mRowGapDef).asUser(this, Value::Direction::VERTICAL) > 0;
+		const auto gridSize	  = getSize();
 
 		for (auto child : mChildren) {
 			const auto colSpan = adjustForGaps(child->getColumnSpan(), hasColumnGaps);
 			const auto rowSpan = adjustForGaps(child->getRowSpan(), hasRowGaps);
-			result.emplace_back(child, colSpan, rowSpan);
+			result.emplace_back(child, colSpan, rowSpan, gridSize);
 		}
 	}
 
