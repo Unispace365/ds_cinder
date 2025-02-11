@@ -934,6 +934,7 @@ void TitledMediaViewer::onCreationArgsSet() {
 			vidPlayer->setVideoLoop(mCreationArgs.mLooped);
 			auto video = vidPlayer->getVideo();
 			if (video) {
+				video->setLooping(mCreationArgs.mLooped);
 				if (mCreationArgs.mVideoTimePosition > 0.0) {
 					video->seekPosition(mCreationArgs.mVideoTimePosition);
 				}
