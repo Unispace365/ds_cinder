@@ -202,71 +202,74 @@ namespace ui {
 		   value.		 */
 		virtual ci::vec3 getPreferredSize() const;
 
-		/// Sets the available size for this sprite, allowing it to update its size range. This is used in grid layout
-		/// calculations. Returns whether anything changed.
-		virtual bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-									  float& maxHeight);
-
-		/// Adjusts the sprite's transform to precisely fit inside the given area. This is used in grid layout
-		/// calculations.
-		virtual void fitInsideArea(const ci::Rectf& area);
-
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the
 		   Sprite has been scaled. \return The width in pixels of this Sprite.		*/
 		virtual float getWidth() const;
-
-		// Returns the minimum width of the Sprite.
-		virtual float getWidthMin() const {
-			if (mMinMaxDirty) measureMinMaxSize();
-			return mMinWidth.asUser(this, css::Value::HORIZONTAL);
-		}
-		// Sets the minimum width of the Sprite.
-		void setWidthMin(float width) { mMinWidth = css::Value(width, css::Value::PIXELS); }
-		// Sets the minimum width of the Sprite.
-		void setWidthMin(const std::string& css) { mMinWidth = css::Value(css); }
-		// Returns the maximum width of the Sprite.
-		virtual float getWidthMax() const {
-			if (mMinMaxDirty) measureMinMaxSize();
-			return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
-		}
-		// Sets the maximum width of the Sprite.
-		void setWidthMax(float width) { mMaxWidth = css::Value(width, css::Value::PIXELS); }
-		// Sets the maximum width of the Sprite.
-		void setWidthMax(const std::string& css) { mMaxWidth = css::Value(css); }
 
 		/** The height of this sprite, not including scale.
 			For instance, an Image Sprite will always return the height of the image from this function, even if the
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
 
-		// Returns the minimum height of the Sprite.
-		virtual float getHeightMin() const {
-			if (mMinMaxDirty) measureMinMaxSize();
-			return mMinHeight.asUser(this, css::Value::VERTICAL);
-		}
-		// Sets the minimum height of the Sprite.
-		void setHeightMin(float height) { mMinHeight = css::Value(height, css::Value::PIXELS); }
-		// Sets the minimum height of the Sprite.
-		void setHeightMin(const std::string& css) { mMinHeight = css::Value(css); }
-		// Returns the maximum height of the Sprite.
-		virtual float getHeightMax() const {
-			if (mMinMaxDirty) measureMinMaxSize();
-			return mMaxHeight.asUser(this, css::Value::VERTICAL);
-		}
-		// Sets the maximum height of the Sprite.
-		void setHeightMax(float height) { mMaxHeight = css::Value(height, css::Value::PIXELS); }
-		// Sets the maximum height of the Sprite.
-		void setHeightMax(const std::string& css) { mMaxHeight = css::Value(css); }
+		/// Sets the available size for this sprite, allowing it to update its size range. This is used in grid layout
+		/// calculations. Returns whether anything changed.
+		virtual bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+									  float& maxHeight, bool favorWidthOverHeight);
 
-		/// Returns the sprite fitting mode, allowing access to the proper transform.
-		const Fit& getFit() const { return mFit; }
-		/// Sets sprite fitting mode.
-		void setFit(Fit fit) {
-			mFit		 = fit;
-			mMinMaxDirty = true;
+		/// Adjusts the sprite's transform to precisely fit inside the given area. This is used in grid layout
+		/// calculations.
+		virtual void fitInsideArea(const ci::Rectf& area);
+
+		// Returns the minimum width of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		virtual float getWidthMin() const { return mMinWidth; }
+		// Sets the minimum width of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		void setWidthMin(float width) { mMinWidth = glm::max(0.0f, width); }
+		// Sets the minimum width of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		void setWidthMin(const std::string& css) {
+			mMinWidth = glm::max(0.0f, css::Value(css).asUser(this, css::Value::Direction::HORIZONTAL));
 		}
-		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet").
+
+		// Returns the maximum width of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		virtual float getWidthMax() const { return mMaxWidth; }
+		// Sets the maximum width of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		void setWidthMax(float width) { mMaxWidth = glm::max(0.0f, width); }
+		// Sets the maximum width of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		void setWidthMax(const std::string& css) {
+			mMaxWidth = glm::max(0.0f, css::Value(css).asUser(this, css::Value::Direction::HORIZONTAL));
+		}
+
+		// Returns the minimum height of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		virtual float getHeightMin() const { return mMinHeight; }
+		// Sets the minimum height of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		void setHeightMin(float height) { mMinHeight = glm::max(0.0f, height); }
+		// Sets the minimum height of the sprite in pixels. This is used in grid layout calculations. Defaults to 0.
+		void setHeightMin(const std::string& css) {
+			mMinHeight = glm::max(0.0f, css::Value(css).asUser(this, css::Value::Direction::VERTICAL));
+		}
+
+		// Returns the maximum height of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		virtual float getHeightMax() const { return mMaxHeight; }
+		// Sets the maximum height of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		void setHeightMax(float height) { mMaxHeight = glm::max(0.0f, height); }
+		// Sets the maximum height of the sprite in pixels. This is used in grid layout calculations. Defaults to
+		// infinity.
+		void setHeightMax(const std::string& css) {
+			mMaxHeight = glm::max(0.0f, css::Value(css).asUser(this, css::Value::Direction::VERTICAL));
+		}
+
+		/// Returns the sprite fitting mode, allowing access to the proper transform. This is used in grid layout
+		/// calculations.
+		const Fit& getFit() const { return mFit; }
+		/// Sets sprite fitting mode. This is used in grid layout calculations.
+		void setFit(Fit fit) { mFit = fit; }
+		/// Sets sprite fitting mode by supplying a CSS-style string (e.g. "xMinYMin meet"). This is used in grid layout
+		/// calculations.
 		void setFit(const std::string& css) { setFit(Fit(css)); }
 
 		///
@@ -891,6 +894,8 @@ namespace ui {
 		void setColumnSpanAuto(bool flag);
 		void setRowSpanAuto(bool flag);
 
+		virtual void onAddedToLayout(Sprite* layout) {}
+
 	  protected:
 		friend class TouchManager;
 		friend class TouchProcess;
@@ -917,7 +922,6 @@ namespace ui {
 		bool		 hasTapInfo() const;
 		void		 updateCheckBounds() const;
 		bool		 checkBounds() const;
-		virtual void measureMinMaxSize() const;
 
 		/// Once the sprite has passed the getHit() sprite bounds, this is a second
 		/// stage that allows the sprite itself to determine if the point is interior,
@@ -992,10 +996,11 @@ namespace ui {
 
 		float mGlobalScale = 1.f;
 
-		css::Value mMinWidth{0, css::Value::PIXELS}, mMaxWidth;
-		css::Value mMinHeight{0, css::Value::PIXELS}, mMaxHeight;
-		Fit		   mFit;
-		bool	   mMinMaxDirty;
+		float mMinWidth{0};
+		float mMinHeight{0};
+		float mMaxWidth{std::numeric_limits<float>::infinity()};
+		float mMaxHeight{std::numeric_limits<float>::infinity()};
+		Fit	  mFit;
 
 		bool						 mSuppressSpriteDimensionsChanged = false;
 		std::function<void(Sprite*)> mDimensionsChangedCallback;
@@ -1135,13 +1140,12 @@ namespace ui {
 		/// if this sprite was an interface root (or <xml> root) then this will hold the settings; null otherwise;
 		ds::cfg::Settings* mSettings = nullptr;
 
-	    
 
 	  public:
 		// #ifdef _DEBUG
 		/// Debugging aids to write out my state. write() calls writeState
 		/// on me and all my children.
-		void         write(std::ostream&, size_t tab) const;
+		void		 write(std::ostream&, size_t tab) const;
 		virtual void writeState(std::ostream&, size_t tab) const;
 		// #endif
 

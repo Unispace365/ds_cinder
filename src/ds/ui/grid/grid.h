@@ -52,10 +52,16 @@ class Grid : public Sprite, public ILayout {
 		  : sprite(s)
 		  , column(colSpan)
 		  , row(rowSpan) {
-			minWidth  = sprite->getWidthMin();
-			maxWidth  = glm::min(gridSize.x, sprite->getWidthMax());
-			minHeight = sprite->getHeightMin();
-			maxHeight = glm::min(gridSize.y, sprite->getHeightMax());
+			// Use somewhat sensible defaults in case size constraints are not defined,
+			// otherwise the grid layout algorithm can't do its thing.
+			minWidth  = std::isfinite(sprite->getWidthMin()) ? sprite->getWidthMin() : 0;
+			maxWidth  = std::isfinite(sprite->getWidthMax()) ? sprite->getWidthMax()
+						: canGrow(gridSize.x)				 ? sprite->getWidth()
+															 : gridSize.x;
+			minHeight = std::isfinite(sprite->getHeightMin()) ? sprite->getHeightMin() : 0;
+			maxHeight = std::isfinite(sprite->getHeightMax()) ? sprite->getHeightMax()
+						: canGrow(gridSize.y)				  ? sprite->getHeight()
+															  : gridSize.y;
 		}
 		Sprite*		  sprite	= nullptr;
 		Range<size_t> column	= {0, 0};
@@ -171,13 +177,10 @@ class Grid : public Sprite, public ILayout {
 		}
 	}
 
-	void setSizeAll(float width, float height, float depth) override {
-		mNeedsLayout |= !mChildren.empty();
-		Sprite::setSizeAll(width, height, depth);
-	}
+	void onSizeChanged() override { mNeedsLayout |= !mChildren.empty(); }
 
-	bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-						  float& maxHeight) override;
+	bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth, float& maxHeight,
+						  bool favorWidthOverHeight) override;
 
 	void fitInsideArea(const ci::Rectf& area) override;
 
@@ -187,6 +190,8 @@ class Grid : public Sprite, public ILayout {
 	static Range<size_t> adjustForGaps(const Range<size_t>& span, bool hasGaps);
 
   private:
+	static bool canGrow(float breadth) { return ds::approxZero(breadth) || !std::isfinite(breadth); }
+
 	// Returns whether the \a area overlaps the \a span.
 	bool areaOverlapsItem(const ci::Rectf& area, const Item& item) const;
 	// Returns whether the \a area overlaps any of the \a spans.
@@ -208,9 +213,8 @@ class Grid : public Sprite, public ILayout {
 	// Performs the layout algorithm.
 	void performGridLayout();
 	//! This is the core grid track sizing algorithm. It is run for grid columns and grid rows.
-	void		computeUsedBreadthOfGridTracks(css::Value::Direction direction, std::vector<Track>& tracks,
-											   const std::vector<Item>& items, const SpanFn& spanFn, const SizeFn& minFn,
-											   const SizeFn& maxFn) const;
+	void computeUsedBreadthOfGridTracks(float spaceToFill, std::vector<Track>& tracks, const std::vector<Item>& items,
+										const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn) const;
 	static void resolveContentBasedTrackSizingFunctions(std::vector<Track>& tracks, const std::vector<Item>& items,
 														const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn);
 	static void

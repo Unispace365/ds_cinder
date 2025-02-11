@@ -58,6 +58,23 @@ mat4 Fit::calcTransform4x4(const Rectf& outer, const Rectf& inner, bool normaliz
 			0.f,	   0.f,		  1.0f, 0.f, m32[2][0], m32[2][1], 0.f, 1.f};
 }
 
+vec2 Fit::calcScale(const Rectf& outer, const Rectf& inner) const {
+	vec2 s{1};
+
+	if (inner.getWidth() > 0 && inner.getHeight() > 0) {
+		if (mAlign == Align::NONE || mMeetOrSlice != MeetOrSlice::NONE) {
+			s.x = outer.getWidth() / inner.getWidth();	 // scale-x
+			s.y = outer.getHeight() / inner.getHeight(); // scale-y
+		}
+		if (mMeetOrSlice == MeetOrSlice::MEET)		 //
+			s.x = s.y = glm::min(s.x, s.y);			 //
+		else if (mMeetOrSlice == MeetOrSlice::SLICE) //
+			s.x = s.y = glm::max(s.x, s.y);			 //
+	}
+
+	return s;
+}
+
 void Fit::parse(const char** sInOut) {
 	skipSpace(sInOut);
 

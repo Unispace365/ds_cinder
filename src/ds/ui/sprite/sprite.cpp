@@ -155,7 +155,6 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mWidth				  = 0.f;
 	mHeight				  = 0.f;
 	mDepth				  = 1.f;
-	mMinMaxDirty		  = true;
 	mCenter				  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotation			  = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotationOrderZYX	  = false;
@@ -574,7 +573,6 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	mScale				= scale;
 	mUpdateTransform	= true;
 	mBoundsNeedChecking = true;
-	mMinMaxDirty		= true;
 	mNeedsBatchUpdate	= true;
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
@@ -933,35 +931,69 @@ ci::vec3 Sprite::getPreferredSize() const {
 }
 
 bool Sprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-							  float& maxHeight) {
-	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
-	const auto padded  = size - padding;
+							  float& maxHeight, bool favorWidthOverHeight) {
+	if (approxZero(size.x) || approxZero(size.y)) return false;
 
-	// Fit content based on available height.
 	float width	 = getWidth();
 	float height = getHeight();
+	if (approxZero(width) || approxZero(height)) return false;
 
-	const auto fit = mFit.calcTransform({0, 0, padded.x, padded.y}, {0, 0, width, height}, false);
-	width *= fit[0][0];
-	height *= fit[1][1];
+	// Keep track of changes.
+	ci::vec2 minSize(minWidth, minHeight);
+	ci::vec2 maxSize(maxWidth, maxHeight);
 
-	minWidth  = glm::max(minWidth, glm::max(width + padding.x, getWidthMin()));
-	minHeight = glm::max(minHeight, glm::max(height + padding.y, getHeightMin()));
-	maxWidth  = glm::min(maxWidth, glm::min(width + padding.x, getWidthMax()));
-	maxHeight = glm::min(maxHeight, glm::min(height + padding.y, getHeightMax()));
+	// Calculate inner and outer bounds.
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	const auto padded  = size - padding;
+	const auto outer   = ci::Rectf{0, 0, padded.x, padded.y};
+	const auto inner   = ci::Rectf{0, 0, width, height};
 
-	return true;
+	// Determine size constraints.
+	if (mFit.meetOrSlice() == Fit::MeetOrSlice::NONE) {
+		// Stretch content to available size.
+		const auto scale = mFit.calcScale(outer, inner);
+		width *= scale.x;
+		height *= scale.y;
+
+		minWidth  = glm::clamp(glm::max(minWidth, width + padding.x), mMinWidth, mMaxWidth);
+		minHeight = glm::clamp(glm::max(minHeight, height + padding.y), mMinHeight, mMaxHeight);
+		maxWidth  = glm::clamp(glm::min(maxWidth, width + padding.x), mMinWidth, mMaxWidth);
+		maxHeight = glm::clamp(glm::min(maxHeight, height + padding.y), mMinHeight, mMaxHeight);
+	} else if (favorWidthOverHeight) {
+		// Fit content based on available width.
+		const auto scaleMax = outer.getWidth() / inner.getWidth();
+		const auto scaleMin = glm::min(outer.getHeight() / inner.getHeight(), scaleMax);
+
+		minWidth  = glm::clamp(glm::max(minWidth, size.x), mMinWidth, mMaxWidth);
+		minHeight = glm::clamp(glm::max(minHeight, scaleMin * height + padding.y), mMinHeight, mMaxHeight);
+		maxWidth  = glm::clamp(glm::min(maxWidth, size.x), mMinWidth, mMaxWidth);
+		maxHeight = glm::clamp(glm::min(maxHeight, scaleMax * height + padding.y), mMinHeight, mMaxHeight);
+	} else {
+		// Fit content based on available height.
+		const auto scaleMax = outer.getHeight() / inner.getHeight();
+		const auto scaleMin = glm::min(outer.getWidth() / inner.getWidth(), scaleMax);
+
+		minWidth  = glm::clamp(glm::max(minWidth, scaleMin * width + padding.x), mMinWidth, mMaxWidth);
+		minHeight = glm::clamp(glm::max(minHeight, size.y), mMinHeight, mMaxHeight);
+		maxWidth  = glm::clamp(glm::min(maxWidth, scaleMax * width + padding.x), mMinWidth, mMaxWidth);
+		maxHeight = glm::clamp(glm::min(maxHeight, size.y), mMinHeight, mMaxHeight);
+	}
+
+	// Return whether anything changed.
+	return !approxEqual(maxWidth, maxSize.x) || !approxEqual(maxHeight, maxSize.y) ||
+		   !approxEqual(minWidth, minSize.x) || !approxEqual(minHeight, minSize.y);
 }
 
 void Sprite::fitInsideArea(const ci::Rectf& area) {
-	// Fit the sprite to the area, taking padding into account.
+	// Adjust area, taking padding into account.
 	auto padded = area;
 	padded.x1 += mLayoutLPad;
 	padded.y1 += mLayoutTPad;
 	padded.x2 = glm::max(padded.x1, padded.x2 - mLayoutRPad);
 	padded.y2 = glm::max(padded.y1, padded.y2 - mLayoutBPad);
 
-	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
+	// Adjust scale and position to fit the sprite inside the padded area.
+	const auto bounds = ci::Rectf{0, 0, mWidth, mHeight};
 	const auto fit	  = mFit.calcTransform(padded, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
@@ -1082,8 +1114,7 @@ Sprite* Sprite::getParent() const {
 	return mParent;
 }
 
-std::string Sprite::getChannelName()
-{
+std::string Sprite::getChannelName() {
 	if (!mSpriteChannelName.empty()) {
 		return mSpriteChannelName;
 	}
@@ -1094,8 +1125,7 @@ std::string Sprite::getChannelName()
 	return "";
 }
 
-void Sprite::setChannelName(std::string name)
-{
+void Sprite::setChannelName(std::string name) {
 	mSpriteChannelName = name;
 }
 
@@ -1466,24 +1496,6 @@ bool Sprite::checkBounds() const {
 
 	mInBounds = true;
 	return true;
-}
-
-void Sprite::measureMinMaxSize() const {
-	const auto w = getWidth();
-	const auto h = getHeight();
-	if (approxZero(w) || approxZero(h)) return;
-
-	// const auto fit =
-	//	mFit.calcTransform(ci::Rectf{0, 0, mEngine.getWorldWidth(), mEngine.getWorldHeight()}, ci::Rectf{0, 0, w, h});
-	// const auto width  = fit[0][0] * w;
-	// const auto height = fit[1][1] * h;
-
-	const auto self = const_cast<Sprite*>(this); // Instead of 'mutable'.
-	/*if (!mMinWidth.isDefined())*/ self->mMinWidth.set(0, css::Value::PIXELS);
-	/*if (!mMaxWidth.isDefined())*/ self->mMaxWidth.set(mEngine.getWorldWidth(), css::Value::PIXELS);
-	/*if (!mMinHeight.isDefined())*/ self->mMinHeight.set(0, css::Value::PIXELS);
-	/*if (!mMaxHeight.isDefined())*/ self->mMaxHeight.set(mEngine.getWorldHeight(), css::Value::PIXELS);
-	self->mMinMaxDirty = false;
 }
 
 void Sprite::setCheckBounds(bool checkBounds) {

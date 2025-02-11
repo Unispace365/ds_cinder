@@ -56,7 +56,7 @@ void Value::parse(const char** sInOut) {
 		if (mValue < 0) throw std::runtime_error("Value must be equal to or greater than 0");
 
 		if (!**sInOut || std::isspace(**sInOut)) {
-			DS_LOG_WARNING("No unit given, pixels assumed: " << std::string(from, *sInOut - from).c_str());
+			// DS_LOG_WARNING("No unit given, pixels assumed: " << std::string(from, *sInOut - from).c_str());
 			mUnit = PIXELS;
 		}
 

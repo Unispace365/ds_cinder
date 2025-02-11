@@ -4,6 +4,7 @@
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/grid/grid.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/util/float_util.h>
@@ -38,6 +39,8 @@ void LayoutSprite::runLayout() {
 	} else if (mLayoutType == kLayoutFlex) {
 		runFlexLayout();
 	}
+
+	mLayoutUpdated = false;
 
 	onLayoutUpdate();
 }
@@ -211,15 +214,6 @@ void LayoutSprite::runFlowLayout(const bool vertical, const bool wrap /* = false
 		}
 	}
 	setSize(layoutWidth, layoutHeight);
-
-	// Keep track of max width and height, useful if running this layout inside a grid.
-	if (vertical) {
-		mMinWidth = mMaxWidth = css::Value(maxWidth + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
-		mMinHeight = mMaxHeight = css::Value(totalSize + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
-	} else {
-		mMinWidth = mMaxWidth = css::Value(totalSize + mLayoutLPad + mLayoutRPad, css::Value::PIXELS);
-		mMinHeight = mMaxHeight = css::Value(maxHeight + mLayoutTPad + mLayoutBPad, css::Value::PIXELS);
-	}
 
 	// figure out what's left over and how to use it properly
 	float leftOver	 = 0.0f;
@@ -429,17 +423,46 @@ void LayoutSprite::runFlexLayout(bool calculate) {
 }
 
 bool LayoutSprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-									float& maxHeight) {
-	if (mLayoutType != kLayoutSize) {
-		const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
-		mWidth			   = size.x - padding.x;
-		mHeight			   = size.y - padding.y;
-		mShrinkToChildren  = kShrinkBoth; // We assume this is what you want when you're using a layout inside a grid.
-	}
-
+									float& maxHeight, bool favorWidthOverHeight) {
+	// Resize as requested and perform layout.
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	setSize(size - padding);
 	runLayout();
 
-	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight);
+	// Keep track of changes.
+	ci::vec2 minSize(minWidth, minHeight);
+	ci::vec2 maxSize(maxWidth, maxHeight);
+
+	// Calculate size constraints.
+	const float w = getWidth();
+	const float h = getHeight();
+	if (!(approxZero(w) || approxZero(h))) {
+		const auto bounds = ci::Rectf{0, 0, w, h};
+		const auto fit	  = mFit.calcScale(ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y}, bounds);
+		const auto width  = fit.x * w;
+		const auto height = fit.y * h;
+
+		minWidth  = glm::clamp(glm::max(minWidth, width + padding.x), mMinWidth, mMaxWidth);
+		minHeight = glm::clamp(glm::max(minHeight, height + padding.y), mMinHeight, mMaxHeight);
+		maxWidth  = glm::clamp(glm::min(maxWidth, width + padding.x), mMinWidth, mMaxWidth);
+		maxHeight = glm::clamp(glm::min(maxHeight, height + padding.y), mMinHeight, mMaxHeight);
+	}
+
+	// Return whether anything changed.
+	return !approxEqual(maxWidth, maxSize.x) || !approxEqual(maxHeight, maxSize.y) ||
+		   !approxEqual(minWidth, minSize.x) || !approxEqual(minHeight, minSize.y);
+}
+
+void LayoutSprite::fitInsideArea(const ci::Rectf& area) {
+	Sprite::fitInsideArea(area);
+}
+
+void LayoutSprite::onAddedToLayout(Sprite* layout) {
+	// When placed inside a grid, we assume you want to shrink their size to perfectly fit their children.
+	const auto grid = dynamic_cast<Grid*>(layout);
+	if (grid) {
+		setShrinkToChildren(kShrinkBoth);
+	}
 }
 
 void LayoutSprite::addChild(Sprite& child) {
@@ -458,8 +481,7 @@ void LayoutSprite::addChild(Sprite& child) {
 }
 
 void LayoutSprite::onUpdateServer(const ds::UpdateParams& updateParams) {
-	if (mAutoLayout && mLayoutUpdated) {
-		mLayoutUpdated = false;
+	if (mLayoutUpdated) {
 		runLayout();
 	}
 }
@@ -474,7 +496,7 @@ void LayoutSprite::onChildRemoved(Sprite& child) {
 	child.setDimensionsChangedCallback(nullptr);
 }
 
-void LayoutSprite::onLayoutUpdate() {
+void LayoutSprite::onLayoutUpdate() const {
 	if (mLayoutUpdatedFunction) {
 		mLayoutUpdatedFunction();
 	}

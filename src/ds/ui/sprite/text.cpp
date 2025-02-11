@@ -20,6 +20,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/data/font_list.h"
 #include "ds/debug/logger.h"
+#include "ds/ui/grid/grid.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/float_util.h"
@@ -509,28 +510,28 @@ float Text::getWidthMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinWidth.asUser(this, css::Value::HORIZONTAL);
+	return mMinWidth;
 }
 
 float Text::getWidthMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxWidth.asUser(this, css::Value::HORIZONTAL);
+	return mMaxWidth;
 }
 
 float Text::getHeightMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinHeight.asUser(this, css::Value::VERTICAL);
+	return mMinHeight;
 }
 
 float Text::getHeightMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxHeight.asUser(this, css::Value::VERTICAL);
+	return mMaxHeight;
 }
 
 void Text::setEllipsizeMode(EllipsizeMode theMode) {
@@ -737,23 +738,24 @@ float Text::getBaseline() {
 	}
 }
 
-bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-							float& maxHeight) {
+bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth, float& maxHeight,
+							bool favorWidthOverHeight) {
 	if (mText.empty()) return false;
 
-	// Adjust resize limits.
+	// Adjust resize limits and measure text.
 	setResizeLimit(size.x, size.y);
 	measurePangoText();
 
-	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight);
+	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight, favorWidthOverHeight);
 }
 
-void Text::fitInsideArea(const ci::Rectf& area) {
-	// Adjust resize limits.
-	setResizeLimit(area.getWidth(), area.getHeight());
-	measurePangoText();
-
-	Sprite::fitInsideArea(area);
+void Text::onAddedToLayout(Sprite* layout) {
+	// When placed inside a grid, we assume you want to trim white space and shrink the size to its bounds.
+	const auto grid = dynamic_cast<Grid*>(layout);
+	if (grid) {
+		setTrimWhiteSpace(true);
+		setShrinkToBounds(true);
+	}
 }
 
 bool Text::getTextWrapped() {
@@ -1552,11 +1554,11 @@ void Text::measureMinMaxTextSize() {
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMinWidth = css::Value(mPixelWidth + kCompensateRoundingErrors, css::Value::PIXELS);
+	mMinWidth = float(mPixelWidth + kCompensateRoundingErrors);
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMinHeight = css::Value(mPixelHeight + kCompensateRoundingErrors, css::Value::PIXELS);
+	mMinHeight = float(mPixelHeight + kCompensateRoundingErrors);
 
 	// Use largest font size.
 	if (!style.mFitSizes.empty()) {
@@ -1568,11 +1570,11 @@ void Text::measureMinMaxTextSize() {
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMaxHeight = css::Value(mPixelHeight + kCompensateRoundingErrors, css::Value::PIXELS);
+	mMaxHeight = float(mPixelHeight + kCompensateRoundingErrors);
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMaxWidth = css::Value(mPixelWidth + kCompensateRoundingErrors, css::Value::PIXELS);
+	mMaxWidth = float(mPixelWidth + kCompensateRoundingErrors);
 
 	// Restore the original resize limits.
 	setResizeLimit(resizeLimit.x, resizeLimit.y);

@@ -47,6 +47,8 @@ class Fit {
 	//! the result to the range 0-1.
 	[[nodiscard]] glm::mat4 calcTransform4x4(const ci::Rectf& outer, const ci::Rectf& inner,
 											 bool normalized = false) const;
+	//! Calculate the scale (both x & y) required to fit the inner rectangle into the outer rectangle.
+	[[nodiscard]] glm::vec2 calcScale(const ci::Rectf& outer, const ci::Rectf& inner) const;
 
 	[[nodiscard]] Align		  align() const { return mAlign; }
 	[[nodiscard]] MeetOrSlice meetOrSlice() const { return mMeetOrSlice; }

@@ -64,7 +64,9 @@ class LayoutSprite : public Sprite, public ILayout {
 	void			  setLayoutType(const LayoutType& typey) { mLayoutType = typey; }
 
 	void setLayoutUpdatedFunction(const std::function<void()> layoutUpdatedFunction);
-	void onLayoutUpdate();
+	void onLayoutUpdate() const;
+
+	void onSizeChanged() override { mLayoutUpdated = true; }
 
 	bool isAutoLayout() const { return mAutoLayout; }
 	void setAutoLayout(bool enabled) { mAutoLayout = enabled; }
@@ -104,7 +106,12 @@ class LayoutSprite : public Sprite, public ILayout {
 	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
 
 	/// If nested inside a grid layout, this will set the size of the layout sprite and run the layout algorithm.
-	bool setAvailableSize(const ci::vec2& size, float &minWidth, float &minHeight, float &maxWidth, float &maxHeight) override;
+	bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth, float& maxHeight,
+						  bool favorWidthOverHeight) override;
+
+	void fitInsideArea(const ci::Rectf& area) override;
+
+	void onAddedToLayout(Sprite* layout) override;
 
   protected:
 	/// See enum declaration for descriptions

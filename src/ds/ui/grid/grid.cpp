@@ -15,6 +15,7 @@ Grid::Grid(SpriteEngine& engine)
 void Grid::onChildAdded(Sprite& sprite) {
 	mNeedsLayout = true;
 	sprite.setDimensionsChangedCallback([&](Sprite* s) { mNeedsLayout |= !s->animationRunning(); });
+	sprite.onAddedToLayout(this);
 }
 
 void Grid::onChildRemoved(Sprite& sprite) {
@@ -87,44 +88,53 @@ void Grid::addChild(Sprite& newChild) {
 	Sprite::addChild(newChild);
 }
 
-bool Grid::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
-							float& maxHeight) {
-	setSize(size);
+bool Grid::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth, float& maxHeight,
+							bool favorWidthOverHeight) {
+	// Keep track of the size, so we can restore it later (size change should not be permanent).
+	const auto originalSize = getSize();
+
+	// Resize as requested and perform layout.
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	setSize(size - padding);
 
 	if (mNeedsLayout) performGridLayout();
 
+	// Keep track of changes.
+	ci::vec2 minSize(minWidth, minHeight);
+	ci::vec2 maxSize(maxWidth, maxHeight);
+
+	// Calculate size constraints.
 	const float w = calcWidth();
 	const float h = calcHeight();
+	if (!(approxZero(w) || approxZero(h))) {
+		const auto bounds = ci::Rectf{0, 0, w, h};
+		const auto fit	  = mFit.calcScale(ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y}, bounds);
+		const auto width  = fit.x * calcWidth();
+		const auto height = fit.y * calcHeight();
 
-	if (approxZero(w) || approxZero(h)) return false;
+		minWidth  = glm::clamp(glm::max(minWidth, width + padding.x), mMinWidth, mMaxWidth);
+		minHeight = glm::clamp(glm::max(minHeight, height + padding.y), mMinHeight, mMaxHeight);
+		maxWidth  = glm::clamp(glm::min(maxWidth, width + padding.x), mMinWidth, mMaxWidth);
+		maxHeight = glm::clamp(glm::min(maxHeight, height + padding.y), mMinHeight, mMaxHeight);
+	}
 
-	const auto bounds = ci::Rectf{0, 0, w, h};
-	const auto fit	  = mFit.calcTransform(
-		   ci::Rectf{0, 0, size.x - mLayoutLPad - mLayoutRPad, size.y - mLayoutTPad - mLayoutBPad}, bounds);
+	// Restore original size but keep the layout.
+	setSize(originalSize);
+	mNeedsLayout = false;
 
-	const auto width  = fit[0][0] * getWidth();
-	const auto height = fit[1][1] * getHeight();
-
-	minWidth  = 0 + mLayoutLPad + mLayoutRPad;
-	maxWidth  = width + mLayoutLPad + mLayoutRPad;
-	minHeight = 0 + mLayoutTPad + mLayoutBPad;
-	maxHeight = height + mLayoutTPad + mLayoutBPad;
-
-	return true;
+	// Return whether anything changed.
+	return !approxEqual(maxWidth, maxSize.x) || !approxEqual(maxHeight, maxSize.y) ||
+		   !approxEqual(minWidth, minSize.x) || !approxEqual(minHeight, minSize.y);
 }
 
 void Grid::fitInsideArea(const ci::Rectf& area) {
-	const auto size = area.getSize();
-	setSize(size);
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	const auto size	   = area.getSize();
+	setSize(size - padding);
 
 	if (mNeedsLayout) performGridLayout();
 
-	const auto bounds = ci::Rectf{0, 0, calcWidth(), calcHeight()};
-	const auto fit	  = mFit.calcTransform(
-		   ci::Rectf{0, 0, size.x - mLayoutLPad - mLayoutRPad, size.y - mLayoutTPad - mLayoutBPad}, bounds, false);
-
-	setScale(fit[0][0], fit[1][1]);
-	setPosition(fit[2]);
+	Sprite::fitInsideArea(area);
 }
 
 bool Grid::areaOverlapsItem(const ci::Rectf& area, const Item& item) const {
@@ -189,20 +199,24 @@ void Grid::performGridLayout() {
 	const bool hasRowGaps = !mRowGapDef.empty() && Value(mRowGapDef).asUser(this, Value::Direction::VERTICAL) > 0;
 
 	try {
+		// Get specified size. May be 0 or inf.
+		float width	 = getWidth();
+		float height = getHeight();
+		if (ds::approxZero(width)) width = std::numeric_limits<float>::infinity();
+		if (ds::approxZero(height)) height = std::numeric_limits<float>::infinity();
+
 		bool hasChanged = false;
 		for (;;) {
 			auto columns = hasColumnGaps ? parseTracks(mColumnsDef, mColumnGapDef) : parseTracks(mColumnsDef);
 			auto rows	 = hasRowGaps ? parseTracks(mRowsDef, mRowGapDef) : parseTracks(mRowsDef);
 
 			// 1. Call ComputedUsedBreadthOfGridTracks for grid columns to resolve their logical width.
-			computeUsedBreadthOfGridTracks(Value::Direction::HORIZONTAL, columns, items, getColumnSpan, getWidthMin,
-										   getWidthMax);
+			computeUsedBreadthOfGridTracks(width, columns, items, getColumnSpan, getWidthMin, getWidthMax);
 
 			// 2. Call ComputedUsedBreadthOfGridTracks for grid rows to resolve their logical height.
 			// TODO The logical width of grid Columns from the prior step is used in the formatting of grid items in
 			// content-sized grid rows to determine their required height.
-			computeUsedBreadthOfGridTracks(Value::Direction::VERTICAL, rows, items, getRowSpan, getHeightMin,
-										   getHeightMax);
+			computeUsedBreadthOfGridTracks(height, rows, items, getRowSpan, getHeightMin, getHeightMax);
 
 			// Determine the grid lines.
 			calculateGridLines(columns, mHorizontalGridLines);
@@ -217,7 +231,7 @@ void Grid::performGridLayout() {
 				const auto area = calcArea(item);
 
 				hasChanged |= item.sprite->setAvailableSize(area.getSize(), item.minWidth, item.minHeight,
-															item.maxWidth, item.maxHeight);
+															item.maxWidth, item.maxHeight, canGrow(height));
 			}
 
 			if (!hasChanged) break;
@@ -265,10 +279,8 @@ Range<size_t> Grid::adjustForGaps(const Range<size_t>& span, bool hasGaps) {
 	return hasGaps ? Range<size_t>{span.min * 2, span.max * 2 - 1} : span;
 }
 
-void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vector<Track>& tracks,
-										  const std::vector<Item>& items, const SpanFn& spanFn, const SizeFn& minFn,
-										  const SizeFn& maxFn) const {
-	const auto spaceToFill	= (direction == Value::HORIZONTAL) ? getWidth() : getHeight();
+void Grid::computeUsedBreadthOfGridTracks(float spaceToFill, std::vector<Track>& tracks, const std::vector<Item>& items,
+										  const SpanFn& spanFn, const SizeFn& minFn, const SizeFn& maxFn) const {
 	const auto viewportSize = glm::vec2{mEngine.getWorldWidth(), mEngine.getWorldHeight()};
 
 	// Initialize per grid track variables.
@@ -293,10 +305,10 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 		// Iterate over all grid tracks and assign UpdatedTrackBreadth to UsedBreadth
 		for (auto& track : tracks)
 			track.usedBreadth = track.updatedTrackBreadth;
-	} else {
-		// Note: deviation from standard algorithm to prevent the grid from growing beyond the viewport size.
-		// for (auto& track : tracks)
-		//	track.usedBreadth = track.maxBreadth;
+	} else if (canGrow(spaceToFill)) {
+		// Note: only if grid can grow in size.
+		for (auto& track : tracks)
+			track.usedBreadth = track.maxBreadth;
 	}
 
 	// Grow all grid tracks having a flexible length as the MaxTrackSizingFunction.
@@ -315,9 +327,8 @@ void Grid::computeUsedBreadthOfGridTracks(Value::Direction direction, std::vecto
 		}
 		//  ii
 		for (const auto& item : items) {
-			// Note: deviation from standard algorithm to prevent the grid from growing beyond the viewport size,
-			// we use all tracks instead of the spanned tracks.
-			const auto spanned = getAllTracks(tracks); // getSpannedTracks(tracks, item, spanFn, hasGaps);
+			const auto spanned =
+				/*canGrow(spaceToFill) ? getSpannedTracks(tracks, item, spanFn) :*/ getAllTracks(tracks);
 			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item));
 			normalizedFlexBreadth				 = glm::max(normalizedFlexBreadth, itemNormalizedFlexBreadth);
 		}
@@ -578,7 +589,7 @@ float Grid::calculateNormalizedFlexBreadth(const std::vector<Track*>& tracks, fl
 }
 
 float Grid::calculateRemainingSpace(const std::vector<Track>& tracks, float spaceToFill) {
-	if (std::isinf(spaceToFill) || std::isnan(spaceToFill)) return std::numeric_limits<float>::signaling_NaN();
+	if (std::isinf(spaceToFill) || std::isnan(spaceToFill)) return 0;
 	const float allocatedSpace = calcPos(tracks.size(), tracks);
 	return glm::max(0.0f, spaceToFill - allocatedSpace);
 }

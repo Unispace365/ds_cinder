@@ -170,10 +170,10 @@ Image::Image(SpriteEngine& engine)
   , mCircleCropCentered(false)
   , mTextureRef(nullptr) {
 
-	mStatus.mCode        = Status::STATUS_EMPTY;
+	mStatus.mCode		 = Status::STATUS_EMPTY;
 	mDrawRect.mOrthoRect = Rectf::zero();
 	mDrawRect.mPerspRect = Rectf::zero();
-	mBlobType            = BLOB_TYPE;
+	mBlobType			 = BLOB_TYPE;
 
 	setTransparent(false);
 	setUseShaderTexture(true);
@@ -196,7 +196,7 @@ Image::Image(SpriteEngine& engine, const Resource::Id& resourceId, const int fla
 
 Image::Image(SpriteEngine& engine, const Resource& resource, const int flags)
   : Image(engine) {
-  Image::setImageResource(resource, flags);
+	Image::setImageResource(resource, flags);
 }
 
 Image::~Image() {
@@ -235,7 +235,7 @@ void Image::setImageFile(const std::string& filename, const int flags) {
 
 					// Scale the sprite to make it the same size as the untrimmed image.
 					auto scale = getScale();
-					scale /= glm::max( coords.getWidth(), coords.getHeight());
+					scale /= glm::max(coords.getWidth(), coords.getHeight());
 					setScale(scale);
 				}
 
@@ -307,36 +307,11 @@ void Image::clearImage() {
 	imageChanged();
 }
 
-float Image::getWidthMin() const {
-	if (!mMinWidth.isDefined() && mMinHeight.isDefined()) {
-		const float aspect = getWidth() / getHeight();
-		return mMinHeight.asUser(this, css::Value::VERTICAL) * aspect;
-	}
-	return Sprite::getWidthMin();
-}
-
 float Image::getWidthMax() const {
-	if (!mMaxWidth.isDefined() && mMaxHeight.isDefined()) {
-		const float aspect = getWidth() / getHeight();
-		return mMaxHeight.asUser(this, css::Value::VERTICAL) * aspect;
-	}
-	return Sprite::getWidthMax();
-}
+	if (std::isfinite(mMaxWidth)) return mMaxWidth;
 
-float Image::getHeightMin() const {
-	if (!mMinHeight.isDefined() && mMinWidth.isDefined()) {
-		const float aspect = getHeight() / getWidth();
-		return mMinWidth.asUser(this, css::Value::HORIZONTAL) * aspect;
-	}
-	return Sprite::getHeightMin();
-}
-
-float Image::getHeightMax() const {
-	if (!mMaxHeight.isDefined() && mMaxWidth.isDefined()) {
-		const float aspect = getHeight() / getWidth();
-		return mMaxWidth.asUser(this, css::Value::HORIZONTAL) * aspect;
-	}
-	return Sprite::getHeightMax();
+	const float aspect = getWidth() / getHeight();
+	return mMaxHeight * aspect;
 }
 
 void Image::fitInsideArea(const Rectf& area) {
@@ -467,9 +442,9 @@ void Image::writeAttributesTo(DataBuffer& buf) {
 void Image::readAttributeFrom(const char attributeId, DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		setStatus(Status::STATUS_EMPTY);
-		const auto filename         = buf.read<std::string>();
+		const auto filename			= buf.read<std::string>();
 		const auto resourceFileName = Environment::expand(buf.read<std::string>());
-		auto       resource         = Resource(resourceFileName, Resource::IMAGE_TYPE);
+		auto	   resource			= Resource(resourceFileName, Resource::IMAGE_TYPE);
 		resource.setWidth(buf.read<float>());
 		resource.setHeight(buf.read<float>());
 		const auto flags = buf.read<int>();
@@ -563,10 +538,10 @@ void Image::onBuildRenderBatch() {
 		vec2 ll = vec2(0.f, 1.f);
 		if (!mResource.empty()) {
 			const auto crop = mResource.getCrop();
-			ul		  = crop.getUpperLeft();
-			ur		  = crop.getUpperRight();
-			lr		  = crop.getLowerRight();
-			ll		  = crop.getLowerLeft();
+			ul				= crop.getUpperLeft();
+			ur				= crop.getUpperRight();
+			lr				= crop.getLowerRight();
+			ll				= crop.getLowerLeft();
 
 			// Invert y-coordinates if image is not loaded top-down.
 			if (!mTextureRef->isTopDown()) {
@@ -591,15 +566,15 @@ void Image::doOnImageLoaded() {
 	if (mTextureRef) {
 		mNeedsBatchUpdate	 = true;
 		mDrawRect.mPerspRect = Rectf(0.0f, static_cast<float>(mTextureRef->getHeight()),
-		                             static_cast<float>(mTextureRef->getWidth()), 0.0f);
+									 static_cast<float>(mTextureRef->getWidth()), 0.0f);
 
 
 		float orthoW = mTextureRef->getWidth();
 		float orthoH = mTextureRef->getHeight();
 		if (!mResource.empty()) {
 			const auto crop = mResource.getCrop();
-			orthoW	  = orthoW * crop.getWidth();
-			orthoH	  = orthoH * crop.getHeight();
+			orthoW			= orthoW * crop.getWidth();
+			orthoH			= orthoH * crop.getHeight();
 		}
 
 		mDrawRect.mOrthoRect = Rectf(0.0f, 0.0f, orthoW, orthoH);
