@@ -21,7 +21,7 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 			hideTitle();
 			hideInnerSideBar();
 			mEventClient.notify(RequestToggleCollapseAndMoveFullscreenController(false));
-		} else {
+		} else if (mIsDetached) {
 			showTitle();
 			showInnerSideBar();
 		}
