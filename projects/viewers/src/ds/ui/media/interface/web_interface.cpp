@@ -567,7 +567,9 @@ void WebInterface::updateWidgets() {
 
 			if (!mKeyboardArea->visible()) {
 				mKeyboardArea->show();
-				mKeyboardArea->tweenOpacity(mKeyboard->getSoftKeyboardSettings().mBackgroundOpacity, mAnimateDuration, 0.0f, ci::easeNone);
+				mKeyboardArea->tweenOpacity(mKeyboard->getSoftKeyboardSettings().mBackgroundOpacity, mAnimateDuration,
+											0.0f, ci::easeNone);
+				mEngine.getNotifier().notify(WebKeyboardShownEvent(mKeyboardArea));
 			}
 		} else {
 			if (mKeyboardAutoDisablesTimeout) {
@@ -580,6 +582,7 @@ void WebInterface::updateWidgets() {
 
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone,
 											[this]() { mKeyboardArea->hide(); });
+				mEngine.getNotifier().notify(WebKeyboardHiddenEvent(mKeyboardArea));
 			}
 		}
 	}

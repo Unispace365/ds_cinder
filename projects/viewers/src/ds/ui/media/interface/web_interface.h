@@ -120,4 +120,29 @@ class WebInterface : public MediaInterface {
 	int					  mInitialSize;
 };
 
+struct WebKeyboardEvent : public ds::RegisteredEvent<WebKeyboardEvent> {
+	WebKeyboardEvent(Sprite* keyboard)
+	  : mKeyboard(keyboard) {}
+	bool hasParent(const Sprite* parent) const {
+		Sprite* sprite = mKeyboard;
+		while (sprite) {
+			if (sprite == parent) return true;
+			sprite = sprite->getParent();
+		}
+		return false;
+	}
+
+	Sprite* mKeyboard = nullptr;
+};
+
+struct WebKeyboardShownEvent : public WebKeyboardEvent {
+	WebKeyboardShownEvent(Sprite* keyboard)
+	  : WebKeyboardEvent(keyboard) {}
+};
+
+struct WebKeyboardHiddenEvent : public WebKeyboardEvent {
+	WebKeyboardHiddenEvent(Sprite* keyboard)
+	  : WebKeyboardEvent(keyboard) {}
+};
+
 } // namespace ds::ui
