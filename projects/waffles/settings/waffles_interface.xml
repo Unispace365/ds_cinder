@@ -8,7 +8,8 @@
 	<!-- launcher settings -->
 	<setting name="launcher:top:functions" value="Ambient|ambient,Search|search" type="string"/>
 	<setting name="launcher:main:filters" value="Folders|folders,Recent|recent,Images|images,Links|links,PDFs|pdfs,Presentations|presentations,Videos|videos" type="string"/>
-	<setting name="launcher:non-recursive:filters" value="folders,content" type="string"/>
+	<setting name="launcher:non-recursive:filters" value="recent,folders" type="string"/>
+	<setting name="launcher:auto-expandable:filters" value="" type="string"/>
 	<setting name="launcher:start:filter" value="recent" type="string"/>
 	<setting name="launcher:filter_labels:sprite_names" value="" type="string"/>
 

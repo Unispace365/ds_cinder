@@ -128,9 +128,11 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		}
 		// allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
-		auto non_recursive =
-			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "folders,content");
-		if (non_recursive.find(mFilterSelected) == std::string::npos) {
+		auto non_recursive = ds::split(
+			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "recent,folders"),
+			","
+		);
+		if (std::find(non_recursive.begin(), non_recursive.end(), mFilterSelected) != non_recursive.end()) {
 			allContent = recurseContent(allContent);
 		}
 
@@ -142,6 +144,22 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 				panel_content.addChild(content);
 			}
 		}
+
+		auto auto_expandable = ds::split(
+			mEngine.getWafflesSettings().getString("launcher:auto-expandable:filters", 0, ""),
+			","
+		);
+		if (std::find(auto_expandable.begin(), auto_expandable.end(), mFilterSelected) != auto_expandable.end() && 
+			panel_content.getChildren().size() == 1 &&
+			ContentUtils::getDefault(mEngine)->isFolder(panel_content.getChildren()[0]))
+		{
+			auto content = panel_content.getChildren()[0].getChildren();
+			panel_content.clearChildren();
+			for (auto child : content) {
+				panel_content.addChild(child);
+			}
+		}
+		
 
 		// recent files need to be sorted correctly, not by all content ordering :(
 		if (mFilterSelected == "recent") {
