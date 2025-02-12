@@ -1,16 +1,16 @@
 #include "stdafx.h"
 
-#include "framed_media_viewer.h"
-#include "waffles/waffles_events.h"
-#include "waffles/model/viewer_creation_args.h"
 #include "app/waffles_app_defs.h"
+#include "framed_media_viewer.h"
+#include "waffles/common/ui_utils.h"
+#include "waffles/model/viewer_creation_args.h"
+#include "waffles/waffles_events.h"
 #include <ds/ui/media/interface/web_interface.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 #include <ds/ui/sprite/image.h>
-#include "waffles/common/ui_utils.h"
 namespace waffles {
 
 FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel,const std::string layoutPath)
@@ -56,17 +56,6 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 				return;
 			}
 		});
-	}
-
-	auto border = mRootLayout->getSprite("border_layout");
-	auto title	= mRootLayout->getSprite("title_layout");
-	auto sidebar	= mRootLayout->getSprite("ui_holder");
-
-	if (border && title && sidebar) {
-		mLeftPad = border->mLayoutLPad;
-		mRightPad = border->mLayoutRPad;
-		mTopPad	  = border->mLayoutTPad + title->getHeight();
-		mBottomPad = border->mLayoutBPad + sidebar->getHeight();
 	}
 
 	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const RequestFullscreenViewer& e) {
@@ -145,14 +134,20 @@ void FramedMediaViewer::onLayout() {
 		mRootLayout->clearAnimateOnTargets(true);
 	}
 
-	auto border	 = mRootLayout->getSprite("border_layout");
-	auto title	 = mRootLayout->getSprite("title_layout");
-	auto sidebar = mRootLayout->getSprite("ui_holder");
-	if (border && title && sidebar) {
-		mLeftPad   = border->mLayoutLPad;
-		mRightPad  = border->mLayoutRPad;
-		mTopPad	   = border->mLayoutTPad + title->getHeight();
-		mBottomPad = border->mLayoutBPad*2.0 + sidebar->getHeight();
+	// Calculate padding based on the media.
+	auto root	= mRootLayout->getSprite("root_layout");
+	auto player = mRootLayout->getSprite("media_player");
+	if (root && player) {
+		// Convert media player local coordinates to root layout coordinates.
+		// Note: calling getInverseGlobalTransform() does not actually update the inverse global transform matrix!
+		const auto transform   = glm::inverse(root->getGlobalTransform()) * player->getGlobalTransform();
+		const auto upperLeft   = transform * ci::vec4(0, 0, 0, 1);
+		const auto bottomRight = transform * ci::vec4(player->getSize(), 1);
+		// Calculate padding.
+		mLeftPad   = upperLeft.x / upperLeft.w;
+		mRightPad  = root->getWidth() - bottomRight.x / bottomRight.w;
+		mTopPad	   = upperLeft.y / upperLeft.w;
+		mBottomPad = root->getHeight() - bottomRight.y / bottomRight.w;
 	}
 
 	//auto frameCenter   = mRootLayout->getGlobalCenterPosition();

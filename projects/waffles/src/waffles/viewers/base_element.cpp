@@ -210,6 +210,37 @@ void BaseElement::setCreationArgs(ViewerCreationArgs args) {
 	onCreationArgsSet();
 }
 
+bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
+								   float& maxHeight, bool favorWidthOverHeight) {
+	if (ds::approxZero(size.x) || ds::approxZero(size.y)) return false;
+
+	// Use media size instead of layout size, so we can adjust for padding ourselves.
+	const auto mediaSize = getMediaSize();
+
+	float width	 = mediaSize.x;
+	float height = mediaSize.y;
+	if (ds::approxZero(width) || ds::approxZero(height)) return false;
+
+	// Attached viewers have no border padding on the top, left and right.
+	const auto padding = mIsDetached ? ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad) : ci::vec2(0, mBottomPad);
+
+	// Calculate inner and outer bounds.
+	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
+	const auto inner = ci::Rectf{0, 0, width, height};
+
+	return Sprite::setAvailableSize(size, inner, outer, minWidth, minHeight, maxWidth, maxHeight, favorWidthOverHeight);
+}
+
+void BaseElement::fitInsideArea(const ci::Rectf& area) {
+	// The area already compensated for padding, so use the full padding when setting the size.
+	const auto padding = ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad);
+	// Attached viewers have no border padding on the top, left and right, so adjust the position accordingly.
+	const auto offset = mIsDetached ? ci::vec2(0, 0) : ci::vec2(mLeftPad, mTopPad);
+
+	setSize(area.getSize() + padding);
+	setPosition(area.getUpperLeft() - offset);
+}
+
 void BaseElement::onPanelActivated() {
 	if (mActivatedCallback) {
 		mActivatedCallback();
