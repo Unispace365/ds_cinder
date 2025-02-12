@@ -99,32 +99,20 @@ bool Grid::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHei
 
 	if (mNeedsLayout) performGridLayout();
 
-	// Keep track of changes.
-	ci::vec2 minSize(minWidth, minHeight);
-	ci::vec2 maxSize(maxWidth, maxHeight);
+	// Calculate inner and outer bounds.
+	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
+	const auto inner = ci::Rectf{0, 0, calcWidth(), calcHeight()};
 
 	// Calculate size constraints.
-	const float w = calcWidth();
-	const float h = calcHeight();
-	if (!(approxZero(w) || approxZero(h))) {
-		const auto bounds = ci::Rectf{0, 0, w, h};
-		const auto fit	  = mFit.calcScale(ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y}, bounds);
-		const auto width  = fit.x * calcWidth();
-		const auto height = fit.y * calcHeight();
-
-		minWidth  = glm::clamp(glm::max(minWidth, width + padding.x), mMinWidth, mMaxWidth);
-		minHeight = glm::clamp(glm::max(minHeight, height + padding.y), mMinHeight, mMaxHeight);
-		maxWidth  = glm::clamp(glm::min(maxWidth, width + padding.x), mMinWidth, mMaxWidth);
-		maxHeight = glm::clamp(glm::min(maxHeight, height + padding.y), mMinHeight, mMaxHeight);
-	}
+	bool changed =
+		Sprite::setAvailableSize(size, inner, outer, minWidth, minHeight, maxWidth, maxHeight, favorWidthOverHeight);
 
 	// Restore original size but keep the layout.
 	setSize(originalSize);
 	mNeedsLayout = false;
 
 	// Return whether anything changed.
-	return !approxEqual(maxWidth, maxSize.x) || !approxEqual(maxHeight, maxSize.y) ||
-		   !approxEqual(minWidth, minSize.x) || !approxEqual(minHeight, minSize.y);
+	return changed;
 }
 
 void Grid::fitInsideArea(const ci::Rectf& area) {
@@ -135,6 +123,12 @@ void Grid::fitInsideArea(const ci::Rectf& area) {
 	if (mNeedsLayout) performGridLayout();
 
 	Sprite::fitInsideArea(area);
+}
+
+void Grid::onAddedToLayout(Sprite* layout) {
+	// When placed inside a grid, we assume you want to allow this grid to resize non-uniformly.
+	const auto grid = dynamic_cast<Grid*>(layout);
+	if (grid) mFit = "none";
 }
 
 bool Grid::areaOverlapsItem(const ci::Rectf& area, const Item& item) const {

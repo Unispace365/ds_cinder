@@ -184,6 +184,8 @@ class Grid : public Sprite, public ILayout {
 
 	void fitInsideArea(const ci::Rectf& area) override;
 
+	void onAddedToLayout(Sprite* layout) override;
+
 	// Parses a span definition into a track range, e.g. "1" or "1 / span 3".
 	static Range<size_t> parseSpan(const char** sInOut);
 	// Returns the track range adjusted for gaps.

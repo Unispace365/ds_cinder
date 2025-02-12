@@ -32,6 +32,12 @@ class Fit {
 	}
 	explicit Fit(const char** sInOut) { parse(sInOut); }
 
+	Fit& operator=(const std::string& css) {
+		const char* sInOut = css.c_str();
+		parse(&sInOut);
+		return *this;
+	}
+
 	//! Returns whether the fit is set to none. If it is, no transformations will be necessary.
 	[[nodiscard]] bool isNone() const { return mAlign == Align::NONE; }
 

@@ -938,46 +938,46 @@ bool Sprite::setAvailableSize(const ci::vec2& size, float& minWidth, float& minH
 	float height = getHeight();
 	if (approxZero(width) || approxZero(height)) return false;
 
+	// Calculate inner and outer bounds.
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	const auto outer   = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
+	const auto inner   = ci::Rectf{0, 0, width, height};
+
+	return setAvailableSize(size, inner, outer, minWidth, minHeight, maxWidth, maxHeight, favorWidthOverHeight);
+}
+
+bool Sprite::setAvailableSize(const ci::vec2& size, const ci::Rectf& inner, const ci::Rectf& outer, float& minWidth,
+							  float& minHeight, float& maxWidth, float& maxHeight, bool favorWidthOverHeight) const {
+	if (approxZero(size.x) || approxZero(size.y)) return false;
+
+	const auto padding = size - outer.getSize();
+
 	// Keep track of changes.
 	ci::vec2 minSize(minWidth, minHeight);
 	ci::vec2 maxSize(maxWidth, maxHeight);
 
-	// Calculate inner and outer bounds.
-	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
-	const auto padded  = size - padding;
-	const auto outer   = ci::Rectf{0, 0, padded.x, padded.y};
-	const auto inner   = ci::Rectf{0, 0, width, height};
-
 	// Determine size constraints.
+	ci::vec2 scaleMin;
+	ci::vec2 scaleMax;
 	if (mFit.meetOrSlice() == Fit::MeetOrSlice::NONE) {
 		// Stretch content to available size.
-		const auto scale = mFit.calcScale(outer, inner);
-		width *= scale.x;
-		height *= scale.y;
-
-		minWidth  = glm::clamp(glm::max(minWidth, width + padding.x), mMinWidth, mMaxWidth);
-		minHeight = glm::clamp(glm::max(minHeight, height + padding.y), mMinHeight, mMaxHeight);
-		maxWidth  = glm::clamp(glm::min(maxWidth, width + padding.x), mMinWidth, mMaxWidth);
-		maxHeight = glm::clamp(glm::min(maxHeight, height + padding.y), mMinHeight, mMaxHeight);
+		scaleMin = scaleMax = mFit.calcScale(outer, inner);
 	} else if (favorWidthOverHeight) {
 		// Fit content based on available width.
-		const auto scaleMax = outer.getWidth() / inner.getWidth();
-		const auto scaleMin = glm::min(outer.getHeight() / inner.getHeight(), scaleMax);
-
-		minWidth  = glm::clamp(glm::max(minWidth, size.x), mMinWidth, mMaxWidth);
-		minHeight = glm::clamp(glm::max(minHeight, scaleMin * height + padding.y), mMinHeight, mMaxHeight);
-		maxWidth  = glm::clamp(glm::min(maxWidth, size.x), mMinWidth, mMaxWidth);
-		maxHeight = glm::clamp(glm::min(maxHeight, scaleMax * height + padding.y), mMinHeight, mMaxHeight);
+		scaleMax.y = outer.getWidth() / inner.getWidth();
+		scaleMin.y = glm::min(outer.getHeight() / inner.getHeight(), scaleMax.y);
+		scaleMin.x = scaleMax.x = scaleMax.y;
 	} else {
 		// Fit content based on available height.
-		const auto scaleMax = outer.getHeight() / inner.getHeight();
-		const auto scaleMin = glm::min(outer.getWidth() / inner.getWidth(), scaleMax);
-
-		minWidth  = glm::clamp(glm::max(minWidth, scaleMin * width + padding.x), mMinWidth, mMaxWidth);
-		minHeight = glm::clamp(glm::max(minHeight, size.y), mMinHeight, mMaxHeight);
-		maxWidth  = glm::clamp(glm::min(maxWidth, scaleMax * width + padding.x), mMinWidth, mMaxWidth);
-		maxHeight = glm::clamp(glm::min(maxHeight, size.y), mMinHeight, mMaxHeight);
+		scaleMax.x = outer.getHeight() / inner.getHeight();
+		scaleMin.x = glm::min(outer.getWidth() / inner.getWidth(), scaleMax.x);
+		scaleMin.y = scaleMax.y = scaleMax.x;
 	}
+
+	minWidth  = glm::clamp(glm::max(minWidth, scaleMin.x * inner.getWidth() + padding.x), mMinWidth, mMaxWidth);
+	minHeight = glm::clamp(glm::max(minHeight, scaleMin.y * inner.getHeight() + padding.y), mMinHeight, mMaxHeight);
+	maxWidth  = glm::clamp(glm::min(maxWidth, scaleMax.x * inner.getWidth() + padding.x), mMinWidth, mMaxWidth);
+	maxHeight = glm::clamp(glm::min(maxHeight, scaleMax.y * inner.getHeight() + padding.y), mMinHeight, mMaxHeight);
 
 	// Return whether anything changed.
 	return !approxEqual(maxWidth, maxSize.x) || !approxEqual(maxHeight, maxSize.y) ||

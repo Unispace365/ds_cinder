@@ -212,10 +212,15 @@ namespace ui {
 		   Sprite has been scaled. \return The height in pixels of this Sprite.		*/
 		virtual float getHeight() const;
 
-		/// Sets the available size for this sprite, allowing it to update its size range. This is used in grid layout
+		/// Sets the size constraints for this sprite, given the available \a size. This is used in grid layout
 		/// calculations. Returns whether anything changed.
 		virtual bool setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
 									  float& maxHeight, bool favorWidthOverHeight);
+		/// Sets the size constraints for this sprite, given the available \a size, and the \a inner rectangle that
+		/// should fit inside the \a outer rectangle. This is used in grid layout calculations. Returns whether anything
+		/// changed.
+		bool setAvailableSize(const ci::vec2& size, const ci::Rectf& inner, const ci::Rectf& outer, float& minWidth,
+							  float& minHeight, float& maxWidth, float& maxHeight, bool favorWidthOverHeight) const;
 
 		/// Adjusts the sprite's transform to precisely fit inside the given area. This is used in grid layout
 		/// calculations.
