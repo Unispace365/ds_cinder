@@ -320,7 +320,7 @@ void TitledMediaViewer::onMediaSet() {
 		ds::Resource fakeRes;
 		fakeRes.setWidth(1920);
 		fakeRes.setHeight(1080);
-
+		
 		// get the stream source
 		auto streamSource = mMediaRef;
 		if (isStream) {
@@ -364,8 +364,8 @@ void TitledMediaViewer::onMediaSet() {
 				}
 			}
 		}
-
-		mMediaRef.setPropertyResource("media_media_res", ds::Resource(fakeRes));
+		auto mediaPropKey = helper->getMediaPropertyKey(mMediaRef);
+		mMediaRef.setPropertyResource(mediaPropKey, ds::Resource(fakeRes));
 	}
 
 	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
