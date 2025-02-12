@@ -13,6 +13,8 @@ namespace waffles {
 
 class TitledMediaViewer;
 
+
+
 /**
  * \class waffles::BaseElement
  *			A base class for anything that appears onscreen.
@@ -118,6 +120,36 @@ class BaseElement : public ds::ui::BasePanel {
 
 	void fitInsideArea(const ci::Rectf& area) override;
 
+	struct Padding {
+		float left;
+		float right;
+		float top;
+		float bottom;
+	};
+		
+	
+	typedef int PaddingFlag;
+
+	static const PaddingFlag PaddingNone = 0;
+	static const PaddingFlag PaddingLeft		 = 1 << 0;
+	static const PaddingFlag PaddingRight		 = 1 << 1;
+	static const PaddingFlag PaddingTop		 = 1 << 2;
+	static const PaddingFlag PaddingBottom		 = 1 << 3;
+	static const PaddingFlag PaddingAll			 = PaddingLeft | PaddingRight | PaddingTop | PaddingBottom;
+
+
+	virtual void setDetachedPaddingFlags(const PaddingFlag& flags);
+	virtual void setAttachedPaddingFlags(const PaddingFlag& flags);
+	virtual PaddingFlag getDetachedPaddingFlags();
+	virtual PaddingFlag getAttachedPaddingFlags();
+
+	virtual ci::vec2 getBorderPadding();
+	virtual ci::vec2 getBorderOffset();
+	virtual Padding	 getActivePadding(bool reverse = false);
+	virtual Padding	 getAttachedPadding();
+	virtual Padding	 getDetachedPadding();
+	
+
   protected:
 	// The layer has been changed (see ViewerCreationArgs for layers)
 	virtual void onViewerLayerSet() {}
@@ -154,6 +186,8 @@ class BaseElement : public ds::ui::BasePanel {
 	ds::model::ContentModelRef mMediaRef;
 	ViewerCreationArgs		   mCreationArgs;
 	ds::EventClient mEventClient;
+	PaddingFlag				   mDetachedPadding = PaddingAll;
+	PaddingFlag				   mAttachedPadding = PaddingNone;
 
 	bool mFatalError;
 

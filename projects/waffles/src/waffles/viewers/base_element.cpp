@@ -221,8 +221,7 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 	float height = mediaSize.y;
 	if (ds::approxZero(width) || ds::approxZero(height)) return false;
 
-	// Attached viewers have no border padding on the top, left and right.
-	const auto padding = mIsDetached ? ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad) : ci::vec2(0, 0 /* mBottomPad */ );
+	auto padding = getBorderPadding();
 
 	// Calculate inner and outer bounds.
 	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
@@ -235,10 +234,65 @@ void BaseElement::fitInsideArea(const ci::Rectf& area) {
 	// The area already compensated for padding, so use the full padding when setting the size.
 	const auto padding = ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad);
 	// Attached viewers have no border padding on the top, left and right, so adjust the position accordingly.
-	const auto offset = mIsDetached ? ci::vec2(0, 0) : ci::vec2(mLeftPad, mTopPad);
+	const auto offset = getBorderOffset();
 
 	setSize(area.getSize() + padding);
 	setPosition(area.getUpperLeft() - offset);
+}
+
+BaseElement::Padding BaseElement::getDetachedPadding() {
+	Padding detached;
+	detached.left  = getDetachedPaddingFlags() & PaddingLeft ? mLeftPad : 0;
+	detached.top	  = getDetachedPaddingFlags() & PaddingTop ? mTopPad : 0;
+	detached.right = getDetachedPaddingFlags() & PaddingRight ? mRightPad : 0;
+	detached.bottom	  = getDetachedPaddingFlags() & PaddingBottom ? mBottomPad : 0;
+	return detached;
+
+}
+
+BaseElement::Padding BaseElement::getAttachedPadding() {
+	Padding attached;
+	attached.left	= getAttachedPaddingFlags() & PaddingLeft ? mLeftPad : 0;
+	attached.top	= getAttachedPaddingFlags() & PaddingTop ? mTopPad : 0;
+	attached.right	= getAttachedPaddingFlags() & PaddingRight ? mRightPad : 0;
+	attached.bottom = getAttachedPaddingFlags() & PaddingBottom ? mBottomPad : 0;
+	return attached;
+}
+
+BaseElement::Padding BaseElement::getActivePadding(bool reverse) {
+	auto check = reverse ? !mIsDetached : mIsDetached;
+	return check ? getDetachedPadding() : getAttachedPadding();
+}
+
+ci::vec2 BaseElement::getBorderPadding() {
+	auto activePadding		  = getActivePadding();
+
+	// Attached viewers have no border padding on the top, left and right.
+	const auto padding = ci::vec2(activePadding.left + activePadding.right, activePadding.top + activePadding.bottom);
+
+	return padding;
+}
+
+ci::vec2 BaseElement::getBorderOffset() {
+	auto activePadding = getActivePadding(true);
+	const auto offset = ci::vec2(activePadding.left, activePadding.top);
+	return offset;
+}
+
+void	 BaseElement::setDetachedPaddingFlags(const PaddingFlag& flags) {
+	mDetachedPadding = flags;
+}
+
+void BaseElement::setAttachedPaddingFlags(const PaddingFlag& flags) {
+	mAttachedPadding = flags;
+}
+
+BaseElement::PaddingFlag BaseElement::getDetachedPaddingFlags() {
+	return mDetachedPadding;
+}
+
+BaseElement::PaddingFlag BaseElement::getAttachedPaddingFlags() {
+	return mAttachedPadding;
 }
 
 void BaseElement::onPanelActivated() {

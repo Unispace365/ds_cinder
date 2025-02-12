@@ -41,6 +41,7 @@ ErrorViewer::ErrorViewer(ds::ui::SpriteEngine& g)
 	setViewerSize(startWidth, startHeight);
 
 	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+	setAttachedPaddingFlags(PaddingAll);
 
 	setAnimateOnScript(mEngine.getWafflesSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
