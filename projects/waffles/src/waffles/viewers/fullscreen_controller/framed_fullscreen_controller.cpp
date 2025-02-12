@@ -75,12 +75,6 @@ void FramedFullscreenController::init() {
 		}
 	});
 
-	mRootLayout->setSpriteClickFn("item_close_button.the_button", [this] {
-		if (mLinkedMediaViewer) {
-			mLinkedMediaViewer->close();
-		}
-	});
-
 	auto collapseBtn = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
 	
 	if (collapseBtn) {

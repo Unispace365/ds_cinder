@@ -222,7 +222,7 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 	if (ds::approxZero(width) || ds::approxZero(height)) return false;
 
 	// Attached viewers have no border padding on the top, left and right.
-	const auto padding = mIsDetached ? ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad) : ci::vec2(0, mBottomPad);
+	const auto padding = mIsDetached ? ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad) : ci::vec2(0, 0 /* mBottomPad */ );
 
 	// Calculate inner and outer bounds.
 	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
