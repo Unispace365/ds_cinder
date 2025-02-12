@@ -30,19 +30,23 @@ void FramedViewerController::initCreators() {
 						   return {new FramedMediaViewer(mEngine, getChannelName()), CreationError::OK};
 					   } else {
 
-						   //ds::model::ContentModelRef errorModel;
-						   //std::string				  errorMessage =
-							  // "We couldn't load this piece of media because the file couldn't be found.";
+						   if (args.mIsDetached) {
+								ds::model::ContentModelRef errorModel;
+								std::string				  errorMessage =
+								"We couldn't load this piece of media because the file couldn't be found.";
 
-						   //errorModel.setProperty("name", std::string("Sorry!"));
-						   //errorModel.setProperty("error", errorMessage);
-						   //errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
-						   //errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
-						   //errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
-						   //mChannelClient.notify(RequestViewerLaunchEvent(
-							  // ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
-									//			  ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter)));
-
+								errorModel.setProperty("name", std::string("Sorry!"));
+								errorModel.setProperty("error", errorMessage);
+								errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
+								errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
+								errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
+								auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
+																ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter);
+								
+								
+								mChannelClient.notify(RequestViewerLaunchEvent(eArgs
+								));
+						   }
 						   return {nullptr, CreationError::INVALID_MEDIA};
 					   }
 				   } else {
