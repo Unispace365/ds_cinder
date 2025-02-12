@@ -300,8 +300,11 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 void Launcher::updateItem(ds::ui::SmartLayout* item) {
 	if (!mPrimaryLayout) return;
 
-	ContentUtils::configureListItem(mEngine, item, ci::vec2(mPrimaryLayout->getWidth(), item->getHeight()));
-	item->setSize(mPrimaryLayout->getWidth(), item->getHeight());
+	auto sidePanelScroll = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("side_panel_content");
+	if (sidePanelScroll) {
+		ContentUtils::configureListItem(mEngine, item, ci::vec2(sidePanelScroll->getWidth(), item->getHeight()));
+		item->setSize(sidePanelScroll->getWidth(), item->getHeight());
+	}
 	setButtonCallbacks(item);
 }
 

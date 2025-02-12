@@ -84,6 +84,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 
 	if (auto scrollBar = mPrimaryLayout->getSprite<ds::ui::ScrollBar>("scroll_bar")) {
 		scrollBar->linkScrollList(fileList);
+		scrollBar->enableAutoHiding(mEngine.getWafflesSettings().getBool("launcher:scroller:auto_hide", 0, false));
 		scrollBar->getNubSprite()->setCornerRadius(0);
 		scrollBar->getBackgroundSprite()->setCornerRadius(0);
 	}
