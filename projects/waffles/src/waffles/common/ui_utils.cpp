@@ -3,18 +3,16 @@
 #include "ui_utils.h"
 
 #include <ds/ui/button/image_button.h>
-#include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/smart_layout.h>
 #include <ds/ui/media/interface/pdf_interface.h>
 #include <ds/ui/media/interface/video_interface.h>
 #include <ds/ui/media/interface/video_volume_control.h>
 #include <ds/ui/media/interface/web_interface.h>
 #include <ds/ui/media/interface/youtube_interface.h>
-#include <ds/ui/media/player/pdf_player.h>
-#include <ds/ui/media/player/video_player.h>
-#include <ds/ui/media/player/web_player.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
+
+#include <utility>
 
 #include "app/waffles_app_defs.h"
 
@@ -24,7 +22,7 @@
 namespace waffles {
 
 ContentUtils::ContentUtils(ds::ui::SpriteEngine& g)
-  : ds::ui::Sprite(g) {
+  : Sprite(g) {
 	// read in acceptable content from waffles settings
 }
 
@@ -37,46 +35,46 @@ ContentUtils* ContentUtils::getDefault(ds::ui::SpriteEngine& g) {
 	return sDefault;
 }
 
-bool ContentUtils::isFolder(ds::model::ContentModelRef model) {
-	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	return content->isValidFolder(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+bool ContentUtils::isFolder(ds::model::ContentModelRef model) const {
+	auto content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	return content->isValidFolder(std::move(model), ds::model::ContentHelper::WAFFLESCATEGORY);
 }
 
-bool ContentUtils::isMedia(ds::model::ContentModelRef model) {
-	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	return content->isValidMedia(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+bool ContentUtils::isMedia(ds::model::ContentModelRef model) const {
+	auto content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	return content->isValidMedia(std::move(model), ds::model::ContentHelper::WAFFLESCATEGORY);
 }
 
-bool ContentUtils::isPresentation(ds::model::ContentModelRef model) {
-	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	return content->isValidPlaylist(model, ds::model::ContentHelper::PRESENTATIONCATEGORY);
+bool ContentUtils::isPresentation(ds::model::ContentModelRef model) const {
+	auto content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	return content->isValidPlaylist(std::move(model), ds::model::ContentHelper::PRESENTATIONCATEGORY);
 }
 
-bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) {
-	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	return content->isValidPlaylist(model, ds::model::ContentHelper::AMBIENTCATEGORY);
+bool ContentUtils::isAmbientPlaylist(ds::model::ContentModelRef model) const {
+	auto content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	return content->isValidPlaylist(std::move(model), ds::model::ContentHelper::AMBIENTCATEGORY);
 }
 
-std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model) {
-	auto content = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	return content->getMediaPropertyKey(model, ds::model::ContentHelper::WAFFLESCATEGORY);
+std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model) const {
+	auto content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	return content->getMediaPropertyKey(std::move(model), ds::model::ContentHelper::WAFFLESCATEGORY);
 }
 
-void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, ci::vec2 size) {
-	auto		content			   = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
-	std::string thumbPath		   = "";
-	auto		theModel		   = item->getContentModel();
-	auto		theType			   = item->getContentModel().getPropertyString("type_key");
-	auto		theTypeLabel	   = "UNKNOWN";
-	auto		theTypeUid		   = item->getContentModel().getPropertyString("type_uid");
-	auto		media_property_key = content->getMediaPropertyKey(item->getContentModel());
-	media_property_key			   = media_property_key.empty() ? "media" : media_property_key;
-	auto mediaType				   = item->getContentModel().getPropertyResource(media_property_key).getType();
+void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, const ci::vec2& size) {
+	auto		content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	std::string thumbPath;
+	auto		theModel		 = item->getContentModel();
+	auto		theType			 = item->getContentModel().getPropertyString("type_key");
+	auto		theTypeLabel	 = "UNKNOWN";
+	auto		theTypeUid		 = item->getContentModel().getPropertyString("type_uid");
+	auto		mediaPropertyKey = content->getMediaPropertyKey(item->getContentModel());
+	mediaPropertyKey			 = mediaPropertyKey.empty() ? "media" : mediaPropertyKey;
+	auto mediaType				 = item->getContentModel().getPropertyResource(mediaPropertyKey).getType();
 
 	bool showArrow = false;
 	bool validy	   = true;
 
-	if (theType == "assets_folder" || theType == "playlist_folder" || theType == waffles::MEDIA_TYPE_DIRECTORY_CMS ||
+	if (theType == "assets_folder" || theType == "playlist_folder" || theType == MEDIA_TYPE_DIRECTORY_CMS ||
 		getDefault(engine)->isFolder(theModel)) {
 		thumbPath	 = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
 		theTypeLabel = "FOLDER";
@@ -144,22 +142,22 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			theTypeLabel = "IMAGE";
 			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Image_256.png";
 			thumbPath =
-				item->getContentModel().getPropertyResource(media_property_key + "_preview").getAbsoluteFilePath();
+				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 		} else if (mediaType == ds::Resource::PDF_TYPE) {
 			theTypeLabel = "PDF";
 			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
 			thumbPath =
-				item->getContentModel().getPropertyResource(media_property_key + "_preview").getAbsoluteFilePath();
+				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 		} else if (mediaType == ds::Resource::VIDEO_TYPE || mediaType == ds::Resource::YOUTUBE_TYPE) {
 			theTypeLabel = "VIDEO";
 			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 			thumbPath =
-				item->getContentModel().getPropertyResource(media_property_key + "_preview").getAbsoluteFilePath();
+				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 		} else if (mediaType == ds::Resource::WEB_TYPE) {
 			theTypeLabel = "WEB";
 			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Link_256.png";
 			thumbPath =
-				item->getContentModel().getPropertyResource(media_property_key + "_preview").getAbsoluteFilePath();
+				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 		} else if (theType == "media" && mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 			theTypeLabel = "STREAM";
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
@@ -207,40 +205,49 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	item->runLayout();
 }
 
-bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, std::string channel,
-									 ci::vec3 pos) {
+bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item,
+									 const std::string& channel, const ci::vec3& pos) {
 
 	auto model	 = item->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
 
+	if (getDefault(engine)->isFolder(model))
+		type = "folder";
+	else if (getDefault(engine)->isMedia(model))
+		type = "media";
+	// else if (getDefault(engine)->isPresentation(model))
+	//	type = "presentation";
+	// else if (getDefault(engine)->isAmbientPlaylist(model))
+	//	type = "ambient";
+
 	auto& notifier = channel.empty() ? engine.getNotifier() : engine.getChannel(channel);
 
-	auto customs = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>()->getLauncherCustomContent();
+	auto customs = ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->getLauncherCustomContent();
 	if (customs.find(type) != customs.end()) {
 		customs[type](model);
 	} else if (type == "ambient") {
 		engine.startIdling();
 	} else if (type == "media_template") {
 		// Special case for disambiguating media template from media item
-		notifier.notify(waffles::RequestEngagePresentation(model));
-	} else if (getDefault(engine)->isFolder(model)) {
+		notifier.notify(RequestEngagePresentation(model));
+	} else if (type == "folder") {
 		return false;
-	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
-		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs::detached(model, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+	} else if (type == "media") {
+		notifier.notify(
+			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
 		auto browserRes	  = ds::Resource("https://google.com");
 		auto browserModel = ds::model::ContentModelRef();
 		browserModel.setPropertyResource("media", browserRes);
-		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs::detached(browserModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+		notifier.notify(
+			RequestViewerLaunchEvent(ViewerCreationArgs::detached(browserModel, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "asset_mode") {
-		notifier.notify(waffles::RequestEngagePresentation(ds::model::ContentModelRef("assets")));
-		notifier.notify(waffles::ChangeTemplateRequest());
+		notifier.notify(RequestEngagePresentation(ds::model::ContentModelRef("assets")));
+		notifier.notify(ChangeTemplateRequest());
 	} else if (type == "search") {
-		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs::detached(ds::model::ContentModelRef(), waffles::VIEW_TYPE_SEARCH, pos)));
+		notifier.notify(RequestViewerLaunchEvent(
+			ViewerCreationArgs::detached(ds::model::ContentModelRef(), VIEW_TYPE_SEARCH, pos)));
 	} else if (type == "stream") {
 		auto streamRes = ds::Resource(model.getPropertyString("stream_uri"));
 		streamRes.setWidth(1920.f);
@@ -250,19 +257,18 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		auto streamModel = ds::model::ContentModelRef();
 		streamModel.setProperty("record_name", model.getPropertyString("record_name"));
 		streamModel.setPropertyResource("media", streamRes);
-		notifier.notify(waffles::RequestViewerLaunchEvent(
-			waffles::ViewerCreationArgs::detached(streamModel, waffles::VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+		notifier.notify(
+			RequestViewerLaunchEvent(ViewerCreationArgs::detached(streamModel, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "pinboard_event") {
-		notifier.notify(waffles::RequestEngagePresentation(model));
-		notifier.notify(waffles::ChangeTemplateRequest(model));
+		notifier.notify(RequestEngagePresentation(model));
+		notifier.notify(ChangeTemplateRequest(model));
 	} else if (type == "presentation_controller") {
-		notifier.notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs::detached(
-			ds::model::ContentModelRef(), waffles::VIEW_TYPE_PRESENTATION_CONTROLLER, pos,
-			waffles::ViewerCreationArgs::kViewLayerTop)));
+		notifier.notify(RequestViewerLaunchEvent(ViewerCreationArgs::detached(
+			ds::model::ContentModelRef(), VIEW_TYPE_PRESENTATION_CONTROLLER, pos, ViewerCreationArgs::kViewLayerTop)));
 	} else if (type == "close_assets") {
-		notifier.notify(waffles::RequestCloseAllEvent(pos));
+		notifier.notify(RequestCloseAllEvent(pos));
 	} else {
-		notifier.notify(waffles::WafflesFilterEvent(type, true));
+		notifier.notify(WafflesFilterEvent(type, true));
 	}
 
 	return true;
@@ -271,15 +277,15 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 [[deprecated]] void ContentUtils::setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) {
 	if (!interfacey) return;
-	auto& mEngine = interfacey->getEngine();
+	auto& engine = interfacey->getEngine();
 
-	auto cornerRad		= mEngine.getWafflesSettings().getFloat("ui:corner_radius", 0, 0.0f);
-	auto interfaceScale = mEngine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
+	auto cornerRad		= engine.getWafflesSettings().getFloat("ui:corner_radius", 0, 0.0f);
+	auto interfaceScale = engine.getWafflesSettings().getFloat("ui:interface_scale", 0, 1.0f);
 
-	auto viewerBackground = mEngine.getColors().getColorFromName("viewer_background");
-	auto backgroundColor  = mEngine.getColors().getColorFromName("ui_background");
-	auto normalColor	  = mEngine.getColors().getColorFromName("ui_normal");
-	auto highColor		  = mEngine.getColors().getColorFromName("waffles_bloom");
+	auto viewerBackground = engine.getColors().getColorFromName("viewer_background");
+	auto backgroundColor  = engine.getColors().getColorFromName("ui_background");
+	auto normalColor	  = engine.getColors().getColorFromName("ui_normal");
+	auto highColor		  = engine.getColors().getColorFromName("waffles_bloom");
 
 	const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 
@@ -319,7 +325,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 		if (vidInterface->getScrubBarBackground() && vidInterface->getScrubBarProgress()) {
 			vidInterface->getScrubBarBackground()->setColor(normalColor);
-			vidInterface->getScrubBarBackground()->setOpacity(0.2);
+			vidInterface->getScrubBarBackground()->setOpacity(0.2f);
 			vidInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
 			vidInterface->getScrubBarProgress()->setColor(normalColor);
 			vidInterface->getScrubBarProgress()->setCornerRadius(cornerRad);
@@ -340,7 +346,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
-			sliderSprites.mSliderTrack->setOpacity(0.2);
+			sliderSprites.mSliderTrack->setOpacity(0.2f);
 			sliderSprites.mSliderTrack->setCornerRadius(cornerRad);
 
 			sliderSprites.mSliderFill->setColor(normalColor);
@@ -380,7 +386,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 		if (ytInterface->getScrubBarBackground() && ytInterface->getScrubBarProgress()) {
 			ytInterface->getScrubBarBackground()->setColor(normalColor);
-			ytInterface->getScrubBarBackground()->setOpacity(0.2);
+			ytInterface->getScrubBarBackground()->setOpacity(0.2f);
 			ytInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
 			ytInterface->getScrubBarProgress()->setColor(normalColor);
 			ytInterface->getScrubBarProgress()->setCornerRadius(cornerRad);
@@ -401,7 +407,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
-			sliderSprites.mSliderTrack->setOpacity(0.2);
+			sliderSprites.mSliderTrack->setOpacity(0.2f);
 			sliderSprites.mSliderTrack->setCornerRadius(cornerRad);
 
 			sliderSprites.mSliderFill->setColor(normalColor);
@@ -488,8 +494,8 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	interfacey->setBackgroundColor(viewerBackground);
 	interfacey->getBackground()->setCornerRadius(cornerRad);
 	interfacey->setScale(interfaceScale, interfaceScale);
-	if (mEngine.getAppSettings().getString("app:mode", 0, "single") == "multi") {
-		interfacey->move(mEngine.getWafflesSettings().getFloat("media_viewer:multi_offset", 0, 0.f), 0.f);
+	if (engine.getAppSettings().getString("app:mode", 0, "single") == "multi") {
+		interfacey->move(engine.getWafflesSettings().getFloat("media_viewer:multi_offset", 0, 0.f), 0.f);
 	}
 }
 
