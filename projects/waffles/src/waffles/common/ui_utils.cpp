@@ -167,8 +167,9 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			auto layoutId = theModel.getPropertyString("layout_id");
 			// Look up this layout id in the platform stream children
 			// NOTE!!! This suddenly became quite redhat specific, but we don't have time to rework how the ui helper here works
-			// TODO
-			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
+			thumbPath =
+				item->getContentModel().getPropertyResource("icon").getAbsoluteFilePath();
+			if(thumbPath.empty()) thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
 		} else if (theType == "layout") {
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
 			theTypeLabel = "LAYOUT";
