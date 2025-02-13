@@ -176,6 +176,9 @@ void Grid::calculateGridLines(const std::vector<Track>& tracks, std::vector<floa
 }
 
 void Grid::performGridLayout() {
+	mHorizontalGridLines.clear();
+	mVerticalGridLines.clear();
+
 	// Make sure nested layouts are updated.
 	for (auto child : mChildren) {
 		auto layout = dynamic_cast<ILayout*>(child);
