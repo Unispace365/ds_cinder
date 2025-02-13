@@ -315,7 +315,7 @@ void Grid::computeUsedBreadthOfGridTracks(float spaceToFill, std::vector<Track>&
 	if (!approxZero(remainingSpace)) {
 		// If RemainingSpace is defined
 		normalizedFlexBreadth = calculateNormalizedFlexBreadth(getAllTracks(tracks), spaceToFill);
-	} else {
+	} else if (canGrow(spaceToFill)) {
 		// i
 		for (const auto& track : tracks) {
 			if (track.max.isFlex()) {
@@ -324,8 +324,7 @@ void Grid::computeUsedBreadthOfGridTracks(float spaceToFill, std::vector<Track>&
 		}
 		//  ii
 		for (const auto& item : items) {
-			const auto spanned =
-				/*canGrow(spaceToFill) ? getSpannedTracks(tracks, item, spanFn) :*/ getAllTracks(tracks);
+			const auto spanned					 = getSpannedTracks(tracks, item, spanFn);
 			const auto itemNormalizedFlexBreadth = calculateNormalizedFlexBreadth(spanned, maxFn(item));
 			normalizedFlexBreadth				 = glm::max(normalizedFlexBreadth, itemNormalizedFlexBreadth);
 		}
