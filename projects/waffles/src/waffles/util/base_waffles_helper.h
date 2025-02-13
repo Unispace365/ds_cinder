@@ -1,7 +1,7 @@
 #pragma once
-#include <waffles/util/waffles_helper.h>
 #include <ds/content/base_content_helper.h>
 #include <ds/ui/media/media_interface.h>
+#include <waffles/util/waffles_helper.h>
 namespace waffles {
 
 using namespace ds::model;
@@ -9,57 +9,58 @@ using namespace ds::model;
 class BaseWafflesHelper : public WafflesHelper {
   public:
 	BaseWafflesHelper(ds::ui::SpriteEngine& eng);
-	~BaseWafflesHelper();
-	   
+	~BaseWafflesHelper() override;
+
+	BaseWafflesHelper(const BaseWafflesHelper&)			   = delete;
+	BaseWafflesHelper(BaseWafflesHelper&&)				   = default;
+	BaseWafflesHelper& operator=(const BaseWafflesHelper&) = delete;
+	BaseWafflesHelper& operator=(BaseWafflesHelper&&)	   = delete;
+
 	// Inherited via WafflesHelper
-	
-	virtual bool					   getApplyParticles() override;
-	virtual ds::model::ContentModelRef		getPinboard() override;
-	virtual std::vector<ds::model::ContentModelRef> getValidPinboards() override;
-	virtual ds::model::ContentModelRef				getAnnotationFolder() override;
-	virtual void									setKeyboardStyle(ds::ui::SoftKeyboard* keeb) override;
-	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) override;
+
+	bool						 getApplyParticles() override;
+	ContentModelRef				 getPinboard() override;
+	std::vector<ContentModelRef> getValidPinboards() override;
+	ContentModelRef				 getAnnotationFolder() override;
+	void						 setKeyboardStyle(ds::ui::SoftKeyboard* keeb) override;
+	void						 setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) override;
 
 
 	// Inherited via WafflesHelper these are from WaffleHelper's base class ContentHelper
-	virtual std::string getCompositeKeyForPlatform() override;
-	virtual ds::model::ContentModelRef getRecordByUid(std::string uid) override;
-	virtual  ds::Resource			   getBackgroundForPlatform() override;
-	virtual int						   getBackgroundPdfPage() override;
-	virtual ds::model::ContentModelRef getPresentation() override;
-	virtual ds::model::ContentModelRef getAmbientPlaylist() override;
-	virtual std::string				   getInitialPresentationUid() override;
-	virtual std::vector<ds::model::ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
-	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform() override;
-	virtual std::vector<ds::Resource>				findMediaResources() override;
+	std::string					 getCompositeKeyForPlatform() override;
+	ContentModelRef				 getRecordByUid(std::string uid) override;
+	ds::Resource				 getBackgroundForPlatform() override;
+	int							 getBackgroundPdfPage() override;
+	ContentModelRef				 getPresentation() override;
+	ContentModelRef				 getAmbientPlaylist() override;
+	std::string					 getInitialPresentationUid() override;
+	std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
+	std::vector<ContentModelRef> getContentForPlatform() override;
+	std::vector<ds::Resource>	 findMediaResources() override;
 
-	virtual bool isValidFolder(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual bool isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual bool isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	virtual std::string getMediaPropertyKey(ds::model::ContentModelRef model,
-											std::string				   category = DEFAULTCATEGORY) override;
-	virtual bool isValidForFilter(std::string filter, ds::model::ContentModelRef model) override;
-	virtual void setLauncherCustomFilters(std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> cf) override;
-	virtual std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> getLauncherCustomFilters() override;
-	virtual void setLauncherCustomContent(std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> cc) override;
-	virtual std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> getLauncherCustomContent() override;
+	bool				 isValidFolder(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool				 isValidMedia(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool				 isValidPlaylist(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::string			 getMediaPropertyKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool				 isValidForFilter(std::string filter, ContentModelRef model) override;
+	void				 setLauncherCustomFilters(CustomFilters cf) override;
+	const CustomFilters& getLauncherCustomFilters() override;
+	void				 setLauncherCustomContent(CustomContent cc) override;
+	const CustomContent& getLauncherCustomContent() override;
 
-	virtual std::vector<ds::model::ContentModelRef> getStreamSources(std::string category) override;
-	virtual ds::model::ContentModelRef		getStreamSourceForStream(ds::model::ContentModelRef stream,
-																	 std::string				category) override;
-	virtual bool		isValidStreamSource(ds::model::ContentModelRef model, std::string category) override;
-	virtual bool		isValidStream(ds::model::ContentModelRef model, std::string category) override;
-	virtual std::string getStreamMatchKey(ds::model::ContentModelRef model, std::string category) override;
-	virtual std::string getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category) override;
-	virtual std::string getStreamSourceTypeKey(ds::model::ContentModelRef model,
-											   std::string				  category = DEFAULTCATEGORY) override;
-
+	std::vector<ContentModelRef> getStreamSources(std::string category) override;
+	ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, std::string category) override;
+	bool						 isValidStreamSource(ContentModelRef model, std::string category) override;
+	bool						 isValidStream(ContentModelRef model, std::string category) override;
+	std::string					 getStreamMatchKey(ContentModelRef model, std::string category) override;
+	std::string					 getStreamSourceAddressKey(ContentModelRef model, std::string category) override;
+	std::string getStreamSourceTypeKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableMedia;
-	//std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
-	std::unordered_map<std::string, std::vector<std::string>> mAcceptablePlaylists;
+	// std::unordered_map<std::string, std::vector<std::string>> mAcceptablePresentations;
+	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptablePlaylists;
 	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreamSources;
 	std::unordered_map<std::string, std::vector<std::string>>					  mAcceptableStreams;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mStreamSourceAddressProps;
@@ -69,16 +70,14 @@ class BaseWafflesHelper : public WafflesHelper {
 
   protected:
 	virtual void loadIntegration();
+
   private:
-	ds::model::BaseContentHelper mBaseContentHelper;
-	std::string mEventFieldKey;
-	std::string mPlatformFieldKey;
+	BaseContentHelper		 mBaseContentHelper;
+	std::string				 mEventFieldKey;
+	std::string				 mPlatformFieldKey;
 	std::vector<std::string> mAnnotationFolderKeys;
-	bool mUseRoot;
-	std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>> mLauncherCustomFilters;
-	std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>> mLauncherCustomContent;
-
-
-	
+	bool					 mUseRoot{};
+	CustomFilters			 mLauncherCustomFilters;
+	CustomContent			 mLauncherCustomContent;
 };
-}
+} // namespace waffles
