@@ -31,7 +31,7 @@ void FramedViewerController::initCreators() {
 					   if (ext == ".webp") {
 						   ds::model::ContentModelRef errorModel;
 						   std::string				  errorMessage =
-							   "We couldn't load this piece of media because the .webp files are not supported.";
+							   "We couldn't load this piece of media because .webp files are not supported.";
 
 						   errorModel.setProperty("name", std::string("Sorry!"));
 						   errorModel.setProperty("error", errorMessage);

@@ -115,8 +115,8 @@ void SearchQuery::recursiveMatch(ds::model::ContentModelRef item) {
 			if (name.find(mInput) != std::string::npos) {
 
 				auto fake = item.duplicate();
-				fake.setProperty("type_key", std::string("layout"));
-				fake.setProperty("type_uid", std::string("layout"));
+				// fake.setProperty("type_key", std::string("layout"));
+				// fake.setProperty("type_uid", std::string("layout"));
 				mOutput.push_back(fake);
 				return;
 			}
