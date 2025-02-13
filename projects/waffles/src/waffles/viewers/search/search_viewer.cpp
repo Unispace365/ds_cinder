@@ -18,16 +18,16 @@
 #include <ds/util/string_util.h>
 
 #include "app/waffles_app_defs.h"
-#include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"
+#include "waffles/waffles_events.h"
 
 namespace waffles {
 
 SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchType)
-	: BaseElement(g)
-	, mPrimaryLayout(nullptr)
-	, mSearchQuery(g, []() { return new SearchQuery(); })
-	, mResourceFilter(0) {
+  : BaseElement(g)
+  , mPrimaryLayout(nullptr)
+  , mSearchQuery(g, []() { return new SearchQuery(); })
+  , mResourceFilter(0) {
 
 	mViewerType			  = searchType;
 	mMaxViewersOfThisType = 1;
@@ -237,7 +237,7 @@ void SearchViewer::listFolder(ds::model::ContentModelRef theFolder) {
 
 void SearchViewer::onLayout() {
 	if (mPrimaryLayout) {
-		
+
 		mPrimaryLayout->runLayout();
 
 		if (auto fileList = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("scroll_list")) {
@@ -250,8 +250,15 @@ void SearchViewer::onLayout() {
 				}
 			});
 		}
-		
-		
+
+
+		const float startWidth	= mPrimaryLayout->getWidth();
+		const float startHeight = mPrimaryLayout->getHeight();
+		mContentAspectRatio		= startWidth / startHeight;
+
+		setSize(startWidth, startHeight);
+		setSizeLimits();
+		setViewerSize(startWidth, startHeight);
 	}
 }
 
