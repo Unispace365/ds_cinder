@@ -13,9 +13,9 @@
 #include <ds/ui/sprite/image.h>
 namespace waffles {
 
-FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel,const std::string layoutPath)
-	: TitledMediaViewer(g,eventChannel,layoutPath) {
-	
+FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel, const std::string layoutPath)
+  : TitledMediaViewer(g, eventChannel, layoutPath) {
+
 	auto tapCallback = [this](ds::ui::Sprite* bs, const ci::vec3& pos) {
 		if (mIsFullscreen) {
 			hideTitle();
@@ -45,7 +45,7 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 			return;
 		}
 	});
-	
+
 	auto background = mRootLayout->getSprite("background");
 	if (background) {
 		background->setTapCallback(tapCallback);
@@ -58,12 +58,24 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		});
 	}
 
+	auto innerHoldy = mRootLayout->getSprite("inner_holdy");
+	if (innerHoldy) {
+		innerHoldy->setTapCallback(tapCallback);
+		innerHoldy->setDoubleTapCallback(doubleTapCallback);
+		innerHoldy->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+			if (ti.mPhase == ds::ui::TouchInfo::Moved) {
+				bs->passTouchToSprite(this, ti);
+				return;
+			}
+		});
+	}
+
 	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const RequestFullscreenViewer& e) {
 		if (e.mViewer != this && getIsFullscreen()) {
 			mEventClient.notify(RequestUnFullscreenViewer(this));
 		}
 	});
-	
+
 	setTapCallback(tapCallback);
 	setDoubleTapCallback(doubleTapCallback);
 
@@ -120,9 +132,9 @@ void FramedMediaViewer::onLayout() {
 	}
 
 	if (mRootLayout) {
-		
+
 		mRootLayout->completeAllTweens(false, true);
-		mRootLayout->setSize(getWidth(), getHeight()+diff);
+		mRootLayout->setSize(getWidth(), getHeight() + diff);
 		/* auto nameSp = mRootLayout->getSprite<ds::ui::Text>("name");
 		if (nameSp) {
 			nameSp->setSize(mMediaPlayer->getWidth(), 300);
@@ -150,16 +162,16 @@ void FramedMediaViewer::onLayout() {
 		mBottomPad = root->getHeight() - bottomRight.y / bottomRight.w;
 	}
 
-	//auto frameCenter   = mRootLayout->getGlobalCenterPosition();
-	//auto contentCenter = theLayout->getGlobalCenterPosition();
-	//auto offset		   = (contentCenter.y - frameCenter.y) / mRootLayout->getHeight();
-	//mRootLayout->setCenter(0.5, 0.5 + offset);
+	// auto frameCenter   = mRootLayout->getGlobalCenterPosition();
+	// auto contentCenter = theLayout->getGlobalCenterPosition();
+	// auto offset		   = (contentCenter.y - frameCenter.y) / mRootLayout->getHeight();
+	// mRootLayout->setCenter(0.5, 0.5 + offset);
 }
 
 void FramedMediaViewer::onFullscreenSet() {
 	TitledMediaViewer::onFullscreenSet();
 	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
-	auto border = mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
+	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
 	if (mIsFullscreen) {
 		if (background) {
 			background->hide();
@@ -182,7 +194,6 @@ void FramedMediaViewer::onFullscreenSet() {
 		mediaInterface->setAllowDisplay(false);
 	}
 	mRootLayout->runLayout();
-	
 }
 
 void FramedMediaViewer::showTitle() {
@@ -193,7 +204,6 @@ void FramedMediaViewer::showTitle() {
 		titleHodler->tweenOpacity(1.0f, mEngine.getAnimDur());
 	}
 	onLayout();
-
 }
 
 void FramedMediaViewer::onMediaSet() {
@@ -217,9 +227,9 @@ void FramedMediaViewer::onMediaSet() {
 			filly->setOpacity(borderOpacity);
 		}
 	}
-	
+
 	if (mediaPlayer) {
-		auto mps = mediaPlayer->getSettings();
+		auto mps				 = mediaPlayer->getSettings();
 		mps.mCanDisplayInterface = false;
 		mediaPlayer->setSettings(mps);
 		auto mediaInterface = mediaPlayer->getMediaInterface();
@@ -229,10 +239,9 @@ void FramedMediaViewer::onMediaSet() {
 	}
 	if (interfaceHolder) {
 		interfaceHolder->show();
-		auto contentRef	 = getMedia();
-		
-		
-		
+		auto contentRef = getMedia();
+
+
 		if (mediaPlayer && mediaPlayer->getPlayer()) {
 			mMediaInterface =
 				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mediaPlayer->getPlayer(), interfaceHolder);
@@ -241,81 +250,82 @@ void FramedMediaViewer::onMediaSet() {
 			if (wafflesHelper) {
 				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
 			}
-			//ContentUtils::setMediaInterfaceStyle(mMediaInterface);
+			// ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
-					//webInterface->setKeyboardKeyScale(30.0f / 64.0f);
+					// webInterface->setKeyboardKeyScale(30.0f / 64.0f);
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
-					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn, wafflesHelper](const bool onScreen) {
-						if (onScreen) {
-							auto	  keeb		= webInterface->getSoftKeyboard();
-							ci::ColorA keyb		 = mEngine.getColors().getColorFromName("viewer_background");
-							wafflesHelper->setKeyboardStyle(keeb);
+					webInterface->setKeyboardStateCallback(
+						[this, webInterface, keyboardBtn, wafflesHelper](const bool onScreen) {
+							if (onScreen) {
+								auto	   keeb = webInterface->getSoftKeyboard();
+								ci::ColorA keyb = mEngine.getColors().getColorFromName("viewer_background");
+								wafflesHelper->setKeyboardStyle(keeb);
 
-							auto keyboardArea = webInterface->getKeyboardArea();
-							if (keyboardArea) {
-								keyboardArea->enable(true);
-								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
-								keyboardArea->setColor(keyb);
+								auto keyboardArea = webInterface->getKeyboardArea();
+								if (keyboardArea) {
+									keyboardArea->enable(true);
+									keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+									keyboardArea->setColor(keyb);
 
-								auto pos = keyboardArea->getGlobalPosition();
-								auto w	 = keyboardArea->getScaleWidth();
-								auto h	 = keyboardArea->getScaleHeight();
-								if (pos.y+h > mEngine.getWorldHeight()) {
-									// Move up if off the bottom of the display
-									keyboardArea->move(-ci::vec3(0.f, (pos.y+h) - mEngine.getWorldHeight(), 0.f));
-								} else if (pos.y < 0) {
-									// Move down if off the top of the display
-									keyboardArea->move(-ci::vec3(0.f, pos.y, 0.f));
+									auto pos = keyboardArea->getGlobalPosition();
+									auto w	 = keyboardArea->getScaleWidth();
+									auto h	 = keyboardArea->getScaleHeight();
+									if (pos.y + h > mEngine.getWorldHeight()) {
+										// Move up if off the bottom of the display
+										keyboardArea->move(-ci::vec3(0.f, (pos.y + h) - mEngine.getWorldHeight(), 0.f));
+									} else if (pos.y < 0) {
+										// Move down if off the top of the display
+										keyboardArea->move(-ci::vec3(0.f, pos.y, 0.f));
+									}
+
+									if (pos.x + w > mEngine.getWorldWidth()) {
+										// Move left if off the right of the display
+										keyboardArea->move(-ci::vec3((pos.x + w) - mEngine.getWorldWidth(), 0.f, 0.f));
+									} else if (pos.x < 0) {
+										// Move right if off the left of the display
+										keyboardArea->move(-ci::vec3(pos.x, 0.f, 0.f));
+									}
 								}
 
-								if (pos.x + w > mEngine.getWorldWidth()) {
-									// Move left if off the right of the display
-									keyboardArea->move(-ci::vec3((pos.x + w) - mEngine.getWorldWidth(), 0.f, 0.f));
-								} else if (pos.x < 0) {
-									// Move right if off the left of the display
-									keyboardArea->move(-ci::vec3(pos.x, 0.f, 0.f));
-								}
+								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+								webInterface->getKeyboardButton()->setNormalImageColor(highColor);
+								webInterface->getKeyboardButton()->setHighImageColor(normalColor);
+
+							} else if (!onScreen) {
+								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+								webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
+								webInterface->getKeyboardButton()->setHighImageColor(highColor);
 							}
-
-							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
-							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-
-							webInterface->getKeyboardButton()->setNormalImageColor(highColor);
-							webInterface->getKeyboardButton()->setHighImageColor(normalColor);
-
-						} else if (!onScreen) {
-							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
-							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-
-							webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
-							webInterface->getKeyboardButton()->setHighImageColor(highColor);
-						}
-					});
+						});
 				}
 
 				mMediaInterface->setCanTimeout(false);
 
 				// Handle lock state changes
-				//mMediaInterface->setLockStateCallback([this](bool lock) { updateLockedState(); });
+				// mMediaInterface->setLockStateCallback([this](bool lock) { updateLockedState(); });
 
 				// Make sure we have the correct lock state right away too
-				//updateLockedState();
+				// updateLockedState();
 			}
 		}
 
-		//setDrawingToolsState();
+		// setDrawingToolsState();
 
 	} else {
-		//removeDrawingTools();
+		// removeDrawingTools();
 	}
-	//mRootLayout->runLayout();
+	// mRootLayout->runLayout();
 	layout();
 }
 
@@ -323,43 +333,50 @@ void FramedMediaViewer::onDetachedSet() {
 	TitledMediaViewer::onDetachedSet();
 	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
 	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
+	auto innerHoldy = mRootLayout->getSprite("inner_holdy");
 	if (!mIsDetached) {
 		if (background) {
 			background->hide();
 		}
-		
+		enable(false);
+		mRootLayout->enable(false);
+		innerHoldy->enable(true);
+
 		auto mediaInterface = mMediaPlayer->getMediaInterface();
 		if (mediaInterface) {
 			mediaInterface->hide();
 			mediaInterface->setAllowDisplay(false);
 		}
+
 	} else {
 		if (background) {
 			background->show();
 		}
-		
+		enable(true);
+		mRootLayout->enable(true);
+		innerHoldy->enable(false);
+
 		auto mediaInterface = mMediaPlayer->getMediaInterface();
 		if (mediaInterface) {
 			mediaInterface->hide();
 			mediaInterface->setAllowDisplay(false);
 		}
 	}
-	
+
 	mRootLayout->runLayout();
-		
 }
 
 void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showController) {
 
-	setUnfullscreenRect(
-		ci::Rectf(mPosition.x, mPosition.y, getWidth() + mPosition.x - (mRightPad+mLeftPad), getHeight() + mPosition.y - (mBottomPad+mTopPad)));
+	setUnfullscreenRect(ci::Rectf(mPosition.x, mPosition.y, getWidth() + mPosition.x - (mRightPad + mLeftPad),
+								  getHeight() + mPosition.y - (mBottomPad + mTopPad)));
 	auto		normalLayer	 = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
 	const float screenWidth	 = normalLayer->getWidth();	 // mDisplaySize.x;
 	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;
 	const float screenAsp	 = screenWidth / screenHeight;
 
 	bool didWebSpecial = false;
-	
+
 	if (auto mp = getMediaPlayer()) {
 		if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
 			mp->setWebViewSize(ci::vec2(screenWidth, screenHeight));
@@ -377,13 +394,13 @@ void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 		}
 	}
 	if (!didWebSpecial) {
-		auto  playerHolder = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_hodler");
-		
-		float viewerAsp	   = mMediaPlayer->getWidth() / mMediaPlayer->getHeight();
+		auto playerHolder = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_hodler");
+
+		float viewerAsp	  = mMediaPlayer->getWidth() / mMediaPlayer->getHeight();
 		float viewerScale = getScale().x;
-		auto  xxtra		   = (getWidth()  - mMediaPlayer->getWidth())/viewerScale;
-		auto  yxtra		   = (getHeight() - mMediaPlayer->getHeight())/viewerScale;
-		
+		auto  xxtra		  = (getWidth() - mMediaPlayer->getWidth()) / viewerScale;
+		auto  yxtra		  = (getHeight() - mMediaPlayer->getHeight()) / viewerScale;
+
 		if (viewerScale == 0.0f) viewerScale = 0.001f;
 		if (viewerAsp > screenAsp) {
 			auto width	= screenWidth / viewerScale;
@@ -414,10 +431,9 @@ void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 }
 
 
+// void FramedMediaViewer::hideTitle() {}
 
-//void FramedMediaViewer::hideTitle() {}
-
-//void FramedMediaViewer::hideInnerSideBar() {}
+// void FramedMediaViewer::hideInnerSideBar() {}
 
 
-}
+} // namespace waffles
