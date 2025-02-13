@@ -46,8 +46,8 @@ void Grid::drawPostLocalClient() {
 		ci::gl::ScopedBlendAlpha sb;
 		ci::gl::ScopedGlslProg	 sp(getStockShader(ci::gl::ShaderDef().color()));
 
-		float width	 = calcWidth();
-		float height = calcHeight();
+		float width	 = getWidth();
+		float height = getHeight();
 
 		ci::gl::begin(GL_LINES);
 		ci::gl::color(ci::ColorA8u(255, 204, 0, 255));
@@ -101,7 +101,7 @@ bool Grid::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHei
 
 	// Calculate inner and outer bounds.
 	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
-	const auto inner = ci::Rectf{0, 0, calcWidth(), calcHeight()};
+	const auto inner = ci::Rectf{0, 0, getWidth(), getHeight()};
 
 	// Calculate size constraints.
 	bool changed =

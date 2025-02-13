@@ -360,7 +360,11 @@ class Text : public ds::ui::Sprite {
 	bool mNeedsTextRender;
 	bool mNeedsFontOptionUpdate;
 	bool mNeedsMarkupDetection;
-	bool mNeedsMinMaxMeasuring;
+
+	/// Used to store minimum and maximum text size for layout calculations
+	bool	 mNeedsMinMaxMeasuring;
+	ci::vec2 mMinSize{0};
+	ci::vec2 mMaxSize{std::numeric_limits<float>::infinity()};
 
 	/// simply stored to check for change across renders
 	int mPixelWidth;

@@ -473,9 +473,9 @@ void Sprite::drawLocalClient() {
 	if (mRenderBatch) {
 		mRenderBatch->draw();
 	} else if (mCornerRadius > 0.0f) {
-		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius);
 	} else {
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
 	}
 }
 
@@ -603,7 +603,7 @@ ci::vec3 Sprite::getCenterPosition() const {
 }
 
 ci::vec3 Sprite::getLocalCenterPosition() const {
-	return ci::vec3(floorf(mWidth / 2.0f), floorf(mHeight / 2.0f), mPosition.z);
+	return {floorf(getWidth() * 0.5f), floorf(getHeight() * 0.5f), mPosition.z};
 }
 
 void Sprite::setScale(float x, float y, float z) {
@@ -873,11 +873,11 @@ void Sprite::buildTransform() const {
 }
 
 ci::vec3 Sprite::getSize() const {
-	return ci::vec3(mWidth, mHeight, mDepth);
+	return ci::vec3(getWidth(), getHeight(), getDepth());
 }
 
 void Sprite::setSizeAll(float width, float height, float depth) {
-	if (mWidth == width && mHeight == height && mDepth == depth) return;
+	if (approxEqual(mWidth, width) && approxEqual(mHeight, height) && approxEqual(mDepth, depth)) return;
 
 	mWidth	= width;
 	mHeight = height;
@@ -993,7 +993,7 @@ void Sprite::fitInsideArea(const ci::Rectf& area) {
 	padded.y2 = glm::max(padded.y1, padded.y2 - mLayoutBPad);
 
 	// Adjust scale and position to fit the sprite inside the padded area.
-	const auto bounds = ci::Rectf{0, 0, mWidth, mHeight};
+	const auto bounds = ci::Rectf{0, 0, getWidth(), getHeight()};
 	const auto fit	  = mFit.calcTransform(padded, bounds, false);
 	setScale(fit[0][0], fit[1][1]);
 	setPosition(fit[2]);
@@ -1149,21 +1149,22 @@ ci::vec3 Sprite::localToGlobal(const ci::vec3& localPoint) const {
 }
 
 bool Sprite::contains(const ci::vec3& point, const float pad) const {
+	const auto width  = getWidth();
+	const auto height = getHeight();
+
 	// If I don't check this, then sprites with no size are always picked.
 	// Someone who knows the math can probably address the root issue.
-	if (mWidth < 0.001f || mHeight < 0.001f) return false;
-	// Same deal as above.
-	// if (mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
-	// May have negative scaling
-	if (mScale.x == 0.0f || mScale.y == 0.0f) return false;
+	if (approxZero(width) || approxZero(height)) return false;
+	// Same deal as above. May have negative scaling.
+	if (approxZero(mScale.x) || approxZero(mScale.y)) return false;
 
 	buildGlobalTransform();
 
 	glm::vec4 pR = glm::vec4(point.x, point.y, point.z, 1.0f);
 
 	glm::vec4 cA = mGlobalTransform * glm::vec4(-pad, -pad, 0.0f, 1.0f);
-	glm::vec4 cB = mGlobalTransform * glm::vec4(mWidth + pad, -pad, 0.0f, 1.0f);
-	glm::vec4 cC = mGlobalTransform * glm::vec4(mWidth + pad, mHeight + pad, 0.0f, 1.0f);
+	glm::vec4 cB = mGlobalTransform * glm::vec4(width + pad, -pad, 0.0f, 1.0f);
+	glm::vec4 cC = mGlobalTransform * glm::vec4(width + pad, height + pad, 0.0f, 1.0f);
 
 	glm::vec4 v1 = cA - cB;
 	glm::vec4 v2 = cC - cB;
@@ -1429,8 +1430,8 @@ bool Sprite::checkBounds() const {
 
 	float spriteMinX = 0.0f;
 	float spriteMinY = 0.0f;
-	float spriteMaxX = mWidth - 1.0f;
-	float spriteMaxY = mHeight - 1.0f;
+	float spriteMaxX = getWidth() - 1.0f;
+	float spriteMaxY = getHeight() - 1.0f;
 
 	ci::vec3 positions[4];
 
@@ -2025,7 +2026,7 @@ void Sprite::computeClippingBounds(ds::ui::Sprite* clippingParent) {
 
 void Sprite::dimensionalStateChanged() {
 	markClippingDirty();
-	if (mLastWidth != mWidth || mLastHeight != mHeight || mLastDepth != mDepth) {
+	if (!approxEqual(mLastWidth, mWidth) || !approxEqual(mLastHeight, mHeight) || !approxEqual(mLastDepth, mDepth)) {
 		mLastWidth	= mWidth;
 		mLastHeight = mHeight;
 		mLastDepth	= mDepth;

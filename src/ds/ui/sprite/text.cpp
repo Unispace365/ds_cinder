@@ -510,28 +510,28 @@ float Text::getWidthMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinWidth;
+	return mMinSize.x;
 }
 
 float Text::getWidthMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxWidth;
+	return mMaxSize.x;
 }
 
 float Text::getHeightMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinHeight;
+	return mMinSize.y;
 }
 
 float Text::getHeightMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxHeight;
+	return mMaxSize.y;
 }
 
 void Text::setEllipsizeMode(EllipsizeMode theMode) {
@@ -750,11 +750,10 @@ bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHei
 }
 
 void Text::onAddedToLayout(Sprite* layout) {
-	// When placed inside a grid, we assume you want to trim white space and shrink the size to its bounds.
+	// When placed inside a grid, we assume you want to trim white space.
 	const auto grid = dynamic_cast<Grid*>(layout);
 	if (grid) {
 		setTrimWhiteSpace(true);
-		setShrinkToBounds(true);
 	}
 }
 
@@ -1554,11 +1553,11 @@ void Text::measureMinMaxTextSize() {
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMinWidth = float(mPixelWidth + kCompensateRoundingErrors);
+	mMinSize.x = glm::max(mMinWidth, float(mPixelWidth + kCompensateRoundingErrors));
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMinHeight = float(mPixelHeight + kCompensateRoundingErrors);
+	mMinSize.y = glm::max(mMinHeight, float(mPixelHeight + kCompensateRoundingErrors));
 
 	// Use largest font size.
 	if (!style.mFitSizes.empty()) {
@@ -1570,11 +1569,11 @@ void Text::measureMinMaxTextSize() {
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMaxHeight = float(mPixelHeight + kCompensateRoundingErrors);
+	mMaxSize.y = glm::min(mMaxHeight, float(mPixelHeight + kCompensateRoundingErrors));
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMaxWidth = float(mPixelWidth + kCompensateRoundingErrors);
+	mMaxSize.x = glm::min(mMaxWidth, float(mPixelWidth + kCompensateRoundingErrors));
 
 	// Restore the original resize limits.
 	setResizeLimit(resizeLimit.x, resizeLimit.y);

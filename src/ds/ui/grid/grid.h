@@ -54,14 +54,14 @@ class Grid : public Sprite, public ILayout {
 		  , row(rowSpan) {
 			// Use somewhat sensible defaults in case size constraints are not defined,
 			// otherwise the grid layout algorithm can't do its thing.
-			minWidth  = std::isfinite(sprite->getWidthMin()) ? sprite->getWidthMin() : 0;
-			maxWidth  = std::isfinite(sprite->getWidthMax()) ? sprite->getWidthMax()
-						: canGrow(gridSize.x)				 ? sprite->getWidth()
-															 : gridSize.x;
-			minHeight = std::isfinite(sprite->getHeightMin()) ? sprite->getHeightMin() : 0;
-			maxHeight = std::isfinite(sprite->getHeightMax()) ? sprite->getHeightMax()
-						: canGrow(gridSize.y)				  ? sprite->getHeight()
-															  : gridSize.y;
+			minWidth  = sprite->getWidthMin();
+			maxWidth  = std::isfinite(sprite->getWidthMax())				  ? sprite->getWidthMax()
+						: !canGrow(sprite->getWidth()) || canGrow(gridSize.x) ? sprite->getWidth()
+																			  : gridSize.x;
+			minHeight = sprite->getHeightMin();
+			maxHeight = std::isfinite(sprite->getHeightMax())				   ? sprite->getHeightMax()
+						: !canGrow(sprite->getHeight()) || canGrow(gridSize.y) ? sprite->getHeight()
+																			   : gridSize.y;
 		}
 		Sprite*		  sprite	= nullptr;
 		Range<size_t> column	= {0, 0};
@@ -151,12 +151,10 @@ class Grid : public Sprite, public ILayout {
 	// Calculates the area occupied by the given \a item.
 	ci::Rectf calcArea(const Item& item) const { return calcArea(item.column, item.row); }
 
-	// Returns the width of the grid based on the column tracks, or 0 if the grid is not initialized.
-	float calcWidth() const { return mHorizontalGridLines.empty() ? 0 : mHorizontalGridLines.back(); }
-	// Returns the height of the grid based on the row tracks, or 0 if the grid is not initialized.
-	float calcHeight() const { return mVerticalGridLines.empty() ? 0 : mVerticalGridLines.back(); }
-	//! Returns the size of the grid based on the column and row tracks, or {0, 0} if the grid is not initialized.
-	ci::vec2 calcSize() const { return {calcWidth(), calcHeight()}; }
+	// Returns the width of the grid based on the column tracks, or the fixed with if the grid is not initialized.
+	float getWidth() const override { return mHorizontalGridLines.empty() ? mWidth : mHorizontalGridLines.back(); }
+	// Returns the height of the grid based on the row tracks, or the fixed height if the grid is not initialized.
+	float getHeight() const override { return mVerticalGridLines.empty() ? mHeight : mVerticalGridLines.back(); }
 
 	void drawLocalClient() override;
 
