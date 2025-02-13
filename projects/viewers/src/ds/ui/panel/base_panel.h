@@ -78,6 +78,10 @@ class BasePanel : public ds::ui::Sprite {
 	const ci::vec2& getMinSize() const { return mMinSize; }
 	const ci::vec2& getMaxSize() const { return mMaxSize; }
 
+	/** This will allow the panel to stretch when used inside a grid layout. */
+	float getWidthMax() const override { return mMaxSize.x; }
+	float getHeightMax() const override { return mMaxSize.y; }
+
 	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits.
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the
 	   override class after this.*/
@@ -125,10 +129,10 @@ class BasePanel : public ds::ui::Sprite {
 
 	/** Override this to layout your ui when the panel changes size .
 	Don't change the size of this sprite in this function (you'll get an infinite loop) */
-	virtual void onLayout(){};
+	virtual void onLayout() {};
 
 	/** The About to be removed flag has just been set */
-	virtual void onAboutToBeRemoved(){};
+	virtual void onAboutToBeRemoved() {};
 
 	/** When this panel has been sent to the front via activatePanel() */
 	virtual void onPanelActivated() {}
