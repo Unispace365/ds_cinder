@@ -10,12 +10,11 @@
 #include "app/waffles_app_defs.h"
 
 
-
 namespace waffles {
 
 ErrorViewer::ErrorViewer(ds::ui::SpriteEngine& g)
-	: BaseElement(g)
-	, mPrimaryLayout(nullptr) {
+  : BaseElement(g)
+  , mPrimaryLayout(nullptr) {
 
 	mViewerType			  = VIEW_TYPE_ERROR;
 	mMaxViewersOfThisType = 10;
@@ -63,6 +62,14 @@ void ErrorViewer::onMediaSet() {
 void ErrorViewer::onLayout() {
 	if (mPrimaryLayout) {
 		mPrimaryLayout->runLayout();
+
+		const float startWidth	= mPrimaryLayout->getWidth();
+		const float startHeight = mPrimaryLayout->getHeight();
+		mContentAspectRatio		= startWidth / startHeight;
+
+		setSize(startWidth, startHeight);
+		setSizeLimits();
+		setViewerSize(startWidth, startHeight);
 	}
 }
 

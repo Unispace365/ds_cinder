@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#include <filesystem>
+
 #include "framed_viewer_controller.h"
 #include "waffles/common/ui_utils.h"
 #include "ds/util/file_meta_data.h"
@@ -21,6 +24,28 @@ void FramedViewerController::initCreators() {
 				   auto isStream = helper->isValidStream(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
 				   auto isStreamSource =
 					   helper->isValidStreamSource(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
+				   auto resourcePath = std::filesystem::path(theResource.getAbsoluteFilePath());
+				   if (resourcePath.has_extension()) {
+					   std::string ext = resourcePath.extension().string();
+					   ds::to_lowercase(ext);
+					   if (ext == ".webp") {
+						   ds::model::ContentModelRef errorModel;
+						   std::string				  errorMessage =
+							   "We couldn't load this piece of media because the .webp files are not supported.";
+
+						   errorModel.setProperty("name", std::string("Sorry!"));
+						   errorModel.setProperty("error", errorMessage);
+						   errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
+						   errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
+						   errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
+						   auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
+														   ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter);
+
+
+						   mChannelClient.notify(RequestViewerLaunchEvent(eArgs));
+						   return {nullptr, CreationError::INVALID_TYPE};
+					   }
+				   }
 				   if (!isStream && !isStreamSource && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 					   theResource.getType() != ds::Resource::WEB_TYPE &&
 					   theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
