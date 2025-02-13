@@ -52,7 +52,7 @@ void SearchQuery::run() {
 void SearchQuery::queryGeneral() {
 	auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
 	// Add all media items matching the search query to the output
-	if (mFilterType.empty() || mFilterType == "record" || mFilterType == "media") {
+	if (mFilterType.empty() || mFilterType == "record" || mFilterType == "media" || mFilterType == "layout") {
 		//auto allValid = mEngine->mContent.getKeyReferences(ds::model::VALID_MAP);
 		auto allValid = helper->getContentForPlatform();
 		for (auto item : allValid) {
@@ -107,6 +107,22 @@ void SearchQuery::recursiveMatch(ds::model::ContentModelRef item) {
 			}
 		}
 	} 
+
+	if (mFilterType == "layout" || mFilterType.empty()) {
+		if (item.getPropertyString("type_key") == "layout") {
+			auto name = item.getPropertyString("record_name");
+			ds::to_uppercase(name);
+			if (name.find(mInput) != std::string::npos) {
+
+				auto fake = item.duplicate();
+				fake.setProperty("type_key", std::string("layout"));
+				fake.setProperty("type_uid", std::string("layout"));
+				mOutput.push_back(fake);
+				return;
+			}
+		}
+	}
+
 	if (mFilterType == "record" || mFilterType.empty()) {
 		if (helper->isValidPlaylist(item, "presentation")) {
 			auto name = item.getPropertyString("record_name");

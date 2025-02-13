@@ -122,6 +122,7 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	setupFilterButton("filter_bar.images.the_button", "media", ds::Resource::IMAGE_TYPE);
 	setupFilterButton("filter_bar.pdfs.the_button", "media", ds::Resource::PDF_TYPE);
 	setupFilterButton("filter_bar.links.the_button", "media", ds::Resource::WEB_TYPE);
+	setupFilterButton("filter_bar.layouts.the_button", "layout", 0);
 
 	mPrimaryLayout->setSpriteClickFn("close_button.the_button", [this] {
 		if (mCloseRequestCallback) mCloseRequestCallback();
