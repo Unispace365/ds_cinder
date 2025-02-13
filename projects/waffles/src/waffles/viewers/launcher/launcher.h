@@ -25,55 +25,56 @@ class Launcher : public BaseElement {
 	void showSearch();
 
   protected:
-	virtual void onLayout();
-	virtual void onCreationArgsSet();
-	virtual void onParentSet() override;
-	
+	void onLayout() override;
+	void onCreationArgsSet() override;
+	void onParentSet() override;
 
-	
 
-	void closePanel();
-	ds::model::ContentModelRef buttonCfgFromString(std::string str);
-	void				 updateItem(ds::ui::SmartLayout* item);
-	void				 updateSelection(ds::ui::Sprite* bs, const bool highlighted);
-	void				 handleSelection();
-	ds::ui::SmartLayout* createButton(ds::model::ContentModelRef item);
-	void				 setButtonCallbacks(ds::ui::SmartLayout* assetBtn);
-	void				 buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos);
-	void				 panelButtonTapped(ds::ui::SmartLayout* button);
-	void				 updatePanelContent(ds::model::ContentModelRef model);
-	bool				 unrepeatedContent(ds::model::ContentModelRef existing, ds::model::ContentModelRef addition);
-	bool				 restrictiveType(ds::model::ContentModelRef model);
-	void				 updateRecent(ds::model::ContentModelRef model);
-	void				 loadRecent();
-	void				 saveRecent();
-	void				 filterButtonDown(std::string type);
-	void				 closeButtonPlacement();
-	void				 setBackButtonFn(ds::ui::LayoutButton* button);
-	std::string			 getRecentFilePath() {
-		return ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, "%LOCAL%/hpi/") +  + "waffles_recent.txt");
+	void					   closePanel();
+	ds::model::ContentModelRef buttonCfgFromString(const std::string& str) const;
+	void					   updateItem(ds::ui::SmartLayout* item);
+	static void				   updateSelection(ds::ui::Sprite* bs, const bool highlighted);
+	void					   handleSelection();
+	ds::ui::SmartLayout*	   createButton(ds::model::ContentModelRef item);
+	void					   setButtonCallbacks(ds::ui::SmartLayout* assetBtn);
+	void					   buttonTapHandler(ds::ui::Sprite* sp, const ci::vec3& pos);
+	void					   panelButtonTapped(ds::ui::SmartLayout* button);
+	void					   updatePanelContent(const ds::model::ContentModelRef& model);
+	static bool				   unrepeatedContent(const ds::model::ContentModelRef& existing,
+												 const ds::model::ContentModelRef& addition);
+	bool					   restrictiveType(const ds::model::ContentModelRef& model) const;
+	void					   updateRecent(const ds::model::ContentModelRef& model);
+	void					   loadRecent();
+	void					   saveRecent();
+	void					   filterButtonDown(const std::string& type);
+	void					   closeButtonPlacement();
+	void					   setBackButtonFn(ds::ui::LayoutButton* button);
+	std::string				   getRecentFilePath() const {
+		   return ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, "%LOCAL%/hpi/") +
+													  +"waffles_recent.txt");
 	}
-	bool				 recentContains(ds::model::ContentModelRef model) {
-		return std::find(mRecentFilterUids.begin(), mRecentFilterUids.end(), model.getPropertyString("uid")) != mRecentFilterUids.end();
+	bool recentContains(const ds::model::ContentModelRef& model) {
+		return std::find(mRecentFilterUids.begin(), mRecentFilterUids.end(), model.getPropertyString("uid")) !=
+			   mRecentFilterUids.end();
 	}
-	std::vector<ds::model::ContentModelRef> recurseContent(std::vector<ds::model::ContentModelRef> content);
-	void updateBreadcrumbText();
-	std::string upperedFilterText();
-	void filterItemIconHandle(ds::ui::SmartLayout* item);
+	std::vector<ds::model::ContentModelRef> recurseContent(const std::vector<ds::model::ContentModelRef>& content);
+	void									updateBreadcrumbText();
+	std::string								upperedFilterText();
+	static void								filterItemIconHandle(ds::ui::SmartLayout* item);
 
 	std::vector<ds::model::ContentModelRef> mFolderStack;
 
 	std::vector<std::string> mRecentFilterUids;
-	int						 mMaxRecentSize = 10;
+	int						 mMaxRecentSize		 = 10;
 	bool					 mRecentFileHandling = false;
-	std::string				 mFilterSelected	 = "";
+	std::string				 mFilterSelected;
 
 	std::unordered_map<std::string, ds::ui::SmartLayout*> mFilterButtons; // type name => button layout
 
-	bool					 mFirstCloseButton = true;
-	bool					 mSecondCloseButton = false;
+	bool mFirstCloseButton	= true;
+	bool mSecondCloseButton = false;
 
-	bool					 mFirstFilterShove = true;
+	bool mFirstFilterShove = true;
 
 	ds::ui::SmartLayout* mPrimaryLayout = nullptr;
 
@@ -87,15 +88,14 @@ class Launcher : public BaseElement {
 
 	std::vector<ds::model::ContentModelRef> mPanelHistory;
 
-	bool mNeedsTopRefresh = false;
+	bool mNeedsTopRefresh		= false;
 	bool mNeedsScrollingRefresh = false;
-	bool mNeedsBottomRefresh = false;
+	bool mNeedsBottomRefresh	= false;
 
-	bool mPanelOpen			 = false;
-	bool mPanelTransitioning = false;
-	float mWafflesScale = 1.0f;
+	bool  mPanelOpen			   = false;
+	bool  mPanelTransitioning	   = false;
+	float mWafflesScale			   = 1.0f;
 	bool  mCloseOnViewerFullscreen = true;
-
 };
 
 } // namespace waffles
