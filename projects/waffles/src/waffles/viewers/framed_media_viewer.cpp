@@ -263,6 +263,25 @@ void FramedMediaViewer::onMediaSet() {
 								keyboardArea->enable(true);
 								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
 								keyboardArea->setColor(keyb);
+
+								auto pos = keyboardArea->getGlobalPosition();
+								auto w	 = keyboardArea->getScaleWidth();
+								auto h	 = keyboardArea->getScaleHeight();
+								if (pos.y+h > mEngine.getWorldHeight()) {
+									// Move up if off the bottom of the display
+									keyboardArea->move(-ci::vec3(0.f, (pos.y+h) - mEngine.getWorldHeight(), 0.f));
+								} else if (pos.y < 0) {
+									// Move down if off the top of the display
+									keyboardArea->move(-ci::vec3(0.f, pos.y, 0.f));
+								}
+
+								if (pos.x + w > mEngine.getWorldWidth()) {
+									// Move left if off the right of the display
+									keyboardArea->move(-ci::vec3((pos.x + w) - mEngine.getWorldWidth(), 0.f, 0.f));
+								} else if (pos.x < 0) {
+									// Move right if off the left of the display
+									keyboardArea->move(-ci::vec3(pos.x, 0.f, 0.f));
+								}
 							}
 
 							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
