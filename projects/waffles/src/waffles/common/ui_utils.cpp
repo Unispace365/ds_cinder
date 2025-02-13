@@ -212,13 +212,12 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
 
-	if (getDefault(engine)->isFolder(model))
-		type = "folder";
-	else if (getDefault(engine)->isMedia(model))
-		type = "media";
-	// else if (getDefault(engine)->isPresentation(model))
+	if (getDefault(engine)->isFolder(model)) type = "folder";
+	// else if (getDefault(engine)->isMedia(model))
+	//	type = "media";
+	//  else if (getDefault(engine)->isPresentation(model))
 	//	type = "presentation";
-	// else if (getDefault(engine)->isAmbientPlaylist(model))
+	//  else if (getDefault(engine)->isAmbientPlaylist(model))
 	//	type = "ambient";
 
 	auto& notifier = channel.empty() ? engine.getNotifier() : engine.getChannel(channel);
@@ -233,7 +232,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		notifier.notify(RequestEngagePresentation(model));
 	} else if (type == "folder") {
 		return false;
-	} else if (type == "media") {
+	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
 		notifier.notify(
 			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
