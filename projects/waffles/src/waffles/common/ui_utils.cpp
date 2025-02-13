@@ -110,6 +110,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		} else {
 			thumbPath = iconPath;
 		}
+		theTypeLabel = "STREAM";
 	} else if (theType == "search") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Search_256.png";
 	} else if (theType == "custom_layout_template") {
@@ -140,27 +141,37 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (theType == "media" || getDefault(engine)->isMedia(theModel)) {
 		if (mediaType == ds::Resource::IMAGE_TYPE) {
 			theTypeLabel = "IMAGE";
-			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Image_256.png";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
 		} else if (mediaType == ds::Resource::PDF_TYPE) {
 			theTypeLabel = "PDF";
-			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
 		} else if (mediaType == ds::Resource::VIDEO_TYPE || mediaType == ds::Resource::YOUTUBE_TYPE) {
 			theTypeLabel = "VIDEO";
-			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 		} else if (mediaType == ds::Resource::WEB_TYPE) {
 			theTypeLabel = "WEB";
-			// thumbPath	 = "%APP%/data/images/waffles/icons/4x/Link_256.png";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
 		} else if (theType == "media" && mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 			theTypeLabel = "STREAM";
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
+		} else if (theType == "stream_source"){
+			theTypeLabel = "STREAM";
+			auto layoutId = theModel.getPropertyString("layout_id");
+			// Look up this layout id in the platform stream children
+			// NOTE!!! This suddenly became quite redhat specific, but we don't have time to rework how the ui helper here works
+			// TODO
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
+		} else if (theType == "layout") {
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
+			theTypeLabel = "LAYOUT";
 		}
 
 	} else if (theType == "recent") {
@@ -179,8 +190,6 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 	} else if (theType == "folders") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
-	} else if (theType == "layout") {
-		thumbPath = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
 	} else if (theType == "miro_meeting_placeholder") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
 	} else if (theType == "google_drive_link_placeholder") {
