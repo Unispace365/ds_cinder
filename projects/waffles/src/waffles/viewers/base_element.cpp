@@ -2,13 +2,15 @@
 
 #include "app/waffles_app_defs.h"
 #include "base_element.h"
-#include "viewer_controller.h"
+
 #include "ds/util/float_util.h"
+#include "viewer_controller.h"
 #include "waffles/common/ui_utils.h"
+#include <utility>
 
 namespace waffles {
 
-BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
+BaseElement::BaseElement(ds::ui::SpriteEngine& g, const std::string& eventChannel)
   : BasePanel(g)
   , mCanArrange(true)
   , mCanResize(true)
@@ -22,7 +24,7 @@ BaseElement::BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel)
   , mEventClient(g)
   , mFatalError(false) {
 
-	setChannelName(eventChannel);
+	BasePanel::setChannelName(eventChannel);
 	if (eventChannel.empty()) {
 		mEventClient.setNotifier(g.getNotifier());
 	} else {
@@ -165,9 +167,9 @@ ci::Rectf BaseElement::getUnfullscreenRect() const {
 	return mUnfullscreenRect;
 }
 
-void BaseElement::setToFullscreen(const bool immediate,const bool showController) {
-	auto normalLayer = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
-	const float screenWidth	 = normalLayer->getWidth();  // mDisplaySize.x;
+void BaseElement::setToFullscreen(const bool immediate, const bool showController) {
+	auto		normalLayer	 = ViewerControllerFactory::getInstanceOf(ci::vec2(), getChannelName())->getNormalLayer();
+	const float screenWidth	 = normalLayer->getWidth();	 // mDisplaySize.x;
 	const float screenHeight = normalLayer->getHeight(); // mDisplaySize.y;
 	const float screenAsp	 = screenWidth / screenHeight;
 
@@ -176,22 +178,22 @@ void BaseElement::setToFullscreen(const bool immediate,const bool showController
 
 	if (viewerScale == 0.0f) viewerScale = 0.001f;
 	if (viewerAsp > screenAsp) {
-		auto width = screenWidth / viewerScale;
+		auto width	= screenWidth / viewerScale;
 		auto height = screenWidth / viewerAsp;
 		auto x		= 0;
-		auto y		= screenHeight * 0.5 - height * 0.5;
+		auto y		= screenHeight * 0.5f - height * 0.5f;
 		if (immediate) {
 			setViewerWidth(width);
 			setPosition(x, y);
 		} else {
 			animateWidthTo(width);
-			tweenPosition(ci::vec3(x, y, 0.0f),getAnimateDuration(), 0.0f, ci::easeInOutQuad);
+			tweenPosition(ci::vec3(x, y, 0.0f), getAnimateDuration(), 0.0f, ci::easeInOutQuad);
 		}
 	} else {
-		auto height	= screenHeight / viewerScale;
-		auto width = screenHeight * viewerAsp;
+		auto height = screenHeight / viewerScale;
+		auto width	= screenHeight * viewerAsp;
 		auto y		= 0;
-		auto x		= screenWidth * 0.5 - width * 0.5;
+		auto x		= screenWidth * 0.5f - width * 0.5f;
 		if (immediate) {
 			setViewerHeight(width);
 			setPosition(x, y);
@@ -201,12 +203,10 @@ void BaseElement::setToFullscreen(const bool immediate,const bool showController
 		}
 	}
 	setIsFullscreen(true);
-
 }
 
 void BaseElement::setCreationArgs(ViewerCreationArgs args) {
-	mCreationArgs = args;
-
+	mCreationArgs = std::move(args);
 	onCreationArgsSet();
 }
 
@@ -231,23 +231,27 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 }
 
 void BaseElement::fitInsideArea(const ci::Rectf& area) {
+	const auto fit = getFitArea(area);
+	setSize(fit.getSize());
+	setPosition(fit.getUpperLeft());
+}
+
+ci::Rectf BaseElement::getFitArea(const ci::Rectf &area) {
 	// The area already compensated for padding, so use the full padding when setting the size.
 	const auto padding = ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad);
 	// Attached viewers have no border padding on the top, left and right, so adjust the position accordingly.
 	const auto offset = getBorderOffset();
 
-	setSize(area.getSize() + padding);
-	setPosition(area.getUpperLeft() - offset);
+	return {area.x1 - offset.x, area.y1 - offset.y, area.x2 - offset.x + padding.x, area.y2 - offset.y + padding.y};
 }
 
 BaseElement::Padding BaseElement::getDetachedPadding() {
 	Padding detached;
-	detached.left  = getDetachedPaddingFlags() & PaddingLeft ? mLeftPad : 0;
-	detached.top	  = getDetachedPaddingFlags() & PaddingTop ? mTopPad : 0;
-	detached.right = getDetachedPaddingFlags() & PaddingRight ? mRightPad : 0;
-	detached.bottom	  = getDetachedPaddingFlags() & PaddingBottom ? mBottomPad : 0;
+	detached.left	= getDetachedPaddingFlags() & PaddingLeft ? mLeftPad : 0;
+	detached.top	= getDetachedPaddingFlags() & PaddingTop ? mTopPad : 0;
+	detached.right	= getDetachedPaddingFlags() & PaddingRight ? mRightPad : 0;
+	detached.bottom = getDetachedPaddingFlags() & PaddingBottom ? mBottomPad : 0;
 	return detached;
-
 }
 
 BaseElement::Padding BaseElement::getAttachedPadding() {
@@ -260,26 +264,22 @@ BaseElement::Padding BaseElement::getAttachedPadding() {
 }
 
 BaseElement::Padding BaseElement::getActivePadding(bool reverse) {
-	auto check = reverse ? !mIsDetached : mIsDetached;
+	const auto check = reverse ? !mIsDetached : mIsDetached;
 	return check ? getDetachedPadding() : getAttachedPadding();
 }
 
 ci::vec2 BaseElement::getBorderPadding() {
-	auto activePadding		  = getActivePadding();
-
 	// Attached viewers have no border padding on the top, left and right.
-	const auto padding = ci::vec2(activePadding.left + activePadding.right, activePadding.top + activePadding.bottom);
-
-	return padding;
+	const auto activePadding = getActivePadding();
+	return {activePadding.left + activePadding.right, activePadding.top + activePadding.bottom};
 }
 
 ci::vec2 BaseElement::getBorderOffset() {
-	auto activePadding = getActivePadding(true);
-	const auto offset = ci::vec2(activePadding.left, activePadding.top);
-	return offset;
+	const auto activePadding = getActivePadding(true);
+	return {activePadding.left, activePadding.top};
 }
 
-void	 BaseElement::setDetachedPaddingFlags(const PaddingFlag& flags) {
+void BaseElement::setDetachedPaddingFlags(const PaddingFlag& flags) {
 	mDetachedPadding = flags;
 }
 
@@ -309,7 +309,6 @@ void BaseElement::onParentSet() {
 			mEngine.timedCallback([this, channel]() { mEventClient.setNotifier(mEngine.getChannel(channel)); }, 0.001);
 		}
 	}
-	
 }
 
 } // namespace waffles

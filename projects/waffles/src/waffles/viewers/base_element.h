@@ -14,22 +14,22 @@ namespace waffles {
 class TitledMediaViewer;
 
 
-
 /**
  * \class waffles::BaseElement
  *			A base class for anything that appears onscreen.
  */
 class BaseElement : public ds::ui::BasePanel {
   public:
-	BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel = "");
+	BaseElement(ds::ui::SpriteEngine& g, const std::string& eventChannel = "");
 
 	/// Set the content for this panel
 	virtual void setMedia(const ds::model::ContentModelRef& newMedia) final;
-	
-	/// Not all viewer types use this, so use with discretion
-	ds::model::ContentModelRef getMedia() const { return mMediaRef; }
 
-	/// Get the size of the media, if available. For viewers without media, the size of its layout will be returned instead.
+	/// Not all viewer types use this, so use with discretion
+	const ds::model::ContentModelRef& getMedia() const { return mMediaRef; }
+
+	/// Get the size of the media, if available. For viewers without media, the size of its layout will be returned
+	/// instead.
 	ci::vec2 getMediaSize() const;
 
 	/// If true, will participate in "arrange" commands from the rest of the app. If false, will close when a arrange
@@ -88,7 +88,7 @@ class BaseElement : public ds::ui::BasePanel {
 
 	/// Sets with layer this is on. See ViewerCreationArgs for possible values
 	virtual void setViewerLayer(int viewerLayer) final;
-	int          getViewerLayer() const;
+	int			 getViewerLayer() const;
 
 	/// Sets the size/position of this viewer when it's not in fullscreen mode (so it can return to it after being
 	/// fullscreened)
@@ -98,6 +98,8 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual void setToFullscreen(bool immediate, bool showController);
 
 	virtual int getMediaRotation() { return 0; }
+
+	const ViewerCreationArgs& getCreationArgs() const { return mCreationArgs; }
 
 	void setCreationArgs(ViewerCreationArgs args);
 
@@ -120,26 +122,29 @@ class BaseElement : public ds::ui::BasePanel {
 
 	void fitInsideArea(const ci::Rectf& area) override;
 
+	// Returns the bounds of the viewer when fit to the \a area. Non-destructive version of fitInsideArea().
+	ci::Rectf getFitArea(const ci::Rectf& area);
+
 	struct Padding {
-		float left;
-		float right;
-		float top;
-		float bottom;
+		float left{0};
+		float right{0};
+		float top{0};
+		float bottom{0};
 	};
-		
-	
-	typedef int PaddingFlag;
-
-	static const PaddingFlag PaddingNone = 0;
-	static const PaddingFlag PaddingLeft		 = 1 << 0;
-	static const PaddingFlag PaddingRight		 = 1 << 1;
-	static const PaddingFlag PaddingTop		 = 1 << 2;
-	static const PaddingFlag PaddingBottom		 = 1 << 3;
-	static const PaddingFlag PaddingAll			 = PaddingLeft | PaddingRight | PaddingTop | PaddingBottom;
 
 
-	virtual void setDetachedPaddingFlags(const PaddingFlag& flags);
-	virtual void setAttachedPaddingFlags(const PaddingFlag& flags);
+	using PaddingFlag = int;
+
+	static constexpr PaddingFlag PaddingNone   = 0;
+	static constexpr PaddingFlag PaddingLeft   = 1 << 0;
+	static constexpr PaddingFlag PaddingRight  = 1 << 1;
+	static constexpr PaddingFlag PaddingTop	   = 1 << 2;
+	static constexpr PaddingFlag PaddingBottom = 1 << 3;
+	static constexpr PaddingFlag PaddingAll	   = PaddingLeft | PaddingRight | PaddingTop | PaddingBottom;
+
+
+	virtual void		setDetachedPaddingFlags(const PaddingFlag& flags);
+	virtual void		setAttachedPaddingFlags(const PaddingFlag& flags);
 	virtual PaddingFlag getDetachedPaddingFlags();
 	virtual PaddingFlag getAttachedPaddingFlags();
 
@@ -148,7 +153,7 @@ class BaseElement : public ds::ui::BasePanel {
 	virtual Padding	 getActivePadding(bool reverse = false);
 	virtual Padding	 getAttachedPadding();
 	virtual Padding	 getDetachedPadding();
-	
+
 
   protected:
 	// The layer has been changed (see ViewerCreationArgs for layers)
@@ -177,15 +182,15 @@ class BaseElement : public ds::ui::BasePanel {
 	bool					   mCanFullscreen;
 	bool					   mIsFullscreen;
 	bool					   mCanDetach;
-	bool					   mCanAttach;
+	bool					   mCanAttach{};
 	bool					   mIsDetached;
 	std::string				   mViewerType;
 	int						   mMaxViewersOfThisType;
-	int						   mViewerLayer;
+	int						   mViewerLayer{};
 	ci::Rectf				   mUnfullscreenRect;
-	ds::model::ContentModelRef mMediaRef;
-	ViewerCreationArgs		   mCreationArgs;
-	ds::EventClient mEventClient;
+	ds::model::ContentModelRef mMediaRef;	  // Make sure to update this when ViewerCreationArgs are set.
+	ViewerCreationArgs		   mCreationArgs; //
+	ds::EventClient			   mEventClient;
 	PaddingFlag				   mDetachedPadding = PaddingAll;
 	PaddingFlag				   mAttachedPadding = PaddingNone;
 

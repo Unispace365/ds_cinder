@@ -31,30 +31,23 @@
 
 #include "waffles/common/ui_utils.h"
 #include "waffles/pinboard/pinboard_button.h"
+#include "waffles/util/base_waffles_helper.h"
 #include "waffles/util/capture_player.h"
 #include "waffles/util/shadow_layout.h"
 #include "waffles/util/waffles_helper.h"
 #include "waffles/waffles_events.h"
-#include "waffles/util/base_waffles_helper.h"
 
 #include <ds/content/content_helper.h>
 
 namespace waffles {
 
-TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel, std::string layoutPath)
+TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel,
+									 const std::string& layoutPath)
   : BaseElement(g)
-  , mMediaPlayer(nullptr)
-  , mDrawingMode(false)
-  , mShowingOptions(false)
-  , mShowingTitle(false)
-  , mInitialLoadError(false)
-  , mShowingVideo(false)
-  , mShowingWeb(false)
-  , mMediaRotation(0)
   , mPlayerLoadedTimer(mEngine)
   , mControlsTimeoutTimer(mEngine) {
 
-	setChannelName(eventChannel);
+	BaseElement::setChannelName(eventChannel);
 	if (eventChannel.empty()) {
 		mEventClient.setNotifier(g.getNotifier());
 	} else {
@@ -78,19 +71,18 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	/* setTransparent(false);
 	setColor(ci::Color(1.f, 0.f, 1.f)); */
 
-	auto tapCallback = [this](ds::ui::Sprite* bs, const ci::vec3& pos) {
+	auto tapCallback = [this](Sprite* bs, const ci::vec3& pos) {
 		if (mIsFullscreen) {
 			hideTitle();
 			hideInnerSideBar();
-			mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(ds::model::ContentModelRef(),
-																			VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-																			ViewerCreationArgs::kViewLayerTop)));
+			mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
+				ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos, ViewerCreationArgs::kViewLayerTop)));
 		} else {
 			showTitle();
 			showInnerSideBar();
 		}
 	};
-	auto doubleTapCallback = [this](ds::ui::Sprite* bs, const ci::vec3& pos) {
+	auto doubleTapCallback = [this](Sprite* bs, const ci::vec3& pos) {
 		callAfterDelay(
 			[this] {
 				if (getIsFullscreen()) {
@@ -104,7 +96,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 
 	mRootLayout = new ds::ui::SmartLayout(mEngine, layoutPath);
 	addChildPtr(mRootLayout);
-	mRootLayout->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+	mRootLayout->setProcessTouchCallback([this](Sprite* bs, const ds::ui::TouchInfo& ti) {
 		if (ti.mPhase == ds::ui::TouchInfo::Moved) {
 			bs->passTouchToSprite(this, ti);
 			return;
@@ -119,7 +111,7 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	if (background) {
 		background->setTapCallback(tapCallback);
 		background->setDoubleTapCallback(doubleTapCallback);
-		background->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+		background->setProcessTouchCallback([this](Sprite* bs, const ds::ui::TouchInfo& ti) {
 			if (ti.mPhase == ds::ui::TouchInfo::Moved) {
 				bs->passTouchToSprite(this, ti);
 				return;
@@ -134,14 +126,14 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 	mMediaPlayer = mRootLayout->getSprite<ds::ui::MediaPlayer>("media_player");
 	if (mMediaPlayer) {
 		mMediaPlayer->setStatusCallback([this](const bool isAllGood) {
-			const bool wasErrored = mInitialLoadError;
-			mInitialLoadError	  = false;
+			const bool hadError = mInitialLoadError;
+			mInitialLoadError	= false;
 			if (!mRootLayout) return;
-			if (auto placehodler = mRootLayout->getSprite("loading_placeholder")) {
-				placehodler->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeNone,
-										  [placehodler] { placehodler->hide(); });
+			if (auto placeholder = mRootLayout->getSprite("loading_placeholder")) {
+				placeholder->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeNone,
+										  [placeholder] { placeholder->hide(); });
 			}
-			if (wasErrored) {
+			if (hadError) {
 				if (auto theBody = mRootLayout->getSprite<ds::ui::Text>("body")) {
 					theBody->hide();
 					theBody->setText("");
@@ -195,11 +187,11 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 		if (pdfPage != 0) {
 			particleBackground.setProperty("pdf_page", pdfPage);
 		}
-		auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(particleBackground);
+		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(particleBackground);
 		particleBackground.setPropertyResource(
-			mMediaPropertyKey,
-			getMedia().getPropertyResource(mMediaPropertyKey)); // TODO: cannot tell if this wants mMediaPropertyKey
-		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ds::model::ContentModelRef()));
+			mediaPropertyKey,
+			getMedia().getPropertyResource(mediaPropertyKey)); // TODO: cannot tell if this wants mMediaPropertyKey
+		mEventClient.notify(RequestBackgroundChange(BACKGROUND_TYPE_PARTICLES, ContentModelRef()));
 	});
 	mRootLayout->setSpriteClickFn("duplicate.the_button", [this] {
 		ViewerCreationArgs args = getDuplicateCreationArgs();
@@ -253,7 +245,7 @@ void TitledMediaViewer::calculateSizeLimits() {
 	float settingsAspect = 1.0f;
 	float settingsWidth	 = mMediaPlayer->getSettings().mDefaultBounds.x;
 	float settingsHeight = mMediaPlayer->getSettings().mDefaultBounds.y;
-	/* if(mShowingWebcam){
+	/* if(mShowingWebCam){
 			settingsWidth = contentWidth;
 			settingsHeight = contentHeight;
 	} */
@@ -284,7 +276,7 @@ void TitledMediaViewer::calculateSizeLimits() {
 }
 
 void TitledMediaViewer::onMediaSet() {
-	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	auto helper = ContentHelperFactory::getDefault<WafflesHelper>();
 
 	auto newMediaRef = helper->getRecordByUid(mMediaRef.getUid());
 	if (newMediaRef) {
@@ -320,7 +312,7 @@ void TitledMediaViewer::onMediaSet() {
 		ds::Resource fakeRes;
 		fakeRes.setWidth(1920);
 		fakeRes.setHeight(1080);
-		
+
 		// get the stream source
 		auto streamSource = mMediaRef;
 		if (isStream) {
@@ -345,7 +337,7 @@ void TitledMediaViewer::onMediaSet() {
 
 			} else if (streamType == "capture") {
 				DS_LOG_INFO("Got a capture stream! " << streamAddress);
-				if (auto cappy = mRootLayout->getSprite<waffles::CapturePlayer>("capture_player")) {
+				if (auto cappy = mRootLayout->getSprite<CapturePlayer>("capture_player")) {
 					// DS_LOG_INFO("Got a stream! " << primaryResource.getAbsoluteFilePath());
 
 					if (cappy->setCaptureSource(streamAddress)) {
@@ -356,7 +348,7 @@ void TitledMediaViewer::onMediaSet() {
 						setSize(cappy->getWidth(), cappy->getHeight());
 						setSizeLimits();
 						setViewerSize(cappy->getWidth(), cappy->getHeight());
-						mShowingWebcam = true;
+						mShowingWebCam = true;
 
 						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("record_name"));
 						mRootLayout->runLayout();
@@ -389,7 +381,7 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mCanDisplayInterface  = true;
 	mvs.mWebStartTouchable	  = mCreationArgs.mStartLocked;
 	mvs.mPdfStartTouchable	  = mCreationArgs.mStartLocked;
-	if (mShowingWebcam) {
+	if (mShowingWebCam) {
 		mvs.mDefaultBounds = ci::vec2(1920, 1080);
 	}
 
@@ -397,7 +389,7 @@ void TitledMediaViewer::onMediaSet() {
 	if (primaryResource.getAbsoluteFilePath().find(".gif") != std::string::npos) {
 		try {
 			// Awkwardly load the image from the network so we know how big to make it
-			auto imgy = ci::loadImage(ci::loadUrl(primaryResource.getAbsoluteFilePath()));
+			auto imgy = loadImage(ci::loadUrl(primaryResource.getAbsoluteFilePath()));
 			primaryResource.setWidth(imgy->getWidth());
 			primaryResource.setHeight(imgy->getHeight());
 			mvs.mWebStartTouchable = false;
@@ -420,7 +412,7 @@ void TitledMediaViewer::onMediaSet() {
 
 	mvs.mPdfCanShowLinks	   = true;
 	mvs.mPdfLinkTappedCallback = [this](ds::pdf::PdfLinkInfo linkInfo) {
-		ds::model::ContentModelRef fakeThing;
+		ContentModelRef fakeThing;
 		fakeThing.setPropertyResource("media",
 									  ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
 		mEventClient.notify(RequestViewerLaunchEvent(
@@ -429,7 +421,7 @@ void TitledMediaViewer::onMediaSet() {
 
 	mMediaPlayer->setSettings(mvs);
 
-	if (!mShowingWebcam) {
+	if (!mShowingWebCam) {
 		mRootLayout->setContentModel(mMediaRef);
 
 
@@ -438,7 +430,7 @@ void TitledMediaViewer::onMediaSet() {
 									 .getChildById(primaryResource.getThumbnailId())
 									 .getPropertyResource("resourcesid");
 
-			auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("thumb_hodler");
+			auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("thumb_hodler"); // TODO fix typo
 			auto vidThumb  = mRootLayout->getSprite<ds::ui::Image>("video_thumb");
 			if (theLayout && vidThumb && !thumbResource.empty()) {
 				mShowingVideo = true;
@@ -446,11 +438,11 @@ void TitledMediaViewer::onMediaSet() {
 				mMediaPlayer->setContentAspectRatio(primaryResource.getWidth() / primaryResource.getHeight());
 				theLayout->show();
 				vidThumb->setImageResource(thumbResource);
-				vidThumb->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) { startVideo(); });
-				vidThumb->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+				vidThumb->setTapCallback([this](Sprite* bs, const ci::vec3& pos) { startVideo(); });
+				vidThumb->setProcessTouchCallback([this](Sprite* bs, const ds::ui::TouchInfo& ti) {
 					if (ti.mPhase == ds::ui::TouchInfo::Moved) {
 						if (ti.mFingerIndex > 0 ||
-							glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()) {
+							distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()) {
 							bs->passTouchToSprite(this, ti);
 							return;
 						}
@@ -462,10 +454,10 @@ void TitledMediaViewer::onMediaSet() {
 		} else {
 			mShowingVideo = false;
 
-			auto prePipe  = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, "");
-			prePipe		  = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe);
-			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, "");
-			postPipe	  = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe);
+			auto prePipe  = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, ""); // TODO fix typo
+			prePipe		  = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe); // TODO fix typo
+			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, ""); // TODO fix typo
+			postPipe	  = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe); // TODO fix typo
 
 			// Testing some additional streaming options
 			if (!prePipe.empty() && !postPipe.empty()) {
@@ -491,7 +483,7 @@ void TitledMediaViewer::onMediaSet() {
 
 		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
 			if (onScreen) {
-				auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<BaseWafflesHelper>();
+				auto wafflesHelper = ContentHelperFactory::getDefault<BaseWafflesHelper>();
 
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
@@ -559,7 +551,7 @@ void TitledMediaViewer::onMediaSet() {
 			}
 		}
 
-		pdfPlayer->setDoubleTapCallback([this](ds::ui::Sprite*, const ci::vec3&) {
+		pdfPlayer->setDoubleTapCallback([this](Sprite*, const ci::vec3&) {
 			if (getIsFullscreen()) {
 				mEventClient.notify(RequestUnFullscreenViewer(this));
 			} else {
@@ -568,8 +560,8 @@ void TitledMediaViewer::onMediaSet() {
 		});
 	}
 
-	if (!mShowingWebcam) {
-		auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	if (!mShowingWebCam) {
+		auto wafflesHelper = ContentHelperFactory::getDefault<WafflesHelper>();
 		if (wafflesHelper) {
 			wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 		}
@@ -579,63 +571,11 @@ void TitledMediaViewer::onMediaSet() {
 	// setting size is necessary to get size limits to work
 	calculateSizeLimits();
 
-	if (!mShowingWebcam) {
+	if (!mShowingWebCam) {
 		if (getWidth() < 1.0f || getHeight() < 1.0f ||
 			(!mShowingVideo && (!mMediaPlayer->getInitialized() || mInitialLoadError))) {
-			// mRootLayout->setSpriteText("name", "Sorry! Couldn't load this media type or file: " +
-			// primaryResource.getAbsoluteFilePath() + " Title: " + mMediaRef.getPropertyString("name"));
-
-			mContentAspectRatio = 1.0f;
-
-			setSize(300.0f, 300.0f);
-			setSizeLimits();
-			setViewerSize(300.0f, 300.0f);
-			// showTitle();
-			// mCanResize	= false;
-			mFatalError = true;
-
-			if (mRootLayout) {
-				ds::model::ContentModelRef errorModel;
-				
-				std::string errorMessage = "We couldn't load this piece of media because ";
-				if (ds::safeFileExistsCheck(primaryResource.getAbsoluteFilePath())) {
-					errorMessage.append("the size of the media was not found.");
-				} else if (helper->isValidStreamSource(mMediaRef, WafflesHelper::WAFFLESCATEGORY) || helper->isValidStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY)) {
-					errorMessage.append("the stream was not accessible.");
-				} 
-				else {
-					errorMessage.append("the media file couldn't be found on the hard disk.");
-				}
-
-				errorModel.setProperty("name", std::string("Sorry!"));
-				errorModel.setProperty("error", errorMessage);
-				errorModel.setPropertyResource("media",
-											   primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
-				errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
-				errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
-
-				
-
-				auto errorSize =
-					mEngine.getWafflesSettings().getVec2("media_viewer:error_box:size", 0, ci::vec2(536, 338));
-				auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, mCreationArgs.mLocation,
-												ViewerCreationArgs::kViewLayerTop, 0, mCreationArgs.mFromCenter);
-
-
-				mEventClient.notify(RequestViewerLaunchEvent(eArgs));
-				
-				
-				mMediaPlayer = nullptr; // Delete dangling pointer.
-			}
-
-			// callAfterDelay(
-			//	[this, errorModel] {
-			//		mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
-			//			errorModel, VIEW_TYPE_ERROR, getCenterPosition(), ViewerCreationArgs::kViewLayerTop)));
-			//		if (mCloseRequestCallback) mCloseRequestCallback();
-			//	},
-			//	0.01f);
-
+			mFatalError	 = true;
+			mMediaPlayer = nullptr;
 		} else {
 			mFatalError = false;
 		}
@@ -698,11 +638,11 @@ void TitledMediaViewer::onMediaSet() {
 	}
 }
 
-void TitledMediaViewer::startVideo() {
+void TitledMediaViewer::startVideo() const {
 	if (!mMediaPlayer || !mRootLayout) return;
-	auto mvs			   = mMediaPlayer->getSettings();
-	auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
-	auto primaryResource   = mMediaRef.getPropertyResource(mMediaPropertyKey);
+	auto mvs			  = mMediaPlayer->getSettings();
+	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+	auto primaryResource  = mMediaRef.getPropertyResource(mediaPropertyKey);
 
 	if (primaryResource.getType() != ds::Resource::VIDEO_TYPE &&
 		primaryResource.getType() != ds::Resource::YOUTUBE_TYPE) {
@@ -712,7 +652,7 @@ void TitledMediaViewer::startVideo() {
 	mvs.mVideoAutoPlayFirstFrame = false;
 	mMediaPlayer->setSettings(mvs);
 
-	auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("thumb_hodler");
+	auto theLayout = mRootLayout->getSprite<ds::ui::LayoutSprite>("thumb_hodler"); // TODO fix typo
 	auto vidThumb  = mRootLayout->getSprite<ds::ui::Image>("video_thumb");
 	if (theLayout && vidThumb) {
 		theLayout->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeNone, [theLayout] { theLayout->hide(); });
@@ -720,7 +660,7 @@ void TitledMediaViewer::startVideo() {
 	}
 
 	mMediaPlayer->loadMedia(primaryResource);
-	auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+	auto wafflesHelper = ContentHelperFactory::getDefault<WafflesHelper>();
 	if (wafflesHelper) {
 		wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
@@ -786,7 +726,6 @@ void TitledMediaViewer::processAllowedButtons() const {
 
 void TitledMediaViewer::onLayout() {
 
-	
 
 	if (mMediaPlayer) {
 		float w = getWidth();
@@ -815,18 +754,17 @@ void TitledMediaViewer::onLayout() {
 		}
 	}
 
-	
 
 	if (mRootLayout) {
 		mRootLayout->completeAllTweens(false, true);
 		mRootLayout->setSize(getWidth(), getHeight());
-		
+
 		mRootLayout->runLayout();
 		mRootLayout->clearAnimateOnTargets(true);
 	}
 }
 
-void TitledMediaViewer::layoutHotspots() {
+void TitledMediaViewer::layoutHotspots() const {
 	for (auto it : mHotspots) {
 		auto	 thisCm = it->getContentModel();
 		ci::vec2 pos	= ci::vec2(thisCm.getPropertyFloat("hotspot_x"), thisCm.getPropertyFloat("hotspot_y"));
@@ -853,7 +791,7 @@ void TitledMediaViewer::loadHotspots() {
 
 	mHotspots.clear();
 
-	for (auto hs : mMediaRef.getChildren()) {
+	for (const auto& hs : mMediaRef.getChildren()) {
 		ci::vec2 pos  = ci::vec2(hs.getPropertyFloat("hotspot_x"), hs.getPropertyFloat("hotspot_y"));
 		ci::vec2 size = ci::vec2(hs.getPropertyFloat("hotspot_w"), hs.getPropertyFloat("hotspot_h"));
 		bool	 noXY = (pos.x == 0.f && pos.y == 0.f);
@@ -874,14 +812,14 @@ void TitledMediaViewer::loadHotspots() {
 		addChildPtr(hotspot);
 		mHotspots.emplace_back(hotspot);
 
-		hotspot->setTapCallback([this, hotspot](ds::ui::Sprite* bs, const ci::vec3& pos) {
-			auto helper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
+		hotspot->setTapCallback([this, hotspot](Sprite* bs, const ci::vec3& pos) {
+			auto helper = ContentHelperFactory::getDefault<WafflesHelper>();
 			auto field_name =
 				mEngine.getWafflesSettings().getString("hotspot:destination:field_name", 0, "destination");
 			auto destId = hotspot->getContentModel().getPropertyString(field_name);
 			if (!destId.empty()) {
 				// launch the thing for the hotspot at pos
-				ds::model::ContentModelRef linkMedia = helper->getRecordByUid(destId);
+				ContentModelRef linkMedia = helper->getRecordByUid(destId);
 				if (linkMedia.empty()) {
 					DS_LOG_WARNING("Hotspot node not found for id == " << destId);
 				} else {
@@ -890,12 +828,12 @@ void TitledMediaViewer::loadHotspots() {
 						mEventClient.notify(RequestViewerLaunchEvent(
 							ViewerCreationArgs(linkMedia, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 					} else {
-						mEventClient.notify(waffles::RequestEngagePresentation(linkMedia));
+						mEventClient.notify(RequestEngagePresentation(linkMedia));
 					}
 				}
 			} else if (!hotspot->getContentModel().getChildren().empty()) {
 				auto position = pos;
-				for (auto child : hotspot->getContentModel().getChildren()) {
+				for (const auto& child : hotspot->getContentModel().getChildren()) {
 					mEventClient.notify(
 						RequestViewerLaunchEvent(ViewerCreationArgs(child, VIEW_TYPE_TITLED_MEDIA_VIEWER, position)));
 					position = position + mEngine.getWafflesSettings().getVec3(
@@ -909,9 +847,9 @@ void TitledMediaViewer::loadHotspots() {
 		});
 
 		if (mCreationArgs.mTouchEvents) {
-			hotspot->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
+			hotspot->setProcessTouchCallback([this](Sprite* bs, const ds::ui::TouchInfo& ti) {
 				if (ti.mPhase == ds::ui::TouchInfo::Moved &&
-					glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()) {
+					distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()) {
 					bs->passTouchToSprite(this, ti);
 					return;
 				}
@@ -944,7 +882,7 @@ void TitledMediaViewer::onCreationArgsSet() {
 				if (mCreationArgs.mVideoTimePosition > 0.0) {
 					video->seekPosition(mCreationArgs.mVideoTimePosition);
 				}
-				video->setVolume((float)(mCreationArgs.mVolume) / 100.0f);
+				video->setVolume(float(mCreationArgs.mVolume) / 100.0f);
 				if (!mCreationArgs.mAutoStart) {
 					// vidPlayer->setResetOnVideoComplete(true);
 					if (mCreationArgs.mVideoTimePosition > 0.0) {
@@ -1082,8 +1020,8 @@ void TitledMediaViewer::toggleDrawing() {
 
 		if (mMediaPlayer) {
 			// let streams keep on playing
-			auto mMediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
-			if (mMediaRef.getPropertyResource(mMediaPropertyKey).getType() != ds::Resource::VIDEO_STREAM_TYPE) {
+			auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(mMediaRef);
+			if (mMediaRef.getPropertyResource(mediaPropertyKey).getType() != ds::Resource::VIDEO_STREAM_TYPE) {
 				mMediaPlayer->pauseContent();
 			}
 			mMediaPlayer->hideInterface();
@@ -1166,7 +1104,7 @@ void TitledMediaViewer::unmute() {
 	}
 }
 
-waffles::ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() {
+ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() const {
 
 	ViewerCreationArgs args = ViewerCreationArgs(mMediaRef, VIEW_TYPE_TITLED_MEDIA_VIEWER,
 												 ci::vec3(getPosition().x, getPosition().y, getPosition().z),
@@ -1179,7 +1117,7 @@ waffles::ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() {
 	if (vidPlayer && vidPlayer->getVideo()) {
 		auto theVideo			= vidPlayer->getVideo();
 		args.mVideoTimePosition = theVideo->getCurrentPosition();
-		args.mVolume			= (int)roundf(theVideo->getVolume() * 100.0f);
+		args.mVolume			= int(roundf(theVideo->getVolume() * 100.0f));
 		args.mAutoStart			= theVideo->getIsPlaying();
 		args.mMuted				= theVideo->getIsMuted();
 		args.mLooped			= theVideo->getIsLooping();
@@ -1193,20 +1131,20 @@ waffles::ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() {
 	return args;
 }
 
-void TitledMediaViewer::setInterfaceLocked(bool isLocked) {
+void TitledMediaViewer::setInterfaceLocked(bool isLocked) const {
 	if (!mMediaPlayer) return;
 
-	if (auto iFace = dynamic_cast<ds::ui::WebInterface*>(mMediaPlayer->getMediaInterface())) {
+	if (auto web = dynamic_cast<ds::ui::WebInterface*>(mMediaPlayer->getMediaInterface())) {
 		if (isLocked) {
-			iFace->startTouch();
+			web->startTouch();
 		} else {
-			iFace->stopTouch();
+			web->stopTouch();
 		}
-	} else if (auto iFace = dynamic_cast<ds::ui::PDFInterface*>(mMediaPlayer->getMediaInterface())) {
+	} else if (auto pdf = dynamic_cast<ds::ui::PDFInterface*>(mMediaPlayer->getMediaInterface())) {
 		if (isLocked) {
-			iFace->startTouch();
+			pdf->startTouch();
 		} else {
-			iFace->stopTouch();
+			pdf->stopTouch();
 		}
 	}
 }
@@ -1227,7 +1165,7 @@ void TitledMediaViewer::rotateMedia() {
 	ci::vec3 prevPos = mMediaPlayer->getPosition();
 	// mMediaPlayer->tweenRotation(ci::vec3(0.0f, 0.0f, 90.0f * (float)mMediaRotation), mEngine.getAnimDur(), 0.0f,
 	// ci::easeInOutQuint);
-	mMediaPlayer->setRotation(ci::vec3(0.0f, 0.0f, 90.0f * (float)mMediaRotation));
+	mMediaPlayer->setRotation(ci::vec3(0.0f, 0.0f, 90.0f * float(mMediaRotation)));
 
 	float w = mMediaPlayer->getHeight();
 	float h = mMediaPlayer->getWidth();
@@ -1239,8 +1177,8 @@ void TitledMediaViewer::rotateMedia() {
 
 	mContentAspectRatio = w / h;
 
-	BasePanel::setAbsoluteSizeLimits(ci::vec2(mMinSize.x, mMinSize.x / mContentAspectRatio),
-									 ci::vec2(mEngine.getWorldWidth(), mEngine.getWorldHeight()));
+	setAbsoluteSizeLimits(ci::vec2(mMinSize.x, mMinSize.x / mContentAspectRatio),
+						  ci::vec2(mEngine.getWorldWidth(), mEngine.getWorldHeight()));
 	setSize(w, h);
 	setSizeLimits();
 	setViewerSize(w, h);
@@ -1302,9 +1240,9 @@ void TitledMediaViewer::toggleOptions() {
 void TitledMediaViewer::showTitle() {
 	if (!mRootLayout || mShowingTitle || mShowingKeyboard) return;
 	mShowingTitle = true;
-	if (auto titleHodler = mRootLayout->getSprite("title_layout")) {
-		titleHodler->show();
-		titleHodler->tweenOpacity(1.0f, mEngine.getAnimDur());
+	if (auto titleHolder = mRootLayout->getSprite("title_layout")) {
+		titleHolder->show();
+		titleHolder->tweenOpacity(1.0f, mEngine.getAnimDur());
 	}
 	onLayout();
 
@@ -1314,15 +1252,15 @@ void TitledMediaViewer::showTitle() {
 			hideTitle();
 			hideInnerSideBar();
 		},
-		mEngine.getWafflesSettings().getFloat("media_viewer:control_timeout", 0, 5.f));
+		mEngine.getWafflesSettings().getDouble("media_viewer:control_timeout", 0, 5.0));
 }
 
 void TitledMediaViewer::hideTitle() {
 	if (!mRootLayout || !mShowingTitle) return;
 	mShowingTitle = false;
-	if (auto titleHodler = mRootLayout->getSprite("title_layout")) {
-		titleHodler->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeNone,
-								  [titleHodler] { titleHodler->hide(); });
+	if (auto titleHolder = mRootLayout->getSprite("title_layout")) {
+		titleHolder->tweenOpacity(0.0f, mEngine.getAnimDur(), 0.0f, ci::easeNone,
+								  [titleHolder] { titleHolder->hide(); });
 	}
 	onLayout();
 
@@ -1423,7 +1361,7 @@ void TitledMediaViewer::userInputReceived() {
 	layout();
 }
 
-void TitledMediaViewer::setKeyboardButtonImage(std::string imagePath, ds::ui::ImageButton* keyboardBtn) {
+void TitledMediaViewer::setKeyboardButtonImage(const std::string& imagePath, ds::ui::ImageButton* keyboardBtn) {
 	keyboardBtn->setHighImage(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
 	keyboardBtn->setNormalImage(ds::Environment::expand(imagePath), ds::ui::Image::IMG_CACHE_F);
 	keyboardBtn->setColor(ci::Color::black());

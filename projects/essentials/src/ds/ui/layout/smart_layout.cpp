@@ -198,7 +198,7 @@ void SmartLayout::setSpriteClickFn(const std::string& spriteName, const std::fun
 	}
 }
 
-void SmartLayout::setContentModel(ds::model::ContentModelRef& theData) {
+void SmartLayout::setContentModel(const ds::model::ContentModelRef& theData) {
 	mContentModel = theData;
 	for (auto child : mSpriteMap) {
 		// Handle model
