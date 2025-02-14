@@ -16,7 +16,7 @@
 namespace {
 static struct Initializer {
 	Initializer() {
-		ds::App::AddStartup([](ds::Engine& engine) { ds::ui::PanoramicVideo::installSprite(engine); });
+		ds::App::AddStartup("PanoramicVideo", [](ds::Engine& engine) { ds::ui::PanoramicVideo::installSprite(engine); });
 	}
 } INIT;
 static char _BLOB;

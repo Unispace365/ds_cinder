@@ -8,7 +8,7 @@
 
 namespace {
 auto INIT = []() {
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("CapturePlayer", [](ds::Engine& e) {
 		e.registerSpriteImporter("capture_player", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 			return new waffles::CapturePlayer(enginey);
 		});

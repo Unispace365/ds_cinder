@@ -26,7 +26,7 @@ namespace {
 // Register our custom UI elements with the engine.
 
 auto INIT = []() {
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("BackgroundView", [](ds::Engine& e) {
 		// Register our custom sprite(s).
 		e.registerSpriteImporter("background_view", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 			return new waffles::BackgroundView(enginey);

@@ -96,7 +96,7 @@ namespace {
 auto INIT = []() {
 	
 	using ds::ui::DonutArc;
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("DonutArc", [](ds::Engine& e) {
 		/* e.registerSpriteImporter(
 			"donut_arc", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* { return new DonutArc(enginey); });
  */

@@ -119,8 +119,7 @@ void EngineSettingsPreloader::earlyPrepareAppSettings(ci::app::AppBase::Settings
 		settings->setMultiTouchEnabled();
 	}
 }
-
-
+[[deprecated]] 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 	if (fn != nullptr) get_startups().push_back({"unamed", fn});
 }
@@ -176,6 +175,7 @@ App::App(const RootList& roots)
 	for (auto it = startups.begin(), end = startups.end(); it != end; ++it) {
 		auto [name,func]  = (*it);
 		if (func) {
+			DS_LOG_INFO("Running startup: " << name);
 			func(mEngine);
 		};
 	}

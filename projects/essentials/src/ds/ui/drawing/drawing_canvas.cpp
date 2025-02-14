@@ -104,7 +104,7 @@ std::string shaderNameOpaccy = "opaccy_shader";
 	class Init {
 	  public:
 		Init() {
-			ds::App::AddStartup([](ds::Engine& e) {
+			ds::App::AddStartup("DrawingCanvas", [](ds::Engine& e) {
 				e.installSprite([](ds::BlobRegistry& r) { ds::ui::DrawingCanvas::installAsServer(r); },
 								[](ds::BlobRegistry& r) { ds::ui::DrawingCanvas::installAsClient(r); });
 			});

@@ -14,7 +14,7 @@
 
 namespace {
 auto INIT = []() {
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("PinboardButton", [](ds::Engine& e) {
 		e.registerSpriteImporter("pinboard_button", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 			return new waffles::PinboardButton(enginey, "waffles/pinboard/pinboard_button.xml");
 		});

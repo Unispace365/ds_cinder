@@ -91,7 +91,7 @@ namespace {
 	class Init {
 	  public:
 		Init() {
-			ds::App::AddStartup([](ds::Engine& e) {
+			ds::App::AddStartup("GstVideo", [](ds::Engine& e) {
 				ds::gstreamer::GstVideoService* w = new ds::gstreamer::GstVideoService(e);
 				if (w) {
 					e.addService("gst_video", *w);

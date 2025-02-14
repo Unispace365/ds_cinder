@@ -20,7 +20,7 @@ namespace {
 	class Init {
 	  public:
 		Init() {
-			ds::App::AddStartup([](ds::Engine& e) {
+			ds::App::AddStartup("Pdf", [](ds::Engine& e) {
 				ds::pdf::Service* w = new ds::pdf::Service(e);
 				if (w) {
 					e.addService("pdf", *w);

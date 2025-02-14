@@ -6,7 +6,7 @@ namespace {
 
 // Add the 'svg' sprite type so we can use it in our layout XML.
 auto INIT = []() {
-	ds::App::AddStartup([](ds::Engine& e) {
+	ds::App::AddStartup("SvgSprite", [](ds::Engine& e) {
 		// Register our custom sprite(s).
 		e.registerSpriteImporter(
 			"svg", [](ds::ui::SpriteEngine& engine) -> ds::ui::Sprite* { return new ds::ui::SvgSprite(engine); });

@@ -6,6 +6,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/svg_sprite.h>
 
 #include "ds/ui/media/player/panoramic_video_player.h"
 #include "ds/ui/media/player/pdf_player.h"

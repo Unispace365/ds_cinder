@@ -19,7 +19,7 @@ namespace {
 class Init {
   public:
 	Init() {
-		ds::App::AddStartup([](ds::Engine& e) {
+		ds::App::AddStartup("ThumbnailBar", [](ds::Engine& e) {
 			e.registerSpriteImporter("thumbnail_bar", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 				return new ds::ui::ThumbnailBar(enginey);
 			});

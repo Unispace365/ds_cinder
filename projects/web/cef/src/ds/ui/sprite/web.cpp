@@ -28,7 +28,7 @@ namespace {
 class Init {
   public:
 	Init() {
-		ds::App::AddStartup([](ds::Engine& e) {
+		ds::App::AddStartup("Web", [](ds::Engine& e) {
 			ds::web::WebCefService* w = new ds::web::WebCefService(e);
 			if (!w) {
 				DS_LOG_WARNING("Couldn't create the CEF web service!");
