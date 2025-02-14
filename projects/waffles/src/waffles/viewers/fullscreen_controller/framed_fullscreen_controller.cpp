@@ -26,7 +26,7 @@
 #include "waffles/viewers/viewer_controller.h"
 #include "waffles/waffles_events.h"
 
-
+#include "waffles/util/shadow_layout.h"
 namespace waffles {
 
 FramedFullscreenController::FramedFullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
@@ -406,7 +406,7 @@ void FramedFullscreenController::collapse() {
 
 	if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
 	if (mMediaInterface && mMediaInterface->isLocked() && mUncollapsedSizeSet) {
-		return;
+		//return;
 	}
 
 	removeDrawingTools();
@@ -418,6 +418,7 @@ void FramedFullscreenController::collapse() {
 	auto btnHigh	 = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon_high");
 	auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+	auto shadow		 = mRootLayout->getSprite<waffles::ShadowLayout>("player_shade");
 	if (btn && btnHigh && btnLayout) {
 
 		btn->setImageFile("%APP%/data/images/waffles/icons(framed)/expand=active2x.png");
@@ -433,8 +434,11 @@ void FramedFullscreenController::collapse() {
 	}
 	if (controls && backRect) {
 		controls->tweenOpacity(0, 0.25);
-		backRect->tweenSize(ci::vec3(0, 0, 0), 0.25, 0.20);
+		backRect->tweenSize(ci::vec3(0, 0, 0), 0.25, 0.20, ci::easeNone, nullptr, [shadow]() {
+			if (shadow) shadow->dirtyBlur();
+		});
 	}
+	
 	mIsCollapsed = true;
 }
 
@@ -444,10 +448,11 @@ void FramedFullscreenController::uncollapse() {
 	auto backRect	 = mRootLayout->getSprite("bg_filler");
 	auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 	auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+	auto shadow		 = mRootLayout->getSprite<waffles::ShadowLayout>("player_shade");
 
 	if (controls && backRect) {
 		controls->tweenOpacity(1, 0.25, 0.20);
-		backRect->tweenSize(mUncollapsedSize, 0.25);
+		backRect->tweenSize(mUncollapsedSize, 0.25, 0, ci::easeNone, nullptr, [shadow]() { if(shadow) shadow->dirtyBlur(); });
 	}
 	auto btnLayout = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
 	auto btn	   = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
