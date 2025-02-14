@@ -596,11 +596,14 @@ void TitledMediaViewer::onMediaSet() {
 
 			if (mRootLayout) {
 				ds::model::ContentModelRef errorModel;
-
+				
 				std::string errorMessage = "We couldn't load this piece of media because ";
 				if (ds::safeFileExistsCheck(primaryResource.getAbsoluteFilePath())) {
 					errorMessage.append("the size of the media was not found.");
-				} else {
+				} else if (helper->isValidStreamSource(mMediaRef, WafflesHelper::WAFFLESCATEGORY) || helper->isValidStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY)) {
+					errorMessage.append("the stream was not accessible.");
+				} 
+				else {
 					errorMessage.append("the media file couldn't be found on the hard disk.");
 				}
 
