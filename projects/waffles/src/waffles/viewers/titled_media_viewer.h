@@ -16,46 +16,46 @@ class PresetMediaHotspotRef;
  */
 class TitledMediaViewer : public BaseElement {
   public:
-	TitledMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "",
-					  std::string layoutPath = "waffles/viewer/titled_media_viewer.xml");
+	TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel = "",
+					  const std::string& layoutPath = "waffles/viewer/titled_media_viewer.xml");
 
-	virtual void onMediaSet() override;
+	void onMediaSet() override;
 
-	virtual void showTitle() override;
-	virtual void hideTitle() override;
-	virtual void toggleTitle() override;
+	void showTitle() override;
+	void hideTitle() override;
+	void toggleTitle() override;
 
-	virtual void showInnerSideBar() override;
-	virtual void hideInnerSideBar() override;
-	virtual void toggleInnerSideBar() override;
+	void showInnerSideBar() override;
+	void hideInnerSideBar() override;
+	void toggleInnerSideBar() override;
 
-	virtual void setToFullscreen(const bool immediate,const bool showController) override;
+	void setToFullscreen(const bool immediate, const bool showController) override;
 
-	// 0 = normal, 1 = 90 degs, 2 = 180 degs, 3 = 270
-	virtual int getMediaRotation() override { return mMediaRotation; }
+	// 0 = normal, 1 = 90 degrees, 2 = 180 degrees, 3 = 270 degrees
+	int getMediaRotation() override { return mMediaRotation; }
 
 	// May be nullptr, use caution
-	ds::ui::MediaPlayer* getMediaPlayer() { return mMediaPlayer; }
+	ds::ui::MediaPlayer* getMediaPlayer() const { return mMediaPlayer; }
 
-	bool		 getIsDrawingMode() { return mDrawingMode; }
+	bool		 getIsDrawingMode() const { return mDrawingMode; }
 	void		 toggleDrawing();
-	DrawingArea* getDrawingArea() { return mDrawingArea; }
+	DrawingArea* getDrawingArea() const { return mDrawingArea; }
 
 	/// In case viewer gets destroyed while drawing was happening
 	void cleanupDrawing(bool clearDrawArea);
 	/// Will only affect content that can be played (videos)
-	virtual void playContent() override;
+	void playContent() override;
 	/// If this was a video and started as just a thumbnail with a play icon, start the actual video
-	void		 startVideo();
-	virtual void pauseContent() override;
-	virtual void toggleMute() override;
-	virtual void mute() override;
-	virtual void unmute() override;
+	void startVideo() const;
+	void pauseContent() override;
+	void toggleMute() override;
+	void mute() override;
+	void unmute() override;
 
-	ViewerCreationArgs getDuplicateCreationArgs();
+	ViewerCreationArgs getDuplicateCreationArgs() const;
 
-	void setInterfaceLocked(bool isLocked);
-	bool isInterfaceLocked() {
+	void setInterfaceLocked(bool isLocked) const;
+	bool isInterfaceLocked() const {
 		if (mMediaPlayer) return mMediaPlayer->isInterfaceLocked();
 		return false;
 	}
@@ -65,18 +65,18 @@ class TitledMediaViewer : public BaseElement {
 
   protected:
 	void processAllowedButtons() const;
-	virtual void userInputReceived() override;
-	virtual void onLayout() override;
-	virtual void onCreationArgsSet() override;
-	virtual void onFullscreenSet() override;
-	virtual void onDetachedSet() override;
-	
+	void userInputReceived() override;
+	void onLayout() override;
+	void onCreationArgsSet() override;
+	void onFullscreenSet() override;
+	void onDetachedSet() override;
 
-	void loadHotspots();
-	void layoutHotspots();
-	void calculateSizeLimits();
-	void toggleOptions();
-	void setKeyboardButtonImage(std::string imageFile, ds::ui::ImageButton* keyboardBtn);
+
+	void		loadHotspots();
+	void		layoutHotspots() const;
+	void		calculateSizeLimits();
+	void		toggleOptions();
+	static void setKeyboardButtonImage(const std::string& imagePath, ds::ui::ImageButton* keyboardBtn);
 
 	ds::ui::SmartLayout*			  mRootLayout  = nullptr;
 	ds::ui::MediaPlayer*			  mMediaPlayer = nullptr;
@@ -91,8 +91,8 @@ class TitledMediaViewer : public BaseElement {
 	bool mInitialLoadError	  = false;
 	bool mShowingVideo		  = false;
 	bool mShowingWeb		  = false;
-	bool mShowingWebcam		  = false;
-	//std::string mMediaPropertyKey = "media";
+	bool mShowingWebCam		  = false;
+	// std::string mMediaPropertyKey = "media";
 
 	// 0 = normal, 1 = 90 degs, 2 = 180 degs, 3 = 270
 	int mMediaRotation = 0;
