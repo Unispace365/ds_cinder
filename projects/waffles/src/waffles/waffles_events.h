@@ -129,9 +129,10 @@ struct RequestFullscreenViewer : public ds::RegisteredEvent<RequestFullscreenVie
 };
 
 struct RequestUnFullscreenViewer : public ds::RegisteredEvent<RequestUnFullscreenViewer> {
-	RequestUnFullscreenViewer(BaseElement* viewer)
-		: mViewer(viewer) {}
+	RequestUnFullscreenViewer(BaseElement* viewer,bool immediate=false)
+		: mViewer(viewer),mImmediate(immediate) {}
 	BaseElement* mViewer;
+	bool		 mImmediate;
 };
 
 struct RequestAttachViewer : public ds::RegisteredEvent<RequestAttachViewer> {

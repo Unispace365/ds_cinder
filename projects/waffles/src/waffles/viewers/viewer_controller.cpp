@@ -561,8 +561,11 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 	auto completeCallback = [this, viewer]() {
 		removeViewer(viewer);
 	};
-
-	viewer->tweenAnimateOff(true, 0.f, 0.0f, completeCallback);
+	if (viewer->getViewerType() == VIEW_TYPE_LAUNCHER) {
+		viewer->tweenAnimateOff(false, 0.f, 0.0f, completeCallback);
+	}else{
+		viewer->tweenAnimateOff(true, 0.f, 0.0f, completeCallback);
+	}
 	/* if (style == 1) {
 		viewer->tweenOpacity(0.0f, mEngine.getAnimDur(), delayey, ci::easeNone, completeCallback);
 	} else if (style == 2) {
