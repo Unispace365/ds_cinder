@@ -582,60 +582,8 @@ void TitledMediaViewer::onMediaSet() {
 	if (!mShowingWebcam) {
 		if (getWidth() < 1.0f || getHeight() < 1.0f ||
 			(!mShowingVideo && (!mMediaPlayer->getInitialized() || mInitialLoadError))) {
-			// mRootLayout->setSpriteText("name", "Sorry! Couldn't load this media type or file: " +
-			// primaryResource.getAbsoluteFilePath() + " Title: " + mMediaRef.getPropertyString("name"));
-
-			mContentAspectRatio = 1.0f;
-
-			setSize(300.0f, 300.0f);
-			setSizeLimits();
-			setViewerSize(300.0f, 300.0f);
-			// showTitle();
-			// mCanResize	= false;
-			mFatalError = true;
-
-			if (mRootLayout) {
-				ds::model::ContentModelRef errorModel;
-				
-				std::string errorMessage = "We couldn't load this piece of media because ";
-				if (ds::safeFileExistsCheck(primaryResource.getAbsoluteFilePath())) {
-					errorMessage.append("the size of the media was not found.");
-				} else if (helper->isValidStreamSource(mMediaRef, WafflesHelper::WAFFLESCATEGORY) || helper->isValidStream(mMediaRef, WafflesHelper::WAFFLESCATEGORY)) {
-					errorMessage.append("the stream was not accessible.");
-				} 
-				else {
-					errorMessage.append("the media file couldn't be found on the hard disk.");
-				}
-
-				errorModel.setProperty("name", std::string("Sorry!"));
-				errorModel.setProperty("error", errorMessage);
-				errorModel.setPropertyResource("media",
-											   primaryResource); // TODO: cannot tell if this wants mMediaPropertyKey
-				errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
-				errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
-
-				
-
-				auto errorSize =
-					mEngine.getWafflesSettings().getVec2("media_viewer:error_box:size", 0, ci::vec2(536, 338));
-				auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, mCreationArgs.mLocation,
-												ViewerCreationArgs::kViewLayerTop, 0, mCreationArgs.mFromCenter);
-
-
-				mEventClient.notify(RequestViewerLaunchEvent(eArgs));
-				
-				
-				mMediaPlayer = nullptr; // Delete dangling pointer.
-			}
-
-			// callAfterDelay(
-			//	[this, errorModel] {
-			//		mEventClient.notify(RequestViewerLaunchEvent(ViewerCreationArgs(
-			//			errorModel, VIEW_TYPE_ERROR, getCenterPosition(), ViewerCreationArgs::kViewLayerTop)));
-			//		if (mCloseRequestCallback) mCloseRequestCallback();
-			//	},
-			//	0.01f);
-
+			mFatalError	 = true;
+			mMediaPlayer = nullptr;
 		} else {
 			mFatalError = false;
 		}

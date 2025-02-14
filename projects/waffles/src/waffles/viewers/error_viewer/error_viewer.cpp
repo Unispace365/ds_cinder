@@ -22,6 +22,9 @@ ErrorViewer::ErrorViewer(ds::ui::SpriteEngine& g)
 	mCanArrange			  = false;
 	mCanFullscreen		  = false;
 
+	mAttachedPadding = PaddingAll;
+	mDetachedPadding = PaddingAll;
+
 	mPrimaryLayout = new ds::ui::SmartLayout(mEngine, "waffles/error/error_viewer.xml");
 	addChildPtr(mPrimaryLayout);
 
@@ -40,7 +43,6 @@ ErrorViewer::ErrorViewer(ds::ui::SpriteEngine& g)
 	setViewerSize(startWidth, startHeight);
 
 	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
-	setAttachedPaddingFlags(PaddingAll);
 
 	setAnimateOnScript(mEngine.getWafflesSettings().getString("animation:viewer_on", 0, "grow; ease:outQuint"));
 }
