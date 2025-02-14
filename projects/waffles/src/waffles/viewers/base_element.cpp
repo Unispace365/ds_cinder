@@ -233,13 +233,18 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 }
 
 void BaseElement::fitInsideArea(const ci::Rectf& area) {
+	const auto fit = getFitArea(area);
+	setSize(fit.getSize());
+	setPosition(fit.getUpperLeft());
+}
+
+ci::Rectf BaseElement::getFitArea(const ci::Rectf &area) {
 	// The area already compensated for padding, so use the full padding when setting the size.
 	const auto padding = ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad);
 	// Attached viewers have no border padding on the top, left and right, so adjust the position accordingly.
 	const auto offset = getBorderOffset();
 
-	setSize(area.getSize() + padding);
-	setPosition(area.getUpperLeft() - offset);
+	return {area.x1 - offset.x, area.y1 - offset.y, area.x2 - offset.x + padding.x, area.y2 - offset.y + padding.y};
 }
 
 BaseElement::Padding BaseElement::getDetachedPadding() {

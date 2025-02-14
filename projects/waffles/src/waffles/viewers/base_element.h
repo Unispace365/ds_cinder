@@ -122,6 +122,9 @@ class BaseElement : public ds::ui::BasePanel {
 
 	void fitInsideArea(const ci::Rectf& area) override;
 
+	// Returns the bounds of the viewer when fit to the \a area. Non-destructive version of fitInsideArea().
+	ci::Rectf getFitArea(const ci::Rectf& area);
+
 	struct Padding {
 		float left{0};
 		float right{0};
