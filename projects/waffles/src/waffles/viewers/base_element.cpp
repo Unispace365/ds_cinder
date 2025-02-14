@@ -208,8 +208,6 @@ void BaseElement::setToFullscreen(const bool immediate, const bool showControlle
 void BaseElement::setCreationArgs(ViewerCreationArgs args) {
 	mCreationArgs = std::move(args);
 	onCreationArgsSet();
-
-	setMedia(mCreationArgs.mMediaRef);
 }
 
 bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHeight, float& maxWidth,
