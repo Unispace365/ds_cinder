@@ -405,7 +405,7 @@ void FramedFullscreenController::collapse() {
 	if (mIsCollapsed) return;
 
 	if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
-	if (mMediaInterface && mMediaInterface->isLocked()) {
+	if (mMediaInterface && mMediaInterface->isLocked() && mUncollapsedSizeSet) {
 		return;
 	}
 
@@ -428,7 +428,9 @@ void FramedFullscreenController::collapse() {
 	// Only set the uncollapsed size once, otherwise repeated taps of the collapse button will use mid-tween values
 	// breaking the layout
 	if (!mUncollapsedSizeSet) mUncollapsedSize = backRect->getSize();
-
+	if (mMediaInterface) {
+		mUncollapsedSizeSet = true;
+	}
 	if (controls && backRect) {
 		controls->tweenOpacity(0, 0.25);
 		backRect->tweenSize(ci::vec3(0, 0, 0), 0.25, 0.20);
