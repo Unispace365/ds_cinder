@@ -21,7 +21,7 @@ class TitledMediaViewer;
  */
 class BaseElement : public ds::ui::BasePanel {
   public:
-	BaseElement(ds::ui::SpriteEngine& g, std::string eventChannel = "");
+	BaseElement(ds::ui::SpriteEngine& g, const std::string& eventChannel = "");
 
 	/// Set the content for this panel
 	virtual void setMedia(const ds::model::ContentModelRef& newMedia) final;
@@ -121,21 +121,21 @@ class BaseElement : public ds::ui::BasePanel {
 	void fitInsideArea(const ci::Rectf& area) override;
 
 	struct Padding {
-		float left;
-		float right;
-		float top;
-		float bottom;
+		float left{0};
+		float right{0};
+		float top{0};
+		float bottom{0};
 	};
-		
-	
-	typedef int PaddingFlag;
 
-	static const PaddingFlag PaddingNone = 0;
-	static const PaddingFlag PaddingLeft		 = 1 << 0;
-	static const PaddingFlag PaddingRight		 = 1 << 1;
-	static const PaddingFlag PaddingTop		 = 1 << 2;
-	static const PaddingFlag PaddingBottom		 = 1 << 3;
-	static const PaddingFlag PaddingAll			 = PaddingLeft | PaddingRight | PaddingTop | PaddingBottom;
+
+	using PaddingFlag = int;
+
+	static constexpr PaddingFlag PaddingNone   = 0;
+	static constexpr PaddingFlag PaddingLeft   = 1 << 0;
+	static constexpr PaddingFlag PaddingRight  = 1 << 1;
+	static constexpr PaddingFlag PaddingTop	   = 1 << 2;
+	static constexpr PaddingFlag PaddingBottom = 1 << 3;
+	static constexpr PaddingFlag PaddingAll	   = PaddingLeft | PaddingRight | PaddingTop | PaddingBottom;
 
 
 	virtual void setDetachedPaddingFlags(const PaddingFlag& flags);
@@ -172,22 +172,22 @@ class BaseElement : public ds::ui::BasePanel {
 
 	friend class ViewerController;
 
-	bool					   mCanArrange;
-	bool					   mCanResize;
-	bool					   mCanFullscreen;
-	bool					   mIsFullscreen;
-	bool					   mCanDetach;
-	bool					   mCanAttach;
-	bool					   mIsDetached;
-	std::string				   mViewerType;
-	int						   mMaxViewersOfThisType;
-	int						   mViewerLayer;
-	ci::Rectf				   mUnfullscreenRect;
+	bool                       mCanArrange;
+	bool                       mCanResize;
+	bool                       mCanFullscreen;
+	bool                       mIsFullscreen;
+	bool                       mCanDetach;
+	bool                       mCanAttach{};
+	bool                       mIsDetached;
+	std::string                mViewerType;
+	int                        mMaxViewersOfThisType;
+	int                        mViewerLayer{};
+	ci::Rectf                  mUnfullscreenRect;
 	ds::model::ContentModelRef mMediaRef;
-	ViewerCreationArgs		   mCreationArgs;
-	ds::EventClient mEventClient;
-	PaddingFlag				   mDetachedPadding = PaddingAll;
-	PaddingFlag				   mAttachedPadding = PaddingNone;
+	ViewerCreationArgs         mCreationArgs;
+	ds::EventClient            mEventClient;
+	PaddingFlag                mDetachedPadding = PaddingAll;
+	PaddingFlag                mAttachedPadding = PaddingNone;
 
 	bool mFatalError;
 
