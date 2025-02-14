@@ -308,6 +308,10 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 			bool checkBoundsy = creationArgs.mCheckBounds;
 
 			sameType->setMedia(creationArgs.mMediaRef);
+			if (sameType->mFatalError) {
+				animateViewerOff(sameType, 0.0f, ANIMATE_OFF_SHRINK);
+				return nullptr;
+			}
 			sameType->tweenStarted();
 			sameType->tweenPosition(loccy, mEngine.getAnimDur(), 0.0f, ci::easeInOutQuad, [sameType, checkBoundsy] {
 				sameType->tweenEnded();
@@ -373,6 +377,14 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	newViewer->setCreationArgs(creationArgs);
 	newViewer->setMedia(creationArgs.mMediaRef);
+	
+	// If we have a fatal error, the old viewer is responsible for requesting an error viewer and Setting
+	// mFatalError to true. We  then hide and remove this viewer.
+	if (newViewer->mFatalError) {
+		newViewer->hide();
+		animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK);
+		return nullptr;
+	}
 	newViewer->setViewerLayer(creationArgs.mViewLayer);
 
 	const float viewerScale = mEngine.getWafflesSettings().getFloat("viewer:master_scale", 0, 1.0f);

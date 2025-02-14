@@ -614,14 +614,17 @@ void TitledMediaViewer::onMediaSet() {
 				errorModel.setProperty("media_path", primaryResource.getAbsoluteFilePath());
 				errorModel.setProperty("media_name", mMediaRef.getPropertyString("name"));
 
-				mRootLayout->setLayoutFile("waffles/error/error_viewer.xml");
-				mRootLayout->setContentModel(errorModel);
-				mRootLayout->runLayout();
+				
 
-				mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
-					if (mCloseRequestCallback) mCloseRequestCallback();
-				});
+				auto errorSize =
+					mEngine.getWafflesSettings().getVec2("media_viewer:error_box:size", 0, ci::vec2(536, 338));
+				auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, mCreationArgs.mLocation,
+												ViewerCreationArgs::kViewLayerTop, 0, mCreationArgs.mFromCenter);
 
+
+				mEventClient.notify(RequestViewerLaunchEvent(eArgs));
+				
+				
 				mMediaPlayer = nullptr; // Delete dangling pointer.
 			}
 
