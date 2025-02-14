@@ -10,6 +10,15 @@
     <Filter Include="src\cy">
       <UniqueIdentifier>{63e3086e-b4ba-4616-b7c2-dbe4d8c25668}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{fff1d98e-9311-4c26-a0e4-982f29d8a345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{0d3cb160-80c4-4033-abe1-188c6021d34e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{439d8666-e55a-405e-a8b2-d6c1dc7a551f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\stdafx.cpp" />
@@ -18,6 +27,12 @@
     </ClCompile>
     <ClCompile Include="src\nvpath\NvPathSvg.cpp">
       <Filter>src\nvpath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\path_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\svg_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +51,12 @@
     </ClInclude>
     <ClInclude Include="src\cy\cyPolynomial.h">
       <Filter>src\cy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\path_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\svg_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
