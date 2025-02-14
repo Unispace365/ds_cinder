@@ -157,6 +157,7 @@ uniform sampler2D tex0;
 uniform sampler2D tex1;
 uniform int blurSize;
 uniform int horizontalPass;
+uniform bool doMask;
 
  // The sigma value for the gaussian function: higher value means more blur
 // A good value for 9x9 is around 3 to 5
@@ -213,6 +214,7 @@ void main() {
         coefficientSum += 2.0 * incrementalGaussian.x;
         incrementalGaussian.xy *= incrementalGaussian.yz;
     }
+	mask = doMask ? mask : 0;
 
     oColor = avgValue / coefficientSum;
 	oColor = vec4(1.0, 1.0, 1.0, (1-mask) * oColor.a );
@@ -330,6 +332,10 @@ void ShadowLayout::setShadowEveryFrame(bool renderEveryFrame) {
 	mBlurDirty	  = true;
 }
 
+void ShadowLayout::setShadowRender(bool render) {
+	mNeverRender = !render;
+}
+
 void ShadowLayout::onSizeChanged() {
 	float maxShadowDim = mEngine.getWafflesSettings().getFloat("shadow:max_dimension", 0, 7680.f);
 	bool  canShadow	   = (getWidth() < maxShadowDim && getHeight() < maxShadowDim);
@@ -381,6 +387,7 @@ void ShadowLayout::tweenBlur(int toValue, const float duration, const float dela
 }
 
 void ShadowLayout::drawBlur() {
+	if (mNeverRender == true) return;
 	if (!mSourceTexture || !mBlurShader) return;
 	// int iw = (int)mSourceTexture->getWidth();
 	// int ih = (int)mSourceTexture->getHeight();
@@ -437,6 +444,7 @@ void ShadowLayout::drawBlur() {
 
 	ci::gl::setMatricesWindow(ci::ivec2(w, h), true);
 	applyBlendingMode(ds::ui::BlendMode::FBO_OUT);
+	mBlurShader->uniform("doMask", false);
 	for (int i = 0; i < mIterations; ++i) {
 		{
 			mBlurShader->uniform("maskSize", ci::vec2(0,0));
@@ -451,6 +459,9 @@ void ShadowLayout::drawBlur() {
 		}
 
 		{
+			if (i == mIterations - 1) {
+				mBlurShader->uniform("doMask", true);
+			}
 			mBlurShader->uniform("maskSize", ci::vec2(mSourceTexture->getWidth(), mSourceTexture->getHeight()));
 			ci::gl::ScopedFramebuffer fb(mFbo1);
 			ci::gl::ScopedTextureBind scopedTex(mFbo0->getColorTexture(), (uint8_t)0);
@@ -508,37 +519,43 @@ void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawPar
 	// const auto clientRedrawFrame = true; //(ci::app::getElapsedFrames() % 4 == this->getId() % 4);
 
 	if (mBlurDirty || (mPendingBlurs > 0 && ci::app::getElapsedFrames() % 3 == this->getId() % 3)) {
-		mPendingBlurs--;
-		auto info	= ds::ui::Sprite::FinalRenderInfo();
-		info.format = ci::gl::Fbo::Format();
-		info.format.setSamples(4);
-		auto colFmt = info.format.getColorTextureFormat();
-		colFmt.mipmap(mEngine.getWafflesSettings().getBool("shadow:mipmap", 0, false));
-		info.format.setColorTextureFormat(colFmt);
-		blurSource->setFinalRenderToTexture(true, info);
+		if (mNeverRender) {
+			mBlurDirty = true;
+			
+		} else {
 
-		// HACK!!
-		// If the source is inside a clipping sprite we need to disable during drawing, otherwise we get no texture
-		// The confusingly named disableClipping will reset the prior clipping state
-		ds::ui::clip_plane::enableClipping(-100000.f, -100000.f, 100000.f, 100000.f);
-		auto dp = ds::DrawParams();
-		// dp.mClippingParent = dp.mClippingParent;
-		dp.mParentOpacity = mDrawOpacity;
-		auto saveBlend	  = blurSource->getBlendMode();
-		blurSource->setBlendMode(ds::ui::BlendMode::FBO_IN);
-		blurSource->drawClient(ci::mat4(), dp);
-		ds::ui::clip_plane::disableClipping();
-		blurSource->setBlendMode(saveBlend);
-		mSourceTexture = blurSource->getFinalOutTexture();
+			mPendingBlurs--;
+			auto info	= ds::ui::Sprite::FinalRenderInfo();
+			info.format = ci::gl::Fbo::Format();
+			info.format.setSamples(4);
+			auto colFmt = info.format.getColorTextureFormat();
+			colFmt.mipmap(mEngine.getWafflesSettings().getBool("shadow:mipmap", 0, false));
+			info.format.setColorTextureFormat(colFmt);
+			blurSource->setFinalRenderToTexture(true, info);
 
-		if (!mSourceTexture) return;
+			// HACK!!
+			// If the source is inside a clipping sprite we need to disable during drawing, otherwise we get no texture
+			// The confusingly named disableClipping will reset the prior clipping state
+			ds::ui::clip_plane::enableClipping(-100000.f, -100000.f, 100000.f, 100000.f);
+			auto dp = ds::DrawParams();
+			// dp.mClippingParent = dp.mClippingParent;
+			dp.mParentOpacity = mDrawOpacity;
+			auto saveBlend	  = blurSource->getBlendMode();
+			blurSource->setBlendMode(ds::ui::BlendMode::FBO_IN);
+			blurSource->drawClient(ci::mat4(), dp);
+			ds::ui::clip_plane::disableClipping();
+			blurSource->setBlendMode(saveBlend);
+			mSourceTexture = blurSource->getFinalOutTexture();
+
+			if (!mSourceTexture) return;
 
 
-		drawBlur();
-		mBlurDirty = mAlwaysRender; // True if rendering shadows every frame, false otherwise
+			drawBlur();
+			mBlurDirty = mAlwaysRender; // True if rendering shadows every frame, false otherwise
 
-		if (!mBlurDirty && mPendingBlurs <= 0) {
-			blurSource->setFinalRenderToTexture(false);
+			if (!mBlurDirty && mPendingBlurs <= 0) {
+				blurSource->setFinalRenderToTexture(false);
+			}
 		}
 	}
 
@@ -553,7 +570,7 @@ void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawPar
 	ci::gl::ScopedGlslProg sGlsl(mDrawShader);
 	ds::ui::clip_plane::passClipPlanesToShader(mDrawShader);
 
-	if (mBlurTexture) {
+	if (mBlurTexture && !mNeverRender) {
 		ci::gl::enableAlphaBlending();
 		applyBlendingMode(getBlendMode());
 
@@ -569,7 +586,7 @@ void ShadowLayout::drawClient(const ci::mat4& transformMatrix, const ds::DrawPar
 
 	// Either draw the source texture (while we're still drawing the blurs)
 	// OR draw use the traditional draw pipeline to draw the source directly over the shadow
-	if (blurSource && !blurSource->isFinalRenderToTexture()) {
+	if (mNeverRender || (blurSource && !blurSource->isFinalRenderToTexture())) {
 		ci::gl::popModelMatrix();
 		ds::ui::LayoutSprite::drawClient(transformMatrix, drawParams);
 	} else if (mBlurTexture) {

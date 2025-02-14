@@ -25,6 +25,8 @@ class ShadowLayout : public ds::ui::LayoutSprite {
 	void setShadowOffset(ci::vec2 offset);
 	// set if the shadow should re-render every frame (for instance, if running programatic/shader animations inside)
 	void setShadowEveryFrame(bool renderEveryFrame);
+	// turn shadow on or off;
+	void setShadowRender(bool render);
 
 	void tweenBlur(int toValue, const float duration, const float delay, const ci::EaseFn& = ci::easeNone);
 
@@ -78,6 +80,7 @@ class ShadowLayout : public ds::ui::LayoutSprite {
 	int	  mPendingBlurs	 = 0;	 // Might be missing a frame or two at the end of transitions?
 	bool  mBlurDirty	 = true; // only render the blur if needed
 	bool  mAlwaysRender	 = false;
+	bool  mNeverRender	 = false;
 
 	bool mWarnedAboutYourChildren = false;
 

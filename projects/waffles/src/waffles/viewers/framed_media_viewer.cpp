@@ -5,6 +5,7 @@
 #include "waffles/common/ui_utils.h"
 #include "waffles/model/viewer_creation_args.h"
 #include "waffles/waffles_events.h"
+#include "waffles/util/shadow_layout.h"
 #include <ds/ui/media/interface/web_interface.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
@@ -72,7 +73,7 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 
 	mEventClient.listenToEvents<RequestFullscreenViewer>([this](const RequestFullscreenViewer& e) {
 		if (e.mViewer != this && getIsFullscreen()) {
-			mEventClient.notify(RequestUnFullscreenViewer(this));
+			mEventClient.notify(RequestUnFullscreenViewer(this,true));
 		}
 	});
 
@@ -170,9 +171,11 @@ void FramedMediaViewer::onLayout() {
 
 void FramedMediaViewer::onFullscreenSet() {
 	TitledMediaViewer::onFullscreenSet();
-	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
+	auto background = mRootLayout->getSprite<waffles::ShadowLayout>("player_shade");
 	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
 	if (mIsFullscreen) {
+		background->setShadowRender(false);
+
 		if (background) {
 			background->hide();
 		}
@@ -187,6 +190,7 @@ void FramedMediaViewer::onFullscreenSet() {
 			mMediaInterface->show();
 			mMediaInterface->tweenOpacity(1.0f, 0.25);
 		}
+		mEngine.timedCallback([this, background]() { background->setShadowRender(true); }, getAnimateDuration());
 	}
 	auto mediaInterface = mMediaPlayer->getMediaInterface();
 	if (mediaInterface) {
