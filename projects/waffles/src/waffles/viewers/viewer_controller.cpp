@@ -602,8 +602,6 @@ void ViewerController::animateAllViewersOff(const float delayey, const int style
 }
 
 std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
-	ds::ui::ScopedTimer st("ViewerController::createViewer()");
-
 	auto viewType = args.mViewType;
 
 	auto isEmpty = viewType.empty();
