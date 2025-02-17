@@ -105,7 +105,7 @@ class BasePanel : public ds::ui::Sprite {
 
 	float getContentAspectRatio() const { return mContentAspectRatio; }
 
-	void checkBounds(bool immediate = false);
+	virtual void checkBounds(bool immediate = false);
 
 	/** Sends this panel to the front and calls onPanelActivated() */
 	void activatePanel();

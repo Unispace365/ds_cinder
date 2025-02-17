@@ -10,12 +10,14 @@
 namespace waffles {
 class PresetMediaHotspotRef;
 
+
 /**
  * \class waffles::TitledMediaViewer
  *			A single media viewer with a title and a close button
  */
 class TitledMediaViewer : public BaseElement {
   public:
+	enum class BoundsMode { kSpriteEdge, kMediaEdge };
 	TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel = "",
 					  const std::string& layoutPath = "waffles/viewer/titled_media_viewer.xml");
 
@@ -30,6 +32,7 @@ class TitledMediaViewer : public BaseElement {
 	void toggleInnerSideBar() override;
 
 	void setToFullscreen(const bool immediate, const bool showController) override;
+	void checkBounds(const bool animate) override;
 
 	// 0 = normal, 1 = 90 degrees, 2 = 180 degrees, 3 = 270 degrees
 	int getMediaRotation() override { return mMediaRotation; }
@@ -92,6 +95,8 @@ class TitledMediaViewer : public BaseElement {
 	bool mShowingVideo		  = false;
 	bool mShowingWeb		  = false;
 	bool mShowingWebCam		  = false;
+	BoundsMode mFullscreenBoundsMode = BoundsMode::kMediaEdge;
+	BoundsMode mNormalBoundsMode	 = BoundsMode::kSpriteEdge;
 	// std::string mMediaPropertyKey = "media";
 
 	// 0 = normal, 1 = 90 degs, 2 = 180 degs, 3 = 270

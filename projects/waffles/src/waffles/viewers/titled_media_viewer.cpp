@@ -1367,6 +1367,113 @@ void TitledMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 	}
 }
 
+void TitledMediaViewer::checkBounds(bool immediate) {
+	
+	if (mPositionUpdateCallback) mPositionUpdateCallback();
+
+	if (mAnimating && !immediate) return;
+
+
+	// Constrain the bounding box of the sprite to mBoundingArea
+	auto boundsMode = mIsFullscreen ? mFullscreenBoundsMode : mNormalBoundsMode;
+	auto		bb		   = boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getBoundingBox() : this->getBoundingBox();
+	
+	auto upperLeft	 = bb.getUpperLeft();
+	auto bottomRight = bb.getLowerRight();
+
+	if (boundsMode == BoundsMode::kMediaEdge) {
+		const auto transform =
+			glm::inverse(this->getParent()->getGlobalTransform()) * mMediaPlayer->getGlobalTransform();
+		upperLeft   = transform * ci::vec4(bb.getX1(), bb.getY1(), 0, 1);
+		bottomRight = transform * ci::vec4(bb.getSize(), 0, 1);
+	}
+	const float thisWidth  = bb.getWidth(); 
+	const float thisHeight = bb.getHeight();
+	const float thisX	   = upperLeft.x; 
+	const float thisY	   = upperLeft.y; 
+
+	// DS_LOG_INFO("BasePanel::checkBounds(): BB size: " << bb);
+
+	const float worldL = mBoundingArea.getX1();
+	const float worldR = mBoundingArea.getX2();
+	const float worldW = mBoundingArea.getWidth();
+	const float worldT = mBoundingArea.getY1();
+	const float worldB = mBoundingArea.getY2();
+	const float worldH = mBoundingArea.getHeight();
+
+	float destinationX = thisX;
+	float destinationY = thisY;
+
+	if (thisWidth < worldW) {
+		if (thisX < worldL) {
+			destinationX = worldL;
+		} else if (thisX > worldR - thisWidth) {
+			destinationX = worldR - thisWidth;
+		}
+	} else {
+		if (thisX < worldR - thisWidth) {
+			destinationX = worldR - thisWidth;
+		} else if (thisX > worldL) {
+			destinationX = worldL;
+		}
+	}
+
+	if (thisHeight < worldH) {
+		if (thisY < worldT) {
+			destinationY = worldT;
+		} else if (thisY > worldB - thisHeight) {
+			destinationY = worldB - thisHeight;
+		}
+	} else {
+		if (thisY < worldB - thisHeight) {
+			destinationY = worldB - thisHeight;
+		} else if (thisY > worldT) {
+			destinationY = worldT;
+		}
+	}
+
+	if (destinationX == thisX && destinationY == thisY) {
+		return;
+	}
+
+	mMomentum.deactivate();
+
+
+	// Compute the position of the upper-left corner of the rotated sprite, relative to the bounding box
+	const auto normalizeAngle = [](const float degrees) {
+		float ret = glm::mod(degrees, 360.0f);
+		if (ret < 0) ret += 360.0f;
+		return ret;
+	};
+	const float degrees = normalizeAngle(getRotation().z);
+
+	const int	quadrant = (int)glm::floor(degrees / 90.0f);
+	const float radians	 = glm::radians(degrees);
+	const float w		 = boundsMode==BoundsMode::kMediaEdge ? mMediaPlayer->getScaleWidth() : getScaleWidth();
+	const float h		 = boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getScaleHeight() : getScaleHeight();
+	const float W		 = bb.getWidth();
+	const float H		 = bb.getHeight();
+	const auto	ulPos =
+		 (0 == quadrant) ? ci::vec2(h * glm::sin(radians), 0)
+						 : ((1 == quadrant) ? ci::vec2(W, -h * glm::cos(radians))
+											: ((2 == quadrant) ? ci::vec2(-w * glm::cos(radians), H) : //(3 == quadrant)
+												   ci::vec2(0, -w * glm::sin(radians))));
+
+	// DS_LOG_INFO("  BasePanel::checkBounds(): Constrained position: " << destinationX << ", " << destinationY <<
+	// ", Angle: " << degrees << " degrees"  ); DS_LOG_INFO("  BasePanel::setBounds(): upper-left position: " <<
+	// ulPos );
+
+	// re-apply the anchor offset.
+	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth() , getScaleHeight()) - (boundsMode == BoundsMode::kMediaEdge ? ci::vec2(mLeftPad,mTopPad) : ci::vec2(0,0));
+	const auto pos = ci::vec3(ci::vec2(destinationX, destinationY) +ulPos + glm::rotate(anchorOffset, radians), 0);
+
+	if (immediate) {
+		setPosition(pos);
+	} else {
+		tweenPosition(pos, mAnimDuration, 0.0f, ci::EaseOutQuint());
+	}
+}
+
 void TitledMediaViewer::userInputReceived() {
 	BasePanel::userInputReceived();
 

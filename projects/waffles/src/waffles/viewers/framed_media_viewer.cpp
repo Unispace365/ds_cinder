@@ -402,14 +402,14 @@ void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 
 		float viewerAsp	  = mMediaPlayer->getWidth() / mMediaPlayer->getHeight();
 		float viewerScale = getScale().x;
-		auto  xxtra		  = (getWidth() - mMediaPlayer->getWidth()) / viewerScale;
-		auto  yxtra		  = (getHeight() - mMediaPlayer->getHeight()) / viewerScale;
+		auto  xxtra		  = mLeftPad / viewerScale;
+		auto  yxtra		  = mTopPad / viewerScale;
 
 		if (viewerScale == 0.0f) viewerScale = 0.001f;
 		if (viewerAsp > screenAsp) {
 			auto width	= screenWidth / viewerScale;
 			auto height = screenWidth / viewerAsp;
-			auto x		= 0;
+			auto x		= 0-xxtra;
 			auto y		= screenHeight * 0.5 - height * 0.5;
 			if (immediate) {
 				setViewerWidth(width);
@@ -419,9 +419,9 @@ void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 				tweenPosition(ci::vec3(x, y, 0.0f), getAnimateDuration(), 0.0f, ci::easeInOutQuad);
 			}
 		} else {
-			auto height = screenHeight / viewerScale - yxtra;
-			auto width	= screenHeight * viewerAsp - xxtra;
-			auto y		= 0;
+			auto height = screenHeight / viewerScale;
+			auto width	= screenHeight * viewerAsp;
+			auto y		= 0-yxtra;
 			auto x		= screenWidth * 0.5 - width * 0.5;
 			if (immediate) {
 				setViewerHeight(height);
