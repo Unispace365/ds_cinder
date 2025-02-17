@@ -411,12 +411,36 @@ void TitledMediaViewer::onMediaSet() {
 	mvs.mVideoStreamingLatency = streamLatency;
 
 	mvs.mPdfCanShowLinks	   = true;
-	mvs.mPdfLinkTappedCallback = [this](ds::pdf::PdfLinkInfo linkInfo) {
-		ContentModelRef fakeThing;
-		fakeThing.setPropertyResource("media",
-									  ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
-		mEventClient.notify(RequestViewerLaunchEvent(
-			ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition())));
+	mvs.mPdfLinkTappedCallback = [this, mediaPropertyKey](ds::pdf::PdfLinkInfo linkInfo) {
+		if (linkInfo.mUrl.empty()) {
+			int targetPage = linkInfo.mPageDest;
+			if (targetPage == 0) {
+				// Try to dig the page # out of the raw URI
+				for (auto pair : ds::split(linkInfo.mRawUri, "&")) {
+					if (pair.find("page=") != std::string::npos) {
+						auto both = ds::split(pair, "=");
+						if (both.size() == 2) {
+							targetPage = ds::string_to_int(both.at(1));
+							break;
+						}
+					}
+				}
+			}
+			// Go to PDF page?
+			if (auto pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mMediaPlayer->getPlayer())) {
+				pdfPlayer->setPageNum(targetPage);
+			}
+		}else {
+			ContentModelRef fakeThing;
+			fakeThing.setPropertyResource(
+				mediaPropertyKey,
+				ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
+			auto vca = ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition());
+			vca.mCanAttach = false;
+			vca.mCanDetach = false;
+			vca.mIsDetached = true;
+			mEventClient.notify(RequestViewerLaunchEvent(vca));
+		}
 	};
 
 	mMediaPlayer->setSettings(mvs);
