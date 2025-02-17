@@ -376,6 +376,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 	mViewers.push_back(newViewer);
 
 	newViewer->setCreationArgs(creationArgs);
+	newViewer->setMedia(creationArgs.mMediaRef);
 	
 	// If we have a fatal error, the old viewer is responsible for requesting an error viewer and Setting
 	// mFatalError to true. We  then hide and remove this viewer.
@@ -601,6 +602,8 @@ void ViewerController::animateAllViewersOff(const float delayey, const int style
 }
 
 std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
+	ds::ui::ScopedTimer st("ViewerController::createViewer()");
+
 	auto viewType = args.mViewType;
 
 	auto isEmpty = viewType.empty();
