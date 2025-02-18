@@ -388,6 +388,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			const auto isVisible = parseBoolean(p.value);
 			(isVisible) ? p.sprite.show() : p.sprite.hide();
 		};
+		propertyMap["hidden"] = [](const SprProps& p) {
+			const auto isHidden = parseBoolean(p.value);
+			(isHidden) ? p.sprite.hide() : p.sprite.show();
+		};
 		propertyMap["animate_on"] = [](const SprProps& p) {
 			p.sprite.setAnimateOnScript(p.value);
 		};
