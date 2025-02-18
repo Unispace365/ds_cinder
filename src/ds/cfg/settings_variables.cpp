@@ -110,7 +110,7 @@ std::string SettingsVariables::parseAllExpressions(const std::string& value) {
 
 	// I don't think this should ever happen, but just in case we'll try to recurse?
 	exprFindy	  = finalValue.find("#expr{");
-	auto endFindy = finalValue.find("}");
+	auto endFindy = finalValue.find('}');
 	if (exprFindy != std::string::npos && endFindy == std::string::npos) {
 		DS_LOG_WARNING("Syntax error parsing expression: missing } in " << value);
 	} else if (exprFindy != std::string::npos) {
@@ -155,61 +155,37 @@ std::string SettingsVariables::replaceVariables(const std::string& value, const 
 	return value;
 }
 
-std::string SettingsVariables::replaceSingleVariable(const std::string& value, const VariableMap& local_map) {
+std::string SettingsVariables::replaceSingleVariable(std::string_view value, const VariableMap& local_map) {
 
 	auto theStart = value.find("$_");
 
-	if (theStart == std::string::npos) return value;
+	if (theStart == std::string::npos) return std::string(value);
 
-	auto theEnd = value.find(" ", theStart);
-
-	auto commaEnd = value.find(",", theStart);
-	if (commaEnd < theEnd) theEnd = commaEnd;
-
-	auto semiEnd = value.find(";", theStart);
-	if (semiEnd < theEnd) theEnd = semiEnd;
-
-	auto brackSta = value.find("{", theStart);
-	if (brackSta < theEnd) theEnd = brackSta;
-
-	auto brackEnd = value.find("}", theStart);
-	if (brackEnd < theEnd) theEnd = brackEnd;
-
-	auto period = value.find(".", theStart);
-	if (period < theEnd) theEnd = period;
-
-	auto quot = value.find("'", theStart);
-	if (quot < theEnd) theEnd = quot;
+	auto theEnd = value.find_first_of(" ,;{}.'()", theStart);
 
 	if (theEnd == std::string::npos) theEnd = value.size();
 
-	auto beforeString = value.substr(0, theStart);
-	auto paramName	  = value.substr(theStart + 2, theEnd - theStart - 2); // ditch the $_
-	auto endString	  = value.substr(theEnd);
+	std::string beforeString(value.substr(0, theStart));
+	std::string paramName(value.substr(theStart + 2, theEnd - theStart - 2)); // ditch the $_
+	std::string endString(value.substr(theEnd));
 
 	// std::cout << "RSP: " << value << std::endl << "\tBEFORE:" << beforeString << std::endl <<  "\tPARAM:" <<
 	// paramName << std::endl << "\tAFTER:" << endString << std::endl << "\tInd:" << theStart << " " << theEnd <<
 	// std::endl;
 
-	VariableMap& combined_map = VARIABLE_MAP;
-	if (local_map.size() > 0) {
-		combined_map = local_map;
-	}
+	const VariableMap& combined_map = local_map.empty() ? VARIABLE_MAP : local_map;
 
-	auto findy = combined_map.find(paramName);
+	const auto findy = combined_map.find(paramName);
 	if (findy != combined_map.end()) {
-		std::string replacement = findy->second;
-
-		return beforeString + replacement + endString;
-	} else {
-		DS_LOG_WARNING("SettingsVariables::replaceSingleVariable() parameter not found! Name=" << paramName);
-		return beforeString + endString;
+		return beforeString + findy->second + endString;
 	}
 
-	return value;
+	DS_LOG_WARNING("SettingsVariables::replaceSingleVariable() parameter not found! Name=" << paramName);
+	return beforeString + endString;
 }
 
-std::string SettingsVariables::doMultiply(const std::string& value, const std::string& multiplyKey, const std::string& type) {
+std::string SettingsVariables::doMultiply(const std::string& value, const std::string& multiplyKey,
+										  const std::string& type) {
 	bool inverse = false;
 	auto mkey	 = multiplyKey;
 	//if the first character is an !, then set the inverse flag to true and remove the !
