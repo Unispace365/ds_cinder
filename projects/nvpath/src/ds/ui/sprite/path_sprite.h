@@ -13,9 +13,16 @@ class PathSprite : public Sprite {
 
 	~PathSprite() override;
 
+	PathSprite(const PathSprite&)			 = delete;
+	PathSprite(PathSprite&&)				 = delete;
+	PathSprite& operator=(const PathSprite&) = delete;
+	PathSprite& operator=(PathSprite&&)		 = delete;
+
 	bool contains(const ci::vec3& point, float pad) const override;
 
+	/// Returns whether global coordinate \a point is inside the fill bounds.
 	bool isPointInsideFill(const ci::vec3& point) const;
+	/// Returns whether the global coordinate \a point is inside the stroke bounds.
 	bool isPointInsideStroke(const ci::vec3& point) const;
 
 	/// Returns the minimum size of the bounding box. If set to 0, the bounding box will be calculated based on the
@@ -34,51 +41,51 @@ class PathSprite : public Sprite {
 	virtual void setPath(nvpath::Path&& path);
 	/// Accepts an SVG \a path definition.
 	virtual void setPath(const std::string& path);
-	/// Accepts a shape definition.
+	/// Accepts a shape definition, e.g. "circle( 50, 50, 20 )".
 	virtual void setShape(const std::string& shape);
-	///
+	/// Sets the fill color. Accepts a color like "#ff0000", a name like "white" or a file name like
+	/// "%APP%/data/images/texture.png".
 	virtual void setFill(const std::string& fill);
-	///
+	/// Sets the fill color or gradient.
 	virtual void setFill(const nvpath::Paint& fill);
-	///
+	/// Sets the fill color.
 	virtual void setFillColor(const ci::ColorA8u& color);
-	///
+	/// Sets the stroke color. Accepts a color like "#ff0000" or a name like "white".
 	virtual void setStroke(const std::string& color);
-	///
+	/// Sets the stroke color or gradient.
 	virtual void setStroke(const nvpath::Paint& fill);
-	///
+	/// Sets the stroke color.
 	virtual void setStrokeColor(const ci::ColorA8u& color);
-	///
+	/// Returns the stroke width in pixels.
 	float getStrokeWidth() const { return mStrokeWidth; }
-	///
+	/// Sets the stroke width in pixels.
 	virtual void setStrokeWidth(float width) {
 		mStrokeWidth = width;
 		if (mPath.getId()) mPath.setStrokeWidth(width);
 	}
-
-	///
+	/// Sets the dash caps style.
 	virtual void setDashCaps(nvpath::CapsStyle caps) {
 		mDashCapsInitial = mDashCapsTerminal = caps;
 		if (mPath.getId()) mPath.setDashCaps(caps);
 	}
-	///
+	/// Sets the dash caps style separately for the \a initial and \a terminal caps.
 	virtual void setDashCaps(nvpath::CapsStyle initial, nvpath::CapsStyle terminal) {
 		mDashCapsInitial  = initial;
 		mDashCapsTerminal = terminal;
 		if (mPath.getId()) mPath.setDashCaps(initial, terminal);
 	}
-	///
+	/// Sets the end caps style.
 	virtual void setEndCaps(nvpath::CapsStyle caps) {
 		mEndCapsInitial = mEndCapsTerminal = caps;
 		if (mPath.getId()) mPath.setEndCaps(caps);
 	}
-	///
+	/// Sets the end caps style separately for the \a initial and \a terminal caps.
 	virtual void setEndCaps(nvpath::CapsStyle initial, nvpath::CapsStyle terminal) {
 		mEndCapsInitial	 = initial;
 		mEndCapsTerminal = terminal;
 		if (mPath.getId()) mPath.setEndCaps(initial, terminal);
 	}
-	/// Accepts a string like "butt", "round" or "square".
+	/// Sets the line caps style. Accepts a string like "butt", "round" or "square".
 	virtual void setLineCap(std::string def) {
 		to_lowercase(def);
 		if (def == "round") {
@@ -92,12 +99,12 @@ class PathSprite : public Sprite {
 			setEndCaps(nvpath::CapsStyle::DEFAULT);
 		}
 	}
-	///
+	/// Sets the line join style.
 	virtual void setJoinStyle(nvpath::JoinStyle joins) {
 		mJoinStyle = joins;
 		if (mPath.getId()) mPath.setJoinStyle(joins);
 	}
-	/// Accepts a string like "miter", "miter-clip", "round" or "bevel".
+	/// Sets the line join style. Accepts a string like "miter", "miter-clip", "round" or "bevel".
 	virtual void setLineJoin(std::string def) {
 		to_lowercase(def);
 		if (def == "miter") {
@@ -112,12 +119,12 @@ class PathSprite : public Sprite {
 			setJoinStyle(nvpath::JoinStyle::DEFAULT);
 		}
 	}
-	///
+	/// Sets the dash pattern. Accepts a string of floats, e.g. "2.0 1.5".
 	virtual void setDashArray(const std::string& def) {
 		const char* sInOut = def.c_str();
 		parseDashArray(&sInOut);
 	}
-	///
+	/// Sets the dash pattern.
 	virtual void setDashPattern(const std::vector<float>& pattern) {
 		if (mPath.getId()) mPath.setDashPattern(pattern);
 	}
@@ -130,7 +137,7 @@ class PathSprite : public Sprite {
 	// Calculates the bounds of the path.
 	ci::Rectf calcBounds() const;
 
-	//
+	// Uses the LoadImageService to load the image.
 	void loadImage(const std::string& filename, int flags = Image::IMG_CACHE_F | Image::IMG_ENABLE_MIPMAP_F);
 
 	// Accepts a string like: "circle( x, y, r )".
@@ -165,7 +172,7 @@ class PathSprite : public Sprite {
 	ci::gl::TextureRef mTexture;									  // Image used to fill the path.
 	ci::vec2		   mTouchSize{0};								  // Extra padding for touch detection.
 	ci::Rectf		   mBounds;										  // Cached bounds.
-	int				   mFlags{0};									  //
+	int				   mFlags{0};									  // Image loading flags.
 };
 
 } // namespace ds::ui
