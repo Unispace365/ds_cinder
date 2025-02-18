@@ -63,13 +63,13 @@ class Image : public Sprite {
 	 *   This is here as a convenience to support the sprite base class
 	 *   This is effectively setImageResource(resource, 0);
 	 */
-	virtual void setResource(const ds::Resource& resource) override { setImageResource(resource); }
+	void setResource(const ds::Resource& resource) override { setImageResource(resource); }
+
+	/// Returns the ds::Resource if it was set as a full resource or as an id.
+	const ds::Resource& getResource() const override { return mResource; }
 
 	/// Returns the absolute image path, even if the image was set by resource
 	const std::string& getImageFilename() { return mFilename; }
-
-	/// Returns the ds::Resource if it was set as a full resource or as an id.
-	const ds::Resource& getImageResource() const { return mResource; }
 
 	/// Returns the loaded image, if not loaded returns an empty ref (nullptr)
 	const ci::gl::TextureRef &getImageTexture() const { return mTextureRef; }

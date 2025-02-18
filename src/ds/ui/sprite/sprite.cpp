@@ -1845,6 +1845,11 @@ void Sprite::setBaseShader(const std::string& vertShader, const std::string& fra
 	}
 }
 
+const ds::Resource& Sprite::getResource() const {
+	static const ds::Resource EMPTY_RESOURCE;
+	return EMPTY_RESOURCE;
+}
+
 void Sprite::setResource(const ds::Resource&) {
 	DS_LOG_WARNING("Set resource hasn't been implemented for this sprite type. Sprite name="
 				   << ds::utf8_from_wstr(getSpriteName(true)));

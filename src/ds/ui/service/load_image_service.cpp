@@ -29,12 +29,9 @@ class GenericStopWatch {
 		return static_cast<Rep>(counted_time);
 	}
 
-	unsigned elapsedAttos() { return elapsedTime<unsigned, std::chrono::attoseconds>(); }
-	unsigned elapsedFemtos() { return elapsedTime<unsigned, std::chrono::femtoseconds>(); }
-	unsigned elapsedPicos() { return elapsedTime<unsigned, std::chrono::picoseconds>(); }
-	unsigned elapsedNanos() { return elapsedTime<unsigned, std::chrono::nanoseconds>(); }
-	unsigned elapsedMicros() { return elapsedTime<unsigned, std::chrono::microseconds>(); }
-	unsigned elapsedMillis() { return elapsedTime<unsigned, std::chrono::milliseconds>(); }
+	unsigned elapsedNanos() const { return elapsedTime<unsigned, std::chrono::nanoseconds>(); }
+	unsigned elapsedMicros() const { return elapsedTime<unsigned, std::chrono::microseconds>(); }
+	unsigned elapsedMillis() const { return elapsedTime<unsigned, std::chrono::milliseconds>(); }
 
   protected:
 	TimePoint mStartPoint;
@@ -94,7 +91,7 @@ void LoadImageService::clearCache() {
 	ImageMetaData::clearMetadataCache();
 }
 
-void LoadImageService::logCache() {
+void LoadImageService::logCache() const {
 	DS_LOG_INFO("Load Image Service, number of in use images:" << mInUseImages.size());
 	for (auto it : mInUseImages) {
 		DS_LOG_INFO("Image, refs=" << it.second.mRefs << " err=" << it.second.mError << " flags=" << it.second.mFlags
@@ -105,7 +102,7 @@ void LoadImageService::logCache() {
 void LoadImageService::stopThreads() {
 	mShouldQuit = true;
 
-	for (auto it : mThreads) {
+	for (const auto& it : mThreads) {
 		it->join();
 	}
 
@@ -119,7 +116,7 @@ LoadImageService::~LoadImageService() {
 }
 
 
-void LoadImageService::handleImageLoadRequest(ImageLoadRequest& request) {
+void LoadImageService::handleImageLoadRequest(ImageLoadRequest& request) const {
 	const bool doMipMapping = ((request.mFlags & ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0);
 
 	ci::gl::Texture::Format fmt;
@@ -184,7 +181,7 @@ void LoadImageService::update(const ds::UpdateParams&) {
 	newCompletedRequests.clear();
 }
 
-void LoadImageService::acquire(const std::string&    filePath, const int flags, Image* requester,
+void LoadImageService::acquire(const std::string&    filePath, const int flags, Sprite* requester,
                                const LoadedCallback& loadedCallback) {
 	if (filePath.empty()) {
 		DS_LOG_VERBOSE(6, "LoadImageService got a blank file path.");
@@ -213,7 +210,7 @@ void LoadImageService::acquire(const std::string&    filePath, const int flags, 
 		}
 	} else {
 		// Obtain cropping information, used for trimming white space.
-		const auto resource = requester->getImageResource();
+		const auto& resource = requester->getResource();
 
 		mInUseImages[filePath]			= ImageLoadRequest(filePath, flags, resource.getCrop());
 		mInUseImages[filePath].mLoading = true; // Indicates that this request has been added to the loading queue
@@ -235,7 +232,7 @@ void LoadImageService::acquire(const std::string&    filePath, const int flags, 
 }
 
 
-void LoadImageService::release(const std::string& filePath, Image* referrer) {
+void LoadImageService::release(const std::string& filePath, Sprite* referrer) {
 	if (filePath.empty()) return;
 
 	/// Remove the callback for this path and referrer

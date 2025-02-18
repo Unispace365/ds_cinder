@@ -32,10 +32,10 @@ class LoadImageService : public ds::AutoUpdate {
 	/// Important! Be sure to call release before the requester goes away
 	/// The callback will be called one time only, and calls back if there is an error or it succeeds.
 	/// All callbacks happen in the update cycle
-	void acquire(const std::string& filePath, const int flags, Image* requester, const LoadedCallback& loadedCallback);
+	void acquire(const std::string& filePath, const int flags, Sprite* requester, const LoadedCallback& loadedCallback);
 
 	/// You must call release if you no longer want the image or the reffer is about to be released
-	void release(const std::string& filePath, Image* requester);
+	void release(const std::string& filePath, Sprite* requester);
 
 	/// \brief Starts the threads to load stuff and creates OpenGL contexts
 	/// Can be called multiple times, will reinit the loading threads if the load_image:threads
@@ -49,7 +49,7 @@ class LoadImageService : public ds::AutoUpdate {
 	void clearCache();
 
 	/// Logs all in-use and cached images to info
-	void logCache();
+	void logCache() const;
 
   private:
 	/// Keeps track of requests for images, in-use images, and cached images
@@ -100,7 +100,7 @@ class LoadImageService : public ds::AutoUpdate {
 	bool mCacheEverything;
 
   protected:
-	void handleImageLoadRequest(ImageLoadRequest&);
+	void handleImageLoadRequest(ImageLoadRequest&) const;
 };
 
 } // namespace ds::ui

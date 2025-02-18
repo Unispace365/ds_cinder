@@ -28,10 +28,10 @@ class MediaViewer : public BasePanel {
 	void loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	/// Support the base sprite setting function, which is the same as loadMedia and initialize immediately
-	virtual void setResource(const ds::Resource& reccy) { loadMedia(reccy); }
+	void setResource(const ds::Resource& reccy) override { loadMedia(reccy); }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
-	ds::Resource getResource();
+	const ds::Resource &getResource() const override;
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to
 	// have an effect

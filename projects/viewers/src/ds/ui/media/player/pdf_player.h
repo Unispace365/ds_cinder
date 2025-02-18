@@ -27,10 +27,10 @@ class PDFPlayer : public ds::ui::IPdf {
 	void setNormalTouch();
 	void setPosScaleTouch();
 
-	void		 setMedia(const std::string mediaPath);
-	virtual void setResource(const ds::Resource& mediaResource) override;
+	void setMedia(const std::string mediaPath);
+	void setResource(const ds::Resource& mediaResource) override;
 
-	ds::Resource& getResource() { return mSourceResource; }
+	const ds::Resource& getResource() const override { return mSourceResource; }
 
 	void layout();
 
