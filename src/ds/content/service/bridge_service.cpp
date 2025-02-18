@@ -882,7 +882,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 	if (!platformEvents.empty()) {
 		// Now update current events
 		std::vector<ds::model::ContentModelRef> currentEvents;
-		for (auto& event : platformEvents) {
+		for (auto event : platformEvents) {
 			if (eventIsNow(event, thisDayTime)) currentEvents.push_back(event);
 		}
 
@@ -890,8 +890,29 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		// Sort playlists by importance.
 		std::sort(std::begin(currentEvents), std::end(currentEvents), [](auto& a, auto& b) {
 			// Prioritize scheduled content over recurring content.
-			if (a.getPropertyString("span_type") != "RECURRING" && b.getPropertyString("span_type") == "RECURRING")
-				return true;
+			// TODO: This still has bugs when comparing with MULTI_DAY events. It works for multi-day with specific days selected, but not if all-week is selected :((
+			if (a.getPropertyString("span_type") != b.getPropertyString("span_type")) {
+				auto aSpan = a.getPropertyString("span_type");
+				auto bSpan	   = b.getPropertyString("span_type");
+				int	 aSpanSort = 0;
+				int	 bSpanSort = 0;
+
+				if (aSpan == "SINGLE_DAY") aSpanSort = 0;
+				else if (aSpan == "MULTI_DAY") aSpanSort = 1;
+				else if (aSpan == "SINGLE_MONTH") aSpanSort = 2;
+				else if (aSpan == "RECURRING") aSpanSort = 3;
+
+				if (bSpan == "SINGLE_DAY")
+					bSpanSort = 0;
+				else if (bSpan == "MULTI_DAY")
+					bSpanSort = 1;
+				else if (bSpan == "SINGLE_MONTH")
+					bSpanSort = 2;
+				else if (bSpan == "RECURRING")
+					bSpanSort = 3;
+
+				return aSpanSort < bSpanSort;
+			}
 
 			// Prioritize late start times over early start times.
 			if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
