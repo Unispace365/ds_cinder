@@ -3,25 +3,169 @@
 #include <ds/ui/sprite/sprite.h>
 
 #include <nvpath/NvPath.h>
+#include <nvpath/NvPathSvg.h>
 
 namespace ds::ui {
 
-class PathSprite : public ds::ui::Sprite {
+class PathSprite : public Sprite {
   public:
-	PathSprite(ds::ui::SpriteEngine& engine);
+	PathSprite(SpriteEngine& engine);
 
-	void setPath(const std::string& pathDef);
+	~PathSprite() override;
 
-	void setFill(const std::string& fillColor);
-	void setStroke(const std::string& strokeColor);
+	bool contains(const ci::vec3& point, float pad) const override;
+
+	bool isPointInsideFill(const ci::vec3& point) const;
+	bool isPointInsideStroke(const ci::vec3& point) const;
+
+	/// Returns the minimum size of the bounding box. If set to 0, the bounding box will be calculated based on the
+	/// path.
+	const ci::vec2& getTouchSize() const { return mTouchSize; }
+	/// Sets the minimum touch size. If set to 0, the bounding box will be calculated based on the
+	/// path.
+	virtual void setTouchSize(float size) { mTouchSize.x = mTouchSize.y = size; }
+	/// Sets the minimum touch size. If set to 0, the bounding box will be calculated based on the
+	/// path.
+	virtual void setTouchSize(const ci::vec2& size) { mTouchSize = size; }
+
+	/// Clones the provided \a path.
+	virtual void setPath(const nvpath::Path& path);
+	/// Accepts the provided \a path.
+	virtual void setPath(nvpath::Path&& path);
+	/// Accepts an SVG \a path definition.
+	virtual void setPath(const std::string& path);
+	/// Accepts a shape definition.
+	virtual void setShape(const std::string& shape);
+	///
+	virtual void setFill(const std::string& fill);
+	///
+	virtual void setFill(const nvpath::Paint& fill);
+	///
+	virtual void setFillColor(const ci::ColorA8u& color);
+	///
+	virtual void setStroke(const std::string& color);
+	///
+	virtual void setStroke(const nvpath::Paint& fill);
+	///
+	virtual void setStrokeColor(const ci::ColorA8u& color);
+	///
+	float getStrokeWidth() const { return mStrokeWidth; }
+	///
+	virtual void setStrokeWidth(float width) {
+		mStrokeWidth = width;
+		if (mPath.getId()) mPath.setStrokeWidth(width);
+	}
+
+	///
+	virtual void setDashCaps(nvpath::CapsStyle caps) {
+		mDashCapsInitial = mDashCapsTerminal = caps;
+		if (mPath.getId()) mPath.setDashCaps(caps);
+	}
+	///
+	virtual void setDashCaps(nvpath::CapsStyle initial, nvpath::CapsStyle terminal) {
+		mDashCapsInitial  = initial;
+		mDashCapsTerminal = terminal;
+		if (mPath.getId()) mPath.setDashCaps(initial, terminal);
+	}
+	///
+	virtual void setEndCaps(nvpath::CapsStyle caps) {
+		mEndCapsInitial = mEndCapsTerminal = caps;
+		if (mPath.getId()) mPath.setEndCaps(caps);
+	}
+	///
+	virtual void setEndCaps(nvpath::CapsStyle initial, nvpath::CapsStyle terminal) {
+		mEndCapsInitial	 = initial;
+		mEndCapsTerminal = terminal;
+		if (mPath.getId()) mPath.setEndCaps(initial, terminal);
+	}
+	/// Accepts a string like "butt", "round" or "square".
+	virtual void setLineCap(std::string def) {
+		to_lowercase(def);
+		if (def == "round") {
+			setDashCaps(nvpath::CapsStyle::ROUND);
+			setEndCaps(nvpath::CapsStyle::ROUND);
+		} else if (def == "square") {
+			setDashCaps(nvpath::CapsStyle::SQUARE);
+			setEndCaps(nvpath::CapsStyle::SQUARE);
+		} else {
+			setDashCaps(nvpath::CapsStyle::DEFAULT);
+			setEndCaps(nvpath::CapsStyle::DEFAULT);
+		}
+	}
+	///
+	virtual void setJoinStyle(nvpath::JoinStyle joins) {
+		mJoinStyle = joins;
+		if (mPath.getId()) mPath.setJoinStyle(joins);
+	}
+	/// Accepts a string like "miter", "miter-clip", "round" or "bevel".
+	virtual void setLineJoin(std::string def) {
+		to_lowercase(def);
+		if (def == "miter") {
+			setJoinStyle(nvpath::JoinStyle::MITER_REVERT);
+		} else if (def == "miter-clip") {
+			setJoinStyle(nvpath::JoinStyle::MITER_TRUNCATE);
+		} else if (def == "round") {
+			setJoinStyle(nvpath::JoinStyle::ROUND);
+		} else if (def == "bevel") {
+			setJoinStyle(nvpath::JoinStyle::BEVEL);
+		} else {
+			setJoinStyle(nvpath::JoinStyle::DEFAULT);
+		}
+	}
+	///
+	virtual void setDashArray(const std::string& def) {
+		const char* sInOut = def.c_str();
+		parseDashArray(&sInOut);
+	}
+	///
+	virtual void setDashPattern(const std::vector<float>& pattern) {
+		if (mPath.getId()) mPath.setDashPattern(pattern);
+	}
 
 	void drawLocalClient() override;
 
-  private:
-	nvpath::Path mPath;
-	ci::ColorA	 mFillColor{1, 1, 1, 1};
-	ci::ColorA	 mStrokeColor{0, 0, 0, 0};
-	ci::Rectf	 mBounds;
+	void fitInsideArea(const ci::Rectf& area) override;
+
+  protected:
+	// Calculates the bounds of the path.
+	ci::Rectf calcBounds() const;
+
+	//
+	void loadImage(const std::string& filename, int flags = Image::IMG_CACHE_F | Image::IMG_ENABLE_MIPMAP_F);
+
+	// Accepts a string like: "circle( x, y, r )".
+	void parseCircle(const char** sInOut);
+	// Accepts a string like: "ellipse( x, y, rx, ry )".
+	void parseEllipse(const char** sInOut);
+	// Accepts a string like: "line( x1, y1, x2, y2 )".
+	void parseLine(const char** sInOut);
+	// Accepts a string like: "polygon( x1, y1, x2, y2, ... )".
+	void parsePolygon(const char** sInOut);
+	// Accepts a string like: "rectangle( x, y, width, height )", "rectangle( x, y, width, height, r )" or
+	// "rectangle( x, y, width, height, rx, ry )".
+	void parseRectangle(const char** sInOut);
+	// Accepts a string like: "star( x, y, rmax, rmin, points, angle )".
+	void parseStar(const char** sInOut);
+	// Accepts a string of floats, separated by white space or comma's.
+	void parseDashArray(const char** sInOut);
+
+	//
+	static std::string fetchParameters(const char** sInOut);
+
+	nvpath::Path	   mPath;										  //
+	nvpath::CapsStyle  mDashCapsInitial{nvpath::CapsStyle::DEFAULT};  //
+	nvpath::CapsStyle  mDashCapsTerminal{nvpath::CapsStyle::DEFAULT}; //
+	nvpath::CapsStyle  mEndCapsInitial{nvpath::CapsStyle::DEFAULT};	  //
+	nvpath::CapsStyle  mEndCapsTerminal{nvpath::CapsStyle::DEFAULT};  //
+	nvpath::JoinStyle  mJoinStyle{nvpath::JoinStyle::DEFAULT};		  //
+	nvpath::Paint	   mFill;										  //
+	nvpath::Paint	   mStroke;										  //
+	float			   mStrokeWidth{1};								  //
+	std::string		   mFilename;									  //
+	ci::gl::TextureRef mTexture;									  // Image used to fill the path.
+	ci::vec2		   mTouchSize{0};								  // Extra padding for touch detection.
+	ci::Rectf		   mBounds;										  // Cached bounds.
+	int				   mFlags{0};									  //
 };
 
 } // namespace ds::ui
