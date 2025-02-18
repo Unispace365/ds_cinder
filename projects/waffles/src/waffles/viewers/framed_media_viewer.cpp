@@ -86,7 +86,9 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 
 void FramedMediaViewer::onLayout() {
 	float diff = 0;
-
+	auto  minSize = mEngine.getWafflesSettings().getVec2("media_viewer:min_layout_size", 0, ci::vec2(400, 400));
+	mMinWidth	  = minSize.x;
+	mMinHeight	  = minSize.y;
 	if (mRootLayout) {
 		auto w = getWidth();
 		auto h = getHeight();
@@ -131,6 +133,30 @@ void FramedMediaViewer::onLayout() {
 			layoutHotspots();
 		}
 	}
+	auto controllerHolder = mRootLayout->getSprite<ds::ui::LayoutSprite>("controller_holder");
+	auto innerSidebar = mRootLayout->getSprite("inner_sidebar");
+	auto ui_holder		  = mRootLayout->getSprite("ui_holder");
+	auto spacing		  = mEngine.getWafflesSettings().getFloat("ui:button_spacing", 0, 16);
+	if (controllerHolder && ui_holder && innerSidebar  && mMediaInterface) {
+		auto interfaceBox = mMediaInterface->getChildBoundingBox();
+		auto interfacePos  = mMediaInterface->localToGlobal(ci::vec3(interfaceBox.getUpperLeft(), 0));
+		auto fullContWidth = (innerSidebar->getGlobalPosition().x + innerSidebar->getWidth()) - interfacePos.x;
+		auto contWidth = interfaceBox.getWidth() + innerSidebar->getWidth()+spacing*1;
+		auto w		   = getWidth() - (mLeftPad + mRightPad);
+		if (!mIsDetached && getWidth()-(mLeftPad+mRightPad) < contWidth && getWidth()>0) {
+			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kRight);
+			controllerHolder->mLayoutFudge = ci::vec3(-(innerSidebar->getWidth()+spacing*1), 0, 0);
+			auto offset					   = contWidth - w;
+			ui_holder->mLayoutFudge		   = ci::vec3(offset*0.5, 0, 0);
+		} else if (!mIsDetached && contWidth > fullContWidth) {
+			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
+			controllerHolder->mLayoutFudge = ci::vec3(-spacing * 1.1, 0, 0);
+		}else {
+			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
+			controllerHolder->mLayoutFudge = ci::vec3(0, 0, 0);
+			ui_holder->mLayoutFudge = ci::vec3(0, 0, 0);
+		}
+	}
 
 	if (mRootLayout) {
 
@@ -147,6 +173,8 @@ void FramedMediaViewer::onLayout() {
 		mRootLayout->clearAnimateOnTargets(true);
 	}
 
+	
+
 	// Calculate padding based on the media.
 	auto root	= mRootLayout->getSprite("root_layout");
 	auto player = mRootLayout->getSprite("media_player");
@@ -162,6 +190,8 @@ void FramedMediaViewer::onLayout() {
 		mTopPad	   = upperLeft.y / upperLeft.w;
 		mBottomPad = root->getHeight() - bottomRight.y / bottomRight.w;
 	}
+
+	
 
 	// auto frameCenter   = mRootLayout->getGlobalCenterPosition();
 	// auto contentCenter = theLayout->getGlobalCenterPosition();

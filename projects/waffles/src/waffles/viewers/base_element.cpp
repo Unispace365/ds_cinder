@@ -216,12 +216,13 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 
 	// Use media size instead of layout size, so we can adjust for padding ourselves.
 	const auto mediaSize = getMediaSize();
+	auto	   padding	 = getBorderPadding();
 
 	float width	 = mediaSize.x;
 	float height = mediaSize.y;
 	if (ds::approxZero(width) || ds::approxZero(height)) return false;
 
-	auto padding = getBorderPadding();
+	
 
 	// Calculate inner and outer bounds.
 	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
