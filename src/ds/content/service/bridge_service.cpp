@@ -230,48 +230,24 @@ void BridgeService::Loop::abort() {
 bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::DateTime& ldt) const {
 	int tzd = 0;
 
-	/// ---------- Check the effective dates
-	Poco::DateTime startDate;
-	Poco::DateTime endDate;
-	if (!Poco::DateTimeParser::tryParse(event.getPropertyString("start_date"), startDate, tzd)) {
+	/// ---------- Check the effective dates and times all at once
+	Poco::DateTime startDateTime;
+	Poco::DateTime endDateTime;
+	if (!Poco::DateTimeParser::tryParse(
+			event.getPropertyString("start_date") + " " + event.getPropertyString("start_time"), startDateTime, tzd)) {
 		DS_LOG_WARNING("Couldn't parse the start date for an event!")
 		return false;
 	}
-	if (!Poco::DateTimeParser::tryParse(event.getPropertyString("end_date"), endDate, tzd)) {
+	if (!Poco::DateTimeParser::tryParse(event.getPropertyString("end_date") + " " + event.getPropertyString("end_time"),
+										endDateTime, tzd)) {
 		DS_LOG_WARNING("Couldn't parse the end date for an event!")
 		return false;
 	}
 
-	Poco::Timespan daySpan = Poco::Timespan(1, 0, 0, 0, 0);
-	endDate += daySpan;
-
-	if (ldt < startDate || ldt > endDate) {
+	/// ---------- Check that the current time falls between the startDateTime and endDateTime
+	if (ldt < startDateTime || ldt > endDateTime) {
 		DS_LOG_VERBOSE(3, "Event happens outside the current date: " << event.getPropertyString("name"))
 		return false;
-	}
-
-	/// ---------- Check the effective times of day
-	if (!event.getPropertyString("start_time").empty()) {
-		Poco::DateTime startTime;
-		Poco::DateTime endTime;
-		if (!Poco::DateTimeParser::tryParse("%H:%M:%S", event.getPropertyString("start_time"), startTime, tzd)) {
-			DS_LOG_WARNING("Couldn't parse the start time for an event!")
-			return false;
-		}
-		if (!Poco::DateTimeParser::tryParse("%H:%M:%S", event.getPropertyString("end_time"), endTime, tzd)) {
-			DS_LOG_WARNING("Couldn't parse the end time for an event!")
-			return false;
-		}
-
-		int daySeconds		= ldt.hour() * 60 * 60 + ldt.minute() * 60 + ldt.second();
-		int startDaySeconds = startTime.hour() * 60 * 60 + startTime.minute() * 60 + startTime.second();
-		int endDaySeconds	= endTime.hour() * 60 * 60 + endTime.minute() * 60 + endTime.second();
-
-
-		if (daySeconds < startDaySeconds || daySeconds > endDaySeconds) {
-			DS_LOG_VERBOSE(3, "Event happens outside the current time: " << event.getPropertyString("name"))
-			return false;
-		}
 	}
 
 	/// ---------- Check the effective days of the week
@@ -297,10 +273,40 @@ bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::Da
 	if (dotw == 5) dayFlag = WEEK_FRI;
 	if (dotw == 6) dayFlag = WEEK_SAT;
 
-
 	int effectiveDays = event.getPropertyInt("effective_days");
-	if (effectiveDays == WEEK_ALL || effectiveDays & dayFlag) {
+	auto spanType = event.getPropertyString("span_type");
+
+	// Multi day in the bridge calendar works differently depending if it's all-week or specific days
+	// All week works as a full span from startDateTime - endDateTime
+	// specific days makes the even reoccur on the selected days, going startTime-endTime each day
+	if(spanType == "SINGLE_DAY"){
 		return true;
+	}else if(effectiveDays == WEEK_ALL && spanType == "MULTI_DAY"){
+		return true;
+	}else if (effectiveDays & dayFlag || effectiveDays == WEEK_ALL || spanType == "SINGLE_MONTH"){
+		// Ensure we're within startTime/endTime range today
+		Poco::DateTime startTime;
+		Poco::DateTime endTime;
+		if (!Poco::DateTimeParser::tryParse("%H:%M:%S", event.getPropertyString("start_time"), startTime, tzd)) {
+			DS_LOG_WARNING("Couldn't parse the start time for an event!")
+			return false;
+		}
+		if (!Poco::DateTimeParser::tryParse("%H:%M:%S", event.getPropertyString("end_time"), endTime, tzd)) {
+			DS_LOG_WARNING("Couldn't parse the end time for an event!")
+			return false;
+		}
+
+		int daySeconds		= ldt.hour() * 60 * 60 + ldt.minute() * 60 + ldt.second();
+		int startDaySeconds = startTime.hour() * 60 * 60 + startTime.minute() * 60 + startTime.second();
+		int endDaySeconds	= endTime.hour() * 60 * 60 + endTime.minute() * 60 + endTime.second();
+
+
+		if (daySeconds > startDaySeconds && daySeconds < endDaySeconds) {
+			return true;
+		}else{
+			DS_LOG_VERBOSE(3, "Event happens outside the current time: " << event.getPropertyString("name"))
+			return false;
+		}
 	}
 
 	return false;
@@ -337,26 +343,28 @@ bool BridgeService::Loop::loadContent() {
 	std::vector<ds::model::ContentModelRef> rankOrderedRecords;
 	{
 		ds::query::Result result;
-		std::string		  recordQuery = "SELECT "			//
-								  " r.uid,"					// 0
-								  " r.type_uid,"			// 1
-								  " l.name as type_name,"	// 2
-								  " l.app_key as type_key," // 3
-								  " r.parent_uid,"			// 4
-								  " r.parent_slot,"			// 5
-								  " r.variant,"				// 6
-								  " r.name,"				// 7
-								  " r.span_type,"			// 8
-								  " r.span_start_date,"		// 9
-								  " r.span_end_date,"		// 10
-								  " r.start_time,"			// 11
-								  " r.end_time,"			// 12
-								  " r.effective_days"		// 13
-								  " FROM record AS r"
-								  " INNER JOIN lookup AS l ON l.uid = r.type_uid"
-								  " WHERE r.complete = 1 AND r.visible = 1 AND"
-								  " (( r.span_start_date IS NULL AND r.span_end_date IS NULL) OR (date(r.span_start_date) <= date('now', 'localtime') AND date(r.span_end_date) >= date('now', 'localtime')) )"
-								  " ORDER BY r.parent_slot ASC, r.rank ASC;";
+		std::string		  recordQuery =
+			"SELECT "				  //
+			" r.uid,"				  // 0
+			" r.type_uid,"			  // 1
+			" l.name as type_name,"	  // 2
+			" l.app_key as type_key," // 3
+			" r.parent_uid,"		  // 4
+			" r.parent_slot,"		  // 5
+			" r.variant,"			  // 6
+			" r.name,"				  // 7
+			" r.span_type,"			  // 8
+			" r.span_start_date,"	  // 9
+			" r.span_end_date,"		  // 10
+			" r.start_time,"		  // 11
+			" r.end_time,"			  // 12
+			" r.effective_days"		  // 13
+			" FROM record AS r"
+			" INNER JOIN lookup AS l ON l.uid = r.type_uid"
+			" WHERE r.complete = 1 AND r.visible = 1 AND"
+			" (( r.span_start_date IS NULL AND r.span_end_date IS NULL) OR (date(r.span_start_date) <= date('now', "
+			"'localtime') AND date(r.span_end_date) >= date('now', 'localtime')) )"
+			" ORDER BY r.parent_slot ASC, r.rank ASC;";
 
 
 		if (ds::query::Client::query(cms.getDatabasePath(), recordQuery, result)) {
