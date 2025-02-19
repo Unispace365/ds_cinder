@@ -278,6 +278,8 @@ namespace ui {
 		void setFit(const std::string& css) { setFit(Fit(css)); }
 
 		///
+		const std::function<void(Sprite*)>& getDimensionsChangedCallback() const { return mDimensionsChangedCallback; }
+		///
 		void setDimensionsChangedCallback(const std::function<void(Sprite*)>& fn) { mDimensionsChangedCallback = fn; }
 
 		/** The depth of this sprite, not including scale.
@@ -504,7 +506,24 @@ namespace ui {
 			Equivalent to calling release() on every child. */
 		void clearChildren();
 
-		std::vector<Sprite*> getChildren() { return mChildren; }
+		const std::vector<Sprite*>& getChildren() const { return mChildren; }
+
+		std::vector<Sprite*> getChildren(bool expandWrapped) const {
+			return expandWrapped ? getWrappedChildren() : getChildren();
+		}
+
+		std::vector<Sprite*> getWrappedChildren() const {
+			std::vector<Sprite*> result;
+			for (auto child : mChildren) {
+				// If child is a wrapper, add its children instead.
+				if (child->isWrapper()) {
+					auto wrapped = child->getChildren(true);
+					result.insert(result.end(), wrapped.begin(), wrapped.end());
+				} else
+					result.push_back(child);
+			}
+			return result;
+		}
 
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
@@ -775,7 +794,7 @@ namespace ui {
 
 		/// Get the resource content for a sprite. This is a base function that should be overridden by anything that
 		/// can take a Resource (Image, Video, PDF, etc)
-		virtual const ds::Resource& getResource() const; 
+		virtual const ds::Resource& getResource() const;
 
 		/// Set the resource content for a sprite. This is a base function that should be overridden by anything that
 		/// can take a Resource (Image, Video, PDF, etc)
@@ -851,6 +870,12 @@ namespace ui {
 		/// Returns whether this sprite has debugging enabled.
 		bool getDebugging() const;
 
+		/// *Experimental* Flags this sprite as being a wrapper around its children. This causes the sprite to be
+		/// treated differently in e.g. layouts.
+		void setWrapper(bool enable);
+		/// *Experimental* Returns whether this sprite is a wrapper around its children.
+		bool isWrapper() const;
+
 		/// Set the name of this sprite. No guarantee of uniqueness
 		void setSpriteName(const std::wstring& name);
 
@@ -910,6 +935,7 @@ namespace ui {
 		friend class TouchProcess;
 		friend class ds::gl::ClipPlaneState;
 		friend class SpriteAnimatable;
+		friend class Effect;
 
 
 		void swipe(const ci::vec3& swipeVector);

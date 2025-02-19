@@ -93,6 +93,7 @@ namespace {
 	const int SPAN_COLUMN_SET_F = (1 << 9);
 	const int SPAN_ROW_SET_F	= (1 << 10);
 	const int DEBUG_F			= (1 << 11);
+	const int WRAPPER_F			= (1 << 12);
 
 	const ds::BitMask SPRITE_LOG = ds::Logger::newModule("sprite");
 } // namespace
@@ -2491,6 +2492,16 @@ bool Sprite::getDebugging() const {
 	return getFlag(DEBUG_F, mSpriteFlags);
 }
 
+void Sprite::setWrapper(bool enable) {
+	if (enable)
+		mSpriteFlags |= WRAPPER_F;
+	else
+		mSpriteFlags &= ~WRAPPER_F;
+}
+
+bool Sprite::isWrapper() const {
+	return getFlag(WRAPPER_F, mSpriteFlags);
+}
 
 void Sprite::setSpriteName(const std::wstring& name) {
 	mSpriteName = name;

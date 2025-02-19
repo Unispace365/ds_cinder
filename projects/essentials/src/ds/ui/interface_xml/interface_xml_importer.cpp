@@ -18,6 +18,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/control/control_check_box.h>
 #include <ds/ui/control/control_slider.h>
+#include <ds/ui/effect/effect.h>
 #include <ds/ui/grid/grid.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/layout/perspective_layout.h>
@@ -259,12 +260,12 @@ struct SprProps {
 	  , referer(ref)
 	  , local_map(l_map)
 	  , engine(spr.getEngine()) {}
-	ds::ui::Sprite&		  sprite;
-	const std::string&	  property;
-	const std::string&	  value;
-	const std::string&	  referer;
+	ds::ui::Sprite&				sprite;
+	const std::string&			property;
+	const std::string&			value;
+	const std::string&			referer;
 	const ds::cfg::VariableMap& local_map;
-	ds::ui::SpriteEngine& engine;
+	ds::ui::SpriteEngine&		engine;
 };
 
 void logAttributionWarning(const SprProps& p) {
@@ -301,7 +302,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 	value			  = ds::cfg::SettingsVariables::parseAllExpressions(value);
 
 	// TODO: build this in a different function?
-	static std::unordered_map<std::string, std::function<void(const SprProps & p)>> propertyMap;
+	static std::unordered_map<std::string, std::function<void(const SprProps& p)>> propertyMap;
 
 	// build the static map on the first run
 	if (propertyMap.empty()) {
@@ -1963,6 +1964,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::Border(engine);
 	} else if (type == "circle") {
 		spriddy = new ds::ui::Circle(engine);
+	} else if (type == "effect") {
+		spriddy = new ds::ui::Effect(engine);
 	} else if (type == "circle_border") {
 		spriddy = new ds::ui::CircleBorder(engine);
 	} else if (type == "scroll_list" || type == "scroll_list_vertical") {
