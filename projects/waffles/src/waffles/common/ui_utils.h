@@ -14,7 +14,7 @@ class ContentUtils : ds::ui::Sprite {
 	// void	getThumbnailForContent(ds::model::ContentModelRef inputModel, std::string& outputString, bool& valid);
 	static ContentUtils* getDefault(ds::ui::SpriteEngine& g);
 	static void			 configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item,
-										   const ci::vec2& size = ci::vec2(-1));
+										   const ci::vec2& size = ci::vec2(-1), bool isSelectable = false);
 	static bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, const std::string& channel,
 								  const ci::vec3& pos = ci::vec3(-1), const ci::vec3& raw_pos = ci::vec3(-1));
 	[[deprecated]] static void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey);

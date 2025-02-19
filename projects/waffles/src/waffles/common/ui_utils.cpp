@@ -60,7 +60,8 @@ std::string ContentUtils::getMediaPropertyKey(ds::model::ContentModelRef model) 
 	return content->getMediaPropertyKey(std::move(model), ds::model::ContentHelper::WAFFLESCATEGORY);
 }
 
-void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, const ci::vec2& size) {
+void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, const ci::vec2& size,
+									 bool isSelectable) {
 	auto		content = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
 	std::string thumbPath;
 	auto		theModel		 = item->getContentModel();
@@ -71,8 +72,9 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	mediaPropertyKey			 = mediaPropertyKey.empty() ? "media" : mediaPropertyKey;
 	auto mediaType				 = item->getContentModel().getPropertyResource(mediaPropertyKey).getType();
 
-	bool showArrow = false;
-	bool validy	   = true;
+	bool showArrow	= false;
+	bool showSelect = false;
+	bool validy		= true;
 
 	if (theType == "assets_folder" || theType == "playlist_folder" || theType == MEDIA_TYPE_DIRECTORY_CMS ||
 		getDefault(engine)->isFolder(theModel)) {
@@ -99,7 +101,8 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (theType == "pinboard_mode") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Pin_256.png";
 	} else if (theType == "browser") {
-		thumbPath = "%APP%/data/images/waffles/icons/4x/Browser_256.png";
+		thumbPath  = "%APP%/data/images/waffles/icons/4x/Browser_256.png";
+		showSelect = isSelectable;
 	} else if (theType == "streams") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
 		showArrow = true;
@@ -111,6 +114,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			thumbPath = iconPath;
 		}
 		theTypeLabel = "STREAM";
+		showSelect	 = isSelectable;
 	} else if (theType == "search") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Search_256.png";
 	} else if (theType == "custom_layout_template") {
@@ -167,14 +171,14 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		} else if (theType == "media" && mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 			theTypeLabel = "STREAM";
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
-		} else if (theType == "stream_source"){
-			theTypeLabel = "STREAM";
+		} else if (theType == "stream_source") {
+			theTypeLabel  = "STREAM";
 			auto layoutId = theModel.getPropertyString("layout_id");
 			// Look up this layout id in the platform stream children
-			// NOTE!!! This suddenly became quite redhat specific, but we don't have time to rework how the ui helper here works
-			thumbPath =
-				item->getContentModel().getPropertyResource("icon").getAbsoluteFilePath();
-			if(thumbPath.empty()) thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
+			// NOTE!!! This suddenly became quite redhat specific, but we don't have time to rework how the ui helper
+			// here works
+			thumbPath = item->getContentModel().getPropertyResource("icon").getAbsoluteFilePath();
+			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
 		} else if (theType == "layout") {
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
 			theTypeLabel = "LAYOUT";
@@ -185,7 +189,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			theTypeLabel = "DRIVE";
 			thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
 		}
-
+		showSelect = isSelectable;
 	} else if (theType == "recent") {
 		thumbPath = "%APP%/data/images/waffles/icons/1x/Star_64.png";
 	} else if (theType == "images") {
@@ -213,10 +217,11 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 
 	ds::cfg::Settings settings;
-	settings.getSetting("label", 0).mOriginalValue	   = item->getContentModel().getPropertyString("record_name");
-	settings.getSetting("icon_src", 0).mOriginalValue  = thumbPath;
-	settings.getSetting("has_arrow", 0).mOriginalValue = ds::unparseBoolean(showArrow);
-	settings.getSetting("type", 0).mOriginalValue	   = theTypeLabel;
+	settings.getSetting("label", 0).mOriginalValue			 = item->getContentModel().getPropertyString("record_name");
+	settings.getSetting("icon_src", 0).mOriginalValue		 = thumbPath;
+	settings.getSetting("has_arrow", 0).mOriginalValue		 = ds::unparseBoolean(showArrow);
+	settings.getSetting("has_select", 0).mOriginalValue = ds::unparseBoolean(showSelect);
+	settings.getSetting("type", 0).mOriginalValue			 = theTypeLabel;
 	item->setLayoutSettings(settings);
 
 	item->initialize();

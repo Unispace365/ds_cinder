@@ -63,6 +63,12 @@ LauncherPane::LauncherPane(ds::ui::SpriteEngine& g)
 				mFolderBrowseCallback(li->getContentModel());
 			}
 		});
+		li->setSpriteClickFn("edit_select", [this, li] {
+			if (mEditSelectCallback) {
+				mEditSelectCallback(li->getContentModel());
+			}
+		});
+		
 		return li;
 	});
 

@@ -17,6 +17,8 @@ class LauncherPane : public ds::ui::SmartLayout {
 	void animateOn();
 
 	void setFolderBrowseCallback(std::function<void(ds::model::ContentModelRef)> func) { mFolderBrowseCallback = func; }
+	
+	void setEditSelectCallback(std::function<void(ds::model::ContentModelRef)> func) { mEditSelectCallback = func; }
 
 	bool getBackMediaModel(ds::model::ContentModelRef& outModel);
 
@@ -27,6 +29,7 @@ class LauncherPane : public ds::ui::SmartLayout {
 	ds::ui::ScrollList*								mFileList;
 	std::map<int, ds::model::ContentModelRef>		mInfoMap;
 	std::function<void(ds::model::ContentModelRef)> mFolderBrowseCallback;
+	std::function<void(ds::model::ContentModelRef)> mEditSelectCallback;
 };
 
 } // namespace waffles

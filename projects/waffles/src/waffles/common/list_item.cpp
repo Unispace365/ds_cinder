@@ -24,6 +24,7 @@ ListItem::ListItem(ds::ui::SpriteEngine& g, std::string layout_file)
 
 		auto icony	= getSprite<ds::ui::Image>("icon");
 		auto arrowy = getSprite("the_arrow");
+		auto edity	= getSprite("edit_select");
 
 		if (icony) {
 			std::string thumbPath = "";
@@ -124,9 +125,13 @@ ListItem::ListItem(ds::ui::SpriteEngine& g, std::string layout_file)
 			label->setText(titleName);
 		}
 
-		if(arrowy->visible() && getContentModel().getChildren().empty()){
+		if(arrowy && arrowy->visible() && getContentModel().getChildren().empty()){
 			arrowy->enable(false);
 			arrowy->setOpacity(0.4f);
+		}
+
+		if(edity) {
+			edity->enable(true);
 		}
 
 		if (validy) {
