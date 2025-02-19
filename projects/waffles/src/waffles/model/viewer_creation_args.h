@@ -105,7 +105,7 @@ class ViewerCreationArgs {
 								   const bool checkBounds = true) {
 		auto result = ViewerCreationArgs(newMedia, viewType, location, viewLayer, startWidth, fromCenter, fullscreen,
 										 checkBounds);
-		result.mCanDetach = false;
+		result.mCanDetach = true;
 		result.mCanAttach  = false;
 		result.mIsDetached = true;
 		return result;
