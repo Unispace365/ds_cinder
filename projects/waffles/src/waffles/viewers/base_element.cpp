@@ -85,21 +85,12 @@ bool BaseElement::canDetach() const {
 void BaseElement::allowDetach(bool allow) {
 	if (mCanDetach == allow) return;
 	mCanDetach = allow;
-	onDetachedSet();
+	setIsDetached(mIsDetached && mCanDetach);
 }
 
+void BaseElement::setIsDetached(bool isDetached) {
+	isDetached = isDetached && mCanDetach;
 
-bool BaseElement::canAttach() const {
-	return mCanAttach;
-}
-
-void BaseElement::allowAttach(bool allow) {
-	if (mCanAttach == allow) return;
-	mCanAttach = allow;
-	onDetachedSet();
-}
-
-void BaseElement::setIsDetached(const bool isDetached) {
 	// Enable/disable touch events but keep constraints.
 	if (!mCanDetach || isDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
@@ -114,6 +105,15 @@ void BaseElement::setIsDetached(const bool isDetached) {
 
 bool BaseElement::getIsDetached() const {
 	return mIsDetached;
+}
+
+bool BaseElement::canAttach() const {
+	return mCanAttach;
+}
+
+void BaseElement::allowAttach(bool allow) {
+	if (mCanAttach == allow) return;
+	mCanAttach = allow;
 }
 
 int BaseElement::getMaxNumberOfThisType() const {
@@ -222,7 +222,6 @@ bool BaseElement::setAvailableSize(const ci::vec2& size, float& minWidth, float&
 	float height = mediaSize.y;
 	if (ds::approxZero(width) || ds::approxZero(height)) return false;
 
-	
 
 	// Calculate inner and outer bounds.
 	const auto outer = ci::Rectf{0, 0, size.x - padding.x, size.y - padding.y};
@@ -237,7 +236,7 @@ void BaseElement::fitInsideArea(const ci::Rectf& area) {
 	setPosition(fit.getUpperLeft());
 }
 
-ci::Rectf BaseElement::getFitArea(const ci::Rectf &area) {
+ci::Rectf BaseElement::getFitArea(const ci::Rectf& area) {
 	// The area already compensated for padding, so use the full padding when setting the size.
 	const auto padding = ci::vec2(mLeftPad + mRightPad, mTopPad + mBottomPad);
 	// Attached viewers have no border padding on the top, left and right, so adjust the position accordingly.
