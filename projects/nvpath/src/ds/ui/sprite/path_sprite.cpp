@@ -155,20 +155,17 @@ void PathSprite::setFill(const std::string& fill) {
 		mFill = {};
 	else
 		mFill = nvpath::Paint::color(ds::parseColor(fill, mEngine));
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::setFill(const nvpath::Paint& fill) {
 	mFill = fill;
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::setFillColor(const ColorA8u& color) {
 	mFill = nvpath::Paint::color(color);
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::setStroke(const std::string& color) {
@@ -176,20 +173,17 @@ void PathSprite::setStroke(const std::string& color) {
 		mStroke = {};
 	else
 		mStroke = nvpath::Paint::color(ds::parseColor(color, mEngine));
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::setStroke(const nvpath::Paint& fill) {
 	mStroke = fill;
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::setStrokeColor(const ColorA8u& color) {
 	mStroke = nvpath::Paint::color(color);
-
-	setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+	onPaintChanged();
 }
 
 void PathSprite::drawLocalClient() {
@@ -241,8 +235,7 @@ void PathSprite::loadImage(const std::string& filename, int flags) {
 			if (error) {
 				DS_LOG_WARNING("Failed to load PathSprite texture: " << errorMsg);
 			}
-
-			setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture);
+			onPaintChanged();
 		});
 }
 

@@ -157,6 +157,9 @@ class PathSprite : public Sprite {
 	void parseDashArray(const char** sInOut);
 
 	//
+	void onPaintChanged() { setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture); }
+
+	//
 	static std::string fetchParameters(const char** sInOut);
 
 	nvpath::Path	   mPath;										  //
@@ -165,8 +168,8 @@ class PathSprite : public Sprite {
 	nvpath::CapsStyle  mEndCapsInitial{nvpath::CapsStyle::DEFAULT};	  //
 	nvpath::CapsStyle  mEndCapsTerminal{nvpath::CapsStyle::DEFAULT};  //
 	nvpath::JoinStyle  mJoinStyle{nvpath::JoinStyle::DEFAULT};		  //
-	nvpath::Paint	   mFill;										  //
-	nvpath::Paint	   mStroke;										  //
+	nvpath::Paint	   mFill{nvpath::Paint::NONE};					  //
+	nvpath::Paint	   mStroke{nvpath::Paint::NONE};				  //
 	float			   mStrokeWidth{1};								  //
 	std::string		   mFilename;									  //
 	ci::gl::TextureRef mTexture;									  // Image used to fill the path.
