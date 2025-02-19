@@ -164,7 +164,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			else if(theType == "google_drive_link")
 				theTypeLabel = "DRIVE";
 			else
-				theTypeLabel = "WEB";
+			theTypeLabel = "WEB";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
