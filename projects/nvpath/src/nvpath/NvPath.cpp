@@ -1177,7 +1177,7 @@ void Path::pushClipPath(const Path& mask, bool showMask) {
 			GLuint coverMask = clipMask - 1;
 
 			// Render shape to stencil buffer to use it as a clip-path.
-			ScopedShader	  scpShader(Color(1, 1, 0));
+			ScopedShader	  scpShader(Color(0.6f, 0.6f, 0));
 			ScopedColorMask	  scpColorMask(showMask, showMask, showMask,
 										   showMask);				// Don't write to color buffer, unless requested.
 			ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
