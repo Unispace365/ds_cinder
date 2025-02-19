@@ -29,7 +29,6 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
   , mTouching(false)
   , mAutoSendToFront(true)
   , mAnimDuration(0.35f)
-  , mAnimating(false)
   , mEnableAfterAnimating(true)
   , mRemoving(false)
   , mLayoutCallback(nullptr)
@@ -62,7 +61,7 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti) {
 		mTouching = false;
 	}
 
-	if (mAnimating) return;
+	if (mAnimationCount) return;
 
 	if (mPositionUpdateCallback) mPositionUpdateCallback();
 
@@ -100,7 +99,7 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti) {
 }
 
 void BasePanel::onUpdateServer(const ds::UpdateParams& updateParams) {
-	if (mMomentum.recentlyMoved() && !mAnimating) {
+	if (mMomentum.recentlyMoved() && !mAnimationCount) {
 		if (mPositionUpdateCallback) mPositionUpdateCallback();
 		checkBounds();
 	}
@@ -230,7 +229,7 @@ void BasePanel::checkBounds(bool immediate) {
 
 	if (mPositionUpdateCallback) mPositionUpdateCallback();
 
-	if (mAnimating && !immediate) return;
+	if (mAnimationCount && !immediate) return;
 
 	// Constrain the bounding box of the sprite to mBoundingArea
 	auto		bb		   = getBoundingBox();
@@ -342,20 +341,22 @@ void BasePanel::tweenStarted() {
 
 	// check if this should be enabled after animating, and be sure we don't overwrite if this is already animating
 	// (and therefore disabled)
-	if (!mAnimating) {
+	if (!mAnimationCount) {
 		mEnableAfterAnimating = isEnabled();
+		enable(false);
 	}
-	enable(false);
-	mAnimating = true;
+	++mAnimationCount;
 }
 
 void BasePanel::tweenEnded() {
-	if (mEnableAfterAnimating) {
-		enable(true);
+	--mAnimationCount;
+	assert(mAnimationCount >= 0 && "Mismatched tweenStarted()/tweenEnded()!!");
+
+	if (!mAnimationCount) {
+		if (mEnableAfterAnimating) enable(true);
+		checkBounds();
+		layout(); // sometimes tweens are happening and not laying out properly, so just to be sure
 	}
-	mAnimating = false;
-	checkBounds();
-	layout(); // sometimes tweens are happening and not laying out properly, so just to be sure
 }
 
 

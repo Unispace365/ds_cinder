@@ -1174,7 +1174,7 @@ void TitledMediaViewer::setInterfaceLocked(bool isLocked) const {
 }
 
 void TitledMediaViewer::rotateMedia() {
-	if (!mMediaPlayer || mAnimating) return;
+	if (!mMediaPlayer || mAnimationCount) return;
 
 	mMediaRotation++;
 	if (mMediaRotation > 3) mMediaRotation = 0;
@@ -1371,7 +1371,7 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 	
 	if (mPositionUpdateCallback) mPositionUpdateCallback();
 
-	if (mAnimating && !immediate) return;
+	if (mAnimationCount && !immediate) return;
 
 
 	// Constrain the bounding box of the sprite to mBoundingArea

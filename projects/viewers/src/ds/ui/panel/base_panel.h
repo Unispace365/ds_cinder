@@ -161,7 +161,7 @@ class BasePanel : public ds::ui::Sprite {
 	bool mAutoSendToFront;
 
 	float	  mAnimDuration;
-	bool	  mAnimating;
+	int		  mAnimationCount{0}; // keeps track of the number of animations currently in flight
 	bool	  mEnableAfterAnimating;
 	bool	  mRemoving; // the panel is on it's last animation
 	ci::Rectf mBoundingArea;
