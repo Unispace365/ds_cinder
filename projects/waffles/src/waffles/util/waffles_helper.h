@@ -25,7 +25,7 @@ class WafflesHelper : public ds::model::ContentHelper {
 	  : ds::model::ContentHelper(eng) {}
 
 	using CustomFilters = std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>>;
-	using CustomContent = std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef)>>;
+	using CustomContent = std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef, ci::vec3)>>;
 
 	virtual bool									getApplyParticles()										   = 0;
 	virtual ds::model::ContentModelRef				getPinboard()											   = 0;

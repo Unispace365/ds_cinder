@@ -173,6 +173,10 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		} else if (theType == "layout") {
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
 			theTypeLabel = "LAYOUT";
+		} else if (theType == "miro_meeting_placeholder") {
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
+		} else if (theType == "google_drive_link_placeholder") {
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
 		}
 
 	} else if (theType == "recent") {
@@ -191,10 +195,10 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 	} else if (theType == "folders") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
-	} else if (theType == "miro_meeting_placeholder") {
+	/* } else if (theType == "miro_meeting_placeholder") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
 	} else if (theType == "google_drive_link_placeholder") {
-		thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
+		thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png"; */
 	} else {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Asset viewing_256.png";
 		validy	  = true;
@@ -234,7 +238,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 	auto customs = ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->getLauncherCustomContent();
 	if (customs.find(type) != customs.end()) {
-		customs[type](model);
+		customs[type](model, pos);
 	} else if (type == "ambient") {
 		engine.startIdling();
 	} else if (type == "media_template") {
