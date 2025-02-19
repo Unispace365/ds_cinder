@@ -1,6 +1,8 @@
 #pragma once
 #include <ds/ui/sprite/sprite.h>
 
+#include <utility>
+
 namespace waffles {
 
 /**
@@ -10,102 +12,60 @@ class ViewerCreationArgs {
   public:
 	enum { kViewLayerNormal = 0, kViewLayerBackground, kViewLayerTop };
 
-	ViewerCreationArgs()
-	  : mLocation(-1.0f, -1.0f, 0.0f)
-	  , mSize(-1.0f, -1.0f, 0.0f)
-	  , mViewLayer(kViewLayerNormal)
-	  , mStartWidth(0.0f)
-	  , mEnforceMinSize(true)
-	  , mFromCenter(true)
-	  , mCanFullscreen(true)
-	  , mIsFullscreen(false)
-	  , mCanDetach(false)
-	  , mIsDetached(false)
-	  , mShowFullscreenController(true)
-	  , mShowPresentationController(true)
-	  , mCheckBounds(true)
-	  , mUseHotspots(false)
-	  , mVolume(50)
-	  , mPage(1)
-	  , mAutoStart(true)
-	  , mLooped(true)
-	  , mCloseOnVideoComplete(false)
-	  , mMuted(false)
-	  , mVideoTimePosition(0.0)
-	  , mTouchEvents(true)
-	  , mStartLocked(false)
-	  , mStartDrawing(false){};
+	ViewerCreationArgs() = default;
 
-	ViewerCreationArgs(ds::model::ContentModelRef newMedia, const std::string viewType,
-					   ci::vec3 location = ci::vec3(-1.0f, -1.0f, 0.0f), int viewLayer = kViewLayerNormal,
+	ViewerCreationArgs(ds::model::ContentModelRef newMedia, const std::string& viewType,
+					   const ci::vec3& location = ci::vec3(-1.0f, -1.0f, 0.0f), int viewLayer = kViewLayerNormal,
 					   float startWidth = 0.0f, const bool fromCenter = true, const bool fullscreen = false,
 					   const bool checkBounds = true)
-	  : mMediaRef(newMedia)
+	  : mMediaRef(std::move(newMedia))
 	  , mViewType(viewType)
 	  , mLocation(location)
 	  , mViewLayer(viewLayer)
 	  , mStartWidth(startWidth)
-	  , mEnforceMinSize(true)
 	  , mFromCenter(fromCenter)
-	  , mCanFullscreen(true)
 	  , mIsFullscreen(fullscreen)
-	  , mCanDetach(false)
-	  , mIsDetached(false)
-	  , mShowFullscreenController(true)
-	  , mShowPresentationController(true)
-	  , mCheckBounds(checkBounds)
-	  , mUseHotspots(false)
-	  , mVolume(50)
-	  , mPage(1)
-	  , mAutoStart(true)
-	  , mLooped(true)
-	  , mCloseOnVideoComplete(false)
-	  , mMuted(false)
-	  , mVideoTimePosition(0.0)
-	  , mTouchEvents(true)
-	  , mStartLocked(false)
-	  , mStartDrawing(false) {}
+	  , mCheckBounds(checkBounds) {}
 
-	ds::model::ContentModelRef mMediaRef;					//
-	ds::ui::Sprite*			   mTargetSprite = nullptr;		//
-	std::string				   mViewType;					//
-	ci::vec3				   mLocation;					//
-	ci::vec3				   mSize;						//
-	int						   mViewLayer;					//
-	float					   mStartWidth;					//
-	bool					   mEnforceMinSize;				//
-	bool					   mFromCenter;					//
-	bool					   mCanFullscreen;				// Whether or not the viewer can go fullscreen.
-	bool					   mIsFullscreen;				// Whether or not the viewer should be fullscreen.
-	bool					   mCanDetach;					// Whether or not the viewer can be detached.
-	bool					   mCanAttach;					// Whether or not the viewer can be attached.
-	bool					   mIsDetached;					// Whether or not the viewer is detached.
-	bool					   mShowFullscreenController;	//
-	bool					   mShowPresentationController; //
-	bool					   mCheckBounds;				//
-	bool					   mUseHotspots;				//
-	bool					   mAmSlideContent = false;		//
+	ds::model::ContentModelRef mMediaRef;					 //
+	ds::ui::Sprite*			   mTargetSprite = nullptr;		 //
+	std::string				   mViewType;					 //
+	ci::vec3				   mLocation{-1, -1, 0};		 //
+	ci::vec3				   mSize{-1, -1, 0};			 //
+	int						   mViewLayer{kViewLayerNormal}; //
+	int						   mVolume{50};					 // 0-100
+	int						   mPage{1};					 // for PDF pages
+	float					   mStartWidth{0};				 //
+	bool					   mEnforceMinSize{true};		 // Defaults to true.
+	bool					   mFromCenter{true};			 // Defaults to true.
+	bool					   mCanFullscreen{true};		 // Whether or not the viewer can go fullscreen.
+	bool					   mIsFullscreen{false};		 // Whether or not the viewer should be fullscreen.
+	bool					   mCanDetach{true};  // Whether or not the viewer can be detached. Defaults to true.
+	bool					   mCanAttach{false}; // Whether or not the viewer can be attached. Defaults to false.
+	bool					   mIsDetached{true}; // Whether or not the viewer is detached. Defaults to true.
+	bool					   mShowFullscreenController{true};	  // Defaults to true.
+	bool					   mShowPresentationController{true}; // Defaults to true.
+	bool					   mCheckBounds{true};				  // Defaults to true.
+	bool					   mUseHotspots{false};				  // Defaults to false.
+	bool					   mAmSlideContent{false};			  // Defaults to false.
+	bool					   mAutoStart{true};				  // Defaults to true.
+	bool					   mLooped{true};					  // Defaults to true.
+	bool					   mCloseOnVideoComplete{false};	  // Defaults to false.
+	bool					   mMuted{false};					  // Defaults to false.
+	double					   mVideoTimePosition{0};			  //
+	bool					   mTouchEvents{true};				  // Defaults to true.
+	bool					   mStartLocked{false};				  // Defaults to false.
+	bool					   mStartDrawing{false};			  // Defaults to false.
 
-	// 0-100
-	int mVolume;
-	// for PDF pages
-	int	   mPage;
-	bool   mAutoStart;
-	bool   mLooped;
-	bool   mCloseOnVideoComplete;
-	bool   mMuted;
-	double mVideoTimePosition;
-	bool   mTouchEvents;
-	bool   mStartLocked;
-	bool   mStartDrawing;
-	inline static ViewerCreationArgs
-	detached(ds::model::ContentModelRef newMedia, const std::string viewType,
-								   ci::vec3 location = ci::vec3(-1.0f, -1.0f, 0.0f), int viewLayer = kViewLayerNormal,
-								   float startWidth = 0.0f, const bool fromCenter = true, const bool fullscreen = false,
-								   const bool checkBounds = true) {
-		auto result = ViewerCreationArgs(newMedia, viewType, location, viewLayer, startWidth, fromCenter, fullscreen,
-										 checkBounds);
-		result.mCanDetach = true;
+
+	static ViewerCreationArgs detached(ds::model::ContentModelRef newMedia, const std::string& viewType,
+									   const ci::vec3& location = ci::vec3(-1.0f, -1.0f, 0.0f),
+									   int viewLayer = kViewLayerNormal, float startWidth = 0.0f,
+									   const bool fromCenter = true, const bool fullscreen = false,
+									   const bool checkBounds = true) {
+		auto result = ViewerCreationArgs(std::move(newMedia), viewType, location, viewLayer, startWidth, fromCenter,
+										 fullscreen, checkBounds);
+		result.mCanDetach  = true;
 		result.mCanAttach  = false;
 		result.mIsDetached = true;
 		return result;

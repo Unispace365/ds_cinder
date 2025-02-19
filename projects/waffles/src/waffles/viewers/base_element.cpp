@@ -89,15 +89,20 @@ void BaseElement::allowDetach(bool allow) {
 }
 
 void BaseElement::setIsDetached(bool isDetached) {
-	isDetached = isDetached && mCanDetach;
+	// Don't do anything if we are not allowed to do either.
+	if (!mCanDetach && !mCanAttach) return;
+
+	// Make sure we set this to a valid state.
+	isDetached = (isDetached && mCanDetach) || (!isDetached && !mCanAttach);
 
 	// Enable/disable touch events but keep constraints.
-	if (!mCanDetach || isDetached) {
+	if (isDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	} else {
 		disableMultiTouch();
 	}
 
+	// Update state.
 	if (mIsDetached == isDetached) return;
 	mIsDetached = isDetached;
 	onDetachedSet();
