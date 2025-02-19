@@ -273,17 +273,17 @@ bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::Da
 	if (dotw == 5) dayFlag = WEEK_FRI;
 	if (dotw == 6) dayFlag = WEEK_SAT;
 
-	int effectiveDays = event.getPropertyInt("effective_days");
-	auto spanType = event.getPropertyString("span_type");
+	int	 effectiveDays = event.getPropertyInt("effective_days");
+	auto spanType	   = event.getPropertyString("span_type");
 
 	// Multi day in the bridge calendar works differently depending if it's all-week or specific days
 	// All week works as a full span from startDateTime - endDateTime
 	// specific days makes the even reoccur on the selected days, going startTime-endTime each day
-	if(spanType == "SINGLE_DAY"){
+	if (spanType == "SINGLE_DAY") {
 		return true;
-	}else if(effectiveDays == WEEK_ALL && spanType == "MULTI_DAY"){
+	} else if (effectiveDays == WEEK_ALL && spanType == "MULTI_DAY") {
 		return true;
-	}else if (effectiveDays & dayFlag || effectiveDays == WEEK_ALL || spanType == "SINGLE_MONTH"){
+	} else if (effectiveDays & dayFlag || effectiveDays == WEEK_ALL || spanType == "SINGLE_MONTH") {
 		// Ensure we're within startTime/endTime range today
 		Poco::DateTime startTime;
 		Poco::DateTime endTime;
@@ -303,7 +303,7 @@ bool BridgeService::Loop::eventIsNow(ds::model::ContentModelRef& event, Poco::Da
 
 		if (daySeconds > startDaySeconds && daySeconds < endDaySeconds) {
 			return true;
-		}else{
+		} else {
 			DS_LOG_VERBOSE(3, "Event happens outside the current time: " << event.getPropertyString("name"))
 			return false;
 		}
@@ -412,33 +412,6 @@ bool BridgeService::Loop::loadContent() {
 		} else {
 			return false;
 		}
-
-
-		// "Sort" individual slot groups by reversing the reverse_ordered ones
-		// This tracks the begininng and end of each slot section and reverses as needed each time it reaches a new
-		// section.
-		/* int		sectionStart = 0;
-		int		sectionEnd	 = 0;
-		std::string lastSlot;
-		for (int i = 0; i < rankOrderedRecords.size(); ++i) {
-			auto& r = rankOrderedRecords.at(i);
-			if (lastSlot.empty()) {
-				lastSlot = r.getPropertyString("parent_slot");
-			} else if (lastSlot != r.getPropertyString("parent_slot")) {
-				if (sectionStart != sectionEnd &&
-		rankOrderedRecords.at(sectionStart).getPropertyBool("reverse_ordered")) {
-					std::reverse((rankOrderedRecords.begin()+sectionStart), (rankOrderedRecords.begin()+sectionEnd));
-				}
-				lastSlot	 = r.getPropertyString("parent_slot");
-				sectionStart = i;
-			}
-
-			sectionEnd = i;
-		}
-		// Ensure we also reverse the final group if required
-		if (sectionStart != sectionEnd && rankOrderedRecords.at(sectionStart).getPropertyBool("reverse_ordered")) {
-			std::reverse((rankOrderedRecords.begin() + sectionStart), (rankOrderedRecords.begin() + sectionEnd));
-		} */
 
 		mContent   = ds::model::ContentModelRef(ds::model::CONTENT);
 		mPlatforms = ds::model::ContentModelRef(ds::model::PLATFORM);
@@ -887,39 +860,107 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		}
 
 		// TODO: handle correct sorting/combining of events
-		// Sort playlists by importance.
-		std::sort(std::begin(currentEvents), std::end(currentEvents), [](auto& a, auto& b) {
-			// Prioritize scheduled content over recurring content.
-			// TODO: This still has bugs when comparing with MULTI_DAY events. It works for multi-day with specific days selected, but not if all-week is selected :((
-			if (a.getPropertyString("span_type") != b.getPropertyString("span_type")) {
-				auto aSpan = a.getPropertyString("span_type");
-				auto bSpan	   = b.getPropertyString("span_type");
-				int	 aSpanSort = 0;
-				int	 bSpanSort = 0;
+		auto updateStartEnd = [thisDayTime](ds::model::ContentModelRef& event, std::string& startTimeInOut,
+											std::string& endTimeInOut) {
+			int			   tzd = 0;
+			Poco::DateTime startDate;
+			Poco::DateTime endDate;
+			bool success = Poco::DateTimeParser::tryParse(event.getPropertyString("start_date"), startDate, tzd);
+			success |= Poco::DateTimeParser::tryParse(event.getPropertyString("end_date"), endDate, tzd);
+			if (!success) {
+				DS_LOG_WARNING("Couldn't parse the start and/or end date for an event! (In "
+							   "BridgeService::Loop::updatePlatformEvents)")
+			} else {
+				auto today = Poco::DateTime(thisDayTime.year(), thisDayTime.month(), thisDayTime.day());
+				if (startDate != today) {
+					startTimeInOut = "00:00:00"; // If this mutli-day event started before today, sort as if it
+												 // started midnight today
+				}
+				if (endDate != today) {
+					startTimeInOut = "23:59:59"; // If this mutli-day event started before today, sort as if it
+												 // started midnight today
+				}
+			}
+			return success;
+		};
 
-				if (aSpan == "SINGLE_DAY") aSpanSort = 0;
-				else if (aSpan == "MULTI_DAY") aSpanSort = 1;
-				else if (aSpan == "SINGLE_MONTH") aSpanSort = 2;
-				else if (aSpan == "RECURRING") aSpanSort = 3;
+		auto spanSort = [](ds::model::ContentModelRef& event) {
+			auto span	  = event.getPropertyString("span_type");
+			int	 spanSort = 0;
 
-				if (bSpan == "SINGLE_DAY")
-					bSpanSort = 0;
-				else if (bSpan == "MULTI_DAY")
-					bSpanSort = 1;
-				else if (bSpan == "SINGLE_MONTH")
-					bSpanSort = 2;
-				else if (bSpan == "RECURRING")
-					bSpanSort = 3;
+			if (span == "SINGLE_DAY")
+				spanSort = 0;
+			else if (span == "MULTI_DAY")
+				spanSort = 1;
+			else if (span == "SINGLE_MONTH")
+				spanSort = 2;
+			else if (span == "RECURRING")
+				spanSort = 3;
+			return spanSort;
+		};
 
-				return aSpanSort < bSpanSort;
+		std::sort(std::begin(currentEvents), std::end(currentEvents), [updateStartEnd, spanSort](auto& a, auto& b) {
+			auto startTimeA = a.getPropertyString("start_time");
+			auto startTimeB = b.getPropertyString("start_time");
+			auto endTimeA	= a.getPropertyString("end_time");
+			auto endTimeB	= b.getPropertyString("end_time");
+
+			// We know these events are happening now based on eventIsNow above
+			// For most event types, sorting based purely on start/end time is enough
+			// For multi-day events set to ALL_WEEK, we need to also check the date against todays date :(
+			constexpr int WEEK_ALL = 0b01111111;
+			int			  tzd	   = 0;
+			auto		  aIsMultiAllWeek =
+				a.getPropertyString("span_type") == "MULTI_DAY" && a.getPropertyInt("effective_days") == WEEK_ALL;
+			auto bIsMultiAllWeek =
+				b.getPropertyString("span_type") == "MULTI_DAY" && b.getPropertyInt("effective_days") == WEEK_ALL;
+
+			// If both a and b are multi-day + all-week, we can do a pure starting-later, ending sooner sort on them by
+			// dateTime
+			if (aIsMultiAllWeek && bIsMultiAllWeek) {
+				Poco::DateTime startDateTimeA;
+				Poco::DateTime startDateTimeB;
+				Poco::DateTime endDateTimeA;
+				Poco::DateTime endDateTimeB;
+				bool success = Poco::DateTimeParser::tryParse(a.getPropertyString("start_date") + " " + a.getPropertyString("start_time"), startDateTimeA, tzd);
+				success |= Poco::DateTimeParser::tryParse(a.getPropertyString("end_date") + " " + a.getPropertyString("end_time"), endDateTimeA, tzd);
+				success |= Poco::DateTimeParser::tryParse(b.getPropertyString("start_date") + " " + b.getPropertyString("start_time"), startDateTimeB, tzd);
+				success |= Poco::DateTimeParser::tryParse(b.getPropertyString("end_date") + " " + b.getPropertyString("end_time"), endDateTimeB, tzd);
+
+				if (success) {
+					// Starting later sorts higher
+					if (startDateTimeA != startDateTimeB) return startDateTimeA > startDateTimeB;
+					// ending sooner sorts higher
+					if (endDateTimeA != endDateTimeB) return endDateTimeA < endDateTimeB;
+				}
+			} else if (aIsMultiAllWeek) {
+				updateStartEnd(a, startTimeA, endTimeA);
+			} else if (bIsMultiAllWeek) {
+				updateStartEnd(b, startTimeB, endTimeB);
 			}
 
-			// Prioritize late start times over early start times.
-			if (a.getPropertyString("start_time") != b.getPropertyString("start_time"))
-				return a.getPropertyString("start_time") > b.getPropertyString("start_time");
+			// Sort any a b where either one or none of them are multi-day all-week
+			if (!(aIsMultiAllWeek && bIsMultiAllWeek)) {
 
-			// Prioritize early end times over late end times.
-			return a.getPropertyString("end_time") < b.getPropertyString("end_time");
+				// Prioritize late start times over early start times.
+				if (startTimeA != startTimeB) return startTimeA > startTimeB;
+
+				// Prioritize early end times over late end times.
+				if (endTimeA != endTimeB) return endTimeA < endTimeB;
+
+				// Prioritize more specifically scheduled events over recurring/larger span events.
+				int	 aSpanSort = spanSort(a);
+				int	 bSpanSort = spanSort(b);
+				if (aSpanSort != bSpanSort) return aSpanSort < bSpanSort;
+			}
+
+
+			// If everything else is identical, try to sort by record_name alphabetically
+			if (a.getPropertyString("record_name") != b.getPropertyString("record_name"))
+				return a.getPropertyString("record_name") < b.getPropertyString("record_name");
+
+			// Finally if we've exhaused those options, sort by UID which is at least unique
+			return a.getPropertyString("uid") < b.getPropertyString("uid");
 		});
 
 		// For interoperability, store current events.
