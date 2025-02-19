@@ -24,6 +24,8 @@ class FramedMediaViewer : public TitledMediaViewer {
 	virtual void onMediaSet() override;
 	virtual void			onDetachedSet() override;
 	ds::ui::MediaInterface* mMediaInterface = nullptr;
+	
+	ci::vec2 mInterfaceCheckSize;
 	//virtual void hideTitle() override;
 	//virtual void hideInnerSideBar() override;
 	
