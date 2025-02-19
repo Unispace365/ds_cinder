@@ -60,12 +60,24 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	}
 
 	// Refresh the menu items when the content changes
+	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](const auto& ev) {
+		callAfterDelay(
+			[this] {
+				updateMenuItems();
+				setupMenuItems();
+				handleSelection();
+				mEventClient.notify(WafflesFilterEvent(mFilterSelected, true));
+			},
+			0.01f);
+	});
+
 	mEventClient.listenToEvents<ds::ScheduleUpdatedEvent>([this](const auto& ev) {
 		callAfterDelay(
 			[this] {
 				updateMenuItems();
 				setupMenuItems();
 				handleSelection();
+				mEventClient.notify(WafflesFilterEvent(mFilterSelected, true));
 			},
 			0.01f);
 	});
@@ -97,7 +109,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	});
 	mEventClient.listenToEvents<WafflesFilterEvent>([this](const WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-		if (ev.mType == mFilterSelected) return;
+		//if (ev.mType == mFilterSelected) return;
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
 		mFolderStack.clear();
