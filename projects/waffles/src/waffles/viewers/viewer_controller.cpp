@@ -335,6 +335,20 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		}
 	}
 
+	if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
+
+		// grab the required location for the fullscreen controller
+		auto fscLocation =
+			mEngine.getWafflesSettings().getVec2("ui:fullscreen_controller_pos", 0, ci::vec2(-1.0f, -1.0f));
+		// update the x and y locations if the respective values are valid.
+		if (fscLocation.x >= 0) {
+			loccy.x = fscLocation.x;
+		}
+		if (fscLocation.y >= 0) {
+			loccy.y = fscLocation.y;
+		}
+	}
+
 	auto [newViewer,result] = createViewer(creationArgs);
 
 	if (!newViewer) {
