@@ -1068,7 +1068,7 @@ void Text::findFitFontSizeFromArray() {
 				}
 			}
 
-			DS_LOG_INFO("Picked height font size: " << mStyle.mFitSizes[idx]);
+			// DS_LOG_INFO("Picked height font size: " << mStyle.mFitSizes[idx]);
 
 			// fs = getFontSize() - 1.5;
 			auto height_fs = mStyle.mFitSizes[idx];
@@ -1116,7 +1116,7 @@ void Text::findFitFontSizeFromArray() {
 
 				_setFontSize(fs);
 			}
-			DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
+			// DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
 		}
 
 		// Re-enable ellipsizemode
