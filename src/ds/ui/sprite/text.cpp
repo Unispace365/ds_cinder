@@ -999,7 +999,7 @@ void Text::findFitFontSizeFromArray() {
 		if (mStyle.mFitSizes.empty()) return;
 
 		//------------------------------------
-		double		   fs		  = 5;
+		double		   fs		  = mStyle.mFitSizes.front();
 		int			   idx		  = 0;
 		PangoRectangle extentRect = PangoRectangle();
 		PangoRectangle inkRect	  = PangoRectangle();
@@ -1010,13 +1010,13 @@ void Text::findFitFontSizeFromArray() {
 			fontDescription = pango_font_description_copy(constFontDescription);
 		}
 
+
 		// Do any sizing with ellipsize disabled. This ensures that we fix the maximum amount of text into the bounds.
 		// Then after the font size has been determined we re-enable the ellipsize to ensure the text wont overflow it's
 		// bounds
 		// This prevents the fitting from thinking the largest size "works" even if it's cutting off a larger portion of
 		// the original text
 		pango_layout_set_ellipsize(mPangoLayout, PangoEllipsizeMode::PANGO_ELLIPSIZE_NONE);
-
 
 		if (fontDescription) {
 			auto _setFontSize = [this, fontDescription](double size) {
@@ -1037,9 +1037,9 @@ void Text::findFitFontSizeFromArray() {
 			// DS_LOG_INFO("Start At font size: " << mStyle.mFitSizes[idx]);
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 
-			auto offsety = inkRect.y;
 
 			// DS_LOG_INFO("offset: "<<offsety);
+			auto offsety = inkRect.y;
 			double h	   = std::max(extentRect.height, inkRect.height) + offsety;
 			double limit_h = mResizeLimitHeight;
 			while (h < limit_h) {
@@ -1055,6 +1055,7 @@ void Text::findFitFontSizeFromArray() {
 
 				// get height
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
+				offsety = inkRect.y;
 				h = std::max(extentRect.height, inkRect.height) + offsety;
 
 				if (h >= limit_h) {
@@ -1067,7 +1068,7 @@ void Text::findFitFontSizeFromArray() {
 				}
 			}
 
-			// DS_LOG_INFO("Picked height font size: " << mStyle.mFitSizes[idx]);
+			DS_LOG_INFO("Picked height font size: " << mStyle.mFitSizes[idx]);
 
 			// fs = getFontSize() - 1.5;
 			auto height_fs = mStyle.mFitSizes[idx];
@@ -1085,7 +1086,8 @@ void Text::findFitFontSizeFromArray() {
 
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 				double w = std::max(extentRect.width, inkRect.width);
-				while (w < mResizeLimitWidth) {
+				double h = std::max(extentRect.height, inkRect.height);
+				while (w < mResizeLimitWidth && h < mResizeLimitHeight) {
 
 					if (idx >= mStyle.mFitSizes.size() - 1) {
 						break;
@@ -1098,12 +1100,14 @@ void Text::findFitFontSizeFromArray() {
 					// get height
 					pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 					w = std::max(extentRect.width, inkRect.width);
+					h = std::max(extentRect.height, inkRect.height);
 
-					if (w > mResizeLimitWidth) {
+					if (w > mResizeLimitWidth || h > mResizeLimitHeight) {
 						idx--;
 						break;
 					}
 				}
+				idx = std::max(0, idx);
 				fs = mStyle.mFitSizes[idx];
 				// pick the smaller one;
 				fs = std::min(height_fs, fs);
@@ -1112,21 +1116,19 @@ void Text::findFitFontSizeFromArray() {
 
 				_setFontSize(fs);
 			}
-			// DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
+			DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
 		}
 
 		// Re-enable ellipsizemode
-		if (mEllipsizeMode != EllipsizeMode::kEllipsizeNone) {
-			PangoEllipsizeMode elipsizeMode = PANGO_ELLIPSIZE_NONE;
-			if (mEllipsizeMode == EllipsizeMode::kEllipsizeEnd) {
-				elipsizeMode = PANGO_ELLIPSIZE_END;
-			} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeMiddle) {
-				elipsizeMode = PANGO_ELLIPSIZE_MIDDLE;
-			} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeStart) {
-				elipsizeMode = PANGO_ELLIPSIZE_START;
-			}
-			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
+		PangoEllipsizeMode elipsizeMode = PANGO_ELLIPSIZE_NONE;
+		if (mEllipsizeMode == EllipsizeMode::kEllipsizeEnd) {
+			elipsizeMode = PANGO_ELLIPSIZE_END;
+		} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeMiddle) {
+			elipsizeMode = PANGO_ELLIPSIZE_MIDDLE;
+		} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeStart) {
+			elipsizeMode = PANGO_ELLIPSIZE_START;
 		}
+		pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
 
 
 		pango_font_description_free(fontDescription);
