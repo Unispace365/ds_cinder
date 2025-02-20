@@ -1010,6 +1010,13 @@ void Text::findFitFontSizeFromArray() {
 			fontDescription = pango_font_description_copy(constFontDescription);
 		}
 
+		// Do any sizing with ellipsize disabled. This ensures that we fix the maximum amount of text into the bounds.
+		// Then after the font size has been determined we re-enable the ellipsize to ensure the text wont overflow it's
+		// bounds
+		// This prevents the fitting from thinking the largest size "works" even if it's cutting off a larger portion of
+		// the original text
+		pango_layout_set_ellipsize(mPangoLayout, PangoEllipsizeMode::PANGO_ELLIPSIZE_NONE);
+
 
 		if (fontDescription) {
 			auto _setFontSize = [this, fontDescription](double size) {
@@ -1106,15 +1113,30 @@ void Text::findFitFontSizeFromArray() {
 				_setFontSize(fs);
 			}
 			// DS_LOG_INFO("Picked width font size: " << mStyle.mFitSizes[idx]);
-			pango_font_description_free(fontDescription);
-			pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
-			mFitCurrentTextSize			  = fs;
-			mNeedsFontUpdate			  = true;
-			mNeedsRefit					  = false;
-			mNeedsMaxResizeFontSizeUpdate = false;
-			mNeedsTextRender			  = true;
-			mNeedsMeasuring				  = true;
 		}
+
+		// Re-enable ellipsizemode
+		if (mEllipsizeMode != EllipsizeMode::kEllipsizeNone) {
+			PangoEllipsizeMode elipsizeMode = PANGO_ELLIPSIZE_NONE;
+			if (mEllipsizeMode == EllipsizeMode::kEllipsizeEnd) {
+				elipsizeMode = PANGO_ELLIPSIZE_END;
+			} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeMiddle) {
+				elipsizeMode = PANGO_ELLIPSIZE_MIDDLE;
+			} else if (mEllipsizeMode == EllipsizeMode::kEllipsizeStart) {
+				elipsizeMode = PANGO_ELLIPSIZE_START;
+			}
+			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
+		}
+
+
+		pango_font_description_free(fontDescription);
+		pango_layout_set_height(mPangoLayout, (int)mResizeLimitHeight * PANGO_SCALE);
+		mFitCurrentTextSize			  = fs;
+		mNeedsFontUpdate			  = true;
+		mNeedsRefit					  = false;
+		mNeedsMaxResizeFontSizeUpdate = false;
+		mNeedsTextRender			  = true;
+		mNeedsMeasuring				  = true;
 		//-----------------------------------------------------------
 	}
 }
