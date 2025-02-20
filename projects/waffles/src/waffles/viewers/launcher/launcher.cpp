@@ -559,7 +559,7 @@ void Launcher::buttonTapHandler(Sprite* sp, const ci::vec3& pos) {
 	updateRecent(btn->getContentModel());
 	auto offset = mEngine.getWafflesSettings().getVec3("launcher:media_open:offset", 0, ci::vec3(1000.f, 0, 0)) *
 				  ((pos.x > (mEngine.getWorldWidth() / 2.f)) ? ci::vec3(-1.f, 1.f, 1.f) : ci::vec3(1.f, 1.f, 1.f));
-	bool alreadyHandled = ContentUtils::handleListItemTap(mEngine, btn, getChannelName(), pos + offset);
+	bool alreadyHandled = ContentUtils::handleListItemTap(mEngine, btn, getChannelName(), pos + offset, pos);
 	if (alreadyHandled) return;
 
 	auto model	 = btn->getContentModel();

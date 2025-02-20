@@ -227,7 +227,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 }
 
 bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item,
-									 const std::string& channel, const ci::vec3& pos) {
+									 const std::string& channel, const ci::vec3& pos, const ci::vec3& raw_pos) {
 
 	auto model	 = item->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
@@ -245,7 +245,7 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 	auto customs = ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->getLauncherCustomContent();
 	if (customs.find(type) != customs.end()) {
-		customs[type](model, pos);
+		customs[type](model, raw_pos);
 	} else if (type == "ambient") {
 		engine.startIdling();
 	} else if (type == "media_template") {
