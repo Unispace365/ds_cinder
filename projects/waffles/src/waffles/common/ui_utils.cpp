@@ -155,7 +155,12 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 		} else if (mediaType == ds::Resource::WEB_TYPE) {
-			theTypeLabel = "WEB";
+			if(theType == "miro_link")
+				theTypeLabel = "MIRO";
+			else if(theType == "google_drive_link")
+				theTypeLabel = "DRIVE";
+			else
+				theTypeLabel = "WEB";
 			thumbPath =
 				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
 			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
@@ -174,8 +179,10 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Layout4x.png";
 			theTypeLabel = "LAYOUT";
 		} else if (theType == "miro_meeting_placeholder") {
+			theTypeLabel = "MIRO";
 			thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
 		} else if (theType == "google_drive_link_placeholder") {
+			theTypeLabel = "DRIVE";
 			thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
 		}
 
