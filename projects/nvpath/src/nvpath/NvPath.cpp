@@ -34,6 +34,7 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #include <cinder/Utilities.h>
 #include <cinder/gl/draw.h>
 #include <cinder/gl/scoped.h>
+#include <numeric>
 
 #include <ds/util/float_util.h> // for approxEqual method.
 
@@ -558,6 +559,15 @@ void Path::setDashPattern(const std::vector<float>& pattern) const {
 	if (mPathId > 0) {
 		glPathDashArrayNV(mPathId, static_cast<GLsizei>(pattern.size()), pattern.data());
 	}
+}
+
+void Path::setDashPatternFitted(std::vector<float> pattern) const {
+	const auto pathLength	 = getLength();
+	const auto patternLength = std::accumulate(pattern.begin(), pattern.end(), 0.0f);
+	const auto count		 = glm::round(pathLength / patternLength);
+	const auto factor		 = pathLength / (count * patternLength);
+	std::transform(pattern.begin(), pattern.end(), pattern.begin(), [factor](float x) { return x * factor; });
+	setDashPattern(pattern);
 }
 
 void Path::setDashOffset(float offset, PathStyle style) const {

@@ -524,6 +524,8 @@ class Path {
 	void resetDashPattern() const;
 	//! Sets the dash pattern.
 	void setDashPattern(const std::vector<float>& pattern) const;
+	//! Sets the dash pattern, making sure it precisely fits an integer number of times on the path.
+	void setDashPatternFitted(std::vector<float> pattern) const;
 	//! Sets the dash pattern offset.
 	void setDashOffset(float offset, PathStyle style = PathStyle::DEFAULT) const;
 	//! Sets the caps for dashed strokes.
