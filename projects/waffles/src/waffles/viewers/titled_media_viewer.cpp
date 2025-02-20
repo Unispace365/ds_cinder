@@ -430,14 +430,14 @@ void TitledMediaViewer::onMediaSet() {
 			if (auto pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mMediaPlayer->getPlayer())) {
 				pdfPlayer->setPageNum(targetPage);
 			}
-		}else {
+		} else {
 			ContentModelRef fakeThing;
 			fakeThing.setPropertyResource(
 				mediaPropertyKey,
 				ds::Resource(linkInfo.mUrl)); // TODO: cannot tell if this wants mMediaPropertyKey
-			auto vca = ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition());
-			vca.mCanAttach = false;
-			vca.mCanDetach = false;
+			auto vca		= ViewerCreationArgs(fakeThing, VIEW_TYPE_TITLED_MEDIA_VIEWER, getCenterPosition());
+			vca.mCanAttach	= false;
+			vca.mCanDetach	= false;
 			vca.mIsDetached = true;
 			mEventClient.notify(RequestViewerLaunchEvent(vca));
 		}
@@ -478,10 +478,10 @@ void TitledMediaViewer::onMediaSet() {
 		} else {
 			mShowingVideo = false;
 
-			auto prePipe  = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, ""); // TODO fix typo
-			prePipe		  = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe); // TODO fix typo
-			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, ""); // TODO fix typo
-			postPipe	  = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe); // TODO fix typo
+			auto prePipe = mEngine.getAppSettings().getString("streaming:pipline:pre", 0, "");			// TODO fix typo
+			prePipe		 = mEngine.getWafflesSettings().getString("streaming:pipline:pre", 0, prePipe); // TODO fix typo
+			auto postPipe = mEngine.getAppSettings().getString("streaming:pipline:post", 0, "");		// TODO fix typo
+			postPipe = mEngine.getWafflesSettings().getString("streaming:pipline:post", 0, postPipe);	// TODO fix typo
 
 			// Testing some additional streaming options
 			if (!prePipe.empty() && !postPipe.empty()) {
@@ -748,6 +748,17 @@ void TitledMediaViewer::processAllowedButtons() const {
 	mRootLayout->runLayout();
 }
 
+void TitledMediaViewer::processAllowedTouch() {
+	// Enable/disable touch events but keep constraints.
+	if (mIsFullscreen) {
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE);
+	} else if (mIsDetached) {
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+	} else {
+		disableMultiTouch();
+	}
+}
+
 void TitledMediaViewer::onLayout() {
 
 
@@ -1002,6 +1013,7 @@ void TitledMediaViewer::onFullscreenSet() {
 	}
 
 	processAllowedButtons();
+	processAllowedTouch();
 }
 
 void TitledMediaViewer::onDetachedSet() {
@@ -1013,6 +1025,7 @@ void TitledMediaViewer::onDetachedSet() {
 		// showInnerSideBar();
 	}
 	processAllowedButtons();
+	processAllowedTouch();
 }
 
 void TitledMediaViewer::toggleDrawing() {
@@ -1368,7 +1381,7 @@ void TitledMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 }
 
 void TitledMediaViewer::checkBounds(bool immediate) {
-	
+
 	if (mPositionUpdateCallback) mPositionUpdateCallback();
 
 	if (mAnimationCount && !immediate) return;
@@ -1376,21 +1389,21 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 
 	// Constrain the bounding box of the sprite to mBoundingArea
 	auto boundsMode = mIsFullscreen ? mFullscreenBoundsMode : mNormalBoundsMode;
-	auto		bb		   = boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getBoundingBox() : this->getBoundingBox();
-	
+	auto bb			= boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getBoundingBox() : this->getBoundingBox();
+
 	auto upperLeft	 = bb.getUpperLeft();
 	auto bottomRight = bb.getLowerRight();
 
 	if (boundsMode == BoundsMode::kMediaEdge) {
 		const auto transform =
 			glm::inverse(this->getParent()->getGlobalTransform()) * mMediaPlayer->getGlobalTransform();
-		upperLeft   = transform * ci::vec4(bb.getX1(), bb.getY1(), 0, 1);
+		upperLeft	= transform * ci::vec4(bb.getX1(), bb.getY1(), 0, 1);
 		bottomRight = transform * ci::vec4(bb.getSize(), 0, 1);
 	}
-	const float thisWidth  = bb.getWidth(); 
+	const float thisWidth  = bb.getWidth();
 	const float thisHeight = bb.getHeight();
-	const float thisX	   = upperLeft.x; 
-	const float thisY	   = upperLeft.y; 
+	const float thisX	   = upperLeft.x;
+	const float thisY	   = upperLeft.y;
 
 	// DS_LOG_INFO("BasePanel::checkBounds(): BB size: " << bb);
 
@@ -1449,7 +1462,7 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 
 	const int	quadrant = (int)glm::floor(degrees / 90.0f);
 	const float radians	 = glm::radians(degrees);
-	const float w		 = boundsMode==BoundsMode::kMediaEdge ? mMediaPlayer->getScaleWidth() : getScaleWidth();
+	const float w		 = boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getScaleWidth() : getScaleWidth();
 	const float h		 = boundsMode == BoundsMode::kMediaEdge ? mMediaPlayer->getScaleHeight() : getScaleHeight();
 	const float W		 = bb.getWidth();
 	const float H		 = bb.getHeight();
@@ -1464,8 +1477,9 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 	// ulPos );
 
 	// re-apply the anchor offset.
-	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth() , getScaleHeight()) - (boundsMode == BoundsMode::kMediaEdge ? ci::vec2(mLeftPad,mTopPad) : ci::vec2(0,0));
-	const auto pos = ci::vec3(ci::vec2(destinationX, destinationY) +ulPos + glm::rotate(anchorOffset, radians), 0);
+	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth(), getScaleHeight()) -
+							  (boundsMode == BoundsMode::kMediaEdge ? ci::vec2(mLeftPad, mTopPad) : ci::vec2(0, 0));
+	const auto pos = ci::vec3(ci::vec2(destinationX, destinationY) + ulPos + glm::rotate(anchorOffset, radians), 0);
 
 	if (immediate) {
 		setPosition(pos);

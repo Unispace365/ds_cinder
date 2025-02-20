@@ -68,6 +68,7 @@ class TitledMediaViewer : public BaseElement {
 
   protected:
 	void processAllowedButtons() const;
+	void processAllowedTouch();
 	void userInputReceived() override;
 	void onLayout() override;
 	void onCreationArgsSet() override;
@@ -86,15 +87,15 @@ class TitledMediaViewer : public BaseElement {
 	DrawingArea*					  mDrawingArea = nullptr;
 	std::vector<ds::ui::SmartLayout*> mHotspots;
 
-	bool mDrawingMode		  = false;
-	bool mShowingOptions	  = false;
-	bool mShowingInnerSideBar = false;
-	bool mShowingTitle		  = false;
-	bool mShowingKeyboard	  = false;
-	bool mInitialLoadError	  = false;
-	bool mShowingVideo		  = false;
-	bool mShowingWeb		  = false;
-	bool mShowingWebCam		  = false;
+	bool	   mDrawingMode			 = false;
+	bool	   mShowingOptions		 = false;
+	bool	   mShowingInnerSideBar	 = false;
+	bool	   mShowingTitle		 = false;
+	bool	   mShowingKeyboard		 = false;
+	bool	   mInitialLoadError	 = false;
+	bool	   mShowingVideo		 = false;
+	bool	   mShowingWeb			 = false;
+	bool	   mShowingWebCam		 = false;
 	BoundsMode mFullscreenBoundsMode = BoundsMode::kMediaEdge;
 	BoundsMode mNormalBoundsMode	 = BoundsMode::kSpriteEdge;
 	// std::string mMediaPropertyKey = "media";

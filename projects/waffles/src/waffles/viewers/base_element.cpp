@@ -65,10 +65,13 @@ bool BaseElement::canFullScreen() const {
 void BaseElement::allowFullscreen(bool allow) {
 	if (mCanFullscreen == allow) return;
 	mCanFullscreen = allow;
-	onFullscreenSet();
+	setIsFullscreen(mIsFullscreen);
 }
 
-void BaseElement::setIsFullscreen(const bool isFullscreen) {
+void BaseElement::setIsFullscreen(bool isFullscreen) {
+	// Make sure we set this to a valid state.
+	isFullscreen = (isFullscreen && mCanFullscreen);
+
 	if (mIsFullscreen == isFullscreen) return;
 	mIsFullscreen = isFullscreen;
 	onFullscreenSet();
@@ -85,7 +88,7 @@ bool BaseElement::canDetach() const {
 void BaseElement::allowDetach(bool allow) {
 	if (mCanDetach == allow) return;
 	mCanDetach = allow;
-	setIsDetached(mIsDetached && mCanDetach);
+	setIsDetached(mIsDetached);
 }
 
 void BaseElement::setIsDetached(bool isDetached) {
@@ -94,13 +97,6 @@ void BaseElement::setIsDetached(bool isDetached) {
 
 	// Make sure we set this to a valid state.
 	isDetached = (isDetached && mCanDetach) || (!isDetached && !mCanAttach);
-
-	// Enable/disable touch events but keep constraints.
-	if (isDetached) {
-		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
-	} else {
-		disableMultiTouch();
-	}
 
 	// Update state.
 	if (mIsDetached == isDetached) return;
@@ -119,6 +115,7 @@ bool BaseElement::canAttach() const {
 void BaseElement::allowAttach(bool allow) {
 	if (mCanAttach == allow) return;
 	mCanAttach = allow;
+	setIsDetached(mIsDetached);
 }
 
 int BaseElement::getMaxNumberOfThisType() const {
