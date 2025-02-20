@@ -536,7 +536,7 @@ void Image::onBuildRenderBatch() {
 		vec2 ur = vec2(1.f, 0.f);
 		vec2 lr = vec2(1.f, 1.f);
 		vec2 ll = vec2(0.f, 1.f);
-		if (!mResource.empty()) {
+		if (!mResource.empty() && mTextureRef) {
 			const auto crop = mResource.getCrop();
 			ul				= crop.getUpperLeft();
 			ur				= crop.getUpperRight();
