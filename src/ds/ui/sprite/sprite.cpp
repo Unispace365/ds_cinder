@@ -704,18 +704,20 @@ namespace {
 } // namespace
 
 ci::Rectf Sprite::getBoundingBox() const {
-	const ci::mat4 t = getTransform();
+	return getBoundingBox(getTransform());
+}
 
-	const glm::vec3 ul = glm::vec3(t * glm::vec4(0, 0, 0, 1));
-	const glm::vec3 ll = glm::vec3(t * glm::vec4(0, getHeight(), 0, 1));
-	const glm::vec3 lr = glm::vec3(t * glm::vec4(getWidth(), getHeight(), 0, 1));
-	const glm::vec3 ur = glm::vec3(t * glm::vec4(getWidth(), 0, 0, 1));
+ci::Rectf Sprite::getBoundingBox(const ci::mat4& transform) const {
+	const glm::vec3 ul = glm::vec3(transform * glm::vec4(0, 0, 0, 1));
+	const glm::vec3 ll = glm::vec3(transform * glm::vec4(0, getHeight(), 0, 1));
+	const glm::vec3 lr = glm::vec3(transform * glm::vec4(getWidth(), getHeight(), 0, 1));
+	const glm::vec3 ur = glm::vec3(transform * glm::vec4(getWidth(), 0, 0, 1));
 
 	const float left   = min(min(min(ul.x, ll.x), lr.x), ur.x);
 	const float right  = max(max(max(ul.x, ll.x), lr.x), ur.x);
 	const float top	   = min(min(min(ul.y, ll.y), lr.y), ur.y);
 	const float bottom = max(max(max(ul.y, ll.y), lr.y), ur.y);
-	return ci::Rectf(left, top, right, bottom);
+	return {left, top, right, bottom};
 }
 
 ci::Rectf Sprite::getChildBoundingBox() const {

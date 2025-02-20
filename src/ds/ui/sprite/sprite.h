@@ -432,6 +432,11 @@ namespace ui {
 			\return Rectangle that contains this sprite, in Parent's local space.		*/
 		ci::Rectf getBoundingBox() const;
 
+		/** Get the rectangle that contains this sprite, transformed to the coordinate space defined by \a transform.
+			Includes all transformation, including scale and rotation.
+			\return Rectangle that contains this sprite, in the coordinate space defined by \a transform.		*/
+		ci::Rectf getBoundingBox(const ci::mat4& transform) const;
+
 		/** Get the rectangle that contains all children, in this Sprite's space.
 			Includes all transformation, including scale and rotation.
 			\return Rectangle that contains this sprite, in Parent's local space.		*/
