@@ -344,14 +344,17 @@ void TitledMediaViewer::onMediaSet() {
 						cappy->show();
 						fakeRes.setWidth(cappy->getWidth());
 						fakeRes.setHeight(cappy->getHeight());
-						// Note: cappy can somehow change its size after this point,
-						// so we use fakeRes.getWidth() and fakeRes.getHeight() instead
+
 						mMediaPlayer->setSize(fakeRes.getWidth(), fakeRes.getHeight());
 						mMediaPlayer->setContentAspectRatio(fakeRes.getWidth() / fakeRes.getHeight());
 						mMediaPlayer->loadMedia(fakeRes);
+
+						// Note: don't call these here, as this leads to incorrect sizes being used in layout!
+						// Instead, the `calculateSizeLimits()` takes care of it, see below.
 						//setSize(fakeRes.getWidth(), fakeRes.getHeight());
 						//setSizeLimits();
 						//setViewerSize(fakeRes.getWidth(), fakeRes.getHeight());
+
 						mShowingWebCam = true;
 
 						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("record_name"));
