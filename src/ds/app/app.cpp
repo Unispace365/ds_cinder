@@ -147,8 +147,12 @@ App::App(const RootList& roots)
   , mMouseHidden(false)
   , mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
   , mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f) {
-
-	setupKeyPresses();
+	
+	if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
+		setupKeyPresses();
+	} else {
+		registerKeyPress("Quit App", [this] { quit(); }, ci::app::KeyEvent::KEY_q, true, true, true);
+	}
 
 	mEngineSettings.printStartupInfo();
 
