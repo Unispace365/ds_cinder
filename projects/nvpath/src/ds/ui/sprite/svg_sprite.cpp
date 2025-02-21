@@ -39,16 +39,23 @@ void SvgSprite::setFile(const std::string& filename) {
 	mFile = ds::Environment::expand(filename);
 	if (std::filesystem::exists(mFile)) {
 		mDoc = nvpath::svg::SvgDoc::create(mFile);
-		setSize(mDoc->getWidth(), mDoc->getHeight());
+		// setSize(mDoc->getWidth(), mDoc->getHeight());
 		setTransparent(false);
 	} else {
 		DS_LOG_WARNING("Unable to find SVG: " << mFile);
 		setTransparent(true);
 	}
+	doDimensionsChanged();
 }
 
 void SvgSprite::drawLocalClient() {
 	if (mDoc) {
+		// Perform scaling.
+		ci::vec2 scale = ci::vec2(getSize()) / mDoc->getSize();
+
+		ci::gl::ScopedModelMatrix sm;
+		ci::gl::scale(scale);
+
 		nvpath::ScopedPathRendering sPath{};
 		mSvg.setOpacity(getDrawOpacity());
 		mDoc->render(mSvg);
@@ -101,6 +108,14 @@ SvgButton::SvgButton(ds::ui::SpriteEngine& engine, const std::string& downSvg, c
 void SvgButton::setTouchPad(float touchPad) {
 	mPad = touchPad;
 	handleResize();
+}
+
+float SvgButton::getWidth() const {
+	return approxZero(mWidth) ? glm::max(mUp.getWidth(), mDown.getWidth()) + 2 * mPad : mWidth + 2 * mPad;
+}
+
+float SvgButton::getHeight() const {
+	return approxZero(mHeight) ? glm::max(mUp.getHeight(), mDown.getHeight()) + 2 * mPad : mHeight + 2 * mPad;
 }
 
 void SvgButton::setAnimationDuration(float dur) {
@@ -171,11 +186,20 @@ void SvgButton::setStateChangeFn(const std::function<void(bool pressed)>& func) 
 	mStateChangeFunction = func;
 }
 
-void SvgButton::handleResize() {
+void SvgButton::handleResize() const {
 	mDown.setPosition(mPad, mPad);
 	mUp.setPosition(mDown.getPosition());
-	setSize(mPad + glm::max(mUp.getWidth(), mDown.getWidth()) + mPad,
-			mPad + glm::max(mUp.getHeight(), mDown.getHeight()) + mPad);
+
+	ci::vec3 scale = getSize();
+	scale.x -= 2 * mPad;
+	scale.y -= 2 * mPad;
+	scale.x /= glm::max(mUp.getWidth(), mDown.getWidth());
+	scale.y /= glm::max(mUp.getHeight(), mDown.getHeight());
+
+	if (std::isfinite(scale.x) && std::isfinite(scale.y)) {
+		mUp.setScale(scale);
+		mDown.setScale(scale);
+	}
 }
 
 } // namespace ds::ui

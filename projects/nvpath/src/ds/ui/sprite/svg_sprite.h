@@ -13,6 +13,9 @@ class SvgSprite : public ds::ui::Sprite {
 
 	void setFile(const std::string& filename);
 
+	float getWidth() const override { return mDoc && approxZero(mWidth) ? mDoc->getWidth() : mWidth; }
+	float getHeight() const override { return mDoc && approxZero(mHeight) ? mDoc->getHeight() : mHeight; }
+
 	void drawLocalClient() override;
 
   private:
@@ -31,6 +34,9 @@ class SvgButton : public ds::ui::Sprite, public ds::ui::IButton {
 
 	float getPad() const override;
 	void  setTouchPad(float touchPad) override;
+
+	float getWidth() const override;
+	float getHeight() const override;
 
 	void setAnimationDuration(float dur) override;
 
@@ -55,7 +61,7 @@ class SvgButton : public ds::ui::Sprite, public ds::ui::IButton {
 	ds::ButtonBehaviour::State getButtonState() override { return mButtonBehaviour.getState(); }
 
   private:
-	void handleResize();
+	void handleResize() const;
 
 	void					  onClicked() const;
 	std::function<void()>	  mClickFn;

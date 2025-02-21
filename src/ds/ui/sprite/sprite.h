@@ -972,6 +972,7 @@ namespace ui {
 		virtual void doSetScale(const ci::vec3&);
 		virtual void doSetRotation(const ci::vec3&);
 		void		 doPropagateVisibilityChange(bool before, bool after) const;
+		void		 doDimensionsChanged();
 
 		virtual void onCenterChanged() {}
 		virtual void onPositionChanged() {}

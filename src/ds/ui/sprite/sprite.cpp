@@ -579,10 +579,7 @@ void Sprite::doSetScale(const ci::vec3& scale) {
 	dimensionalStateChanged();
 	onScaleChanged();
 
-	// Notify listeners about size change.
-	if (!mSuppressSpriteDimensionsChanged && mDimensionsChangedCallback) {
-		mDimensionsChangedCallback(this);
-	}
+	doDimensionsChanged();
 }
 
 const ci::vec3& Sprite::getPosition() const {
@@ -899,10 +896,7 @@ void Sprite::setSizeAll(float width, float height, float depth) {
 	markAsDirty(SIZE_DIRTY);
 	dimensionalStateChanged();
 
-	// Notify listeners about size change.
-	if (!mSuppressSpriteDimensionsChanged && mDimensionsChangedCallback) {
-		mDimensionsChangedCallback(this);
-	}
+	doDimensionsChanged();
 }
 
 void Sprite::setSizeAll(const ci::vec3& size3d) {
@@ -2468,6 +2462,13 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after) const {
 
 		// DO NOT propagate this change to hidden children!
 		// visibility change of a parent has no effect on hidden children.
+	}
+}
+
+void Sprite::doDimensionsChanged() {
+	// Notify listeners about size change.
+	if (!mSuppressSpriteDimensionsChanged && mDimensionsChangedCallback) {
+		mDimensionsChangedCallback(this);
 	}
 }
 
