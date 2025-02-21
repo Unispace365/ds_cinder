@@ -128,8 +128,6 @@ void BridgeService::Loop::run() {
 			{
 				Poco::Mutex::ScopedLock l(mContentMutex);
 
-				// loadContent();
-
 				if (!loadContent()) {
 					// If loading the content failed, try again soon.
 					DS_LOG_WARNING("Failed to load content. Retrying...")
@@ -144,7 +142,10 @@ void BridgeService::Loop::run() {
 					continue;
 				}
 
-				contentChanged |= updatePlatformEvents();
+				// Allow content to be pre-processed.
+				// Note: wish we could do this here on the background thread,
+				//       but we might need access to the current content, which is only available on the main thread.
+				// filterContent();
 
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mPlatforms.getName()) == mPlatforms);
@@ -161,6 +162,9 @@ void BridgeService::Loop::run() {
 				mApp->dispatchSync([&]() {
 					mEngine.getResources().clear();
 					{
+						// Note: until current content is available on the background thread, we can only do this here.
+						filterContent();
+
 						Poco::Mutex::ScopedLock l(mContentMutex);
 						mEngine.mContent.replaceChild(mPlatforms);
 						mEngine.mContent.replaceChild(mContent);
@@ -170,12 +174,15 @@ void BridgeService::Loop::run() {
 						mEngine.mContent.setKeyReferences(ds::model::RECORD_MAP, mRecordMap);
 						mEngine.mContent.setKeyReferences(ds::model::VALID_MAP, mValidMap);
 					}
+
 					mEngine.getNotifier().notify(ds::CmsDataLoadCompleteEvent());
 					mEngine.getNotifier().notify(ds::ContentUpdatedEvent());
 					mEngine.getNotifier().notify(ds::ScheduleUpdatedEvent());
 				});
 			}
-		} else if (refreshEvents) {
+		}
+
+		if (refreshEvents) {
 			DS_LOG_VERBOSE(2, "BridgeService::Loop is refreshing events")
 
 			{
@@ -202,8 +209,9 @@ void BridgeService::Loop::run() {
 				});
 			}
 		}
-		DS_LOG_VERBOSE(2, "BridgeService::Loop going to sleep")
+
 		// Sleep until woken up externally.
+		DS_LOG_VERBOSE(2, "BridgeService::Loop going to sleep")
 		while (Poco::Thread::trySleep(mRefreshRateMs)) {}
 	}
 
@@ -821,10 +829,11 @@ bool BridgeService::Loop::loadContent() {
 }
 
 void BridgeService::Loop::validateContent() {
-	std::unordered_map<std::string, ds::model::ContentModelRef> validMap;
-	auto														recordMap = mRecordMap;
+	Poco::Mutex::ScopedLock l(mValidatorMutex);
+
 	if (mValidator) {
-		for (auto pair : recordMap) {
+		std::unordered_map<std::string, ds::model::ContentModelRef> validMap;
+		for (const auto& pair : mRecordMap) {
 			auto record = pair.second;
 			auto uid	= pair.first;
 			if (mValidator(record)) {
@@ -833,13 +842,25 @@ void BridgeService::Loop::validateContent() {
 		}
 		mValidMap = validMap;
 	} else {
-		mValidMap = recordMap;
+		mValidMap = mRecordMap;
 	}
 }
 
-bool BridgeService::Loop::updatePlatformEvents() const {
-	// DS_LOG_VERBOSE(2, "BridgeService::Loop is updating platform events.")
+void BridgeService::Loop::filterContent() {
+	ds::model::ContentModelRef content;
+	content.replaceChild(mPlatforms);
+	content.replaceChild(mContent);
+	content.replaceChild(mEvents);
+	content.replaceChild(mRecords);
+	content.replaceChild(mTags);
+	content.setKeyReferences(ds::model::RECORD_MAP, mRecordMap);
+	content.setKeyReferences(ds::model::VALID_MAP, mValidMap);
 
+	Poco::Mutex::ScopedLock l(mFilterMutex);
+	if (mFilter) mFilter(content);
+}
+
+bool BridgeService::Loop::updatePlatformEvents() const {
 	Poco::LocalDateTime ldt = Poco::LocalDateTime();
 	Poco::DateTime		thisDayTime;
 	thisDayTime.makeLocal(ldt.tzd());
@@ -850,7 +871,6 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 
 	auto scheduledEvents = platform.getChildByName("scheduled_events");
 	auto platformEvents	 = scheduledEvents.getChildren();
-
 
 	if (!platformEvents.empty()) {
 		// Now update current events
@@ -884,7 +904,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			return success;
 		};
 
-		auto spanSort = [](ds::model::ContentModelRef& event) {
+		auto spanSort = [](const ds::model::ContentModelRef& event) {
 			auto span	  = event.getPropertyString("span_type");
 			int	 spanSort = 0;
 
@@ -922,10 +942,14 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 				Poco::DateTime startDateTimeB;
 				Poco::DateTime endDateTimeA;
 				Poco::DateTime endDateTimeB;
-				bool success = Poco::DateTimeParser::tryParse(a.getPropertyString("start_date") + " " + a.getPropertyString("start_time"), startDateTimeA, tzd);
-				success |= Poco::DateTimeParser::tryParse(a.getPropertyString("end_date") + " " + a.getPropertyString("end_time"), endDateTimeA, tzd);
-				success |= Poco::DateTimeParser::tryParse(b.getPropertyString("start_date") + " " + b.getPropertyString("start_time"), startDateTimeB, tzd);
-				success |= Poco::DateTimeParser::tryParse(b.getPropertyString("end_date") + " " + b.getPropertyString("end_time"), endDateTimeB, tzd);
+				bool		   success = Poco::DateTimeParser::tryParse(
+					  a.getPropertyString("start_date") + " " + a.getPropertyString("start_time"), startDateTimeA, tzd);
+				success |= Poco::DateTimeParser::tryParse(
+					a.getPropertyString("end_date") + " " + a.getPropertyString("end_time"), endDateTimeA, tzd);
+				success |= Poco::DateTimeParser::tryParse(
+					b.getPropertyString("start_date") + " " + b.getPropertyString("start_time"), startDateTimeB, tzd);
+				success |= Poco::DateTimeParser::tryParse(
+					b.getPropertyString("end_date") + " " + b.getPropertyString("end_time"), endDateTimeB, tzd);
 
 				if (success) {
 					// Starting later sorts higher
@@ -949,8 +973,8 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 				if (endTimeA != endTimeB) return endTimeA < endTimeB;
 
 				// Prioritize more specifically scheduled events over recurring/larger span events.
-				int	 aSpanSort = spanSort(a);
-				int	 bSpanSort = spanSort(b);
+				int aSpanSort = spanSort(a);
+				int bSpanSort = spanSort(b);
 				if (aSpanSort != bSpanSort) return aSpanSort < bSpanSort;
 			}
 
@@ -959,7 +983,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			if (a.getPropertyString("record_name") != b.getPropertyString("record_name"))
 				return a.getPropertyString("record_name") < b.getPropertyString("record_name");
 
-			// Finally if we've exhaused those options, sort by UID which is at least unique
+			// Finally if we've exhausted those options, sort by UID which is at least unique
 			return a.getPropertyString("uid") < b.getPropertyString("uid");
 		});
 
@@ -976,7 +1000,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
 
 		// Probably don't want to get rid of ALL the children...
-		if (currentContent.getChildren().size() > 0) {
+		if (!currentContent.getChildren().empty()) {
 			currentContent.clearChildren();
 			updated = true;
 		}
@@ -984,9 +1008,9 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 
 	if (updated) mEngine.getNotifier().notifyOnEngineThread(std::make_shared<ds::PlatformEventsUpdatedEvent>());
 
-
 	// Use helper to obtain the appropriate playlist.
 	auto updatedPlaylist = ds::model::ContentModelRef();
+
 	return updated;
 }
 
