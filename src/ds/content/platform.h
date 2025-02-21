@@ -2,56 +2,58 @@
 #ifndef DS_CONTENT_PLATFORM
 #define DS_CONTENT_PLATFORM
 
-#include <ds/data/resource.h>
-#include <vector>
 #include "content_model.h"
-#include "ds/ui/sprite/sprite_engine.h"
+
 #include <ds/app/event_client.h>
-#include <ds/content/content_events.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds::model {
 
-typedef std::string PlatformType;
+using PlatformType = std::string;
 
 class Platform {
   public:
-	Platform(ds::ui::SpriteEngine& engine, const std::string& platformKey = "");
-	~Platform();
+	Platform(ui::SpriteEngine& engine, const std::string& platformKey = "");
+	virtual ~Platform() = default;
 
-	//types
+	Platform(const Platform&)			 = delete;
+	Platform& operator=(const Platform&) = delete;
+	Platform(Platform&&)				 = delete;
+	Platform& operator=(Platform&&)		 = delete;
+
+	// types
 	static const PlatformType UNDEFINED;
-	
-	
+
+
 	// Static methods for retrieving records.
 	// These should be deprecated. *DO NOT USE*
-	static ds::model::ContentModelRef getRecordByUid(const ds::model::ContentModelRef& model, const std::string& uid);
-	static ds::model::ContentModelRef getRecordByUid(const ds::ui::SpriteEngine& engine, const std::string& uid);
+	[[deprecated]] static ContentModelRef getRecordByUid(const ContentModelRef& model, const std::string& uid);
+	[[deprecated]] static ContentModelRef getRecordByUid(const ui::SpriteEngine& engine, const std::string& uid);
 	/**--**/
-	
-	virtual void					  refreshContent();
-	bool							  isInitialized() { return mInitialized; }
-	virtual std::string						  getPlatformKey();
-	virtual ds::model::ContentModelRef		  getPlatformModel();
-	virtual PlatformType					  getPlatformType();
-	virtual ds::model::ContentModelRef		  getCurrentContent();
-	virtual void							  setupContentListener();
+
+	virtual void			   refreshContent();
+	bool					   isInitialized() const { return mInitialized; }
+	virtual const std::string& getPlatformKey() const;
+	virtual ContentModelRef	   getPlatformModel();
+	virtual PlatformType	   getPlatformType() const;
+	virtual ContentModelRef	   getCurrentContent() const;
+	virtual void			   setupContentListener();
 
 
   protected:
-	std::string					mPlatformKey;
-	PlatformType				mPlatformType=UNDEFINED;
-	ds::ui::SpriteEngine&		mEngine;
-	ds::EventClient				mEventClient;
-	ds::model::ContentModelRef	mPlatformModel;
-	ds::model::ContentModelRef	mCurrentContent;
-	ds::model::ContentModelRef	mEvents;
+	std::string		  mPlatformKey;
+	PlatformType	  mPlatformType = UNDEFINED;
+	ui::SpriteEngine& mEngine;
+	EventClient		  mEventClient;
+	ContentModelRef	  mPlatformModel;
+	ContentModelRef	  mCurrentContent;
+	ContentModelRef	  mEvents;
 
   private:
 	bool mInitialized = false;
 };
 
 
-
-}
+} // namespace ds::model
 
 #endif
