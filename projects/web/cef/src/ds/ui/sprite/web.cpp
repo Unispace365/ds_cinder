@@ -653,6 +653,14 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 		sendKeyDownEvent(keyEvent);
 		sendKeyUpEvent(keyEvent);
 	}
+	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
+		mEngine.timedCallback(
+			[this] {
+				mEngine.registerEntryField(this);
+			},
+			1.f
+		);
+	}
 }
 
 void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
@@ -727,6 +735,14 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 		ci::app::KeyEvent event(mEngine.getWindow(), code, 0, (char)character.c_str()[0], 0, code);
 		sendKeyDownEvent(event);
 		sendKeyUpEvent(event);
+	}
+	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
+		mEngine.timedCallback(
+			[this] {
+				mEngine.registerEntryField(this);
+			},
+			1.f
+		);
 	}
 }
 

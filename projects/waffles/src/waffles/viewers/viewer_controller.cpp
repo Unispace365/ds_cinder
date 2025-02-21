@@ -30,6 +30,9 @@
 
 #include "waffles/common/ui_utils.h"
 
+#include "ds/ui/sprite/web.h"
+#include "ds/ui/soft_keyboard/entry_field.h"
+
 //using namespace downstream;
 
 namespace {
@@ -1304,6 +1307,25 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 
 	if (showController) {
 		mChannelClient.notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
+	}
+	
+	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
+		if (auto titled_player = dynamic_cast<TitledMediaViewer*>(viewer)) {
+			if (auto media_player = titled_player->getMediaPlayer()) {
+				if (auto web_player = dynamic_cast<ds::ui::WebPlayer*>(media_player->getPlayer())) {
+					if (auto web = web_player->getWeb()) {
+						if (auto entry = dynamic_cast<ds::ui::IEntryField*>(web)) {
+							mEngine.timedCallback(
+								[this, entry] {
+									mEngine.registerEntryField(entry);
+								},
+								2.5f
+							);
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
