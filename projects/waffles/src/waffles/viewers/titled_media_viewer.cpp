@@ -342,12 +342,16 @@ void TitledMediaViewer::onMediaSet() {
 
 					if (cappy->setCaptureSource(streamAddress)) {
 						cappy->show();
-						mMediaPlayer->setSize(cappy->getWidth(), cappy->getHeight());
-						mMediaPlayer->setContentAspectRatio(cappy->getWidth() / cappy->getHeight());
+						fakeRes.setWidth(cappy->getWidth());
+						fakeRes.setHeight(cappy->getHeight());
+						// Note: cappy can somehow change its size after this point,
+						// so we use fakeRes.getWidth() and fakeRes.getHeight() instead
+						mMediaPlayer->setSize(fakeRes.getWidth(), fakeRes.getHeight());
+						mMediaPlayer->setContentAspectRatio(fakeRes.getWidth() / fakeRes.getHeight());
 						mMediaPlayer->loadMedia(fakeRes);
-						setSize(cappy->getWidth(), cappy->getHeight());
-						setSizeLimits();
-						setViewerSize(cappy->getWidth(), cappy->getHeight());
+						//setSize(fakeRes.getWidth(), fakeRes.getHeight());
+						//setSizeLimits();
+						//setViewerSize(fakeRes.getWidth(), fakeRes.getHeight());
 						mShowingWebCam = true;
 
 						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("record_name"));

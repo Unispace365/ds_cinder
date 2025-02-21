@@ -2,6 +2,8 @@
 
 #include "app/waffles_app_defs.h"
 #include "framed_media_viewer.h"
+
+#include "ds/util/float_util.h"
 #include "waffles/common/ui_utils.h"
 #include "waffles/model/viewer_creation_args.h"
 #include "waffles/waffles_events.h"
@@ -89,6 +91,8 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventC
 };
 
 void FramedMediaViewer::onLayout() {
+	if (ds::approxZero(getWidth()) || ds::approxZero(getHeight())) return;
+
 	float diff = 0;
 	auto  minSize = mEngine.getWafflesSettings().getVec2("media_viewer:min_layout_size", 0, ci::vec2(400, 400));
 	mMinWidth	  = minSize.x;
