@@ -713,18 +713,20 @@ void App::launchSyncService() {
 			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
 
 		mSyncService->initialize(settings);
-		registerKeyPress(
-			"Toggle Downsync output",
-			[this] {
-				if (mSyncService) mSyncService->toggleOutput();
-			},
-			ci::app::KeyEvent::KEY_SLASH, true);
+		if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
+			registerKeyPress(
+				"Toggle Downsync output",
+				[this] {
+					if (mSyncService) mSyncService->toggleOutput();
+				},
+				ci::app::KeyEvent::KEY_SLASH, true);
+		}
 	}
 }
 
 void App::launchBridgeSyncService() {
 	// fireup downsync
-	if (mBridgeSyncService == nullptr) {
+	if (mBridgeSyncService == nullptr && mEngineSettings.getBool("debug_keys:enable", 0, true)) {
 		registerKeyPress(
 			"Toggle BridgeSync output",
 			[this] {
