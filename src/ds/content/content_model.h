@@ -19,13 +19,13 @@ class SpriteEngine;
 
 namespace ds::model {
 
-const std::string VALID_MAP	 = "valid_map";
-const std::string RECORD_MAP	 = "record_map";
-const std::string CONTENT	 = "content";
-const std::string PLATFORM	 = "platform";
-const std::string ALL_EVENTS	 = "all_events";
+const std::string VALID_MAP	  = "valid_map";
+const std::string RECORD_MAP  = "record_map";
+const std::string CONTENT	  = "content";
+const std::string PLATFORM	  = "platform";
+const std::string ALL_EVENTS  = "all_events";
 const std::string ALL_RECORDS = "all_records";
-const std::string ALL_TAGS	 = "all_tags";
+const std::string ALL_TAGS	  = "all_tags";
 
 /**
  * \class ContentProperty
@@ -74,7 +74,7 @@ class ContentProperty {
 	ci::ColorA getColorA(ds::ui::SpriteEngine&) const;
 
 	const std::string& getString() const; // same as getValue(), but supplied here for convenience
-	std::wstring       getWString() const;
+	std::wstring	   getWString() const;
 
 	ci::vec2  getVec2() const;
 	ci::vec3  getVec3() const;
@@ -109,18 +109,18 @@ class ContentModelRef {
 	/// TODO: remove child
 
 	ContentModelRef();
-	ContentModelRef(const std::string& name, const int id = 0, const std::string& label = "");
+	ContentModelRef(const std::string& name, int id = 0, const std::string& label = "");
 	ContentModelRef(const std::string& name, const std::string& uid, const std::string& label = "");
 
 	/// Enables doing `if (mModel) ...` to check if model is valid
 	operator bool() const { return !empty(); }
 
 	/// Get the id for this item
-	const int& getId() const;
+	const int&		   getId() const;
 	const std::string& getUid() const;
-	void	   setId(const int& id);
-	void	   setUid(const std::string& uid);
-	
+	void			   setId(const int& id);
+	void			   setUid(const std::string& uid);
+
 
 	/// Get the name of this item
 	/// Name is generally inherited by the table or thing this belongs to
@@ -160,24 +160,24 @@ class ContentModelRef {
 
 	/// Use this for looking stuff up only. Recommend using the other functions to manage the list
 	const std::map<std::string, ContentProperty>& getProperties() const;
-	void                                          setProperties(const std::map<std::string, ContentProperty>& newProperties);
+	void setProperties(const std::map<std::string, ContentProperty>& newProperties);
 
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
 	ContentProperty getProperty(const std::string& propertyName) const;
-	std::string     getPropertyValue(const std::string& propertyName) const;
-	bool            getPropertyBool(const std::string& propertyName) const;
-	int             getPropertyInt(const std::string& propertyName) const;
-	float           getPropertyFloat(const std::string& propertyName) const;
-	double          getPropertyDouble(const std::string& propertyName) const;
+	std::string		getPropertyValue(const std::string& propertyName) const;
+	bool			getPropertyBool(const std::string& propertyName) const;
+	int				getPropertyInt(const std::string& propertyName) const;
+	float			getPropertyFloat(const std::string& propertyName) const;
+	double			getPropertyDouble(const std::string& propertyName) const;
 	/// The Engine is supplied to look up named colors
-	ci::Color    getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName) const;
-	ci::ColorA   getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName) const;
-	std::string  getPropertyString(const std::string& propertyName) const;
+	ci::Color	 getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName) const;
+	ci::ColorA	 getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName) const;
+	std::string	 getPropertyString(const std::string& propertyName) const;
 	std::wstring getPropertyWString(const std::string& propertyName) const;
-	ci::vec2     getPropertyVec2(const std::string& propertyName) const;
-	ci::vec3     getPropertyVec3(const std::string& propertyName) const;
-	ci::Rectf    getPropertyRect(const std::string& propertyName) const;
+	ci::vec2	 getPropertyVec2(const std::string& propertyName) const;
+	ci::vec3	 getPropertyVec3(const std::string& propertyName) const;
+	ci::Rectf	 getPropertyRect(const std::string& propertyName) const;
 	ds::Resource getPropertyResource(const std::string& propertyName) const;
 
 	/// Set the property with a given name
@@ -229,41 +229,44 @@ class ContentModelRef {
 
 	/// If no children exist, returns an empty data model
 	/// If index is greater than the size of the children, returns the last child
-	ContentModelRef getChild(const size_t index);
+	ContentModelRef getChild(size_t index) const;
 
 	/// Get the first child that matches this id
 	/// If no children exist or match that id, returns an empty data model
-	ContentModelRef getChildById(const int id);
-	ContentModelRef getChildById(const std::string& id) { return getChildByUid(id); };
+	ContentModelRef getChildById(int id);
+	ContentModelRef getChildById(const std::string& id) { return getChildByUid(id); }
 	ContentModelRef getChildByUid(const std::string& uid);
 
 	/// Get the first child that matches this name
 	/// Can get nested children using dot notation. for example:
 	/// getChildByName("the_stories.chapter_one.first_paragraph"); If no children exist or match that id, returns an
 	/// empty data model
-	ContentModelRef getChildByName(const std::string& childName) const;
+	ContentModelRef getChildByName(std::string_view childName) const;
 
 	/// Looks through the entire tree to find a child that matches the name and id.
 	/// For instance, if you have a branched tree several levels deep and need to find a specific node.
 	/// Depends on children having a consistent name and unique id.
-	ContentModelRef getDescendant(const std::string& childName, const int childId) const;
-	ContentModelRef getDescendant(const std::string& childName, const std::string& childUid) const;
+	ContentModelRef getDescendant(const std::string& childName, int childId) const;
+	// ContentModelRef getDescendant(const std::string& childName, const std::string& childUid) const;
 
 	/// Looks through all direct children, and returns all children that have a given label.
 	/// Useful for models that have children from more than one table
 	/// \note By default, labels are in the form "sql_table_name row"
 	std::vector<ContentModelRef> getChildrenWithLabel(const std::string& label) const;
 
-	/// Get first direct decendant where 'propertyName' has a value of 'propertyValue'
+	/// Get first direct descendant where 'propertyName' has a value of 'propertyValue'
 	/// Returns an empty model if no match is found
 	ContentModelRef findChildByPropertyValue(const std::string& propertyName, const std::string& propertyValue) const;
 
 	/// Adds this child to the end of this children list, or at the index supplied
 	void addChild(const ContentModelRef& datamodel);
-	void addChild(const ContentModelRef& datamodel, const size_t index);
+	void addChild(const ContentModelRef& datamodel, size_t index);
 
 	/// If there's a direct descendant with the name, replaces it, adds it if it doesn't exist
-	void replaceChild(const ds::model::ContentModelRef &datamodel);
+	void replaceChild(const ds::model::ContentModelRef& datamodel);
+
+	/// Allows you to call a function on each child. If \a recurse is true, it will call the function recursively.
+	void forEachChild(const std::function<void(ContentModelRef&)>& fn, bool recurse = false) const;
 
 	/// Is there a child with this name?
 	bool hasChild(const std::string& name) const;
@@ -273,23 +276,24 @@ class ContentModelRef {
 	bool hasChildren() const;
 
 	/// Replaces all children
-	void setChildren(const std::vector<ds::model::ContentModelRef> &children);
+	void setChildren(const std::vector<ds::model::ContentModelRef>& children);
 
 	/// Removes all children
 	void clearChildren() const;
 
 	/// Adds a reference map with the corresponding string name
 	void setReferences(const std::string& referenceName, std::map<int, ds::model::ContentModelRef>& reference);
-	void setKeyReferences(const std::string&									referenceName,
-					   std::unordered_map<std::string, ds::model::ContentModelRef>& reference);
+	void setKeyReferences(const std::string&										   referenceName,
+						  std::unordered_map<std::string, ds::model::ContentModelRef>& reference);
 
 	/// Gets a map of all the references for the given name. If you need to modify the map, make a copy and set it
 	/// again using setReference
 	const std::map<int, ds::model::ContentModelRef>& getReferences(const std::string& referenceName) const;
-	const std::unordered_map<std::string, ds::model::ContentModelRef>& getKeyReferences(const std::string& referenceName) const;
+	const std::unordered_map<std::string, ds::model::ContentModelRef>&
+	getKeyReferences(const std::string& referenceName) const;
 
 	/// Returns a content model from a specific reference by the reference name and the node id
-	ds::model::ContentModelRef getReference(const std::string& referenceName, const int nodeId) const;
+	ds::model::ContentModelRef getReference(const std::string& referenceName, int nodeId) const;
 	ds::model::ContentModelRef getKeyReference(const std::string& referenceName, const std::string& key) const;
 
 	/// Clears the reference map at the specified name
@@ -300,7 +304,7 @@ class ContentModelRef {
 	void clearAllReferences() const;
 
 	/// Logs this, it's properties, and all it's children recursively
-	void printTree(const bool verbose, const std::string& indent = "") const;
+	void printTree(bool verbose, const std::string& indent = "") const;
 
   private:
 	void createData();
