@@ -6,7 +6,10 @@
 
 #include <ds/util/string_util.h>
 
-namespace {
+#include <thread>
+#include <chrono>
+
+namespace Capture {
 auto INIT = []() {
 	ds::App::AddStartup("CapturePlayer", [](ds::Engine& e) {
 		e.registerSpriteImporter("capture_player", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
@@ -23,11 +26,30 @@ struct cap {
 	ci::gl::TextureRef texture;
 	int				   users = 0;
 };
+
 // Holds all open captures, allowing us to display multiple copies of a capture while only using one GPU resource
 // The first CapturePlayer to update for a given Capture source will update the texture
 static std::unordered_map<int64_t, cap>		sCaptures;
 static std::unordered_map<std::string, cap> sUNCaptures;
-} // namespace
+static std::unordered_map<int64_t, cinder::Surface8uRef> sSurfaces;
+static std::unordered_map<int64_t, bool> sThreadActive;
+
+void updateTexture(uint64_t captureId, int fps) {
+	if (captureId < 0) return;
+	sThreadActive[captureId] = true;
+	DS_LOG_INFO("Started CapturePlayer::updateTexture thread for " << captureId);
+    auto interval = std::chrono::milliseconds(1000 / fps);
+    auto time = std::chrono::high_resolution_clock::now();
+    while (sThreadActive[captureId]) {
+		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end() ||
+			!Capture::sCaptures[captureId].capture || !Capture::sCaptures[captureId].capture->checkNewFrame()) continue;
+		sSurfaces[captureId] = Capture::sCaptures[captureId].capture->getSurface();
+        time += interval;
+        std::this_thread::sleep_until(time);
+    }
+	DS_LOG_INFO("Ended CapturePlayer::updateTexture thread for " << captureId);
+}
+} // namespace Capture
 
 namespace waffles {
 CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
@@ -41,12 +63,17 @@ CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
 }
 
 CapturePlayer::~CapturePlayer() {
-	if (mCaptureId < 0 || sCaptures.find(mCaptureId) == sCaptures.end()) return;
+	if (mCaptureId < 0 || Capture::sCaptures.find(mCaptureId) == Capture::sCaptures.end()) return;
 
-	sCaptures[mCaptureId].users -= 1; // Decrement the active users
-	if (sCaptures[mCaptureId].users <= 0) {
+	if (Capture::sThreadActive[mCaptureId]) {
+		Capture::sThreadActive[mCaptureId] = false;
+		mUpdateTextureThread.join();
+	}
+
+	Capture::sCaptures[mCaptureId].users -= 1; // Decrement the active users
+	if (Capture::sCaptures[mCaptureId].users <= 0) {
 		// And if we were the last user, clean up after ourselves
-		sCaptures.erase(mCaptureId);
+		Capture::sCaptures.erase(mCaptureId);
 	}
 }
 
@@ -62,6 +89,11 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 		goodCapture = setCaptureSourceWithUniqueName(sourceIdName);
 	}
 
+	if (goodCapture) {
+		auto updateTextureFunction = [this] { Capture::updateTexture(mCaptureId, 60); }; // TODO: dynamic fps
+		mUpdateTextureThread = std::thread(updateTextureFunction);
+	}
+
 	return goodCapture;
 }
 
@@ -70,10 +102,10 @@ bool CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
 	mCaptureId	= id;
 	mSourceName = sourceName;
 
-	if (sCaptures.find(mCaptureId) != sCaptures.end()) {
+	if (Capture::sCaptures.find(mCaptureId) != Capture::sCaptures.end()) {
 		// If we already have this source, just add ourself to the users
-		sCaptures[mCaptureId].users += 1;
-		setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+		Capture::sCaptures[mCaptureId].users += 1;
+		setSize(Capture::sCaptures[mCaptureId].capture->getWidth(), Capture::sCaptures[mCaptureId].capture->getHeight());
 	} else {
 		// We haven't opened this source, try to
 		try {
@@ -85,15 +117,15 @@ bool CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
 				if (mDeviceResolutionMap.find(sourceName) != mDeviceResolutionMap.end()) {
 					res = mDeviceResolutionMap[sourceName];
 				}
-				sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
+				Capture::sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
 				break;
 			}
 
-			if (sCaptures[mCaptureId].capture) {
-				sCaptures[mCaptureId].capture->start();
-				sCaptures[mCaptureId].users = 1;
+			if (Capture::sCaptures[mCaptureId].capture) {
+				Capture::sCaptures[mCaptureId].capture->start();
+				Capture::sCaptures[mCaptureId].users = 1;
 
-				setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+				setSize(Capture::sCaptures[mCaptureId].capture->getWidth(), Capture::sCaptures[mCaptureId].capture->getHeight());
 			}
 		} catch (const std::exception& e) {
 			DS_LOG_WARNING("Unable to open capture device. ID: " << mCaptureId << ", Name: " << mSourceName);
@@ -108,10 +140,10 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 	if (uniqueName.empty()) return false;
 	mCaptureId	= (uint64_t)std::hash<std::string>{}(uniqueName);
 	mSourceName = uniqueName;
-	if (sCaptures.count(mCaptureId) && sCaptures[mCaptureId].capture) {
+	if (Capture::sCaptures.count(mCaptureId) && Capture::sCaptures[mCaptureId].capture) {
 		// If we already have this source, just add ourself to the users
-		sCaptures[mCaptureId].users += 1;
-		setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+		Capture::sCaptures[mCaptureId].users += 1;
+		setSize(Capture::sCaptures[mCaptureId].capture->getWidth(), Capture::sCaptures[mCaptureId].capture->getHeight());
 	} else {
 		// We haven't opened this source, try to
 		try {
@@ -123,18 +155,18 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 				if (mDeviceResolutionMap.find(uniqueName) != mDeviceResolutionMap.end()) {
 					res = mDeviceResolutionMap[uniqueName];
 				}
-				sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
+				Capture::sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
 				break;
 			}
 
-			if (sCaptures[mCaptureId].capture) {
-				sCaptures[mCaptureId].capture->start();
-				sCaptures[mCaptureId].users = 1;
+			if (Capture::sCaptures[mCaptureId].capture) {
+				Capture::sCaptures[mCaptureId].capture->start();
+				Capture::sCaptures[mCaptureId].users = 1;
 
-				setSize(sCaptures[mCaptureId].capture->getWidth(), sCaptures[mCaptureId].capture->getHeight());
+				setSize(Capture::sCaptures[mCaptureId].capture->getWidth(), Capture::sCaptures[mCaptureId].capture->getHeight());
 			}
 		} catch (const std::exception& e) {
-			sCaptures.erase(mCaptureId);
+			Capture::sCaptures.erase(mCaptureId);
 			DS_LOG_WARNING("Unable to open capture device. Name: " << uniqueName);
 			DS_LOG_WARNING("\tDevice not found or unavailable");
 			return false;
@@ -143,17 +175,10 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 	return true;
 }
 
-void CapturePlayer::onUpdateServer(const ds::UpdateParams& up) {
-	if (mCaptureId < 0 || !sCaptures[mCaptureId].capture || !sCaptures[mCaptureId].capture->checkNewFrame()) return;
-
-	// If we have a new frame, save it to the texture
-	sCaptures[mCaptureId].texture = ci::gl::Texture::create(*sCaptures[mCaptureId].capture->getSurface());
-}
-
 void CapturePlayer::drawLocalClient() {
-	if (mCaptureId < 0 || !sCaptures[mCaptureId].texture) return;
-
-	ci::gl::draw(sCaptures[mCaptureId].texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
+	if (mCaptureId < 0 || Capture::sSurfaces.find(mCaptureId) == Capture::sSurfaces.end()) return;
+	auto texture = ci::gl::Texture::create(*Capture::sSurfaces[mCaptureId]);
+	ci::gl::draw(texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
 }
 
 void CapturePlayer::initDeviceResolutionMap() {
