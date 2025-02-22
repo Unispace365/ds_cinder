@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6ee74f31d37a1b5ab3c9c5ccbe2dce9841329b38$
+// $hash=526025c4c24dfa2cf678f3b265ff70e8ee6adc5c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_devtools_message_observer_capi.h"
@@ -61,6 +65,8 @@ struct _cef_client_t;
 /// functions of this structure may be called on any thread unless otherwise
 /// indicated in the comments. When used in the render process the functions of
 /// this structure may only be called on the main thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_browser_t {
   ///
@@ -198,6 +204,8 @@ typedef struct _cef_browser_t {
 /// Callback structure for cef_browser_host_t::RunFileDialog. The functions of
 /// this structure will be called on the browser process UI thread.
 ///
+/// NOTE: This struct is allocated client-side.
+///
 typedef struct _cef_run_file_dialog_callback_t {
   ///
   /// Base structure.
@@ -217,6 +225,8 @@ typedef struct _cef_run_file_dialog_callback_t {
 ///
 /// Callback structure for cef_browser_host_t::GetNavigationEntries. The
 /// functions of this structure will be called on the browser process UI thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_navigation_entry_visitor_t {
   ///
@@ -242,6 +252,8 @@ typedef struct _cef_navigation_entry_visitor_t {
 /// Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
 /// structure will be called on the browser process UI thread.
 ///
+/// NOTE: This struct is allocated client-side.
+///
 typedef struct _cef_pdf_print_callback_t {
   ///
   /// Base structure.
@@ -262,6 +274,8 @@ typedef struct _cef_pdf_print_callback_t {
 ///
 /// Callback structure for cef_browser_host_t::DownloadImage. The functions of
 /// this structure will be called on the browser process UI thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_download_image_callback_t {
   ///
@@ -288,6 +302,8 @@ typedef struct _cef_download_image_callback_t {
 /// may be called on any thread in that process unless otherwise indicated in
 /// the comments.
 ///
+/// NOTE: This struct is allocated DLL-side.
+///
 typedef struct _cef_browser_host_t {
   ///
   /// Base structure.
@@ -301,28 +317,61 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  /// Request that the browser close. The JavaScript 'onbeforeunload' event will
-  /// be fired. If |force_close| is false (0) the event handler, if any, will be
-  /// allowed to prompt the user and the user can optionally cancel the close.
-  /// If |force_close| is true (1) the prompt will not be displayed and the
-  /// close will proceed. Results in a call to
-  /// cef_life_span_handler_t::do_close() if the event handler allows the close
-  /// or if |force_close| is true (1). See cef_life_span_handler_t::do_close()
-  /// documentation for additional usage information.
+  /// Request that the browser close. Closing a browser is a multi-stage process
+  /// that may complete either synchronously or asynchronously, and involves
+  /// callbacks such as cef_life_span_handler_t::DoClose (Alloy style only),
+  /// cef_life_span_handler_t::OnBeforeClose, and a top-level window close
+  /// handler such as cef_window_delegate_t::CanClose (or platform-specific
+  /// equivalent). In some cases a close request may be delayed or canceled by
+  /// the user. Using try_close_browser() instead of close_browser() is
+  /// recommended for most use cases. See cef_life_span_handler_t::do_close()
+  /// documentation for detailed usage and examples.
+  ///
+  /// If |force_close| is false (0) then JavaScript unload handlers, if any, may
+  /// be fired and the close may be delayed or canceled by the user. If
+  /// |force_close| is true (1) then the user will not be prompted and the close
+  /// will proceed immediately (possibly asynchronously). If browser close is
+  /// delayed and not canceled the default behavior is to call the top-level
+  /// window close handler once the browser is ready to be closed. This default
+  /// behavior can be changed for Alloy style browsers by implementing
+  /// cef_life_span_handler_t::do_close(). is_ready_to_be_closed() can be used
+  /// to detect mandatory browser close events when customizing close behavior
+  /// on the browser process UI thread.
   ///
   void(CEF_CALLBACK* close_browser)(struct _cef_browser_host_t* self,
                                     int force_close);
 
   ///
-  /// Helper for closing a browser. Call this function from the top-level window
-  /// close handler (if any). Internally this calls CloseBrowser(false (0)) if
-  /// the close has not yet been initiated. This function returns false (0)
-  /// while the close is pending and true (1) after the close has completed. See
-  /// close_browser() and cef_life_span_handler_t::do_close() documentation for
-  /// additional usage information. This function must be called on the browser
-  /// process UI thread.
+  /// Helper for closing a browser. This is similar in behavior to
+  /// CLoseBrowser(false (0)) but returns a boolean to reflect the immediate
+  /// close status. Call this function from a top-level window close handler
+  /// such as cef_window_delegate_t::CanClose (or platform-specific equivalent)
+  /// to request that the browser close, and return the result to indicate if
+  /// the window close should proceed. Returns false (0) if the close will be
+  /// delayed (JavaScript unload handlers triggered but still pending) or true
+  /// (1) if the close will proceed immediately (possibly asynchronously). See
+  /// close_browser() documentation for additional usage information. This
+  /// function must be called on the browser process UI thread.
   ///
   int(CEF_CALLBACK* try_close_browser)(struct _cef_browser_host_t* self);
+
+  ///
+  /// Returns true (1) if the browser is ready to be closed, meaning that the
+  /// close has already been initiated and that JavaScript unload handlers have
+  /// already executed or should be ignored. This can be used from a top-level
+  /// window close handler such as cef_window_delegate_t::CanClose (or platform-
+  /// specific equivalent) to distringuish between potentially cancelable
+  /// browser close events (like the user clicking the top-level window close
+  /// button before browser close has started) and mandatory browser close
+  /// events (like JavaScript `window.close()` or after browser close has
+  /// started in response to [Try]close_browser()). Not completing the browser
+  /// close for mandatory close events (when this function returns true (1))
+  /// will leave the browser in a partially closed state that interferes with
+  /// proper functioning. See close_browser() documentation for additional usage
+  /// information. This function must be called on the browser process UI
+  /// thread.
+  ///
+  int(CEF_CALLBACK* is_ready_to_be_closed)(struct _cef_browser_host_t* self);
 
   ///
   /// Set whether the browser is focused.
@@ -346,6 +395,12 @@ typedef struct _cef_browser_host_t {
   ///
   cef_window_handle_t(CEF_CALLBACK* get_opener_window_handle)(
       struct _cef_browser_host_t* self);
+
+  ///
+  /// Retrieve the unique identifier of the browser that opened this browser.
+  /// Will return 0 for non-popup browsers.
+  ///
+  int(CEF_CALLBACK* get_opener_identifier)(struct _cef_browser_host_t* self);
 
   ///
   /// Returns true (1) if this browser is wrapped in a cef_browser_view_t.
@@ -381,8 +436,7 @@ typedef struct _cef_browser_host_t {
 
   ///
   /// Get the default zoom level. This value will be 0.0 by default but can be
-  /// configured with the Chrome runtime. This function can only be called on
-  /// the UI thread.
+  /// configured. This function can only be called on the UI thread.
   ///
   double(CEF_CALLBACK* get_default_zoom_level)(
       struct _cef_browser_host_t* self);
@@ -908,24 +962,6 @@ typedef struct _cef_browser_host_t {
                                               const cef_size_t* max_size);
 
   ///
-  /// Returns the extension hosted in this browser or NULL if no extension is
-  /// hosted. See cef_request_context_t::LoadExtension for details.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
-      struct _cef_browser_host_t* self);
-
-  ///
-  /// Returns true (1) if this browser is hosting an extension background
-  /// script. Background hosts do not have a window and are not displayable. See
-  /// cef_request_context_t::LoadExtension for details.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  int(CEF_CALLBACK* is_background_host)(struct _cef_browser_host_t* self);
-
-  ///
   /// Set whether the browser's audio is muted.
   ///
   void(CEF_CALLBACK* set_audio_muted)(struct _cef_browser_host_t* self,
@@ -948,12 +984,12 @@ typedef struct _cef_browser_host_t {
 
   ///
   /// Requests the renderer to exit browser fullscreen. In most cases exiting
-  /// window fullscreen should also exit browser fullscreen. With the Alloy
-  /// runtime this function should be called in response to a user action such
-  /// as clicking the green traffic light button on MacOS
+  /// window fullscreen should also exit browser fullscreen. With Alloy style
+  /// this function should be called in response to a user action such as
+  /// clicking the green traffic light button on MacOS
   /// (cef_window_delegate_t::OnWindowFullscreenTransition callback) or pressing
-  /// the "ESC" key (cef_keyboard_handler_t::OnPreKeyEvent callback). With the
-  /// Chrome runtime these standard exit actions are handled internally but
+  /// the "ESC" key (cef_keyboard_handler_t::OnPreKeyEvent callback). With
+  /// Chrome style these standard exit actions are handled internally but
   /// new/additional user actions can use this function. Set |will_cause_resize|
   /// to true (1) if exiting browser fullscreen will cause a view resize.
   ///
@@ -961,18 +997,22 @@ typedef struct _cef_browser_host_t {
                                       int will_cause_resize);
 
   ///
-  /// Returns true (1) if a Chrome command is supported and enabled. Values for
-  /// |command_id| can be found in the cef_command_ids.h file. This function can
-  /// only be called on the UI thread. Only used with the Chrome runtime.
+  /// Returns true (1) if a Chrome command is supported and enabled. Use the
+  /// cef_id_for_command_id_name() function for version-safe mapping of command
+  /// IDC names from cef_command_ids.h to version-specific numerical
+  /// |command_id| values. This function can only be called on the UI thread.
+  /// Only used with Chrome style.
   ///
   int(CEF_CALLBACK* can_execute_chrome_command)(
       struct _cef_browser_host_t* self,
       int command_id);
 
   ///
-  /// Execute a Chrome command. Values for |command_id| can be found in the
-  /// cef_command_ids.h file. |disposition| provides information about the
-  /// intended command target. Only used with the Chrome runtime.
+  /// Execute a Chrome command. Use the cef_id_for_command_id_name() function
+  /// for version-safe mapping of command IDC names from cef_command_ids.h to
+  /// version-specific numerical |command_id| values. |disposition| provides
+  /// information about the intended command target. Only used with Chrome
+  /// style.
   ///
   void(CEF_CALLBACK* execute_chrome_command)(
       struct _cef_browser_host_t* self,
@@ -1031,6 +1071,12 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     const struct _cef_browser_settings_t* settings,
     struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context);
+
+///
+/// Returns the browser (if any) with the specified identifier.
+///
+CEF_EXPORT cef_browser_t* cef_browser_host_get_browser_by_identifier(
+    int browser_id);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=134a172de5a6674836b723af06baf792553bf9be$
+// $hash=94f18dd234f8478eb4f167febc3d821e30432e3c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_stream_capi.h"
@@ -51,6 +55,8 @@ extern "C" {
 /// Structure that supports the reading of zip archives via the zlib unzip API.
 /// The functions of this structure should only be called on the thread that
 /// creates the object.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_zip_reader_t {
   ///

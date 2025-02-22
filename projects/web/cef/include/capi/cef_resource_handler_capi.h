@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ad8218a8ac9e313884110e72bb2af32ec916907f$
+// $hash=dcc85bc129a43eca533e2f6cce32d04926f1efae$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -53,6 +57,8 @@ extern "C" {
 
 ///
 /// Callback for asynchronous continuation of cef_resource_handler_t::skip().
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_resource_skip_callback_t {
   ///
@@ -72,6 +78,8 @@ typedef struct _cef_resource_skip_callback_t {
 
 ///
 /// Callback for asynchronous continuation of cef_resource_handler_t::read().
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_resource_read_callback_t {
   ///
@@ -94,6 +102,8 @@ typedef struct _cef_resource_read_callback_t {
 /// Structure used to implement a custom request handler structure. The
 /// functions of this structure will be called on the IO thread unless otherwise
 /// indicated.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_resource_handler_t {
   ///

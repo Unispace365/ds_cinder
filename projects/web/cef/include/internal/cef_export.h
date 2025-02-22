@@ -36,9 +36,9 @@
 
 #if defined(COMPILER_MSVC)
 
-#ifdef BUILDING_CEF_SHARED
+#if defined(BUILDING_CEF_SHARED)
 #define CEF_EXPORT __declspec(dllexport)
-#elif USING_CEF_SHARED
+#elif defined(USING_CEF_SHARED)
 #define CEF_EXPORT __declspec(dllimport)
 #else
 #define CEF_EXPORT

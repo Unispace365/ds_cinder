@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1c0e469a283538945834404bcd5934b9bb9a0756$
+// $hash=07a91f8d964e1a4bd64c3817a66ed9969347954d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PREFERENCE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_PREFERENCE_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_values_capi.h"
@@ -49,6 +53,8 @@ extern "C" {
 
 ///
 /// Structure that manages custom preference registrations.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_preference_registrar_t {
   ///
@@ -76,6 +82,8 @@ typedef struct _cef_preference_registrar_t {
 /// Manage access to preferences. Many built-in preferences are registered by
 /// Chromium. Custom preferences can be registered in
 /// cef_browser_process_handler_t::OnRegisterCustomPreferences.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_preference_manager_t {
   ///

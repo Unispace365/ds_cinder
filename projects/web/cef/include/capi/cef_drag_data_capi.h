@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a096775255ddc4d7616095e48e7370bd87bf4bb5$
+// $hash=54a8ac1ecd79da5fe7a02bc176c9b9d9a480f0d1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_image_capi.h"
@@ -51,6 +55,8 @@ extern "C" {
 ///
 /// Structure used to represent drag data. The functions of this structure may
 /// be called on any thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_drag_data_t {
   ///

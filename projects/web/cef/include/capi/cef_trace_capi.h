@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=740d6eb5bea1bfc7c4ea413fefd3bf6586a81f20$
+// $hash=5e961bec40c2a8602d6625af303791e33aa16f8d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_callback_capi.h"
@@ -51,6 +55,8 @@ extern "C" {
 /// Implement this structure to receive notification when tracing has completed.
 /// The functions of this structure will be called on the browser process UI
 /// thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_end_tracing_callback_t {
   ///

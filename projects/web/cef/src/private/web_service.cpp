@@ -124,6 +124,7 @@ void WebCefService::start() {
 
 	settings.background_color = CefColorSetARGB(255, 255, 255, 255);
 
+	//settings.remote_debugging_port = 9988;
 
 	// settings.command_line_args_disabled = true;
 

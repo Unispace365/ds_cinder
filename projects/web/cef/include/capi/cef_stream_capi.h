@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f55fa17800b9a63d128fb78201372754f9250875$
+// $hash=650f1218832c4b81610ba0ddc8c77d307ce2a993$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -49,6 +53,8 @@ extern "C" {
 ///
 /// Structure the client can implement to provide a custom stream reader. The
 /// functions of this structure may be called on any thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_read_handler_t {
   ///
@@ -94,6 +100,8 @@ typedef struct _cef_read_handler_t {
 ///
 /// Structure used to read data from a stream. The functions of this structure
 /// may be called on any thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_stream_reader_t {
   ///
@@ -158,6 +166,8 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
 /// Structure the client can implement to provide a custom stream writer. The
 /// functions of this structure may be called on any thread.
 ///
+/// NOTE: This struct is allocated client-side.
+///
 typedef struct _cef_write_handler_t {
   ///
   /// Base structure.
@@ -202,6 +212,8 @@ typedef struct _cef_write_handler_t {
 ///
 /// Structure used to write data to a stream. The functions of this structure
 /// may be called on any thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_stream_writer_t {
   ///

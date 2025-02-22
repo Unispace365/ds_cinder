@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5151b6ea3c06e46a75f2cd7679044a2891063d29$
+// $hash=b5a7e3a696d67577cfeeb3739086fc3a2c8287d1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_accessibility_handler_capi.h"
 #include "include/capi/cef_base_capi.h"
@@ -52,6 +56,8 @@ extern "C" {
 ///
 /// Implement this structure to handle events when window rendering is disabled.
 /// The functions of this structure will be called on the UI thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_render_handler_t {
   ///

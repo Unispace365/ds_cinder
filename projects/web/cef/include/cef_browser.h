@@ -39,6 +39,7 @@
 #pragma once
 
 #include <vector>
+
 #include "include/cef_base.h"
 #include "include/cef_devtools_message_observer.h"
 #include "include/cef_drag_data.h"
@@ -324,35 +325,74 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
       CefRefPtr<CefRequestContext> request_context);
 
   ///
+  /// Returns the browser (if any) with the specified identifier.
+  ///
+  /*--cef()--*/
+  static CefRefPtr<CefBrowser> GetBrowserByIdentifier(int browser_id);
+
+  ///
   /// Returns the hosted browser object.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
-  /// Request that the browser close. The JavaScript 'onbeforeunload' event will
-  /// be fired. If |force_close| is false the event handler, if any, will be
-  /// allowed to prompt the user and the user can optionally cancel the close.
-  /// If |force_close| is true the prompt will not be displayed and the close
-  /// will proceed. Results in a call to CefLifeSpanHandler::DoClose() if the
-  /// event handler allows the close or if |force_close| is true. See
-  /// CefLifeSpanHandler::DoClose() documentation for additional usage
-  /// information.
+  /// Request that the browser close. Closing a browser is a multi-stage process
+  /// that may complete either synchronously or asynchronously, and involves
+  /// callbacks such as CefLifeSpanHandler::DoClose (Alloy style only),
+  /// CefLifeSpanHandler::OnBeforeClose, and a top-level window close handler
+  /// such as CefWindowDelegate::CanClose (or platform-specific equivalent). In
+  /// some cases a close request may be delayed or canceled by the user. Using
+  /// TryCloseBrowser() instead of CloseBrowser() is recommended for most use
+  /// cases. See CefLifeSpanHandler::DoClose() documentation for detailed usage
+  /// and examples.
+  ///
+  /// If |force_close| is false then JavaScript unload handlers, if any, may be
+  /// fired and the close may be delayed or canceled by the user. If
+  /// |force_close| is true then the user will not be prompted and the close
+  /// will proceed immediately (possibly asynchronously). If browser close is
+  /// delayed and not canceled the default behavior is to call the top-level
+  /// window close handler once the browser is ready to be closed. This default
+  /// behavior can be changed for Alloy style browsers by implementing
+  /// CefLifeSpanHandler::DoClose(). IsReadyToBeClosed() can be used to detect
+  /// mandatory browser close events when customizing close behavior on the
+  /// browser process UI thread.
   ///
   /*--cef()--*/
   virtual void CloseBrowser(bool force_close) = 0;
 
   ///
-  /// Helper for closing a browser. Call this method from the top-level window
-  /// close handler (if any). Internally this calls CloseBrowser(false) if the
-  /// close has not yet been initiated. This method returns false while the
-  /// close is pending and true after the close has completed. See
-  /// CloseBrowser() and CefLifeSpanHandler::DoClose() documentation for
-  /// additional usage information. This method must be called on the browser
-  /// process UI thread.
+  /// Helper for closing a browser. This is similar in behavior to
+  /// CLoseBrowser(false) but returns a boolean to reflect the immediate close
+  /// status. Call this method from a top-level window close handler such as
+  /// CefWindowDelegate::CanClose (or platform-specific equivalent) to request
+  /// that the browser close, and return the result to indicate if the window
+  /// close should proceed. Returns false if the close will be delayed
+  /// (JavaScript unload handlers triggered but still pending) or true if the
+  /// close will proceed immediately (possibly asynchronously). See
+  /// CloseBrowser() documentation for additional usage information. This method
+  /// must be called on the browser process UI thread.
   ///
   /*--cef()--*/
   virtual bool TryCloseBrowser() = 0;
+
+  ///
+  /// Returns true if the browser is ready to be closed, meaning that the close
+  /// has already been initiated and that JavaScript unload handlers have
+  /// already executed or should be ignored. This can be used from a top-level
+  /// window close handler such as CefWindowDelegate::CanClose (or
+  /// platform-specific equivalent) to distringuish between potentially
+  /// cancelable browser close events (like the user clicking the top-level
+  /// window close button before browser close has started) and mandatory
+  /// browser close events (like JavaScript `window.close()` or after browser
+  /// close has started in response to [Try]CloseBrowser()). Not completing the
+  /// browser close for mandatory close events (when this method returns true)
+  /// will leave the browser in a partially closed state that interferes with
+  /// proper functioning. See CloseBrowser() documentation for additional usage
+  /// information. This method must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool IsReadyToBeClosed() = 0;
 
   ///
   /// Set whether the browser is focused.
@@ -377,6 +417,13 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetOpenerWindowHandle() = 0;
+
+  ///
+  /// Retrieve the unique identifier of the browser that opened this browser.
+  /// Will return 0 for non-popup browsers.
+  ///
+  /*--cef()--*/
+  virtual int GetOpenerIdentifier() = 0;
 
   ///
   /// Returns true if this browser is wrapped in a CefBrowserView.
@@ -413,8 +460,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
 
   ///
   /// Get the default zoom level. This value will be 0.0 by default but can be
-  /// configured with the Chrome runtime. This method can only be called on the
-  /// UI thread.
+  /// configured. This method can only be called on the UI thread.
   ///
   /*--cef()--*/
   virtual double GetDefaultZoomLevel() = 0;
@@ -939,25 +985,6 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
                                     const CefSize& max_size) = 0;
 
   ///
-  /// Returns the extension hosted in this browser or NULL if no extension is
-  /// hosted. See CefRequestContext::LoadExtension for details.
-  ///
-  /// WARNING: This method is deprecated and will be removed in ~M127.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefExtension> GetExtension() = 0;
-
-  ///
-  /// Returns true if this browser is hosting an extension background script.
-  /// Background hosts do not have a window and are not displayable. See
-  /// CefRequestContext::LoadExtension for details.
-  ///
-  /// WARNING: This method is deprecated and will be removed in ~M127.
-  ///
-  /*--cef()--*/
-  virtual bool IsBackgroundHost() = 0;
-
-  ///
   /// Set whether the browser's audio is muted.
   ///
   /*--cef()--*/
@@ -982,12 +1009,12 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
 
   ///
   /// Requests the renderer to exit browser fullscreen. In most cases exiting
-  /// window fullscreen should also exit browser fullscreen. With the Alloy
-  /// runtime this method should be called in response to a user action such as
+  /// window fullscreen should also exit browser fullscreen. With Alloy
+  /// style this method should be called in response to a user action such as
   /// clicking the green traffic light button on MacOS
   /// (CefWindowDelegate::OnWindowFullscreenTransition callback) or pressing the
-  /// "ESC" key (CefKeyboardHandler::OnPreKeyEvent callback). With the Chrome
-  /// runtime these standard exit actions are handled internally but
+  /// "ESC" key (CefKeyboardHandler::OnPreKeyEvent callback). With Chrome
+  /// style these standard exit actions are handled internally but
   /// new/additional user actions can use this method. Set |will_cause_resize|
   /// to true if exiting browser fullscreen will cause a view resize.
   ///
@@ -995,17 +1022,21 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void ExitFullscreen(bool will_cause_resize) = 0;
 
   ///
-  /// Returns true if a Chrome command is supported and enabled. Values for
-  /// |command_id| can be found in the cef_command_ids.h file. This method can
-  /// only be called on the UI thread. Only used with the Chrome runtime.
+  /// Returns true if a Chrome command is supported and enabled. Use the
+  /// cef_id_for_command_id_name() function for version-safe mapping of command
+  /// IDC names from cef_command_ids.h to version-specific numerical
+  /// |command_id| values. This method can only be called on the UI thread. Only
+  /// used with Chrome style.
   ///
   /*--cef()--*/
   virtual bool CanExecuteChromeCommand(int command_id) = 0;
 
   ///
-  /// Execute a Chrome command. Values for |command_id| can be found in the
-  /// cef_command_ids.h file. |disposition| provides information about the
-  /// intended command target. Only used with the Chrome runtime.
+  /// Execute a Chrome command. Use the cef_id_for_command_id_name()
+  /// function for version-safe mapping of command IDC names from
+  /// cef_command_ids.h to version-specific numerical |command_id| values.
+  /// |disposition| provides information about the intended command target. Only
+  /// used with Chrome style.
   ///
   /*--cef()--*/
   virtual void ExecuteChromeCommand(

@@ -1,5 +1,4 @@
-// Copyright (c) 2021 Marshall A. Greenblatt. Portions copyright (c) 2015
-// Google Inc. All rights reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,33 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef INCLUDE_BASE_CEF_PTR_UTIL_H_
-#define INCLUDE_BASE_CEF_PTR_UTIL_H_
-#pragma once
+#ifndef CEF_INCLUDE_CEF_VERSION_INFO_H_
+#define CEF_INCLUDE_CEF_VERSION_INFO_H_
 
-#if defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/memory/ptr_util.h"
-#else  // !USING_CHROMIUM_INCLUDES
-// The following is substantially similar to the Chromium implementation.
-// If the Chromium implementation diverges the below implementation should be
-// updated to match.
+#include "include/internal/cef_export.h"
 
-#include <memory>
-#include <utility>
+#if !defined(GENERATING_CEF_API_HASH)
+#include "include/cef_version.h"
+#endif
 
-namespace base {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
-/// Helper to transfer ownership of a raw pointer to a std::unique_ptr<T>.
-/// Note that std::unique_ptr<T> has very different semantics from
-/// std::unique_ptr<T[]>: do not use this helper for array allocations.
+/// Returns CEF version information for the libcef library. The |entry|
+/// parameter describes which version component will be returned:
 ///
-template <typename T>
-std::unique_ptr<T> WrapUnique(T* ptr) {
-  return std::unique_ptr<T>(ptr);
+/// 0 - CEF_VERSION_MAJOR
+/// 1 - CEF_VERSION_MINOR
+/// 2 - CEF_VERSION_PATCH
+/// 3 - CEF_COMMIT_NUMBER
+/// 4 - CHROME_VERSION_MAJOR
+/// 5 - CHROME_VERSION_MINOR
+/// 6 - CHROME_VERSION_BUILD
+/// 7 - CHROME_VERSION_PATCH
+///
+CEF_EXPORT int cef_version_info(int entry);
+
+#ifdef __cplusplus
 }
+#endif
 
-}  // namespace base
-
-#endif  // INCLUDE_BASE_CEF_PTR_UTIL_H_
+#endif  // CEF_INCLUDE_CEF_VERSION_INFO_H_
