@@ -33,8 +33,10 @@ struct cap {
 // The first CapturePlayer to update for a given Capture source will update the texture
 static std::unordered_map<int64_t, cap>		sCaptures;
 static std::unordered_map<std::string, cap> sUNCaptures;
+static std::unordered_map<int64_t, ci::Surface8uRef> sSurfaces;
 static std::unordered_map<int64_t, ci::gl::Texture2dRef> sTextures;
-static std::unordered_map<int64_t, bool> sThreadActive;
+static std::unordered_map<int64_t, bool> sSurfaceThreadActive;
+static std::unordered_map<int64_t, bool> sTextureThreadActive;
 } // namespace Capture
 
 namespace waffles {
@@ -51,8 +53,13 @@ CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
 CapturePlayer::~CapturePlayer() {
 	if (mCaptureId < 0 || Capture::sCaptures.find(mCaptureId) == Capture::sCaptures.end()) return;
 
-	if (Capture::sThreadActive[mCaptureId]) {
-		Capture::sThreadActive[mCaptureId] = false;
+	if (Capture::sSurfaceThreadActive[mCaptureId]) {
+		Capture::sSurfaceThreadActive[mCaptureId] = false;
+		mUpdateSurfaceThread->join();
+	}
+	
+	if (Capture::sTextureThreadActive[mCaptureId]) {
+		Capture::sTextureThreadActive[mCaptureId] = false;
 		mUpdateTextureThread->join();
 	}
 
@@ -76,6 +83,18 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 	}
 
 	if (goodCapture) {
+		auto fps = mEngine.getEngineSettings().getInt("devices:limit_thread_fps", 0, 0); // 0 = disabled
+		mUpdateSurfaceThread = std::shared_ptr<std::thread>(
+			new std::thread(
+				bind(
+					&CapturePlayer::updateSurface,
+					this,
+					ci::gl::Context::create(ci::gl::context()),
+					mCaptureId,
+					fps
+				)
+			)
+		);
 		mUpdateTextureThread = std::shared_ptr<std::thread>(
 			new std::thread(
 				bind(
@@ -83,7 +102,7 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 					this,
 					ci::gl::Context::create(ci::gl::context()),
 					mCaptureId,
-					60
+					fps
 				)
 			)
 		);
@@ -194,22 +213,41 @@ void CapturePlayer::initDeviceResolutionMap() {
 	}
 }
 
+void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId, int fps) {
+	if (captureId < 0) return;
+	ci::ThreadSetup threadSetup;
+	context->makeCurrent();
+	Capture::sSurfaceThreadActive[captureId] = true;
+	DS_LOG_INFO("Started CapturePlayer::updateSurface thread for " << captureId);
+    auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
+    auto time = std::chrono::high_resolution_clock::now();
+    while (Capture::sSurfaceThreadActive[captureId]) {
+		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end()
+			|| !Capture::sCaptures[captureId].capture
+			|| !Capture::sCaptures[captureId].capture->checkNewFrame())
+		{
+			continue;
+		}
+		Capture::sSurfaces[captureId] = Capture::sCaptures[captureId].capture->getSurface();
+        time += interval;
+        if (fps > 0) std::this_thread::sleep_until(time);
+    }
+	DS_LOG_INFO("Ended CapturePlayer::updateSurface thread for " << captureId);
+}
+
 void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId, int fps) {
 	if (captureId < 0) return;
 	ci::ThreadSetup threadSetup;
 	context->makeCurrent();
-	Capture::sThreadActive[captureId] = true;
+	Capture::sTextureThreadActive[captureId] = true;
 	DS_LOG_INFO("Started CapturePlayer::updateTexture thread for " << captureId);
-    auto interval = std::chrono::milliseconds(1000 / fps);
+    auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
-    while (Capture::sThreadActive[captureId]) {
-		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end() ||
-			!Capture::sCaptures[captureId].capture || !Capture::sCaptures[captureId].capture->checkNewFrame()) continue;
-		Capture::sTextures[captureId] = ci::gl::Texture::create(
-			*Capture::sCaptures[captureId].capture->getSurface()
-		);
+    while (Capture::sTextureThreadActive[captureId]) {
+		if (Capture::sSurfaces.find(captureId) == Capture::sSurfaces.end()) continue;
+		Capture::sTextures[captureId] = ci::gl::Texture::create(*Capture::sSurfaces[captureId]);
         time += interval;
-        std::this_thread::sleep_until(time);
+        if (fps > 0) std::this_thread::sleep_until(time);
     }
 	DS_LOG_INFO("Ended CapturePlayer::updateTexture thread for " << captureId);
 }
