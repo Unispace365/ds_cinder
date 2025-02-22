@@ -21,6 +21,9 @@ class CapturePlayer : public ds::ui::Sprite {
 
   private:
 	bool setCaptureSourceWithUniqueName(const std::string& uniqueName);
+	void initDeviceResolutionMap();
+
+	std::unordered_map<std::string, ci::vec2> mDeviceResolutionMap;
 
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& up) override;

@@ -33,6 +33,8 @@ namespace waffles {
 CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
   : ds::ui::Sprite(g) {
 
+	initDeviceResolutionMap();
+
 	setTransparent(false);
 	setSize(0.f, 0.f);
 	setColor(ci::Color::white());
@@ -79,7 +81,11 @@ bool CapturePlayer::setCaptureSource(int id, const std::string& sourceName) {
 				// Continue until we find our match
 				if (dev->getUniqueId() != mCaptureId || dev->getName() != mSourceName) continue;
 
-				sCaptures[mCaptureId].capture = ci::Capture::create(3840, 2160, dev);
+				auto res = ci::vec2(3840, 2160);
+				if (mDeviceResolutionMap.find(sourceName) != mDeviceResolutionMap.end()) {
+					res = mDeviceResolutionMap[sourceName];
+				}
+				sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
 				break;
 			}
 
@@ -112,8 +118,12 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 			for (auto&& dev : ci::Capture::getDevices(true)) {
 				// Continue until we find our match
 				if (dev->getName() != uniqueName) continue;
-
-				sCaptures[mCaptureId].capture = ci::Capture::create(3840, 2160, dev);
+				
+				auto res = ci::vec2(3840, 2160);
+				if (mDeviceResolutionMap.find(uniqueName) != mDeviceResolutionMap.end()) {
+					res = mDeviceResolutionMap[uniqueName];
+				}
+				sCaptures[mCaptureId].capture = ci::Capture::create(res.x, res.y, dev);
 				break;
 			}
 
@@ -144,6 +154,25 @@ void CapturePlayer::drawLocalClient() {
 	if (mCaptureId < 0 || !sCaptures[mCaptureId].texture) return;
 
 	ci::gl::draw(sCaptures[mCaptureId].texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
+}
+
+void CapturePlayer::initDeviceResolutionMap() {
+	// <setting name="devices:resolution_map" value="some_name:1920x1080, some_id:1280x720" type="string" />
+	auto fullMapString = mEngine.getEngineSettings().getString("devices:resolution_map", 0, "");
+	if (fullMapString.empty()) { return; }
+	auto mapEntryStrings = ds::split(fullMapString, ",", true);
+	for (auto mapEntry : mapEntryStrings) {
+		auto nameResolutionStrings = ds::split(mapEntry, ":");
+		if (nameResolutionStrings.size() != 2) { continue; }
+		auto name = nameResolutionStrings[0];
+		auto resolutionStrings = ds::split(nameResolutionStrings[1], "x");
+		if (resolutionStrings.size() != 2) { continue; }
+		auto resolution = ci::vec2(
+			atoi(resolutionStrings[0].c_str()),
+			atoi(resolutionStrings[1].c_str())
+		);
+		mDeviceResolutionMap[name] = resolution;
+	}
 }
 
 } // namespace waffles
