@@ -31,8 +31,6 @@ class CapturePlayer : public ds::ui::Sprite {
 	void updateSurface(ci::gl::ContextRef context, uint64_t captureId, int fps);
 	void updateTexture(ci::gl::ContextRef context, uint64_t captureId, int fps);
 
-	std::shared_ptr<std::thread> mUpdateSurfaceThread;
-	std::shared_ptr<std::thread> mUpdateTextureThread;
 	std::unordered_map<std::string, ci::vec2> mDeviceResolutionMap;
 };
 

@@ -35,6 +35,8 @@ static std::unordered_map<int64_t, cap>		sCaptures;
 static std::unordered_map<std::string, cap> sUNCaptures;
 static std::unordered_map<int64_t, ci::Surface8uRef> sSurfaces;
 static std::unordered_map<int64_t, ci::gl::Texture2dRef> sTextures;
+static std::unordered_map<int64_t, std::shared_ptr<std::thread>> sSurfaceThreads;
+static std::unordered_map<int64_t, std::shared_ptr<std::thread>> sTextureThreads;
 static std::unordered_map<int64_t, bool> sSurfaceThreadActive;
 static std::unordered_map<int64_t, bool> sTextureThreadActive;
 } // namespace Capture
@@ -53,19 +55,19 @@ CapturePlayer::CapturePlayer(ds::ui::SpriteEngine& g)
 CapturePlayer::~CapturePlayer() {
 	if (mCaptureId < 0 || Capture::sCaptures.find(mCaptureId) == Capture::sCaptures.end()) return;
 
-	if (Capture::sSurfaceThreadActive[mCaptureId]) {
-		Capture::sSurfaceThreadActive[mCaptureId] = false;
-		mUpdateSurfaceThread->join();
-	}
-	
-	if (Capture::sTextureThreadActive[mCaptureId]) {
-		Capture::sTextureThreadActive[mCaptureId] = false;
-		mUpdateTextureThread->join();
-	}
-
 	Capture::sCaptures[mCaptureId].users -= 1; // Decrement the active users
 	if (Capture::sCaptures[mCaptureId].users <= 0) {
 		// And if we were the last user, clean up after ourselves
+		if (Capture::sSurfaceThreadActive[mCaptureId]) {
+			Capture::sSurfaceThreadActive[mCaptureId] = false;
+			Capture::sSurfaceThreads[mCaptureId]->join();
+		}
+		if (Capture::sTextureThreadActive[mCaptureId]) {
+			Capture::sTextureThreadActive[mCaptureId] = false;
+			Capture::sTextureThreads[mCaptureId]->join();
+		}
+		Capture::sSurfaces.erase(mCaptureId);
+		Capture::sTextures.erase(mCaptureId);
 		Capture::sCaptures.erase(mCaptureId);
 	}
 }
@@ -82,9 +84,13 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 		goodCapture = setCaptureSourceWithUniqueName(sourceIdName);
 	}
 
-	if (goodCapture) {
+	if (goodCapture
+		&& (Capture::sSurfaceThreadActive.find(mCaptureId) == Capture::sSurfaceThreadActive.end()
+			|| !Capture::sSurfaceThreadActive[mCaptureId]
+		   )
+	   ) {
 		auto fps = mEngine.getEngineSettings().getInt("devices:limit_thread_fps", 0, 0); // 0 = disabled
-		mUpdateSurfaceThread = std::shared_ptr<std::thread>(
+		Capture::sSurfaceThreads[mCaptureId] = std::shared_ptr<std::thread>(
 			new std::thread(
 				bind(
 					&CapturePlayer::updateSurface,
@@ -95,7 +101,7 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 				)
 			)
 		);
-		mUpdateTextureThread = std::shared_ptr<std::thread>(
+		Capture::sTextureThreads[mCaptureId] = std::shared_ptr<std::thread>(
 			new std::thread(
 				bind(
 					&CapturePlayer::updateTexture,
