@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fce786b3f054d6581438e2906b77e573c797372a$
+// $hash=bf1dd4b8e83fc885c5d035597b248fb1866ada9a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -56,6 +60,8 @@ extern "C" {
 /// arguments. Switch names should be lowercase ASCII and will be converted to
 /// such if necessary. Switch values will retain the original case and UTF8
 /// encoding. This structure can be used before cef_initialize() is called.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_command_line_t {
   ///

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,17 +33,19 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2c496139ca9a59303b1493ee93d2c3ae96a956c0$
+// $hash=f0bcdaefbb9494a159f238679f0a2d25b0fd07fd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
 #pragma once
 
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
+
 #include "include/capi/cef_callback_capi.h"
 #include "include/capi/cef_cookie_capi.h"
-#include "include/capi/cef_extension_capi.h"
-#include "include/capi/cef_extension_handler_capi.h"
 #include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_preference_capi.h"
 #include "include/capi/cef_values_capi.h"
@@ -57,6 +59,8 @@ struct _cef_scheme_handler_factory_t;
 
 ///
 /// Callback structure for cef_request_context_t::ResolveHost.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_resolve_callback_t {
   ///
@@ -89,6 +93,8 @@ typedef struct _cef_resolve_callback_t {
 /// in single-process mode will share the same request context. This will be the
 /// first request context passed into a cef_browser_host_t static factory
 /// function and all other request context objects will be ignored.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_request_context_t {
   ///
@@ -204,105 +210,6 @@ typedef struct _cef_request_context_t {
   void(CEF_CALLBACK* resolve_host)(struct _cef_request_context_t* self,
                                    const cef_string_t* origin,
                                    struct _cef_resolve_callback_t* callback);
-
-  ///
-  /// Load an extension.
-  ///
-  /// If extension resources will be read from disk using the default load
-  /// implementation then |root_directory| should be the absolute path to the
-  /// extension resources directory and |manifest| should be NULL. If extension
-  /// resources will be provided by the client (e.g. via cef_request_handler_t
-  /// and/or cef_extension_handler_t) then |root_directory| should be a path
-  /// component unique to the extension (if not absolute this will be internally
-  /// prefixed with the PK_DIR_RESOURCES path) and |manifest| should contain the
-  /// contents that would otherwise be read from the "manifest.json" file on
-  /// disk.
-  ///
-  /// The loaded extension will be accessible in all contexts sharing the same
-  /// storage (HasExtension returns true (1)). However, only the context on
-  /// which this function was called is considered the loader (DidLoadExtension
-  /// returns true (1)) and only the loader will receive
-  /// cef_request_context_handler_t callbacks for the extension.
-  ///
-  /// cef_extension_handler_t::OnExtensionLoaded will be called on load success
-  /// or cef_extension_handler_t::OnExtensionLoadFailed will be called on load
-  /// failure.
-  ///
-  /// If the extension specifies a background script via the "background"
-  /// manifest key then cef_extension_handler_t::OnBeforeBackgroundBrowser will
-  /// be called to create the background browser. See that function for
-  /// additional information about background scripts.
-  ///
-  /// For visible extension views the client application should evaluate the
-  /// manifest to determine the correct extension URL to load and then pass that
-  /// URL to the cef_browser_host_t::CreateBrowser* function after the extension
-  /// has loaded. For example, the client can look for the "browser_action"
-  /// manifest key as documented at
-  /// https://developer.chrome.com/extensions/browserAction. Extension URLs take
-  /// the form "chrome-extension://<extension_id>/<path>".
-  ///
-  /// Browsers that host extensions differ from normal browsers as follows:
-  ///  - Can access chrome.* JavaScript APIs if allowed by the manifest. Visit
-  ///    chrome://extensions-support for the list of extension APIs currently
-  ///    supported by CEF.
-  ///  - Main frame navigation to non-extension content is blocked.
-  ///  - Pinch-zooming is disabled.
-  ///  - CefBrowserHost::GetExtension returns the hosted extension.
-  ///  - CefBrowserHost::IsBackgroundHost returns true for background hosts.
-  ///
-  /// See https://developer.chrome.com/extensions for extension implementation
-  /// and usage documentation.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  void(CEF_CALLBACK* load_extension)(struct _cef_request_context_t* self,
-                                     const cef_string_t* root_directory,
-                                     struct _cef_dictionary_value_t* manifest,
-                                     struct _cef_extension_handler_t* handler);
-
-  ///
-  /// Returns true (1) if this context was used to load the extension identified
-  /// by |extension_id|. Other contexts sharing the same storage will also have
-  /// access to the extension (see HasExtension). This function must be called
-  /// on the browser process UI thread.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  int(CEF_CALLBACK* did_load_extension)(struct _cef_request_context_t* self,
-                                        const cef_string_t* extension_id);
-
-  ///
-  /// Returns true (1) if this context has access to the extension identified by
-  /// |extension_id|. This may not be the context that was used to load the
-  /// extension (see DidLoadExtension). This function must be called on the
-  /// browser process UI thread.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  int(CEF_CALLBACK* has_extension)(struct _cef_request_context_t* self,
-                                   const cef_string_t* extension_id);
-
-  ///
-  /// Retrieve the list of all extensions that this context has access to (see
-  /// HasExtension). |extension_ids| will be populated with the list of
-  /// extension ID values. Returns true (1) on success. This function must be
-  /// called on the browser process UI thread.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  int(CEF_CALLBACK* get_extensions)(struct _cef_request_context_t* self,
-                                    cef_string_list_t extension_ids);
-
-  ///
-  /// Returns the extension matching |extension_id| or NULL if no matching
-  /// extension is accessible in this context (see HasExtension). This function
-  /// must be called on the browser process UI thread.
-  ///
-  /// WARNING: This function is deprecated and will be removed in ~M127.
-  ///
-  struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
-      struct _cef_request_context_t* self,
-      const cef_string_t* extension_id);
 
   ///
   /// Returns the MediaRouter object associated with this context.  If
@@ -430,7 +337,7 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
 /// Creates a new context object that shares storage with |other| and uses an
 /// optional |handler|.
 ///
-CEF_EXPORT cef_request_context_t* cef_create_context_shared(
+CEF_EXPORT cef_request_context_t* cef_request_context_cef_create_context_shared(
     cef_request_context_t* other,
     struct _cef_request_context_handler_t* handler);
 

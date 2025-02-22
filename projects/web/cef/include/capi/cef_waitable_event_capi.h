@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7dbd68a4517f8fc578a523d590d1ff7a8aa2a49a$
+// $hash=9557ee036441059712a50397b99979c3c232dc27$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WAITABLE_EVENT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_WAITABLE_EVENT_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -56,6 +60,8 @@ extern "C" {
 /// is safe to create and/or signal a WaitableEvent from any thread. Blocking on
 /// a WaitableEvent by calling the *wait() functions is not allowed on the
 /// browser process UI or IO threads.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_waitable_event_t {
   ///

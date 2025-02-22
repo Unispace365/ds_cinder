@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=06dee162d385bd75338147e3741b3d526755cc21$
+// $hash=74c9f5429ea5e9c4ab3b7d472d449fb8b40c51e0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -53,6 +57,8 @@ extern "C" {
 /// values are in density independent pixel (DIP) coordinates unless otherwise
 /// indicated. Methods must be called on the browser process UI thread unless
 /// otherwise indicated.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_display_t {
   ///

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5a99c5e88ea0e123087234b2795fa625fed183f2$
+// $hash=343360189cbcf3b3e3beb6f48bc05168ca2266a3$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -51,6 +55,8 @@ extern "C" {
 ///
 /// Implement this structure to handle events related to browser display state.
 /// The functions of this structure will be called on the UI thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_display_handler_t {
   ///
@@ -84,13 +90,12 @@ typedef struct _cef_display_handler_t {
   /// Called when web content in the page has toggled fullscreen mode. If
   /// |fullscreen| is true (1) the content will automatically be sized to fill
   /// the browser content area. If |fullscreen| is false (0) the content will
-  /// automatically return to its original size and position. With the Alloy
-  /// runtime the client is responsible for triggering the fullscreen transition
-  /// (for example, by calling cef_window_t::SetFullscreen when using Views).
-  /// With the Chrome runtime the fullscreen transition will be triggered
-  /// automatically. The cef_window_delegate_t::OnWindowFullscreenTransition
-  /// function will be called during the fullscreen transition for notification
-  /// purposes.
+  /// automatically return to its original size and position. With Alloy style
+  /// the client is responsible for triggering the fullscreen transition (for
+  /// example, by calling cef_window_t::SetFullscreen when using Views). With
+  /// Chrome style the fullscreen transition will be triggered automatically.
+  /// The cef_window_delegate_t::OnWindowFullscreenTransition function will be
+  /// called during the fullscreen transition for notification purposes.
   ///
   void(CEF_CALLBACK* on_fullscreen_mode_change)(
       struct _cef_display_handler_t* self,

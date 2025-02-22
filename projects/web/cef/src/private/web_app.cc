@@ -59,6 +59,9 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 
 	command_line->AppendSwitch("off-screen-rendering-enabled");
 	command_line->AppendSwitch("transparent-painting-enabled");
+	//command_line->AppendSwitchWithValue("js-flags", "max_old_space_size=32000");
+	
+	command_line->AppendSwitch("disable-chrome-login-prompt");
 	//command_line->AppendSwitch("shared-texture-enabled");
 	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
@@ -93,6 +96,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// TODO: make a setting
 	//browser_settings.web_security = STATE_DISABLED;
+
 
 
 	// On Windows, ci::Window::getNative() returns a HWND, cast as void*.

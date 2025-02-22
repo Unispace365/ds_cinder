@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8f347a95168778ec0e686cdef93be3bc517e2f68$
+// $hash=b0b10042cc19c3120f0ee101ed86ab3e5bd9de9d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_dom_capi.h"
@@ -54,13 +58,15 @@ extern "C" {
 struct _cef_browser_t;
 struct _cef_urlrequest_client_t;
 struct _cef_urlrequest_t;
-struct _cef_v8context_t;
+struct _cef_v8_context_t;
 
 ///
 /// Structure used to represent a frame in the browser window. When used in the
 /// browser process the functions of this structure may be called on any thread
 /// unless otherwise indicated in the comments. When used in the render process
 /// the functions of this structure may only be called on the main thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_frame_t {
   ///
@@ -97,6 +103,11 @@ typedef struct _cef_frame_t {
   /// Execute paste in this frame.
   ///
   void(CEF_CALLBACK* paste)(struct _cef_frame_t* self);
+
+  ///
+  /// Execute paste and match style in this frame.
+  ///
+  void(CEF_CALLBACK* paste_and_match_style)(struct _cef_frame_t* self);
 
   ///
   /// Execute delete in this frame.
@@ -206,7 +217,7 @@ typedef struct _cef_frame_t {
   /// Get the V8 context associated with the frame. This function can only be
   /// called from the render process.
   ///
-  struct _cef_v8context_t*(CEF_CALLBACK* get_v8context)(
+  struct _cef_v8_context_t*(CEF_CALLBACK* get_v8_context)(
       struct _cef_frame_t* self);
 
   ///

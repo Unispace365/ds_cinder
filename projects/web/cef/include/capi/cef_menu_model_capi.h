@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5dae0b1a1271e79a5fd9b2c6e71e7a719a450161$
+// $hash=3faec922bbb345e8bc5429dabe8ebdc2275253dd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_MENU_MODEL_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_MENU_MODEL_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_menu_model_delegate_capi.h"
@@ -52,6 +56,8 @@ extern "C" {
 /// command ids that have default implementations. All user-defined command ids
 /// should be between MENU_ID_USER_FIRST and MENU_ID_USER_LAST. The functions of
 /// this structure can only be accessed on the browser process the UI thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_menu_model_t {
   ///

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6a8ed2646d767d3c42ea79f7586f19769c1df742$
+// $hash=142a3f70bf67cc526ac7d6d88e878e8954d9e5fe$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_auth_callback_capi.h"
 #include "include/capi/cef_base_capi.h"
@@ -58,6 +62,8 @@ struct _cef_urlrequest_client_t;
 /// can be created on any valid CEF thread in either the browser or render
 /// process. Once created the functions of the URL request object must be
 /// accessed on the same thread that created it.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_urlrequest_t {
   ///
@@ -135,6 +141,8 @@ CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(
 /// Structure that should be implemented by the cef_urlrequest_t client. The
 /// functions of this structure will be called on the same thread that created
 /// the request unless otherwise documented.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_urlrequest_client_t {
   ///

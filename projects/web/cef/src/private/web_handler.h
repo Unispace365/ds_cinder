@@ -63,7 +63,7 @@ namespace ds { namespace web {
 		virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
 		virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
-		virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+		virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,int popui_id,
 								   const CefString& target_url, const CefString& target_frame_name,
 								   CefLifeSpanHandler::WindowOpenDisposition target_disposition, bool user_gesture,
 								   const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,

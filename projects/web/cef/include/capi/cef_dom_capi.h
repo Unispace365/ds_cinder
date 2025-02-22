@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a4d2f79163205ed4367916546240a6aedc2165f9$
+// $hash=ca21c122172743af8b747eb6dbef6eed5280b97f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -52,6 +56,8 @@ struct _cef_domnode_t;
 ///
 /// Structure to implement for visiting the DOM. The functions of this structure
 /// will be called on the render process main thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_domvisitor_t {
   ///
@@ -73,6 +79,8 @@ typedef struct _cef_domvisitor_t {
 ///
 /// Structure used to represent a DOM document. The functions of this structure
 /// should only be called on the render process main thread thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_domdocument_t {
   ///
@@ -174,6 +182,8 @@ typedef struct _cef_domdocument_t {
 ///
 /// Structure used to represent a DOM node. The functions of this structure
 /// should only be called on the render process main thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_domnode_t {
   ///

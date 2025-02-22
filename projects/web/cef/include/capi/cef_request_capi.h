@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=14ce483864835eca476d08d39ed4236fbd1a874c$
+// $hash=956f208ecbbbdee8e0db8a066de1c4e154d12e4a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -52,6 +56,8 @@ struct _cef_post_data_t;
 ///
 /// Structure used to represent a web request. The functions of this structure
 /// may be called on any thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_request_t {
   ///
@@ -226,6 +232,8 @@ CEF_EXPORT cef_request_t* cef_request_create(void);
 /// Structure used to represent post data for a web request. The functions of
 /// this structure may be called on any thread.
 ///
+/// NOTE: This struct is allocated DLL-side.
+///
 typedef struct _cef_post_data_t {
   ///
   /// Base structure.
@@ -285,6 +293,8 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create(void);
 ///
 /// Structure used to represent a single element in the request post data. The
 /// functions of this structure may be called on any thread.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_post_data_element_t {
   ///

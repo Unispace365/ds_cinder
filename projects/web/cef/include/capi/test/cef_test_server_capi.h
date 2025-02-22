@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,15 +33,18 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=854c9a8831692fabcf6eef2e4a7d7a1089694fd2$
+// $hash=e6e214aab8252f224e5a30e4fea245eae421858c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TEST_SERVER_CAPI_H_
 #define CEF_INCLUDE_CAPI_TEST_CEF_TEST_SERVER_CAPI_H_
 #pragma once
 
-#if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \
-    !defined(UNIT_TEST)
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
+
+#if !defined(WRAPPING_CEF_SHARED) && !defined(UNIT_TEST)
 #error This file can be included for unit tests only
 #endif
 
@@ -64,6 +67,8 @@ struct _cef_test_server_handler_t;
 /// connections (e.g. for communicating between applications on localhost). The
 /// functions of this structure are safe to call from any thread in the brower
 /// process unless otherwise indicated.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_test_server_t {
   ///
@@ -115,6 +120,8 @@ CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
 /// server thread"), and the functions of this structure will be called on that
 /// thread. See related documentation on cef_test_server_t::CreateAndStart.
 ///
+/// NOTE: This struct is allocated client-side.
+///
 typedef struct _cef_test_server_handler_t {
   ///
   /// Base structure.
@@ -139,6 +146,8 @@ typedef struct _cef_test_server_handler_t {
 /// structure are safe to call from any thread in the brower process unless
 /// otherwise indicated.
 ///
+/// NOTE: This struct is allocated DLL-side.
+///
 typedef struct _cef_test_server_connection_t {
   ///
   /// Base structure.
@@ -151,7 +160,7 @@ typedef struct _cef_test_server_connection_t {
   /// the size of |data| in bytes. The contents of |data| will be copied. The
   /// connection will be closed automatically after the response is sent.
   ///
-  void(CEF_CALLBACK* send_http200response)(
+  void(CEF_CALLBACK* send_http200_response)(
       struct _cef_test_server_connection_t* self,
       const cef_string_t* content_type,
       const void* data,
@@ -161,7 +170,7 @@ typedef struct _cef_test_server_connection_t {
   /// Send an HTTP 404 "Not Found" response. The connection will be closed
   /// automatically after the response is sent.
   ///
-  void(CEF_CALLBACK* send_http404response)(
+  void(CEF_CALLBACK* send_http404_response)(
       struct _cef_test_server_connection_t* self);
 
   ///
@@ -169,7 +178,7 @@ typedef struct _cef_test_server_connection_t {
   /// associated error message. The connection will be closed automatically
   /// after the response is sent.
   ///
-  void(CEF_CALLBACK* send_http500response)(
+  void(CEF_CALLBACK* send_http500_response)(
       struct _cef_test_server_connection_t* self,
       const cef_string_t* error_message);
 

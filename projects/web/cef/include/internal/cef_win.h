@@ -53,7 +53,7 @@ class CefMainArgs : public cef_main_args_t {
 struct CefWindowInfoTraits {
   typedef cef_window_info_t struct_type;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->window_name);
@@ -82,14 +82,9 @@ struct CefWindowInfoTraits {
 ///
 class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
  public:
-  typedef CefStructBase<CefWindowInfoTraits> parent;
-
-  CefWindowInfo() : parent() {}
-  explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
-  explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
-
-  CefWindowInfo& operator=(const CefWindowInfo&) = default;
-  CefWindowInfo& operator=(CefWindowInfo&&) = default;
+  using base_type = CefStructBase<CefWindowInfoTraits>;
+  using base_type::CefStructBase;
+  using base_type::operator=;
 
   ///
   /// Create the browser as a child window.

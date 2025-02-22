@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e8c9e32caa8d317a7cb6ff2f0ad6be49cf1b7ad1$
+// $hash=f1fd84f51dee1d0ce7b7bd0b1c586a01100f13b6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/views/cef_panel_delegate_capi.h"
 
@@ -52,6 +56,8 @@ struct _cef_window_t;
 /// Implement this structure to handle window events. The functions of this
 /// structure will be called on the browser process UI thread unless otherwise
 /// indicated.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_window_delegate_t {
   ///
@@ -101,9 +107,9 @@ typedef struct _cef_window_delegate_t {
   /// the transition occurs asynchronously with |is_competed| set to false (0)
   /// when the transition starts and true (1) after the transition completes. On
   /// other platforms the transition occurs synchronously with |is_completed|
-  /// set to true (1) after the transition completes. With the Alloy runtime you
-  /// must also implement cef_display_handler_t::OnFullscreenModeChange to
-  /// handle fullscreen transitions initiated by browser content.
+  /// set to true (1) after the transition completes. With Alloy style you must
+  /// also implement cef_display_handler_t::OnFullscreenModeChange to handle
+  /// fullscreen transitions initiated by browser content.
   ///
   void(CEF_CALLBACK* on_window_fullscreen_transition)(
       struct _cef_window_delegate_t* self,
@@ -253,12 +259,10 @@ typedef struct _cef_window_delegate_t {
   /// Chrome theme colors will be applied and this callback will be triggered
   /// if/when a BrowserView is added to the Window's component hierarchy. Chrome
   /// theme colors can be configured on a per-RequestContext basis using
-  /// cef_request_context_t::SetChromeColorScheme or (Chrome runtime only) by
+  /// cef_request_context_t::SetChromeColorScheme or (Chrome style only) by
   /// visiting chrome://settings/manageProfile. Any theme changes using those
   /// mechanisms will also trigger this callback. Chrome theme colors will be
-  /// persisted and restored from disk cache with the Chrome runtime, and with
-  /// the Alloy runtime if persist_user_preferences is set to true (1) via
-  /// CefSettings or cef_request_context_tSettings.
+  /// persisted and restored from disk cache.
   ///
   /// This callback is not triggered on Window creation so clients that wish to
   /// customize the initial native/OS theme must call
@@ -282,6 +286,15 @@ typedef struct _cef_window_delegate_t {
   ///
   cef_runtime_style_t(CEF_CALLBACK* get_window_runtime_style)(
       struct _cef_window_delegate_t* self);
+
+  ///
+  /// Return Linux-specific window properties for correctly handling by window
+  /// managers
+  ///
+  int(CEF_CALLBACK* get_linux_window_properties)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      struct _cef_linux_window_properties_t* properties);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

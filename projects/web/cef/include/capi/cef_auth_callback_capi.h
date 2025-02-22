@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b63947918eca8c31790cae16b2e8a0be7e9464dd$
+// $hash=c75890ff2b7a45a39fc51492ddb16d6f6107b7ef$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_AUTH_CALLBACK_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_AUTH_CALLBACK_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 
@@ -49,6 +53,8 @@ extern "C" {
 ///
 /// Callback structure used for asynchronous continuation of authentication
 /// requests.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_auth_callback_t {
   ///

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=08f13de764f30261616372dfffb7f97c57957f73$
+// $hash=13d3df87885edbbad45a262f743818c25e2dd7a8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/views/cef_view_delegate_capi.h"
 
@@ -58,6 +62,8 @@ struct _cef_window_t;
 /// structure for all Views. All size and position values are in density
 /// independent pixels (DIP) unless otherwise indicated. Methods must be called
 /// on the browser process UI thread unless otherwise indicated.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_view_t {
   ///
@@ -332,8 +338,17 @@ typedef struct _cef_view_t {
   int(CEF_CALLBACK* is_accessibility_focusable)(struct _cef_view_t* self);
 
   ///
-  /// Request keyboard focus. If this View is focusable it will become the
-  /// focused View.
+  /// Returns true (1) if this View has focus in the context of the containing
+  /// Window. Check both this function and cef_window_t::IsActive to determine
+  /// global keyboard focus.
+  ///
+  int(CEF_CALLBACK* has_focus)(struct _cef_view_t* self);
+
+  ///
+  /// Request focus for this View in the context of the containing Window. If
+  /// this View is focusable it will become the focused View. Any focus changes
+  /// while a Window is not active may be applied after that Window next becomes
+  /// active.
   ///
   void(CEF_CALLBACK* request_focus)(struct _cef_view_t* self);
 

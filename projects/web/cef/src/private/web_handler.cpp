@@ -207,7 +207,7 @@ namespace ds { namespace web {
 	// This callback happens when there's a request for a new window, tab, page, etc.
 	// Currently, we're rerouting this all to load the new page in the same browser
 	// Could possibly change this behaviour to send a callback to the UI / client code and open a new instance
-	bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+	bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,int popup_id,
 								   const CefString& target_url, const CefString& target_frame_name,
 								   CefLifeSpanHandler::WindowOpenDisposition target_disposition, bool user_gesture,
 								   const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
@@ -373,8 +373,8 @@ namespace ds { namespace web {
 			  "<div class=container><span>"
 			  "<h1>Sorry!</h1>"
 			  "<h3>Page failed to load</h3>"
-			  "<b>URL: </b>";
-		ss << failedUrl << "<br/><b>Error:</b> " << getErrorStringForError(errorCode) << "<br/><br/><span class=small>"
+			  "<b>URL: </b><div style=\"max-width: 800px; min-width: 100px;\">";
+		ss << failedUrl << "</div><br/><b>Error:</b><div style=\"max-width: 800px; min-width: 100px;\">" << getErrorStringForError(errorCode) << "</div><br/><br/><span class=small>"
 		   << errorText << " (" << errorCode << ")</span>";
 
 
@@ -579,6 +579,7 @@ namespace ds { namespace web {
 
 		return handled;
 	}
+
 
 	void WebHandler::authRequestCancel(const int browserId) {
 

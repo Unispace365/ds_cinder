@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1c2fbbffaf51e90a2d55bfa7eb3fa3a4e315f4ac$
+// $hash=a3eb8a6dade40d321ec728f9cec5ba41d054c139$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/views/cef_browser_view_delegate_capi.h"
@@ -51,6 +55,8 @@ extern "C" {
 ///
 /// A View hosting a cef_browser_t instance. Methods must be called on the
 /// browser process UI thread unless otherwise indicated.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_browser_view_t {
   ///
@@ -67,7 +73,7 @@ typedef struct _cef_browser_view_t {
 
   ///
   /// Returns the Chrome toolbar associated with this BrowserView. Only
-  /// supported when using the Chrome runtime. The cef_browser_view_delegate_t::
+  /// supported when using Chrome style. The cef_browser_view_delegate_t::
   /// get_chrome_toolbar_type() function must return a value other than
   /// CEF_CTT_NONE and the toolbar will not be available until after this
   /// BrowserView is added to a cef_window_t and
@@ -81,8 +87,8 @@ typedef struct _cef_browser_view_t {
   /// content (`keydown` event handler) or cef_keyboard_handler_t. Normal
   /// priority accelerators can be registered via cef_window_t::SetAccelerator
   /// (with |high_priority|=false (0)) or internally for standard accelerators
-  /// supported by the Chrome runtime. If |prefer_accelerators| is true (1) then
-  /// the matching accelerator will be triggered immediately (calling
+  /// supported by Chrome style. If |prefer_accelerators| is true (1) then the
+  /// matching accelerator will be triggered immediately (calling
   /// cef_window_delegate_t::OnAccelerator or
   /// cef_command_handler_t::OnChromeCommand respectively) and the event will
   /// not be forwarded to the web content or cef_keyboard_handler_t first. If

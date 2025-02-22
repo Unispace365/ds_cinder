@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2025 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,12 +33,16 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7ecfb07a95315ff81937e9f68d419122fc88f1b7$
+// $hash=409a438b598bdae8a0728cb6d1a281d550c44841$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
 #pragma once
+
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -50,6 +54,8 @@ extern "C" {
 
 ///
 /// Callback structure used to asynchronously continue a download.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_before_download_callback_t {
   ///
@@ -70,6 +76,8 @@ typedef struct _cef_before_download_callback_t {
 
 ///
 /// Callback structure used to asynchronously cancel a download.
+///
+/// NOTE: This struct is allocated DLL-side.
 ///
 typedef struct _cef_download_item_callback_t {
   ///
@@ -96,6 +104,8 @@ typedef struct _cef_download_item_callback_t {
 ///
 /// Structure used to handle file downloads. The functions of this structure
 /// will called on the browser process UI thread.
+///
+/// NOTE: This struct is allocated client-side.
 ///
 typedef struct _cef_download_handler_t {
   ///
