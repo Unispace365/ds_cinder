@@ -28,8 +28,9 @@ class CapturePlayer : public ds::ui::Sprite {
   private:
 	bool setCaptureSourceWithUniqueName(const std::string& uniqueName);
 	void initDeviceResolutionMap();
+	void updateTexture(ci::gl::ContextRef context, uint64_t captureId, int fps);
 
-	std::thread mUpdateTextureThread;
+	std::shared_ptr<std::thread> mUpdateTextureThread;
 	std::unordered_map<std::string, ci::vec2> mDeviceResolutionMap;
 };
 
