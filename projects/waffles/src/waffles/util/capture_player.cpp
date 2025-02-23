@@ -6,7 +6,9 @@
 
 #include <ds/util/string_util.h>
 
+#include <memory>
 #include <thread>
+#include <mutex>
 #include <chrono>
 
 #include <cinder/Thread.h>
@@ -25,16 +27,22 @@ auto INIT = []() {
 
 struct cap {
 	ci::CaptureRef	   capture;
-	ci::gl::TextureRef texture;
 	int				   users = 0;
 };
-
+struct SharedSurface {
+    ci::Surface8uRef surface;
+    std::mutex mutex;
+};
+struct SharedTexture {
+    ci::gl::Texture2dRef texture;
+    std::mutex mutex;
+};
 // Holds all open captures, allowing us to display multiple copies of a capture while only using one GPU resource
 // The first CapturePlayer to update for a given Capture source will update the texture
 static std::unordered_map<int64_t, cap>		sCaptures;
 static std::unordered_map<std::string, cap> sUNCaptures;
-static std::unordered_map<int64_t, ci::Surface8uRef> sSurfaces;
-static std::unordered_map<int64_t, ci::gl::Texture2dRef> sTextures;
+static std::unordered_map<int64_t, std::shared_ptr<SharedSurface>> sSurfaces;
+static std::unordered_map<int64_t, std::shared_ptr<SharedTexture>> sTextures;
 static std::unordered_map<int64_t, std::shared_ptr<std::thread>> sSurfaceThreads;
 static std::unordered_map<int64_t, std::shared_ptr<std::thread>> sTextureThreads;
 static std::unordered_map<int64_t, bool> sSurfaceThreadActive;
@@ -197,7 +205,10 @@ bool CapturePlayer::setCaptureSourceWithUniqueName(const std::string& uniqueName
 
 void CapturePlayer::drawLocalClient() {
 	if (mCaptureId < 0 || Capture::sTextures.find(mCaptureId) == Capture::sTextures.end()) return;
-	ci::gl::draw(Capture::sTextures[mCaptureId], ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
+	{
+		std::scoped_lock lock(Capture::sTextures[mCaptureId]->mutex);
+		ci::gl::draw(Capture::sTextures[mCaptureId]->texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
+	}
 }
 
 void CapturePlayer::initDeviceResolutionMap() {
@@ -227,6 +238,7 @@ void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId
 	DS_LOG_INFO("Started CapturePlayer::updateSurface thread for " << captureId);
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
+	Capture::sSurfaces[captureId] = std::make_shared<Capture::SharedSurface>();
     while (Capture::sSurfaceThreadActive[captureId]) {
 		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end()
 			|| !Capture::sCaptures[captureId].capture
@@ -234,8 +246,11 @@ void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId
 		{
 			continue;
 		}
-		Capture::sSurfaces[captureId] = Capture::sCaptures[captureId].capture->getSurface();
-        time += interval;
+		{
+			std::scoped_lock lock(Capture::sSurfaces[captureId]->mutex);
+			Capture::sSurfaces[captureId]->surface = Capture::sCaptures[captureId].capture->getSurface();
+        }
+		time += interval;
         if (fps > 0) std::this_thread::sleep_until(time);
     }
 	DS_LOG_INFO("Ended CapturePlayer::updateSurface thread for " << captureId);
@@ -245,14 +260,24 @@ void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId
 	if (captureId < 0) return;
 	ci::ThreadSetup threadSetup;
 	context->makeCurrent();
+	std::this_thread::sleep_for(std::chrono::seconds(1)); // TODO: no wait because good continue condition below
 	Capture::sTextureThreadActive[captureId] = true;
 	DS_LOG_INFO("Started CapturePlayer::updateTexture thread for " << captureId);
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
+	Capture::sTextures[captureId] = std::make_shared<Capture::SharedTexture>();
     while (Capture::sTextureThreadActive[captureId]) {
-		if (Capture::sSurfaces.find(captureId) == Capture::sSurfaces.end()) continue;
-		Capture::sTextures[captureId] = ci::gl::Texture::create(*Capture::sSurfaces[captureId]);
-        time += interval;
+		// TODO: some good if (condition) continue; to make sure there's a surface to work with
+		ci::gl::Texture2dRef texture;
+		{
+			std::scoped_lock lock(Capture::sSurfaces[captureId]->mutex);
+			texture = ci::gl::Texture::create(*Capture::sSurfaces[captureId]->surface);
+		}
+		{
+			std::scoped_lock lock(Capture::sTextures[captureId]->mutex);
+			Capture::sTextures[captureId]->texture = texture;
+        }
+		time += interval;
         if (fps > 0) std::this_thread::sleep_until(time);
     }
 	DS_LOG_INFO("Ended CapturePlayer::updateTexture thread for " << captureId);
