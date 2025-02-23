@@ -105,6 +105,8 @@ CEF requires a number of resources to run. These are pak, bin, dll, dat and loca
     * lib64/release/libcef.lib from Release/libcef.lib
     * lib64/release/libcef_dll_wrapper.lib from libcef_dll_wrapper/Release/libcef_dll_wrapper.lib
     * lib64/runtime with everything from tests/cefsimple/Release/
+    * make sure all the dll's that are in lib64/runtime are listed in ds_cinder/projects/web/cef/build/cef.manifest
+    * copy ds_cinder/projects/web/cef/build/cef.manifest to lib64/runtime
 * Open a ds_cinder sample project that has web playback (cef_develop perhaps?), clean, build
     * If there were significant changes in CEF, you'll need to evaluate those manually and resolve
     * Once compilation of the ds_cinder app succeeds and the app is running, do a few tests
