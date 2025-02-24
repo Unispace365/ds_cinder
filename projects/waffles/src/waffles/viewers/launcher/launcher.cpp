@@ -66,7 +66,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 				updateMenuItems();
 				setupMenuItems();
 				handleSelection();
-				mEventClient.notify(WafflesFilterEvent(mFilterSelected, true));
+				mEventClient.notify(WafflesFilterEvent(mFilterSelected, false));
 			},
 			0.01f);
 	});
@@ -77,7 +77,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 				updateMenuItems();
 				setupMenuItems();
 				handleSelection();
-				mEventClient.notify(WafflesFilterEvent(mFilterSelected, true));
+				mEventClient.notify(WafflesFilterEvent(mFilterSelected, false));
 			},
 			0.01f);
 	});
@@ -109,21 +109,23 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	});
 	mEventClient.listenToEvents<WafflesFilterEvent>([this](const WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-		//if (ev.mType == mFilterSelected) return;
+		// if (ev.mType == mFilterSelected) return;
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
-		mFolderStack.clear();
-		updateBreadcrumbText();
-		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
-			back_button->hide();
-		}
-		if (ev.mFromButton) {
+		// if (ev.mFromButton) {
+			mFolderStack.clear();
+			updateBreadcrumbText();
+			if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
+				back_button->hide();
+			}
+		// }
+		/* if (ev.mFromButton) {
 			if (mSecondCloseButton) {
 				mPrimaryLayout->getSprite("close_button.the_button")->mLayoutFudge =
 					mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
 				mPrimaryLayout->runLayout();
 			}
-		}
+		} */
 		std::vector<ds::model::ContentModelRef> allContent;
 
 		auto pinny = helper->getPinboard();
@@ -178,8 +180,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 			}
 		} else {
 			auto unorderedPanelContent = panel_content.getChildren();
-			std::sort(unorderedPanelContent.begin(), unorderedPanelContent.end(),
-					  [](auto& a, auto& b) { return waffles::alphaSort(a, b); });
+			/* std::sort(unorderedPanelContent.begin(), unorderedPanelContent.end(),
+					  [](auto& a, auto& b) { return waffles::alphaSort(a, b); }); */
 			panel_content.setChildren(unorderedPanelContent);
 		}
 		panel_content.setProperty("record_name", std::string(mFilterSelected));
