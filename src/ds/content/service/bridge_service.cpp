@@ -897,7 +897,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 												 // started midnight today
 				}
 				if (endDate != today) {
-					startTimeInOut = "23:59:59"; // If this mutli-day event started before today, sort as if it
+					endTimeInOut = "23:59:59"; // If this mutli-day event started before today, sort as if it
 												 // started midnight today
 				}
 			}
@@ -930,10 +930,12 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			// For multi-day events set to ALL_WEEK, we need to also check the date against todays date :(
 			constexpr int WEEK_ALL = 0b01111111;
 			int			  tzd	   = 0;
-			auto		  aIsMultiAllWeek =
-				a.getPropertyString("span_type") == "MULTI_DAY" && a.getPropertyInt("effective_days") == WEEK_ALL;
-			auto bIsMultiAllWeek =
-				b.getPropertyString("span_type") == "MULTI_DAY" && b.getPropertyInt("effective_days") == WEEK_ALL;
+
+			auto aIsAllWeek		 = a.getPropertyInt("effective_days") == WEEK_ALL;
+			auto aIsMultiAllWeek = a.getPropertyString("span_type") == "MULTI_DAY" && aIsAllWeek;
+
+			auto bIsAllWeek		 = b.getPropertyInt("effective_days") == WEEK_ALL;
+			auto bIsMultiAllWeek = b.getPropertyString("span_type") == "MULTI_DAY" && bIsAllWeek;
 
 			// If both a and b are multi-day + all-week, we can do a pure starting-later, ending sooner sort on them by
 			// dateTime
