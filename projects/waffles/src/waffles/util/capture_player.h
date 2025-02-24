@@ -19,18 +19,18 @@ class CapturePlayer : public ds::ui::Sprite {
 	/// Set the capture source by ID and Name
 	bool setCaptureSource(int id, const std::string& sourceName);
 
-  protected:
-	virtual void drawLocalClient() override;
-
-	uint64_t	mCaptureId = 0;
-	std::string mSourceName;
-
   private:
 	bool setCaptureSourceWithUniqueName(const std::string& uniqueName);
 	void initDeviceResolutionMap();
 
-	std::thread mUpdateTextureThread;
 	std::unordered_map<std::string, ci::vec2> mDeviceResolutionMap;
+
+  protected:
+	virtual void onUpdateServer(const ds::UpdateParams& up) override;
+	virtual void drawLocalClient() override;
+
+	uint64_t	mCaptureId = 0;
+	std::string mSourceName;
 };
 
 } // namespace waffles
