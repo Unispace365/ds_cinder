@@ -98,6 +98,8 @@ bool CapturePlayer::setCaptureSource(const std::string& sourceIdName) {
 		   )
 	   ) {
 		auto fps = mEngine.getEngineSettings().getInt("devices:limit_thread_fps", 0, 0); // 0 = disabled
+		Capture::sSurfaces[mCaptureId] = std::make_shared<Capture::SharedSurface>();
+		Capture::sTextures[mCaptureId] = std::make_shared<Capture::SharedTexture>();
 		Capture::sSurfaceThreads[mCaptureId] = std::shared_ptr<std::thread>(
 			new std::thread(
 				bind(
@@ -238,7 +240,6 @@ void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId
 	DS_LOG_INFO("Started CapturePlayer::updateSurface thread for " << captureId);
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
-	Capture::sSurfaces[captureId] = std::make_shared<Capture::SharedSurface>();
     while (Capture::sSurfaceThreadActive[captureId]) {
 		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end()
 			|| !Capture::sCaptures[captureId].capture
@@ -260,17 +261,19 @@ void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId
 	if (captureId < 0) return;
 	ci::ThreadSetup threadSetup;
 	context->makeCurrent();
-	std::this_thread::sleep_for(std::chrono::seconds(1)); // TODO: no wait because good continue condition below
 	Capture::sTextureThreadActive[captureId] = true;
 	DS_LOG_INFO("Started CapturePlayer::updateTexture thread for " << captureId);
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
-	Capture::sTextures[captureId] = std::make_shared<Capture::SharedTexture>();
     while (Capture::sTextureThreadActive[captureId]) {
-		// TODO: some good if (condition) continue; to make sure there's a surface to work with
 		ci::gl::Texture2dRef texture;
 		{
 			std::scoped_lock lock(Capture::sSurfaces[captureId]->mutex);
+			if (Capture::sSurfaces.find(captureId) == Capture::sSurfaces.end()
+				|| !Capture::sSurfaces[captureId]->surface)
+			{
+				continue;
+			}
 			texture = ci::gl::Texture::create(*Capture::sSurfaces[captureId]->surface);
 		}
 		{
