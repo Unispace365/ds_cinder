@@ -113,11 +113,11 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
 		// if (ev.mFromButton) {
-			mFolderStack.clear();
-			updateBreadcrumbText();
-			if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
-				back_button->hide();
-			}
+		auto savedStack = mFolderStack;
+		mFolderStack.clear();
+		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
+			back_button->hide();
+		}
 		// }
 		/* if (ev.mFromButton) {
 			if (mSecondCloseButton) {
@@ -191,6 +191,34 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 			 ds::split(mEngine.getWafflesSettings().getString("launcher:filter_labels:sprite_names", 0, ""), ",")) {
 			mPrimaryLayout->setSpriteText(name, upperedFilterText());
 		}
+
+		// Try to get back to the same subfolder/whatever if this is coming from a content refresh
+		if (!ev.mFromButton && !savedStack.empty()) {
+			auto currentSubContent = panel_content;
+			for (auto crumb : savedStack) {
+				for (auto content : currentSubContent.getChildren()) {
+					if (content.getPropertyString("uid") == crumb.getPropertyString("uid")) {
+						currentSubContent = content;
+						break;
+					}
+				}
+
+				if (currentSubContent.getPropertyString("uid") == crumb.getPropertyString("uid")) {
+					// mPanelHistory.push_back(currentSubContent);
+					mFolderStack.push_back(currentSubContent);
+					updatePanelContent(currentSubContent);
+				} else {
+					break;
+				}
+			}
+
+			if (mFolderStack.size() > 0) {
+				if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
+					back_button->show();
+				}
+			}
+		}
+		updateBreadcrumbText();
 	});
 
 	float startWidth  = mEngine.getWafflesSettings().getFloat("launcher:content_width", 0, 570.f);
@@ -791,7 +819,7 @@ void Launcher::setBackButtonFn(ds::ui::LayoutButton* button) {
 		} else if (folder_enabled) {
 			auto filter		= mFilterSelected;
 			mFilterSelected = ""; // to let the next thing happen
-			mEventClient.notify(WafflesFilterEvent(filter));
+			mEventClient.notify(WafflesFilterEvent(filter, true));
 		}
 	});
 }
