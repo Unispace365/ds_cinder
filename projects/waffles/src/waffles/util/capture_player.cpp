@@ -209,7 +209,9 @@ void CapturePlayer::drawLocalClient() {
 	if (mCaptureId < 0 || Capture::sTextures.find(mCaptureId) == Capture::sTextures.end()) return;
 	{
 		std::scoped_lock lock(Capture::sTextures[mCaptureId]->mutex);
-		ci::gl::draw(Capture::sTextures[mCaptureId]->texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
+		// Ensure the texture is actually ready before drawing
+		if(Capture::sTextures[mCaptureId]->texture)
+			ci::gl::draw(Capture::sTextures[mCaptureId]->texture, ci::Rectf(0.f, 0.f, getWidth(), getHeight()));
 	}
 }
 
@@ -240,6 +242,8 @@ void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId
 	DS_LOG_INFO("Started CapturePlayer::updateSurface thread for " << captureId);
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
+	Capture::sSurfaces[captureId] = std::make_shared<Capture::SharedSurface>();
+	Capture::sTextures[captureId] = std::make_shared<Capture::SharedTexture>();
     while (Capture::sSurfaceThreadActive[captureId]) {
 		if (Capture::sCaptures.find(captureId) == Capture::sCaptures.end()
 			|| !Capture::sCaptures[captureId].capture
@@ -248,17 +252,25 @@ void CapturePlayer::updateSurface(ci::gl::ContextRef context, uint64_t captureId
 			continue;
 		}
 		{
-			std::scoped_lock lock(Capture::sSurfaces[captureId]->mutex);
-			Capture::sSurfaces[captureId]->surface = Capture::sCaptures[captureId].capture->getSurface();
+			// Do the surface & texture on the same thread. Could probably combine the sTextures & sSurfaces and only
+			// have one mutex
+			std::scoped_lock lock2(Capture::sTextures[captureId]->mutex);
+			if(!Capture::sTextures[captureId]->texture){
+				Capture::sTextures[captureId]->texture = ci::gl::Texture::create(*Capture::sCaptures[captureId].capture->getSurface());
+			}else{
+				Capture::sTextures[captureId]->texture->update(*Capture::sCaptures[captureId].capture->getSurface());
+			}
         }
 		time += interval;
-        if (fps > 0) std::this_thread::sleep_until(time);
+        if (fps > 0) std::this_thread::sleep_for(std::chrono::milliseconds(3));
     }
 	DS_LOG_INFO("Ended CapturePlayer::updateSurface thread for " << captureId);
 }
 
 void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId, int fps) {
-	if (captureId < 0) return;
+	// Not used anymore at all, should be properly removed
+	return;
+	/*if (captureId < 0) return;
 	ci::ThreadSetup threadSetup;
 	context->makeCurrent();
 	Capture::sTextureThreadActive[captureId] = true;
@@ -266,6 +278,7 @@ void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId
     auto interval = std::chrono::milliseconds(1000 / std::max(fps, 1));
     auto time = std::chrono::high_resolution_clock::now();
     while (Capture::sTextureThreadActive[captureId]) {
+<<<<<<< HEAD
 		ci::gl::Texture2dRef texture;
 		{
 			std::scoped_lock lock(Capture::sSurfaces[captureId]->mutex);
@@ -276,14 +289,22 @@ void CapturePlayer::updateTexture(ci::gl::ContextRef context, uint64_t captureId
 			}
 			texture = ci::gl::Texture::create(*Capture::sSurfaces[captureId]->surface);
 		}
+=======
+		// TODO: some good if (condition) continue; to make sure there's a surface to work with
+>>>>>>> 549b42026 (Imperfect improvments to capture_player)
 		{
 			std::scoped_lock lock(Capture::sTextures[captureId]->mutex);
-			Capture::sTextures[captureId]->texture = texture;
+			std::scoped_lock lock2(Capture::sSurfaces[captureId]->mutex);
+			if(!Capture::sTextures[captureId]->texture){
+				Capture::sTextures[captureId]->texture = ci::gl::Texture::create(*Capture::sSurfaces[captureId]->surface);
+			}else{
+				Capture::sTextures[captureId]->texture->update(*Capture::sSurfaces[captureId]->surface);
+			}
         }
 		time += interval;
-        if (fps > 0) std::this_thread::sleep_until(time);
+        if (fps > 0) std::this_thread::sleep_for(std::chrono::milliseconds(15));
     }
-	DS_LOG_INFO("Ended CapturePlayer::updateTexture thread for " << captureId);
+	DS_LOG_INFO("Ended CapturePlayer::updateTexture thread for " << captureId);*/
 }
 
 
