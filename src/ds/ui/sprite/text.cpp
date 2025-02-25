@@ -510,28 +510,28 @@ float Text::getWidthMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinSize.x;
+	return glm::max(mMinWidth, mMinSize.x);
 }
 
 float Text::getWidthMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxSize.x;
+	return glm::min(mMaxWidth, mMaxSize.x);
 }
 
 float Text::getHeightMin() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMinSize.y;
+	return glm::max(mMinHeight, mMinSize.y);
 }
 
 float Text::getHeightMax() const {
 	if (mNeedsMinMaxMeasuring) {
 		(const_cast<Text*>(this))->measureMinMaxTextSize();
 	}
-	return mMaxSize.y;
+	return glm::min(mMaxHeight, mMaxSize.y);
 }
 
 void Text::setEllipsizeMode(EllipsizeMode theMode) {
@@ -743,7 +743,9 @@ bool Text::setAvailableSize(const ci::vec2& size, float& minWidth, float& minHei
 	if (mText.empty()) return false;
 
 	// Adjust resize limits and measure text.
-	setResizeLimit(size.x, size.y);
+	const auto padding = ci::vec2(mLayoutLPad + mLayoutRPad, mLayoutTPad + mLayoutBPad);
+	setResizeLimit(glm::clamp(size.x, mMinWidth, mMaxWidth) - padding.x,
+				   glm::clamp(size.y, mMinHeight, mMaxHeight) - padding.y);
 	measurePangoText();
 
 	return Sprite::setAvailableSize(size, minWidth, minHeight, maxWidth, maxHeight, favorWidthOverHeight);
@@ -940,7 +942,7 @@ void Text::findFitFontSize() {
 			_setFontSize(fs);
 
 			// handle width;
-			if (mWrapMode == WrapMode::kWrapModeOff || mWrapMode == WrapMode::kWrapModeWord) {
+			if (mWrapMode == WrapMode::kWrapModeOff) {
 				fs		  = 5;
 				increment = 1;
 				_setFontSize(fs);
@@ -1399,25 +1401,6 @@ bool Text::measurePangoText() {
 			PangoRectangle inkRect	  = PangoRectangle();
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 
-			// The offset for rendering to the cairo surface
-			mPixelOffsetX = -extentRect.x;
-			mPixelOffsetY = -extentRect.y;
-
-			// Instead of making the image textue larger, we will offset the drawing to the correct position
-			mRenderOffset = ci::vec2(extentRect.x, extentRect.y);
-
-			// To account for the case where the inkRect goes outside of the extentRect:
-			//   move the cairo & render offsets appropriately by opposite amounts
-			if (inkRect.x < extentRect.x) {
-				mRenderOffset.x -= extentRect.x - inkRect.x;
-				mPixelOffsetX += extentRect.x - inkRect.x;
-			}
-
-			if (inkRect.y < extentRect.y) {
-				mRenderOffset.y -= extentRect.y - inkRect.y;
-				mPixelOffsetY += extentRect.y - inkRect.y;
-			}
-
 			if ((extentRect.width == 0 || extentRect.height == 0) && !mText.empty()) {
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are "
 							   "likely causes. Text: "
@@ -1429,40 +1412,50 @@ bool Text::measurePangoText() {
 			// inkRect.height); DS_LOG_INFO("Ext rect: " << extentRect.x << " " << extentRect.y << " " <<
 			// extentRect.width << " " << extentRect.height << "\n");
 
-			// Set the final width/height for the texture, handling the case where inkRect is larger than extentRect
-			mPixelWidth	 = std::max(extentRect.width, inkRect.width);
-			mPixelHeight = std::max(extentRect.height, inkRect.height);
-
-			// Adjust size and render offset when trimming white space
+			// Adjust size, pixel offset and render offset.
 			if (mTrimWhiteSpace) {
-				switch (mStyle.mAlignment) {
-				case Alignment::kCenter:
-					mRenderOffset -=
-						ci::vec2(inkRect.x + inkRect.width / 2 - (extentRect.x + extentRect.width / 2), inkRect.y);
-					break;
-				case Alignment::kRight:
-					mRenderOffset -= ci::vec2(inkRect.x + inkRect.width - (extentRect.x + extentRect.width), inkRect.y);
-					break;
-				case Alignment::kLeft:
-				case Alignment::kJustify:
-					mRenderOffset -= ci::vec2(inkRect.x, inkRect.y);
-					break;
-				}
-			}
+				mPixelWidth		= inkRect.width;
+				mPixelHeight	= inkRect.height;
+				mPixelOffsetX	= -inkRect.x;
+				mPixelOffsetY	= -inkRect.y;
+				mRenderOffset.x = mRenderOffset.y = 0;
 
-			const auto pixelWidth  = float(mTrimWhiteSpace ? inkRect.width : mPixelWidth);
-			const auto pixelHeight = float(mTrimWhiteSpace ? inkRect.height : mPixelHeight);
-
-			// This is required to not break combinations of layout align & text align
-			if (extentRect.width < (int)mResizeLimitWidth) {
-				if (!mShrinkToBounds) {
-					setSize(mResizeLimitWidth, pixelHeight);
-				} else {
-					mRenderOffset.x -= extentRect.x;
-					setSize(pixelWidth, pixelHeight);
-				}
+				setSize(mPixelWidth, mPixelHeight);
 			} else {
-				setSize(pixelWidth, pixelHeight);
+				// The offset for rendering to the cairo surface
+				mPixelOffsetX = -extentRect.x;
+				mPixelOffsetY = -extentRect.y;
+
+				// Instead of making the image texture larger, we will offset the drawing to the correct position
+				mRenderOffset = ci::vec2(extentRect.x, extentRect.y);
+
+				// To account for the case where the inkRect goes outside of the extentRect:
+				//   move the cairo & render offsets appropriately by opposite amounts
+				if (inkRect.x < extentRect.x) {
+					mRenderOffset.x -= extentRect.x - inkRect.x;
+					mPixelOffsetX += extentRect.x - inkRect.x;
+				}
+
+				if (inkRect.y < extentRect.y) {
+					mRenderOffset.y -= extentRect.y - inkRect.y;
+					mPixelOffsetY += extentRect.y - inkRect.y;
+				}
+
+				// Set the final width/height for the texture, handling the case where inkRect is larger than extentRect
+				mPixelWidth	 = std::max(extentRect.width, inkRect.width);
+				mPixelHeight = std::max(extentRect.height, inkRect.height);
+
+				// This is required to not break combinations of layout align & text align
+				if (!mTrimWhiteSpace && extentRect.width < (int)mResizeLimitWidth) {
+					if (!mShrinkToBounds) {
+						setSize(mResizeLimitWidth, mPixelHeight);
+					} else {
+						mRenderOffset.x -= extentRect.x;
+						setSize(mPixelWidth, mPixelHeight);
+					}
+				} else {
+					setSize(mPixelWidth, mPixelHeight);
+				}
 			}
 			YGNodeMarkDirty(mYogaNode);
 
@@ -1561,52 +1554,51 @@ void Text::renderPangoText() {
 void Text::measureMinMaxTextSize() {
 	static constexpr int kCompensateRoundingErrors = 2;
 
-	const auto resizeLimit = ci::vec2(getResizeLimitWidth(), getResizeLimitHeight());
+	// Store the current values, so we can restore them after measuring.
+	auto style				= mStyle;
+	auto ellipsizeMode		= mEllipsizeMode;
+	auto fitToResizeLimit	= mFitToResizeLimit;
+	auto fitCurrentTextSize = mFitCurrentTextSize;
+	auto resizeLimitWidth	= mResizeLimitWidth;
+	auto resizeLimitHeight	= mResizeLimitHeight;
 
-	auto style = mStyle;
 	std::sort(style.mFitSizes.begin(), style.mFitSizes.end());
-
+	mFitToResizeLimit = false;
+	mEllipsizeMode	  = EllipsizeMode::kEllipsizeNone;
 
 	// Use smallest font size.
-	if (!style.mFitSizes.empty()) {
-		setFitFontSizes({style.mFitSizes.front()});
-	} else {
-		setFitMinFontSize(style.mFitMinTextSize);
-		setFitMaxFontSize(style.mFitMinTextSize);
-	}
+	mFitCurrentTextSize = style.mFitSizes.empty()
+							  ? approxZero(style.mFitMinTextSize) ? style.mSize : style.mFitMinTextSize
+							  : style.mFitSizes.front();
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMinSize.x = glm::max(mMinWidth, float(mPixelWidth + kCompensateRoundingErrors));
+	mMinSize.x = float(mPixelWidth + kCompensateRoundingErrors);
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMinSize.y = glm::max(mMinHeight, float(mPixelHeight + kCompensateRoundingErrors));
+	mMinSize.y = float(mPixelHeight + kCompensateRoundingErrors);
 
 	// Use largest font size.
-	if (!style.mFitSizes.empty()) {
-		setFitFontSizes({style.mFitSizes.back()});
-	} else {
-		setFitMinFontSize(style.mFitMaxTextSize);
-		setFitMaxFontSize(style.mFitMaxTextSize);
-	}
+	mFitCurrentTextSize = style.mFitSizes.empty()
+							  ? approxZero(style.mFitMaxTextSize) ? style.mSize : style.mFitMaxTextSize
+							  : style.mFitSizes.back();
 
 	setResizeLimit(1, 0);
 	measurePangoText();
-	mMaxSize.y = glm::min(mMaxHeight, float(mPixelHeight + kCompensateRoundingErrors));
+	mMaxSize.y = float(mPixelHeight + kCompensateRoundingErrors);
 
 	setResizeLimit(0, 1);
 	measurePangoText();
-	mMaxSize.x = glm::min(mMaxWidth, float(mPixelWidth + kCompensateRoundingErrors));
+	mMaxSize.x = float(mPixelWidth + kCompensateRoundingErrors);
 
 	// Restore the original resize limits.
-	setResizeLimit(resizeLimit.x, resizeLimit.y);
-	if (!style.mFitSizes.empty()) {
-		setFitFontSizes(style.mFitSizes);
-	} else {
-		setFitMinFontSize(style.mFitMinTextSize);
-		setFitMaxFontSize(style.mFitMaxTextSize);
-	}
+	mFitCurrentTextSize = fitCurrentTextSize;
+	mEllipsizeMode		= ellipsizeMode;
+	mFitToResizeLimit	= fitToResizeLimit;
+
+	setResizeLimit(resizeLimitWidth, resizeLimitHeight);
+	measurePangoText();
 
 	mNeedsMinMaxMeasuring = false;
 }
