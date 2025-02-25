@@ -8,6 +8,7 @@
 
 #include "gst/net/gstnetclientclock.h"
 #include <gst/gl/gl.h>
+#include <gst/app/gstappsink.h>
 
 
 namespace gstwrapper {
@@ -337,13 +338,15 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		mGstVideoSinkCallbacks.eos		   = &GStreamerWrapper::onEosFromVideoSource;
 		mGstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
 		mGstVideoSinkCallbacks.new_sample  = &GStreamerWrapper::onNewBufferFromVideoSource;
+		mGstVideoSinkCallbacks.new_event   = &GStreamerWrapper::onNewEvent;
+		mGstVideoSinkCallbacks.propose_allocation = &GStreamerWrapper::onProposeAllocation;
 
 		if (mAudioBufferWanted) {
 			mGstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
 			mGstVideoSinkCallbacks.new_sample  = &GStreamerWrapper::onNewBufferFromAudioSource;
 		}
 
-		gst_app_sink_set_callbacks(GST_APP_SINK(mGstVideoSink), &mGstVideoSinkCallbacks, this, NULL);
+		gst_app_sink_set_callbacks(GST_APP_SINK(mGstVideoSink), &mGstVideoSinkCallbacks, this, nullptr);
 
 	} else {
 
@@ -696,6 +699,8 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	mGstVideoSinkCallbacks.eos		   = &GStreamerWrapper::onEosFromVideoSource;
 	mGstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
 	mGstVideoSinkCallbacks.new_sample  = &GStreamerWrapper::onNewBufferFromVideoSource;
+	mGstVideoSinkCallbacks.new_event   = &GStreamerWrapper::onNewEvent;
+	mGstVideoSinkCallbacks.propose_allocation = &GStreamerWrapper::onProposeAllocation;
 	gst_app_sink_set_callbacks(GST_APP_SINK(mGstVideoSink), &mGstVideoSinkCallbacks, this, NULL);
 
 
@@ -1804,6 +1809,14 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource(GstAppSink* appsink, 
 	gst_sample_unref(gstAudioSinkBuffer);
 
 	return GST_FLOW_OK;
+}
+
+gboolean GStreamerWrapper::onNewEvent(GstAppSink* appsink, void* listener) {
+	return gboolean(false);
+}
+
+gboolean GStreamerWrapper::onProposeAllocation(GstAppSink* appsink, GstQuery* query, void* listener) {
+	return gboolean(false);
 }
 
 void GStreamerWrapper::handleVideoBuffer(GstSample* videoSinkSample) {

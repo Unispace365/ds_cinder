@@ -602,6 +602,14 @@ class GStreamerWrapper {
 	*/
 	static GstFlowReturn onNewBufferFromAudioSource(GstAppSink* appsink, void* listener);
 
+	/*
+	* Gstreamer callback method that is called whenever there is a new event available.
+	 * I don't think we need this, but don't delete it.
+	*/
+	static gboolean onNewEvent(GstAppSink* appsink, void* listener);
+
+	static gboolean onProposeAllocation(GstAppSink* appsink, GstQuery* query, void* listener);
+
 	/// internal buffer handling
 	void handleVideoBuffer(GstSample* videoSinkSample);
 	/*
