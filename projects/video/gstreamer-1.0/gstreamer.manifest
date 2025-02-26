@@ -13,5 +13,6 @@
 	<file name="gstreamer-1.0-0.dll" />
 	<file name="gstvideo-1.0-0.dll" />
 	<file name="libiconv-2.dll" />
+	<file name="z-1.dll" />
 	<file name="orc-0.4-0.dll" />
 </assembly>
