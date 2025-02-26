@@ -675,6 +675,11 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 
 		mGstVideoSink	  = gst_bin_get_by_name(GST_BIN(mGstPipeline), "appsink0");
 		mGstVolumeElement = gst_bin_get_by_name(GST_BIN(mGstPipeline), "volume0");
+		GstCaps* caps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "I420", "width", G_TYPE_INT, mWidth,
+											"height", G_TYPE_INT, mHeight, NULL);
+
+
+		gst_app_sink_set_caps(GST_APP_SINK(mGstVideoSink), caps);
 
 		if (error) {
 			DS_LOG_WARNING("Streaming pipeline error: " << error->message);

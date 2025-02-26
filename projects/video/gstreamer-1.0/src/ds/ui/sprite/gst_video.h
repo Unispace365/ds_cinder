@@ -111,7 +111,7 @@ class GstVideo : public Sprite {
 	//		rtsp://192.168.1.37:5015/Stream1
 	// Arbitrary pipelines can be set here, though this pathway assumes that the pipeline is live, and seeking is
 	// disabled
-	void startStream(const std::string& streamingPipeline, const float width, const float height);
+	void startStream(const std::string& streamingPipeline, const float width, const float height,const bool usePrimary=true);
 
 
 	/** Similar to startStream above, but this is not considered a live pipeline, and will only create a single
@@ -265,6 +265,7 @@ class GstVideo : public Sprite {
 	virtual void readClientAttributeFrom(const char attributeId, ds::DataBuffer&) override;
 
 	void updateVideoTexture();
+	GstVideo* getPrimaryStream();
 
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
@@ -289,7 +290,9 @@ class GstVideo : public Sprite {
 	ci::gl::TextureRef mFrameTexture;
 	ci::gl::TextureRef mUFrameTexture;
 	ci::gl::TextureRef mVFrameTexture;
-
+	static std::unordered_map<std::string, GstVideo*> mPrimaryStreams;
+	bool									   mUsePrimaryTexture = false;
+	bool									   mIsPrimaryStream	  = true;
 	ci::ivec2								mVideoSize;
 	double									mCachedDuration;
 	std::string								mFilename, mPortableFilename;

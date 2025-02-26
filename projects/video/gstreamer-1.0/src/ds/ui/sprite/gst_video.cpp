@@ -154,6 +154,8 @@ namespace {
 	static int NUM_VIDEOS = 0;
 } // namespace
 
+std::unordered_map<std::string,GstVideo*> GstVideo::mPrimaryStreams = std::unordered_map<std::string, GstVideo*>();
+
 GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::GstVideo>([&e]() -> ds::ui::GstVideo* { return new ds::ui::GstVideo(e); }, parent);
 }
@@ -228,6 +230,11 @@ GstVideo::~GstVideo() {
 	if (mGstreamerWrapper) {
 		delete mGstreamerWrapper;
 		mGstreamerWrapper = nullptr;
+	}
+	if (mPrimaryStreams.find(mFilename) != mPrimaryStreams.end()) {
+		if (mPrimaryStreams.at(mFilename) == this) {
+			mPrimaryStreams.erase(mFilename);
+		}
 	}
 	NUM_VIDEOS--;
 	DS_LOG_VERBOSE(4, "Removing a video, number: " << NUM_VIDEOS);
@@ -339,6 +346,8 @@ void GstVideo::onUpdateClient(const UpdateParams& up) {
 }
 
 void GstVideo::updateVideoTexture() {
+	if (!mIsPrimaryStream) return;
+
 	if (!mGstreamerWrapper) {
 		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
@@ -423,33 +432,51 @@ void GstVideo::updateVideoTexture() {
 	}
 }
 
+GstVideo* GstVideo::getPrimaryStream() {
+	if (mIsPrimaryStream) {
+		return this;
+	}
+	//return the primary stream if it exists
+	if (mPrimaryStreams.find(mFilename) != mPrimaryStreams.end()) {
+		return mPrimaryStreams.at(mFilename);
+	}
+	return nullptr;
+ }
+
 void GstVideo::drawLocalClient() {
 	if (!mGstreamerWrapper) {
 		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
 	}
+	if (!getPrimaryStream()) {
+		return;
+	}
 
-	if (mFrameTexture && mDrawable) {
+	auto frameTexture = getPrimaryStream()->mFrameTexture;
+	auto uFrameTexture = getPrimaryStream()->mUFrameTexture;
+	auto vFrameTexture = getPrimaryStream()->mVFrameTexture;
+
+	if (frameTexture && mDrawable) {
 		if (mOpenGlMode) {
 			if (mSpriteShader.getName() == "base") {
-				ci::gl::draw(mFrameTexture);
+				ci::gl::draw(frameTexture);
 			} else {
-				if (mFrameTexture) mFrameTexture->bind(0);
+				if (frameTexture) frameTexture->bind(0);
 
 				if (mRenderBatch) {
 					mRenderBatch->draw();
 				} else {
 					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 				}
-				if (mFrameTexture) mFrameTexture->unbind();
+				if (frameTexture) frameTexture->unbind();
 			}
 		} else if (mColorType == kColorTypeShaderTransform) {
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
 
-			if (mFrameTexture) mFrameTexture->bind(2);
-			if (mUFrameTexture) mUFrameTexture->bind(3);
-			if (mVFrameTexture) mVFrameTexture->bind(4);
+			if (frameTexture) frameTexture->bind(2);
+			if (uFrameTexture) uFrameTexture->bind(3);
+			if (vFrameTexture) vFrameTexture->bind(4);
 
 
 			if (mRenderBatch) {
@@ -460,23 +487,23 @@ void GstVideo::drawLocalClient() {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 			}
 
-			if (mFrameTexture) mFrameTexture->unbind(2);
-			if (mUFrameTexture) mUFrameTexture->unbind(3);
-			if (mVFrameTexture) mVFrameTexture->unbind(4);
+			if (frameTexture) frameTexture->unbind(2);
+			if (uFrameTexture) uFrameTexture->unbind(3);
+			if (vFrameTexture) vFrameTexture->unbind(4);
 
 		} else {
 			if (getPerspective()) {
 				// TODO
-				// mFrameTexture->flip(true);
+				// frameTexture->flip(true);
 			}
-			if (mFrameTexture) mFrameTexture->bind(0);
+			if (frameTexture) frameTexture->bind(0);
 
 			if (mRenderBatch) {
 				mRenderBatch->draw();
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 			}
-			if (mFrameTexture) mFrameTexture->unbind();
+			if (frameTexture) frameTexture->unbind();
 		}
 
 		DS_LOG_VERBOSE(6, "GstVideo drawing video frame");
@@ -725,10 +752,42 @@ void GstVideo::doLoadVideo(const std::string& filename, const std::string& porta
 	}
 }
 
-void GstVideo::startStream(const std::string& streamingPipeline, const float videoWidth, const float videoHeight) {
+void GstVideo::startStream(const std::string& streamingPipeline, const float videoWidth, const float videoHeight, const bool usePrimary) {
+
 	if (streamingPipeline.empty()) {
 		DS_LOG_WARNING_M("GstVideo::startStream aborting starting streaming because of a blank pipeline.",
 						 GSTREAMER_LOG);
+		return;
+	}
+
+	//check if we already have a stream for this pipeline.
+	if (usePrimary && mPrimaryStreams.find(streamingPipeline) != mPrimaryStreams.end()) {
+		DS_LOG_WARNING_M(
+			"GstVideo::startStream aborting starting streaming because a stream already exists for this pipeline.",
+			GSTREAMER_LOG);
+		mUsePrimaryTexture = true;
+		mIsPrimaryStream   = false;
+		mStreaming		   = true;
+		mDrawable		   = true;
+		mFilename		   = streamingPipeline;
+		mPortableFilename  = streamingPipeline;
+		mVideoSize.x	   = (int)floorf(videoWidth);
+		mVideoSize.y	   = (int)floorf(videoHeight);
+		mColorType		   = ColorType::kColorTypeShaderTransform;
+		
+		std::string name("yuv_colorspace_conversion");
+		mSpriteShader.setShaders(yuv_vert, yuv_frag, name); // , true);
+		mSpriteShader.loadShaders();
+		ds::gl::Uniform uniform;
+
+		uniform.setInt("gsuTexture0", 2);
+		uniform.setInt("gsuTexture1", 3);
+		uniform.setInt("gsuTexture2", 4);
+		uniform.applyTo(mSpriteShader.getShader());
+
+		mNeedsBatchUpdate = true;
+		setSizeAll(videoWidth, videoHeight, mDepth);
+		setStatus(Status::STATUS_PLAYING);
 		return;
 	}
 
@@ -802,6 +861,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	} else {
 		mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 	}
+	mPrimaryStreams[mFilename] = this;
 }
 
 void GstVideo::parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,

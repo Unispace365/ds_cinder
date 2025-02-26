@@ -108,6 +108,7 @@ class GStreamerWrapper {
 	bool openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight,
 					const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
 
+
 	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer
 	   element from the supplied pipeline. This assumes the source is part of the pipeline.
 		*/

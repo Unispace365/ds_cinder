@@ -337,30 +337,42 @@ void TitledMediaViewer::onMediaSet() {
 
 			} else if (streamType == "capture") {
 				DS_LOG_INFO("Got a capture stream! " << streamAddress);
-				if (auto cappy = mRootLayout->getSprite<CapturePlayer>("capture_player")) {
-					// DS_LOG_INFO("Got a stream! " << primaryResource.getAbsoluteFilePath());
+				
+				//set up gstreamer to capture.
+				//--check for a size at the end of the stream address in the form of address@widthxheight
+				std::string address = streamAddress;
+				std::string size;
+				float		width  = 0;
+				float		height = 0;
+				auto		atPos = address.find("@");
+				if (atPos != std::string::npos) {
+					size	= address.substr(atPos + 1);
+					address = address.substr(0, atPos);
 
-					if (cappy->setCaptureSource(streamAddress)) {
-						cappy->show();
-						fakeRes.setWidth(cappy->getWidth());
-						fakeRes.setHeight(cappy->getHeight());
-
-						mMediaPlayer->setSize(fakeRes.getWidth(), fakeRes.getHeight());
-						mMediaPlayer->setContentAspectRatio(fakeRes.getWidth() / fakeRes.getHeight());
-						mMediaPlayer->loadMedia(fakeRes);
-
-						// Note: don't call these here, as this leads to incorrect sizes being used in layout!
-						// Instead, the `calculateSizeLimits()` takes care of it, see below.
-						//setSize(fakeRes.getWidth(), fakeRes.getHeight());
-						//setSizeLimits();
-						//setViewerSize(fakeRes.getWidth(), fakeRes.getHeight());
-
-						mShowingWebCam = true;
-
-						mRootLayout->setSpriteText("name", mMediaRef.getPropertyString("record_name"));
-						mRootLayout->runLayout();
+					// split size string into width and height floats
+					auto  sizeParts = ds::split(size, "x");
+					if (sizeParts.size() == 2) {
+						width  = ds::string_to_float(sizeParts.at(0));
+						height = ds::string_to_float(sizeParts.at(1));
 					}
 				}
+
+				if (width == 0 || height == 0) {
+					width = 1920;
+					height = 1080;
+				}
+
+				std::stringstream ss;
+				ss << "mfvideosrc device-name=\"" << address << "\" ! queue leaky=1 max-size-buffers=0 ! videoconvert ! appsink name=appsink0";
+				std::string pipeline = ss.str();
+				DS_LOG_INFO("Pipeline: " << pipeline);
+				fakeRes.setFileName(pipeline);
+				fakeRes.setLocalFilePath(pipeline);
+				fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
+				fakeRes.setWidth(width);
+				fakeRes.setHeight(height);
+				
+				
 			}
 		}
 		auto mediaPropKey = helper->getMediaPropertyKey(mMediaRef);
