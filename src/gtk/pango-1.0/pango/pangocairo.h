@@ -30,30 +30,52 @@ G_BEGIN_DECLS
 /**
  * PangoCairoFont:
  *
- * #PangoCairoFont is an interface exported by fonts for
- * use with Cairo. The actual type of the font will depend
- * on the particular font technology Cairo was compiled to use.
+ * `PangoCairoFont` is an interface exported by fonts for
+ * use with Cairo.
+ *
+ * The actual type of the font will depend on the particular
+ * font technology Cairo was compiled to use.
  *
  * Since: 1.18
  **/
 typedef struct _PangoCairoFont      PangoCairoFont;
-#define PANGO_TYPE_CAIRO_FONT       (pango_cairo_font_get_type ())
-#define PANGO_CAIRO_FONT(object)    (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_CAIRO_FONT, PangoCairoFont))
-#define PANGO_IS_CAIRO_FONT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_CAIRO_FONT))
+
+/* This is a hack because PangoCairo is hijacking the Pango namespace, but
+ * consumers of the PangoCairo API expect these symbols to live under the
+ * PangoCairo namespace.
+ */
+#ifdef __GI_SCANNER__
+#define PANGO_CAIRO_TYPE_FONT           (pango_cairo_font_get_type())
+#define PANGO_CAIRO_FONT(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), PANGO_CAIRO_TYPE_FONT, PangoCairoFont))
+#define PANGO_CAIRO_IS_FONT(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PANGO_CAIRO_TYPE_FONT))
+#else
+#define PANGO_TYPE_CAIRO_FONT           (pango_cairo_font_get_type ())
+#define PANGO_CAIRO_FONT(object)        (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_CAIRO_FONT, PangoCairoFont))
+#define PANGO_IS_CAIRO_FONT(object)     (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_CAIRO_FONT))
+#endif
 
 /**
  * PangoCairoFontMap:
  *
- * #PangoCairoFontMap is an interface exported by font maps for
- * use with Cairo. The actual type of the font map will depend
- * on the particular font technology Cairo was compiled to use.
+ * `PangoCairoFontMap` is an interface exported by font maps for
+ * use with Cairo.
+ *
+ * The actual type of the font map will depend on the particular
+ * font technology Cairo was compiled to use.
  *
  * Since: 1.10
  **/
 typedef struct _PangoCairoFontMap        PangoCairoFontMap;
+
+#ifdef __GI_SCANNER__
+#define PANGO_CAIRO_TYPE_FONT_MAP       (pango_cairo_font_map_get_type())
+#define PANGO_CAIRO_FONT_MAP(obj)       (G_TYPE_CHECK_INSTANCE_CAST ((obj), PANGO_CAIRO_TYPE_FONT_MAP, PangoCairoFontMap))
+#define PANGO_CAIRO_IS_FONT_MAP(obj)    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PANGO_CAIRO_TYPE_FONT_MAP))
+#else
 #define PANGO_TYPE_CAIRO_FONT_MAP       (pango_cairo_font_map_get_type ())
 #define PANGO_CAIRO_FONT_MAP(object)    (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_CAIRO_FONT_MAP, PangoCairoFontMap))
 #define PANGO_IS_CAIRO_FONT_MAP(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_CAIRO_FONT_MAP))
+#endif
 
 /**
  * PangoCairoShapeRendererFunc:
@@ -64,7 +86,7 @@ typedef struct _PangoCairoFontMap        PangoCairoFontMap;
  * path of @cr and no filling/stroking done.  This will be set
  * to %TRUE when called from pango_cairo_layout_path() and
  * pango_cairo_layout_line_path() rendering functions.
- * @data: user data passed to pango_cairo_context_set_shape_renderer()
+ * @data: (closure): user data passed to pango_cairo_context_set_shape_renderer()
  *
  * Function type for rendering attributes of type %PANGO_ATTR_SHAPE
  * with Pango's Cairo renderer.

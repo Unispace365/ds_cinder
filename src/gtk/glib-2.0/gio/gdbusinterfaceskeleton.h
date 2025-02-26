@@ -2,6 +2,8 @@
  *
  * Copyright (C) 2008-2010 Red Hat, Inc.
  *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -35,14 +37,6 @@ G_BEGIN_DECLS
 typedef struct _GDBusInterfaceSkeletonClass   GDBusInterfaceSkeletonClass;
 typedef struct _GDBusInterfaceSkeletonPrivate GDBusInterfaceSkeletonPrivate;
 
-/**
- * GDBusInterfaceSkeleton:
- *
- * The #GDBusInterfaceSkeleton structure contains private data and should
- * only be accessed using the provided API.
- *
- * Since: 2.30
- */
 struct _GDBusInterfaceSkeleton
 {
   /*< private >*/
@@ -85,41 +79,41 @@ struct _GDBusInterfaceSkeletonClass
   gpointer signal_padding[8];
 };
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GType                        g_dbus_interface_skeleton_get_type        (void) G_GNUC_CONST;
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GDBusInterfaceSkeletonFlags  g_dbus_interface_skeleton_get_flags       (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void                         g_dbus_interface_skeleton_set_flags       (GDBusInterfaceSkeleton      *interface_,
                                                                         GDBusInterfaceSkeletonFlags  flags);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GDBusInterfaceInfo          *g_dbus_interface_skeleton_get_info        (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GDBusInterfaceVTable        *g_dbus_interface_skeleton_get_vtable      (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GVariant                    *g_dbus_interface_skeleton_get_properties  (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void                         g_dbus_interface_skeleton_flush           (GDBusInterfaceSkeleton      *interface_);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 gboolean                     g_dbus_interface_skeleton_export          (GDBusInterfaceSkeleton      *interface_,
                                                                         GDBusConnection             *connection,
                                                                         const gchar                 *object_path,
                                                                         GError                     **error);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void                         g_dbus_interface_skeleton_unexport        (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void                g_dbus_interface_skeleton_unexport_from_connection (GDBusInterfaceSkeleton      *interface_,
                                                                         GDBusConnection             *connection);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GDBusConnection             *g_dbus_interface_skeleton_get_connection  (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GList                       *g_dbus_interface_skeleton_get_connections (GDBusInterfaceSkeleton      *interface_);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 gboolean                     g_dbus_interface_skeleton_has_connection  (GDBusInterfaceSkeleton      *interface_,
                                                                         GDBusConnection             *connection);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 const gchar                 *g_dbus_interface_skeleton_get_object_path (GDBusInterfaceSkeleton      *interface_);
 
 G_END_DECLS

@@ -17,19 +17,36 @@ GType pango_attr_type_get_type (void) G_GNUC_CONST;
 PANGO_AVAILABLE_IN_ALL
 GType pango_underline_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_UNDERLINE (pango_underline_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_overline_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_OVERLINE (pango_overline_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_show_flags_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_SHOW_FLAGS (pango_show_flags_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_text_transform_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_TEXT_TRANSFORM (pango_text_transform_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_baseline_shift_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_BASELINE_SHIFT (pango_baseline_shift_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_font_scale_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_FONT_SCALE (pango_font_scale_get_type ())
 
 /* enumerations from "pango-bidi-type.h" */
 PANGO_AVAILABLE_IN_ALL
 GType pango_bidi_type_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_BIDI_TYPE (pango_bidi_type_get_type ())
-PANGO_AVAILABLE_IN_ALL
-GType pango_direction_get_type (void) G_GNUC_CONST;
-#define PANGO_TYPE_DIRECTION (pango_direction_get_type ())
 
 /* enumerations from "pango-coverage.h" */
 PANGO_AVAILABLE_IN_ALL
 GType pango_coverage_level_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_COVERAGE_LEVEL (pango_coverage_level_get_type ())
+
+/* enumerations from "pango-direction.h" */
+PANGO_AVAILABLE_IN_ALL
+GType pango_direction_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_DIRECTION (pango_direction_get_type ())
 
 /* enumerations from "pango-font.h" */
 PANGO_AVAILABLE_IN_ALL
@@ -47,6 +64,11 @@ GType pango_stretch_get_type (void) G_GNUC_CONST;
 PANGO_AVAILABLE_IN_ALL
 GType pango_font_mask_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_FONT_MASK (pango_font_mask_get_type ())
+
+/* enumerations from "pango-glyph.h" */
+PANGO_AVAILABLE_IN_ALL
+GType pango_shape_flags_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_SHAPE_FLAGS (pango_shape_flags_get_type ())
 
 /* enumerations from "pango-gravity.h" */
 PANGO_AVAILABLE_IN_ALL
@@ -66,6 +88,15 @@ GType pango_wrap_mode_get_type (void) G_GNUC_CONST;
 PANGO_AVAILABLE_IN_ALL
 GType pango_ellipsize_mode_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_ELLIPSIZE_MODE (pango_ellipsize_mode_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_layout_serialize_flags_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_LAYOUT_SERIALIZE_FLAGS (pango_layout_serialize_flags_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_layout_deserialize_error_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_LAYOUT_DESERIALIZE_ERROR (pango_layout_deserialize_error_get_type ())
+PANGO_AVAILABLE_IN_ALL
+GType pango_layout_deserialize_flags_get_type (void) G_GNUC_CONST;
+#define PANGO_TYPE_LAYOUT_DESERIALIZE_FLAGS (pango_layout_deserialize_flags_get_type ())
 
 /* enumerations from "pango-renderer.h" */
 PANGO_AVAILABLE_IN_ALL

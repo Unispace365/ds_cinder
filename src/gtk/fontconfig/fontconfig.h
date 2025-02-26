@@ -37,7 +37,7 @@
 #endif
 
 #ifndef FcPublic
-#define FcPublic
+#define FcPublic __declspec(dllimport)
 #endif
 
 typedef unsigned char	FcChar8;
@@ -52,8 +52,8 @@ typedef int		FcBool;
  */
 
 #define FC_MAJOR	2
-#define FC_MINOR	12
-#define FC_REVISION	6
+#define FC_MINOR	15
+#define FC_REVISION	0
 
 #define FC_VERSION	((FC_MAJOR * 10000) + (FC_MINOR * 100) + (FC_REVISION))
 
@@ -67,13 +67,14 @@ typedef int		FcBool;
  * it means multiple copies of the font information.
  */
 
-#define FC_CACHE_VERSION_NUMBER	7
+#define FC_CACHE_VERSION_NUMBER	9
 #define _FC_STRINGIFY_(s)    	#s
 #define _FC_STRINGIFY(s)    	_FC_STRINGIFY_(s)
 #define FC_CACHE_VERSION    	_FC_STRINGIFY(FC_CACHE_VERSION_NUMBER)
 
-#define FcTrue		1
 #define FcFalse		0
+#define FcTrue		1
+#define FcDontCare	2
 
 #define FC_FAMILY	    "family"		/* String */
 #define FC_STYLE	    "style"		/* String */
@@ -99,6 +100,7 @@ typedef int		FcBool;
 #define FC_OUTLINE	    "outline"		/* Bool */
 #define FC_SCALABLE	    "scalable"		/* Bool */
 #define FC_COLOR	    "color"		/* Bool */
+#define FC_VARIABLE	    "variable"		/* Bool */
 #define FC_SCALE	    "scale"		/* double (deprecated) */
 #define FC_SYMBOL	    "symbol"		/* Bool */
 #define FC_DPI		    "dpi"		/* double */
@@ -106,7 +108,7 @@ typedef int		FcBool;
 #define FC_MINSPACE	    "minspace"		/* Bool use minimum line spacing */
 #define FC_SOURCE	    "source"		/* String (deprecated) */
 #define FC_CHARSET	    "charset"		/* CharSet */
-#define FC_LANG		    "lang"		/* String RFC 3066 langs */
+#define FC_LANG		    "lang"		/* LangSet Set of RFC 3066 langs */
 #define FC_FONTVERSION	    "fontversion"	/* Int from 'head' table */
 #define FC_FULLNAME	    "fullname"		/* String */
 #define FC_FAMILYLANG	    "familylang"	/* String RFC 3066 langs */
@@ -119,10 +121,16 @@ typedef int		FcBool;
 #define FC_DECORATIVE	    "decorative"	/* Bool - true if style is a decorative variant */
 #define FC_LCD_FILTER	    "lcdfilter"		/* Int */
 #define FC_FONT_FEATURES    "fontfeatures"	/* String */
+#define FC_FONT_VARIATIONS  "fontvariations"	/* String */
 #define FC_NAMELANG	    "namelang"		/* String RFC 3866 langs */
 #define FC_PRGNAME	    "prgname"		/* String */
 #define FC_HASH		    "hash"		/* String (deprecated) */
 #define FC_POSTSCRIPT_NAME  "postscriptname"	/* String */
+#define FC_FONT_HAS_HINT    "fonthashint"	/* Bool - true if font has hinting */
+#define FC_ORDER	    "order"		/* Integer */
+#define FC_DESKTOP_NAME     "desktop"		/* String */
+#define FC_NAMED_INSTANCE   "namedinstance"	/* Bool - true if font is named instance */
+#define FC_FONT_WRAPPER     "fontwrapper" 	/* String */
 
 #define FC_CACHE_SUFFIX		    ".cache-" FC_CACHE_VERSION
 #define FC_DIR_CACHE_FILE	    "fonts.cache-" FC_CACHE_VERSION
@@ -245,6 +253,11 @@ typedef enum _FcValueBinding {
 
 typedef struct _FcPattern   FcPattern;
 
+typedef struct _FcPatternIter {
+    void *dummy1;
+    void *dummy2;
+} FcPatternIter;
+
 typedef struct _FcLangSet   FcLangSet;
 
 typedef struct _FcRange	    FcRange;
@@ -275,9 +288,11 @@ typedef struct _FcObjectSet {
     int		sobject;
     const char	**objects;
 } FcObjectSet;
-    
+
 typedef enum _FcMatchKind {
-    FcMatchPattern, FcMatchFont, FcMatchScan
+    FcMatchPattern, FcMatchFont, FcMatchScan,
+    FcMatchKindEnd,
+    FcMatchKindBegin = FcMatchPattern
 } FcMatchKind;
 
 typedef enum _FcLangResult {
@@ -291,6 +306,12 @@ typedef enum _FcSetName {
     FcSetSystem = 0,
     FcSetApplication = 1
 } FcSetName;
+
+typedef struct _FcConfigFileInfoIter {
+    void	*dummy1;
+    void	*dummy2;
+    void	*dummy3;
+} FcConfigFileInfoIter;
 
 typedef struct _FcAtomic FcAtomic;
 
@@ -358,7 +379,16 @@ FcPublic FcBool
 FcDirCacheClean (const FcChar8 *cache_dir, FcBool verbose);
 
 FcPublic void
-FcCacheCreateTagFile (const FcConfig *config);
+FcCacheCreateTagFile (FcConfig *config);
+
+FcPublic FcBool
+FcDirCacheCreateUUID (FcChar8  *dir,
+		      FcBool    force,
+		      FcConfig *config);
+
+FcPublic FcBool
+FcDirCacheDeleteUUID (const FcChar8  *dir,
+		      FcConfig       *config);
 
 /* fccfg.c */
 FcPublic FcChar8 *
@@ -368,8 +398,12 @@ FcPublic FcBool
 FcConfigEnableHome (FcBool enable);
 
 FcPublic FcChar8 *
+FcConfigGetFilename (FcConfig      *config,
+		     const FcChar8 *url);
+
+FcPublic FcChar8 *
 FcConfigFilename (const FcChar8 *url);
-    
+
 FcPublic FcConfig *
 FcConfigCreate (void);
 
@@ -387,7 +421,7 @@ FcConfigGetCurrent (void);
 
 FcPublic FcBool
 FcConfigUptoDate (FcConfig *config);
-    
+
 FcPublic FcBool
 FcConfigBuildFonts (FcConfig *config);
 
@@ -407,7 +441,7 @@ FcPublic FcBlanks *
 FcConfigGetBlanks (FcConfig *config);
 
 FcPublic FcStrList *
-FcConfigGetCacheDirs (const FcConfig	*config);
+FcConfigGetCacheDirs (FcConfig	*config);
 
 FcPublic int
 FcConfigGetRescanInterval (FcConfig *config);
@@ -447,6 +481,21 @@ FcConfigGetSysRoot (const FcConfig *config);
 FcPublic void
 FcConfigSetSysRoot (FcConfig      *config,
 		    const FcChar8 *sysroot);
+
+FcPublic void
+FcConfigFileInfoIterInit (FcConfig		*config,
+			  FcConfigFileInfoIter	*iter);
+
+FcPublic FcBool
+FcConfigFileInfoIterNext (FcConfig		*config,
+			  FcConfigFileInfoIter	*iter);
+
+FcPublic FcBool
+FcConfigFileInfoIterGet (FcConfig		*config,
+			 FcConfigFileInfoIter	*iter,
+			 FcChar8		**name,
+			 FcChar8		**description,
+			 FcBool			*enabled);
 
 /* fccharset.c */
 FcPublic FcCharSet*
@@ -502,12 +551,12 @@ FcCharSetIsSubset (const FcCharSet *a, const FcCharSet *b);
 #define FC_CHARSET_DONE	((FcChar32) -1)
 
 FcPublic FcChar32
-FcCharSetFirstPage (const FcCharSet *a, 
+FcCharSetFirstPage (const FcCharSet *a,
 		    FcChar32	    map[FC_CHARSET_MAP_SIZE],
 		    FcChar32	    *next);
 
 FcPublic FcChar32
-FcCharSetNextPage (const FcCharSet  *a, 
+FcCharSetNextPage (const FcCharSet  *a,
 		   FcChar32	    map[FC_CHARSET_MAP_SIZE],
 		   FcChar32	    *next);
 
@@ -563,7 +612,7 @@ FcDirCacheLoad (const FcChar8 *dir, FcConfig *config, FcChar8 **cache_file);
 
 FcPublic FcCache *
 FcDirCacheRescan (const FcChar8 *dir, FcConfig *config);
-    
+
 FcPublic FcCache *
 FcDirCacheRead (const FcChar8 *dir, FcBool force, FcConfig *config);
 
@@ -575,7 +624,10 @@ FcDirCacheUnload (FcCache *cache);
 
 /* fcfreetype.c */
 FcPublic FcPattern *
-FcFreeTypeQuery (const FcChar8 *file, int id, FcBlanks *blanks, int *count);
+FcFreeTypeQuery (const FcChar8 *file, unsigned int id, FcBlanks *blanks, int *count);
+
+FcPublic unsigned int
+FcFreeTypeQueryAll(const FcChar8 *file, unsigned int id, FcBlanks *blanks, int *count, FcFontSet *set);
 
 /* fcfs.c */
 
@@ -723,7 +775,7 @@ FcFontSetMatch (FcConfig    *config,
 
 FcPublic FcPattern *
 FcFontMatch (FcConfig	*config,
-	     FcPattern	*p, 
+	     FcPattern	*p,
 	     FcResult	*result);
 
 FcPublic FcPattern *
@@ -793,6 +845,9 @@ FcNameUnregisterConstants (const FcConstant *consts, int nconsts);
 FcPublic const FcConstant *
 FcNameGetConstant (const FcChar8 *string);
 
+FcPublic const FcConstant *
+FcNameGetConstantFor (const FcChar8 *string, const char *object);
+
 FcPublic FcBool
 FcNameConstant (const FcChar8 *string, int *result);
 
@@ -827,6 +882,9 @@ FcValueSave (FcValue v);
 FcPublic void
 FcPatternDestroy (FcPattern *p);
 
+int
+FcPatternObjectCount (const FcPattern *pat);
+
 FcPublic FcBool
 FcPatternEqual (const FcPattern *pa, const FcPattern *pb);
 
@@ -838,10 +896,10 @@ FcPatternHash (const FcPattern *p);
 
 FcPublic FcBool
 FcPatternAdd (FcPattern *p, const char *object, FcValue value, FcBool append);
-    
+
 FcPublic FcBool
 FcPatternAddWeak (FcPattern *p, const char *object, FcValue value, FcBool append);
-    
+
 FcPublic FcResult
 FcPatternGet (const FcPattern *p, const char *object, int id, FcValue *v);
 
@@ -904,7 +962,7 @@ FcPatternGetRange (const FcPattern *p, const char *object, int id, FcRange **r);
 
 FcPublic FcPattern *
 FcPatternVaBuild (FcPattern *p, va_list va);
-    
+
 FcPublic FcPattern *
 FcPatternBuild (FcPattern *p, ...) FC_ATTRIBUTE_SENTINEL(0);
 
@@ -927,13 +985,44 @@ FcRangeCopy (const FcRange *r);
 FcPublic FcBool
 FcRangeGetDouble(const FcRange *range, double *begin, double *end);
 
+FcPublic void
+FcPatternIterStart (const FcPattern *pat, FcPatternIter *iter);
+
+FcPublic FcBool
+FcPatternIterNext (const FcPattern *pat, FcPatternIter *iter);
+
+FcPublic FcBool
+FcPatternIterEqual (const FcPattern *p1, FcPatternIter *i1,
+		    const FcPattern *p2, FcPatternIter *i2);
+
+FcPublic FcBool
+FcPatternFindIter (const FcPattern *pat, FcPatternIter *iter, const char *object);
+
+FcPublic FcBool
+FcPatternIterIsValid (const FcPattern *pat, FcPatternIter *iter);
+
+FcPublic const char *
+FcPatternIterGetObject (const FcPattern *pat, FcPatternIter *iter);
+
+FcPublic int
+FcPatternIterValueCount (const FcPattern *pat, FcPatternIter *iter);
+
+FcPublic FcResult
+FcPatternIterGetValue (const FcPattern *pat, FcPatternIter *iter, int id, FcValue *v, FcValueBinding *b);
+
 /* fcweight.c */
 
 FcPublic int
 FcWeightFromOpenType (int ot_weight);
 
+FcPublic double
+FcWeightFromOpenTypeDouble (double ot_weight);
+
 FcPublic int
 FcWeightToOpenType (int fc_weight);
+
+FcPublic double
+FcWeightToOpenTypeDouble (double fc_weight);
 
 /* fcstr.c */
 
@@ -942,10 +1031,10 @@ FcStrCopy (const FcChar8 *s);
 
 FcPublic FcChar8 *
 FcStrCopyFilename (const FcChar8 *s);
-    
+
 FcPublic FcChar8 *
 FcStrPlus (const FcChar8 *s1, const FcChar8 *s2);
-    
+
 FcPublic void
 FcStrFree (FcChar8 *s);
 
@@ -998,6 +1087,10 @@ FcUtf16Len (const FcChar8   *string,
 	    int		    len,	    /* in bytes */
 	    int		    *nchar,
 	    int		    *wchar);
+
+FcPublic FcChar8 *
+FcStrBuildFilename (const FcChar8 *path,
+		    ...);
 
 FcPublic FcChar8 *
 FcStrDirname (const FcChar8 *file);
@@ -1058,7 +1151,7 @@ _FCFUNCPROTOEND
  * Deprecated functions are placed here to help users fix their code without
  * digging through documentation
  */
- 
+
 #define FcConfigGetRescanInverval   FcConfigGetRescanInverval_REPLACE_BY_FcConfigGetRescanInterval
 #define FcConfigSetRescanInverval   FcConfigSetRescanInverval_REPLACE_BY_FcConfigSetRescanInterval
 
