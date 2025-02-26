@@ -28,7 +28,7 @@
 #include FT_FREETYPE_H
 
 #ifndef FcPublic
-#define FcPublic
+#define FcPublic __declspec(dllimport)
 #endif
 
 _FCFUNCPROTOBEGIN
@@ -51,7 +51,7 @@ FcPatternAddFTFace (FcPattern *p, const char *object, const FT_Face f);
 FcPublic FcPattern *
 FcFreeTypeQueryFace (const FT_Face  face,
 		     const FcChar8  *file,
-		     int	    id,
+		     unsigned int   id,
 		     FcBlanks	    *blanks);
 
 _FCFUNCPROTOEND

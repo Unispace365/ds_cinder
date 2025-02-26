@@ -31,28 +31,33 @@ G_BEGIN_DECLS
 
 /**
  * PangoGlyphItem:
- * @item: corresponding #PangoItem.
- * @glyphs: corresponding #PangoGlyphString.
+ * @item: corresponding `PangoItem`
+ * @glyphs: corresponding `PangoGlyphString`
+ * @y_offset: shift of the baseline, relative to the baseline
+ *   of the containing line. Positive values shift upwards
+ * @start_x_offset: horizontal displacement to apply before the
+ *   glyph item. Positive values shift right
+ * @end_x_offset: horizontal displacement to apply after th
+ *   glyph item. Positive values shift right
  *
- * A #PangoGlyphItem is a pair of a #PangoItem and the glyphs
- * resulting from shaping the text corresponding to an item.
- * As an example of the usage of #PangoGlyphItem, the results
- * of shaping text with #PangoLayout is a list of #PangoLayoutLine,
- * each of which contains a list of #PangoGlyphItem.
+ * A `PangoGlyphItem` is a pair of a `PangoItem` and the glyphs
+ * resulting from shaping the items text.
+ *
+ * As an example of the usage of `PangoGlyphItem`, the results
+ * of shaping text with `PangoLayout` is a list of `PangoLayoutLine`,
+ * each of which contains a list of `PangoGlyphItem`.
  */
 typedef struct _PangoGlyphItem PangoGlyphItem;
 
 struct _PangoGlyphItem
 {
-  PangoItem        *item;
+  PangoItem *item;
   PangoGlyphString *glyphs;
+  int y_offset;
+  int start_x_offset;
+  int end_x_offset;
 };
 
-/**
- * PANGO_TYPE_GLYPH_ITEM:
- *
- * The #GObject type for #PangoGlyphItem.
- */
 #define PANGO_TYPE_GLYPH_ITEM (pango_glyph_item_get_type ())
 
 PANGO_AVAILABLE_IN_ALL
@@ -84,43 +89,46 @@ void 	  pango_glyph_item_get_logical_widths (PangoGlyphItem *glyph_item,
 /**
  * PangoGlyphItemIter:
  *
- * A #PangoGlyphItemIter is an iterator over the clusters in a
- * #PangoGlyphItem.  The <firstterm>forward direction</firstterm> of the
- * iterator is the logical direction of text.  That is, with increasing
- * @start_index and @start_char values.  If @glyph_item is right-to-left
- * (that is, if <literal>@glyph_item->item->analysis.level</literal> is odd),
+ * A `PangoGlyphItemIter` is an iterator over the clusters in a
+ * `PangoGlyphItem`.
+ *
+ * The *forward direction* of the iterator is the logical direction of text.
+ * That is, with increasing @start_index and @start_char values. If @glyph_item
+ * is right-to-left (that is, if `glyph_item->item->analysis.level` is odd),
  * then @start_glyph decreases as the iterator moves forward.  Moreover,
  * in right-to-left cases, @start_glyph is greater than @end_glyph.
  *
- * An iterator should be initialized using either of
- * pango_glyph_item_iter_init_start() and
+ * An iterator should be initialized using either
+ * pango_glyph_item_iter_init_start() or
  * pango_glyph_item_iter_init_end(), for forward and backward iteration
  * respectively, and walked over using any desired mixture of
  * pango_glyph_item_iter_next_cluster() and
- * pango_glyph_item_iter_prev_cluster().  A common idiom for doing a
- * forward iteration over the clusters is:
- * <programlisting>
+ * pango_glyph_item_iter_prev_cluster().
+ *
+ * A common idiom for doing a forward iteration over the clusters is:
+ *
+ * ```
  * PangoGlyphItemIter cluster_iter;
  * gboolean have_cluster;
  *
- * for (have_cluster = pango_glyph_item_iter_init_start (&amp;cluster_iter,
+ * for (have_cluster = pango_glyph_item_iter_init_start (&cluster_iter,
  *                                                       glyph_item, text);
  *      have_cluster;
- *      have_cluster = pango_glyph_item_iter_next_cluster (&amp;cluster_iter))
+ *      have_cluster = pango_glyph_item_iter_next_cluster (&cluster_iter))
  * {
  *   ...
  * }
- * </programlisting>
+ * ```
  *
  * Note that @text is the start of the text for layout, which is then
- * indexed by <literal>@glyph_item->item->offset</literal> to get to the
- * text of @glyph_item.  The @start_index and @end_index values can directly
- * index into @text.  The @start_glyph, @end_glyph, @start_char, and @end_char
- * values however are zero-based for the @glyph_item.  For each cluster, the
- * item pointed at by the start variables is included in the cluster while
- * the one pointed at by end variables is not.
+ * indexed by `glyph_item->item->offset` to get to the text of @glyph_item.
+ * The @start_index and @end_index values can directly index into @text. The
+ * @start_glyph, @end_glyph, @start_char, and @end_char values however are
+ * zero-based for the @glyph_item.  For each cluster, the item pointed at by
+ * the start variables is included in the cluster while the one pointed at by
+ * end variables is not.
  *
- * None of the members of a #PangoGlyphItemIter should be modified manually.
+ * None of the members of a `PangoGlyphItemIter` should be modified manually.
  *
  * Since: 1.22
  */
@@ -140,13 +148,6 @@ struct _PangoGlyphItemIter
   int end_char;
 };
 
-/**
- * PANGO_TYPE_GLYPH_ITEM_ITER:
- *
- * The #GObject type for #PangoGlyphItemIter.
- *
- * Since: 1.22
- */
 #define PANGO_TYPE_GLYPH_ITEM_ITER (pango_glyph_item_iter_get_type ())
 
 PANGO_AVAILABLE_IN_1_22

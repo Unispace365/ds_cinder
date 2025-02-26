@@ -36,10 +36,10 @@ typedef struct _PangoLayoutLine  PangoLayoutLine;
 /**
  * PangoLayoutRun:
  *
- * The #PangoLayoutRun structure represents a single run within
- * a #PangoLayoutLine; it is simply an alternate name for
- * #PangoGlyphItem.
- * See the #PangoGlyphItem docs for details on the fields.
+ * A `PangoLayoutRun` represents a single run within a `PangoLayoutLine`.
+ *
+ * It is simply an alternate name for [struct@Pango.GlyphItem].
+ * See the [struct@Pango.GlyphItem] docs for details on the fields.
  */
 typedef PangoGlyphItem PangoLayoutRun;
 
@@ -49,9 +49,14 @@ typedef PangoGlyphItem PangoLayoutRun;
  * @PANGO_ALIGN_CENTER: Center the line within the available space
  * @PANGO_ALIGN_RIGHT: Put all available space on the left
  *
- * A #PangoAlignment describes how to align the lines of a #PangoLayout within the
- * available space. If the #PangoLayout is set to justify
- * using pango_layout_set_justify(), this only has effect for partial lines.
+ * `PangoAlignment` describes how to align the lines of a `PangoLayout`
+ * within the available space.
+ *
+ * If the `PangoLayout` is set to justify using [method@Pango.Layout.set_justify],
+ * this only affects partial lines.
+ *
+ * See [method@Pango.Layout.set_auto_dir] for how text direction affects
+ * the interpretation of `PangoAlignment` values.
  */
 typedef enum {
   PANGO_ALIGN_LEFT,
@@ -63,15 +68,30 @@ typedef enum {
  * PangoWrapMode:
  * @PANGO_WRAP_WORD: wrap lines at word boundaries.
  * @PANGO_WRAP_CHAR: wrap lines at character boundaries.
- * @PANGO_WRAP_WORD_CHAR: wrap lines at word boundaries, but fall back to character boundaries if there is not
- * enough space for a full word.
+ * @PANGO_WRAP_WORD_CHAR: wrap lines at word boundaries, but fall back to
+ *   character boundaries if there is not enough space for a full word.
  *
- * A #PangoWrapMode describes how to wrap the lines of a #PangoLayout to the desired width.
+ * `PangoWrapMode` describes how to wrap the lines of a `PangoLayout`
+ * to the desired width.
+ *
+ * For @PANGO_WRAP_WORD, Pango uses break opportunities that are determined
+ * by the Unicode line breaking algorithm. For @PANGO_WRAP_CHAR, Pango allows
+ * breaking at grapheme boundaries that are determined by the Unicode text
+ * segmentation algorithm.
+ */
+
+/**
+ * PANGO_WRAP_NONE:
+ *
+ * do not wrap.
+ *
+ * Since: 1.56
  */
 typedef enum {
   PANGO_WRAP_WORD,
   PANGO_WRAP_CHAR,
-  PANGO_WRAP_WORD_CHAR
+  PANGO_WRAP_WORD_CHAR,
+  PANGO_WRAP_NONE PANGO_AVAILABLE_ENUMERATOR_IN_1_56
 } PangoWrapMode;
 
 /**
@@ -81,9 +101,10 @@ typedef enum {
  * @PANGO_ELLIPSIZE_MIDDLE: Omit characters in the middle of the text
  * @PANGO_ELLIPSIZE_END: Omit characters at the end of the text
  *
- * The #PangoEllipsizeMode type describes what sort of (if any)
- * ellipsization should be applied to a line of text. In
- * the ellipsization process characters are removed from the
+ * `PangoEllipsizeMode` describes what sort of ellipsization
+ * should be applied to text.
+ *
+ * In the ellipsization process characters are removed from the
  * text in order to make it fit to a given width and replaced
  * with an ellipsis.
  */
@@ -96,22 +117,20 @@ typedef enum {
 
 /**
  * PangoLayoutLine:
- * @layout: (allow-none): the layout this line belongs to, might be %NULL
+ * @layout: (nullable): the layout this line belongs to, might be %NULL
  * @start_index: start of line as byte index into layout->text
  * @length: length of line in bytes
- * @runs: (allow-none) (element-type Pango.LayoutRun): list of runs in the
- *        line, from left to right
+ * @runs: (nullable) (element-type Pango.LayoutRun): list of runs in the
+ *   line, from left to right
  * @is_paragraph_start: #TRUE if this is the first line of the paragraph
  * @resolved_dir: #Resolved PangoDirection of line
  *
- * The #PangoLayoutLine structure represents one of the lines resulting
- * from laying out a paragraph via #PangoLayout. #PangoLayoutLine
- * structures are obtained by calling pango_layout_get_line() and
- * are only valid until the text, attributes, or settings of the
- * parent #PangoLayout are modified.
+ * A `PangoLayoutLine` represents one of the lines resulting from laying
+ * out a paragraph via `PangoLayout`.
  *
- * Routines for rendering PangoLayout objects are provided in
- * code specific to each rendering system.
+ * `PangoLayoutLine` structures are obtained by calling
+ * [method@Pango.Layout.get_line] and are only valid until the text,
+ * attributes, or settings of the parent `PangoLayout` are modified.
  */
 struct _PangoLayoutLine
 {
@@ -206,11 +225,21 @@ void           pango_layout_set_spacing          (PangoLayout                *la
 						  int                         spacing);
 PANGO_AVAILABLE_IN_ALL
 int            pango_layout_get_spacing          (PangoLayout                *layout);
+PANGO_AVAILABLE_IN_1_44
+void           pango_layout_set_line_spacing     (PangoLayout                *layout,
+                                                  float                       factor);
+PANGO_AVAILABLE_IN_1_44
+float          pango_layout_get_line_spacing     (PangoLayout                *layout);
 PANGO_AVAILABLE_IN_ALL
 void           pango_layout_set_justify          (PangoLayout                *layout,
-						  gboolean                    justify);
+                                                  gboolean                    justify);
 PANGO_AVAILABLE_IN_ALL
 gboolean       pango_layout_get_justify          (PangoLayout                *layout);
+PANGO_AVAILABLE_IN_1_50
+void           pango_layout_set_justify_last_line (PangoLayout                *layout,
+                                                   gboolean                    justify);
+PANGO_AVAILABLE_IN_1_50
+gboolean       pango_layout_get_justify_last_line (PangoLayout                *layout);
 PANGO_AVAILABLE_IN_1_4
 void           pango_layout_set_auto_dir         (PangoLayout                *layout,
 						  gboolean                    auto_dir);
@@ -225,7 +254,6 @@ PangoAlignment pango_layout_get_alignment        (PangoLayout                *la
 PANGO_AVAILABLE_IN_ALL
 void           pango_layout_set_tabs             (PangoLayout                *layout,
 						  PangoTabArray              *tabs);
-
 PANGO_AVAILABLE_IN_ALL
 PangoTabArray* pango_layout_get_tabs             (PangoLayout                *layout);
 
@@ -245,6 +273,10 @@ gboolean           pango_layout_is_ellipsized (PangoLayout        *layout);
 
 PANGO_AVAILABLE_IN_1_16
 int      pango_layout_get_unknown_glyphs_count (PangoLayout    *layout);
+
+PANGO_AVAILABLE_IN_1_46
+PangoDirection pango_layout_get_direction (PangoLayout *layout,
+                                           int          index);
 
 PANGO_AVAILABLE_IN_ALL
 void     pango_layout_context_changed (PangoLayout    *layout);
@@ -275,6 +307,13 @@ void     pango_layout_get_cursor_pos       (PangoLayout    *layout,
 					    int             index_,
 					    PangoRectangle *strong_pos,
 					    PangoRectangle *weak_pos);
+
+PANGO_AVAILABLE_IN_1_50
+void     pango_layout_get_caret_pos        (PangoLayout    *layout,
+                                            int             index_,
+                                            PangoRectangle *strong_pos,
+                                            PangoRectangle *weak_pos);
+
 PANGO_AVAILABLE_IN_ALL
 void     pango_layout_move_cursor_visually (PangoLayout    *layout,
 					    gboolean        strong,
@@ -321,6 +360,81 @@ GSList *         pango_layout_get_lines            (PangoLayout    *layout);
 PANGO_AVAILABLE_IN_1_16
 GSList *         pango_layout_get_lines_readonly   (PangoLayout    *layout);
 
+/**
+ * PangoLayoutSerializeFlags:
+ * @PANGO_LAYOUT_SERIALIZE_DEFAULT: Default behavior
+ * @PANGO_LAYOUT_SERIALIZE_CONTEXT: Include context information
+ * @PANGO_LAYOUT_SERIALIZE_OUTPUT: Include information about the formatted output
+ *
+ * Flags that influence the behavior of [method@Pango.Layout.serialize].
+ *
+ * New members may be added to this enumeration over time.
+ *
+ * Since: 1.50
+ */
+typedef enum {
+  PANGO_LAYOUT_SERIALIZE_DEFAULT = 0,
+  PANGO_LAYOUT_SERIALIZE_CONTEXT = 1 << 0,
+  PANGO_LAYOUT_SERIALIZE_OUTPUT = 1 << 1,
+} PangoLayoutSerializeFlags;
+
+PANGO_AVAILABLE_IN_1_50
+GBytes *        pango_layout_serialize             (PangoLayout                *layout,
+                                                    PangoLayoutSerializeFlags   flags);
+
+PANGO_AVAILABLE_IN_1_50
+gboolean        pango_layout_write_to_file         (PangoLayout                 *layout,
+                                                    PangoLayoutSerializeFlags   flags,
+
+                                                    const char                  *filename,
+                                                    GError                     **error);
+
+#define PANGO_LAYOUT_DESERIALIZE_ERROR (pango_layout_deserialize_error_quark ())
+
+/**
+ * PangoLayoutDeserializeError:
+ * @PANGO_LAYOUT_DESERIALIZE_INVALID: Unspecified error
+ * @PANGO_LAYOUT_DESERIALIZE_INVALID_VALUE: A JSon value could not be
+ *   interpreted
+ * @PANGO_LAYOUT_DESERIALIZE_MISSING_VALUE: A required JSon member was
+ *   not found
+ *
+ * Errors that can be returned by [func@Pango.Layout.deserialize].
+ *
+ * Since: 1.50
+ */
+typedef enum {
+  PANGO_LAYOUT_DESERIALIZE_INVALID,
+  PANGO_LAYOUT_DESERIALIZE_INVALID_VALUE,
+  PANGO_LAYOUT_DESERIALIZE_MISSING_VALUE,
+} PangoLayoutDeserializeError;
+
+PANGO_AVAILABLE_IN_1_50
+GQuark          pango_layout_deserialize_error_quark (void);
+
+/**
+ * PangoLayoutDeserializeFlags:
+ * @PANGO_LAYOUT_DESERIALIZE_DEFAULT: Default behavior
+ * @PANGO_LAYOUT_DESERIALIZE_CONTEXT: Apply context information
+ *   from the serialization to the `PangoContext`
+ *
+ * Flags that influence the behavior of [func@Pango.Layout.deserialize].
+ *
+ * New members may be added to this enumeration over time.
+ *
+ * Since: 1.50
+ */
+typedef enum {
+  PANGO_LAYOUT_DESERIALIZE_DEFAULT = 0,
+  PANGO_LAYOUT_DESERIALIZE_CONTEXT = 1 << 0,
+} PangoLayoutDeserializeFlags;
+
+PANGO_AVAILABLE_IN_1_50
+PangoLayout *   pango_layout_deserialize           (PangoContext                 *context,
+                                                    GBytes                       *bytes,
+                                                    PangoLayoutDeserializeFlags   flags,
+                                                    GError                      **error);
+
 
 #define PANGO_TYPE_LAYOUT_LINE (pango_layout_line_get_type ())
 
@@ -331,6 +445,15 @@ PANGO_AVAILABLE_IN_1_10
 PangoLayoutLine *pango_layout_line_ref   (PangoLayoutLine *line);
 PANGO_AVAILABLE_IN_ALL
 void             pango_layout_line_unref (PangoLayoutLine *line);
+
+PANGO_AVAILABLE_IN_1_50
+int      pango_layout_line_get_start_index (PangoLayoutLine *line);
+PANGO_AVAILABLE_IN_1_50
+int      pango_layout_line_get_length      (PangoLayoutLine *line);
+PANGO_AVAILABLE_IN_1_50
+gboolean pango_layout_line_is_paragraph_start (PangoLayoutLine *line);
+PANGO_AVAILABLE_IN_1_50
+PangoDirection pango_layout_line_get_resolved_direction (PangoLayoutLine *line);
 
 PANGO_AVAILABLE_IN_ALL
 gboolean pango_layout_line_x_to_index   (PangoLayoutLine  *line,
@@ -352,6 +475,10 @@ PANGO_AVAILABLE_IN_ALL
 void     pango_layout_line_get_extents  (PangoLayoutLine  *line,
 					 PangoRectangle   *ink_rect,
 					 PangoRectangle   *logical_rect);
+PANGO_AVAILABLE_IN_1_44
+void     pango_layout_line_get_height   (PangoLayoutLine  *line,
+					 int              *height);
+
 PANGO_AVAILABLE_IN_ALL
 void     pango_layout_line_get_pixel_extents (PangoLayoutLine *layout_line,
 					      PangoRectangle  *ink_rect,
@@ -423,6 +550,12 @@ void pango_layout_iter_get_layout_extents  (PangoLayoutIter *iter,
 					    PangoRectangle  *logical_rect);
 PANGO_AVAILABLE_IN_ALL
 int  pango_layout_iter_get_baseline        (PangoLayoutIter *iter);
+PANGO_AVAILABLE_IN_1_50
+int  pango_layout_iter_get_run_baseline    (PangoLayoutIter *iter);
+
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(PangoLayout, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(PangoLayoutIter, pango_layout_iter_free)
 
 G_END_DECLS
 
