@@ -1041,7 +1041,7 @@ void Text::findFitFontSizeFromArray() {
 
 
 			// DS_LOG_INFO("offset: "<<offsety);
-			auto offsety = inkRect.y;
+			auto   offsety = inkRect.y;
 			double h	   = std::max(extentRect.height, inkRect.height) + offsety;
 			double limit_h = mResizeLimitHeight;
 			while (h < limit_h) {
@@ -1058,7 +1058,7 @@ void Text::findFitFontSizeFromArray() {
 				// get height
 				pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
 				offsety = inkRect.y;
-				h = std::max(extentRect.height, inkRect.height) + offsety;
+				h		= std::max(extentRect.height, inkRect.height) + offsety;
 
 				if (h >= limit_h) {
 					// DS_LOG_INFO("Over limit rewinding idx");
@@ -1110,7 +1110,7 @@ void Text::findFitFontSizeFromArray() {
 					}
 				}
 				idx = std::max(0, idx);
-				fs = mStyle.mFitSizes[idx];
+				fs	= mStyle.mFitSizes[idx];
 				// pick the smaller one;
 				fs = std::min(height_fs, fs);
 				fs = mStyle.mFitMaxTextSize > 0 ? std::min(mStyle.mFitMaxTextSize, fs) : fs;
@@ -1556,6 +1556,7 @@ void Text::measureMinMaxTextSize() {
 
 	// Store the current values, so we can restore them after measuring.
 	auto style				= mStyle;
+	auto wrapMode			= mWrapMode;
 	auto ellipsizeMode		= mEllipsizeMode;
 	auto fitToResizeLimit	= mFitToResizeLimit;
 	auto fitCurrentTextSize = mFitCurrentTextSize;
@@ -1564,6 +1565,7 @@ void Text::measureMinMaxTextSize() {
 
 	std::sort(style.mFitSizes.begin(), style.mFitSizes.end());
 	mFitToResizeLimit = false;
+	mWrapMode		  = WrapMode::kWrapModeWord;
 	mEllipsizeMode	  = EllipsizeMode::kEllipsizeNone;
 
 	// Use smallest font size.
@@ -1595,6 +1597,7 @@ void Text::measureMinMaxTextSize() {
 	// Restore the original resize limits.
 	mFitCurrentTextSize = fitCurrentTextSize;
 	mEllipsizeMode		= ellipsizeMode;
+	mWrapMode			= wrapMode;
 	mFitToResizeLimit	= fitToResizeLimit;
 
 	setResizeLimit(resizeLimitWidth, resizeLimitHeight);
