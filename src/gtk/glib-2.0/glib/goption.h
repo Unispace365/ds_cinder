@@ -2,6 +2,8 @@
  *
  *  Copyright (C) 2004  Anders Carlsson <andersca@gnome.org>
  *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -58,7 +60,8 @@ typedef struct _GOptionEntry   GOptionEntry;
  * @G_OPTION_FLAG_IN_MAIN: The option appears in the main section of the
  *     `--help` output, even if it is defined in a group.
  * @G_OPTION_FLAG_REVERSE: For options of the %G_OPTION_ARG_NONE kind, this
- *     flag indicates that the sense of the option is reversed.
+ *     flag indicates that the sense of the option is reversed. i.e. %FALSE will
+ *     be stored into the argument rather than %TRUE.
  * @G_OPTION_FLAG_NO_ARG: For options of the %G_OPTION_ARG_CALLBACK kind,
  *     this flag indicates that the callback does not take any argument
  *     (like a %G_OPTION_ARG_NONE option). Since 2.8
@@ -92,12 +95,13 @@ typedef enum
 
 /**
  * GOptionArg:
- * @G_OPTION_ARG_NONE: No extra argument. This is useful for simple flags.
- * @G_OPTION_ARG_STRING: The option takes a string argument.
+ * @G_OPTION_ARG_NONE: No extra argument. This is useful for simple flags or booleans.
+ * @G_OPTION_ARG_STRING: The option takes a UTF-8 string argument.
  * @G_OPTION_ARG_INT: The option takes an integer argument.
  * @G_OPTION_ARG_CALLBACK: The option provides a callback (of type
  *     #GOptionArgFunc) to parse the extra argument.
- * @G_OPTION_ARG_FILENAME: The option takes a filename as argument.
+ * @G_OPTION_ARG_FILENAME: The option takes a filename as argument, which will
+       be in the GLib filename encoding rather than UTF-8.
  * @G_OPTION_ARG_STRING_ARRAY: The option takes a string argument, multiple
  *     uses of the option are collected into an array of strings.
  * @G_OPTION_ARG_FILENAME_ARRAY: The option takes a filename as argument, 
@@ -230,13 +234,13 @@ GQuark g_option_error_quark (void);
  *     called to handle the extra argument. Otherwise, @arg_data is a
  *     pointer to a location to store the value, the required type of
  *     the location depends on the @arg type:
- *     - %G_OPTION_ARG_NONE: %gboolean
- *     - %G_OPTION_ARG_STRING: %gchar*
- *     - %G_OPTION_ARG_INT: %gint
- *     - %G_OPTION_ARG_FILENAME: %gchar*
- *     - %G_OPTION_ARG_STRING_ARRAY: %gchar**
- *     - %G_OPTION_ARG_FILENAME_ARRAY: %gchar**
- *     - %G_OPTION_ARG_DOUBLE: %gdouble
+ *      - %G_OPTION_ARG_NONE: %gboolean
+ *      - %G_OPTION_ARG_STRING: %gchar*
+ *      - %G_OPTION_ARG_INT: %gint
+ *      - %G_OPTION_ARG_FILENAME: %gchar*
+ *      - %G_OPTION_ARG_STRING_ARRAY: %gchar**
+ *      - %G_OPTION_ARG_FILENAME_ARRAY: %gchar**
+ *      - %G_OPTION_ARG_DOUBLE: %gdouble
  *     If @arg type is %G_OPTION_ARG_STRING or %G_OPTION_ARG_FILENAME,
  *     the location will contain a newly allocated string if the option
  *     was given. That string needs to be freed by the callee using g_free().
@@ -277,13 +281,31 @@ struct _GOptionEntry
  * or %G_OPTION_ARG_FILENAME_ARRAY.
  * 
  * 
- * Using #G_OPTION_REMAINING instead of simply scanning `argv`
+ * Using %G_OPTION_REMAINING instead of simply scanning `argv`
  * for leftover arguments has the advantage that GOption takes care of 
  * necessary encoding conversions for strings or filenames.
  * 
  * Since: 2.6
  */
 #define G_OPTION_REMAINING ""
+
+/**
+ * G_OPTION_ENTRY_NULL:
+ *
+ * A #GOptionEntry array requires a %NULL terminator, this macro can
+ * be used as terminator instead of an explicit `{ 0 }` but it cannot
+ * be assigned to a variable.
+ *
+ * |[
+ *   GOptionEntry option[] = { G_OPTION_ENTRY_NULL };
+ * ]|
+ *
+ * Since: 2.70
+ */
+#define G_OPTION_ENTRY_NULL    \
+  GLIB_AVAILABLE_MACRO_IN_2_70 \
+  { NULL, 0, 0, 0, NULL, NULL, NULL }
+
 
 GLIB_AVAILABLE_IN_ALL
 GOptionContext *g_option_context_new              (const gchar         *parameter_string);

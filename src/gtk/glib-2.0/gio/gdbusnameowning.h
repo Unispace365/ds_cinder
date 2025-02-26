@@ -2,6 +2,8 @@
  *
  * Copyright (C) 2008-2010 Red Hat, Inc.
  *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -72,7 +74,7 @@ typedef void (*GBusNameLostCallback) (GDBusConnection *connection,
                                       const gchar     *name,
                                       gpointer         user_data);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 guint g_bus_own_name                 (GBusType                  bus_type,
                                       const gchar              *name,
                                       GBusNameOwnerFlags        flags,
@@ -82,7 +84,7 @@ guint g_bus_own_name                 (GBusType                  bus_type,
                                       gpointer                  user_data,
                                       GDestroyNotify            user_data_free_func);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 guint g_bus_own_name_on_connection   (GDBusConnection          *connection,
                                       const gchar              *name,
                                       GBusNameOwnerFlags        flags,
@@ -91,7 +93,7 @@ guint g_bus_own_name_on_connection   (GDBusConnection          *connection,
                                       gpointer                  user_data,
                                       GDestroyNotify            user_data_free_func);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 guint g_bus_own_name_with_closures   (GBusType                  bus_type,
                                       const gchar              *name,
                                       GBusNameOwnerFlags        flags,
@@ -99,7 +101,7 @@ guint g_bus_own_name_with_closures   (GBusType                  bus_type,
                                       GClosure                 *name_acquired_closure,
                                       GClosure                 *name_lost_closure);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 guint g_bus_own_name_on_connection_with_closures (
                                       GDBusConnection          *connection,
                                       const gchar              *name,
@@ -107,7 +109,7 @@ guint g_bus_own_name_on_connection_with_closures (
                                       GClosure                 *name_acquired_closure,
                                       GClosure                 *name_lost_closure);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void  g_bus_unown_name               (guint                     owner_id);
 
 G_END_DECLS

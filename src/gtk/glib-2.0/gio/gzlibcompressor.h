@@ -2,6 +2,8 @@
  *
  * Copyright (C) 2009 Red Hat, Inc.
  *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -44,16 +46,16 @@ struct _GZlibCompressorClass
   GObjectClass parent_class;
 };
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GType            g_zlib_compressor_get_type (void) G_GNUC_CONST;
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GZlibCompressor *g_zlib_compressor_new (GZlibCompressorFormat format,
 					int level);
 
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 GFileInfo       *g_zlib_compressor_get_file_info (GZlibCompressor *compressor);
-GLIB_AVAILABLE_IN_ALL
+GIO_AVAILABLE_IN_ALL
 void             g_zlib_compressor_set_file_info (GZlibCompressor *compressor,
                                                   GFileInfo       *file_info);
 
