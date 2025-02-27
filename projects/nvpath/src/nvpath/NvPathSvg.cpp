@@ -52,49 +52,73 @@ namespace {
 		return c;
 	}
 
-	// float parseFloat(const char** sInOut) {
-	//	char		  temp[256];
-	//	unsigned char i = 0;
-	//	const char*	  s = *sInOut;
-	//	while (*s && (isspace(*s) || *s == ','))
-	//		s++;
-	//	if (!s) throw FloatParseExc();
-	//	if (ds::isNumeric(*s)) {
-	//		while (*s == '-' || *s == '+') {
-	//			temp[i++] = *s;
-	//			if (!i) throw FloatParseExc(); // buffer overflow
-	//			s++;
-	//		}
-	//		bool parsingExponent  = false;
-	//		bool startingExponent = false;
-	//		bool seenDecimal	  = false;
-	//		while (*s && (parsingExponent || (*s != '-' && *s != '+')) && ds::isNumeric(*s)) {
-	//			startingExponent = false;
-	//			if (*s == '.' && seenDecimal)
-	//				break;
-	//			else if (*s == '.')
-	//				seenDecimal = true;
-	//			temp[i++] = *s;
-	//			if (!i) throw FloatParseExc(); // buffer overflow
-	//			if (*s == 'e' || *s == 'E') {
-	//				parsingExponent	 = true;
-	//				startingExponent = true;
-	//			} else
-	//				parsingExponent = false;
-	//			s++;
-	//		}
-	//		if (startingExponent) { // if we got a false positive on an exponent, for example due to "ex" or "em"
-	//								// unit, back up one
-	//			--i;
-	//			--s;
-	//		}
-	//		temp[i]			  = 0;
-	//		const auto result = float(strtod(temp, nullptr));
-	//		*sInOut			  = s;
-	//		return result;
-	//	} else
-	//		throw FloatParseExc();
-	// }
+	const char* getNextPathItem(const char* s, char it[64]) {
+		int i = 0;
+		it[0] = '\0';
+		// Skip white spaces and commas
+		while (*s && (isspace(*s) || *s == ','))
+			s++;
+		if (!*s) return s;
+		if (ds::isNumeric(*s)) {
+			while (*s == '-' || *s == '+') {
+				if (i < 63) it[i++] = *s;
+				s++;
+			}
+			bool parsingExponent = false;
+			while (*s && (parsingExponent || (*s != '-' && *s != '+')) && ds::isNumeric(*s)) {
+				if (i < 63) it[i++] = *s;
+				if (*s == 'e' || *s == 'E')
+					parsingExponent = true;
+				else
+					parsingExponent = false;
+				s++;
+			}
+			it[i] = '\0';
+		} else {
+			it[0] = *s++;
+			it[1] = '\0';
+			return s;
+		}
+
+		return s;
+	}
+
+	char readNextCommand(const char** sInOut) {
+		const char* s = *sInOut;
+		while (*s && (isspace(*s) || *s == ','))
+			s++;
+		*sInOut = s + 1;
+		return *s;
+	}
+
+	bool readFlag(const char** sInOut) {
+		const char* s = *sInOut;
+		while (*s && (isspace(*s) || *s == ',' || *s == '-' || *s == '+'))
+			s++;
+		*sInOut = s + 1;
+		return *s != '0';
+	}
+
+	bool nextItemIsFloat(const char* s) {
+		while (*s && (isspace(*s) || *s == ','))
+			s++;
+		return ds::isNumeric(*s);
+	}
+
+	int readInt(const char** sInOut) {
+		ds::skipSpaceOrComma(sInOut);
+		return ds::parseInt(sInOut);
+	}
+
+	float readFloat(const char** sInOut) {
+		ds::skipSpaceOrComma(sInOut);
+		return ds::parseFloat(sInOut);
+	}
+
+	double readDouble(const char** sInOut) {
+		ds::skipSpaceOrComma(sInOut);
+		return ds::parseDouble(sInOut);
+	}
 
 	// parses float from comma-separated parenthetical list
 	vector<float> parseFloatList(const char** c) {
@@ -733,7 +757,7 @@ float Value::asUserHeight(const SvgDoc* doc, const Style& style) const {
 
 // Reads the suffix and converts it to user units based on dpi
 Value Value::parse(const char** sInOut) {
-	float v = ds::parseFloat(sInOut);
+	float v = readFloat(sInOut);
 	if (strncmp(*sInOut, "px", 2) == 0) {
 		*sInOut += 2;
 		return {v, PX};
@@ -2384,59 +2408,6 @@ void ellipticalArc(Shape2d& path, float x1, float y1, float x2, float y2, float 
 	}
 }
 
-static const char* getNextPathItem(const char* s, char it[64]) {
-	int i = 0;
-	it[0] = '\0';
-	// Skip white spaces and commas
-	while (*s && (isspace(*s) || *s == ','))
-		s++;
-	if (!*s) return s;
-	if (ds::isNumeric(*s)) {
-		while (*s == '-' || *s == '+') {
-			if (i < 63) it[i++] = *s;
-			s++;
-		}
-		bool parsingExponent = false;
-		while (*s && (parsingExponent || (*s != '-' && *s != '+')) && ds::isNumeric(*s)) {
-			if (i < 63) it[i++] = *s;
-			if (*s == 'e' || *s == 'E')
-				parsingExponent = true;
-			else
-				parsingExponent = false;
-			s++;
-		}
-		it[i] = '\0';
-	} else {
-		it[0] = *s++;
-		it[1] = '\0';
-		return s;
-	}
-
-	return s;
-}
-
-char readNextCommand(const char** sInOut) {
-	const char* s = *sInOut;
-	while (*s && (isspace(*s) || *s == ','))
-		s++;
-	*sInOut = s + 1;
-	return *s;
-}
-
-bool readFlag(const char** sInOut) {
-	const char* s = *sInOut;
-	while (*s && (isspace(*s) || *s == ',' || *s == '-' || *s == '+'))
-		s++;
-	*sInOut = s + 1;
-	return *s != '0';
-}
-
-bool nextItemIsFloat(const char* s) {
-	while (*s && (isspace(*s) || *s == ','))
-		s++;
-	return ds::isNumeric(*s);
-}
-
 Shape2d parsePath(const std::string& p) {
 	const char* s = p.c_str();
 	vec2		v0;
@@ -2455,15 +2426,15 @@ Shape2d parsePath(const std::string& p) {
 			switch (cmd) {
 			case 'm':
 			case 'M':
-				v0.x = ds::parseFloat(&s);
-				v0.y = ds::parseFloat(&s);
+				v0.x = readFloat(&s);
+				v0.y = readFloat(&s);
 				if ((!firstCmd) && (cmd == 'm')) v0 += lastPoint;
 				result.moveTo(v0);
 				lastPoint2 = lastPoint;
 				lastPoint  = v0;
 				while (nextItemIsFloat(s)) {
-					v0.x = ds::parseFloat(&s);
-					v0.y = ds::parseFloat(&s);
+					v0.x = readFloat(&s);
+					v0.y = readFloat(&s);
 					if (cmd == 'm') v0 += lastPoint;
 					result.lineTo(v0);
 					lastPoint2 = lastPoint;
@@ -2473,8 +2444,8 @@ Shape2d parsePath(const std::string& p) {
 			case 'l':
 			case 'L':
 				do {
-					v0.x = ds::parseFloat(&s);
-					v0.y = ds::parseFloat(&s);
+					v0.x = readFloat(&s);
+					v0.y = readFloat(&s);
 					if (cmd == 'l') v0 += lastPoint;
 					result.lineTo(v0);
 					lastPoint2 = lastPoint;
@@ -2484,7 +2455,7 @@ Shape2d parsePath(const std::string& p) {
 			case 'H':
 			case 'h':
 				do {
-					float x = ds::parseFloat(&s);
+					float x = readFloat(&s);
 					v0		= vec2((cmd == 'h') ? (lastPoint.x + x) : x, lastPoint.y);
 					result.lineTo(v0);
 					lastPoint2 = lastPoint;
@@ -2494,7 +2465,7 @@ Shape2d parsePath(const std::string& p) {
 			case 'V':
 			case 'v':
 				do {
-					float y = ds::parseFloat(&s);
+					float y = readFloat(&s);
 					v0		= vec2(lastPoint.x, (cmd == 'v') ? (lastPoint.y + y) : (y));
 					result.lineTo(v0);
 					lastPoint2 = lastPoint;
@@ -2504,12 +2475,12 @@ Shape2d parsePath(const std::string& p) {
 			case 'C':
 			case 'c':
 				do {
-					v0.x = ds::parseFloat(&s);
-					v0.y = ds::parseFloat(&s);
-					v1.x = ds::parseFloat(&s);
-					v1.y = ds::parseFloat(&s);
-					v2.x = ds::parseFloat(&s);
-					v2.y = ds::parseFloat(&s);
+					v0.x = readFloat(&s);
+					v0.y = readFloat(&s);
+					v1.x = readFloat(&s);
+					v1.y = readFloat(&s);
+					v2.x = readFloat(&s);
+					v2.y = readFloat(&s);
 					if (cmd == 'c') { // relative
 						v0 += lastPoint;
 						v1 += lastPoint;
@@ -2528,10 +2499,10 @@ Shape2d parsePath(const std::string& p) {
 					else
 						v0 = lastPoint;
 					prevCmd = cmd; // set this now in case we loop
-					v1.x	= ds::parseFloat(&s);
-					v1.y	= ds::parseFloat(&s);
-					v2.x	= ds::parseFloat(&s);
-					v2.y	= ds::parseFloat(&s);
+					v1.x	= readFloat(&s);
+					v1.y	= readFloat(&s);
+					v2.x	= readFloat(&s);
+					v2.y	= readFloat(&s);
 					if (cmd == 's') { // relative
 						v1 += lastPoint;
 						v2 += lastPoint;
@@ -2544,10 +2515,10 @@ Shape2d parsePath(const std::string& p) {
 			case 'Q':
 			case 'q':
 				do {
-					v0.x = ds::parseFloat(&s);
-					v0.y = ds::parseFloat(&s);
-					v1.x = ds::parseFloat(&s);
-					v1.y = ds::parseFloat(&s);
+					v0.x = readFloat(&s);
+					v0.y = readFloat(&s);
+					v1.x = readFloat(&s);
+					v1.y = readFloat(&s);
 					if (cmd == 'q') { // relative
 						v0 += lastPoint;
 						v1 += lastPoint;
@@ -2565,8 +2536,8 @@ Shape2d parsePath(const std::string& p) {
 					else
 						v0 = lastPoint;
 					prevCmd = cmd; // set this now in case we loop
-					v1.x	= ds::parseFloat(&s);
-					v1.y	= ds::parseFloat(&s);
+					v1.x	= readFloat(&s);
+					v1.y	= readFloat(&s);
 					if (cmd == 't') { // relative
 						v1 += lastPoint;
 					}
@@ -2578,13 +2549,13 @@ Shape2d parsePath(const std::string& p) {
 			case 'a':
 			case 'A': {
 				do {
-					float ra			= ds::parseFloat(&s);
-					float rb			= ds::parseFloat(&s);
-					float xAxisRotation = ds::parseFloat(&s) * float(M_PI) / 180.0f;
-					bool  largeArc		= readFlag(&s);
-					bool  sweepFlag		= readFlag(&s);
-					v0.x				= ds::parseFloat(&s);
-					v0.y				= ds::parseFloat(&s);
+					float ra = readFloat(&s);
+					float rb = readFloat(&s);
+					float xAxisRotation = readFloat(&s) * float(M_PI) / 180.0f;
+					bool largeArc = readFlag(&s);
+					bool sweepFlag = readFlag(&s);
+					v0.x = readFloat(&s);
+					v0.y = readFloat(&s);
 					if (cmd == 'a') { // relative
 						v0 += lastPoint;
 					}
@@ -3744,10 +3715,10 @@ void SvgDoc::loadDoc(const XmlTree& xml) {
 	if (xml.hasAttribute("viewBox")) {
 		const auto	vbox   = xml.getAttributeValue<string>("viewBox");
 		const char* vbCPtr = vbox.c_str();
-		mViewBox.x1		   = ds::parseFloat(&vbCPtr);
-		mViewBox.y1		   = ds::parseFloat(&vbCPtr);
-		mViewBox.x2		   = mViewBox.x1 + ds::parseFloat(&vbCPtr);
-		mViewBox.y2		   = mViewBox.y1 + ds::parseFloat(&vbCPtr);
+		mViewBox.x1		   = readFloat(&vbCPtr);
+		mViewBox.y1		   = readFloat(&vbCPtr);
+		mViewBox.x2		   = mViewBox.x1 + readFloat(&vbCPtr);
+		mViewBox.y2		   = mViewBox.y1 + readFloat(&vbCPtr);
 	} else {
 		const SvgDoc* doc = getDoc();
 		if (doc)
