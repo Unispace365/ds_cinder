@@ -573,13 +573,15 @@ void TitledMediaViewer::onMediaSet() {
 				// mRootLayout->runLayout();
 			});
 
-			webby->setFullscreenChangedCallback([this](bool isFullscreen) {
-				if (isFullscreen && !getIsFullscreen()) {
-					mEventClient.notify(RequestFullscreenViewer(this));
-				} else if (!isFullscreen && getIsFullscreen()) {
-					mEventClient.notify(RequestUnFullscreenViewer(this));
-				}
-			});
+			if(mEngine.getWafflesSettings().getBool("media_viewer:web:trigger_waffles_fullscreen", 0, "true")){
+				webby->setFullscreenChangedCallback([this](bool isFullscreen) {
+					if (isFullscreen && !getIsFullscreen()) {
+						mEventClient.notify(RequestFullscreenViewer(this));
+					} else if (!isFullscreen && getIsFullscreen()) {
+						mEventClient.notify(RequestUnFullscreenViewer(this));
+					}
+				});
+			}
 		}
 	}
 

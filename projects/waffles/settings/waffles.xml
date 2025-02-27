@@ -90,6 +90,7 @@
 	<setting name="media_viewer:allow_rotation" value="false" type="bool" />
 	<setting name="media_viewer:allow_duplicate" value="false" type="bool" />
 	<setting name="media_viewer:allow_fullscreen" value="true" type="bool" />
+	<setting name="media_viewer:web:trigger_waffles_fullscreen" value="true" type="bool" comment="Determines if web assets that have a fullscreen button (i.e. google slides) should fullscreen the viewer in waffles or just fullscreen within the viewer" />
 	
 	<setting name="overall:title" value="Menu" type="string"/>
 	<setting name="screen:app:mode" value="wall" type="string" comment="single or walle"/>
