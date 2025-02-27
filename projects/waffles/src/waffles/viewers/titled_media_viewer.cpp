@@ -772,7 +772,7 @@ void TitledMediaViewer::processAllowedButtons() const {
 void TitledMediaViewer::processAllowedTouch() {
 	// Enable/disable touch events but keep constraints.
 	if (mIsFullscreen) {
-		enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE);
+		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	} else if (mIsDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 	} else {
