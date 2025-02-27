@@ -824,11 +824,9 @@ void Path::coverFill(const gl::Texture2dRef& texture, const Rectf& bounds, bool 
 
 void Path::stroke(const ColorA& color, float opacity, bool clearStencil) const {
 	if (mPathId > 0) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0xFF >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -843,14 +841,14 @@ void Path::stroke(const ColorA& color, float opacity, bool clearStencil) const {
 		ScopedShader scpShader(color, opacity);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverStrokePathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverStrokePathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverStrokePathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -859,11 +857,9 @@ void Path::stroke(const ColorA& color, float opacity, bool clearStencil) const {
 
 void Path::stroke(const Paint& paint, float opacity, bool clearStencil) const {
 	if (mPathId > 0 && !paint.isNone()) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0x80 >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -881,14 +877,14 @@ void Path::stroke(const Paint& paint, float opacity, bool clearStencil) const {
 		ScopedPaints scpGradients(paints);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverStrokePathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverStrokePathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverStrokePathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -953,11 +949,9 @@ void Path::strokeInstanced(const std::vector<GLuint>& paths, const std::vector<g
 
 void Path::fill(const ColorA& color, float opacity, bool clearStencil) const {
 	if (mPathId > 0) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0xFF >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -965,21 +959,21 @@ void Path::fill(const ColorA& color, float opacity, bool clearStencil) const {
 			gl::stencilFunc(GL_LESS, GLint(~bitMask & 0xFF), 0xFF); // Only render if all clip bits are set.
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		} else {
-			gl::stencilFunc(GL_NOTEQUAL, 0, 0xFF);
+			gl::stencilFunc(GL_NOTEQUAL, 0, bitMask);
 			gl::stencilOp(GL_KEEP, GL_KEEP, clearStencil ? GL_ZERO : GL_KEEP);
 		}
 
 		ScopedShader scpShader(color, opacity);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverFillPathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -988,11 +982,9 @@ void Path::fill(const ColorA& color, float opacity, bool clearStencil) const {
 
 void Path::fill(const Paint& paint, float opacity, bool clearStencil) const {
 	if (mPathId > 0 && !paint.isNone()) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0xFF >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -1009,14 +1001,14 @@ void Path::fill(const Paint& paint, float opacity, bool clearStencil) const {
 		ScopedPaints scpGradients(paints);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverFillPathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -1025,11 +1017,9 @@ void Path::fill(const Paint& paint, float opacity, bool clearStencil) const {
 
 void Path::fill(const Paint& paint, const gl::TextureRef& texture, float opacity, bool clearStencil) const {
 	if (mPathId > 0 && !paint.isNone()) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0xFF >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -1047,14 +1037,14 @@ void Path::fill(const Paint& paint, const gl::TextureRef& texture, float opacity
 		gl::ScopedTextureBind scpTexture(texture, 0);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverFillPathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -1082,11 +1072,9 @@ void Path::fill(const gl::TextureRef& texture, const Rectf& bounds, float opacit
 void Path::fill(const gl::TextureRef& texture, const vec2& upperLeftTexCoord, const vec2& lowerRightTexCoord,
 				float opacity, bool clearStencil) const {
 	if (mPathId > 0) {
-		GLuint clipMask	 = 0x80 >> sClipPaths().size();
-		GLuint coverMask = clipMask - 1;
-		GLuint bitMask	 = coverMask << 1 | 0x01;
+		GLuint bitMask = 0xFF >> sClipPaths().size();
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		ScopedStencilMask scpStencilMask(bitMask); // Don't write to previous clip bits.
 		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
 
 		if (!sClipPaths().empty()) {
@@ -1110,14 +1098,14 @@ void Path::fill(const gl::TextureRef& texture, const vec2& upperLeftTexCoord, co
 		scpShader.setCoords(GL_PATH_OBJECT_BOUNDING_BOX_NV, m);
 
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, coverMask & 0xFF, GL_CONVEX_HULL_NV);
+		glStencilThenCoverFillPathNV(mPathId, GL_COUNT_UP_NV, bitMask, GL_CONVEX_HULL_NV);
 
 		if (!sClipPaths().empty()) {
 			// Remove path from stencil buffer.
 			ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+			gl::stencilFunc(GL_ALWAYS, GLint(~bitMask & 0xFF), bitMask);
 
 			glCoverFillPathNV(mPathId, GL_CONVEX_HULL_NV);
 		}
@@ -1181,57 +1169,57 @@ void Path::fillInstanced(const std::vector<GLuint>& paths, const std::vector<glm
 }
 
 void Path::pushClipPath(const Path& mask, bool showMask) {
-	if (mask.mPathId > 0) {
-		if (sClipPaths().size() < 6) {
-			GLuint clipMask	 = 0x80 >> sClipPaths().size();
-			GLuint coverMask = clipMask - 1;
+	assert(mask.mPathId > 0);
 
-			// Render shape to stencil buffer to use it as a clip-path.
-			ScopedShader	  scpShader(Color(0.6f, 0.6f, 0));
-			ScopedColorMask	  scpColorMask(showMask, showMask, showMask,
-										   showMask);				// Don't write to color buffer, unless requested.
-			ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+	if (sClipPaths().size() < 6) {
+		GLuint clipMask	 = 0x80 >> sClipPaths().size();
+		GLuint coverMask = clipMask - 1;
 
-			gl::ScopedState scpStencil(GL_STENCIL_TEST, GL_TRUE);
-			gl::stencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			gl::stencilFunc(GL_NOTEQUAL, GLint(clipMask), coverMask);
+		// Render shape to stencil buffer to use it as a clip-path.
+		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
+		ScopedShader	  scpShader(Color(0.6f, 0.6f, 0));
+		ScopedColorMask	  scpColorMask(showMask, showMask, showMask,
+									   showMask);				// Don't write to color buffer, unless requested.
+		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-			glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-			glStencilFillPathNV(mask.mPathId, GL_COUNT_UP_NV,
-								coverMask & 0xFF); // Write path to LSB portion.
+		gl::stencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		gl::stencilFunc(GL_NOTEQUAL, GLint(clipMask), coverMask);
 
-			glCoverFillPathNV(mask.mPathId, GL_CONVEX_HULL_NV); // Convert LSB portion to clip bit.
+		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
+		gl::stencilFillPathNV(mask.mPathId, GL_COUNT_UP_NV,
+							  coverMask & 0xFF); // Write path to LSB portion.
 
-			sClipPaths().push_back(mask.mPathId);
-		} else {
-			CI_LOG_E("Maximum number of clip-paths reached.");
-			sClipPaths().push_back(0);
-		}
+		gl::coverFillPathNV(mask.mPathId, GL_CONVEX_HULL_NV); // Convert LSB portion to clip bit.
+
+		// Creates a copy of the mask, in case the mask was a temporary path.
+		sClipPaths().push_back(mask);
 	} else {
-		sClipPaths().push_back(0);
+		CI_LOG_E("Maximum number of clip-paths reached.");
+		sClipPaths().emplace_back();
 	}
 }
 
 void Path::popClipPath() {
-	if (!sClipPaths().empty()) {
-		GLuint pathId = sClipPaths().back();
-		if (pathId > 0) {
-			GLuint clipMask	 = 0x80 >> (sClipPaths().size() - 1);
-			GLuint coverMask = clipMask - 1;
+	assert(!sClipPaths().empty());
 
-			// Render shape to stencil buffer to use clear the clip-path.
-			ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
-			ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+	const auto& path = sClipPaths().back();
+	if (path.getId() > 0) {
+		GLuint clipMask	 = 0x80 >> (sClipPaths().size() - 1);
+		GLuint coverMask = clipMask - 1;
 
-			gl::ScopedState scpStencil(GL_STENCIL_TEST, GL_TRUE);
-			gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-			gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+		// Render shape to stencil buffer to clear the clip-path.
+		gl::ScopedState	  scpStencil(GL_STENCIL_TEST, GL_TRUE);
+		ScopedShader	  scpShader(Color(0.6f, 0.6f, 0));
+		ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		ScopedStencilMask scpStencilMask(coverMask | clipMask);					// Don't write to previous clip bits.
 
-			glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
-			glCoverFillPathNV(pathId, GL_CONVEX_HULL_NV); // Clear stencil buffer bits.
-		}
-		sClipPaths().pop_back();
+		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		gl::stencilFunc(GL_ALWAYS, GLint(clipMask), coverMask);
+
+		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
+		gl::coverFillPathNV(path.getId(), GL_CONVEX_HULL_NV); // Clear stencil buffer bits.
 	}
+	sClipPaths().pop_back();
 }
 
 Path Path::operator+(const Path& other) const {

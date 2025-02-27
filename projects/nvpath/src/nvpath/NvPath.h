@@ -648,9 +648,9 @@ class Path {
 	void fillInstanced(const std::vector<GLuint>& paths, const std::vector<glm::mat4x3>& transforms,
 					   const ci::ColorA& color, bool clearStencil = true) const;
 
-	//!
+	//! Renders \a mask to the stencil buffer as a clip path. Paths rendered after this call will be masked.
 	static void pushClipPath(const Path& mask, bool showMask = false);
-	//!
+	//! Removes a clip path from the stencil buffer.
 	static void popClipPath();
 
 	//! Adds the \a other path to our path and returns the result as a new path.
@@ -755,6 +755,8 @@ class Path {
 	ci::Shape2d toShape2d() const;
 
   protected:
+	friend class ScopedClipping;
+
 	//! Returns the number of coordinates (floats) for the specified command.
 	static GLint getCoordCount(GLubyte command);
 	//! Returns the offset of the end coordinate (float) for the specified command.
@@ -772,8 +774,8 @@ class Path {
 		return paths;
 	}
 	//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
-	static std::vector<GLuint>& sClipPaths() {
-		thread_local static std::vector<GLuint> clipPaths;
+	static std::vector<Path>& sClipPaths() {
+		thread_local static std::vector<Path> clipPaths;
 		return clipPaths;
 	}
 
@@ -969,6 +971,33 @@ class ScopedClipPath {
 	ScopedClipPath(ScopedClipPath&&)				 = delete;
 	ScopedClipPath& operator=(const ScopedClipPath&) = delete;
 	ScopedClipPath& operator=(ScopedClipPath&&)		 = delete;
+};
+
+//! Enable clipping of non-Path content by clip paths already rendered to the stencil buffer.
+//! See also: Path::pushClipPath and ScopedClipPath. Assumes subsequent draw calls do not modify the stencil buffer.
+class ScopedClipping {
+  public:
+	ScopedClipping()
+	  : mCtx(ci::gl::context()) {
+		mCtx->pushBoolState(GL_STENCIL_TEST, GL_TRUE);
+
+		// Don't write to previous clip bits.
+		GLuint bitMask = 0xFF >> Path::sClipPaths().size();
+		ci::gl::stencilMask(bitMask);
+
+		// Enable clipping. Only allow pixels with all clip bits set. Don't change the value.
+		ci::gl::stencilFunc(GL_EQUAL, GLint(~bitMask & 0xFF), 0xFF);
+		ci::gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+	~ScopedClipping() { mCtx->popBoolState(GL_STENCIL_TEST); }
+
+	ScopedClipping(const ScopedClipping&)			 = delete;
+	ScopedClipping(ScopedClipping&&)				 = delete;
+	ScopedClipping& operator=(const ScopedClipping&) = delete;
+	ScopedClipping& operator=(ScopedClipping&&)		 = delete;
+
+  private:
+	ci::gl::Context* mCtx = nullptr;
 };
 
 class ScopedCover {
