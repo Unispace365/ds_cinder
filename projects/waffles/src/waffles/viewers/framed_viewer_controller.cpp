@@ -2,18 +2,19 @@
 
 #include <filesystem>
 
+#include "ds/util/file_meta_data.h"
 #include "framed_viewer_controller.h"
 #include "waffles/common/ui_utils.h"
-#include "ds/util/file_meta_data.h"
-#include "waffles/waffles_events.h"
 #include "waffles/viewers/framed_media_viewer.h"
+#include "waffles/waffles_events.h"
 
-#include "waffles/viewers/fullscreen_controller/fullscreen_controller.h"
-#include "waffles/viewers/fullscreen_controller/framed_fullscreen_controller.h"
 #include "waffles/util/framed_waffles_helper.h"
+#include "waffles/viewers/fullscreen_controller/framed_fullscreen_controller.h"
+#include "waffles/viewers/fullscreen_controller/fullscreen_controller.h"
 
 namespace waffles {
-FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel):ViewerController(g,size,channel) {}
+FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel)
+  : ViewerController(g, size, channel) {}
 void FramedViewerController::initCreators() {
 	ViewerController::initCreators();
 	setCreator(VIEW_TYPE_TITLED_MEDIA_VIEWER,
@@ -56,21 +57,20 @@ void FramedViewerController::initCreators() {
 					   } else {
 
 						   if (args.mIsDetached) {
-								ds::model::ContentModelRef errorModel;
-								std::string				  errorMessage =
-								"We couldn't load this piece of media because the file couldn't be found.";
+							   ds::model::ContentModelRef errorModel;
+							   std::string				  errorMessage =
+								   "We couldn't load this piece of media because the file couldn't be found.";
 
-								errorModel.setProperty("name", std::string("Sorry!"));
-								errorModel.setProperty("error", errorMessage);
-								errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
-								errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
-								errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
-								auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
-																ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter);
-								
-								
-								mChannelClient.notify(RequestViewerLaunchEvent(eArgs
-								));
+							   errorModel.setProperty("name", std::string("Sorry!"));
+							   errorModel.setProperty("error", errorMessage);
+							   errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
+							   errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
+							   errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
+							   auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
+															   ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter);
+
+
+							   mChannelClient.notify(RequestViewerLaunchEvent(eArgs));
 						   }
 						   return {nullptr, CreationError::INVALID_MEDIA};
 					   }
@@ -80,14 +80,15 @@ void FramedViewerController::initCreators() {
 			   });
 	setCreator(VIEW_TYPE_FULLSCREEN_CONTROLLER,
 			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
-				   return {new FramedFullscreenController(mEngine, "waffles/viewer/framed_fsc.xml"),
-						   CreationError::OK};
+				   return {new FramedFullscreenController(mEngine, "waffles/viewer/framed_fsc.xml"), CreationError::OK};
 			   });
 }
 void FramedViewerController::setupFullscreenDarkener(waffles::BaseElement*& viewer, bool& retFlag) {
 	ViewerController::setupFullscreenDarkener(viewer, retFlag);
-	mFullscreenDarkeners[viewer]->setTapCallback([this,viewer](ds::ui::Sprite*, const ci::vec3& pos) {
-		mEventClient.notify(RequestCollapseAndMoveFullscreenController(true,pos));
+	mFullscreenDarkeners[viewer]->setTapCallback([this, viewer](ds::ui::Sprite*, const ci::vec3& pos) {
+		if (viewer->getIsFullscreen()) {
+			mEventClient.notify(RequestCollapseAndMoveFullscreenController(true, pos));
+		}
 	});
 }
 } // namespace waffles

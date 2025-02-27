@@ -14,9 +14,8 @@
 #include <ds/util/string_util.h>
 
 #include "app/waffles_app_defs.h"
-//#include "app/helpers.h"
-//#include "events/app_events.h"
-#include "waffles/waffles_events.h"
+// #include "app/helpers.h"
+// #include "events/app_events.h"
 #include "waffles/model/viewer_creation_args.h"
 #include "waffles/viewers/diagnostic_viewer/diagnostic_viewer.h"
 #include "waffles/viewers/error_viewer/error_viewer.h"
@@ -27,13 +26,14 @@
 #include "waffles/viewers/settings_viewer/settings_viewer.h"
 #include "waffles/viewers/state_viewer/state_viewer.h"
 #include "waffles/viewers/titled_media_viewer.h"
+#include "waffles/waffles_events.h"
 
 #include "waffles/common/ui_utils.h"
 
-#include "ds/ui/sprite/web.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
+#include "ds/ui/sprite/web.h"
 
-//using namespace downstream;
+// using namespace downstream;
 
 namespace {
 static waffles::ViewerController* THIS_INSTANCE;
@@ -42,22 +42,21 @@ static waffles::ViewerController* THIS_INSTANCE;
 namespace waffles {
 
 
-ControllerType* ViewerControllerFactory::mType = nullptr;
-ds::ui::SpriteEngine* ViewerControllerFactory::mEngine = nullptr;
+ControllerType*									   ViewerControllerFactory::mType	= nullptr;
+ds::ui::SpriteEngine*							   ViewerControllerFactory::mEngine = nullptr;
 std::unordered_map<std::string, ViewerController*> ViewerControllerFactory::mViewerControllers;
 
 
 ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel)
-	: ds::ui::Sprite(g)
-	, mEventClient(g),mChannelClient() {
+  : ds::ui::Sprite(g)
+  , mEventClient(g)
+  , mChannelClient() {
 
-	
-	
+
 	setChannelName(channel);
 	if (!channel.empty()) {
 		mChannelClient.setNotifier(mEngine.getChannel(channel));
-	}
-	else {
+	} else {
 		mChannelClient.setNotifier(mEngine.getNotifier());
 	}
 	mChannelClient.start();
@@ -83,45 +82,52 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::
 	mTopLayer = new ds::ui::Sprite(mEngine);
 	mTopLayer->setSize(mDisplaySize.x, mDisplaySize.y);
 	addChildPtr(mTopLayer);
-	
-	auto clients = { &mEventClient,&mChannelClient };
 
-	ds::EventClient::clientsListenToEvents<RequestViewerLaunchEvent>([this](const RequestViewerLaunchEvent& event) {
-		handleRequestViewerLaunch(event);
-		if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
-	}, clients);
+	auto clients = {&mEventClient, &mChannelClient};
 
-	ds::EventClient::clientsListenToEvents<RequestCloseAllEvent>([this](const RequestCloseAllEvent& e) {
-		const float deltaAnim = mEngine.getAnimDur() / (float)mViewers.size();
-		float		delayey	  = deltaAnim * (float)mViewers.size();
-		for (auto it : mViewers) {
-			if ((!mEngine.isIdling() &&
-				 (it->getViewerType() == VIEW_TYPE_PRESENTATION_CONTROLLER ||
-				  it->getViewerType() == VIEW_TYPE_LAUNCHER || it->getViewerType() == VIEW_TYPE_SEARCH))) {
+	ds::EventClient::clientsListenToEvents<RequestViewerLaunchEvent>(
+		[this](const RequestViewerLaunchEvent& event) {
+			handleRequestViewerLaunch(event);
+			if (mRequestViewerLaunchCallback) mRequestViewerLaunchCallback(event);
+		},
+		clients);
 
-				it->sendToFront();
-				continue;
+	ds::EventClient::clientsListenToEvents<RequestCloseAllEvent>(
+		[this](const RequestCloseAllEvent& e) {
+			const float deltaAnim = mEngine.getAnimDur() / (float)mViewers.size();
+			float		delayey	  = deltaAnim * (float)mViewers.size();
+			for (auto it : mViewers) {
+				if ((!mEngine.isIdling() &&
+					 (it->getViewerType() == VIEW_TYPE_PRESENTATION_CONTROLLER ||
+					  it->getViewerType() == VIEW_TYPE_LAUNCHER || it->getViewerType() == VIEW_TYPE_SEARCH))) {
+
+					it->sendToFront();
+					continue;
+				}
+
+				if (!e.mCloseSlideContent && it->mCreationArgs.mAmSlideContent == true) continue;
+
+				if (it->getViewerLayer() == ViewerCreationArgs::kViewLayerBackground) {
+					animateViewerOff(it, delayey, ANIMATE_OFF_FADE);
+				} else {
+					animateViewerOff(it, delayey, ANIMATE_OFF_SHRINK);
+				}
+				delayey -= deltaAnim;
 			}
+		},
+		clients);
 
-			if (!e.mCloseSlideContent && it->mCreationArgs.mAmSlideContent == true) continue;
-
-			if (it->getViewerLayer() == ViewerCreationArgs::kViewLayerBackground) {
-				animateViewerOff(it, delayey, ANIMATE_OFF_FADE);
-			} else {
-				animateViewerOff(it, delayey, ANIMATE_OFF_SHRINK);
-			}
-			delayey -= deltaAnim;
-		}
-	}, clients);
-	
 
 	ds::EventClient::clientsListenToEvents<RequestArrangeEvent>([this](auto& e) { arrangeViewers(); }, clients);
 
-	ds::EventClient::clientsListenToEvents<RequestGatherEvent>([this](auto& e) { gatherViewers(e.mEventOrigin); }, clients);
+	ds::EventClient::clientsListenToEvents<RequestGatherEvent>([this](auto& e) { gatherViewers(e.mEventOrigin); },
+															   clients);
 
-	ds::EventClient::clientsListenToEvents<RequestFullscreenViewer>([this](auto& e) { fullscreenViewer(e.mViewer, false); }, clients);
+	ds::EventClient::clientsListenToEvents<RequestFullscreenViewer>(
+		[this](auto& e) { fullscreenViewer(e.mViewer, false); }, clients);
 
-	ds::EventClient::clientsListenToEvents<RequestUnFullscreenViewer>([this](auto& e) { unfullscreenViewer(e.mViewer, false); }, clients);
+	ds::EventClient::clientsListenToEvents<RequestUnFullscreenViewer>(
+		[this](auto& e) { unfullscreenViewer(e.mViewer, false); }, clients);
 
 	ds::EventClient::clientsListenToEvents<RequestDetachViewer>(
 		[this](const RequestDetachViewer& e) { detachViewer(e.mViewer); }, clients);
@@ -129,17 +135,21 @@ ViewerController::ViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::
 	ds::EventClient::clientsListenToEvents<RequestAttachViewer>(
 		[this](const RequestAttachViewer& e) { attachViewer(e.mViewer); }, clients);
 
-	ds::EventClient::clientsListenToEvents<RequestGenericAdvance>([this](auto& e) {
-		bool hadPdf = advancePDF(e.mForwards);
-		if (!hadPdf) advancePresentation(e.mForwards);
-	}, clients);
+	ds::EventClient::clientsListenToEvents<RequestGenericAdvance>(
+		[this](auto& e) {
+			bool hadPdf = advancePDF(e.mForwards);
+			if (!hadPdf) advancePresentation(e.mForwards);
+		},
+		clients);
 
 	ds::EventClient::clientsListenToEvents<RequestPDFPageChange>([this](auto& e) { advancePDF(e.mForwards); }, clients);
 
-	ds::EventClient::clientsListenToEvents<RequestAppExit>([this](auto& e) {
-		mChannelClient.notify(RequestCloseAllEvent());
-		callAfterDelay([] { ci::app::App::get()->quit(); }, 2.0f);
-	}, clients);
+	ds::EventClient::clientsListenToEvents<RequestAppExit>(
+		[this](auto& e) {
+			mChannelClient.notify(RequestCloseAllEvent());
+			callAfterDelay([] { ci::app::App::get()->quit(); }, 2.0f);
+		},
+		clients);
 }
 
 
@@ -216,7 +226,6 @@ void ViewerController::initCreators() {
 	setCreator(VIEW_TYPE_ERROR, [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
 		return {new ErrorViewer(mEngine), CreationError::OK};
 	});
-
 }
 
 void ViewerController::setChannel(const std::string& channel) {
@@ -225,7 +234,7 @@ void ViewerController::setChannel(const std::string& channel) {
 	}
 	setChannelName(channel);
 	mChannelClient.setNotifier(mEngine.getChannel(channel));
-	//mChannelClient.start();
+	// mChannelClient.start();
 }
 
 ViewerController* ViewerController::getInstance() {
@@ -270,9 +279,9 @@ void ViewerController::setLayerBounds(int viewLayer, ci::Rectf bounds) {
 }
 
 BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const float delay) {
-	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(creationArgs.mMediaRef);
-	const float screenWidth	 = mDisplaySize.x;
-	const float screenHeight = mDisplaySize.y;
+	auto		mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(creationArgs.mMediaRef);
+	const float screenWidth		 = mDisplaySize.x;
+	const float screenHeight	 = mDisplaySize.y;
 	if (!mNormalLayer) {
 		DS_LOG_WARNING("Big problemo!");
 		return nullptr;
@@ -298,7 +307,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		viewers.front()->getMaxNumberOfThisType() == 1) {
 
 		auto sameType = viewers.front();
-		
+
 		if (creationArgs.mViewType == VIEW_TYPE_FULLSCREEN_CONTROLLER) {
 			animateViewerOff(sameType, 0.0f, ANIMATE_OFF_SHRINK);
 		} else {
@@ -327,7 +336,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 			return nullptr;
 		}
 	}
-	
+
 	// In single-screen mode, only reset the position for non-media viewers after moving the current one
 	if (creationArgs.mViewType != VIEW_TYPE_TITLED_MEDIA_VIEWER &&
 		mEngine.getAppSettings().getString("screen:app:mode", 0, "wall") == "single") {
@@ -352,7 +361,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		}
 	}
 
-	auto [newViewer,result] = createViewer(creationArgs);
+	auto [newViewer, result] = createViewer(creationArgs);
 
 	if (!newViewer) {
 		DS_LOG_WARNING("Viewer of type  " << creationArgs.mViewType << " could not be created!");
@@ -382,19 +391,21 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		mTopLayer->addChildPtr(newViewer);
 		newViewer->setBoundingArea(ci::Rectf(ci::vec2(0.f), mTopLayer->getSize()));
 	} else {
-		DS_LOG_WARNING("Invalid view layer specified for new viewer " << creationArgs.mMediaRef.getPropertyString("name"));
+		DS_LOG_WARNING("Invalid view layer specified for new viewer "
+					   << creationArgs.mMediaRef.getPropertyString("name"));
 		newViewer->release();
 		return nullptr;
 	}
 
-	DS_LOG_INFO("Launching viewer of type " << newViewer->getViewerType() << " "
-											<< creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath());
+	DS_LOG_INFO("Launching viewer of type "
+				<< newViewer->getViewerType() << " "
+				<< creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath());
 
 	mViewers.push_back(newViewer);
 
 	newViewer->setCreationArgs(creationArgs);
 	newViewer->setMedia(creationArgs.mMediaRef);
-	
+
 	// If we have a fatal error, the old viewer is responsible for requesting an error viewer and Setting
 	// mFatalError to true. We  then hide and remove this viewer.
 	if (newViewer->mFatalError) {
@@ -441,8 +452,9 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	if (newViewer->canFullScreen() && creationArgs.mIsFullscreen) {
 		fullscreenViewer(newViewer, true, creationArgs.mShowFullscreenController);
-		const bool webEnough = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
-							   creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
+		const bool webEnough =
+			creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
+			creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
 		if (webEnough && creationArgs.mTouchEvents) {
 			if (auto tmv = dynamic_cast<waffles::TitledMediaViewer*>(newViewer)) {
 				tmv->setInterfaceLocked(true);
@@ -452,14 +464,13 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	newViewer->animateOn(delay);
 	if (newViewer->getViewerType() == "launcher") {
-		newViewer->setCloseRequestCallback(
-			[this, newViewer]() {
-				animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK);
-				mChannelClient.notify(waffles::WafflesLauncherClosed());
-			}
-		);
+		newViewer->setCloseRequestCallback([this, newViewer]() {
+			animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK);
+			mChannelClient.notify(waffles::WafflesLauncherClosed());
+		});
 	} else {
-		newViewer->setCloseRequestCallback([this, newViewer]() { animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK); });
+		newViewer->setCloseRequestCallback(
+			[this, newViewer]() { animateViewerOff(newViewer, 0.0f, ANIMATE_OFF_SHRINK); });
 	}
 	newViewer->setActivatedCallback([this, newViewer] { viewerActivated(newViewer); });
 
@@ -504,7 +515,7 @@ void ViewerController::viewerActivated(BaseElement* be) {
 }
 
 void ViewerController::handleRequestViewerLaunch(const RequestViewerLaunchEvent& event) {
-	auto e = event;
+	auto e				  = event;
 	auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(e.mViewerArgs.mMediaRef);
 	if (e.mUserStringData.empty()) {
 		if (e.mViewerArgs.mMediaRef.getPropertyString("type") == MEDIA_TYPE_PRESENTATION) {
@@ -560,7 +571,9 @@ void ViewerController::handleRequestViewerLaunch(const RequestViewerLaunchEvent&
 					args.mViewLayer = ds::string_to_int(paramValue);
 				} else if (paramType == "media_path") {
 					if (args.mViewType == VIEW_TYPE_TITLED_MEDIA_VIEWER) {
-						args.mMediaRef.setPropertyResource(mediaPropertyKey, ds::Resource(ds::Environment::expand(paramValue))); // TODO: unsure if should use mediaPropertyKey
+						args.mMediaRef.setPropertyResource(
+							mediaPropertyKey, ds::Resource(ds::Environment::expand(
+												  paramValue))); // TODO: unsure if should use mediaPropertyKey
 					} else {
 						args.mMediaRef.setProperty("media_path", paramValue);
 					}
@@ -592,7 +605,7 @@ void ViewerController::animateViewerOff(BaseElement* viewer, const float delayey
 	};
 	if (viewer->getViewerType() == VIEW_TYPE_LAUNCHER) {
 		viewer->tweenAnimateOff(false, 0.f, 0.0f, completeCallback);
-	}else{
+	} else {
 		viewer->tweenAnimateOff(true, 0.f, 0.0f, completeCallback);
 	}
 	/* if (style == 1) {
@@ -618,11 +631,11 @@ void ViewerController::animateAllViewersOff(const float delayey, const int style
 	}
 }
 
-std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
+std::tuple<BaseElement*, CreationError> ViewerController::createViewer(const ViewerCreationArgs args) {
 	auto viewType = args.mViewType;
 
-	auto isEmpty = viewType.empty();
-	auto notFound	 = mCreatorFunctions.find(viewType) == mCreatorFunctions.end();
+	auto isEmpty  = viewType.empty();
+	auto notFound = mCreatorFunctions.find(viewType) == mCreatorFunctions.end();
 	auto isNull	  = mCreatorFunctions.at(viewType) == nullptr;
 
 	if (isEmpty || notFound || isNull) {
@@ -630,7 +643,6 @@ std::tuple < BaseElement*, CreationError> ViewerController::createViewer(const V
 	}
 	auto viewer = mCreatorFunctions[viewType](args);
 	return viewer;
-
 }
 
 void ViewerController::setCreator(const std::string viewType, CreatorFunc creator) {
@@ -924,8 +936,9 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 	const float wh		   = mNormalLayer->getHeight();
 	const float wasp	   = ww / wh;
 
-	const ci::vec2 compositeRatio = mEngine.getWafflesSettings().getVec2("composite:aspect_ratio", 0, ci::vec2(16.f, 9.f));
-	const float	   slideAspect	  = compositeRatio.x / compositeRatio.y;
+	const ci::vec2 compositeRatio =
+		mEngine.getWafflesSettings().getVec2("composite:aspect_ratio", 0, ci::vec2(16.f, 9.f));
+	const float slideAspect = compositeRatio.x / compositeRatio.y;
 
 	// effective sizes
 	float ew = ww;
@@ -973,12 +986,15 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 
 		auto compositeKey = helper->getCompositeKeyForPlatform();
 
-		auto posX = (newMedia.getPropertyFloat(compositeKey+"_x") > 0.f) ? newMedia.getPropertyFloat(compositeKey+"_x")
-																		: newMedia.getPropertyFloat(compositeKey+"_x");
-		auto posY = (newMedia.getPropertyFloat(compositeKey+"_y") > 0.f) ? newMedia.getPropertyFloat(compositeKey+"_y")
-																		: newMedia.getPropertyFloat(compositeKey+"_y");
-		auto theW = (newMedia.getPropertyFloat(compositeKey+"_w") > 0.f) ? newMedia.getPropertyFloat(compositeKey+"_w")
-																		: newMedia.getPropertyFloat(compositeKey+"_w");
+		auto posX = (newMedia.getPropertyFloat(compositeKey + "_x") > 0.f)
+						? newMedia.getPropertyFloat(compositeKey + "_x")
+						: newMedia.getPropertyFloat(compositeKey + "_x");
+		auto posY = (newMedia.getPropertyFloat(compositeKey + "_y") > 0.f)
+						? newMedia.getPropertyFloat(compositeKey + "_y")
+						: newMedia.getPropertyFloat(compositeKey + "_y");
+		auto theW = (newMedia.getPropertyFloat(compositeKey + "_w") > 0.f)
+						? newMedia.getPropertyFloat(compositeKey + "_w")
+						: newMedia.getPropertyFloat(compositeKey + "_w");
 
 		if (theW <= 0.f) {
 			theW = 0.25f;
@@ -1065,9 +1081,9 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 		// newMedia.getPropertyBool("media_float_fullscreen");
 		args.mTouchEvents = newMedia.getPropertyBool("touch_events");
 		// newMedia.getPropertyBool("media_float_touch");
-		args.mStartLocked = args.mTouchEvents;
-		args.mAutoStart = true;
-		args.mAutoStart	  = newMedia.getPropertyBool("autoplay");
+		args.mStartLocked			   = args.mTouchEvents;
+		args.mAutoStart				   = true;
+		args.mAutoStart				   = newMedia.getPropertyBool("autoplay");
 		args.mShowFullscreenController = true;
 		// newMedia.getPropertyBool("media_float_autoplay");
 		args.mLooped = newMedia.getPropertyBool("loop");
@@ -1087,7 +1103,8 @@ void ViewerController::loadSlideComposite(ds::model::ContentModelRef slideRef) {
 			if (leViewer->getIsAboutToBeRemoved()) continue;
 			if (leViewer->getIsFatalErrorred()) continue;
 			if (leViewer->getMediaRotation() != 0) continue; // discard rotated viewers
-			if (leViewer->getMedia().getPropertyResource(mediaPropertyKey) == newMedia.getPropertyResource(mediaPropertyKey)) {
+			if (leViewer->getMedia().getPropertyResource(mediaPropertyKey) ==
+				newMedia.getPropertyResource(mediaPropertyKey)) {
 				leViewer->sendToFront();
 				leViewer->hideTitle();
 				leViewer->setCreationArgs(args);
@@ -1156,7 +1173,8 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 	// if there was no media backgrounds, fall back to this slide
 	if (backgroundMediaRes.empty()) {
 		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(slideRef);
-		backgroundMediaRes = slideRef.getPropertyResource(mediaPropertyKey); // TODO: cannot tell if want to use mediaPropertyKey
+		backgroundMediaRes =
+			slideRef.getPropertyResource(mediaPropertyKey); // TODO: cannot tell if want to use mediaPropertyKey
 	}
 
 	// if this slide doesn't have a background, check to see if it's in a presentation that does
@@ -1171,7 +1189,7 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 	for (auto it : mViewers) {
 		if (it->getViewerLayer() == ViewerCreationArgs::kViewLayerBackground) {
 			auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(it->getMedia());
-			auto viewerMedia = it->getMedia().getPropertyResource(mediaPropertyKey);
+			auto viewerMedia	  = it->getMedia().getPropertyResource(mediaPropertyKey);
 
 			if (!it->getIsAboutToBeRemoved() &&
 				viewerMedia.getAbsoluteFilePath() == backgroundMediaRes.getAbsoluteFilePath() &&
@@ -1195,12 +1213,14 @@ void ViewerController::loadSlideBackground(ds::model::ContentModelRef slideRef) 
 
 		ds::model::ContentModelRef backgroundMedia;
 		auto mediaPropertyKey = ContentUtils::getDefault(mEngine)->getMediaPropertyKey(backgroundMedia);
-		backgroundMedia.setPropertyResource(mediaPropertyKey, backgroundMediaRes); // TODO: unsure if should use mediaPropertyKey
+		backgroundMedia.setPropertyResource(mediaPropertyKey,
+											backgroundMediaRes); // TODO: unsure if should use mediaPropertyKey
 		backgroundMedia.setProperty("type", MEDIA_TYPE_FILE_CMS);
 
 		float outWid = scW;
 		float engAsp = scW / scH;
-		float recAsp = (backgroundMediaRes.getWidth()*backgroundMediaRes.getCrop().getWidth()) / (backgroundMediaRes.getHeight()*backgroundMediaRes.getCrop().getHeight());
+		float recAsp = (backgroundMediaRes.getWidth() * backgroundMediaRes.getCrop().getWidth()) /
+					   (backgroundMediaRes.getHeight() * backgroundMediaRes.getCrop().getHeight());
 		if (recAsp > engAsp) {
 			outWid = scH * recAsp;
 		}
@@ -1224,17 +1244,18 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	if (!mNormalLayer) {
 		return;
 	}
-	
+
 	auto viewerPos		 = viewer->getPosition();
 	auto viewerGlobalPos = viewer->getGlobalPosition();
-	
+
 	viewer->setUnfullscreenRect(
 		ci::Rectf(viewerPos.x, viewerPos.y, viewer->getWidth() + viewerPos.x, viewer->getHeight() + viewerPos.y));
 
+	ci::vec3 openControllerAt = ci::vec3(viewerGlobalPos.x + viewer->getWidth() / 2.0f,
+										 viewerGlobalPos.y + viewer->getHeight() / 2.0f, viewerGlobalPos.z);
+
 	ViewerCreationArgs fullscreenLaunchArgs =
-		ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER,
-						   ci::vec3(viewerGlobalPos.x + viewer->getWidth() / 2.0f,
-									viewerGlobalPos.y + viewer->getHeight() / 2.0f, viewerGlobalPos.z),
+		ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, openControllerAt,
 						   ViewerCreationArgs::kViewLayerTop, 0.0f, true);
 
 	const float screenWidth	 = mNormalLayer->getWidth();  // mDisplaySize.x;
@@ -1246,58 +1267,9 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 
 
 	bool didWebSpecial = false;
-	viewer->setToFullscreen(immediate,showController);
-	
-	/*if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
-		if (auto mp = tmv->getMediaPlayer()) {
-			if (auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mp->getPlayer())) {
-				mp->setWebViewSize(ci::vec2(screenWidth, screenHeight));
-				mp->setSize(ci::vec2(screenWidth, screenHeight));
-				viewer->mContentAspectRatio = screenAsp;
-				if (immediate) {
-					viewer->setViewerWidth(screenWidth);
-					viewer->setPosition(0.0f, 0.0f);
-				} else {
-					viewer->animateWidthTo(screenWidth);
-					viewer->tweenPosition(ci::vec3(0.0f), viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
-				}
-				didWebSpecial = true;
-			}
-		}
-	}
-
-	if (!didWebSpecial) {
-		if (viewerScale == 0.0f) viewerScale = 0.001f;
-		if (auto tmv = dynamic_cast<TitledMediaViewer*>(viewer)) {
-			if (auto mp = tmv->getMediaPlayer()) {
-				auto tmvAsp = tmv->getWidth() / tmv->getHeight();
-				if (tmvAsp > screenAsp) {
-					if (immediate) {
-						tmv->setViewerWidth(screenWidth / viewerScale);
-						tmv->setPosition(0.0f, screenHeight / 2.0f - viewer->getHeight() / 2.0f);
-					} else {
-						tmv->animateWidthTo(screenWidth / viewerScale);
-						float finalHeight = screenWidth / viewerAsp;
-						viewer->tweenPosition(ci::vec3(0.0f, screenHeight / 2.0f - finalHeight / 2.0f, 0.0f),
-											  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
-					}
-				} else {
-					if (immediate) {
-						viewer->setViewerHeight(screenHeight / viewerScale);
-						viewer->setPosition(screenWidth / 2.0f - viewer->getScaleWidth() / 2.0f, 0.0f);
-					} else {
-						viewer->animateHeightTo(screenHeight / viewerScale);
-						float finalWidth = screenHeight * viewerAsp;
-						viewer->tweenPosition(ci::vec3(screenWidth / 2.0f - finalWidth / 2.0f, 0.0f, 0.0f),
-											  viewer->getAnimateDuration(), 0.0f, ci::easeInOutQuad);
-					}
-				}
-			}
-		}
-	}*/
-
+	viewer->setToFullscreen(immediate, showController);
 	viewer->setIsFullscreen(true);
-	
+
 
 	bool retFlag;
 	setupFullscreenDarkener(viewer, retFlag);
@@ -1308,19 +1280,14 @@ void ViewerController::fullscreenViewer(BaseElement* viewer, const bool immediat
 	if (showController) {
 		mChannelClient.notify(RequestViewerLaunchEvent(fullscreenLaunchArgs));
 	}
-	
+
 	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
 		if (auto titled_player = dynamic_cast<TitledMediaViewer*>(viewer)) {
 			if (auto media_player = titled_player->getMediaPlayer()) {
 				if (auto web_player = dynamic_cast<ds::ui::WebPlayer*>(media_player->getPlayer())) {
 					if (auto web = web_player->getWeb()) {
 						if (auto entry = dynamic_cast<ds::ui::IEntryField*>(web)) {
-							mEngine.timedCallback(
-								[this, entry] {
-									mEngine.registerEntryField(entry);
-								},
-								2.5f
-							);
+							mEngine.timedCallback([this, entry] { mEngine.registerEntryField(entry); }, 2.5f);
 						}
 					}
 				}
@@ -1425,11 +1392,11 @@ void ViewerController::unfullscreenViewer(BaseElement* viewer, const bool immedi
 
 				auto webSize = mEngine.getWafflesSettings().getVec2("web:default_size", 0, ci::vec2(-1.0f, -1.0f));
 				mp->setWebViewSize(webSize);
-				mp->setSize(ci::vec2(destRect.getWidth() - (tmv->getLeftPad()+tmv->getRightPad()), destRect.getHeight() -(tmv->getTopPad()+tmv->getBottomPad()) ));
+				mp->setSize(ci::vec2(destRect.getWidth() - (tmv->getLeftPad() + tmv->getRightPad()),
+									 destRect.getHeight() - (tmv->getTopPad() + tmv->getBottomPad())));
 				viewer->mContentAspectRatio = destRect.getAspectRatio();
 			}
 		}
-		
 	}
 
 	if (immediate) {

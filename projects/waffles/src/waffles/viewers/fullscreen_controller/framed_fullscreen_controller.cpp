@@ -112,6 +112,8 @@ void FramedFullscreenController::init() {
 			if (mLinkedMediaViewer->getIsFullscreen()) {
 				mEventClient.notify(RequestUnFullscreenViewer(mLinkedMediaViewer));
 			} else {
+				// Should we ever be fullscreening an asset from the fullscreen controller? I think probably not!
+				/*
 				ci::vec3 pos = getPosition();
 				mEventClient.notify(RequestFullscreenViewer(mLinkedMediaViewer));
 				// immediately send a request for this viewer, otherwise it gets sent to the center of the screen by
@@ -119,6 +121,7 @@ void FramedFullscreenController::init() {
 				mEventClient.notify(RequestViewerLaunchEvent(
 					ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
 									   ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
+			   */
 			}
 		}
 	});
