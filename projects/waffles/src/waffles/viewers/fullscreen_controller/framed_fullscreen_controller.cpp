@@ -13,9 +13,9 @@
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/web.h>
 #include <ds/ui/util/ui_utils.h>
 #include <ds/util/string_util.h>
-#include <ds/ui/sprite/web.h>
 
 #include "app/waffles_app_defs.h"
 #include "waffles/common/ui_utils.h"
@@ -76,7 +76,7 @@ void FramedFullscreenController::init() {
 	});
 
 	auto collapseBtn = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
-	
+
 	if (collapseBtn) {
 		// Horrible little trick to ensure all the button states are configured
 		collapse();
@@ -194,7 +194,16 @@ void FramedFullscreenController::onLayout() {
 	if (mRootLayout) {
 		mRootLayout->setSize(getWidth(), getHeight());
 		mRootLayout->runLayout();
-		
+
+		const float startWidth	= mRootLayout->getWidth();
+		const float startHeight = mRootLayout->getHeight();
+		mContentAspectRatio		= startWidth / startHeight;
+
+		BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
+
+		setSize(startWidth, startHeight);
+		setSizeLimits();
+		setViewerSize(startWidth, startHeight);
 	}
 
 	if (mDrawingTools) {
@@ -297,7 +306,7 @@ void FramedFullscreenController::updateUi() {
 		removeDrawingTools();
 	}
 	mRootLayout->runLayout();
-	//debug get size of all components
+	// debug get size of all components
 
 	layout();
 }
@@ -406,7 +415,7 @@ void FramedFullscreenController::collapse() {
 
 	if (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode()) return;
 	if (mMediaInterface && mMediaInterface->isLocked() && mUncollapsedSizeSet) {
-		//return;
+		// return;
 	}
 
 	removeDrawingTools();
@@ -438,7 +447,7 @@ void FramedFullscreenController::collapse() {
 			if (shadow) shadow->dirtyBlur();
 		});
 	}
-	
+
 	mIsCollapsed = true;
 }
 
@@ -452,7 +461,9 @@ void FramedFullscreenController::uncollapse() {
 
 	if (controls && backRect) {
 		controls->tweenOpacity(1, 0.25, 0.20);
-		backRect->tweenSize(mUncollapsedSize, 0.25, 0, ci::easeNone, nullptr, [shadow]() { if(shadow) shadow->dirtyBlur(); });
+		backRect->tweenSize(mUncollapsedSize, 0.25, 0, ci::easeNone, nullptr, [shadow]() {
+			if (shadow) shadow->dirtyBlur();
+		});
 	}
 	auto btnLayout = mRootLayout->getSprite<ds::ui::LayoutButton>("controller_collapse_btn.the_button");
 	auto btn	   = mRootLayout->getSprite<ds::ui::Image>("controller_collapse_btn.icon");
@@ -474,8 +485,8 @@ void FramedFullscreenController::onUpdateServer(const ds::UpdateParams& p) {
 		if (mediaPlayer) {
 			auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer->getPlayer());
 			if (webPlayer) {
-				if (auto webby = webPlayer->getWeb()) {				
-					//mRootLayout->setSpriteText("title", webby->getPageTitle());
+				if (auto webby = webPlayer->getWeb()) {
+					// mRootLayout->setSpriteText("title", webby->getPageTitle());
 				}
 			}
 		}

@@ -17,27 +17,24 @@
 #include <ds/util/string_util.h>
 
 #include "app/waffles_app_defs.h"
-#include "waffles/waffles_events.h"
 #include "waffles/common/ui_utils.h"
 #include "waffles/pinboard/pinboard_button.h"
 #include "waffles/viewers/drawing/drawing_area.h"
 #include "waffles/viewers/drawing/drawing_tools.h"
 #include "waffles/viewers/titled_media_viewer.h"
 #include "waffles/viewers/viewer_controller.h"
+#include "waffles/waffles_events.h"
 
 
 namespace waffles {
 
 FullscreenController::FullscreenController(ds::ui::SpriteEngine& g, const std::string layout)
-	: BaseElement(g)
-	, mRootLayout(nullptr)
-	, mMediaInterface(nullptr)
-	, mDrawingTools(nullptr)
-	, mLinkedMediaViewer(nullptr)
-	, mLayoutFile(layout) {
-
-	
-}
+  : BaseElement(g)
+  , mRootLayout(nullptr)
+  , mMediaInterface(nullptr)
+  , mDrawingTools(nullptr)
+  , mLinkedMediaViewer(nullptr)
+  , mLayoutFile(layout) {}
 
 void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 	if (tmv == mLinkedMediaViewer) return;
@@ -49,15 +46,15 @@ void FullscreenController::linkMediaViewer(TitledMediaViewer* tmv) {
 			pb->setContentModel(med);
 		}
 	}
-	
+
 	updateUi();
 }
 
 void FullscreenController::init() {
 	mMaxViewersOfThisType = 1;
-	mViewerType = VIEW_TYPE_FULLSCREEN_CONTROLLER;
+	mViewerType			  = VIEW_TYPE_FULLSCREEN_CONTROLLER;
 
-	mRootLayout = new ds::ui::SmartLayout(mEngine,mLayoutFile);
+	mRootLayout = new ds::ui::SmartLayout(mEngine, mLayoutFile);
 	addChildPtr(mRootLayout);
 
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
@@ -70,7 +67,7 @@ void FullscreenController::init() {
 		removeDrawingTools();
 
 		if (mCloseRequestCallback) mCloseRequestCallback();
-		});
+	});
 
 	mRootLayout->setSpriteClickFn("item_close_button.the_button", [this] {
 		if (mLinkedMediaViewer) {
@@ -82,18 +79,17 @@ void FullscreenController::init() {
 		if (mLinkedMediaViewer) {
 			if (mLinkedMediaViewer->getIsFullscreen()) {
 				mEventClient.notify(RequestUnFullscreenViewer(mLinkedMediaViewer));
-			}
-			else {
+			} else {
 				ci::vec3 pos = getPosition();
 				mEventClient.notify(RequestFullscreenViewer(mLinkedMediaViewer));
 				// immediately send a request for this viewer, otherwise it gets sent to the center of the screen by
 				// default
 				mEventClient.notify(RequestViewerLaunchEvent(
 					ViewerCreationArgs(ds::model::ContentModelRef(), VIEW_TYPE_FULLSCREEN_CONTROLLER, pos,
-						ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
+									   ViewerCreationArgs::kViewLayerTop, 0.0f, false)));
 			}
 		}
-		});
+	});
 
 
 	mRootLayout->setSpriteClickFn("drawing.the_button", [this] {
@@ -101,13 +97,13 @@ void FullscreenController::init() {
 			mLinkedMediaViewer->toggleDrawing();
 			setDrawingToolsState();
 		}
-		});
+	});
 
 	mEventClient.listenToEvents<ViewerRemovedEvent>([this](auto& e) {
 		if (e.mViewer == mLinkedMediaViewer) {
 			linkMediaViewer(nullptr);
 		}
-		});
+	});
 	//	mEventClient.listenToEvents<ViewerUpdatedEvent>([this](auto& e) { updateUi(); });
 
 	// these are to hide this from showing up in saved drawings
@@ -116,9 +112,9 @@ void FullscreenController::init() {
 
 
 	mRootLayout->runLayout();
-	const float startWidth = mRootLayout->getWidth();
+	const float startWidth	= mRootLayout->getWidth();
 	const float startHeight = mRootLayout->getHeight();
-	mContentAspectRatio = startWidth / startHeight;
+	mContentAspectRatio		= startWidth / startHeight;
 
 	BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
 
@@ -142,11 +138,21 @@ void FullscreenController::onLayout() {
 	if (mRootLayout) {
 		mRootLayout->setSize(getWidth(), getHeight());
 		mRootLayout->runLayout();
+
+		const float startWidth	= mRootLayout->getWidth();
+		const float startHeight = mRootLayout->getHeight();
+		mContentAspectRatio		= startWidth / startHeight;
+
+		BasePanel::setAbsoluteSizeLimits(ci::vec2(startWidth, startHeight), ci::vec2(startWidth, startHeight));
+
+		setSize(startWidth, startHeight);
+		setSizeLimits();
+		setViewerSize(startWidth, startHeight);
 	}
 
 	if (mDrawingTools) {
 		mDrawingTools->setSize(getWidth(), mDrawingTools->getHeight());
-		mDrawingTools->setPosition(0.0f, getHeight()-8); //stupid thing shoved up so you cant see the janky
+		mDrawingTools->setPosition(0.0f, getHeight() - 8); // stupid thing shoved up so you cant see the janky
 	}
 }
 
@@ -158,7 +164,7 @@ void FullscreenController::updateUi() {
 		mMediaInterface = nullptr;
 	}
 	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
-	
+
 	if (mLinkedMediaViewer && interfaceHolder) {
 		interfaceHolder->show();
 		auto contentRef	 = mLinkedMediaViewer->getMedia();
@@ -173,7 +179,7 @@ void FullscreenController::updateUi() {
 			if (wafflesHelper) {
 				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
 			}
-			//ContentUtils::setMediaInterfaceStyle(mMediaInterface);
+			// ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
@@ -183,18 +189,19 @@ void FullscreenController::updateUi() {
 					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
-							auto	  keeb			= webInterface->getSoftKeyboard();
-							auto&	  setty			= keeb->getSoftKeyboardSettings();
-							ci::Color lightGrey		= mEngine.getColors().getColorFromName("ui_icon_background");
+							auto	  keeb		= webInterface->getSoftKeyboard();
+							auto&	  setty		= keeb->getSoftKeyboardSettings();
+							ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 
 
-							setty.mKeyDownColor		= ci::Color::black();
-							setty.mKeyUpColor		= ci::Color(lightGrey);
-							setty.mGraphicType		= ds::ui::SoftKeyboardSettings::kSolid;
+							setty.mKeyDownColor				  = ci::Color::black();
+							setty.mKeyUpColor				  = ci::Color(lightGrey);
+							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
 							setty.mGraphicRoundedCornerRadius = 0;
 							keeb->setSoftKeyboardSettings(setty);
 
-							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png", keyboardBtn);
+							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
+												   keyboardBtn);
 
 						} else if (!onScreen) {
 							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
@@ -222,7 +229,7 @@ void FullscreenController::updateUi() {
 }
 
 void FullscreenController::updateLockedState() {
-	bool isLocked = (mMediaInterface && mMediaInterface->isLocked() );
+	bool isLocked  = (mMediaInterface && mMediaInterface->isLocked());
 	bool isDrawing = (mLinkedMediaViewer && mLinkedMediaViewer->getIsDrawingMode());
 
 	if (auto closeBtn = mRootLayout->getSprite("close_button.the_button")) {
@@ -291,8 +298,7 @@ void FullscreenController::onAboutToBeRemoved() {
 	}
 }
 
-void FullscreenController::onParentSet()
-{
+void FullscreenController::onParentSet() {
 	BaseElement::onParentSet();
 	callAfterDelay([this] { init(); }, 0.1f);
 }
