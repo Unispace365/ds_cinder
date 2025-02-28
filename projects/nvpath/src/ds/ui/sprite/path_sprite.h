@@ -7,6 +7,8 @@
 
 namespace ds::ui {
 
+class PathSpriteShadow;
+
 class PathSprite : public Sprite {
   public:
 	PathSprite(SpriteEngine& engine);
@@ -129,6 +131,16 @@ class PathSprite : public Sprite {
 		if (mPath.getId()) mPath.setDashPattern(pattern);
 	}
 
+	/// Enables shadow rendering.
+	void setShadow(float offsetX, float offsetY, int scale);
+	/// Enables shadow rendering and sets the shadow parameters: offsetX, offsetY, scale.
+	void setShadow(const ci::vec3& params) { setShadow(params.x, params.y, static_cast<int>(params.z)); }
+	/// Enables shadow rendering (using default settings if not yet enabled) and sets the shadow color.
+	void setShadowColor(const ci::ColorA& color);
+	/// Enables shadow rendering (using default settings if not yet enabled) and sets the blur parameters: standard
+	/// deviation sigma, kernel size.
+	void setShadowBlur(double sigma, int kernelSize);
+
 	void drawLocalClient() override;
 
 	void fitInsideArea(const ci::Rectf& area) override;
@@ -162,20 +174,55 @@ class PathSprite : public Sprite {
 	//
 	static std::string fetchParameters(const char** sInOut);
 
-	nvpath::Path	   mPath;										  //
-	nvpath::CapsStyle  mDashCapsInitial{nvpath::CapsStyle::DEFAULT};  //
-	nvpath::CapsStyle  mDashCapsTerminal{nvpath::CapsStyle::DEFAULT}; //
-	nvpath::CapsStyle  mEndCapsInitial{nvpath::CapsStyle::DEFAULT};	  //
-	nvpath::CapsStyle  mEndCapsTerminal{nvpath::CapsStyle::DEFAULT};  //
-	nvpath::JoinStyle  mJoinStyle{nvpath::JoinStyle::DEFAULT};		  //
-	nvpath::Paint	   mFill{nvpath::Paint::NONE};					  //
-	nvpath::Paint	   mStroke{nvpath::Paint::NONE};				  //
-	float			   mStrokeWidth{1};								  //
-	std::string		   mFilename;									  //
-	ci::gl::TextureRef mTexture;									  // Image used to fill the path.
-	ci::vec2		   mTouchSize{0};								  // Extra padding for touch detection.
-	ci::Rectf		   mBounds;										  // Cached bounds.
-	int				   mFlags{0};									  // Image loading flags.
+	nvpath::Path					  mPath;										 //
+	nvpath::CapsStyle				  mDashCapsInitial{nvpath::CapsStyle::DEFAULT};	 //
+	nvpath::CapsStyle				  mDashCapsTerminal{nvpath::CapsStyle::DEFAULT}; //
+	nvpath::CapsStyle				  mEndCapsInitial{nvpath::CapsStyle::DEFAULT};	 //
+	nvpath::CapsStyle				  mEndCapsTerminal{nvpath::CapsStyle::DEFAULT};	 //
+	nvpath::JoinStyle				  mJoinStyle{nvpath::JoinStyle::DEFAULT};		 //
+	nvpath::Paint					  mFill{nvpath::Paint::NONE};					 //
+	nvpath::Paint					  mStroke{nvpath::Paint::NONE};					 //
+	float							  mStrokeWidth{1};								 //
+	std::string						  mFilename;									 //
+	ci::gl::TextureRef				  mTexture;										 // Image used to fill the path.
+	ci::vec2						  mTouchSize{0}; // Extra padding for touch detection.
+	ci::Rectf						  mBounds;		 // Cached bounds.
+	int								  mFlags{0};	 // Image loading flags.
+	std::unique_ptr<PathSpriteShadow> mShadow;		 //
+};
+
+class PathSpriteShadow {
+  public:
+	PathSpriteShadow()
+	  : PathSpriteShadow(60, 60) {}
+
+	PathSpriteShadow(float offsetX, float offsetY, int softness = 1);
+
+	void setShadow(float offsetX, float offsetY, int softness);
+
+	void setShadow(const ci::vec3& params) { setShadow(params.x, params.y, static_cast<int>(params.z)); }
+
+	void setColor(const ci::ColorA& color);
+
+	void setBlur(double sigma, int kernelSize);
+
+	void render(const nvpath::Path& path);
+
+	void draw(const ci::vec2& offset, float opacity = 1) const;
+
+  private:
+	ci::gl::TextureRef mTexture;			  //
+	ci::ColorA		   mColor{0, 0, 0, 0.5f}; //
+	ci::vec2		   mOffset{60, 60};		  //
+	ci::ivec2		   mPadding{0};			  //
+	int				   mScale{1};			  // Higher values result in blurrier shadows and improved memory usage.
+	int mKernelSize{0}; // Must be an odd number. If less than or equal to 0, it is calculated based on the
+						// standard deviation.
+	double									mSigma{6};	   // Standard deviation.
+	thread_local static ci::gl::GlslProgRef sShadowShader; //
+
+	static const char* sVertShader;
+	static const char* sFragShader;
 };
 
 } // namespace ds::ui
