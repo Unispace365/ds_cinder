@@ -118,7 +118,7 @@ if exist "$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\bin\pcre2-8-0.dll"        xcopy /y "
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>src;.;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)include\glib-2.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\include;$(GSTREAMER_1_0_ROOT_MSVC_X86_64)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
