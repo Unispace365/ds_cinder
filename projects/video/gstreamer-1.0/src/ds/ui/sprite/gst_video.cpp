@@ -227,10 +227,12 @@ GstVideo::GstVideo(SpriteEngine& engine)
 }
 
 GstVideo::~GstVideo() {
-	if (mGstreamerWrapper) {
-		delete mGstreamerWrapper;
-		mGstreamerWrapper = nullptr;
-	}
+	
+	// -- moved mGstreamerWrapper to shared_ptr
+	//if (mGstreamerWrapper) {
+	//	delete mGstreamerWrapper;
+	//	mGstreamerWrapper = nullptr;
+	//}
 	if (mPrimaryStreams.find(mFilename) != mPrimaryStreams.end()) {
 		if (mPrimaryStreams.at(mFilename) == this) {
 			mPrimaryStreams.erase(mFilename);
@@ -346,6 +348,13 @@ void GstVideo::onUpdateClient(const UpdateParams& up) {
 }
 
 void GstVideo::updateVideoTexture() {
+	if (!mIsPrimaryStream) {
+		if (mPrimaryStreams.find(mFilename) == mPrimaryStreams.end()) {
+			mPrimaryStreams[mFilename] = this;
+			mIsPrimaryStream		   = true;
+		}
+	}
+
 	if (!mIsPrimaryStream) return;
 
 	if (!mGstreamerWrapper) {
@@ -761,10 +770,12 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	}
 
 	//check if we already have a stream for this pipeline.
-	if (usePrimary && mPrimaryStreams.find(streamingPipeline) != mPrimaryStreams.end()) {
+	auto primaryStreamItr = mPrimaryStreams.find(streamingPipeline);
+	if (usePrimary && primaryStreamItr != mPrimaryStreams.end()) {
 		DS_LOG_WARNING_M(
 			"GstVideo::startStream aborting starting streaming because a stream already exists for this pipeline.",
 			GSTREAMER_LOG);
+		mGstreamerWrapper  = primaryStreamItr->second->mGstreamerWrapper;
 		mUsePrimaryTexture = true;
 		mIsPrimaryStream   = false;
 		mStreaming		   = true;
@@ -788,6 +799,18 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		mNeedsBatchUpdate = true;
 		setSizeAll(videoWidth, videoHeight, mDepth);
 		setStatus(Status::STATUS_PLAYING);
+
+		ci::gl::Texture::Format fmt;
+		if (mColorType == kColorTypeShaderTransform) {
+			fmt.setInternalFormat(GL_RED);
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mUFrameTexture =
+				ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture =
+				ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		} else {
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		}
 		return;
 	}
 

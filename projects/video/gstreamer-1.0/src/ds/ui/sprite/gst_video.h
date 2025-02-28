@@ -267,7 +267,7 @@ class GstVideo : public Sprite {
 	void updateVideoTexture();
 	GstVideo* getPrimaryStream();
 
-	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
+	std::shared_ptr<gstwrapper::GStreamerWrapper> mGstreamerWrapper;
 
   private:
 	// filename is the absolute path to the file.
