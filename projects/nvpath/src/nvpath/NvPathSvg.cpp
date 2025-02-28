@@ -1734,11 +1734,11 @@ void Svg::pushClipPath(const SvgClipPath& clippath) {
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
 		glMatrixMult3x3fNV(GL_MODELVIEW, value_ptr(mStacks.matrix.back()));
 
-		ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
-		ScopedStencilMask scpStencilMask(coverMask | clipMask);					// Don't write to previous clip bits.
+		gl::ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		gl::stencilFunc(GL_NOTEQUAL, static_cast<GLint>(clipMask), coverMask);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, static_cast<GLint>(clipMask), coverMask);
 
 		gl::stencilFillPathNV(pathId, GL_COUNT_UP_NV,
 							  coverMask & stencilMask); // Write path to LSB portion (step 1).
@@ -1771,11 +1771,11 @@ void Svg::popClipPath() {
 		glMatrixLoadfEXT(GL_MODELVIEW, value_ptr(gl::getModelView()));
 		glMatrixMult3x3fNV(GL_MODELVIEW, value_ptr(mStacks.matrix.back()));
 
-		ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
-		ScopedStencilMask scpStencilMask(coverMask | clipMask);					// Don't write to previous clip bits.
+		gl::ScopedColorMask	  scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
-		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		gl::ScopedStencilFunc scpFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
 
 		gl::coverFillPathNV(pathId, GL_CONVEX_HULL_NV); // Clear stencil buffer bits (step 7).
 	}
@@ -1919,27 +1919,27 @@ void Svg::drawImage(const SvgImage& image) {
 		const GLuint clipMask  = 0x80 >> mStacks.clipPath.size();
 		const GLuint coverMask = clipMask - 1;
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		const GLuint mask = coverMask << 1 | 0x01;
-		gl::stencilFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		const GLuint		  mask = coverMask << 1 | 0x01;
+		gl::ScopedStencilFunc scpFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 		const GLuint stencilMask = getStencilMask();
 		glStencilThenCoverFillPathNV(pathId, GL_COUNT_UP_NV, stencilMask & coverMask,
 									 GL_CONVEX_HULL_NV); // (step 5).
 
 		// Remove shape from stencil buffer (step 6).
-		ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
 
 		gl::coverFillPathNV(pathId, GL_CONVEX_HULL_NV);
 	} else {
-		const GLuint stencilMask = getStencilMask();
-		gl::stencilFunc(GL_NOTEQUAL, 0, stencilMask);
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		const GLuint		  stencilMask = getStencilMask();
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, 0, stencilMask);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
 		glStencilThenCoverFillPathNV(pathId, GL_COUNT_UP_NV, stencilMask, GL_CONVEX_HULL_NV);
 	}
@@ -2104,27 +2104,27 @@ void Svg::fill(GLuint pathId, const Paint& paint, float opacity) {
 		const GLuint clipMask  = 0x80 >> mStacks.clipPath.size();
 		const GLuint coverMask = clipMask - 1;
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		const GLuint mask = coverMask << 1 | 0x01;
-		gl::stencilFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		const GLuint		  mask = coverMask << 1 | 0x01;
+		gl::ScopedStencilFunc scpFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 		const GLuint stencilMask = getStencilMask();
 		glStencilThenCoverFillPathNV(pathId, GL_COUNT_UP_NV, stencilMask & coverMask,
 									 GL_CONVEX_HULL_NV); // (step 5).
 
 		// Remove path from stencil buffer (step 6).
-		ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
 
 		gl::coverFillPathNV(pathId, GL_CONVEX_HULL_NV);
 	} else {
-		const GLuint stencilMask = getStencilMask();
-		gl::stencilFunc(GL_NOTEQUAL, 0, stencilMask);
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		const GLuint		  stencilMask = getStencilMask();
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, 0, stencilMask);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
 		glStencilThenCoverFillPathNV(pathId, GL_COUNT_UP_NV, stencilMask, GL_CONVEX_HULL_NV);
 	}
@@ -2142,24 +2142,24 @@ void Svg::stroke(GLuint pathId, const Paint& paint, float opacity) {
 		const GLuint clipMask  = 0x80 >> mStacks.clipPath.size();
 		const GLuint coverMask = clipMask - 1;
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		const GLuint mask = coverMask << 1 | 0x01;
-		gl::stencilFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		const GLuint		  mask = coverMask << 1 | 0x01;
+		gl::ScopedStencilFunc scpFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 		glStencilThenCoverStrokePathNV(pathId, GL_COUNT_UP_NV, coverMask, GL_CONVEX_HULL_NV); // (step 5).
 
 		// Remove path from stencil buffer (step 6).
-		ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
 
 		gl::coverStrokePathNV(pathId, GL_CONVEX_HULL_NV);
 	} else {
-		gl::stencilFunc(GL_NOTEQUAL, 0, 0xFF);
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, 0, 0xFF);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
 		glStencilThenCoverStrokePathNV(pathId, GL_COUNT_UP_NV, 0xFF, GL_CONVEX_HULL_NV);
 	}
@@ -2179,11 +2179,11 @@ void Svg::fillInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* transfo
 		const GLuint clipMask  = 0x80 >> mStacks.clipPath.size();
 		const GLuint coverMask = clipMask - 1;
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		const GLuint mask = coverMask << 1 | 0x01;
-		gl::stencilFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		const GLuint		  mask = coverMask << 1 | 0x01;
+		gl::ScopedStencilFunc scpFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 		// (step 5).
 		const GLuint stencilMask = getStencilMask();
@@ -2192,7 +2192,7 @@ void Svg::fillInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* transfo
 											  GL_AFFINE_2D_NV, reinterpret_cast<const GLfloat*>(transforms));
 
 		// Remove text from stencil buffer (step 6).
-		ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
@@ -2201,9 +2201,9 @@ void Svg::fillInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* transfo
 											  stencilMask & coverMask, GL_BOUNDING_BOX_OF_BOUNDING_BOXES_NV,
 											  GL_AFFINE_2D_NV, reinterpret_cast<const GLfloat*>(transforms));
 	} else {
-		const GLuint stencilMask = getStencilMask();
-		gl::stencilFunc(GL_NOTEQUAL, 0, stencilMask);
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		const GLuint		  stencilMask = getStencilMask();
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, 0, stencilMask);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
 		glStencilThenCoverFillPathInstancedNV(count, GL_UNSIGNED_INT, indices, baseId, GL_PATH_FILL_MODE_NV,
 											  stencilMask, GL_BOUNDING_BOX_OF_BOUNDING_BOXES_NV, GL_AFFINE_2D_NV,
@@ -2241,11 +2241,11 @@ void Svg::strokeInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* trans
 		const GLuint clipMask  = 0x80 >> mStacks.clipPath.size();
 		const GLuint coverMask = clipMask - 1;
 
-		ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
+		gl::ScopedStencilMask scpStencilMask(coverMask | clipMask); // Don't write to previous clip bits.
 
-		const GLuint mask = coverMask << 1 | 0x01;
-		gl::stencilFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		const GLuint		  mask = coverMask << 1 | 0x01;
+		gl::ScopedStencilFunc scpFunc(GL_LESS, static_cast<GLint>(~mask & 0xFF), 0xFF); // (step 5).
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 		// (step 5).
 		glStencilThenCoverStrokePathInstancedNV(count, GL_UNSIGNED_INT, indices, baseId, GL_PATH_FILL_MODE_NV,
@@ -2253,7 +2253,7 @@ void Svg::strokeInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* trans
 												reinterpret_cast<const GLfloat*>(transforms));
 
 		// Remove text from stencil buffer (step 6).
-		ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
+		gl::ScopedColorMask scpColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't write to color buffer.
 
 		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 		gl::stencilFunc(GL_ALWAYS, static_cast<GLint>(clipMask), coverMask);
@@ -2262,8 +2262,8 @@ void Svg::strokeInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* trans
 												coverMask, GL_BOUNDING_BOX_OF_BOUNDING_BOXES_NV, GL_AFFINE_2D_NV,
 												reinterpret_cast<const GLfloat*>(transforms));
 	} else {
-		gl::stencilFunc(GL_NOTEQUAL, 0, 0xFF);
-		gl::stencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+		gl::ScopedStencilFunc scpFunc(GL_NOTEQUAL, 0, 0xFF);
+		gl::ScopedStencilOp	  scpOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
 		glStencilThenCoverStrokePathInstancedNV(count, GL_UNSIGNED_INT, indices, baseId, GL_PATH_FILL_MODE_NV, 0xFF,
 												GL_BOUNDING_BOX_OF_BOUNDING_BOXES_NV, GL_AFFINE_2D_NV,
@@ -2549,13 +2549,13 @@ Shape2d parsePath(const std::string& p) {
 			case 'a':
 			case 'A': {
 				do {
-					float ra = readFloat(&s);
-					float rb = readFloat(&s);
+					float ra			= readFloat(&s);
+					float rb			= readFloat(&s);
 					float xAxisRotation = readFloat(&s) * float(M_PI) / 180.0f;
-					bool largeArc = readFlag(&s);
-					bool sweepFlag = readFlag(&s);
-					v0.x = readFloat(&s);
-					v0.y = readFloat(&s);
+					bool  largeArc		= readFlag(&s);
+					bool  sweepFlag		= readFlag(&s);
+					v0.x				= readFloat(&s);
+					v0.y				= readFloat(&s);
 					if (cmd == 'a') { // relative
 						v0 += lastPoint;
 					}
