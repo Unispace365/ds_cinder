@@ -30,7 +30,12 @@
 
 G_BEGIN_DECLS
 
-#ifdef PANGO_ENABLE_ENGINE
+/* All of this is deprecated and entirely useless for bindings.
+ * Leave it out of the gir file.
+ */
+#ifndef __GI_SCANNER__
+
+#ifndef PANGO_DISABLE_DEPRECATED
 
 /**
  * PANGO_RENDER_TYPE_NONE:
@@ -55,7 +60,7 @@ typedef struct _PangoEngineClass PangoEngineClass;
 /**
  * PangoEngine:
  *
- * #PangoEngine is the base class for all types of language and
+ * `PangoEngine` is the base class for all types of language and
  * script specific engines. It has no functionality by itself.
  *
  * Deprecated: 1.38
@@ -69,7 +74,7 @@ struct _PangoEngine
 /**
  * PangoEngineClass:
  *
- * Class structure for #PangoEngine
+ * Class structure for `PangoEngine`
  *
  * Deprecated: 1.38
  **/
@@ -86,7 +91,7 @@ GType pango_engine_get_type (void) G_GNUC_CONST;
  * PANGO_ENGINE_TYPE_LANG:
  *
  * A string constant defining the engine type for language engines.
- * These engines derive from #PangoEngineLang.
+ * These engines derive from `PangoEngineLang`.
  *
  * Deprecated: 1.38
  */
@@ -104,10 +109,10 @@ typedef struct _PangoEngineLangClass PangoEngineLangClass;
 /**
  * PangoEngineLang:
  *
- * The #PangoEngineLang class is implemented by engines that
+ * The `PangoEngineLang` class is implemented by engines that
  * customize the rendering-system independent part of the
  * Pango pipeline for a particular script or language. For
- * instance, a custom #PangoEngineLang could be provided for
+ * instance, a custom `PangoEngineLang` could be provided for
  * Thai to implement the dictionary-based word boundary
  * lookups needed for that language.
  *
@@ -128,7 +133,7 @@ struct _PangoEngineLang
  * but in newer versions, pango_default_break() is always called and
  * this is called after that to allow tailoring the breaking results.
  *
- * Class structure for #PangoEngineLang
+ * Class structure for `PangoEngineLang`
  *
  * Deprecated: 1.38
  **/
@@ -153,7 +158,7 @@ GType pango_engine_lang_get_type (void) G_GNUC_CONST;
  * PANGO_ENGINE_TYPE_SHAPE:
  *
  * A string constant defining the engine type for shaping engines.
- * These engines derive from #PangoEngineShape.
+ * These engines derive from `PangoEngineShape`.
  *
  * Deprecated: 1.38
  */
@@ -162,7 +167,7 @@ GType pango_engine_lang_get_type (void) G_GNUC_CONST;
 #define PANGO_TYPE_ENGINE_SHAPE              (pango_engine_shape_get_type ())
 #define PANGO_ENGINE_SHAPE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_ENGINE_SHAPE, PangoEngineShape))
 #define PANGO_IS_ENGINE_SHAPE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_ENGINE_SHAPE))
-#define PANGO_ENGINE_SHAPE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), PANGO_TYPE_ENGINE_SHAPE, PangoEngine_ShapeClass))
+#define PANGO_ENGINE_SHAPE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), PANGO_TYPE_ENGINE_SHAPE, PangoEngineShapeClass))
 #define PANGO_IS_ENGINE_SHAPE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), PANGO_TYPE_ENGINE_SHAPE))
 #define PANGO_ENGINE_SHAPE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), PANGO_TYPE_ENGINE_SHAPE, PangoEngineShapeClass))
 
@@ -171,13 +176,13 @@ typedef struct _PangoEngineShapeClass PangoEngineShapeClass;
 /**
  * PangoEngineShape:
  *
- * The #PangoEngineShape class is implemented by engines that
+ * The `PangoEngineShape` class is implemented by engines that
  * customize the rendering-system dependent part of the
  * Pango pipeline for a particular script or language.
- * A #PangoEngineShape implementation is then specific to both
+ * A `PangoEngineShape` implementation is then specific to both
  * a particular rendering system or group of rendering systems
  * and to a particular script. For instance, there is one
- * #PangoEngineShape implementation to handle shaping Arabic
+ * `PangoEngineShape` implementation to handle shaping Arabic
  * for Fontconfig-based backends.
  *
  * Deprecated: 1.38
@@ -189,18 +194,18 @@ struct _PangoEngineShape
 
 /**
  * PangoEngineShapeClass:
- * @script_shape: Given a font, a piece of text, and a #PangoAnalysis
+ * @script_shape: Given a font, a piece of text, and a `PangoAnalysis`
  *   structure, converts characters to glyphs and positions the
- *   resulting glyphs. The results are stored in the #PangoGlyphString
+ *   resulting glyphs. The results are stored in the `PangoGlyphString`
  *   that is passed in. (The implementation should resize it
  *   appropriately using pango_glyph_string_set_size()). All fields
  *   of the @log_clusters and @glyphs array must be filled in, with
  *   the exception that Pango will automatically generate
- *   <literal>glyphs->glyphs[i].attr.is_cluster_start</literal>
+ *   `glyphs->glyphs[i].attr.is_cluster_start`
  *   using the @log_clusters array. Each input character must occur in one
  *   of the output logical clusters;
  *   if no rendering is desired for a character, this may involve
- *   inserting glyphs with the #PangoGlyph ID #PANGO_GLYPH_EMPTY, which
+ *   inserting glyphs with the `PangoGlyph` ID %PANGO_GLYPH_EMPTY, which
  *   is guaranteed never to render. If the shaping fails for any reason,
  *   the shaper should return with an empty (zero-size) glyph string.
  *   If the shaper has not set the size on the glyph string yet, simply
@@ -210,7 +215,7 @@ struct _PangoEngineShape
  *   implementation simply returns the coverage information for the
  *   font itself unmodified.
  *
- * Class structure for #PangoEngineShape
+ * Class structure for `PangoEngineShape`
  *
  * Deprecated: 1.38
  **/
@@ -242,7 +247,7 @@ typedef struct _PangoEngineScriptInfo PangoEngineScriptInfo;
 
 /**
  * PangoEngineScriptInfo:
- * @script: a #PangoScript. The value %PANGO_SCRIPT_COMMON has
+ * @script: a `PangoScript`. The value %PANGO_SCRIPT_COMMON has
  * the special meaning here of "all scripts"
  * @langs: a semicolon separated list of languages that this
  * engine handles for this script. This may be empty,
@@ -254,7 +259,7 @@ typedef struct _PangoEngineScriptInfo PangoEngineScriptInfo;
  * indicates that this engine is specific to all
  * languages for this range.
  *
- * The #PangoEngineScriptInfo structure contains
+ * The `PangoEngineScriptInfo` structure contains
  * information about how the shaper covers a particular script.
  *
  * Deprecated: 1.38
@@ -273,7 +278,7 @@ struct _PangoEngineScriptInfo
  * @scripts: array of scripts this engine supports.
  * @n_scripts: number of items in @scripts.
  *
- * The #PangoEngineInfo structure contains information about a particular
+ * The `PangoEngineInfo` structure contains information about a particular
  * engine. It contains the following fields:
  *
  * Deprecated: 1.38
@@ -302,7 +307,7 @@ void script_engine_list (PangoEngineInfo **engines,
 
 /**
  * script_engine_init: (skip)
- * @module: a #GTypeModule structure used to associate any
+ * @module: a `GTypeModule` structure used to associate any
  *  GObject types created in this module with the module.
  *
  * Do not use.
@@ -363,28 +368,27 @@ prefix ## _register_type (GTypeModule *module)				  \
 
 /**
  * PANGO_ENGINE_LANG_DEFINE_TYPE:
- * @name: Name of the the type to register (for example:, <literal>ArabicEngineFc</literal>
- * @prefix: Prefix for symbols that will be defined (for example:, <literal>arabic_engine_fc</literal>
- * @class_init: (nullable): Class initialization function for the new type, or %NULL
- * @instance_init: (nullable): Instance initialization function for the new type, or %NULL
+ * @name: Name of the the type to register (for example:, ArabicEngineFc)
+ * @prefix: Prefix for symbols that will be defined (for example:, arabic_engine_fc)
+ * @class_init: (nullable): Class initialization function for the new type
+ * @instance_init: (nullable): Instance initialization function for the new type
  *
  * Outputs the necessary code for GObject type registration for a
- * #PangoEngineLang class defined in a module. Two static symbols
+ * `PangoEngineLang` class defined in a module. Two static symbols
  * are defined.
  *
  * <programlisting>
- *  static GType <replaceable>prefix</replaceable>_type;
- *  static void <replaceable>prefix</replaceable>_register_type (GTypeModule module);
- * </programlisting>
+ *  static GType *prefix*_type;
+ *  static void *prefix*_register_type (GTypeModule module);
  *
- * The <function><replaceable>prefix</replaceable>_register_type()</function>
+ * The *prefix*_register_type()
  * function should be called in your script_engine_init() function for
  * each type that your module implements, and then your script_engine_create()
  * function can create instances of the object as follows:
  *
- * <informalexample><programlisting>
- *  PangoEngine *engine = g_object_new (<replaceable>prefix</replaceable>_type, NULL);
- * </programlisting></informalexample>
+ * ```
+ * PangoEngine *engine = g_object_new (prefix_type, NULL);
+ * ```
  *
  * Deprecated: 1.38
  **/
@@ -395,28 +399,28 @@ prefix ## _register_type (GTypeModule *module)				  \
 
 /**
  * PANGO_ENGINE_SHAPE_DEFINE_TYPE:
- * @name: Name of the the type to register (for example:, <literal>ArabicEngineFc</literal>
- * @prefix: Prefix for symbols that will be defined (for example:, <literal>arabic_engine_fc</literal>
- * @class_init: (nullable): Class initialization function for the new type, or %NULL
- * @instance_init: (nullable): Instance initialization function for the new type, or %NULL
+ * @name: Name of the the type to register (for example:, ArabicEngineFc)
+ * @prefix: Prefix for symbols that will be defined (for example:, arabic_engine_fc)
+ * @class_init: (nullable): Class initialization function for the new type
+ * @instance_init: (nullable): Instance initialization function for the new type
  *
  * Outputs the necessary code for GObject type registration for a
- * #PangoEngineShape class defined in a module. Two static symbols
+ * `PangoEngineShape` class defined in a module. Two static symbols
  * are defined.
  *
  * <programlisting>
- *  static GType <replaceable>prefix</replaceable>_type;
- *  static void <replaceable>prefix</replaceable>_register_type (GTypeModule module);
+ *  static GType *prefix*_type;
+ *  static void *prefix*_register_type (GTypeModule module);
  * </programlisting>
  *
- * The <function><replaceable>prefix</replaceable>_register_type()</function>
+ * The *prefix*_register_type()
  * function should be called in your script_engine_init() function for
  * each type that your module implements, and then your script_engine_create()
  * function can create instances of the object as follows:
  *
- * <informalexample><programlisting>
- *  PangoEngine *engine = g_object_new (<replaceable>prefix</replaceable>_type, NULL);
- * </programlisting></informalexample>
+ * ```
+ * PangoEngine *engine = g_object_new (prefix_type, NULL);
+ * ```
  *
  * Deprecated: 1.38
  **/
@@ -444,7 +448,9 @@ prefix ## _register_type (GTypeModule *module)				  \
 #define PANGO_MODULE_ENTRY(func) script_engine_##func
 #endif
 
-#endif /* PANGO_ENABLE_ENGINE */
+#endif /* PANGO_DISABLE_DEPRECATED */
+
+#endif /* __GI_SCANNER__ */
 
 G_END_DECLS
 

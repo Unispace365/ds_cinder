@@ -30,16 +30,19 @@
 #include <pango/pango-script.h>
 #include <pango/pango-language.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 G_BEGIN_DECLS
 
-#ifdef PANGO_ENABLE_ENGINE
+#ifndef PANGO_DISABLE_DEPRECATED
 
 /**
  * PangoOTTag:
  *
- * The #PangoOTTag typedef is used to represent TrueType and OpenType
+ * The `PangoOTTag` typedef is used to represent TrueType and OpenType
  * four letter tags inside Pango. Use PANGO_OT_TAG_MAKE()
- * or PANGO_OT_TAG_MAKE_FROM_STRING() macros to create <type>PangoOTTag</type>s manually.
+ * or PANGO_OT_TAG_MAKE_FROM_STRING() macros to create PangoOTTags manually.
  */
 typedef guint32 PangoOTTag;
 
@@ -50,14 +53,14 @@ typedef guint32 PangoOTTag;
  * @c3: Third character.
  * @c4: Fourth character.
  *
- * Creates a #PangoOTTag from four characters.  This is similar and
- * compatible with the <function>FT_MAKE_TAG()</function> macro from FreeType.
+ * Creates a `PangoOTTag` from four characters.  This is similar and
+ * compatible with the FT_MAKE_TAG() macro from FreeType.
  */
 /**
  * PANGO_OT_TAG_MAKE_FROM_STRING:
  * @s: The string representation of the tag.
  *
- * Creates a #PangoOTTag from a string. The string should be at least
+ * Creates a `PangoOTTag` from a string. The string should be at least
  * four characters long (pad with space characters if needed), and need
  * not be nul-terminated.  This is a convenience wrapper around
  * PANGO_OT_TAG_MAKE(), but cannot be used in certain situations, for
@@ -81,9 +84,9 @@ typedef struct _PangoOTRulesetDescription PangoOTRulesetDescription;
  * @PANGO_OT_TABLE_GSUB: The GSUB table.
  * @PANGO_OT_TABLE_GPOS: The GPOS table.
  *
- * The <type>PangoOTTableType</type> enumeration values are used to
+ * The PangoOTTableType enumeration values are used to
  * identify the various OpenType tables in the
- * <function>pango_ot_info_*</function> functions.
+ * pango_ot_info_… functions.
  */
 typedef enum
 {
@@ -144,7 +147,7 @@ typedef enum
 /**
  * PANGO_OT_TAG_DEFAULT_SCRIPT:
  *
- * This is a #PangoOTTag representing the special script tag 'DFLT'.  It is
+ * This is a `PangoOTTag` representing the special script tag 'DFLT'.  It is
  * returned as script tag by pango_ot_tag_from_script() if the requested script
  * is not found.
  *
@@ -153,7 +156,7 @@ typedef enum
 /**
  * PANGO_OT_TAG_DEFAULT_LANGUAGE:
  *
- * This is a #PangoOTTag representing a special language tag 'dflt'.  It is
+ * This is a `PangoOTTag` representing a special language tag 'dflt'.  It is
  * returned as language tag by pango_ot_tag_from_language() if the requested
  * language is not found.  It is safe to pass this value to
  * pango_ot_info_find_language() as that function falls back to returning default
@@ -175,7 +178,7 @@ typedef enum
  * @ligID: a ligature index value, set by the OpenType layout engine.
  * @internal: for Pango internal use
  *
- * The #PangoOTGlyph structure represents a single glyph together with
+ * The `PangoOTGlyph` structure represents a single glyph together with
  * information used for OpenType layout processing of the glyph.
  * It contains the following fields.
  */
@@ -196,9 +199,9 @@ struct _PangoOTGlyph
  * @property_bit: the property bit to use for this feature.  See
  * pango_ot_ruleset_add_feature() for details.
  *
- * The #PangoOTFeatureMap typedef is used to represent an OpenType
+ * The `PangoOTFeatureMap` typedef is used to represent an OpenType
  * feature with the property bit associated with it.  The feature tag is
- * represented as a char array instead of a #PangoOTTag for convenience.
+ * represented as a char array instead of a `PangoOTTag` for convenience.
  *
  * Since: 1.18
  */
@@ -210,22 +213,19 @@ struct _PangoOTFeatureMap
 
 /**
  * PangoOTRulesetDescription:
- * @script: a #PangoScript.
- * @language: a #PangoLanguage.
- * @static_gsub_features: (nullable): static map of GSUB features,
- * or %NULL.
+ * @script: a `PangoScript`
+ * @language: a `PangoLanguage`
+ * @static_gsub_features: (nullable): static map of GSUB features
  * @n_static_gsub_features: length of @static_gsub_features, or 0.
- * @static_gpos_features: (nullable): static map of GPOS features,
- * or %NULL.
+ * @static_gpos_features: (nullable): static map of GPOS features
  * @n_static_gpos_features: length of @static_gpos_features, or 0.
  * @other_features: (nullable): map of extra features to add to both
- * GSUB and GPOS, or %NULL.  Unlike the static maps, this pointer
- * need not live beyond the life of function calls taking this
- * struct.
+ *   GSUB and GPOS. Unlike the static maps, this pointer need not
+ *   live beyond the life of function calls taking this struct.
  * @n_other_features: length of @other_features, or 0.
  *
- * The #PangoOTRuleset structure holds all the information needed
- * to build a complete #PangoOTRuleset from an OpenType font.
+ * The `PangoOTRuleset` structure holds all the information needed
+ * to build a complete `PangoOTRuleset` from an OpenType font.
  * The main use of this struct is to act as the key for a per-font
  * hash of rulesets.  The user populates a ruleset description and
  * gets the ruleset using pango_ot_ruleset_get_for_description()
@@ -244,16 +244,29 @@ struct _PangoOTRulesetDescription {
   guint                   n_other_features;
 };
 
-
+#ifdef __GI_SCANNER__
+#define PANGO_OT_TYPE_INFO              (pango_ot_info_get_type ())
+#define PANGO_OT_INFO(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_OT_TYPE_INFO, PangoOTInfo))
+#define PANGO_OT_IS_INFO(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_OT_TYPE_INFO))
+#else
 #define PANGO_TYPE_OT_INFO              (pango_ot_info_get_type ())
 #define PANGO_OT_INFO(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_OT_INFO, PangoOTInfo))
 #define PANGO_IS_OT_INFO(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_OT_INFO))
+#endif
+
 PANGO_DEPRECATED
 GType pango_ot_info_get_type (void) G_GNUC_CONST;
 
+#ifdef __GI_SCANNER__
+#define PANGO_OT_TYPE_RULESET           (pango_ot_ruleset_get_type ())
+#define PANGO_OT_RULESET(object)        (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_OT_TYPE_RULESET, PangoOTRuleset))
+#define PANGO_OT_IS_RULESET(object)     (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_OT_TYPE_RULESET))
+#else
 #define PANGO_TYPE_OT_RULESET           (pango_ot_ruleset_get_type ())
 #define PANGO_OT_RULESET(object)        (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_OT_RULESET, PangoOTRuleset))
 #define PANGO_IS_OT_RULESET(object)     (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_OT_RULESET))
+#endif
+
 PANGO_DEPRECATED
 GType pango_ot_ruleset_get_type (void) G_GNUC_CONST;
 
@@ -296,6 +309,15 @@ PangoOTTag *pango_ot_info_list_features  (PangoOTInfo      *info,
 					  PangoOTTag        tag,
 					  guint             script_index,
 					  guint             language_index);
+
+#ifdef __GI_SCANNER__
+#define PANGO_OT_TYPE_BUFFER (pango_ot_buffer_get_type())
+#else
+#define PANGO_TYPE_OT_BUFFER (pango_ot_buffer_get_type())
+#endif
+
+PANGO_DEPRECATED
+GType          pango_ot_buffer_get_type   (void) G_GNUC_CONST;
 
 PANGO_DEPRECATED
 PangoOTBuffer *pango_ot_buffer_new        (PangoFcFont       *font);
@@ -375,6 +397,15 @@ PangoLanguage  *pango_ot_tag_to_language   (PangoOTTag     language_tag) G_GNUC_
 PANGO_DEPRECATED
 PangoOTTag      pango_ot_tag_from_language (PangoLanguage *language) G_GNUC_CONST;
 
+#ifdef __GI_SCANNER__
+#define PANGO_OT_TYPE_RULESET_DESCRIPTION (pango_ot_ruleset_description_get_type())
+#else
+#define PANGO_TYPE_OT_RULESET_DESCRIPTION (pango_ot_ruleset_description_get_type())
+#endif
+
+PANGO_DEPRECATED
+GType           pango_ot_ruleset_description_get_type (void) G_GNUC_CONST;
+
 PANGO_DEPRECATED
 guint           pango_ot_ruleset_description_hash  (const PangoOTRulesetDescription *desc) G_GNUC_PURE;
 
@@ -389,7 +420,7 @@ PANGO_DEPRECATED
 void            pango_ot_ruleset_description_free  (PangoOTRulesetDescription       *desc);
 
 
-#endif /* PANGO_ENABLE_ENGINE */
+#endif /* PANGO_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

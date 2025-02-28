@@ -1,6 +1,8 @@
 /* GObject - GLib Type, Object, Parameter and Signal Library
  * Copyright (C) 1998-1999, 2000-2001 Tim Janik and Red Hat, Inc.
  *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -111,8 +113,8 @@ g_object_notify_queue_thaw (GObject            *object,
   /* Just make sure we never get into some nasty race condition */
   if (G_UNLIKELY(nqueue->freeze_count == 0)) {
     G_UNLOCK(notify_lock);
-    g_warning ("%s: property-changed notification for %s(%p) is not frozen",
-	       G_STRFUNC, G_OBJECT_TYPE_NAME (object), object);
+    g_critical ("%s: property-changed notification for %s(%p) is not frozen",
+	        G_STRFUNC, G_OBJECT_TYPE_NAME (object), object);
     return;
   }
 

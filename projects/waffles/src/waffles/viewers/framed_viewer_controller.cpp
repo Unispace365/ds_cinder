@@ -28,7 +28,7 @@ void FramedViewerController::initCreators() {
 				   if (resourcePath.has_extension()) {
 					   std::string ext = resourcePath.extension().string();
 					   ds::to_lowercase(ext);
-					   if (ext == ".webp") {
+					   /* if (ext == ".webp") {
 						   ds::model::ContentModelRef errorModel;
 						   std::string				  errorMessage =
 							   "We couldn't load this piece of media because .webp files are not supported.";
@@ -44,7 +44,7 @@ void FramedViewerController::initCreators() {
 
 						   mChannelClient.notify(RequestViewerLaunchEvent(eArgs));
 						   return {nullptr, CreationError::INVALID_TYPE};
-					   }
+					   }*/
 				   }
 				   if (!isStream && !isStreamSource && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 					   theResource.getType() != ds::Resource::WEB_TYPE &&

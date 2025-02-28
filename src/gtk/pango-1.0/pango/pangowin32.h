@@ -30,12 +30,7 @@
 
 G_BEGIN_DECLS
 
-#define STRICT
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501	/* To get ClearType-related macros */
-#endif
 #include <windows.h>
-#undef STRICT
 
 /**
  * PANGO_RENDER_TYPE_WIN32:
@@ -77,32 +72,30 @@ void           pango_win32_render_transformed (HDC         hdc,
 					       int                x,
 					       int                y);
 
-#ifdef PANGO_ENABLE_ENGINE
+#ifndef PANGO_DISABLE_DEPRECATED
 
 /* For shape engines
  */
 
-#ifndef PANGO_DISABLE_DEPRECATED
 PANGO_DEPRECATED_FOR(PANGO_GET_UNKNOWN_GLYPH)
 PangoGlyph     pango_win32_get_unknown_glyph  (PangoFont        *font,
 					       gunichar          wc);
-#endif /* PANGO_DISABLE_DEPRECATED */
-PANGO_AVAILABLE_IN_ALL
+PANGO_DEPRECATED
 gint	      pango_win32_font_get_glyph_index(PangoFont        *font,
 					       gunichar          wc);
 
-PANGO_AVAILABLE_IN_ALL
+PANGO_DEPRECATED
 HDC            pango_win32_get_dc             (void);
 
-PANGO_AVAILABLE_IN_1_2
+PANGO_DEPRECATED
 gboolean       pango_win32_get_debug_flag     (void);
 
-PANGO_AVAILABLE_IN_ALL
+PANGO_DEPRECATED
 gboolean pango_win32_font_select_font        (PangoFont *font,
 					      HDC        hdc);
-PANGO_AVAILABLE_IN_ALL
+PANGO_DEPRECATED
 void     pango_win32_font_done_font          (PangoFont *font);
-PANGO_AVAILABLE_IN_ALL
+PANGO_DEPRECATED
 double   pango_win32_font_get_metrics_factor (PangoFont *font);
 
 #endif
@@ -144,6 +137,11 @@ PangoFontDescription *pango_win32_font_description_from_logfont (const LOGFONTA 
 
 PANGO_AVAILABLE_IN_1_16
 PangoFontDescription *pango_win32_font_description_from_logfontw (const LOGFONTW *lfp);
+
+PANGO_DEPRECATED_IN_1_56
+gboolean              pango_win32_font_map_add_font_file (PangoFontMap       *font_map,
+                                                          const char         *font_file_path,
+                                                          GError            **error);
 
 G_END_DECLS
 

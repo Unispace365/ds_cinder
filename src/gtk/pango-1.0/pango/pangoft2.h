@@ -25,14 +25,20 @@
 
 #include <fontconfig/fontconfig.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#include <pango/pangofc-fontmap.h>
 #include <pango/pango-layout.h>
 #include <pango/pangofc-font.h>
 
 G_BEGIN_DECLS
 
+#ifndef __GI_SCANNER__
+
 #ifndef PANGO_DISABLE_DEPRECATED
 /**
- * PANGO_RENDER_TYPE_FT2:
+ * PANGO_RENDER_TYPE_FT2: (skip)
  *
  * A string constant that was used to identify shape engines that work
  * with the FreeType backend. See %PANGO_RENDER_TYPE_FC for the replacement.
@@ -40,21 +46,29 @@ G_BEGIN_DECLS
 #define PANGO_RENDER_TYPE_FT2 "PangoRenderFT2"
 #endif
 
+#endif /* __GI_SCANNER__ */
+
+#ifdef __GI_SCANNER__
+#define PANGO_FT2_TYPE_FONT_MAP              (pango_ft2_font_map_get_type ())
+#define PANGO_FT2_FONT_MAP(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_FT2_TYPE_FONT_MAP, PangoFT2FontMap))
+#define PANGO_FT2_IS_FONT_MAP(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_FT2_TYPE_FONT_MAP))
+#else
 #define PANGO_TYPE_FT2_FONT_MAP              (pango_ft2_font_map_get_type ())
 #define PANGO_FT2_FONT_MAP(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), PANGO_TYPE_FT2_FONT_MAP, PangoFT2FontMap))
 #define PANGO_FT2_IS_FONT_MAP(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), PANGO_TYPE_FT2_FONT_MAP))
+#endif
 
 typedef struct _PangoFT2FontMap      PangoFT2FontMap;
 
 /**
  * PangoFT2SubstituteFunc:
- * @pattern: the <type>FcPattern</type> to tweak.
+ * @pattern: the FcPattern to tweak.
  * @data: user data.
  *
  * Function type for doing final config tweaking on prepared FcPatterns.
  */
 typedef void (*PangoFT2SubstituteFunc) (FcPattern *pattern,
-					gpointer   data);
+				        gpointer   data);
 
 /* Calls for applications */
 
@@ -102,14 +116,14 @@ PANGO_AVAILABLE_IN_1_2
 void          pango_ft2_font_map_set_resolution         (PangoFT2FontMap        *fontmap,
 							 double                  dpi_x,
 							 double                  dpi_y);
-PANGO_AVAILABLE_IN_1_2
+#ifndef PANGO_DISABLE_DEPRECATED
+PANGO_DEPRECATED_IN_1_48_FOR(pango_fc_font_map_set_default_substitute)
 void          pango_ft2_font_map_set_default_substitute (PangoFT2FontMap        *fontmap,
 							 PangoFT2SubstituteFunc  func,
 							 gpointer                data,
 							 GDestroyNotify          notify);
-PANGO_AVAILABLE_IN_1_2
+PANGO_DEPRECATED_IN_1_48_FOR(pango_fc_font_map_substitute_changed)
 void          pango_ft2_font_map_substitute_changed     (PangoFT2FontMap         *fontmap);
-#ifndef PANGO_DISABLE_DEPRECATED
 PANGO_DEPRECATED_IN_1_22_FOR(pango_font_map_create_context)
 PangoContext *pango_ft2_font_map_create_context         (PangoFT2FontMap         *fontmap);
 #endif

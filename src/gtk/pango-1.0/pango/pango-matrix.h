@@ -38,17 +38,18 @@ typedef struct _PangoMatrix    PangoMatrix;
  * @x0: x translation
  * @y0: y translation
  *
- * A structure specifying a transformation between user-space
- * coordinates and device coordinates. The transformation
- * is given by
+ * A `PangoMatrix` specifies a transformation between user-space
+ * and device coordinates.
  *
- * <programlisting>
+ * The transformation is given by
+ *
+ * ```
  * x_device = x_user * matrix->xx + y_user * matrix->xy + matrix->x0;
  * y_device = x_user * matrix->yx + y_user * matrix->yy + matrix->y0;
- * </programlisting>
+ * ```
  *
  * Since: 1.6
- **/
+ */
 struct _PangoMatrix
 {
   double xx;
@@ -59,23 +60,18 @@ struct _PangoMatrix
   double y0;
 };
 
-/**
- * PANGO_TYPE_MATRIX:
- *
- * The GObject type for #PangoMatrix
- **/
 #define PANGO_TYPE_MATRIX (pango_matrix_get_type ())
 
 /**
  * PANGO_MATRIX_INIT:
  *
- * Constant that can be used to initialize a PangoMatrix to
+ * Constant that can be used to initialize a `PangoMatrix` to
  * the identity transform.
  *
- * <informalexample><programlisting>
+ * ```
  * PangoMatrix matrix = PANGO_MATRIX_INIT;
- * pango_matrix_rotate (&amp;matrix, 45.);
- * </programlisting></informalexample>
+ * pango_matrix_rotate (&matrix, 45.);
+ * ```
  *
  * Since: 1.6
  **/
@@ -125,6 +121,8 @@ double pango_matrix_get_font_scale_factor (const PangoMatrix *matrix) G_GNUC_PUR
 PANGO_AVAILABLE_IN_1_38
 void pango_matrix_get_font_scale_factors (const PangoMatrix *matrix,
 					  double *xscale, double *yscale);
+PANGO_AVAILABLE_IN_1_50
+double pango_matrix_get_slant_ratio (const PangoMatrix *matrix) G_GNUC_PURE;
 
 
 G_END_DECLS
