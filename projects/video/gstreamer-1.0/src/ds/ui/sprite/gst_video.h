@@ -255,6 +255,8 @@ class GstVideo : public Sprite {
 	/// May return null if there's no element with that name.
 	/// Use with caution
 	void* getGstreamerElementByName(const std::string& theName);
+	static ci::vec2 getResolutionForCapture(std::string resolution, ds::ui::SpriteEngine& engine);
+	static void	 initCaptureResolutionMap(ds::ui::SpriteEngine& engine);
 
   protected:
 	virtual void drawLocalClient() override;
@@ -356,6 +358,8 @@ class GstVideo : public Sprite {
 	std::vector<std::string> mPlayableInstances;
 
 	bool mUseGstGL; // Gstreamer uploads directly to openGL
+
+	static std::unordered_map<std::string, ci::vec2> mDeviceResolutionMap;
 
 	// Initialization
   public:

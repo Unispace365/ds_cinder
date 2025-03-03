@@ -115,6 +115,54 @@ void GStreamerWrapper::parseFilename(const std::string& theFile) {
 	mFilename = strFilename;
 }
 
+static gboolean print_field(GQuark field, const GValue* value, gpointer pfx) {
+	gchar* str = gst_value_serialize(value);
+
+	DS_LOG_INFO((char*)pfx << g_quark_to_string(field) << ":" << str);
+	g_free(str);
+	return TRUE;
+}
+
+void GStreamerWrapper::getClosestResolution(std::string captureName, int width, int height) {
+	// Get the closest resolution to the requested width and height
+	// This is useful for capture devices that don't support the requested resolution
+	// The closest resolution is the one with the smallest difference between the requested and actual
+	GstDeviceMonitor* monitor = gst_device_monitor_new();
+	gst_device_monitor_add_filter(monitor, "Video/Source", NULL);
+	GList* devices = gst_device_monitor_get_devices(monitor);
+
+	GstDevice* device = NULL;
+	GstCaps*   caps;
+	GstStructure* structure;
+	const gchar*  pfx = "    ";
+	g_print("Devices:\n");
+	//print device name
+	
+
+	while (devices) {
+		
+
+		device	  = (GstDevice*)devices->data;
+		std::string deviceName(gst_device_get_display_name(device));
+
+		if (deviceName != captureName) {
+			devices = devices->next;
+			continue;
+		}
+
+		caps	  = gst_device_get_caps(device);
+		for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+			GstStructure* structure = gst_caps_get_structure(caps, i);
+
+			DS_LOG_INFO(pfx << gst_structure_get_name(structure));
+			gst_structure_foreach(structure, print_field, (gpointer)pfx);
+		}
+		devices = devices->next;
+	}
+
+
+}
+
 void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeight) {
 	int videoWidth	= vidWidth;
 	int videoHeight = vidHeight;

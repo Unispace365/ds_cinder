@@ -168,6 +168,8 @@ void GstVideo::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) { Sprite::handleBlobFromServer<GstVideo>(r); });
 }
 
+std::unordered_map<std::string, ci::vec2> GstVideo::mDeviceResolutionMap;
+
 /**
  * Video
  */
@@ -224,6 +226,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	NUM_VIDEOS++;
 	DS_LOG_VERBOSE(4, "Adding a video, number: " << NUM_VIDEOS);
+	
 }
 
 GstVideo::~GstVideo() {
@@ -761,6 +764,41 @@ void GstVideo::doLoadVideo(const std::string& filename, const std::string& porta
 	}
 }
 
+ci::vec2 GstVideo::getResolutionForCapture(std::string deviceName, ds::ui::SpriteEngine& engine) {
+	if (!mDeviceResolutionMap.size()) {
+		initCaptureResolutionMap(engine);
+	}
+
+	if (mDeviceResolutionMap.find(deviceName) == mDeviceResolutionMap.end()) {
+		return ci::vec2(1920, 1080);
+	}
+
+	return mDeviceResolutionMap[deviceName];
+}
+
+void GstVideo::initCaptureResolutionMap(ds::ui::SpriteEngine& engine) {
+	// <setting name="devices:resolution_map" value="some_name:1920x1080, some_id:1280x720" type="string" />
+	mDeviceResolutionMap.clear();
+	auto fullMapString = engine.getEngineSettings().getString("devices:resolution_map", 0, "");
+	if (fullMapString.empty()) {
+		return;
+	}
+	auto mapEntryStrings = ds::split(fullMapString, ",", true);
+	for (auto mapEntry : mapEntryStrings) {
+		auto nameResolutionStrings = ds::split(mapEntry, ":");
+		if (nameResolutionStrings.size() != 2) {
+			continue;
+		}
+		auto name			   = nameResolutionStrings[0];
+		auto resolutionStrings = ds::split(nameResolutionStrings[1], "x");
+		if (resolutionStrings.size() != 2) {
+			continue;
+		}
+		auto resolution			   = ci::vec2(atoi(resolutionStrings[0].c_str()), atoi(resolutionStrings[1].c_str()));
+		mDeviceResolutionMap[name] = resolution;
+	}
+}
+
 void GstVideo::startStream(const std::string& streamingPipeline, const float videoWidth, const float videoHeight, const bool usePrimary) {
 
 	if (streamingPipeline.empty()) {
@@ -813,6 +851,8 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		}
 		return;
 	}
+
+	//mGstreamerWrapper->getClosestResolution("OV02C10", 3840, 2160);
 
 	if (videoWidth < 16.0f || videoHeight < 16.0f) {
 		DS_LOG_WARNING_M(

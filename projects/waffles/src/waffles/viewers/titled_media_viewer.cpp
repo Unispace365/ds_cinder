@@ -358,8 +358,9 @@ void TitledMediaViewer::onMediaSet() {
 				}
 
 				if (width == 0 || height == 0) {
-					width = 1920;
-					height = 1080;
+					auto sz = ds::ui::GstVideo::getResolutionForCapture(address, mEngine);
+					width	= sz.x;
+					height	= sz.y;
 				}
 
 				std::stringstream ss;

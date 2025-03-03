@@ -550,6 +550,7 @@ class GStreamerWrapper {
 
 	/* Returns a pointer to a GST_ELEMENT if it exists and gstreamer returns it correctly */
 	void* getElementByName(const std::string& gst_element_name);
+	void  getClosestResolution(std::string captureName, int width, int height);
 
   private:
 	/*
@@ -660,6 +661,7 @@ class GStreamerWrapper {
 
 	// Adds appropriate file:/// if needed
 	void parseFilename(const std::string& filename);
+	
 
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void enforceModFourWidth(const int videoWidth, const int videoHeight);
