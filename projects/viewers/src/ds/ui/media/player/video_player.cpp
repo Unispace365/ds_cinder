@@ -119,11 +119,6 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 	}
 	addChildPtr(mVideo);
 
-	if (mVideoInterface) {
-		mVideoInterface->release();
-		mVideoInterface = nullptr;
-	}
-
 	if (mEmbedInterface) {
 		mVideoInterface =
 			dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
@@ -155,9 +150,12 @@ void VideoPlayer::clear() {
 	if (mVideo) {
 		mVideo->release();
 		mVideo = nullptr;
-		if (mVideoInterface) {
-			mVideoInterface->linkVideo(nullptr);
-		}
+	}
+	if (mVideoInterface) {
+		mVideoInterface->linkVideo(nullptr);
+
+		mVideoInterface->release();
+		mVideoInterface = nullptr;
 	}
 }
 

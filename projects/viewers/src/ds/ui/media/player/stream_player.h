@@ -23,8 +23,12 @@ namespace ui {
 	class StreamPlayer : public ds::ui::Sprite {
 	  public:
 		StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
+		~StreamPlayer() override {
+			clear();
+		}
 
 		virtual void setResource(const ds::Resource& resource) override;
+		void		 clear();
 
 		void layout();
 

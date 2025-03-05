@@ -22,6 +22,9 @@ struct MediaViewerSettings;
 class VideoPlayer : public ds::ui::Sprite {
   public:
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
+	~VideoPlayer() override {
+		clear();
+	}
 
 	virtual void setResource(const ds::Resource& resource) override;
 	void		 setMedia(const std::string mediaPath);

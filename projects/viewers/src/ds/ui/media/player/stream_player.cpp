@@ -31,14 +31,7 @@ namespace ds { namespace ui {
 	}
 
 	void StreamPlayer::setResource(const ds::Resource& resource) {
-
-		if (mVideo) {
-			mVideo->release();
-			mVideo = nullptr;
-			if (mVideoInterface) {
-				mVideoInterface->linkVideo(nullptr);
-			}
-		}
+		clear();
 
 		mVideo = new ds::ui::GstVideo(mEngine);
 		mVideo->generateAudioBuffer(true);
@@ -63,11 +56,6 @@ namespace ds { namespace ui {
 
 		addChildPtr(mVideo);
 
-		if (mVideoInterface) {
-			mVideoInterface->release();
-			mVideoInterface = nullptr;
-		}
-
 		if (mEmbedInterface) {
 			mVideoInterface =
 				dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
@@ -90,6 +78,19 @@ namespace ds { namespace ui {
 		}
 
 		setSize(mVideo->getWidth(), mVideo->getHeight());
+	}
+
+	void StreamPlayer::clear() {
+		if (mVideo) {
+			mVideo->release();
+			mVideo = nullptr;
+		}
+		if (mVideoInterface) {
+			mVideoInterface->linkVideo(nullptr);
+
+			mVideoInterface->release();
+			mVideoInterface = nullptr;
+		}
 	}
 
 	void StreamPlayer::onUpdateServer(const ds::UpdateParams& updateParams) {
