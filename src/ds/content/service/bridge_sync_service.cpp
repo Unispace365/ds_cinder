@@ -192,20 +192,21 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			while (!mExit && Poco::Process::isRunning(mProcessId)) {
 				if (pipe_stream.peek() != EOF) {
 					std::getline(pipe_stream, line);
-					if (line != "") {
+					if (!line.empty()) {
 						std::unique_lock<std::mutex> lock(mMutex);
+						while (mStdoutBuffer.size() > 5000) {
+							mStdoutBuffer.pop_front();
+						}
 						mStdoutBuffer.push_back(line);
-						if (mFirstLine == "") {
-							mFirstLine = mStdoutBuffer[0];
+						if (mFirstLine.empty()) {
+							mFirstLine = mStdoutBuffer.front();
 						}
 						mTestScroll = true;
 					}
 				}
 
-				while (mStdoutBuffer.size() > 5000) {
-					std::unique_lock<std::mutex> lock(mMutex);
-					mStdoutBuffer.pop_front();
-				}
+				// yield to conserve system resources
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 
 			if (!mExit) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -215,7 +216,6 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 
 void BridgeSyncService::update(const ds::UpdateParams&) {
 	if (mStarted && mShowOutput) {
-		std::unique_lock<std::mutex> lock(mMutex);
 		ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 		ImGui::Begin("BridgeSync", &mShowOutput, ImGuiWindowFlags_NoFocusOnAppearing);
 
@@ -224,12 +224,14 @@ void BridgeSyncService::update(const ds::UpdateParams&) {
 		auto mx	 = ImGui::GetScrollMaxY();
 		auto scy = ImGui::GetScrollY();
 
-		auto offset = mStdoutBuffer.size() < mShowCount ? 0 : mStdoutBuffer.size() - mShowCount;
-		// auto offset = mStdoutBuffer.size();
-		auto start = mStdoutBuffer.begin() + offset;
-		for (auto itr = start; itr != mStdoutBuffer.end(); ++itr)
-			ImGui::TextAnsi(itr->c_str());
-
+		{
+			std::unique_lock<std::mutex> lock(mMutex);
+			auto offset = mStdoutBuffer.size() < mShowCount ? 0 : mStdoutBuffer.size() - mShowCount;
+			// auto offset = mStdoutBuffer.size();
+			auto start = mStdoutBuffer.begin() + offset;
+			for (auto itr = start; itr != mStdoutBuffer.end(); ++itr)
+				ImGui::TextAnsi(itr->c_str());
+		}
 
 		if (mTestScroll) {
 			mTestScroll = false;
