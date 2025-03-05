@@ -131,7 +131,7 @@ void BridgeService::Loop::run() {
 				if (!loadContent()) {
 					// If loading the content failed, try again soon.
 					DS_LOG_WARNING("Failed to load content. Retrying...")
-					Poco::Thread::trySleep(100);
+					Poco::Thread::trySleep(5000);
 
 					mMutex.lock();
 					mForce			 = contentChanged;
