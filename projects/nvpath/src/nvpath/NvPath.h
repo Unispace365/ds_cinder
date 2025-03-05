@@ -24,6 +24,18 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 namespace nvpath {
 
+// Forward declarations.
+class Cache;
+class Canvas;
+class Paints;
+class Path;
+class PathHelper;
+class Shader;
+
+using CanvasRef = std::shared_ptr<Canvas>;
+using PathRef	= std::shared_ptr<Path>;
+using ShaderRef = std::shared_ptr<Shader>;
+
 //! Returns whether NV Path Rendering is available on this system.
 bool hasNvPathRendering();
 
@@ -32,16 +44,18 @@ void reportNoNvPathRendering();
 //! Returns whether pre-multiplied alpha is currently enabled.
 bool isPreMultiplied();
 
-// Forward declarations.
-class Cache;
-class Canvas;
-class Path;
-class PathHelper;
-class Shader;
+//! Returns a thread-local instance of the Paints cache. Using lazy initialization to avoid a rare crash in Debug mode.
+Paints& sPaints();
 
-using CanvasRef = std::shared_ptr<Canvas>;
-using PathRef	= std::shared_ptr<Path>;
-using ShaderRef = std::shared_ptr<Shader>;
+//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
+std::vector<Path>& sClipPaths();
+
+//! Applies the \a mask as a clip mask, causing subsequent rendering to be clipped to the path. We allow a maximum of 5
+//! nested clip paths.
+void pushClipPath(const Path& mask, GLuint stencilMask = 0xFF, bool showMask = false);
+
+//! Removes the last clip path from the stack. See also: pushClipPath() and ScopedClipPath.
+void popClipPath();
 
 //!
 enum class CapsStyle {
@@ -105,6 +119,7 @@ inline glm::mat4x4 toMat4x4(const glm::mat3x3& m) {
 }
 
 //! Shader for solid colors or gradients to be applied to paths.
+//! Requires OpenGL v4.1 or GL_ARB_separate_shader_objects.
 class Shader {
   public:
 	enum class Type { SOLID_COLOR, LINEAR_GRADIENT, RADIAL_GRADIENT, CONICAL_GRADIENT, IMAGE, UNDEFINED };
@@ -729,7 +744,6 @@ class Path {
 	static GLint getCoordOffset(GLubyte command);
 
 	static GLubyte toPathCommand(ci::Path2d::SegmentType type);
-	static Paints& getPaints();
 
 	static void optimizeImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
 	static void reverseImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
@@ -923,33 +937,14 @@ class ScopedPathRendering {
 	ScopedPathRendering& operator=(ScopedPathRendering&&)	   = delete;
 };
 
-//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
-static std::vector<Path>& sClipPaths() {
-	thread_local static std::vector<Path> clipPaths;
-	return clipPaths;
-}
-
-//! Applies the \a mask as a clip mask, causing subsequent rendering to be clipped to the path. We allow a maximum of 5
-//! nested clip paths.
-void pushClipPath(const Path& mask, bool showMask = false);
-//! Removes the last clip path from the stack. See also: pushClipPath() and ScopedClipPath.
-void popClipPath();
-
+//! Helper for enabling a clip path.
 class ScopedClipPath {
   public:
-	ScopedClipPath(const Path& mask, bool showMask = false)
-	  : mPathCount(1) {
-		pushClipPath(mask, showMask);
-	}
-	ScopedClipPath(const std::initializer_list<Path>& masks, bool showMask = false)
-	  : mPathCount(masks.size()) {
-		for (const auto& mask : masks)
-			pushClipPath(mask, showMask);
-	}
-	~ScopedClipPath() {
-		for (size_t i = 0; i < mPathCount; ++i)
-			popClipPath();
-	}
+	ScopedClipPath(const Path& mask, GLuint stencilMask = 0xFF, bool showMask = false);
+
+	ScopedClipPath(const std::initializer_list<Path>& masks, GLuint stencilMask = 0xFF, bool showMask = false);
+
+	~ScopedClipPath();
 
 	ScopedClipPath(const ScopedClipPath&)			 = delete;
 	ScopedClipPath(ScopedClipPath&&)				 = delete;
@@ -960,6 +955,26 @@ class ScopedClipPath {
 	size_t mPathCount;
 };
 
+//! Helper for setting up the stencil buffer for path rendering, taking clipping into account.
+class ScopedStencilState {
+	ci::gl::Context* mCtx = nullptr;
+	GLuint			 mBitMask;
+
+  public:
+	ScopedStencilState(bool clearAfterwards = true)
+	  : ScopedStencilState(sClipPaths().size(), clearAfterwards) {}
+	ScopedStencilState(size_t clipCount, bool clearAfterwards = true);
+	~ScopedStencilState();
+
+	ScopedStencilState(const ScopedStencilState&)			 = delete;
+	ScopedStencilState(ScopedStencilState&&)				 = delete;
+	ScopedStencilState& operator=(const ScopedStencilState&) = delete;
+	ScopedStencilState& operator=(ScopedStencilState&&)		 = delete;
+
+	GLuint getBitMask() const { return mBitMask; }
+};
+
+//! Helper for setting up the stencil buffer for covering stenciled content.
 class ScopedCover {
 	ci::gl::Context* mCtx = nullptr;
 

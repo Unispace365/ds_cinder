@@ -254,7 +254,6 @@ class Renderer {
 		std::vector<float>				dashOffset;
 		std::vector<glm::vec2>			textPen;
 		std::vector<float>				textRotation;
-		std::vector<const SvgClipPath*> clipPath;
 
 		void clear() {
 			matrix.clear();
@@ -272,7 +271,6 @@ class Renderer {
 			dashOffset.clear();
 			textPen.clear();
 			textRotation.clear();
-			clipPath.clear();
 		}
 
 		void defaults() {
@@ -877,7 +875,7 @@ class Svg : public Renderer {
 	void finish() override;
 	void pushGroup(const SvgGroup& group, float opacity) override;
 	void popGroup() override;
-	void pushClipPath(const SvgClipPath& clippath) override;
+	void pushClipPath(const SvgClipPath& clipPath) override;
 	void popClipPath() override;
 	void drawPath(const SvgPath&) override;
 	void drawPolyline(const SvgPolyline&) override;
@@ -923,15 +921,15 @@ class Svg : public Renderer {
 	//! Generates a draw call for visible paths.
 	void render(const Path& path);
 	//! Fills the path with the specified \a paint and \a opacity.
-	void fill(GLuint pathId, const Paint& paint, float opacity);
+	void fill(GLuint pathId, const Paint& paint, float opacity) const;
 	//! Strokes the path with the specified \a paint and \a opacity.
-	void stroke(GLuint pathId, const Paint& paint, float opacity);
+	void stroke(GLuint pathId, const Paint& paint, float opacity) const;
 	//! Strokes the instances with the specified \a paint and \a opacity.
 	void fillInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* transforms, const uint32_t* indices,
-					   const Paint& paint, float opacity);
+					   const Paint& paint, float opacity) const;
 	//! Strokes the instances with the specified \a paint and \a opacity.
 	void strokeInstanced(GLuint baseId, GLsizei count, const glm::mat3x2* transforms, const uint32_t* indices,
-						 const Paint& paint, float opacity);
+						 const Paint& paint, float opacity) const;
 
 	//! Returns whether the path with the specified \a uuid exists and returns a pointer to the path if it exists.
 	const Path* findPath(size_t uuid) const;
@@ -949,7 +947,6 @@ class Svg : public Renderer {
 	
 	ci::gl::Context*                                 mCtx = nullptr;
 	Stacks                                           mStacks;
-	Paints                                           mPaints;
 	std::unordered_map<GLuint, ci::gl::Texture2dRef> mTextures;
 	std::unordered_map<GLuint, Path>                 mPaths;
 	float                                            mOpacity{1};
