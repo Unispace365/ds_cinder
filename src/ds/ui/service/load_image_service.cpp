@@ -456,7 +456,8 @@ void LoadImageService::loadImagesThreadFn(ci::gl::ContextRef context) {
 		} catch (std::exception& exc) {
 			nextImage.mError = true;
 			if (exc.what()) {
-				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath << " what: " << exc.what());
+				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath);
+				DS_LOG_VERBOSE(3, "Failed image texture what: " << exc.what());
 				nextImage.mErrorMsg = exc.what();
 			} else {
 				DS_LOG_WARNING("Failed to create texture for image " << nextImage.mFilePath);
