@@ -22,6 +22,8 @@ Additionally, make sure your main buffer has the stencil buffer enabled. To do t
 CINDER_APP( YourApp, ci::app::RendererGl( ci::app::RendererGl::Options().stencil() ) )
 ```
 
+To start drawing paths, make sure to call `nvpath::ScopedPathRendering sp;`. This will setup the proper OpenGL state and afterwards make sure the previous state is properly restored.
+
 ## Code Examples
 
 ### Primitives
@@ -43,31 +45,15 @@ CINDER_APP( YourApp, ci::app::RendererGl( ci::app::RendererGl::Options().stencil
 ```
 The following primitives can be created using helper functions: _Circle_, _Ellipse_, _Arc_, _Line_, _Polygon_, _Rounded Polygon_, _Rectangle_, _Rounded Rectangle_, _Star_, _Arrow_.
 
-Note that constructing an `nvpath::Path` on-the-fly is usually fast, so you can create them on-the-fly and throw them away after use. They don't occupy much CPU memory (just an `int` to store the path's ID), since all the path's data is stored on the GPU. However, if you repeatedly need to draw the same path, it's better to use a member variable to store and reuse the path.
+Note that constructing an `nvpath::Path` on-the-fly is usually very fast, so you can create them on-the-fly and throw them away after use. They don't occupy much CPU memory (just an `int` to store the path's ID), since all the path's data is stored on the GPU. However, if you repeatedly need to draw the same path, it's better to use a member variable to store and reuse the path.
 
-### Paths
+#### Fill
 
-You can define paths using an easy to learn format described [here](https://www.w3schools.com/graphics/svg_path.asp). It allows you to quickly create elaborate shapes from code, or you can copy-paste path descriptions from SVG files, like we did in the following example.
+If your path forms a closed shape, you can fill it with a color, a gradient or an image. Simply call the path's `fill` method. Under the hood, the shape is then first rendered to the stencil buffer, creating an anti-aliased mask. Subsequently, bounding geometry is drawn to cover the mask with your color, gradient or image. Only pixels within the mask will be affected. Anything outside the mask remains untouched. The covering step also automatically clears the mask in the stencil buffer (unless otherwise specified), so it's immediately ready to draw the next shape.
 
-![path](https://github.com/user-attachments/assets/7d9cccdd-ffc7-4bc3-af27-076138b6dec7)
-```
-#include "nvpath/NvPath.h"
+#### Stroke
 
-{
-  // Setup OpenGL state for path rendering.
-  nvpath::ScopedPathRendering sp;
-
-  // Create a path using SVG notation.
-  nvpath::Path heart = nvpath::Path("M398.327,30.737c-50.875,0-95.875,31.151-123.452,69.542c-27.577-38.391-72.577-69.542-123.453-69.542c-43.452,0-85.484,19.04-114.168,51.677c-55.221,62.834-43.085,166.366-2.375,233.454c37.014,60.992,93.832,109.188,151.972,149.303c28.091,19.383,57.387,37.902,88.024,53.055c99.891-47.723,210.791-127.301,255.975-231.268c14.211-32.706,20.074-69.187,17.54-104.126C542.588,102.751,492.717,30.737,398.327,30.737z M474.724,262.563c-29.517,67.915-101.28,134.971-198.998,186.739c-16.542-9.498-34.248-20.795-54.119-34.504c-64.682-44.627-107.394-86.15-134.407-130.674c-15.6-25.704-25.049-57.908-25.931-88.342c-0.612-21.188,2.699-51.047,21.958-72.963c16.996-19.333,42.491-30.881,68.202-30.881c31.046,0,58.452,22.754,73.752,44.045c11.5,16.004,30,43.856,49.707,43.856s38.208-27.852,49.707-43.856c15.294-21.291,42.699-44.045,73.752-44.045c26.77,0,47.24,8.36,62.577,25.557c15.013,16.824,24.4,41.598,26.438,69.756C489.203,212.82,484.718,239.564,474.724,262.563z");
-
-  // Fill the path with a red color.
-  heart.fill( ci::Color::hex( 0x990000 ) );
-}
-```
-
-### Stroke
-
-Not only can we fill paths with a color, a gradient or even a texture (see below), but we can also stroke them. The stroke capabilities of paths are very powerful, allowing us to use any width, determine the way sharp corners are shaped (a.k.a. join style), use dashing patterns and even control the shape of the dash and end caps (a.k.a. caps style).
+Not only can we fill paths with a color, a gradient or an image (see below), but we can also stroke them. The stroke capabilities of paths are very powerful, allowing us to use any width, determine the way sharp corners are shaped (a.k.a. join style), use dashing patterns and even control the shape of the dash and end caps (a.k.a. caps style).
 
 ![146687](https://github.com/user-attachments/assets/5d4971eb-09ca-4c0b-a68c-0e9391a1959e)
 ```
@@ -97,6 +83,52 @@ Not only can we fill paths with a color, a gradient or even a texture (see below
 ```
 For more information on stroke commands, follow this [link](https://www.w3schools.com/graphics/svg_stroking.asp).
 
+##### Precise Fitting of a Dash Pattern
+
+Let's say you'd like to render a rounded rectangle with a dashed outline. If you specify the dash pattern as `path.setDashPattern({5, 3})`, the outline will be dashed using line segments 5px long, with gaps of 3px between the line segments. Chances are this pattern will not cover the full length of the outline precisely, causing the pattern to not line up at the begin and end points.
+
+To fix this, use `path.setDashPatternFitted({5, 3})`. The size of the pattern will be slightly tweaked to make sure it can be repeated an integer number of times on the outline.
+
+### Paths
+
+Instead of using the primitive helper functions to create paths, You can define paths using an easy to learn format described [here](https://www.w3schools.com/graphics/svg_path.asp). It allows you to quickly create elaborate shapes from code, or you can copy-paste path descriptions from SVG files, like we did in the following example.
+
+![path](https://github.com/user-attachments/assets/7d9cccdd-ffc7-4bc3-af27-076138b6dec7)
+```
+#include "nvpath/NvPath.h"
+
+{
+  // Setup OpenGL state for path rendering.
+  nvpath::ScopedPathRendering sp;
+
+  // Create a path using SVG notation.
+  nvpath::Path heart = nvpath::Path("M398.327,30.737c-50.875,0-95.875,31.151-123.452,69.542c-27.577-38.391-72.577-69.542-123.453-69.542c-43.452,0-85.484,19.04-114.168,51.677c-55.221,62.834-43.085,166.366-2.375,233.454c37.014,60.992,93.832,109.188,151.972,149.303c28.091,19.383,57.387,37.902,88.024,53.055c99.891-47.723,210.791-127.301,255.975-231.268c14.211-32.706,20.074-69.187,17.54-104.126C542.588,102.751,492.717,30.737,398.327,30.737z M474.724,262.563c-29.517,67.915-101.28,134.971-198.998,186.739c-16.542-9.498-34.248-20.795-54.119-34.504c-64.682-44.627-107.394-86.15-134.407-130.674c-15.6-25.704-25.049-57.908-25.931-88.342c-0.612-21.188,2.699-51.047,21.958-72.963c16.996-19.333,42.491-30.881,68.202-30.881c31.046,0,58.452,22.754,73.752,44.045c11.5,16.004,30,43.856,49.707,43.856s38.208-27.852,49.707-43.856c15.294-21.291,42.699-44.045,73.752-44.045c26.77,0,47.24,8.36,62.577,25.557c15.013,16.824,24.4,41.598,26.438,69.756C489.203,212.82,484.718,239.564,474.724,262.563z");
+
+  // Fill the path with a red color.
+  heart.fill( ci::Color::hex( 0x990000 ) );
+}
+```
+
+#### PathHelper
+
+If you find using the SVG path definition too cumbersome to work with, you could also construct a `PathHelper` instance to construct a path. Use its methods to add commands and coordinates, then pass it as a parameter to `Path` to create the actual path.
+
+```
+#include "nvpath/NvPath.h"
+
+{
+  PathHelper h;
+  h.moveTo( 50, 50 );
+  h.lineTo( 150, 50 );
+  h.verticalLineTo( 150 );
+  h.horizontalLineTo( 50 );
+  h.close();
+
+  Path box(h);
+  box.fill( ci::Color(1, 0, 0) );
+}
+```
+
 ### Paints and Gradients
 
 More information on how to define gradients and use them to fill paths will follow shortly. For now, have a look at the `nvpath::Paint` class to learn how to construct a gradient. It can then be used as a parameter to the `Path::fill()` command. 
@@ -107,7 +139,7 @@ More information on how to load, parse and render SVG files will follow shortly.
 
 ### Clip Paths
 
-Paths can also be used to mask content. Just create your path, which can have any shape, and then call `nvpath::pushClipPath( mask )` to enable clipping. Subsequent paths and even basic OpenGL draw commands will be properly clipped by the mask until a call to `nvpath::popClipMask()` disables the clip mask again. A maximum number of 5 nested clip paths can be applied concurrently.
+Paths can also be used to mask content. Just create your path, which can have any shape, and then call `nvpath::pushClipPath( mask )` to enable clipping. Subsequent paths, SVG files and even basic OpenGL draw commands will be properly clipped by the mask until a call to `nvpath::popClipMask()` disables the clip mask again. A maximum number of 5 nested clip paths can be applied concurrently. These will be AND-ed together, causing content to only appear if within *all* clip paths.
 
 Alternatively, you can use the `nvpath::ScopedClipPath` class to do the pushing and popping for you.
 
