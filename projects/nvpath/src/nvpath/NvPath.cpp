@@ -118,22 +118,22 @@ void pushClipPath(const Path& mask, GLuint stencilMask, bool showMask) {
 		sClipPaths().emplace_back();
 	}
 
-	// Now setup the stencil buffer for clipping content.
-	auto ctx = gl::context();
-	ctx->pushStencilMask(coverMask);
-	ctx->pushStencilFunc(GL_LEQUAL, GLint(~coverMask & 0xFF), 0xFF);
-	ctx->pushStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	ctx->pushBoolState(GL_STENCIL_TEST, GL_TRUE);
+	//// Now setup the stencil buffer for clipping content.
+	// auto ctx = gl::context();
+	// ctx->pushStencilMask(coverMask);
+	// ctx->pushStencilFunc(GL_LEQUAL, GLint(~coverMask & 0xFF), 0xFF);
+	// ctx->pushStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	// ctx->pushBoolState(GL_STENCIL_TEST, GL_TRUE);
 }
 
 void popClipPath() {
 	assert(!sClipPaths().empty());
 
-	auto ctx = gl::context();
-	ctx->popStencilMask();
-	ctx->popStencilFunc();
-	ctx->popStencilOp();
-	ctx->popBoolState(GL_STENCIL_TEST);
+	// auto ctx = gl::context();
+	// ctx->popStencilMask();
+	// ctx->popStencilFunc();
+	// ctx->popStencilOp();
+	// ctx->popBoolState(GL_STENCIL_TEST);
 
 	const auto& path = sClipPaths().back();
 	if (path.getId() > 0) {
@@ -2596,18 +2596,18 @@ ScopedClipPath::~ScopedClipPath() {
 		popClipPath();
 }
 
-ScopedStencilState::ScopedStencilState(size_t clipCount, bool clearAfterwards)
+ScopedStencilState::ScopedStencilState(size_t clipCount, bool isPathRendering, bool invertMask)
   : mCtx(gl::context()) {
 	// Don't write to previous clip bits.
 	mBitMask = 0xFF >> clipCount;
 
 	// Only render if all clip bits are set and stencil buffer contains path.
-	GLenum func = !clipCount ? GL_NOTEQUAL : GL_LESS;
-	// Clip bits.
-	GLint ref = !clipCount ? 0 : GLint(~mBitMask & 0xFF);
-	// Clear stencil buffer afterwards if requested.
-	GLenum pass = clearAfterwards ? GL_ZERO : GL_KEEP;
-	GLenum fail = !clipCount ? GL_KEEP : GL_ZERO;
+	GLenum func = !clipCount ? (invertMask ? GL_EQUAL : GL_NOTEQUAL) : (invertMask ? GL_GEQUAL : GL_LESS);
+	if (!isPathRendering) func = invertMask ? GL_GREATER : GL_LEQUAL;
+	// Set reference to the clip bits.
+	GLint  ref	= !clipCount ? 0 : GLint(~mBitMask & 0xFF);
+	GLenum pass = isPathRendering ? GL_ZERO : GL_KEEP;
+	GLenum fail = !isPathRendering || !clipCount ? GL_KEEP : GL_ZERO;
 
 	mCtx->pushStencilFunc(func, ref, 0xFF);
 	mCtx->pushStencilOp(fail, fail, pass);

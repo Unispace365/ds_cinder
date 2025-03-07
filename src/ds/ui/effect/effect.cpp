@@ -2,6 +2,8 @@
 
 #include "effect.h"
 
+#include "ds/util/float_util.h"
+
 namespace {
 
 // Add the 'path' sprite type so we can use it in our layout XML.
@@ -90,59 +92,26 @@ namespace ds { namespace ui {
 
 	EffectBlur::EffectBlur(double sigma, int kernelSize)
 	  : mSigma(sigma)
-	  , mKernelSize(kernelSize > 0 ? kernelSize + (kernelSize % 2 == 0) : static_cast<int>(2 * floor(sigma * 2) + 1)) {
-		// Calculate gaussian kernel.
-		std::vector<double> weights;
-		std::vector<double> offsets;
-
-		const int sz = (mKernelSize - 1) / 2 + 1; // We only define one half of the distribution.
-		weights.reserve(static_cast<size_t>(sz));
-		offsets.reserve(static_cast<size_t>(sz));
-
-		auto sum = 0.0;
-		auto x	 = gaussianDistribution(-0.5, 0.0, sigma);
-		for (int i = 0; i < sz; ++i) {
-			auto y = gaussianDistribution(static_cast<double>(i) + 0.5, 0.0, sigma);
-			weights.emplace_back(y - x);
-			offsets.emplace_back(i);
-			std::swap(x, y);
-
-			sum += weights.back();
-		}
-
-		// Normalize weights. Only count the center once, but double the rest, since we've only defined half the
-		// distribution.
-		sum = 2.0 * sum - weights.front();
-		for (auto& weight : weights)
-			weight /= sum;
-
-		// Now, optimize the kernel by exploiting linear filtering on the GPU.
-		// See also: https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
-		mWeights.reserve(static_cast<size_t>(sz / 2) + 1);
-		mOffsets.reserve(static_cast<size_t>(sz / 2) + 1);
-
-		mWeights.emplace_back(weights.front());
-		mOffsets.emplace_back(offsets.front());
-
-		for (int i = 0; i < (sz - 1) / 2; ++i) {
-			const size_t j		= static_cast<size_t>(i) * 2 + 1;
-			double		 weight = weights[j] + weights[j + 1];
-			double		 offset = (offsets[j] * weights[j] + offsets[j + 1] * weights[j + 1]) / weight;
-			mWeights.emplace_back(weight);
-			mOffsets.emplace_back(offset);
-		}
+	  , mKernelSize(kernelSize <= 0 ? int(sigma * 2 + 1) : kernelSize + +(kernelSize % 2 == 0)) {
+		calculateWeightsAndOffsets();
 	}
 
 	void EffectBlur::applyEffect(const ci::gl::TextureRef& texture, const ci::ColorA& borderColor) const {
-		// Create intermediate textures if necessary.
-		const auto size = texture->getSize();
+		applyEffect(texture, texture->getBounds(), borderColor);
+	}
 
+	void EffectBlur::applyEffect(const ci::gl::TextureRef& texture, const ci::Area& bounds,
+								 const ci::ColorA& borderColor) const {
+		// Create intermediate textures if necessary.
+		const auto size = bounds.getSize();
+
+		ci::gl::FboRef fbo[2];
 		{
 			auto textureFormat = ci::gl::Texture::Format().internalFormat(texture->getInternalFormat());
 			textureFormat.setBorderColor(borderColor);
 
 			const auto fboFormat = ci::gl::Fbo::Format().colorTexture(textureFormat).disableDepth().samples(0);
-			mFbo[0]				 = ci::gl::Fbo::create(size.x, size.y, fboFormat);
+			fbo[0]				 = ci::gl::Fbo::create(size.x, size.y, fboFormat);
 		}
 		{
 			ci::gl::ScopedTextureBind st(texture);
@@ -150,7 +119,7 @@ namespace ds { namespace ui {
 
 			const auto fboFormat =
 				ci::gl::Fbo::Format().attachment(GL_COLOR_ATTACHMENT0, texture).disableDepth().samples(0);
-			mFbo[1] = ci::gl::Fbo::create(size.x, size.y, fboFormat);
+			fbo[1] = ci::gl::Fbo::create(size.x, size.y, fboFormat);
 		}
 
 		// Compile shaders if necessary.
@@ -159,12 +128,14 @@ namespace ds { namespace ui {
 				std::string blur;
 				blur += "    fragColor += " + std::to_string(mWeights[0]) + " * texture( uInput, vertTexCoord );\n";
 				for (int i = 1; i < static_cast<int>(mWeights.size()); ++i) {
-					if (mWeights[i] > mThreshold) {
-						blur += "    fragColor += " + std::to_string(mWeights[i]) +
-								" * texture( uInput, vertTexCoord - " + std::to_string(mOffsets[i]) + " * uStep );\n";
-						blur += "    fragColor += " + std::to_string(mWeights[i]) +
-								" * texture( uInput, vertTexCoord + " + std::to_string(mOffsets[i]) + " * uStep );\n";
-					}
+					std::string weight = std::to_string(mWeights[i]);
+					std::string offset = std::to_string(mOffsets[i]);
+					blur += "    fragColor += " + weight;
+					blur += " * texture( uInput, vertTexCoord - " + offset;
+					blur += " * uStep );\n";
+					blur += "    fragColor += " + weight;
+					blur += " * texture( uInput, vertTexCoord + " + offset;
+					blur += " * uStep );\n";
 				}
 
 				std::string token	   = "///***///";
@@ -179,17 +150,19 @@ namespace ds { namespace ui {
 		}
 
 		// Apply effect.
-		if (mFbo[0] && mFbo[1] && mGlsl) {
+		if (fbo[0] && fbo[1] && mGlsl) {
 			ci::gl::ScopedBlend	   scpBlend(false);
 			ci::gl::ScopedColor	   scpColor(1, 1, 1);
 			ci::gl::ScopedGlslProg scpGlsl(mGlsl);
+			ci::gl::ScopedViewport scopedViewport(texture->getSize());
+			// ci::gl::ScopedMatrices scopedMatrices;
+			// ci::gl::setMatricesWindow(texture->getSize());
 
-			if (mFbo[0]) {
-				mGlsl->uniform("uStep", ci::vec2(1, 0) / ci::vec2(size));
+			{
+				mGlsl->uniform("uStep", ci::vec2(1.0f / size.x, 0));
 
 				ci::gl::ScopedTextureBind scpInput(texture, 0);
-				ci::gl::ScopedFramebuffer scopedFbo(mFbo[0]);
-				ci::gl::ScopedViewport	  scopedViewport(mFbo[0]->getSize());
+				ci::gl::ScopedFramebuffer scopedFbo(fbo[0]);
 
 				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
 
@@ -199,17 +172,16 @@ namespace ds { namespace ui {
 				ci::gl::vertex(-1, +1);
 				ci::gl::vertex(+1, +1);
 				ci::gl::end();
-
-				// Resolve textures if necessary.
-				mFbo[0]->resolveTextures();
 			}
 
-			if (mFbo[1]) {
-				mGlsl->uniform("uStep", ci::vec2(0, 1) / ci::vec2(size));
+			// Resolve textures if necessary.
+			fbo[0]->resolveTextures();
 
-				ci::gl::ScopedTextureBind scpInput(mFbo[0]->getColorTexture(), 0);
-				ci::gl::ScopedFramebuffer scopedFbo(mFbo[1]);
-				ci::gl::ScopedViewport	  scopedViewport(mFbo[1]->getSize());
+			{
+				mGlsl->uniform("uStep", ci::vec2(0, 1.0f / size.y));
+
+				ci::gl::ScopedTextureBind scpInput(fbo[0]->getColorTexture(), 0);
+				ci::gl::ScopedFramebuffer scopedFbo(fbo[1]);
 
 				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
 
@@ -219,11 +191,85 @@ namespace ds { namespace ui {
 				ci::gl::vertex(-1, +1);
 				ci::gl::vertex(+1, +1);
 				ci::gl::end();
-
-				// Resolve textures if necessary.
-				mFbo[1]->resolveTextures();
 			}
+
+			// Resolve textures if necessary.
+			fbo[1]->resolveTextures();
 		}
+	}
+
+	void EffectBlur::setSigma(double sigma, int kernelSize) {
+		mSigma		= sigma;
+		mKernelSize = kernelSize <= 0 ? int(sigma * 2 + 1) : kernelSize + (kernelSize % 2 == 0);
+		calculateWeightsAndOffsets();
+	}
+
+	void EffectBlur::calculateWeightsAndOffsets() {
+		// Calculate gaussian kernel.
+		std::vector<double> weights;
+		std::vector<double> offsets;
+
+		// We only define one half of the distribution.
+		const auto sz = mKernelSize / 2 + 1;
+		weights.reserve(sz);
+		offsets.reserve(sz);
+
+		auto sum = 0.0;
+		auto x	 = gaussianDistribution(-0.5, 0.0, mSigma);
+		for (int i = 0; i < sz; ++i) {
+			offsets.emplace_back(i);
+
+			auto y = gaussianDistribution(static_cast<double>(i) + 0.5, 0.0, mSigma);
+			if (y - x < 1.0e-4) break;
+			weights.emplace_back(y - x);
+			sum += weights.back();
+
+			x = y;
+		}
+
+		// Normalize weights.
+		sum = 2.0 * sum - weights.front();
+		for (auto& weight : weights)
+			weight /= sum;
+
+		// Sanity check.
+		sum = weights.front();
+		for (size_t i = 1; i < weights.size(); ++i)
+			sum += 2.0 * weights[i];
+		assert(ds::approxEqual(1.0, sum));
+
+		// Now, optimize the kernel by exploiting linear filtering on the GPU.
+		// See also: https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
+		mWeights.clear();
+		mOffsets.clear();
+
+		mWeights.reserve(sz);
+		mOffsets.reserve(sz);
+
+		mWeights.emplace_back(weights.front());
+		mOffsets.emplace_back(offsets.front());
+
+		sum = mWeights.front();
+		for (size_t i = 1; i + 1 < weights.size(); i += 2) {
+			double weight = weights[i] + weights[i + 1];
+			double offset = (offsets[i] * weights[i] + offsets[i + 1] * weights[i + 1]) / weight;
+			mWeights.emplace_back(weight);
+			mOffsets.emplace_back(offset);
+			sum += 2.0 * mWeights.back();
+		}
+
+		// Normalize weights.
+		for (auto& weight : mWeights)
+			weight /= sum;
+
+		// Sanity check.
+		sum = mWeights.front();
+		for (size_t i = 1; i < mWeights.size(); ++i)
+			sum += 2.0 * mWeights[i];
+		assert(ds::approxEqual(1.0, sum));
+
+		// Invalidate shader.
+		mGlsl.reset();
 	}
 
 }} // namespace ds::ui

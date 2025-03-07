@@ -961,9 +961,9 @@ class ScopedStencilState {
 	GLuint			 mBitMask;
 
   public:
-	ScopedStencilState(bool clearAfterwards = true)
-	  : ScopedStencilState(sClipPaths().size(), clearAfterwards) {}
-	ScopedStencilState(size_t clipCount, bool clearAfterwards = true);
+	ScopedStencilState(bool isPathRendering = true, bool invertMask = false)
+	  : ScopedStencilState(sClipPaths().size(), isPathRendering, invertMask) {}
+	ScopedStencilState(size_t clipCount, bool isPathRendering = true, bool invertMask = false);
 	~ScopedStencilState();
 
 	ScopedStencilState(const ScopedStencilState&)			 = delete;
@@ -991,7 +991,7 @@ class ScopedCover {
 inline Path circle(float x, float y, float r) {
 	std::stringstream ss;
 
-	ss << 'M' << x + r << ',' << y;
+	ss << 'M' << +(x + r) << ',' << y;
 	ss << 'a' << r << ',' << r << ',' << 0 << ',' << false << ',' << true << ',' << -(r + r) << ',' << 0;
 	ss << 'a' << r << ',' << r << ',' << 0 << ',' << false << ',' << true << ',' << +(r + r) << ',' << 0;
 	ss << 'Z';
@@ -1002,7 +1002,7 @@ inline Path circle(float x, float y, float r) {
 inline Path ellipse(float x, float y, float rx, float ry) {
 	std::stringstream ss;
 
-	ss << 'M' << x + rx << ',' << y;
+	ss << 'M' << +(x + rx) << ',' << y;
 	ss << 'a' << rx << ',' << ry << ',' << 0 << ',' << false << ',' << true << ',' << -(rx + rx) << ',' << 0;
 	ss << 'a' << rx << ',' << ry << ',' << 0 << ',' << false << ',' << true << ',' << +(rx + rx) << ',' << 0;
 	ss << 'Z';
@@ -1020,9 +1020,9 @@ inline Path arc(float cx, float cy, float rx, float ry, float angle, bool closed
 	const bool	large = glm::abs(angle) > glm::pi<float>();
 	const bool	sweep = angle > 0;
 
-	ss << 'M' << cx + rx << ',' << cy;
-	ss << 'A' << rx << ',' << ry << ',' << 0 << ',' << large << ',' << sweep << ',' << cx + c * rx << ','
-	   << cy + s * ry;
+	ss << 'M' << +(cx + rx) << ',' << cy;
+	ss << 'A' << rx << ',' << ry << ',' << 0 << ',' << large << ',' << sweep << ',' << +(cx + c * rx) << ','
+	   << +(cy + s * ry);
 
 	if (closed) {
 		ss << 'L' << cx << ',' << cy;

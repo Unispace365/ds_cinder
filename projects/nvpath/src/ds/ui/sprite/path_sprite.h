@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ds/ui/effect/effect.h"
+
 #include <ds/ui/sprite/sprite.h>
 
 #include <nvpath/NvPath.h>
@@ -37,13 +39,13 @@ class PathSprite : public Sprite {
 	/// path.
 	virtual void setTouchSize(const ci::vec2& size) { mTouchSize = size; }
 
-	/// Clones the provided \a path.
+	/// Clones the provided \a path. Does not automatically set the size of this sprite.
 	virtual void setPath(const nvpath::Path& path);
-	/// Accepts the provided \a path.
+	/// Accepts the provided \a path. Does not automatically set the size of this sprite.
 	virtual void setPath(nvpath::Path&& path);
-	/// Accepts an SVG \a path definition.
+	/// Accepts an SVG \a path definition. Does not automatically set the size of this sprite.
 	virtual void setPath(const std::string& path);
-	/// Accepts a shape definition, e.g. "circle( 50, 50, 20 )".
+	/// Accepts a shape definition, e.g. "circle( 50, 50, 20 )". Does not automatically set the size of this sprite.
 	virtual void setShape(const std::string& shape);
 	/// Sets the fill color. Accepts a color like "#ff0000", a name like "white" or a file name like
 	/// "%APP%/data/images/texture.png".
@@ -88,39 +90,14 @@ class PathSprite : public Sprite {
 		if (mPath.getId()) mPath.setEndCaps(initial, terminal);
 	}
 	/// Sets the line caps style. Accepts a string like "butt", "round" or "square".
-	virtual void setLineCap(std::string def) {
-		to_lowercase(def);
-		if (def == "round") {
-			setDashCaps(nvpath::CapsStyle::ROUND);
-			setEndCaps(nvpath::CapsStyle::ROUND);
-		} else if (def == "square") {
-			setDashCaps(nvpath::CapsStyle::SQUARE);
-			setEndCaps(nvpath::CapsStyle::SQUARE);
-		} else {
-			setDashCaps(nvpath::CapsStyle::DEFAULT);
-			setEndCaps(nvpath::CapsStyle::DEFAULT);
-		}
-	}
+	virtual void setLineCap(std::string def);
 	/// Sets the line join style.
 	virtual void setJoinStyle(nvpath::JoinStyle joins) {
 		mJoinStyle = joins;
 		if (mPath.getId()) mPath.setJoinStyle(joins);
 	}
 	/// Sets the line join style. Accepts a string like "miter", "miter-clip", "round" or "bevel".
-	virtual void setLineJoin(std::string def) {
-		to_lowercase(def);
-		if (def == "miter") {
-			setJoinStyle(nvpath::JoinStyle::MITER_REVERT);
-		} else if (def == "miter-clip") {
-			setJoinStyle(nvpath::JoinStyle::MITER_TRUNCATE);
-		} else if (def == "round") {
-			setJoinStyle(nvpath::JoinStyle::ROUND);
-		} else if (def == "bevel") {
-			setJoinStyle(nvpath::JoinStyle::BEVEL);
-		} else {
-			setJoinStyle(nvpath::JoinStyle::DEFAULT);
-		}
-	}
+	virtual void setLineJoin(std::string def);
 	/// Sets the dash pattern. Accepts a string of floats, e.g. "2.0 1.5".
 	virtual void setDashArray(const std::string& def) {
 		const char* sInOut = def.c_str();
@@ -140,6 +117,8 @@ class PathSprite : public Sprite {
 	/// Enables shadow rendering (using default settings if not yet enabled) and sets the blur parameters: standard
 	/// deviation sigma, kernel size.
 	void setShadowBlur(double sigma, int kernelSize);
+	///
+	void setShadowRender(bool enable) { mShadowEnabled = enable; }
 
 	void drawLocalClient() override;
 
@@ -170,9 +149,15 @@ class PathSprite : public Sprite {
 
 	//
 	void onPaintChanged() { setTransparent(mStroke.isNone() && mFill.isNone() && !mTexture); }
+	//
+	void onPositionChanged() override;
+	//
+	void onSizeChanged() override;
 
 	//
 	static std::string fetchParameters(const char** sInOut);
+	//
+	static std::vector<float> fetchFloats(const char** sInOut);
 
 	nvpath::Path					  mPath;										 //
 	nvpath::CapsStyle				  mDashCapsInitial{nvpath::CapsStyle::DEFAULT};	 //
@@ -183,12 +168,15 @@ class PathSprite : public Sprite {
 	nvpath::Paint					  mFill{nvpath::Paint::NONE};					 //
 	nvpath::Paint					  mStroke{nvpath::Paint::NONE};					 //
 	float							  mStrokeWidth{1};								 //
-	std::string						  mFilename;									 //
-	ci::gl::TextureRef				  mTexture;										 // Image used to fill the path.
-	ci::vec2						  mTouchSize{0}; // Extra padding for touch detection.
-	ci::Rectf						  mBounds;		 // Cached bounds.
-	int								  mFlags{0};	 // Image loading flags.
-	std::unique_ptr<PathSpriteShadow> mShadow;		 //
+	std::string						  mShape;				// If constructed from shape, contains the definition.
+	std::string						  mFilename;			//
+	ci::gl::TextureRef				  mTexture;				// Image used to fill the path.
+	ci::vec2						  mTouchSize{0};		// Extra padding for touch detection.
+	ci::Rectf						  mBounds;				// Cached bounds.
+	int								  mFlags{0};			// Image loading flags.
+	std::unique_ptr<PathSpriteShadow> mShadow;				//
+	bool							  mShadowEnabled{true}; //
+	bool							  mShadowDirty{true};	//
 };
 
 class PathSpriteShadow {
@@ -216,9 +204,7 @@ class PathSpriteShadow {
 	ci::vec2		   mOffset{60, 60};		  //
 	ci::ivec2		   mPadding{0};			  //
 	int				   mScale{1};			  // Higher values result in blurrier shadows and improved memory usage.
-	int mKernelSize{0}; // Must be an odd number. If less than or equal to 0, it is calculated based on the
-						// standard deviation.
-	double									mSigma{6};	   // Standard deviation.
+	EffectBlur		   mBlur{6, 0};			  //
 	thread_local static ci::gl::GlslProgRef sShadowShader; //
 
 	static const char* sVertShader;

@@ -112,9 +112,8 @@ void PathSprite::setPath(const nvpath::Path& path) {
 	mPath.setJoinStyle(mJoinStyle);
 
 	mBounds = calcBounds();
-	setSize(mBounds.getSize());
 
-	if (mShadow) mShadow->render(mPath);
+	mShadowDirty = true;
 }
 
 void PathSprite::setPath(nvpath::Path&& path) {
@@ -125,9 +124,8 @@ void PathSprite::setPath(nvpath::Path&& path) {
 	mPath.setJoinStyle(mJoinStyle);
 
 	mBounds = calcBounds();
-	setSize(mBounds.getSize());
 
-	if (mShadow) mShadow->render(mPath);
+	mShadowDirty = true;
 }
 
 void PathSprite::setPath(const std::string& path) {
@@ -138,12 +136,14 @@ void PathSprite::setPath(const std::string& path) {
 	mPath.setJoinStyle(mJoinStyle);
 
 	mBounds = calcBounds();
-	setSize(mBounds.getSize());
 
-	if (mShadow) mShadow->render(mPath);
+	mShadowDirty = true;
 }
 
 void PathSprite::setShape(const std::string& shape) {
+	mShape		 = shape;
+	mShadowDirty = true;
+
 	try {
 		const char* sInOut = shape.c_str();
 		skipSpace(&sInOut);
@@ -210,39 +210,74 @@ void PathSprite::setStrokeColor(const ColorA8u& color) {
 	onPaintChanged();
 }
 
+void PathSprite::setLineCap(std::string def) {
+	to_lowercase(def);
+	if (def == "round") {
+		setDashCaps(nvpath::CapsStyle::ROUND);
+		setEndCaps(nvpath::CapsStyle::ROUND);
+	} else if (def == "square") {
+		setDashCaps(nvpath::CapsStyle::SQUARE);
+		setEndCaps(nvpath::CapsStyle::SQUARE);
+	} else {
+		setDashCaps(nvpath::CapsStyle::DEFAULT);
+		setEndCaps(nvpath::CapsStyle::DEFAULT);
+	}
+}
+
+void PathSprite::setLineJoin(std::string def) {
+	to_lowercase(def);
+	if (def == "miter") {
+		setJoinStyle(nvpath::JoinStyle::MITER_REVERT);
+	} else if (def == "miter-clip") {
+		setJoinStyle(nvpath::JoinStyle::MITER_TRUNCATE);
+	} else if (def == "round") {
+		setJoinStyle(nvpath::JoinStyle::ROUND);
+	} else if (def == "bevel") {
+		setJoinStyle(nvpath::JoinStyle::BEVEL);
+	} else {
+		setJoinStyle(nvpath::JoinStyle::DEFAULT);
+	}
+}
+
 void PathSprite::setShadow(const float offsetX, const float offsetY, const int scale) {
 	if (!mShadow)
 		mShadow = std::make_unique<PathSpriteShadow>(offsetX, offsetY, scale);
 	else
 		mShadow->setShadow(offsetX, offsetY, scale);
-
-	mShadow->render(mPath);
+	mShadowDirty = true;
 }
 
 void PathSprite::setShadowColor(const ColorA& color) {
 	if (!mShadow) mShadow = std::make_unique<PathSpriteShadow>(60.0f, 60.0f, 1);
 	mShadow->setColor(color);
-
-	mShadow->render(mPath);
 }
 
 void PathSprite::setShadowBlur(double sigma, int kernelSize) {
 	if (!mShadow) mShadow = std::make_unique<PathSpriteShadow>(60.0f, 60.0f, 1);
 	mShadow->setBlur(sigma, kernelSize);
-
-	mShadow->render(mPath);
+	mShadowDirty = true;
 }
 
 void PathSprite::drawLocalClient() {
 	// Get render opacity.
-	const auto opacity = mOpacity * getDrawOpacity();
+	const auto opacity = getOpacity() * getDrawOpacity();
 	if (approxZero(opacity)) return;
 
-	// Render drop shadow.
-	if (mShadow) mShadow->draw(mPath.getStrokeBounds().getUpperLeft(), opacity);
+	// Enable path rendering.
+	nvpath::ScopedPathRendering sp;
+
+	// Render drop shadow, but only where there is no path.
+	if (mShadowEnabled && mShadow) {
+		if (mShadowDirty) mShadow->render(mPath);
+
+		nvpath::ScopedClipPath	   scpClip(mPath);
+		nvpath::ScopedStencilState scpStencilState(false, true);
+		mShadow->draw(mPath.getStrokeBounds().getUpperLeft(), opacity);
+
+		mShadowDirty = false;
+	}
 
 	// Render path.
-	nvpath::ScopedPathRendering sp;
 	if (mTexture)
 		mPath.fill(mTexture, mPath.getFillBounds(), opacity);
 	else
@@ -289,59 +324,60 @@ void PathSprite::loadImage(const std::string& filename, int flags) {
 		});
 }
 
+// Expects either "circle" or "circle( x, y, r )"
 void PathSprite::parseCircle(const char** sInOut) {
 	const auto params = fetchParameters(sInOut);
-	if (params.empty()) throw std::runtime_error("Expected ( x, y, r )");
 
 	float		x, y, r;
 	const char* s = params.c_str();
 	if (*s && isNumeric(*s))
 		x = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, r )");
+		x = mPosition.x + 0.5f * getWidth();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		y = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, r )");
+		y = mPosition.y + 0.5f * getHeight();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		r = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, r )");
+		r = 0.5f * glm::min(getWidth(), getHeight());
 
 	setPath(nvpath::circle(x, y, r));
 }
 
+// Expects either "ellipse" or "ellipse( x, y, rx, ry )"
 void PathSprite::parseEllipse(const char** sInOut) {
 	const auto params = fetchParameters(sInOut);
-	if (params.empty()) throw std::runtime_error("Expected ( x, y, rx, ry )");
 
 	float		x, y, rx, ry;
 	const char* s = params.c_str();
 	if (*s && isNumeric(*s))
 		x = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, rx, ry )");
+		x = mPosition.x + 0.5f * getWidth();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		y = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, rx, ry )");
+		y = mPosition.y + 0.5f * getHeight();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		rx = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, rx, ry )");
+		rx = 0.5f * getWidth();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		ry = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, rx, ry )");
+		ry = 0.5f * getHeight();
 
 	setPath(nvpath::ellipse(x, y, rx, ry));
 }
 
+// Expects "line( x1, y1, x2, y2 )"
 void PathSprite::parseLine(const char** sInOut) {
 	const auto params = fetchParameters(sInOut);
 	if (params.empty()) throw std::runtime_error("Expected ( x1, y1, x2, y2 )");
@@ -371,6 +407,7 @@ void PathSprite::parseLine(const char** sInOut) {
 	setPath(nvpath::line(x1, y1, x2, y2));
 }
 
+// Expects "polygon( x1, y1, x2, y2, ... )"
 void PathSprite::parsePolygon(const char** sInOut) {
 	const auto params = fetchParameters(sInOut);
 	if (params.empty()) throw std::runtime_error("Expected ( x1, y1, x2, y2, ... )");
@@ -390,82 +427,103 @@ void PathSprite::parsePolygon(const char** sInOut) {
 	setPath(nvpath::polygon(reinterpret_cast<const vec2*>(points.data()), points.size() / 2, true));
 }
 
+// Expects either "rectangle" or "rectangle( x, y, w, h, rx, ry )"
 void PathSprite::parseRectangle(const char** sInOut) {
 	const auto params = fetchParameters(sInOut);
-	if (params.empty()) throw std::runtime_error("Expected ( x, y, w, h, (rx), (ry) )");
 
-	float		x, y, w, h, rx{0}, ry{0};
+	float		x, y, w, h, rx, ry;
 	const char* s = params.c_str();
 	if (*s && isNumeric(*s))
 		x = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, w, h, (rx), (ry) )");
+		x = mPosition.x;
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		y = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, w, h, (rx), (ry) )");
+		y = mPosition.y;
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		w = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, w, h, (rx), (ry) )");
+		w = getWidth();
 	skipSpaceOrComma(&s);
 	if (*s && isNumeric(*s))
 		h = parseFloat(&s);
 	else
-		throw std::runtime_error("Expected ( x, y, w, h, (rx), (ry) )");
+		h = getHeight();
 	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s)) rx = parseFloat(&s);
+	if (*s && isNumeric(*s))
+		rx = parseFloat(&s);
+	else
+		rx = getCornerRadius();
 	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s)) ry = parseFloat(&s);
+	if (*s && isNumeric(*s))
+		ry = parseFloat(&s);
+	else
+		ry = rx;
 
-	if (approxZero(rx)) {
-		if (approxZero(ry))
-			setPath(nvpath::rectangle(x, y, w, h));
-		else
-			setPath(nvpath::roundedRectangle(x, y, w, h, ry, ry));
-	} else if (approxZero(ry)) {
-		setPath(nvpath::roundedRectangle(x, y, w, h, rx, rx));
-	} else
+	if (approxZero(rx) || approxZero(ry))
+		setPath(nvpath::rectangle(x, y, w, h));
+	else
 		setPath(nvpath::roundedRectangle(x, y, w, h, rx, ry));
 }
 
 void PathSprite::parseStar(const char** sInOut) {
-	const auto params = fetchParameters(sInOut);
-	if (params.empty()) throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
+	const auto innerRadius = [](float m, float n) -> float {
+		const auto f = glm::pi<float>() / n;
+		const auto s = m * f;
+		return glm::cos(s) / glm::cos(s - f);
+	};
 
-	float		x, y, r1, r2, points, angle;
-	const char* s = params.c_str();
-	if (*s && isNumeric(*s))
-		x = parseFloat(&s);
-	else
-		throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
-	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s))
-		y = parseFloat(&s);
-	else
-		throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
-	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s))
-		r1 = parseFloat(&s);
-	else
-		throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
-	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s))
-		r2 = parseFloat(&s);
-	else
-		throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
-	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s))
-		points = parseFloat(&s);
-	else
-		throw std::runtime_error("Expected ( x, y, rmax, rmin, points, angle )");
-	skipSpaceOrComma(&s);
-	if (*s && isNumeric(*s))
-		angle = parseFloat(&s);
-	else
-		angle = 0;
+	float points = 5;
+	float x		 = 0.5f * getWidth();
+	float y		 = 0.5f * getHeight();
+	float r1	 = 0.5f * glm::max(getWidth(), getHeight());
+	float r2	 = r1 * innerRadius(2, points);
+	float angle	 = 0;
+
+	const auto params = fetchParameters(sInOut);
+
+	const char* s	   = params.c_str();
+	const auto	values = fetchFloats(&s);
+	switch (values.size()) {
+	case 0:
+		break;
+	case 1:
+		points = values[0];
+		break;
+	case 2:
+		points = values[0];
+		angle  = values[1];
+		break;
+	case 4:
+		x	   = values[0];
+		y	   = values[1];
+		r1	   = values[2];
+		points = values[3];
+		r2	   = r1 * innerRadius(2, points);
+		break;
+	case 5:
+		x	   = values[0];
+		y	   = values[1];
+		r1	   = values[2];
+		points = values[3];
+		angle  = values[4];
+		r2	   = r1 * innerRadius(2, points);
+		break;
+	case 6:
+		x	   = values[0];
+		y	   = values[1];
+		r1	   = values[2];
+		r2	   = values[3];
+		points = values[4];
+		angle  = values[5];
+		break;
+	default:
+		throw std::runtime_error("Expected ( x, y, r1, r2, points, angle ), (x, y, radius, points, angle), (x, y, "
+								 "radius, points), ( points, angle ), ( points ) or ()");
+	}
 
 	setPath(nvpath::star(x, y, r1, r2, points, angle));
 }
@@ -482,6 +540,14 @@ void PathSprite::parseDashArray(const char** sInOut) {
 	setDashPattern(pattern);
 }
 
+void PathSprite::onPositionChanged() {
+	setShape(mShape);
+}
+
+void PathSprite::onSizeChanged() {
+	setShape(mShape);
+}
+
 std::string PathSprite::fetchParameters(const char** sInOut) {
 	std::string params;
 
@@ -496,6 +562,17 @@ std::string PathSprite::fetchParameters(const char** sInOut) {
 	return trim(params);
 }
 
+std::vector<float> PathSprite::fetchFloats(const char** sInOut) {
+	std::vector<float> floats;
+	while (**sInOut) {
+		skipSpaceOrComma(sInOut);
+		if (**sInOut && isNumeric(**sInOut))
+			floats.push_back(parseFloat(sInOut));
+		else
+			break;
+	}
+	return floats;
+}
 
 const char* PathSpriteShadow::sVertShader = "#version 150\n"
 											"uniform mat4 ciModelViewProjection;"
@@ -517,7 +594,8 @@ const char* PathSpriteShadow::sFragShader = "#version 150\n"
 											"out vec4 fragColor;"
 											"void main(void) {"
 											"    fragColor = vertColor;"
-											"    fragColor *= texture( uInput, vertTexCoord ).r;"
+											"    const float gamma = 1.5;\n"
+											"    fragColor *= pow( texture( uInput, vertTexCoord ).r, gamma );\n"
 											"}";
 
 thread_local ci::gl::GlslProgRef PathSpriteShadow::sShadowShader;
@@ -539,15 +617,14 @@ void PathSpriteShadow::setColor(const ColorA& color) {
 }
 
 void PathSpriteShadow::setBlur(double sigma, int kernelSize) {
-	mSigma		= sigma;
-	mKernelSize = kernelSize;
+	mBlur.setSigma(sigma, kernelSize);
 }
 
 void PathSpriteShadow::render(const nvpath::Path& path) {
 	if (!path.getId()) return;
 
 	// Construct drop shadow.
-	mPadding = ivec2(2 * static_cast<int>(mSigma));
+	mPadding = ivec2(mBlur.getKernelSize());
 
 	const auto dimensions	 = ivec2(path.getStrokeBounds().getSize()) / mScale + 2 * mPadding;
 	const auto textureFormat = ci::gl::Texture::Format().internalFormat(GL_RED);
@@ -572,13 +649,14 @@ void PathSpriteShadow::render(const nvpath::Path& path) {
 		ci::gl::scale(vec2(1.0f / static_cast<float>(mScale)));
 		ci::gl::translate(-ivec2(path.getStrokeBounds().getUpperLeft()));
 
+		// Also: don't clear the stencil buffer afterwards.
 		nvpath::ScopedPathRendering sp;
-		path.fill(Color::white());
-		path.stroke(Color::white());
+		path.stencilFill();
+		path.stencilStroke();
+		path.coverStroke(ci::Color::white(), false);
 	}
 
-	const EffectBlur blur{mSigma, mKernelSize};
-	blur.applyEffect(mTexture);
+	mBlur.applyEffect(mTexture);
 
 	// Make sure the matrices are restored for path rendering.
 	ci::gl::matrixLoadfEXT(GL_MODELVIEW, value_ptr(ci::gl::getModelView()));
@@ -591,12 +669,11 @@ void PathSpriteShadow::render(const nvpath::Path& path) {
 }
 
 void PathSpriteShadow::draw(const vec2& offset, float opacity) const {
-	ci::gl::ScopedBlendPremult sb;
-
 	if (mTexture && sShadowShader) {
-		ci::gl::ScopedColor		  sc(ColorA(mColor, opacity));
-		ci::gl::ScopedTextureBind st(mTexture, 0);
-		ci::gl::ScopedGlslProg	  sg(sShadowShader);
+		ci::gl::ScopedBlendPremult sb;
+		ci::gl::ScopedColor		   sc(mColor);
+		ci::gl::ScopedTextureBind  st(mTexture, 0);
+		ci::gl::ScopedGlslProg	   sg(sShadowShader);
 		sShadowShader->uniform("uInput", 0);
 
 		ci::gl::ScopedModelMatrix sm;
