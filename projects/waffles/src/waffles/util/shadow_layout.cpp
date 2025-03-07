@@ -154,7 +154,6 @@ void main()
 #version 150
 
 uniform sampler2D tex0;
-uniform sampler2D tex1;
 uniform int blurSize;
 uniform int horizontalPass;
 uniform bool doMask;
@@ -167,7 +166,6 @@ uniform float sigma;
 
 // The inverse of the texture dimensions along X and Y
 uniform vec2 texOffset;
-uniform vec2 maskSize;
 
 in vec4 Color;
 in vec2 TexCoord0;
@@ -183,7 +181,7 @@ void main() {
     vec2 blurMultiplyVec = (0 == horizontalPass) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
     vec2 invTexOffset = 1.0 / texOffset;
 
-	float mask = doMask ? 1.0 - smoothstep( 0.4, 0.6, texture(tex0, vertTexCoord.st).a ) : 1.0;
+	float mask = doMask ? 1.0 - smoothstep( 0.5, 0.7, texture(tex0, vertTexCoord.st).a ) : 1.0;
 
     // Incremental Gaussian Coefficient Calculation (See GPU Gems 3 pp. 877 - 889)
     vec3 incrementalGaussian;
