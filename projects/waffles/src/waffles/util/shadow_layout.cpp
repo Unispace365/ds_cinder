@@ -180,44 +180,35 @@ void main() {
     vec4 vertTexCoord = vec4(TexCoord0.x, TexCoord0.y, 0, 0);
 	
     float numBlurPixelsPerSide = float(blurSize / 2.0);
-
     vec2 blurMultiplyVec = (0 == horizontalPass) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
     vec2 invTexOffset = 1.0 / texOffset;
-	vec2 invMaskSize =  1.0 / maskSize;
-	vec2 maskOffset = (texOffset - maskSize) * 0.5 * invTexOffset;
-	vec2 maskNormSize = maskSize*invTexOffset;
 
-	vec2 maskTexCoord = vec2((TexCoord0.x - maskOffset.x)/maskNormSize.x, (TexCoord0.y - maskOffset.y)/maskNormSize.y);
-	vec2 inside = vec2(step(0.0,maskTexCoord.x) - step(1.0,maskTexCoord.x),step(0.0,maskTexCoord.y) - step(1.0,maskTexCoord.y));
-	float shape = step(0.00001,texture2D(tex1,maskTexCoord.xy).a);
-	float mask = (inside.x) * (inside.y) * step(0.00001,shape) ;
+	float mask = doMask ? 1.0 - smoothstep( 0.4, 0.6, texture(tex0, vertTexCoord.st).a ) : 1.0;
 
-    // Incremental Gaussian Coefficent Calculation (See GPU Gems 3 pp. 877 - 889)
+    // Incremental Gaussian Coefficient Calculation (See GPU Gems 3 pp. 877 - 889)
     vec3 incrementalGaussian;
     incrementalGaussian.x = 1.0 / (sqrt(2.0 * pi) * sigma);
     incrementalGaussian.y = exp(-0.5 / (sigma * sigma));
     incrementalGaussian.z = incrementalGaussian.y * incrementalGaussian.y;
 
-    vec4 avgValue = vec4(0.0, 0.0, 0.0, 0.0);
+    float avgValue = 0.0;
     float coefficientSum = 0.0;
 
     // Take the central sample first...
-	vec4 raw = texture2D(tex0, vertTexCoord.st);
-    avgValue += texture2D(tex0, vertTexCoord.st) * incrementalGaussian.x;
+    avgValue += texture(tex0, vertTexCoord.st).a * incrementalGaussian.x;
     coefficientSum += incrementalGaussian.x;
     incrementalGaussian.xy *= incrementalGaussian.yz;
 
     // Go through the remaining 8 vertical samples (4 on each side of the center)
     for (float i = 1.0; i <= numBlurPixelsPerSide; i++) {
-        avgValue += texture2D(tex0, vertTexCoord.st - i * invTexOffset * blurMultiplyVec) * incrementalGaussian.x;
-        avgValue += texture2D(tex0, vertTexCoord.st + i * invTexOffset * blurMultiplyVec) * incrementalGaussian.x;
+        avgValue += texture(tex0, vertTexCoord.st - i * invTexOffset * blurMultiplyVec).a * incrementalGaussian.x;
+        avgValue += texture(tex0, vertTexCoord.st + i * invTexOffset * blurMultiplyVec).a * incrementalGaussian.x;
         coefficientSum += 2.0 * incrementalGaussian.x;
         incrementalGaussian.xy *= incrementalGaussian.yz;
     }
-	mask = doMask ? mask : 0;
 
-    oColor = avgValue / coefficientSum;
-	oColor = vec4(1.0, 1.0, 1.0, (1-mask) * oColor.a );
+	oColor.rgb = vec3( 1.0 );
+    oColor.a = mask * ( avgValue / coefficientSum );
 }
 )FRAG";
 
