@@ -117,6 +117,9 @@ If you find using the SVG path definition too cumbersome to work with, you could
 #include "nvpath/NvPath.h"
 
 {
+  // Setup OpenGL state for path rendering.
+  nvpath::ScopedPathRendering sp;
+
   PathHelper h;
   h.moveTo( 50, 50 );
   h.lineTo( 150, 50 );
@@ -135,12 +138,40 @@ More information on how to define gradients and use them to fill paths will foll
 
 ### SVG
 
-More information on how to load, parse and render SVG files will follow shortly. In the meantime, have a look at the `ds::ui::SvgSprite` class that is part of the NvPath project.
+Instead of defining your paths along with their colors, gradients and stroke settings, you can also use SVG files. This allows for some very complex content. Our NvPath code can handle most SVG files, with a few exceptions (most notably filters and effects that require compositing, like group opacity). 
+
+More information will follow, but for now, take a look at the SvgSprite class.
 
 ### Clip Paths
 
-Paths can also be used to mask content. Just create your path, which can have any shape, and then call `nvpath::pushClipPath( mask )` to enable clipping. Subsequent paths, SVG files and even basic OpenGL draw commands will be properly clipped by the mask until a call to `nvpath::popClipMask()` disables the clip mask again. A maximum number of 5 nested clip paths can be applied concurrently. These will be AND-ed together, causing content to only appear if within *all* clip paths.
+Paths can also be used to mask content, even basic non-path objects. Just create your path, which can have any shape, and then call `nvpath::pushClipPath( clipPath )` to enable clipping. Subsequent paths and SVG files will be properly clipped by the clip ath until a call to `nvpath::popClipPath()` disables the clip mask again. A maximum number of 5 nested clip paths can be applied concurrently. These will be AND-ed together, causing content to only appear if within *all* clip paths.
 
-Alternatively, you can use the `nvpath::ScopedClipPath` class to do the pushing and popping for you.
+![clip-path](https://github.com/user-attachments/assets/10102008-a957-4189-8801-a5bb2ffb1430)
+```
+#include "nvpath/NvPath.h"
 
-An example will follow shortly.
+{
+  // Setup OpenGL state for path rendering.
+  nvpath::ScopedPathRendering sp;
+
+  // Define a path to be used as a mask.
+  auto star = nvpath::star(256, 256, 200, 100, 5, 0);
+
+  // Now enable it as a clip path.
+  nvpath::pushClipPath(star);
+
+  // Now render a circle, but only the fragments that are inside the mask.
+  auto circle = nvpath::circle(256, 256, 150);
+  circle.fill( ci::Color::hex( 0x009933 ) );
+
+  // To clip non-path content, we need to set the proper stencil buffer state.
+  // This can easily be done using the ScopedStencilState helper:
+  nvpath::ScopedStencilState sss( false /* non-path */ );
+  ci::gl::ScopedGlslProg sg(ci::gl::getStockShader(ci::gl::ShaderDef().color()));
+  ci::gl::ScopedColor	   sc( ci::Color::hex( 0x003399 ) );
+  ci::gl::drawSolidRect({256, 0, 512, 512});
+
+  // Now pop the clip mask to clear the stencil buffer.
+  nvpath::popClipPath();
+}
+```
