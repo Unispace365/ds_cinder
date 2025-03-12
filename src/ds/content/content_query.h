@@ -32,6 +32,13 @@ class ContentQuery : public Poco::Runnable {
 	void getDataFromTable(model::ContentModelRef parentModel, const model::ContentModelRef& tableDescription, const std::string& dbLocation,
 						  std::unordered_map<int, Resource>& allResources, int depth, int parentModelId);
 
+	const model::ContentModelRef& getData() const { return mData; }
+
+	void setCmsDatabase(const std::string& cmsDatabase) { mCmsDatabase = cmsDatabase; }
+	void setResourceLocation(const std::string& resourceLocation) { mResourceLocation = resourceLocation; }
+	void setXmlDataModel(const std::string& xmlDataModel) { mXmlDataModel = xmlDataModel; }
+
+  private:
 	model::ContentModelRef mData;
 
 	std::string						  mLastUpdatedResource;

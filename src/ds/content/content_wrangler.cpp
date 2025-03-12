@@ -39,15 +39,15 @@ ContentWrangler::ContentWrangler(ui::SpriteEngine& se)
 }
 
 void ContentWrangler::receiveQuery(ContentQuery& q) const {
-	if (q.mData.empty()) {
+	if (q.getData().empty()) {
 		DS_LOG_WARNING("ContentWrangler: runQuery() completed with no data.");
 		return;
 	}
 	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
 
-	if (auto match = mEngine.mContent.getChildByName(q.mData.getName())) {
+	if (auto match = mEngine.mContent.getChildByName(q.getData().getName())) {
 		using ModelVec	   = std::vector<model::ContentModelRef>;
-		ModelVec newTables = q.mData.getChildren();
+		ModelVec newTables = q.getData().getChildren();
 
 		if (mEngine.mContent.getChildByName("sqlite").getPropertyBool("merge_content")) {
 			// Merge new tables with the existing data tables
@@ -83,10 +83,10 @@ void ContentWrangler::receiveQuery(ContentQuery& q) const {
 		} else {
 			// Just straight up replace, no merge
 			match.clear();
-			match = q.mData;
+			match = q.getData();
 		}
 	} else {
-		mEngine.mContent.addChild(q.mData);
+		mEngine.mContent.addChild(q.getData());
 	}
 
 	mEngine.getNotifier().notify(ContentUpdatedEvent());
@@ -129,9 +129,9 @@ void ContentWrangler::runQuery() {
 	for (const auto& it : allModels) {
 		mContentQuery.start([it](ContentQuery& dq) {
 			const Resource::Id cms(Resource::Id::CMS_TYPE, 0);
-			dq.mXmlDataModel	 = it;
-			dq.mCmsDatabase		 = cms.getDatabasePath();
-			dq.mResourceLocation = cms.getResourcePath();
+			dq.setXmlDataModel(it);
+			dq.setCmsDatabase(cms.getDatabasePath());
+			dq.setResourceLocation(cms.getResourcePath());
 		});
 	}
 }
