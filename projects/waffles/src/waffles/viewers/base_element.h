@@ -172,8 +172,8 @@ class BaseElement : public ds::ui::BasePanel {
 	// Detached has been set.
 	virtual void onDetachedSet() {}
 
-	void onPanelActivated() override;
-	void onParentSet() override;
+	virtual void onPanelActivated();
+	virtual void onParentSet();
 
 	friend class ViewerController;
 

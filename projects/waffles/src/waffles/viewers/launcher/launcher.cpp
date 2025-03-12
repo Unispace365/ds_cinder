@@ -109,35 +109,26 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	});
 	mEventClient.listenToEvents<WafflesFilterEvent>([this](const WafflesFilterEvent& ev) {
 		auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-		// if (ev.mType == mFilterSelected) return;
+
 		mFilterSelected = ev.mType;
 		DS_LOG_INFO("Waffles filtering by '" << mFilterSelected << "'.");
-		// if (ev.mFromButton) {
+
 		auto savedStack = mFolderStack;
 		mFolderStack.clear();
 		if (auto back_button = mPrimaryLayout->getSprite("back_button")) {
 			back_button->hide();
 		}
-		// }
-		/* if (ev.mFromButton) {
-			if (mSecondCloseButton) {
-				mPrimaryLayout->getSprite("close_button.the_button")->mLayoutFudge =
-					mEngine.getWafflesSettings().getVec3("launcher:close:normal:offset", 0, ci::vec3(0, 0, 0));
-				mPrimaryLayout->runLayout();
-			}
-		} */
+
 		std::vector<ds::model::ContentModelRef> allContent;
 
 		auto pinny = helper->getPinboard();
 		if (!pinny.empty()) allContent.push_back(pinny);
 
-		// auto allValid = mEngine.mContent.getKeyReferences(ds::model::VALID_MAP);
 		auto allValid = helper->getContentForPlatform();
 
 		for (auto& value : allValid) {
 			allContent.push_back(value);
 		}
-		// allContent.insert(allContent.end(), allValid.begin(), allValid.end());
 
 		auto non_recursive = ds::split(
 			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "recent,folders"), ",");
@@ -180,8 +171,6 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 			}
 		} else {
 			auto unorderedPanelContent = panel_content.getChildren();
-			/* std::sort(unorderedPanelContent.begin(), unorderedPanelContent.end(),
-					  [](auto& a, auto& b) { return waffles::alphaSort(a, b); }); */
 			panel_content.setChildren(unorderedPanelContent);
 		}
 		panel_content.setProperty("record_name", std::string(mFilterSelected));
@@ -219,6 +208,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 			}
 		}
 		updateBreadcrumbText();
+		onFilterChanged();
 	});
 
 	float startWidth  = mEngine.getWafflesSettings().getFloat("launcher:content_width", 0, 570.f);
@@ -299,17 +289,6 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 	};
 	force_color();
 
-	/* auto alreadyPres = !mEngine.mContent.getChildByName("current_presentation").getChildren().empty();
-	if (!alreadyPres) {
-		auto pres_id = downstream::getInitialPresentation(mEngine);
-		if (!pres_id.empty()) {
-			auto pres = downstream::getRecordByUid(mEngine, pres_id);
-			if (pres.getChildren().size() > 0) { // activate first slide
-				mEngine.getNotifier().notify(RequestEngagePresentation(pres.getChild(0), false));
-				mEngine.mContent.setProperty("presentation_controller_blocked", false);
-			}
-		}
-	} */
 
 	// these are to hide this from showing up in saved drawings
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
@@ -336,7 +315,7 @@ void Launcher::updateItem(ds::ui::SmartLayout* item) {
 
 	auto sidePanelScroll = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("side_panel_content");
 	if (sidePanelScroll) {
-		ContentUtils::configureListItem(mEngine, item, ci::vec2(sidePanelScroll->getWidth(), item->getHeight()), true /* TODO only if layout builder is active */);
+		ContentUtils::configureListItem(mEngine, item, ci::vec2(sidePanelScroll->getWidth(), item->getHeight()), false /* TODO only if layout builder is active */);
 		item->setSize(sidePanelScroll->getWidth(), item->getHeight());
 	}
 	setButtonCallbacks(item);
@@ -680,6 +659,7 @@ void Launcher::updatePanelContent(const ds::model::ContentModelRef& model) {
 		mPanelTransitioning = false;
 	}
 
+	onPanelContentUpdated();
 	onLayout();
 }
 

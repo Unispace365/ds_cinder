@@ -220,7 +220,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	settings.getSetting("label", 0).mOriginalValue			 = item->getContentModel().getPropertyString("record_name");
 	settings.getSetting("icon_src", 0).mOriginalValue		 = thumbPath;
 	settings.getSetting("has_arrow", 0).mOriginalValue		 = ds::unparseBoolean(showArrow);
-	settings.getSetting("has_select", 0).mOriginalValue = ds::unparseBoolean(showSelect);
+	settings.getSetting("has_select", 0).mOriginalValue      = ds::unparseBoolean(showSelect);
 	settings.getSetting("type", 0).mOriginalValue			 = theTypeLabel;
 	item->setLayoutSettings(settings);
 

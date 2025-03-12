@@ -25,14 +25,20 @@ class Launcher : public BaseElement {
 	void showSearch();
 
   protected:
-	void onLayout() override;
-	void onCreationArgsSet() override;
-	void onParentSet() override;
+	virtual void onLayout() override;
+	virtual void onCreationArgsSet() override;
+	virtual void onParentSet() override;
+
+	/// Called after the new filter is set
+	virtual void onFilterChanged(){};
+	/// Called after navigating to new panel content
+	virtual void onPanelContentUpdated(){};
+	/// Allow overriding of side panel content in subclass
+	virtual void updateItem(ds::ui::SmartLayout* item);
 
 
 	void					   closePanel();
 	ds::model::ContentModelRef buttonCfgFromString(const std::string& str) const;
-	void					   updateItem(ds::ui::SmartLayout* item);
 	static void				   updateSelection(ds::ui::Sprite* bs, const bool highlighted);
 	void					   handleSelection();
 	ds::ui::SmartLayout*	   createButton(ds::model::ContentModelRef item);
