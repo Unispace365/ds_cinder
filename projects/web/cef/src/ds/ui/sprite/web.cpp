@@ -6,6 +6,7 @@
 #include "private/web_service.h"
 #include <algorithm>
 #include <cinder/ImageIo.h>
+#include <cinder/Clipboard.h>
 #include <ds/app/app.h>
 #include <ds/app/blob_reader.h>
 #include <ds/app/engine/engine.h>
@@ -191,21 +192,21 @@ Web::~Web() {
 		mPopupBuffer = nullptr;
 	}
 
-	mHasCallbacks			= false;
-	mHasDocCallback			= false;
-	mDocumentReadyFn		= nullptr;
-	mHasErrorCallback		= false;
-	mErrorCallback			= nullptr;
-	mHasAddressCallback		= false;
-	mAddressChangedCallback = nullptr;
-	mHasTitleCallback		= false;
-	mTitleChangedCallback	= nullptr;
-	mHasFullCallback		= false;
-	mFullscreenCallback		= nullptr;
-	mHasLoadingCallback		= false;
-	mLoadingUpdatedCallback = nullptr;
-	mHasAuthCallback		= false;
-	mAuthRequestCallback	= nullptr;
+	mHasCallbacks			   = false;
+	mHasDocCallback			   = false;
+	mDocumentReadyFn		   = nullptr;
+	mHasErrorCallback		   = false;
+	mErrorCallback			   = nullptr;
+	mHasAddressCallback		   = false;
+	mAddressChangedCallback	   = nullptr;
+	mHasTitleCallback		   = false;
+	mTitleChangedCallback	   = nullptr;
+	mHasFullCallback		   = false;
+	mFullscreenCallback		   = nullptr;
+	mHasLoadingCallback		   = false;
+	mLoadingUpdatedCallback	   = nullptr;
+	mHasAuthCallback		   = false;
+	mAuthRequestCallback	   = nullptr;
 	mHasConsoleMessageCallback = false;
 	mConsoleMessageCallback	   = nullptr;
 }
@@ -455,7 +456,7 @@ void Web::dispatchCallbacks() {
 		mHasAuthCallback = false;
 	}
 
-	if(mHasConsoleMessageCallback) {
+	if (mHasConsoleMessageCallback) {
 		if (mConsoleMessageCallback) {
 			mConsoleMessageCallback(mConsoleMessage);
 		} else {
@@ -649,17 +650,28 @@ void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
 								keyEvent.getNativeKeyCode());
 		sendKeyDownEvent(event, false);
 		sendKeyUpEvent(event);
+	}else if (keyEvent.isControlDown() && keyEvent.getCode() == ci::app::KeyEvent::KEY_v){
+		// TODO
+		// This is very much a hack! it would be much better if we can determine how to have CEF handle these properly
+		auto clip = ci::Clipboard();
+		if(clip.hasString()){
+			for(auto c : clip.getString()){
+				ci::app::KeyEvent event(mEngine.getWindow(), c, c, c, 0, c);
+
+				sendKeyDownEvent(event);
+				sendKeyUpEvent(event);
+			}
+		}
+
+	}else if (keyEvent.isControlDown() && (keyEvent.getCode() == ci::app::KeyEvent::KEY_c || keyEvent.getCode() == ci::app::KeyEvent::KEY_x)){
+		// TODO?
+		// How do we handle cut/copy if the shortcut forwarding doesn't work?
 	} else {
 		sendKeyDownEvent(keyEvent);
 		sendKeyUpEvent(keyEvent);
 	}
 	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
-		mEngine.timedCallback(
-			[this] {
-				mEngine.registerEntryField(this);
-			},
-			1.f
-		);
+		mEngine.timedCallback([this] { mEngine.registerEntryField(this); }, 1.f);
 	}
 }
 
@@ -737,12 +749,7 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 		sendKeyUpEvent(event);
 	}
 	if (mEngine.getEngineSettings().getBool("web:input:force_refocus", 0, false)) {
-		mEngine.timedCallback(
-			[this] {
-				mEngine.registerEntryField(this);
-			},
-			1.f
-		);
+		mEngine.timedCallback([this] { mEngine.registerEntryField(this); }, 1.f);
 	}
 }
 
