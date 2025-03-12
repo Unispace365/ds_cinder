@@ -68,9 +68,9 @@ class ContentHelperFactory {
 	ContentHelperFactory() = delete;
 
 	template <class T>
-	static void initHelper(ui::SpriteEngine& eng) {
+	static void InitHelper(ui::SpriteEngine& eng) {
 		if (mDefault) {
-			DS_LOG_WARNING("ContentHelperFactory::initHelper() called more than once");
+			DS_LOG_WARNING("ContentHelperFactory::InitHelper() called more than once");
 		}
 		mDefault = std::make_shared<T>(eng);
 	}
