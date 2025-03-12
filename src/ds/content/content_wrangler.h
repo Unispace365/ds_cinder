@@ -2,14 +2,10 @@
 #ifndef DS_CONTENT_CONTENT_WRANGLER
 #define DS_CONTENT_CONTENT_WRANGLER
 
-#include <Poco/Process.h>
-
 #include <ds/app/event_client.h>
+#include <ds/content/content_query.h>
 #include <ds/network/helper/delayed_node_watcher.h>
 #include <ds/thread/parallel_runnable.h>
-
-#include "content_model.h"
-#include "content_query.h"
 
 namespace ds {
 namespace ui {
@@ -23,29 +19,31 @@ namespace ui {
  */
 class ContentWrangler {
   public:
-	ContentWrangler(ds::ui::SpriteEngine&);
+	ContentWrangler(ui::SpriteEngine&);
 
 	/// TODO: handle errors from the content query (don't replace mData or send out update events)
 
 	/// A map of all the resources from the resources table
-	std::unordered_map<int, ds::Resource> mAllResources;
+	std::unordered_map<int, Resource> mAllResources;
 
 	/// Starts node watcher and sets xml / db locations
 	void initialize();
 
 	/// Reply handler for individual queries
-	void recieveQuery(ContentQuery& q);
+	[[deprecated("Use receiveQuery() instead")]] void recieveQuery(ContentQuery& q) { receiveQuery(q); }
+	/// Reply handler for individual queries
+	void receiveQuery(ContentQuery& q) const;
 
 	/// Asynchronously runs query and notifies the ContentUpdatedEvent when complete
 	void runQuery();
 
 
   private:
-	ds::ui::SpriteEngine&			   mEngine;
-	ds::ParallelRunnable<ContentQuery> mContentQuery;
+	ui::SpriteEngine&			   mEngine;
+	ParallelRunnable<ContentQuery> mContentQuery;
 
-	ds::DelayedNodeWatcher mNodeWatcher;
-	ds::EventClient		   mEventClient;
+	DelayedNodeWatcher mNodeWatcher;
+	EventClient		   mEventClient;
 
 	std::string mModelModelLocation;
 };

@@ -1,88 +1,87 @@
 #pragma once
 
 #include <memory>
-#include <ds/app/event_client.h>
-#include <ds/ui/sprite/sprite.h>
 
 namespace ds::model {
-
-/**
- * \class ds::wafflesHelper
- *			The background layer for interactive playlists and templates
- */
-
-class ContentHelper;
-
-typedef std::shared_ptr<ContentHelper> ContentHelperPtr;
-
-class ContentHelperFactory {
-  public:
-	ContentHelperFactory()=delete;
-
-	template<class T> static void InitHelper(ds::ui::SpriteEngine& eng) {
-		if (mDefault) {
-			DS_LOG_WARNING("ContentHelperFactory::InitHelper() called more than once");
-		}
-		mDefault = std::make_shared<T>(eng);
-	}
-	template<class T=ContentHelper> static std::shared_ptr<T> getDefault() { return std::dynamic_pointer_cast<T>(mDefault); }
-
-  private:
-	static ContentHelperPtr mDefault;
-	
-};
-
-
 
 class ContentHelper {
   public:
 	virtual ~ContentHelper() = default;
 
-	  struct PlaylistFilter {
+	ContentHelper(const ContentHelper&)			   = delete;
+	ContentHelper(ContentHelper&&)				   = delete;
+	ContentHelper& operator=(const ContentHelper&) = delete;
+	ContentHelper& operator=(ContentHelper&&)	   = delete;
+
+	struct PlaylistFilter {
 		enum class FilterMode { All, PlatformFallback, PlatformOverride };
-		std::string eventTypeKey; //what type of event has the playlist
-		std::string	eventPropertyName; //what is the property name on the event
+		std::string eventTypeKey;		  // what type of event has the playlist
+		std::string eventPropertyName;	  // what is the property name on the event
 		std::string platformPropertyName; // what is the property name on the platform
 		std::string playlistTypeKey;	  // what type of playlist
-		FilterMode filterMode = FilterMode::PlatformFallback;
+		FilterMode	filterMode = FilterMode::PlatformFallback;
 	};
-	  static const std::string DEFAULTCATEGORY;
-	  static const std::string ANYCATEGORY;
-	  static const std::string WAFFLESCATEGORY; 
-	  static const std::string PRESENTATIONCATEGORY;
-	  static const std::string AMBIENTCATEGORY;
-	ContentHelper(ds::ui::SpriteEngine& eng)
-	  : mEngine(eng){};
-	virtual std::string						getCompositeKeyForPlatform()	= 0;
-	virtual ds::model::ContentModelRef		getRecordByUid(std::string uid)				= 0;
-	virtual ds::Resource					getBackgroundForPlatform() = 0;
 
-	virtual ds::model::ContentModelRef		getPresentation()=0; //getInteractivePlaylist
-	virtual ds::model::ContentModelRef		getAmbientPlaylist()=0;
-	virtual std::string						getInitialPresentationUid()=0;
+	static const std::string DEFAULTCATEGORY;
+	static const std::string ANYCATEGORY;
+	static const std::string WAFFLESCATEGORY;
+	static const std::string PRESENTATIONCATEGORY;
+	static const std::string AMBIENTCATEGORY;
 
-	virtual std::vector<ds::model::ContentModelRef>	getFilteredPlaylists(const PlaylistFilter& filter)			   = 0;
-	virtual std::vector<ds::model::ContentModelRef> getContentForPlatform()=0; //getAssets
-	virtual std::vector<ds::model::ContentModelRef> getStreamSources(std::string category = DEFAULTCATEGORY) = 0;
-	virtual ds::model::ContentModelRef				getStreamSourceForStream(ds::model::ContentModelRef stream,
-																			 std::string category = DEFAULTCATEGORY) = 0;
+	ContentHelper(ui::SpriteEngine& eng)
+	  : mEngine(eng) {}
 
-	virtual std::vector<ds::Resource>				findMediaResources()=0;
-	virtual bool									isValidFolder(ds::model::ContentModelRef model,std::string category=DEFAULTCATEGORY) = 0;
-	virtual bool									isValidMedia(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)  = 0;
-	virtual bool									isValidStreamSource(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
-	virtual bool									isValidStream(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
-	virtual bool									isValidPlaylist(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY)		= 0;
-	virtual std::string								getMediaPropertyKey(ds::model::ContentModelRef model,std::string category = DEFAULTCATEGORY) = 0;
-	virtual std::string								getStreamMatchKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
-	virtual std::string								getStreamSourceAddressKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
-	virtual std::string								getStreamSourceTypeKey(ds::model::ContentModelRef model, std::string category = DEFAULTCATEGORY) = 0;
+	virtual std::string		getCompositeKeyForPlatform()		   = 0;
+	virtual ContentModelRef getRecordByUid(const std::string& uid) = 0;
+	virtual Resource		getBackgroundForPlatform()			   = 0;
 
+	virtual ContentModelRef getPresentation()			= 0; // getInteractivePlaylist
+	virtual ContentModelRef getAmbientPlaylist()		= 0;
+	virtual std::string		getInitialPresentationUid() = 0;
+
+	virtual std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter)				 = 0;
+	virtual std::vector<ContentModelRef> getContentForPlatform()										 = 0; // getAssets
+	virtual std::vector<ContentModelRef> getStreamSources(const std::string& category = DEFAULTCATEGORY) = 0;
+	virtual ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, const std::string& category = DEFAULTCATEGORY) = 0;
+
+	virtual std::vector<Resource> findMediaResources() = 0;
+
+	virtual bool isValidFolder(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	   = 0;
+	virtual bool isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)		   = 0;
+	virtual bool isValidStreamSource(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
+	virtual bool isValidStream(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	   = 0;
+	virtual bool isValidPlaylist(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	   = 0;
+
+	virtual std::string getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)		= 0;
+	virtual std::string getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)			= 0;
+	virtual std::string getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
+	virtual std::string getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	= 0;
 
   protected:
-	ds::ui::SpriteEngine& mEngine;
+	ui::SpriteEngine& mEngine;
+};
+
+using ContentHelperPtr = std::shared_ptr<ContentHelper>;
+
+class ContentHelperFactory {
+  public:
+	ContentHelperFactory() = delete;
+
+	template <class T>
+	static void InitHelper(ui::SpriteEngine& eng) {
+		if (mDefault) {
+			DS_LOG_WARNING("ContentHelperFactory::InitHelper() called more than once");
+		}
+		mDefault = std::make_shared<T>(eng);
+	}
+	template <class T = ContentHelper>
+	static std::shared_ptr<T> getDefault() {
+		return std::dynamic_pointer_cast<T>(mDefault);
+	}
+
+  private:
+	static ContentHelperPtr mDefault;
 };
 
 
-
-} // namespace waffles
+} // namespace ds::model

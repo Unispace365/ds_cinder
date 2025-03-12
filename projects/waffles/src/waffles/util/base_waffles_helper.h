@@ -28,7 +28,7 @@ class BaseWafflesHelper : public WafflesHelper {
 
 	// Inherited via WafflesHelper these are from WaffleHelper's base class ContentHelper
 	std::string					 getCompositeKeyForPlatform() override;
-	ContentModelRef				 getRecordByUid(std::string uid) override;
+	ContentModelRef				 getRecordByUid(const std::string& uid) override;
 	ds::Resource				 getBackgroundForPlatform() override;
 	int							 getBackgroundPdfPage() override;
 	ContentModelRef				 getPresentation() override;
@@ -38,23 +38,23 @@ class BaseWafflesHelper : public WafflesHelper {
 	std::vector<ContentModelRef> getContentForPlatform() override;
 	std::vector<ds::Resource>	 findMediaResources() override;
 
-	bool				 isValidFolder(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool				 isValidMedia(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool				 isValidPlaylist(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	std::string			 getMediaPropertyKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool				 isValidForFilter(std::string filter, ContentModelRef model) override;
+	bool				 isValidFolder(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool				 isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool				 isValidPlaylist(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	std::string			 getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool				 isValidForFilter(const std::string& filter, ContentModelRef model) override;
 	void				 setLauncherCustomFilters(CustomFilters cf) override;
 	const CustomFilters& getLauncherCustomFilters() override;
 	void				 setLauncherCustomContent(CustomContent cc) override;
 	const CustomContent& getLauncherCustomContent() override;
 
-	std::vector<ContentModelRef> getStreamSources(std::string category) override;
-	ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, std::string category) override;
-	bool						 isValidStreamSource(ContentModelRef model, std::string category) override;
-	bool						 isValidStream(ContentModelRef model, std::string category) override;
-	std::string					 getStreamMatchKey(ContentModelRef model, std::string category) override;
-	std::string					 getStreamSourceAddressKey(ContentModelRef model, std::string category) override;
-	std::string getStreamSourceTypeKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::vector<ContentModelRef> getStreamSources(const std::string& category) override;
+	ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, const std::string& category) override;
+	bool						 isValidStreamSource(ContentModelRef model, const std::string& category) override;
+	bool						 isValidStream(ContentModelRef model, const std::string& category) override;
+	std::string					 getStreamMatchKey(ContentModelRef model, const std::string& category) override;
+	std::string					 getStreamSourceAddressKey(ContentModelRef model, const std::string& category) override;
+	std::string					 getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;

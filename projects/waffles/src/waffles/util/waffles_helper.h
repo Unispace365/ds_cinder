@@ -36,11 +36,11 @@ class WafflesHelper : public ds::model::ContentHelper {
 	virtual void									setKeyboardStyle(ds::ui::SoftKeyboard* keeb)			   = 0;
 	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) = 0;
 
-	virtual bool				 isValidForFilter(std::string filter, ds::model::ContentModelRef model) = 0;
-	virtual void				 setLauncherCustomFilters(CustomFilters cf)								= 0;
-	virtual const CustomFilters& getLauncherCustomFilters()												= 0;
-	virtual void				 setLauncherCustomContent(CustomContent cc)								= 0;
-	virtual const CustomContent& getLauncherCustomContent()												= 0;
+	virtual bool				 isValidForFilter(const std::string& filter, ds::model::ContentModelRef model) = 0;
+	virtual void				 setLauncherCustomFilters(CustomFilters cf)									   = 0;
+	virtual const CustomFilters& getLauncherCustomFilters()													   = 0;
+	virtual void				 setLauncherCustomContent(CustomContent cc)									   = 0;
+	virtual const CustomContent& getLauncherCustomContent()													   = 0;
 };
 
 } // namespace waffles

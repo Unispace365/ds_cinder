@@ -1,5 +1,6 @@
 #pragma once
-#include "content_helper.h"
+
+#include "ds/content/content_helper.h"
 
 namespace ds::model {
 
@@ -9,7 +10,7 @@ class BaseContentHelper : public ContentHelper {
 
 	// Inherited via ContentHelper
 	std::string					 getCompositeKeyForPlatform() override;
-	ContentModelRef				 getRecordByUid(std::string uid) override;
+	ContentModelRef				 getRecordByUid(const std::string& uid) override;
 	Resource					 getBackgroundForPlatform() override;
 	ContentModelRef				 getPresentation() override;
 	ContentModelRef				 getAmbientPlaylist() override;
@@ -18,19 +19,19 @@ class BaseContentHelper : public ContentHelper {
 	std::vector<Resource>		 findMediaResources() override;
 	std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
 
-	bool isValidFolder(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool isValidMedia(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool isValidPlaylist(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	bool isValidFolder(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool isValidPlaylist(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool isValidStreamSource(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	bool isValidStream(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
-	std::string getMediaPropertyKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::string getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
-	std::vector<ContentModelRef> getStreamSources(std::string category = DEFAULTCATEGORY) override;
-	ContentModelRef getStreamSourceForStream(ContentModelRef stream, std::string category = DEFAULTCATEGORY) override;
-	bool			isValidStreamSource(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	bool			isValidStream(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	std::string		getStreamMatchKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	std::string		getStreamSourceAddressKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
-	std::string		getStreamSourceTypeKey(ContentModelRef model, std::string category = DEFAULTCATEGORY) override;
+	std::vector<ContentModelRef> getStreamSources(const std::string& category = DEFAULTCATEGORY) override;
+	ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, const std::string& category = DEFAULTCATEGORY) override;
+	std::string					 getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	std::string					 getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	std::string					 getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;

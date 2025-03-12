@@ -4,7 +4,6 @@
 
 #include <cinder/Color.h>
 #include <cinder/Rect.h>
-#include <cinder/Vector.h>
 
 #include <ds/data/resource.h>
 
@@ -37,7 +36,7 @@ class ContentProperty {
   public:
 	ContentProperty();
 	ContentProperty(const std::string& name, const std::string& value);
-	ContentProperty(const std::string& name, const std::string& value, const int& valueInt, const double& valueDouble);
+	ContentProperty(const std::string& name, const std::string& value, int valueInt, double valueDouble);
 
 	/// Get the name of this property
 	const std::string& getName() const;
@@ -46,17 +45,17 @@ class ContentProperty {
 	const std::string& getValue() const;
 	void			   setValue(const std::string& value);
 	void			   setValue(const std::wstring& value);
-	void			   setValue(const int& value);
-	void			   setValue(const double& value);
-	void			   setValue(const float& value);
+	void			   setValue(int value);
+	void			   setValue(double value);
+	void			   setValue(float value);
 	void			   setValue(const ci::Color& value);
 	void			   setValue(const ci::ColorA& value);
 	void			   setValue(const ci::vec2& value);
 	void			   setValue(const ci::vec3& value);
 	void			   setValue(const ci::Rectf& value);
 
-	ds::Resource getResource() const;
-	void		 setResource(const ds::Resource& resource);
+	Resource getResource() const;
+	void	 setResource(const Resource& resource);
 
 	/// The name, value and resource are equal
 	bool operator==(const ContentProperty&) const;
@@ -70,8 +69,8 @@ class ContentProperty {
 	double getDouble() const;
 
 	/// The Engine is supplied to look up named colors
-	ci::Color  getColor(ds::ui::SpriteEngine&) const;
-	ci::ColorA getColorA(ds::ui::SpriteEngine&) const;
+	ci::Color  getColor(ui::SpriteEngine&) const;
+	ci::ColorA getColorA(ui::SpriteEngine&) const;
 
 	const std::string& getString() const; // same as getValue(), but supplied here for convenience
 	std::wstring	   getWString() const;
@@ -108,7 +107,7 @@ class ContentModelRef {
 	/// TODO: auto validation (e.g. exists, is a date, media meets certain qualifications, etc)
 	/// TODO: remove child
 
-	ContentModelRef();
+	ContentModelRef() = default;
 	ContentModelRef(const std::string& name, int id = 0, const std::string& label = "");
 	ContentModelRef(const std::string& name, const std::string& uid, const std::string& label = "");
 
@@ -116,9 +115,9 @@ class ContentModelRef {
 	operator bool() const { return !empty(); }
 
 	/// Get the id for this item
-	const int&		   getId() const;
+	int				   getId() const;
 	const std::string& getUid() const;
-	void			   setId(const int& id);
+	void			   setId(int id);
 	void			   setUid(const std::string& uid);
 
 
@@ -146,21 +145,20 @@ class ContentModelRef {
 	/// Makes a copy of this content.
 	/// This make a brand new ContentModelRef with a different underlying data object, so you can modify the two
 	/// independently
-	ds::model::ContentModelRef duplicate() const;
+	ContentModelRef duplicate() const;
 
 	/// Tests if this ContentModelRef has the same Id, Name, Label and underlying data pointer
 	bool operator==(const ContentModelRef&) const;
 
 	bool weakEqual(const ContentModelRef& b) const;
 
-	bool equalChildrenAndReferences(const ContentModelRef&				  b,
-									std::vector<std::pair<void*, void*>>& alreadyChecked) const;
+	bool equalChildrenAndReferences(const ContentModelRef& b, std::vector<std::pair<void*, void*>>& alreadyChecked) const;
 
 	bool operator!=(const ContentModelRef&) const;
 
 	/// Use this for looking stuff up only. Recommend using the other functions to manage the list
 	const std::map<std::string, ContentProperty>& getProperties() const;
-	void setProperties(const std::map<std::string, ContentProperty>& newProperties);
+	void										  setProperties(const std::map<std::string, ContentProperty>& newProperties);
 
 	/// This can return an empty property, which is why it's const.
 	/// If you want to modify a property, use the setProperty() function
@@ -171,44 +169,44 @@ class ContentModelRef {
 	float			getPropertyFloat(const std::string& propertyName) const;
 	double			getPropertyDouble(const std::string& propertyName) const;
 	/// The Engine is supplied to look up named colors
-	ci::Color	 getPropertyColor(ds::ui::SpriteEngine&, const std::string& propertyName) const;
-	ci::ColorA	 getPropertyColorA(ds::ui::SpriteEngine&, const std::string& propertyName) const;
+	ci::Color	 getPropertyColor(ui::SpriteEngine&, const std::string& propertyName) const;
+	ci::ColorA	 getPropertyColorA(ui::SpriteEngine&, const std::string& propertyName) const;
 	std::string	 getPropertyString(const std::string& propertyName) const;
 	std::wstring getPropertyWString(const std::string& propertyName) const;
 	ci::vec2	 getPropertyVec2(const std::string& propertyName) const;
 	ci::vec3	 getPropertyVec3(const std::string& propertyName) const;
 	ci::Rectf	 getPropertyRect(const std::string& propertyName) const;
-	ds::Resource getPropertyResource(const std::string& propertyName) const;
+	Resource	 getPropertyResource(const std::string& propertyName) const;
 
 	/// Set the property with a given name
-	void setProperty(const std::string& propertyName, ContentProperty& theProp);
+	void setProperty(const std::string& propertyName, const ContentProperty& property);
 	void setProperty(const std::string& propertyName, char* value);
-	void setProperty(const std::string& propertyName, const std::string& value);
+	void setProperty(const std::string& propertyName, const std::string& propertyValue);
 	void setProperty(const std::string& propertyName, const std::wstring& value);
-	void setProperty(const std::string& propertyName, const int& value);
-	void setProperty(const std::string& propertyName, const double& value);
-	void setProperty(const std::string& propertyName, const float& value);
+	void setProperty(const std::string& propertyName, int value);
+	void setProperty(const std::string& propertyName, double value);
+	void setProperty(const std::string& propertyName, float value);
 	void setProperty(const std::string& propertyName, const ci::Color& value);
 	void setProperty(const std::string& propertyName, const ci::ColorA& value);
 	void setProperty(const std::string& propertyName, const ci::vec2& value);
 	void setProperty(const std::string& propertyName, const ci::vec3& value);
 	void setProperty(const std::string& propertyName, const ci::Rectf& value);
-	void setPropertyResource(const std::string& propertyName, const ds::Resource& resource);
+	void setPropertyResource(const std::string& propertyName, const Resource& resource);
 
 	/// property lists are stored separately from regular properties
 	const std::map<std::string, std::vector<ContentProperty>>& getAllPropertyLists() const;
-	const std::vector<ContentProperty>&                        getPropertyList(const std::string& propertyName) const;
-	std::vector<bool>                                          getPropertyListBool(const std::string& propertyName) const;
-	std::vector<int>                                           getPropertyListInt(const std::string& propertyName) const;
-	std::vector<float>                                         getPropertyListFloat(const std::string& propertyName) const;
-	std::vector<double>                                        getPropertyListDouble(const std::string& propertyName) const;
-	std::vector<ci::Color>                                     getPropertyListColor(ds::ui::SpriteEngine&, const std::string& propertyName) const;
-	std::vector<ci::ColorA>                                    getPropertyListColorA(ds::ui::SpriteEngine&, const std::string& propertyName) const;
-	std::vector<std::string>                                   getPropertyListString(const std::string& propertyName) const;
-	std::vector<std::wstring>                                  getPropertyListWString(const std::string& propertyName) const;
-	std::vector<ci::vec2>                                      getPropertyListVec2(const std::string& propertyName) const;
-	std::vector<ci::vec3>                                      getPropertyListVec3(const std::string& propertyName) const;
-	std::vector<ci::Rectf>                                     getPropertyListRect(const std::string& propertyName) const;
+	const std::vector<ContentProperty>&						   getPropertyList(const std::string& propertyName) const;
+	std::vector<bool>										   getPropertyListBool(const std::string& propertyName) const;
+	std::vector<int>										   getPropertyListInt(const std::string& propertyName) const;
+	std::vector<float>										   getPropertyListFloat(const std::string& propertyName) const;
+	std::vector<double>										   getPropertyListDouble(const std::string& propertyName) const;
+	std::vector<ci::Color>									   getPropertyListColor(ui::SpriteEngine&, const std::string& propertyName) const;
+	std::vector<ci::ColorA>									   getPropertyListColorA(ui::SpriteEngine&, const std::string& propertyName) const;
+	std::vector<std::string>								   getPropertyListString(const std::string& propertyName) const;
+	std::vector<std::wstring>								   getPropertyListWString(const std::string& propertyName) const;
+	std::vector<ci::vec2>									   getPropertyListVec2(const std::string& propertyName) const;
+	std::vector<ci::vec3>									   getPropertyListVec3(const std::string& propertyName) const;
+	std::vector<ci::Rectf>									   getPropertyListRect(const std::string& propertyName) const;
 
 	/// Returns the list as a delimiter-separated string
 	std::string getPropertyListAsString(const std::string& propertyName, const std::string& delimiter = "; ") const;
@@ -263,7 +261,7 @@ class ContentModelRef {
 	void addChild(const ContentModelRef& datamodel, size_t index);
 
 	/// If there's a direct descendant with the name, replaces it, adds it if it doesn't exist
-	void replaceChild(const ds::model::ContentModelRef& datamodel);
+	void replaceChild(const ContentModelRef& datamodel);
 
 	/// Allows you to call a function on each child. If \a recurse is true, it will call the function recursively.
 	void forEachChild(const std::function<void(ContentModelRef&)>& fn, bool recurse = false) const;
@@ -276,25 +274,23 @@ class ContentModelRef {
 	bool hasChildren() const;
 
 	/// Replaces all children
-	void setChildren(const std::vector<ds::model::ContentModelRef>& children);
+	void setChildren(const std::vector<ContentModelRef>& children);
 
 	/// Removes all children
 	void clearChildren() const;
 
 	/// Adds a reference map with the corresponding string name
-	void setReferences(const std::string& referenceName, std::map<int, ds::model::ContentModelRef>& reference);
-	void setKeyReferences(const std::string&										   referenceName,
-						  std::unordered_map<std::string, ds::model::ContentModelRef>& reference);
+	void setReferences(const std::string& referenceName, std::map<int, ContentModelRef>& reference);
+	void setKeyReferences(const std::string& referenceName, std::unordered_map<std::string, ContentModelRef>& reference);
 
 	/// Gets a map of all the references for the given name. If you need to modify the map, make a copy and set it
 	/// again using setReference
-	const std::map<int, ds::model::ContentModelRef>& getReferences(const std::string& referenceName) const;
-	const std::unordered_map<std::string, ds::model::ContentModelRef>&
-	getKeyReferences(const std::string& referenceName) const;
+	const std::map<int, ContentModelRef>&					getReferences(const std::string& referenceName) const;
+	const std::unordered_map<std::string, ContentModelRef>& getKeyReferences(const std::string& referenceName) const;
 
 	/// Returns a content model from a specific reference by the reference name and the node id
-	ds::model::ContentModelRef getReference(const std::string& referenceName, int nodeId) const;
-	ds::model::ContentModelRef getKeyReference(const std::string& referenceName, const std::string& key) const;
+	ContentModelRef getReference(const std::string& referenceName, int nodeId) const;
+	ContentModelRef getKeyReference(const std::string& referenceName, const std::string& key) const;
 
 	/// Clears the reference map at the specified name
 	void clearReferences(const std::string& name) const;

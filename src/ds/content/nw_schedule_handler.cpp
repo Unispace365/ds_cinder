@@ -15,13 +15,13 @@
 
 namespace ds::model {
 
-NWScheduleHandler::NWScheduleHandler(ds::ui::SpriteEngine& eng)
-  : mEngine(eng)
-  , mEventClient(eng)
-  , AutoUpdate(eng, 1) {
+NWScheduleHandler::NWScheduleHandler(ui::SpriteEngine& eng)
+  : AutoUpdate(eng, 1)
+  , mEngine(eng)
+  , mEventClient(eng) {
 	auto currentEvents = mEngine.mContent.getChildByName("current_events");
 	if (currentEvents.empty()) {
-		mEngine.mContent.addChild(ds::model::ContentModelRef("current_events"));
+		mEngine.mContent.addChild(ContentModelRef("current_events"));
 	}
 	mEventClient.listenToEvents<CmsDataLoadCompleteEvent>([this](auto& e) {
 		DS_LOG_INFO("Checking schedule due to content change")
@@ -31,7 +31,7 @@ NWScheduleHandler::NWScheduleHandler(ds::ui::SpriteEngine& eng)
 	mEngine.repeatedCallback([this] { checkSchedule(); }, 5.0);
 }
 
-void NWScheduleHandler::update(const ds::UpdateParams&) {}
+void NWScheduleHandler::update(const UpdateParams&) {}
 
 void NWScheduleHandler::checkSchedule() {
 	Poco::LocalDateTime ldt = Poco::LocalDateTime();
@@ -42,7 +42,7 @@ void NWScheduleHandler::checkSchedule() {
 	auto currentEvents = mEngine.mContent.getChildByName("current_events");
 	auto cmsEvents	   = mEngine.mContent.getChildByName("cms_events").getChildren();
 
-	std::vector<ds::model::ContentModelRef> newCurrentEvents;
+	std::vector<ContentModelRef> newCurrentEvents;
 
 	for (auto it : cmsEvents) {
 		try {
@@ -60,13 +60,13 @@ void NWScheduleHandler::checkSchedule() {
 	// TODO: compare the lists?
 
 	if (!newCurrentEvents.empty()) {
-		auto						theFirstEvent	 = newCurrentEvents.front();
-		auto						briefingPinboard = theFirstEvent.getPropertyListInt("briefing_pinboard");
-		ds::model::ContentModelRef& thePinboard		 = mEngine.mContent.getChildByName("current_pinboard");
+		auto             theFirstEvent    = newCurrentEvents.front();
+		auto             briefingPinboard = theFirstEvent.getPropertyListInt("briefing_pinboard");
+		ContentModelRef& thePinboard      = mEngine.mContent.getChildByName("current_pinboard");
 
-		std::vector<ds::model::ContentProperty> theNewPinboardList;
+		std::vector<ContentProperty> theNewPinboardList;
 		for (auto it : briefingPinboard) {
-			theNewPinboardList.emplace_back(ds::model::ContentProperty("pinboard_items", std::to_string(it), it, it));
+			theNewPinboardList.emplace_back(ContentProperty("pinboard_items", std::to_string(it), it, it));
 		}
 		thePinboard.setPropertyList("pinboard_items", theNewPinboardList);
 	}
@@ -75,18 +75,18 @@ void NWScheduleHandler::checkSchedule() {
 	mEngine.getNotifier().notify(ScheduleUpdatedEvent());
 }
 
-bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTime& ldt) {
+bool NWScheduleHandler::eventIsNow(ContentModelRef& theEvent, Poco::DateTime& ldt) {
 
 	int tzd = 0;
 
 	/// ---------- Check the effective dates
 	Poco::DateTime startDate;
 	Poco::DateTime endDate;
-	if (!Poco::DateTimeParser::tryParse(it.getPropertyString("effective_date_start"), startDate, tzd)) {
+	if (!Poco::DateTimeParser::tryParse(theEvent.getPropertyString("effective_date_start"), startDate, tzd)) {
 		DS_LOG_WARNING("Couldn't parse the start date for an event!");
 		return false;
 	}
-	if (!Poco::DateTimeParser::tryParse(it.getPropertyString("effective_date_end"), endDate, tzd)) {
+	if (!Poco::DateTimeParser::tryParse(theEvent.getPropertyString("effective_date_end"), endDate, tzd)) {
 		DS_LOG_WARNING("Couldn't parse the end date for an event!");
 		return false;
 	}
@@ -95,7 +95,7 @@ bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTim
 	endDate += daySpan;
 
 	if (ldt < startDate || ldt > endDate) {
-		DS_LOG_VERBOSE(3, "Event happens outside the current yeah: " << it.getPropertyString("name"));
+		DS_LOG_VERBOSE(3, "Event happens outside the current yeah: " << theEvent.getPropertyString("name"));
 		return false;
 	}
 
@@ -103,12 +103,12 @@ bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTim
 	/// ---------- Check the effective times of day
 	Poco::DateTime startTime;
 	Poco::DateTime endTime;
-	if (!Poco::DateTimeParser::tryParse("%H:%M:%S", it.getPropertyString("effective_time_start"), startTime, tzd)) {
+	if (!Poco::DateTimeParser::tryParse("%H:%M:%S", theEvent.getPropertyString("effective_time_start"), startTime, tzd)) {
 		DS_LOG_WARNING("Couldn't parse the start time for an event!");
 		return false;
 	}
-	if (!Poco::DateTimeParser::tryParse("%H:%M:%S", it.getPropertyString("effective_time_end"), endTime, tzd)) {
-		("Couldn't parse the end time for an event!");
+	if (!Poco::DateTimeParser::tryParse("%H:%M:%S", theEvent.getPropertyString("effective_time_end"), endTime, tzd)) {
+		DS_LOG_WARNING("Couldn't parse the end time for an event!");
 		return false;
 	}
 
@@ -118,7 +118,7 @@ bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTim
 
 
 	if (daySeconds < startDaySeconds || daySeconds > endDaySeconds) {
-		DS_LOG_VERBOSE(3, "Event happens outside the current time: " << it.getPropertyString("name"));
+		DS_LOG_VERBOSE(3, "Event happens outside the current time: " << theEvent.getPropertyString("name"));
 		return false;
 	}
 
@@ -146,7 +146,7 @@ bool NWScheduleHandler::eventIsNow(ds::model::ContentModelRef& it, Poco::DateTim
 	if (dotw == 6) dayFlag = WEEK_SAT;
 
 
-	int effectiveWeekdays = it.getPropertyInt("effective_weekdays");
+	int effectiveWeekdays = theEvent.getPropertyInt("effective_weekdays");
 	if (effectiveWeekdays == WEEK_ALL || effectiveWeekdays & dayFlag) {
 		return true;
 	}
