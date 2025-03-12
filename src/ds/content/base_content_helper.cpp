@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "base_content_helper.h"
+#include "ds/content/base_content_helper.h"
 #include "ds/content/platform.h"
 
 namespace ds::model {
@@ -18,9 +18,9 @@ BaseContentHelper::BaseContentHelper(ui::SpriteEngine& eng)
 
 	auto mediaCount = mEngine.getWafflesSettings().countSetting("content:media:key");
 	for (int i = 0; i < mediaCount; ++i) {
-		auto media	   = mEngine.getWafflesSettings().getString("content:media:key", i);
-		auto mediaProp = mEngine.getWafflesSettings().getAttribute("content:media:key", i, "property_key", "");
-		auto category  = mEngine.getWafflesSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
+		auto media					 = mEngine.getWafflesSettings().getString("content:media:key", i);
+		auto mediaProp				 = mEngine.getWafflesSettings().getAttribute("content:media:key", i, "property_key", "");
+		auto category				 = mEngine.getWafflesSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
 		mMediaProps[category][media] = mediaProp;
 		if (mMediaProps[DEFAULTCATEGORY][media].empty()) mMediaProps[DEFAULTCATEGORY][media] = mediaProp;
 		mAcceptableMedia[category].push_back(media);
@@ -30,12 +30,10 @@ BaseContentHelper::BaseContentHelper(ui::SpriteEngine& eng)
 	auto playlistCount = mEngine.getWafflesSettings().countSetting("content:playlist:key");
 	for (int i = 0; i < playlistCount; ++i) {
 		auto playlist = mEngine.getWafflesSettings().getString("content:playlist:key", i, "");
-		auto category =
-			mEngine.getWafflesSettings().getAttribute("content:playlist:key", i, "category", DEFAULTCATEGORY);
+		auto category = mEngine.getWafflesSettings().getAttribute("content:playlist:key", i, "category", DEFAULTCATEGORY);
 		if (!playlist.empty()) {
 			mAcceptablePlaylists[category].push_back(playlist);
-			if (mAcceptablePlaylists[DEFAULTCATEGORY].empty())
-				mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
+			if (mAcceptablePlaylists[DEFAULTCATEGORY].empty()) mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
 		}
 	}
 
@@ -44,25 +42,20 @@ BaseContentHelper::BaseContentHelper(ui::SpriteEngine& eng)
 		auto stream			 = mEngine.getWafflesSettings().getString("content:stream:key", i, "");
 		auto streamMatchProp = mEngine.getWafflesSettings().getAttribute("content:stream:key", i, "match_key", "");
 
-		auto category = mEngine.getWafflesSettings().getAttribute("content:stream:key", i, "category", DEFAULTCATEGORY);
+		auto category					   = mEngine.getWafflesSettings().getAttribute("content:stream:key", i, "category", DEFAULTCATEGORY);
 		mStreamMatchProp[category][stream] = streamMatchProp;
-		if (mStreamMatchProp[DEFAULTCATEGORY][stream].empty())
-			mStreamMatchProp[DEFAULTCATEGORY][stream] = streamMatchProp;
+		if (mStreamMatchProp[DEFAULTCATEGORY][stream].empty()) mStreamMatchProp[DEFAULTCATEGORY][stream] = streamMatchProp;
 		mAcceptableStreams[category].push_back(stream);
 		if (mAcceptableStreams[DEFAULTCATEGORY].empty()) mAcceptableStreams[DEFAULTCATEGORY].push_back(stream);
 	}
 
 	auto streamSourceCount = mEngine.getWafflesSettings().countSetting("content:stream_source:key");
 	for (int i = 0; i < streamSourceCount; ++i) {
-		auto streamSource = mEngine.getWafflesSettings().getString("content:stream_source:key", i, "");
-		auto streamSourceAddressProp =
-			mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "address_key", "");
-		auto streamSourceTypeProp =
-			mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "streamtype_key", "");
-		auto streamMatchProp =
-			mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "match_key", "");
-		auto category =
-			mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "category", DEFAULTCATEGORY);
+		auto streamSource			 = mEngine.getWafflesSettings().getString("content:stream_source:key", i, "");
+		auto streamSourceAddressProp = mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "address_key", "");
+		auto streamSourceTypeProp	 = mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "streamtype_key", "");
+		auto streamMatchProp		 = mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "match_key", "");
+		auto category				 = mEngine.getWafflesSettings().getAttribute("content:stream_source:key", i, "category", DEFAULTCATEGORY);
 		mStreamSourceAddressProps[category][streamSource] = streamSourceAddressProp;
 		if (mStreamSourceAddressProps[DEFAULTCATEGORY][streamSource].empty())
 			mStreamSourceAddressProps[DEFAULTCATEGORY][streamSource] = streamSourceAddressProp;
@@ -70,11 +63,9 @@ BaseContentHelper::BaseContentHelper(ui::SpriteEngine& eng)
 		if (mStreamSourceTypeProps[DEFAULTCATEGORY][streamSource].empty())
 			mStreamSourceTypeProps[DEFAULTCATEGORY][streamSource] = streamSourceTypeProp;
 		mStreamMatchProp[category][streamSource] = streamMatchProp;
-		if (mStreamMatchProp[DEFAULTCATEGORY][streamSource].empty())
-			mStreamMatchProp[DEFAULTCATEGORY][streamSource] = streamMatchProp;
+		if (mStreamMatchProp[DEFAULTCATEGORY][streamSource].empty()) mStreamMatchProp[DEFAULTCATEGORY][streamSource] = streamMatchProp;
 		mAcceptableStreamSources[category].push_back(streamSource);
-		if (mAcceptableStreamSources[DEFAULTCATEGORY].empty())
-			mAcceptableStreamSources[DEFAULTCATEGORY].push_back(streamSource);
+		if (mAcceptableStreamSources[DEFAULTCATEGORY].empty()) mAcceptableStreamSources[DEFAULTCATEGORY].push_back(streamSource);
 	}
 }
 
@@ -84,7 +75,7 @@ std::string BaseContentHelper::getCompositeKeyForPlatform() {
 	return key;
 }
 
-ContentModelRef BaseContentHelper::getRecordByUid(std::string uid) {
+ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) {
 	return mEngine.mContent.getKeyReference(VALID_MAP, uid);
 }
 
@@ -99,8 +90,7 @@ Resource BaseContentHelper::getBackgroundForPlatform() {
 	// check if events have playlists
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
-			if (event.getPropertyString("type_key") == "some_event" &&
-				!event.getPropertyResource("content-browsing-background").empty()) {
+			if (event.getPropertyString("type_key") == "some_event" && !event.getPropertyResource("content-browsing-background").empty()) {
 
 				return event.getPropertyResource("content-browsing-background");
 			}
@@ -113,8 +103,7 @@ Resource BaseContentHelper::getBackgroundForPlatform() {
 		return platform.getPropertyResource("content-browsing-background");
 	}
 
-	DS_LOG_VERBOSE(1, "No platform background for platform '" << platform.getPropertyString("name")
-															  << "'. Using default background.");
+	DS_LOG_VERBOSE(1, "No platform background for platform '" << platform.getPropertyString("name") << "'. Using default background.");
 
 	return {Environment::expand("%APP%/data/images/default_background.png")};
 }
@@ -196,15 +185,13 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
 			auto eventTypeKey = event.getPropertyString("type_key");
-			if ((eventTypeKey == filter.eventTypeKey || filter.eventTypeKey.empty()) &&
-				!event.getPropertyString(eventPropName).empty()) {
+			if ((eventTypeKey == filter.eventTypeKey || filter.eventTypeKey.empty()) && !event.getPropertyString(eventPropName).empty()) {
 
 				const auto playlistSelection = ci::split(event.getPropertyString(eventPropName), ",");
 				// check each playlist for correct type_key
 				for (const auto& playlistUid : playlistSelection) {
 					auto playlist = getRecordByUid(playlistUid);
-					if (filter.playlistTypeKey.empty() ||
-						playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
+					if (filter.playlistTypeKey.empty() || playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
 						thePlaylists.push_back(playlist);
 					}
 				}
@@ -222,8 +209,7 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 		if (filter.filterMode == PlaylistFilter::FilterMode::All) {
 			for (const auto& playlistUid : platformDefaultAmbientPlaylistId) {
 				auto playlist = getRecordByUid(playlistUid);
-				if (filter.playlistTypeKey.empty() ||
-					playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
+				if (filter.playlistTypeKey.empty() || playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
 					thePlaylists.push_back(playlist);
 				}
 			}
@@ -231,16 +217,14 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 			thePlaylists.clear();
 			for (const auto& playlistUid : platformDefaultAmbientPlaylistId) {
 				auto playlist = getRecordByUid(playlistUid);
-				if (filter.playlistTypeKey.empty() ||
-					playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
+				if (filter.playlistTypeKey.empty() || playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
 					thePlaylists.push_back(playlist);
 				}
 			}
 		} else if (filter.filterMode == PlaylistFilter::FilterMode::PlatformFallback && thePlaylists.empty()) {
 			for (const auto& playlistUid : platformDefaultAmbientPlaylistId) {
 				auto playlist = getRecordByUid(playlistUid);
-				if (filter.playlistTypeKey.empty() ||
-					playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
+				if (filter.playlistTypeKey.empty() || playlist.getPropertyString("type_key") == filter.playlistTypeKey) {
 					thePlaylists.push_back(playlist);
 				}
 			}
@@ -250,10 +234,8 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 	return thePlaylists;
 }
 
-bool BaseContentHelper::isValidFolder(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-
-	auto categories = split(category, ",", true);
+bool BaseContentHelper::isValidFolder(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -272,22 +254,18 @@ bool BaseContentHelper::isValidFolder(ContentModelRef model, std::string categor
 	return false;
 }
 
-bool BaseContentHelper::isValidMedia(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-
-	auto categories = split(category, ",", true);
+bool BaseContentHelper::isValidMedia(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
 		// trim whitespace from cat using std::find_not_last_of and std::find_not_first_of functions
 		auto cleanCat = trim(cat);
 
-		if (std::find(mAcceptableMedia[cleanCat].begin(), mAcceptableMedia[cleanCat].end(), key) !=
-			mAcceptableMedia[cleanCat].end()) {
+		if (std::find(mAcceptableMedia[cleanCat].begin(), mAcceptableMedia[cleanCat].end(), key) != mAcceptableMedia[cleanCat].end()) {
 			return true;
 		}
-		if (std::find(mAcceptableMedia[cleanCat].begin(), mAcceptableMedia[cleanCat].end(), type) !=
-			mAcceptableMedia[cleanCat].end()) {
+		if (std::find(mAcceptableMedia[cleanCat].begin(), mAcceptableMedia[cleanCat].end(), type) != mAcceptableMedia[cleanCat].end()) {
 			return true;
 		}
 	}
@@ -295,10 +273,8 @@ bool BaseContentHelper::isValidMedia(ContentModelRef model, std::string category
 	return false;
 }
 
-bool BaseContentHelper::isValidPlaylist(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-
-	auto categories = split(category, ",", true);
+bool BaseContentHelper::isValidPlaylist(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -317,17 +293,17 @@ bool BaseContentHelper::isValidPlaylist(ContentModelRef model, std::string categ
 	return false;
 }
 
-std::string BaseContentHelper::getMediaPropertyKey(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto theType			= model.getPropertyString("type_key");
-	auto theTypeUid			= model.getPropertyString("type_uid");
-	auto media_property_key = mMediaProps[category][theTypeUid];
-	media_property_key		= media_property_key.empty() ? mMediaProps[category][theType] : media_property_key;
-	media_property_key		= media_property_key.empty() ? "media" : media_property_key;
+std::string BaseContentHelper::getMediaPropertyKey(ContentModelRef model, const std::string& category) {
+	auto& props				 = mMediaProps[category.empty() ? DEFAULTCATEGORY : category];
+	auto  theType			 = model.getPropertyString("type_key");
+	auto  theTypeUid		 = model.getPropertyString("type_uid");
+	auto  media_property_key = props[theTypeUid];
+	media_property_key		 = media_property_key.empty() ? props[theType] : media_property_key;
+	media_property_key		 = media_property_key.empty() ? "media" : media_property_key;
 	return media_property_key;
 }
 
-std::vector<ContentModelRef> BaseContentHelper::getStreamSources(std::string category) {
+std::vector<ContentModelRef> BaseContentHelper::getStreamSources(const std::string& category) {
 	Platform platform(mEngine);
 
 	auto						 platformModel = platform.getPlatformModel();
@@ -341,7 +317,7 @@ std::vector<ContentModelRef> BaseContentHelper::getStreamSources(std::string cat
 	return sources;
 }
 
-ContentModelRef BaseContentHelper::getStreamSourceForStream(ContentModelRef stream, std::string category) {
+ContentModelRef BaseContentHelper::getStreamSourceForStream(ContentModelRef stream, const std::string& category) {
 	if (isValidStream(stream, category)) {
 		auto streamMatchKey = getStreamMatchKey(stream, category);
 		auto sources		= getStreamSources(category);
@@ -357,9 +333,8 @@ ContentModelRef BaseContentHelper::getStreamSourceForStream(ContentModelRef stre
 	return {};
 }
 
-bool BaseContentHelper::isValidStreamSource(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto categories = split(category, ",", true);
+bool BaseContentHelper::isValidStreamSource(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -376,9 +351,8 @@ bool BaseContentHelper::isValidStreamSource(ContentModelRef model, std::string c
 	return false;
 }
 
-bool BaseContentHelper::isValidStream(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto categories = split(category, ",", true);
+bool BaseContentHelper::isValidStream(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -395,9 +369,8 @@ bool BaseContentHelper::isValidStream(ContentModelRef model, std::string categor
 	return false;
 }
 
-std::string BaseContentHelper::getStreamMatchKey(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto categories = split(category, ",", true);
+std::string BaseContentHelper::getStreamMatchKey(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -415,9 +388,8 @@ std::string BaseContentHelper::getStreamMatchKey(ContentModelRef model, std::str
 	return {};
 }
 
-std::string BaseContentHelper::getStreamSourceAddressKey(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto categories = split(category, ",", true);
+std::string BaseContentHelper::getStreamSourceAddressKey(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	for (auto& cat : categories) {
@@ -435,9 +407,8 @@ std::string BaseContentHelper::getStreamSourceAddressKey(ContentModelRef model, 
 	return {};
 }
 
-std::string BaseContentHelper::getStreamSourceTypeKey(ContentModelRef model, std::string category) {
-	if (category.empty()) category = DEFAULTCATEGORY;
-	auto categories = split(category, ",", true);
+std::string BaseContentHelper::getStreamSourceTypeKey(ContentModelRef model, const std::string& category) {
+	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");
 	auto key		= model.getPropertyString("type_key");
 	// return the type key for the stream source

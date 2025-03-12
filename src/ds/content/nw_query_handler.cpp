@@ -1,21 +1,17 @@
 ﻿#include "stdafx.h"
 
-#include "nw_query_handler.h"
-
-#include <ds/app/environment.h>
-#include <ds/app/event_notifier.h>
 #include <ds/content/content_events.h>
+#include <ds/content/nw_query_handler.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
-#include <ds/content/content_events.h>
 #include <ds/util/boolinq.h>
 
 #define CN_BUFSIZE 256
 
 namespace ds::model {
 
-NWQueryHandler::NWQueryHandler(ds::ui::SpriteEngine& eng)
+NWQueryHandler::NWQueryHandler(ui::SpriteEngine& eng)
   : mEngine(eng)
   , mEventClient(eng) {
 
@@ -25,18 +21,18 @@ NWQueryHandler::NWQueryHandler(ds::ui::SpriteEngine& eng)
 	memset(computername_buffer, 0, CN_BUFSIZE);
 
 	// get the forrealz computer name.
-	GetComputerNameExA(COMPUTER_NAME_FORMAT::ComputerNameDnsHostname, computername_buffer, &bufsize);
+	GetComputerNameExA(ComputerNameDnsHostname, computername_buffer, &bufsize);
 
 
-	auto computerName = mEngine.getAppSettings().getString("platform:override_computername", 0, computername_buffer);
-	mPlatformKey	  = mEngine.getAppSettings().getString("platform:key", 0, computerName);
+	auto computerName	  = mEngine.getAppSettings().getString("platform:override_computername", 0, computername_buffer);
+	mPlatformKey		  = mEngine.getAppSettings().getString("platform:key", 0, computerName);
 	auto platformKeyUpper = mPlatformKey;
-	ds::to_uppercase(platformKeyUpper);
+	to_uppercase(platformKeyUpper);
 	if ((mPlatformKey.empty() || platformKeyUpper == "AUTO") && !computerName.empty()) {
 		mPlatformKey = computerName;
 	}
 	DS_LOG_INFO("Discovered Platform Key of: " << mPlatformKey);
-	mEventClient.listenToEvents<ds::ContentUpdatedEvent>([this](auto& e) { handleQuery(); });
+	mEventClient.listenToEvents<ContentUpdatedEvent>([this](auto& e) { handleQuery(); });
 }
 
 void NWQueryHandler::handleQuery() {
@@ -45,21 +41,20 @@ void NWQueryHandler::handleQuery() {
 	int drawingParent = 0;
 
 	// tags
-	ds::model::ContentModelRef tags = ds::model::ContentModelRef("cms_tags");
+	ContentModelRef tags = ContentModelRef("cms_tags");
 	mEngine.mContent.replaceChild(tags);
 
 	// create node list
 
-	std::vector<ds::model::ContentModelRef> rawNodesList =
-		mEngine.mContent.getChildByName("sqlite.waffles_nodes").getChildren();
+	std::vector<ContentModelRef> rawNodesList = mEngine.mContent.getChildByName("sqlite.waffles_nodes").getChildren();
 
-	std::string								  unflitered_root_name = "cms_unfiltered_root";
-	std::map<int, ds::model::ContentModelRef> allUFNodes;
-	std::vector<ds::model::ContentModelRef>	  rawUFNodesList;
+	std::string					   unflitered_root_name = "cms_unfiltered_root";
+	std::map<int, ContentModelRef> allUFNodes;
+	std::vector<ContentModelRef>   rawUFNodesList;
 
 	// create unfiltered node copy
-	ds::model::ContentModelRef cmsUFRoot = ds::model::ContentModelRef(unflitered_root_name);
-	for (auto it : rawNodesList) {
+	ContentModelRef cmsUFRoot = ContentModelRef(unflitered_root_name);
+	for (const auto& it : rawNodesList) {
 		rawUFNodesList.push_back(it.duplicate());
 	}
 
@@ -97,9 +92,8 @@ void NWQueryHandler::handleQuery() {
 	mEngine.mContent.replaceChild(cmsUFRoot);
 
 	// if we were filtering this is where it would be.
-	std::vector<std::string> excluded_templates =
-		ds::split(mEngine.getAppSettings().getString("kind_exclude", 0, ""), ", ", true);
-	std::vector<ds::model::ContentModelRef> allNodesList = rawNodesList;
+	std::vector<std::string>	 excluded_templates = split(mEngine.getAppSettings().getString("kind_exclude", 0, ""), ", ", true);
+	std::vector<ContentModelRef> allNodesList		= rawNodesList;
 	// boolinq::from(rawNodesList)
 	//     .where([excluded_templates,
 	//             allUFNodes](ds::model::ContentModelRef it) {
@@ -133,14 +127,14 @@ void NWQueryHandler::handleQuery() {
 	//    .toStdVector();
 
 	// ----------- PLATFORMS --------------------------------------
-	ds::model::ContentModelRef cmsPlatforms = ds::model::ContentModelRef("cms_platforms");
+	ContentModelRef cmsPlatforms = ContentModelRef("cms_platforms");
 	cmsPlatforms.setProperty("kind", std::string("platforms"));
 	cmsPlatforms.setProperty("name", std::string("Platforms"));
 
 	auto nodes = mEngine.mContent.getChildByName("sqlite.waffles_nodes").getChildren();
 	// add properties to the platforms
-	std::vector<ds::model::ContentModelRef> allPlatformsList;
-	std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(allPlatformsList), [](ds::model::ContentModelRef n) {
+	std::vector<ContentModelRef> allPlatformsList;
+	std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(allPlatformsList), [](const ContentModelRef& n) {
 		bool result = n.getPropertyString("branch") == "platform";
 		return result;
 	});
@@ -148,8 +142,8 @@ void NWQueryHandler::handleQuery() {
 	/// filter out all platforms to this computer name
 	/// Note, you could change mComputerName to something from app settings or
 	/// other value to filter in other ways
-	ds::model::ContentModelRef thisPlatform;
-	int						   platformCount = 0;
+	ContentModelRef thisPlatform;
+	int				platformCount = 0;
 	if (allPlatformsList.empty()) {
 		DS_LOG_WARNING("Did not find any platforms in the database.");
 	}
@@ -165,13 +159,11 @@ void NWQueryHandler::handleQuery() {
 	}
 
 	if (platformCount > 1) {
-		DS_LOG_WARNING("Found Multiple platforms that match the given platform key of "
-					   << mPlatformKey << " This is probably not what you want");
+		DS_LOG_WARNING("Found Multiple platforms that match the given platform key of " << mPlatformKey << " This is probably not what you want");
 	}
 
 	if (thisPlatform.empty() && !allPlatformsList.empty()) {
-		DS_LOG_WARNING("No specific platform for this app. Check the computer name " << mPlatformKey
-																					 << " against the CMS");
+		DS_LOG_WARNING("No specific platform for this app. Check the computer name " << mPlatformKey << " against the CMS");
 	} else if (!allPlatformsList.empty()) {
 		DS_LOG_INFO("Found matching platform " << mPlatformKey << " against the CMS");
 	}
@@ -180,11 +172,11 @@ void NWQueryHandler::handleQuery() {
 
 	// ----------- NODES --------------------------------------
 	// The main waffles nodes, aka the primary content
-	ds::model::ContentModelRef cmsRoot = ds::model::ContentModelRef("cms_root");
+	ContentModelRef cmsRoot = ContentModelRef("cms_root");
 	cmsRoot.setProperty("kind", std::string("node"));
 	cmsRoot.setProperty("name", std::string("Nodes"));
 
-	std::map<int, ds::model::ContentModelRef> allNodes;
+	std::map<int, ContentModelRef> allNodes;
 
 	for (auto& it : allNodesList) {
 		parseModelProperties(it, allNodesList);
@@ -221,11 +213,11 @@ void NWQueryHandler::handleQuery() {
 	}
 
 	// add valid nodes as references on the root node for lookup speed
-	std::map<int, ds::model::ContentModelRef> allValidNodes;
+	std::map<int, ContentModelRef> allValidNodes;
 	addReference(cmsRoot, allValidNodes);
 	cmsRoot.setReferences("valid_nodes", allValidNodes);
 
-	std::map<int, ds::model::ContentModelRef> allUnfilteredValidNodes;
+	std::map<int, ContentModelRef> allUnfilteredValidNodes;
 	addReference(cmsUFRoot, allUnfilteredValidNodes);
 	cmsUFRoot.setReferences("valid_nodes", allUnfilteredValidNodes);
 
@@ -235,29 +227,27 @@ void NWQueryHandler::handleQuery() {
 	mEngine.mContent.replaceChild(cmsRoot);
 
 	// ----------- Events --------------------------------------
-	ds::model::ContentModelRef cmsEvents = ds::model::ContentModelRef("cms_events");
+	ContentModelRef cmsEvents = ContentModelRef("cms_events");
 	cmsEvents.setProperty("kind", std::string("event"));
 	cmsEvents.setProperty("name", std::string("Events"));
 	int platform_id = thisPlatform.getId();
 
 	auto			 scheds_x_platform = mEngine.mContent.getChildByName("sqlite.wfl_platform_schedule").getChildren();
 	std::vector<int> platform_schedules;
-	for (auto connection : scheds_x_platform) {
+	for (const auto& connection : scheds_x_platform) {
 		if (connection.getPropertyInt("node_id") == platform_id) {
 			platform_schedules.push_back(connection.getPropertyInt("schedule_id"));
 		}
 	}
-	std::vector<ds::model::ContentModelRef> eventList;
-	std::copy_if(rawUFNodesList.begin(), rawUFNodesList.end(), std::back_inserter(eventList),
-				 [platform_schedules](ds::model::ContentModelRef n) {
-					 auto branch  = n.getPropertyString("branch");
-					 bool isEvent = branch == "event";
+	std::vector<ContentModelRef> eventList;
+	std::copy_if(rawUFNodesList.begin(), rawUFNodesList.end(), std::back_inserter(eventList), [platform_schedules](const ContentModelRef& n) {
+		auto branch	 = n.getPropertyString("branch");
+		bool isEvent = branch == "event";
 
-					 int  schedule_id  = n.getPropertyInt("schedule_id");
-					 bool isOnPlatform = std::find(platform_schedules.begin(), platform_schedules.end(), schedule_id) !=
-										 platform_schedules.end();
-					 return isEvent && isOnPlatform;
-				 });
+		int	 schedule_id  = n.getPropertyInt("schedule_id");
+		bool isOnPlatform = std::find(platform_schedules.begin(), platform_schedules.end(), schedule_id) != platform_schedules.end();
+		return isEvent && isOnPlatform;
+	});
 
 	cmsEvents.setChildren(eventList);
 	mEngine.mContent.replaceChild(cmsEvents);
@@ -270,19 +260,17 @@ void NWQueryHandler::handleQuery() {
 	mEventClient.notify(CmsDataLoadCompleteEvent());
 }
 
-void NWQueryHandler::addReference(ds::model::ContentModelRef				 curParent,
-								  std::map<int, ds::model::ContentModelRef>& overallMap) {
-	for (auto it : curParent.getChildren()) {
+void NWQueryHandler::addReference(ContentModelRef curParent, std::map<int, ContentModelRef>& overallMap) {
+	for (const auto& it : curParent.getChildren()) {
 		overallMap[it.getId()] = it;
 		addReference(it, overallMap);
 	}
 }
 
-void NWQueryHandler::parseModelProperties(ds::model::ContentModelRef&			   it,
-										  std::vector<ds::model::ContentModelRef>& allNodes) {
+void NWQueryHandler::parseModelProperties(ContentModelRef& it, std::vector<ContentModelRef>& allNodes) {
 	// add all fields as properties of the node
 	auto tags = mEngine.mContent.getChildByName("cms_tags");
-	for (auto props : it.getChildren()) {
+	for (const auto& props : it.getChildren()) {
 		auto appKey	 = props.getPropertyString("app_key");
 		auto d_label = it.getPropertyString("name");
 		auto d_kind	 = it.getPropertyString("kind");
@@ -350,8 +338,7 @@ void NWQueryHandler::parseModelProperties(ds::model::ContentModelRef&			   it,
 			}
 
 			auto id = props.getPropertyInt("node_id");
-			if (std::find_if(allNodes.begin(), allNodes.end(),
-							 [id](ds::model::ContentModelRef node) { return node.getId() == id; }) != allNodes.end()) {
+			if (std::find_if(allNodes.begin(), allNodes.end(), [id](const ContentModelRef& node) { return node.getId() == id; }) != allNodes.end()) {
 
 				if (props.getPropertyBool("allow_multiple")) {
 					it.addPropertyToList(appKey, props.getPropertyString("node_id"));
@@ -374,15 +361,14 @@ void NWQueryHandler::parseModelProperties(ds::model::ContentModelRef&			   it,
 			it.setProperty(appKey + "_preview_res", props.getPropertyString("preview_res"));
 			it.setPropertyResource(appKey + "_preview_res", processResource(props.getPropertyResource("preview_res")));
 			it.setProperty(appKey + "_preview_thumb_res", props.getPropertyString("preview_thumb_res"));
-			it.setPropertyResource(appKey + "_preview_thumb_res",
-								   processResource(props.getPropertyResource("preview_thumb_res")));
+			it.setPropertyResource(appKey + "_preview_thumb_res", processResource(props.getPropertyResource("preview_thumb_res")));
 		} else if (propName == "waffles_streamconfs") {
 			auto theLocation = props.getPropertyString("location");
 			if (!theLocation.empty()) {
-				auto theResouce = props.getPropertyResource("stream_res");
-				theResouce.setFileName(props.getPropertyString("media_title"));
-				theResouce.setLocalFilePath(theLocation);
-				it.setPropertyResource(props.getPropertyString("resourcesfilename"), theResouce);
+				auto theResource = props.getPropertyResource("stream_res");
+				theResource.setFileName(props.getPropertyString("media_title"));
+				theResource.setLocalFilePath(theLocation);
+				it.setPropertyResource(props.getPropertyString("resourcesfilename"), theResource);
 			}
 		} else if (propName == "waffles_tags") {
 			auto tag_class = props.getPropertyString("class");
@@ -391,7 +377,7 @@ void NWQueryHandler::parseModelProperties(ds::model::ContentModelRef&			   it,
 			it.addPropertyToList("tags_" + tag_class, tag_title);
 			auto tag_list = tags.getPropertyList(tag_class);
 			bool found	  = false;
-			for (auto tag_item : tag_list) {
+			for (const auto& tag_item : tag_list) {
 				auto id = tag_item.getString();
 				if (id == tag_title) {
 					found = true;
@@ -406,16 +392,16 @@ void NWQueryHandler::parseModelProperties(ds::model::ContentModelRef&			   it,
 	it.clearChildren();
 }
 
-ds::Resource NWQueryHandler::processResource(ds::Resource input) {
+Resource NWQueryHandler::processResource(const Resource& input) const {
 	auto output = input;
-	if (input.getType() == ds::Resource::WEB_TYPE && input.getFileName().find("/youtube/") != std::string::npos) {
+	if (input.getType() == Resource::WEB_TYPE && input.getFileName().find("/youtube/") != std::string::npos) {
 
 		std::string theFilename = input.getFileName();
 		auto		yt_loc		= theFilename.find("/youtube/");
 		theFilename				= theFilename.substr(yt_loc + 9);
 		output.setFileName(theFilename);
-		output.setType(ds::Resource::YOUTUBE_TYPE);
-	} else if (input.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+		output.setType(Resource::YOUTUBE_TYPE);
+	} else if (input.getType() == Resource::VIDEO_STREAM_TYPE) {
 
 		auto allPlatforms = mEngine.mContent.getChildByName("cms_platforms");
 		if (allPlatforms.hasChildren()) {
@@ -426,7 +412,7 @@ ds::Resource NWQueryHandler::processResource(ds::Resource input) {
 			return result;
 		}
 
-		return ds::Resource();
+		return {};
 	}
 
 	return output;

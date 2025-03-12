@@ -9,8 +9,8 @@ const PlatformType Platform::UNDEFINED = "undefined";
 
 ContentModelRef Platform::getRecordByUid(const ContentModelRef& model, const std::string& uid) {
 	const auto& children = model.getChildren();
-	const auto	findy	 = std::find_if(children.begin(), children.end(),
-										[&uid](auto model) { return model.getPropertyString("uid") == uid; });
+
+	const auto findy = std::find_if(children.begin(), children.end(), [&uid](const auto& model) { return model.getPropertyString("uid") == uid; });
 	if (findy != children.end()) {
 		return *findy;
 	}

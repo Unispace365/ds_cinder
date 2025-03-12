@@ -10,7 +10,7 @@
 
 namespace ds {
 
-ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
+ContentWrangler::ContentWrangler(ui::SpriteEngine& se)
   : mEngine(se)
   , mContentQuery(se, [] { return new ContentQuery(); })
   , mNodeWatcher(se, "localhost", 7777, false)
@@ -19,29 +19,26 @@ ContentWrangler::ContentWrangler(ds::ui::SpriteEngine& se)
 	mEngine.mContent.setName("root");
 	mEngine.mContent.setLabel("The root of all content");
 
-	ds::event::Registry::get().addEventCreator(DsNodeMessageReceivedEvent::NAME(),
-											   []() -> ds::Event* { return new DsNodeMessageReceivedEvent(); });
-	ds::event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(),
-											   []() -> ds::Event* { return new ContentUpdatedEvent(); });
-	ds::event::Registry::get().addEventCreator(RequestContentQueryEvent::NAME(),
-											   []() -> ds::Event* { return new RequestContentQueryEvent(); });
+	event::Registry::get().addEventCreator(DsNodeMessageReceivedEvent::NAME(), []() -> Event* { return new DsNodeMessageReceivedEvent(); });
+	event::Registry::get().addEventCreator(ContentUpdatedEvent::NAME(), []() -> Event* { return new ContentUpdatedEvent(); });
+	event::Registry::get().addEventCreator(RequestContentQueryEvent::NAME(), []() -> Event* { return new RequestContentQueryEvent(); });
 	mEventClient.listenToEvents<RequestContentQueryEvent>([this](const RequestContentQueryEvent& e) { runQuery(); });
 
-	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m) {
+	mNodeWatcher.setDelayedMessageNodeCallback([this](const NodeWatcher::Message& m) {
 		// mContentQuery.start(nullptr);
 		runQuery();
 
-		for (auto it : m.mData) {
+		for (const auto& it : m.mData) {
 			DsNodeMessageReceivedEvent dnmre;
 			dnmre.mUserStringData = it;
 			mEngine.getNotifier().notify(dnmre);
 		}
 	});
 
-	mContentQuery.setReplyHandler([this](ContentQuery& q) { recieveQuery(q); });
+	mContentQuery.setReplyHandler([this](ContentQuery& q) { receiveQuery(q); });
 }
 
-void ContentWrangler::recieveQuery(ContentQuery& q) {
+void ContentWrangler::receiveQuery(ContentQuery& q) const {
 	if (q.mData.empty()) {
 		DS_LOG_WARNING("ContentWrangler: runQuery() completed with no data.");
 		return;
@@ -49,18 +46,18 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() complete");
 
 	if (auto match = mEngine.mContent.getChildByName(q.mData.getName())) {
-		using ModelVec	   = std::vector<ds::model::ContentModelRef>;
+		using ModelVec	   = std::vector<model::ContentModelRef>;
 		ModelVec newTables = q.mData.getChildren();
 
 		if (mEngine.mContent.getChildByName("sqlite").getPropertyBool("merge_content")) {
 			// Merge new tables with the existing data tables
 			ModelVec existingTables = match.getChildren();
 			ModelVec mergedList;
-			for (auto tit : existingTables) {
+			for (const auto& tit : existingTables) {
 
 				bool foundNewTable = false;
 				// look for updates to this table, and if there are, remove them from the new list
-				for (auto nit = newTables.begin(); nit < newTables.end(); nit++) {
+				for (auto nit = newTables.begin(); nit < newTables.end(); ++nit) {
 					if ((*nit).getName() == tit.getName()) {
 						mergedList.emplace_back((*nit));
 						foundNewTable = true;
@@ -77,7 +74,7 @@ void ContentWrangler::recieveQuery(ContentQuery& q) {
 			}
 
 			/// Add any new tables that weren't already in the existing list
-			for (auto nit : newTables) {
+			for (const auto& nit : newTables) {
 				mergedList.emplace_back(nit);
 			}
 
@@ -106,12 +103,10 @@ void ContentWrangler::initialize() {
 
 	if (mEngine.getEngineSettings().getBool("content:node_watch")) {
 		mNodeWatcher.startWatching();
-		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation
-																		 << " and using node watcher");
+		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation << " and using node watcher");
 	} else {
 		mNodeWatcher.stopWatching();
-		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation
-																		 << " and NOT using node watcher");
+		DS_LOG_VERBOSE(1, "ContentWrangler::initialize() modelLocation=" << mModelModelLocation << " and NOT using node watcher");
 	}
 
 	runQuery();
@@ -130,12 +125,11 @@ void ContentWrangler::runQuery() {
 
 	DS_LOG_VERBOSE(3, "ContentWrangler: runQuery() starting");
 
-	auto allModels = ds::split(mModelModelLocation, ";", true);
-	for (auto it : allModels) {
-		auto thisModel = it;
-		mContentQuery.start([thisModel](ds::ContentQuery& dq) {
-			const ds::Resource::Id cms(ds::Resource::Id::CMS_TYPE, 0);
-			dq.mXmlDataModel	 = thisModel;
+	auto allModels = split(mModelModelLocation, ";", true);
+	for (const auto& it : allModels) {
+		mContentQuery.start([it](ContentQuery& dq) {
+			const Resource::Id cms(Resource::Id::CMS_TYPE, 0);
+			dq.mXmlDataModel	 = it;
 			dq.mCmsDatabase		 = cms.getDatabasePath();
 			dq.mResourceLocation = cms.getResourcePath();
 		});

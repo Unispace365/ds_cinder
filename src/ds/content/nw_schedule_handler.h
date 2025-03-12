@@ -11,18 +11,18 @@ namespace ds::model {
  * \class schneider::NWScheduleHandler
  * \brief Check the event schedule and let the rest of the app know when there's a change to the current event
  */
-class NWScheduleHandler : public ds::AutoUpdate {
+class NWScheduleHandler : public AutoUpdate {
   public:
-	NWScheduleHandler(ds::ui::SpriteEngine& eng);
+	NWScheduleHandler(ui::SpriteEngine& eng);
 
-	virtual void update(const ds::UpdateParams&);
+	void update(const UpdateParams&) override;
 
   protected:
 	virtual void checkSchedule();
-	virtual bool eventIsNow(ds::model::ContentModelRef& theEvent, Poco::DateTime& ldt);
+	virtual bool eventIsNow(ContentModelRef& theEvent, Poco::DateTime& ldt);
 
-	ds::ui::SpriteEngine& mEngine;
-	ds::EventClient		  mEventClient;
+	ui::SpriteEngine& mEngine;
+	EventClient		  mEventClient;
 };
 
 } // namespace ds::model

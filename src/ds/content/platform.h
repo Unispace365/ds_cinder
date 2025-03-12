@@ -2,10 +2,8 @@
 #ifndef DS_CONTENT_PLATFORM
 #define DS_CONTENT_PLATFORM
 
-#include "content_model.h"
-
 #include <ds/app/event_client.h>
-#include <ds/ui/sprite/sprite_engine.h>
+#include <ds/content/content_model.h>
 
 namespace ds::model {
 
