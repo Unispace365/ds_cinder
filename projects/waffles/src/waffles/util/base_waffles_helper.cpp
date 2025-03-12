@@ -30,9 +30,9 @@ BaseWafflesHelper::BaseWafflesHelper(ds::ui::SpriteEngine& eng)
 
 	auto mediaCount = mEngine.getAppSettings().countSetting("content:media:key");
 	for (int i = 0; i < mediaCount; ++i) {
-		auto media	   = mEngine.getAppSettings().getString("content:media:key", i);
-		auto mediaProp = mEngine.getAppSettings().getAttribute("content:media:key", i, "property_key", "");
-		auto category  = mEngine.getAppSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
+		auto media					 = mEngine.getAppSettings().getString("content:media:key", i);
+		auto mediaProp				 = mEngine.getAppSettings().getAttribute("content:media:key", i, "property_key", "");
+		auto category				 = mEngine.getAppSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
 		mMediaProps[category][media] = mediaProp;
 		if (mMediaProps[DEFAULTCATEGORY][media].empty()) mMediaProps[DEFAULTCATEGORY][media] = mediaProp;
 		mAcceptableMedia[category].push_back(media);
@@ -63,8 +63,7 @@ bool BaseWafflesHelper::getApplyParticles() {
 	// check if events have playlists
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
-			if (event.getPropertyString("type_key") == "scheduled_content_event" &&
-				!event.getProperty("particle_effect").empty()) {
+			if (event.getPropertyString("type_key") == "scheduled_content_event" && !event.getProperty("particle_effect").empty()) {
 
 				return event.getPropertyBool("particle_effect");
 			}
@@ -119,9 +118,8 @@ ContentModelRef BaseWafflesHelper::getAnnotationFolder() {
 
 	int count = 0;
 	for (const auto& record : mEngine.mContent.getChildByName(ALL_RECORDS).getChildren()) {
-		auto type = record.getPropertyString("type_key");
-		auto valid =
-			std::find(mAnnotationFolderKeys.begin(), mAnnotationFolderKeys.end(), type) != mAnnotationFolderKeys.end();
+		auto type  = record.getPropertyString("type_key");
+		auto valid = std::find(mAnnotationFolderKeys.begin(), mAnnotationFolderKeys.end(), type) != mAnnotationFolderKeys.end();
 		if (valid) {
 			if (!record.empty()) {
 				return record;
@@ -380,13 +378,13 @@ std::string BaseWafflesHelper::getCompositeKeyForPlatform() {
 	return mBaseContentHelper.getCompositeKeyForPlatform();
 }
 
-ContentModelRef BaseWafflesHelper::getRecordByUid(std::string uid) {
+ContentModelRef BaseWafflesHelper::getRecordByUid(const std::string& uid) {
 	return mBaseContentHelper.getRecordByUid(uid);
 }
 ds::Resource BaseWafflesHelper::getBackgroundForPlatform() {
 	// return mBaseContentHelper.getBackgroundForPlatform();
 
-	return ds::Resource(ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg"));
+	return {ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg")};
 }
 int BaseWafflesHelper::getBackgroundPdfPage() {
 	return 0;
@@ -469,47 +467,47 @@ void BaseWafflesHelper::loadIntegration() {
 	mAnnotationFolderKeys.emplace_back("annotation_folder");
 }
 
-std::vector<ContentModelRef> BaseWafflesHelper::getStreamSources(std::string category) {
+std::vector<ContentModelRef> BaseWafflesHelper::getStreamSources(const std::string& category) {
 	return mBaseContentHelper.getStreamSources(category);
 }
 
-ContentModelRef BaseWafflesHelper::getStreamSourceForStream(ContentModelRef stream, std::string category) {
+ContentModelRef BaseWafflesHelper::getStreamSourceForStream(ContentModelRef stream, const std::string& category) {
 	return mBaseContentHelper.getStreamSourceForStream(stream, category);
 }
 
-bool BaseWafflesHelper::isValidStreamSource(ContentModelRef model, std::string category) {
+bool BaseWafflesHelper::isValidStreamSource(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.isValidStreamSource(model, category);
 }
 
-bool BaseWafflesHelper::isValidStream(ContentModelRef model, std::string category) {
+bool BaseWafflesHelper::isValidStream(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.isValidStream(model, category);
 }
 
-std::string BaseWafflesHelper::getStreamMatchKey(ContentModelRef model, std::string category) {
+std::string BaseWafflesHelper::getStreamMatchKey(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.getStreamMatchKey(model, category);
 }
 
-std::string BaseWafflesHelper::getStreamSourceAddressKey(ContentModelRef model, std::string category) {
+std::string BaseWafflesHelper::getStreamSourceAddressKey(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.getStreamSourceAddressKey(model, category);
 }
 
-std::string BaseWafflesHelper::getStreamSourceTypeKey(ContentModelRef model, std::string category) {
+std::string BaseWafflesHelper::getStreamSourceTypeKey(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.getStreamSourceTypeKey(model, category);
 }
 
-bool BaseWafflesHelper::isValidFolder(ContentModelRef model, std::string category) {
+bool BaseWafflesHelper::isValidFolder(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.isValidFolder(model, category);
 }
 
-bool BaseWafflesHelper::isValidMedia(ContentModelRef model, std::string category) {
+bool BaseWafflesHelper::isValidMedia(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.isValidMedia(model, category);
 }
 
-bool BaseWafflesHelper::isValidPlaylist(ContentModelRef model, std::string category) {
+bool BaseWafflesHelper::isValidPlaylist(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.isValidPlaylist(model, category);
 }
 
-std::string BaseWafflesHelper::getMediaPropertyKey(ContentModelRef model, std::string category) {
+std::string BaseWafflesHelper::getMediaPropertyKey(ContentModelRef model, const std::string& category) {
 	return mBaseContentHelper.getMediaPropertyKey(model, category);
 }
 
@@ -534,28 +532,22 @@ bool BaseWafflesHelper::isValidForFilter(std::string filter, ContentModelRef mod
 	if (mLauncherCustomFilters.find(filter) != mLauncherCustomFilters.end()) {
 		return mLauncherCustomFilters[filter](model);
 	} else if (filter == "images") {
-		return isValidMedia(model, WAFFLESCATEGORY) &&
-			   model.getPropertyResource(propertyKey).getType() == ds::Resource::IMAGE_TYPE;
+		return isValidMedia(model, WAFFLESCATEGORY) && model.getPropertyResource(propertyKey).getType() == ds::Resource::IMAGE_TYPE;
 	} else if (filter == "presentations") {
 		return isValidPlaylist(model, PRESENTATIONCATEGORY); // TODO: untested
 	} else if (filter == "videos") {
-		return isValidMedia(model, WAFFLESCATEGORY) &&
-			   (model.getPropertyResource(propertyKey).getType() == ds::Resource::VIDEO_TYPE ||
-				model.getPropertyResource(propertyKey).getType() == ds::Resource::YOUTUBE_TYPE);
+		return isValidMedia(model, WAFFLESCATEGORY) && (model.getPropertyResource(propertyKey).getType() == ds::Resource::VIDEO_TYPE ||
+														model.getPropertyResource(propertyKey).getType() == ds::Resource::YOUTUBE_TYPE);
 	} else if (filter == "streams") {
-		return isValidMedia(model, WAFFLESCATEGORY) &&
-			   model.getPropertyResource(propertyKey).getType() == ds::Resource::VIDEO_STREAM_TYPE;
+		return isValidMedia(model, WAFFLESCATEGORY) && model.getPropertyResource(propertyKey).getType() == ds::Resource::VIDEO_STREAM_TYPE;
 	} else if (filter == "pdfs") {
-		return isValidMedia(model, WAFFLESCATEGORY) &&
-			   model.getPropertyResource(propertyKey).getType() == ds::Resource::PDF_TYPE;
+		return isValidMedia(model, WAFFLESCATEGORY) && model.getPropertyResource(propertyKey).getType() == ds::Resource::PDF_TYPE;
 	} else if (filter == "links") {
-		return isValidMedia(model, WAFFLESCATEGORY) &&
-			   model.getPropertyResource(propertyKey).getType() == ds::Resource::WEB_TYPE;
+		return isValidMedia(model, WAFFLESCATEGORY) && model.getPropertyResource(propertyKey).getType() == ds::Resource::WEB_TYPE;
 	} else if (filter == "folders") {
 		return isValidFolder(model, WAFFLESCATEGORY);
 	} else if (filter == "content") {
-		return isValidMedia(model, WAFFLESCATEGORY) || isValidFolder(model, WAFFLESCATEGORY) ||
-			   isValidPlaylist(model, PRESENTATIONCATEGORY);
+		return isValidMedia(model, WAFFLESCATEGORY) || isValidFolder(model, WAFFLESCATEGORY) || isValidPlaylist(model, PRESENTATIONCATEGORY);
 	}
 	return false;
 }
