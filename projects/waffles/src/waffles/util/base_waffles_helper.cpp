@@ -527,7 +527,7 @@ const BaseWafflesHelper::CustomContent& BaseWafflesHelper::getLauncherCustomCont
 	return mLauncherCustomContent;
 }
 
-bool BaseWafflesHelper::isValidForFilter(std::string filter, ContentModelRef model) {
+bool BaseWafflesHelper::isValidForFilter(const std::string& filter, ContentModelRef model) {
 	auto propertyKey = getMediaPropertyKey(model);
 	if (mLauncherCustomFilters.find(filter) != mLauncherCustomFilters.end()) {
 		return mLauncherCustomFilters[filter](model);

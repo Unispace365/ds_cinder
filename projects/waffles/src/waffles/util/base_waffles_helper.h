@@ -42,7 +42,7 @@ class BaseWafflesHelper : public WafflesHelper {
 	bool				 isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 	bool				 isValidPlaylist(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 	std::string			 getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
-	bool				 isValidForFilter(std::string, ContentModelRef model) override;
+	bool				 isValidForFilter(const std::string& filter, ContentModelRef model) override;
 	void				 setLauncherCustomFilters(CustomFilters cf) override;
 	const CustomFilters& getLauncherCustomFilters() override;
 	void				 setLauncherCustomContent(CustomContent cc) override;
