@@ -48,7 +48,7 @@ class FontList {
   private:
 	class Entry {
 	  public:
-		Entry() {}
+		Entry() = default;
 		Entry(const std::string& filePath, const std::string& fontName, const std::string& shortName)
 		  : mFilePath(filePath)
 		  , mFontName(fontName)

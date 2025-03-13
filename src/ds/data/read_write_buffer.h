@@ -18,7 +18,7 @@ class ReadWriteBuffer {
 
 	void	 reserve(unsigned size);
 	void	 clear();
-	unsigned size();
+	unsigned size() const;
 
 	unsigned getReadPosition() const;
 	void	 setReadPosition(const unsigned& position);

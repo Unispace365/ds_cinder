@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "ds/data/font_list.h"
-
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 

@@ -39,22 +39,22 @@ class Resource {
 		int	 mValue;
 
 		Id();
-		Id(const int value);
-		Id(const char type, const int value);
+		Id(int value);
+		Id(char type, int value);
 
 		bool operator==(const Id&) const;
 		bool operator!=(const Id&) const;
 		bool operator>(const Id&) const;
 		bool operator<(const Id&) const;
 		/// Comparison with a raw value
-		bool operator>(const int value) const;
-		bool operator>=(const int value) const;
-		bool operator<(const int value) const;
-		bool operator<=(const int value) const;
+		bool operator>(int value) const;
+		bool operator>=(int value) const;
+		bool operator<(int value) const;
+		bool operator<=(int value) const;
 
 		bool empty() const;
 		void clear();
-		void swap(Id&);
+		void swap(Id&) noexcept;
 
 		/// Assumes the string is in my string output format (type:value)
 		bool tryParse(const std::string&);
@@ -89,8 +89,8 @@ class Resource {
 		/// custom database types.
 		/// NOTE:  For efficiency, always return a valid string ref, even if it's on an empty string.
 		/// Never return a string newly constructed in the function.
-		static void setupCustomPaths(const std::function<const std::string&(const Resource::Id&)>& resourcePath,
-									 const std::function<const std::string&(const Resource::Id&)>& dbPath);
+		static void setupCustomPaths(const std::function<const std::string&(const Id&)>& resourcePath,
+									 const std::function<const std::string&(const Id&)>& dbPath);
 	};
 
   public:
@@ -109,50 +109,50 @@ class Resource {
   public:
 	/// Mainly for debugging
 	static Resource fromImage(const std::string& full_path);
-	static Resource fromQuery(const Resource::Id&);
+	static Resource fromQuery(const Id&);
 
 	Resource();
-	Resource(const Resource::Id& dbId, const int type);
+	Resource(const Id& dbId, int type);
 
 	/// Sets the absolute filepath, type is auto-detected, no other parameters are filled out
 	Resource(const std::string& localFullPath);
 	/// Sets the absolute filepath, no other parameters are filled out
-	Resource(const std::string& localFullPath, const int type);
+	Resource(const std::string& localFullPath, int type);
 	/// Sets the absolute filepath, type is auto-detected. This is intended for streams
-	Resource(const std::string& localFullPath, const float width, const float height);
+	Resource(const std::string& localFullPath, float width, float height);
 
 	/// In case you have this queried/constructed already
-	Resource(const Resource::Id dbid, const int type, const double duration, const float width, const float height,
-			 const std::string filename, const std::string path, const int thumbnailId, const std::string fullFilePath);
+	Resource(const Id& dbId, int type, double duration, float width, float height, const std::string& filename,
+			 const std::string& path, int thumbnailId, const std::string& fullFilePath);
 
 	bool operator==(const Resource&) const;
 	bool operator!=(const Resource&) const;
 
-	const Resource::Id& getDbId() const { return mDbId; }
-	void				setDbId(const Resource::Id& dbId) { mDbId = dbId; }
+	const Id& getDbId() const { return mDbId; }
+	void	  setDbId(const Id& dbId) { mDbId = dbId; }
 
 	const std::wstring& getTypeName() const;
 	const std::string&	getTypeChar() const;
 	int					getType() const { return mType; }
-	void				setType(const int newType) { mType = newType; }
+	void				setType(int newType) { mType = newType; }
 
 	double getDuration() const { return mDuration; }
-	void   setDuration(const float newDur) { mDuration = newDur; }
+	void   setDuration(float newDur) { mDuration = newDur; }
 
 	float getWidth() const { return mWidth; }
-	void  setWidth(const float newWidth) { mWidth = newWidth; }
+	void  setWidth(float newWidth) { mWidth = newWidth; }
 
 	float getHeight() const { return mHeight; }
-	void  setHeight(const float newHeight) { mHeight = newHeight; }
+	void  setHeight(float newHeight) { mHeight = newHeight; }
 
-	ci::Rectf getCrop() const { return ci::Rectf(mCropX, mCropY, mCropX + mCropW, mCropY + mCropH); }
+	ci::Rectf getCrop() const { return {mCropX, mCropY, mCropX + mCropW, mCropY + mCropH}; }
 	void	  setCrop(const ci::Rectf cropRect) {
-			 mCropX = cropRect.getX1();
-			 mCropY = cropRect.getY1();
-			 mCropW = cropRect.getWidth();
-			 mCropH = cropRect.getHeight();
+		 mCropX = cropRect.getX1();
+		 mCropY = cropRect.getY1();
+		 mCropW = cropRect.getWidth();
+		 mCropH = cropRect.getHeight();
 	}
-	void setCrop(const float cropX, const float cropY, const float cropW, const float cropH) {
+	void setCrop(float cropX, float cropY, float cropW, float cropH) {
 		mCropX = cropX;
 		mCropY = cropY;
 		mCropW = cropW;
@@ -160,15 +160,15 @@ class Resource {
 	}
 
 	int	 getThumbnailId() const { return mThumbnailId; }
-	void setThumbnailId(const int thub) { mThumbnailId = thub; }
+	void setThumbnailId(int thumb) { mThumbnailId = thumb; }
 
 	/// If this resource has a parent (like pages of a PDF), get the ID for the parent
 	int	 getParentId() const { return mParentId; }
-	void setParentId(const int parentId) { mParentId = parentId; }
+	void setParentId(int parentId) { mParentId = parentId; }
 
 	/// The sort order of this resource in it's parent
 	int	 getParentIndex() const { return mParentIndex; }
-	void setParentIndex(const int parentIndx) { mParentIndex = parentIndx; }
+	void setParentIndex(int parentIndex) { mParentIndex = parentIndex; }
 
 	std::vector<Resource>& getChildrenResources() { return mChildrenResources; }
 	void setChildrenResources(const std::vector<Resource>& newChildren) { mChildrenResources = newChildren; }
@@ -183,7 +183,7 @@ class Resource {
 
 	/// Local file path is the path to a file, generally not tracked by a database. This will be used instead of
 	/// resource ID, and FileName and Path won't be used.
-	void setLocalFilePath(const std::string& localPath, const bool normalizeThePath = true);
+	void setLocalFilePath(const std::string& localPath, bool normalizeThePath = true);
 
 	/// Answer an abstract file path that can be resolved to an absolute one via ds::Environment::expand().
 	std::string getPortableFilePath() const;
@@ -196,17 +196,17 @@ class Resource {
 
 	/// If anything has been set
 	bool empty() const;
-	void swap(Resource&);
+	void swap(Resource&) noexcept;
 
 	/// Expects a single-character type (v, i, p, w, f, s)
 	void setTypeFromString(const std::string& typeChar);
 	/// Return the int value for the string type
-	static const int makeTypeFromString(const std::string& typeChar);
+	static int makeTypeFromString(const std::string& typeChar);
 
 	/// Returns the type parsed from the filename, primarily using the file extension.
 	/// Creates an error type if it's a file type (not web type) and the file doesn't exist
 	/// Use the full file path or web URL, not a single character like above
-	static const int parseTypeFromFilename(const std::string& fileName);
+	static int parseTypeFromFilename(const std::string& fileName);
 
 	/// Answers true if ds::Resource was constructed from a local
 	/// file instead of an actual element in db. via fromImage method for example.
@@ -214,15 +214,15 @@ class Resource {
 
 	/// Query the database set as the resources database for my contents. Obviously, this is also an expensive
 	/// operation.
-	bool query(const Resource::Id&);
+	bool query(const Id&);
 
 	/// The argument is the full thumbnail, if you want it.
-	bool query(const Resource::Id&, Resource* outThumb);
+	bool query(const Id&, Resource* outThumb);
 
   private:
 	friend class ResourceList;
 
-	Resource::Id mDbId;
+	Id mDbId;
 
 	/// See the public types above
 	int	   mType;
@@ -270,8 +270,8 @@ struct hashy<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_
 
 template <>
 struct hash<ds::Resource::Id> {
-	typedef size_t result_type;
-	size_t		   operator()(const ds::Resource::Id& id) const {
+	using ResultType = size_t;
+	size_t operator()(const ds::Resource::Id& id) const {
 		return (id.mType & 0xff) + ((static_cast<size_t>(id.mValue) & 0xffffffff) << 8);
 	}
 };

@@ -2,9 +2,9 @@
 #ifndef DS_DATA_RESOURCELIST_H_
 #define DS_DATA_RESOURCELIST_H_
 
-#include "ds/data/resource.h"
-#include <sstream>
 #include <unordered_map>
+
+#include "ds/data/resource.h"
 
 namespace ds {
 

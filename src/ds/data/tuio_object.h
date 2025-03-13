@@ -2,8 +2,6 @@
 #ifndef DS_DATA_TUIOOBJECT_H_
 #define DS_DATA_TUIOOBJECT_H_
 
-#include <cinder/Vector.h>
-
 namespace ds {
 
 /**
@@ -13,22 +11,22 @@ namespace ds {
  */
 class TuioObject {
   public:
-	TuioObject();
-	TuioObject(const int objectId, const cinder::vec2& position, const float angle = 0.0f,
-			   const cinder::vec2& velocity = cinder::vec2(), const float rotationVelocity = 0.0f);
+	TuioObject() = default;
+	TuioObject(int objectId, const cinder::vec2& position, float angle = 0.0f,
+			   const cinder::vec2& velocity = cinder::vec2(), float rotationVelocity = 0.0f);
 
 	int					getObjectId() const;
 	const cinder::vec2& getPosition() const;
-	const float			getAngle() const;
+	float				getAngle() const;
 	const cinder::vec2& getVelocity() const;
-	const float			getRotationVelocity() const;
+	float				getRotationVelocity() const;
 
   private:
-	int			 mObjectId;
+	int			 mObjectId{-1};
 	cinder::vec2 mPosition;
-	float		 mAngle;
+	float		 mAngle{0};
 	cinder::vec2 mVelocity;
-	float		 mRotationVelocity;
+	float		 mRotationVelocity{0};
 };
 
 } // namespace ds

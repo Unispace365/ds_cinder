@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
-#include "data_buffer.h"
 #include <string>
+
+#include "ds/data/data_buffer.h"
 
 namespace ds {
 
@@ -58,7 +59,7 @@ void DataBuffer::add(const wchar_t* cs) {
 }
 
 bool DataBuffer::read(char* b, unsigned size) {
-	unsigned wsize = read<unsigned>();
+	auto wsize = read<unsigned>();
 	if (wsize != size) {
 		add(wsize);
 		return false;
@@ -80,22 +81,22 @@ bool DataBuffer::read(char* b, unsigned size) {
 
 // Template specializations
 template <>
-void DataBuffer::add<std::string>(const std::string& s) {
-	unsigned size = (unsigned)s.size();
+void DataBuffer::add<std::string>(const std::string& t) {
+	auto size = unsigned(t.size());
 	add(size);
-	mStream.write(s.c_str(), size);
+	mStream.write(t.c_str(), size);
 }
 
 template <>
-void DataBuffer::add<std::wstring>(const std::wstring& ws) {
-	unsigned size = (static_cast<unsigned int>(ws.size())) * sizeof(wchar_t);
+void DataBuffer::add<std::wstring>(const std::wstring& t) {
+	unsigned size = static_cast<unsigned int>(t.size()) * sizeof(wchar_t);
 	add(size);
-	mStream.write((const char*)(ws.c_str()), size);
+	mStream.write(reinterpret_cast<const char*>(t.c_str()), size);
 }
 
 template <>
 std::string DataBuffer::read<std::string>() {
-	unsigned size			 = read<unsigned>();
+	auto	 size			 = read<unsigned>();
 	unsigned currentPosition = mStream.getReadPosition();
 
 	mStream.setReadPosition(ReadWriteBuffer::End);
@@ -104,7 +105,7 @@ std::string DataBuffer::read<std::string>() {
 
 	if (size > (length - currentPosition)) {
 		add(size);
-		return std::string();
+		return {};
 	}
 
 	mStringBuffer.setSize(size);
@@ -115,7 +116,7 @@ std::string DataBuffer::read<std::string>() {
 
 template <>
 std::wstring DataBuffer::read<std::wstring>() {
-	unsigned size			 = read<unsigned>();
+	auto	 size			 = read<unsigned>();
 	unsigned currentPosition = mStream.getReadPosition();
 
 	mStream.setReadPosition(ReadWriteBuffer::End);
@@ -124,13 +125,13 @@ std::wstring DataBuffer::read<std::wstring>() {
 
 	if (size > (length - currentPosition)) {
 		add(size);
-		return std::wstring();
+		return {};
 	}
 
 	mWStringBuffer.setSize(size);
 
-	mStream.read((char*)mWStringBuffer.data(), size);
-	return std::wstring((const wchar_t*)mWStringBuffer.data(), size / 2);
+	mStream.read(mWStringBuffer.data(), size);
+	return std::wstring(reinterpret_cast<const wchar_t*>(mWStringBuffer.data()), size / 2);
 }
 
 } // namespace ds

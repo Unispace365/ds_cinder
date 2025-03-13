@@ -1,8 +1,9 @@
 #pragma once
 
-#include "cinder/Color.h"
 #include <string>
 #include <unordered_map>
+
+#include <cinder/Color.h>
 
 namespace ds {
 
@@ -18,11 +19,11 @@ class ColorList {
 	void install(const ci::ColorA& color, const std::string& shortName);
 
 
-	/// Clients give either a shortname and I give them a color
+	/// Clients give either a short name and I give them a color
 	const ci::ColorA& getColorFromName(const std::string&) const;
 	const ci::ColorA& getColorFromName(const std::wstring&) const;
 
-	/// Returns a shortname if it matches the color. Returns an empty string otherwise
+	/// Returns a short name if it matches the color. Returns an empty string otherwise
 	std::string getNameFromColor(const ci::ColorA&) const;
 
   private:

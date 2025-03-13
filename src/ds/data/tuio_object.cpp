@@ -7,12 +7,9 @@ namespace ds {
 /**
  * \class TuioObject
  */
-TuioObject::TuioObject()
-  : mObjectId(-1)
-  , mAngle(0.0f) {}
 
-TuioObject::TuioObject(const int objectId, const cinder::vec2& position, const float angle,
-					   const cinder::vec2& velocity, const float rotationVelocity)
+TuioObject::TuioObject(int objectId, const ci::vec2& position, float angle, const ci::vec2& velocity,
+					   float rotationVelocity)
   : mObjectId(objectId)
   , mPosition(position)
   , mAngle(angle)
@@ -23,19 +20,19 @@ int TuioObject::getObjectId() const {
 	return mObjectId;
 }
 
-const cinder::vec2& TuioObject::getPosition() const {
+const ci::vec2& TuioObject::getPosition() const {
 	return mPosition;
 }
 
-const float TuioObject::getAngle() const {
+float TuioObject::getAngle() const {
 	return mAngle;
 }
 
-const cinder::vec2& TuioObject::getVelocity() const {
+const ci::vec2& TuioObject::getVelocity() const {
 	return mVelocity;
 }
 
-const float TuioObject::getRotationVelocity() const {
+float TuioObject::getRotationVelocity() const {
 	return mRotationVelocity;
 }
 

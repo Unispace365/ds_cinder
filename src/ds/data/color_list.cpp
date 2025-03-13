@@ -38,7 +38,7 @@ const ci::ColorA& ColorList::getColorFromName(const std::wstring& namey) const {
 
 std::string ColorList::getNameFromColor(const ci::ColorA& theColor) const {
 	if (mData.empty()) return "";
-	for (auto it : mData) {
+	for (const auto& it : mData) {
 		if (it.second == theColor) return it.first;
 	}
 

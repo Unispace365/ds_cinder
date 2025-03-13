@@ -10,8 +10,8 @@ namespace {
 
 	template <typename T>
 	T get_value(const std::unique_ptr<std::unordered_map<std::string, T>>& values, const std::string& key,
-				const size_t index) {
-		if (!values.get()) throw std::invalid_argument("Key " + key + " is invalid");
+				size_t index) {
+		if (!values) throw std::invalid_argument("Key " + key + " is invalid");
 		if (values->empty()) throw std::invalid_argument("Key " + key + " is invalid");
 		const auto f = values->find(key);
 		if (f == values->end()) throw std::invalid_argument("Key " + key + " is invalid");
@@ -20,10 +20,9 @@ namespace {
 
 	template <typename T>
 	void set_value(std::unique_ptr<std::unordered_map<std::string, T>>& values, const std::string& key, const T& value,
-				   const size_t index) {
-		if (!values.get()) {
+				   size_t index) {
+		if (!values) {
 			values.reset(new std::unordered_map<std::string, T>());
-			if (!values.get()) throw std::runtime_error("Out of memory (KeyValueStore)");
 		}
 
 		std::unordered_map<std::string, T>* ptr = values.get();
@@ -33,17 +32,14 @@ namespace {
 	template <typename T>
 	void set_equal(const std::unique_ptr<std::unordered_map<std::string, T>>& src,
 				   std::unique_ptr<std::unordered_map<std::string, T>>&		  dst) {
-		if (!src.get()) {
-			dst.release();
+		if (!src) {
+			dst.reset();
 			return;
 		}
-		if (!dst.get()) {
+		if (!dst) {
 			dst.reset(new std::unordered_map<std::string, T>());
-			if (!dst.get()) throw std::runtime_error("Out of memory (KeyValueStore)");
 		}
-		const std::unordered_map<std::string, T>* src_ptr = src.get();
-		std::unordered_map<std::string, T>*		  dst_ptr = dst.get();
-		(*dst)											  = (*src);
+		*dst = *src;
 	}
 
 } // namespace
@@ -51,7 +47,6 @@ namespace {
 /**
  * ds::KeyValueStore
  */
-KeyValueStore::KeyValueStore() {}
 
 KeyValueStore::KeyValueStore(const KeyValueStore& o) {
 	*this = o;
@@ -67,29 +62,29 @@ KeyValueStore& KeyValueStore::operator=(const KeyValueStore& o) {
 	return *this;
 }
 
-ci::ColorA KeyValueStore::getColorA(const std::string& key, const size_t index) const {
+ci::ColorA KeyValueStore::getColorA(const std::string& key, size_t index) const {
 	return get_value<ci::ColorA>(mColorA, key, index);
 }
 
-ci::ColorA KeyValueStore::getColorA(const std::string& key, const size_t index, const ci::ColorA& notFound) const {
+ci::ColorA KeyValueStore::getColorA(const std::string& key, size_t index, const ci::ColorA& notFound) const {
 	try {
 		return getColorA(key, index);
 	} catch (std::exception const&) {}
 	return notFound;
 }
 
-float KeyValueStore::getFloat(const std::string& key, const size_t index) const {
+float KeyValueStore::getFloat(const std::string& key, size_t index) const {
 	return get_value<float>(mFloat, key, index);
 }
 
-float KeyValueStore::getFloat(const std::string& key, const size_t index, const float notFound) const {
+float KeyValueStore::getFloat(const std::string& key, size_t index, const float notFound) const {
 	try {
 		return getFloat(key, index);
 	} catch (std::exception const&) {}
 	return notFound;
 }
 
-std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index) const {
+std::int32_t KeyValueStore::getInt(const std::string& key, size_t index) const {
 	try {
 		return get_value<std::int32_t>(mInt, key, index);
 	} catch (std::exception const&) {
@@ -97,7 +92,7 @@ std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index) c
 	}
 }
 
-std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index, const std::int32_t notFound) const {
+std::int32_t KeyValueStore::getInt(const std::string& key, size_t index, const std::int32_t notFound) const {
 	int32_t out = getInt(key, index);
 	if (out == 0) {
 		out = notFound;
@@ -105,14 +100,14 @@ std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index, c
 	return out;
 }
 
-std::string KeyValueStore::getString(const std::string& key, const size_t index) const {
+std::string KeyValueStore::getString(const std::string& key, size_t index) const {
 	try {
 		return get_value<std::string>(mString, key, index);
 	} catch (std::exception const&) {}
 	return "";
 }
 
-std::string KeyValueStore::getString(const std::string& key, const size_t index, const std::string& notFound) const {
+std::string KeyValueStore::getString(const std::string& key, size_t index, const std::string& notFound) const {
 	std::string found = getString(key, index);
 	if (!found.empty()) {
 		return found;
@@ -121,25 +116,25 @@ std::string KeyValueStore::getString(const std::string& key, const size_t index,
 	}
 }
 
-void KeyValueStore::setColorA(const std::string& key, const ci::ColorA& value, const size_t index) {
+void KeyValueStore::setColorA(const std::string& key, const ci::ColorA& value, size_t index) {
 	try {
 		set_value<ci::ColorA>(mColorA, key, value, index);
 	} catch (std::exception const&) {}
 }
 
-void KeyValueStore::setFloat(const std::string& key, const float value, const size_t index) {
+void KeyValueStore::setFloat(const std::string& key, float value, size_t index) {
 	try {
 		set_value<float>(mFloat, key, value, index);
 	} catch (std::exception const&) {}
 }
 
-void KeyValueStore::setInt(const std::string& key, const std::int32_t value, const size_t index) {
+void KeyValueStore::setInt(const std::string& key, std::int32_t value, size_t index) {
 	try {
 		set_value<std::int32_t>(mInt, key, value, index);
 	} catch (std::exception const&) {}
 }
 
-void KeyValueStore::setString(const std::string& key, const std::string& value, const size_t index) {
+void KeyValueStore::setString(const std::string& key, const std::string& value, size_t index) {
 	try {
 		set_value<std::string>(mString, key, value, index);
 	} catch (std::exception const&) {}

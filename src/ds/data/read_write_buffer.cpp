@@ -1,14 +1,15 @@
 #include "stdafx.h"
 
-#include "ds/math/math_func.h"
-#include "read_write_buffer.h"
 #include <cstring>
+
+#include "ds/data/read_write_buffer.h"
+#include "ds/math/math_func.h"
 
 namespace ds {
 
 ReadWriteBuffer::ReadWriteBuffer(unsigned size /*= 0*/)
-  : mSize(size)
-  , mBuffer(nullptr)
+  : mBuffer(nullptr)
+  , mSize(size)
   , mBufferReadPosition(0)
   , mBufferWritePosition(0)
   , mMaxBufferWritePosition(0) {
@@ -56,7 +57,7 @@ void ReadWriteBuffer::clear() {
 	mMaxBufferWritePosition = 0;
 }
 
-unsigned ReadWriteBuffer::size() {
+unsigned ReadWriteBuffer::size() const {
 	return mSize;
 }
 
