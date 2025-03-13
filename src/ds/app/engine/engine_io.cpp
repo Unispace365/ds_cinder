@@ -1,22 +1,22 @@
 #include "stdafx.h"
 
-#include "ds/app/engine/engine_io.h"
+#include <cinder/Rand.h>
 
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
+#include "ds/app/engine/engine_io.h"
 #include "ds/debug/logger.h"
-#include "ds/util/string_util.h"
-#include "snappy.h"
-#include <cinder/Rand.h>
-
 #include "ds/network/packet_chunker.h"
+#include "ds/util/string_util.h"
+
+#include "snappy.h"
 
 namespace ds {
 
 /**
  * \class EngineSender
  */
-EngineSender::EngineSender(ds::NetConnection& con, const bool useChunker)
+EngineSender::EngineSender(NetConnection& con, const bool useChunker)
   : mConnection(con)
   , mPacketId(0)
   , mUseChunker(useChunker) {}
@@ -49,7 +49,7 @@ EngineSender::AutoSend::~AutoSend() {
 	if (mSender.mUseChunker) {
 
 		mSender.mPacketId++;
-		ds::net::Chunker chunker;
+		net::Chunker chunker;
 		chunker.Chunkify(mSender.mCompressionBuffer, mSender.mPacketId, chunks);
 	} else {
 		chunks.push_back(mSender.mCompressionBuffer);
@@ -65,7 +65,7 @@ EngineSender::AutoSend::~AutoSend() {
 /**
  * \class EngineReceiver
  */
-EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
+EngineReceiver::EngineReceiver(NetConnection& con, const bool useChunker)
   : mConnection(con)
   , mHeaderId(0)
   , mCommandId(0)
@@ -84,7 +84,7 @@ void EngineReceiver::setHeaderAndCommandOnly(const bool b) {
 	mHeaderAndCommandOnly = b;
 }
 
-ds::DataBuffer& EngineReceiver::getData() {
+DataBuffer& EngineReceiver::getData() {
 	return mCurrentDataBuffer;
 }
 
@@ -126,7 +126,7 @@ bool EngineReceiver::receiveBlob(const bool strict) {
 	return true;
 }
 
-bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& reader, bool& morePacketsAvailable) {
+bool EngineReceiver::handleBlob(const BlobRegistry& registry, BlobReader& reader, bool& morePacketsAvailable) {
 	if (mReceiveBuffers.empty()) {
 		++mNoDataCount;
 		morePacketsAvailable = false;
@@ -142,7 +142,7 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 
 	morePacketsAvailable = !mReceiveBuffers.empty();
 
-	const char	 size		 = static_cast<char>(registry.mReader.size());
+	const char size = static_cast<char>(registry.mReader.size());
 	while (mCurrentDataBuffer.canRead<char>()) {
 		const char token = mCurrentDataBuffer.read<char>();
 		if (token > 0 && token < size) {

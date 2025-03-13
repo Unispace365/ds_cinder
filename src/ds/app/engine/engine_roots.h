@@ -2,14 +2,14 @@
 #ifndef DS_APP_ENGINE_ENGINEROOTS_H_
 #define DS_APP_ENGINE_ENGINEROOTS_H_
 
+#include <cinder/Camera.h>
+
 #include "ds/app/app_defs.h"
 #include "ds/cfg/settings.h"
 #include "ds/params/camera_params.h"
 #include "ds/params/draw_params.h"
-#include "ds/params/update_params.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/touch/picking.h"
-#include <cinder/Camera.h>
 
 namespace ds {
 class AutoDrawService;
@@ -21,9 +21,14 @@ class Engine;
  */
 class EngineRoot {
   public:
-	static ds::ui::Sprite* make(ui::SpriteEngine&, const ds::sprite_id_t, const bool perspective);
-	EngineRoot(const RootList::Root&, const sprite_id_t);
-	virtual ~EngineRoot();
+	static ui::Sprite* make(ui::SpriteEngine&, sprite_id_t, bool perspective);
+	EngineRoot(const RootList::Root&, sprite_id_t);
+	virtual ~EngineRoot() = default;
+
+	EngineRoot(const EngineRoot&)			 = delete;
+	EngineRoot(EngineRoot&&)				 = delete;
+	EngineRoot& operator=(const EngineRoot&) = delete;
+	EngineRoot& operator=(EngineRoot&&)		 = delete;
 
 	class Settings {
 	  public:
@@ -43,11 +48,11 @@ class EngineRoot {
 	/// Sprite management. Note that ideally Roots don't require having a sprite. Currently everything
 	/// does, and that was the initial design, but it would be nice to move away from that instead of
 	/// letting it get more entrenched.
-	virtual ds::ui::Sprite* getSprite()		= 0;
-	virtual void			clearChildren() = 0;
-	/// Sprite passthrough
-	virtual void updateClient(const ds::UpdateParams&)			 = 0;
-	virtual void updateServer(const ds::UpdateParams&)			 = 0;
+	virtual ui::Sprite* getSprite()		= 0;
+	virtual void		clearChildren() = 0;
+	/// Sprite pass-through
+	virtual void updateClient(const UpdateParams&)				 = 0;
+	virtual void updateServer(const UpdateParams&)				 = 0;
 	virtual void drawClient(const DrawParams&, AutoDrawService*) = 0;
 	virtual void drawServer(const DrawParams&)					 = 0;
 	/// Camera
@@ -59,10 +64,6 @@ class EngineRoot {
 	/// The builder object for this root. Params only used during initialization.
 	const RootList::Root mRootBuilder;
 	const sprite_id_t	 mSpriteId;
-
-  private:
-	EngineRoot(const EngineRoot&);
-	EngineRoot& operator=(const EngineRoot&);
 };
 
 /**
@@ -71,20 +72,25 @@ class EngineRoot {
  */
 class OrthRoot : public EngineRoot {
   public:
-	OrthRoot(Engine&, const RootList::Root&, const sprite_id_t);
+	OrthRoot(Engine&, const RootList::Root&, sprite_id_t);
 
-	virtual void			setup(const Settings&);
-	virtual void			postAppSetup();
-	virtual void			slaveTo(EngineRoot*);
-	virtual ds::ui::Sprite* getSprite();
-	virtual void			clearChildren();
-	virtual void			updateClient(const ds::UpdateParams&);
-	virtual void			updateServer(const ds::UpdateParams&);
-	virtual void			drawClient(const DrawParams&, AutoDrawService*);
-	virtual void			drawServer(const DrawParams&);
-	virtual void			setCinderCamera();
-	virtual void			markCameraDirty();
-	virtual ui::Sprite*		getHit(const ci::vec3& point);
+	OrthRoot(const OrthRoot&)			 = delete;
+	OrthRoot(OrthRoot&&)				 = delete;
+	OrthRoot& operator=(const OrthRoot&) = delete;
+	OrthRoot& operator=(OrthRoot&&)		 = delete;
+
+	void		setup(const Settings&) override;
+	void		postAppSetup() override;
+	void		slaveTo(EngineRoot*) override;
+	ui::Sprite* getSprite() override;
+	void		clearChildren() override;
+	void		updateClient(const UpdateParams&) override;
+	void		updateServer(const UpdateParams&) override;
+	void		drawClient(const DrawParams&, AutoDrawService*) override;
+	void		drawServer(const DrawParams&) override;
+	void		setCinderCamera() override;
+	void		markCameraDirty() override;
+	ui::Sprite* getHit(const ci::vec3& point) override;
 
 	float getNearPlane() const { return mNearPlane; };
 	float getFarPlane() const { return mFarPlane; };
@@ -96,9 +102,6 @@ class OrthRoot : public EngineRoot {
   private:
 	void setGlCamera();
 
-	typedef EngineRoot inherited;
-	OrthRoot(const OrthRoot&);
-	OrthRoot&					operator=(const OrthRoot&);
 	Engine&						mEngine;
 	ci::CameraOrtho				mCamera;
 	bool						mCameraDirty;
@@ -119,16 +122,21 @@ class PerspRoot : public EngineRoot {
   public:
 	PerspRoot(Engine&, const RootList::Root&, const sprite_id_t, const PerspCameraParams&);
 
-	virtual void			setup(const Settings&);
-	virtual void			postAppSetup();
-	virtual void			slaveTo(EngineRoot*);
-	virtual ds::ui::Sprite* getSprite();
-	virtual void			clearChildren();
-	virtual void			updateClient(const ds::UpdateParams&);
-	virtual void			updateServer(const ds::UpdateParams&);
-	virtual void			drawClient(const DrawParams&, AutoDrawService*);
-	virtual void			drawServer(const DrawParams&);
-	virtual ui::Sprite*		getHit(const ci::vec3& point);
+	PerspRoot(const PerspRoot&)			   = delete;
+	PerspRoot(PerspRoot&&)				   = delete;
+	PerspRoot& operator=(const PerspRoot&) = delete;
+	PerspRoot& operator=(PerspRoot&&)	   = delete;
+
+	void		setup(const Settings&) override;
+	void		postAppSetup() override;
+	void		slaveTo(EngineRoot*) override;
+	ui::Sprite* getSprite() override;
+	void		clearChildren() override;
+	void		updateClient(const UpdateParams&) override;
+	void		updateServer(const UpdateParams&) override;
+	void		drawClient(const DrawParams&, AutoDrawService*) override;
+	void		drawServer(const DrawParams&) override;
+	ui::Sprite* getHit(const ci::vec3& point) override;
 
 	/// Camera
 	PerspCameraParams getCamera() const;
@@ -137,12 +145,12 @@ class PerspRoot : public EngineRoot {
 	const ci::CameraPersp& getCameraRef() const;
 	void				   setCameraRef(const ci::CameraPersp&);
 
-	virtual void markCameraDirty();
+	void markCameraDirty() override;
 
-	virtual void setCinderCamera();
+	void setCinderCamera() override;
 
 	// Moved from private to here in order to update camera parameters on the fly at draw time.
-	void setGlCamera();
+	void setGlCamera() const;
 
 
   protected:
@@ -150,10 +158,6 @@ class PerspRoot : public EngineRoot {
 
   private:
 	void drawFunc(const std::function<void(void)>& fn);
-
-	typedef EngineRoot inherited;
-	PerspRoot(const PerspRoot&);
-	PerspRoot& operator=(const PerspRoot&);
 
 	Engine&						mEngine;
 	ci::CameraPersp				mCamera;

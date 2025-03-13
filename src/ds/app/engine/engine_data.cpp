@@ -2,14 +2,12 @@
 
 #include "ds/app/engine/engine_data.h"
 
-#include "ds/app/engine/engine_service.h"
-
 namespace ds {
 
 /**
  * \class EngineData
  */
-EngineData::EngineData(ds::cfg::Settings& engine_settings)
+EngineData::EngineData(cfg::Settings& engine_settings)
   : mEngineCfg(engine_settings)
   , mMinTouchDistance(10.0f)
   , mMinTapDistance(30.0f)

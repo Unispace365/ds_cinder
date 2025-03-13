@@ -1,34 +1,31 @@
-#include "sprite_engine.h"
-#include "sprite_engine.h"
 #include "stdafx.h"
-
-#include <cinder/app/App.h>
 
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_events.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/computer_info.h"
-#include "ds/debug/debug_defines.h"
 #include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
+#include <utility>
+
 namespace ds::ui {
 
-SpriteEngine::SpriteEngine(ds::EngineData& ed, const int appMode)
+SpriteEngine::SpriteEngine(EngineData& ed, int appMode)
   : mData(ed)
   , mRegisteredEntryField(nullptr)
   , mAppMode(appMode)
   , mRestartAfterUpdate(false)
   , mCallbackId(0) {
-	mComputerInfo = new ds::ComputerInfo();
+	mComputerInfo = new ComputerInfo();
 }
 
 SpriteEngine::~SpriteEngine() {
 	mData.clearServices();
 }
 
-ds::EventNotifier& SpriteEngine::getNotifier() {
+EventNotifier& SpriteEngine::getNotifier() const {
 	return mData.mNotifier;
 }
 
@@ -36,39 +33,39 @@ void SpriteEngine::loadSettings(const std::string& name, const std::string& file
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
-ds::EngineCfg& SpriteEngine::getEngineCfg() {
+EngineCfg& SpriteEngine::getEngineCfg() {
 	return mData.mEngineCfg;
 }
 
-const ds::EngineCfg& SpriteEngine::getEngineCfg() const {
+const EngineCfg& SpriteEngine::getEngineCfg() const {
 	return mData.mEngineCfg;
 }
 
-const ds::ui::TextStyle& SpriteEngine::getTextStyle(const std::string& textName) const {
+const TextStyle& SpriteEngine::getTextStyle(const std::string& textName) const {
 	return mData.mEngineCfg.getTextStyle(textName);
 }
 
-ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
+cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
 }
 
-ds::cfg::Settings& SpriteEngine::getEngineSettings() const {
+cfg::Settings& SpriteEngine::getEngineSettings() const {
 	return mData.mEngineCfg.getSettings("engine");
 }
 
-ds::cfg::Settings& SpriteEngine::getAppSettings() const {
+cfg::Settings& SpriteEngine::getAppSettings() const {
 	return mData.mEngineCfg.getSettings("app_settings");
 }
 
-ds::cfg::Settings& SpriteEngine::getWafflesSettings() const {
+cfg::Settings& SpriteEngine::getWafflesSettings() const {
 	return mData.mEngineCfg.getSettings("waffles");
 }
 
-ds::cfg::Settings& SpriteEngine::getColorSettings() const {
+cfg::Settings& SpriteEngine::getColorSettings() const {
 	return mData.mEngineCfg.getSettings("styles");
 }
 
-ds::cfg::Settings& SpriteEngine::getWflColorSettings() const {
+cfg::Settings& SpriteEngine::getWflColorSettings() const {
 	return mData.mEngineCfg.getSettings("waffles_styles");
 }
 
@@ -128,16 +125,15 @@ void SpriteEngine::addToDragDestinationList(Sprite* sprite) {
 	mDragDestinationSprites.push_back(sprite);
 }
 
-void SpriteEngine::removeFromDragDestinationList(Sprite* sprite) {
+void SpriteEngine::removeFromDragDestinationList(const Sprite* sprite) {
 	if (!sprite) return;
 
 	auto found = std::find(mDragDestinationSprites.begin(), mDragDestinationSprites.end(), sprite);
 	if (found != mDragDestinationSprites.end()) mDragDestinationSprites.erase(found);
 }
 
-Sprite* SpriteEngine::getDragDestinationSprite(const ci::vec3& globalPoint, Sprite* draggingSprite) {
-	for (auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
-		Sprite* sprite = *it;
+Sprite* SpriteEngine::getDragDestinationSprite(const ci::vec3& globalPoint, const Sprite* draggingSprite) const {
+	for (auto sprite : mDragDestinationSprites) {
 		if (sprite == draggingSprite) continue;
 		if (sprite->contains(globalPoint)) return sprite;
 	}
@@ -149,12 +145,12 @@ float SpriteEngine::getFrameRate() const {
 	return mData.mFrameRate;
 }
 
-void SpriteEngine::setLayoutTarget(std::string target, int index) {
+void SpriteEngine::setLayoutTarget(std::string target, int index) const {
 	auto& setting	  = getEngineSettings().getSetting("xml_importer:target", index);
-	setting.mRawValue = target;
+	setting.mRawValue = std::move(target);
 }
 
-bool SpriteEngine::hasLayoutTarget(std::string target) {
+bool SpriteEngine::hasLayoutTarget(const std::string &target) const {
 	if (target.empty()) return false;
 	std::regex regex{"(\\s*,\\s*)"};
 
@@ -176,12 +172,12 @@ bool SpriteEngine::hasLayoutTarget(std::string target) {
 				++set_itr;
 			}
 		}
-		target_itr++;
+		++target_itr;
 	}
 	return false;
 }
 
-std::string SpriteEngine::getLayoutTarget(int index) {
+std::string SpriteEngine::getLayoutTarget(int index) const {
 	return getEngineSettings().getString("xml_importer:target", index);
 }
 
@@ -190,7 +186,7 @@ const std::string& SpriteEngine::getCmsURL() const {
 	return mData.mCmsURL;
 }
 
-double SpriteEngine::getElapsedTimeSeconds() const {
+double SpriteEngine::getElapsedTimeSeconds() {
 	return ci::app::getElapsedSeconds();
 }
 
@@ -198,28 +194,29 @@ int SpriteEngine::getIdleTimeout() const {
 	return mData.mIdleTimeout;
 }
 
-void SpriteEngine::setIdleTimeout(int idleTimeout) {
+void SpriteEngine::setIdleTimeout(int idleTimeout) const {
 	mData.mIdleTimeout = idleTimeout;
 }
 
 void SpriteEngine::clearFingers(const std::vector<int>& fingers) {}
 
 
-ds::ComputerInfo& SpriteEngine::getComputerInfo() {
+ComputerInfo& SpriteEngine::getComputerInfo() const {
+	assert(mComputerInfo);
 	return *mComputerInfo;
 }
 
 
-bool SpriteEngine::getMute() {
+bool SpriteEngine::getMute() const {
 	return mData.mMute;
 }
 
 
-void SpriteEngine::setMute(bool mute) {
+void SpriteEngine::setMute(bool mute) const {
 	mData.mMute = mute;
 }
 
-const std::string SpriteEngine::getAppInstanceName() {
+const std::string& SpriteEngine::getAppInstanceName() const {
 	return mData.mAppInstanceName;
 }
 
@@ -227,8 +224,8 @@ bool SpriteEngine::hasService(const std::string& key) const {
 	return mData.mServices.find(key) != mData.mServices.cend();
 }
 
-ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
-	ds::EngineService* s = mData.mServices[str];
+EngineService& SpriteEngine::privateGetService(const std::string& str) const {
+	EngineService* s = mData.mServices[str];
 	if (!s) {
 		const std::string msg = "Service (" + str + ") does not exist";
 		DS_LOG_FATAL(msg);
@@ -236,8 +233,7 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	return *s;
 }
 
-void SpriteEngine::registerSpriteImporter(const std::string&									spriteType,
-										  std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func) {
+void SpriteEngine::registerSpriteImporter(const std::string& spriteType, std::function<Sprite*(SpriteEngine&)> func) {
 	auto finder = mImporterMap.find(spriteType);
 	if (finder != mImporterMap.end()) {
 		DS_LOG_WARNING("Duplicate sprite importer being added for sprite type: " << spriteType);
@@ -246,7 +242,7 @@ void SpriteEngine::registerSpriteImporter(const std::string&									spriteType,
 	mImporterMap[spriteType] = func;
 }
 
-ds::ui::Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType) {
+Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType) {
 	auto finder = mImporterMap.find(spriteType);
 	if (finder == mImporterMap.end()) {
 		// Not really an error, since the sprite could be created in another manner
@@ -258,18 +254,18 @@ ds::ui::Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType
 }
 
 void SpriteEngine::registerSpritePropertySetter(
-	const std::string& propertyName,
-	std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func) {
+	const std::string&																					 propertyName,
+	std::function<void(Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func) {
 	auto finder = mPropertyMap.find(propertyName);
 	if (finder != mPropertyMap.end()) {
 		DS_LOG_WARNING("Duplicate sprite property setters registered for property name: " << propertyName);
 	}
 
-	mPropertyMap[propertyName] = func;
+	mPropertyMap[propertyName] = std::move(func);
 }
 
 
-bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite,
+bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, Sprite& theSprite,
 											   const std::string& theValue, const std::string& fileRefferer) {
 	auto finder = mPropertyMap.find(propertyName);
 	if (finder == mPropertyMap.end()) {
@@ -282,16 +278,16 @@ bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, 
 
 void SpriteEngine::registerEntryField(IEntryField* entryField) {
 	mRegisteredEntryField = entryField;
-	getNotifier().notify(ds::app::EntryFieldRegisteredEvent());
+	getNotifier().notify(app::EntryFieldRegisteredEvent());
 }
 
-ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField() {
+IEntryField* SpriteEngine::getRegisteredEntryField() const {
 	return mRegisteredEntryField;
 }
 
 
-size_t SpriteEngine::timedCallback(std::function<void()> func, const double timerSeconds) {
-	auto theCallback = new ds::time::Callback(*this);
+size_t SpriteEngine::timedCallback(const std::function<void()>& func, double timerSeconds) {
+	auto theCallback = new time::Callback(*this);
 	if (!theCallback) {
 		DS_LOG_WARNING("Couldn't create a timed callback! That's a big deal!");
 		return 0;
@@ -299,7 +295,7 @@ size_t SpriteEngine::timedCallback(std::function<void()> func, const double time
 	mTimedCallbacks.emplace_back(theCallback);
 	auto wrappedCallback = [this, func, theCallback] {
 		func();
-		for (auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+		for (auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); ++it) {
 			if ((*it) == theCallback) {
 				mTimedCallbacks.erase(it);
 				break;
@@ -312,18 +308,18 @@ size_t SpriteEngine::timedCallback(std::function<void()> func, const double time
 	return theCallback->getId();
 }
 
-size_t SpriteEngine::repeatedCallback(std::function<void()> func, const double timerSeconds) {
-	auto theCallback = new ds::time::Callback(*this);
+size_t SpriteEngine::repeatedCallback(std::function<void()> func, double timerSeconds) {
+	auto theCallback = new time::Callback(*this);
 	if (!theCallback) {
 		DS_LOG_WARNING("Couldn't create a repeated callback! That's a big deal!");
 		return 0;
 	}
 	mTimedCallbacks.emplace_back(theCallback);
-	return theCallback->repeatedCallback(func, timerSeconds);
+	return theCallback->repeatedCallback(std::move(func), timerSeconds);
 }
 
 void SpriteEngine::cancelTimedCallback(size_t callbackId) {
-	for (auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); it++) {
+	for (auto it = mTimedCallbacks.begin(); it < mTimedCallbacks.end(); ++it) {
 		if ((*it)->getId() == callbackId) {
 			(*it)->cancel();
 			mTimedCallbacks.erase(it);
@@ -342,21 +338,19 @@ bool SpriteEngine::getRestartAfterNextUpdate() {
 	return doRestart;
 }
 
-std::function<void(ds::ui::VideoPlayer*)> SpriteEngine::getGlobalVideoPlayerCreatedCallback()
-{
+std::function<void(VideoPlayer*)> SpriteEngine::getGlobalVideoPlayerCreatedCallback() {
 	return mGlobalVideoPlayerCreatedCallback;
 }
 
-void SpriteEngine::setGlobalVideoPlayerCreatedCallback(std::function<void(ds::ui::VideoPlayer*)> func)
-{
-	mGlobalVideoPlayerCreatedCallback = func;
+void SpriteEngine::setGlobalVideoPlayerCreatedCallback(std::function<void(VideoPlayer*)> func) {
+	mGlobalVideoPlayerCreatedCallback = std::move(func);
 }
 
-const float SpriteEngine::getAnimDur() const {
+float SpriteEngine::getAnimDur() const {
 	return mData.mAnimDur;
 }
 
-void SpriteEngine::setAnimDur(const float newAnimDur) {
+void SpriteEngine::setAnimDur(float newAnimDur) const {
 	mData.mAnimDur = newAnimDur;
 }
 

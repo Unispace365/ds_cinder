@@ -5,8 +5,6 @@
 
 #include <cinder/Camera.h>
 #include <cinder/app/App.h>
-#include <cinder/app/TouchEvent.h>
-#include <cinder/gl/Fbo.h>
 
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
@@ -15,7 +13,6 @@
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/app/event_client.h"
 #include "ds/app/event_notifier.h"
-#include "ds/app/image_registry.h"
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -28,8 +25,6 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
-
-#include "ds/app/camera_utils.h"
 #include "ds/ui/tween/tweenline.h"
 
 namespace cinder::tuio {
@@ -55,7 +50,7 @@ class Text;
 
 
 namespace ds {
-extern const ds::BitMask ENGINE_LOG;
+extern const BitMask ENGINE_LOG;
 /**
  * \class Engine
  * \brief Concrete implementation of the SpriteEngine. Contain all the
@@ -68,67 +63,68 @@ class Engine : public ui::SpriteEngine {
 	static const int CAMERA_ORTHO = 0;
 	static const int CAMERA_PERSP = 1;
 
-	~Engine();
+	~Engine() override;
 
 	virtual void update() = 0;
 	virtual void draw()	  = 0;
 
-	virtual void notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso = false) override;
-	virtual void notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso=false) override;
-	virtual ds::EventNotifier&		  getChannel(const std::string&) override;
-	void							  addChannel(const std::string& name, const std::string& description);
-	virtual ds::AutoUpdateList&		  getAutoUpdateList(const int = AutoUpdateType::SERVER) override;
-	virtual ds::ui::PangoFontService& getPangoFontService() override { return mPangoFontService; }
-	virtual ds::ui::LoadImageService& getLoadImageService() override { return *mLoadImageService; }
-	virtual ds::ui::Tweenline&		  getTweenline() override { return mTweenline; }
+	void			notifyOnChannel(const Event& event, const std::string& channel, bool defaultAlso = false) override;
+	void			notifyOnChannels(const Event& event, std::initializer_list<std::string> channels,
+									 bool defaultAlso = false) override;
+	EventNotifier&	getChannel(const std::string&) override;
+	void			addChannel(const std::string& name, const std::string& description);
+	AutoUpdateList& getAutoUpdateList(int = AutoUpdateType::SERVER) override;
+	ui::PangoFontService& getPangoFontService() override { return mPangoFontService; }
+	ui::LoadImageService& getLoadImageService() override { return *mLoadImageService; }
+	ui::Tweenline&		  getTweenline() override { return mTweenline; }
 
 	/// I take ownership of any services added to me.
-	void addService(const std::string&, ds::EngineService&);
+	void addService(const std::string&, EngineService&) const;
 
 	/// Convenience to load a setting file into the mEngineCfg settings.
 	/// \param name is the name that the system will use to refer to the settings.
 	/// \param filename is the leaf path of the settings file (i.e. "data.xml").
 	/// It will be loaded from all appropriate locations.
-	void loadSettings(const std::string& name, const std::string& filename);
+	void loadSettings(const std::string& name, const std::string& filename) override;
 
 	/// \param name is the name that the system will use to refer to the settings.
 	/// \param filename is the leaf path of the settings file (i.e. "data.xml").
 	/// It will be saved ONLY in the user settings location.
-	void saveSettings(const std::string& name, const std::string& filename);
+	void saveSettings(const std::string& name, const std::string& filename) const;
 
 	/// Convenience to append a setting file into the existing mEngineCfg settings.
 	/// \param name is the name that the system will use to refer to the settings.
 	/// \param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
 	/// It will NOT be loaded from all appropriate locations.
-	void appendSettings(const std::string& name, const std::string& filename);
+	void appendSettings(const std::string& name, const std::string& filename) const;
 
 	/// Convenience to load a text cfg file into a collection of cfg objects.
 	/// \param filename is the leaf path of the settings file (i.e. "text.xml").
 	/// It will be loaded from all appropriate locations.
 	void loadTextCfg(const std::string& filename);
 
-	const ds::EngineData& getEngineData() const { return mData; }
+	const EngineData& getEngineData() const { return mData; }
 	/// only valid after setup() is called
 	size_t		getRootCount() const;
-	ui::Sprite& getRootSprite(const size_t index = 0);
+	ui::Sprite& getRootSprite(size_t index = 0) const;
 	/// Returns nullptr if the root sprite doesn't exist
-	ui::Sprite* getRootSpritePtr(const size_t index = 0);
+	ui::Sprite* getRootSpritePtr(size_t index = 0) const;
 	/// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing,
 	/// perspective, etc
-	const RootList::Root& getRootBuilder(const size_t index = 0);
+	const RootList::Root& getRootBuilder(size_t index = 0) const;
 
-	void prepareSettings(ci::app::AppBase::Settings&);
+	void prepareSettings(ci::app::AppBase::Settings&) const;
 	void reloadSettings();
 	void toggleSettingsEditor(const std::string& name = "");
 	void showSettingsEditor(const std::string& name = "");
 	void hideSettingsEditor();
-	bool isShowingSettingsEditor();
+	bool isShowingSettingsEditor() const;
 
 	/// Called in app setup; loads settings files and what not.
-	virtual void setup(ds::App&);
-	void		 setupTouch(ds::App&);
-	void		 startTuio(ds::App&);
-	void		 stopTuio();
+	virtual void setup(App&);
+	void		 setupTouch(App&);
+	void		 startTuio(App&);
+	void		 stopTuio() const;
 
 	/// Returns whether idle events and checks are enabled.
 	bool isIdlingEnabled() const override { return mIdlingEnabled; }
@@ -137,35 +133,35 @@ class Engine : public ui::SpriteEngine {
 	void enableIdling(bool enable) override { mIdlingEnabled = enable; }
 
 	/// It's been enough time since the last input and is in idle mode
-	virtual bool isIdling() override;
+	bool isIdling() override;
 
 	/// Checks if it's been enough time since the last input to go into idle. Will take effect if it's been enough time
 	void checkIdle();
 
 	/// Starts idle mode right away, regardless of time
-	virtual void startIdling() override;
+	void startIdling() override;
 
 	/// Ends idle mode, regardless of input and starts the timeout again
 	virtual void stopIdling() { resetIdleTimeout(); }
 
 	/// Identical to stopIdling(), retained for backwards compatibility
-	virtual void resetIdleTimeout() override;
+	void resetIdleTimeout() override;
 
 	/// Called during app construction, to register the sprites as blob handlers.
-	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-							   const std::function<void(ds::BlobRegistry&)>& asClient) = 0;
+	virtual void installSprite(const std::function<void(BlobRegistry&)>& asServer,
+							   const std::function<void(BlobRegistry&)>& asClient) = 0;
 
-	virtual ds::sprite_id_t nextSpriteId() override;
-	virtual void			registerSprite(ds::ui::Sprite&) override;
-	virtual void			unregisterSprite(ds::ui::Sprite&) override;
-	virtual ds::ui::Sprite* findSprite(const ds::sprite_id_t) override;
-	virtual void			spriteDeleted(const ds::sprite_id_t&) override;
-	virtual ci::Color8u		getUniqueColor() override;
+	sprite_id_t nextSpriteId() override;
+	void		registerSprite(ui::Sprite&) override;
+	void		unregisterSprite(ui::Sprite&) override;
+	ui::Sprite* findSprite(sprite_id_t) override;
+	void		spriteDeleted(sprite_id_t) override;
+	ci::Color8u getUniqueColor() override;
 
-	std::shared_ptr<ci::tuio::Receiver> getTuioClient(const int tuioIndex = -1);
-	void								touchesBegin(const ds::ui::TouchEvent&);
-	void								touchesMoved(const ds::ui::TouchEvent&);
-	void								touchesEnded(const ds::ui::TouchEvent&);
+	std::shared_ptr<ci::tuio::Receiver> getTuioClient(int tuioIndex = -1) const;
+	void								touchesBegin(const ui::TouchEvent&);
+	void								touchesMoved(const ui::TouchEvent&);
+	void								touchesEnded(const ui::TouchEvent&);
 	void								mouseTouchBegin(const ci::app::MouseEvent&, int id);
 	void								mouseTouchMoved(const ci::app::MouseEvent&, int id);
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
@@ -177,63 +173,65 @@ class Engine : public ui::SpriteEngine {
 	/// or if you have an unusual input situation (like a kinect or something) and want to use touch
 	/// These are separate functions from the touchesBegin, etc from above so the general
 	/// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
-	virtual void injectTouchesBegin(const ds::ui::TouchEvent&) override;
-	virtual void injectTouchesMoved(const ds::ui::TouchEvent&) override;
-	virtual void injectTouchesEnded(const ds::ui::TouchEvent&) override;
+	void injectTouchesBegin(const ui::TouchEvent&) override;
+	void injectTouchesMoved(const ui::TouchEvent&) override;
+	void injectTouchesEnded(const ui::TouchEvent&) override;
 
-	virtual void injectObjectsBegin(const ds::TuioObject&) override;
-	virtual void injectObjectsMoved(const ds::TuioObject&) override;
-	virtual void injectObjectsEnded(const ds::TuioObject&) override;
+	void injectObjectsBegin(const TuioObject&) override;
+	void injectObjectsMoved(const TuioObject&) override;
+	void injectObjectsEnded(const TuioObject&) override;
 
 	/// Register a tuio::Receiver to send TUIO objects events through the Engine.  Useful if your app needs
 	/// additional tuio::Receiver object listeners beyond the single tuio::Receiver provided by the Engine.
-	void registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver>);
+	void registerForTuioObjects(const std::shared_ptr<ci::tuio::Receiver>&);
 
 	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	/// Sprites can still turn this off after creation
-	virtual bool getRotateTouchesDefault() override;
+	bool getRotateTouchesDefault() override;
 
-	virtual ds::ResourceList&	getResources() override;
-	virtual const ds::FontList& getFonts() const override;
-	ds::FontList&				editFonts();
+	ResourceList&	getResources() override;
+	const FontList& getFonts() const override;
+	FontList&		editFonts();
 
-	virtual const ds::ColorList& getColors() const override;
-	virtual ds::ColorList&		 getColors() override;
-	ds::ColorList&				 editColors();
+	const ColorList& getColors() const override;
+	ColorList&		 getColors() override;
+	ColorList&		 editColors();
 
-	void						   markCameraDirty();
-	virtual PerspCameraParams	   getPerspectiveCamera(const size_t index) const override;
-	virtual const ci::CameraPersp& getPerspectiveCameraRef(const size_t index) const override;
-	virtual void				   setPerspectiveCamera(const size_t index, const PerspCameraParams&) override;
-	virtual void				   setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) override;
+	void				   markCameraDirty() const;
+	PerspCameraParams	   getPerspectiveCamera(size_t index) const override;
+	const ci::CameraPersp& getPerspectiveCameraRef(size_t index) const override;
+	void				   setPerspectiveCamera(size_t index, const PerspCameraParams&) override;
+	void				   setPerspectiveCameraRef(size_t index, const ci::CameraPersp&) override;
 
-	virtual float getOrthoFarPlane(const size_t index) const override;
-	virtual float getOrthoNearPlane(const size_t index) const override;
-	virtual void  setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) override;
+	float getOrthoFarPlane(size_t index) const override;
+	float getOrthoNearPlane(size_t index) const override;
+	void  setOrthoViewPlanes(size_t index, float nearPlane, float farPlane) override;
 
 	/// Can be used by apps to stop services before exiting.
 	/// This will happen automatically, but some apps might want
 	/// to make sure everything is stopped before they go away.
 	virtual void stopServices();
 
-	void setHideMouse(const bool doMouseHide);
+	void setHideMouse(bool doMouseHide);
 	bool getHideMouse() const;
 	bool getAutoHideMouse() const { return mAutoHideMouse; }
 
-	ds::ui::Sprite* getHit(const ci::vec3& point) override;
+	ui::Sprite* getHit(const ci::vec3& point) override;
 
 	ui::TouchManager& getTouchManager() { return mTouchManager; }
-	virtual void	  clearFingers(const std::vector<int>& fingers) override;
-	virtual void	  clearFingersForSprite(ui::Sprite* theSprite) override { mTouchManager.clearFingersForSprite(theSprite); }
-	void			  setSpriteForFinger(const int fingerId, ui::Sprite* theSprite) override {
-		 mTouchManager.setSpriteForFinger(fingerId, theSprite);
-	}
-	ds::ui::Sprite* getSpriteForFinger(const int fingerId) override { return mTouchManager.getSpriteForFinger(fingerId); }
-	virtual bool	shouldDiscardTouch(ci::vec2& p) { return mTouchManager.shouldDiscardTouch(p); }
+	void			  clearFingers(const std::vector<int>& fingers) override;
 
-	void	   setTouchSmoothing(const bool doSmoothing);
-	const bool getTouchSmoothing();
-	void	   setTouchSmoothFrames(const int smoothFrames);
+	void clearFingersForSprite(ui::Sprite* theSprite) override { mTouchManager.clearFingersForSprite(theSprite); }
+	void setSpriteForFinger(const int fingerId, ui::Sprite* theSprite) override {
+		mTouchManager.setSpriteForFinger(fingerId, theSprite);
+	}
+
+	ui::Sprite*	 getSpriteForFinger(const int fingerId) override { return mTouchManager.getSpriteForFinger(fingerId); }
+	virtual bool shouldDiscardTouch(ci::vec2& p) { return mTouchManager.shouldDiscardTouch(p); }
+
+	void setTouchSmoothing(bool doSmoothing);
+	bool getTouchSmoothing();
+	void setTouchSmoothFrames(int smoothFrames);
 
 	/// Utility to change touch mode
 	void nextTouchMode();
@@ -241,7 +239,7 @@ class Engine : public ui::SpriteEngine {
 	/// Debugging aid to write out the sprites
 	void writeSprites(std::ostream&) const;
 
-	virtual ci::app::WindowRef getWindow() override;
+	ci::app::WindowRef getWindow() override;
 
 	void toggleConsole();
 	void showConsole();
@@ -249,39 +247,39 @@ class Engine : public ui::SpriteEngine {
 
 	/// Should only be used by the app class to record the average fps.
 	/// Allows for debug drawing of the fps
-	void		setAverageFps(const float fps) { mAverageFps = fps; }
-	const float getAverageFps() const { return mAverageFps; }
+	void  setAverageFps(const float fps) { mAverageFps = fps; }
+	float getAverageFps() const { return mAverageFps; }
 
-	size_t getNumberOfSprites() { return mSprites.size(); }
+	size_t getNumberOfSprites() const { return mSprites.size(); }
 
 	/// -------------------------------------------------------------
 	/// These functions are inlined, since they are called frequently
 	/// -------------------------------------------------------------
 	/// Returns the list of current roots
-	inline const std::vector<std::unique_ptr<EngineRoot>>& getRoots() const { return mRoots; }
-	inline const ds::DrawParams&						   getDrawParams() const { return mDrawParams; }
-	inline ds::AutoDrawService* const					   getAutoDrawService() { return mAutoDraw; }
+	const std::vector<std::unique_ptr<EngineRoot>>& getRoots() const { return mRoots; }
+	const DrawParams&								getDrawParams() const { return mDrawParams; }
+	AutoDrawService*								getAutoDrawService() const { return mAutoDraw; }
 
 	/// This is for Clients to reconstruct roots when they re-connect with the server
 	void clearRoots();
 
 	/// For Clients to create roots when reconnecting to the server
-	void createClientRoots(std::vector<RootList::Root> newRoots);
+	void createClientRoots(const std::vector<RootList::Root>& roots);
 
 
 	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
 	\param clearDebug If true, will clear all the children from the debug roots too.
 	If false, leaves them alone (for instance, in client situations) */
-	void clearAllSprites(const bool clearDebug = true);
+	void clearAllSprites(bool clearDebug = true) const;
 
   protected:
-	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&, const int appMode);
+	Engine(App&, EngineSettings&, EngineData&, const RootList&, int appMode);
 
-	/// Conveniences for the subclases
+	/// Conveniences for the subclasses
 	void updateClient();
 	void updateServer();
-	void drawClient();
-	void drawServer();
+	void drawClient() const;
+	void drawServer() const;
 
 	/** When mouse events are ready to be handled by the touch manager.
 		These are enforced virtual functions to be sure the engine handles mouse events.
@@ -293,46 +291,46 @@ class Engine : public ui::SpriteEngine {
 
 	ui::TouchManager mTouchManager;
 
-	static const int NumberOfNetworkThreads;
+	static const int NUMBER_OF_NETWORK_THREADS;
 
-	ds::BlobRegistry									 mBlobRegistry;
-	std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*> mSprites;
-	int													 mTuioPort;
+	BlobRegistry								 mBlobRegistry;
+	std::unordered_map<sprite_id_t, ui::Sprite*> mSprites;
+	int											 mTuioPort;
 
-	ds::ui::TouchMode::Enum mTouchMode;
+	ui::TouchMode::Enum mTouchMode;
 
   private:
-	void setTouchMode(const ds::ui::TouchMode::Enum&);
-	void createStatsView(sprite_id_t root_id);
+	void setTouchMode(const ui::TouchMode::Enum&);
+	void createStatsView(sprite_id_t rootId);
 
 	/// Read these values from settings and apply them
 	void setupEngine(); /// calls all the below setup functions
-	void setupLogger();
-	void setupWorldSize();
-	void setupSrcDstRects();
-	void setupAutoSpan();
+	void setupLogger() const;
+	void setupWorldSize() const;
+	void setupSrcDstRects() const;
+	void setupAutoSpan() const;
 	void setupConsole();
-	void setupWindowMode();
+	void setupWindowMode() const;
 	void setupMouseHide();
-	void setupFrameRate();
-	void setupVerticalSync();
-	void setupIdleTimeout();
-	void setupMute();
-	void setupResourceLocation();
+	void setupFrameRate() const;
+	void setupVerticalSync() const;
+	void setupIdleTimeout() const;
+	void setupMute() const;
+	void setupResourceLocation() const;
 	void setupRoots();
 	void setupAutoRefresh();
 
 	friend class cfg::SettingsEditor;
 	std::vector<std::unique_ptr<EngineRoot>> mRoots;
-	ds::App&								 mDsApp;
-	ds::EngineSettings&						 mSettings;
-	ds::cfg::SettingsEditor*				 mSettingsEditor;
-	bool mHideMouseSaved = false;
-	bool mAutoHideMouseSaved = false;
+	App&									 mDsApp;
+	EngineSettings&							 mSettings;
+	cfg::SettingsEditor*					 mSettingsEditor;
+	bool									 mHideMouseSaved	 = false;
+	bool									 mAutoHideMouseSaved = false;
 
-	bool									 mShowConsole;
-	ds::ui::PangoFontService				 mPangoFontService;
-	ds::ui::Tweenline						 mTweenline;
+	bool				 mShowConsole;
+	ui::PangoFontService mPangoFontService;
+	ui::Tweenline		 mTweenline;
 	/// A cache of all the resources in the system
 	ResourceList mResources;
 	ColorList	 mColors;
@@ -346,9 +344,9 @@ class Engine : public ui::SpriteEngine {
 	float		 mLastTouchTime;
 
 	/// Main tuio input
-	std::shared_ptr<ds::ui::TuioInput> mTuioInput;
+	std::shared_ptr<ui::TuioInput> mTuioInput;
 	/// Additional tuio inputs if configured
-	std::vector<std::shared_ptr<ds::ui::TuioInput>> mTuioInputs;
+	std::vector<std::shared_ptr<ui::TuioInput>> mTuioInputs;
 
 	/// Clients that will get update() called automatically at the start
 	/// of each update cycle
@@ -359,19 +357,21 @@ class Engine : public ui::SpriteEngine {
 
 	AutoRefresh mAutoRefresh;
 
-	ds::ui::TouchTranslator						mTouchTranslator;
-	std::mutex									mTouchMutex;
-	ds::EngineTouchQueue<ds::ui::TouchEvent>	mTouchBeginEvents;
-	ds::EngineTouchQueue<ds::ui::TouchEvent>	mTouchMovedEvents;
-	ds::EngineTouchQueue<ds::ui::TouchEvent>	mTouchEndedEvents;
-	typedef std::pair<ci::app::MouseEvent, int> MousePair;
-	ds::EngineTouchQueue<MousePair>				mMouseBeginEvents;
-	ds::EngineTouchQueue<MousePair>				mMouseMovedEvents;
-	ds::EngineTouchQueue<MousePair>				mMouseEndedEvents;
+	ui::TouchTranslator				 mTouchTranslator;
+	std::mutex						 mTouchMutex;
+	EngineTouchQueue<ui::TouchEvent> mTouchBeginEvents;
+	EngineTouchQueue<ui::TouchEvent> mTouchMovedEvents;
+	EngineTouchQueue<ui::TouchEvent> mTouchEndedEvents;
+
+	using MousePair = std::pair<ci::app::MouseEvent, int>;
+	EngineTouchQueue<MousePair> mMouseBeginEvents;
+	EngineTouchQueue<MousePair> mMouseMovedEvents;
+	EngineTouchQueue<MousePair> mMouseEndedEvents;
+
 	/// Only used if the settings file has "tuio:receive_objects" set to true
-	ds::EngineTouchQueue<TuioObject> mTuioObjectsBegin;
-	ds::EngineTouchQueue<TuioObject> mTuioObjectsMoved;
-	ds::EngineTouchQueue<TuioObject> mTuioObjectsEnded;
+	EngineTouchQueue<TuioObject> mTuioObjectsBegin;
+	EngineTouchQueue<TuioObject> mTuioObjectsMoved;
+	EngineTouchQueue<TuioObject> mTuioObjectsEnded;
 
 	bool								  mRotateTouchesDefault;
 	bool								  mAutoHideMouse;
@@ -387,16 +387,16 @@ class Engine : public ui::SpriteEngine {
 		Channel();
 		Channel(const std::string& description);
 
-		ds::EventNotifier mNotifier;
-		std::string		  mDescription;
+		EventNotifier mNotifier;
+		std::string	  mDescription;
 	};
 	std::unordered_map<std::string, Channel> mChannels;
 
 	float mAverageFps;
 
 	/// For listening to settings changes and applying them
-	void			onAppEvent(const ds::Event&);
-	ds::EventClient mEventClient;
+	void		onAppEvent(const Event&);
+	EventClient mEventClient;
 };
 
 } // namespace ds

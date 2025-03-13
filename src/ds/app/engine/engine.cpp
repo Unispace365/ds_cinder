@@ -1,14 +1,25 @@
 #include "stdafx.h"
 
+#include <boost/algorithm/string.hpp>
+#include <cinder/Display.h>
+#include <cinder/tuio/Tuio.h>
+
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
 #include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_events.h"
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/app/environment.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
+#include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
+#include "ds/ui/service/load_image_service.h"
+#include "ds/ui/touch/draw_touch_view.h"
+#include "ds/ui/touch/touch_event.h"
 #include "ds/ui/touch/tuio_input.h"
+#include "ds/util/file_meta_data.h"
 
 #ifdef _WIN32
 #include "ds/debug/console.h"
@@ -16,32 +27,13 @@
 #include <Winuser.h>
 #endif
 
-#include "ds/debug/debug_defines.h"
-#include "ds/debug/logger.h"
-#include "ds/math/math_defs.h"
-#include "ds/ui/service/load_image_service.h"
-#include "ds/ui/touch/draw_touch_view.h"
-#include "ds/ui/touch/touch_event.h"
-#include "ds/util/file_meta_data.h"
-
-#include <boost/algorithm/string.hpp>
-#include <cinder/Display.h>
-#include <cinder/tuio/Tuio.h>
-
-#include "engine_events.h"
-
-//! This entire header is included for one single
-//! function Poco::Path::expand. This slowly needs
-//! to get removed. Poco is not part of the Cinder.
 #include <Poco/Path.h>
-
-// #include <boost/algorithm/string/predicate.hpp>
 
 #pragma warning(disable : 4355) // disable 'this': used in base member initializer list
 
 namespace {
-void root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
 
+void root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
 
 #ifdef _WIN32
 ds::Console GLOBAL_CONSOLE;
@@ -51,15 +43,15 @@ ds::Console GLOBAL_CONSOLE;
 
 
 namespace ds {
-const ds::BitMask ENGINE_LOG = ds::Logger::newModule("engine");
 
-const int Engine::NumberOfNetworkThreads = 2;
+const BitMask ENGINE_LOG = Logger::newModule("engine");
 
-Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, const RootList& _roots,
-			   const int appMode)
-  : ds::ui::SpriteEngine(ed, appMode)
+const int Engine::NUMBER_OF_NETWORK_THREADS = 2;
+
+Engine::Engine(App& app, EngineSettings& settings, EngineData& data, const RootList& roots, int appMode)
+  : SpriteEngine(data, appMode)
   , mTouchManager(*this, mTouchMode)
-  , mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
+  , mTouchMode(ui::TouchMode::kTuioAndMouse)
   , mDsApp(app)
   , mSettings(settings)
   , mSettingsEditor(nullptr)
@@ -67,30 +59,30 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
   , mPangoFontService(*this)
   , mTweenline(app.timeline())
   , mFonts(*this)
-  , mRequestedRootList(_roots)
+  , mRequestedRootList(roots)
   , mIdling(true)
   , mIdlingEnabled(true)
-  , mTuioInput(std::make_shared<ds::ui::TuioInput>(*this, mTuioPort, ci::vec2(1), ci::vec2(0), 0.0f, 0,
-												   ci::Rectf(ci::vec2(0), ci::vec2(0))))
+  , mTuioInput(std::make_shared<ui::TuioInput>(*this, mTuioPort, ci::vec2(1), ci::vec2(0), 0.0f, 0,
+											   ci::Rectf(ci::vec2(0), ci::vec2(0))))
   , mAutoDraw(new AutoDrawService())
   , mAutoRefresh(*this)
   , mTouchBeginEvents(
 		mTouchMutex, mLastTouchTime,
-		[&app, this](const ds::ui::TouchEvent& e) {
+		[&app, this](const ui::TouchEvent& e) {
 			app.onTouchesBegan(e);
 			this->mTouchManager.touchesBegin(e);
 		},
 		"touchbegin")
   , mTouchMovedEvents(
 		mTouchMutex, mLastTouchTime,
-		[&app, this](const ds::ui::TouchEvent& e) {
+		[&app, this](const ui::TouchEvent& e) {
 			app.onTouchesMoved(e);
 			this->mTouchManager.touchesMoved(e);
 		},
 		"touchmoved")
   , mTouchEndedEvents(
 		mTouchMutex, mLastTouchTime,
-		[&app, this](const ds::ui::TouchEvent& e) {
+		[&app, this](const ui::TouchEvent& e) {
 			app.onTouchesEnded(e);
 			this->mTouchManager.touchesEnded(e);
 		},
@@ -117,19 +109,19 @@ Engine::Engine(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, c
   , mCachedWindowH(0)
   , mLoadImageService(new ui::LoadImageService(*this))
   , mAverageFps(0.0f)
-  , mEventClient(ed.mNotifier, [this](const ds::Event* m) {
+  , mEventClient(data.mNotifier, [this](const Event* m) {
 	  if (m) onAppEvent(*m);
   }) {
 
 	getNotifier().setName("_engine_");
 	getNotifier().setEngine(this);
 
-	ds::event::Registry::get().addEventCreator(ds::app::RequestAppExitEvent::NAME(),
-											   []() -> ds::Event* { return new ds::app::RequestAppExitEvent(); });
-	ds::event::Registry::get().addEventCreator(ds::app::IdleEndedEvent::NAME(),
-											   []() -> ds::Event* { return new ds::app::IdleEndedEvent(); });
-	ds::event::Registry::get().addEventCreator(ds::app::IdleStartedEvent::NAME(),
-											   []() -> ds::Event* { return new ds::app::IdleStartedEvent(); });
+	event::Registry::get().addEventCreator(app::RequestAppExitEvent::NAME(),
+										   []() -> Event* { return new app::RequestAppExitEvent(); });
+	event::Registry::get().addEventCreator(app::IdleEndedEvent::NAME(),
+										   []() -> Event* { return new app::IdleEndedEvent(); });
+	event::Registry::get().addEventCreator(app::IdleStartedEvent::NAME(),
+										   []() -> Event* { return new app::IdleStartedEvent(); });
 
 	setupEngine();
 
@@ -170,29 +162,29 @@ void Engine::setupEngine() {
 	setupAutoRefresh();
 }
 
-void Engine::setupLogger() {
+void Engine::setupLogger() const {
 
-	ds::Logger::setup(mSettings);
+	Logger::setup(mSettings);
 
 	mData.mAppInstanceName = mSettings.getString("platform:guid");
 
-	ds::Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
+	Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
 }
 
-void Engine::setupWorldSize() {
+void Engine::setupWorldSize() const {
 	mData.mWorldSize = mSettings.getVec2("world_dimensions");
 }
 
-void Engine::setupSrcDstRects() {
+void Engine::setupSrcDstRects() const {
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored and default to the main display
 
 	auto screenMode = mSettings.getString("screen:mode");
-	ds::to_lowercase(screenMode);
+	to_lowercase(screenMode);
 	bool isFullscreen = screenMode.find("full") != std::string::npos;
 
 	auto autoSizeMode = mSettings.getString("screen:auto_size");
-	ds::to_lowercase(autoSizeMode);
+	to_lowercase(autoSizeMode);
 
 	if (autoSizeMode == "all_span") {
 		mSettings.getSetting("span_all_displays", 0).mRawValue = "true";
@@ -200,7 +192,7 @@ void Engine::setupSrcDstRects() {
 	} else if (autoSizeMode == "main_span" || autoSizeMode == "letterbox") {
 		ci::DisplayRef	mainDisplay = ci::Display::getMainDisplay();
 		const ci::Rectf mainDisplayRect =
-			ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
+			ci::Rectf(0.0f, 0.0f, float(mainDisplay->getWidth()), float(mainDisplay->getHeight()));
 
 		ci::Rectf newSrcRect = mSettings.getRect("src_rect"); // Always use the user-defined src rect
 		ci::Rectf newDstRect = mainDisplayRect;
@@ -220,7 +212,7 @@ void Engine::setupSrcDstRects() {
 			if (mainDispAsp == worldAsp) {
 				newDstRect = mainDisplayRect;
 
-				// pillarbox
+				// pillar box
 			} else if (mainDispAsp > worldAsp) {
 				float newW = mainDisplayRect.getHeight() * worldAsp;
 				float newX = (mainDisplayRect.getWidth() / 2.0f) - (newW / 2.f);
@@ -274,7 +266,7 @@ void Engine::setupSrcDstRects() {
 									   << ", " << mData.mDstRect.y2 << ")");
 }
 
-void Engine::setupAutoSpan() {
+void Engine::setupAutoSpan() const {
 	bool autoSpan = mSettings.getBool("span_all_displays");
 	if (autoSpan && ci::app::getWindow()) {
 		ci::app::getWindow()->spanAllDisplays();
@@ -287,9 +279,9 @@ void Engine::setupAutoSpan() {
 		mData.mOriginalSrcRect = mData.mSrcRect;
 
 		mSettings.getSetting("screen:mode", 0).mRawValue	  = "borderless";
-		mSettings.getSetting("world_dimensions", 0).mRawValue = ds::unparseVector(mData.mWorldSize);
-		mSettings.getSetting("src_rect", 0).mRawValue		  = ds::unparseRect(mData.mSrcRect);
-		mSettings.getSetting("dst_rect", 0).mRawValue		  = ds::unparseRect(mData.mDstRect);
+		mSettings.getSetting("world_dimensions", 0).mRawValue = unparseVector(mData.mWorldSize);
+		mSettings.getSetting("src_rect", 0).mRawValue		  = unparseRect(mData.mSrcRect);
+		mSettings.getSetting("dst_rect", 0).mRawValue		  = unparseRect(mData.mDstRect);
 
 		DS_LOG_INFO("Auto-spanning window, world size:" << mSettings.getSetting("world_dimensions", 0).mRawValue
 														<< " src_rect:" << mSettings.getSetting("src_rect", 0).mRawValue
@@ -308,7 +300,7 @@ void Engine::setupConsole() {
 	}
 }
 
-void Engine::setupWindowMode() {
+void Engine::setupWindowMode() const {
 	if (!ci::app::getWindow()) return;
 
 	auto newMode = mSettings.getString("screen:mode");
@@ -337,16 +329,16 @@ void Engine::setupMouseHide() {
 	if (mAutoHideMouse) mHideMouse = true;
 }
 
-void Engine::setupFrameRate() {
+void Engine::setupFrameRate() const {
 	mData.mFrameRate = mSettings.getFloat("frame_rate");
 	ci::app::setFrameRate(mData.mFrameRate);
 }
 
-void Engine::setupVerticalSync() {
+void Engine::setupVerticalSync() const {
 	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync"));
 }
 
-void Engine::setupIdleTimeout() {
+void Engine::setupIdleTimeout() const {
 	setIdleTimeout(mSettings.getInt("idle_time"));
 
 	auto numRoots = getRootCount();
@@ -356,11 +348,11 @@ void Engine::setupIdleTimeout() {
 	}
 }
 
-void Engine::setupMute() {
+void Engine::setupMute() const {
 	setMute(mSettings.getBool("platform:mute"));
 }
 
-void Engine::setupResourceLocation() {
+void Engine::setupResourceLocation() const {
 
 
 	mData.mCmsURL = mSettings.getString("cms:url");
@@ -375,7 +367,7 @@ void Engine::setupResourceLocation() {
 		}
 	}
 
-	std::string resourceLocation = ds::getNormalizedPath(mSettings.getString("resource_location"));
+	std::string resourceLocation = getNormalizedPath(mSettings.getString("resource_location"));
 	if (resourceLocation.empty()) {
 	} else {
 		if (boost::contains(resourceLocation, "%USERPROFILE%")) {
@@ -386,10 +378,10 @@ void Engine::setupResourceLocation() {
 		}
 
 		resourceLocation = Poco::Path::expand(resourceLocation);
-		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(ds::getNormalizedPath(resourceLocation),
-								 ds::getNormalizedPath(mSettings.getString("resource_db")),
-								 ds::getNormalizedPath(mSettings.getString("project_path")));
+		resourceLocation = Environment::expand(resourceLocation); // allow use of %APP%, etc
+		Resource::Id::setupPaths(getNormalizedPath(resourceLocation),
+								 getNormalizedPath(mSettings.getString("resource_db")),
+								 getNormalizedPath(mSettings.getString("project_path")));
 	}
 }
 
@@ -408,8 +400,7 @@ void Engine::setupRoots() {
 		bool	 firstRoot = true;
 		RootList roots(mRequestedRootList.runInitFn());
 		if (roots.empty()) roots.ortho();
-		for (auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
-			RootList::Root& r(*it);
+		for (auto& r : roots.mRoots) {
 			r.mRootId = root_id;
 			std::unique_ptr<EngineRoot> root;
 			if (r.mType == r.kOrtho)
@@ -451,7 +442,7 @@ void Engine::setupRoots() {
 		std::unique_ptr<EngineRoot> root;
 		root.reset(new OrthRoot(*this, root_cfg, root_id));
 		if (root) {
-			ds::ui::Sprite* parent = root->getSprite();
+			ui::Sprite* parent = root->getSprite();
 			if (parent) {
 				parent->setDrawDebug(true);
 				mRoots.push_back(std::move(root));
@@ -461,8 +452,8 @@ void Engine::setupRoots() {
 
 	// Initialize the roots
 	const EngineRoot::Settings er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		EngineRoot& r(*(it->get()));
+	for (auto& root : mRoots) {
+		EngineRoot& r(*(root.get()));
 		r.setup(er_settings);
 	}
 }
@@ -498,7 +489,7 @@ void Engine::hideConsole() {
 #endif
 }
 
-void Engine::prepareSettings(ci::app::AppBase::Settings& settings) {
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings) const {
 	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 
 	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless
@@ -533,9 +524,9 @@ void Engine::reloadSettings() {
 	setup(mDsApp);
 }
 
-void Engine::onAppEvent(const ds::Event& in_e) {
-	if (in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()) {
-		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
+void Engine::onAppEvent(const Event& in_e) {
+	if (in_e.mWhat == cfg::Settings::SettingsEditedEvent::WHAT()) {
+		const cfg::Settings::SettingsEditedEvent& e(static_cast<const cfg::Settings::SettingsEditedEvent&>(in_e));
 		if (e.mSettingsType == "engine") {
 			if (e.mSettingName == "screen:mode" || e.mSettingName == "screen:always_on_top" ||
 				e.mSettingName == "screen:title") {
@@ -563,7 +554,7 @@ void Engine::onAppEvent(const ds::Event& in_e) {
 				setAnimDur(mSettings.getFloat("animation:duration"));
 			}
 		}
-	} else if (in_e.mWhat == ds::app::RequestAppExitEvent::WHAT()) {
+	} else if (in_e.mWhat == app::RequestAppExitEvent::WHAT()) {
 		mDsApp.quit();
 	}
 }
@@ -625,7 +616,7 @@ void Engine::hideSettingsEditor() {
 	}
 }
 
-bool Engine::isShowingSettingsEditor() {
+bool Engine::isShowingSettingsEditor() const {
 	if (mSettingsEditor) {
 		return mSettingsEditor->visible();
 	}
@@ -633,7 +624,7 @@ bool Engine::isShowingSettingsEditor() {
 	return false;
 }
 
-void Engine::setup(ds::App& app) {
+void Engine::setup(App& app) {
 
 	mCinderWindow = app.getWindow();
 
@@ -646,26 +637,27 @@ void Engine::setup(ds::App& app) {
 	bool			  isClient = false;
 	if (arch == "client") isClient = true;
 	const bool drawTouches = mSettings.getBool("touch:debug", 0, false);
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		(*it)->postAppSetup();
-		(*it)->setCinderCamera();
+	for (auto& root : mRoots) {
+		root->postAppSetup();
+		root->setCinderCamera();
 
 		// Assume only one debug synchronized root? oh boy I hope so!
-		if (!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize) {
+		if (!isClient && drawTouches && root->getBuilder().mDebugDraw && root->getBuilder().mSyncronize) {
 
-			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
-			(*it)->getSprite()->addChildPtr(v);
+			ui::DrawTouchView* v = new ui::DrawTouchView(*this, mSettings, mTouchManager);
+			root->getSprite()->addChildPtr(v);
 		}
 	}
 
-	const int w = static_cast<int>(getWidth()), h = static_cast<int>(getHeight());
+	const int w = static_cast<int>(getWidth());
+	const int h = static_cast<int>(getHeight());
 	if (w < 1 || h < 1) {
 		// GN: recent updates should make this impossible to get to.
 		//		but leaving this here in case some weird case sets the size to an invalid value
 		DS_LOG_WARNING("Engine::setup() on 0 size width or height");
 	}
 
-	float curr	   = static_cast<float>(ci::app::getElapsedSeconds());
+	auto curr	   = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime	   = curr;
 	mLastTouchTime = 0;
 
@@ -677,15 +669,15 @@ void Engine::setup(ds::App& app) {
 	if (firstRun) {
 		// Start any library services
 		if (!mData.mServices.empty()) {
-			for (auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
-				if (it->second) it->second->start();
+			for (auto& service : mData.mServices) {
+				if (service.second) service.second->start();
 			}
 		}
 		firstRun = false;
 	}
 }
 
-void Engine::setupTouch(ds::App& app) {
+void Engine::setupTouch(App& app) {
 	// touch settings
 	mTouchManager.setOverrideTranslation(mSettings.getBool("touch:override_translation"));
 	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions"));
@@ -706,11 +698,11 @@ void Engine::setupTouch(ds::App& app) {
 
 	setAnimDur(mSettings.getFloat("animation:duration"));
 
-	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
+	mTouchMode = ui::TouchMode::fromSettings(mSettings);
 	setTouchMode(mTouchMode);
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
-	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
+	if (hasTuio(mTouchMode)) {
 		startTuio(app);
 	} else {
 		stopTuio();
@@ -726,20 +718,20 @@ void Engine::setupTouch(ds::App& app) {
 		const ci::vec2	touchOffset	  = theSettings.getVec2("tuio_input:offset", i, ci::vec2());
 		const float		touchRotation = theSettings.getFloat("tuio_input:rotation", i, 0.0f);
 		const ci::Rectf filterRect	  = theSettings.getRect("tuio_input:filter_rect", i, ci::Rectf());
-		auto tuioInput = std::make_shared<ds::ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
-															 idOffset, filterRect);
+		auto tuioInput = std::make_shared<ui::TuioInput>(*this, tuioPort, touchScale, touchOffset, touchRotation,
+														 idOffset, filterRect);
 		tuioInput->start(true);
 		mTuioInputs.push_back(tuioInput);
 	}
 
 #ifdef _WIN32
 	if (mDsApp.getWindow()) {
-		auto hwnd = (HWND)mDsApp.getWindow()->getNative();
-		if (ds::ui::TouchMode::hasSystem(mTouchMode)) {
+		auto hwnd = static_cast<HWND>(mDsApp.getWindow()->getNative());
+		if (hasSystem(mTouchMode)) {
 
 			BOOL(WINAPI * RegisterTouchWindow)(HWND, ULONG);
-			*(size_t*)&RegisterTouchWindow =
-				(size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
+			*reinterpret_cast<size_t*>(&RegisterTouchWindow) =
+				reinterpret_cast<size_t>(GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow"));
 			if (RegisterTouchWindow) {
 				(*RegisterTouchWindow)(hwnd, TWF_WANTPALM); // Immediately get the palm touch without waiting
 			}
@@ -768,7 +760,7 @@ void Engine::setupTouch(ds::App& app) {
 #endif
 }
 
-void Engine::startTuio(ds::App& app) {
+void Engine::startTuio(App& app) {
 	mTuioObjectsMoved.setAutoIdleReset(false);
 
 	mTuioPort = mSettings.getInt("touch:tuio:port");
@@ -778,7 +770,7 @@ void Engine::startTuio(ds::App& app) {
 	}
 }
 
-void Engine::stopTuio() {
+void Engine::stopTuio() const {
 	mTuioInput->stop();
 }
 
@@ -786,13 +778,13 @@ void Engine::clearRoots() {
 	mRoots.clear();
 }
 
-void Engine::createClientRoots(std::vector<RootList::Root> roots) {
+void Engine::createClientRoots(const std::vector<RootList::Root>& roots) {
 	sprite_id_t root_id = 0;
 
-	for (auto it = roots.begin(), end = roots.end(); it != end; ++it) {
-		const RootList::Root&		r(*it);
+	for (auto& it : roots) {
+		const RootList::Root&		r(it);
 		std::unique_ptr<EngineRoot> root;
-		sprite_id_t					thisRootId = (*it).mRootId;
+		sprite_id_t					thisRootId = it.mRootId;
 		if (r.mType == r.kOrtho)
 			root.reset(new OrthRoot(*this, r, thisRootId));
 		else if (r.mType == r.kPerspective)
@@ -812,30 +804,30 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots) {
 	root_setup(mRoots);
 
 	const EngineRoot::Settings er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		EngineRoot& r(*(it->get()));
+	for (auto& root : mRoots) {
+		EngineRoot& r(*(root.get()));
 		r.setup(er_settings);
 	}
 
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		(*it)->postAppSetup();
-		(*it)->setCinderCamera();
+	for (auto& root : mRoots) {
+		root->postAppSetup();
+		root->setCinderCamera();
 	}
 }
 
-void Engine::createStatsView(sprite_id_t root_id) {
+void Engine::createStatsView(sprite_id_t rootId) {
 	RootList::Root root_cfg;
 	root_cfg.mType		= root_cfg.kOrtho;
 	root_cfg.mDebugDraw = true;
 	// root_cfg.mDrawScaled = false;
 	root_cfg.mSyncronize = false;
 	std::unique_ptr<EngineRoot> root;
-	root.reset(new OrthRoot(*this, root_cfg, root_id));
+	root.reset(new OrthRoot(*this, root_cfg, rootId));
 	if (root) {
-		ds::ui::Sprite* parent = root->getSprite();
+		ui::Sprite* parent = root->getSprite();
 		if (parent) {
 			parent->setDrawDebug(true);
-			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
+			mSettingsEditor = new cfg::SettingsEditor(*this);
 			if (mSettingsEditor) {
 				parent->addChildPtr(mSettingsEditor);
 			}
@@ -845,13 +837,12 @@ void Engine::createStatsView(sprite_id_t root_id) {
 	}
 }
 
-void Engine::notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso)
-{
+void Engine::notifyOnChannel(const Event& event, const std::string& channel, bool defaultAlso) {
 	notifyOnChannels(event, {channel}, defaultAlso);
 }
 
-void Engine::notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso) {
-	for (auto channel : channels) {
+void Engine::notifyOnChannels(const Event& event, std::initializer_list<std::string> channels, bool defaultAlso) {
+	for (const auto& channel : channels) {
 		getChannel(channel).notify(event);
 	}
 	if (defaultAlso) {
@@ -859,7 +850,7 @@ void Engine::notifyOnChannels(const ds::Event& event, std::initializer_list<std:
 	}
 }
 
-ds::EventNotifier& Engine::getChannel(const std::string& name) {
+EventNotifier& Engine::getChannel(const std::string& name) {
 	if (name.empty()) {
 		DS_LOG_WARNING("Engine::getChannel() on empty name.");
 	}
@@ -889,14 +880,14 @@ void Engine::addChannel(const std::string& name, const std::string& description)
 	mChannels[name].mNotifier.setEngine(this);
 }
 
-ds::AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
+AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
 	if ((mask & AutoUpdateType::SERVER) != 0) return mAutoUpdateServer;
 	if ((mask & AutoUpdateType::CLIENT) != 0) return mAutoUpdateClient;
 	DS_LOG_WARNING("Engine::getAutoUpdateList() on illegal param");
 	return mAutoUpdateServer;
 }
 
-void Engine::addService(const std::string& str, ds::EngineService& service) {
+void Engine::addService(const std::string& str, EngineService& service) const {
 	if (mData.mServices.empty()) {
 		mData.mServices[str] = &service;
 	} else {
@@ -913,11 +904,11 @@ void Engine::loadSettings(const std::string& name, const std::string& filename) 
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
-void Engine::saveSettings(const std::string& name, const std::string& filename) {
+void Engine::saveSettings(const std::string& name, const std::string& filename) const {
 	mData.mEngineCfg.saveSettings(name, filename);
 }
 
-void Engine::appendSettings(const std::string& name, const std::string& filename) {
+void Engine::appendSettings(const std::string& name, const std::string& filename) const {
 	mData.mEngineCfg.appendSettings(name, filename);
 }
 
@@ -929,7 +920,7 @@ size_t Engine::getRootCount() const {
 	return mRoots.size();
 }
 
-ui::Sprite& Engine::getRootSprite(const size_t index) {
+ui::Sprite& Engine::getRootSprite(const size_t index) const {
 	if (index < 0 || index >= mRoots.size()) {
 		DS_LOG_WARNING("Engine::getRootSprite() on invalid index " << index);
 		ui::Sprite* fs = mRoots.front()->getSprite();
@@ -940,7 +931,7 @@ ui::Sprite& Engine::getRootSprite(const size_t index) {
 	return *s;
 }
 
-ds::ui::Sprite* Engine::getRootSpritePtr(const size_t index /*= 0*/) {
+ui::Sprite* Engine::getRootSpritePtr(const size_t index /*= 0*/) const {
 	if (index < 0 || index >= mRoots.size()) {
 		DS_LOG_WARNING("Engine::getRootSprite() on invalid index " << index);
 		return mRoots.front()->getSprite();
@@ -950,7 +941,7 @@ ds::ui::Sprite* Engine::getRootSpritePtr(const size_t index /*= 0*/) {
 	return s;
 }
 
-const RootList::Root& Engine::getRootBuilder(const size_t index) {
+const RootList::Root& Engine::getRootBuilder(const size_t index) const {
 	if (index < 0 || index >= mRoots.size()) {
 		DS_LOG_WARNING("Engine::getRootBuilder() on invalid index " << index);
 		return mRoots.front()->getBuilder();
@@ -960,7 +951,7 @@ const RootList::Root& Engine::getRootBuilder(const size_t index) {
 }
 
 void Engine::updateClient() {
-	float curr = static_cast<float>(ci::app::getElapsedSeconds());
+	auto  curr = static_cast<float>(ci::app::getElapsedSeconds());
 	float dt   = curr - mLastTime;
 	mLastTime  = curr;
 
@@ -982,8 +973,8 @@ void Engine::updateClient() {
 
 	mAutoUpdateClient.update(mUpdateParams);
 
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		(*it)->updateClient(mUpdateParams);
+	for (auto& root : mRoots) {
+		root->updateClient(mUpdateParams);
 	}
 }
 
@@ -1035,14 +1026,14 @@ void Engine::updateServer() {
 
 	mAutoUpdateServer.update(mUpdateParams);
 
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		(*it)->updateServer(mUpdateParams);
+	for (auto& root : mRoots) {
+		root->updateServer(mUpdateParams);
 	}
 }
 
-void Engine::markCameraDirty() {
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		(*it)->markCameraDirty();
+void Engine::markCameraDirty() const {
+	for (auto& root : mRoots) {
+		root->markCameraDirty();
 	}
 }
 
@@ -1053,7 +1044,7 @@ PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
 		return root->getCamera();
 	}
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
-	return PerspCameraParams();
+	return {};
 }
 
 const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const {
@@ -1118,19 +1109,20 @@ void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const
 	}
 	DS_LOG_ERROR(" Engine::setOrthoViewPlanes() on invalid root (" << index << ")");
 }
-void Engine::clearAllSprites(const bool clearDebug) {
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		if ((*it)->getBuilder().mDebugDraw && !clearDebug) continue;
-		(*it)->clearChildren();
+
+void Engine::clearAllSprites(const bool clearDebug) const {
+	for (auto& root : mRoots) {
+		if (root->getBuilder().mDebugDraw && !clearDebug) continue;
+		root->clearChildren();
 	}
 }
 
-void Engine::registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver> tuioReceiver) {
+void Engine::registerForTuioObjects(const std::shared_ptr<ci::tuio::Receiver>& tuioReceiver) {
 	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
 		const auto makeHandler = [](auto& eventQueue) {
 			return [&eventQueue](const auto& o) {
-				eventQueue.incoming(ds::TuioObject(o.getClassId(), o.getPosition(), o.getAngle(), o.getVelocity(),
-												   o.getRotationVelocity()));
+				eventQueue.incoming(TuioObject(o.getClassId(), o.getPosition(), o.getAngle(), o.getVelocity(),
+											   o.getRotationVelocity()));
 			};
 		};
 
@@ -1142,36 +1134,36 @@ void Engine::registerForTuioObjects(std::shared_ptr<ci::tuio::Receiver> tuioRece
 	}
 }
 
-void Engine::drawClient() {
+void Engine::drawClient() const {
 	ci::gl::enableAlphaBlending();
 
 	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-	for (auto it = getRoots().begin(), end = getRoots().end(); it != end; ++it) {
-		(*it)->drawClient(getDrawParams(), getAutoDrawService());
+	for (const auto& it : getRoots()) {
+		it->drawClient(getDrawParams(), getAutoDrawService());
 	}
 }
 
-void Engine::drawServer() {
+void Engine::drawServer() const {
 	ci::gl::enableAlphaBlending();
 
 	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-	for (auto it = getRoots().cbegin(), end = getRoots().cend(); it != end; ++it) {
-		(*it)->drawServer(getDrawParams());
+	for (const auto& it : getRoots()) {
+		it->drawServer(getDrawParams());
 	}
 }
 
-ds::sprite_id_t Engine::nextSpriteId() {
-	static ds::sprite_id_t ID = 0;
+sprite_id_t Engine::nextSpriteId() {
+	static sprite_id_t ID = 0;
 	++ID;
 	// Skip negative values.
 	if (ID <= EMPTY_SPRITE_ID) ID = EMPTY_SPRITE_ID + 1;
 	return ID;
 }
 
-void Engine::registerSprite(ds::ui::Sprite& s) {
-	if (s.getId() == ds::EMPTY_SPRITE_ID) {
+void Engine::registerSprite(ui::Sprite& s) {
+	if (s.getId() == EMPTY_SPRITE_ID) {
 		DS_LOG_WARNING_M("Engine::registerSprite() on empty sprite ID", ds::ENGINE_LOG);
 		assert(false);
 		return;
@@ -1179,9 +1171,9 @@ void Engine::registerSprite(ds::ui::Sprite& s) {
 	mSprites[s.getId()] = &s;
 }
 
-void Engine::unregisterSprite(ds::ui::Sprite& s) {
+void Engine::unregisterSprite(ui::Sprite& s) {
 	if (mSprites.empty()) return;
-	if (s.getId() == ds::EMPTY_SPRITE_ID) {
+	if (s.getId() == EMPTY_SPRITE_ID) {
 		DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
 		assert(false);
 		return;
@@ -1190,14 +1182,14 @@ void Engine::unregisterSprite(ds::ui::Sprite& s) {
 	if (it != mSprites.end()) mSprites.erase(it);
 }
 
-ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id) {
+ui::Sprite* Engine::findSprite(const sprite_id_t id) {
 	if (mSprites.empty()) return nullptr;
 	auto it = mSprites.find(id);
 	if (it == mSprites.end()) return nullptr;
 	return it->second;
 }
 
-void Engine::spriteDeleted(const ds::sprite_id_t&) {
+void Engine::spriteDeleted(sprite_id_t) {
 	// Only a server cares about this; everything else just
 	// deletes in-place.
 }
@@ -1207,48 +1199,48 @@ ci::Color8u Engine::getUniqueColor() {
 	++i;
 	mUniqueColor.r = (i >> 16) & 0xff;
 	mUniqueColor.g = (i >> 8) & 0xff;
-	mUniqueColor.b = (i)&0xff;
+	mUniqueColor.b = (i) & 0xff;
 	return mUniqueColor;
 }
 
-void Engine::touchesBegin(const ds::ui::TouchEvent& e) {
+void Engine::touchesBegin(const ui::TouchEvent& e) {
 	mTouchBeginEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesMoved(const ds::ui::TouchEvent& e) {
+void Engine::touchesMoved(const ui::TouchEvent& e) {
 	mTouchMovedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesEnded(const ds::ui::TouchEvent& e) {
+void Engine::touchesEnded(const ui::TouchEvent& e) {
 	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-std::shared_ptr<ci::tuio::Receiver> Engine::getTuioClient(const int tuioIndex) {
+std::shared_ptr<ci::tuio::Receiver> Engine::getTuioClient(const int tuioIndex) const {
 	if (tuioIndex >= 0 && tuioIndex < mTuioInputs.size()) return mTuioInputs[tuioIndex]->getReceiver();
 
 	return mTuioInput->getReceiver();
 }
 
 void Engine::mouseTouchBegin(const ci::app::MouseEvent& e, int id) {
-	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
+	if (hasMouse(mTouchMode)) {
 		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchMoved(const ci::app::MouseEvent& e, int id) {
-	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
+	if (hasMouse(mTouchMode)) {
 		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchEnded(const ci::app::MouseEvent& e, int id) {
-	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
+	if (hasMouse(mTouchMode)) {
 		mMouseEndedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) const {
-	if (mTouchManager.getInputMode() != ds::ui::TouchManager::kInputNormal) return e;
+	if (mTouchManager.getInputMode() != ui::TouchManager::kInputNormal) return e;
 
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
@@ -1267,64 +1259,64 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	const ci::vec2 screenScale = screenSize / mData.mSrcRect.getSize();
 
 	const ci::vec2	mouseWorldPos = srcOffset + (ci::vec2(e.getX(), e.getY()) / screenScale);
-	const ci::ivec2 pos((int)mouseWorldPos.x, (int)mouseWorldPos.y);
+	const ci::ivec2 pos(int(mouseWorldPos.x), int(mouseWorldPos.y));
 
-	return ci::app::MouseEvent(e.getWindow(), 0, pos.x, pos.y, 0, e.getWheelIncrement(), e.getNativeModifiers());
+	return {e.getWindow(), 0, pos.x, pos.y, 0, e.getWheelIncrement(), e.getNativeModifiers()};
 }
 
-void Engine::injectTouchesBegin(const ds::ui::TouchEvent& e) {
+void Engine::injectTouchesBegin(const ui::TouchEvent& e) {
 	touchesBegin(e);
 }
 
-void Engine::injectTouchesMoved(const ds::ui::TouchEvent& e) {
+void Engine::injectTouchesMoved(const ui::TouchEvent& e) {
 	touchesMoved(e);
 }
 
-void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e) {
+void Engine::injectTouchesEnded(const ui::TouchEvent& e) {
 	touchesEnded(e);
 }
 
-void Engine::injectObjectsBegin(const ds::TuioObject& o) {
+void Engine::injectObjectsBegin(const TuioObject& o) {
 	mTuioObjectsBegin.incoming(o);
 }
 
-void Engine::injectObjectsMoved(const ds::TuioObject& o) {
+void Engine::injectObjectsMoved(const TuioObject& o) {
 	mTuioObjectsMoved.incoming(o);
 }
 
-void Engine::injectObjectsEnded(const ds::TuioObject& o) {
+void Engine::injectObjectsEnded(const TuioObject& o) {
 	mTuioObjectsEnded.incoming(o);
 }
 
-ds::ResourceList& Engine::getResources() {
+ResourceList& Engine::getResources() {
 	return mResources;
 }
 
-const ds::FontList& Engine::getFonts() const {
+const FontList& Engine::getFonts() const {
 	return mFonts;
 }
 
-ds::FontList& Engine::editFonts() {
+FontList& Engine::editFonts() {
 	return mFonts;
 }
 
-const ds::ColorList& Engine::getColors() const {
+const ColorList& Engine::getColors() const {
 	return mColors;
 }
 
-ds::ColorList& Engine::getColors() {
+ColorList& Engine::getColors() {
 	return mColors;
 }
 
-ds::ColorList& Engine::editColors() {
+ColorList& Engine::editColors() {
 	return mColors;
 }
 
 void Engine::stopServices() {
 	if (mData.mServices.empty()) return;
 
-	for (auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
-		ds::EngineService* s = it->second;
+	for (auto& service : mData.mServices) {
+		EngineService* s = service.second;
 		if (s) s->stop();
 	}
 }
@@ -1337,9 +1329,9 @@ bool Engine::getHideMouse() const {
 	return mHideMouse;
 }
 
-ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
+ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it = mRoots.rbegin(), end = mRoots.rend(); it != end; ++it) {
-		ds::ui::Sprite* s = (*it)->getHit(point);
+		ui::Sprite* s = (*it)->getHit(point);
 		if (s) return s;
 	}
 	return nullptr;
@@ -1350,7 +1342,7 @@ void Engine::clearFingers(const std::vector<int>& fingers) {
 }
 
 void Engine::nextTouchMode() {
-	mSettings.getSetting("touch:mode", 0).mRawValue = ds::ui::TouchMode::toString(ds::ui::TouchMode::next(mTouchMode));
+	mSettings.getSetting("touch:mode", 0).mRawValue = toString(next(mTouchMode));
 	setupTouch(mDsApp);
 	// setTouchMode();
 }
@@ -1363,15 +1355,15 @@ void Engine::setTouchSmoothFrames(const int smoothFrames) {
 	mTouchManager.setTouchSmoothFrames(smoothFrames);
 }
 
-const bool Engine::getTouchSmoothing() {
+bool Engine::getTouchSmoothing() {
 	return mTouchManager.getTouchSmoothing();
 }
 
 void Engine::writeSprites(std::ostream& s) const {
 	// #ifdef _DEBUG
-	for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-		EngineRoot*		er(it->get());
-		ds::ui::Sprite* sprite(er ? er->getSprite() : nullptr);
+	for (const auto& root : mRoots) {
+		EngineRoot* er(root.get());
+		ui::Sprite* sprite(er ? er->getSprite() : nullptr);
 		if (sprite) sprite->write(s, 0);
 	}
 	// #endif
@@ -1392,9 +1384,9 @@ void Engine::checkIdle() {
 		if (newIdle != mIdling) {
 			mIdling = newIdle;
 			if (mIdling) {
-				getNotifier().notify(ds::app::IdleStartedEvent());
+				getNotifier().notify(app::IdleStartedEvent());
 			} else {
-				getNotifier().notify(ds::app::IdleEndedEvent());
+				getNotifier().notify(app::IdleEndedEvent());
 			}
 		}
 	}
@@ -1414,13 +1406,13 @@ void Engine::startIdling() {
 			getRootSprite(i).startIdling();
 		}
 		mIdling = true;
-		getNotifier().notify(ds::app::IdleStartedEvent());
+		getNotifier().notify(app::IdleStartedEvent());
 	}
 }
 
 void Engine::resetIdleTimeout() {
 	if (isIdlingEnabled()) {
-		float curr	   = static_cast<float>(ci::app::getElapsedSeconds());
+		auto curr	   = static_cast<float>(ci::app::getElapsedSeconds());
 		mLastTime	   = curr;
 		mLastTouchTime = curr;
 
@@ -1433,11 +1425,11 @@ void Engine::resetIdleTimeout() {
 		}
 
 		mIdling = false;
-		getNotifier().notify(ds::app::IdleEndedEvent());
+		getNotifier().notify(app::IdleEndedEvent());
 	}
 }
 
-void Engine::setTouchMode(const ds::ui::TouchMode::Enum& mode) {
+void Engine::setTouchMode(const ui::TouchMode::Enum& mode) {
 	mTouchMode = mode;
 	mTouchManager.setTouchMode(mode);
 }
@@ -1453,7 +1445,7 @@ bool Engine::getRotateTouchesDefault() {
 /**
  * \class Channel
  */
-Engine::Channel::Channel() {}
+Engine::Channel::Channel() = default;
 
 Engine::Channel::Channel(const std::string& description)
   : mDescription(description) {}
@@ -1463,9 +1455,10 @@ Engine::Channel::Channel(const std::string& description)
 
 namespace {
 
-ds::EngineRoot* find_master(const ds::RootList::Root::Type t, std::vector<std::unique_ptr<ds::EngineRoot>>& list) {
-	for (auto it = list.begin(), end = list.end(); it != end; ++it) {
-		ds::EngineRoot* r(it->get());
+ds::EngineRoot* find_master(const ds::RootList::Root::Type						t,
+							const std::vector<std::unique_ptr<ds::EngineRoot>>& list) {
+	for (auto& it : list) {
+		ds::EngineRoot* r(it.get());
 		if (!r) continue;
 		if (r->getBuilder().mType == t && r->getBuilder().mMaster == ds::RootList::Root::kMaster) {
 			return r;

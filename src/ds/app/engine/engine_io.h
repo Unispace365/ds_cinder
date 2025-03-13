@@ -21,13 +21,13 @@ class BlobRegistry;
  */
 class EngineSender {
   public:
-	EngineSender(ds::NetConnection&, const bool useChunker);
+	EngineSender(NetConnection&, bool useChunker);
 
 	void setPacketNumber(unsigned int packetId);
 
   private:
-	ds::NetConnection& mConnection;
-	ds::DataBuffer	   mSendBuffer;
+	NetConnection&	   mConnection;
+	DataBuffer		   mSendBuffer;
 	RecycleArray<char> mRawDataBuffer;
 	std::string		   mCompressionBuffer;
 	unsigned int	   mPacketId;
@@ -39,7 +39,7 @@ class EngineSender {
 		AutoSend(EngineSender&);
 		~AutoSend();
 
-		ds::DataBuffer& mData;
+		DataBuffer& mData;
 
 	  private:
 		EngineSender& mSender;
@@ -52,29 +52,29 @@ class EngineSender {
  */
 class EngineReceiver {
   public:
-	EngineReceiver(ds::NetConnection&, const bool useChunker);
+	EngineReceiver(NetConnection&, bool useChunker);
 
 	/// A bit of a hack -- every state can be set to listen
 	/// only for the header and command, or everything. This
 	/// is used to stop me from receiving the entire world
 	/// when I'm not ready.
-	void setHeaderAndCommandIds(const char header, const char command);
-	void setHeaderAndCommandOnly(const bool = false);
+	void setHeaderAndCommandIds(char header, char command);
+	void setHeaderAndCommandOnly(bool = false);
 
-	ds::DataBuffer& getData();
+	DataBuffer& getData();
 	/// Convenience for clients with a blob reader, automatically
 	/// receive and handle the data. Answer true if there was data.
 	/// If strict, then will return false if there's no data, otherwise will only return false on error
-	bool receiveBlob(const bool strict);
-	bool handleBlob(ds::BlobRegistry&, ds::BlobReader&, bool& morePacketsAvailable);
+	bool receiveBlob(bool strict);
+	bool handleBlob(const BlobRegistry&, BlobReader&, bool& morePacketsAvailable);
 	bool hasLostConnection() const;
 	void clearLostConnection();
 
   private:
-	ds::DataBuffer	   mCurrentDataBuffer;
-	ds::NetConnection& mConnection;
-	std::string		   mCompressionBufferRead;
-	std::string		   mCompressionBufferWrite;
+	DataBuffer	   mCurrentDataBuffer;
+	NetConnection& mConnection;
+	std::string	   mCompressionBufferRead;
+	std::string	   mCompressionBufferWrite;
 	/// The header and command blob IDs, used for filtering. The header
 	/// and command are always processed, but anything else depends on the state
 	char mHeaderId, mCommandId;
@@ -88,7 +88,7 @@ class EngineReceiver {
 	/// This is in case we're running slower than the server,
 	/// in which case we can run through and update all the buffers at once and catch up
 	std::vector<std::string> mReceiveBuffers;
-	ds::net::DeChunker		 mDechunker;
+	net::DeChunker			 mDechunker;
 	bool					 mUseChunker;
 };
 

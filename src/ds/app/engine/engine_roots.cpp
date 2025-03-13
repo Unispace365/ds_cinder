@@ -1,24 +1,22 @@
 #include "stdafx.h"
 
-#include "ds/app/engine/engine_roots.h"
-
 #include "ds/app/auto_draw.h"
+#include "ds/app/camera_utils.h"
 #include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_roots.h"
 
 namespace ds {
 
 /**
  * \class EngineRoot
  */
-ds::ui::Sprite* EngineRoot::make(ui::SpriteEngine& e, const ds::sprite_id_t id, const bool perspective) {
-	return new ds::ui::Sprite(e, id, perspective);
+ui::Sprite* EngineRoot::make(ui::SpriteEngine& e, const sprite_id_t id, const bool perspective) {
+	return new ui::Sprite(e, id, perspective);
 }
 
 EngineRoot::EngineRoot(const RootList::Root& r, const sprite_id_t id)
   : mRootBuilder(r)
   , mSpriteId(id) {}
-
-EngineRoot::~EngineRoot() {}
 
 const RootList::Root& EngineRoot::getBuilder() const {
 	return mRootBuilder;
@@ -28,10 +26,10 @@ const RootList::Root& EngineRoot::getBuilder() const {
  * \class OrthRoot
  */
 OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
-  : inherited(r, id)
+  : EngineRoot(r, id)
   , mEngine(e)
   , mCameraDirty(false)
-  , mSprite(EngineRoot::make(e, id, false))
+  , mSprite(make(e, id, false))
   , mSrcRect(0.0f, 0.0f, -1.0f, -1.0f)
   , mDstRect(0.0f, 0.0f, -1.0f, -1.0f)
   , mNearPlane(-1.0f)
@@ -56,7 +54,7 @@ void OrthRoot::postAppSetup() {
 
 void OrthRoot::slaveTo(EngineRoot*) {}
 
-ds::ui::Sprite* OrthRoot::getSprite() {
+ui::Sprite* OrthRoot::getSprite() {
 	return mSprite.get();
 }
 
@@ -64,11 +62,11 @@ void OrthRoot::clearChildren() {
 	mSprite->clearChildren();
 }
 
-void OrthRoot::updateClient(const ds::UpdateParams& p) {
+void OrthRoot::updateClient(const UpdateParams& p) {
 	mSprite->updateClient(p);
 }
 
-void OrthRoot::updateServer(const ds::UpdateParams& p) {
+void OrthRoot::updateServer(const UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
@@ -125,11 +123,11 @@ void OrthRoot::setGlCamera() {
  * \class PerspRoot
  */
 PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p)
-  : inherited(r, id)
+  : EngineRoot(r, id)
   , mCameraParams(p)
   , mEngine(e)
   , mCameraDirty(false)
-  , mSprite(EngineRoot::make(e, id, true))
+  , mSprite(make(e, id, true))
   , mMaster(nullptr) {}
 
 void PerspRoot::setup(const Settings& s) {
@@ -146,7 +144,7 @@ void PerspRoot::slaveTo(EngineRoot* r) {
 	if (!mMaster) return;
 }
 
-ds::ui::Sprite* PerspRoot::getSprite() {
+ui::Sprite* PerspRoot::getSprite() {
 	return mSprite.get();
 }
 
@@ -154,11 +152,11 @@ void PerspRoot::clearChildren() {
 	mSprite->clearChildren();
 }
 
-void PerspRoot::updateClient(const ds::UpdateParams& p) {
+void PerspRoot::updateClient(const UpdateParams& p) {
 	mSprite->updateClient(p);
 }
 
-void PerspRoot::updateServer(const ds::UpdateParams& p) {
+void PerspRoot::updateServer(const UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
@@ -177,7 +175,7 @@ ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
 		setCinderCamera();
 	}
 
-	ds::CameraPick pick(mEngine, mCamera, point);
+	CameraPick pick(mEngine, mCamera, point);
 	return mSprite->getPerspectiveHit(pick);
 }
 
@@ -246,7 +244,7 @@ void PerspRoot::setCinderCamera() {
 	}
 }
 
-void PerspRoot::setGlCamera() {
+void PerspRoot::setGlCamera() const {
 	if (mMaster) {
 		ci::gl::setMatrices(mMaster->mCamera);
 	} else {

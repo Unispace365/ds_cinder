@@ -1,21 +1,19 @@
 #include "stdafx.h"
 
-#include "ds/app/engine/engine_client.h"
-
-#include "ds/app/engine/engine.h"
-#include "ds/app/engine/engine_data.h"
-#include "ds/app/engine/engine_io_defs.h"
-#include "ds/debug/debug_defines.h"
-#include "ds/debug/logger.h"
-#include "ds/ui/sprite/image.h"
-#include "ds/util/string_util.h"
-#include "snappy.h"
-#include <cinder/Rand.h>
-
 #include <chrono>
 #include <thread>
 
+#include <cinder/Rand.h>
+
+#include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_client.h"
+#include "ds/app/engine/engine_data.h"
+#include "ds/app/engine/engine_io_defs.h"
 #include "ds/debug/computer_info.h"
+#include "ds/debug/logger.h"
+#include "ds/util/string_util.h"
+
+#include "snappy.h"
 
 namespace ds {
 
@@ -32,13 +30,13 @@ namespace {
 } // namespace
 
 /**
- * \class EngineClient
+ *  EngineClient
  */
 char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;
 }
 
-EngineClient::EngineClient(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed, const ds::RootList& roots)
+EngineClient::EngineClient(App& app, EngineSettings& settings, EngineData& ed, const RootList& roots)
   : Engine(app, settings, ed, roots, CLIENT_MODE)
   , mServerFrame(-1)
   , mIoInfo(*this)
@@ -61,9 +59,9 @@ EngineClient::EngineClient(ds::App& app, ds::EngineSettings& settings, ds::Engin
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
 			mSendConnection.initialize(true, settings.getString("server:ip"),
-									   ds::value_to_string(settings.getInt("server:listen_port")));
+									   value_to_string(settings.getInt("server:listen_port")));
 			mReceiveConnection.initialize(false, settings.getString("server:ip"),
-										  ds::value_to_string(settings.getInt("server:send_port")));
+										  value_to_string(settings.getInt("server:send_port")));
 		}
 	} catch (std::exception& e) {
 		DS_LOG_ERROR_M("EngineClient::EngineClient() initializing UDP: " << e.what(), ENGINE_LOG);
@@ -77,12 +75,12 @@ EngineClient::~EngineClient() {
 	clearRoots();
 }
 
-void EngineClient::installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-								 const std::function<void(ds::BlobRegistry&)>& asClient) {
+void EngineClient::installSprite(const std::function<void(BlobRegistry&)>& asServer,
+								 const std::function<void(BlobRegistry&)>& asClient) {
 	if (asClient) asClient(mBlobRegistry);
 }
 
-ds::sprite_id_t EngineClient::nextSpriteId() {
+sprite_id_t EngineClient::nextSpriteId() {
 	// Clients never generate sprite IDs, they are always assigned from a blob.
 	return 0;
 }
@@ -157,7 +155,7 @@ void EngineClient::stopServices() {
 	mWorkManager.stopManager();
 }
 
-int EngineClient::getBytesRecieved() {
+int EngineClient::getBytesReceived() {
 	return mReceiveConnection.getReceivedBytes();
 }
 
@@ -165,7 +163,7 @@ int EngineClient::getBytesSent() {
 	return mSendConnection.getSentBytes();
 }
 
-void EngineClient::receiveHeader(ds::DataBuffer& data) {
+void EngineClient::receiveHeader(DataBuffer& data) {
 	if (data.canRead<int32_t>()) {
 		mServerFrame = data.read<int32_t>();
 	} else {
@@ -181,9 +179,9 @@ void EngineClient::receiveHeader(ds::DataBuffer& data) {
 	}
 }
 
-void EngineClient::receiveCommand(ds::DataBuffer& data) {
+void EngineClient::receiveCommand(DataBuffer& data) {
 	char cmd;
-	while (data.canRead<char>() && (cmd = data.read<char>()) != ds::TERMINATOR_CHAR) {
+	while (data.canRead<char>() && (cmd = data.read<char>()) != TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
 			clearAllSprites(false);
@@ -202,7 +200,7 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	}
 }
 
-void EngineClient::receiveDeleteSprite(ds::DataBuffer& data) {
+void EngineClient::receiveDeleteSprite(DataBuffer& data) {
 	// First data is the count
 	if (!data.canRead<size_t>()) return;
 
@@ -228,38 +226,38 @@ void EngineClient::receiveDeleteSprite(ds::DataBuffer& data) {
 		return;
 	}
 	const char cmd(data.read<char>());
-	if (cmd != ds::TERMINATOR_CHAR) {
+	if (cmd != TERMINATOR_CHAR) {
 		DS_LOG_ERROR("EngineClient::receiveDeleteSprite() no ending terminator");
 	}
 }
 
-void EngineClient::receiveClientStatus(ds::DataBuffer& data) {
+void EngineClient::receiveClientStatus(DataBuffer& data) {
 	// Whaaaat? Server should never be sending this.
 	while (data.canRead<char>()) {
 		const char cmd(data.read<char>());
-		if (cmd == ds::TERMINATOR_CHAR) return;
+		if (cmd == TERMINATOR_CHAR) return;
 	}
 }
 
-void EngineClient::receiveClientInput(ds::DataBuffer& data) {
+void EngineClient::receiveClientInput(DataBuffer& data) {
 	// Whaaaat? Server should never be sending this.
 	while (data.canRead<char>()) {
 		const char cmd(data.read<char>());
-		if (cmd == ds::TERMINATOR_CHAR) return;
+		if (cmd == TERMINATOR_CHAR) return;
 	}
 }
 
-void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
+void EngineClient::onClientStartedReplyCommand(DataBuffer& data) {
 	clearRoots();
 
 	char cmd;
-	while (data.canRead<char>() && (cmd = data.read<char>()) != ds::TERMINATOR_CHAR) {
+	while (data.canRead<char>() && (cmd = data.read<char>()) != TERMINATOR_CHAR) {
 		if (cmd == ATT_CLIENT) {
 			char		 att;
 			std::string	 guid;
 			int32_t		 sessionid(0);
 			unsigned int chunkerId(0);
-			while (data.canRead<char>() && (att = data.read<char>()) != ds::TERMINATOR_CHAR) {
+			while (data.canRead<char>() && (att = data.read<char>()) != TERMINATOR_CHAR) {
 				if (att == ATT_GLOBAL_ID) {
 					guid = data.read<std::string>();
 				} else if (att == ATT_SESSION_ID) {
@@ -305,7 +303,7 @@ void EngineClient::setState(State& s) {
 }
 
 void EngineClient::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id) {
-	if (mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+	if (mTouchManager.getInputMode() == ui::TouchManager::kInputNormal) {
 		sendMouseTouch(0, e.getPos());
 	} else {
 		mTouchManager.mouseTouchBegin(e, id);
@@ -313,7 +311,7 @@ void EngineClient::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id) {
 }
 
 void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id) {
-	if (mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+	if (mTouchManager.getInputMode() == ui::TouchManager::kInputNormal) {
 		sendMouseTouch(1, e.getPos());
 	} else {
 		mTouchManager.mouseTouchMoved(e, id);
@@ -321,7 +319,7 @@ void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id) {
 }
 
 void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id) {
-	if (mTouchManager.getInputMode() == ds::ui::TouchManager::kInputNormal) {
+	if (mTouchManager.getInputMode() == ui::TouchManager::kInputNormal) {
 		sendMouseTouch(2, e.getPos());
 	} else {
 		mTouchManager.mouseTouchEnded(e, id);
@@ -329,31 +327,26 @@ void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id) {
 	}
 }
 
-void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos) {
-	ci::vec2 worldPoint = pos;
-
+void EngineClient::sendMouseTouch(int phase, const ci::ivec2& pos) {
 	EngineSender::AutoSend send(mSender);
-	ds::DataBuffer&		   buf = send.mData;
+
+	DataBuffer& buf = send.mData;
 	buf.add(CLIENT_INPUT_BLOB);
 	buf.add(phase);
 	buf.add(-1); // id
-	buf.add(worldPoint.x);
-	buf.add(worldPoint.y);
-	buf.add(ds::TERMINATOR_CHAR);
+	buf.add(pos.x);
+	buf.add(pos.y);
+	buf.add(TERMINATOR_CHAR);
 }
 
 /**
  * EngineClient::State
  */
-EngineClient::State::State() {}
-
 void EngineClient::State::begin(EngineClient&) {}
 
 /**
  * EngineClient::RunningState
  */
-EngineClient::RunningState::RunningState() {}
-
 void EngineClient::RunningState::begin(EngineClient& c) {
 	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
 	c.mServerFrame = -1;
@@ -361,14 +354,14 @@ void EngineClient::RunningState::begin(EngineClient& c) {
 
 void EngineClient::RunningState::update(EngineClient& e) {
 	EngineSender::AutoSend send(e.mSender);
-	ds::DataBuffer&		   buf = send.mData;
+	DataBuffer&			   buf = send.mData;
 	buf.add(COMMAND_BLOB);
 	buf.add(CMD_CLIENT_RUNNING);
 	buf.add(ATT_SESSION_ID);
 	buf.add(e.mSessionId);
 	buf.add(ATT_FRAME);
 	buf.add(e.mServerFrame);
-	buf.add(ds::TERMINATOR_CHAR);
+	buf.add(TERMINATOR_CHAR);
 
 	const size_t count(e.getRootCount());
 	for (int k = 0; k < count; ++k) {
@@ -384,9 +377,6 @@ void EngineClient::RunningState::update(EngineClient& e) {
 /**
  * EngineClient::ClientStartedState
  */
-EngineClient::ClientStartedState::ClientStartedState()
-  : mSendFrame(0) {}
-
 void EngineClient::ClientStartedState::begin(EngineClient&) {
 	DS_LOG_INFO_M("ClientStartedState", ds::IO_LOG);
 	mSendFrame = 0;
@@ -398,12 +388,12 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 	}
 	if (mSendFrame <= 0) {
 		EngineSender::AutoSend send(engine.mSender);
-		ds::DataBuffer&		   buf = send.mData;
+		DataBuffer&			   buf = send.mData;
 		buf.add(COMMAND_BLOB);
 		buf.add(CMD_CLIENT_STARTED);
 		buf.add(ATT_GLOBAL_ID);
 		buf.add(engine.mIoInfo.mGlobalId);
-		buf.add(ds::TERMINATOR_CHAR);
+		buf.add(TERMINATOR_CHAR);
 
 		// Randomize the amount of time to wait for a retry.
 		// If there are multiple clients that started at the same time, we could be flooding the server with new world
@@ -418,9 +408,6 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 /**
  * EngineClient::BlankState
  */
-EngineClient::BlankState::BlankState()
-  : mSendFrame(0) {}
-
 void EngineClient::BlankState::begin(EngineClient&) {
 	DS_LOG_INFO_M("BlankState", ds::IO_LOG);
 	mSendFrame = 0;
@@ -429,10 +416,10 @@ void EngineClient::BlankState::begin(EngineClient&) {
 void EngineClient::BlankState::update(EngineClient& engine) {
 	if (mSendFrame <= 0) {
 		EngineSender::AutoSend send(engine.mSender);
-		ds::DataBuffer&		   buf = send.mData;
+		DataBuffer&			   buf = send.mData;
 		buf.add(COMMAND_BLOB);
 		buf.add(CMD_CLIENT_REQUEST_WORLD);
-		buf.add(ds::TERMINATOR_CHAR);
+		buf.add(TERMINATOR_CHAR);
 
 		// Randomize the amount of time to wait for a retry.
 		// If there are multiple clients that started at the same time, we could be flooding the server with new world

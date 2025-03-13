@@ -1,12 +1,12 @@
 #include "stdafx.h"
 
-#include "ds/app/engine/engine_client_list.h"
-
-#include <ds/app/event_notifier.h>
-#include <ds/debug/logger.h>
-#include <ds/util/string_util.h>
 #include <iostream>
 #include <sstream>
+
+#include "ds/app/engine/engine_client_list.h"
+#include "ds/app/event_notifier.h"
+#include "ds/debug/logger.h"
+#include "ds/util/string_util.h"
 
 namespace ds {
 
@@ -25,27 +25,27 @@ void EngineClientList::setErrorChannel(ds::EventNotifier* n) {
 int32_t EngineClientList::startClient(const std::string& guid) {
 	if (guid.empty()) return 0;
 	try {
-		for (auto it = mClients.begin(), end = mClients.end(); it != end; ++it) {
-			if (it->mGuid == guid) {
-				return it->mSessionId;
+		for (auto& client : mClients) {
+			if (client.mGuid == guid) {
+				return client.mSessionId;
 			}
 		}
-		mClients.push_back(State(guid, mNextSessionId++));
+		mClients.emplace_back(guid, mNextSessionId++);
 		return mClients.back().mSessionId;
 	} catch (std::exception const&) {}
 	return 0;
 }
 
 EngineClientList::State* EngineClientList::findClient(const int32_t id) {
-	for (auto it = mClients.begin(), end = mClients.end(); it != end; ++it) {
-		if (it->mSessionId == id) return &(*it);
+	for (auto& client : mClients) {
+		if (client.mSessionId == id) return &client;
 	}
 	return nullptr;
 }
 
 const EngineClientList::State* EngineClientList::findClient(const int32_t id) const {
-	for (auto it = mClients.begin(), end = mClients.end(); it != end; ++it) {
-		if (it->mSessionId == id) return &(*it);
+	for (const auto& client : mClients) {
+		if (client.mSessionId == id) return &client;
 	}
 	return nullptr;
 }

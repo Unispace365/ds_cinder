@@ -2,8 +2,9 @@
 #ifndef DS_APP_ENGINE_ENGINESETTINGS_H_
 #define DS_APP_ENGINE_ENGINESETTINGS_H_
 
-#include "ds/cfg/settings.h"
 #include <sstream>
+
+#include "ds/cfg/settings.h"
 
 namespace ds {
 class Environment;
@@ -34,29 +35,29 @@ class Environment;
  * assign a project path to the system that will overwrite any project_path
  * specified in the app settings.
  */
-class EngineSettings : public ds::cfg::Settings {
+class EngineSettings : public cfg::Settings {
   public:
 	EngineSettings();
 
-	void printStartupInfo();
+	void printStartupInfo() const;
 	bool getUsingDefault() const { return !mLoadedAnySettings; };
 
 	/// anything set here during runtime will override any startup arguments or configuration.xml settings
 	/// note that this does not have an immediate effect - an app soft restart is required
-	static void				  setConfigurationOverride(std::string overrideFolder);
+	static void               setConfigurationOverride(const std::string& overrideFolder);
 	static const std::string& getConfigurationFolder();
 	static const std::string& envProjectPath();
-	void					  loadInitialSettings();
+	void                      loadInitialSettings();
 
   private:
 	friend class Environment;
 	friend class EngineCfg;
 	/// Answer the configuration.xml if it exists.
-	const ds::cfg::Settings& getConfiguration();
+	const Settings& getConfiguration();
 
 	void setDefaults();
 
-	ds::cfg::Settings mConfiguration;
+	Settings mConfiguration;
 
 	bool			  mLoadedAnySettings;
 	std::stringstream mStartupInfo;

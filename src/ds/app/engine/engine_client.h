@@ -18,45 +18,50 @@ namespace ds {
 class EngineClient : public Engine {
   public:
 	static char getClientStatusBlob();
-	EngineClient(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
-	~EngineClient();
+	EngineClient(App&, EngineSettings&, EngineData&, const RootList&);
+	~EngineClient() override;
 
-	virtual ds::sprite_id_t nextSpriteId();
+	EngineClient(const EngineClient&)			 = delete;
+	EngineClient(EngineClient&&)				 = delete;
+	EngineClient& operator=(const EngineClient&) = delete;
+	EngineClient& operator=(EngineClient&&)		 = delete;
 
-	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-							   const std::function<void(ds::BlobRegistry&)>& asClient);
+	sprite_id_t nextSpriteId() override;
 
-	virtual void update();
-	virtual void draw();
+	void installSprite(const std::function<void(BlobRegistry&)>& asServer,
+					   const std::function<void(BlobRegistry&)>& asClient) override;
 
-	virtual void stopServices();
+	void update() override;
+	void draw() override;
 
-	virtual int getBytesRecieved();
-	virtual int getBytesSent();
+	void stopServices() override;
+
+	int getBytesReceived() override;
+	int getBytesSent() override;
 
 	/// The most recent frame received from the server.
 	int32_t mServerFrame;
 
   private:
-	void receiveHeader(ds::DataBuffer&);
-	void receiveCommand(ds::DataBuffer&);
-	void receiveDeleteSprite(ds::DataBuffer&);
-	void receiveClientStatus(ds::DataBuffer&);
-	void receiveClientInput(ds::DataBuffer&);
-	void onClientStartedReplyCommand(ds::DataBuffer&);
+	void        receiveHeader(DataBuffer&);
+	void        receiveCommand(DataBuffer&);
+	void        receiveDeleteSprite(DataBuffer&);
+	static void receiveClientStatus(DataBuffer&);
+	static void receiveClientInput(DataBuffer&);
+	void        onClientStartedReplyCommand(DataBuffer&);
 
-	virtual void handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
-	void		 sendMouseTouch(const int phase, const ci::ivec2 pos);
+	void handleMouseTouchBegin(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchMoved(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchEnded(const ci::app::MouseEvent&, int id) override;
+	void sendMouseTouch(int phase, const ci::ivec2& pos);
 
-	EngineIoInfo	  mIoInfo;
-	ds::UdpConnection mSendConnection;
-	ds::UdpConnection mReceiveConnection;
-	EngineSender	  mSender;
-	EngineReceiver	  mReceiver;
-	ds::BlobReader	  mBlobReader;
-	int32_t			  mSessionId;
+	EngineIoInfo   mIoInfo;
+	UdpConnection  mSendConnection;
+	UdpConnection  mReceiveConnection;
+	EngineSender   mSender;
+	EngineReceiver mReceiver;
+	BlobReader	   mBlobReader;
+	int32_t		   mSessionId;
 	/// True if I lost the connection, renewed it, and am
 	/// waiting to hear back.
 	bool mConnectionRenewed;
@@ -64,46 +69,47 @@ class EngineClient : public Engine {
 	/// STATES
 	class State {
 	  public:
-		State();
+		virtual ~State() = default;
+
 		virtual bool getHeaderAndCommandOnly() const = 0;
-		virtual void begin(EngineClient&);
-		virtual void update(EngineClient&) = 0;
+		virtual void begin(EngineClient&)			 = 0;
+		virtual void update(EngineClient&)			 = 0;
 	};
 
-	class RunningState : public State {
+	class RunningState final : public State {
 	  public:
-		RunningState();
-		virtual bool getHeaderAndCommandOnly() const { return false; }
-		virtual void begin(EngineClient&);
-		virtual void update(EngineClient&);
+		RunningState() = default;
+		bool getHeaderAndCommandOnly() const override { return false; }
+		void begin(EngineClient&) override;
+		void update(EngineClient&) override;
 	};
 
 	/// I have just started, and am sending the server the
 	/// CMD_CLIENT_STARTED command. I will wait here until
 	/// I receive CMD_CLIENT_STARTED_REPLY.
-	class ClientStartedState : public State {
+	class ClientStartedState final : public State {
 	  public:
-		ClientStartedState();
-		virtual bool getHeaderAndCommandOnly() const { return true; }
-		virtual void begin(EngineClient&);
-		virtual void update(EngineClient&);
+		ClientStartedState() = default;
+		bool getHeaderAndCommandOnly() const override { return true; }
+		void begin(EngineClient&) override;
+		void update(EngineClient&) override;
 
 	  private:
 		/// Avoid flooding the server with requests for the world.
-		int mSendFrame;
+		int mSendFrame{0};
 	};
 
 	/// I have no data, and am waiting for a complete refresh
-	class BlankState : public State {
+	class BlankState final : public State {
 	  public:
-		BlankState();
-		virtual bool getHeaderAndCommandOnly() const { return true; }
-		virtual void begin(EngineClient&);
-		virtual void update(EngineClient&);
+		BlankState() = default;
+		bool getHeaderAndCommandOnly() const override { return true; }
+		void begin(EngineClient&) override;
+		void update(EngineClient&) override;
 
 	  private:
 		/// Avoid flooding the server with requests for the world.
-		int mSendFrame;
+		int mSendFrame{0};
 	};
 
 	State*			   mState;

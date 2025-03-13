@@ -2,8 +2,9 @@
 #ifndef DS_APP_ENGINE_ENGINEIODEFS_H_
 #define DS_APP_ENGINE_ENGINEIODEFS_H_
 
-#include "ds/app/app_defs.h"
 #include <string>
+
+#include "ds/app/app_defs.h"
 
 namespace ds {
 class DataBuffer;
@@ -34,7 +35,7 @@ extern const char ATT_ROOTS;	  // A list of the roots being sent from the server
  */
 class EngineIoInfo {
   public:
-	EngineIoInfo(ds::Engine&);
+	EngineIoInfo(Engine&);
 
 	/// Clients create a GUID on startup, which gets converted to a
 	/// much shorter sessionID by the server.
@@ -48,11 +49,11 @@ class EngineIoInfo {
  */
 class ScopedClientAtts {
   public:
-	ScopedClientAtts(ds::DataBuffer&, const sprite_id_t);
+	ScopedClientAtts(DataBuffer&, const sprite_id_t);
 	~ScopedClientAtts();
 
   private:
-	ds::DataBuffer& mBuffer;
+	DataBuffer& mBuffer;
 };
 
 } // namespace ds

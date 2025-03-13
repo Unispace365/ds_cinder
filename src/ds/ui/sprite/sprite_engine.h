@@ -1,4 +1,5 @@
 #pragma once
+
 #include <list>
 #include <memory>
 #include <unordered_map>
@@ -7,7 +8,7 @@
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
 #include <cinder/Xml.h>
-#include <cinder/app/Window.h>
+#include <cinder/app/App.h>
 
 #include "ds/app/app_defs.h"
 #include "ds/content/content_model.h"
@@ -57,32 +58,33 @@ class SpriteEngine {
   public:
 	/** Access to the app-wide notification service. Use this to send a
 	 message to everyone who's registered an EventClient. */
-	ds::EventNotifier& getNotifier();
+	EventNotifier& getNotifier() const;
 
 	/** New-style notifier, access a  named channel. Create the
 		 channel if it doesn't exist. */
-	virtual ds::EventNotifier& getChannel(const std::string&) = 0;
-	virtual void notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso = false) = 0;
-	virtual void notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso = false)= 0;
+	virtual EventNotifier& getChannel(const std::string&)												   = 0;
+	virtual void notifyOnChannel(const Event& event, const std::string& channel, bool defaultAlso = false) = 0;
+	virtual void notifyOnChannels(const Event& event, std::initializer_list<std::string> channels,
+								  bool defaultAlso = false)												   = 0;
 
 
 	/// General engine services
-	virtual ds::WorkManager&	 getWorkManager() final { return mWorkManager; };
-	virtual ds::ResourceList&	 getResources()										   = 0;
-	virtual const ds::ColorList& getColors() const									   = 0;
-	virtual ds::ColorList&		 getColors()										   = 0;
-	virtual const ds::FontList&	 getFonts() const									   = 0;
-	virtual ds::AutoUpdateList&	 getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
-	virtual LoadImageService&	 getLoadImageService()								   = 0;
-	virtual PangoFontService&	 getPangoFontService()								   = 0;
-	virtual Tweenline&			 getTweenline()										   = 0;
-	virtual ci::app::WindowRef	 getWindow()										   = 0;
+	virtual WorkManager&	   getWorkManager() final { return mWorkManager; }
+	virtual ResourceList&	   getResources()								   = 0;
+	virtual const ColorList&   getColors() const							   = 0;
+	virtual ColorList&		   getColors()									   = 0;
+	virtual const FontList&	   getFonts() const								   = 0;
+	virtual AutoUpdateList&	   getAutoUpdateList(int = AutoUpdateType::SERVER) = 0;
+	virtual LoadImageService&  getLoadImageService()						   = 0;
+	virtual PangoFontService&  getPangoFontService()						   = 0;
+	virtual Tweenline&		   getTweenline()								   = 0;
+	virtual ci::app::WindowRef getWindow()									   = 0;
 
-	bool getMute();
-	void setMute(bool);
+	bool getMute() const;
+	void setMute(bool) const;
 
 	/** Defined by platform:guid. Useful if you need to something specific on a particular client */
-	const std::string getAppInstanceName();
+	const std::string& getAppInstanceName() const;
 
 	/** Access a service. Throw if the service doesn't exist.
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
@@ -92,44 +94,43 @@ class SpriteEngine {
 	bool hasService(const std::string&) const;
 
 	/** Access to the current engine configuration info. */
-	void loadSettings(const std::string& name, const std::string& filename);
+	virtual void loadSettings(const std::string& name, const std::string& filename);
 
 	/// EngineCfg owns all the settings and configs.
-	ds::EngineCfg&		 getEngineCfg();
-	const ds::EngineCfg& getEngineCfg() const;
+	EngineCfg&		 getEngineCfg();
+	const EngineCfg& getEngineCfg() const;
 
 	/// Gets the text style for a particular name (Font name, size, color, leading) from text.xml (deprecated) or
 	/// styles.xml
-	const ds::ui::TextStyle& getTextStyle(const std::string& textName) const;
+	const TextStyle& getTextStyle(const std::string& textName) const;
 
 	/// Returns the settings with this settings name
-	ds::cfg::Settings& getSettings(const std::string& name) const;
+	cfg::Settings& getSettings(const std::string& name) const;
 
 	/// Returns the settings for engine.xml (convenience)
-	ds::cfg::Settings& getEngineSettings() const;
+	cfg::Settings& getEngineSettings() const;
 
 	/// Returns the settings for app_settings.xml (convenience)
-	ds::cfg::Settings& getAppSettings() const;
+	cfg::Settings& getAppSettings() const;
 
 	/// Returns the settings for waffles.xml (convenience)
-	ds::cfg::Settings& getWafflesSettings() const;
+	cfg::Settings& getWafflesSettings() const;
 
 	/// Returns the settings for colors.xml (deprecated)
-	ds::cfg::Settings& getColorSettings() const;
+	[[deprecated]] cfg::Settings& getColorSettings() const;
 
-	/// Returns the settings for colors.xml (convienece)
-	ds::cfg::Settings& getWflColorSettings() const;
+	/// Returns the settings for colors.xml (convenience)
+	cfg::Settings& getWflColorSettings() const;
 
-	
 
 	/// Sprite management
-	virtual ds::sprite_id_t nextSpriteId()					  = 0;
-	virtual void			registerSprite(Sprite&)			  = 0;
-	virtual void			unregisterSprite(Sprite&)		  = 0;
-	virtual Sprite*			findSprite(const ds::sprite_id_t) = 0;
+	virtual sprite_id_t nextSpriteId()			  = 0;
+	virtual void		registerSprite(Sprite&)	  = 0;
+	virtual void		unregisterSprite(Sprite&) = 0;
+	virtual Sprite*		findSprite(sprite_id_t)	  = 0;
 	/// Notification that a sprite has been deleted
-	virtual void		spriteDeleted(const ds::sprite_id_t&) = 0;
-	virtual ci::Color8u getUniqueColor()					  = 0;
+	virtual void		spriteDeleted(sprite_id_t) = 0;
+	virtual ci::Color8u getUniqueColor()		   = 0;
 
 	float			 getMinTouchDistance() const;
 	float			 getMinTapDistance() const;
@@ -148,13 +149,13 @@ class SpriteEngine {
 	/// convenience function for getting and setting the target;
 
 	/** Sets a layout target. */
-	void setLayoutTarget(std::string target, int index = 0);
+	void setLayoutTarget(std::string target, int index = 0) const;
 
 	/** Checks if a layout target is set. returns true is set. checking for an empty string always returns false */
-	bool hasLayoutTarget(std::string);
+	bool hasLayoutTarget(const std::string&) const;
 
 	/** Gets a layout target*/
-	std::string getLayoutTarget(int index = 0);
+	std::string getLayoutTarget(int index = 0) const;
 
 	/// Stores the current XML node while parsing XML layouts. Can be used during construction.
 	void setCurrentNode(const ci::XmlTree* node) { mCurrentNode = node; }
@@ -165,134 +166,136 @@ class SpriteEngine {
 	const std::string& getCmsURL() const;
 
 	/// Get the standard animation duration
-	const float getAnimDur() const;
-	void		setAnimDur(const float newAnimDur);
+	float getAnimDur() const;
+	void  setAnimDur(float newAnimDur) const;
 
 	/// Camera control. Will throw if the root at the index is the wrong type.
 	/// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
 	/// no earlier than App::setup().
-	virtual PerspCameraParams getPerspectiveCamera(const size_t index) const = 0;
+	virtual PerspCameraParams getPerspectiveCamera(size_t index) const = 0;
 	/// For clients that frequently read the camera params, they can cache a direct reference.
-	virtual const ci::CameraPersp& getPerspectiveCameraRef(const size_t index) const				   = 0;
-	virtual void				   setPerspectiveCamera(const size_t index, const PerspCameraParams&)  = 0;
-	virtual void				   setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
+	virtual const ci::CameraPersp& getPerspectiveCameraRef(size_t index) const					 = 0;
+	virtual void				   setPerspectiveCamera(size_t index, const PerspCameraParams&)	 = 0;
+	virtual void				   setPerspectiveCameraRef(size_t index, const ci::CameraPersp&) = 0;
 
 	/// Will throw if the root at the index is the wrong type
-	virtual float getOrthoFarPlane(const size_t index) const										  = 0;
-	virtual float getOrthoNearPlane(const size_t index) const										  = 0;
-	virtual void  setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
+	virtual float getOrthoFarPlane(size_t index) const								= 0;
+	virtual float getOrthoNearPlane(size_t index) const								= 0;
+	virtual void  setOrthoViewPlanes(size_t index, float nearPlane, float farPlane) = 0;
 
 	void	addToDragDestinationList(Sprite* sprite);
-	void	removeFromDragDestinationList(Sprite* sprite);
-	Sprite* getDragDestinationSprite(const ci::vec3& globalPoint, Sprite* draggingSprite);
+	void	removeFromDragDestinationList(const Sprite* sprite);
+	Sprite* getDragDestinationSprite(const ci::vec3& globalPoint, const Sprite* draggingSprite) const;
 
-	double getElapsedTimeSeconds() const;
+	static double getElapsedTimeSeconds();
 
 	virtual bool isIdlingEnabled() const { return true; }
 	virtual void enableIdling(bool enable) {}
 
 	int			 getIdleTimeout() const;
-	void		 setIdleTimeout(int idleTimeout);
-	virtual void resetIdleTimeout(){};
-	virtual void startIdling(){};
+	void		 setIdleTimeout(int idleTimeout) const;
+	virtual void resetIdleTimeout() {}
+	virtual void startIdling() {}
 	virtual bool isIdling() = 0;
 
-	virtual void		clearFingers(const std::vector<int>& fingers);
-	virtual void		clearFingersForSprite(ui::Sprite* theSprite){};
-	virtual void		setSpriteForFinger(const int fingerId, ui::Sprite* theSprite) = 0;
-	virtual ui::Sprite* getSpriteForFinger(const int fingerId)						  = 0;
+	virtual void	clearFingers(const std::vector<int>& fingers);
+	virtual void	clearFingersForSprite(Sprite* theSprite) {}
+	virtual void	setSpriteForFinger(int fingerId, Sprite* theSprite) = 0;
+	virtual Sprite* getSpriteForFinger(int fingerId)					= 0;
 
 	/// If you want to create touch events from your client app, use these functions.
 	/// The touch events will use the same pathways that normal touches would.
 	/// This is generally only recommended for debugging stuff (like automators)
 	/// or if you have an unusual input situation (like a kinect or something) and want to use touch
-	virtual void injectTouchesBegin(const ds::ui::TouchEvent&) = 0;
-	virtual void injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
-	virtual void injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
+	virtual void injectTouchesBegin(const TouchEvent&) = 0;
+	virtual void injectTouchesMoved(const TouchEvent&) = 0;
+	virtual void injectTouchesEnded(const TouchEvent&) = 0;
 
-	virtual void injectObjectsBegin(const ds::TuioObject&) = 0;
-	virtual void injectObjectsMoved(const ds::TuioObject&) = 0;
-	virtual void injectObjectsEnded(const ds::TuioObject&) = 0;
+	virtual void injectObjectsBegin(const TuioObject&) = 0;
+	virtual void injectObjectsMoved(const TuioObject&) = 0;
+	virtual void injectObjectsEnded(const TuioObject&) = 0;
 
 	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
 	/// This calls *after* any sprites get the touch.
-	void setTouchInfoPipeCallback(std::function<void(const ds::ui::TouchInfo&)> func) { mTouchInfoPipe = func; }
+	void setTouchInfoPipeCallback(std::function<void(const TouchInfo&)> func) { mTouchInfoPipe = func; }
 
 	/// Get the function for touch info callbacks, for TouchManager to callback on.
-	std::function<void(const ds::ui::TouchInfo&)> getTouchInfoPipeCallback() { return mTouchInfoPipe; }
+	std::function<void(const TouchInfo&)> getTouchInfoPipeCallback() { return mTouchInfoPipe; }
 
 	/// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	/// Sprites can still turn this off after creation
 	virtual bool getRotateTouchesDefault() = 0;
 
 	/// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
-	virtual ds::ui::Sprite* getHit(const ci::vec3& point) = 0;
+	virtual Sprite* getHit(const ci::vec3& point) = 0;
 
-	virtual int getBytesRecieved() = 0;
-	virtual int getBytesSent()	   = 0;
+	[[deprecated("Use getBytesReceived() instead")]] virtual int getBytesRecieved() final {
+		return getBytesReceived();
+	} // TODO make const
+
+	virtual int getBytesReceived() = 0; // TODO make const
+	virtual int getBytesSent()	   = 0; // TODO make const
 
 
 	static const int CLIENT_MODE	   = 0;
 	static const int SERVER_MODE	   = 1;
 	static const int CLIENTSERVER_MODE = 2;
 	static const int STANDALONE_MODE   = 3;
-	virtual int		 getMode() final { return mAppMode; };
+	virtual int		 getMode() final { return mAppMode; }
 
-	ds::ComputerInfo& getComputerInfo();
+	ComputerInfo& getComputerInfo() const;
 
 	/** Register a function to a sprite type. This allows an xml sprite importer to create sprites it knows nothing
 	 * about, like Jon Snow. */
-	void registerSpriteImporter(const std::string&									  spriteType,
-								std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func);
+	void registerSpriteImporter(const std::string& spriteType, std::function<Sprite*(SpriteEngine&)> func);
 	/** Create a sprite of a type specified by the spriteType name in registerSpriteImporter(). Can return nullptr
 	 * if there's no sprite registered for that name. */
-	ds::ui::Sprite* createSpriteImporter(const std::string& spriteType);
+	Sprite* createSpriteImporter(const std::string& spriteType);
 
 	/** Register a callback to set the property of a sprite during import by an outside caller (like an xml
 	 * importer) */
 	void registerSpritePropertySetter(
 		const std::string& propertyName,
-		std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>
-			func);
+		std::function<void(Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func);
 
 	template <class DERIVED_SPRITE>
 	void
 	registerSpritePropertySetter(const std::string&															  property,
 								 std::function<void(DERIVED_SPRITE&, const std::string&, const std::string&)> setter) {
-		static_assert(std::is_base_of<ds::ui::Sprite, DERIVED_SPRITE>::value,
+		static_assert(std::is_base_of<Sprite, DERIVED_SPRITE>::value,
 					  "DERIVED_SPRITE must be derived from ds::ui::Sprite");
 
-		registerSpritePropertySetter(property, [setter, property](ds::ui::Sprite& sp, const std::string& value,
+		registerSpritePropertySetter(property, [setter, property](Sprite& sp, const std::string& value,
 																  const std::string& fileReferrer) {
 			if (auto derived = dynamic_cast<DERIVED_SPRITE*>(&sp)) {
 				setter(*derived, value, fileReferrer);
 			} else {
-				DS_LOG_VERBOSE(1,"Tried to set the property "
-							   << property << " for something other than: " << typeid(DERIVED_SPRITE).name());
+				DS_LOG_VERBOSE(1, "Tried to set the property "
+									  << property << " for something other than: " << typeid(DERIVED_SPRITE).name());
 			}
 		});
 	}
 
 	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to
 	 * look up files. See ds/util/file_meta_data.h for relative path finding */
-	bool setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite,
-									 const std::string& theValue, const std::string& fileRefferer = "");
+	bool setRegisteredSpriteProperty(const std::string& propertyName, Sprite& theSprite, const std::string& theValue,
+									 const std::string& fileRefferer = "");
 
 	/// Register an Entry Field so it's able to get normal keyboard input
 	void registerEntryField(IEntryField* entryField);
 
 	/// Returns the Entry Field registered. Returns nullptr if no entry field has been registered
-	IEntryField* getRegisteredEntryField();
+	IEntryField* getRegisteredEntryField() const;
 
 	/// Calls the function after the elapsed time once
 	/// Save the returned ID if you want to cancel it later
 	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
-	size_t timedCallback(std::function<void()> func, const double timerSeconds);
+	size_t timedCallback(const std::function<void()>& func, double timerSeconds);
 
 	/// Calls the function after the elapsed time repeatedly
 	/// Save the returned ID if you want to cancel it later
 	/// Multiple calls do not cancel previous callbacks, unlike Sprite::delayedCallback()
-	size_t repeatedCallback(std::function<void()> func, const double timerSeconds);
+	size_t repeatedCallback(std::function<void()> func, double timerSeconds);
 
 	/// Cancels a timedCallback() or a repeatedCallback() using the return value from above
 	void cancelTimedCallback(size_t callbackId);
@@ -303,56 +306,55 @@ class SpriteEngine {
 	/// If this engine has been set to restart soon. Resets the variable to false after calling
 	bool getRestartAfterNextUpdate();
 
-	std::function<void(ds::ui::VideoPlayer*)> getGlobalVideoPlayerCreatedCallback();
-	void setGlobalVideoPlayerCreatedCallback(std::function<void(ds::ui::VideoPlayer*)> func);
+	std::function<void(VideoPlayer*)> getGlobalVideoPlayerCreatedCallback();
+	void							  setGlobalVideoPlayerCreatedCallback(std::function<void(VideoPlayer*)> func);
 
-	
 
 	/// Content delivered by ContentWrangler
-	ds::model::ContentModelRef mContent;
+	model::ContentModelRef mContent;
 
   protected:
 	/// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	/// which is how things work by default (the data and engine are owned by the App).
-	SpriteEngine(ds::EngineData&, const int appMode);
+	SpriteEngine(EngineData&, int appMode);
 	virtual ~SpriteEngine();
 
-	ds::EngineData&	   mData;
+	EngineData&		   mData;
 	std::list<Sprite*> mDragDestinationSprites;
-	ds::ComputerInfo*  mComputerInfo;
+	ComputerInfo*	   mComputerInfo;
 	IEntryField*	   mRegisteredEntryField;
 	const int		   mAppMode;
 	WorkManager		   mWorkManager;
 
 	bool mRestartAfterUpdate;
 
-	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
-	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue,
+	std::unordered_map<std::string, std::function<Sprite*(SpriteEngine&)>> mImporterMap;
+	std::unordered_map<std::string, std::function<void(Sprite& theSprite, const std::string& theValue,
 													   const std::string& fileRefferer)>>
 		mPropertyMap;
 
-	friend class ds::time::Callback;
-	std::vector<ds::time::Callback*> mTimedCallbacks;
-	size_t							 mCallbackId; // for tracking the above
+	friend class time::Callback;
+	std::vector<time::Callback*> mTimedCallbacks;
+	size_t						 mCallbackId; // for tracking the above
 
-	std::function<void(ds::ui::VideoPlayer*)> mGlobalVideoPlayerCreatedCallback=nullptr;
+	std::function<void(VideoPlayer*)> mGlobalVideoPlayerCreatedCallback = nullptr;
 
   private:
-	ds::EngineService& private_getService(const std::string&);
+	EngineService& privateGetService(const std::string&) const;
 
-	std::function<void(const ds::ui::TouchInfo& ti)> mTouchInfoPipe;
+	std::function<void(const TouchInfo& ti)> mTouchInfoPipe;
 
 	const ci::XmlTree* mCurrentNode = nullptr;
 };
 
 template <typename T>
 T& SpriteEngine::getService(const std::string& str) {
-	return dynamic_cast<T&>(private_getService(str));
+	return dynamic_cast<T&>(privateGetService(str));
 }
 
 class ScopedCurrentNode {
-	SpriteEngine& mEngine;
-	const ci::XmlTree*	  mNode;
+	SpriteEngine&	   mEngine;
+	const ci::XmlTree* mNode;
 
   public:
 	ScopedCurrentNode(SpriteEngine& engine, const ci::XmlTree* node)

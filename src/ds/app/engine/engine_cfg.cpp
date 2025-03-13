@@ -1,12 +1,10 @@
 #include "stdafx.h"
 
 #include "ds/app/engine/engine_cfg.h"
-#include <cinder/app/App.h>
-#include <ds/debug/logger.h>
-
 #include "ds/app/engine/engine_settings.h"
 #include "ds/app/environment.h"
-#include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
+
 #include <Poco/String.h>
 
 
@@ -27,12 +25,12 @@ namespace {
 /**
  * ds::EngineCfg
  */
-EngineCfg::EngineCfg(ds::cfg::Settings& engine_settings)
-  : mEngineSettings(engine_settings)
+EngineCfg::EngineCfg(cfg::Settings& engineSettings)
+  : mEngineSettings(engineSettings)
   , mEmptySettings()
   , mEditEmptySettings() {}
 
-ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) {
+cfg::Settings& EngineCfg::getSettings(const std::string& name) {
 	if (name.empty()) {
 		DS_LOG_WARNING("EngineCfg::getSettings() on empty name");
 		return mEmptySettings;
@@ -51,7 +49,7 @@ ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) {
 	return it->second;
 }
 
-ds::cfg::Settings& EngineCfg::getNextSettings(const std::string& name) {
+cfg::Settings& EngineCfg::getNextSettings(const std::string& name) {
 	if (mSettings.empty() || name.empty()) {
 		DS_LOG_WARNING("EngineCfg::getNextSettings() could not fulfill your request. Bummer.");
 		return mEmptySettings;
@@ -59,8 +57,9 @@ ds::cfg::Settings& EngineCfg::getNextSettings(const std::string& name) {
 
 	if (name == ENGINE_SZ) return mSettings.begin()->second;
 
-	bool		foundTheSetting = false;
-	std::string theKey			= "";
+	std::string theKey;
+
+	bool foundTheSetting = false;
 	for (auto it : mSettings) {
 		if (foundTheSetting) {
 			theKey = it.first;
@@ -88,7 +87,7 @@ bool EngineCfg::hasTextStyle(const std::string& name) const {
 	return true;
 }
 
-const ds::ui::TextStyle& EngineCfg::getTextStyle(const std::string& name) const {
+const ui::TextStyle& EngineCfg::getTextStyle(const std::string& name) const {
 
 	if (name.empty()) {
 		DS_LOG_WARNING("EngineCfg::getTextStyle() on empty name");
@@ -109,15 +108,15 @@ const ds::ui::TextStyle& EngineCfg::getTextStyle(const std::string& name) const 
 	return it->second;
 }
 
-void EngineCfg::setDefaultTextStyle(const ds::ui::TextStyle& theStyle) {
+void EngineCfg::setDefaultTextStyle(const ui::TextStyle& theStyle) {
 	mDefaultTextStyle = theStyle;
 }
 
-const ds::ui::TextStyle& EngineCfg::getDefaultTextStyle() const {
+const ui::TextStyle& EngineCfg::getDefaultTextStyle() const {
 	return mDefaultTextStyle;
 }
 
-void EngineCfg::setTextStyle(const std::string& name, const ds::ui::TextStyle& t) {
+void EngineCfg::setTextStyle(const std::string& name, const ui::TextStyle& t) {
 	mTextStyles[name] = t;
 	if (name == "default") setDefaultTextStyle(t);
 }
@@ -134,12 +133,12 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 	// see if the settings exist already
 	auto findy = mSettings.find(name);
 	if (findy == mSettings.end()) {
-		mSettings.emplace(std::make_pair(name, ds::cfg::Settings()));
+		mSettings.emplace(std::make_pair(name, cfg::Settings()));
 	}
 
 	findy = mSettings.find(name);
 
-	ds::Environment::loadSettings(name, filename, findy->second);
+	Environment::loadSettings(name, filename, findy->second);
 }
 
 void EngineCfg::saveSettings(const std::string& name, const std::string& filename) {
@@ -161,11 +160,11 @@ void EngineCfg::appendSettings(const std::string& name, const std::string& filen
 }
 
 void EngineCfg::loadText(const std::string& filename, Engine& engine) {
-	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextStyles, engine);
-	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextStyles, engine);
-	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
-		const std::string app	= ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
-		const std::string local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+	read_text_cfg(Environment::getAppFolder(Environment::SETTINGS(), filename), mTextStyles, engine);
+	read_text_cfg(Environment::getLocalSettingsPath(filename), mTextStyles, engine);
+	if (!EngineSettings::getConfigurationFolder().empty()) {
+		const std::string app	= Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string local = Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
 		read_text_cfg(app, mTextStyles, engine);
 		read_text_cfg(local, mTextStyles, engine);
 	}
@@ -182,8 +181,8 @@ void EngineCfg::loadText(const std::string& filename, Engine& engine) {
 
 static bool split_key(const std::string& key, std::string& left, std::string& right) {
 	if (key.empty()) return false;
-	const size_t pos = key.find_last_of(":");
-	if (pos != key.npos) {
+	const size_t pos = key.find_last_of(':');
+	if (pos != std::string::npos) {
 		left  = key.substr(0, pos);
 		right = key.substr(pos + 1, key.length() - pos + 1);
 		Poco::toLowerInPlace(right);
@@ -209,14 +208,13 @@ static void interpret_text_settings(ds::cfg::Settings& s, std::unordered_map<std
 				std::string v = setting.getString();
 				if (!v.empty()) {
 					if (out.empty()) {
-						out[left] = ds::ui::TextStyle(v, left, 10.0f, 1.0f, 0.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+						out[left] = ds::ui::TextStyle(v, left, 10.0, 1.0, 0.0, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 					} else {
 						auto found = out.find(left);
 						if (found != out.end()) {
 							found->second.mFont = v;
 						} else {
-							out[left] =
-								ds::ui::TextStyle(v, left, 10.0f, 1.0f, 0.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+							out[left] = ds::ui::TextStyle(v, left, 10.0, 1.0, 0.0, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 						}
 					}
 				}
@@ -232,11 +230,11 @@ static void interpret_text_settings(ds::cfg::Settings& s, std::unordered_map<std
 				auto found = out.find(left);
 				if (found != out.end()) {
 					if (right == "size")
-						found->second.mSize = setting.getFloat();
+						found->second.mSize = setting.getDouble();
 					else if (right == "leading")
-						found->second.mLeading = setting.getFloat();
+						found->second.mLeading = setting.getDouble();
 					else if (right == "letter_spacing")
-						found->second.mLetterSpacing = setting.getFloat();
+						found->second.mLetterSpacing = setting.getDouble();
 				}
 			}
 		},

@@ -2,11 +2,12 @@
 #ifndef DS_APP_ENGINE_ENGINEDATA_H_
 #define DS_APP_ENGINE_ENGINEDATA_H_
 
+#include <unordered_map>
+
+#include <cinder/Rect.h>
+
 #include "ds/app/engine/engine_cfg.h"
 #include "ds/app/event_notifier.h"
-#include <cinder/Rect.h>
-#include <unordered_map>
-#include <vector>
 
 namespace ds {
 class EngineService;
@@ -18,15 +19,21 @@ class EngineService;
  */
 class EngineData {
   public:
-	EngineData(ds::cfg::Settings& engine_settings);
+	EngineData(cfg::Settings& engine_settings);
+	~EngineData() = default;
 
-	EventNotifier										mNotifier;
-	std::unordered_map<std::string, ds::EngineService*> mServices;
+	EngineData(const EngineData&)			 = delete;
+	EngineData(EngineData&&)				 = delete;
+	EngineData& operator=(const EngineData&) = delete;
+	EngineData& operator=(EngineData&&)		 = delete;
+
+	EventNotifier									mNotifier;
+	std::unordered_map<std::string, EngineService*> mServices;
 
 	/// Will stop and delete them.
 	void clearServices();
 
-	ds::EngineCfg mEngineCfg;
+	EngineCfg mEngineCfg;
 
 	float		mMinTouchDistance;
 	float		mMinTapDistance;
@@ -50,10 +57,6 @@ class EngineData {
 	/// Volume control for the whole app
 
 	bool mMute;
-
-  private:
-	EngineData(const EngineData&);
-	EngineData& operator=(const EngineData&);
 };
 
 } // namespace ds

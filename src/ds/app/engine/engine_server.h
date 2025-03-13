@@ -20,82 +20,83 @@ class ContentWrangler;
  */
 class AbstractEngineServer : public Engine {
   public:
-	AbstractEngineServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&, const int appMode);
-	~AbstractEngineServer();
+	AbstractEngineServer(App&, EngineSettings&, EngineData&, const RootList&, int appMode);
+	~AbstractEngineServer() override;
 
-	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-							   const std::function<void(ds::BlobRegistry&)>& asClient);
+	void installSprite(const std::function<void(BlobRegistry&)>& asServer,
+					   const std::function<void(BlobRegistry&)>& asClient) override;
 
-	virtual void setup(ds::App&);
-	virtual void update();
-	virtual void draw();
+	void setup(App&) override;
+	void update() override;
+	void draw() override;
 
-	virtual void stopServices();
+	void stopServices() override;
 
-	virtual void spriteDeleted(const ds::sprite_id_t&);
+	void spriteDeleted(sprite_id_t) override;
 
-	virtual int getBytesRecieved();
-	virtual int getBytesSent();
+	int getBytesReceived() override;
+	int getBytesSent() override;
 
   private:
-	void receiveHeader(ds::DataBuffer&);
-	void receiveCommand(ds::DataBuffer&);
-	void receiveDeleteSprite(ds::DataBuffer&);
-	void receiveClientStatus(ds::DataBuffer&);
-	void receiveClientInput(ds::DataBuffer&);
-	void onClientStartedCommand(ds::DataBuffer&);
-	void onClientRunningCommand(ds::DataBuffer&);
+	static void receiveHeader(DataBuffer&);
+	void		receiveCommand(DataBuffer&);
+	static void receiveDeleteSprite(DataBuffer&);
+	void		receiveClientStatus(DataBuffer&);
+	void		receiveClientInput(DataBuffer&);
+	void		onClientStartedCommand(DataBuffer&);
+	void		onClientRunningCommand(DataBuffer&);
 
-	virtual void handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
+	void handleMouseTouchBegin(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchMoved(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchEnded(const ci::app::MouseEvent&, int id) override;
 
 	EngineClientList mClients;
 
-	ds::UdpConnection mSendConnection;
-	ds::UdpConnection mReceiveConnection;
-	EngineSender	  mSender;
-	EngineReceiver	  mReceiver;
-	ds::BlobReader	  mBlobReader;
-	ContentWrangler*  mContentWrangler;
+	UdpConnection	 mSendConnection;
+	UdpConnection	 mReceiveConnection;
+	EngineSender	 mSender;
+	EngineReceiver	 mReceiver;
+	BlobReader		 mBlobReader;
+	ContentWrangler* mContentWrangler;
 
 	/// STATES
 	class State {
 	  public:
-		State();
-		virtual void begin(AbstractEngineServer&);
+		virtual ~State() = default;
+
+		virtual void begin(AbstractEngineServer&)  = 0;
 		virtual void update(AbstractEngineServer&) = 0;
-		virtual void spriteDeleted(const ds::sprite_id_t&) {}
+		virtual void spriteDeleted(sprite_id_t) {}
 
 	  protected:
-		void addHeader(ds::DataBuffer&, const int frame);
+		static void addHeader(DataBuffer&, int frame);
 	};
 
 	/* Default state: Gathers all changes in the app and sends them out each frame.
 	 */
-	class RunningState : public State {
+	class RunningState final : public State {
 	  public:
 		RunningState();
-		virtual void begin(AbstractEngineServer&);
-		virtual void update(AbstractEngineServer&);
-		virtual void spriteDeleted(const ds::sprite_id_t&);
+		void begin(AbstractEngineServer&) override;
+		void update(AbstractEngineServer&) override;
+		void spriteDeleted(sprite_id_t) override;
 
 		std::vector<sprite_id_t> mDeletedSprites;
 
 	  private:
-		void addDeletedSprites(ds::DataBuffer&) const;
+		void addDeletedSprites(DataBuffer&) const;
 
 		int32_t mFrame;
 	};
 
 	/* This state is used to send a client started reply.
 	 */
-	class ClientStartedReplyState : public State {
+	class ClientStartedReplyState final : public State {
 	  public:
 		ClientStartedReplyState();
 		void				 clear();
-		virtual void		 begin(AbstractEngineServer&);
-		virtual void		 update(AbstractEngineServer&);
+		void				 begin(AbstractEngineServer&) override;
+		void				 update(AbstractEngineServer&) override;
 		std::vector<int32_t> mClients;
 	};
 
@@ -103,11 +104,11 @@ class AbstractEngineServer : public Engine {
 	 * state, and becomes the active state whenever a client requests the world.
 	 * It sends out the world once, then moves to the running state.
 	 */
-	class SendWorldState : public State {
+	class SendWorldState final : public State {
 	  public:
-		SendWorldState();
-		virtual void begin(AbstractEngineServer&);
-		virtual void update(AbstractEngineServer&);
+		SendWorldState() = default;
+		void begin(AbstractEngineServer&) override;
+		void update(AbstractEngineServer&) override;
 	};
 
 	State*					mState;
@@ -125,8 +126,7 @@ class AbstractEngineServer : public Engine {
  */
 class EngineServer : public AbstractEngineServer {
   public:
-	EngineServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
-	~EngineServer();
+	EngineServer(App&, EngineSettings&, EngineData&, const RootList&);
 };
 
 } // namespace ds

@@ -1,11 +1,11 @@
 #ifndef DS_APP_ENGINE_EVENTS
 #define DS_APP_ENGINE_EVENTS
 
-#include <ds/app/event.h>
+#include "ds/app/event.h"
 
 namespace ds { namespace app {
 
-	class EngineStateEvent : public ds::RegisteredEvent<EngineStateEvent> {
+	class EngineStateEvent final : public ds::RegisteredEvent<EngineStateEvent> {
 	  public:
 		/// A client has connected to this server
 		static const int ENGINE_STATE_CLIENT_STARTED = 0;
@@ -22,16 +22,16 @@ namespace ds { namespace app {
 	};
 
 	/// Someone began interacting with the app
-	class IdleEndedEvent : public ds::RegisteredEvent<IdleEndedEvent> {};
+	class IdleEndedEvent final : public ds::RegisteredEvent<IdleEndedEvent> {};
 
 	/// It's been `<idle seconds>` since someone last interacted with the app
-	class IdleStartedEvent : public ds::RegisteredEvent<IdleStartedEvent> {};
+	class IdleStartedEvent final : public ds::RegisteredEvent<IdleStartedEvent> {};
 
 	/// A request for the app to exit completely
-	struct RequestAppExitEvent : public ds::RegisteredEvent<RequestAppExitEvent> {};
+	struct RequestAppExitEvent final : public ds::RegisteredEvent<RequestAppExitEvent> {};
 
 	/// A new entry field has been registered in the engine
-	struct EntryFieldRegisteredEvent : public ds::RegisteredEvent<EntryFieldRegisteredEvent> {};
+	struct EntryFieldRegisteredEvent final : public ds::RegisteredEvent<EntryFieldRegisteredEvent> {};
 }} // namespace ds::app
 
 #endif

@@ -2,11 +2,8 @@
 #ifndef DS_APP_ENGINE_ENGINETOUCHQUEUE_H_
 #define DS_APP_ENGINE_ENGINETOUCHQUEUE_H_
 
-#include <cinder/Thread.h>
 #include <functional>
 #include <vector>
-
-#include <ds/debug/logger.h>
 
 namespace ds {
 
@@ -22,6 +19,12 @@ class EngineTouchQueue {
   public:
 	EngineTouchQueue(std::mutex&, float& lastTouchTime, const std::function<void(const T&)>&,
 					 const std::string& debugLabel = "");
+	~EngineTouchQueue() = default;
+
+	EngineTouchQueue(const EngineTouchQueue&)			 = delete;
+	EngineTouchQueue(EngineTouchQueue&&)				 = delete;
+	EngineTouchQueue& operator=(const EngineTouchQueue&) = delete;
+	EngineTouchQueue& operator=(EngineTouchQueue&&)		 = delete;
 
 	void setUpdateFn(const std::function<void(const T&)>&);
 
@@ -33,11 +36,9 @@ class EngineTouchQueue {
 	/// When updating, first call this while the mutex is locked...
 	void lockedUpdate();
 	/// ... then call this after the lock has been released.
-	void update(const float currTime);
+	void update(float currTime);
 
   private:
-	EngineTouchQueue(const EngineTouchQueue&);
-
 	std::mutex&					  mMutex;
 	float&						  mLastTouchTime;
 	std::function<void(const T&)> mUpdateFn;
@@ -85,7 +86,7 @@ void EngineTouchQueue<T>::lockedUpdate() {
 }
 
 template <typename T>
-void EngineTouchQueue<T>::update(const float currTime) {
+void EngineTouchQueue<T>::update(float currTime) {
 	if (mUpdating.empty()) return;
 
 	if (mAutoIdleReset) {

@@ -1,23 +1,20 @@
 #include "stdafx.h"
 
-#include "ds/app/engine/engine_standalone.h"
-
 #include "ds/app/app.h"
+#include "ds/app/engine/engine_standalone.h"
 #include "ds/content/content_wrangler.h"
 #include "ds/debug/computer_info.h"
-#include "ds/debug/logger.h"
 
 using namespace ci;
-using namespace ci::app;
+using namespace app;
 
 namespace ds {
 
 /**
  * \class EngineStandalone
  */
-EngineStandalone::EngineStandalone(ds::App& app, ds::EngineSettings& settings, ds::EngineData& ed,
-								   const ds::RootList& roots)
-  : ds::Engine(app, settings, ed, roots, STANDALONE_MODE)
+EngineStandalone::EngineStandalone(App& app, EngineSettings& settings, EngineData& ed, const RootList& roots)
+  : Engine(app, settings, ed, roots, STANDALONE_MODE)
   , mContentWrangler(nullptr) {}
 
 EngineStandalone::~EngineStandalone() {
@@ -28,13 +25,13 @@ EngineStandalone::~EngineStandalone() {
 	mData.clearServices();
 }
 
-void EngineStandalone::installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-									 const std::function<void(ds::BlobRegistry&)>& asClient) {
+void EngineStandalone::installSprite(const std::function<void(BlobRegistry&)>& asServer,
+									 const std::function<void(BlobRegistry&)>& asClient) {
 	// I don't have network communication so I don't need to handle blob.
 }
 
-void EngineStandalone::setup(ds::App& app) {
-	ds::Engine::setup(app);
+void EngineStandalone::setup(App& app) {
+	Engine::setup(app);
 
 	if (!mContentWrangler) {
 		mContentWrangler = new ContentWrangler(*this);
@@ -60,19 +57,19 @@ void EngineStandalone::draw() {
 }
 
 void EngineStandalone::stopServices() {
-	ds::Engine::stopServices();
+	Engine::stopServices();
 	mWorkManager.stopManager();
 }
 
-void EngineStandalone::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id) {
+void EngineStandalone::handleMouseTouchBegin(const MouseEvent& e, int id) {
 	mTouchManager.mouseTouchBegin(e, id);
 }
 
-void EngineStandalone::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id) {
+void EngineStandalone::handleMouseTouchMoved(const MouseEvent& e, int id) {
 	mTouchManager.mouseTouchMoved(e, id);
 }
 
-void EngineStandalone::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id) {
+void EngineStandalone::handleMouseTouchEnded(const MouseEvent& e, int id) {
 	mTouchManager.mouseTouchEnded(e, id);
 }
 

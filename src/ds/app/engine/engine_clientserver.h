@@ -13,11 +13,11 @@ namespace ds {
  */
 class EngineClientServer : public AbstractEngineServer {
   public:
-	EngineClientServer(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
-	~EngineClientServer();
+	EngineClientServer(App&, EngineSettings&, EngineData&, const RootList&);
+	~EngineClientServer() override;
 
 
-	virtual void draw();
+	void draw() override;
 };
 
 } // namespace ds

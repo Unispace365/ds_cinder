@@ -3,9 +3,9 @@
 #define DS_APP_ENGINE_ENGINESTANDALONE_H_
 
 #include "ds/app/engine/engine.h"
-#include "ds/ui/service/load_image_service.h"
 
 namespace ds {
+
 class ContentWrangler;
 
 /**
@@ -15,26 +15,26 @@ class ContentWrangler;
  */
 class EngineStandalone : public Engine {
   public:
-	EngineStandalone(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
-	~EngineStandalone();
+	EngineStandalone(App&, EngineSettings&, EngineData&, const RootList&);
+	~EngineStandalone() override;
 
-	virtual void installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-							   const std::function<void(ds::BlobRegistry&)>& asClient);
+	void installSprite(const std::function<void(BlobRegistry&)>& asServer,
+					   const std::function<void(BlobRegistry&)>& asClient) override;
 
-	virtual void setup(ds::App&);
-	virtual void update();
-	virtual void draw();
+	void setup(App&) override;
+	void update() override;
+	void draw() override;
 
-	virtual void stopServices();
+	void stopServices() override;
 	// virtual int	 getMode() const { return STANDALONE_MODE; }
 
-	virtual int getBytesRecieved() { return 0; }
-	virtual int getBytesSent() { return 0; }
+	int getBytesReceived() override { return 0; }
+	int getBytesSent() override { return 0; }
 
   private:
-	virtual void handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
-	virtual void handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
+	void handleMouseTouchBegin(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchMoved(const ci::app::MouseEvent&, int id) override;
+	void handleMouseTouchEnded(const ci::app::MouseEvent&, int id) override;
 
 	ContentWrangler* mContentWrangler;
 };
