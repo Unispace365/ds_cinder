@@ -6,10 +6,9 @@ namespace ds { namespace ui {
 
 	AppHostStatsView::AppHostStatsView(ds::ui::SpriteEngine& eng)
 	  : LayoutSprite(eng)
-	  , mText(nullptr)
-	  , mPad(30.0f)
+	  , mHttpsRequest(eng)
 	  , mStatus("Unknown")
-	  , mHttpsRequest(eng) {
+	  , mPad(30.0f) {
 		setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 		// setSpacing(mPad);
 
@@ -101,7 +100,7 @@ namespace ds { namespace ui {
 		mButtons.emplace_back(btnText);
 	}
 
-	void AppHostStatsView::setToConfirm(const std::string str, const std::string api, ds::ui::Text* btnText) {
+	void AppHostStatsView::setToConfirm(const std::string& str, const std::string& api, ds::ui::Text* btnText) {
 		if (!btnText) return;
 
 		btnText->setText("Are you sure you want to " + str + "?");
@@ -114,7 +113,7 @@ namespace ds { namespace ui {
 		btnText->callAfterDelay([this, btnText, str, api] { setToAskToConfirm(str, api, btnText); }, 5.0);
 	}
 
-	void AppHostStatsView::setToAskToConfirm(const std::string str, const std::string api, ds::ui::Text* btnText) {
+	void AppHostStatsView::setToAskToConfirm(const std::string& str, const std::string& api, ds::ui::Text* btnText) {
 		if (!btnText) return;
 		btnText->cancelDelayedCall();
 		btnText->setText("\t" + str);

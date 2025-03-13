@@ -1,10 +1,11 @@
 #include "stdafx.h"
 
-#include "ds/debug/debug_defines.h"
-
-#include "logger.h"
-#include <cinder/gl/gl.h>
 #include <sstream>
+
+#include <cinder/gl/gl.h>
+
+#include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 
 #ifdef TURN_ON_REPORT_GL_ERRORS
 void ds::report_gl_errors() {

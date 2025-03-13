@@ -13,9 +13,9 @@ namespace ds { namespace ui {
 	 * \class AppHostStatsView
 	 * \brief Show the status of DSAppHost and send it some messages
 	 */
-	class AppHostStatsView : public ds::ui::LayoutSprite {
+	class AppHostStatsView : public LayoutSprite {
 	  public:
-		AppHostStatsView(ds::ui::SpriteEngine&);
+		AppHostStatsView(SpriteEngine&);
 
 		void activate();
 		void deactivate();
@@ -23,20 +23,20 @@ namespace ds { namespace ui {
 		void updateText();
 
 	  private:
-		void		  addButton(const std::string& str, const std::string& api, bool needsConfirm);
-		void		  setToConfirm(const std::string str, const std::string api, ds::ui::Text* btnText);
-		void		  setToAskToConfirm(const std::string str, const std::string api, ds::ui::Text* btnText);
-		ds::ui::Text* getSomeText();
-		void		  addButtons();
-		void		  removeButtons();
+		void  addButton(const std::string& str, const std::string& api, bool needsConfirm);
+		void  setToConfirm(const std::string& str, const std::string& api, Text* btnText);
+		void  setToAskToConfirm(const std::string& str, const std::string& api, Text* btnText);
+		Text* getSomeText();
+		void  addButtons();
+		void  removeButtons();
 
-		ds::ui::Text*		  mText;
-		ds::net::HttpsRequest mHttpsRequest;
-		std::string			  mStatus;
+		Text*			  mText = nullptr;
+		net::HttpsRequest mHttpsRequest;
+		std::string		  mStatus;
 
-		std::vector<ds::ui::Text*> mButtons;
+		std::vector<Text*> mButtons;
 
-		float mPad;
+		float mPad{0};
 	};
 
 }} // namespace ds::ui

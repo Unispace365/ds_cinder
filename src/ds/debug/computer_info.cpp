@@ -2,8 +2,6 @@
 
 #include "computer_info.h"
 
-#include <Poco/Timestamp.h>
-
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
 
@@ -158,7 +156,7 @@ void ComputerInfo::update() {
 	*/
 
 	//	if((mOn&MAIN_ON) != 0) updateMain(); // this seems to be an exact duplicate of the above memory info, so no need
-	//to run it twice
+	// to run it twice
 	if ((mOn & VIDEO_ON) != 0) updateVideo();
 }
 

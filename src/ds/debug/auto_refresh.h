@@ -2,8 +2,8 @@
 #ifndef DS_DEBUG_AUTO_REFRESH
 #define DS_DEBUG_AUTO_REFRESH
 
-#include <ds/app/event_client.h>
-#include <ds/storage/directory_watcher.h>
+#include "ds/app/event_client.h"
+#include "ds/storage/directory_watcher.h"
 
 namespace ds {
 namespace ui {
@@ -16,14 +16,14 @@ namespace ui {
  */
 class AutoRefresh {
   public:
-	AutoRefresh(ds::ui::SpriteEngine&);
+	AutoRefresh(ui::SpriteEngine&);
 
 	void initialize();
 
   private:
-	ds::ui::SpriteEngine&	 mEngine;
-	ds::DirectoryWatcher	 mDirectoryWatcher;
-	ds::EventClient			 mEventClient;
+	ui::SpriteEngine&		 mEngine;
+	DirectoryWatcher		 mDirectoryWatcher;
+	EventClient				 mEventClient;
 	std::vector<std::string> mWatchPaths;
 };
 

@@ -1,17 +1,12 @@
 #include "stdafx.h"
 
-#include "key_manager.h"
-
-#include <ds/debug/logger.h>
+#include "ds/debug/key_manager.h"
+#include "ds/debug/logger.h"
 
 namespace ds { namespace keys {
 
-
-	KeyManager::KeyManager() {}
-
-
-	void KeyManager::registerKey(KeyRegister reg) {
-		for (auto it : mKeyRegisters) {
+	void KeyManager::registerKey(const KeyRegister& reg) {
+		for (const auto& it : mKeyRegisters) {
 			if (it.mKeyCode == reg.mKeyCode && it.mAltDown == reg.mAltDown && it.mCtrlDown == reg.mCtrlDown &&
 				it.mShiftDown == reg.mShiftDown) {
 				DS_LOG_INFO("Multiple functions registered for key: " << keyCodeToString(it.mKeyCode) << " functions: "
@@ -25,10 +20,10 @@ namespace ds { namespace keys {
 	void KeyManager::registerKey(const std::string& name, std::function<void()> func, const int keyCode,
 								 const bool shiftDown /*= false*/, const bool ctrlDown /*= false*/,
 								 const bool altDown /*= false*/) {
-		registerKey(KeyRegister(name, func, keyCode, shiftDown, ctrlDown, altDown));
+		registerKey(KeyRegister(name, std::move(func), keyCode, shiftDown, ctrlDown, altDown));
 	}
 
-	bool KeyManager::keyDown(ci::app::KeyEvent event) {
+	bool KeyManager::keyDown(const ci::app::KeyEvent& event) const {
 		bool handled = false;
 		for (auto& it : mKeyRegisters) {
 			if (it.mKeyCode == event.getCode() && it.mAltDown == event.isAltDown() &&
@@ -41,7 +36,7 @@ namespace ds { namespace keys {
 		return handled;
 	}
 
-	std::string KeyManager::getAllKeysString() {
+	std::string KeyManager::getAllKeysString() const {
 		std::stringstream ss;
 		ss << "Available keys:" << std::endl;
 		for (auto it : mKeyRegisters) {
@@ -353,11 +348,11 @@ namespace ds { namespace keys {
 		return "Unknown";
 	}
 
-	int KeyManager::stringToKeyCode(const std::string& keyname) {
-		if (mKeyCodeMap.find(keyname) == mKeyCodeMap.end()) {
+	int KeyManager::stringToKeyCode(const std::string& keyName) {
+		if (mKeyCodeMap.find(keyName) == mKeyCodeMap.end()) {
 			return 0;
 		}
-		return mKeyCodeMap[keyname];
+		return mKeyCodeMap[keyName];
 	}
 
 	std::unordered_map<std::string, int> KeyManager::mKeyCodeMap = {{"unknown", ci::app::KeyEvent::KEY_UNKNOWN},

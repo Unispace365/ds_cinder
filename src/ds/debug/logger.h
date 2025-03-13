@@ -24,10 +24,10 @@ namespace cfg {
 } // namespace cfg
 
 // Some common modules, for lack of a better place
-extern const ds::BitMask GENERAL_LOG;
-extern const ds::BitMask IO_LOG;
-extern const ds::BitMask IMAGE_LOG;
-extern const ds::BitMask VIDEO_LOG;
+extern const BitMask GENERAL_LOG;
+extern const BitMask IO_LOG;
+extern const BitMask IMAGE_LOG;
+extern const BitMask VIDEO_LOG;
 
 /**
  * \class Logger
@@ -47,7 +47,7 @@ class Logger {
 	 *specific modules DEFAULT=all "logger:file" string -- filename (and location).  a date stamp is appended.
 	 *DEFAULT=../logs/ "logger:async" text -- (true,false) If this is false, then logging is synchronous.  DEFAULT=true
 	 */
-	static void setup(ds::cfg::Settings&);
+	static void setup(cfg::Settings&);
 
 	/**
 	 * LEVELS
@@ -69,10 +69,10 @@ class Logger {
 	 * 9 = Way too much shit
 	 */
 	static bool hasVerboseLevel(const int verboseLevel);
-	void		setVerboseLevel(const int newVerboseLevel);
-	const int	getVerboseLevel();
-	void		incrementVerboseLevel();
-	void		decrementVerboseLevel();
+	void        setVerboseLevel(const int newVerboseLevel) const;
+	static int  getVerboseLevel();
+	void        incrementVerboseLevel() const;
+	void        decrementVerboseLevel() const;
 
 	/*
 	 * MODULES
@@ -85,24 +85,24 @@ class Logger {
 	 * const ds::BitMask	QUERY_MODULE = ds::Logger::newModule();
 	 * }
 	 */
-	static ds::BitMask newModule(const std::string& name);
+	static BitMask newModule(const std::string& name);
 
 	/// Verification that the given parameter is valid to log.
-	static bool hasModule(const ds::BitMask&);
+	static bool hasModule(const BitMask&);
 
 	/** A run-time switch to toggle specific modules on and off.  This isn't
 	 * 100% safe but the consequences aren't exactly dire -- extra logging or
 	 * missing logging for a fraction of a second. */
-	static void toggleModule(const ds::BitMask& module, const bool on);
+	static void toggleModule(const BitMask& module, bool on);
 
-	std::string getLogFile();
+	static std::string getLogFile();
 
   public:
 	Logger();
 	~Logger();
 
-	void log(const int level, const std::string&);
-	void log(const int level, const std::wstring&);
+	void log(int level, const std::string&);
+	void log(int level, const std::wstring&);
 
 	/// Block until all current inputs have finished writing
 	void blockUntilReady();
@@ -127,20 +127,20 @@ class Logger {
 	  public:
 		Loop();
 
-		void log(const int level, const std::string&);
-		void log(const int level, const std::wstring&);
+		void log(int level, const std::string&);
+		void log(int level, const std::wstring&);
 
-		virtual void run();
+		void run() override;
 
 
 	  private:
 		std::stringstream mBuf;
 
-		void consume(std::vector<entry>&);
-		void logToConsole(const entry&, const std::string& formattedMsg);
-		void logToFile(const entry&, const std::string& formattedMsg);
-		void logToConsole(const entry&, const std::wstring& formattedMsg);
-		void logToFile(const entry&, const std::wstring& formattedMsg);
+		void        consume(std::vector<entry>&);
+		void        logToConsole(const entry&, const std::string& formattedMsg) const;
+		static void logToFile(const entry&, const std::string& formattedMsg);
+		void        logToConsole(const entry&, const std::wstring& formattedMsg) const;
+		void        logToFile(const entry&, const std::wstring& formattedMsg) const;
 	};
 
 	Loop		 mLoop;

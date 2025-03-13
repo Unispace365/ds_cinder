@@ -2,9 +2,11 @@
 #ifndef DS_DEBUG_KEY_MANAGER
 #define DS_DEBUG_KEY_MANAGER
 
-#include <cinder/app/KeyEvent.h>
 #include <functional>
+#include <utility>
 #include <vector>
+
+#include <cinder/app/KeyEvent.h>
 
 namespace ds { namespace keys {
 
@@ -16,10 +18,10 @@ namespace ds { namespace keys {
 	  public:
 		class KeyRegister {
 		  public:
-			KeyRegister(const std::string& name, std::function<void()> func, const int keyCode, const bool shiftDown,
-						const bool ctrlDown, const bool altDown)
+			KeyRegister(const std::string& name, std::function<void()> func, int keyCode, bool shiftDown, bool ctrlDown,
+						bool altDown)
 			  : mName(name)
-			  , mCallback(func)
+			  , mCallback(std::move(func))
 			  , mKeyCode(keyCode)
 			  , mShiftDown(shiftDown)
 			  , mCtrlDown(ctrlDown)
@@ -33,22 +35,22 @@ namespace ds { namespace keys {
 			bool				  mAltDown;
 		};
 
-		KeyManager();
+		KeyManager() = default;
 
-		void registerKey(const std::string& name, std::function<void()> func, const int keyCode,
-						 const bool shiftDown = false, const bool ctrlDown = false, const bool altDown = false);
-		void registerKey(KeyRegister);
+		void registerKey(const std::string& name, std::function<void()> func, int keyCode, bool shiftDown = false,
+						 bool ctrlDown = false, bool altDown = false);
+		void registerKey(const KeyRegister&);
 
 		/// Handle key presses
 		/// Returns true if they key was handled, false if nothing happened
-		bool					  keyDown(ci::app::KeyEvent event);
+		bool					  keyDown(const ci::app::KeyEvent& event) const;
 		std::vector<KeyRegister>& getKeyRegistry() { return mKeyRegisters; }
 
-		std::string keyCodeToString(const int keyCode);
-		static int	stringToKeyCode(const std::string& keyname);
+		static std::string keyCodeToString(int keyCode);
+		static int		   stringToKeyCode(const std::string& keyName);
 
 		/// Output all set keys into a string.
-		std::string getAllKeysString();
+		std::string getAllKeysString() const;
 
 		/// getAllKeysString() -> log info
 		void printCurrentKeys();

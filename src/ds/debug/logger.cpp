@@ -1,26 +1,27 @@
 #include "stdafx.h"
 
-#include "ds/debug/logger.h"
+#include <fstream>
+#include <iostream>
 
 #include "ds/app/environment.h"
 #include "ds/cfg/settings.h"
+#include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
+
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/File.h>
 #include <Poco/LocalDateTime.h>
 #include <Poco/Path.h>
 #include <Poco/Semaphore.h>
 #include <Poco/String.h>
-#include <fstream>
-#include <iostream>
 
 using namespace ds;
 // using namespace std;
 
-const ds::BitMask ds::GENERAL_LOG = ds::Logger::newModule("general");
-const ds::BitMask ds::IO_LOG	  = ds::Logger::newModule("io");
-const ds::BitMask ds::IMAGE_LOG	  = ds::Logger::newModule("image");
-const ds::BitMask ds::VIDEO_LOG	  = ds::Logger::newModule("video");
+const BitMask ds::GENERAL_LOG = Logger::newModule("general");
+const BitMask ds::IO_LOG	  = Logger::newModule("io");
+const BitMask ds::IMAGE_LOG	  = Logger::newModule("image");
+const BitMask ds::VIDEO_LOG	  = Logger::newModule("video");
 
 namespace {
 const std::string EMPTY_SZ("");
@@ -33,7 +34,7 @@ const int LEVEL_SIZE = 5;
 // Only assign during setup()
 bool		HAS_LEVEL[LEVEL_SIZE];
 int			VERBOSE_LEVEL = 0;
-ds::BitMask HAS_MODULE	  = ds::BitMask::newFilled();
+BitMask		HAS_MODULE	  = BitMask::newFilled();
 bool		HAS_ASYNC	  = true;
 std::string LOG_FILE;
 
@@ -52,35 +53,35 @@ static void setup_level(const std::string& level) {
 		for (int k = 0; k < LEVEL_SIZE; ++k)
 			HAS_LEVEL[k] = true;
 	} else if (s == "info")
-		HAS_LEVEL[ds::Logger::LOG_INFO] = true;
+		HAS_LEVEL[Logger::LOG_INFO] = true;
 	else if (s == "warning")
-		HAS_LEVEL[ds::Logger::LOG_WARNING] = true;
+		HAS_LEVEL[Logger::LOG_WARNING] = true;
 	else if (s == "error")
-		HAS_LEVEL[ds::Logger::LOG_ERROR] = true;
+		HAS_LEVEL[Logger::LOG_ERROR] = true;
 	else if (s == "fatal")
-		HAS_LEVEL[ds::Logger::LOG_FATAL] = true;
+		HAS_LEVEL[Logger::LOG_FATAL] = true;
 	else if (s == "metric")
-		HAS_LEVEL[ds::Logger::LOG_METRIC] = true;
+		HAS_LEVEL[Logger::LOG_METRIC] = true;
 }
 
 static void setup_module(const std::string& module) {
 	const std::string s = Poco::trim(module);
 	int				  v;
 	if (s == "all")
-		HAS_MODULE = ds::BitMask::newFilled();
-	else if (ds::string_to_value(s, v))
-		HAS_MODULE |= ds::BitMask(v);
+		HAS_MODULE = BitMask::newFilled();
+	else if (string_to_value(s, v))
+		HAS_MODULE |= BitMask(v);
 }
 
 static const std::string& level_name(const int level) {
 	static const std::string INFO("info   "), WARNING("warning"), ERROR_("error  "), FATAL("fatal  "),
 		METRIC("metric "), STARTUP("startup"), UNKNOWN("       ");
-	if (level == ds::Logger::LOG_INFO) return INFO;
-	if (level == ds::Logger::LOG_WARNING) return WARNING;
-	if (level == ds::Logger::LOG_ERROR) return ERROR_;
-	if (level == ds::Logger::LOG_FATAL) return FATAL;
-	if (level == ds::Logger::LOG_METRIC) return METRIC;
-	if (level == ds::Logger::LOG_STARTUP) return STARTUP;
+	if (level == Logger::LOG_INFO) return INFO;
+	if (level == Logger::LOG_WARNING) return WARNING;
+	if (level == Logger::LOG_ERROR) return ERROR_;
+	if (level == Logger::LOG_FATAL) return FATAL;
+	if (level == Logger::LOG_METRIC) return METRIC;
+	if (level == Logger::LOG_STARTUP) return STARTUP;
 	return UNKNOWN;
 }
 
@@ -94,7 +95,7 @@ static bool ends_in_separator(const std::string& file) {
 	return false;
 }
 
-void ds::Logger::setup(ds::cfg::Settings& settings) {
+void Logger::setup(cfg::Settings& settings) {
 	for (int k = 0; k < LEVEL_SIZE; ++k)
 		HAS_LEVEL[k] = false;
 
@@ -108,10 +109,10 @@ void ds::Logger::setup(ds::cfg::Settings& settings) {
 		std::cout << "Log verbosity is now " << std::to_string(VERBOSE_LEVEL) << std::endl;
 	}
 
-	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
+	tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
-		HAS_MODULE = ds::BitMask::newEmpty();
-		ds::tokenize(module, ',', [](const std::string& s) { setup_module(s); });
+		HAS_MODULE = BitMask::newEmpty();
+		tokenize(module, ',', [](const std::string& s) { setup_module(s); });
 	}
 
 	Poco::trimInPlace(async);
@@ -123,7 +124,7 @@ void ds::Logger::setup(ds::cfg::Settings& settings) {
 		file = "%LOCAL%/logs/";
 	}
 	if (!file.empty()) {
-		Poco::Path					   path(ds::Environment::expand(file));
+		Poco::Path					   path(Environment::expand(file));
 		const Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 		static const std::string	   DATE_FORMAT("%Y-%m-%d");
 		std::string					   fn;
@@ -163,58 +164,58 @@ void ds::Logger::setup(ds::cfg::Settings& settings) {
 	if (MODULE_MAP) {
 		for (auto it = MODULE_MAP->begin(), end = MODULE_MAP->end(); it != end; ++it) {
 			std::cout << "Logger module " << it->first << " (" << it->second << ")";
-			if (HAS_MODULE & (ds::BitMask(it->first))) std::cout << " is ON";
+			if (HAS_MODULE & (BitMask(it->first))) std::cout << " is ON";
 			std::cout << std::endl;
 		}
 		std::cout << "logger level is " << level << std::endl;
 	}
 }
 
-ds::BitMask Logger::newModule(const std::string& name) {
+BitMask Logger::newModule(const std::string& name) {
 	static std::map<int, std::string> MAP;
 	static int						  NEXT_DS = 0;
-	const ds::BitMask				  ans	  = ds::BitMask(NEXT_DS++);
+	const BitMask					  ans	  = BitMask(NEXT_DS++);
 	if (!MODULE_MAP) MODULE_MAP = &MAP;
 	MAP[ans.getFirstIndex()] = name;
 	return ans;
 }
 
-bool Logger::hasLevel(const int level) {
+bool Logger::hasLevel(int level) {
 	if (level == LOG_STARTUP) return true;
 	if (level < 0 || level >= LEVEL_SIZE) return false;
 	return HAS_LEVEL[level];
 }
 
-bool ds::Logger::hasVerboseLevel(const int verboseLevel) {
+bool Logger::hasVerboseLevel(int verboseLevel) {
 	return verboseLevel <= VERBOSE_LEVEL;
 }
 
-void ds::Logger::setVerboseLevel(const int newVerboseLevel) {
+void Logger::setVerboseLevel(int newVerboseLevel) const {
 	VERBOSE_LEVEL = newVerboseLevel;
-	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
+	getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
 }
 
-const int ds::Logger::getVerboseLevel() {
+int Logger::getVerboseLevel() {
 	return VERBOSE_LEVEL;
 }
 
-void ds::Logger::incrementVerboseLevel() {
+void Logger::incrementVerboseLevel() const {
 	VERBOSE_LEVEL++;
 	if (VERBOSE_LEVEL > 9) VERBOSE_LEVEL = 0;
-	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
+	getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
 }
 
-void ds::Logger::decrementVerboseLevel() {
+void Logger::decrementVerboseLevel() const {
 	VERBOSE_LEVEL--;
 	if (VERBOSE_LEVEL < 0) VERBOSE_LEVEL = 9;
-	ds::getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
+	getLogger().log(LOG_INFO, "Log verbosity is now " + std::to_string(VERBOSE_LEVEL));
 }
 
-bool Logger::hasModule(const ds::BitMask& m) {
+bool Logger::hasModule(const BitMask& m) {
 	return HAS_MODULE.has(m);
 }
 
-void Logger::toggleModule(const ds::BitMask& module, const bool on) {
+void Logger::toggleModule(const BitMask& module, bool on) {
 	if (on)
 		HAS_MODULE |= module;
 	else
@@ -236,12 +237,12 @@ Logger::~Logger() {
 	shutDown();
 }
 
-void Logger::log(const int level, const std::string& str) {
+void Logger::log(int level, const std::string& str) {
 	mLoop.log(level, str);
 }
 
-void ds::Logger::log(const int level, const std::wstring& str) {
-	log(level, ds::utf8_from_wstr(str));
+void Logger::log(int level, const std::wstring& str) {
+	log(level, utf8_from_wstr(str));
 }
 
 void Logger::blockUntilReady() {
@@ -273,10 +274,10 @@ Logger::Loop::Loop()
 	mInput.reserve(128);
 }
 
-void Logger::Loop::log(const int level, const std::string& str) {
+void Logger::Loop::log(int level, const std::string& str) {
 	Poco::Mutex::ScopedLock l(mMutex);
 	try {
-		mInput.push_back(entry());
+		mInput.emplace_back();
 		entry& e = mInput.back();
 		e.mMsg	 = str;
 		e.mLevel = level;
@@ -291,11 +292,11 @@ void Logger::Loop::log(const int level, const std::string& str) {
 	}
 }
 
-void ds::Logger::Loop::log(const int level, const std::wstring& str) {
-	log(level, ds::utf8_from_wstr(str));
+void Logger::Loop::log(int level, const std::wstring& str) {
+	log(level, utf8_from_wstr(str));
 }
 
-std::string ds::Logger::getLogFile(){
+std::string Logger::getLogFile() {
 	return LOG_FILE;
 }
 
@@ -321,7 +322,7 @@ void Logger::Loop::run() {
 		// If more input came in during the time I've been
 		// processing keep going, otherwise wait.
 		mMutex.lock();
-		if (!mAbort && mInput.size() < 1) mCondition.wait(mMutex);
+		if (!mAbort && mInput.empty()) mCondition.wait(mMutex);
 		if (mAbort) break;
 		mMutex.unlock();
 	}
@@ -348,7 +349,7 @@ void Logger::Loop::consume(std::vector<entry>& ins) {
 		logToConsole(e, mBuf.str());
 		logToFile(e, mBuf.str());
 
-		if (e.mLevel == ds::Logger::LOG_FATAL) {
+		if (e.mLevel == LOG_FATAL) {
 			std::string msg = mBuf.str();
 			Poco::Thread::sleep(4 * 1000);
 			std::terminate();
@@ -357,7 +358,7 @@ void Logger::Loop::consume(std::vector<entry>& ins) {
 	ins.clear();
 }
 
-void Logger::Loop::logToConsole(const entry& e, const std::string& formattedMsg) {
+void Logger::Loop::logToConsole(const entry& e, const std::string& formattedMsg) const {
 	std::cout << formattedMsg;
 }
 
@@ -370,12 +371,12 @@ void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg) {
 	outFile.close();
 }
 
-void ds::Logger::Loop::logToConsole(const entry& e, const std::wstring& formattedMsg) {
-	logToConsole(e, ds::utf8_from_wstr(formattedMsg));
+void Logger::Loop::logToConsole(const entry& e, const std::wstring& formattedMsg) const {
+	logToConsole(e, utf8_from_wstr(formattedMsg));
 }
 
-void ds::Logger::Loop::logToFile(const entry& e, const std::wstring& formattedMsg) {
-	logToFile(e, ds::utf8_from_wstr(formattedMsg));
+void Logger::Loop::logToFile(const entry& e, const std::wstring& formattedMsg) const {
+	logToFile(e, utf8_from_wstr(formattedMsg));
 }
 
 /* DS::LOGGER singleton

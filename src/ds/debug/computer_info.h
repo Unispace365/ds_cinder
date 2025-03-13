@@ -55,25 +55,25 @@ class ComputerInfo {
 	void updateMain();
 	void updateVideo();
 
-	MEMORYSTATUSEX			   mMemoryStatus;
-	PROCESS_MEMORY_COUNTERS_EX mProcessMemoryCounters;
-	double					   mConversionNumber;
-	MemoryConversion		   mMemoryConversion;
-	int						   mOn;
+	MEMORYSTATUSEX             mMemoryStatus{};
+	PROCESS_MEMORY_COUNTERS_EX mProcessMemoryCounters{};
+	double                     mConversionNumber;
+	MemoryConversion           mMemoryConversion;
+	int                        mOn;
 
 	int	   mNumProcessors;
 	HANDLE mProcessSelf;
 	/// MAIN
-	ULARGE_INTEGER mLastCPU;
-	ULARGE_INTEGER mLastSysCPU;
-	ULARGE_INTEGER mLastUserCPU;
-	double		   mPercentCPU;
+	ULARGE_INTEGER mLastCPU{};
+	ULARGE_INTEGER mLastSysCPU{};
+	ULARGE_INTEGER mLastUserCPU{};
+	double         mPercentCPU{};
 	/// VIDEO
 	double		mTotalVideoMemory;
 	std::string mVideoDriverVersion; // Long driver number, such as 21.21.13.6909
 	std::string mVideoVendor;		 // Such as "NVIDIA"
 	std::string mVideoCardName;		 // Such as "NVIDIA Quadro K5000"
-	int			mRefreshRate;
+	int			mRefreshRate{};
 };
 
 } // namespace ds
