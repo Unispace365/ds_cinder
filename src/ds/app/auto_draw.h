@@ -2,9 +2,11 @@
 #ifndef DS_APP_AUTODRAW_H_
 #define DS_APP_AUTODRAW_H_
 
-#include "cinder/gl/gl.h"
-#include "ds/app/engine/engine_service.h"
 #include <vector>
+
+#include <cinder/Matrix.h>
+
+#include "ds/app/engine/engine_service.h"
 
 namespace ds {
 class DrawParams;
@@ -19,15 +21,19 @@ namespace ui {
  */
 class AutoDraw {
   public:
-	AutoDraw(ds::ui::SpriteEngine&);
+	AutoDraw(ui::SpriteEngine&);
 	virtual ~AutoDraw();
+
+	AutoDraw(const AutoDraw&)			 = delete;
+	AutoDraw(AutoDraw&&)				 = delete;
+	AutoDraw& operator=(const AutoDraw&) = delete;
+	AutoDraw& operator=(AutoDraw&&)		 = delete;
 
   protected:
 	virtual void drawClient(const ci::mat4&, const DrawParams&) = 0;
 
   private:
 	friend class AutoDrawService;
-	AutoDraw();
 
 	AutoDrawService& mOwner;
 };

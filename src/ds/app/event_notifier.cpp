@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
-#include <ds/app/event_notifier.h>
 #include <memory>
+
+#include "ds/app/event_notifier.h"
 
 namespace ds {
 
@@ -12,13 +13,11 @@ EventNotifier::EventNotifier() {
 	mThreadId = std::this_thread::get_id();
 }
 
-EventNotifier::~EventNotifier() {}
-
-void EventNotifier::addListener(void* id, const std::function<void(const ds::Event*)>& fn) {
+void EventNotifier::addListener(void* id, const std::function<void(const Event*)>& fn) {
 	mEventNotifier.addListener(id, fn);
 }
 
-void EventNotifier::addRequestListener(void* id, const std::function<void(ds::Event&)>& fn) {
+void EventNotifier::addRequestListener(void* id, const std::function<void(Event&)>& fn) {
 	mEventNotifier.addRequestListener(id, fn);
 }
 
@@ -30,7 +29,7 @@ void EventNotifier::removeRequestListener(void* id) {
 	mEventNotifier.removeRequestListener(id);
 }
 
-void EventNotifier::notify(const ds::Event& e) {
+void EventNotifier::notify(const Event& e) {
 	DS_LOG_VERBOSE(2, "EventNotifier::notify event " << e.getName());
 	if (this->mThreadId != std::this_thread::get_id()) {
 		DS_LOG_WARNING(
@@ -40,7 +39,7 @@ void EventNotifier::notify(const ds::Event& e) {
 }
 
 
-void EventNotifier::notify(const ds::Event* e) {
+void EventNotifier::notify(const Event* e) {
 	if (e) DS_LOG_VERBOSE(2, "EventNotifier::notify event " << e->getName());
 	if (this->mThreadId != std::this_thread::get_id()) {
 		DS_LOG_WARNING(
@@ -49,20 +48,16 @@ void EventNotifier::notify(const ds::Event* e) {
 	mEventNotifier.notify(e);
 }
 
-void EventNotifier::notifyOnEngineThread(std::shared_ptr<ds::Event> event) {
-	//there is no std::dynamic_pointer_cast for unique_ptr in c++17; so we fake it.
-	
-	
+void EventNotifier::notifyOnEngineThread(const std::shared_ptr<Event>& event) {
+	// there is no std::dynamic_pointer_cast for unique_ptr in c++17; so we fake it.
+
+
 	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << event->getName());
-	mEngine->timedCallback(
-		[this, event]() mutable {
-			notify(event.get());
-		},
-		0.1);
+	mEngine->timedCallback([this, event]() mutable { notify(event.get()); }, 0.1);
 }
 
 
-//void EventNotifier::notifyOnEngineThread(const ds::Event* e) {
+// void EventNotifier::notifyOnEngineThread(const ds::Event* e) {
 //	DS_LOG_VERBOSE(2, "EventNotifier::notifyOnEngineThread event " << e->getName());
 //	mEngine->timedCallback(
 //		[this, event = e]() {
@@ -70,7 +65,7 @@ void EventNotifier::notifyOnEngineThread(std::shared_ptr<ds::Event> event) {
 //			delete event;
 //		},
 //		0.1);
-//}
+// }
 
 void EventNotifier::notify(const std::string& eventName) {
 	DS_LOG_VERBOSE(2, "EventNotifier::notify event " << eventName);
@@ -86,11 +81,11 @@ void EventNotifier::notifyOnEngineThread(const std::string& eventName) {
 	mEngine->timedCallback([this, eventAsString = eventName]() { notify(eventAsString); }, 0.1);
 }
 
-void EventNotifier::request(ds::Event& e) {
-	mEventNotifier.request(e);
+void EventNotifier::request(Event& event) {
+	mEventNotifier.request(event);
 }
 
-void EventNotifier::setOnAddListenerFn(const std::function<ds::Event*(void)>& fn) {
+void EventNotifier::setOnAddListenerFn(const std::function<Event*(void)>& fn) {
 	mEventNotifier.setOnAddListenerFn(fn);
 }
 

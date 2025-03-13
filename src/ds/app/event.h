@@ -3,7 +3,6 @@
 #define DS_APP_EVENT_H_
 
 #include "event_registry.h"
-#include <cinder/Vector.h>
 
 namespace ds {
 namespace ui {
@@ -30,7 +29,7 @@ class Event {
 	virtual ~Event();
 
 	const std::string getName() const;
-	
+
 	/*
 	 * \fn as()
 	 * \brief convenience to cast the Event to a derived type.
@@ -42,9 +41,9 @@ class Event {
 	 * \example local_event.as<MyDerivedEventType>()->mDreviedMember
 	 */
 	template <typename T>
-	T* const as();
+	T* as();
 	template <typename T>
-	const T* const as() const;
+	const T* as() const;
 
 	size_t		mWhat;
 	std::string mEventName;
@@ -63,13 +62,13 @@ class Event {
 
 // Template impl
 template <typename T>
-T* const Event::as() {
-	return dynamic_cast<T* const>(this);
+T* Event::as() {
+	return dynamic_cast<T*>(this);
 }
 
 template <typename T>
-const T* const Event::as() const {
-	return dynamic_cast<const T* const>(this);
+const T* Event::as() const {
+	return dynamic_cast<const T*>(this);
 }
 // End of Template impl
 
@@ -87,7 +86,7 @@ class RegisteredEvent : public Event {
 	/// Unique channel name for this message
 	static const std::string& CHANNEL() { return sENTRY.getChannel(); }
 
-	static const std::string NAME() { return demangleTypeName(typeid(Derived).name()); }
+	static std::string NAME() { return demangleTypeName(typeid(Derived).name()); }
 
   protected:
 	RegisteredEvent()

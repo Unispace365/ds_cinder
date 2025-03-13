@@ -1,7 +1,10 @@
 #include "stdafx.h"
 
+#include "ds/app/app.h"
+#include "ds/app/engine/engine_settings.h"
 #include "ds/app/environment.h"
 #include "ds/util/file_meta_data.h"
+#include "ds/util/string_util.h"
 
 #include <Poco/Environment.h>
 #include <Poco/File.h>
@@ -10,15 +13,12 @@
 #include <Poco/Process.h>
 #include <boost/algorithm/string.hpp>
 
-#include "ds/app/app.h"
-#include "ds/app/engine/engine_settings.h"
-#include "ds/util/string_util.h"
-
 #ifdef CINDER_MSW
-#include "cinder/Clipboard.h"
 #include <KnownFolders.h>
 #include <Shlobj.h>
 #include <windows.h>
+
+#include <cinder/Clipboard.h>
 #else
 #include "glfw/glfw3.h"
 #include "glfw/glfw3native.h"
@@ -54,7 +54,7 @@ bool Environment::initialize() {
 #ifdef CINDER_MSW
 	PWSTR ppszPath; // variable to receive the path memory block pointer.
 
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &ppszPath);
+	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &ppszPath);
 
 	std::wstring myPath;
 	if (SUCCEEDED(hr)) {
@@ -62,9 +62,9 @@ bool Environment::initialize() {
 	}
 
 	CoTaskMemFree(ppszPath);
-	homePath = ds::utf8_from_wstr(myPath);
+	homePath = utf8_from_wstr(myPath);
 #else
-	Poco::Path		  newPath(homePath);
+	Poco::Path newPath(homePath);
 	newPath.append("Documents");
 	homePath = newPath.toString();
 #endif
@@ -94,22 +94,22 @@ const std::string& Environment::RESOURCES() {
 }
 
 std::string Environment::expand(const std::string& _path) {
-	if (!sInitialized) ds::Environment::initialize();
+	if (!sInitialized) initialize();
 
 	std::string p(_path);
 
 	if (USE_CFG_FILE_OVERRIDE && p.find("%APP%") != std::string::npos) {
 		std::string tempP = p;
 		boost::replace_first(tempP, "%APP%", "%APP%/settings/%CFG_FOLDER%");
-		boost::replace_all(tempP, "%APP%", ds::App::envAppDataPath());
+		boost::replace_all(tempP, "%APP%", App::envAppDataPath());
 		boost::replace_all(tempP, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
 		std::string tempPath = Poco::Path(tempP).toString();
-		if (ds::safeFileExistsCheck(tempPath)) {
+		if (safeFileExistsCheck(tempPath)) {
 			return tempPath;
 		}
 	}
 
-	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
+	boost::replace_all(p, "%APP%", App::envAppDataPath());
 	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
 	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
 	boost::replace_all(p, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
@@ -120,10 +120,10 @@ std::string Environment::expand(const std::string& _path) {
 
 
 std::string Environment::contract(const std::string& fullPath) {
-	if (!sInitialized) ds::Environment::initialize();
+	if (!sInitialized) initialize();
 
 	std::string p(fullPath);
-	boost::replace_all(p, ds::App::envAppDataPath(), "%APP%");
+	boost::replace_all(p, App::envAppDataPath(), "%APP%");
 	boost::replace_all(p, EngineSettings::envProjectPath(), "%PP%");
 	boost::replace_all(p, getDownstreamDocumentsFolder(), "%LOCAL%");
 	boost::replace_all(p, EngineSettings::getConfigurationFolder(), "%CFG_FOLDER%");
@@ -133,7 +133,7 @@ std::string Environment::contract(const std::string& fullPath) {
 }
 
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
-	Poco::Path p(ds::App::envAppDataPath());
+	Poco::Path p(App::envAppDataPath());
 	if (!folderName.empty()) p.append(folderName);
 	if (!fileName.empty()) p.append(fileName);
 	const std::string ans(p.toString());
@@ -147,7 +147,7 @@ std::string Environment::getAppFolder(const std::string& folderName, const std::
 }
 
 std::string Environment::getAppFile(const std::string& path) {
-	Poco::Path p(ds::App::envAppDataPath());
+	Poco::Path p(App::envAppDataPath());
 	p.append(path);
 	return p.toString();
 }
@@ -170,7 +170,7 @@ std::string Environment::getLocalResourcesFolder(const std::string& folderName, 
 }
 
 std::string Environment::getDownstreamDocumentsFolder() {
-	if (!sInitialized) ds::Environment::initialize();
+	if (!sInitialized) initialize();
 	return DOWNSTREAM_DOCUMENTS;
 }
 
@@ -182,30 +182,30 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName) {
 }
 
 void Environment::loadSettings(const std::string& settingsName, const std::string& filename,
-							   ds::cfg::Settings& settings) {
+                               cfg::Settings&     settings) {
 	settings.setName(settingsName);
-	settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
-	settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
-	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
-		const std::string app	= ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
-		const std::string local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+	settings.readFrom(getAppFolder(SETTINGS(), filename), false);
+	settings.readFrom(getLocalSettingsPath(filename), true);
+	if (!EngineSettings::getConfigurationFolder().empty()) {
+		const std::string app   = expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string local = expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
 		settings.readFrom(app, true);
 		settings.readFrom(local, true);
 	}
 }
 
 bool Environment::hasSettings(const std::string& filename) {
-	if (ds::safeFileExistsCheck(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename))) return true;
-	if (ds::safeFileExistsCheck(ds::Environment::getLocalSettingsPath(filename))) return true;
-	if (ds::safeFileExistsCheck(ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename))) return true;
-	if (ds::safeFileExistsCheck(ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename))) return true;
+	if (safeFileExistsCheck(getAppFolder(SETTINGS(), filename))) return true;
+	if (safeFileExistsCheck(getLocalSettingsPath(filename))) return true;
+	if (safeFileExistsCheck(expand("%APP%/settings/%CFG_FOLDER%/" + filename))) return true;
+	if (safeFileExistsCheck(expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename))) return true;
 
 	return false;
 }
 
-void Environment::saveSettings(const std::string& filename, ds::cfg::Settings& settings) {
-	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
-		const std::string local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+void Environment::saveSettings(const std::string& filename, cfg::Settings& settings) {
+	if (!EngineSettings::getConfigurationFolder().empty()) {
+		const std::string local = expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
 		settings.writeTo(local);
 	}
 }
@@ -262,9 +262,9 @@ std::vector<std::string> Environment::getCommandLineParams() {
 	std::vector<std::string> ret;
 	int						 nArgs;
 	LPWSTR*					 szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-	if (szArglist != NULL) {
+	if (szArglist != nullptr) {
 		for (int i = 0; i < nArgs; ++i)
-			ret.push_back(ds::utf8_from_wstr(szArglist[i]));
+			ret.push_back(utf8_from_wstr(szArglist[i]));
 	}
 	LocalFree(szArglist);
 
@@ -273,8 +273,8 @@ std::vector<std::string> Environment::getCommandLineParams() {
 #else
 // On Linux, we need to process the contents of cmdline from the /proc filesystem
 std::vector<std::string> Environment::getCommandLineParams() {
-	auto filename = Poco::format("/proc/%d/cmdline", Poco::Process::id());
-	auto ifs = std::ifstream(filename, std::ios::in | std::ios::binary);
+	auto			   filename = Poco::format("/proc/%d/cmdline", Poco::Process::id());
+	auto			   ifs		= std::ifstream(filename, std::ios::in | std::ios::binary);
 	std::ostringstream ss;
 	ss << ifs.rdbuf();
 

@@ -18,6 +18,8 @@ class BlobRegistry {
   public:
 	BlobRegistry();
 
+	// TODO: should this really be copyable and moveable?
+
 	/// Add a new blob handler.  I answer with the unique key assigned the handler.
 	char add(const std::function<void(BlobReader&)>& reader);
 

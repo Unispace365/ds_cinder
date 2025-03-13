@@ -16,13 +16,16 @@ namespace ui {
 class BlobReader {
   public:
 	BlobReader(DataBuffer&, ui::SpriteEngine&);
+	~BlobReader() = default;
 
+	BlobReader()							 = delete;
+	BlobReader(const BlobReader&)			 = delete;
+	BlobReader(BlobReader&&)				 = delete;
+	BlobReader& operator=(const BlobReader&) = delete;
+	BlobReader& operator=(BlobReader&&)		 = delete;
+	
 	DataBuffer&		  mDataBuffer;
 	ui::SpriteEngine& mSpriteEngine;
-
-  private:
-	BlobReader();
-	BlobReader(const BlobReader&);
 };
 
 } // namespace ds

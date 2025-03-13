@@ -1,11 +1,10 @@
 #include "stdafx.h"
 
-#include "ds/app/auto_update_list.h"
+#include <algorithm>
 
 #include "ds/app/auto_update.h"
+#include "ds/app/auto_update_list.h"
 #include "ds/params/update_params.h"
-#include <Poco/Timestamp.h>
-#include <algorithm>
 
 namespace ds {
 
@@ -17,8 +16,8 @@ AutoUpdateList::AutoUpdateList() {
 	mWaiting.reserve(8);
 }
 
-void AutoUpdateList::update(const ds::UpdateParams& p) {
-	
+void AutoUpdateList::update(const UpdateParams& p) {
+
 	if (!mRunning.empty()) {
 		for (auto it : mRunning) {
 			it->update(p);
@@ -26,8 +25,8 @@ void AutoUpdateList::update(const ds::UpdateParams& p) {
 	}
 
 	if (!mWaiting.empty()) {
-		for (auto it = mWaiting.begin(), end = mWaiting.end(); it != end; ++it) {
-			mRunning.push_back(*it);
+		for (auto& it : mWaiting) {
+			mRunning.push_back(it);
 		}
 		mWaiting.clear();
 	}

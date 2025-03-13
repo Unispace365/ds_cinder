@@ -1,11 +1,8 @@
-#include "event_client.h"
-#include "event_client.h"
-#include "event_client.h"
 #include "stdafx.h"
 
-#include <ds/app/event_client.h>
-#include <ds/app/event_notifier.h>
-#include <ds/ui/sprite/sprite_engine.h>
+#include "ds/app/event_client.h"
+#include "ds/app/event_notifier.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 
@@ -16,43 +13,44 @@ namespace ds {
 EventClient::EventClient() {
 	mNotifier = nullptr;
 }
-EventClient::EventClient(EventNotifier& n, const std::function<void(const ds::Event*)>& fn,
-						 const std::function<void(ds::Event&)>& requestFn)
+
+EventClient::EventClient(EventNotifier& n, const std::function<void(const Event*)>& fn,
+						 const std::function<void(Event&)>& requestFn)
   : mNotifier(&n) {
 	if (fn) {
-		n.mEventNotifier.addListener(this, [this, fn](const ds::Event* m) {
+		n.mEventNotifier.addListener(this, [this, fn](const Event* m) {
 			if (this->mStopped) return;
 			if (m) this->onAppEvent(*m);
 			if (fn) fn(m);
 		});
 	} else {
-		n.mEventNotifier.addListener(this, [this](const ds::Event* m) {
+		n.mEventNotifier.addListener(this, [this](const Event* m) {
 			if (this->mStopped) return;
 			if (m) this->onAppEvent(*m);
 		});
 	}
-	if (requestFn) n.mEventNotifier.addRequestListener(this, [this,requestFn](ds::Event& e){
+	if (requestFn)
+		n.mEventNotifier.addRequestListener(this, [this, requestFn](Event& e) {
 			if (this->mStopped) return;
 			requestFn(e);
-	});
+		});
 }
 
-EventClient::EventClient(ds::ui::SpriteEngine& eng)
+EventClient::EventClient(const ui::SpriteEngine& eng)
   : mNotifier(&eng.getNotifier()) {
-	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
+	mNotifier->mEventNotifier.addListener(this, [this](const Event* m) {
 		if (m) this->onAppEvent(*m);
 	});
 }
 
 EventClient::EventClient(EventNotifier& notifier)
   : mNotifier(&notifier) {
-	mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
+	mNotifier->mEventNotifier.addListener(this, [this](const Event* m) {
 		if (m) {
 			this->onAppEvent(*m);
 		}
 	});
 }
-
 
 
 EventClient::~EventClient() {
@@ -62,8 +60,7 @@ EventClient::~EventClient() {
 	}
 }
 
-void EventClient::stop()
-{
+void EventClient::stop() {
 	mStopped = true;
 }
 
@@ -71,26 +68,25 @@ void EventClient::start() {
 	mStopped = false;
 }
 
-void EventClient::notify(const ds::Event& e) {
+void EventClient::notify(const Event& e) const {
 	if (mStopped) return;
 	if (!mNotifier) return;
 	mNotifier->mEventNotifier.notify(&e);
 }
 
-void EventClient::notify(const std::string& eventName) {
+void EventClient::notify(const std::string& eventName) const {
 	if (mStopped) return;
 	if (!mNotifier) return;
 	mNotifier->notify(eventName);
 }
 
-void EventClient::request(ds::Event& e) {
+void EventClient::request(Event& e) const {
 	if (mStopped) return;
 	if (!mNotifier) return;
 	mNotifier->mEventNotifier.request(e);
 }
 
-void EventClient::setNotifier(EventNotifier& notifier)
-{
+void EventClient::setNotifier(EventNotifier& notifier) {
 	if (mNotifier == &notifier) {
 		return;
 	}
@@ -100,19 +96,19 @@ void EventClient::setNotifier(EventNotifier& notifier)
 	}
 	mNotifier = &notifier;
 	if (mNotifier) {
-		mNotifier->mEventNotifier.addListener(this, [this](const ds::Event* m) {
+		mNotifier->mEventNotifier.addListener(this, [this](const Event* m) {
 			if (m) this->onAppEvent(*m);
 		});
 	}
 }
 
-void EventClient::onAppEvent(const ds::Event& in_e) {
+void EventClient::onAppEvent(const Event& in_e) {
 	if (mStopped) return;
 	if (mEventCallbacks.empty()) return;
-	std::unordered_map<size_t, eventCallback> cbs;
-	{ 
+	std::unordered_map<size_t, EventCallback> cbs;
+	{
 		std::unique_lock lock(mEventsMtx);
-		cbs = mEventCallbacks; 
+		cbs = mEventCallbacks;
 	}
 	auto callbackIt = cbs.find(in_e.mWhat);
 	if (callbackIt != end(cbs)) {

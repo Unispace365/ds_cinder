@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "ds/app/auto_update.h"
-
 #include "ds/app/auto_update_list.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
@@ -11,7 +10,7 @@ namespace ds {
 /**
  * \class AutoUpdate
  */
-AutoUpdate::AutoUpdate(ds::ui::SpriteEngine& e, const int mask)
+AutoUpdate::AutoUpdate(ui::SpriteEngine& e, int mask)
   : mEngine(e)
   , mMask(mask) {
 	try {

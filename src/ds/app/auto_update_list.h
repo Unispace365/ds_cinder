@@ -15,6 +15,12 @@ class UpdateParams;
 class AutoUpdateList {
   public:
 	AutoUpdateList();
+	~AutoUpdateList() = default;
+
+	AutoUpdateList(const AutoUpdateList&)			 = delete;
+	AutoUpdateList(AutoUpdateList&&)				 = delete;
+	AutoUpdateList& operator=(const AutoUpdateList&) = delete;
+	AutoUpdateList& operator=(AutoUpdateList&&)		 = delete;
 
 	void update(const ds::UpdateParams&);
 

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
-#include "app_defs.h"
-
+#include "ds/app/app_defs.h"
 #include "ds/app/engine/engine.h"
 
 namespace ds {
@@ -12,7 +11,7 @@ namespace ds {
 RootList::RootList(const std::vector<int>* roots) {
 	if (roots) {
 		for (auto it = roots->begin(), end = roots->end(); it != end; ++it) {
-			mRoots.push_back(Root());
+			mRoots.emplace_back();
 			if ((*it) == Engine::CAMERA_PERSP) mRoots.back().mType = Root::kPerspective;
 		}
 	}
@@ -27,17 +26,17 @@ bool RootList::empty() const {
 
 RootList RootList::runInitFn() const {
 	if (mInitFn) return mInitFn();
-	return RootList(*this);
+	return {*this};
 }
 
 RootList& RootList::ortho() {
-	mRoots.push_back(Root());
+	mRoots.emplace_back();
 	mRoots.back().mType = Root::kOrtho;
 	return *this;
 }
 
 RootList& RootList::persp() {
-	mRoots.push_back(Root());
+	mRoots.emplace_back();
 	mRoots.back().mType = Root::kPerspective;
 	return *this;
 }

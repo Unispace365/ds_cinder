@@ -1,13 +1,10 @@
-#include "cinder/Utilities.h"
 #include "stdafx.h"
-
-#include "ds/app/app.h"
-
-#include <Poco/File.h>
-#include <Poco/Path.h>
 
 #include <tuple>
 
+#include <cinder/Utilities.h>
+
+#include "ds/app/app.h"
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
@@ -16,9 +13,10 @@
 #include "ds/app/environment.h"
 #include "ds/cfg/settings.h"
 #include "ds/content/content_events.h"
-#include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 
+#include <Poco/File.h>
+#include <Poco/Path.h>
 
 // For installing the sprite types
 #include "ds/ui/soft_keyboard/entry_field.h"
@@ -33,18 +31,18 @@
 #include "ds/util/file_meta_data.h"
 
 // For the screenshot
-#include <Poco/Path.h>
-#include <Poco/Timestamp.h>
 #include <cinder/CinderImGui.h>
 #include <cinder/ImageIo.h>
 #include <cinder/ip/Flip.h>
 
+#include <Poco/Timestamp.h>
 
 
 #ifndef _WIN32
 // For access to Linux native GLFW window calls
 #include "glfw/glfw3.h"
 #include "glfw/glfw3native.h"
+
 // For Linux window file-drop event registration
 #include <cinder/Filesystem.h>
 #include <cinder/app/FileDropEvent.h>
@@ -76,9 +74,9 @@ void linuxImplRegisterWindowFiledropHandler(ci::app::WindowRef cinderWindow) {
 static ds::Engine& new_engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::tuple<std::string, std::function<void(ds::Engine&)>>>& get_startups() {
-	static std::vector<std::tuple<std::string,std::function<void(ds::Engine&)>>> VEC;
+	static std::vector<std::tuple<std::string, std::function<void(ds::Engine&)>>> VEC;
 
-	DS_LOG_INFO("Getting vector "<<&VEC)
+	DS_LOG_INFO("Getting vector " << &VEC)
 	return VEC;
 }
 
@@ -115,20 +113,20 @@ EngineSettingsPreloader::EngineSettingsPreloader(ci::app::AppBase::Settings* set
 
 void EngineSettingsPreloader::earlyPrepareAppSettings(ci::app::AppBase::Settings* settings) {
 	// Enable MultiTouch on app window if needed
-	if (ds::ui::TouchMode::hasSystem(ds::ui::TouchMode::fromSettings(mEngineSettings))) {
+	if (hasSystem(ui::TouchMode::fromSettings(mEngineSettings))) {
 		settings->setMultiTouchEnabled();
 	}
 }
-[[deprecated]] 
-void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
-	if (fn != nullptr) get_startups().push_back({"unamed", fn});
+[[deprecated]]
+void App::AddStartup(const std::function<void(Engine&)>& fn) {
+	if (fn != nullptr) get_startups().emplace_back("unamed", fn);
 }
 
-void App::AddStartup(std::string name, const std::function<void(ds::Engine&)>& fn) {
-	if (fn != nullptr) get_startups().push_back({name, fn});
+void App::AddStartup(std::string name, const std::function<void(Engine&)>& fn) {
+	if (fn != nullptr) get_startups().emplace_back(name, fn);
 }
 
-void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
+void App::AddServerSetup(const std::function<void(Engine&)>& fn) {
 	if (fn != nullptr) get_setups().push_back(fn);
 }
 
@@ -136,9 +134,9 @@ void App::AddServerSetup(const std::function<void(ds::Engine&)>& fn) {
  * \class App
  */
 App::App(const RootList& roots)
-  : EngineSettingsPreloader(ci::app::AppBase::sSettingsFromMain)
+  : EngineSettingsPreloader(sSettingsFromMain)
   , ci::app::App()
-  , mEnvironmentInitialized(ds::Environment::initialize())
+  , mEnvironmentInitialized(Environment::initialize())
   , mEngineData(mEngineSettings)
   , mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
   , mSetupOnDisplayChange(false)
@@ -147,7 +145,7 @@ App::App(const RootList& roots)
   , mMouseHidden(false)
   , mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
   , mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f) {
-	
+
 	if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
 		setupKeyPresses();
 	} else {
@@ -159,25 +157,25 @@ App::App(const RootList& roots)
 	add_dll_path();
 
 	// Initialize each sprite type with a unique blob handler for network communication.
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Sprite::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Sprite::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Gradient::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Gradient::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Image::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Image::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Text::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Text::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Border::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Border::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::Circle::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::Circle::installAsClient(r); });
-	mEngine.installSprite([](ds::BlobRegistry& r) { ds::ui::CircleBorder::installAsServer(r); },
-						  [](ds::BlobRegistry& r) { ds::ui::CircleBorder::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Sprite::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Sprite::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Gradient::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Gradient::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Image::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Image::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Text::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Text::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Border::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Border::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::Circle::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::Circle::installAsClient(r); });
+	mEngine.installSprite([](BlobRegistry& r) { ui::CircleBorder::installAsServer(r); },
+						  [](BlobRegistry& r) { ui::CircleBorder::installAsClient(r); });
 
 	// Run all the statically-created initialization code.
-	std::vector< std::tuple<std::string,std::function<void(ds::Engine&)> > >& startups = get_startups();
+	std::vector<std::tuple<std::string, std::function<void(Engine&)>>>& startups = get_startups();
 	for (auto it = startups.begin(), end = startups.end(); it != end; ++it) {
-		auto [name,func]  = (*it);
+		auto [name, func] = (*it);
 		if (func) {
 			DS_LOG_INFO("Running startup: " << name);
 			func(mEngine);
@@ -198,23 +196,23 @@ App::~App() {
 	if (mSyncService) delete mSyncService;
 
 	delete &(mEngine);
-	ds::getLogger().shutDown();
+	getLogger().shutDown();
 }
 
-void App::prepareSettings(ci::app::AppBase::Settings* settings) {
+void App::prepareSettings(AppBase::Settings* settings) {
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1),
 							   static_cast<unsigned>(mEngineData.mDstRect.y1));
-		inherited::setFrameRate(settings->getFrameRate());
-		inherited::setWindowSize(settings->getWindowSize());
-		inherited::setWindowPos(settings->getWindowPos());
-		inherited::setFullScreen(settings->isFullScreen());
-		inherited::getWindow()->setBorderless(settings->isBorderless());
-		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
-		inherited::getWindow()->setTitle(settings->getTitle());
-		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
+		Inherited::setFrameRate(settings->getFrameRate());
+		Inherited::setWindowSize(settings->getWindowSize());
+		Inherited::setWindowPos(settings->getWindowPos());
+		Inherited::setFullScreen(settings->isFullScreen());
+		Inherited::getWindow()->setBorderless(settings->isBorderless());
+		Inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
+		Inherited::getWindow()->setTitle(settings->getTitle());
+		Inherited::enablePowerManagement(settings->isPowerManagementEnabled());
 
 #ifndef _WIN32
 		auto window = (GLFWwindow*)inherited::getWindow()->getNative();
@@ -233,12 +231,12 @@ void App::prepareSettings(ci::app::AppBase::Settings* settings) {
 	loadAppSettings();
 }
 
-void App::loadAppSettings() {
+void App::loadAppSettings() const {
 
 	bool hasLegacySettings = false;
 
 	// After registration, colors can be called by name from settings files or in the app (deprecated)
-	if (ds::Environment::hasSettings("colors.xml")) {
+	if (Environment::hasSettings("colors.xml")) {
 		hasLegacySettings = true;
 		// Colors
 		mEngine.loadSettings("colors", "colors.xml");
@@ -247,39 +245,38 @@ void App::loadAppSettings() {
 		mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 		mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 		mEngine.getSettings("colors").forEachSetting(
-			[this](const ds::cfg::Settings::Setting& theSetting) {
+			[this](const cfg::Settings::Setting& theSetting) {
 				mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 			},
-			ds::cfg::SETTING_TYPE_COLOR);
+			cfg::SETTING_TYPE_COLOR);
 	}
 
 	/* Settings */
 	mEngine.loadSettings("app_settings", "app_settings.xml");
 
 	// Text is the old text styles format (deprecated)
-	if (ds::Environment::hasSettings("text.xml")) {
+	if (Environment::hasSettings("text.xml")) {
 		hasLegacySettings = true;
 		mEngine.loadTextCfg("text.xml");
 	}
 
-	//load waffles.xml settings
-	if (ds::Environment::hasSettings("waffles.xml")) {
+	// load waffles.xml settings
+	if (Environment::hasSettings("waffles.xml")) {
 		mEngine.loadSettings("waffles", "waffles.xml");
 	}
 
-	if (ds::Environment::hasSettings("waffles_interface.xml")) {
+	if (Environment::hasSettings("waffles_interface.xml")) {
 		mEngine.loadSettings("waffles_interface", "waffles_interface.xml");
-		mEngine.getSettings("waffles_interface").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
+		mEngine.getSettings("waffles_interface").forEachSetting([this](const cfg::Settings::Setting& theSetting) {
 			mEngine.getSettings("waffles").addSetting(theSetting);
 		});
 	}
 
-	//load waffles_styles.xml
-	if (ds::Environment::hasSettings("waffles_styles.xml")) {
+	// load waffles_styles.xml
+	if (Environment::hasSettings("waffles_styles.xml")) {
 		mEngine.loadSettings("waffles_styles", "waffles_styles.xml");
 	}
 
-	
 
 	if (hasLegacySettings) {
 		mEngine.loadSettings("styles", "");
@@ -289,31 +286,30 @@ void App::loadAppSettings() {
 		DS_LOG_INFO("---------------------------------------------");
 
 
-		mEngine.getSettings("colors").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting) {
-			mEngine.getSettings("styles").addSetting(theSetting);
-		});
+		mEngine.getSettings("colors").forEachSetting(
+			[this](const cfg::Settings::Setting& theSetting) { mEngine.getSettings("styles").addSetting(theSetting); });
 
 		auto& allTextStyles = mEngine.getEngineCfg().getAllTextStyles();
 		for (auto it : allTextStyles) {
-			auto newSetting		 = ds::cfg::Settings::Setting();
+			auto newSetting		 = cfg::Settings::Setting();
 			newSetting.mName	 = it.second.mName;
-			newSetting.mType	 = ds::cfg::SETTING_TYPE_TEXT_STYLE;
-			newSetting.mRawValue = ds::ui::TextStyle::settingFromTextStyle(mEngine, it.second);
+			newSetting.mType	 = cfg::SETTING_TYPE_TEXT_STYLE;
+			newSetting.mRawValue = ui::TextStyle::settingFromTextStyle(mEngine, it.second);
 			mEngine.getSettings("styles").addSetting(newSetting);
 		}
 
 		int colorOrder = 1;
 		int textOrder  = 2000000; // god help you if you have more than 2,000,000 color settings
 
-		auto colorHeader	   = ds::cfg::Settings::Setting();
+		auto colorHeader	   = cfg::Settings::Setting();
 		colorHeader.mName	   = "COLORS";
-		colorHeader.mType	   = ds::cfg::SETTING_TYPE_SECTION_HEADER;
+		colorHeader.mType	   = cfg::SETTING_TYPE_SECTION_HEADER;
 		colorHeader.mReadIndex = colorOrder;
 		mEngine.getSettings("styles").addSetting(colorHeader);
 
-		auto textSTylesH	   = ds::cfg::Settings::Setting();
+		auto textSTylesH	   = cfg::Settings::Setting();
 		textSTylesH.mName	   = "TEXT STYLES";
-		textSTylesH.mType	   = ds::cfg::SETTING_TYPE_SECTION_HEADER;
+		textSTylesH.mType	   = cfg::SETTING_TYPE_SECTION_HEADER;
 		textSTylesH.mReadIndex = textOrder;
 		mEngine.getSettings("styles").addSetting(textSTylesH);
 
@@ -321,9 +317,9 @@ void App::loadAppSettings() {
 
 		for (auto& sit : readSettings) {
 			for (auto& it : sit.second) {
-				if (it.mType == ds::cfg::SETTING_TYPE_COLOR) {
+				if (it.mType == cfg::SETTING_TYPE_COLOR) {
 					it.mReadIndex = colorOrder++;
-				} else if (it.mType == ds::cfg::SETTING_TYPE_TEXT_STYLE) {
+				} else if (it.mType == cfg::SETTING_TYPE_TEXT_STYLE) {
 					it.mReadIndex = textOrder++;
 				}
 			}
@@ -335,25 +331,25 @@ void App::loadAppSettings() {
 
 	mEngine.editFonts().clear();
 	mEngine.getSettings("styles").forEachSetting(
-		[this](const ds::cfg::Settings::Setting& theSetting) {
-			mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName,
+		[this](const cfg::Settings::Setting& theSetting) {
+			mEngine.editFonts().installFont(Environment::expand(theSetting.mRawValue), theSetting.mName,
 											theSetting.mName);
 		},
-		ds::cfg::SETTING_TYPE_STRING);
-	
+		cfg::SETTING_TYPE_STRING);
 
-	if (ds::safeFileExistsCheck(ds::Environment::expand("%APP%/settings/fonts.xml"), false)) {
+
+	if (safeFileExistsCheck(Environment::expand("%APP%/settings/fonts.xml"), false)) {
 		mEngine.loadSettings("fonts", "fonts.xml");
-		mEngine.editFonts().clear(); //do we want to clear here?
+		mEngine.editFonts().clear(); // do we want to clear here?
 		mEngine.getSettings("fonts").forEachSetting(
-			[this](const ds::cfg::Settings::Setting& theSetting) {
-				mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName,
+			[this](const cfg::Settings::Setting& theSetting) {
+				mEngine.editFonts().installFont(Environment::expand(theSetting.mRawValue), theSetting.mName,
 												theSetting.mName);
 			},
-			ds::cfg::SETTING_TYPE_STRING);
-	} else if (ds::safeFileExistsCheck(ds::Environment::expand("%APP%/data/fonts/"), true)) {
+			cfg::SETTING_TYPE_STRING);
+	} else if (safeFileExistsCheck(Environment::expand("%APP%/data/fonts/"), true)) {
 		try {
-			auto					fontsFolder = Poco::File(ds::Environment::expand("%APP%/data/fonts/"));
+			auto					fontsFolder = Poco::File(Environment::expand("%APP%/data/fonts/"));
 			std::vector<Poco::File> chillins;
 			fontsFolder.list(chillins);
 			auto& editFonts = mEngine.editFonts();
@@ -368,29 +364,29 @@ void App::loadAppSettings() {
 	}
 
 	// load waffles_fonts.xml
-	if (ds::Environment::hasSettings("waffles_fonts.xml")) {
+	if (Environment::hasSettings("waffles_fonts.xml")) {
 		mEngine.loadSettings("waffles_fonts", "waffles_fonts.xml");
 		mEngine.getSettings("waffles_fonts")
 			.forEachSetting(
-				[this](const ds::cfg::Settings::Setting& theSetting) {
-					mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName,
+				[this](const cfg::Settings::Setting& theSetting) {
+					mEngine.editFonts().installFont(Environment::expand(theSetting.mRawValue), theSetting.mName,
 													theSetting.mName);
 				},
-				ds::cfg::SETTING_TYPE_STRING);
+				cfg::SETTING_TYPE_STRING);
 	}
 
 	mEngine.loadSettings("tuio_inputs", "tuio_inputs.xml");
 }
 
 void App::setup() {
-	inherited::setup();
+	Inherited::setup();
 
 	mEngine.getPangoFontService().loadFonts();
 	mEngine.setupTouch(*this);
 	mEngine.setup(*this);
 
 #ifdef _WIN32
-	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
+	SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
 #endif
 
 	mEngine.getLoadImageService().initialize();
@@ -399,11 +395,11 @@ void App::setup() {
 	ImGui::Initialize();
 
 	// Save ImGui ini (window positions) to Documents/Downstream/common/%Project-Path%/imgui.ini
-	static auto imguiIni = ds::Environment::expand("%LOCAL%/common/%PP%/imgui.ini");
+	static auto imguiIni = Environment::expand("%LOCAL%/common/%PP%/imgui.ini");
 
 	// Ensure directory exists!!
-	if (!ds::safeFileExistsCheck(imguiIni)) {
-		ci::writeString(ci::writeFile(imguiIni, true), "");
+	if (!safeFileExistsCheck(imguiIni)) {
+		writeString(ci::writeFile(imguiIni, true), "");
 	}
 
 	DS_LOG_VERBOSE(1, "Saving imgui ini to " << imguiIni);
@@ -415,9 +411,9 @@ void App::setup() {
 	// Set ImGui font + font size. Default is Calibri from the standard windows location
 	// Can be overridden in engine.xml
 	float fontSize = mEngine.getEngineSettings().getFloat("debug:imgui_font_size", 0, 18.f);
-	auto  fontFile = ds::Environment::expand(
+	auto  fontFile = Environment::expand(
 		 mEngine.getEngineSettings().getString("debug:imgui_font", 0, "C:/Windows/Fonts/Calibri.ttf"));
-	if (ds::safeFileExistsCheck(fontFile)) {
+	if (safeFileExistsCheck(fontFile)) {
 		ImGui::GetIO().Fonts->AddFontFromFileTTF(fontFile.data(), fontSize);
 	} else {
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Calibri.ttf", fontSize);
@@ -445,11 +441,11 @@ void App::resetTheWindow() {
 }
 
 void App::resetupServer() {
-	// Just as an added precaution, shouldn't be reqired
+	// Just as an added precaution, shouldn't be required
 	mEngine.getTweenline().getTimeline().clear();
 
 	mEngine.clearAllSprites(true);
-	ds::ui::SpriteShader::clearShaderCache();
+	ui::SpriteShader::clearShaderCache();
 	loadAppSettings();
 	mEngine.reloadSettings();
 	mEngine.getLoadImageService().initialize();
@@ -460,7 +456,7 @@ void App::resetupServer() {
 	}
 }
 
-void App::preServerSetup() {
+void App::preServerSetup() const {
 	for (auto it : get_setups()) {
 		it(mEngine);
 	}
@@ -475,41 +471,39 @@ void App::preServerSetup() {
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.getSettings("styles").forEachSetting(
-		[this](const ds::cfg::Settings::Setting& theSetting) {
+		[this](const cfg::Settings::Setting& theSetting) {
 			mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 		},
-		ds::cfg::SETTING_TYPE_COLOR);
+		cfg::SETTING_TYPE_COLOR);
 
 	auto waffles_styles = mEngine.getSettings("waffles_styles");
 	if (!waffles_styles.empty()) {
 		waffles_styles.forEachSetting(
-			[this](const ds::cfg::Settings::Setting& theSetting) {
+			[this](const cfg::Settings::Setting& theSetting) {
 				mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 			},
-			ds::cfg::SETTING_TYPE_COLOR);
-	}
-	else {
+			cfg::SETTING_TYPE_COLOR);
+	} else {
 		DS_LOG_WARNING("No waffles_styles settings found. This is okay if not using waffles");
 	}
 
 	mEngine.getEngineCfg().clearTextStyles();
 	mEngine.getSettings("styles").forEachSetting(
-		[this](const ds::cfg::Settings::Setting& theSetting) {
-			mEngine.getEngineCfg().setTextStyle(
-				theSetting.mName, ds::ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString()));
+		[this](const cfg::Settings::Setting& theSetting) {
+			mEngine.getEngineCfg().setTextStyle(theSetting.mName,
+												ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString()));
 		},
-		ds::cfg::SETTING_TYPE_TEXT_STYLE);
-	
-	if(!waffles_styles.empty()) {
+		cfg::SETTING_TYPE_TEXT_STYLE);
+
+	if (!waffles_styles.empty()) {
 		auto waffles_scale = mEngine.getWafflesSettings().getFloat("waffles:font:scale", 0, 1.0);
 		waffles_styles.forEachSetting(
-			[this,waffles_scale](const ds::cfg::Settings::Setting& theSetting) {
-				auto text_style = ds::ui::TextStyle::textStyleFromSetting( mEngine, theSetting.getString());
+			[this, waffles_scale](const cfg::Settings::Setting& theSetting) {
+				auto text_style = ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString());
 				text_style.mSize *= waffles_scale;
-				mEngine.getEngineCfg().setTextStyle(
-					theSetting.mName, text_style);
+				mEngine.getEngineCfg().setTextStyle(theSetting.mName, text_style);
 			},
-			ds::cfg::SETTING_TYPE_TEXT_STYLE);
+			cfg::SETTING_TYPE_TEXT_STYLE);
 	} else {
 		DS_LOG_WARNING("No waffles_styles settings found. This is okay if not using waffles");
 	}
@@ -559,7 +553,7 @@ void App::update() {
 
 	mEngine.update();
 
-	if (mEngine.getRestartAfterNextUpdate() && mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE) {
+	if (mEngine.getRestartAfterNextUpdate() && mEngine.getMode() != ui::SpriteEngine::CLIENT_MODE) {
 		resetupServer();
 	}
 }
@@ -610,11 +604,11 @@ void App::touchesEnded(ci::app::TouchEvent e) {
 	mEngine.touchesEnded(e);
 }
 
-void App::tuioObjectBegan(const ds::TuioObject&) {}
+void App::tuioObjectBegan(const TuioObject&) {}
 
-void App::tuioObjectMoved(const ds::TuioObject&) {}
+void App::tuioObjectMoved(const TuioObject&) {}
 
-void App::tuioObjectEnded(const ds::TuioObject&) {}
+void App::tuioObjectEnded(const TuioObject&) {}
 
 const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
@@ -631,7 +625,7 @@ void App::killSupportingApps() {
 }
 
 void App::writeSpriteHierarchy() {
-	std::string path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
+	std::string path = Environment::expand("%LOCAL%/sprite_dump.txt");
 	std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 	std::fstream filestr;
 	filestr.open(path, std::fstream::out);
@@ -645,22 +639,22 @@ void App::writeSpriteHierarchy() {
 	std::cout << buf.str() << std::endl;
 }
 
-void App::debugEnabledSprites() {
+void App::debugEnabledSprites() const {
 	DS_LOG_VERBOSE(1, "App::debugEnabledSprites()");
 	const size_t numRoots = mEngine.getRootCount();
 	for (size_t i = 0; i < numRoots - 1; i++) {
 		mEngine.getRootSprite(i).forEachChild(
-			[this](ds::ui::Sprite& sprite) {
+			[this](ui::Sprite& sprite) {
 				if (sprite.isEnabled()) {
 					sprite.setTransparent(false);
 					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
 					sprite.setOpacity(0.95f);
 
-					ds::ui::Text* labelly = new ds::ui::Text(mEngine);
+					ui::Text* labelly = new ui::Text(mEngine);
 					labelly->setFont("Arial");
 					labelly->setFontSize(16.0f);
 					std::string theName =
-						std::string(typeid(sprite).name()) + " " + ds::utf8_from_wstr(sprite.getSpriteName(true));
+						std::string(typeid(sprite).name()) + " " + utf8_from_wstr(sprite.getSpriteName(true));
 					labelly->setText(theName);
 					labelly->enable(false);
 					labelly->setColor(ci::Color::black());
@@ -668,7 +662,7 @@ void App::debugEnabledSprites() {
 					sprite.addChildPtr(labelly);
 				} else {
 
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
+					ui::Text* texty = dynamic_cast<ui::Text*>(&sprite);
 					if (!texty || (texty && texty->getSpriteName() != L"debug_text")) sprite.setTransparent(true);
 				}
 			},
@@ -680,10 +674,10 @@ void App::debugEnabledSprites() {
 void App::launchSyncService() {
 	// fireup downsync
 	if (mSyncService == nullptr) {
-		mSyncService = new ds::content::SyncService(mEngine);
-		ds::content::SyncSettings settings;
+		mSyncService = new content::SyncService(mEngine);
+		content::SyncSettings settings;
 
-		settings.name = ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_name", 0, ""));
+		settings.name = Environment::expand(mEngine.getEngineSettings().getString("downsync_name", 0, ""));
 		if (settings.name == "%AUTO%") {
 			// make a buffer for the computer name
 			DWORD bufsize = CN_BUFSIZE;
@@ -691,26 +685,22 @@ void App::launchSyncService() {
 			memset(computername_buffer, 0, CN_BUFSIZE);
 
 			// get the forrealz computer name.
-			GetComputerNameExA(COMPUTER_NAME_FORMAT::ComputerNameDnsHostname, computername_buffer, &bufsize);
+			GetComputerNameExA(ComputerNameDnsHostname, computername_buffer, &bufsize);
 			settings.name = std::string(computername_buffer);
 		}
-		settings.server = ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_server", 0, ""));
+		settings.server = Environment::expand(mEngine.getEngineSettings().getString("downsync_server", 0, ""));
 		if (settings.server == "%AUTO%") {
 			settings.server = mEngine.getEngineSettings().getString("cms:url");
 		}
 
-		settings.token = ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_token", 0, ""));
-		settings.directory =
-			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_directory", 0, ""));
+		settings.token	   = Environment::expand(mEngine.getEngineSettings().getString("downsync_token", 0, ""));
+		settings.directory = Environment::expand(mEngine.getEngineSettings().getString("downsync_directory", 0, ""));
 		// optional settings
-		settings.interval = ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_interval", 0, ""));
-		settings.rate_decay =
-			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_rate_decay", 0, ""));
-		settings.rate_qty =
-			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_rate_quantity", 0, ""));
-		settings.udp_port = ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_upd_port", 0, ""));
-		settings.verbosity =
-			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
+		settings.interval	= Environment::expand(mEngine.getEngineSettings().getString("downsync_interval", 0, ""));
+		settings.rate_decay = Environment::expand(mEngine.getEngineSettings().getString("downsync_rate_decay", 0, ""));
+		settings.rate_qty = Environment::expand(mEngine.getEngineSettings().getString("downsync_rate_quantity", 0, ""));
+		settings.udp_port = Environment::expand(mEngine.getEngineSettings().getString("downsync_upd_port", 0, ""));
+		settings.verbosity = Environment::expand(mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
 
 		mSyncService->initialize(settings);
 		if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
@@ -740,8 +730,8 @@ void App::launchBridgeSyncService() {
 		mBridgeSyncService = nullptr;
 	}
 	if (mBridgeSyncService == nullptr) {
-		mBridgeSyncService = new ds::content::BridgeSyncService(mEngine);
-		ds::content::BridgeSyncSettings settings;
+		mBridgeSyncService = new content::BridgeSyncService(mEngine);
+		content::BridgeSyncSettings settings;
 
 		settings.server = mEngine.getEngineSettings().getString("bridgesync:server", 0, "");
 		if (settings.server == "%AUTO%" || settings.server.empty()) {
@@ -750,11 +740,9 @@ void App::launchBridgeSyncService() {
 		settings.authServer	  = mEngine.getEngineSettings().getString("bridgesync:auth_server", 0, "");
 		settings.clientId	  = mEngine.getEngineSettings().getString("bridgesync:client_id", 0, "");
 		settings.clientSecret = mEngine.getEngineSettings().getString("bridgesync:client_secret", 0, "");
-		settings.directory =
-			ds::Environment::expand(mEngine.getEngineSettings().getString("bridgesync:directory", 0, ""));
+		settings.directory = Environment::expand(mEngine.getEngineSettings().getString("bridgesync:directory", 0, ""));
 		if (settings.directory.empty()) {
-			settings.directory =
-				ds::Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, ""));
+			settings.directory = Environment::expand(mEngine.getEngineSettings().getString("resource_location", 0, ""));
 		}
 		// optional settings
 		settings.interval		= mEngine.getEngineSettings().getString("bridgesync:interval", 0, "");
@@ -764,7 +752,8 @@ void App::launchBridgeSyncService() {
 		settings.syncPath =
 			mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
 
-		settings.syncPath  = mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
+		settings.syncPath =
+			mEngine.getEngineSettings().getString("bridgesync:exe", 0, "%APP%/bridgesync/bridge_sync_console.exe");
 
 		mBridgeSyncService->initialize(settings);
 		/* registerKeyPress(
@@ -784,16 +773,11 @@ void App::registerKeyPress(const std::string& name, std::function<void()> func, 
 
 void App::setupKeyPresses() {
 	using ci::app::KeyEvent;
-	mKeyManager.registerKey(
-		"Quit app", [this] { quit(); }, KeyEvent::KEY_ESCAPE);
-	mKeyManager.registerKey(
-		"Quit app", [this] { quit(); }, KeyEvent::KEY_q);
-	mKeyManager.registerKey(
-		"Quit app", [this] { quit(); }, KeyEvent::KEY_q, true);
-	mKeyManager.registerKey(
-		"Quit app", [this] { quit(); }, KeyEvent::KEY_q, false, true);
-	mKeyManager.registerKey(
-		"Quit app", [this] { quit(); }, KeyEvent::KEY_F4);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_ESCAPE);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, true);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_q, false, true);
+	mKeyManager.registerKey("Quit app", [this] { quit(); }, KeyEvent::KEY_F4);
 	mKeyManager.registerKey(
 		"Print available keys",
 		[this] {
@@ -801,8 +785,7 @@ void App::setupKeyPresses() {
 			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor("keys");
 		},
 		KeyEvent::KEY_h);
-	mKeyManager.registerKey(
-		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
+	mKeyManager.registerKey("Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
 	mKeyManager.registerKey(
 		"Toggle always on top", [] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); },
 		KeyEvent::KEY_a);
@@ -811,33 +794,25 @@ void App::setupKeyPresses() {
 		KeyEvent::KEY_i);
 	mKeyManager.registerKey(
 		"Toggle on-screen console", [this] { mEngine.toggleSettingsEditor("logs"); }, KeyEvent::KEY_c);
-	mKeyManager.registerKey(
-		"Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c, true);
-	mKeyManager.registerKey(
-		"Touch mode", [this] { mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
-	mKeyManager.registerKey(
-		"Take screenshot", [this] { saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
-	mKeyManager.registerKey(
-		"Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
-	mKeyManager.registerKey(
-		"Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
+	mKeyManager.registerKey("Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c, true);
+	mKeyManager.registerKey("Touch mode", [this] { mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
+	mKeyManager.registerKey("Take screenshot", [this] { saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
+	mKeyManager.registerKey("Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
+	mKeyManager.registerKey("Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
 	mKeyManager.registerKey(
 		"Verbose logging toggle",
 		[] {
-			if (ds::getLogger().getVerboseLevel() > 0)
-				ds::getLogger().setVerboseLevel(0);
+			if (getLogger().getVerboseLevel() > 0)
+				getLogger().setVerboseLevel(0);
 			else
-				ds::getLogger().setVerboseLevel(9);
+				getLogger().setVerboseLevel(9);
 		},
 		KeyEvent::KEY_v);
 	mKeyManager.registerKey(
-		"Verbose logging increment", [] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false,
-		true);
+		"Verbose logging increment", [] { getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false, true);
 	mKeyManager.registerKey(
-		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
-		true);
-	mKeyManager.registerKey(
-		"Toggle Debug Stats", [this] { mEngine.toggleSettingsEditor("stats"); }, KeyEvent::KEY_s);
+		"Verbose logging decrement", [] { getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false, true);
+	mKeyManager.registerKey("Toggle Debug Stats", [this] { mEngine.toggleSettingsEditor("stats"); }, KeyEvent::KEY_s);
 	mKeyManager.registerKey(
 		"Toggle Debug Tools",
 		[this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(); },
@@ -846,33 +821,28 @@ void App::setupKeyPresses() {
 		"Toggle Settings editors", [this] { mEngine.toggleSettingsEditor("settings"); }, KeyEvent::KEY_e, true);
 	/* mKeyManager.registerKey(
 		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d); */
-	mKeyManager.registerKey(
-		"Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
-	mKeyManager.registerKey(
-		"Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
+	mKeyManager.registerKey("Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
+	mKeyManager.registerKey("Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
 	mKeyManager.registerKey(
 		"Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
 	mKeyManager.registerKey(
-		"Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); },
-		ci::app::KeyEvent::KEY_n);
+		"Requery data", [this] { mEngine.getNotifier().notify(RequestContentQueryEvent()); }, KeyEvent::KEY_n);
+	mKeyManager.registerKey("Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, KeyEvent::KEY_l);
 	mKeyManager.registerKey(
-		"Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
-	mKeyManager.registerKey(
-		"Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
+		"Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, KeyEvent::KEY_l, true);
 	mKeyManager.registerKey(
 		"Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
 	mKeyManager.registerKey(
 		"Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
-	mKeyManager.registerKey(
-		"Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
+	mKeyManager.registerKey("Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
 
 	mKeyManager.registerKey(
 		"Translate src rect input mode",
 		[this] {
-			if (mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
-				mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+			if (mEngine.getTouchManager().getInputMode() == ui::TouchManager::kInputTranslate) {
+				mEngine.getTouchManager().setInputMode(ui::TouchManager::kInputNormal);
 			} else {
-				mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputTranslate);
+				mEngine.getTouchManager().setInputMode(ui::TouchManager::kInputTranslate);
 			}
 		},
 		KeyEvent::KEY_t);
@@ -880,10 +850,10 @@ void App::setupKeyPresses() {
 	mKeyManager.registerKey(
 		"Scale src rect input mode",
 		[this] {
-			if (mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
-				mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputNormal);
+			if (mEngine.getTouchManager().getInputMode() == ui::TouchManager::kInputScale) {
+				mEngine.getTouchManager().setInputMode(ui::TouchManager::kInputNormal);
 			} else {
-				mEngine.getTouchManager().setInputMode(ds::ui::TouchManager::kInputScale);
+				mEngine.getTouchManager().setInputMode(ui::TouchManager::kInputScale);
 			}
 		},
 		KeyEvent::KEY_y);
@@ -986,13 +956,13 @@ void App::saveTransparentScreenshot() {
 	std::stringstream		 filepath;
 	filepath << "ds_cinder.screenshot." << t << ".png";
 	p.append("Desktop").append(filepath.str());
-	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
+	writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
 void App::quit() {
 	if (mEngine.getEngineSettings().getBool("apphost:exit_on_quit", 0, true)) {
 		DS_LOG_INFO("Requesting Apphost to exit...");
-		ds::net::HttpsRequest httpsRequest = ds::net::HttpsRequest(mEngine);
+		net::HttpsRequest httpsRequest = net::HttpsRequest(mEngine);
 		httpsRequest.makeSyncGetRequest("http://localhost:7800/api/exit");
 	}
 
@@ -1025,7 +995,7 @@ static std::string app_folder_from(const Poco::Path& path) {
 	return app_sub_folder_from("settings", path);
 }
 
-ds::EngineSettingsPreloader::Initializer::Initializer() {
+EngineSettingsPreloader::Initializer::Initializer() {
 	const auto appPath = ci::app::Platform::get()->getExecutablePath().generic_string();
 
 	// appPath could contain a trailing slash (Windows), or not (Linux).

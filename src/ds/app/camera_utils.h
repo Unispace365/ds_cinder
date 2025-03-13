@@ -3,11 +3,7 @@
 #define DS_APP_CAMERAUTILS_H
 
 #include <cinder/Camera.h>
-#include <cinder/Matrix.h>
-#include <cinder/Matrix33.h>
-#include <cinder/Matrix44.h>
 #include <cinder/Rect.h>
-#include <cinder/Vector.h>
 
 namespace ds {
 namespace ui {
@@ -21,22 +17,22 @@ namespace ui {
  */
 class CameraPick {
   public:
-	CameraPick(const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint)
+	CameraPick(const ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint)
 	  : mPickRay(calculatePickRay(engine, cameraPersp, worldTouchPoint))
-	  , mCameraDirection(glm::normalize(cameraPersp.getViewDirection())) {}
+	  , mCameraDirection(normalize(cameraPersp.getViewDirection())) {}
 	/// Takes an additional viewport argument, to enable 3d picking for arbitrary 3d viewports
-	CameraPick(const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp,
+	CameraPick(const ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp,
 			   const ci::vec3& worldTouchPoint)
 	  : mPickRay(calculatePickRay(engine, viewport, cameraPersp, worldTouchPoint))
-	  , mCameraDirection(glm::normalize(cameraPersp.getViewDirection())) {}
+	  , mCameraDirection(normalize(cameraPersp.getViewDirection())) {}
 
-	const bool	testHitSprite(ds::ui::Sprite* sprite, ci::vec3& hitWorldPos) const;
-	const float calcHitDepth(const ci::vec3& hitWorldPos) const;
+	bool  testHitSprite(ui::Sprite* sprite, ci::vec3& hitWorldPos) const;
+	float calcHitDepth(const ci::vec3& hitWorldPos) const;
 
-	static const ci::Ray calculatePickRay(const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp,
-										  const ci::vec3& worldTouchPoint);
-	static const ci::Ray calculatePickRay(const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport,
-										  const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint);
+	static ci::Ray calculatePickRay(const ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp,
+									const ci::vec3& worldTouchPoint);
+	static ci::Ray calculatePickRay(const ui::SpriteEngine& engine, const ci::Rectf& viewport,
+									const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint);
 
   protected:
 	const ci::Ray  mPickRay;

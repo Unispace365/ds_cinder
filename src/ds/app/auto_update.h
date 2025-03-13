@@ -2,9 +2,7 @@
 #ifndef DS_APP_AUTOUPDATE_H_
 #define DS_APP_AUTOUPDATE_H_
 
-#include <Poco/Timestamp.h>
 #include <ds/app/app_defs.h>
-#include <vector>
 
 namespace ds {
 class AutoUpdateList;
@@ -20,18 +18,21 @@ namespace ui {
  */
 class AutoUpdate {
   public:
-	AutoUpdate(ds::ui::SpriteEngine&, const int mask = AutoUpdateType::SERVER);
+	AutoUpdate(ui::SpriteEngine&, int mask = AutoUpdateType::SERVER);
 	virtual ~AutoUpdate();
+
+	AutoUpdate(const AutoUpdate&)			 = delete;
+	AutoUpdate(AutoUpdate&&)				 = delete;
+	AutoUpdate& operator=(const AutoUpdate&) = delete;
+	AutoUpdate& operator=(AutoUpdate&&)		 = delete;
 
   protected:
 	friend class AutoUpdateList;
-	virtual void update(const ds::UpdateParams&) = 0;
+	virtual void update(const UpdateParams&) = 0;
 
-	ds::ui::SpriteEngine& mEngine;
+	ui::SpriteEngine& mEngine;
 
   private:
-	AutoUpdate();
-
 	const int mMask;
 };
 

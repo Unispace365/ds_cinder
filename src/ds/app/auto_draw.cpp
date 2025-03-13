@@ -1,10 +1,9 @@
 #include "stdafx.h"
 
-#include "ds/app/auto_draw.h"
-
-#include "ds/app/auto_update_list.h"
-#include "ds/ui/sprite/sprite_engine.h"
 #include <algorithm>
+
+#include "ds/app/auto_draw.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 
@@ -35,8 +34,8 @@ AutoDrawService::AutoDrawService() {
 void AutoDrawService::drawClient(const ci::mat4& t, const DrawParams& d) {
 	if (mUpdate.empty()) return;
 
-	for (auto it = mUpdate.begin(), end = mUpdate.end(); it != end; ++it) {
-		(*it)->drawClient(t, d);
+	for (auto& it : mUpdate) {
+		it->drawClient(t, d);
 	}
 }
 } // namespace ds

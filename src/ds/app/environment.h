@@ -38,20 +38,20 @@ class Environment {
 	/// it so no configuration is needed between dev and production environments.
 	/// If verify is true, then verify that the folder or file exists, otherwise answer a blank string.
 	static std::string getAppFolder(const std::string& folderName, const std::string& fileName = "",
-									const bool verify = false);
+									bool verify = false);
 
 	/// Answer a complete path to a local settings file.  Supply an empty file name
 	/// to just get the local settings folder.
 	static std::string getLocalSettingsPath(const std::string& fileName);
 
 	/// Convenience to load in a settings file, first from the app path, then the local path
-	static void loadSettings(const std::string& settingsName, const std::string& filename, ds::cfg::Settings&);
+	static void loadSettings(const std::string& settingsName, const std::string& filename, cfg::Settings&);
 
 	/// Check if there are settings at the appropriate paths
 	static bool hasSettings(const std::string& filename);
 
 	/// Convenience to save a settings file to the local path
-	static void saveSettings(const std::string& filename, ds::cfg::Settings&);
+	static void saveSettings(const std::string& filename, cfg::Settings&);
 
 	/// Utility to replace the value of an environment variable
 	static void replaceEnvironmentVariable(const std::string& variable, const std::string& value);
@@ -81,8 +81,7 @@ class Environment {
 	/// OK, this API has become pretty messy. This gets to the local folder, which can have
 	/// optional category (SETTINGS() etc.), project_path, and file name
 	/// Obsolete -- use ds::Environment::expand("%LOCAL%/settings/%PP%/filename");
-	static std::string getLocalFile(const std::string& category, const bool includeProjectPath,
-									const std::string& filename);
+	static std::string getLocalFile(const std::string& category, bool includeProjectPath, const std::string& filename);
 
 	/// Utility to get command-line parameters
 	static std::vector<std::string> getCommandLineParams();
@@ -90,7 +89,7 @@ class Environment {
 	/// Utility to get the current clipboard contents as a string
 	static std::string getClipboard();
 
-	static void setConfigDirFileExpandOverride(const bool doOverride);
+	static void setConfigDirFileExpandOverride(bool doOverride);
 
   private:
 	friend class App;

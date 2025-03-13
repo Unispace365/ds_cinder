@@ -46,21 +46,21 @@ namespace event {
 		// For backwards compatibility with the old registry. Please tell
 		// me no one has created this many old-style events.
 		static const int START(10000);
-		size_t			 ans = mMsgs.size() + 1 + START;
-		mMsgs[ans]			 = name;
+		size_t			 ans = mMessages.size() + 1 + START;
+		mMessages[ans]			 = name;
 		return ans;
 	}
 
 	void Registry::report() {
-		std::cout << "rf::msg::Registry size=" << mMsgs.size() << std::endl;
-		for (auto it = mMsgs.begin(), end = mMsgs.end(); it != end; ++it) {
+		std::cout << "rf::msg::Registry size=" << mMessages.size() << std::endl;
+		for (auto it = mMessages.begin(), end = mMessages.end(); it != end; ++it) {
 			std::cout << "\t" << it->first << ": " << it->second << std::endl;
 		}
 	}
 
 	const std::string& Registry::getName(const size_t what) {
-		auto f = mMsgs.find(what);
-		if (f != mMsgs.end()) {
+		auto f = mMessages.find(what);
+		if (f != mMessages.end()) {
 			return f->second;
 		}
 

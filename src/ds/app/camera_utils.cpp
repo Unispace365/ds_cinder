@@ -1,15 +1,15 @@
 #include "stdafx.h"
 
+#include <cinder/gl/gl.h>
+
 #include "ds/app/camera_utils.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
-#include <cinder/gl/gl.h>
-
 namespace ds {
 
-const ci::Ray CameraPick::calculatePickRay(const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp,
-										   const ci::vec3& worldTouchPoint) {
+ci::Ray CameraPick::calculatePickRay(const ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp,
+									 const ci::vec3& worldTouchPoint) {
 	// Note: Again, we are using the actual window size here, not
 	// the Engine mDstRect size.
 	auto screenSize = glm::vec2(ci::app::getWindowSize());
@@ -28,14 +28,14 @@ const ci::Ray CameraPick::calculatePickRay(const ds::ui::SpriteEngine& engine, c
 	const auto viewMat		= cameraPersp.getViewMatrix();
 	const auto projMat		= cameraPersp.getProjectionMatrix();
 	const auto viewport		= glm::vec4(0.0f, 0.0f, screenSize);
-	glm::vec3  worldPosNear = glm::unProject(viewportPoint, viewMat, projMat, viewport);
-	glm::vec3  rayDirection = glm::normalize(worldPosNear - cameraPersp.getEyePoint());
+	glm::vec3  worldPosNear = unProject(viewportPoint, viewMat, projMat, viewport);
+	glm::vec3  rayDirection = normalize(worldPosNear - cameraPersp.getEyePoint());
 
-	return ci::Ray(cameraPersp.getEyePoint(), rayDirection);
+	return {cameraPersp.getEyePoint(), rayDirection};
 }
 
-const ci::Ray CameraPick::calculatePickRay(const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport,
-										   const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint) {
+ci::Ray CameraPick::calculatePickRay(const ui::SpriteEngine&, const ci::Rectf& viewport,
+									 const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint) {
 	// Alternate pick ray, calculated in using a world-space viewport.
 	const auto rayPt = ci::vec2(worldTouchPoint.x - viewport.getX1(), viewport.getY2() - worldTouchPoint.y);
 	auto	   ray	 = cameraPersp.generateRay(rayPt, viewport.getSize());
@@ -43,7 +43,7 @@ const ci::Ray CameraPick::calculatePickRay(const ds::ui::SpriteEngine& engine, c
 	return ray;
 }
 
-const bool CameraPick::testHitSprite(ds::ui::Sprite* sprite, ci::vec3& hitWorldPos) const {
+bool CameraPick::testHitSprite(ui::Sprite* sprite, ci::vec3& hitWorldPos) const {
 	if (!sprite->isEnabled()) return false;
 
 	const float w = sprite->getScaleWidth();
@@ -58,7 +58,7 @@ const bool CameraPick::testHitSprite(ds::ui::Sprite* sprite, ci::vec3& hitWorldP
 	auto v1 = cornerB - cornerA;
 	auto v2 = cornerC - cornerA;
 
-	auto norm = glm::normalize(glm::cross(v2, v1));
+	auto norm = normalize(cross(v2, v1));
 
 	float rayDist;
 	bool  intersectsPlane = mPickRay.calcPlaneIntersection(cornerA, norm, &rayDist);
@@ -68,8 +68,8 @@ const bool CameraPick::testHitSprite(ds::ui::Sprite* sprite, ci::vec3& hitWorldP
 
 	auto v = intersectPoint - cornerA;
 
-	float dot1 = glm::dot(v, v1);
-	float dot2 = glm::dot(v, v2);
+	float dot1 = dot(v, v1);
+	float dot2 = dot(v, v2);
 
 	if (dot1 >= 0 && dot2 >= 0 && dot1 <= dot(v1, v1) && dot2 <= dot(v2, v2)) {
 
@@ -80,9 +80,9 @@ const bool CameraPick::testHitSprite(ds::ui::Sprite* sprite, ci::vec3& hitWorldP
 	return false;
 }
 
-const float CameraPick::calcHitDepth(const ci::vec3& hitWorldPos) const {
+float CameraPick::calcHitDepth(const ci::vec3& hitWorldPos) const {
 	auto		intersectVector = hitWorldPos - mPickRay.getOrigin();
-	const float hitZ			= glm::dot(intersectVector, mCameraDirection);
+	const float hitZ			= dot(intersectVector, mCameraDirection);
 	return hitZ;
 }
 
@@ -118,7 +118,7 @@ ci::vec3 ScreenToWorld::translate(const ci::vec3& point) {
 ci::vec3 ScreenToWorld::unproject(const ci::vec3& point) {
 	// Find the inverse Modelview-Projection-Matrix
 	ci::mat4 invMVP = mProjection * mModelView;
-	invMVP			= glm::inverse(invMVP);
+	invMVP			= inverse(invMVP);
 
 	// Transform to normalized coordinates in the range [-1, 1]
 	ci::vec4 pointNormal;

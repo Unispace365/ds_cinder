@@ -8,7 +8,8 @@
 
 namespace ds {
 
-typedef int sprite_id_t;
+using sprite_id_t = int;
+
 // System-defined illegal sprite
 static const sprite_id_t EMPTY_SPRITE_ID = 0;
 
@@ -31,7 +32,7 @@ namespace AutoUpdateType {
  */
 class RootList {
   public:
-	/// Not explicit on purpose. Provide backwards compatibilty
+	/// Not explicit on purpose. Provide backwards compatibility
 	/// for the old way of specifying roots.
 	RootList(const std::vector<int>* roots = nullptr);
 	/// With this variant, the function is called before the
@@ -54,11 +55,11 @@ class RootList {
 	/// Use unique colour rendering for picking.
 	RootList& pickColor();
 
-	RootList& perspFov(const float);
+	RootList& perspFov(float);
 	RootList& perspPosition(const ci::vec3&);
 	RootList& perspTarget(const ci::vec3&);
-	RootList& perspNear(const float);
-	RootList& perspFar(const float);
+	RootList& perspNear(float);
+	RootList& perspFar(float);
 
 	/// Set to master or slave mode. Currently only perspectives can
 	/// be master or slave, there can only be a single master, and all

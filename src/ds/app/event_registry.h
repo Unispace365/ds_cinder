@@ -6,7 +6,6 @@
 #include <map>
 #include <string>
 
-
 namespace ds {
 
 class Event;
@@ -31,14 +30,14 @@ namespace event {
 
 		const std::string& getName(const size_t what);
 
-		void						addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator);
-		std::function<ds::Event*()> getEventCreator(const std::string& eventName);
+		void					addEventCreator(const std::string& eventName, std::function<Event*()> creator);
+		std::function<Event*()> getEventCreator(const std::string& eventName);
 
 
-		/// Convienence for adding event creators with default parameters
+		/// Convenience for adding event creators with default parameters
 		template <class EVENT>
 		void addEventCreator() {
-			static_assert(std::is_base_of<ds::Event, EVENT>::value,
+			static_assert(std::is_base_of<Event, EVENT>::value,
 						  "addEventCreator EVENT template parameter must derive from ds::Event");
 			addEventCreator(EVENT::NAME(), []() { return new EVENT(); });
 		}
@@ -59,8 +58,8 @@ namespace event {
 		};
 
 	  private:
-		std::map<size_t, std::string>					   mMsgs;
-		std::map<std::string, std::function<ds::Event*()>> mCreators;
+		std::map<size_t, std::string>				   mMessages;
+		std::map<std::string, std::function<Event*()>> mCreators;
 	};
 
 } // namespace event
