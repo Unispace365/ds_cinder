@@ -1,16 +1,12 @@
 #include "stdafx.h"
 
-#include "settings_variables.h"
-
-#include <ds/app/engine/engine.h>
-#include <ds/app/engine/engine_cfg.h>
-
+#include "ds/app/engine/engine.h"
+#include "ds/cfg/settings_variables.h"
 #include "ds/math/fparser.hh"
-
 
 namespace {
 
-static std::unordered_map<std::string, std::string> VARIABLE_MAP;
+std::unordered_map<std::string, std::string> VARIABLE_MAP;
 
 class Init {
   public:
@@ -24,7 +20,6 @@ class Init {
 			VARIABLE_MAP["anim_dur"]	 = std::to_string(e.getAnimDur());
 
 			e.getAppSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
-				
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, theSetting.mRawValue);
 			});
 			e.getAppSettings().replaceSettingVariablesAndExpressions();
@@ -34,11 +29,10 @@ class Init {
 					value = ds::cfg::SettingsVariables::doMultiply(
 						theSetting.mOriginalValue.empty() ? theSetting.mRawValue : theSetting.mOriginalValue,
 						theSetting.mMultiplier, theSetting.mType);
-					//DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
+					// DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
 					//								   << value << " (" << theSetting.mRawValue << ")");
 				}
 				ds::cfg::SettingsVariables::addVariable(theSetting.mName, value);
-				
 			});
 			e.getWafflesSettings().replaceSettingVariablesAndExpressions();
 		});
@@ -53,13 +47,13 @@ Init INIT;
 namespace ds::cfg {
 
 
-std::string SettingsVariables::parseExpression(const std::string& theExpr) {
+std::string SettingsVariables::parseExpression(const std::string& value) {
 
-	std::string returny = theExpr;
+	std::string returny = value;
 
 	FunctionParser fparser;
 	fparser.AddConstant("pi", 3.1415926535897932);
-	int res = fparser.Parse(theExpr, "");
+	int res = fparser.Parse(value, "");
 	if (res > -1) {
 		DS_LOG_WARNING("SettingsVariables::parseExpression() error parsing: " << fparser.ErrorMsg());
 		return "0.0";
@@ -74,13 +68,13 @@ std::string SettingsVariables::parseExpression(const std::string& theExpr) {
 		return "0.0";
 	}
 
-	DS_LOG_VERBOSE(2, "SettingsVariables: Parsed expression: " << theExpr << " into " << returny);
+	DS_LOG_VERBOSE(2, "SettingsVariables: Parsed expression: " << value << " into " << returny);
 
 	return returny;
 }
 
 std::string SettingsVariables::parseAllExpressions(const std::string& value) {
-	// Do we have any wrapeped expressions?
+	// Do we have any wrapped expressions?
 	auto exprFindy = value.find("#expr{");
 
 	if (exprFindy == std::string::npos) {
@@ -188,83 +182,71 @@ std::string SettingsVariables::doMultiply(const std::string& value, const std::s
 										  const std::string& type) {
 	bool inverse = false;
 	auto mkey	 = multiplyKey;
-	//if the first character is an !, then set the inverse flag to true and remove the !
+	// if the first character is an !, then set the inverse flag to true and remove the !
 	if (mkey[0] == '!') {
 		inverse = true;
 		mkey	= mkey.substr(1);
 	}
 
 	VariableMap& combined_map = VARIABLE_MAP;
-	//if (local_map.size() > 0) {
+	// if (local_map.size() > 0) {
 	//	combined_map = local_map;
-	//}
+	// }
 	std::string val	  = value;
-	auto findy = combined_map.find(mkey);
+	auto		findy = combined_map.find(mkey);
 	if (findy != combined_map.end()) {
 		float multiplier = ds::string_to_float(findy->second);
-		
-		//do multiplication for each of the following types int, float, double, vec2, vec3, rect
+
+		// do multiplication for each of the following types int, float, double, vec2, vec3, rect
 		if (type == "int") {
 			int valInt = ds::string_to_int(val);
 			if (inverse) {
 				valInt /= multiplier;
-			}
-			else {
+			} else {
 				valInt *= multiplier;
 			}
 			val = std::to_string(valInt);
-		}
-		else if (type == "float") {
+		} else if (type == "float") {
 			float valFloat = ds::string_to_float(val);
 			if (inverse) {
 				valFloat /= multiplier;
-			}
-			else {
+			} else {
 				valFloat *= multiplier;
 			}
 			val = std::to_string(valFloat);
-		}
-		else if (type == "double") {
+		} else if (type == "double") {
 			double valDouble = ds::string_to_double(val);
 			if (inverse) {
 				valDouble /= multiplier;
-			}
-			else {
+			} else {
 				valDouble *= multiplier;
 			}
 			val = std::to_string(valDouble);
-		}
-		else if (type == "vec2") {
+		} else if (type == "vec2") {
 			ci::vec2 valVec2 = ds::parseVector(val);
 			if (inverse) {
 				valVec2 /= multiplier;
-			}
-			else {
+			} else {
 				valVec2 *= multiplier;
 			}
 			val = ds::unparseVector(valVec2);
-		}
-		else if (type == "vec3") {
+		} else if (type == "vec3") {
 			ci::vec3 valVec3 = ds::parseVector(val);
 			if (inverse) {
 				valVec3 /= multiplier;
-			}
-			else {
+			} else {
 				valVec3 *= multiplier;
 			}
 			val = ds::unparseVector(valVec3);
-		}
-		else if (type == "rect") {
+		} else if (type == "rect") {
 			ci::Rectf valRect = ds::parseRect(val);
 			if (inverse) {
 				valRect /= multiplier;
-			}
-			else {
+			} else {
 				valRect *= multiplier;
 			}
 			val = ds::unparseRect(valRect);
-		}
-		else {
+		} else {
 			return val;
 		}
 	} else {

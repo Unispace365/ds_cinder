@@ -1,10 +1,17 @@
 #include "stdafx.h"
 
-#include "settings_editor.h"
-
 #include <cinder/CinderImGui.h>
 #include <cinder/Clipboard.h>
 #include <cinder/app/Platform.h>
+
+#include "ds/app/engine/engine_data.h"
+#include "ds/cfg/settings.h"
+#include "ds/cfg/settings_editor.h"
+#include "ds/cfg/settings_variables.h"
+#include "ds/content/content_events.h"
+#include "ds/debug/computer_info.h"
+#include "ds/debug/logger.h"
+#include "ds/util/color_util.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_stdlib.h>
@@ -15,34 +22,23 @@
 
 #include <pango/pango-fontmap.h>
 
-#include <ds/app/blob_reader.h>
-#include <ds/app/blob_registry.h>
-#include <ds/app/engine/engine_data.h>
-#include <ds/cfg/settings.h>
-#include <ds/cfg/settings_variables.h>
-#include <ds/content/content_events.h>
-#include <ds/debug/computer_info.h>
-#include <ds/debug/logger.h>
-#include <ds/math/math_defs.h>
-#include <ds/util/color_util.h>
-
 // Select the platform specific implementation OS verion / app version / product name
 // Currently windows only with a null "stub" for future additions
 #include "impl/impl.h"
 
 namespace ds::cfg {
 
-SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
-  : ds::ui::Sprite(e)
+SettingsEditor::SettingsEditor(ui::SpriteEngine& e)
+  : Sprite(e)
   , mEventClient(e)
   , mHttpsRequest(e) {
 
-	hide();
+	Sprite::hide();
 	setTransparent(false);
 
 	mHttpsRequest.setVerboseOutput(false);
-	mHttpsRequest.setReplyFunction([this](const bool errored, const std::string& reply, long httpCode) {
-		if (errored && httpCode == 0) {
+	mHttpsRequest.setReplyFunction([this](bool error, const std::string& reply, long httpCode) {
+		if (error && httpCode == 0) {
 			mAppHostRunning = false;
 		} else {
 			mAppHostRunning = true;
@@ -56,15 +52,16 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	mProductName = info.getAppProductName();
 	mOsVersion	 = info.getOsVersion();
 	mGlVendor	 = info.getOpenGlVendor();
-	mGlVersion	 = info.getOpenglVersion();
+	mGlVersion	 = info.getOpenGlVersion();
 
 	// Set mLastSync years in the past (to signify no sync yet)
 	mLastSync.assign(2000, 1, 1);
 
 	// Update the last sync time every time we get a dsnode message or CMS loading complete
-	mEventClient.listenToEvents<ds::CmsDataLoadCompleteEvent>([this](const auto& e) { mLastSync = Poco::DateTime(); });
-	mEventClient.listenToEvents<ds::DsNodeMessageReceivedEvent>(
-		[this](const auto& e) { mLastSync = Poco::DateTime(); });
+	mEventClient.listenToEvents<CmsDataLoadCompleteEvent>(
+		[this](const CmsDataLoadCompleteEvent&) { mLastSync = Poco::DateTime(); });
+	mEventClient.listenToEvents<DsNodeMessageReceivedEvent>(
+		[this](const DsNodeMessageReceivedEvent&) { mLastSync = Poco::DateTime(); });
 }
 
 
@@ -81,9 +78,9 @@ void SettingsEditor::drawPostLocalClient() {
 		if (mLogOpen) drawLog();
 
 
-		if (mImguiStyleOpen) {
+		if (mImGuiStyleOpen) {
 			ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-			if (ImGui::Begin("ImGui", &mImguiStyleOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
+			if (ImGui::Begin("ImGui", &mImGuiStyleOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 				ImGui::ShowStyleSelector("Style select");
 				ImGui::ShowStyleEditor();
 			}
@@ -96,39 +93,39 @@ void SettingsEditor::drawMenu() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("Quick Info")) {
 			if (ImGui::Button("Exit Debug")) {
-				auto& eng = ((ds::Engine&)(mEngine));
+				auto& eng = static_cast<Engine&>(mEngine);
 				eng.hideSettingsEditor();
 			}
 			if (ImGui::Button("Open All")) {
-				mAppStatusOpen	   = true;
-				mSyncStatusOpen	   = true;
-				mAppHostStatusOpen = true;
-				mLogOpen		   = true;
-				mEngineOpen		   = true;
-				mAppSettingsOpen   = true;
-				mStylesOpen		   = true;
-				mFontsOpen		   = true;
-				mTuioOpen		   = true;
-				mContentOpen	   = true;
-				mShortcutsOpen	   = true;
-				mImguiStyleOpen	   = true;
+				mAppStatusOpen		 = true;
+				mSyncStatusOpen		 = true;
+				mAppHostStatusOpen	 = true;
+				mLogOpen			 = true;
+				mEngineOpen			 = true;
+				mAppSettingsOpen	 = true;
+				mStylesOpen			 = true;
+				mFontsOpen			 = true;
+				mTuioOpen			 = true;
+				mContentOpen		 = true;
+				mShortcutsOpen		 = true;
+				mImGuiStyleOpen		 = true;
 				mWafflesSettingsOpen = true;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Close All")) {
-				mAppStatusOpen	   = false;
-				mSyncStatusOpen	   = false;
-				mAppHostStatusOpen = false;
-				mLogOpen		   = false;
-				mEngineOpen		   = false;
-				mAppSettingsOpen   = false;
-				mStylesOpen		   = false;
-				mFontsOpen		   = false;
-				mTuioOpen		   = false;
-				mContentOpen	   = false;
-				mShortcutsOpen	   = false;
-				mImguiStyleOpen	   = false;
-                mWafflesSettingsOpen = false;
+				mAppStatusOpen		 = false;
+				mSyncStatusOpen		 = false;
+				mAppHostStatusOpen	 = false;
+				mLogOpen			 = false;
+				mEngineOpen			 = false;
+				mAppSettingsOpen	 = false;
+				mStylesOpen			 = false;
+				mFontsOpen			 = false;
+				mTuioOpen			 = false;
+				mContentOpen		 = false;
+				mShortcutsOpen		 = false;
+				mImGuiStyleOpen		 = false;
+				mWafflesSettingsOpen = false;
 			}
 
 			drawAppStatusInfo();
@@ -163,11 +160,11 @@ void SettingsEditor::drawMenu() {
 		}
 		if (ImGui::BeginMenu("Settings")) {
 			if (ImGui::MenuItem("Open All")) {
-				mEngineOpen		 = true;
-				mAppSettingsOpen = true;
-				mStylesOpen		 = true;
-				mFontsOpen		 = true;
-				mTuioOpen		 = true;
+				mEngineOpen			 = true;
+				mAppSettingsOpen	 = true;
+				mStylesOpen			 = true;
+				mFontsOpen			 = true;
+				mTuioOpen			 = true;
 				mWafflesSettingsOpen = true;
 			}
 
@@ -186,10 +183,10 @@ void SettingsEditor::drawMenu() {
 			if (ImGui::MenuItem("Tuio", nullptr, mTuioOpen)) {
 				mTuioOpen = !mTuioOpen;
 			}
-            if (ImGui::MenuItem("Waffles", nullptr, mWafflesSettingsOpen)) {
-                mWafflesSettingsOpen = !mWafflesSettingsOpen;
-            }
-           
+			if (ImGui::MenuItem("Waffles", nullptr, mWafflesSettingsOpen)) {
+				mWafflesSettingsOpen = !mWafflesSettingsOpen;
+			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Content")) {
@@ -203,8 +200,8 @@ void SettingsEditor::drawMenu() {
 				mShortcutsOpen = !mShortcutsOpen;
 			}
 
-			if (ImGui::MenuItem("ImGui Style", nullptr, mImguiStyleOpen)) {
-				mImguiStyleOpen = !mImguiStyleOpen;
+			if (ImGui::MenuItem("ImGui Style", nullptr, mImGuiStyleOpen)) {
+				mImGuiStyleOpen = !mImGuiStyleOpen;
 			}
 
 			ImGui::EndMenu();
@@ -219,8 +216,8 @@ void SettingsEditor::drawSettings() {
 	if (mEngineOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("engine"), mEngineOpen);
 	if (mAppSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("app_settings"), mAppSettingsOpen);
 	if (mWafflesSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("waffles"), mWafflesSettingsOpen);
-	
-	
+
+
 	if (mStylesOpen) {
 		if (!mEngine.getEngineCfg().getSettings("styles").empty()) {
 			drawSettingFile(mEngine.getEngineCfg().getSettings("styles"), mStylesOpen);
@@ -238,7 +235,7 @@ void SettingsEditor::drawSettings() {
 }
 
 namespace {
-	void drawTree(ds::model::ContentModelRef model) {
+	void drawTree(const model::ContentModelRef& model) {
 		auto name = model.getPropertyString("name");
 		if (name.empty()) name = model.getPropertyString("app_key");
 		if (name.empty()) name = model.getName();
@@ -302,17 +299,17 @@ void SettingsEditor::drawAppStatus() {
 }
 
 void SettingsEditor::drawAppStatusInfo() {
-	auto& eng = ((ds::Engine&)(mEngine));
+	auto& eng = static_cast<Engine&>(mEngine);
 
 	// No need for these to change every single frame
 	if (ci::app::getElapsedFrames() % 8 == 0) {
 		mSpriteCount	= int(eng.mSprites.size());
-		mTouchMode		= ds::ui::TouchMode::toString(eng.mTouchMode);
-		mPhysicalMemory = mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess();
-		mVirtualMemory	= mEngine.getComputerInfo().getVirtualMemoryUsedByProcess();
+		mTouchMode		= toString(eng.mTouchMode);
+		mPhysicalMemory = float(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess());
+		mVirtualMemory	= float(mEngine.getComputerInfo().getVirtualMemoryUsedByProcess());
 
-		if (mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE) {
-			mBytesReceived = mEngine.getBytesRecieved();
+		if (mEngine.getMode() != ui::SpriteEngine::STANDALONE_MODE) {
+			mBytesReceived = mEngine.getBytesReceived();
 			mBytesSent	   = mEngine.getBytesSent();
 		}
 
@@ -331,15 +328,15 @@ void SettingsEditor::drawAppStatusInfo() {
 	ImGui::Text("\tTouch Mode: %s", mTouchMode.data());
 	ImGui::Text("\tPhysical Memory: %f", mPhysicalMemory);
 	ImGui::Text("\tVirtual Memory: %f", mVirtualMemory);
-	if (mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE) {
+	if (mEngine.getMode() != ui::SpriteEngine::STANDALONE_MODE) {
 		ImGui::Text("\tBytes Received: %i", mBytesReceived);
 		ImGui::Text("\tBytes Sent: %i", mBytesSent);
 	}
 	ImGui::Separator();
 	ImGui::Text("Computer Info");
 	ImGui::Text("\tOS: %s", mOsVersion.data());
-	ImGui::Text("\tArcitecture: %s", mEnv.osArchitecture().data());
-	ImGui::Text("\tCores: %u", mEnv.processorCount());
+	ImGui::Text("\tArchitecture: %s", Poco::Environment::osArchitecture().data());
+	ImGui::Text("\tCores: %u", Poco::Environment::processorCount());
 	ImGui::Text("\tGraphics");
 	ImGui::Text("\t\tVendor: %s", mGlVendor.data());
 	ImGui::Text("\t\tVersion: %s", mGlVersion.data());
@@ -414,7 +411,7 @@ void SettingsEditor::drawSyncStatus() {
 	ImGui::End();
 }
 
-void SettingsEditor::drawSyncStatusInfo() {
+void SettingsEditor::drawSyncStatusInfo() const {
 	if (mLastSync.year() < Poco::DateTime().year()) {
 		ImGui::Text("Sync incomplete or not running");
 	} else {
@@ -434,7 +431,7 @@ void SettingsEditor::drawShortcuts() {
 
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Shortcuts", &mShortcutsOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
-		auto  appy	 = dynamic_cast<ds::App*>(ds::App::get());
+		auto  appy	 = dynamic_cast<App*>(App::get());
 		auto& keyMgr = appy->getKeyManager();
 
 		ImGui::BeginTable("App Shortcuts", 5, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders);
@@ -482,7 +479,7 @@ void SettingsEditor::drawShortcuts() {
 
 void SettingsEditor::drawLog() {
 	if (mLogBuffer.empty() || ci::app::getElapsedFrames() % 16 == 0) {
-		mLogBuffer = ci::loadString(ci::loadFile(ds::getLogger().getLogFile()));
+		mLogBuffer = loadString(ci::loadFile(getLogger().getLogFile()));
 	}
 
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
@@ -499,7 +496,7 @@ void SettingsEditor::drawLog() {
 	ImGui::End();
 }
 
-void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng, bool& isOpen) {
+void SettingsEditor::drawSettingFile(Settings& eng, bool& isOpen) {
 	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin(eng.getName().data(), &isOpen, ImGuiWindowFlags_NoFocusOnAppearing)) {
 
@@ -529,7 +526,7 @@ void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng, bool& isOpen) {
 
 		if (filterText.empty()) {
 			mSettingCounters.clear();
-			eng.forEachSetting([this, &eng, &searchText](ds::cfg::Settings::Setting& setting) {
+			eng.forEachSetting([this, &eng, &searchText](Settings::Setting& setting) {
 				auto count = eng.countSetting(setting.mName);
 				if (count > 1) {
 					auto findy = mSettingCounters.find(setting.mName);
@@ -542,7 +539,7 @@ void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng, bool& isOpen) {
 		} else {
 			mSettingCounters.clear();
 			eng.forEachSetting(
-				[this, &eng, &searchText](ds::cfg::Settings::Setting& setting) {
+				[this, &eng, &searchText](Settings::Setting& setting) {
 					auto count = eng.countSetting(setting.mName);
 					if (count > 1) {
 						auto findy = mSettingCounters.find(setting.mName);
@@ -559,8 +556,8 @@ void SettingsEditor::drawSettingFile(ds::cfg::Settings& eng, bool& isOpen) {
 	ImGui::End();
 }
 
-void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
-									   const std::string& search, bool multiple) {
+void SettingsEditor::drawSingleSetting(Settings::Setting& setting, Settings& allSettings, const std::string& search,
+									   bool multiple) {
 	const auto& name	 = setting.mName;
 	std::string drawName = name;
 	int			index	 = 0;
@@ -576,11 +573,11 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 	if (!showMe) {
 		return;
 	}
-	
+
 	if (!setting.mPossibleValues.empty()) {
 		if (ImGui::BeginCombo(drawName.data(), setting.mRawValue.data())) {
 
-			for (auto val : ds::split(setting.mPossibleValues, ",")) {
+			for (auto val : split(setting.mPossibleValues, ",")) {
 				if (ImGui::Selectable(val.data(), val == setting.mRawValue)) {
 					setting.mRawValue = val;
 				}
@@ -589,71 +586,71 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			ImGui::EndCombo();
 		}
 	} else {
-		if (setting.mType == ds::cfg::SETTING_TYPE_SECTION_HEADER) {
+		if (setting.mType == SETTING_TYPE_SECTION_HEADER) {
 			ImGui::NewLine();
 			ImGui::Separator();
 			ImGui::Text(drawName.data());
 			ImGui::Separator();
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_STRING) {
+		} else if (setting.mType == SETTING_TYPE_STRING) {
 			ImGui::InputText(drawName.data(), &setting.mRawValue);
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_WSTRING) {
+		} else if (setting.mType == SETTING_TYPE_WSTRING) {
 			ImGui::InputText(drawName.data(), &setting.mRawValue);
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_BOOL) {
+		} else if (setting.mType == SETTING_TYPE_BOOL) {
 			bool checked = setting.getBool();
 			ImGui::Checkbox(drawName.data(), &checked);
 			if (setting.getBool() != checked) {
-				setting.mRawValue = ds::unparseBoolean(checked);
+				setting.mRawValue = unparseBoolean(checked);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_INT) {
+		} else if (setting.mType == SETTING_TYPE_INT) {
 			int value = setting.getInt();
 			if (ImGui::InputInt(drawName.data(), &value)) {
-				setting.mRawValue = ds::value_to_string(value);
+				setting.mRawValue = value_to_string(value);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_FLOAT) {
+		} else if (setting.mType == SETTING_TYPE_FLOAT) {
 			float value = setting.getFloat();
 			if (ImGui::InputFloat(drawName.data(), &value)) {
-				setting.mRawValue = ds::value_to_string(value);
+				setting.mRawValue = value_to_string(value);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_DOUBLE) {
+		} else if (setting.mType == SETTING_TYPE_DOUBLE) {
 			double value = setting.getDouble();
 			if (ImGui::InputDouble(drawName.data(), &value)) {
-				setting.mRawValue = ds::value_to_string(value);
+				setting.mRawValue = value_to_string(value);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_VEC2) {
+		} else if (setting.mType == SETTING_TYPE_VEC2) {
 			ci::vec2 value = setting.getVec2();
 			if (ImGui::DragFloat2(drawName.data(), &value)) {
-				setting.mRawValue = ds::unparseVector(value);
+				setting.mRawValue = unparseVector(value);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_VEC3) {
+		} else if (setting.mType == SETTING_TYPE_VEC3) {
 			ci::vec3 value = setting.getVec3();
 			if (ImGui::DragFloat3(drawName.data(), &value)) {
-				setting.mRawValue = ds::unparseVector(value);
+				setting.mRawValue = unparseVector(value);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_RECT) {
+		} else if (setting.mType == SETTING_TYPE_RECT) {
 			ci::Rectf value	  = setting.getRect();
 			ci::vec4  rectish = ci::vec4(value.getUpperLeft(), value.getLowerRight() - value.getUpperLeft());
 
 			if (ImGui::DragFloat4(drawName.data(), &rectish)) {
 				setting.mRawValue =
-					ds::unparseRect(ci::Rectf(rectish.x, rectish.y, rectish.x + rectish.z, rectish.y + rectish.w));
+					unparseRect(ci::Rectf(rectish.x, rectish.y, rectish.x + rectish.z, rectish.y + rectish.w));
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_UNKNOWN) {
+		} else if (setting.mType == SETTING_TYPE_UNKNOWN) {
 			ImGui::InputText(drawName.data(), &setting.mRawValue);
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_COLOR) {
-			ci::ColorA color	 = ds::parseColor(setting.mRawValue, mEngine);
+		} else if (setting.mType == SETTING_TYPE_COLOR) {
+			ci::ColorA color	 = parseColor(setting.mRawValue, mEngine);
 			ci::ColorA colorOrig = color;
 			if (ImGui::ColorEdit4(drawName.data(), &color, ImGuiColorEditFlags_NoInputs)) {
 				DS_LOG_INFO("COLOR CHANGED");
 				DS_LOG_INFO("OG:  " << colorOrig << " - " << ds::unparseColor(colorOrig));
 				DS_LOG_INFO("NEW: " << color << " - " << ds::unparseColor(color));
-				setting.mRawValue = ds::unparseColor(color, mEngine);
+				setting.mRawValue = unparseColor(color, mEngine);
 			}
-		} else if (setting.mType == ds::cfg::SETTING_TYPE_TEXT_STYLE) {
-			bool			  changed = false;
-			ds::ui::TextStyle style	  = ds::ui::TextStyle::textStyleFromSetting(mEngine, setting.mRawValue);
+		} else if (setting.mType == SETTING_TYPE_TEXT_STYLE) {
+			bool		  changed = false;
+			ui::TextStyle style	  = ui::TextStyle::textStyleFromSetting(mEngine, setting.mRawValue);
 			if (ImGui::BeginCombo((std::string(drawName) + " Font").data(), style.mFont.data())) {
 				mEngine.getEngineCfg().getSettings("fonts").forEachSetting(
-					[&changed, &style](ds::cfg::Settings::Setting& setting) {
+					[&changed, &style](Settings::Setting& setting) {
 						if (ImGui::Selectable(setting.mName.data())) {
 							style.mFont = setting.mName;
 							changed		= true;
@@ -670,20 +667,19 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			if (ImGui::InputDouble((std::string(drawName) + " Letter Spacing").data(), &style.mLetterSpacing)) {
 				changed = true;
 			}
-			if (ImGui::BeginCombo((std::string(drawName) + " Alignment").data(),
-								  ds::ui::Alignment::toString(style.mAlignment).data())) {
-				if (ImGui::Selectable("Left", style.mAlignment == ds::ui::Alignment::kLeft)) {
-					style.mAlignment = ds::ui::Alignment::kLeft;
+			if (ImGui::BeginCombo((std::string(drawName) + " Alignment").data(), toString(style.mAlignment).data())) {
+				if (ImGui::Selectable("Left", style.mAlignment == ui::Alignment::kLeft)) {
+					style.mAlignment = ui::Alignment::kLeft;
 					changed			 = true;
 				}
 
-				if (ImGui::Selectable("Right", style.mAlignment == ds::ui::Alignment::kRight)) {
-					style.mAlignment = ds::ui::Alignment::kRight;
+				if (ImGui::Selectable("Right", style.mAlignment == ui::Alignment::kRight)) {
+					style.mAlignment = ui::Alignment::kRight;
 					changed			 = true;
 				}
 
-				if (ImGui::Selectable("Center", style.mAlignment == ds::ui::Alignment::kCenter)) {
-					style.mAlignment = ds::ui::Alignment::kCenter;
+				if (ImGui::Selectable("Center", style.mAlignment == ui::Alignment::kCenter)) {
+					style.mAlignment = ui::Alignment::kCenter;
 					changed			 = true;
 				}
 
@@ -691,7 +687,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			}
 			if (ImGui::BeginCombo((std::string(drawName) + " Color").data(), style.mColorName.data())) {
 				mEngine.getSettings("styles").forEachSetting(
-					[this, &changed, &style](ds::cfg::Settings::Setting& setting) {
+					[this, &changed, &style](Settings::Setting& setting) {
 						if (ImGui::Selectable(setting.mName.data(), setting.mName == style.mColorName)) {
 							style.mColorName = setting.mName;
 							style.mColor	 = mEngine.getColors().getColorFromName(setting.mName);
@@ -702,7 +698,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 				ImGui::EndCombo();
 			}
 			ImGui::NewLine();
-			
+
 			if (changed) {
 				DS_LOG_INFO("Text StyleSetting Changed!");
 				DS_LOG_INFO(style.settingFromTextStyle(mEngine, style));
@@ -710,7 +706,6 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			}
 		}
 	}
-	
 
 
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled | ImGuiHoveredFlags_DelayNormal |
@@ -739,7 +734,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 			if (needsNewline) tooltip += "\n\n";
 			tooltip += "Extra Attributes\n";
 			for (auto& extra : setting.getExtraAttributes()) {
-				tooltip += extra.first + " = "+extra.second + "\n";
+				tooltip += extra.first + " = " + extra.second + "\n";
 			}
 			needsNewline = true;
 		}
@@ -756,11 +751,11 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 	}
 }
 
-void SettingsEditor::drawSaveButtons(ds::cfg::Settings& toSave) {
-	std::string appDir		= ds::Environment::expand("%APP%/settings/");
-	std::string localDir	= ds::Environment::expand("%LOCAL%/%PP%/");
-	std::string appCfgDir	= ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/");
-	std::string localCfgDir = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/");
+void SettingsEditor::drawSaveButtons(Settings& toSave) {
+	std::string appDir		= Environment::expand("%APP%/settings/");
+	std::string localDir	= Environment::expand("%LOCAL%/%PP%/");
+	std::string appCfgDir	= Environment::expand("%APP%/settings/%CFG_FOLDER%/");
+	std::string localCfgDir = Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/");
 
 	ImGui::Separator();
 	if (ImGui::Button(appDir.data())) {
@@ -780,14 +775,14 @@ void SettingsEditor::drawSaveButtons(ds::cfg::Settings& toSave) {
 	}
 }
 
-void SettingsEditor::saveChange(const std::string& path, ds::cfg::Settings& toSave) {
+void SettingsEditor::saveChange(const std::string& path, Settings& toSave) {
 
 	auto savePath = std::string(path) + toSave.getName() + ".xml";
 	toSave.writeTo(savePath);
 }
 
-void SettingsEditor::toggleSetting(const std::string theSettingsName) {
-	if (theSettingsName == "stats") {
+void SettingsEditor::toggleSetting(const std::string& settingsName) {
+	if (settingsName == "stats") {
 		if (mAppStatusOpen && mSyncStatusOpen && mAppHostStatusOpen) {
 			mAppStatusOpen	   = false;
 			mSyncStatusOpen	   = false;
@@ -797,11 +792,11 @@ void SettingsEditor::toggleSetting(const std::string theSettingsName) {
 			mSyncStatusOpen	   = true;
 			mAppHostStatusOpen = true;
 		}
-	} else if (theSettingsName == "logs") {
+	} else if (settingsName == "logs") {
 		mLogOpen = !mLogOpen;
-	} else if (theSettingsName == "keys") {
+	} else if (settingsName == "keys") {
 		mShortcutsOpen = !mShortcutsOpen;
-	} else if (theSettingsName == "settings") {
+	} else if (settingsName == "settings") {
 		if (mEngineOpen && mAppSettingsOpen && mStylesOpen) {
 			mEngineOpen		 = false;
 			mAppSettingsOpen = false;
@@ -814,14 +809,14 @@ void SettingsEditor::toggleSetting(const std::string theSettingsName) {
 	}
 
 	if (!(mAppStatusOpen || mSyncStatusOpen || mAppHostStatusOpen || mEngineOpen || mAppSettingsOpen || mStylesOpen ||
-		  mFontsOpen || mTuioOpen || mContentOpen || mShortcutsOpen || mImguiStyleOpen || mLogOpen)) {
+		  mFontsOpen || mTuioOpen || mContentOpen || mShortcutsOpen || mImGuiStyleOpen || mLogOpen)) {
 		hideSettings();
 	} else {
 		showSettings("");
 	}
 }
 
-void SettingsEditor::showSettings(const std::string theSettingsName) {
+void SettingsEditor::showSettings(const std::string& settingsName) {
 	if (!mOpen) {
 		show();
 		mOpen = true;
@@ -831,7 +826,7 @@ void SettingsEditor::showSettings(const std::string theSettingsName) {
 void SettingsEditor::hideSettings() {
 	if (mOpen) {
 		if (mSrcDestSaved) {
-			auto& eng		   = ((ds::Engine&)(mEngine));
+			auto& eng		   = dynamic_cast<Engine&>(mEngine);
 			eng.mData.mSrcRect = mOrigSrc;
 			eng.markCameraDirty();
 		}

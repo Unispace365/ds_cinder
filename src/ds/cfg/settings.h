@@ -6,8 +6,8 @@
 #include <cinder/Color.h>
 #include <cinder/Rect.h>
 
-#include <ds/app/event.h>
-#include <ds/data/resource.h>
+#include "ds/app/event.h"
+#include "ds/data/resource.h"
 
 namespace cinder {
 class XmlTree;
@@ -49,7 +49,7 @@ class Settings {
 	struct Setting {
 		Setting()
 		  : mType(SETTING_TYPE_UNKNOWN)
-		  , mReadIndex(-1){};
+		  , mReadIndex(-1) {};
 
 		/// Type conversion happens at read time for all getters
 		bool   getBool() const;
@@ -58,21 +58,21 @@ class Settings {
 		double getDouble() const;
 
 		/// The Engine is supplied to look up named colors
-		const ci::Color	 getColor(ds::ui::SpriteEngine&) const;
-		const ci::ColorA getColorA(ds::ui::SpriteEngine&) const;
+		ci::Color  getColor(const ui::SpriteEngine&) const;
+		ci::ColorA getColorA(const ui::SpriteEngine&) const;
 
 		const std::string& getString() const;
-		const std::wstring getWString() const;
+		std::wstring	   getWString() const;
 
-		const ci::vec2		getVec2() const;
-		const ci::vec3		getVec3() const;
-		const cinder::Rectf getRect() const;
+		ci::vec2  getVec2() const;
+		ci::vec3  getVec3() const;
+		ci::Rectf getRect() const;
 
-		std::vector<std::string> getPossibleValues() const;
+		std::vector<std::string>				  getPossibleValues() const;
 		const std::map<std::string, std::string>& getAttributes() const;
-		const std::map < std::string, std::string> getExtraAttributes() const;
-		const bool hasAttribute(std::string) const;
-		const std::string& getAttribute(const std::string key,const std::string& defaultValue) const;
+		std::map<std::string, std::string>		  getExtraAttributes() const;
+		bool									  hasAttribute(const std::string&) const;
+		const std::string& getAttribute(const std::string& key, const std::string& defaultValue) const;
 		/// Goes through each setting to replace variables and parse expressions
 		void replaceSettingVariablesAndExpressions();
 
@@ -114,7 +114,7 @@ class Settings {
 		/// Map of all the attributes on the setting xml
 		std::map<std::string, std::string> mAttributeMap;
 		std::map<std::string, std::string> mOriginalAttributeMap;
-		bool mHasExtraAttributes = false;
+		bool							   mHasExtraAttributes = false;
 
 		/// an id that's auto-assigned to this setting to determine overall sort order
 		unsigned int mReadIndex;
@@ -131,9 +131,9 @@ class Settings {
 
 	/// TODO: add ability to load all settings locations right from here
 	/// Read from an xml from the full file path. If append is true, will merge with any existing settings
-	void readFrom(const std::string& fullFilePath, const bool append = true);
-	void readFrom(ci::XmlTree& tree, const std::string& fullFilePath, const bool append = true,
-				  ds::ui::SpriteEngine* = nullptr);
+	void readFrom(const std::string& fullFilePath, bool append = true);
+	void readFrom(ci::XmlTree& tree, const std::string& fullFilePath, bool append = true,
+				  const ui::SpriteEngine* = nullptr);
 
 	/// Writes the current settings out the file path
 	void writeTo(const std::string& fullFilePath);
@@ -150,80 +150,80 @@ class Settings {
 
 	/// \code <setting name="the_name" value="true" type="bool" /> // index 0 \endcode
 	/// \code <setting name="the_name" value="false" type="bool" /> // index 1 \endcode
-	const bool getBool(const std::string& name, const int index = 0);
-	const bool getBool(const std::string& name, const int index, const bool defaultValue);
+	bool getBool(const std::string& name, int index = 0);
+	bool getBool(const std::string& name, int index, bool defaultValue);
 
 
 	/// \code <setting name="the_name" value="1" type="int" min_value="0" max_value="1000" default="5" />  \endcode
-	const int getInt(const std::string& name, const int index = 0);
-	const int getInt(const std::string& name, const int index, const int defaultValue);
+	int getInt(const std::string& name, int index = 0);
+	int getInt(const std::string& name, int index, int defaultValue);
 
 	/// \code <setting name="the_name" value="1.0" type="float" />  \endcode
-	const float getFloat(const std::string& name, const int index = 0);
-	const float getFloat(const std::string& name, const int index, const float defaultValue);
+	float getFloat(const std::string& name, int index = 0);
+	float getFloat(const std::string& name, int index, float defaultValue);
 
 	/// \code <setting name="the_name" value="10.0000000000000000001" type="double" />  \endcode
-	const double getDouble(const std::string& name, const int index = 0);
-	const double getDouble(const std::string& name, const int index, const double defaultValue);
+	double getDouble(const std::string& name, int index = 0);
+	double getDouble(const std::string& name, int index, double defaultValue);
 
 	/// Color format: \#AARRGGBB OR \#RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or \#9933ffbb
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This will ignore the alpha value when returning the color
 	/// \code <setting name="the_name" value="123456" type="color" />  \endcode
-	const ci::Color getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
-	const ci::Color getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index,
-							 const ci::Color& defaultValue);
+	ci::Color getColor(const ui::SpriteEngine& engine, const std::string& name, int index = 0);
+	ci::Color getColor(const ui::SpriteEngine& engine, const std::string& name, int index,
+					   const ci::Color& defaultValue);
 
 	/// Color format: \#AARRGGBB OR \#RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or \#9933ffbb
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This one retains the alpha value
 	/// \code <setting name="the_name" value="12345678" type="colora" />  \endcode
-	const ci::ColorA getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
-	const ci::ColorA getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index,
-							   const ci::ColorA& defaultValue);
+	ci::ColorA getColorA(const ui::SpriteEngine& engine, const std::string& name, int index = 0);
+	ci::ColorA getColorA(const ui::SpriteEngine& engine, const std::string& name, int index,
+						 const ci::ColorA& defaultValue);
 
 	/// \code <setting name="the_name" value="What about the droid attack on the wookie army?" type="string" />
 	/// \endcode
-	const std::string& getString(const std::string& name, const int index = 0);
-	const std::string& getString(const std::string& name, const int index, const std::string& defaultValue);
+	const std::string& getString(const std::string& name, int index = 0);
+	const std::string& getString(const std::string& name, int index, const std::string& defaultValue);
 
 	/// \code <setting name="the_name" value="I hate sand, it's course and rough and irritating!" type="string" />
 	/// \endcode
-	const std::wstring getWString(const std::string& name, const int index = 0);
-	const std::wstring getWString(const std::string& name, const int index, const std::wstring& defaultValue);
+	std::wstring getWString(const std::string& name, int index = 0);
+	std::wstring getWString(const std::string& name, int index, const std::wstring& defaultValue);
 
 	/// vec2 format value="X, Y" The space after the comma is required. Y defaults to 0.0 if it's not present
 	/// \code <setting name="the_name" value="140, 100" type="vec2" />  \endcode
-	const ci::vec2 getVec2(const std::string& name, const int index = 0);
-	const ci::vec2 getVec2(const std::string& name, const int index, const ci::vec2& defaultValue);
+	ci::vec2 getVec2(const std::string& name, int index = 0);
+	ci::vec2 getVec2(const std::string& name, int index, const ci::vec2& defaultValue);
 
 	/// vec3 format value="X, Y, Z" The space after the commas are required. Y and Z default to 0.0 if not present
 	/// \code <setting name="the_name" value="-1.0, -1000.0, 50" type="vec3" />  \endcode
-	const ci::vec3 getVec3(const std::string& name, const int index = 0);
-	const ci::vec3 getVec3(const std::string& name, const int index, const ci::vec3& defaultValue);
+	ci::vec3 getVec3(const std::string& name, int index = 0);
+	ci::vec3 getVec3(const std::string& name, int index, const ci::vec3& defaultValue);
 
 	/// rect format value="L, T, W, H" The space after the commas are required.
 	/// \code <setting name="the_name" value="0, 0, 1920, 1080" type="rect" />  \endcode
-	const cinder::Rectf getRect(const std::string& name, const int index = 0);
-	const cinder::Rectf getRect(const std::string& name, const int index, const ci::Rectf& defaultValue);
+	ci::Rectf getRect(const std::string& name, int index = 0);
+	ci::Rectf getRect(const std::string& name, int index, const ci::Rectf& defaultValue);
 
 	/// std::map of Attributes. Contains all the attributes on the setting xml
 	/// \code <setting name="the_name" value="sample" random_value="string" other_value="string" default="null"/>
-	const std::map<std::string, std::string>& getAttributes(const std::string& name, const int index = 0);
-	const std::string getAttribute(const std::string& name, const int index, const std::string& key,
-								   const std::string& defaultValue);
+	const std::map<std::string, std::string>& getAttributes(const std::string& name, int index = 0);
+	std::string								  getAttribute(const std::string& name, int index, const std::string& key,
+														   const std::string& defaultValue);
 	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting)
-	Setting& getSetting(const std::string& name, const int index);
+	Setting& getSetting(const std::string& name, int index);
 
 	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting).
 	/// Applies the default to the new setting
-	Setting& getSetting(const std::string& name, const int index, const std::string& defaultRawValue);
+	Setting& getSetting(const std::string& name, int index, const std::string& defaultRawValue);
 
 	/// Gets a reference to a raw setting, but also applies all values. This is great for making canonical settings
 	/// in c++ instead of storing them in xml
-	Setting& getSetting(const std::string& name, const int index, const std::string& settingType,
+	Setting& getSetting(const std::string& name, int index, const std::string& settingType,
 						const std::string& commentValue, const std::string& defaultRawValue = "",
 						const std::string& minValue = "", const std::string& maxValue = "",
 						const std::string& possibleValues = "");
@@ -262,7 +262,7 @@ class Settings {
 	/// Goes through each setting to replace variables and parse expressions
 	void replaceSettingVariablesAndExpressions();
 
-	class SettingsEditedEvent : public ds::RegisteredEvent<SettingsEditedEvent> {
+	class SettingsEditedEvent : public RegisteredEvent<SettingsEditedEvent> {
 	  public:
 		SettingsEditedEvent(const std::string& settingsType, const std::string& settingName)
 		  : mSettingsType(settingsType)
@@ -272,7 +272,7 @@ class Settings {
 	};
 
   protected:
-	friend class ds::App;
+	friend class App;
 
 	/// The first vector is all settings
 	/// The pair is to match the name of the setting
@@ -285,9 +285,9 @@ class Settings {
 	std::vector<Setting> mSortedSettings; // rebuilt every call of getReadSortedIndex()
 
 	/// Used in the read function
-	void directReadFrom(const std::string& filename, const bool clear);
-	void directReadFromXml(ci::XmlTree& tree, const std::string& referenceFilename, const bool clear,
-						   ds::ui::SpriteEngine* engPtr = nullptr);
+	void directReadFrom(const std::string& filename, bool clearAll);
+	void directReadFromXml(ci::XmlTree& tree, const std::string& referenceFilename, bool clearAll,
+						   const ui::SpriteEngine* engine = nullptr);
 };
 
 } // namespace ds::cfg

@@ -2,31 +2,29 @@
 #ifndef DS_CFG_SETTINGS_EDITOR
 #define DS_CFG_SETTINGS_EDITOR
 
+#include "ds/app/event_client.h"
+#include "ds/cfg/settings.h"
+#include "ds/network/https_client.h"
+#include "ds/ui/sprite/sprite.h"
+
 #include <Poco/DateTime.h>
 #include <Poco/Environment.h>
-
-#include <ds/app/event_client.h>
-#include <ds/cfg/settings.h>
-#include <ds/network/https_client.h>
-#include <ds/ui/layout/layout_sprite.h>
-#include <ds/ui/sprite/sprite.h>
-#include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds::cfg {
 
 /// View for displaying and editing settings
-class SettingsEditor : public ds::ui::Sprite {
+class SettingsEditor : public ui::Sprite {
   public:
-	SettingsEditor(ds::ui::SpriteEngine& e);
+	SettingsEditor(ui::SpriteEngine& e);
 
-	void toggleSetting(const std::string settingsName);
-	void showSettings(const std::string settingsName);
+	void toggleSetting(const std::string& settingsName);
+	void showSettings(const std::string& settingsName);
 	void hideSettings();
 
-	virtual void drawPostLocalClient() override;
+	void drawPostLocalClient() override;
 
   private:
-	friend class ds::Engine;
+	friend class Engine;
 	void drawMenu();
 
 	void drawSettings();
@@ -35,18 +33,18 @@ class SettingsEditor : public ds::ui::Sprite {
 	void drawAppStatusInfo();
 	void drawAppHostStatus();
 	void drawSyncStatus();
-	void drawSyncStatusInfo();
+	void drawSyncStatusInfo() const;
 	void drawShortcuts();
 	void drawLog();
 
-	void drawSettingFile(ds::cfg::Settings& eng, bool& isOpen);
-	void drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::cfg::Settings& allSettings,
-						   const std::string& search, bool multiple = false);
+	void drawSettingFile(Settings& eng, bool& isOpen);
+	void drawSingleSetting(Settings::Setting& setting, Settings& allSettings, const std::string& search,
+						   bool multiple = false);
 
-	void drawSaveButtons(ds::cfg::Settings& toSave);
-	void saveChange(const std::string& path, ds::cfg::Settings& toSave);
+	void        drawSaveButtons(Settings& toSave);
+	static void saveChange(const std::string& path, Settings& toSave);
 
-	ds::EventClient						 mEventClient;
+	EventClient							 mEventClient;
 	Settings*							 mCurrentSettings;
 	std::unordered_map<std::string, int> mSettingCounters;
 
@@ -54,20 +52,20 @@ class SettingsEditor : public ds::ui::Sprite {
 	std::unordered_map<std::string, std::string> mSearchMap;
 	std::unordered_map<std::string, std::string> mFilterMap;
 
-	bool mOpen						   = false;
-	bool mAppStatusOpen				   = false;
-	bool mSyncStatusOpen			   = false;
-	bool mAppHostStatusOpen			   = false;
-	bool mEngineOpen				   = false;
-	bool mAppSettingsOpen			   = false;
-	bool mWafflesSettingsOpen		   = false;
-	bool mStylesOpen				   = false;
-	bool mFontsOpen					   = false;
-	bool mTuioOpen					   = false;
-	bool mContentOpen				   = false;
-	bool mShortcutsOpen				   = false;
-	bool mImguiStyleOpen			   = false;
-	bool mLogOpen					   = false;
+	bool mOpen				  = false;
+	bool mAppStatusOpen		  = false;
+	bool mSyncStatusOpen	  = false;
+	bool mAppHostStatusOpen	  = false;
+	bool mEngineOpen		  = false;
+	bool mAppSettingsOpen	  = false;
+	bool mWafflesSettingsOpen = false;
+	bool mStylesOpen		  = false;
+	bool mFontsOpen			  = false;
+	bool mTuioOpen			  = false;
+	bool mContentOpen		  = false;
+	bool mShortcutsOpen		  = false;
+	bool mImGuiStyleOpen	  = false;
+	bool mLogOpen			  = false;
 
 	// App Status
 	int			mSpriteCount = 0;
@@ -82,8 +80,8 @@ class SettingsEditor : public ds::ui::Sprite {
 	ci::Rectf mOrigSrc, mOrigDest;
 
 	// AppHost
-	ds::net::HttpsRequest mHttpsRequest;
-	bool				  mAppHostRunning = false;
+	net::HttpsRequest mHttpsRequest;
+	bool			  mAppHostRunning = false;
 
 	// Logs
 	bool		mLogAutoScroll = true;

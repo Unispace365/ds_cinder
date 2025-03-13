@@ -1,4 +1,5 @@
 #pragma once
+
 #include "base_impl.h"
 
 #ifdef _WIN32
@@ -11,7 +12,7 @@ namespace ds::cfg::impl {
 
 struct WinComputerInfo : public BaseComputerInfo {
 
-	virtual std::string getAppVersionString() override {
+	std::string getAppVersionString() override {
 		std::string versionOut = "not found";
 
 		HRSRC			  hResInfo;
@@ -57,7 +58,7 @@ struct WinComputerInfo : public BaseComputerInfo {
 		return versionOut;
 	}
 
-	virtual std::string getAppProductName() override {
+	std::string getAppProductName() override {
 		std::string versionOut = "DS App";
 
 		HRSRC			  hResInfo;
@@ -83,9 +84,10 @@ struct WinComputerInfo : public BaseComputerInfo {
 
 
 		CopyMemory(pResCopy, pRes, dwSize);
-		if (VerQueryValueW(pResCopy, _T("\\StringFileInfo\\040904b0\\ProductName"), (LPVOID*)&lpFfi, &uLen)) {
+		if (VerQueryValueW(pResCopy, _T("\\StringFileInfo\\040904b0\\ProductName"), reinterpret_cast<LPVOID*>(&lpFfi),
+						   &uLen)) {
 			if (lpFfi != NULL) {
-				versionOut = ds::utf8_from_wstr(std::wstring(((wchar_t*)(lpFfi)), uLen));
+				versionOut = ds::utf8_from_wstr(std::wstring(reinterpret_cast<wchar_t*>(lpFfi), uLen));
 			}
 		}
 
@@ -93,18 +95,19 @@ struct WinComputerInfo : public BaseComputerInfo {
 		return versionOut;
 	}
 
-	virtual std::string getOsVersion() override { return "Windows 10/11"; }
+	std::string getOsVersion() override { return "Windows 10/11"; }
 
-	virtual std::string getOpenGlVendor() override {
+	std::string getOpenGlVendor() override {
 		const GLubyte* vendor = glGetString(GL_VENDOR);
-		return std::string((const char*)(vendor), std::strlen((const char*)(vendor)));
+		return std::string(reinterpret_cast<const char*>(vendor), std::strlen(reinterpret_cast<const char*>(vendor)));
 	};
 
-	virtual std::string getOpenglVersion() override {
+	std::string getOpenGlVersion() override {
 		const GLubyte* version	   = glGetString(GL_VERSION);
 		const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-		return std::string((const char*)(version)) + " (GLSL: " + std::string((const char*)(glslVersion)) + ")";
+		return std::string(reinterpret_cast<const char*>(version)) +
+			   " (GLSL: " + std::string(reinterpret_cast<const char*>(glslVersion)) + ")";
 	};
 };
 
