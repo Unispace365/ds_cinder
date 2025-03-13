@@ -141,7 +141,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 		auto non_recursive = ds::split(
 			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "recent,folders"), ",");
-		if (std::find(non_recursive.begin(), non_recursive.end(), mFilterSelected) != non_recursive.end()) {
+		if (std::find(non_recursive.begin(), non_recursive.end(), mFilterSelected) == non_recursive.end()) {
 			allContent = recurseContent(allContent);
 		}
 
