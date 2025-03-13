@@ -4,9 +4,10 @@
 
 #include <map>
 #include <string>
-
-#include "cinder/gl/gl.h"
 #include <variant>
+
+#include <cinder/gl/gl.h>
+
 // #include <boost/variant/static_visitor.hpp>
 // #include <boost/variant/variant.hpp>
 
@@ -42,36 +43,36 @@ namespace ds { namespace gl {
 	class UniformVisitor {
 	  public:
 		/// A typedef of all (20) Cinder supported uniforms.
-		typedef std::variant<int, float, const int*, std::vector<float>, ci::vec2, ci::ivec2, ci::vec3, ci::vec4,
-							 const ci::vec2*, const ci::ivec2*, const ci::vec3*, const ci::vec4*, ci::mat2, ci::mat3,
-							 ci::mat4, const ci::mat2*, const ci::mat3*, const ci::mat4*, ci::Color, ci::ColorA>
-			SupportedVariants;
+		using SupportedVariants =
+			std::variant<int, float, const int*, std::vector<float>, ci::vec2, ci::ivec2, ci::vec3, ci::vec4,
+						 const ci::vec2*, const ci::ivec2*, const ci::vec3*, const ci::vec4*, ci::mat2, ci::mat3,
+						 ci::mat4, const ci::mat2*, const ci::mat3*, const ci::mat4*, ci::Color, ci::ColorA>;
 
 	  public:
 		UniformVisitor() = delete;
 		UniformVisitor(ci::gl::GlslProgRef shader);
 
 		/// Below all are uniform types, supported by Cinder.
-		void operator()(int data);
-		void operator()(const ci::ivec2& data);
-		void operator()(const int* data);
-		void operator()(const ci::ivec2* data);
-		void operator()(float data);
-		void operator()(const ci::vec2& data);
-		void operator()(const ci::vec3& data);
-		void operator()(const ci::vec4& data);
-		void operator()(const ci::Color& data);
-		void operator()(const ci::ColorA& data);
-		void operator()(const ci::mat2& data);
-		void operator()(const ci::mat3& data);
-		void operator()(const ci::mat4& data);
-		void operator()(const std::vector<float>& data);
-		void operator()(const ci::vec2* data);
-		void operator()(const ci::vec3* data);
-		void operator()(const ci::vec4* data);
-		void operator()(const ci::mat2* data);
-		void operator()(const ci::mat3* data);
-		void operator()(const ci::mat4* data);
+		void operator()(int data) const;
+		void operator()(const ci::ivec2& data) const;
+		void operator()(const int* data) const;
+		void operator()(const ci::ivec2* data) const;
+		void operator()(float data) const;
+		void operator()(const ci::vec2& data) const;
+		void operator()(const ci::vec3& data) const;
+		void operator()(const ci::vec4& data) const;
+		void operator()(const ci::Color& data) const;
+		void operator()(const ci::ColorA& data) const;
+		void operator()(const ci::mat2& data) const;
+		void operator()(const ci::mat3& data) const;
+		void operator()(const ci::mat4& data) const;
+		void operator()(const std::vector<float>& data) const;
+		void operator()(const ci::vec2* data) const;
+		void operator()(const ci::vec3* data) const;
+		void operator()(const ci::vec4* data) const;
+		void operator()(const ci::mat2* data) const;
+		void operator()(const ci::mat3* data) const;
+		void operator()(const ci::mat4* data) const;
 
 	  private:
 		ci::gl::GlslProgRef mShader; // shader that will receive the passed variant
@@ -126,17 +127,17 @@ namespace ds { namespace gl {
 		void clear();
 
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setFloat(const std::string& name, const float);
+		void setFloat(const std::string& key, float);
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setFloats(const std::string& name, const std::vector<float>&);
+		void setFloats(const std::string& key, const std::vector<float>&);
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setInt(const std::string& name, const int);
+		void setInt(const std::string& key, int);
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setMatrix44f(const std::string& name, const ci::mat4&);
+		void setMatrix44f(const std::string& key, const ci::mat4&);
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setVec2i(const std::string& name, const ci::ivec2&);
+		void setVec2i(const std::string& key, const ci::ivec2&);
 		/// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-		void setVec4f(const std::string& name, const ci::vec4&);
+		void setVec4f(const std::string& key, const ci::vec4&);
 
 		void applyTo(ci::gl::GlslProgRef) const;
 

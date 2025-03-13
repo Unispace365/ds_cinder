@@ -2,7 +2,6 @@
 #ifndef DS_STORAGE_PERSISTENTCACHE_H_
 #define DS_STORAGE_PERSISTENTCACHE_H_
 
-#include <cinder/Thread.h>
 #include <string>
 #include <vector>
 
@@ -28,7 +27,7 @@ class PersistentCache {
 	};
 	class FieldList {
 	  public:
-		FieldList();
+		FieldList() = default;
 		FieldList&				 addFloat(const std::string& name);
 		FieldList&				 addInt(const std::string& name);
 		FieldList&				 addString(const std::string& name);
@@ -39,30 +38,33 @@ class PersistentCache {
 	class Field;
 	class Row;
 
+	PersistentCache()								   = delete;
+	PersistentCache(const PersistentCache&)			   = delete;
+	PersistentCache(PersistentCache&&)				   = delete;
+	PersistentCache& operator=(const PersistentCache&) = delete;
+	PersistentCache& operator=(PersistentCache&&)	   = delete;
+
 	/// Location will be relative to user/documents/downstream/cache. Location
 	/// should be a folder -- the file will be named and generated.
 	/// Version is currently unused, but maintain it for the future.
 	/// For convenience you can use field list like this: PersistentCache::FieldList().addString("query")
-	PersistentCache(const std::string& location, const int version, const FieldList&);
+	PersistentCache(const std::string& location, int version, const FieldList&);
 
 	Row fetchOne(const std::string& field_name, const std::string& value) const;
 	/// If the row has an ID, this is an update operation, otherwise this is a create.
 	void setValues(const Row&);
 
   private:
-	void verifyDatabase(const int version, const FieldList& list);
+	void verifyDatabase(int version, const FieldList& list) const;
 	void loadDatabase(const FieldList& list);
-
-	PersistentCache();
-	PersistentCache(const PersistentCache&);
 
 	const std::string mFilename;
 
   public:
 	class Field {
 	  public:
-		Field();
-		Field(const double, const int64_t, const std::string&);
+		Field() = default;
+		Field(double, int64_t, const std::string&);
 
 		double		mFloat;
 		int64_t		mInt;
@@ -74,13 +76,13 @@ class PersistentCache {
 
 		bool empty() const;
 
-		double			   getFloat(const size_t) const;
-		int64_t			   getInt(const size_t) const;
-		const std::string& getString(const size_t) const;
+		double			   getFloat(size_t) const;
+		int64_t			   getInt(size_t) const;
+		const std::string& getString(size_t) const;
 
 		/// For building
-		Row& addFloat(const double);
-		Row& addInt(const int64_t);
+		Row& addFloat(double);
+		Row& addInt(int64_t);
 		Row& addString(const std::string&);
 
 		int				   mId;

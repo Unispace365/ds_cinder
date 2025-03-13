@@ -2,26 +2,28 @@
 #ifndef DS_STORAGE_DIRECTORYWATCHER_H_
 #define DS_STORAGE_DIRECTORYWATCHER_H_
 
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "ds/app/auto_update.h"
+#include "ds/app/event.h"
+#include "ds/app/event_notifier.h"
+
 #include <Poco/AtomicCounter.h>
 #include <Poco/Mutex.h>
 #include <Poco/Runnable.h>
 #include <Poco/Thread.h>
-#include <ds/app/auto_update.h>
-#include <ds/app/event.h>
-#include <ds/app/event_notifier.h>
-#include <functional>
-#include <string>
-#include <vector>
 
 namespace ds {
 
 /**
  * \class DirectoryWatcher
  */
-class DirectoryWatcher : public ds::AutoUpdate {
+class DirectoryWatcher : public AutoUpdate {
 	// Change event
   public:
-	class Changed : public ds::RegisteredEvent<Changed> {
+	class Changed : public RegisteredEvent<Changed> {
 	  public:
 		Changed(const std::string& path)
 		  : mPath(path) {}
@@ -29,8 +31,8 @@ class DirectoryWatcher : public ds::AutoUpdate {
 	};
 
   public:
-	DirectoryWatcher(ds::ui::SpriteEngine&);
-	~DirectoryWatcher();
+	DirectoryWatcher(ui::SpriteEngine&);
+	~DirectoryWatcher() override;
 
 	/// NOTE:  addPath is initialization only.  As soon as you start, don't use it.
 	/// Why?  I guess I'm cheap that way.  It's not currently thread safe.
@@ -43,7 +45,7 @@ class DirectoryWatcher : public ds::AutoUpdate {
 	void stop();
 
   protected:
-	virtual void update(const ds::UpdateParams&);
+	void update(const UpdateParams&) override;
 
   private:
 	class Waiter : public Poco::Runnable {
@@ -52,14 +54,14 @@ class DirectoryWatcher : public ds::AutoUpdate {
 		std::vector<std::string> mPaths;
 
 	  public:
-		Waiter(const Poco::AtomicCounter&, ds::EventNotifier&);
+		Waiter(const Poco::AtomicCounter&, EventNotifier&);
 
-		/// The platform implementation is responsible for suppling a run().
-		virtual void run();
-		void		 update();
+		/// The platform implementation is responsible for supplying a run().
+		void run() override;
+		void update();
 
 	  protected:
-		bool isStopped();
+		bool isStopped() const;
 		bool onChanged(const std::string& path);
 
 	  private:
@@ -70,7 +72,7 @@ class DirectoryWatcher : public ds::AutoUpdate {
 		Poco::Mutex				 mLock;
 		std::vector<std::string> mChangedPaths;
 		/// Only call from the main thread
-		ds::EventNotifier& mNotifier;
+		EventNotifier& mNotifier;
 	};
 
   private:
@@ -79,7 +81,7 @@ class DirectoryWatcher : public ds::AutoUpdate {
 	Waiter				mWaiter;
 
 	/// The platform implementation is responsible for waking up the thread.
-	void wakeup();
+	static void wakeup();
 };
 
 } // namespace ds

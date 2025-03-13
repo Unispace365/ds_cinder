@@ -1,11 +1,10 @@
 #include "stdafx.h"
 
-#include "directory_watcher.h"
-
 #include <Windows.h>
 #include <iostream>
 
-#include <ds/debug/logger.h>
+#include "ds/debug/logger.h"
+#include "ds/storage/directory_watcher.h"
 
 // using namespace std;
 using namespace ds;

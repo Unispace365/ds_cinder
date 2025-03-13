@@ -1,12 +1,13 @@
 #include "stdafx.h"
 
-#include "persistent_cache.h"
+#include <sstream>
+
+#include "ds/query/query_client.h"
+#include "ds/query/query_result.h"
+#include "ds/storage/persistent_cache.h"
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
-#include <ds/query/query_client.h>
-#include <ds/query/query_result.h>
-#include <sstream>
 
 namespace ds {
 
@@ -28,7 +29,7 @@ namespace {
 /**
  * \class PersistentCache
  */
-PersistentCache::PersistentCache(const std::string& location, const int version, const FieldList& list)
+PersistentCache::PersistentCache(const std::string& location, int version, const FieldList& list)
   : mFilename(make_filename(location))
   , mFieldFormats(list) {
 	verifyDatabase(version, list);
@@ -55,7 +56,7 @@ PersistentCache::Row PersistentCache::fetchOne(const std::string& field_name, co
 }
 
 void PersistentCache::setValues(const Row& row) {
-	ds::query::Result ans;
+	query::Result ans;
 
 	// UPDATE
 	if (row.mId > 0) {
@@ -74,7 +75,7 @@ void PersistentCache::setValues(const Row& row) {
 			}
 		}
 		buf << " WHERE id=" << row.mId;
-		ds::query::Client::queryWrite(mFilename, buf.str(), ans);
+		query::Client::queryWrite(mFilename, buf.str(), ans);
 
 		// CREATE
 	} else {
@@ -96,7 +97,7 @@ void PersistentCache::setValues(const Row& row) {
 			}
 		}
 		buf_1 << ") values (" << buf_2.str() << ")";
-		ds::query::Client::queryWrite(mFilename, buf_1.str(), ans);
+		query::Client::queryWrite(mFilename, buf_1.str(), ans);
 	}
 
 	// sync
@@ -104,7 +105,7 @@ void PersistentCache::setValues(const Row& row) {
 	loadDatabase(mFieldFormats);
 }
 
-void PersistentCache::verifyDatabase(const int version, const FieldList& list) {
+void PersistentCache::verifyDatabase(int version, const FieldList& list) const {
 	if (mFilename.empty()) return;
 
 	Poco::File f(mFilename);
@@ -126,8 +127,8 @@ void PersistentCache::verifyDatabase(const int version, const FieldList& list) {
 		}
 	}
 	buf << ");";
-	ds::query::Result r;
-	ds::query::Client::queryWrite(mFilename, buf.str(), r);
+	query::Result r;
+	query::Client::queryWrite(mFilename, buf.str(), r);
 }
 
 void PersistentCache::loadDatabase(const FieldList& list) {
@@ -141,21 +142,21 @@ void PersistentCache::loadDatabase(const FieldList& list) {
 	}
 	buf << " FROM cache";
 
-	ds::query::Result ans;
-	ds::query::Client::query(mFilename, buf.str(), ans);
-	ds::query::Result::RowIterator it(ans);
+	query::Result ans;
+	query::Client::query(mFilename, buf.str(), ans);
+	query::Result::RowIterator it(ans);
 	while (it.hasValue()) {
-		mRows.push_back(Row());
+		mRows.emplace_back();
 		Row& row(mRows.back());
 		row.mId = it.getInt(0);
 		for (int k = 0; k < (int)list.mFields.size(); ++k) {
 			const FieldFormat& fmt(list.mFields[k]);
 			if (fmt.mType == fmt.kFloat) {
-				row.mFields.push_back(Field(it.getFloat(k + 1), 0, ""));
+				row.mFields.emplace_back(it.getFloat(k + 1), 0, "");
 			} else if (fmt.mType == fmt.kInt) {
-				row.mFields.push_back(Field(0.0, it.getInt(k + 1), ""));
+				row.mFields.emplace_back(0.0, it.getInt(k + 1), "");
 			} else if (fmt.mType == fmt.kString) {
-				row.mFields.push_back(Field(0.0, 0, it.getString(k + 1)));
+				row.mFields.emplace_back(0.0, 0, it.getString(k + 1));
 			}
 		}
 		++it;
@@ -165,29 +166,27 @@ void PersistentCache::loadDatabase(const FieldList& list) {
 /**
  * \class FieldList
  */
-PersistentCache::FieldList::FieldList() {}
 
 PersistentCache::FieldList& PersistentCache::FieldList::addFloat(const std::string& name) {
-	mFields.push_back(FieldFormat(name, FieldFormat::kFloat));
+	mFields.emplace_back(name, FieldFormat::kFloat);
 	return *this;
 }
 
 PersistentCache::FieldList& PersistentCache::FieldList::addInt(const std::string& name) {
-	mFields.push_back(FieldFormat(name, FieldFormat::kInt));
+	mFields.emplace_back(name, FieldFormat::kInt);
 	return *this;
 }
 
 PersistentCache::FieldList& PersistentCache::FieldList::addString(const std::string& name) {
-	mFields.push_back(FieldFormat(name, FieldFormat::kString));
+	mFields.emplace_back(name, FieldFormat::kString);
 	return *this;
 }
 
 /**
  * \class Field
  */
-PersistentCache::Field::Field() {}
 
-PersistentCache::Field::Field(const double v1, const int64_t v2, const std::string& v3)
+PersistentCache::Field::Field(double v1, int64_t v2, const std::string& v3)
   : mFloat(v1)
   , mInt(v2)
   , mString(v3) {}
@@ -202,33 +201,33 @@ bool PersistentCache::Row::empty() const {
 	return mId < 1;
 }
 
-double PersistentCache::Row::getFloat(const size_t idx) const {
+double PersistentCache::Row::getFloat(size_t idx) const {
 	if (idx >= mFields.size()) return 0.0;
 	return mFields[idx].mFloat;
 }
 
-int64_t PersistentCache::Row::getInt(const size_t idx) const {
+int64_t PersistentCache::Row::getInt(size_t idx) const {
 	if (idx >= mFields.size()) return 0;
 	return mFields[idx].mInt;
 }
 
-const std::string& PersistentCache::Row::getString(const size_t idx) const {
+const std::string& PersistentCache::Row::getString(size_t idx) const {
 	if (idx >= mFields.size()) return EMPTY_SZ;
 	return mFields[idx].mString;
 }
 
-PersistentCache::Row& PersistentCache::Row::addFloat(const double v) {
-	mFields.push_back(Field(v, 0, ""));
+PersistentCache::Row& PersistentCache::Row::addFloat(double v) {
+	mFields.emplace_back(v, 0, "");
 	return *this;
 }
 
-PersistentCache::Row& PersistentCache::Row::addInt(const int64_t v) {
-	mFields.push_back(Field(0.0, v, 0));
+PersistentCache::Row& PersistentCache::Row::addInt(int64_t v) {
+	mFields.emplace_back(0.0, v, "");
 	return *this;
 }
 
 PersistentCache::Row& PersistentCache::Row::addString(const std::string& v) {
-	mFields.push_back(Field(0.0, 0, v));
+	mFields.emplace_back(0.0, 0, v);
 	return *this;
 }
 

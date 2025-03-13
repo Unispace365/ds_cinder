@@ -1,13 +1,14 @@
 #include "stdafx.h"
 
-#include "ds/gl/uniform.h"
 #include <cinder/gl/GlslProg.h>
+
+#include "ds/gl/uniform.h"
 
 namespace ds { namespace gl {
 
 	namespace {
-		static std::string EMPTY_SZ("");
-		static UniformData EMPTY_DATA;
+		std::string EMPTY_SZ("");
+		UniformData EMPTY_DATA;
 	} // namespace
 
 	UniformData::UniformData(int count /*= 0*/, bool transpose /*= false*/)
@@ -23,83 +24,83 @@ namespace ds { namespace gl {
 	  , mData(EMPTY_DATA)
 	  , mName(EMPTY_SZ) {}
 
-	void UniformVisitor::operator()(int data) {
+	void UniformVisitor::operator()(int data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::ivec2& data) {
+	void UniformVisitor::operator()(const ci::ivec2& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const int* data) {
+	void UniformVisitor::operator()(const int* data) const {
 		mShader->uniform(mName, data, mData.mCount);
 	}
 
-	void UniformVisitor::operator()(const ci::ivec2* data) {
+	void UniformVisitor::operator()(const ci::ivec2* data) const {
 		mShader->uniform(mName, data, mData.mCount);
 	}
 
-	void UniformVisitor::operator()(float data) {
+	void UniformVisitor::operator()(float data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::vec2& data) {
+	void UniformVisitor::operator()(const ci::vec2& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::vec3& data) {
+	void UniformVisitor::operator()(const ci::vec3& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::vec4& data) {
+	void UniformVisitor::operator()(const ci::vec4& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::Color& data) {
+	void UniformVisitor::operator()(const ci::Color& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::ColorA& data) {
+	void UniformVisitor::operator()(const ci::ColorA& data) const {
 		mShader->uniform(mName, data);
 	}
 
-	void UniformVisitor::operator()(const ci::mat2& data) {
+	void UniformVisitor::operator()(const ci::mat2& data) const {
 		mShader->uniform(mName, data, mData.mTranspose);
 	}
 
-	void UniformVisitor::operator()(const ci::mat3& data) {
+	void UniformVisitor::operator()(const ci::mat3& data) const {
 		mShader->uniform(mName, data, mData.mTranspose);
 	}
 
-	void UniformVisitor::operator()(const ci::mat4& data) {
+	void UniformVisitor::operator()(const ci::mat4& data) const {
 		mShader->uniform(mName, data, mData.mTranspose);
 	}
 
-	void UniformVisitor::operator()(const std::vector<float>& data) {
+	void UniformVisitor::operator()(const std::vector<float>& data) const {
 		mShader->uniform(mName, &(data.front()), static_cast<int>(data.size()));
 	}
 
-	void UniformVisitor::operator()(const ci::vec2* data) {
+	void UniformVisitor::operator()(const ci::vec2* data) const {
 		mShader->uniform(mName, data, mData.mCount);
 	}
 
-	void UniformVisitor::operator()(const ci::vec3* data) {
+	void UniformVisitor::operator()(const ci::vec3* data) const {
 		mShader->uniform(mName, data, mData.mCount);
 	}
 
-	void UniformVisitor::operator()(const ci::vec4* data) {
+	void UniformVisitor::operator()(const ci::vec4* data) const {
 		mShader->uniform(mName, data, mData.mCount);
 	}
 
-	void UniformVisitor::operator()(const ci::mat2* data) {
+	void UniformVisitor::operator()(const ci::mat2* data) const {
 		mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 	}
 
-	void UniformVisitor::operator()(const ci::mat3* data) {
+	void UniformVisitor::operator()(const ci::mat3* data) const {
 		mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 	}
 
-	void UniformVisitor::operator()(const ci::mat4* data) {
+	void UniformVisitor::operator()(const ci::mat4* data) const {
 		mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 	}
 
@@ -163,12 +164,12 @@ namespace ds { namespace gl {
 	void Uniform::applyTo(ci::gl::GlslProgRef shader) const {
 		if (!mVariantUniforms.empty()) {
 			// constructing this is really cheap. so no worries.
-			auto local_visitor = UniformVisitor(shader);
+			auto local_visitor = UniformVisitor(std::move(shader));
 
-			for (auto it = mVariantUniforms.cbegin(), end = mVariantUniforms.cend(); it != end; ++it) {
-				local_visitor.mData = it->second.second;
-				local_visitor.mName = it->first;
-				std::visit(local_visitor, it->second.first);
+			for (const auto& variantUniform : mVariantUniforms) {
+				local_visitor.mData = variantUniform.second.second;
+				local_visitor.mName = variantUniform.first;
+				std::visit(local_visitor, variantUniform.second.first);
 			}
 		}
 	}

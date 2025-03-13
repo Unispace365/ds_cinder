@@ -1,14 +1,14 @@
 #include "stdafx.h"
 
-#include "directory_watcher.h"
-
 #include <algorithm>
-#include <ds/ui/sprite/sprite_engine.h>
+
+#include "ds/storage/directory_watcher.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 
-DirectoryWatcher::DirectoryWatcher(ds::ui::SpriteEngine& se)
-  : ds::AutoUpdate(se)
+DirectoryWatcher::DirectoryWatcher(ui::SpriteEngine& se)
+  : AutoUpdate(se)
   , mStop(0)
   , mWaiter(mStop, se.getNotifier()) {}
 
@@ -40,14 +40,14 @@ void DirectoryWatcher::start() {
 }
 
 void DirectoryWatcher::stop() {
-	mStop++;
+	++mStop;
 	wakeup();
 	try {
 		mThread.join();
 	} catch (std::exception&) {}
 }
 
-void DirectoryWatcher::update(const ds::UpdateParams&) {
+void DirectoryWatcher::update(const UpdateParams&) {
 	mWaiter.update();
 }
 
@@ -55,7 +55,7 @@ void DirectoryWatcher::update(const ds::UpdateParams&) {
  * \class Waiter
  * \brief Handle waiting on directory changes and sending notices.
  */
-DirectoryWatcher::Waiter::Waiter(const Poco::AtomicCounter& stop, ds::EventNotifier& n)
+DirectoryWatcher::Waiter::Waiter(const Poco::AtomicCounter& stop, EventNotifier& n)
   : mStop(stop)
   , mNotifier(n) {}
 
@@ -71,7 +71,7 @@ void DirectoryWatcher::Waiter::update() {
 	}
 }
 
-bool DirectoryWatcher::Waiter::isStopped() {
+bool DirectoryWatcher::Waiter::isStopped() const {
 	return mStop.value() > 0;
 }
 
