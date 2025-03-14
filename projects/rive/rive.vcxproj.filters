@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\stdafx.cpp" />
+    <ClCompile Include="src\rive\RiveSprite.cpp">
+      <Filter>ds\ui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\stdafx.h" />
+    <ClInclude Include="src\rive\RiveSprite.h">
+      <Filter>ds\ui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="headers">
+      <UniqueIdentifier>{173a8807-2974-4409-abf4-b74aa5ef8632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds">
+      <UniqueIdentifier>{a0cf76ee-81e9-4d47-bda5-a25f5a83ab9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds\ui">
+      <UniqueIdentifier>{713ae1a9-390e-462a-9264-36b9db3c1c5a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

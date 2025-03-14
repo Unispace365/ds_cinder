@@ -79,6 +79,8 @@ cmd /c msbuild ".\projects\viewers\viewers.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\waffles\waffles.vcxproj" /m /p:Configuration=Debug
 if errorlevel 1 goto error
+cmd /c msbuild ".\projects\rive\rive.vcxproj" /m /p:Configuration=Debug
+if errorlevel 1 goto error
 cmd /c msbuild ".\vs2015\platform.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\web\cef\cef_web.vcxproj" /m /p:Configuration=Release
@@ -96,6 +98,8 @@ if errorlevel 1 goto error
 cmd /c msbuild ".\projects\viewers\viewers.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 cmd /c msbuild ".\projects\waffles\waffles.vcxproj" /m /p:Configuration=Release
+if errorlevel 1 goto error
+cmd /c msbuild ".\projects\rive\rive.vcxproj" /m /p:Configuration=Release
 if errorlevel 1 goto error
 echo Done.
 goto done
