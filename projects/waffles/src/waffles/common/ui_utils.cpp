@@ -256,10 +256,10 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto typeUid = model.getPropertyString("type_uid");
 
 	if (getDefault(engine)->isFolder(model)) type = "folder";
-	// else if (getDefault(engine)->isMedia(model))
-	//	type = "media";
-	//  else if (getDefault(engine)->isPresentation(model))
-	//	type = "presentation";
+	else if (getDefault(engine)->isMedia(model))
+		type = "media";
+	else if (getDefault(engine)->isPresentation(model))
+		type = "presentation";
 	//  else if (getDefault(engine)->isAmbientPlaylist(model))
 	//	type = "ambient";
 
@@ -270,12 +270,15 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		customs[type](model, raw_pos);
 	} else if (type == "ambient") {
 		engine.startIdling();
-	} else if (type == "media_template") {
-		// Special case for disambiguating media template from media item
-		notifier.notify(RequestEngagePresentation(model));
+	} else if (type == "media_template" || type == "presentation") {
+		if (model.hasChildren()) {
+			notifier.notify(RequestEngagePresentation(model.getChild(0)));
+		} else {
+			DS_LOG_WARNING("tried presentation open for model with no children " << model.getPropertyString("uid"));
+		}
 	} else if (type == "folder") {
 		return false;
-	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
+	} else if (type == "media") {
 		notifier.notify(
 			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
