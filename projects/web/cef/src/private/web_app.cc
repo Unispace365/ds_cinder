@@ -42,7 +42,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 
 	command_line->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
 
-	//command_line->AppendSwitchWithValue("use-gl", "desktop");
+	command_line->AppendSwitchWithValue("use-gl", "desktop");
 	command_line->AppendSwitch("enable-gpu");
 	command_line->AppendSwitch("enable-gpu-compositing");
 	command_line->AppendSwitch("disable-gpu-vsync");
