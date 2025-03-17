@@ -102,6 +102,7 @@ class Launcher : public BaseElement {
 	bool  mPanelTransitioning	   = false;
 	float mWafflesScale			   = 1.0f;
 	bool  mCloseOnViewerFullscreen = true;
+	bool  mEnableSelection		   = false;
 };
 
 } // namespace waffles

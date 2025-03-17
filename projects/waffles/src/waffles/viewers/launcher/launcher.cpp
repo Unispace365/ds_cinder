@@ -315,7 +315,8 @@ void Launcher::updateItem(ds::ui::SmartLayout* item) {
 
 	auto sidePanelScroll = mPrimaryLayout->getSprite<ds::ui::SmartScrollList>("side_panel_content");
 	if (sidePanelScroll) {
-		ContentUtils::configureListItem(mEngine, item, ci::vec2(sidePanelScroll->getWidth(), item->getHeight()), false /* TODO only if layout builder is active */);
+		ContentUtils::configureListItem(mEngine, item, ci::vec2(sidePanelScroll->getWidth(), item->getHeight()),
+										mEnableSelection);
 		item->setSize(sidePanelScroll->getWidth(), item->getHeight());
 	}
 	setButtonCallbacks(item);
