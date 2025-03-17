@@ -241,6 +241,22 @@ void FramedMediaViewer::onFullscreenSet() {
 		mediaInterface->setAllowDisplay(false);
 	}
 	mRootLayout->runLayout();
+
+	// Correctly update the enabled/disabled states so we can move/scale the sprite in fullscreen
+	auto innerHoldy = mRootLayout->getSprite("inner_holdy");
+	if(mIsFullscreen){
+		if (mRootLayout && innerHoldy) {
+			enable(true);
+			mRootLayout->enable(true);
+			innerHoldy->enable(false);
+		}
+	}else if (!mIsFullscreen && !mIsDetached){
+		if (mRootLayout && innerHoldy) {
+			enable(false);
+			mRootLayout->enable(false);
+			innerHoldy->enable(false);
+		}
+	}
 }
 
 void FramedMediaViewer::showTitle() {
@@ -478,9 +494,9 @@ void FramedMediaViewer::setToFullscreen(const bool immediate, const bool showCon
 		}
 	}
 
+
 	onLayout();
 }
-
 
 // void FramedMediaViewer::hideTitle() {}
 
