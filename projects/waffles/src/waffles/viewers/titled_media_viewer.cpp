@@ -760,7 +760,7 @@ void TitledMediaViewer::processAllowedButtons() const {
 
 	auto detachSpr = mRootLayout->getSprite("detach.the_button");
 	if (detachSpr) {
-		if (allowDetach && mCanDetach) {
+		if (allowDetach && mCanDetach && mCanAttach) {
 			detachSpr->show();
 		} else {
 			detachSpr->hide();

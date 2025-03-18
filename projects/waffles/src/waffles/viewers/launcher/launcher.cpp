@@ -579,10 +579,7 @@ void Launcher::buttonTapHandler(Sprite* sp, const ci::vec3& pos) {
 	if (ContentUtils::getDefault(mEngine)->isFolder(model)) {
 		panelButtonTapped(btn);
 	} else if (type == "presentation" || ContentUtils::getDefault(mEngine)->isPresentation(model)) {
-		if (!model.getChildren().empty()) { // activate first slide
-			mEventClient.notify(RequestEngagePresentation(model.getChild(0)));
-			// mEngine.mContent.setProperty("presentation_controller_blocked", false);
-		}
+		panelButtonTapped(btn); // see ui_utils.cpp for presentation trigger
 	} else if (type == "current_playlist") {
 		panelButtonTapped(btn);
 	} else if (type == "pinboard") {

@@ -71,6 +71,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto		mediaPropertyKey = content->getMediaPropertyKey(item->getContentModel());
 	mediaPropertyKey			 = mediaPropertyKey.empty() ? "media" : mediaPropertyKey;
 	auto mediaType				 = item->getContentModel().getPropertyResource(mediaPropertyKey).getType();
+	bool useThumbnails			 = engine.getWafflesSettings().getBool("launcher:items:thumbnails_as_icons", 0, true);
 
 	bool showArrow	= false;
 	bool showSelect = false;
@@ -145,19 +146,31 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (theType == "media" || getDefault(engine)->isMedia(theModel)) {
 		if (mediaType == ds::Resource::IMAGE_TYPE) {
 			theTypeLabel = "IMAGE";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
+			if (useThumbnails) {
+				auto preview = item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::PDF_TYPE) {
 			theTypeLabel = "PDF";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
+			thumbPath = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
+			if (useThumbnails) {
+				auto preview = item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::VIDEO_TYPE || mediaType == ds::Resource::YOUTUBE_TYPE) {
 			theTypeLabel = "VIDEO";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
+			if (useThumbnails) {
+				auto preview = item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::WEB_TYPE) {
 			if(theType == "miro_link")
 				theTypeLabel = "MIRO";
@@ -165,9 +178,13 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 				theTypeLabel = "DRIVE";
 			else
 			theTypeLabel = "WEB";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
+			if (useThumbnails) {
+				auto preview = item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (theType == "media" && mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 			theTypeLabel = "STREAM";
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
@@ -239,10 +256,10 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto typeUid = model.getPropertyString("type_uid");
 
 	if (getDefault(engine)->isFolder(model)) type = "folder";
-	// else if (getDefault(engine)->isMedia(model))
-	//	type = "media";
-	//  else if (getDefault(engine)->isPresentation(model))
-	//	type = "presentation";
+	else if (getDefault(engine)->isMedia(model))
+		type = "media";
+	else if (getDefault(engine)->isPresentation(model))
+		type = "presentation";
 	//  else if (getDefault(engine)->isAmbientPlaylist(model))
 	//	type = "ambient";
 
@@ -253,12 +270,15 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		customs[type](model, raw_pos);
 	} else if (type == "ambient") {
 		engine.startIdling();
-	} else if (type == "media_template") {
-		// Special case for disambiguating media template from media item
-		notifier.notify(RequestEngagePresentation(model));
+	} else if (type == "media_template" || type == "presentation") {
+		if (model.hasChildren()) {
+			notifier.notify(RequestEngagePresentation(model.getChild(0)));
+		} else {
+			DS_LOG_WARNING("tried presentation open for model with no children " << model.getPropertyString("uid"));
+		}
 	} else if (type == "folder") {
 		return false;
-	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
+	} else if (type == "media") {
 		notifier.notify(
 			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {
