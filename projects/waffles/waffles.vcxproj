@@ -180,8 +180,8 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\viewers\PropertySheets\Viewers64_d.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64_d.props" />
     <Import Project="PropertySheets\Waffles64_d.props" />
-    <Import Project="..\nvpath\PropertySheets\NvPath64_d.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -191,8 +191,8 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\viewers\PropertySheets\Viewers64.props" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" />
     <Import Project="PropertySheets\Waffles64.props" />
-    <Import Project="..\nvpath\PropertySheets\NvPath64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
