@@ -220,7 +220,7 @@ ContentModelRef::ContentModelRef(const std::string& name, const int id, const st
 
 ContentModelRef::ContentModelRef(const std::string& name, const std::string& uid, const std::string& label) {
 	setName(name);
-	setUid(uid);
+	setUid(uid); // TODO: note that the 'uid' is often also stored as a property. We may want to remove this duplication in the future.
 	setLabel(label);
 }
 

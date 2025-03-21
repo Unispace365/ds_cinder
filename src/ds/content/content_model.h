@@ -108,17 +108,25 @@ class ContentModelRef {
 	/// TODO: remove child
 
 	ContentModelRef() = default;
-	ContentModelRef(const std::string& name, int id = 0, const std::string& label = "");
+	[[deprecated("Use of this constructor is discouraged. Please explicitly specify an ID or UID.")]]
+	ContentModelRef(const std::string& name)
+	  : ContentModelRef(name, 0) {
+		
+	}
+	ContentModelRef(const std::string& name, int id, const std::string& label = "");
 	ContentModelRef(const std::string& name, const std::string& uid, const std::string& label = "");
 
 	/// Enables doing `if (mModel) ...` to check if model is valid
 	operator bool() const { return !empty(); }
 
 	/// Get the id for this item
-	int				   getId() const;
+	int getId() const;
+	/// Get the uid for this item, if provided when this item was constructed
 	const std::string& getUid() const;
-	void			   setId(int id);
-	void			   setUid(const std::string& uid);
+	/// Set the id for this item
+	void setId(int id);
+	/// Set the uid for this item.
+	void setUid(const std::string& uid);
 
 
 	/// Get the name of this item

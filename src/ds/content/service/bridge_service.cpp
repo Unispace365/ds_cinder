@@ -385,7 +385,8 @@ bool BridgeService::Loop::loadContent() {
 			}
 			int recordId = 1;
 			while (it.hasValue()) {
-				auto record = ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")");
+				auto record =
+					ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")", it.getString(0));
 				record.setId(recordId);
 
 				record.setProperty("record_name", it.getString(7));
@@ -421,11 +422,11 @@ bool BridgeService::Loop::loadContent() {
 			return false;
 		}
 
-		mContent   = ds::model::ContentModelRef(ds::model::CONTENT);
-		mPlatforms = ds::model::ContentModelRef(ds::model::PLATFORM);
-		mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS);
-		mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS);
-		mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS);
+		mContent   = ds::model::ContentModelRef(ds::model::CONTENT, 0);
+		mPlatforms = ds::model::ContentModelRef(ds::model::PLATFORM, 0);
+		mEvents	   = ds::model::ContentModelRef(ds::model::ALL_EVENTS, 0);
+		mRecords   = ds::model::ContentModelRef(ds::model::ALL_RECORDS, 0);
+		mTags	   = ds::model::ContentModelRef(ds::model::ALL_TAGS, 0);
 		DS_LOG_VERBOSE(2, "BridgeService::Loop::loadContent records count " << rankOrderedRecords.size())
 		for (const auto& record : rankOrderedRecords) {
 			mRecords.addChild(record);
@@ -470,7 +471,7 @@ bool BridgeService::Loop::loadContent() {
 			ds::query::Result::RowIterator it(result);
 			int							   tagId = 1;
 			while (it.hasValue()) {
-				auto tag = ds::model::ContentModelRef(it.getString(2) + "(" + it.getString(0) + ")");
+				auto tag = ds::model::ContentModelRef(it.getString(2) + "(" + it.getString(0) + ")", it.getString(0));
 				tag.setId(tagId);
 
 				tag.setProperty("tag_uid", it.getString(0));
@@ -898,7 +899,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 				}
 				if (endDate != today) {
 					endTimeInOut = "23:59:59"; // If this mutli-day event started before today, sort as if it
-												 // started midnight today
+											   // started midnight today
 				}
 			}
 			return success;
