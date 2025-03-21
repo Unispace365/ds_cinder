@@ -21,10 +21,14 @@ namespace ds { namespace ui {
 	  private:
 		static std::vector<uint8_t> readFile(const std::string& path);
 
-		std::unique_ptr<rive::Factory>	mFactory;
-		std::unique_ptr<rive::Renderer> mRenderer;
-		std::unique_ptr<rive::File>		mFile;
-		rive::Artboard					mArtBoard;
+		std::unique_ptr<rive::Factory>			mFactory;
+		std::unique_ptr<rive::Renderer>			mRenderer;
+		std::unique_ptr<rive::File>				mFile;
+		std::unique_ptr<rive::ArtboardInstance> mArtBoard;
+
+		ci::vec2 mMousePointer{};
+		bool	 mIsMouseDown = false;
+		bool	 mIsMouseUp	  = false;
 	};
 
 }} // namespace ds::ui

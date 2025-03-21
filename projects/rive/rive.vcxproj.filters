@@ -5,22 +5,34 @@
     <ClCompile Include="src\rive\RiveSprite.cpp">
       <Filter>ds\ui</Filter>
     </ClCompile>
+    <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rive\RiveRendererNvPath.cpp">
+      <Filter>ds\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="src\rive\RiveSprite.h">
       <Filter>ds\ui</Filter>
     </ClInclude>
+    <ClInclude Include="src\rive\RiveRendererNvPath.h">
+      <Filter>ds\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="headers">
-      <UniqueIdentifier>{173a8807-2974-4409-abf4-b74aa5ef8632}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ds">
       <UniqueIdentifier>{a0cf76ee-81e9-4d47-bda5-a25f5a83ab9a}</UniqueIdentifier>
     </Filter>
     <Filter Include="ds\ui">
       <UniqueIdentifier>{713ae1a9-390e-462a-9264-36b9db3c1c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{173a8807-2974-4409-abf4-b74aa5ef8632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{dd60ee35-bd9a-4280-96c0-2545f57a219e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
