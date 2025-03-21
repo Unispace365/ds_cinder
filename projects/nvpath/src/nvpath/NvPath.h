@@ -275,6 +275,7 @@ class Paint {
 	const ci::ColorA8u& getColor(size_t idx) const { return mStops.at(idx).color; }
 	float				getOffset(size_t idx) const { return mStops.at(idx).offset; }
 
+	void   clear() { mStops.clear(); }
 	bool   empty() const { return mStops.empty(); }
 	size_t getNumColors() const { return mStops.size(); }
 
@@ -808,8 +809,12 @@ class PathHelper {
 
 	//! Sets the path's commands.
 	void setCommands(const std::vector<GLubyte>& commands) { mCommands = commands; }
+	//! Sets the path's commands.
+	void setCommands(const GLubyte* commands, size_t count) { mCommands.assign(commands, commands + count); }
 	//! Sets the path's coordinates.
 	void setCoords(const std::vector<GLfloat>& coords) { mCoords = coords; }
+	//! Sets the path's coordinates.
+	void setCoords(const GLfloat* coords, size_t count) { mCoords.assign(coords, coords + count); }
 	//! Sets the path's commands and coordinates.
 	void set(const Path& path);
 	//! Removes the last command and its coordinates.
