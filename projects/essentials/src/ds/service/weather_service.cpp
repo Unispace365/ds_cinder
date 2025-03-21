@@ -34,9 +34,9 @@ namespace ds { namespace weather {
 				// std::cout << "got a reply " << std::endl << reply << std::endl;
 
 				try {
-					auto currentWeather = ds::model::ContentModelRef(mSettings.mName);
+					auto currentWeather = ds::model::ContentModelRef(mSettings.mName, 0);
 
-					ds::model::ContentModelRef conditions = ds::model::ContentModelRef("conditions");
+					ds::model::ContentModelRef conditions = ds::model::ContentModelRef("conditions", 0);
 
 					ci::XmlTree basey	= ci::XmlTree(reply);
 					ci::XmlTree rooty	= basey.getChild("current");
@@ -176,7 +176,7 @@ namespace ds { namespace weather {
 				std::vector<ds::model::ContentModelRef> childrens;
 				std::vector<ds::model::ContentModelRef> conditions;
 				childrens.emplace_back(baseThing.getChild(0));
-				ds::model::ContentModelRef theForecast = ds::model::ContentModelRef("forecast");
+				ds::model::ContentModelRef theForecast = ds::model::ContentModelRef("forecast", 0);
 
 				for (auto it = forecast.getChildren().begin(); it != forecast.getChildren().end(); ++it) {
 					auto aForecast = parseForecastItem(*it->get());
@@ -193,7 +193,7 @@ namespace ds { namespace weather {
 	}
 
 	ds::model::ContentModelRef WeatherService::parseForecastItem(ci::XmlTree item) {
-		ds::model::ContentModelRef conditions = ds::model::ContentModelRef("forecast");
+		ds::model::ContentModelRef conditions = ds::model::ContentModelRef("forecast", 0);
 
 		addAttributeParam(item, conditions, "from", "time_from");
 		addAttributeParam(item, conditions, "to", "time_to");

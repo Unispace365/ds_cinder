@@ -21,7 +21,7 @@ NWScheduleHandler::NWScheduleHandler(ui::SpriteEngine& eng)
   , mEventClient(eng) {
 	auto currentEvents = mEngine.mContent.getChildByName("current_events");
 	if (currentEvents.empty()) {
-		mEngine.mContent.addChild(ContentModelRef("current_events"));
+		mEngine.mContent.addChild(ContentModelRef("current_events", 0));
 	}
 	mEventClient.listenToEvents<CmsDataLoadCompleteEvent>([this](auto& e) {
 		DS_LOG_INFO("Checking schedule due to content change")
