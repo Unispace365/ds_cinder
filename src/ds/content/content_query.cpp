@@ -94,7 +94,7 @@ void ContentQuery::run() {
 	} else {
 
 		/// First we get all the tables independently in a list
-		auto tablesData = model::ContentModelRef("tables");
+		auto tablesData = model::ContentModelRef("tables", 0);
 		getDataFromTable(tablesData, metaData, mCmsDatabase, mAllResources, 0, mTableId);
 
 		/// then we link all the tables together based on depth and parent id's
