@@ -1106,8 +1106,8 @@ void ContentModelRef::printTree(const bool verbose, const std::string& indent) c
 				}
 			}
 
-			for (auto it : mData->mPropertyLists) {
-				for (auto pit : it.second) {
+			for (const auto& it : mData->mPropertyLists) {
+				for (const auto& pit : it.second) {
 					DS_LOG_INFO(indent << "          prop list:" << it.first << " value:" << pit.getValue());
 				}
 			}
