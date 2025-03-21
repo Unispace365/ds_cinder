@@ -234,6 +234,13 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 	return thePlaylists;
 }
 
+std::vector<ContentModelRef> BaseContentHelper::getRecordsOfType(const std::string& type) {
+	auto allValid  = mEngine.mContent.getChildByName(CONTENT).getChildren();
+	auto allOfType = std::vector<ContentModelRef>();
+	getRecordsByType(allValid, type, allOfType);
+	return allOfType;
+}
+
 bool BaseContentHelper::isValidFolder(ContentModelRef model, const std::string& category) {
 	auto categories = split(category.empty() ? DEFAULTCATEGORY : category, ",", true);
 	auto type		= model.getPropertyString("type_uid");

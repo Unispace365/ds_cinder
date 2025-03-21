@@ -57,7 +57,14 @@ class ContentHelper {
 	virtual std::string getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
 	virtual std::string getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	= 0;
 
+	virtual std::vector<ContentModelRef> getRecordsOfType(const std::string& type) = 0;
+
   protected:
+	static void getRecordsByUid(const std::vector<ContentModelRef>& records, const std::string& uid,
+								std::vector<ContentModelRef>& result);
+	static void getRecordsByType(const std::vector<ContentModelRef>& records, const std::string& type,
+								 std::vector<ContentModelRef>& result);
+
 	ui::SpriteEngine& mEngine;
 };
 
