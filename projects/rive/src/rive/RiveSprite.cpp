@@ -27,6 +27,8 @@ namespace ds { namespace ui {
 		if (result == rive::ImportResult::success && mFile != nullptr) {
 			mArtBoard = mFile->artboardDefault();
 			if (mArtBoard) {
+				mArtBoard->advance(0.0f);
+
 				mWidth	= mArtBoard->width();
 				mHeight = mArtBoard->height();
 				setTransparent(false);
@@ -36,39 +38,69 @@ namespace ds { namespace ui {
 
 				setProcessTouchCallback([this](Sprite* s, const TouchInfo& info) {
 					mMousePointer = globalToLocal(info.mCurrentGlobalPoint);
+
+					mIsMouseMoved = info.mPhase == TouchInfo::Moved && info.mNumberFingers == 1;
 					mIsMouseDown  = info.mPhase == TouchInfo::Added && info.mNumberFingers == 1;
-					mIsMouseUp	  = info.mPhase == TouchInfo::Removed && info.mNumberFingers == 1;
+					mIsMouseUp	  = info.mPhase == TouchInfo::Removed && info.mNumberFingers == 0;
 				});
+
+				playAnimation(0);
 			}
 		}
 	}
 
 	RiveSprite::~RiveSprite() = default;
 
+	void RiveSprite::playAnimation(size_t index) {
+		if (!mArtBoard || index >= mArtBoard->animationCount()) return;
+
+		mAnimation = mArtBoard->animationAt(index);
+		mAnimation->inputCount();
+
+		mAnimation->time(mAnimation->animation()->startSeconds());
+		mAnimation->loopValue((int)rive::Loop::loop);
+		mAnimation->direction(1);
+	}
+
 	void RiveSprite::onUpdateServer(const ds::UpdateParams& updateParams) {
 		if (!mArtBoard) return;
 
-		auto animations = mArtBoard->stateMachineCount();
-		for (int i = 0; i < animations; i++) {
-			auto stateMachine = mArtBoard->stateMachineAt(i);
-			if (stateMachine) {
-				stateMachine->advance(updateParams.getDeltaTime());
+		auto scene = mArtBoard->defaultScene();
+		if (scene && (mIsMouseMoved || mIsMouseDown || mIsMouseUp)) {
+			rive::HitResult hitResult = rive::HitResult::none;
+			if (mIsMouseMoved) {
+				DS_LOG_INFO("Moved");
+				hitResult = scene->pointerMove({mMousePointer.x, mMousePointer.y});
+			} else if (mIsMouseDown) {
+				DS_LOG_INFO("Down");
+				hitResult = scene->pointerDown({mMousePointer.x, mMousePointer.y});
+			} else if (mIsMouseUp) {
+				DS_LOG_INFO("Up");
+				hitResult = scene->pointerUp({mMousePointer.x, mMousePointer.y});
 			}
+
+			if (hitResult != rive::HitResult::none) {
+			} else {
+				DS_LOG_INFO("Exit");
+				scene->pointerExit({mMousePointer.x, mMousePointer.y});
+			}
+
+			bool needsDraw = scene->advanceAndApply(updateParams.getDeltaTime());
+			mIsMouseMoved  = false;
+			mIsMouseDown   = false;
+			mIsMouseUp	   = false;
 		}
 
-		auto scene = mArtBoard->defaultScene();
-		if (scene) {
-			if (mIsMouseDown) scene->pointerDown({mMousePointer.x, mMousePointer.y});
-			scene->pointerMove({mMousePointer.x, mMousePointer.y});
-			if (mIsMouseUp) scene->pointerUp({mMousePointer.x, mMousePointer.y});
-		}
 		mArtBoard->advance(updateParams.getDeltaTime());
 	}
 
 	void RiveSprite::drawLocalClient() {
-		if (!mArtBoard) return;
+		if (!mArtBoard || !mRenderer) return;
 
 		nvpath::ScopedPathRendering sp;
+		// if (mAnimation)
+		//	mAnimation->draw(mRenderer.get());
+		// else
 		mArtBoard->draw(mRenderer.get());
 	}
 

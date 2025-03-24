@@ -17,7 +17,9 @@ namespace ds { namespace ui {
 		constexpr std::array<GLubyte, 6> mapping = {GL_MOVE_TO_NV, GL_LINE_TO_NV,		 GL_QUADRATIC_CURVE_TO_NV,
 													0 /* CONIC */, GL_CUBIC_CURVE_TO_NV, GL_CLOSE_PATH_NV};
 
-		std::vector<GLubyte> commands(path.verbs().size());
+		std::vector<GLubyte> commands;
+		commands.reserve(path.verbs().size());
+
 		for (auto command : path.verbs()) {
 			commands.push_back(mapping[int(command)]);
 		}

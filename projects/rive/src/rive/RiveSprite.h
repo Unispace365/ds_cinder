@@ -14,6 +14,8 @@ namespace ds { namespace ui {
 		RiveSprite(SpriteEngine& engine, const char* filePath);
 		~RiveSprite() override;
 
+		void playAnimation(size_t index);
+
 		void onUpdateServer(const ds::UpdateParams& updateParams) override;
 
 		void drawLocalClient() override;
@@ -21,14 +23,16 @@ namespace ds { namespace ui {
 	  private:
 		static std::vector<uint8_t> readFile(const std::string& path);
 
-		std::unique_ptr<rive::Factory>			mFactory;
-		std::unique_ptr<rive::Renderer>			mRenderer;
-		std::unique_ptr<rive::File>				mFile;
-		std::unique_ptr<rive::ArtboardInstance> mArtBoard;
+		std::unique_ptr<rive::Factory>				   mFactory;
+		std::unique_ptr<rive::Renderer>				   mRenderer;
+		std::unique_ptr<rive::File>					   mFile;
+		std::unique_ptr<rive::ArtboardInstance>		   mArtBoard;
+		std::unique_ptr<rive::LinearAnimationInstance> mAnimation;
 
 		ci::vec2 mMousePointer{};
-		bool	 mIsMouseDown = false;
-		bool	 mIsMouseUp	  = false;
+		bool	 mIsMouseMoved = false;
+		bool	 mIsMouseDown  = false;
+		bool	 mIsMouseUp	   = false;
 	};
 
 }} // namespace ds::ui
