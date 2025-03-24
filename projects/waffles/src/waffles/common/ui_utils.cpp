@@ -71,6 +71,7 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto		mediaPropertyKey = content->getMediaPropertyKey(item->getContentModel());
 	mediaPropertyKey			 = mediaPropertyKey.empty() ? "media" : mediaPropertyKey;
 	auto mediaType				 = item->getContentModel().getPropertyResource(mediaPropertyKey).getType();
+	bool useThumbnails			 = engine.getWafflesSettings().getBool("launcher:items:thumbnails_as_icons", 0, true);
 
 	bool showArrow	= false;
 	bool showSelect = false;
@@ -145,29 +146,49 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (theType == "media" || getDefault(engine)->isMedia(theModel)) {
 		if (mediaType == ds::Resource::IMAGE_TYPE) {
 			theTypeLabel = "IMAGE";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Image_256.png";
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Image_256.png";
+			if (useThumbnails) {
+				auto preview =
+					item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::PDF_TYPE) {
 			theTypeLabel = "PDF";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/PDF_256.png";
+			if (useThumbnails) {
+				auto preview =
+					item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::VIDEO_TYPE || mediaType == ds::Resource::YOUTUBE_TYPE) {
 			theTypeLabel = "VIDEO";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Video_256.png";
+			if (useThumbnails) {
+				auto preview =
+					item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (mediaType == ds::Resource::WEB_TYPE) {
-			if(theType == "miro_link")
+			if (theType == "miro_link")
 				theTypeLabel = "MIRO";
-			else if(theType == "google_drive_link")
+			else if (theType == "google_drive_link")
 				theTypeLabel = "DRIVE";
 			else
-			theTypeLabel = "WEB";
-			thumbPath =
-				item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
-			if (thumbPath.empty()) thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
+				theTypeLabel = "WEB";
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Link_256.png";
+			if (useThumbnails) {
+				auto preview =
+					item->getContentModel().getPropertyResource(mediaPropertyKey + "_preview").getAbsoluteFilePath();
+				if (!preview.empty()) {
+					thumbPath = preview;
+				}
+			}
 		} else if (theType == "media" && mediaType == ds::Resource::VIDEO_STREAM_TYPE) {
 			theTypeLabel = "STREAM";
 			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Stream_256.png";
@@ -184,10 +205,10 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 			theTypeLabel = "LAYOUT";
 		} else if (theType == "miro_meeting_placeholder") {
 			theTypeLabel = "MIRO";
-			thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
 		} else if (theType == "google_drive_link_placeholder") {
 			theTypeLabel = "DRIVE";
-			thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
+			thumbPath	 = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png";
 		}
 		showSelect = isSelectable;
 	} else if (theType == "recent") {
@@ -206,10 +227,10 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Video_256.png";
 	} else if (theType == "folders") {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Folder_256.png";
-	/* } else if (theType == "miro_meeting_placeholder") {
-		thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
-	} else if (theType == "google_drive_link_placeholder") {
-		thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png"; */
+		/* } else if (theType == "miro_meeting_placeholder") {
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Miro Placeholder4x.png";
+		} else if (theType == "google_drive_link_placeholder") {
+			thumbPath = "%APP%/data/images/waffles/icons/4x/Drive Placeholder4x.png"; */
 	} else {
 		thumbPath = "%APP%/data/images/waffles/icons/4x/Asset viewing_256.png";
 		validy	  = true;
@@ -217,11 +238,11 @@ void ContentUtils::configureListItem(ds::ui::SpriteEngine& engine, ds::ui::Smart
 
 
 	ds::cfg::Settings settings;
-	settings.getSetting("label", 0).mOriginalValue			 = item->getContentModel().getPropertyString("record_name");
-	settings.getSetting("icon_src", 0).mOriginalValue		 = thumbPath;
-	settings.getSetting("has_arrow", 0).mOriginalValue		 = ds::unparseBoolean(showArrow);
+	settings.getSetting("label", 0).mOriginalValue		= item->getContentModel().getPropertyString("record_name");
+	settings.getSetting("icon_src", 0).mOriginalValue	= thumbPath;
+	settings.getSetting("has_arrow", 0).mOriginalValue	= ds::unparseBoolean(showArrow);
 	settings.getSetting("has_select", 0).mOriginalValue = ds::unparseBoolean(showSelect);
-	settings.getSetting("type", 0).mOriginalValue			 = theTypeLabel;
+	settings.getSetting("type", 0).mOriginalValue		= theTypeLabel;
 	item->setLayoutSettings(settings);
 
 	item->initialize();
@@ -237,28 +258,38 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	auto model	 = item->getContentModel();
 	auto type	 = model.getPropertyString("type_key");
 	auto typeUid = model.getPropertyString("type_uid");
-
-	if (getDefault(engine)->isFolder(model)) type = "folder";
-	// else if (getDefault(engine)->isMedia(model))
-	//	type = "media";
-	//  else if (getDefault(engine)->isPresentation(model))
-	//	type = "presentation";
 	//  else if (getDefault(engine)->isAmbientPlaylist(model))
 	//	type = "ambient";
 
 	auto& notifier = channel.empty() ? engine.getNotifier() : engine.getChannel(channel);
 
+	// Try the customs first on the raw type
 	auto customs = ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->getLauncherCustomContent();
 	if (customs.find(type) != customs.end()) {
 		customs[type](model, raw_pos);
-	} else if (type == "ambient") {
+		return true;
+	}
+
+	// If not a custom, we can coerce types a bit and try the remaining options
+	if (getDefault(engine)->isFolder(model)) {
+		type = "folder";
+	} else if (getDefault(engine)->isMedia(model)) {
+		type = "media";
+	} else if (getDefault(engine)->isPresentation(model)) {
+		type = "presentation";
+	}
+
+	if (type == "ambient") {
 		engine.startIdling();
-	} else if (type == "media_template") {
-		// Special case for disambiguating media template from media item
-		notifier.notify(RequestEngagePresentation(model));
+	} else if (type == "media_template" || type == "presentation") {
+		if (model.hasChildren()) {
+			notifier.notify(RequestEngagePresentation(model.getChild(0)));
+		} else {
+			DS_LOG_WARNING("tried presentation open for model with no children " << model.getPropertyString("uid"));
+		}
 	} else if (type == "folder") {
 		return false;
-	} else if (type == "media" || getDefault(engine)->isMedia(model)) {
+	} else if (type == "media") {
 		notifier.notify(
 			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "browser") {

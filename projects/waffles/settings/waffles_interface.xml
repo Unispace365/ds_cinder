@@ -12,6 +12,7 @@
 	<setting name="launcher:auto-expandable:filters" value="" type="string"/>
 	<setting name="launcher:start:filter" value="recent" type="string"/>
 	<setting name="launcher:filter_labels:sprite_names" value="" type="string"/>
+	<setting name="launcher:items:thumbnails_as_icons" value="true" type="bool" />
 
 	<setting name="content:folder:key" value="LJ4aU7RleELr" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>
 	<setting name="content:folder:key" value="v0zyL1TzurTx" category="waffles!" comment="This can be either a type uid or an app_key. checks app_key first"/>

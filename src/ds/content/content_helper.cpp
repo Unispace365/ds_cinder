@@ -11,4 +11,26 @@ const std::string ContentHelper::WAFFLESCATEGORY = "waffles!";
 const std::string ContentHelper::PRESENTATIONCATEGORY = "presentation";
 const std::string ContentHelper::AMBIENTCATEGORY = "ambient";
 
+void ContentHelper::getRecordsByUid(const std::vector<ContentModelRef>& records, const std::string& uid,
+									std::vector<ContentModelRef>& result) {
+	for (const auto& it : records) {
+		if (it.getUid() == uid || it.getPropertyString("uid") == uid) {
+			result.push_back(it);
+		} else {
+			getRecordsByUid(it.getChildren(), uid, result);
+		}
+	}
 }
+
+void ContentHelper::getRecordsByType(const std::vector<ContentModelRef>& records, const std::string& type,
+									 std::vector<ContentModelRef>& result) {
+	for (const auto& it : records) {
+		if (it.getPropertyString("type_key") == type) {
+			result.push_back(it);
+		} else {
+			getRecordsByType(it.getChildren(), type, result);
+		}
+	}
+}
+
+} // namespace ds::model

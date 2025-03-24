@@ -41,7 +41,7 @@ void NWQueryHandler::handleQuery() {
 	int drawingParent = 0;
 
 	// tags
-	ContentModelRef tags = ContentModelRef("cms_tags");
+	ContentModelRef tags = ContentModelRef("cms_tags", 0);
 	mEngine.mContent.replaceChild(tags);
 
 	// create node list
@@ -53,7 +53,7 @@ void NWQueryHandler::handleQuery() {
 	std::vector<ContentModelRef>   rawUFNodesList;
 
 	// create unfiltered node copy
-	ContentModelRef cmsUFRoot = ContentModelRef(unflitered_root_name);
+	ContentModelRef cmsUFRoot = ContentModelRef(unflitered_root_name, 0);
 	for (const auto& it : rawNodesList) {
 		rawUFNodesList.push_back(it.duplicate());
 	}
@@ -127,7 +127,7 @@ void NWQueryHandler::handleQuery() {
 	//    .toStdVector();
 
 	// ----------- PLATFORMS --------------------------------------
-	ContentModelRef cmsPlatforms = ContentModelRef("cms_platforms");
+	ContentModelRef cmsPlatforms = ContentModelRef("cms_platforms", 0);
 	cmsPlatforms.setProperty("kind", std::string("platforms"));
 	cmsPlatforms.setProperty("name", std::string("Platforms"));
 
@@ -172,7 +172,7 @@ void NWQueryHandler::handleQuery() {
 
 	// ----------- NODES --------------------------------------
 	// The main waffles nodes, aka the primary content
-	ContentModelRef cmsRoot = ContentModelRef("cms_root");
+	ContentModelRef cmsRoot = ContentModelRef("cms_root", 0);
 	cmsRoot.setProperty("kind", std::string("node"));
 	cmsRoot.setProperty("name", std::string("Nodes"));
 
@@ -227,7 +227,7 @@ void NWQueryHandler::handleQuery() {
 	mEngine.mContent.replaceChild(cmsRoot);
 
 	// ----------- Events --------------------------------------
-	ContentModelRef cmsEvents = ContentModelRef("cms_events");
+	ContentModelRef cmsEvents = ContentModelRef("cms_events", 0);
 	cmsEvents.setProperty("kind", std::string("event"));
 	cmsEvents.setProperty("name", std::string("Events"));
 	int platform_id = thisPlatform.getId();

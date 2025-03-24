@@ -69,8 +69,8 @@ class ContentProperty {
 	double getDouble() const;
 
 	/// The Engine is supplied to look up named colors
-	ci::Color  getColor(ui::SpriteEngine&) const;
-	ci::ColorA getColorA(ui::SpriteEngine&) const;
+	ci::Color  getColor(const ui::SpriteEngine&) const;
+	ci::ColorA getColorA(const ui::SpriteEngine&) const;
 
 	const std::string& getString() const; // same as getValue(), but supplied here for convenience
 	std::wstring	   getWString() const;
@@ -80,10 +80,10 @@ class ContentProperty {
 	ci::Rectf getRect() const;
 
   protected:
-	std::string				  mName;
-	std::string				  mValue;
-	int						  mIntValue;
-	double					  mDoubleValue;
+	std::string               mName;
+	std::string               mValue;
+	int                       mIntValue{0};
+	double                    mDoubleValue{0};
 	std::shared_ptr<Resource> mResource;
 };
 
@@ -108,17 +108,25 @@ class ContentModelRef {
 	/// TODO: remove child
 
 	ContentModelRef() = default;
-	ContentModelRef(const std::string& name, int id = 0, const std::string& label = "");
+	[[deprecated("Use of this constructor is discouraged. Please explicitly specify an ID or UID.")]]
+	ContentModelRef(const std::string& name)
+	  : ContentModelRef(name, 0) {
+		
+	}
+	ContentModelRef(const std::string& name, int id, const std::string& label = "");
 	ContentModelRef(const std::string& name, const std::string& uid, const std::string& label = "");
 
 	/// Enables doing `if (mModel) ...` to check if model is valid
 	operator bool() const { return !empty(); }
 
 	/// Get the id for this item
-	int				   getId() const;
+	int getId() const;
+	/// Get the uid for this item, if provided when this item was constructed
 	const std::string& getUid() const;
-	void			   setId(int id);
-	void			   setUid(const std::string& uid);
+	/// Set the id for this item
+	void setId(int id);
+	/// Set the uid for this item.
+	void setUid(const std::string& uid);
 
 
 	/// Get the name of this item
@@ -169,18 +177,18 @@ class ContentModelRef {
 	float			getPropertyFloat(const std::string& propertyName) const;
 	double			getPropertyDouble(const std::string& propertyName) const;
 	/// The Engine is supplied to look up named colors
-	ci::Color	 getPropertyColor(ui::SpriteEngine&, const std::string& propertyName) const;
-	ci::ColorA	 getPropertyColorA(ui::SpriteEngine&, const std::string& propertyName) const;
-	std::string	 getPropertyString(const std::string& propertyName) const;
+	ci::Color    getPropertyColor(const ui::SpriteEngine&, const std::string& propertyName) const;
+	ci::ColorA   getPropertyColorA(const ui::SpriteEngine&, const std::string& propertyName) const;
+	std::string  getPropertyString(const std::string& propertyName) const;
 	std::wstring getPropertyWString(const std::string& propertyName) const;
-	ci::vec2	 getPropertyVec2(const std::string& propertyName) const;
-	ci::vec3	 getPropertyVec3(const std::string& propertyName) const;
-	ci::Rectf	 getPropertyRect(const std::string& propertyName) const;
-	Resource	 getPropertyResource(const std::string& propertyName) const;
+	ci::vec2     getPropertyVec2(const std::string& propertyName) const;
+	ci::vec3     getPropertyVec3(const std::string& propertyName) const;
+	ci::Rectf    getPropertyRect(const std::string& propertyName) const;
+	Resource     getPropertyResource(const std::string& propertyName) const;
 
 	/// Set the property with a given name
 	void setProperty(const std::string& propertyName, const ContentProperty& property);
-	void setProperty(const std::string& propertyName, char* value);
+	void setProperty(const std::string& propertyName, const char* value);
 	void setProperty(const std::string& propertyName, const std::string& propertyValue);
 	void setProperty(const std::string& propertyName, const std::wstring& value);
 	void setProperty(const std::string& propertyName, int value);
@@ -280,8 +288,8 @@ class ContentModelRef {
 	void clearChildren() const;
 
 	/// Adds a reference map with the corresponding string name
-	void setReferences(const std::string& referenceName, std::map<int, ContentModelRef>& reference);
-	void setKeyReferences(const std::string& referenceName, std::unordered_map<std::string, ContentModelRef>& reference);
+	void setReferences(const std::string& referenceName, const std::map<int, ContentModelRef>& reference);
+	void setKeyReferences(const std::string& referenceName, const std::unordered_map<std::string, ContentModelRef>& reference);
 
 	/// Gets a map of all the references for the given name. If you need to modify the map, make a copy and set it
 	/// again using setReference

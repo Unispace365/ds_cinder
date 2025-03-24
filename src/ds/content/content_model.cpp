@@ -35,9 +35,7 @@ namespace {
 } // namespace
 
 ContentProperty::ContentProperty()
-  : mIntValue(0)
-  , mDoubleValue(0)
-  , mResource(nullptr) {}
+  : mResource(nullptr) {}
 
 ContentProperty::ContentProperty(const std::string& name, const std::string& value) {
 	setValue(value);
@@ -161,11 +159,11 @@ double ContentProperty::getDouble() const {
 	return mDoubleValue;
 }
 
-ci::Color ContentProperty::getColor(ui::SpriteEngine& eng) const {
+ci::Color ContentProperty::getColor(const ui::SpriteEngine& eng) const {
 	return parseColor(mValue, eng);
 }
 
-ci::ColorA ContentProperty::getColorA(ui::SpriteEngine& eng) const {
+ci::ColorA ContentProperty::getColorA(const ui::SpriteEngine& eng) const {
 	return parseColor(mValue, eng);
 }
 
@@ -220,7 +218,7 @@ ContentModelRef::ContentModelRef(const std::string& name, const int id, const st
 
 ContentModelRef::ContentModelRef(const std::string& name, const std::string& uid, const std::string& label) {
 	setName(name);
-	setUid(uid);
+	setUid(uid); // TODO: note that the 'uid' is often also stored as a property. We may want to remove this duplication in the future.
 	setLabel(label);
 }
 
@@ -503,11 +501,11 @@ double ContentModelRef::getPropertyDouble(const std::string& propertyName) const
 	return getProperty(propertyName).getDouble();
 }
 
-ci::Color ContentModelRef::getPropertyColor(ui::SpriteEngine& eng, const std::string& propertyName) const {
+ci::Color ContentModelRef::getPropertyColor(const ui::SpriteEngine& eng, const std::string& propertyName) const {
 	return getProperty(propertyName).getColor(eng);
 }
 
-ci::ColorA ContentModelRef::getPropertyColorA(ui::SpriteEngine& eng, const std::string& propertyName) const {
+ci::ColorA ContentModelRef::getPropertyColorA(const ui::SpriteEngine& eng, const std::string& propertyName) const {
 	return getProperty(propertyName).getColorA(eng);
 }
 
@@ -604,7 +602,7 @@ void ContentModelRef::setProperty(const std::string& propertyName, const ci::Rec
 }
 
 
-void ContentModelRef::setProperty(const std::string& propertyName, char* value) {
+void ContentModelRef::setProperty(const std::string& propertyName, const char* value) {
 	setProperty(propertyName, std::string(value));
 }
 
@@ -924,7 +922,7 @@ ContentModelRef ContentModelRef::getDescendant(const std::string& childName, con
 
 std::vector<ContentModelRef> ContentModelRef::getChildrenWithLabel(const std::string& label) const {
 	std::vector<ContentModelRef> childrenWithLabel;
-	for (auto it : getChildren()) {
+	for (const auto& it : getChildren()) {
 		if (it.getLabel() == label) {
 			childrenWithLabel.push_back(it);
 		}
@@ -1012,19 +1010,19 @@ void ContentModelRef::clearChildren() const {
 }
 
 
-void ContentModelRef::setReferences(const std::string& referenceName, std::map<int, ContentModelRef>& reference) {
+void ContentModelRef::setReferences(const std::string& referenceName, const std::map<int, ContentModelRef>& reference) {
 	createData();
 	mData->mReferences[referenceName] = reference;
 }
 
-void ContentModelRef::setKeyReferences(const std::string& referenceName, std::unordered_map<std::string, ContentModelRef>& reference) {
+void ContentModelRef::setKeyReferences(const std::string& referenceName, const std::unordered_map<std::string, ContentModelRef>& reference) {
 	createData();
 	mData->mKeyReferences[referenceName] = reference;
 }
 
-const std::map<int, ContentModelRef>& ContentModelRef::getReferences(const std::string& name) const {
+const std::map<int, ContentModelRef>& ContentModelRef::getReferences(const std::string& referenceName) const {
 	if (!mData) return EMPTY_REFERENCE;
-	auto findy = mData->mReferences.find(name);
+	auto findy = mData->mReferences.find(referenceName);
 	if (findy != mData->mReferences.end()) {
 		return findy->second;
 	}
@@ -1032,9 +1030,9 @@ const std::map<int, ContentModelRef>& ContentModelRef::getReferences(const std::
 	return EMPTY_REFERENCE;
 }
 
-const std::unordered_map<std::string, ContentModelRef>& ContentModelRef::getKeyReferences(const std::string& name) const {
+const std::unordered_map<std::string, ContentModelRef>& ContentModelRef::getKeyReferences(const std::string& referenceName) const {
 	if (!mData) return EMPTY_KEY_REFERENCE;
-	auto findy = mData->mKeyReferences.find(name);
+	auto findy = mData->mKeyReferences.find(referenceName);
 	if (findy != mData->mKeyReferences.end()) {
 		return findy->second;
 	}
@@ -1108,8 +1106,8 @@ void ContentModelRef::printTree(const bool verbose, const std::string& indent) c
 				}
 			}
 
-			for (auto it : mData->mPropertyLists) {
-				for (auto pit : it.second) {
+			for (const auto& it : mData->mPropertyLists) {
+				for (const auto& pit : it.second) {
 					DS_LOG_INFO(indent << "          prop list:" << it.first << " value:" << pit.getValue());
 				}
 			}

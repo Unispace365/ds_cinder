@@ -18,6 +18,9 @@ class BaseContentHelper : public ContentHelper {
 	std::vector<ContentModelRef> getContentForPlatform() override;
 	std::vector<Resource>		 findMediaResources() override;
 	std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
+	std::vector<ContentModelRef> getRecordsOfType(const std::string& type) override;
+	std::vector<ContentModelRef> getRecordsOfType(const std::vector<ContentModelRef>& records,
+												  const std::string&				  type) override;
 
 	bool isValidFolder(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 	bool isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
