@@ -235,9 +235,14 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 }
 
 std::vector<ContentModelRef> BaseContentHelper::getRecordsOfType(const std::string& type) {
-	auto allValid  = mEngine.mContent.getChildByName(CONTENT).getChildren();
+	const auto allValid = mEngine.mContent.getChildByName(CONTENT).getChildren();
+	return getRecordsOfType(allValid, type);
+}
+
+std::vector<ContentModelRef> BaseContentHelper::getRecordsOfType(const std::vector<ContentModelRef>& records,
+																 const std::string&					 type) {
 	auto allOfType = std::vector<ContentModelRef>();
-	getRecordsByType(allValid, type, allOfType);
+	getRecordsByType(records, type, allOfType);
 	return allOfType;
 }
 
