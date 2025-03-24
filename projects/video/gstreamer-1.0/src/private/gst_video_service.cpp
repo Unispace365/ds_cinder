@@ -84,7 +84,7 @@ const std::string& GstVideoService::getErrorMessage() {
 
 void gstLogFunction(GstDebugCategory* category, GstDebugLevel level, const gchar* file, const gchar* function,
 					gint line, GObject* object, GstDebugMessage* message, gpointer user_data) {
-	DS_LOG_VERBOSE(3, "GST_DEBUG " << level << " " << file << " " << function << " " << gst_debug_message_get(message));
+	DS_LOG_VERBOSE(0, "GST_DEBUG " << level << " " << file << " " << function << " " << gst_debug_message_get(message));
 }
 
 void GstVideoService::start() {
