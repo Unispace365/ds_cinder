@@ -11,6 +11,7 @@
 #include <ds/query/query_client.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/util/float_util.h>
 #include <ds/util/string_util.h>
 
 namespace ds::content {
@@ -759,7 +760,12 @@ bool BridgeService::Loop::loadContent() {
 						record.setPropertyResource(preview_uid, res);
 					}
 				} else if (type == "NUMBER") {
-					record.setProperty(field_uid, it.getFloat(10));
+					const auto valueInt	  = it.getInt(10);
+					const auto valueFloat = it.getFloat(10);
+					if (ds::approxEqual(valueInt, valueFloat))
+						record.setProperty(field_uid, valueInt);
+					else
+						record.setProperty(field_uid, valueFloat);
 				} else if (type == "COMPOSITE_AREA") {
 					const auto& frameUid = it.getString(19);
 					record.setProperty(frameUid + "_x", it.getFloat(20));
