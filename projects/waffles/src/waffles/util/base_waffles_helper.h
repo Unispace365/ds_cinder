@@ -69,7 +69,7 @@ class BaseWafflesHelper : public WafflesHelper {
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> mMediaProps;
 
   protected:
-	virtual void loadIntegration();
+	void loadIntegration();
 
   private:
 	BaseContentHelper		 mBaseContentHelper;

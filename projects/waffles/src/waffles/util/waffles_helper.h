@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <ds/app/event_client.h>
-#include <ds/content/content_helper.h>
+#include <ds/content/base_content_helper.h>
 #include <ds/ui/media/media_interface.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/sprite/sprite.h>
@@ -19,10 +19,10 @@ class WafflesHelper;
 using WafflesHelperPtr = std::shared_ptr<WafflesHelper>;
 
 
-class WafflesHelper : public ds::model::ContentHelper {
+class WafflesHelper : public ds::model::BaseContentHelper {
   public:
 	WafflesHelper(ds::ui::SpriteEngine& eng)
-	  : ds::model::ContentHelper(eng) {}
+	  : ds::model::BaseContentHelper(eng) {}
 
 	using CustomFilters = std::unordered_map<std::string, std::function<bool(ds::model::ContentModelRef)>>;
 	using CustomContent = std::unordered_map<std::string, std::function<void(ds::model::ContentModelRef, ci::vec3)>>;
