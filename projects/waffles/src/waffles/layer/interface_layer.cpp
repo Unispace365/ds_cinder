@@ -109,7 +109,8 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver, std::
 					auto allFakes = mEngine.mContent.getChildByName("fake_codice");
 					allFakes.setName("fake_codice");
 					allFakes.setProperty("record_name", std::string("Fake Codice Codes"));
-					auto fakeCode = ds::model::ContentModelRef(ds::value_to_string(mNextFakeCode));
+					auto fakeCode = ds::model::ContentModelRef();
+					fakeCode.setName(ds::value_to_string(mNextFakeCode));
 					fakeCode.setProperty("record_name", ds::value_to_string(mNextFakeCode));
 					fakeCode.setProperty("type_key", std::string("codice_object"));
 					fakeCode.setProperty("codice_code", mNextFakeCode);
@@ -133,7 +134,8 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver, std::
 
 					mLiveObjects.push_back(obj.getObjectId());
 
-					auto model = ds::model::ContentModelRef("dial");
+					auto model = ds::model::ContentModelRef();
+					model.setName("dial");
 					model.setProperty("id", obj.getObjectId());
 					model.setProperty("pos", finalPos);
 					mEventClient.notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
@@ -195,7 +197,8 @@ InterfaceLayer::InterfaceLayer(ds::ui::SpriteEngine& eng, bool isReceiver, std::
 
 				auto pos = globalToLocal(ci::vec3(ev.mObj.getPosition(), 0.f));
 
-				auto model = ds::model::ContentModelRef("dial");
+				auto model = ds::model::ContentModelRef();
+				model.setName("dial");
 				model.setProperty("id", ev.mObj.getObjectId());
 				model.setProperty("pos", pos);
 				mEventClient.notify(waffles::RequestViewerLaunchEvent(waffles::ViewerCreationArgs(
