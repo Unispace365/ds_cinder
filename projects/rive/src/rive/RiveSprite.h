@@ -27,6 +27,8 @@ namespace ds { namespace ui {
 		std::unique_ptr<rive::Renderer>				   mRenderer;
 		std::unique_ptr<rive::File>					   mFile;
 		std::unique_ptr<rive::ArtboardInstance>		   mArtBoard;
+		std::unique_ptr<rive::Scene>				   mScene;
+		std::unique_ptr<rive::StateMachineInstance>	   mStateMachine;
 		std::unique_ptr<rive::LinearAnimationInstance> mAnimation;
 
 		ci::vec2 mMousePointer{};
