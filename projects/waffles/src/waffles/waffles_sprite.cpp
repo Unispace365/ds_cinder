@@ -193,7 +193,8 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 	mTimedCallback = mEngine.timedCallback(
 		[this]() {
 			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-			auto model = ds::model::ContentModelRef("Empty");
+			auto model = ds::model::ContentModelRef();
+			model.setName("Empty");
 			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 			ds::Resource r = helper->getBackgroundForPlatform();
 			if (helper->getApplyParticles()) {
@@ -271,10 +272,12 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 		if (mPlaylist.getPropertyString("type_key") != "pinboard_event") {
 
 			cancelDelayedCall();
-			auto playlist = ds::model::ContentModelRef("Pinboard");
+			auto playlist = ds::model::ContentModelRef();
+			playlist.setName("Pinboard");
 			playlist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("pinboard_event").name);
 			playlist.setProperty("record_name", content.getPropertyString("record_name"));
-			auto model = ds::model::ContentModelRef("Pinboard");
+			auto model = ds::model::ContentModelRef();
+			model.setName("Pinboard");
 			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("pinboard_event").id);
 			model.setProperty("record_name", content.getPropertyString("record_name"));
 			playlist.addChild(model);
@@ -286,10 +289,12 @@ void WafflesSprite::onPresentationStartRequest(const waffles::RequestEngagePrese
 	} else if (content.getName() == "assets") {
 		if (mPlaylist.getPropertyString("type_key") != "assets_mode") {
 			cancelDelayedCall();
-			auto playlist = ds::model::ContentModelRef("Assets");
+			auto playlist = ds::model::ContentModelRef();
+			playlist.setName("Assets");
 			playlist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("assets_mode").name);
 			playlist.setProperty("record_name", std::string("Asset Mode"));
-			auto model = ds::model::ContentModelRef("Assets");
+			auto model = ds::model::ContentModelRef();
+			model.setName("Assets");
 			model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("assets_mode").id);
 			playlist.addChild(model);
 			setPresentation(playlist);
@@ -752,9 +757,11 @@ void WafflesSprite::setData() {
 	if (!mPlaylistUid.empty()) {
 		thePlaylist = helper->getRecordByUid(mPlaylistUid);
 	} else {
-		thePlaylist = ds::model::ContentModelRef("Empty Playlist");
+		thePlaylist = ds::model::ContentModelRef();
+		thePlaylist.setName("Empty Playlist");
 		thePlaylist.setProperty("type_key", mTemplateConfig->getTemplateDefFromName("empty").name);
-		auto model = ds::model::ContentModelRef("Empty");
+		auto model = ds::model::ContentModelRef();
+		model.setName("Empty");
 		model.setProperty("type_uid", mTemplateConfig->getTemplateDefFromName("empty").id);
 		thePlaylist.addChild(model);
 		mPlaylistUid.clear();

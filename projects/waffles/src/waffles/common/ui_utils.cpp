@@ -299,7 +299,9 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 		notifier.notify(
 			RequestViewerLaunchEvent(ViewerCreationArgs::detached(browserModel, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
 	} else if (type == "asset_mode") {
-		notifier.notify(RequestEngagePresentation(ds::model::ContentModelRef("assets")));
+		auto model = ds::model::ContentModelRef();
+		model.setName("assets");
+		notifier.notify(RequestEngagePresentation(model));
 		notifier.notify(ChangeTemplateRequest());
 	} else if (type == "search") {
 		notifier.notify(RequestViewerLaunchEvent(

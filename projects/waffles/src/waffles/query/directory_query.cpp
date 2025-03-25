@@ -23,7 +23,8 @@ DirectoryQuery::DirectoryQuery() {
 void DirectoryQuery::run() {
 	try {
 		mOutput = ds::model::ContentModelRef();
-		mDrives = ds::model::ContentModelRef("physical_drives");
+		mDrives = ds::model::ContentModelRef();
+		mDrives.setName("physical_drives");
 		query();
 	} catch (std::exception const& e) {
 		DS_LOG_WARNING("DirectoryQuery exception: " << e.what());

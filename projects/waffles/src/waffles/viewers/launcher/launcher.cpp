@@ -145,7 +145,8 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 			allContent = recurseContent(allContent);
 		}
 
-		auto panel_content = ds::model::ContentModelRef(mFilterSelected);
+		auto panel_content = ds::model::ContentModelRef();
+		panel_content.setName(mFilterSelected);
 		for (const auto& content : allContent) {
 			if (ds::model::ContentHelperFactory::getDefault<WafflesHelper>()->isValidForFilter(mFilterSelected,
 																							   content) &&
@@ -393,7 +394,8 @@ ds::model::ContentModelRef Launcher::buttonCfgFromString(const std::string& str)
 	}
 	auto type = std::string(parts[1]);
 	auto name = std::string(parts[0]);
-	auto mode = ds::model::ContentModelRef(name);
+	auto mode = ds::model::ContentModelRef();
+	mode.setName(name);
 	mode.setProperty("type_key", std::string(type));
 	mode.setProperty("record_name", std::string(name));
 	mode.setProperty("has_icon", false);
@@ -655,7 +657,8 @@ void Launcher::updatePanelContent(const ds::model::ContentModelRef& model) {
 	mPrimaryLayout->setSpriteText("side_panel_title", model.getPropertyString("record_name"));
 
 	bool restrictive   = mEngine.getWafflesSettings().getBool("launcher:restrictive:enabled", 0, true);
-	auto filteredModel = ds::model::ContentModelRef(model.getName());
+	auto filteredModel = ds::model::ContentModelRef();
+	filteredModel.setName(model.getName());
 	filteredModel.setProperties(model.getProperties());
 	for (const auto& child : model.getChildren()) {
 		if (restrictive && !restrictiveType(child)) continue;

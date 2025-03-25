@@ -66,7 +66,8 @@ RecentFilesService::RecentFilesService(ds::ui::SpriteEngine& eng)
 
 void RecentFilesService::initialize() {
 
-	auto recentFiles = ds::model::ContentModelRef("recent_files");
+	auto recentFiles = ds::model::ContentModelRef();
+	recentFiles.setName("recent_files");
 
 	std::string fileName = ds::Environment::expand("%LOCAL%/waffles-neu/recent_files.xml");
 	if (!ds::safeFileExistsCheck(fileName)) return;
