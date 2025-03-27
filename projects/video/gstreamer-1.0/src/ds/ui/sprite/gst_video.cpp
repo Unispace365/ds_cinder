@@ -807,24 +807,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
-	std::string	deviceName = mEngine.getAppSettings().getString("stream:audio_device:name", 0, "");
-	int			sampleRate		= mEngine.getAppSettings().getInt("stream:audio:sample_rate", 0, 44100);
-	std::string rtspAudioFormat = mEngine.getAppSettings().getString("stream:audio:format", 0, "");
-	GStreamerWrapper::RtspAudioFormat audioFormat	  = GStreamerWrapper::RtspAudioFormat::AUTO;
-	// Set the audio format for AAC, OPUS
-	if (rtspAudioFormat == "AAC") {
-		audioFormat = GStreamerWrapper::RtspAudioFormat::AAC;
-	} else if (rtspAudioFormat == "OPUS") {
-		audioFormat = GStreamerWrapper::RtspAudioFormat::OPUS;
-	}
-
-
-	std::vector<ds::GstAudioDevice> devices;
-	if (!deviceName.empty()) {
-		devices.push_back(ds::GstAudioDevice(deviceName));
-		setAudioDevices(devices);
-	}
-
 	//check if we already have a stream for this pipeline.
 	auto primaryStreamItr = mPrimaryStreams.find(streamingPipeline);
 	if (usePrimary && primaryStreamItr != mPrimaryStreams.end()) {
@@ -913,7 +895,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
 	if (!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight),
-									   mStreamingLatency,audioFormat,sampleRate)) {
+									   mStreamingLatency)) {
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
 		return;
 	}
