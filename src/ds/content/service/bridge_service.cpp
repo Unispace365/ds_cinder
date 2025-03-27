@@ -12,6 +12,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/file_meta_data.h>
 #include <ds/util/float_util.h>
+#include <ds/util/markdown_to_pango.h>
 #include <ds/util/string_util.h>
 
 namespace ds::content {
@@ -589,7 +590,7 @@ bool BridgeService::Loop::loadContent() {
 				if (type == "TEXT") {
 					record.setProperty(field_uid, it.getString(6));
 				} else if (type == "RICH_TEXT") {
-					record.setProperty(field_uid, it.getString(7));
+					record.setProperty(field_uid, ui::markdown_to_pango(it.getString(7)));
 				} else if (type == "NUMBER") {
 					record.setProperty(field_uid, it.getFloat(8));
 				} else if (type == "OPTIONS") {
@@ -694,7 +695,7 @@ bool BridgeService::Loop::loadContent() {
 				if (type == "TEXT") {
 					record.setProperty(field_uid, it.getString(8));
 				} else if (type == "RICH_TEXT") {
-					record.setProperty(field_uid, it.getString(9));
+					record.setProperty(field_uid, ui::markdown_to_pango(it.getString(9)));
 				} else if (type == "FILE_IMAGE" || type == "FILE_VIDEO" || type == "FILE_PDF") {
 					if (!it.getString(28).empty()) {
 						auto res = ds::Resource(mResourceId, ds::Resource::Id::CMS_TYPE, double(it.getFloat(33)),
