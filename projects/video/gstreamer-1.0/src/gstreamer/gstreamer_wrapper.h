@@ -101,21 +101,12 @@ class GStreamerWrapper {
 			  const double secondsDuration = -1);
 
 
-	enum class RtspAudioFormat {
-		NONE,
-		AAC,
-		OPUS,
-		AUTO
-	};
 	/** you have to supply your own pipeline for streaming.
-	    unless its an RTSP stream.
 		Streaming is also assumed to be YUV / I420 color space.
 		You must also have an appsink element named appsink0 for video output to work.
 		If you want to control volume, include a volume element named volume0 */
-	bool openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight
-		, const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */
-		, const RtspAudioFormat audioFormat=RtspAudioFormat::AUTO  
-		, const int sampleRateHz=44100);
+	bool openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight,
+					const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
 
 
 	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer

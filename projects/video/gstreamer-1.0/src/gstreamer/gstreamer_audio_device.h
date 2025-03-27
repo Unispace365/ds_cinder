@@ -16,9 +16,6 @@ struct GstAudioDevice {
 	/// be found
 	std::string mDeviceGuid;
 
-	///the windows 10/11 id from the winrt api
-	std::string mDeviceId;
-
 	/// Internally-used name of the panorama and volume elements. Clients don't need to set these
 	std::string mPanoramaName;
 	std::string mVolumeName;
@@ -40,7 +37,6 @@ struct GstAudioDevice {
 				   const float thePan = 0.0f);
 
 	void initialize();
-
 };
 
 } // namespace ds

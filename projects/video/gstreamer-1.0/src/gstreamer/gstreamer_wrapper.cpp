@@ -409,7 +409,6 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// AUDIO SINK
 	// Extract and config Audio Sink
 #ifdef _WIN32
-	
 	if (!mAudioDevices.empty()) {
 		GstElement* bin			 = gst_bin_new("converter_sink_bin");
 		GstElement* mainConvert	 = gst_element_factory_make("audioconvert", NULL);
@@ -594,7 +593,7 @@ static void sourceSetupHandler(void* playbin, GstElement* source, gpointer user_
 }
 
 bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight,
-								  const uint64_t latencyInNs,const RtspAudioFormat audioFormat,const int samplerateHz) {
+								  const uint64_t latencyInNs) {
 	if (!mValidInstall) {
 		return false;
 	}
@@ -658,112 +657,55 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 // AUDIO SINK
 // Extract and config Audio Sink
 #ifdef _WIN32
-		if (!mAudioDevices.empty() ||  audioFormat == RtspAudioFormat::AAC || audioFormat == RtspAudioFormat::OPUS) {
+		if (!mAudioDevices.empty()) {
 			GstElement* bin			 = gst_bin_new("converter_sink_bin");
-			GstElement* mainAacDepay = gst_element_factory_make("rtpmp4depay", NULL);
-			GstElement* mainAacParse = gst_element_factory_make("aacparse", NULL);
-			GstElement* mainAacDec	 = gst_element_factory_make("avdec_aac", NULL);
 			GstElement* mainConvert	 = gst_element_factory_make("audioconvert", NULL);
-			GstElement* mainQueue	 = gst_element_factory_make("queue", NULL);
-			GstElement* mainParse	 = gst_element_factory_make("rawaudioparse", NULL);
-			GstElement* mainOpus	 = gst_element_factory_make("opusdec", NULL);
 			GstElement* mainResample = gst_element_factory_make("audioresample", NULL);
 			GstElement* mainVolume	 = gst_element_factory_make("volume", "mainvolume");
 			GstElement* mainTee		 = gst_element_factory_make("tee", NULL);
 
-			g_object_set(mainQueue, "leaky", 2, "max-size-buffers", 0, NULL);
-			g_object_set(mainResample, "quality", 10, NULL);
-			g_object_set(mainParse, "sample-rate", samplerateHz, NULL);
-			g_object_set(mainParse, "use-sink-caps", true, NULL);
-
-
-			if (audioFormat == RtspAudioFormat::OPUS) {
-				g_object_set(mainOpus, "apply-gain", false, "phase-inversion", true, "use-inbabd-fec", true, NULL);
-				gst_bin_add_many(GST_BIN(bin), mainQueue, mainOpus, mainParse, mainConvert, mainResample, mainVolume,
-								 mainTee, NULL);
-				gst_element_link_many(mainQueue, mainOpus, mainParse, mainConvert, mainResample, mainVolume, mainTee,
-									  NULL);
-			}
-
-			if (audioFormat == RtspAudioFormat::AAC) {
-				gst_bin_add_many(GST_BIN(bin), mainQueue, mainAacParse, mainAacDec, mainConvert, mainResample, mainVolume,
-							 mainTee, NULL);
-				gst_element_link_many(mainQueue, mainAacParse, mainAacDec, mainConvert, mainResample, mainVolume, mainTee,
-								  NULL);
-			}
-			if (audioFormat == RtspAudioFormat::AUTO ) {
-				gst_bin_add_many(GST_BIN(bin), mainQueue, mainConvert, mainResample, mainVolume, mainTee, NULL);
-				gst_element_link_many(mainQueue, mainConvert, mainResample, mainVolume, mainTee, NULL);
-			}
+			gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainVolume, mainTee, NULL);
+			gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
 			//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
 
+			for (int i = 0; i < mAudioDevices.size(); i++) {
 
-			if (mAudioDevices.size() == 0) {
+				// auto-detects guid's based on output name
+				mAudioDevices[i].initialize();
+
+				if (mAudioDevices[i].mDeviceGuid.empty()) continue;
+
+				mAudioDevices[i].mVolumeName   = "volume" + std::to_string(i);
+				mAudioDevices[i].mPanoramaName = "panorama" + std::to_string(i);
+
 				GstElement* thisQueue	= gst_element_factory_make("queue", NULL);
 				GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
-				GstElement* thisPanorama = gst_element_factory_make("audiopanorama", "panorama0");
-				GstElement* thisVolume =
-					gst_element_factory_make("volume", "volume0");
-				GstElement* thisSink   = gst_element_factory_make("wasapi2sink", NULL);
-				g_object_set(thisQueue, "leaky", 2, "max-size-buffers", 0, NULL);
-				g_object_set(thisVolume, "volume", mVolume, NULL);
+				GstElement* thisPanorama =
+					gst_element_factory_make("audiopanorama", mAudioDevices[i].mPanoramaName.c_str());
+				GstElement* thisVolume = gst_element_factory_make("volume", mAudioDevices[i].mVolumeName.c_str());
+				GstElement* thisSink   = gst_element_factory_make("directsoundsink", NULL);
+				g_object_set(thisVolume, "volume", mAudioDevices[i].mVolume, NULL);
+				g_object_set(thisSink, "device", mAudioDevices[i].mDeviceGuid.c_str(),
+							 NULL); // , "volume", mAudioDevices[i].mVolume, NULL);
+				gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 
-				gst_bin_add_many(GST_BIN(bin), thisQueue, thisVolume, thisSink, NULL);
 
-				gst_element_link_many(thisQueue, thisVolume, thisSink, NULL);
+				gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 				GstPadTemplate* tee_src_pad_template =
 					gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
 				GstPad* teePad			 = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
 				GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
 				gst_pad_link(teePad, queue_audio_pad1);
-			} else {
-
-				for (int i = 0; i < mAudioDevices.size(); i++) {
-
-					auto& audioDevice = mAudioDevices[i];
-					// auto-detects guid's based on output name
-					mAudioDevices[i].initialize();
-
-					if (mAudioDevices[i].mDeviceGuid.empty()) continue;
-
-					mAudioDevices[i].mVolumeName   = "volume" + std::to_string(i);
-					mAudioDevices[i].mPanoramaName = "panorama" + std::to_string(i);
-
-					GstElement* thisQueue	= gst_element_factory_make("queue", NULL);
-					GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
-					GstElement* thisPanorama =
-						gst_element_factory_make("audiopanorama", mAudioDevices[i].mPanoramaName.c_str());
-					GstElement* thisVolume = gst_element_factory_make("volume", mAudioDevices[i].mVolumeName.c_str());
-					GstElement* thisSink   = gst_element_factory_make("wasapi2sink", NULL);
-					g_object_set(thisQueue, "leaky", 2, "max-size-buffers", 0, NULL);
-					g_object_set(thisVolume, "volume", mAudioDevices[i].mVolume, NULL);
-
-					g_object_set(thisSink, "device", mAudioDevices[i].mDeviceId.c_str(),NULL); // , "volume",
-					// mAudioDevices[i].mVolume, NULL); g_object_set(thisSink, "low-latency", 1, "role", 1,
-					// "use-audioclient3", true, "exclusive", true, NULL);
-
-					gst_bin_add_many(GST_BIN(bin), thisQueue, thisVolume, thisSink, NULL);
-
-
-					gst_element_link_many(thisQueue, thisVolume, thisSink, NULL);
-					GstPadTemplate* tee_src_pad_template =
-						gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
-					GstPad* teePad			 = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
-					GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
-					gst_pad_link(teePad, queue_audio_pad1);
-				}
 			}
 
-			GstPad*	 pad	   = gst_element_get_static_pad(mainQueue, "sink");
+			GstPad*	 pad	   = gst_element_get_static_pad(mainConvert, "sink");
 			GstPad*	 ghost_pad = gst_ghost_pad_new("sink", pad);
 			GstCaps* caps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, (int)mAudioDevices.size() * 2,
-												"format", G_TYPE_STRING, "U16LE", "rate", G_TYPE_INT, samplerateHz, NULL);
+												"format", G_TYPE_STRING, "S16LE");
 			gst_pad_set_caps(pad, caps);
 			gst_caps_unref(caps);
 			gst_pad_set_active(ghost_pad, TRUE);
 			gst_element_add_pad(bin, ghost_pad);
-
-			//GstElement* thisSink = gst_element_factory_make("wasapi2sink", NULL);
 
 			g_object_set(mGstPipeline, "audio-sink", bin, NULL);
 			gst_object_unref(pad);

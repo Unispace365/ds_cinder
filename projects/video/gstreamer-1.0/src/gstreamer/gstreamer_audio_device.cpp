@@ -11,9 +11,6 @@
 
 #include <dsound.h>
 
-#include <winrt/windows.foundation.collections.h>
-#include <winrt/windows.devices.enumeration.h>
-#include <winrt/windows.media.devices.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
@@ -117,19 +114,6 @@ void GstAudioDevice::initialize() {
 		}
 	}
 
-	winrt::init_apartment();
-	winrt::Windows::Devices::Enumeration::DeviceInformationCollection devices =
-		winrt::Windows::Devices::Enumeration::DeviceInformation::FindAllAsync(
-			winrt::Windows::Devices::Enumeration::DeviceClass::AudioRender)
-			.get();
-	for (auto device : devices) {
-		std::wstring name = device.Name().c_str();
-		std::wstring id	  = device.Id().c_str();
-		if (ds::utf8_from_wstr(name) == mDeviceName) {
-			mDeviceId = ds::utf8_from_wstr(id);
-		}
-		//DS_LOG_INFO("Device name: " << ds::utf8_from_wstr(name) << " id: " << ds::utf8_from_wstr(id));
-	}
 #endif // _WIN32
 }
 
