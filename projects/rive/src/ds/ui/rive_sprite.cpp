@@ -8,16 +8,16 @@
 #include <rive/animation/state_machine_listener.hpp>
 #include <rive/scene.hpp>
 
-#include "rive/rive_factory_nvpath.h"
-#include "rive/rive_renderer_nvpath.h"
-#include "rive/rive_sprite.h"
+#include "ds/rive/nvpath/rive_factory_nvpath.h"
+#include "ds/rive/nvpath/rive_renderer_nvpath.h"
+#include "ds/ui/rive_sprite.h"
 
 namespace ds { namespace ui {
 
 	RiveSprite::RiveSprite(SpriteEngine& engine, const char* filePath)
 	  : Sprite(engine) {
-		mFactory  = std::make_unique<ds::ui::RiveFactoryNvPath>();
-		mRenderer = std::make_unique<ds::ui::RiveRendererNvPath>();
+		mFactory  = std::make_unique<ds::RiveFactoryNvPath>();
+		mRenderer = std::make_unique<ds::RiveRendererNvPath>();
 
 		const auto path	 = ds::Environment::expand(filePath);
 		const auto bytes = readFile(path);

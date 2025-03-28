@@ -2,23 +2,47 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\stdafx.cpp" />
-    <ClCompile Include="src\rive\rive_sprite.cpp">
-      <Filter>ds\ui</Filter>
-    </ClCompile>
     <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\rive\rive_renderer_nvpath.cpp">
+    <ClCompile Include="src\ds\ui\rive_sprite.cpp">
       <Filter>ds\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\rive\nvpath\rive_factory_nvpath.cpp">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\rive\nvpath\rive_gradient_nvpath.cpp">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\rive\nvpath\rive_paint_nvpath.cpp">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\rive\nvpath\rive_path_nvpath.cpp">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\rive\nvpath\rive_renderer_nvpath.cpp">
+      <Filter>ds\rive\nvpath</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\rive\rive_sprite.h">
+    <ClInclude Include="src\ds\ui\rive_sprite.h">
       <Filter>ds\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\rive\rive_renderer_nvpath.h">
-      <Filter>ds\ui</Filter>
+    <ClInclude Include="src\ds\rive\nvpath\rive_renderer_nvpath.h">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\rive\nvpath\rive_factory_nvpath.h">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\rive\nvpath\rive_gradient_nvpath.h">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\rive\nvpath\rive_paint_nvpath.h">
+      <Filter>ds\rive\nvpath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\rive\nvpath\rive_path_nvpath.h">
+      <Filter>ds\rive\nvpath</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +57,12 @@
     </Filter>
     <Filter Include="src\utils">
       <UniqueIdentifier>{dd60ee35-bd9a-4280-96c0-2545f57a219e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds\rive">
+      <UniqueIdentifier>{5d5d65ab-850a-45c2-9163-0c9ac77f8ef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds\rive\nvpath">
+      <UniqueIdentifier>{cca2110d-88b4-4a78-8c9d-8780de69cc5a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
