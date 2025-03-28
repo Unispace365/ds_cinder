@@ -2,10 +2,13 @@
 
 #include <fstream>
 
+#include <nvpath/nv_path.h>
+
 #include <rive/animation/state_machine_instance.hpp>
 #include <rive/animation/state_machine_listener.hpp>
 #include <rive/scene.hpp>
 
+#include "rive/rive_factory_nvpath.h"
 #include "rive/rive_renderer_nvpath.h"
 #include "rive/rive_sprite.h"
 
