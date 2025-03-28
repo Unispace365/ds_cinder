@@ -24,6 +24,18 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 namespace nvpath {
 
+// Forward declarations.
+class Cache;
+class Canvas;
+class Paints;
+class Path;
+class PathHelper;
+class Shader;
+
+using CanvasRef = std::shared_ptr<Canvas>;
+using PathRef	= std::shared_ptr<Path>;
+using ShaderRef = std::shared_ptr<Shader>;
+
 //! Returns whether NV Path Rendering is available on this system.
 bool hasNvPathRendering();
 
@@ -32,16 +44,18 @@ void reportNoNvPathRendering();
 //! Returns whether pre-multiplied alpha is currently enabled.
 bool isPreMultiplied();
 
-// Forward declarations.
-class Cache;
-class Canvas;
-class Path;
-class PathHelper;
-class Shader;
+//! Returns a thread-local instance of the Paints cache. Using lazy initialization to avoid a rare crash in Debug mode.
+Paints& sPaints();
 
-using CanvasRef = std::shared_ptr<Canvas>;
-using PathRef	= std::shared_ptr<Path>;
-using ShaderRef = std::shared_ptr<Shader>;
+//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
+std::vector<Path>& sClipPaths();
+
+//! Applies the \a mask as a clip mask, causing subsequent rendering to be clipped to the path. We allow a maximum of 5
+//! nested clip paths.
+void pushClipPath(const Path& mask, GLuint stencilMask = 0xFF, bool showMask = false);
+
+//! Removes the last clip path from the stack. See also: pushClipPath() and ScopedClipPath.
+void popClipPath();
 
 //!
 enum class CapsStyle {
@@ -87,53 +101,25 @@ inline glm::mat3x2 toMat3x2(const glm::mat3x3& m) {
 inline glm::mat3x2 toMat3x2(const glm::mat4x4& m) {
 	return glm::mat3x2{m[0][0], m[0][1], m[1][0], m[1][1], m[3][0], m[3][1]};
 }
-
-class ScopedColorMask {
-  public:
-	ScopedColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) {
-		glGetBooleanv(GL_COLOR_WRITEMASK, mMask);
-		glColorMask(red, green, blue, alpha);
-	}
-	~ScopedColorMask() { glColorMask(mMask[0], mMask[1], mMask[2], mMask[3]); }
-
-	ScopedColorMask(const ScopedColorMask&)			   = delete;
-	ScopedColorMask(ScopedColorMask&&)				   = delete;
-	ScopedColorMask& operator=(const ScopedColorMask&) = delete;
-	ScopedColorMask& operator=(ScopedColorMask&&)	   = delete;
-
-  private:
-	GLboolean mMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-};
-
-class ScopedStencilMask {
-  public:
-	ScopedStencilMask(GLuint mask) {
-		glGetIntegerv(GL_STENCIL_WRITEMASK, &mFrontMask);
-		glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, &mBackMask);
-		glStencilMask(mask);
-	}
-	ScopedStencilMask(GLuint front, GLuint back) {
-		glGetIntegerv(GL_STENCIL_WRITEMASK, &mFrontMask);
-		glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, &mBackMask);
-		glStencilMaskSeparate(GL_FRONT, front);
-		glStencilMaskSeparate(GL_BACK, back);
-	}
-	~ScopedStencilMask() {
-		glStencilMaskSeparate(GL_FRONT, mFrontMask);
-		glStencilMaskSeparate(GL_BACK, mBackMask);
-	}
-
-	ScopedStencilMask(const ScopedStencilMask&)			   = delete;
-	ScopedStencilMask(ScopedStencilMask&&)				   = delete;
-	ScopedStencilMask& operator=(const ScopedStencilMask&) = delete;
-	ScopedStencilMask& operator=(ScopedStencilMask&&)	   = delete;
-
-  private:
-	GLint mFrontMask = 0xFF;
-	GLint mBackMask	 = 0xFF;
-};
+//! Converts an affine 3x2 matrix to a 3x3 matrix.
+inline glm::mat3x3 toMat3x3(const glm::mat3x2& m) {
+	return {m[0][0], m[0][1], 0, m[1][0], m[1][1], 0, m[2][0], m[2][1], 1};
+}
+//! Converts an affine 4x4 matrix to a 3x3 matrix. Z-components are ignored.
+inline glm::mat3x3 toMat3x3(const glm::mat4x4& m) {
+	return {m[0][0], m[0][1], m[0][3], m[1][0], m[1][1], m[1][3], m[3][0], m[3][1], m[3][3]};
+}
+//! Converts an affine 3x2 matrix to a 4x4 matrix.
+inline glm::mat4x4 toMat4x4(const glm::mat3x2& m) {
+	return {m[0][0], m[0][1], 0, 0, m[1][0], m[1][1], 0, 0, 0, 0, 1, 0, m[2][0], m[2][1], 0, 1};
+}
+//! Converts an affine 3x3 matrix to a 4x4 matrix.
+inline glm::mat4x4 toMat4x4(const glm::mat3x3& m) {
+	return {m[0][0], m[0][1], 0, m[0][2], m[1][0], m[1][1], 0, m[1][2], 0, 0, 1, 0, m[2][0], m[2][1], 0, m[2][2]};
+}
 
 //! Shader for solid colors or gradients to be applied to paths.
+//! Requires OpenGL v4.1 or GL_ARB_separate_shader_objects.
 class Shader {
   public:
 	enum class Type { SOLID_COLOR, LINEAR_GRADIENT, RADIAL_GRADIENT, CONICAL_GRADIENT, IMAGE, UNDEFINED };
@@ -649,11 +635,6 @@ class Path {
 	void fillInstanced(const std::vector<GLuint>& paths, const std::vector<glm::mat4x3>& transforms,
 					   const ci::ColorA& color, bool clearStencil = true) const;
 
-	//!
-	static void pushClipPath(const Path& mask, bool showMask = false);
-	//!
-	static void popClipPath();
-
 	//! Adds the \a other path to our path and returns the result as a new path.
 	[[nodiscard]] Path operator+(const Path& other) const;
 	//! Subtracts the \a other path from our path, creating a hole and returns the result as a new path.
@@ -756,13 +737,14 @@ class Path {
 	ci::Shape2d toShape2d() const;
 
   protected:
+	friend class ScopedClipping;
+
 	//! Returns the number of coordinates (floats) for the specified command.
 	static GLint getCoordCount(GLubyte command);
 	//! Returns the offset of the end coordinate (float) for the specified command.
 	static GLint getCoordOffset(GLubyte command);
 
 	static GLubyte toPathCommand(ci::Path2d::SegmentType type);
-	static Paints& getPaints();
 
 	static void optimizeImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
 	static void reverseImpl(std::vector<GLubyte>& commands, std::vector<GLfloat>& coords);
@@ -771,11 +753,6 @@ class Path {
 	static std::vector<GLuint>& sPaths() {
 		thread_local static std::vector<GLuint> paths;
 		return paths;
-	}
-	//! Keeps track of the clip path stack. Using lazy initialization to avoid a rare crash in Debug mode.
-	static std::vector<GLuint>& sClipPaths() {
-		thread_local static std::vector<GLuint> clipPaths;
-		return clipPaths;
 	}
 
 	GLuint mPathId{0};
@@ -965,17 +942,44 @@ class ScopedPathRendering {
 	ScopedPathRendering& operator=(ScopedPathRendering&&)	   = delete;
 };
 
+//! Helper for enabling a clip path.
 class ScopedClipPath {
   public:
-	ScopedClipPath(const Path& mask, bool showMask = false) { Path::pushClipPath(mask, showMask); }
-	~ScopedClipPath() { Path::popClipPath(); }
+	ScopedClipPath(const Path& mask, GLuint stencilMask = 0xFF, bool showMask = false);
+
+	ScopedClipPath(const std::initializer_list<Path>& masks, GLuint stencilMask = 0xFF, bool showMask = false);
+
+	~ScopedClipPath();
 
 	ScopedClipPath(const ScopedClipPath&)			 = delete;
 	ScopedClipPath(ScopedClipPath&&)				 = delete;
 	ScopedClipPath& operator=(const ScopedClipPath&) = delete;
 	ScopedClipPath& operator=(ScopedClipPath&&)		 = delete;
+
+  private:
+	size_t mPathCount;
 };
 
+//! Helper for setting up the stencil buffer for path rendering, taking clipping into account.
+class ScopedStencilState {
+	ci::gl::Context* mCtx = nullptr;
+	GLuint			 mBitMask;
+
+  public:
+	ScopedStencilState(bool isPathRendering = true, bool invertMask = false)
+	  : ScopedStencilState(sClipPaths().size(), isPathRendering, invertMask) {}
+	ScopedStencilState(size_t clipCount, bool isPathRendering = true, bool invertMask = false);
+	~ScopedStencilState();
+
+	ScopedStencilState(const ScopedStencilState&)			 = delete;
+	ScopedStencilState(ScopedStencilState&&)				 = delete;
+	ScopedStencilState& operator=(const ScopedStencilState&) = delete;
+	ScopedStencilState& operator=(ScopedStencilState&&)		 = delete;
+
+	GLuint getBitMask() const { return mBitMask; }
+};
+
+//! Helper for setting up the stencil buffer for covering stenciled content.
 class ScopedCover {
 	ci::gl::Context* mCtx = nullptr;
 
@@ -992,7 +996,7 @@ class ScopedCover {
 inline Path circle(float x, float y, float r) {
 	std::stringstream ss;
 
-	ss << 'M' << x + r << ',' << y;
+	ss << 'M' << +(x + r) << ',' << y;
 	ss << 'a' << r << ',' << r << ',' << 0 << ',' << false << ',' << true << ',' << -(r + r) << ',' << 0;
 	ss << 'a' << r << ',' << r << ',' << 0 << ',' << false << ',' << true << ',' << +(r + r) << ',' << 0;
 	ss << 'Z';
@@ -1003,7 +1007,7 @@ inline Path circle(float x, float y, float r) {
 inline Path ellipse(float x, float y, float rx, float ry) {
 	std::stringstream ss;
 
-	ss << 'M' << x + rx << ',' << y;
+	ss << 'M' << +(x + rx) << ',' << y;
 	ss << 'a' << rx << ',' << ry << ',' << 0 << ',' << false << ',' << true << ',' << -(rx + rx) << ',' << 0;
 	ss << 'a' << rx << ',' << ry << ',' << 0 << ',' << false << ',' << true << ',' << +(rx + rx) << ',' << 0;
 	ss << 'Z';
@@ -1021,9 +1025,9 @@ inline Path arc(float cx, float cy, float rx, float ry, float angle, bool closed
 	const bool	large = glm::abs(angle) > glm::pi<float>();
 	const bool	sweep = angle > 0;
 
-	ss << 'M' << cx + rx << ',' << cy;
-	ss << 'A' << rx << ',' << ry << ',' << 0 << ',' << large << ',' << sweep << ',' << cx + c * rx << ','
-	   << cy + s * ry;
+	ss << 'M' << +(cx + rx) << ',' << cy;
+	ss << 'A' << rx << ',' << ry << ',' << 0 << ',' << large << ',' << sweep << ',' << +(cx + c * rx) << ','
+	   << +(cy + s * ry);
 
 	if (closed) {
 		ss << 'L' << cx << ',' << cy;
@@ -1203,22 +1207,6 @@ inline Path arrow(const glm::vec2& p0, const glm::vec2& p1, float thickness, flo
 	ss << 'Z';
 
 	return Path{ss.str()};
-}
-
-inline glm::mat3x3 toMat3x3(const glm::mat3x2& m) {
-	return {m[0][0], m[0][1], 0, m[1][0], m[1][1], 0, m[2][0], m[2][1], 1};
-}
-
-inline glm::mat3x3 toMat3x3(const glm::mat4x4& m) {
-	return {m[0][0], m[0][1], m[0][3], m[1][0], m[1][1], m[1][3], m[3][0], m[3][1], m[3][3]};
-}
-
-inline glm::mat4x4 toMat4x4(const glm::mat3x2& m) {
-	return {m[0][0], m[0][1], 0, 0, m[1][0], m[1][1], 0, 0, 0, 0, 1, 0, m[2][0], m[2][1], 0, 1};
-}
-
-inline glm::mat4x4 toMat4x4(const glm::mat3x3& m) {
-	return {m[0][0], m[0][1], 0, m[0][2], m[1][0], m[1][1], 0, m[1][2], 0, 0, 1, 0, m[2][0], m[2][1], 0, m[2][2]};
 }
 
 } // namespace nvpath

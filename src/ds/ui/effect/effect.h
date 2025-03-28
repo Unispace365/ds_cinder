@@ -14,6 +14,8 @@ namespace ds { namespace ui {
 		virtual void setEffectParams(std::string_view params) = 0;
 
 		virtual void applyEffect(const ci::gl::TextureRef& texture, const ci::ColorA& borderColor) const = 0;
+		virtual void applyEffect(const ci::gl::TextureRef& texture, const ci::Area& bounds,
+								 const ci::ColorA& borderColor) const									 = 0;
 	};
 
 	// *Experimental* Do not use in production!
@@ -26,7 +28,7 @@ namespace ds { namespace ui {
 		void drawClient(const ci::mat4& transformMatrix, const DrawParams& drawParams) override;
 
 	  protected:
-		//void onChildAdded(Sprite& child) override {
+		// void onChildAdded(Sprite& child) override {
 		//	if (mParent) {
 		//		mParent->onChildAdded(child);
 		//		mCallbacks[&child] = child.getDimensionsChangedCallback();
@@ -39,7 +41,7 @@ namespace ds { namespace ui {
 		//	}
 		//}
 
-		//void onChildRemoved(Sprite& child) override {
+		// void onChildRemoved(Sprite& child) override {
 		//	if (mCallbacks.count(&child)) {
 		//		child.setDimensionsChangedCallback(mCallbacks[&child]);
 		//		mCallbacks.erase(&child);
@@ -52,9 +54,9 @@ namespace ds { namespace ui {
 
 		void onParentSet() override {
 			//// Allow parent to set callbacks on our children, because we're just a wrapper.
-			//for (auto child : mChildren) {
+			// for (auto child : mChildren) {
 			//	onChildAdded(*child);
-			//}
+			// }
 			handleResize();
 		}
 
@@ -81,14 +83,17 @@ namespace ds { namespace ui {
 
 		void applyEffect(const ci::gl::TextureRef& texture,
 						 const ci::ColorA&		   borderColor = ci::ColorA::black()) const override;
+		void applyEffect(const ci::gl::TextureRef& texture, const ci::Area& bounds,
+						 const ci::ColorA& borderColor = ci::ColorA::black()) const override;
 
 		/// Returns the kernel size, which is the number of samples used to calculate the blur.
 		///	Note that this implementation only uses half the number of samples, thanks to smart use of bi-linear
-		/// filtering
-		/// on the GPU.
-		int getKernelSize() const { return mKernelSize; }
+		/// filtering on the GPU.
+		size_t getKernelSize() const { return mKernelSize; }
 		/// Returns the standard deviation of the Gaussian distribution.
 		double getSigma() const { return mSigma; }
+		///
+		void setSigma(double sigma, int kernelSize = 0);
 
 	  private:
 		static const char* sVertShader;
@@ -103,26 +108,25 @@ namespace ds { namespace ui {
 			constexpr auto a5 = T(1.061405429);
 			constexpr auto p  = T(0.3275911);
 
-			auto t = T(1) / (T(1) + p * glm::abs(x));
-			auto y = T(1) - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * glm::exp(-x * x);
+			auto t = T(1) / (T(1) + p * std::abs(x));
+			auto y = T(1) - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * std::exp(-x * x);
 
-			auto sign = (x < 0) ? T(-1) : T(1);
-			return sign * y;
+			return std::copysign(y, x);
 		}
 
 		template <typename T>
 		T gaussianDistribution(T x, T mu, T sigma) {
-			static const auto sqrtOfTwo = glm::sqrt(T(2));
-			return T(0.5) * errorFunction((x - mu) / (sqrtOfTwo * sigma));
+			static const auto sqrtOfTwo = std::sqrt(T(2));
+			return T(0.5) * (T(1) + errorFunction((x - mu) / (sqrtOfTwo * sigma)));
 		}
 
-		double						mThreshold	= 0; // Weights below this threshold are not used by the shader.
-		double						mSigma		= 1; // Gaussian distribution factor.
-		int							mKernelSize = 5; // Equivalent Gaussian kernel size (e.g. 5x5).
-		std::vector<double>			mWeights;		 // List of calculated weight for each sample.
-		std::vector<double>			mOffsets;		 // List of calculated offset for each sample.
-		mutable ci::gl::FboRef		mFbo[2];		 //
-		mutable ci::gl::GlslProgRef mGlsl;			 //
+		void calculateWeightsAndOffsets();
+
+		double						mSigma		= 5;  // Gaussian distribution factor. Larger values give more blur.
+		int							mKernelSize = 19; // Gaussian kernel size (e.g. 5x5).
+		std::vector<double>			mWeights;		  // List of calculated weight for each sample.
+		std::vector<double>			mOffsets;		  // List of calculated offset for each sample.
+		mutable ci::gl::GlslProgRef mGlsl;			  //
 	};
 
 }} // namespace ds::ui
