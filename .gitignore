@@ -64,6 +64,8 @@ example/simple_video_player/MediaInfo.dll
 /projects/web/lib64/web_cef.lib
 /projects/viewers/lib64/viewers.lib
 /projects/physics/lib64/
+/projects/nvpath/lib64/
+/projects/rive/lib64/
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.exe
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
