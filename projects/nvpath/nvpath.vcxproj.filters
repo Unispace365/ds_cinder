@@ -22,10 +22,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\stdafx.cpp" />
-    <ClCompile Include="src\nvpath\NvPath.cpp">
+    <ClCompile Include="src\nvpath\nv_path.cpp">
       <Filter>src\nvpath</Filter>
     </ClCompile>
-    <ClCompile Include="src\nvpath\NvPathSvg.cpp">
+    <ClCompile Include="src\nvpath\nv_path_svg.cpp">
       <Filter>src\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\path_sprite.cpp">
@@ -37,13 +37,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\nvpath\NvPath.h">
+    <ClInclude Include="src\nvpath\nv_path.h">
       <Filter>src\nvpath</Filter>
     </ClInclude>
-    <ClInclude Include="src\nvpath\NvPathSvg.h">
+    <ClInclude Include="src\nvpath\nv_path_svg.h">
       <Filter>src\nvpath</Filter>
     </ClInclude>
-    <ClInclude Include="src\nvpath\NvPathUtil.h">
+    <ClInclude Include="src\nvpath\nv_path_util.h">
       <Filter>src\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\cy\cyCore.h">

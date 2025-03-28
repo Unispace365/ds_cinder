@@ -22,7 +22,8 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 #pragma once
 
-#include "NvPath.h"
+#include <functional>
+#include <map>
 
 #include <cinder/Cinder.h>
 #include <cinder/Color.h>
@@ -34,10 +35,7 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #include <cinder/Surface.h>
 #include <cinder/Xml.h>
 
-#include <ds/util/float_util.h>
-
-#include <functional>
-#include <map>
+#include "nvpath/nv_path.h"
 
 namespace nvpath::svg {
 

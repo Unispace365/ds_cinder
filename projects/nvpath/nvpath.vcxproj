@@ -20,8 +20,8 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\path_sprite.cpp" />
     <ClCompile Include="src\ds\ui\sprite\svg_sprite.cpp" />
-    <ClCompile Include="src\nvpath\NvPath.cpp" />
-    <ClCompile Include="src\nvpath\NvPathSvg.cpp" />
+    <ClCompile Include="src\nvpath\nv_path.cpp" />
+    <ClCompile Include="src\nvpath\nv_path_svg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
@@ -29,9 +29,9 @@
     <ClInclude Include="src\cy\cyPolynomial.h" />
     <ClInclude Include="src\ds\ui\sprite\path_sprite.h" />
     <ClInclude Include="src\ds\ui\sprite\svg_sprite.h" />
-    <ClInclude Include="src\nvpath\NvPath.h" />
-    <ClInclude Include="src\nvpath\NvPathSvg.h" />
-    <ClInclude Include="src\nvpath\NvPathUtil.h" />
+    <ClInclude Include="src\nvpath\nv_path.h" />
+    <ClInclude Include="src\nvpath\nv_path_svg.h" />
+    <ClInclude Include="src\nvpath\nv_path_util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FA76A6D1-7D68-4871-A791-7CBA0E98A93E}</ProjectGuid>

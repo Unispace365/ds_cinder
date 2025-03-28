@@ -4,8 +4,8 @@
 
 #include <ds/ui/sprite/sprite.h>
 
-#include <nvpath/NvPath.h>
-#include <nvpath/NvPathSvg.h>
+#include <nvpath/nv_path.h>
+#include <nvpath/nv_path_svg.h>
 
 namespace ds::ui {
 

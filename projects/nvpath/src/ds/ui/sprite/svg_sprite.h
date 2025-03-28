@@ -2,8 +2,9 @@
 
 #include <ds/ui/button/button.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/util/float_util.h>
 
-#include <nvpath/NvPathSvg.h>
+#include <nvpath/nv_path_svg.h>
 
 namespace ds::ui {
 

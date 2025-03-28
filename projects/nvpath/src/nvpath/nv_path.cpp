@@ -26,16 +26,17 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #pragma warning(disable : 4715)
 #pragma warning(disable : 4996)
 
-#include "nvpath/NvPath.h"
-#include "nvpath/NvPathSvg.h"
-#include "nvpath/NvPathUtil.h"
+#include <numeric>
 
 #include <cinder/Log.h>
 #include <cinder/gl/draw.h>
 #include <cinder/gl/scoped.h>
-#include <numeric>
 
 #include <ds/util/float_util.h> // for approxEqual method.
+
+#include "nvpath/nv_path.h"
+#include "nvpath/nv_path_svg.h"
+#include "nvpath/nv_path_util.h"
 
 using namespace ci;
 

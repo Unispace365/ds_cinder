@@ -31,9 +31,10 @@ This code is intended for use with the Cinder C++ library: http://libcinder.org
 #include <cinder/Text.h>
 #include <cinder/Utilities.h>
 
+#include <ds/util/float_util.h>
 #include <ds/util/string_util.h>
 
-#include "nvpath/NvPathSvg.h"
+#include "nvpath/nv_path_svg.h"
 
 using namespace std;
 using namespace ci;
