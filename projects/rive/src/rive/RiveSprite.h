@@ -17,10 +17,12 @@ namespace ds { namespace ui {
 		void playAnimation(size_t index);
 
 		void onUpdateServer(const ds::UpdateParams& updateParams) override;
-
+		
 		void drawLocalClient() override;
 
 	  private:
+		void onSizeChanged() override;
+
 		static std::vector<uint8_t> readFile(const std::string& path);
 
 		std::unique_ptr<rive::Factory>				   mFactory;

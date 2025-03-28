@@ -68,7 +68,7 @@ namespace ds { namespace ui {
 		mAnimation->inputCount();
 
 		mAnimation->time(mAnimation->animation()->startSeconds());
-		mAnimation->loopValue((int)rive::Loop::loop);
+		mAnimation->loopValue(int(rive::Loop::loop));
 		mAnimation->direction(1);
 	}
 
@@ -78,19 +78,15 @@ namespace ds { namespace ui {
 		if (mIsMouseMoved || mIsMouseDown || mIsMouseUp) {
 			rive::HitResult hitResult = rive::HitResult::none;
 			if (mIsMouseMoved) {
-				DS_LOG_INFO("Moved");
 				hitResult = mScene->pointerMove({mMousePointer.x, mMousePointer.y});
 			} else if (mIsMouseDown) {
-				DS_LOG_INFO("Down");
 				hitResult = mScene->pointerDown({mMousePointer.x, mMousePointer.y});
 			} else if (mIsMouseUp) {
-				DS_LOG_INFO("Up");
 				hitResult = mScene->pointerUp({mMousePointer.x, mMousePointer.y});
 			}
 
 			if (hitResult != rive::HitResult::none) {
 			} else {
-				DS_LOG_INFO("Exit");
 				mScene->pointerExit({mMousePointer.x, mMousePointer.y});
 			}
 
@@ -106,10 +102,14 @@ namespace ds { namespace ui {
 		if (!mArtBoard || !mRenderer) return;
 
 		nvpath::ScopedPathRendering sp;
-		// if (mAnimation)
-		//	mAnimation->draw(mRenderer.get());
-		// else
 		mArtBoard->draw(mRenderer.get());
+	}
+
+	void RiveSprite::onSizeChanged() {
+		if (mArtBoard) {
+			mArtBoard->width(mWidth);
+			mArtBoard->height(mHeight);
+		}
 	}
 
 	std::vector<uint8_t> RiveSprite::readFile(const std::string& path) {
