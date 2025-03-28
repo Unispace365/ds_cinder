@@ -212,7 +212,7 @@ namespace ds { namespace ui {
 		size_t clipCount = mClipCountStack.back();
 		mClipCountStack.pop_back();
 		while (clipCount-- > mClipCountStack.back())
-			nvpath::Path::popClipPath();
+			nvpath::popClipPath();
 	}
 
 	void RiveRendererNvPath::transform(const rive::Mat2D& transform) {
@@ -235,7 +235,7 @@ namespace ds { namespace ui {
 	void RiveRendererNvPath::clipPath(rive::RenderPath* path) {
 		auto thePath = dynamic_cast<RivePath*>(path);
 		if (thePath) {
-			nvpath::Path::pushClipPath(thePath->getPath());
+			nvpath::pushClipPath(thePath->getPath());
 			++mClipCountStack.back();
 		}
 	}
