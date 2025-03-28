@@ -2,70 +2,64 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\stdafx.cpp" />
-    <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_factory_nvpath.cpp">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_gradient_nvpath.cpp">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_paint_nvpath.cpp">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_path_nvpath.cpp">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_renderer_nvpath.cpp">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\rive_sprite.cpp">
-      <Filter>ds\ui\sprite</Filter>
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="src\ds\rive\nvpath\rive_renderer_nvpath.h">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_factory_nvpath.h">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_gradient_nvpath.h">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_paint_nvpath.h">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_path_nvpath.h">
-      <Filter>ds\rive\nvpath</Filter>
+      <Filter>src\ds\rive\nvpath</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\rive_sprite.h">
-      <Filter>ds\ui\sprite</Filter>
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="ds">
-      <UniqueIdentifier>{a0cf76ee-81e9-4d47-bda5-a25f5a83ab9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ds\ui">
-      <UniqueIdentifier>{713ae1a9-390e-462a-9264-36b9db3c1c5a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{173a8807-2974-4409-abf4-b74aa5ef8632}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\utils">
-      <UniqueIdentifier>{dd60ee35-bd9a-4280-96c0-2545f57a219e}</UniqueIdentifier>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{a0cf76ee-81e9-4d47-bda5-a25f5a83ab9a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ds\rive">
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{713ae1a9-390e-462a-9264-36b9db3c1c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{446d0180-634f-4c4a-9e0f-c6e799a99519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\rive">
       <UniqueIdentifier>{5d5d65ab-850a-45c2-9163-0c9ac77f8ef7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ds\rive\nvpath">
+    <Filter Include="src\ds\rive\nvpath">
       <UniqueIdentifier>{cca2110d-88b4-4a78-8c9d-8780de69cc5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ds\ui\sprite">
-      <UniqueIdentifier>{446d0180-634f-4c4a-9e0f-c6e799a99519}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -14,10 +14,6 @@
     <ClCompile Include="..\..\src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_factory_nvpath.cpp" />
     <ClCompile Include="src\ds\rive\nvpath\rive_gradient_nvpath.cpp" />
     <ClCompile Include="src\ds\rive\nvpath\rive_paint_nvpath.cpp" />
