@@ -17,6 +17,8 @@ namespace ds { namespace ui {
 
 	RiveSprite::RiveSprite(SpriteEngine& engine, const char* filePath)
 	  : Sprite(engine) {
+		// TODO allow user to set a specific factory and renderer backend.
+		// TODO create these on the Engine and reuse for all rive sprites.
 		mFactory  = std::make_unique<ds::RiveFactoryNvPath>();
 		mRenderer = std::make_unique<ds::RiveRendererNvPath>();
 
