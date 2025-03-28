@@ -2,22 +2,22 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\stdafx.cpp" />
-    <ClCompile Include="src\rive\RiveSprite.cpp">
+    <ClCompile Include="src\rive\rive_sprite.cpp">
       <Filter>ds\ui</Filter>
     </ClCompile>
     <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\rive\RiveRendererNvPath.cpp">
+    <ClCompile Include="src\rive\rive_renderer_nvpath.cpp">
       <Filter>ds\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\rive\RiveSprite.h">
+    <ClInclude Include="src\rive\rive_sprite.h">
       <Filter>ds\ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\rive\RiveRendererNvPath.h">
+    <ClInclude Include="src\rive\rive_renderer_nvpath.h">
       <Filter>ds\ui</Filter>
     </ClInclude>
   </ItemGroup>

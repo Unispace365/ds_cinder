@@ -5,7 +5,7 @@
 #include <rive/file.hpp>
 #include <rive/renderer.hpp>
 
-#include "ds/ui/sprite/sprite.h"
+#include <ds/ui/sprite/sprite.h>
 
 namespace ds { namespace ui {
 

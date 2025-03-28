@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "rive/RiveRendererNvPath.h"
+#include "rive/rive_renderer_nvpath.h"
 
 #include <rive/shapes/shape_paint_path.hpp>
 

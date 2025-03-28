@@ -4,11 +4,11 @@
 #include <sstream>
 #include <string>
 
-#include <nvpath/NvPath.h>
+#include <rive/factory.hpp>
+#include <rive/refcnt.hpp>
+#include <rive/renderer.hpp>
 
-#include "rive/factory.hpp"
-#include "rive/refcnt.hpp"
-#include "rive/renderer.hpp"
+#include <nvpath/nv_path.h>
 
 namespace ds { namespace ui {
 

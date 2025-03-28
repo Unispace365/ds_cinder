@@ -2,13 +2,12 @@
 
 #include <fstream>
 
-#include <rive/animation/state_machine.hpp>
 #include <rive/animation/state_machine_instance.hpp>
 #include <rive/animation/state_machine_listener.hpp>
 #include <rive/scene.hpp>
 
-#include "rive/RiveRendererNvPath.h"
-#include "rive/RiveSprite.h"
+#include "rive/rive_renderer_nvpath.h"
+#include "rive/rive_sprite.h"
 
 namespace ds { namespace ui {
 
