@@ -23,7 +23,7 @@
     <ClCompile Include="src\ds\rive\nvpath\rive_paint_nvpath.cpp" />
     <ClCompile Include="src\ds\rive\nvpath\rive_path_nvpath.cpp" />
     <ClCompile Include="src\ds\rive\nvpath\rive_renderer_nvpath.cpp" />
-    <ClCompile Include="src\ds\ui\rive_sprite.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\rive_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
@@ -32,7 +32,7 @@
     <ClInclude Include="src\ds\rive\nvpath\rive_paint_nvpath.h" />
     <ClInclude Include="src\ds\rive\nvpath\rive_path_nvpath.h" />
     <ClInclude Include="src\ds\rive\nvpath\rive_renderer_nvpath.h" />
-    <ClInclude Include="src\ds\ui\rive_sprite.h" />
+    <ClInclude Include="src\ds\ui\sprite\rive_sprite.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D704D2FD-C709-4634-90D3-2C395EE273F2}</ProjectGuid>

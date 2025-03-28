@@ -5,9 +5,6 @@
     <ClCompile Include="rive-runtime\src\utils\no_op_factory.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\rive_sprite.cpp">
-      <Filter>ds\ui</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\rive\nvpath\rive_factory_nvpath.cpp">
       <Filter>ds\rive\nvpath</Filter>
     </ClCompile>
@@ -23,12 +20,12 @@
     <ClCompile Include="src\ds\rive\nvpath\rive_renderer_nvpath.cpp">
       <Filter>ds\rive\nvpath</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\rive_sprite.cpp">
+      <Filter>ds\ui\sprite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
-    <ClInclude Include="src\ds\ui\rive_sprite.h">
-      <Filter>ds\ui</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_renderer_nvpath.h">
       <Filter>ds\rive\nvpath</Filter>
     </ClInclude>
@@ -43,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\rive\nvpath\rive_path_nvpath.h">
       <Filter>ds\rive\nvpath</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\rive_sprite.h">
+      <Filter>ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +63,9 @@
     </Filter>
     <Filter Include="ds\rive\nvpath">
       <UniqueIdentifier>{cca2110d-88b4-4a78-8c9d-8780de69cc5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds\ui\sprite">
+      <UniqueIdentifier>{446d0180-634f-4c4a-9e0f-c6e799a99519}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

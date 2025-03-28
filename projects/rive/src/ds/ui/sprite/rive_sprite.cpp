@@ -10,7 +10,8 @@
 
 #include "ds/rive/nvpath/rive_factory_nvpath.h"
 #include "ds/rive/nvpath/rive_renderer_nvpath.h"
-#include "ds/ui/rive_sprite.h"
+
+#include "ds/ui/sprite/rive_sprite.h"
 
 namespace ds { namespace ui {
 
