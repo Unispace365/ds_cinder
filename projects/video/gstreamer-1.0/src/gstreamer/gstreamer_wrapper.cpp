@@ -1814,6 +1814,10 @@ void GStreamerWrapper::handleGStMessage() {
 				case GST_MESSAGE_TAG:
 					break;
 
+				case GST_MESSAGE_LATENCY: 
+					gst_bin_recalculate_latency(GST_BIN(mGstPipeline));
+					break;
+
 				default:
 					DS_LOG_VERBOSE(2, "Gst Message, Type: " << GST_MESSAGE_TYPE_NAME(mGstMessage));
 

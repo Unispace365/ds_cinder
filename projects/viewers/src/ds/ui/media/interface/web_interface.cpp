@@ -6,6 +6,8 @@
 #include <ds/app/engine/engine_events.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
@@ -25,7 +27,8 @@
 namespace ds::ui {
 
 WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor, ds::ui::SoftKeyboardSettings settings)
+						   const ci::Color buttonColor, const ci::Color backgroundColor,
+						   ds::ui::SoftKeyboardSettings settings)
   : MediaInterface(eng, ds::Resource::WEB_TYPE, sizey, backgroundColor)
   , mEventClient(mEngine)
   , mLinkedWeb(nullptr)
@@ -47,12 +50,11 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
   , mAuthLayout(nullptr)
   , mUserField(nullptr)
   , mPasswordField(nullptr)
-  , mKeyboardSettings(settings){
+  , mKeyboardSettings(settings) {
 
 	mInitialSize = sizey.y;
-	mCanLock = true;
+	mCanLock	 = true;
 
-	
 
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
@@ -60,7 +62,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mKeyboardArea->setCornerRadius(15.0f);
 	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
-	
+
 	addChildPtr(mKeyboardArea);
 
 	mEventClient.listenToEvents<ds::app::EntryFieldRegisteredEvent>([this](auto&) {
@@ -70,21 +72,27 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		}
 	});
 
-	mKeyboardButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:keyboard:normal:file"),
-											  composeIconPath("ui:media_button:keyboard:pressed:file"),
-											  (sizey.y - buttonHeight) / 2.0f);
-	
+	mKeyboardButton	 = new ds::ui::ToggleContainer(mEngine, buttonHeight,
+												   buttonHeight); // Create a toggle container for the keyboard button
+	auto keyboardOff = createButton(ci::vec2(buttonHeight, buttonHeight),	// Size of the button
+									"ui:media_button:keyboard:normal:file", // Normal image
+									"ui:media_button:keyboard:pressed:file");
+	auto keyboardOn	 = createButton(ci::vec2(buttonHeight, buttonHeight),	 // Size of the button
+									"ui:media_button:keyboard:pressed:file", // Normal image
+									"ui:media_button:keyboard:normal:file"); // Pressed image
+	// Create the button for toggling the keyboard
+	mKeyboardButton->setCheckedButton(keyboardOn);	  // Set the checked button (when keyboard is shown)
+	mKeyboardButton->setUncheckedButton(keyboardOff); // Set the unchecked button (when keyboard is hidden)
 	addChildPtr(mKeyboardButton);
-	mKeyboardButton->setClickFn([this]() { toggleKeyboard(); });
+	keyboardOff->setClickFn([this]() { toggleKeyboard(); });
+	keyboardOn->setClickFn([this]() { toggleKeyboard(); });
 
-	mKeyboardButton->getNormalImage().setColor(buttonColor);
-	mKeyboardButton->getHighImage().setColor(buttonColor / 2.0f);
-	auto scaley = sizey.y / mKeyboardButton->getHeight();
-	mKeyboardButton->setScale(scaley);
+	setButtonColor(keyboardOn, buttonColor, buttonColor / 2.0f);  // Set the color for normal and pressed states
+	setButtonColor(keyboardOff, buttonColor / 2.0f, buttonColor); // Set the color for normal and pressed states
 
-
-	mBackButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:back:normal:file"),
-										  composeIconPath("ui:media_button:back:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+	mBackButton = createButton(ci::vec2(buttonHeight, buttonHeight), // Size of the button
+							   "ui:media_button:back:normal:file",	 // Normal image
+							   "ui:media_button:back:pressed:file"); // Pressed image
 	addChildPtr(mBackButton);
 	mBackButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -92,15 +100,11 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 			updateWidgets();
 		}
 	});
+	setButtonColor(mBackButton, buttonColor, buttonColor / 2.0f); // Set the color for normal and pressed states
 
-	mBackButton->getNormalImage().setColor(buttonColor);
-	mBackButton->getHighImage().setColor(buttonColor / 2.0f);
-	mBackButton->setScale(sizey.y / mBackButton->getHeight());
-
-
-	mForwardButton =
-		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:forward:normal:file"),
-								composeIconPath("ui:media_button:forward:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+	mForwardButton = createButton(ci::vec2(buttonHeight, buttonHeight),	   // Size of the button
+								  "ui:media_button:forward:normal:file",   // Normal image
+								  "ui:media_button:forward:pressed:file"); // Pressed image
 	addChildPtr(mForwardButton);
 	mForwardButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -108,15 +112,11 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 			updateWidgets();
 		}
 	});
+	setButtonColor(mForwardButton, buttonColor, buttonColor / 2.0f); // Set the color for normal and pressed states
 
-	mForwardButton->getNormalImage().setColor(buttonColor);
-	mForwardButton->getHighImage().setColor(buttonColor / 2.0f);
-	mForwardButton->setScale(sizey.y / mForwardButton->getHeight());
-
-
-	mRefreshButton =
-		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:refresh:normal:file"),
-								composeIconPath("ui:media_button:refresh:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+	mRefreshButton = createButton(ci::vec2(buttonHeight, buttonHeight),	   // Size of the button
+								  "ui:media_button:refresh:normal:file",   // Normal image
+								  "ui:media_button:refresh:pressed:file"); // Pressed image
 	addChildPtr(mRefreshButton);
 	mRefreshButton->setClickFn([this]() {
 		if (mLinkedWeb) {
@@ -124,24 +124,25 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 			updateWidgets();
 		}
 	});
+	setButtonColor(mRefreshButton, buttonColor, buttonColor / 2.0f); // Set the color for normal and pressed states
 
-	mRefreshButton->getNormalImage().setColor(buttonColor);
-	mRefreshButton->getHighImage().setColor(buttonColor / 2.0f);
-	mRefreshButton->setScale(sizey.y / mRefreshButton->getHeight());
-
-	mToggleLockedImage = composeIconPath("ui:media_button:lock:normal:file");
+	mToggleLockedImage	 = composeIconPath("ui:media_button:lock:normal:file");
 	mToggleUnlockedImage = composeIconPath("ui:media_button:unlock:normal:file");
 
 
-	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
-										   mToggleUnlockedImage,
-										   (sizey.y - buttonHeight) / 2.0f);
-	addChildPtr(mTouchToggle);
-	mTouchToggle->setClickFn([this]() { toggleTouch(); });
+	mTouchToggle   = new ToggleContainer(mEngine, buttonHeight, buttonHeight);
+	auto checked   = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:lock:normal:file",
+								  "ui:media_button:lock:pressed:file");
+	auto unchecked = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:unlock:normal:file",
+								  "ui:media_button:unlock:pressed:file");
+	mTouchToggle->setCheckedButton(checked);
+	mTouchToggle->setUncheckedButton(unchecked);
 
-	mTouchToggle->getNormalImage().setColor(buttonColor);
-	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
-	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
+	addChildPtr(mTouchToggle);
+	checked->setClickFn([this]() { toggleTouch(); });
+	unchecked->setClickFn([this]() { toggleTouch(); });
+	setButtonColor(checked, buttonColor, buttonColor / 2.0f);
+	setButtonColor(unchecked, buttonColor / 2.0f, buttonColor);
 
 	if (!mAbleToTouchToggle) {
 		mTouchToggle->hide();
@@ -361,7 +362,7 @@ void WebInterface::onUpdateServer(const ds::UpdateParams& p) {
 	if (mLinkedWeb) {
 		auto currentUrl = mLinkedWeb->getCurrentUrl();
 		if (currentUrl != mLastUrl) {
-			//updateWidgets();
+			// updateWidgets();
 			mLastUrl = currentUrl;
 		}
 	}
@@ -372,7 +373,6 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 		mLinkedWeb->setAuthCallback(nullptr);
 		mLinkedWeb->setLoadingUpdatedCallback(nullptr);
 		mLinkedWeb->setConsoleMessageCallback(nullptr);
-		
 	}
 
 	mLinkedWeb = linkedWeb;
@@ -441,7 +441,7 @@ void WebInterface::onLayout() {
 		float		yp		  = h;
 		if (mKeyboardAbove) yp = -keyboardH;
 		auto z = mKeyboardOnTop ? 1.0f : -1.0f;
-		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp,z);
+		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp, z);
 
 		if (mAuthLayout) {
 			mAuthLayout->setSize(keyboardW, mAuthLayout->getHeight());
@@ -471,23 +471,15 @@ void WebInterface::updateWidgets() {
 
 		if (mLinkedWeb) {
 			if (!mLinkedWeb->isEnabled()) {
-				mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->setNormalImageColor(mToggleUnlockedColor);
-				mTouchToggle->setHighImageColor(mToggleLockedColor);
+				mTouchToggle->setChecked(false);
 				mWebLocked = false;
 				setLocked(mWebLocked);
 			} else if (mLinkedWeb->isEnabled()) {
-				mTouchToggle->getHighImage().setImageFile(mToggleLockedImage,
-														  ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage,
-															ds::ui::Image::IMG_CACHE_F);
-				mTouchToggle->setNormalImageColor(mToggleLockedColor);
-				mTouchToggle->setHighImageColor(mToggleUnlockedColor);
+				mTouchToggle->setChecked(true);
 				mWebLocked = true;
 				setLocked(mWebLocked);
 			}
-			//mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
+			// mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
 		}
 	}
 
@@ -506,24 +498,25 @@ void WebInterface::updateWidgets() {
 				} else {
 					sks = mKeyboardSettings;
 				}
-					mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
-				
+				mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
+
 				mKeyboardArea->addChildPtr(mKeyboard);
 
 				mKeyboardArea->setColor(mBackground->getColor());
 
-				const float keyW  = mKeyboard->getScaleWidth();
-				const float keyH  = mKeyboard->getScaleHeight();
+				const float keyW = mKeyboard->getScaleWidth();
+				const float keyH = mKeyboard->getScaleHeight();
 
-				auto areaTop = mEngine.getWafflesSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
-				auto areaLeft = mEngine.getWafflesSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
-				auto areaRight = mEngine.getWafflesSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
+				auto areaTop	= mEngine.getWafflesSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
+				auto areaLeft	= mEngine.getWafflesSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
+				auto areaRight	= mEngine.getWafflesSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
 				auto areaBottom = mEngine.getWafflesSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
 
 				const float areaW = keyW + areaLeft + areaRight;
 				const float areaH = keyH + areaTop + areaBottom;
 				mKeyboardArea->setSize(areaW, areaH);
-				mKeyboard->setPosition((areaW - keyW) * 0.5f + (areaLeft-areaRight)*0.5, (areaH - keyH) * 0.5f + (areaTop - areaBottom)*0.5);
+				mKeyboard->setPosition((areaW - keyW) * 0.5f + (areaLeft - areaRight) * 0.5,
+									   (areaH - keyH) * 0.5f + (areaTop - areaBottom) * 0.5);
 
 				mKeyboard->setKeyPressFunction(
 					[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
@@ -606,17 +599,13 @@ void WebInterface::updateWidgets() {
 void WebInterface::setToggleLockedImage(const std::string& imgPath) {
 	mToggleLockedImage = imgPath;
 
-	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-	mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-	// mTouchToggle->layout();
+	updateWidgets();
 	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
 }
 
 void WebInterface::setToggleUnlockedImage(const std::string& imgPath) {
 	mToggleUnlockedImage = imgPath;
-	mTouchToggle->setHighImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-	mTouchToggle->setNormalImage(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-	// mTouchToggle->layout();
+	updateWidgets();
 	mTouchToggle->setScale(getHeight() / mTouchToggle->getHeight());
 }
 
@@ -664,7 +653,6 @@ void WebInterface::stopTouch() {
 	}
 	updateWidgets();
 }
-
 
 
 } // namespace ds::ui

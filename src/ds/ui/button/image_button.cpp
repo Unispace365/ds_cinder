@@ -25,8 +25,8 @@ namespace ds { namespace ui {
 	ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage,
 							 float touchPad)
 	  : ds::ui::Sprite(eng)
-	  , mDown(*(new ds::ui::Image(mEngine, downImage, ds::ui::Image::IMG_CACHE_F)))
-	  , mUp(*(new ds::ui::Image(mEngine, upImage, ds::ui::Image::IMG_CACHE_F)))
+	  , mDown(*(new ds::ui::Image(mEngine, downImage, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_ENABLE_MIPMAP_F)))
+	  , mUp(*(new ds::ui::Image(mEngine, upImage, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_ENABLE_MIPMAP_F)))
 	  , mHighFilePath(downImage)
 	  , mNormalFilePath(upImage)
 	  , mButtonBehaviour(*this)

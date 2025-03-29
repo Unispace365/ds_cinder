@@ -5,7 +5,8 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/ui/button/image_button.h>
+#include <ds/ui/button/Layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/media/interface/thumbnail_bar.h>
 #include <ds/ui/media/interface/video_scrub_bar.h>
@@ -65,20 +66,16 @@ void OnelinePDFInterface::updateWidgets() {
 		
 		if (mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = true;
-			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage, ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->setNormalImageColor(mToggleLockedColor);
-			mTouchToggle->setHighImageColor(mToggleUnlockedColor);
+			mTouchToggle->setChecked(true);
+			setButtonColor(mTouchToggle->getCheckedButton(), mToggleLockedColor, mToggleUnlockedColor);
 		} else if (!mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = false;
-			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage, ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->setNormalImageColor(mToggleUnlockedColor);
-			mTouchToggle->setHighImageColor(mToggleLockedColor);
+			mTouchToggle->setChecked(false);
+			setButtonColor(mTouchToggle->getUncheckedButton(), mToggleUnlockedColor, mToggleLockedColor);
 		}
 		
-		mTouchToggle->layout();
-		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+		//mTouchToggle->layout();
+		//mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 		if (mThumbnailBar) {
 			int pageNum = mLinkedPDF->getPageNum() - 1;
 			mThumbnailBar->setHighlightedItem(pageNum);

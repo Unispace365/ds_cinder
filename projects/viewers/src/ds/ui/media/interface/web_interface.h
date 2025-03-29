@@ -7,11 +7,13 @@
 namespace ds::ui {
 
 class ImageButton;
+class LayoutButton;
 class Text;
 class Web;
 class SoftKeyboard;
 class EntryField;
 class LayoutSprite;
+class ToggleContainer;
 
 /**
  * \class WebInterface
@@ -66,11 +68,11 @@ class WebInterface : public MediaInterface {
 	virtual void setToggleLockedColor(const ci::ColorAf& color);
 	virtual void setToggleUnlockedColor(const ci::ColorAf& color);
 
-	ds::ui::ImageButton* getKeyboardButton() { return mKeyboardButton; }
-	ds::ui::ImageButton* getBackButton() { return mBackButton; }
-	ds::ui::ImageButton* getForwardButton() { return mForwardButton; }
-	ds::ui::ImageButton* getRefreshButton() { return mRefreshButton; }
-	ds::ui::ImageButton* getTouchToggleButton() { return mTouchToggle; }
+	ds::ui::ToggleContainer* getKeyboardButton() { return mKeyboardButton; }
+	ds::ui::LayoutButton* getBackButton() { return mBackButton; }
+	ds::ui::LayoutButton* getForwardButton() { return mForwardButton; }
+	ds::ui::LayoutButton* getRefreshButton() { return mRefreshButton; }
+	ds::ui::ToggleContainer* getTouchToggleButton() { return mTouchToggle; }
 	ds::ui::Sprite*		 getKeyboardArea() { return mKeyboardArea; }
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
@@ -101,11 +103,11 @@ class WebInterface : public MediaInterface {
 	bool mAbleToTouchToggle;
 	bool mWebLocked;
 
-	ds::ui::ImageButton* mKeyboardButton;
-	ds::ui::ImageButton* mBackButton;
-	ds::ui::ImageButton* mForwardButton;
-	ds::ui::ImageButton* mRefreshButton;
-	ds::ui::ImageButton* mTouchToggle;
+	ds::ui::ToggleContainer* mKeyboardButton;
+	ds::ui::LayoutButton* mBackButton;
+	ds::ui::LayoutButton* mForwardButton;
+	ds::ui::LayoutButton* mRefreshButton;
+	ds::ui::ToggleContainer* mTouchToggle;
 
 	bool				  mAuthorizing;
 	ds::ui::LayoutSprite* mAuthLayout;

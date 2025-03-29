@@ -8,7 +8,8 @@
 
 namespace ds::ui {
 
-class ImageButton;
+class LayoutButton;
+class ToggleContainer;
 class Text;
 class IPdf;
 class ThumbnailBar;
@@ -32,10 +33,10 @@ class PDFInterface : public MediaInterface {
 
 	/// For visual customization - don't release these sprites from here
 	virtual void				   addNubToScrubBar(ds::ui::Sprite* newNub);
-	virtual ds::ui::ImageButton* getUpButton() { return mUpButton; }
-	virtual ds::ui::ImageButton*	   getDownButton() { return mDownButton; }
-	virtual ds::ui::ImageButton*	   getTouchToggle() { return mTouchToggle; }
-	virtual ds::ui::ImageButton*		   getThumbsButton() { return mThumbsButton; }
+	virtual ds::ui::LayoutButton* getUpButton() { return mUpButton; }
+	virtual ds::ui::LayoutButton*		   getDownButton() { return mDownButton; }
+	virtual ds::ui::ToggleContainer*		   getTouchToggle() { return mTouchToggle; }
+	virtual ds::ui::LayoutButton*		   getThumbsButton() { return mThumbsButton; }
 	virtual ds::ui::VideoScrubBar*	   getScrubBar() { return mScrubBar; }
 	virtual ds::ui::Sprite*				   getScrubBarProgress();
 	virtual ds::ui::Text*				   getPageCounter() { return mPageCounter; }
@@ -57,11 +58,11 @@ class PDFInterface : public MediaInterface {
 	ds::Resource  mSourceResource;
 	bool		  mLinkedEnabled;
 
-	ds::ui::ImageButton*   mUpButton;
-	ds::ui::ImageButton*   mDownButton;
+	ds::ui::LayoutButton*  mUpButton;
+	ds::ui::LayoutButton*  mDownButton;
 	ds::ui::Text*		   mPageCounter;
-	ds::ui::ImageButton*   mTouchToggle;
-	ds::ui::ImageButton*   mThumbsButton;
+	ds::ui::ToggleContainer*  mTouchToggle;
+	ds::ui::LayoutButton*  mThumbsButton;
 	ds::ui::VideoScrubBar* mScrubBar;
 	float				   mInitialHeight;
 

@@ -8,11 +8,13 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/svg_sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/video.h>
+#include <ds/ui/button/layout_button.h>
 
 #include "ds/ui/media/interface/video_scrub_bar.h"
 #include "ds/ui/media/interface/video_volume_control.h"
@@ -181,6 +183,75 @@ void MediaInterface::onSizeChanged() {
 	glm::quat orient;
 	glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
 	setScale(1.f / scale.x, 1.f / scale.y);
+}
+
+ds::ui::LayoutButton* MediaInterface::createButton(const ci::vec2& sizey,const std::string& iconIdNormal, const std::string& iconIdHigh) {
+	return createButton(mEngine, sizey, iconIdNormal, iconIdHigh);	
+}
+
+ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine,const ci::vec2& sizey,const std::string& iconIdNormal,const std::string& iconIdHigh) {
+	auto button			= new ds::ui::LayoutButton(engine, sizey.x, sizey.y);
+
+	//check for svgs
+	auto suffix		= std::string(".svg");
+	bool isNormalSvg = false;
+	auto normalPath = composeIconPath(engine,iconIdNormal);
+	if (normalPath.length() >= 4 && std::equal(suffix.rbegin(), suffix.rend(), normalPath.rbegin())) {
+		// if the normal path ends with .svg then use svg
+		isNormalSvg = true;
+	} else {
+		isNormalSvg = false;
+	}
+
+	bool isHighSvg	  = false;
+	
+	auto highPath = composeIconPath(engine,iconIdHigh);
+	if (highPath.length() >= 4 && std::equal(suffix.rbegin(), suffix.rend(), highPath.rbegin())) {
+		isHighSvg = true;
+	}
+
+	//ds::replace(highPath, "png", "svg");
+	ds::ui::Sprite* normal = nullptr;
+	if (isNormalSvg) {
+		auto normalSvg = new ds::ui::SvgSprite(engine);
+		normalSvg->setFile(normalPath);
+		normal = normalSvg;
+	} else {
+	
+		// fallback to image
+		// if not svg then use image
+		normal = new ds::ui::Image(engine, normalPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
+	}
+	
+	ds::ui::Sprite* high = nullptr;
+	if (isHighSvg) {
+		auto highSvg = new ds::ui::SvgSprite(engine);
+		highSvg->setFile(normalPath);
+		high = highSvg;
+	} else {
+
+		// fallback to image
+		// if not svg then use image
+		high = new ds::ui::Image(engine, normalPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
+	}
+	
+	
+
+	auto normalAspect = normal->getWidth() / normal->getHeight();
+	auto highAspect = high->getWidth() / high->getHeight();
+	normal->setSize(sizey.y * normalAspect, sizey.y);
+	high->setSize(sizey.y * highAspect, sizey.y);
+
+	button->getNormalSprite().addChildPtr(normal);
+	button->getHighSprite().addChildPtr(high);
+	button->runLayout();
+	return button;
+}
+
+void MediaInterface::setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor) {
+	if (button->getNormalSprite().getChildren().empty() || button->getHighSprite().getChildren().empty()) return;
+	button->getNormalSprite().getChildren()[0]->setColor(normalColor);
+	button->getHighSprite().getChildren()[0]->setColor(highColor);
 }
 
 } // namespace ds::ui

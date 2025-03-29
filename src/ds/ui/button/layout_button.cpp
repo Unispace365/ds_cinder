@@ -2,6 +2,7 @@
 
 #include "layout_button.h"
 
+
 #include <ds/app/environment.h>
 
 #pragma warning(disable : 4355)
@@ -19,6 +20,9 @@ namespace ds { namespace ui {
 	  , mAnimDuration(0.1f) {
 
 		setLayoutType(kLayoutNone);
+		
+
+		setSize(width, height);
 
 		mUp.mExportWithXml	= false;
 		mUp.mLayoutUserType = kFillSize;

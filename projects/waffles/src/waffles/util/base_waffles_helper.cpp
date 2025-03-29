@@ -4,6 +4,8 @@
 
 #include <ds/content/platform.h>
 #include <ds/ui/button/image_button.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/interface/pdf_interface.h>
 #include <ds/ui/media/interface/video_interface.h>
 #include <ds/ui/media/interface/video_volume_control.h>
@@ -166,35 +168,19 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 	if (auto vidInterface = dynamic_cast<ds::ui::VideoInterface*>(interfacey)) {
 		auto interfaceHeight = vidInterface->getHeight();
 		if (auto play = vidInterface->getPlayButton()) {
-			play->setNormalImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
-			play->setHighImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
-			play->setScale(interfaceHeight / play->getHeight());
-			play->setNormalImageColor(normalColor);
-			play->setHighImageColor(highColor);
+			vidInterface->setButtonColor(play, normalColor, highColor);
 		}
 
 		if (auto pause = vidInterface->getPauseButton()) {
-			pause->setNormalImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
-			pause->setHighImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
-			pause->setScale(interfaceHeight / pause->getHeight());
-			pause->setNormalImageColor(normalColor);
-			pause->setHighImageColor(highColor);
+			vidInterface->setButtonColor(pause, normalColor, highColor);
 		}
 
 		if (auto loopy = vidInterface->getLoopButton()) {
-			loopy->setNormalImage("%APP%/data/images/waffles/icons/4x/Loop_256.png", imageFlags);
-			loopy->setHighImage("%APP%/data/images/waffles/icons/4x/No loop_256.png", imageFlags);
-			loopy->setScale(interfaceHeight / loopy->getHeight());
-			loopy->setNormalImageColor(normalColor);
-			loopy->setHighImageColor(highColor);
+			vidInterface->setButtonColor(loopy, normalColor, highColor);
 		}
 
 		if (auto unloopy = vidInterface->getUnLoopButton()) {
-			unloopy->setNormalImage("%APP%/data/images/waffles/icons/4x/No loop_256.png", imageFlags);
-			unloopy->setHighImage("%APP%/data/images/waffles/icons/4x/Loop_256.png", imageFlags);
-			unloopy->setScale(interfaceHeight / unloopy->getHeight());
-			unloopy->setNormalImageColor(normalColor);
-			unloopy->setHighImageColor(highColor);
+			vidInterface->setButtonColor(unloopy, normalColor, highColor);
 		}
 
 		if (vidInterface->getScrubBarBackground() && vidInterface->getScrubBarProgress()) {
@@ -215,9 +201,9 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 
 			volumeControl->setStyle(ds::ui::VideoVolumeStyle::SLIDER);
 			auto sliderSprites = volumeControl->getSliderSprites();
-			sliderSprites.mMuteButton->setNormalImageColor(normalColor);
-			sliderSprites.mMuteButton->setHighImageColor(highColor);
-			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
+			vidInterface->setButtonColor(sliderSprites.mMuteButton, normalColor, highColor);
+			vidInterface->setButtonColor(sliderSprites.mVolHighButton, normalColor, highColor);
+			vidInterface->setButtonColor(sliderSprites.mVolLowButton, normalColor, highColor);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
 			sliderSprites.mSliderTrack->setOpacity(0.2);
@@ -243,19 +229,11 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 	if (auto ytInterface = dynamic_cast<ds::ui::YoutubeInterface*>(interfacey)) {
 		auto interfaceHeight = ytInterface->getHeight();
 		if (auto play = ytInterface->getPlayButton()) {
-			play->setNormalImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
-			play->setHighImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
-			play->setScale(interfaceHeight / play->getHeight());
-			play->setNormalImageColor(normalColor);
-			play->setHighImageColor(highColor);
+			ytInterface->setButtonColor(play, normalColor, highColor); // play button
 		}
 
 		if (auto pause = ytInterface->getPauseButton()) {
-			pause->setNormalImage("%APP%/data/images/waffles/icons/4x/Pause_256.png", imageFlags);
-			pause->setHighImage("%APP%/data/images/waffles/icons/4x/Play_256.png", imageFlags);
-			pause->setScale(interfaceHeight / pause->getHeight());
-			pause->setNormalImageColor(normalColor);
-			pause->setHighImageColor(highColor);
+			ytInterface->setButtonColor(pause, normalColor, highColor);
 		}
 
 		if (ytInterface->getScrubBarBackground() && ytInterface->getScrubBarProgress()) {
@@ -276,9 +254,9 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 
 			volumeControl->setStyle(ds::ui::VideoVolumeStyle::SLIDER);
 			auto sliderSprites = volumeControl->getSliderSprites();
-			sliderSprites.mMuteButton->setNormalImageColor(normalColor);
-			sliderSprites.mMuteButton->setHighImageColor(highColor);
-			sliderSprites.mMuteButton->setScale(sliderSprites.mMuteButton->getScale() * 1.25f);
+			ytInterface->setButtonColor(sliderSprites.mMuteButton, normalColor, highColor);
+			ytInterface->setButtonColor(sliderSprites.mVolHighButton, normalColor, highColor);
+			ytInterface->setButtonColor(sliderSprites.mVolLowButton, normalColor, highColor);
 
 			sliderSprites.mSliderTrack->setColor(normalColor);
 			sliderSprites.mSliderTrack->setOpacity(0.2);
@@ -310,49 +288,39 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 		}
 		*/
 		if (auto uppy = webInterface->getKeyboardButton()) {
-			uppy->setNormalImageColor(normalColor);
-			uppy->setHighImageColor(highColor);
-			uppy->setCornerRadius(0.f);
+			webInterface->setButtonColor(uppy->getCheckedButton(), highColor, normalColor); // checked
+			webInterface->setButtonColor(uppy->getUncheckedButton(), normalColor, highColor); // unchecked
 		}
 		if (auto downy = webInterface->getBackButton()) {
-			downy->setNormalImageColor(normalColor);
-			downy->setHighImageColor(highColor);
-			downy->setCornerRadius(0.f);
+			webInterface->setButtonColor(downy, normalColor, highColor); 
 		}
-		if (auto toggy = webInterface->getForwardButton()) {
-			toggy->setNormalImageColor(normalColor);
-			toggy->setHighImageColor(highColor);
-			toggy->setCornerRadius(0.f);
+		if (auto forward = webInterface->getForwardButton()) {
+			webInterface->setButtonColor(forward, normalColor, highColor); // forward button
 		}
-		if (auto thumbs = webInterface->getRefreshButton()) {
-			thumbs->setNormalImageColor(normalColor);
-			thumbs->setHighImageColor(highColor);
-			thumbs->setCornerRadius(0.f);
+		if (auto refresh = webInterface->getRefreshButton()) {
+			webInterface->setButtonColor(refresh, normalColor, highColor); // refresh button
 		}
-		if (auto thumbs = webInterface->getTouchToggleButton()) {
-			thumbs->setNormalImageColor(normalColor);
-			thumbs->setHighImageColor(highColor);
-			thumbs->setCornerRadius(0.f);
+		if (auto lock = webInterface->getTouchToggleButton()) {
+			webInterface->setButtonColor(lock->getUncheckedButton(), normalColor, highColor); 
+			webInterface->setButtonColor(lock->getCheckedButton(), highColor,
+										 normalColor);
 		}
 	}
 
 	auto pdfInterface = dynamic_cast<ds::ui::PDFInterface*>(interfacey);
 	if (pdfInterface) {
 		if (auto uppy = pdfInterface->getUpButton()) {
-			uppy->setNormalImageColor(normalColor);
-			uppy->setHighImageColor(highColor);
+			pdfInterface->setButtonColor(uppy, normalColor, highColor);
 		}
 		if (auto downy = pdfInterface->getDownButton()) {
-			downy->setNormalImageColor(normalColor);
-			downy->setHighImageColor(highColor);
+			pdfInterface->setButtonColor(downy, normalColor, highColor);
 		}
 		if (auto toggy = pdfInterface->getTouchToggle()) {
-			toggy->setNormalImageColor(normalColor);
-			toggy->setHighImageColor(highColor);
+			pdfInterface->setToggleUnlockedColor(normalColor);
+			pdfInterface->setToggleLockedColor(highColor);
 		}
 		if (auto thumbs = pdfInterface->getThumbsButton()) {
-			thumbs->setNormalImageColor(normalColor);
-			thumbs->setHighImageColor(highColor);
+			pdfInterface->setButtonColor(thumbs, normalColor, highColor);
 		}
 		if (auto count = pdfInterface->getPageCounter()) {
 			count->setColor(normalColor);
