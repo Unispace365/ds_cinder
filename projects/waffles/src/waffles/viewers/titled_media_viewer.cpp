@@ -9,6 +9,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/interface/pdf_interface.h>
 #include <ds/ui/media/interface/video_interface.h>
 #include <ds/ui/media/interface/video_volume_control.h>
@@ -523,7 +524,7 @@ void TitledMediaViewer::onMediaSet() {
 	if (webPlayer && webPlayer->getWeb()) {
 
 		ds::ui::WebInterface* webInterface = dynamic_cast<ds::ui::WebInterface*>(webPlayer->getWebInterface());
-		ds::ui::ImageButton*  keyboardBtn  = webInterface->getKeyboardButton();
+		auto  keyboardBtn  = webInterface->getKeyboardButton();
 
 		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
 			if (onScreen) {
@@ -533,7 +534,7 @@ void TitledMediaViewer::onMediaSet() {
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
 				wafflesHelper->setKeyboardStyle(keeb);
 
-				setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png", keyboardBtn);
+				keyboardBtn->setChecked(true);
 
 				mShowingKeyboard = true;
 				hideTitle();
@@ -553,7 +554,7 @@ void TitledMediaViewer::onMediaSet() {
 			} else if (!onScreen) {
 				mShowingKeyboard = false;
 
-				setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
+				keyboardBtn->setChecked(false); // Set the button to unchecked when keyboard is off screen
 				// showTitle();
 			}
 		});

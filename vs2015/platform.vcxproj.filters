@@ -741,6 +741,9 @@
     <ClInclude Include="..\src\ds\ui\effect\effect.h">
       <Filter>src\ds\ui\effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\toggle_container.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1216,6 +1219,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\effect\effect.cpp">
       <Filter>src\ds\ui\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\toggle_container.cpp">
+      <Filter>src\ds\ui\button</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

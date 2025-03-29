@@ -6,10 +6,13 @@ namespace ds::ui {
 class GstVideo;
 class YouTubeWeb;
 class ImageButton;
+class LayoutButton;
 
 enum class VideoVolumeStyle { CLASSIC, SLIDER };
 struct VideoVolumeSliderSprites {
-	ds::ui::ImageButton* mMuteButton  = nullptr;
+	ds::ui::LayoutButton* mMuteButton  = nullptr;
+	ds::ui::LayoutButton* mVolLowButton  = nullptr;
+	ds::ui::LayoutButton* mVolHighButton  = nullptr;
 	ds::ui::Sprite*		 mSliderTrack = nullptr;
 	ds::ui::Sprite*		 mSliderFill  = nullptr;
 	ds::ui::Sprite*		 mSliderNub	  = nullptr;

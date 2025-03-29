@@ -5,7 +5,8 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/ui/button/image_button.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/media/interface/thumbnail_bar.h>
 #include <ds/ui/media/interface/video_scrub_bar.h>
@@ -34,9 +35,10 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	mCanLock = true;
 
-	mUpButton =
-		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:back:normal:file"),
-								composeIconPath("ui:media_button:back:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+	//mUpButton = new ds::ui::LayoutButton(mEngine, composeIconPath("ui:media_button:back:normal:file"),
+	//							composeIconPath("ui:media_button:back:pressed:file"), 0);
+	mUpButton				  = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:back:normal:file",
+											 "ui:media_button:back:pressed:file");
 	addChildPtr(mUpButton);
 	mUpButton->setClickFn([this]() {
 		if (mLinkedPDF) {
@@ -49,13 +51,12 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		}
 	});
 
-	mUpButton->getNormalImage().setColor(buttonColor);
-	mUpButton->getHighImage().setColor(buttonColor / 2.0f);
-	mUpButton->setScale(mBackHeight / mUpButton->getHeight());
+	setButtonColor(mUpButton, buttonColor, buttonColor / 2.0f);
 
-	mDownButton =
-		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:forward:normal:file"),
-								composeIconPath("ui:media_button:forward:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+
+	mDownButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:forward:normal:file",
+							   "ui:media_button:forward:pressed:file");
+	
 	addChildPtr(mDownButton);
 	mDownButton->setClickFn([this]() {
 		if (mLinkedPDF) {
@@ -68,9 +69,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		}
 	});
 
-	mDownButton->getNormalImage().setColor(buttonColor);
-	mDownButton->getHighImage().setColor(buttonColor / 2.0f);
-	mDownButton->setScale(mForwardHeight / mDownButton->getHeight());
+	setButtonColor(mDownButton, buttonColor, buttonColor / 2.0f);
+
 
 	mPageCounter				= new ds::ui::Text(mEngine);
 
@@ -88,22 +88,26 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	mToggleLockedImage	 = composeIconPath("ui:media_button:lock:normal:file");
 	mToggleUnlockedImage = composeIconPath("ui:media_button:unlock:normal:file");
 
-	mTouchToggle = new ds::ui::ImageButton(mEngine,mToggleUnlockedImage,
-										   mToggleUnlockedImage,
-										   (sizey.y - buttonHeight) / 2.0f);
-	addChildPtr(mTouchToggle);
-	mTouchToggle->setClickFn([this]() { toggleTouch(); });
+	mTouchToggle = new ToggleContainer(mEngine,buttonHeight, buttonHeight);
+	auto checked = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:lock:normal:file",
+								"ui:media_button:lock:pressed:file");
+	auto unchecked = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:unlock:normal:file",
+								  "ui:media_button:unlock:pressed:file");
+	mTouchToggle->setCheckedButton(checked);
+	mTouchToggle->setUncheckedButton(unchecked);
 
-	mTouchToggle->getNormalImage().setColor(buttonColor);
-	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
-	auto tt_height = mTouchToggle->getHeight();
-	mTouchToggle->setScale(mLockHeight /tt_height);
+	addChildPtr(mTouchToggle);
+	checked->setClickFn([this]() { toggleTouch(); });
+	unchecked->setClickFn([this]() { toggleTouch(); });
+	setButtonColor(checked, buttonColor, buttonColor / 2.0f);
+	setButtonColor(unchecked, buttonColor/2.0f, buttonColor);
+	
 
 	
 
-	mThumbsButton =
-		new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:thumbnails:normal:file"),
-								composeIconPath("ui:media_button:thumbnails:pressed:file"), (sizey.y - buttonHeight) / 2.0f);
+	mThumbsButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:thumbnail:normal:file",
+								 "ui:media_button:thumbnail:pressed:file");
+		
 	addChildPtr(mThumbsButton);
 	mThumbsButton->setClickFn([this]() {
 		mShowingThumbs = !mShowingThumbs;
@@ -134,11 +138,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 		updateWidgets();
 	});
 
-	mThumbsButton->getNormalImage().setColor(buttonColor);
-	mThumbsButton->getHighImage().setColor(buttonColor / 2.0f);
-	mThumbsButton->setScale(mThumbnailHeight / mThumbsButton->getHeight());
-
-
+	setButtonColor(mThumbsButton, buttonColor, buttonColor / 2.0f);
+	
 	mScrubBar = new ds::ui::VideoScrubBar(mEngine, sizey.y, mScrubBarHeight, buttonColor);
 	addChildPtr(mScrubBar);
 	mScrubBar->hide();
@@ -261,23 +262,15 @@ void PDFInterface::updateWidgets() {
 	if (mLinkedPDF) {
 		if (mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = true;
-			mTouchToggle->getHighImage().setImageFile(mToggleLockedImage,
-													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile(mToggleLockedImage,
-														ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->setNormalImageColor(mToggleLockedColor);
-			mTouchToggle->setHighImageColor(mToggleUnlockedColor);
+			mTouchToggle->setChecked(true);
+			setButtonColor(mTouchToggle->getCheckedButton(), mToggleLockedColor, mToggleUnlockedColor);
 		} else if (!mLinkedPDF->isEnabled()) {
 			mLinkedEnabled = false;
-			mTouchToggle->getHighImage().setImageFile(mToggleUnlockedImage,
-													  ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile(mToggleUnlockedImage,
-														ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->setNormalImageColor(mToggleUnlockedColor);
-			mTouchToggle->setHighImageColor(mToggleLockedColor);
+			mTouchToggle->setChecked(false);
+			setButtonColor(mTouchToggle->getUncheckedButton(), mToggleUnlockedColor, mToggleLockedColor);
 		}
-		mTouchToggle->layout();
-		mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+		//mTouchToggle->layout();
+		//mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
 		if (mThumbnailBar) {
 			int pageNum = mLinkedPDF->getPageNum() - 1;
 			mThumbnailBar->setHighlightedItem(pageNum);

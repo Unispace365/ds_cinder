@@ -24,10 +24,10 @@ namespace ds { namespace ui {
 
 		virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
-		ds::ui::ImageButton* getPlayButton();
-		ds::ui::ImageButton* getPauseButton();
-		ds::ui::ImageButton* getLoopButton();
-		ds::ui::ImageButton* getUnLoopButton();
+		ds::ui::LayoutButton* getPlayButton();
+		ds::ui::LayoutButton* getPauseButton();
+		ds::ui::LayoutButton* getLoopButton();
+		ds::ui::LayoutButton* getUnLoopButton();
 
 		ds::ui::Sprite* getScrubBarBackground();
 		ds::ui::Sprite* getScrubBarProgress();
@@ -41,11 +41,11 @@ namespace ds { namespace ui {
 
 		ds::ui::GstVideo* mLinkedVideo;
 
-		ds::ui::ImageButton* mPlayButton;
-		ds::ui::ImageButton* mPauseButton;
+		ds::ui::LayoutButton* mPlayButton;
+		ds::ui::LayoutButton* mPauseButton;
 
-		ds::ui::ImageButton* mLoopButton;
-		ds::ui::ImageButton* mUnLoopButton;
+		ds::ui::LayoutButton* mLoopButton;
+		ds::ui::LayoutButton* mUnLoopButton;
 
 		VideoScrubBar*		mScrubBar;
 		VideoVolumeControl* mVolumeControl;

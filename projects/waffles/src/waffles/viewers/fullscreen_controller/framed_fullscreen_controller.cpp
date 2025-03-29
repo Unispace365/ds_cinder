@@ -8,6 +8,8 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/media/interface/web_interface.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
@@ -248,7 +250,7 @@ void FramedFullscreenController::updateUi() {
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
-					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
+					auto keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
 							auto	   keeb	 = webInterface->getSoftKeyboard();
@@ -275,8 +277,7 @@ void FramedFullscreenController::updateUi() {
 							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
-							webInterface->getKeyboardButton()->setNormalImageColor(highColor);
-							webInterface->getKeyboardButton()->setHighImageColor(normalColor);
+							webInterface->getKeyboardButton()->setChecked(true);
 							// setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
 							//					   keyboardBtn);
 
@@ -285,8 +286,7 @@ void FramedFullscreenController::updateUi() {
 							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
-							webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
-							webInterface->getKeyboardButton()->setHighImageColor(highColor);
+							webInterface->getKeyboardButton()->setChecked(false);
 							// setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png",
 							// keyboardBtn);
 						}

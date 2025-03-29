@@ -5,6 +5,7 @@
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/button/layout_button.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
@@ -70,22 +71,38 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		// 'track' - the background of the slider showing it's overall length
 		// 'fill' - the filled portion of the slider
 		// 'nub' - the visual handle at the current slider position
-		mSliderSprites.mMuteButton =
-			new ds::ui::ImageButton(mEngine, "", "", (mTheSize - mButtHeight) * 0.5f);
-		mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
-		mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
-		mSliderSprites.mMuteButton->setScale(MediaInterface::getVolumeButtonHeight() /
-											 mSliderSprites.mMuteButton->getHeight());
-		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
-		mSliderSprites.mMuteButton->setPosition(0.0f, getHeight() / 2.f);
-		mSliderSprites.mMuteButton->setClickFn([this] {
+		
+		mSliderSprites.mMuteButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_mute:file",
+										"ui:media_icon:volume_mute:file");
+		mSliderSprites.mVolLowButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), 
+										"ui:media_icon:volume_low:file","ui:media_icon:volume_low:file");
+		mSliderSprites.mVolHighButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_high:file",
+										 "ui:media_icon:volume_high:file");
+
+		auto volClick = [this] {
 			if (mMuted) {
 				setVolume(mLastVolume);
 			} else {
 				setVolume(0.f);
 			}
-		});
+		};
+		mSliderSprites.mMuteButton->setCenter(0.5f, 0.5f);
+		mSliderSprites.mMuteButton->setPosition(0.0f, getHeight() / 2.f);
+		mSliderSprites.mMuteButton->setClickFn(volClick);
+		mSliderSprites.mVolHighButton->setCenter(0.5f, 0.5f);
+		mSliderSprites.mVolHighButton->setPosition(0.0f, getHeight() / 2.f);
+		mSliderSprites.mVolHighButton->setClickFn(volClick);
+		mSliderSprites.mVolLowButton->setCenter(0.5f, 0.5f);
+		mSliderSprites.mVolLowButton->setPosition(0.0f, getHeight() / 2.f);
+		mSliderSprites.mVolLowButton->setClickFn(volClick);
+
+		mSliderSprites.mVolHighButton->hide();
+		mSliderSprites.mVolLowButton->hide();
+
 		addChildPtr(mSliderSprites.mMuteButton);
+		addChildPtr(mSliderSprites.mVolHighButton);
+		addChildPtr(mSliderSprites.mVolLowButton);
+
 
 		auto muteOffset = mSliderSprites.mMuteButton->getScaleWidth() / 2.f; // Mute button is centered, only need half
 		const auto padding	= mNubSize;
@@ -189,16 +206,17 @@ void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams) {
 			const auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 
 			if (isMuted || vol <= std::numeric_limits<float>::epsilon()) {
-				mSliderSprites.mMuteButton->setNormalImage(mMuteImage, imageFlags);
-
-				const auto& highImage = (mLastVolume < 0.5f) ? mVolumeLowImage : mVolumeHighImage;
-				mSliderSprites.mMuteButton->setHighImage(highImage, imageFlags);
+				mSliderSprites.mMuteButton->show();
+				mSliderSprites.mVolHighButton->hide();
+				mSliderSprites.mVolLowButton->hide();
 			} else if (vol < 0.5f) {
-				mSliderSprites.mMuteButton->setNormalImage(mVolumeLowImage, imageFlags);
-				mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
+				mSliderSprites.mMuteButton->hide();
+				mSliderSprites.mVolHighButton->hide();
+				mSliderSprites.mVolLowButton->show();
 			} else {
-				mSliderSprites.mMuteButton->setNormalImage(mVolumeHighImage, imageFlags);
-				mSliderSprites.mMuteButton->setHighImage(mMuteImage, imageFlags);
+				mSliderSprites.mMuteButton->hide();
+				mSliderSprites.mVolHighButton->show();
+				mSliderSprites.mVolLowButton->hide();
 			}
 
 			mSliderSprites.mSliderFill->setSize(vol * mSliderSprites.mSliderTrack->getWidth(),

@@ -11,6 +11,8 @@ namespace ds { namespace ui {
 	class SmartLayout;
 	class VideoScrubBar;
 	class VideoVolumeControl;
+	class LayoutButton;
+	class ToggleContainer;
 
 	/**
 	 * \class YoutubeInterface
@@ -29,13 +31,13 @@ namespace ds { namespace ui {
 
 		void setAllowTouchToggle(const bool allowTouchToggling);
 
-		ds::ui::ImageButton* getBackButton();
-		ds::ui::ImageButton* getForwardButton();
-		ds::ui::ImageButton* getTouchToggleButton();
+		ds::ui::LayoutButton* getBackButton();
+		ds::ui::LayoutButton* getForwardButton();
+		ds::ui::ToggleContainer* getTouchToggleButton();
 
 
-		ds::ui::ImageButton* getPlayButton();
-		ds::ui::ImageButton* getPauseButton();
+		ds::ui::LayoutButton* getPlayButton();
+		ds::ui::LayoutButton* getPauseButton();
 
 		ds::ui::Sprite* getScrubBarBackground();
 		ds::ui::Sprite* getScrubBarProgress();
@@ -53,11 +55,11 @@ namespace ds { namespace ui {
 
 		VideoScrubBar*		 mScrubBar;
 		VideoVolumeControl*	 mVolumeControl;
-		ds::ui::ImageButton* mBackPageButton;
-		ds::ui::ImageButton* mForwardPageButton;
-		ds::ui::ImageButton* mTouchToggle;
-		ds::ui::ImageButton* mPlayButton;
-		ds::ui::ImageButton* mPauseButton;
+		ds::ui::LayoutButton* mBackPageButton;
+		ds::ui::LayoutButton* mForwardPageButton;
+		ds::ui::ToggleContainer* mTouchToggle;
+		ds::ui::LayoutButton* mPlayButton;
+		ds::ui::LayoutButton* mPauseButton;
 	};
 
 }} // namespace ds::ui

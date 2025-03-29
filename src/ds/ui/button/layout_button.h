@@ -30,7 +30,7 @@ namespace ds { namespace ui {
 		/// The visual state has been updated (down or up) pressed = down.
 		void setStateChangeFn(const std::function<void(bool pressed)>& func) override { mStateChangeFunction = func; }
 
-		LayoutSprite& getNormalSprite() const override { return mUp; };
+		LayoutSprite& getNormalSprite() const override { return mUp; }
 		LayoutSprite& getHighSprite() const override { return mDown; }
 
 		void showDown() const override;
@@ -46,6 +46,7 @@ namespace ds { namespace ui {
 		/// VIEW
 		LayoutSprite& mDown;
 		LayoutSprite& mUp;
+
 
 		/// TOUCH
 		ButtonBehaviour mButtonBehaviour;
