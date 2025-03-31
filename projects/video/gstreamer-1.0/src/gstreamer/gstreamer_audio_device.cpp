@@ -11,6 +11,9 @@
 
 #include <dsound.h>
 
+
+#pragma comment(lib, "runtimeobject.lib")
+
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 
