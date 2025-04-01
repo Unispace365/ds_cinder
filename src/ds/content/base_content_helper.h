@@ -18,9 +18,6 @@ class BaseContentHelper : public ContentHelper {
 	std::vector<ContentModelRef> getContentForPlatform() override;
 	std::vector<Resource>		 findMediaResources() override;
 	std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) override;
-	std::vector<ContentModelRef> getRecordsOfType(const std::string& type) override;
-	std::vector<ContentModelRef> getRecordsOfType(const std::vector<ContentModelRef>& records,
-												  const std::string&				  type) override;
 
 	bool isValidFolder(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 	bool isValidMedia(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
@@ -31,10 +28,12 @@ class BaseContentHelper : public ContentHelper {
 	std::string getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
 	std::vector<ContentModelRef> getStreamSources(const std::string& category = DEFAULTCATEGORY) override;
-	ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, const std::string& category = DEFAULTCATEGORY) override;
-	std::string					 getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
-	std::string					 getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
-	std::string					 getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	ContentModelRef				 getStreamSourceForStream(ContentModelRef	 stream,
+														  const std::string& category = DEFAULTCATEGORY) override;
+	std::string getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
+	std::string getStreamSourceAddressKey(ContentModelRef	 model,
+										  const std::string& category = DEFAULTCATEGORY) override;
+	std::string getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) override;
 
   protected:
 	std::unordered_map<std::string, std::vector<std::string>> mAcceptableFolders;

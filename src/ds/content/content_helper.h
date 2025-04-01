@@ -56,16 +56,20 @@ class ContentHelper {
 	virtual std::string getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)			= 0;
 	virtual std::string getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
 	virtual std::string getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	= 0;
-
-	virtual std::vector<ContentModelRef> getRecordsOfType(const std::string& type) = 0;
+	
 	virtual std::vector<ContentModelRef> getRecordsOfType(const std::vector<ContentModelRef>& records,
-														  const std::string&				  type) = 0;
+														  const std::string&				  type);
+
+	virtual std::vector<ContentProperty> findAllProperties(const std::vector<ContentModelRef>& records,
+	                                                      const std::string&				   propertyName);
 
   protected:
 	static void getRecordsByUid(const std::vector<ContentModelRef>& records, const std::string& uid,
 								std::vector<ContentModelRef>& result);
 	static void getRecordsByType(const std::vector<ContentModelRef>& records, const std::string& type,
 								 std::vector<ContentModelRef>& result);
+	static void getPropertyByName(const std::vector<ContentModelRef>& records, const std::string& propertyName,
+								 std::vector<ContentProperty>& result);
 
 	ui::SpriteEngine& mEngine;
 };
