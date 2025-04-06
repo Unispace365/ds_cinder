@@ -8,31 +8,32 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/image.h>
-#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/svg_sprite.h>
+#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
 #include <ds/ui/button/image_button.h>
-#include <ds/ui/button/layout_button.h>
 #include <ds/ui/sprite/video.h>
+#include <ds/ui/button/layout_button.h>
 
 #include "ds/ui/media/interface/video_scrub_bar.h"
 #include "ds/ui/media/interface/video_volume_control.h"
 
 namespace ds::ui {
 
-float MediaInterface::mPlayHeight		  = 0.0f;
-float MediaInterface::mPauseHeight		  = 0.0f;
-float MediaInterface::mKeyboardHeight	  = 0.0f;
-float MediaInterface::mBackHeight		  = 0.0f;
-float MediaInterface::mForwardHeight	  = 0.0f;
-float MediaInterface::mRefreshHeight	  = 0.0f;
-float MediaInterface::mLockHeight		  = 0.0f;
-float MediaInterface::mLoopHeight		  = 0.0f;
-float MediaInterface::mVolumeHeight		  = 0.0f;
-float MediaInterface::mThumbnailHeight	  = 0.0f;
+float MediaInterface::mPlayHeight = 0.0f;
+float MediaInterface::mPauseHeight = 0.0f;
+float MediaInterface::mKeyboardHeight = 0.0f;
+float MediaInterface::mBackHeight	  = 0.0f;
+float MediaInterface::mForwardHeight  = 0.0f;
+float MediaInterface::mRefreshHeight  = 0.0f;
+float MediaInterface::mLockHeight	  = 0.0f;
+float MediaInterface::mLoopHeight	  = 0.0f;
+float MediaInterface::mVolumeHeight	  = 0.0f;
+float MediaInterface::mThumbnailHeight = 0.0f;
 float MediaInterface::mVolumeSliderHeight = 0.0f;
 float MediaInterface::mScrubBarHeight	  = 0.0f;
+
 
 
 MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey,
@@ -50,19 +51,19 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::ve
   , mInterfaceIdleSettings(5.0f) {
 
 	// TODO: settings?
-	auto defaultHeight	= mEngine.getWafflesSettings().getFloat("ui:media_button:size", 0, 32.0f);
-	mPlayHeight			= mEngine.getWafflesSettings().getFloat("ui:media_button:play:size", 0, defaultHeight);
-	mPauseHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:pause:size", 0, defaultHeight);
-	mKeyboardHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:keyboard:size", 0, defaultHeight);
-	mBackHeight			= mEngine.getWafflesSettings().getFloat("ui:media_button:back:size", 0, defaultHeight);
-	mForwardHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:forward:size", 0, defaultHeight);
-	mRefreshHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:refresh:size", 0, defaultHeight);
-	mLockHeight			= mEngine.getWafflesSettings().getFloat("ui:media_button:lock:size", 0, defaultHeight);
-	mLoopHeight			= mEngine.getWafflesSettings().getFloat("ui:media_button:loop:size", 0, defaultHeight);
-	mVolumeHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:volume:size", 0, defaultHeight);
-	mThumbnailHeight	= mEngine.getWafflesSettings().getFloat("ui:media_button:thumbnail:size", 0, defaultHeight);
-	mVolumeSliderHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:volume_slider:size", 0, defaultHeight);
-	mScrubBarHeight		= mEngine.getWafflesSettings().getFloat("ui:media_button:scrub_bar:size", 0, defaultHeight);
+	auto defaultHeight	 = mEngine.getWafflesSettings().getFloat("ui:media_button:size", 0, 32.0f);
+	 mPlayHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:play:size", 0, defaultHeight);
+	 mPauseHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:pause:size", 0, defaultHeight);
+	 mKeyboardHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:keyboard:size", 0, defaultHeight);
+	 mBackHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:back:size", 0, defaultHeight);
+	 mForwardHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:forward:size", 0, defaultHeight);
+	 mRefreshHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:refresh:size", 0, defaultHeight);
+	 mLockHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:lock:size", 0, defaultHeight);
+	 mLoopHeight			 = mEngine.getWafflesSettings().getFloat("ui:media_button:loop:size", 0, defaultHeight);
+	 mVolumeHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:volume:size", 0, defaultHeight);
+	 mThumbnailHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:thumbnail:size", 0, defaultHeight);
+	 mVolumeSliderHeight = mEngine.getWafflesSettings().getFloat("ui:media_button:volume_slider:size", 0, defaultHeight);
+	 mScrubBarHeight		 = mEngine.getWafflesSettings().getFloat("ui:media_button:scrub_bar:size", 0, defaultHeight);   
 
 
 	const float backOpacccy = 0.95f;
@@ -184,68 +185,79 @@ void MediaInterface::onSizeChanged() {
 	setScale(1.f / scale.x, 1.f / scale.y);
 }
 
-ds::ui::LayoutButton* MediaInterface::createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
-												   const std::string& iconIdHigh) {
-	return createButton(mEngine, sizey, iconIdNormal, iconIdHigh);
+ds::ui::LayoutButton* MediaInterface::createButton(const ci::vec2& sizey,const std::string& iconIdNormal, const std::string& iconIdHigh) {
+	return createButton(mEngine, sizey, iconIdNormal, iconIdHigh);	
 }
 
-ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine, const ci::vec2& sizey,
-												   const std::string& iconIdNormal, const std::string& iconIdHigh) {
-	auto button = new ds::ui::LayoutButton(engine, sizey.x, sizey.y);
+ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine,const ci::vec2& sizey,const std::string& iconIdNormal,const std::string& iconIdHigh) {
+	auto button			= new ds::ui::LayoutButton(engine, sizey.x, sizey.y);
 
-	ci::fs::path normalPath = composeIconPath(engine, iconIdNormal);
-	ci::fs::path highPath	= composeIconPath(engine, iconIdHigh);
-
-	ds::ui::Sprite* normal = nullptr;
-	ds::ui::Sprite* high   = nullptr;
-
-	constexpr const char* suffix = ".svg";
-#if defined(HAS_NVPATH)
-	// check for svgs
-	if (normalPath.extension() == suffix) {
+	//check for svgs
+#if defined(DS_NVPATH) && defined(DS_VIEWER_USE_NVPATH) 
+	ds::ui::Sprite* normal		= nullptr;
+	ds::ui::Sprite* high		= nullptr;
+	auto suffix		= std::string(".svg");
+	bool isNormalSvg = false;
+	auto normalPath = composeIconPath(engine,iconIdNormal);
+	if (normalPath.length() >= 4 && std::equal(suffix.rbegin(), suffix.rend(), normalPath.rbegin())) {
 		// if the normal path ends with .svg then use svg
-		auto normalSvg = new ds::ui::SvgSprite(engine);
-		normalSvg->setFile(normalPath.string());
-		normal = normalSvg;
+		isNormalSvg = true;
+	} else {
+		isNormalSvg = false;
 	}
 
-	if (highPath.extension() == suffix) {
+	bool isHighSvg	  = false;
+	
+	auto highPath = composeIconPath(engine,iconIdHigh);
+	if (highPath.length() >= 4 && std::equal(suffix.rbegin(), suffix.rend(), highPath.rbegin())) {
+		isHighSvg = true;
+	}
+	
+	if (isNormalSvg) {
+		auto normalSvg = new ds::ui::SvgSprite(engine);
+		normalSvg->setFile(normalPath);
+		normal = normalSvg;
+	} else {
+	
+		// fallback to image
+		// if not svg then use image
+		normal = new ds::ui::Image(engine, normalPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
+	}
+	
+	
+	if (isHighSvg) {
 		auto highSvg = new ds::ui::SvgSprite(engine);
-		highSvg->setFile(normalPath.string());
+		highSvg->setFile(highPath);
 		high = highSvg;
+	} else {
+
+		// fallback to image
+		// if not svg then use image
+		high = new ds::ui::Image(engine, highPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
 	}
 #else
-	if (normalPath.extension() == suffix) normalPath.replace_extension(".png");
-	if (highPath.extension() == suffix) highPath.replace_extension(".png");
+	auto			normalPath = composeIconPath(engine, iconIdNormal);
+	auto			highPath   = composeIconPath(engine, iconIdHigh);
+	ds::ui::Sprite* normal = nullptr;
+	ds::ui::Sprite* high   = nullptr;
+	normal = new ds::ui::Image(engine, normalPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
+	high   = new ds::ui::Image(engine, highPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
 #endif
+	
+	
 
-	if (!normal) {
-		normal =
-			new ds::ui::Image(engine, normalPath.string(), ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
-	}
+	auto normalAspect = normal->getWidth() / normal->getHeight();
+	auto highAspect = high->getWidth() / high->getHeight();
+	normal->setSize(sizey.y * normalAspect, sizey.y);
+	high->setSize(sizey.y * highAspect, sizey.y);
 
-	if (!high) {
-		high = new ds::ui::Image(engine, highPath.string(), ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
-	}
-
-	if (normal) {
-		auto normalAspect = normal->getWidth() / normal->getHeight();
-		normal->setSize(sizey.y * normalAspect, sizey.y);
-		button->getNormalSprite().addChildPtr(normal);
-	}
-
-	if (high) {
-		auto highAspect = high->getWidth() / high->getHeight();
-		high->setSize(sizey.y * highAspect, sizey.y);
-		button->getHighSprite().addChildPtr(high);
-	}
-
+	button->getNormalSprite().addChildPtr(normal);
+	button->getHighSprite().addChildPtr(high);
 	button->runLayout();
 	return button;
 }
 
-void MediaInterface::setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor,
-									const ci::Color& highColor) {
+void MediaInterface::setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor) {
 	if (button->getNormalSprite().getChildren().empty() || button->getHighSprite().getChildren().empty()) return;
 	button->getNormalSprite().getChildren()[0]->setColor(normalColor);
 	button->getHighSprite().getChildren()[0]->setColor(highColor);
