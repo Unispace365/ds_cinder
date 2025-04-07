@@ -1,0 +1,56 @@
+<settings>
+
+    <setting name="viewers:sprite:scale" value="1.0" type="float"/>
+	<setting name="viewers:font:scale" value="1.0" type="float"/>
+
+    <setting name="interface:keyboard:top_pad" value="32.0"  type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="interface:keyboard:left_pad" value="16.0"  type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="interface:keyboard:right_pad" value="16.0"  type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="interface:keyboard:bottom_pad" value="16.0"  type="float" multiplier="viewers:sprite:scale"/>
+
+    <setting name="ui:media_button:size" value="24" type="float" multiplier="viewers:sprite:scale"/>
+
+    <setting name="ui:media_button:keyboard:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:play:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:pause:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:back:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:forward:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:refresh:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:lock:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:loop:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:volume:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:volume_slider:size" value="#expr{ $_ui:media_button:size * 0.25 }" type="float" multiplier="viewers:sprite:scale"/>
+	<setting name="ui:media_button:scrub_bar:size" value="#expr{ $_ui:media_button:size * 0.25 }" type="float" multiplier="viewers:sprite:scale"/>
+
+    <setting name="ui:media_button:folder" value="%APP%/data/images/media_interface/" type="string"/>
+	<setting name="ui:media_button:postfix" value="" type="string"/>
+	<setting name="ui:media_button:extension" value=".svg" type="string"/>
+
+	<setting name="ui:media_button:play:normal:file" value="play and pause=play active"  type="string"/>
+	<setting name="ui:media_button:play:pressed:file" value="play and pause=play Pressed"  type="string"/>
+	<setting name="ui:media_button:pause:normal:file" value="play and pause=pause active"  type="string"/>
+	<setting name="ui:media_button:pause:pressed:file" value="play and pause=pause Pressed"  type="string"/>
+	<setting name="ui:media_button:back:normal:file" value="back=active"  type="string"/>
+	<setting name="ui:media_button:back:pressed:file" value="back=pressed"  type="string"/>
+	<setting name="ui:media_button:forward:normal:file" value="forward=active"  type="string"/>
+	<setting name="ui:media_button:forward:pressed:file" value="forward=pressed"  type="string"/>
+	<setting name="ui:media_button:refresh:normal:file" value="refresh=active"  type="string"/>
+	<setting name="ui:media_button:refresh:pressed:file" value="refresh=pressed"  type="string"/>
+	<setting name="ui:media_button:unlock:normal:file" value="lock=opened - active"  type="string"/>
+	<setting name="ui:media_button:unlock:pressed:file" value="lock=opened - pressed"  type="string"/>
+	<setting name="ui:media_button:lock:normal:file" value="lock=locked pressed"  type="string"/>
+	<setting name="ui:media_button:lock:pressed:file" value="lock=locked active"  type="string"/>
+	<setting name="ui:media_button:thumbnails:normal:file" value="%APP%/data/images/media_interface/thumbnails" postfix=""  folder="" type="string"/>
+	<setting name="ui:media_button:thumbnails:pressed:file" value="%APP%/data/images/media_interface/thumbnails" postfix="" folder="" type="string"/>	
+	<setting name="ui:media_button:loop:normal:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:loop:pressed:file" value="loop=pressed"  type="string"/>
+	<setting name="ui:media_button:unloop:normal:file" value="loop=pressed"  type="string"/>
+	<setting name="ui:media_button:unloop:pressed:file" value="loop=active"  type="string"/>
+	<setting name="ui:media_button:keyboard:normal:file" value="keyboard=active"  type="string"/>
+	<setting name="ui:media_button:keyboard:pressed:file" value="keyboard=pressed"  type="string"/>
+
+    <setting name="ui:media_icon:volume_high:file" value="volume - high"  type="string"/>
+	<setting name="ui:media_icon:volume_low:file" value="volume - low"  type="string"/>
+	<setting name="ui:media_icon:volume_mute:file" value="volume - muted"  type="string"/>
+
+</settings>
