@@ -1,5 +1,6 @@
 #include "sprite_engine.h"
 #include "sprite_engine.h"
+#include "sprite_engine.h"
 #include "stdafx.h"
 
 #include <cinder/app/App.h>
@@ -62,6 +63,10 @@ ds::cfg::Settings& SpriteEngine::getAppSettings() const {
 
 ds::cfg::Settings& SpriteEngine::getWafflesSettings() const {
 	return mData.mEngineCfg.getSettings("waffles");
+}
+
+ds::cfg::Settings& SpriteEngine::getViewersSettings() const {
+	return mData.mEngineCfg.getSettings("viewers");
 }
 
 ds::cfg::Settings& SpriteEngine::getColorSettings() const {

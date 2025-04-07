@@ -123,7 +123,7 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 			DS_LOG_WARNING("Supply parameters to buildMediaInterface, dummy!");
 			return outputMi;
 		}
-		auto buttonSize = engine.getWafflesSettings().getFloat("ui:interface_size", 0, 16.0f);
+		auto buttonSize = engine.getViewersSettings().getFloat("ui:media_button:size", 0, 16.0f);
 		// Images don't have interfaces
 		ds::ui::Image* anImage = dynamic_cast<ds::ui::Image*>(mediaPlayer);
 		if (anImage) {
@@ -163,9 +163,9 @@ namespace ds { namespace ui { namespace MediaInterfaceBuilder {
 			sks.mKeyScale					= 1.0;
 			sks.mGraphicKeys				= true;
 			sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
-			sks.mGraphicRoundedCornerRadius = engine.getWafflesSettings().getFloat("ui:keyboard:key_corner_radius", 0, 8.0f);
-			sks.mGraphicKeySize				= engine.getWafflesSettings().getFloat("ui:keyboard:key_size", 0, 30.0f);
-			sks.mBackgroundOpacity = engine.getWafflesSettings().getFloat("ui:keyboard:background_opacity", 0, 0.9f);
+			sks.mGraphicRoundedCornerRadius = engine.getViewersSettings().getFloat("ui:keyboard:key_corner_radius", 0, 8.0f);
+			sks.mGraphicKeySize				= engine.getViewersSettings().getFloat("ui:keyboard:key_size", 0, 30.0f);
+			sks.mBackgroundOpacity = engine.getViewersSettings().getFloat("ui:keyboard:background_opacity", 0, 0.9f);
 			ds::ui::WebInterface* wi =
 				new WebInterface(engine, ci::vec2(400.0f, buttonSize), buttonSize, buttonColor, backgroundColor,sks);
 			parentSprite->addChildPtr(wi);

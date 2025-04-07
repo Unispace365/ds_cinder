@@ -507,10 +507,10 @@ void WebInterface::updateWidgets() {
 				const float keyW = mKeyboard->getScaleWidth();
 				const float keyH = mKeyboard->getScaleHeight();
 
-				auto areaTop	= mEngine.getWafflesSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
-				auto areaLeft	= mEngine.getWafflesSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
-				auto areaRight	= mEngine.getWafflesSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
-				auto areaBottom = mEngine.getWafflesSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
+				auto areaTop	= mEngine.getViewersSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
+				auto areaLeft	= mEngine.getViewersSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
+				auto areaRight	= mEngine.getViewersSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
+				auto areaBottom = mEngine.getViewersSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
 
 				const float areaW = keyW + areaLeft + areaRight;
 				const float areaH = keyH + areaTop + areaBottom;

@@ -114,6 +114,8 @@ class SpriteEngine {
 	/// Returns the settings for waffles.xml (convenience)
 	ds::cfg::Settings& getWafflesSettings() const;
 
+	ds::cfg::Settings& getViewersSettings() const;
+
 	/// Returns the settings for colors.xml (deprecated)
 	ds::cfg::Settings& getColorSettings() const;
 
