@@ -8,7 +8,9 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/image.h>
+#if defined(DS_NVPATH)
 #include <ds/ui/sprite/svg_sprite.h>
+#endif
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
@@ -193,7 +195,12 @@ ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine,
 	auto button			= new ds::ui::LayoutButton(engine, sizey.x, sizey.y);
 
 	//check for svgs
-#if defined(DS_NVPATH) && defined(DS_VIEWER_USE_NVPATH) 
+	// This forces a fallback if DS_NVPATH is not defined. 
+	// This is defined in the NV_PATH's Property Pages that are loaded into
+	// the viewers project conditionally with the environment variable DS_VIEWERS_USE_NVPATH != false.
+	// if you have a project that doesn't want to include nv_path and uses viewers
+	// then you need to define DS_VIEWERS_USE_NVPATH as "false" in the enviornment variables.
+#if defined(DS_NVPATH) 
 	ds::ui::Sprite* normal		= nullptr;
 	ds::ui::Sprite* high		= nullptr;
 	auto suffix		= std::string(".svg");

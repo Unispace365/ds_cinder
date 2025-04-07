@@ -36,14 +36,6 @@ namespace {
 auto INIT = []() {
 	ds::App::AddStartup("MediaPlayer" ,[](ds::Engine& e) {
 
-		#if defined(DS_NVPATH) && !defined(DS_VIEWER_USE_NVPATH)
-		DS_LOG_INFO("Svg sprites are available, but viewers are not set to use them. Compile with DS_VIEWER_USE_NVPATH defined in \"viewers\" project to enable.");
-		#endif
-
-		#if !defined(DS_NVPATH) && defined(DS_VIEWER_USE_NVPATH)
-		DS_LOG_WARNING("Svg sprites are NOT available, but DS_VIEWER_USE_NVPATH is defined. Svg WILL NOT LOAD. ");
-		#endif
-
 		e.registerSpriteImporter("media_player", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 			return new ds::ui::MediaPlayer(enginey, true);
 		});
