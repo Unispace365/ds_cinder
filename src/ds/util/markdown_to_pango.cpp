@@ -9,85 +9,93 @@
 
 namespace ds { namespace ui {
 
-	static void rndr_normal_text(struct buf* ob, const struct buf* text, void* opaque) {
+	MarkdownOptions MarkdownOptions::sDefaultOptions = MarkdownOptions::create();
+
+	static void rndr_normal_text(buf* ob, const buf* text, void* options) {
 		bufput(ob, text->data, text->size);
 	}
 
-	static void rndr_paragraph(struct buf* ob, const struct buf* text, void* opaque) {
+	static void rndr_paragraph(buf* ob, const buf* text, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->paragraph.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "\n\n");
+		bufputs(ob, opts->paragraph.close.c_str());
 	}
-	static int rndr_strikethrough(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_strikethrough(buf* ob, const buf* text, void* options) {
 		if (!text || !text->size) return 0;
-		bufputs(ob, "<span strikethrough='true'>");
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->strikethrough.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "</span>");
+		bufputs(ob, opts->strikethrough.close.c_str());
 		return 1;
 	}
-	static int rndr_superscript(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_superscript(buf* ob, const buf* text, void* options) {
 		if (!text || !text->size) return 0;
-		bufputs(ob, "<sup>");
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->superscript.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "</sup>");
+		bufputs(ob, opts->superscript.close.c_str());
 		return 1;
 	}
-	static int rndr_double_emphasis(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_double_emphasis(buf* ob, const buf* text, void* options) {
 		if (!text || !text->size) return 0;
-		bufputs(ob, "<span weight='bold'>");
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->emphasis2.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "</span>");
+		bufputs(ob, opts->emphasis2.close.c_str());
 		return 1;
 	}
-	static int rndr_emphasis(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_emphasis(buf* ob, const buf* text, void* options) {
 		if (!text || !text->size) return 0;
-		bufputs(ob, "<span style='oblique'>");
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->emphasis1.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "</span>");
+		bufputs(ob, opts->emphasis1.close.c_str());
 		return 1;
 	}
 
-	static int rndr_triple_emphasis(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_triple_emphasis(buf* ob, const buf* text, void* options) {
 		if (!text || !text->size) return 0;
-		bufputs(ob, "<span weight='bold' style='oblique'>");
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->emphasis3.open.c_str());
 		bufput(ob, text->data, text->size);
-		bufputs(ob, "</span>");
+		bufputs(ob, opts->emphasis3.close.c_str());
 		return 1;
 	}
 
-	static void rndr_header(struct buf* ob, const struct buf* text, int level, void* opaque) {
-		// if we want more space in front of headers
-		if (ob->size) {
-			//	bufputc(ob, '\n');
-		}
-
-		if (level == 1)
-			bufputs(ob, "<span weight='heavy' size='xx-large'>");
-		else if (level == 2)
-			bufputs(ob, "<span weight='heavy' size='x-large'>");
-		else
-			bufputs(ob, "<span weight='heavy' size='large'>");
-		bufput(ob, text->data, text->size);
-		bufputs(ob, "</span>\n\n");
-	}
-
-	static void rndr_list(struct buf* ob, const struct buf* text, int flags, void* opaque) {
-		if (flags & MKD_LIST_ORDERED) {
-			bufputs(ob, "<ol>\n");
+	static void rndr_header(buf* ob, const buf* text, int level, void* options) {
+		if (!text || !text->size) return;
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		if (level == 1) {
+			bufputs(ob, opts->header1.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header1.close.c_str());
+		} else if (level == 2) {
+			bufputs(ob, opts->header2.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header2.close.c_str());
 		} else {
-			bufputs(ob, "<ul>\n");
+			bufputs(ob, opts->header3.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header3.close.c_str());
 		}
-		if (text) bufput(ob, text->data, text->size);
-
-		if (flags & MKD_LIST_ORDERED) {
-			bufputs(ob, "\n</ol>\n");
-		} else {
-			bufputs(ob, "\n</ul>\n");
-		}
-		bufputc(ob, '\n');
 	}
 
-	static void rndr_listitem(struct buf* ob, const struct buf* text, int flags, void* opaque) {
-		bufputs(ob, "&bull;");
+	static void rndr_list(buf* ob, const buf* text, int flags, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		if (flags & MKD_LIST_ORDERED) {
+			bufputs(ob, opts->ordered.open.c_str());
+			if (text) bufput(ob, text->data, text->size);
+			bufputs(ob, opts->ordered.close.c_str());
+		} else {
+			bufputs(ob, opts->unordered.open.c_str());
+			if (text) bufput(ob, text->data, text->size);
+			bufputs(ob, opts->unordered.close.c_str());
+		}
+	}
+
+	static void rndr_listitem(buf* ob, const buf* text, int flags, void* options) {
+		BUFPUTSL(ob, "&bull;");
 		if (text) {
 			size_t size = text->size;
 			while (size && text->data[size - 1] == '\n')
@@ -95,69 +103,73 @@ namespace ds { namespace ui {
 
 			bufput(ob, text->data, size);
 		}
-		bufputs(ob, "\n");
+		BUFPUTSL(ob, "\n");
 	}
 
-	static int rndr_linebreak(struct buf* ob, void* opaque) {
-		bufputs(ob, "\n\n");
+	static int rndr_linebreak(buf* ob, void* options) {
+		BUFPUTSL(ob, "\n\n");
 		return 1;
 	}
 
-	static void rndr_blockquote(struct buf* ob, const struct buf* text, void* opaque) {
-		BUFPUTSL(ob, "<blockquote><span font='Courier New'>");
+	static void rndr_blockquote(buf* ob, const buf* text, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->blockquote.open.c_str());
 		if (text) bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</span></blockquote>\n");
+		bufputs(ob, opts->blockquote.close.c_str());
 	}
 
-	static void rndr_blockcode(struct buf* ob, const struct buf* text, const struct buf* lang, void* opaque) {
-		BUFPUTSL(ob, "<blockquote><span font='Consolas' >");
+	static void rndr_blockcode(buf* ob, const buf* text, const buf* lang, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->blockcode.open.c_str());
 		if (text) bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</span></blockquote>\n");
+		bufputs(ob, opts->blockcode.close.c_str());
 	}
 
-	static int rndr_codespan(struct buf* ob, const struct buf* text, void* opaque) {
-		BUFPUTSL(ob, "<span font='Consolas'>");
+	static int rndr_codespan(buf* ob, const buf* text, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->codespan.open.c_str());
 		if (text) bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</span>");
+		bufputs(ob, opts->codespan.close.c_str());
 		return 1;
 	}
 
-	static void rndr_table(struct buf* ob, const struct buf* header, const struct buf* body, void* opaque) {
-		BUFPUTSL(ob, "<span font='Consolas'>");
+	static void rndr_table(buf* ob, const buf* header, const buf* body, void* options) {
+		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
+		bufputs(ob, opts->table.open.c_str());
 		if (header) bufput(ob, header->data, header->size);
 		if (body) bufput(ob, body->data, body->size);
-		BUFPUTSL(ob, "</span>");
+		bufputs(ob, opts->table.close.c_str());
 		bufputc(ob, '\n');
 	}
 
-	static void rndr_tablerow(struct buf* ob, const struct buf* text, void* opaque) {
+	static void rndr_tablerow(buf* ob, const buf* text, void* options) {
 		// BUFPUTSL(ob, "<tr>\n");
 		if (text) bufput(ob, text->data, text->size);
 		BUFPUTSL(ob, "\n");
 	}
 
-	static void rndr_tablecell(struct buf* ob, const struct buf* text, int flags, void* opaque) {
+	static void rndr_tablecell(buf* ob, const buf* text, int flags, void* options) {
 		if (text) bufput(ob, text->data, text->size);
 		BUFPUTSL(ob, " | ");
 	}
 
-	static int rndr_raw_html(struct buf* ob, const struct buf* text, void* opaque) {
+	static int rndr_raw_html(buf* ob, const buf* text, void* options) {
 		/* if (text) bufput(ob, text->data, text->size);
 		BUFPUTSL(ob, " | "); */
 		return 0;
 	}
 
-	std::wstring markdown_to_pango(const std::wstring& inputMarkdown) {
-		return ds::wstr_from_utf8(markdown_to_pango(ds::utf8_from_wstr(inputMarkdown)));
+	std::wstring markdown_to_pango(const std::wstring& inputMarkdown, const MarkdownOptions& options) {
+		return ds::wstr_from_utf8(markdown_to_pango(ds::utf8_from_wstr(inputMarkdown), options));
 	}
 
-	std::string markdown_to_pango(const std::string& source) {
+	std::string markdown_to_pango(const std::string& inputMarkdown, const MarkdownOptions& options) {
 
 		// see the html directory for usage
 		// https://github.com/apiaryio/sundown/
 
 
-		static const struct sd_callbacks cb_default = {
+		static const sd_callbacks cb_default = {
 
 			/// NULL skips these ones (note: tables aren't parsed)
 			rndr_blockcode,	  // rndr_blockcode,
@@ -180,7 +192,7 @@ namespace ds { namespace ui {
 			NULL,				  // rndr_image,
 			rndr_linebreak,		  // rndr_linebreak,
 			NULL,				  // rndr_link,
-			rndr_raw_html,				  // rndr_raw_html,
+			rndr_raw_html,		  // rndr_raw_html,
 			rndr_triple_emphasis, // rndr_triple_emphasis,
 			rndr_strikethrough,	  // rndr_strikethrough,
 			rndr_superscript,	  // rndr_superscript,
@@ -194,34 +206,27 @@ namespace ds { namespace ui {
 			NULL, // footer - copied directly
 		};
 
-		struct sd_callbacks callbacks;
-		struct sd_markdown* markdown;
-		struct buf*			ob;
+		sd_callbacks callbacks;
+		sd_markdown* markdown;
+		buf*		 ob;
 		callbacks = cb_default;
 
-		const int parserExtensions = MKDEXT_FENCED_CODE | MKDEXT_LAX_SPACING |
-									 MKDEXT_SUPERSCRIPT | MKDEXT_STRIKETHROUGH /*| MKDEXT_TABLES */;
-		markdown = sd_markdown_new(parserExtensions, 16, &callbacks, nullptr);
-
-
-		std::string theInput = source;
-
-		// Remove some "offensive" characters
-		// These will break pango's markup later on
-		// These also break blockquotes, but we re-add those later
-		/* ds::replace(theInput, "&", "&amp;");
-		ds::replace(theInput, "<", "&lt;");
-		ds::replace(theInput, ">", "&gt;"); */
+		constexpr int parserExtensions =
+			MKDEXT_FENCED_CODE | MKDEXT_LAX_SPACING | MKDEXT_SUPERSCRIPT | MKDEXT_STRIKETHROUGH /*| MKDEXT_TABLES */;
+		markdown = sd_markdown_new(parserExtensions, 16, &callbacks, const_cast<MarkdownOptions*>(&options));
 
 		ob = bufnew(64);
-		sd_markdown_render(ob, reinterpret_cast<const uint8_t*>(theInput.c_str()), theInput.length(), markdown);
+		sd_markdown_render(ob, reinterpret_cast<const uint8_t*>(inputMarkdown.c_str()), inputMarkdown.length(),
+						   markdown);
 		sd_markdown_free(markdown);
 
-		if (!ob || !ob->data || !ob->size) return "";
+		if (!ob || !ob->data || !ob->size) return {};
 
 		std::string outputString = std::string(reinterpret_cast<char*>(ob->data), ob->size);
 
 		bufrelease(ob);
+
+		// TODO: figure out if we can prevent all the additional parsing below by simply updating the MarkdownOptions.
 
 		std::string outputty;
 
@@ -233,28 +238,24 @@ namespace ds { namespace ui {
 
 		struct ListType {
 			ListType(const int typey)
-			  : listType(typey)
-			  , listCount(1) {}
+			  : listType(typey) {}
 
 			int listType;
-			int listCount;
+			int listCount{1};
 		};
 
 		// 0 = unordered list
 		// 1 = ordered list
 		std::vector<ListType> listTypes;
 
-		for (auto it : lines) {
-
-			std::string thisLine = it;
-
+		for (std::string thisLine : lines) {
 			if (thisLine.find("<ol>") != std::string::npos) {
-				listTypes.push_back(ListType(1));
+				listTypes.emplace_back(1);
 				ds::replace(thisLine, "<ol>", "");
 				indent++;
 				continue;
 			} else if (thisLine.find("<ul>") != std::string::npos) {
-				listTypes.push_back(ListType(0));
+				listTypes.emplace_back(0);
 				ds::replace(thisLine, "<ul>", "");
 				indent++;
 				continue;

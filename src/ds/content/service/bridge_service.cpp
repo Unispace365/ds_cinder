@@ -667,7 +667,8 @@ bool BridgeService::Loop::loadContent() {
 								 " v.hotspot_y,"			 // 48
 								 " v.hotspot_w,"			 // 49
 								 " v.hotspot_h,"			 // 50
-								 " res.filename"			 // 51
+								 " res.filename,"			 // 51
+								 " v.tags"					 // 52
 								 " FROM value AS v"
 								 " LEFT JOIN lookup AS l ON l.uid = v.field_uid"
 								 " LEFT JOIN resource AS res ON res.hash = v.resource_hash"
@@ -787,6 +788,14 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, bool(it.getInt(6)));
 				} else if (type == "COLOR") {
 					record.setProperty(field_uid, it.getString(7));
+				} else if (type == "TAGS") {
+					auto tags = record.getPropertyString(field_uid);
+					if (tags.empty()) {
+						tags = it.getString(52);
+					} else {
+						tags = tags + ", " + it.getString(52);
+					}
+					record.setProperty(field_uid, tags);
 				} else {
 					DS_LOG_INFO("UNHANDLED(2): " << type)
 				}
