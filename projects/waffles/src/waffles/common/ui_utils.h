@@ -18,6 +18,7 @@ class ContentUtils : ds::ui::Sprite {
 	static bool handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::SmartLayout* item, const std::string& channel,
 								  const ci::vec3& pos = ci::vec3(-1), const ci::vec3& raw_pos = ci::vec3(-1));
 	[[deprecated]] static void setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey);
+	static std::string extractYoutubeId(const std::string& url);
 
 
 	bool		isFolder(ds::model::ContentModelRef model) const;

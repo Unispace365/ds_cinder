@@ -403,6 +403,17 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	mViewers.push_back(newViewer);
 
+	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, true) &&
+		(creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
+		creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE)) {
+		auto url = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath();
+		auto id = ContentUtils::extractYoutubeId(url); // will return empty if not youtube link or if fails to extract
+		if (!id.empty()) {
+			auto res = ds::Resource("https://www.youtube.com/embed/" + id, ds::Resource::WEB_TYPE);
+			creationArgs.mMediaRef.setPropertyResource(mediaPropertyKey, res);
+		}
+	}
+
 	newViewer->setCreationArgs(creationArgs);
 	newViewer->setMedia(creationArgs.mMediaRef);
 
