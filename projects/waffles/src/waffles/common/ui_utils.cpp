@@ -332,5 +332,37 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	return true;
 }
 
+std::string ContentUtils::extractYoutubeId(const std::string& url) {
+	if (url.find("youtube.com") == std::string::npos && url.find("youtu.be") == std::string::npos) {
+		return "";
+	}
+	auto splitters = std::vector<std::string> {
+		"/v/", "\\v\\", "/watch?v=", "\\watch?v=", "/embed/", "\\embed\\", "youtu.be/", "youtu.be\\"
+	};
+	for (std::string splitter : splitters) {
+		if (url.find(splitter) != std::string::npos) {
+			auto parts = ds::split(url, splitter);
+			if (parts.size() > 1) {
+				std::string id = parts[1];
+				for (auto separator : std::vector<std::string>{ "?", "&", "#" }) {
+					id = ds::split(id, separator)[0];
+				}
+				if (id.size() == 11) {
+					return id;
+				}
+			}
+		}
+	}
+	if (url.find("/user/") != std::string::npos) {
+		auto parts = ds::split(url, "/");
+		if (!parts.empty()) {
+			std::string last = parts[parts.size() - 1];
+			if (last.size() == 11) {
+				return last;
+			}
+		}
+	}
+    return "";
+}
 
 } // namespace waffles
