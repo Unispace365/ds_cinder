@@ -75,7 +75,7 @@ std::string BaseContentHelper::getCompositeKeyForPlatform() {
 	return key;
 }
 
-ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) {
+ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) const {
 	return mEngine.mContent.getKeyReference(VALID_MAP, uid);
 }
 

@@ -32,7 +32,7 @@ class ContentHelper {
 	  : mEngine(eng) {}
 
 	virtual std::string		getCompositeKeyForPlatform()		   = 0;
-	virtual ContentModelRef getRecordByUid(const std::string& uid) = 0;
+	virtual ContentModelRef getRecordByUid(const std::string& uid) const = 0;
 	virtual Resource		getBackgroundForPlatform()			   = 0;
 
 	virtual ContentModelRef getPresentation()			= 0; // getInteractivePlaylist

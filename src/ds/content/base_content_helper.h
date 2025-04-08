@@ -10,7 +10,7 @@ class BaseContentHelper : public ContentHelper {
 
 	// Inherited via ContentHelper
 	std::string					 getCompositeKeyForPlatform() override;
-	ContentModelRef				 getRecordByUid(const std::string& uid) override;
+	ContentModelRef				 getRecordByUid(const std::string& uid) const override;
 	Resource					 getBackgroundForPlatform() override;
 	ContentModelRef				 getPresentation() override;
 	ContentModelRef				 getAmbientPlaylist() override;
