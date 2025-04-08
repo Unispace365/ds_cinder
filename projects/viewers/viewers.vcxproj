@@ -234,10 +234,10 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
-      <Command>echo Copying waffles assets to output directory
+      <Command>echo Copying viewers assets to output directory
 set NOIMAGE=0
 set NOLAYOUT=0
-if not exist "$(SolutionDir)..\data\images\waffles" mkdir "$(SolutionDir)..\data\images\media_interface" &amp; set NOIMAGE=1
+if not exist "$(SolutionDir)..\data\images\media_interface" mkdir "$(SolutionDir)..\data\images\media_interface" &amp; set NOIMAGE=1
 
 if %NOIMAGE%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\viewers\data\images\media_interface\" "$(SolutionDir)..\data\images\media_interface\"
 
