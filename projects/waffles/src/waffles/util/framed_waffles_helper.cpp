@@ -175,10 +175,26 @@ void FramedWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interfa
 		if (auto keebArea = webInterface->getKeyboardArea()) {
 			// keebArea->setCornerRadius(0.f);
 			keebArea->setColor(backgroundColor);
+			if (engine.getWafflesSettings().getBool("media_viewer:web:keyboard:explicit_close_button", 0, true)) {
+				auto closekb = new ds::ui::ImageButton(
+					mEngine,
+					"%APP%/data/images/waffles/icons/1x/Close_Glow_64.png",
+					"%APP%/data/images/waffles/icons/1x/Close_64.png"
+				);
+				closekb->setScale(0.5f); // TODO: find a better way to set and/or auto-calculate this (with img size in mind)
+				closekb->setPosition(584, 0); // TODO: either find good way to calculate kb size, or use layout-ing
+				closekb->setTapCallback([webInterface](ds::ui::Sprite* s, const ci::vec3& v) {
+					if (auto kbbutt = webInterface->getKeyboardButton()) {
+						kbbutt->setChecked(false);
+					}
+					webInterface->showKeyboard(false);;
+				});
+				keebArea->addChildPtr(closekb);
+			}
 		}
 
 		if (auto keyboard = webInterface->getKeyboardButton()) {
-
+			
 			webInterface->setButtonColor(keyboard->getCheckedButton(), highColor,
 										 normalColor);
 			webInterface->setButtonColor(keyboard->getUncheckedButton(), normalColor,highColor);

@@ -15,8 +15,10 @@
 namespace waffles {
 FramedViewerController::FramedViewerController(ds::ui::SpriteEngine& g, ci::vec2 size, std::string channel)
   : ViewerController(g, size, channel) {}
+
 void FramedViewerController::initCreators() {
 	ViewerController::initCreators();
+
 	setCreator(VIEW_TYPE_TITLED_MEDIA_VIEWER,
 			   [this](const ViewerCreationArgs args) -> std::tuple<BaseElement*, CreationError> {
 				   auto helper			 = ds::model::ContentHelperFactory::getDefault<FramedWafflesHelper>();
@@ -25,28 +27,7 @@ void FramedViewerController::initCreators() {
 				   auto isStream = helper->isValidStream(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
 				   auto isStreamSource =
 					   helper->isValidStreamSource(args.mMediaRef, ds::model::ContentHelper::WAFFLESCATEGORY);
-				   auto resourcePath = std::filesystem::path(theResource.getAbsoluteFilePath());
-				   if (resourcePath.has_extension()) {
-					   std::string ext = resourcePath.extension().string();
-					   ds::to_lowercase(ext);
-					   /* if (ext == ".webp") {
-						   ds::model::ContentModelRef errorModel;
-						   std::string				  errorMessage =
-							   "We couldn't load this piece of media because .webp files are not supported.";
 
-						   errorModel.setProperty("name", std::string("Sorry!"));
-						   errorModel.setProperty("error", errorMessage);
-						   errorModel.setPropertyResource(mediaPropertyKey, theResource); // TODO
-						   errorModel.setProperty("media_path", theResource.getAbsoluteFilePath());
-						   errorModel.setProperty("media_name", args.mMediaRef.getPropertyString("name"));
-						   auto eArgs = ViewerCreationArgs(errorModel, VIEW_TYPE_ERROR, args.mLocation,
-														   ViewerCreationArgs::kViewLayerTop, 0, args.mFromCenter);
-
-
-						   mChannelClient.notify(RequestViewerLaunchEvent(eArgs));
-						   return {nullptr, CreationError::INVALID_TYPE};
-					   }*/
-				   }
 				   if (!isStream && !isStreamSource && args.mMediaRef.getPropertyString("type") != MEDIA_TYPE_CAPTURE &&
 					   theResource.getType() != ds::Resource::WEB_TYPE &&
 					   theResource.getType() != ds::Resource::YOUTUBE_TYPE &&
