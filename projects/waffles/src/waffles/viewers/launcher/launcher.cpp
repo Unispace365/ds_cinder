@@ -151,11 +151,14 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		if (std::find(auto_expandable.begin(), auto_expandable.end(), mFilterSelected) != auto_expandable.end() &&
 			panel_content.getChildren().size() == 1 &&
 			ContentUtils::getDefault(mEngine)->isFolder(panel_content.getChildren()[0])) {
+			mFolderStack.clear();
+			mFolderStack.push_back(panel_content.getChildren()[0]);
 			auto content = panel_content.getChildren()[0].getChildren();
 			panel_content.clearChildren();
 			for (const auto& child : content) {
 				panel_content.addChild(child);
 			}
+			
 		}
 
 
