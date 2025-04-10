@@ -66,18 +66,37 @@ namespace ds { namespace ui {
 	static void rndr_header(buf* ob, const buf* text, int level, void* options) {
 		if (!text || !text->size) return;
 		const MarkdownOptions* opts = static_cast<const MarkdownOptions*>(options);
-		if (level == 1) {
+		switch (level) {
+		case 1:
 			bufputs(ob, opts->header1.open.c_str());
 			bufput(ob, text->data, text->size);
 			bufputs(ob, opts->header1.close.c_str());
-		} else if (level == 2) {
+			break;
+		case 2:
 			bufputs(ob, opts->header2.open.c_str());
 			bufput(ob, text->data, text->size);
 			bufputs(ob, opts->header2.close.c_str());
-		} else {
+			break;
+		case 3:
 			bufputs(ob, opts->header3.open.c_str());
 			bufput(ob, text->data, text->size);
 			bufputs(ob, opts->header3.close.c_str());
+			break;
+		case 4:
+			bufputs(ob, opts->header4.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header4.close.c_str());
+			break;
+		case 5:
+			bufputs(ob, opts->header5.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header5.close.c_str());
+			break;
+		default:
+			bufputs(ob, opts->header6.open.c_str());
+			bufput(ob, text->data, text->size);
+			bufputs(ob, opts->header6.close.c_str());
+			break;
 		}
 	}
 
