@@ -10,6 +10,7 @@
 #include "waffles/waffles_events.h"
 #include <ds/ui/media/interface/pdf_interface.h>
 #include <ds/ui/media/interface/web_interface.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
@@ -323,7 +324,7 @@ void FramedMediaViewer::onMediaSet() {
 					webInterface->setKeyboardDisablesTimeout(false);
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
-					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
+					auto keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback(
 						[this, webInterface, keyboardBtn, wafflesHelper](const bool onScreen) {
 							if (onScreen) {
@@ -360,15 +361,14 @@ void FramedMediaViewer::onMediaSet() {
 								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
-								webInterface->getKeyboardButton()->setNormalImageColor(highColor);
-								webInterface->getKeyboardButton()->setHighImageColor(normalColor);
+								keyboardBtn->setChecked(true); // Set the button to checked when keyboard is on screen
 
 							} else if (!onScreen) {
 								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
 								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
 
-								webInterface->getKeyboardButton()->setNormalImageColor(normalColor);
-								webInterface->getKeyboardButton()->setHighImageColor(highColor);
+								keyboardBtn->setChecked(
+									false); // Set the button to unchecked when keyboard is off screen
 							}
 						});
 				}

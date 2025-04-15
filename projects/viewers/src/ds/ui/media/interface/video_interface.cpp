@@ -5,6 +5,7 @@
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/button/layout_button.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
@@ -37,63 +38,46 @@ namespace ds { namespace ui {
 		mVolumeControl->setNubSize(mVolumeSliderHeight * 1.5);
 		addChildPtr(mVolumeControl);
 
-		mPlayButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:play:normal:file"),
-											  composeIconPath("ui:media_button:play:pressed:file"),
-											  (sizey.y - buttonHeight) / 2.0f);
+		
+		mPlayButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:play:normal:file",
+								   "ui:media_button:play:pressed:file");
 		addChildPtr(mPlayButton);
 		mPlayButton->setClickFn([this]() {
 			if (mLinkedVideo) {
 				mLinkedVideo->play();
 			}
 		});
-
-		mPlayButton->getNormalImage().setColor(buttonColor);
-		mPlayButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPlayButton->setScale(mPlayHeight / mPlayButton->getHeight());
-
-		mPauseButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:pause:normal:file"),
-											   composeIconPath("ui:media_button:pause:pressed:file"),
-											   (sizey.y - buttonHeight) / 2.0f);
+		setButtonColor(mPlayButton, buttonColor, buttonColor / 2.0f);
+				
+		mPauseButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:pause:normal:file",
+									"ui:media_button:pause:pressed:file");
 		addChildPtr(mPauseButton);
 		mPauseButton->setClickFn([this]() {
 			if (mLinkedVideo) {
 				mLinkedVideo->pause();
 			}
 		});
+		setButtonColor(mPauseButton, buttonColor, buttonColor / 2.0f);
 
-		mPauseButton->getNormalImage().setColor(buttonColor);
-		mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPauseButton->setScale(mPauseHeight / mPauseButton->getHeight());
-
-
-		mLoopButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:loop:normal:file"),
-											  composeIconPath("ui:media_button:loop:pressed:file"),
-											  (sizey.y - buttonHeight) / 2.0f);
+		
+		mLoopButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:loop:normal:file","ui:media_button:loop:pressed:file");
 		addChildPtr(mLoopButton);
 		mLoopButton->setClickFn([this]() {
 			if (mLinkedVideo) {
 				mLinkedVideo->setLooping(false);
 			}
 		});
-
-		mLoopButton->getNormalImage().setColor(buttonColor);
-		mLoopButton->getHighImage().setColor(buttonColor / 2.0f);
-		mLoopButton->setScale(mLoopHeight / mLoopButton->getHeight());
-
-
-		mUnLoopButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:unloop:normal:file"),
-												composeIconPath("ui:media_button:unloop:pressed:file"),
-												(sizey.y - buttonHeight) / 2.0f);
+		setButtonColor(mLoopButton, buttonColor, buttonColor / 2.0f);
+		
+		mUnLoopButton = createButton(ci::vec2(buttonHeight, buttonHeight), "ui:media_button:unloop:normal:file","ui:media_button:unloop:pressed:file");
 		addChildPtr(mUnLoopButton);
 		mUnLoopButton->setClickFn([this]() {
 			if (mLinkedVideo) {
 				mLinkedVideo->setLooping(true);
 			}
 		});
-
-		mUnLoopButton->getNormalImage().setColor(buttonColor);
-		mUnLoopButton->getHighImage().setColor(buttonColor / 2.0f);
-		mUnLoopButton->setScale(mLoopHeight / mUnLoopButton->getHeight());
+		setButtonColor(mUnLoopButton, buttonColor, buttonColor / 2.0f);
+		
 
 		const float padding = sizey.y / 1.5f; // config?
 		mMinWidth = mPlayButton->getScaleWidth() + mLoopButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 2.f +
@@ -113,19 +97,19 @@ namespace ds { namespace ui {
 		}
 	}
 
-	ds::ui::ImageButton* VideoInterface::getPlayButton() {
+	ds::ui::LayoutButton* VideoInterface::getPlayButton() {
 		return mPlayButton;
 	}
 
-	ds::ui::ImageButton* VideoInterface::getPauseButton() {
+	ds::ui::LayoutButton* VideoInterface::getPauseButton() {
 		return mPauseButton;
 	}
 
-	ds::ui::ImageButton* VideoInterface::getLoopButton() {
+	ds::ui::LayoutButton* VideoInterface::getLoopButton() {
 		return mLoopButton;
 	}
 
-	ds::ui::ImageButton* VideoInterface::getUnLoopButton() {
+	ds::ui::LayoutButton* VideoInterface::getUnLoopButton() {
 		return mUnLoopButton;
 	}
 

@@ -279,7 +279,10 @@ void App::loadAppSettings() {
 		mEngine.loadSettings("waffles_styles", "waffles_styles.xml");
 	}
 
-	
+	// load viewers.xml settings
+	if (ds::Environment::hasSettings("viewers.xml")) {
+		mEngine.loadSettings("viewers", "viewers.xml");
+	}
 
 	if (hasLegacySettings) {
 		mEngine.loadSettings("styles", "");

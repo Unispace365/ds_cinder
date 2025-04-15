@@ -70,10 +70,6 @@ WafflesSprite::~WafflesSprite() {
 
 void WafflesSprite::initializeWaffles(std::string eventChannel) {
 
-
-	
-
-	
 	mChannelName = eventChannel;
 	if (!eventChannel.empty()) {
 		mChannelClient.setNotifier(mEngine.getChannel(eventChannel));

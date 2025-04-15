@@ -8,6 +8,7 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/media/interface/web_interface.h>
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
@@ -186,7 +187,7 @@ void FullscreenController::updateUi() {
 
 				if (auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mMediaInterface)) {
 					webInterface->setKeyboardDisablesTimeout(false);
-					ds::ui::ImageButton* keyboardBtn = webInterface->getKeyboardButton();
+					auto keyboardBtn = webInterface->getKeyboardButton();
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
 							auto	  keeb		= webInterface->getSoftKeyboard();
@@ -200,11 +201,10 @@ void FullscreenController::updateUi() {
 							setty.mGraphicRoundedCornerRadius = 0;
 							keeb->setSoftKeyboardSettings(setty);
 
-							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard on_64.png",
-												   keyboardBtn);
+							keyboardBtn->setChecked(true);
 
 						} else if (!onScreen) {
-							setKeyboardButtonImage("%APP%/data/images/waffles/icons/1x/Keyboard_64.png", keyboardBtn);
+							keyboardBtn->setChecked(false);
 						}
 					});
 				}

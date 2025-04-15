@@ -5,6 +5,9 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/button/layout_button.h>
+#include <ds/ui/button/toggle_container.h>
+
 #include <ds/ui/layout/smart_layout.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -44,9 +47,9 @@ namespace ds { namespace ui {
 		mVolumeControl = new VideoVolumeControl(mEngine, sizey.y, buttonHeight, buttonColor);
 		addChildPtr(mVolumeControl);
 
-		mPlayButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:play:normal:file"),
-											  composeIconPath("ui:media_button:play:pressed:file"),
-											  (sizey.y - buttonHeight) / 2.0f);
+		mPlayButton = createButton(ci::vec2(buttonHeight, buttonHeight), // Create a button with the specified size
+								   "ui:media_button:play:normal:file",	 // Normal image path
+								   "ui:media_button:play:pressed:file"); // Vertical position
 		addChildPtr(mPlayButton);
 		mPlayButton->setClickFn([this]() {
 			if (mLinkedYouTube) {
@@ -54,13 +57,11 @@ namespace ds { namespace ui {
 			}
 		});
 
-		mPlayButton->getNormalImage().setColor(buttonColor);
-		mPlayButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPlayButton->setScale(mPlayHeight / mPlayButton->getHeight());
-
-		mPauseButton = new ds::ui::ImageButton(mEngine, composeIconPath("ui:media_button:pause:normal:file"),
-											   composeIconPath("ui:media_button:pause:pressed:file"),
-											   (sizey.y - buttonHeight) / 2.0f);
+		setButtonColor(mPlayButton, buttonColor, buttonColor / 2.0f);
+		mPauseButton = createButton(ci::vec2(buttonHeight, buttonHeight),  // Create a button with the specified size
+									"ui:media_button:pause:normal:file",   // Normal image path
+									"ui:media_button:pause:pressed:file"); // Vertical position
+		
 		addChildPtr(mPauseButton);
 		mPauseButton->setClickFn([this]() {
 			if (mLinkedYouTube) {
@@ -68,9 +69,8 @@ namespace ds { namespace ui {
 			}
 		});
 
-		mPauseButton->getNormalImage().setColor(buttonColor);
-		mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
-		mPauseButton->setScale(mPauseHeight / mPauseButton->getHeight());
+		setButtonColor(mPauseButton, buttonColor, buttonColor / 2.0f); // Set the color for the pause button
+		
 
 		/*
 		mBackPageButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png",
@@ -150,23 +150,23 @@ namespace ds { namespace ui {
 	}
 
 
-	ds::ui::ImageButton* YoutubeInterface::getBackButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getBackButton() {
 		return mBackPageButton;
 	}
 
-	ds::ui::ImageButton* YoutubeInterface::getForwardButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getForwardButton() {
 		return mForwardPageButton;
 	}
 
-	ds::ui::ImageButton* YoutubeInterface::getTouchToggleButton() {
+	ds::ui::ToggleContainer* YoutubeInterface::getTouchToggleButton() {
 		return mTouchToggle;
 	}
 
-	ds::ui::ImageButton* YoutubeInterface::getPlayButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getPlayButton() {
 		return mPlayButton;
 	}
 
-	ds::ui::ImageButton* YoutubeInterface::getPauseButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getPauseButton() {
 		return mPauseButton;
 	}
 
@@ -293,19 +293,13 @@ namespace ds { namespace ui {
 			if (mTouchToggle) {
 				if (mLinkedYouTube->isEnabled()) {
 					if (!mWebLocked) {
-						mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png",
-																  ds::ui::Image::IMG_CACHE_F);
-						mTouchToggle->getNormalImage().setImageFile(
-							"%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+						mTouchToggle->setChecked(true);
 						mWebLocked = true;
 						mLinkedYouTube->setAllowClicks(true);
 					}
 				} else {
 					if (mWebLocked) {
-						mTouchToggle->getHighImage().setImageFile(
-							"%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
-						mTouchToggle->getNormalImage().setImageFile(
-							"%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+						mTouchToggle->setChecked(false);
 						mWebLocked = false;
 						mLinkedYouTube->setAllowClicks(false);
 					}

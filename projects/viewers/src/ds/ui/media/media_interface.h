@@ -3,6 +3,7 @@
 #include <ds/ui/sprite/sprite.h>
 
 namespace ds::ui {
+class LayoutButton;
 
 /**
  * \class MediaInterface
@@ -65,6 +66,9 @@ class MediaInterface : public ds::ui::Sprite {
 
 	virtual std::string composeIconPath(std::string iconId);
 	static std::string	composeIconPath(ds::ui::SpriteEngine& engine, std::string iconId);
+
+	static ds::ui::LayoutButton* createButton(ds::ui::SpriteEngine& engine, const ci::vec2& sizey,
+											  const std::string& iconIdNormal, const std::string& iconIdHigh);
 	
 	static float getPlayButtonHeight() { return mPlayHeight; }
 	static float getPauseButtonHeight() { return mPauseHeight; }
@@ -79,9 +83,13 @@ class MediaInterface : public ds::ui::Sprite {
 	static float getVolumeSliderHeight() { return mVolumeSliderHeight; }
 	static float getScrubBarHeight() { return mScrubBarHeight; }
 
+	virtual void setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor);
+
   protected:
 	virtual void onLayout(){};
 	virtual void onSizeChanged() override;
+	virtual ds::ui::LayoutButton* createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
+											   const std::string& iconIdHigh);
 
 	int mType = ds::Resource::ERROR_TYPE;
 

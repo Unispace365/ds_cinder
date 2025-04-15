@@ -35,6 +35,7 @@
 namespace {
 auto INIT = []() {
 	ds::App::AddStartup("MediaPlayer" ,[](ds::Engine& e) {
+
 		e.registerSpriteImporter("media_player", [](ds::ui::SpriteEngine& enginey) -> ds::ui::Sprite* {
 			return new ds::ui::MediaPlayer(enginey, true);
 		});

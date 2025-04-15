@@ -41,6 +41,18 @@ class Init {
 				
 			});
 			e.getWafflesSettings().replaceSettingVariablesAndExpressions();
+			e.getViewersSettings().forEachSetting([](const ds::cfg::Settings::Setting& theSetting) {
+				std::string value = theSetting.mRawValue;
+				if (!theSetting.mMultiplier.empty()) {
+					value = ds::cfg::SettingsVariables::doMultiply(
+						theSetting.mOriginalValue.empty() ? theSetting.mRawValue : theSetting.mOriginalValue,
+						theSetting.mMultiplier, theSetting.mType);
+					// DS_LOG_INFO(std::string("Adding ") << theSetting.mName << " to variables with scaled value of "
+					//								   << value << " (" << theSetting.mRawValue << ")");
+				}
+				ds::cfg::SettingsVariables::addVariable(theSetting.mName, value);
+			});
+			e.getViewersSettings().replaceSettingVariablesAndExpressions();
 		});
 	}
 	void doNothing() {}
