@@ -2,8 +2,8 @@
 
 
 #include <ds/ui/button/button.h>
-#include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/button/layout_button.h>
+#include <ds/ui/layout/layout_sprite.h>
 
 namespace ds { namespace ui {
 
@@ -19,27 +19,36 @@ namespace ds { namespace ui {
 	  public:
 		ToggleContainer(SpriteEngine& eng, float width = 0.0f, float height = 0.0f);
 
-		LayoutButton* setCheckedButton(LayoutButton* checked);
-
 		LayoutButton* setUncheckedButton(LayoutButton* unchecked);
+		LayoutButton* setCheckedButton(LayoutButton* checked);
 
 		LayoutButton* getUncheckedButton() const { return mUnchecked; }
 		LayoutButton* getCheckedButton() const { return mChecked; }
+
+		void setNormalButtonColor(const ci::ColorA& color) const {
+			if (mUnchecked) mUnchecked->setNormalSpriteColor(color);
+			if (mChecked) mChecked->setNormalSpriteColor(color);
+		}
+		void setHighButtonColor(const ci::ColorA& color) const {
+			if (mUnchecked) mUnchecked->setHighSpriteColor(color);
+			if (mChecked) mChecked->setHighSpriteColor(color);
+		}
+
+		/// Provides backward compatibility with the old image button
+		void setNormalImageColor(const ci::ColorA& color) const { setNormalButtonColor(color); }
+		/// Provides backward compatibility with the old image button
+		void setHighImageColor(const ci::ColorA& color) const { setHighButtonColor(color); }
 
 		void setChecked(const bool checked);
 
 		bool getChecked() const { return mIsChecked; }
 
 	  private:
-		
-
 		/// VIEW
 		LayoutButton* mChecked;
 		LayoutButton* mUnchecked;
 
 		bool mIsChecked = false;
-		
 	};
 
 }} // namespace ds::ui
-
