@@ -36,9 +36,9 @@ namespace ds { namespace ui {
 		void setNormalSpriteColor(const ci::ColorA& color) const { mUp.setColor(color); }
 		void setHighSpriteColor(const ci::ColorA& color) const { mDown.setColor(color); }
 
-		/// Supplies backward compatibility with the old image button
+		/// Provides backward compatibility with the old image button
 		void setNormalImageColor(const ci::ColorA& color) const { setNormalSpriteColor(color); }
-		/// Supplies backward compatibility with the old image button
+		/// Provides backward compatibility with the old image button
 		void setHighImageColor(const ci::ColorA& color) const { setHighSpriteColor(color); }
 
 		void showDown() const override;
