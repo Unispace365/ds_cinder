@@ -11,6 +11,8 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/tween/tweenline.h>
 
+#include <utility>
+
 namespace ds { namespace ui {
 
 	ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig,
@@ -21,12 +23,12 @@ namespace ds { namespace ui {
 	  , mActive(false)
 	  , mInvalid(false)
 	  , mTappableMode(false)
-	  , mMenuConfig(menuConfig)
-	  , mItemModels(itemModels) {
+	  , mMenuConfig(std::move(menuConfig))
+	  , mItemModels(std::move(itemModels)) {
 
 		mBackground = new ds::ui::Image(mEngine);
 		if (mBackground) {
-			addChild(*mBackground);
+			Sprite::addChild(*mBackground);
 			mBackground->setCenter(0.5f, 0.5f);
 			mBackground->setPosition(mMenuConfig.mBackgroundOffset);
 			mBackground->setColorA(mMenuConfig.mBackgroundColor);
@@ -47,7 +49,7 @@ namespace ds { namespace ui {
 		buildMenuItems();
 	}
 
-	bool ClusterView::getActive() {
+	bool ClusterView::getActive() const {
 		return mActive;
 	}
 
@@ -63,26 +65,28 @@ namespace ds { namespace ui {
 			return;
 		}
 
-		float	 mis	= (float)mItemModels.size();
-		int		 i		= 0;
-		ci::vec2 newPos = ci::vec2(mMenuConfig.mClusterRadius / 2.0f, -mMenuConfig.mItemSize.y * (mis) / 2.0f);
+		const auto step = 360.0f / float(mItemModels.size());
+
+		float i = 0;
 		for (auto it = mItemModels.begin(); it < mItemModels.end(); ++it) {
-			MenuItem* mi = new MenuItem(mEngine, (*it), mMenuConfig);
+			auto mi = new MenuItem(mEngine, *it, mMenuConfig);
 			addChildPtr(mi);
 			mMenuItems.push_back(mi);
 
-			float degs = mMenuConfig.mClusterPositionOffset + ((float)(i)*360.0f / (mis));
-			while (degs >= 360.0f)
-				degs -= 360.0f;
+			auto degrees = std::fmod(mMenuConfig.mClusterPositionOffset + i * step, 360.0f);
+			if (degrees < 0.0f) degrees += 360.0f;
 
-			const float radians = -ci::toRadians(degs);
-			newPos = ci::vec2(mMenuConfig.mClusterRadius * cos(radians), mMenuConfig.mClusterRadius * sin(radians));
+			const auto radians = mMenuConfig.mClusterDirection * ci::toRadians(degrees);
+
+			auto newPos =
+				ci::vec2(mMenuConfig.mClusterRadius * cos(radians), mMenuConfig.mClusterRadius * sin(radians));
 			newPos.x -= mi->getWidth() / 2.0f;
 			newPos.y -= mi->getHeight() / 2.0f;
 
-			mi->setAngle(degs);
+			mi->setAngle(degrees);
 			mi->setPosition(newPos.x, newPos.y);
-			i++;
+
+			++i;
 		}
 	}
 
@@ -94,7 +98,7 @@ namespace ds { namespace ui {
 		activate();
 
 		for (auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it) {
-			MenuItem* mi = (*it);
+			MenuItem* mi = *it;
 			mi->enable(true);
 			mi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
@@ -129,7 +133,7 @@ namespace ds { namespace ui {
 		mTappableMode = false;
 
 		for (auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it) {
-			MenuItem* mi = (*it);
+			MenuItem* mi = *it;
 			mi->enable(false);
 		}
 		if (mBackground) {
@@ -185,7 +189,7 @@ namespace ds { namespace ui {
 				ds::ui::Sprite* target = mEngine.getSpriteForFinger((*it).mFingerId);
 				// If there's no target, then don't worry about it, since this sprite doesn't need to own the touch
 				if (target && target != this) {
-					target->passTouchToSprite(this, (*it));
+					target->passTouchToSprite(this, *it);
 				}
 			}
 
@@ -201,7 +205,7 @@ namespace ds { namespace ui {
 			//	if(!mInvalid){
 			for (auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it) {
 				if ((*it)->getHighlited()) {
-					itemActivated((*it));
+					itemActivated(*it);
 					break;
 				}
 			}
@@ -235,7 +239,7 @@ namespace ds { namespace ui {
 			ci::vec3 center = getPosition();
 			float	 xdelt	= bbcent.x - center.x;
 			float	 ydelt	= bbcent.y - center.y;
-			if (distThreshold * distThreshold < (xdelt * xdelt) + (ydelt * ydelt)) {
+			if (distThreshold * distThreshold < xdelt * xdelt + ydelt * ydelt) {
 				return false;
 			}
 		}
