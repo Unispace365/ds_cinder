@@ -135,7 +135,7 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\web\cef\PropertySheets\Web_CEF64.props" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DummyWeb_Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -144,7 +144,7 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\dummy_web\PropertySheets\dummy_web.props" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug_Info|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -153,7 +153,7 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\web\cef\PropertySheets\Web_CEF64.props" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DummyWeb_Release_Debug_Info|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -162,11 +162,11 @@
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\dummy_web\PropertySheets\dummy_web.props" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64_d.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64_d.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
     <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
@@ -176,7 +176,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DummyWeb_Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_093)\vs2015\PropertySheets\Platform64_d.props" />
-    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64_d.props" Condition="'$(DS_VIEWERS_USE_NVPATH)'!='false'" />
+    <Import Project="$(DS_PLATFORM_093)\projects\nvpath\PropertySheets\NvPath64_d.props" Condition="exists('$(SolutionDir)/NVPATH.txt')" />
     <Import Project="$(DS_PLATFORM_093)\projects\essentials\PropertySheets\Essentials64_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.064_d.props" />
     <Import Project="$(DS_PLATFORM_093)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf64_d.props" />
