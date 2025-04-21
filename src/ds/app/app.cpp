@@ -147,12 +147,8 @@ App::App(const RootList& roots)
   , mMouseHidden(false)
   , mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
   , mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f) {
-	
-	if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
-		setupKeyPresses();
-	} else {
-		registerKeyPress("Quit App", [this] { quit(); }, ci::app::KeyEvent::KEY_q, true, true, true);
-	}
+
+	setupKeyPresses();
 
 	mEngineSettings.printStartupInfo();
 
@@ -716,20 +712,18 @@ void App::launchSyncService() {
 			ds::Environment::expand(mEngine.getEngineSettings().getString("downsync_verbosity", 0, ""));
 
 		mSyncService->initialize(settings);
-		if (mEngineSettings.getBool("debug_keys:enable", 0, true)) {
-			registerKeyPress(
-				"Toggle Downsync output",
-				[this] {
-					if (mSyncService) mSyncService->toggleOutput();
-				},
-				ci::app::KeyEvent::KEY_SLASH, true);
-		}
+		registerKeyPress(
+			"Toggle Downsync output",
+			[this] {
+				if (mSyncService) mSyncService->toggleOutput();
+			},
+			ci::app::KeyEvent::KEY_SLASH, true);
 	}
 }
 
 void App::launchBridgeSyncService() {
 	// fireup downsync
-	if (mBridgeSyncService == nullptr && mEngineSettings.getBool("debug_keys:enable", 0, true)) {
+	if (mBridgeSyncService == nullptr) {
 		registerKeyPress(
 			"Toggle BridgeSync output",
 			[this] {
@@ -782,49 +776,62 @@ void App::launchBridgeSyncService() {
 void App::registerKeyPress(const std::string& name, std::function<void()> func, const int keyCode,
 						   const bool shiftDown /*= false*/, const bool ctrlDown /*= false*/,
 						   const bool altDown /*= false*/) {
-	mKeyManager.registerKey(name, func, keyCode, shiftDown, ctrlDown, altDown);
+	auto conditional_func = [this, func] {
+		if (mEngine.getEngineSettings().getBool("debug_keys:enable", 0, true)) {
+			func();
+		}
+	};
+	mKeyManager.registerKey(name, conditional_func, keyCode, shiftDown, ctrlDown, altDown);
 }
 
 void App::setupKeyPresses() {
 	using ci::app::KeyEvent;
 	mKeyManager.registerKey(
+		"Toggle Debug Keys Enabled",
+		[this] {
+			bool on = mEngine.getEngineSettings().getBool("debug_keys:enable", 0, true);
+			mEngine.getEngineSettings().getSetting("debug_keys:enable", 0).mRawValue = on ? "0" : "1";
+			DS_LOG_INFO("Engine setting 'debug_keys:enable' set to " << mEngine.getEngineSettings().getBool("debug_keys:enable", 0, true));
+		},
+		KeyEvent::KEY_d, true, true, true);
+	registerKeyPress(
 		"Quit app", [this] { quit(); }, KeyEvent::KEY_ESCAPE);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Quit app", [this] { quit(); }, KeyEvent::KEY_q);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Quit app", [this] { quit(); }, KeyEvent::KEY_q, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Quit app", [this] { quit(); }, KeyEvent::KEY_q, false, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Quit app", [this] { quit(); }, KeyEvent::KEY_F4);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Print available keys",
 		[this] {
 			mKeyManager.printCurrentKeys();
 			mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor("keys");
 		},
 		KeyEvent::KEY_h);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle fullscreen", [this] { setFullScreen(!isFullScreen()); }, KeyEvent::KEY_f);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle always on top", [] { ci::app::getWindow()->setAlwaysOnTop(!ci::app::getWindow()->isAlwaysOnTop()); },
 		KeyEvent::KEY_a);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle idling", [this] { mEngine.isIdling() ? mEngine.resetIdleTimeout() : mEngine.startIdling(); },
 		KeyEvent::KEY_i);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle on-screen console", [this] { mEngine.toggleSettingsEditor("logs"); }, KeyEvent::KEY_c);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle console", [this] { mEngine.toggleConsole(); }, KeyEvent::KEY_c, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Touch mode", [this] { mEngine.nextTouchMode(); }, KeyEvent::KEY_t, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Take screenshot", [this] { saveTransparentScreenshot(); }, KeyEvent::KEY_F8);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Kill supporting apps", [this] { killSupportingApps(); }, KeyEvent::KEY_k, false, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle mouse", [this] { mEngine.setHideMouse(!mEngine.getHideMouse()); }, KeyEvent::KEY_m);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Verbose logging toggle",
 		[] {
 			if (ds::getLogger().getVerboseLevel() > 0)
@@ -833,43 +840,43 @@ void App::setupKeyPresses() {
 				ds::getLogger().setVerboseLevel(9);
 		},
 		KeyEvent::KEY_v);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Verbose logging increment", [] { ds::getLogger().incrementVerboseLevel(); }, KeyEvent::KEY_v, false, false,
 		true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Verbose logging decrement", [] { ds::getLogger().decrementVerboseLevel(); }, KeyEvent::KEY_v, true, false,
 		true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle Debug Stats", [this] { mEngine.toggleSettingsEditor("stats"); }, KeyEvent::KEY_s);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle Debug Tools",
 		[this] { mEngine.isShowingSettingsEditor() ? mEngine.hideSettingsEditor() : mEngine.showSettingsEditor(); },
 		KeyEvent::KEY_e);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Toggle Settings editors", [this] { mEngine.toggleSettingsEditor("settings"); }, KeyEvent::KEY_e, true);
-	/* mKeyManager.registerKey(
+	/* registerKeyPress(
 		"Debug enabled sprites", [this] { debugEnabledSprites(); }, KeyEvent::KEY_d); */
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Log sprite hierarchy", [this] { writeSpriteHierarchy(); }, KeyEvent::KEY_d, false, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Log image cache", [this] { mEngine.getLoadImageService().logCache(); }, KeyEvent::KEY_g);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Clear image cache", [this] { mEngine.getLoadImageService().clearCache(); }, KeyEvent::KEY_g, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Requery data", [this] { mEngine.getNotifier().notify(ds::RequestContentQueryEvent()); },
 		ci::app::KeyEvent::KEY_n);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Print data tree", [this] { mEngine.mContent.printTree(false, ""); }, ci::app::KeyEvent::KEY_l);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Print data tree verbose", [this] { mEngine.mContent.printTree(true, ""); }, ci::app::KeyEvent::KEY_l, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Log available font families", [this] { mEngine.getPangoFontService().logFonts(false); }, KeyEvent::KEY_p);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Log all available fonts", [this] { mEngine.getPangoFontService().logFonts(true); }, KeyEvent::KEY_p, true);
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Restart app", [this] { resetupServer(); }, KeyEvent::KEY_r);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Translate src rect input mode",
 		[this] {
 			if (mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputTranslate) {
@@ -880,7 +887,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_t);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Scale src rect input mode",
 		[this] {
 			if (mEngine.getTouchManager().getInputMode() == ds::ui::TouchManager::kInputScale) {
@@ -892,7 +899,7 @@ void App::setupKeyPresses() {
 		KeyEvent::KEY_y);
 
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Restore src rect",
 		[this] {
 			mEngineData.mSrcRect = mEngineData.mOriginalSrcRect;
@@ -900,7 +907,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_BACKQUOTE);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"src rect 100% scale",
 		[this] {
 			mEngineData.mSrcRect.x1 = mEngineData.mOriginalSrcRect.x1 + mEngineData.mOriginalSrcRect.getWidth() / 2.0f -
@@ -917,7 +924,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_1);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Move src rect left",
 		[this] {
 			if (mArrowKeyCameraStep < 0) return;
@@ -927,7 +934,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_LEFT);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Move src rect right",
 		[this] {
 			if (mArrowKeyCameraStep < 0) return;
@@ -937,7 +944,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_RIGHT);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Move src rect up",
 		[this] {
 			if (mArrowKeyCameraStep < 0) return;
@@ -947,7 +954,7 @@ void App::setupKeyPresses() {
 		},
 		KeyEvent::KEY_UP);
 
-	mKeyManager.registerKey(
+	registerKeyPress(
 		"Move src rect down",
 		[this] {
 			if (mArrowKeyCameraStep < 0) return;
