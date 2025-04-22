@@ -549,20 +549,21 @@ bool BridgeService::Loop::loadContent() {
 		/* select defaults and the type they belong to (from traits) */
 		std::string defaultsQuery =
 			"SELECT "
-			" record.uid,"					// 0
-			" defaults.field_uid,"			// 1
-			" lookup.app_key,"				// 2
-			" defaults.field_type,"			// 3
-			" defaults.checked,"			// 4
-			" defaults.color,"				// 5
-			" defaults.text_value,"			// 6
-			" defaults.rich_text,"			// 7
-			" defaults.number,"				// 8
-			" defaults.number_min,"			// 9
-			" defaults.number_max,"			// 10
-			" defaults.option_type,"		// 11
-			" defaults.option_value,"		// 12
-			" lookup.app_key AS option_key" // 13
+			" record.uid,"					 // 0
+			" defaults.field_uid,"			 // 1
+			" lookup.app_key,"				 // 2
+			" defaults.field_type,"			 // 3
+			" defaults.checked,"			 // 4
+			" defaults.color,"				 // 5
+			" defaults.text_value,"			 // 6
+			" defaults.rich_text,"			 // 7
+			" defaults.number,"				 // 8
+			" defaults.number_min,"			 // 9
+			" defaults.number_max,"			 // 10
+			" defaults.option_type,"		 // 11
+			" defaults.option_value,"		 // 12
+			" lookup.app_key AS option_key," // 13
+			" defaults.rich_text_pango"		 // 14
 			" FROM record"
 			" LEFT JOIN trait_map ON trait_map.type_uid = record.type_uid"
 			" LEFT JOIN lookup ON record.type_uid = lookup.parent_uid OR trait_map.trait_uid = lookup.parent_uid "
@@ -590,6 +591,7 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(6));
 				} else if (type == "RICH_TEXT") {
 					record.setProperty(field_uid, it.getString(7));
+					record.setProperty(field_uid + "_pango", it.getString(14));
 				} else if (type == "NUMBER") {
 					record.setProperty(field_uid, it.getFloat(8));
 				} else if (type == "OPTIONS") {
@@ -668,7 +670,8 @@ bool BridgeService::Loop::loadContent() {
 								 " v.hotspot_w,"			 // 49
 								 " v.hotspot_h,"			 // 50
 								 " res.filename,"			 // 51
-								 " v.tags"					 // 52
+								 " v.tags,"					 // 52
+								 " v.rich_text_pango"		 // 53
 								 " FROM value AS v"
 								 " LEFT JOIN lookup AS l ON l.uid = v.field_uid"
 								 " LEFT JOIN resource AS res ON res.hash = v.resource_hash"
@@ -696,6 +699,7 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(8));
 				} else if (type == "RICH_TEXT") {
 					record.setProperty(field_uid, it.getString(9));
+					record.setProperty(field_uid + "_pango", it.getString(53));
 				} else if (type == "FILE_IMAGE" || type == "FILE_VIDEO" || type == "FILE_PDF") {
 					if (!it.getString(28).empty()) {
 						auto res = ds::Resource(mResourceId, ds::Resource::Id::CMS_TYPE, double(it.getFloat(33)),
