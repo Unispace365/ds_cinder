@@ -849,6 +849,12 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		} else {
 			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
+
+		// Avoid picking a particular sprite to call back to here, since multiple are sharing this wrapper. If the one
+		// that set the callback gets killed this can lead to a crash
+		// Instead lets just clear the callback (for now... Is there a better solution out there?)
+		mGstreamerWrapper->setErrorMessageCallback(nullptr); 
+
 		return;
 	}
 
