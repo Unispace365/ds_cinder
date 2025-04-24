@@ -794,12 +794,17 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(7));
 				} else if (type == "TAGS") {
 					auto tags = record.getPropertyString(field_uid);
+					
+					//add as a comma seperated value.
 					if (tags.empty()) {
 						tags = it.getString(52);
 					} else {
 						tags = tags + ", " + it.getString(52);
 					}
+
 					record.setProperty(field_uid, tags);
+					// add to propertyList
+					record.addPropertyToList(field_uid, recordMap[it.getString(52)].getPropertyString("label"));
 				} else {
 					DS_LOG_INFO("UNHANDLED(2): " << type)
 				}
