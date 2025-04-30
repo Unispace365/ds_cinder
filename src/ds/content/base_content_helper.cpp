@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "ds/content/base_content_helper.h"
-#include "ds/content/platform.h"
 
 namespace ds::model {
 
@@ -69,25 +68,34 @@ BaseContentHelper::BaseContentHelper(ui::SpriteEngine& eng)
 	}
 }
 
+std::string BaseContentHelper::getPlatformKey() const {
+	return mEngine.getAppSettings().getString("platform:key", 0, "");
+}
+
+std::string BaseContentHelper::getPlatformType(const std::string& platformKey) const {
+	return getPlatformModel(platformKey).getPropertyString("type");
+}
+
+const std::vector<ContentModelRef>& BaseContentHelper::getPlatformEvents(const std::string& platformKey) const {
+	return getPlatformModel(platformKey).getChildByName("current_events").getChildren();
+}
+
 std::string BaseContentHelper::getCompositeKeyForPlatform() {
 	// TODO: get key value pairs from waffles_app.xml
 	auto key = mEngine.getWafflesSettings().getString("composite:key", 0, "");
 	return key;
 }
 
-ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) {
+ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) const {
 	return mEngine.mContent.getKeyReference(VALID_MAP, uid);
 }
 
 Resource BaseContentHelper::getBackgroundForPlatform() {
-	Platform platformObj(mEngine);
-	auto	 platform = platformObj.getPlatformModel();
+	auto platform = getPlatformModel();
 	if (platform.empty()) return {};
 
-	// get all the events scheduled for this platform, already sorted in order of importance
-	const auto& allPlatformEvents = platform.getChildByName("current_events").getChildren();
-
 	// check if events have playlists
+	const auto& allPlatformEvents = getPlatformEvents();
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
 			if (event.getPropertyString("type_key") == "some_event" && !event.getPropertyResource("content-browsing-background").empty()) {
@@ -147,16 +155,15 @@ std::string BaseContentHelper::getInitialPresentationUid() {
 }
 
 std::vector<ContentModelRef> BaseContentHelper::getContentForPlatform() {
-	Platform platformObj(mEngine);
-	auto	 allValid	= mEngine.mContent.getChildByName(CONTENT).getChildren();
-	auto	 allContent = std::vector<ContentModelRef>();
+	auto allValid	= mEngine.mContent.getChildByName(CONTENT).getChildren();
+	auto allContent = std::vector<ContentModelRef>();
 
 	for (const auto& value : allValid) {
 		allContent.push_back(value);
 	}
 
 
-	auto platformChildren = platformObj.getPlatformModel().getChildren();
+	auto platformChildren = getPlatformModel().getChildren();
 	for (const auto& value : platformChildren) {
 		allContent.push_back(value);
 	}
@@ -171,17 +178,14 @@ std::vector<ContentModelRef> BaseContentHelper::getFilteredPlaylists(const Playl
 	auto eventPropName	  = filter.eventPropertyName.empty() ? "playlist" : filter.eventPropertyName;
 	auto platformPropName = filter.platformPropertyName.empty() ? "default_playlist" : filter.platformPropertyName;
 
-	Platform platformObj(mEngine);
-	auto	 platform = platformObj.getPlatformModel();
+	auto platform = getPlatformModel();
 	if (platform.empty()) return {};
 
-	ContentModelRef thePlaylist;
-
-	// get all the events scheduled for this platform, already sorted in order of importance
-	const auto&					 allPlatformEvents = platform.getChildByName("current_events").getChildren();
+	ContentModelRef				 thePlaylist;
 	std::vector<ContentModelRef> thePlaylists;
 
 	// check if events have playlists
+	const auto& allPlatformEvents = getPlatformEvents();
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
 			auto eventTypeKey = event.getPropertyString("type_key");
@@ -304,9 +308,7 @@ std::string BaseContentHelper::getMediaPropertyKey(ContentModelRef model, const 
 }
 
 std::vector<ContentModelRef> BaseContentHelper::getStreamSources(const std::string& category) {
-	Platform platform(mEngine);
-
-	auto						 platformModel = platform.getPlatformModel();
+	auto						 platformModel = getPlatformModel();
 	auto						 kids		   = platformModel.getChildren();
 	std::vector<ContentModelRef> sources;
 	for (const auto& submodel : kids) {

@@ -31,18 +31,36 @@ class ContentHelper {
 	ContentHelper(ui::SpriteEngine& eng)
 	  : mEngine(eng) {}
 
-	virtual std::string		getCompositeKeyForPlatform()		   = 0;
-	virtual ContentModelRef getRecordByUid(const std::string& uid) = 0;
-	virtual Resource		getBackgroundForPlatform()			   = 0;
+	//! Returns the platform model for the current platform.
+	ContentModelRef getPlatformModel() const { return getRecordByUid(getPlatformKey()); }
+	//! Returns the platform model for the specified \a platformKey.
+	ContentModelRef getPlatformModel(const std::string& platformKey) const { return getRecordByUid(platformKey); }
+
+	//! Returns the platform key for the current platform.
+	virtual std::string getPlatformKey() const = 0;
+	//! Returns the platform type for the current platform, which is a human-readable string defined in the CMS schema.
+	virtual std::string getPlatformType() const = 0;
+	//! Returns the platform type for the specified \a platformKey, which is a human-readable string defined in the CMS
+	//! schema.
+	virtual std::string getPlatformType(const std::string& platformKey) const = 0;
+	//! Returns all the events scheduled for the current platform, already sorted in order of importance.
+	virtual const std::vector<ContentModelRef>& getPlatformEvents() const = 0;
+	//! Returns all the events scheduled for the specified \a platformKey, already sorted in order of importance.
+	virtual const std::vector<ContentModelRef>& getPlatformEvents(const std::string& platformKey) const = 0;
+
+	virtual std::string		getCompositeKeyForPlatform()				 = 0;
+	virtual ContentModelRef getRecordByUid(const std::string& uid) const = 0;
+	virtual Resource		getBackgroundForPlatform()					 = 0;
 
 	virtual ContentModelRef getPresentation()			= 0; // getInteractivePlaylist
 	virtual ContentModelRef getAmbientPlaylist()		= 0;
 	virtual std::string		getInitialPresentationUid() = 0;
 
-	virtual std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter)				 = 0;
-	virtual std::vector<ContentModelRef> getContentForPlatform()										 = 0; // getAssets
-	virtual std::vector<ContentModelRef> getStreamSources(const std::string& category = DEFAULTCATEGORY) = 0;
-	virtual ContentModelRef				 getStreamSourceForStream(ContentModelRef stream, const std::string& category = DEFAULTCATEGORY) = 0;
+	virtual std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) = 0;
+	virtual std::vector<ContentModelRef> getContentForPlatform()							= 0; // getAssets
+	virtual std::vector<ContentModelRef> getStreamSources(const std::string& category = DEFAULTCATEGORY)		 = 0;
+	virtual ContentModelRef				 getStreamSourceForStream(ContentModelRef	 stream,
+																  const std::string& category = DEFAULTCATEGORY) = 0;
 
 	virtual std::vector<Resource> findMediaResources() = 0;
 
@@ -52,16 +70,18 @@ class ContentHelper {
 	virtual bool isValidStream(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	   = 0;
 	virtual bool isValidPlaylist(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	   = 0;
 
-	virtual std::string getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)		= 0;
-	virtual std::string getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)			= 0;
-	virtual std::string getStreamSourceAddressKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
-	virtual std::string getStreamSourceTypeKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	= 0;
-	
+	virtual std::string getMediaPropertyKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY) = 0;
+	virtual std::string getStreamMatchKey(ContentModelRef model, const std::string& category = DEFAULTCATEGORY)	  = 0;
+	virtual std::string getStreamSourceAddressKey(ContentModelRef	 model,
+												  const std::string& category = DEFAULTCATEGORY)				  = 0;
+	virtual std::string getStreamSourceTypeKey(ContentModelRef	  model,
+											   const std::string& category = DEFAULTCATEGORY)					  = 0;
+
 	virtual std::vector<ContentModelRef> getRecordsOfType(const std::vector<ContentModelRef>& records,
 														  const std::string&				  type);
 
 	virtual std::vector<ContentProperty> findAllProperties(const std::vector<ContentModelRef>& records,
-	                                                      const std::string&				   propertyName);
+														   const std::string&				   propertyName);
 
   protected:
 	static void getRecordsByUid(const std::vector<ContentModelRef>& records, const std::string& uid,
@@ -69,7 +89,7 @@ class ContentHelper {
 	static void getRecordsByType(const std::vector<ContentModelRef>& records, const std::string& type,
 								 std::vector<ContentModelRef>& result);
 	static void getPropertyByName(const std::vector<ContentModelRef>& records, const std::string& propertyName,
-								 std::vector<ContentProperty>& result);
+								  std::vector<ContentProperty>& result);
 
 	ui::SpriteEngine& mEngine;
 };
