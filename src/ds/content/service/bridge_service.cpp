@@ -66,7 +66,7 @@ void BridgeService::start() {
 	}
 
 	// Refresh content regularly.
-	mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.f);
+	mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.0);
 
 	refreshDatabase(mThread.isRunning());
 }
