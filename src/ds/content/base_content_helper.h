@@ -8,9 +8,22 @@ class BaseContentHelper : public ContentHelper {
   public:
 	BaseContentHelper(ui::SpriteEngine& eng);
 
-	// Inherited via ContentHelper
+	//! Returns the platform key for the current platform.
+	std::string getPlatformKey() const override;
+	//! Returns the platform type for the current platform, which is a human-readable string defined in the CMS schema.
+	std::string getPlatformType() const override { return getPlatformType(getPlatformKey()); }
+	//! Returns the platform type for the specified \a platformKey, which is a human-readable string defined in the CMS
+	//! schema.
+	std::string getPlatformType(const std::string& platformKey) const override;
+	//! Returns all the events scheduled for the current platform, already sorted in order of importance.
+	const std::vector<ContentModelRef>& getPlatformEvents() const override {
+		return getPlatformEvents(getPlatformKey());
+	}
+	//! Returns all the events scheduled for this platform, already sorted in order of importance.
+	const std::vector<ContentModelRef>& getPlatformEvents(const std::string& platformKey) const override;
+
 	std::string					 getCompositeKeyForPlatform() override;
-	ContentModelRef				 getRecordByUid(const std::string& uid) override;
+	ContentModelRef				 getRecordByUid(const std::string& uid) const override;
 	Resource					 getBackgroundForPlatform() override;
 	ContentModelRef				 getPresentation() override;
 	ContentModelRef				 getAmbientPlaylist() override;
