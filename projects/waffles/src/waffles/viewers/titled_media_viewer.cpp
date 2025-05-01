@@ -338,20 +338,20 @@ void TitledMediaViewer::onMediaSet() {
 
 			} else if (streamType == "capture") {
 				DS_LOG_INFO("Got a capture stream! " << streamAddress);
-				
-				//set up gstreamer to capture.
+
+				// set up gstreamer to capture.
 				//--check for a size at the end of the stream address in the form of address@widthxheight
 				std::string address = streamAddress;
 				std::string size;
 				float		width  = 0;
 				float		height = 0;
-				auto		atPos = address.find("@");
+				auto		atPos  = address.find("@");
 				if (atPos != std::string::npos) {
 					size	= address.substr(atPos + 1);
 					address = address.substr(0, atPos);
 
 					// split size string into width and height floats
-					auto  sizeParts = ds::split(size, "x");
+					auto sizeParts = ds::split(size, "x");
 					if (sizeParts.size() == 2) {
 						width  = ds::string_to_float(sizeParts.at(0));
 						height = ds::string_to_float(sizeParts.at(1));
@@ -365,7 +365,8 @@ void TitledMediaViewer::onMediaSet() {
 				}
 
 				std::stringstream ss;
-				ss << "mfvideosrc device-name=\"" << address << "\" ! queue leaky=1 max-size-buffers=0 ! videoconvert ! appsink name=appsink0";
+				ss << "mfvideosrc device-name=\"" << address
+				   << "\" ! queue leaky=1 max-size-buffers=0 ! videoconvert ! appsink name=appsink0";
 				std::string pipeline = ss.str();
 				DS_LOG_INFO("Pipeline: " << pipeline);
 				fakeRes.setFileName(pipeline);
@@ -373,8 +374,6 @@ void TitledMediaViewer::onMediaSet() {
 				fakeRes.setType(ds::Resource::VIDEO_STREAM_TYPE);
 				fakeRes.setWidth(width);
 				fakeRes.setHeight(height);
-				
-				
 			}
 		}
 		auto mediaPropKey = helper->getMediaPropertyKey(mMediaRef);
@@ -524,7 +523,7 @@ void TitledMediaViewer::onMediaSet() {
 	if (webPlayer && webPlayer->getWeb()) {
 
 		ds::ui::WebInterface* webInterface = dynamic_cast<ds::ui::WebInterface*>(webPlayer->getWebInterface());
-		auto  keyboardBtn  = webInterface->getKeyboardButton();
+		auto				  keyboardBtn  = webInterface->getKeyboardButton();
 
 		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
 			if (onScreen) {
@@ -555,7 +554,7 @@ void TitledMediaViewer::onMediaSet() {
 				mShowingKeyboard = false;
 
 				keyboardBtn->setChecked(false); // Set the button to unchecked when keyboard is off screen
-				// showTitle();
+												// showTitle();
 			}
 		});
 
@@ -575,7 +574,7 @@ void TitledMediaViewer::onMediaSet() {
 				// mRootLayout->runLayout();
 			});
 
-			if(mEngine.getWafflesSettings().getBool("media_viewer:web:trigger_waffles_fullscreen", 0, "true")){
+			if (mEngine.getWafflesSettings().getBool("media_viewer:web:trigger_waffles_fullscreen", 0, "true")) {
 				webby->setFullscreenChangedCallback([this](bool isFullscreen) {
 					if (isFullscreen && !getIsFullscreen()) {
 						mEventClient.notify(RequestFullscreenViewer(this));
@@ -1468,14 +1467,14 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 		}
 	}
 
-	if (destinationX == thisX && destinationY == thisY) {
-		return;
+	auto pos = getPosition();
+
+	if (!(destinationX == thisX && destinationY == thisY)) {
+		mMomentum.deactivate();
 	}
 
-	mMomentum.deactivate();
-
-
 	// Compute the position of the upper-left corner of the rotated sprite, relative to the bounding box
+
 	const auto normalizeAngle = [](const float degrees) {
 		float ret = glm::mod(degrees, 360.0f);
 		if (ret < 0) ret += 360.0f;
@@ -1502,9 +1501,10 @@ void TitledMediaViewer::checkBounds(bool immediate) {
 	// re-apply the anchor offset.
 	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth(), getScaleHeight()) -
 							  (boundsMode == BoundsMode::kMediaEdge ? ci::vec2(mLeftPad, mTopPad) : ci::vec2(0, 0));
-	const auto pos = ci::vec3(ci::vec2(destinationX, destinationY) + ulPos + glm::rotate(anchorOffset, radians), 0);
+	pos = ci::vec3(ci::vec2(destinationX, destinationY) + ulPos + glm::rotate(anchorOffset, radians), 0);
 
-	if (immediate) {
+
+	if (immediate || (destinationX == thisX && destinationY == thisY)) {
 		setPosition(pos);
 	} else {
 		tweenPosition(pos, mAnimDuration, 0.0f, ci::EaseOutQuint());

@@ -32,7 +32,7 @@ class TitledMediaViewer : public BaseElement {
 	void toggleInnerSideBar() override;
 
 	void setToFullscreen(const bool immediate, const bool showController) override;
-	void checkBounds(const bool animate) override;
+	void checkBounds(const bool immediate) override;
 
 	// 0 = normal, 1 = 90 degrees, 2 = 180 degrees, 3 = 270 degrees
 	int getMediaRotation() override { return mMediaRotation; }
