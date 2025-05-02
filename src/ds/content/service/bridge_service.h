@@ -5,6 +5,7 @@
 #include <Poco/DateTime.h>
 
 #include <ds/app/event_client.h>
+#include <ds/content/base_content_helper.h>
 #include <ds/content/platform.h>
 #include <ds/network/helper/delayed_node_watcher.h>
 #include <ds/network/https_client.h>
@@ -83,14 +84,15 @@ class BridgeService {
 		ci::app::AppBase* mApp =
 			nullptr; // Pointer to main application, allowing us to execute code on the main thread.
 
-		ds::ui::SpriteEngine&										mEngine;	   // Reference to the sprite engine.
-		Poco::Mutex													mContentMutex; // Controls access to content.
-		ds::model::ContentModelRef									mContent;	   //
-		ds::model::ContentModelRef									mPlatforms;	   //
-		ds::model::ContentModelRef									mEvents;	   //
-		ds::model::ContentModelRef									mRecords;	   //
-		ds::model::ContentModelRef									mTags;		   // all the tags
-		std::unordered_map<std::string, ds::model::ContentModelRef> mRecordMap;	   // all the records
+		ds::ui::SpriteEngine&		 mEngine;		 // Reference to the sprite engine.
+		ds::model::BaseContentHelper mContentHelper; // Pointer to the content helper, used for accessing content.
+		Poco::Mutex					 mContentMutex;	 // Controls access to content.
+		ds::model::ContentModelRef	 mContent;		 //
+		ds::model::ContentModelRef	 mPlatforms;	 //
+		ds::model::ContentModelRef	 mEvents;		 //
+		ds::model::ContentModelRef	 mRecords;		 //
+		ds::model::ContentModelRef	 mTags;			 // all the tags
+		std::unordered_map<std::string, ds::model::ContentModelRef> mRecordMap; // all the records
 		std::unordered_map<std::string, ds::model::ContentModelRef>
 					mValidMap;			   // all the valid records (as determined by the validator)
 		Poco::Mutex mMutex;				   // Controls access to abort, force and refresh flags.

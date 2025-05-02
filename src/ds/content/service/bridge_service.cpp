@@ -96,6 +96,7 @@ void BridgeService::refreshEvents(bool force) {
 BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   : mApp(ci::app::App::get())
   , mEngine(engine)
+  , mContentHelper(engine)
   , mAbort(false)
   , mForce(false)
   , mRefreshDatabase(true) // Force refresh on start.
@@ -891,11 +892,9 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 	Poco::DateTime		thisDayTime;
 	thisDayTime.makeLocal(ldt.tzd());
 
-	bool updated  = false;
-	
-	auto contentHelper = model::ContentHelperFactory::getDefault<ds::model::BaseContentHelper>();
-	auto platform	   = contentHelper->getPlatformModel();
+	bool updated = false;
 
+	auto platform		 = mContentHelper.getPlatformModel();
 	auto scheduledEvents = platform.getChildByName("scheduled_events");
 	auto platformEvents	 = scheduledEvents.getChildren();
 
@@ -1017,8 +1016,8 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		});
 
 		// For interoperability, store current events.
-		auto platformCurrentContent = contentHelper->getCurrentContent();
-		auto platformCurrentEvents = platformCurrentContent.getChildByName("current_events");
+		auto platformCurrentContent = mContentHelper.getCurrentContent();
+		auto platformCurrentEvents	= platformCurrentContent.getChildByName("current_events");
 
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
@@ -1027,7 +1026,7 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			updated = true;
 		}
 	} else {
-		auto currentContent = contentHelper->getCurrentContent();
+		auto currentContent = mContentHelper.getCurrentContent();
 
 		// Probably don't want to get rid of ALL the children...
 		if (!currentContent.getChildren().empty()) {
