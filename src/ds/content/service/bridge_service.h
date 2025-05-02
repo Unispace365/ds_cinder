@@ -85,7 +85,7 @@ class BridgeService {
 			nullptr; // Pointer to main application, allowing us to execute code on the main thread.
 
 		ds::ui::SpriteEngine&		 mEngine;		 // Reference to the sprite engine.
-		ds::model::BaseContentHelper mContentHelper; // Pointer to the content helper, used for accessing content.
+		ds::model::BaseContentHelper mContentHelper; // Content helper, used for accessing content.
 		Poco::Mutex					 mContentMutex;	 // Controls access to content.
 		ds::model::ContentModelRef	 mContent;		 //
 		ds::model::ContentModelRef	 mPlatforms;	 //
