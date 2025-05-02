@@ -28,7 +28,7 @@ class BaseWafflesHelper : public WafflesHelper {
 
 	// Inherited via WafflesHelper these are from WaffleHelper's base class ContentHelper
 	std::string					 getCompositeKeyForPlatform() override;
-	ContentModelRef				 getRecordByUid(const std::string& uid) override;
+	ContentModelRef				 getRecordByUid(const std::string& uid) const override;
 	ds::Resource				 getBackgroundForPlatform() override;
 	int							 getBackgroundPdfPage() override;
 	ContentModelRef				 getPresentation() override;

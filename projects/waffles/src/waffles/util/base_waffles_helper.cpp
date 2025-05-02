@@ -346,7 +346,7 @@ std::string BaseWafflesHelper::getCompositeKeyForPlatform() {
 	return mBaseContentHelper.getCompositeKeyForPlatform();
 }
 
-ContentModelRef BaseWafflesHelper::getRecordByUid(const std::string& uid) {
+ContentModelRef BaseWafflesHelper::getRecordByUid(const std::string& uid) const {
 	return mBaseContentHelper.getRecordByUid(uid);
 }
 ds::Resource BaseWafflesHelper::getBackgroundForPlatform() {
