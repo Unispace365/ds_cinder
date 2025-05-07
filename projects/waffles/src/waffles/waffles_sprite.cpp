@@ -651,9 +651,8 @@ void WafflesSprite::setupTouchMenu() {
 
 //template <class VC>
 void WafflesSprite::setDefaultPresentation() {
-	auto				helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-	ds::model::Platform platformObj(mEngine);
-	if (platformObj.getPlatformType() == ds::model::Platform::UNDEFINED) return;
+	auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+	if (helper->getPlatformType() == ds::model::Platform::UNDEFINED) return;
 	auto thePlaylist = helper->getPresentation();
 	if (!thePlaylist.empty() && !thePlaylist.getChildren().empty()) {
 		mPlaylist	  = thePlaylist;

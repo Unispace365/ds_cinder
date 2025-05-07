@@ -6,6 +6,7 @@
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/DateTimeParser.h>
 
+#include <ds/content/base_content_helper.h>
 #include <ds/content/content_events.h>
 #include <ds/debug/logger.h>
 #include <ds/query/query_client.h>
@@ -95,6 +96,7 @@ void BridgeService::refreshEvents(bool force) {
 BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   : mApp(ci::app::App::get())
   , mEngine(engine)
+  , mContentHelper(engine)
   , mAbort(false)
   , mForce(false)
   , mRefreshDatabase(true) // Force refresh on start.
@@ -794,8 +796,8 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(7));
 				} else if (type == "TAGS") {
 					auto tags = record.getPropertyString(field_uid);
-					
-					//add as a comma seperated value.
+
+					// add as a comma seperated value.
 					if (tags.empty()) {
 						tags = it.getString(52);
 					} else {
@@ -890,10 +892,9 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 	Poco::DateTime		thisDayTime;
 	thisDayTime.makeLocal(ldt.tzd());
 
-	bool				updated = false;
-	ds::model::Platform platformObj(mEngine);
-	auto				platform = platformObj.getPlatformModel();
+	bool updated = false;
 
+	auto platform		 = mContentHelper.getPlatformModel();
 	auto scheduledEvents = platform.getChildByName("scheduled_events");
 	auto platformEvents	 = scheduledEvents.getChildren();
 
@@ -1015,16 +1016,17 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		});
 
 		// For interoperability, store current events.
-		auto platformCurrentEvents = platformObj.getCurrentContent().getChildByName("current_events");
+		auto platformCurrentContent = mContentHelper.getCurrentContent();
+		auto platformCurrentEvents	= platformCurrentContent.getChildByName("current_events");
 
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
 			platformCurrentEvents.setChildren(currentEvents);
-			platformObj.getCurrentContent().replaceChild(platformCurrentEvents);
+			platformCurrentContent.replaceChild(platformCurrentEvents);
 			updated = true;
 		}
 	} else {
-		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
+		auto currentContent = mContentHelper.getCurrentContent();
 
 		// Probably don't want to get rid of ALL the children...
 		if (!currentContent.getChildren().empty()) {
