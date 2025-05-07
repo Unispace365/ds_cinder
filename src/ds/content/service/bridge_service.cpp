@@ -633,7 +633,7 @@ bool BridgeService::Loop::loadContent() {
 								 " v.number,"				 // 10
 								 " v.number_min,"			 // 11
 								 " v.number_max,"			 // 12
-								 " v.datetime,"				 // 13
+								 " v.date,"					 // 13
 								 " v.resource_hash,"		 // 14
 								 " v.crop_x,"				 // 15
 								 " v.crop_y,"				 // 16
@@ -673,7 +673,8 @@ bool BridgeService::Loop::loadContent() {
 								 " v.hotspot_h,"			 // 50
 								 " res.filename,"			 // 51
 								 " v.tags,"					 // 52
-								 " v.rich_text_pango"		 // 53
+								 " v.rich_text_pango,"		 // 53
+								 " v.time"					 // 54
 								 " FROM value AS v"
 								 " LEFT JOIN lookup AS l ON l.uid = v.field_uid"
 								 " LEFT JOIN resource AS res ON res.hash = v.resource_hash"
@@ -773,6 +774,11 @@ bool BridgeService::Loop::loadContent() {
 						record.setProperty(field_uid, valueInt);
 					else
 						record.setProperty(field_uid, valueFloat);
+				} else if (type == "NUMBER_RANGE") {
+					const auto start = it.getFloat(11);
+					const auto end	 = it.getFloat(12);
+					record.setProperty(field_uid + "_start", start);
+					record.setProperty(field_uid + "end", end);
 				} else if (type == "COMPOSITE_AREA") {
 					const auto& frameUid = it.getString(19);
 					record.setProperty(frameUid + "_x", it.getFloat(20));
@@ -807,6 +813,9 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, tags);
 					// add to propertyList
 					record.addPropertyToList(field_uid, recordMap[it.getString(52)].getPropertyString("label"));
+				} else if (type == "DATE_TIME") {
+					record.setProperty(field_uid + "_date", it.getString(13));
+					record.setProperty(field_uid + "_time", it.getString(54));
 				} else {
 					DS_LOG_INFO("UNHANDLED(2): " << type)
 				}
