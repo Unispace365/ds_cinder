@@ -30,7 +30,13 @@ ContentModelRef BaseContentHelper::getRecordByUid(const std::string& uid) const 
 }
 
 ContentModelRef BaseContentHelper::getCurrentContent() const {
-	return mEngine.mContent.getChildByName(CURRENT_CONTENT);
+	// We need to ensure this record is created if it doesn't exist
+	auto currentContent = mEngine.mContent.getChildByName(CURRENT_CONTENT);
+	if(currentContent.empty()){
+		currentContent.setName(CURRENT_CONTENT);
+		mEngine.mContent.addChild(currentContent);
+	}
+	return currentContent;
 }
 
 Resource BaseContentHelper::getBackgroundForPlatform() {
