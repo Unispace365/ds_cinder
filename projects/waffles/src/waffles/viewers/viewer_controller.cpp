@@ -409,7 +409,11 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 		auto url = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath();
 		auto id = ContentUtils::extractYoutubeId(url); // will return empty if not youtube link or if fails to extract
 		if (!id.empty()) {
+			auto w = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getWidth();
+			auto h = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getHeight();
 			auto res = ds::Resource("https://www.youtube.com/embed/" + id, ds::Resource::WEB_TYPE);
+			res.setWidth(w);
+			res.setHeight(h);
 			creationArgs.mMediaRef.setPropertyResource(mediaPropertyKey, res);
 		}
 	}
