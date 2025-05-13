@@ -291,6 +291,7 @@ ContentModelRef ContentModelRef::duplicate() const {
 	if (empty()) return {};
 
 	ContentModelRef newModel(getName(), getId(), getLabel());
+	newModel.setUid(getUid());
 	newModel.setUserData(getUserData());
 
 	if (!mData) return newModel;
