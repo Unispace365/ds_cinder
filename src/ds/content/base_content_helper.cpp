@@ -104,19 +104,19 @@ std::string BaseContentHelper::getInitialPresentationUid() {
 }
 
 std::vector<ContentModelRef> BaseContentHelper::getContentForPlatform() {
-	auto allValid	= mEngine.mContent.getChildByName(CONTENT).getChildren();
-	auto allContent = std::vector<ContentModelRef>();
+	// Get the source collections.
+	auto validContent	 = mEngine.mContent.getChildByName(CONTENT).getChildren();
+	auto platformContent = getPlatformModel().getChildren();
 
-	for (const auto& value : allValid) {
-		allContent.push_back(value);
-	}
+	// Reserve space to avoid reallocations.
+	std::vector<ContentModelRef> result;
+	result.reserve(validContent.size() + platformContent.size());
 
+	// Insert elements efficiently.
+	result.insert(result.end(), validContent.begin(), validContent.end());
+	result.insert(result.end(), platformContent.begin(), platformContent.end());
 
-	auto platformChildren = getPlatformModel().getChildren();
-	for (const auto& value : platformChildren) {
-		allContent.push_back(value);
-	}
-	return allContent;
+	return result;
 }
 
 std::vector<Resource> BaseContentHelper::findMediaResources() {
