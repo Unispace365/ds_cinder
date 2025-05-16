@@ -19,18 +19,6 @@ const std::vector<ContentModelRef>& BaseContentHelper::getPlatformEvents(const s
 	return getPlatformModel(platformKey).getChildByName("current_events").getChildren();
 }
 
-std::string BaseContentHelper::getPlatformKey() const {
-	return mEngine.getAppSettings().getString("platform:key", 0, "");
-}
-
-std::string BaseContentHelper::getPlatformType(const std::string& platformKey) const {
-	return getPlatformModel(platformKey).getPropertyString("type");
-}
-
-const std::vector<ContentModelRef>& BaseContentHelper::getPlatformEvents(const std::string& platformKey) const {
-	return getPlatformModel(platformKey).getChildByName("current_events").getChildren();
-}
-
 std::string BaseContentHelper::getCompositeKeyForPlatform() {
 	// TODO: get key value pairs from waffles_app.xml
 	auto key = mEngine.getWafflesSettings().getString("composite:key", 0, "");
