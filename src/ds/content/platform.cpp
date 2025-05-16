@@ -18,17 +18,22 @@ ContentModelRef Platform::getRecordByUid(const ContentModelRef& model, const std
 	return {};
 }
 
+#pragma warning(push)
+#pragma warning(disable : 4996) // Disable deprecation warning for this specific usage
+
 ContentModelRef Platform::getRecordByUid(const ui::SpriteEngine& engine, const std::string& uid) {
 	return getRecordByUid(engine.mContent.getChildByName("all_records"), uid);
 }
+
+#pragma warning(pop)
 
 Platform::Platform(ui::SpriteEngine& engine, const std::string& platformKey)
   : mEngine(engine)
   , mEventClient(engine) {
 
-	mCurrentContent = mEngine.mContent.getChildByName("current_content");
+	mCurrentContent = mEngine.mContent.getChildByName(CURRENT_CONTENT);
 	if (mCurrentContent.empty()) {
-		mCurrentContent.setName("current_content");
+		mCurrentContent.setName(CURRENT_CONTENT);
 		mEngine.mContent.replaceChild(mCurrentContent);
 	}
 

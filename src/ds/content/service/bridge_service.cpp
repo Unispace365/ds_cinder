@@ -6,6 +6,7 @@
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/DateTimeParser.h>
 
+#include <ds/content/base_content_helper.h>
 #include <ds/content/content_events.h>
 #include <ds/debug/logger.h>
 #include <ds/query/query_client.h>
@@ -66,7 +67,7 @@ void BridgeService::start() {
 	}
 
 	// Refresh content regularly.
-	mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.f);
+	mRefreshTimer.repeatedCallback([this] { refreshEvents(); }, 2.0);
 
 	refreshDatabase(mThread.isRunning());
 }
@@ -95,6 +96,7 @@ void BridgeService::refreshEvents(bool force) {
 BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   : mApp(ci::app::App::get())
   , mEngine(engine)
+  , mContentHelper(engine)
   , mAbort(false)
   , mForce(false)
   , mRefreshDatabase(true) // Force refresh on start.
@@ -549,20 +551,21 @@ bool BridgeService::Loop::loadContent() {
 		/* select defaults and the type they belong to (from traits) */
 		std::string defaultsQuery =
 			"SELECT "
-			" record.uid,"					// 0
-			" defaults.field_uid,"			// 1
-			" lookup.app_key,"				// 2
-			" defaults.field_type,"			// 3
-			" defaults.checked,"			// 4
-			" defaults.color,"				// 5
-			" defaults.text_value,"			// 6
-			" defaults.rich_text,"			// 7
-			" defaults.number,"				// 8
-			" defaults.number_min,"			// 9
-			" defaults.number_max,"			// 10
-			" defaults.option_type,"		// 11
-			" defaults.option_value,"		// 12
-			" lookup.app_key AS option_key" // 13
+			" record.uid,"					 // 0
+			" defaults.field_uid,"			 // 1
+			" lookup.app_key,"				 // 2
+			" defaults.field_type,"			 // 3
+			" defaults.checked,"			 // 4
+			" defaults.color,"				 // 5
+			" defaults.text_value,"			 // 6
+			" defaults.rich_text,"			 // 7
+			" defaults.number,"				 // 8
+			" defaults.number_min,"			 // 9
+			" defaults.number_max,"			 // 10
+			" defaults.option_type,"		 // 11
+			" defaults.option_value,"		 // 12
+			" lookup.app_key AS option_key," // 13
+			" defaults.rich_text_pango"		 // 14
 			" FROM record"
 			" LEFT JOIN trait_map ON trait_map.type_uid = record.type_uid"
 			" LEFT JOIN lookup ON record.type_uid = lookup.parent_uid OR trait_map.trait_uid = lookup.parent_uid "
@@ -590,6 +593,7 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(6));
 				} else if (type == "RICH_TEXT") {
 					record.setProperty(field_uid, it.getString(7));
+					record.setProperty(field_uid + "_pango", it.getString(14));
 				} else if (type == "NUMBER") {
 					record.setProperty(field_uid, it.getFloat(8));
 				} else if (type == "OPTIONS") {
@@ -698,6 +702,7 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(8));
 				} else if (type == "RICH_TEXT") {
 					record.setProperty(field_uid, it.getString(9));
+					record.setProperty(field_uid + "_pango", it.getString(53));
 				} else if (type == "FILE_IMAGE" || type == "FILE_VIDEO" || type == "FILE_PDF") {
 					if (!it.getString(28).empty()) {
 						auto res = ds::Resource(mResourceId, ds::Resource::Id::CMS_TYPE, double(it.getFloat(33)),
@@ -797,11 +802,14 @@ bool BridgeService::Loop::loadContent() {
 					record.setProperty(field_uid, it.getString(7));
 				} else if (type == "TAGS") {
 					auto tags = record.getPropertyString(field_uid);
+
+					// add as a comma seperated value.
 					if (tags.empty()) {
 						tags = it.getString(52);
 					} else {
 						tags = tags + ", " + it.getString(52);
 					}
+
 					record.setProperty(field_uid, tags);
 					// add to propertyList
 					record.addPropertyToList(field_uid, recordMap[it.getString(52)].getPropertyString("label"));
@@ -893,10 +901,9 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 	Poco::DateTime		thisDayTime;
 	thisDayTime.makeLocal(ldt.tzd());
 
-	bool				updated = false;
-	ds::model::Platform platformObj(mEngine);
-	auto				platform = platformObj.getPlatformModel();
+	bool updated = false;
 
+	auto platform		 = mContentHelper.getPlatformModel();
 	auto scheduledEvents = platform.getChildByName("scheduled_events");
 	auto platformEvents	 = scheduledEvents.getChildren();
 
@@ -1018,16 +1025,17 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 		});
 
 		// For interoperability, store current events.
-		auto platformCurrentEvents = platformObj.getCurrentContent().getChildByName("current_events");
+		auto platformCurrentContent = mContentHelper.getCurrentContent();
+		auto platformCurrentEvents	= platformCurrentContent.getChildByName("current_events");
 
 		if (platformCurrentEvents.empty() || platformCurrentEvents.getChildren() != currentEvents) {
 			platformCurrentEvents.setName("current_events");
 			platformCurrentEvents.setChildren(currentEvents);
-			platformObj.getCurrentContent().replaceChild(platformCurrentEvents);
+			platformCurrentContent.replaceChild(platformCurrentEvents);
 			updated = true;
 		}
 	} else {
-		ds::model::ContentModelRef currentContent = platformObj.getCurrentContent();
+		auto currentContent = mContentHelper.getCurrentContent();
 
 		// Probably don't want to get rid of ALL the children...
 		if (!currentContent.getChildren().empty()) {

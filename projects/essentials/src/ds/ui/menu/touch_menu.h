@@ -2,6 +2,8 @@
 #ifndef DS_UI_MENU_TOUCH_MENU
 #define DS_UI_MENU_TOUCH_MENU
 
+#include <utility>
+
 #include <ds/touch/five_finger_cluster.h>
 #include <ds/ui/sprite/sprite.h>
 
@@ -24,17 +26,13 @@ namespace ds { namespace ui {
 		struct MenuItemModel {
 			MenuItemModel()
 			  : mActivatedCallback(nullptr)
-			  , mTitle(L"")
-			  , mSubtitle(L"")
-			  , mIconNormalImage("")
-			  , mIconHighlightedImage("")
 			  , mNormalColor(ci::ColorA::white())
 			  , mHighlightColor(ci::ColorA::white()) {}
 			MenuItemModel(const std::wstring& titley, const std::string& normalImage = "",
-						  const std::string& highImage = "", std::function<void(ci::vec3)> callback = nullptr,
-						  const std::wstring& subtitley = L"", ci::ColorA normalColor = ci::ColorA::white(),
-						  ci::ColorA highlightColor = ci::ColorA::white())
-			  : mActivatedCallback(callback)
+						  const std::string&  highImage = "", std::function<void(ci::vec3)> callback = nullptr,
+						  const std::wstring& subtitley = L"", const ci::ColorA& normalColor = ci::ColorA::white(),
+						  const ci::ColorA&   highlightColor = ci::ColorA::white())
+			  : mActivatedCallback(std::move(callback))
 			  , mTitle(titley)
 			  , mSubtitle(subtitley)
 			  , mIconNormalImage(normalImage)
@@ -55,76 +53,51 @@ namespace ds { namespace ui {
 		/** A structure for configuring a touch menu */
 		struct TouchMenuConfig {
 
-			TouchMenuConfig()
-			  : mAnimationDuration(0.35f)
-			  , mItemIconHeight(150.0f)
-			  , mItemTitlePad(20.0f)
-			  , mItemTitleYPositionPercent(0.5f)
-			  , mItemTitleOpacity(0.5f)
-			  , mItemSubtitleOpacity(0.5f)
-			  , mItemTitleResizeLimit(0.0f, 0.0f)
-			  , mItemSize(250.0f, 250.0f)
-			  , mItemTitleTextConfig("")
-			  , mItemSubtitleTextConfig("")
-			  , mClusterRadius(280.0f)
-			  , mClusterPositionOffset(-90.0f)
-			  , mClusterSizeThreshold(1000.0f)
-			  , mClusterDistanceThreshold(1000.0f)
-			  , mClusterMinTouchPoints(5)
-			  , mBackgroundImage("")
-			  , mBackgroundColor(0.0f, 0.0f, 0.0f, 1.f)
-			  , mBackgroundOpacity(0.3f)
-			  , mBackgroundScale(3.0f)
-			  , mBackgroundOffset(0.0f, 0.0f)
-			  , mBackgroundPulseAmount(1.0f)
-			  , mBackgroundBlendMode(BlendMode::NORMAL)
-			  , mAnimationStyle(kAnimateUp)
-			  , mDoClipping(true)
-			  , mActivatedCallback(nullptr)
-			  , mDeactivatedCallback(nullptr) {}
+			float mAnimationDuration{0.35f}; // duration of all animations
 
-			float mAnimationDuration; // duration of all animations
+			float mItemIconHeight{150.0f};			// The height of the icon for each menu item, in pixels
+			float mItemTitlePad{20.0f};				// Distance between the icon and the title in each menu item
+			float mItemTitleYPositionPercent{0.5f}; // Vertical Position of the title, as a percentage of the height of
+													// the menu item
+			float		mItemTitleOpacity{0.5f};		   // Opacity of the title, defaults to 0.5
+			float		mItemSubtitleOpacity{0.5f};		   // Opacity of the subtitle, defaults to 0.5
+			ci::vec2	mItemTitleResizeLimit{0.0f, 0.0f}; // Resize limit for title and subtitle
+			ci::vec2	mItemSize{250.0f, 250.0f};		   // size of each menu item
+			std::string mItemTitleTextConfig;			   // The text config for the title of the menu item
+			std::string mItemSubtitleTextConfig;		   // The text config for the subtitle of the menu item
 
-			float mItemIconHeight;				 // The height of the icon for each menu item, in pixels
-			float mItemTitlePad;				 // Distance between the icon and the title in each menu item
-			float mItemTitleYPositionPercent;	 // Vertical Position of the title, as a percentage of the height of the
-												 // menu item
-			float		mItemTitleOpacity;		 // Opacity of the title, defaults to 0.5
-			float		mItemSubtitleOpacity;	 // Opacity of the subtitle, defaults to 0.5
-			ci::vec2	mItemTitleResizeLimit;	 // Resize limit for title and subtitle
-			ci::vec2	mItemSize;				 // size of each menu item
-			std::string mItemTitleTextConfig;	 // The text config for the title of the menu item
-			std::string mItemSubtitleTextConfig; // The text config for the subtitle of the menu item
+			float mClusterRadius{280.0f};		  // How large the overall cluster menu is
+			float mClusterDirection{-1.0f};		  // Whether items are placed CW (1) or CCW (-1). Defaults to CCW.
+			float mClusterPositionOffset{-90.0f}; // Rotation around the center of the menu the first item is placed at,
+												  // in degrees. Depends on the cluster direction. Defaults to -90
 
-			float mClusterRadius;		  // How large the overall cluster menu is
-			float mClusterPositionOffset; // Rotation around the center of the menu the first item is placed at, in
-										  // degrees
+			float mClusterSizeThreshold{1000.0f}; // How large the cluster of fingers can be before it is invalidated
+			float mClusterDistanceThreshold{1000.0f}; // How far from the start point the cluster can be dragged before
+													  // it is invalidated
 
-			float mClusterSizeThreshold;	 // How large the cluster of fingers can be before it is invalidated
-			float mClusterDistanceThreshold; // How far from the start point the cluster can be dragged before it is
-											 // invalidated
+			int mClusterMinTouchPoints{5}; // The minimum number of touch points needed to register as a cluster,
+										   // defaults to 5
 
-			int mClusterMinTouchPoints; // The minimum number of touch points needed to register as a cluster, defaults
-										// to 5
+			std::string mBackgroundImage;			  // The path to an image
+			ci::ColorA	mBackgroundColor{0, 0, 0, 1}; // Color to set the background image
+			float		mBackgroundOpacity{0.3f};	  // Max opacity for the background image when the cluster is active
+			float		mBackgroundScale{3.0f};		  // Scale of the background image when cluster is active
+			ci::vec2	mBackgroundOffset{0.0f, 0.0f}; // Position of the background image when cluster is active
+			float		mBackgroundPulseAmount{1.0f};
+			BlendMode	mBackgroundBlendMode{NORMAL};
 
-			std::string mBackgroundImage;	// The path to an image
-			ci::ColorA	mBackgroundColor;	// Color to set the background image
-			float		mBackgroundOpacity; // Max opacity for the background image when the cluster is active
-			float		mBackgroundScale;	// Scale of the background image when cluster is active
-			ci::vec2	mBackgroundOffset;	// Position of the background image when cluster is active
-			float		mBackgroundPulseAmount;
-			BlendMode	mBackgroundBlendMode;
+			using ClusterAnimation = enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial };
 
-			typedef enum { kAnimateUp = 0, kAnimateDown, kAnimateLeft, kAnimateRight, kAnimateRadial } ClusterAnimation;
-
-			ClusterAnimation mAnimationStyle;
-			bool			 mDoClipping;
+			ClusterAnimation mAnimationStyle{kAnimateUp};
+			bool			 mDoClipping{true};
 
 			// Add sprites to cluster view to be on top. Add sprites to the graphic parent to be underneath the menu
 			// items Important: use the deactivated callback to remove references to any sprites you've added, or don't
 			// retain references at all
-			std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)> mActivatedCallback;
-			std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)> mDeactivatedCallback;
+			std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)> mActivatedCallback =
+				nullptr;
+			std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)> mDeactivatedCallback =
+				nullptr;
 		};
 
 		TouchMenu(ds::ui::SpriteEngine& enginey);

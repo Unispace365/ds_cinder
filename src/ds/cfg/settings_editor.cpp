@@ -758,7 +758,7 @@ void SettingsEditor::drawSingleSetting(ds::cfg::Settings::Setting& setting, ds::
 
 void SettingsEditor::drawSaveButtons(ds::cfg::Settings& toSave) {
 	std::string appDir		= ds::Environment::expand("%APP%/settings/");
-	std::string localDir	= ds::Environment::expand("%LOCAL%/%PP%/");
+	std::string localDir	= ds::Environment::expand("%LOCAL%/settings/%PP%/");
 	std::string appCfgDir	= ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/");
 	std::string localCfgDir = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/");
 

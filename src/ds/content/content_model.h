@@ -18,13 +18,14 @@ class SpriteEngine;
 
 namespace ds::model {
 
-const std::string VALID_MAP	  = "valid_map";
-const std::string RECORD_MAP  = "record_map";
-const std::string CONTENT	  = "content";
-const std::string PLATFORM	  = "platform";
-const std::string ALL_EVENTS  = "all_events";
-const std::string ALL_RECORDS = "all_records";
-const std::string ALL_TAGS	  = "all_tags";
+const std::string VALID_MAP		  = "valid_map";
+const std::string RECORD_MAP	  = "record_map";
+const std::string CONTENT		  = "content";
+const std::string PLATFORM		  = "platform";
+const std::string ALL_EVENTS	  = "all_events";
+const std::string ALL_RECORDS	  = "all_records";
+const std::string ALL_TAGS		  = "all_tags";
+const std::string CURRENT_CONTENT = "current_content";
 
 /**
  * \class ContentProperty

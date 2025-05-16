@@ -4,6 +4,7 @@
 
 namespace ds::model {
 
+//! Abstract base class for content helpers. Provides implementation for some common methods.
 class ContentHelper {
   public:
 	virtual ~ContentHelper() = default;
@@ -32,11 +33,13 @@ class ContentHelper {
 	  : mEngine(eng) {}
 
 	//! Returns the platform model for the current platform.
-	ContentModelRef getPlatformModel() const { return getRecordByUid(getPlatformKey()); }
+	virtual ContentModelRef getPlatformModel() const { return getRecordByUid(getPlatformKey()); }
 	//! Returns the platform model for the specified \a platformKey.
-	ContentModelRef getPlatformModel(const std::string& platformKey) const { return getRecordByUid(platformKey); }
+	virtual ContentModelRef getPlatformModel(const std::string& platformKey) const {
+		return getRecordByUid(platformKey);
+	}
 
-	//! Returns the platform key for the current platform.
+	//! Returns the platform key defined in the application settings.
 	virtual std::string getPlatformKey() const = 0;
 	//! Returns the platform type for the current platform, which is a human-readable string defined in the CMS schema.
 	virtual std::string getPlatformType() const = 0;
@@ -47,13 +50,19 @@ class ContentHelper {
 	virtual const std::vector<ContentModelRef>& getPlatformEvents() const = 0;
 	//! Returns all the events scheduled for the specified \a platformKey, already sorted in order of importance.
 	virtual const std::vector<ContentModelRef>& getPlatformEvents(const std::string& platformKey) const = 0;
-
-	virtual std::string		getCompositeKeyForPlatform()				 = 0;
+	//! Returns the composite key defined in the waffles settings.
+	virtual std::string getCompositeKeyForPlatform() = 0;
+	//! Returns the content model for the specified \a uid, or an empty model if not found.
 	virtual ContentModelRef getRecordByUid(const std::string& uid) const = 0;
-	virtual Resource		getBackgroundForPlatform()					 = 0;
-
-	virtual ContentModelRef getPresentation()			= 0; // getInteractivePlaylist
+	//! Returns the content model for the "current_content" stored in the engine, if applicable.
+	virtual ContentModelRef getCurrentContent() const = 0;
+	//! Returns the default background resource, or an empty resource if not defined.
+	virtual Resource getBackgroundForPlatform() = 0;
+	//! Returns the default presentation playlist found in the content, or an empty model if not found.
+	virtual ContentModelRef getPresentation()			= 0;
+	//! Returns the first ambient playlist found in the content, or an empty model if not found.
 	virtual ContentModelRef getAmbientPlaylist()		= 0;
+	//! Returns the uid of the default presentation playlist found in the content, or an empty string if not found.
 	virtual std::string		getInitialPresentationUid() = 0;
 
 	virtual std::vector<ContentModelRef> getFilteredPlaylists(const PlaylistFilter& filter) = 0;
