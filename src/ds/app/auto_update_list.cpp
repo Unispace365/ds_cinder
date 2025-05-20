@@ -27,7 +27,12 @@ void AutoUpdateList::update(const ds::UpdateParams& p) {
 	if (mRunning.empty()) return;
 
 	for (auto it : mRunning) {
-		it->update(p);
+		try {
+			it->update(p);
+		}
+		catch (std::exception e) {
+			DS_LOG_ERROR("Error in ds_cinder/src/ds/app/auto_update_list.cpp AutoUpdateList::update(..): " << e.what());
+		}
 	}
 }
 
