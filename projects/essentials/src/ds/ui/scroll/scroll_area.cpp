@@ -1,6 +1,9 @@
 #include "stdafx.h"
 
 #include "scroll_area.h"
+
+#include "ds/util/float_util.h"
+
 #include <ds/ui/sprite/util/clip_plane.h>
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -540,7 +543,7 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 	}
 }
 
-void ScrollArea::scrollerUpdated(const ci::vec2 scrollPos) {
+void ScrollArea::scrollerUpdated(const ci::vec2& scrollPos) {
 	float scrollerSize	= mScroller->getHeight();
 	float scrollWindow	= getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -562,7 +565,7 @@ void ScrollArea::scrollerUpdated(const ci::vec2 scrollPos) {
 	if (mScrollPercent < 0.0f) mScrollPercent = 0.0f;
 
 	if (mTopFade) {
-		if (scrollerPossy < 0.0f) {
+		if (!ds::approxEqual(mScrollPercent, 0.0f, 1.0e-3f)) {
 			if (!mTopFadeActive) {
 				mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
 				mTopFadeActive = true;
@@ -576,7 +579,7 @@ void ScrollArea::scrollerUpdated(const ci::vec2 scrollPos) {
 	}
 
 	if (mBottomFade) {
-		if (scrollerPossy > theTop) {
+		if (!ds::approxEqual(mScrollPercent, 1.0f, 1.0e-3f)) {
 			if (!mBottomFadeActive) {
 				mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
 				mBottomFadeActive = true;

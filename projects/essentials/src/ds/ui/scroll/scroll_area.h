@@ -112,10 +112,10 @@ class ScrollArea : public ds::ui::Sprite {
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& p) override;
 	virtual void onSizeChanged() override;
-	void		 scrollerUpdated(const ci::vec2 scrollPos);
-	void		 scrollerTweenUpdated();
-	void		 tweenComplete();
-	void		 handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
+	void         scrollerUpdated(const ci::vec2& scrollPos);
+	void         scrollerTweenUpdated();
+	void         tweenComplete();
+	void         handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 	virtual bool callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination);
 	virtual void drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) override;
 
