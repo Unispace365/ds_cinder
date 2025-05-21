@@ -554,40 +554,19 @@ void ScrollArea::scrollerUpdated(const ci::vec2& scrollPos) {
 		scrollerPossy = scrollPos.x;
 	}
 
-	const float theTop = scrollWindow - scrollerSize;
+	float theTop   = scrollWindow - scrollerSize;
+	mScrollPercent = ds::approxZero(theTop) ? 0.0f : glm::clamp(scrollerPossy / theTop, 0.0f, 1.0f);
 
-	if (theTop == 0.0f) {
-		mScrollPercent = 0.0f;
-	} else {
-		mScrollPercent = scrollerPossy / theTop;
-	}
-	if (mScrollPercent > 1.0f) mScrollPercent = 1.0f;
-	if (mScrollPercent < 0.0f) mScrollPercent = 0.0f;
-
-	if (mTopFade) {
-		if (!ds::approxEqual(mScrollPercent, 0.0f, 1.0e-3f)) {
-			if (!mTopFadeActive) {
-				mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-				mTopFadeActive = true;
-			}
-		} else {
-			if (mTopFadeActive) {
-				mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-				mTopFadeActive = false;
-			}
-		}
+	bool isTopActive = !ds::approxEqual(mScrollPercent, 0.0f, 1.0e-3f);
+	if (mTopFade && mTopFadeActive != isTopActive) {
+		mTopFade->tweenOpacity(isTopActive ? 1.0f : 0.0f, mReturnAnimateTime, 0.0f);
+		mTopFadeActive = isTopActive;
 	}
 
-	if (mBottomFade) {
-		if (!ds::approxEqual(mScrollPercent, 1.0f, 1.0e-3f)) {
-			if (!mBottomFadeActive) {
-				mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-				mBottomFadeActive = true;
-			}
-		} else if (mBottomFadeActive) {
-			mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-			mBottomFadeActive = false;
-		}
+	bool isBottomActive = isTopActive && !ds::approxEqual(mScrollPercent, 1.0f, 1.0e-3f);
+	if (mBottomFade && mBottomFadeActive != isBottomActive) {
+		mBottomFade->tweenOpacity(isBottomActive ? 1.0f : 0.0f, mReturnAnimateTime, 0.0f);
+		mBottomFadeActive = isBottomActive;
 	}
 
 	if (mScrollUpdatedFunction) mScrollUpdatedFunction(this);
