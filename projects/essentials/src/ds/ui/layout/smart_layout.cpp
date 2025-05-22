@@ -312,6 +312,14 @@ void SmartLayout::applyModelToSprite(ds::ui::Sprite* child, const std::string& c
 					} else {
 						setSpriteImage(childName, theNode.getProperty(theProp).getResource(), flags);
 					}
+				} else if (sprPropToSet == "text") {
+					// Prefer using the Pango format if available.
+					actualValue = theNode.getPropertyString(theProp + "_pango");
+					if (actualValue.empty()) actualValue = theNode.getPropertyString(theProp);
+					if (actualValue.empty() && !def.empty()) {
+						actualValue = def;
+					}
+					ds::ui::XmlImporter::setSpriteProperty(*child, sprPropToSet, actualValue);				
 				} else if (sprPropToSet == "media_player_src") {
 					auto theResource = theNode.getProperty(theProp).getResource();
 					if (theResource.empty()) {

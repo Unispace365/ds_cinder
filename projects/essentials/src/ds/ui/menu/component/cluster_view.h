@@ -17,7 +17,7 @@ namespace ds { namespace ui {
 		ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig,
 					std::vector<ds::ui::TouchMenu::MenuItemModel> itemModels);
 
-		bool getActive();
+		bool getActive() const;
 
 		void updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui::FiveFingerCluster::Cluster& cluster);
 

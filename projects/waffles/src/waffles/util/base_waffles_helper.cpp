@@ -17,46 +17,12 @@
 namespace waffles {
 
 BaseWafflesHelper::BaseWafflesHelper(ds::ui::SpriteEngine& eng)
-  : WafflesHelper(eng)
-  , mBaseContentHelper(eng) {
-	BaseWafflesHelper::loadIntegration();
-
-	auto foldersCount = mEngine.getAppSettings().countSetting("content:folder:key");
-
-	for (int i = 0; i < foldersCount; ++i) {
-		auto folder	  = mEngine.getAppSettings().getString("content:folder:key", i, "");
-		auto category = mEngine.getAppSettings().getAttribute("content:folder:key", 0, "category", DEFAULTCATEGORY);
-		mAcceptableFolders[category].push_back(folder);
-		if (mAcceptableFolders[DEFAULTCATEGORY].empty()) mAcceptableFolders[DEFAULTCATEGORY].push_back(folder);
-	}
-
-	auto mediaCount = mEngine.getAppSettings().countSetting("content:media:key");
-	for (int i = 0; i < mediaCount; ++i) {
-		auto media					 = mEngine.getAppSettings().getString("content:media:key", i);
-		auto mediaProp				 = mEngine.getAppSettings().getAttribute("content:media:key", i, "property_key", "");
-		auto category				 = mEngine.getAppSettings().getAttribute("content:media:key", i, "category", DEFAULTCATEGORY);
-		mMediaProps[category][media] = mediaProp;
-		if (mMediaProps[DEFAULTCATEGORY][media].empty()) mMediaProps[DEFAULTCATEGORY][media] = mediaProp;
-		mAcceptableMedia[category].push_back(media);
-		if (mAcceptableMedia[DEFAULTCATEGORY].empty()) mAcceptableMedia[DEFAULTCATEGORY].push_back(media);
-	}
-
-	auto playlistCount = mEngine.getAppSettings().countSetting("content:playlist:key");
-	for (int i = 0; i < playlistCount; ++i) {
-		auto playlist = mEngine.getAppSettings().getString("content:playlist:key", i, "");
-		auto category = mEngine.getAppSettings().getAttribute("content:playlist:key", i, "category", DEFAULTCATEGORY);
-		mAcceptablePlaylists[category].push_back(playlist);
-		if (mAcceptablePlaylists[DEFAULTCATEGORY].empty()) mAcceptablePlaylists[DEFAULTCATEGORY].push_back(playlist);
-	}
+  : WafflesHelper(eng) {
 }
 
 
-BaseWafflesHelper::~BaseWafflesHelper() = default;
-
-
 bool BaseWafflesHelper::getApplyParticles() {
-	Platform platformObj(mEngine);
-	auto	 platform = platformObj.getPlatformModel();
+	auto platform = getPlatformModel();
 	if (platform.empty()) return ContentModelRef();
 
 	// get all the events scheduled for this platform, already sorted in order of importance
@@ -94,8 +60,7 @@ ContentModelRef BaseWafflesHelper::getPinboard() {
 
 
 std::vector<ContentModelRef> BaseWafflesHelper::getValidPinboards() {
-	Platform platformObj(mEngine);
-	auto	 platform = platformObj.getPlatformModel();
+	auto platform = getPlatformModel();
 	if (platform.empty()) return {};
 
 	std::vector<ContentModelRef> pinboards;
@@ -118,7 +83,10 @@ std::vector<ContentModelRef> BaseWafflesHelper::getValidPinboards() {
 ContentModelRef BaseWafflesHelper::getAnnotationFolder() {
 	ContentModelRef result;
 
-	int count = 0;
+	if (mAnnotationFolderKeys.empty()) {
+		loadIntegration();
+	}
+	
 	for (const auto& record : mEngine.mContent.getChildByName(ALL_RECORDS).getChildren()) {
 		auto type  = record.getPropertyString("type_key");
 		auto valid = std::find(mAnnotationFolderKeys.begin(), mAnnotationFolderKeys.end(), type) != mAnnotationFolderKeys.end();
@@ -133,7 +101,7 @@ ContentModelRef BaseWafflesHelper::getAnnotationFolder() {
 }
 
 void BaseWafflesHelper::setKeyboardStyle(ds::ui::SoftKeyboard* keeb) {
-	// Note, this only somewhat works. If the keyboard is initalized with the wrong key size this will resize the keys
+	// Note, this only somewhat works. If the keyboard is initialized with the wrong key size this will resize the keys
 	// but not correctly re-size the keyboard. Leading to either overlaps or huge gaps
 	// More refinement needed
 	auto& setty = keeb->getSoftKeyboardSettings();
@@ -342,47 +310,23 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 }
 
 // contentHelper functions
-std::string BaseWafflesHelper::getCompositeKeyForPlatform() {
-	return mBaseContentHelper.getCompositeKeyForPlatform();
-}
-
-ContentModelRef BaseWafflesHelper::getRecordByUid(const std::string& uid) const {
-	return mBaseContentHelper.getRecordByUid(uid);
-}
 ds::Resource BaseWafflesHelper::getBackgroundForPlatform() {
-	// return mBaseContentHelper.getBackgroundForPlatform();
-
 	return {ds::Environment::expand("%APP%/data/images/waffles/default_background.jpg")};
 }
+
 int BaseWafflesHelper::getBackgroundPdfPage() {
 	return 0;
 }
 
-ContentModelRef BaseWafflesHelper::getPresentation() {
-	return mBaseContentHelper.getPresentation();
-}
-
-ContentModelRef BaseWafflesHelper::getAmbientPlaylist() {
-	return mBaseContentHelper.getAmbientPlaylist();
-}
-std::string BaseWafflesHelper::getInitialPresentationUid() {
-	return mBaseContentHelper.getInitialPresentationUid();
-}
-std::vector<ContentModelRef> BaseWafflesHelper::getFilteredPlaylists(const PlaylistFilter& filter) {
-	return mBaseContentHelper.getFilteredPlaylists(filter);
-}
 std::vector<ContentModelRef> BaseWafflesHelper::getContentForPlatform() {
-	Platform platformObj(mEngine);
-	auto	 platformCurrent = platformObj.getCurrentContent();
-	auto	 platform		 = platformObj.getPlatformModel();
-	// if (platformCurrent.empty()) return std::vector<ds::model::ContentModelRef>();
-
-	// get all the events scheduled for this platform
-	auto allPlatformEvents = platformCurrent.getChildByName("current_events").getChildren();
-
 	std::vector<ContentModelRef> theList;
 
+	if (mEventFieldKey.empty() || mPlatformFieldKey.empty()) {
+		loadIntegration();
+	}
+
 	// check if events have playlists
+	auto allPlatformEvents = mEngine.mContent.getChildByName("current_content.current_events").getChildren();
 	if (!allPlatformEvents.empty()) {
 		for (const auto& event : allPlatformEvents) {
 
@@ -401,7 +345,7 @@ std::vector<ContentModelRef> BaseWafflesHelper::getContentForPlatform() {
 		// DS_LOG_VERBOSE(1, "No scheduled ambient for platform" << myPlatform.getPropertyString("name"))
 	}
 
-
+	auto platform			= getPlatformModel();
 	auto defaultContentUids = ci::split(platform.getPropertyString(mPlatformFieldKey), ",");
 	for (auto& uid : defaultContentUids) {
 		auto content = getRecordByUid(uid);
@@ -411,16 +355,13 @@ std::vector<ContentModelRef> BaseWafflesHelper::getContentForPlatform() {
 	}
 
 	if (theList.empty() && mUseRoot) {
-		return mBaseContentHelper.getContentForPlatform();
+		return BaseContentHelper::getContentForPlatform();
 	}
 
 	return theList;
 }
-std::vector<ds::Resource> BaseWafflesHelper::findMediaResources() {
-	return mBaseContentHelper.findMediaResources();
-}
-void BaseWafflesHelper::loadIntegration() {
 
+void BaseWafflesHelper::loadIntegration() const {
 	mEventFieldKey	  = mEngine.getWafflesSettings().getString("waffles:content:event_field", 0, "additional_content");
 	mPlatformFieldKey = mEngine.getWafflesSettings().getString("waffles:content:platform_field", 0, "default_content");
 	mUseRoot		  = mEngine.getWafflesSettings().getBool("waffles:use_root_as_fallback", 0, false);
@@ -433,50 +374,6 @@ void BaseWafflesHelper::loadIntegration() {
 	}
 	// annotation_folder is always valid?
 	mAnnotationFolderKeys.emplace_back("annotation_folder");
-}
-
-std::vector<ContentModelRef> BaseWafflesHelper::getStreamSources(const std::string& category) {
-	return mBaseContentHelper.getStreamSources(category);
-}
-
-ContentModelRef BaseWafflesHelper::getStreamSourceForStream(ContentModelRef stream, const std::string& category) {
-	return mBaseContentHelper.getStreamSourceForStream(stream, category);
-}
-
-bool BaseWafflesHelper::isValidStreamSource(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.isValidStreamSource(model, category);
-}
-
-bool BaseWafflesHelper::isValidStream(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.isValidStream(model, category);
-}
-
-std::string BaseWafflesHelper::getStreamMatchKey(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.getStreamMatchKey(model, category);
-}
-
-std::string BaseWafflesHelper::getStreamSourceAddressKey(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.getStreamSourceAddressKey(model, category);
-}
-
-std::string BaseWafflesHelper::getStreamSourceTypeKey(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.getStreamSourceTypeKey(model, category);
-}
-
-bool BaseWafflesHelper::isValidFolder(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.isValidFolder(model, category);
-}
-
-bool BaseWafflesHelper::isValidMedia(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.isValidMedia(model, category);
-}
-
-bool BaseWafflesHelper::isValidPlaylist(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.isValidPlaylist(model, category);
-}
-
-std::string BaseWafflesHelper::getMediaPropertyKey(ContentModelRef model, const std::string& category) {
-	return mBaseContentHelper.getMediaPropertyKey(model, category);
 }
 
 void BaseWafflesHelper::setLauncherCustomFilters(CustomFilters cf) {

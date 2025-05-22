@@ -25,6 +25,9 @@ namespace ds { namespace ui {
 		Option header1;		  //
 		Option header2;		  //
 		Option header3;		  //
+		Option header4;		  //
+		Option header5;		  //
+		Option header6;		  //
 		Option superscript;	  //
 		Option emphasis1;	  //
 		Option emphasis2;	  // Double emphasis.
@@ -43,6 +46,9 @@ namespace ds { namespace ui {
 				{"<span weight='bold' size='xx-large'>", "</span>"},				 // header1
 				{"<span weight='bold' size='x-large'>", "</span>"},					 // header2
 				{"<span weight='bold' size='large'>", "</span>"},					 // header3
+				{"<span weight='bold' size='medium'>", "</span>"},					 // header4
+				{"<span weight='bold' size='small'>", "</span>"},					 // header5
+				{"<span weight='bold' size='x-small'>", "</span>"},					 // header6
 				{"<sup>", "</sup>"},												 // superscript
 				{"<span style='oblique'>", "</span>"},								 // emphasis1
 				{"<span weight='bold'>", "</span>"},								 // emphasis2

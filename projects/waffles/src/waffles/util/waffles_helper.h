@@ -31,7 +31,6 @@ class WafflesHelper : public ds::model::BaseContentHelper {
 	virtual ds::model::ContentModelRef				getPinboard()											   = 0;
 	virtual ds::model::ContentModelRef				getAnnotationFolder()									   = 0;
 	virtual std::vector<ds::model::ContentModelRef> getValidPinboards()										   = 0;
-	virtual std::vector<ds::Resource>				findMediaResources()									   = 0;
 	virtual int										getBackgroundPdfPage()									   = 0;
 	virtual void									setKeyboardStyle(ds::ui::SoftKeyboard* keeb)			   = 0;
 	virtual void									setMediaInterfaceStyle(ds::ui::MediaInterface* interfacey) = 0;
