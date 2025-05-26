@@ -39,7 +39,6 @@ class MediaInterface : public ds::ui::Sprite {
 	void setBackgroundColor(ci::ColorA newColor);
 	void setBackgroundColor(ci::Color newColor);
 
-	
 
 	virtual void show() override;
 
