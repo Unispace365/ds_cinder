@@ -67,7 +67,6 @@ void Platform::refreshContent() {
 }
 
 ContentModelRef Platform::getPlatformModel() {
-	refreshContent();
 	return mPlatformModel;
 }
 
