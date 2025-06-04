@@ -145,11 +145,11 @@ void FramedMediaViewer::onLayout() {
 	// handle the mediaIOnterface sizing
 	auto	 controllerHolder	= mRootLayout->getSprite<ds::ui::LayoutSprite>("controller_holder");
 	auto	 innerSidebar		= mRootLayout->getSprite("inner_sidebar");
-	auto	 ui_holder			= mRootLayout->getSprite("ui_holder");
+	//auto	 ui_holder			= mRootLayout->getSprite("ui_holder");
 	auto	 spacing			= mEngine.getWafflesSettings().getFloat("ui:button_spacing", 0, 16);
 	ci::vec2 interfaceCheckSize = getSize();
 	bool	 changed			= interfaceCheckSize != mInterfaceCheckSize;
-	if (controllerHolder && ui_holder && innerSidebar && mMediaInterface && changed) {
+	if (controllerHolder /*&& ui_holder*/ && innerSidebar && mMediaInterface && changed) {
 		mInterfaceCheckSize = interfaceCheckSize;
 		auto interfaceBox	= mMediaInterface->getChildBoundingBox();
 		auto interfacePos	= mMediaInterface->localToGlobal(ci::vec3(interfaceBox.getUpperLeft(), 0));
@@ -160,8 +160,8 @@ void FramedMediaViewer::onLayout() {
 		if (!mIsDetached && getWidth() - (mLeftPad + mRightPad) < contWidth && getWidth() > 0 && !pdf) {
 			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kRight);
 			controllerHolder->mLayoutFudge = ci::vec3(-(innerSidebar->getWidth() + spacing * 1), 0, 0);
-			auto offset					   = contWidth - w;
-			ui_holder->mLayoutFudge		   = ci::vec3(offset * 0.5, 0, 0);
+			//auto offset					   = contWidth - w;
+			//ui_holder->mLayoutFudge		   = ci::vec3(offset * 0.5, 0, 0);
 		} else if (!mIsDetached && contWidth > fullContWidth) {
 
 			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
@@ -170,7 +170,7 @@ void FramedMediaViewer::onLayout() {
 		} else {
 			controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
 			controllerHolder->mLayoutFudge = ci::vec3(0, 0, 0);
-			ui_holder->mLayoutFudge		   = ci::vec3(0, 0, 0);
+			//ui_holder->mLayoutFudge		   = ci::vec3(0, 0, 0);
 		}
 	}
 
