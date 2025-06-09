@@ -284,6 +284,20 @@ void TitledMediaViewer::onMediaSet() {
 		mMediaRef = newMediaRef;
 	}
 
+	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, true) &&
+		(mMediaRef.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE ||
+		mMediaRef.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE)) {
+		auto url = mMediaRef.getPropertyResource("media").getAbsoluteFilePath();
+		auto id = ContentUtils::extractYoutubeId(url); // will return empty if not youtube link or if fails to extract
+		if (!id.empty()) {
+			auto w = mMediaRef.getPropertyResource("media").getWidth();
+			auto h = mMediaRef.getPropertyResource("media").getHeight();
+			auto res = ds::Resource("https://www.youtube.com/embed/" + id, ds::Resource::WEB_TYPE);
+			res.setWidth(w);
+			res.setHeight(h);
+			mMediaRef.setPropertyResource("media", res);
+		}
+	}
 
 	mInitialLoadError = false;
 	if (!mMediaPlayer) {
