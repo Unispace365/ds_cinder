@@ -54,7 +54,7 @@ DisableWelcomePage=yes
 Name: "{app}/settings"; Permissions: users-modify;
 
 [Files]
-Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb, *.pdb,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "vs2019/Release/*"; Excludes:"*\GPUCache\*,*.iobj,*.ipdb,*.pdb,*.map,{#APP_EXE}"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "settings/*"; Excludes:"*configuration.xml"; DestDir: "{app}/settings"; Flags: recursesubdirs
 Source: "data/*"; DestDir: "{app}/data"; Flags: recursesubdirs
 
