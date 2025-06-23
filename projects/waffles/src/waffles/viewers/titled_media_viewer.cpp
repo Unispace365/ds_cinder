@@ -39,6 +39,7 @@
 #include "waffles/waffles_events.h"
 
 #include <ds/content/content_helper.h>
+#include <ds/ui/media/media_interface_builder.h>
 
 namespace waffles {
 
@@ -607,9 +608,15 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	if (!mShowingWebCam) {
+		auto mediaInterface = ds::ui::MediaInterfaceBuilder::buildMediaInterface(
+			mEngine,
+			mMediaPlayer->getPlayer(),
+			mRootLayout->getSprite("ui_holder")
+		);
+
 		auto wafflesHelper = ContentHelperFactory::getDefault<WafflesHelper>();
 		if (wafflesHelper) {
-			wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
+			wafflesHelper->setMediaInterfaceStyle(mediaInterface);
 		}
 		// ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
