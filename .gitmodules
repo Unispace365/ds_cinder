@@ -1,3 +1,6 @@
 [submodule "Cinder"]
 	path = Cinder
 	url = https://github.com/Unispace365/Cinder.git
+[submodule "build_system"]
+	path = build_system
+	url = https://github.com/Unispace365/ds_build_system.git
