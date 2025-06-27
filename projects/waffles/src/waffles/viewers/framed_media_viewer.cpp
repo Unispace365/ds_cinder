@@ -18,7 +18,7 @@
 #include <ds/ui/sprite/image.h>
 namespace waffles {
 
-FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel, const std::string layoutPath)
+FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel, const std::string &layoutPath)
   : TitledMediaViewer(g, eventChannel, layoutPath) {
 
 	auto tapCallback = [this](ds::ui::Sprite* bs, const ci::vec3& pos) {
@@ -394,6 +394,21 @@ void FramedMediaViewer::onMediaSet() {
 
 void FramedMediaViewer::onDetachedSet() {
 	TitledMediaViewer::onDetachedSet();
+
+	auto attachBtn = mRootLayout->getSprite<ds::ui::SpriteButton>("attach.the_button");
+	auto detachBtn = mRootLayout->getSprite<ds::ui::SpriteButton>("detach.the_button");
+	if (attachBtn && detachBtn) {
+		attachBtn->enable(mIsDetached);
+		detachBtn->enable(!mIsDetached);
+		if (mIsDetached) {
+			attachBtn->show();
+			detachBtn->hide();
+		} else {
+			attachBtn->hide();
+			detachBtn->show();
+		}
+	}
+
 	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
 	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
 	auto innerHoldy = mRootLayout->getSprite("inner_holdy");

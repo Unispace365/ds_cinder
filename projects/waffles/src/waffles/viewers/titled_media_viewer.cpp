@@ -209,6 +209,14 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string&
 		}
 	});
 
+	mRootLayout->setSpriteClickFn("attach.the_button", [this] {
+		if (getIsDetached()) {
+			mEventClient.notify(RequestAttachViewer(this));
+		} else {
+			mEventClient.notify(RequestDetachViewer(this));
+		}
+	});
+
 	mRootLayout->setSpriteClickFn("detach.the_button", [this] {
 		if (getIsDetached()) {
 			mEventClient.notify(RequestAttachViewer(this));
