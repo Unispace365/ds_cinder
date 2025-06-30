@@ -66,6 +66,10 @@ if errorlevel 1 goto :error
 msbuild ".\Cinder\proj\vc2019\cinder.sln" /m /p:Configuration=%target%
 if errorlevel 1 goto :error
 
+:: Point environment variable to this repository.
+set "DS_PLATFORM_093=%CD%"
+setx "DS_PLATFORM_093" %CD% >NUL 2>&1
+
 :: Build projects.
 for %%p in (
     ".\vs2015\platform.vcxproj"
@@ -90,10 +94,6 @@ for %%p in (
 )
 
 endlocal
-
-:: Point environment variable to this repository.
-set "DS_PLATFORM_093=%~dp0"
-setx "DS_PLATFORM_093" "%~dp0" >NUL 2>&1
 
 popd
 pause
