@@ -1,6 +1,7 @@
 # DS Cinder
 
 ## Description (the what and the why)
+
 DS Cinder is a framework for interactive applications built on top of the fantastic [Cinder framework](https://libcinder.org/)
 
 DS Cinder is a fully featured windows framework for rapid production of multimedia OpenGl applications. And applications
@@ -9,73 +10,52 @@ Streams, Web views, Fonts), extensive configuration, a suite of UI and rendering
 CMS backend for rapid prototyping and developemnt.
 
 ## Getting Started
+
 > This version of DS Cinder is Windows only, and targeted at Windows 10 & 11
 
 ### Windows
-**Install Visual Studio 2022 - Community Edition**
-1. Download here: https://www.visualstudio.com/
+
+#### Install Git for Windows
+
+1. Download here: <https://gitforwindows.org/>
 2. Install it!
-	- Make sure to select C++ development and ensure you have the latest windows SDK and visual studio updates!
 
-#### Install Boost
-1. Go to https://boost.org
-2. DS Cinder currently uses [version 1.74.0 ](https://www.boost.org/users/history/version_1_74_0.html)
-3. You can download the binary package installer from here: [boost 1.74.0 for vs2019](https://sourceforge.net/projects/boost/files/boost-binaries/1.74.0/boost_1_74_0-msvc-14.2-64.exe/download)
-4. Run the installer
-5. Make a new environment variable
-    1. Open the Start menu and type "Advanced System Settings"
-    2. Click "Environment Variables"
-    3. Under "Sytem variables", select "New..."
-    4. Variable name: BOOST_PATH
-    5. Variable value: the path of the installed boost (e.g C:\local\boost_1_74_0)
-    6. Ok, Ok, Ok
+#### Install Visual Studio 2022 - Community Edition
 
-#### Install Gstreamer (if you're planning to play videos)
-1. Go to https://gstreamer.freedesktop.org/data/pkg/windows/
-2. As of this writing, the 1.18.5 version is what you want. Even-number minor versions (the "18" in this case) are the stable releases and the ones to use.
-3. Download gstreamer-1.0-devel-msvc-x86_64-1.18.5.msi
-4. Download gstreamer-1.0-msvc-x86-1.18.5.msi
-5. Note: the version numbers will be different if you've selected something else. You want both the "devel" and regular installers, and the x86_64 versions
-6. Install both msi installers with the "complete" option
-7. If you have any Visual Studio windows open, close them now so they can get the new environment variables set by the gstreamer installers
-8. See the [gstreamer read me](https://github.com/Downstream/ds_cinder/blob/develop/projects/video/gstreamer-1.0/README.md) for more info
+1. Download here: <https://www.visualstudio.com/>
+2. Install it!
+   - Make sure to select C++ development and ensure you have the latest windows SDK and visual studio updates!
 
 #### Download and compile DS Cinder
-1. Download and install Git and ensure you have git-lfs available
-2. Run `git clone https://github.com/Unispace365/ds_cinder.git`
-3. `cd ds_cinder`
-4. Run: `git lfs install`
-5. Run: `git lfs fetch --all`
-6. Run: `git submodule init` & `git submodule update --recursive` to create & update the Cinder submodule.
-	- If you're upgrading from a previous version, you may need to run `git submodule sync` first
-7. Add platform environment variable
-    1. Open the Start menu and type "Advanced System Settings"
-    2. Click "Environment Variables"
-    3. Under "Sytem variables", select "New..."
-    4. Variable name: `DS_PLATFORM_093`
-    5. Variable value: the path of this downloaded repo (e.g C:\Users\YourNameHere\Documents\ds_cinder)
-    6. Ok, Ok, Ok
-8. Open the Cinder project in visual studio (ds_cinder/Cinder/proj/vc2019/Cinder.sln) and compile for Debug-x64 & Release-x64
-9. Open an example project in the example folder and compile
+
+1. Run `git clone https://github.com/Unispace365/ds_cinder.git`
+2. `cd ds_cinder`
+3. Run: `build.bat`
+   - This will download, install and compile all prerequisites, including Boost and GStreamer.
+   - Only compiles the _Release_ target.
+   - If you want to compile the _Debug_ target as well, run `build.bat Debug` from the command line.
 
 ## Getting to know ds_cinder
-1. Check out the [Getting Started Example](/example/getting_started/) - it's a handy quick intro for basic concepts in ds_cinder. It also has a good number of common ds_cinder components in the app so you can mess with the pieces and see what's what. 
+
+1. Check out the [Getting Started Example](/example/getting_started/) - it's a handy quick intro for basic concepts in ds_cinder. It also has a good number of common ds_cinder components in the app so you can mess with the pieces and see what's what.
 2. Read the docs in [doc/basics](/doc/basics/) Particularly good ones:
-	1. [App Structure](/doc/basics/App%20Structure.md)
-	2. [Settings](/doc/basics/Settings.md)
-	3. [Dynamic Interfaces](/doc/basics/Dynamic%20Interfaces.md)
-	4. [Fonts](/doc/basics/Fonts.md)
-	5. [Keyboard Shortcuts](/doc/basics/Keyboard%20Shortcuts.md)
-	6. [Installers](/doc/basics/Installers.md)
+   1. [App Structure](/doc/basics/App%20Structure.md)
+   2. [Settings](/doc/basics/Settings.md)
+   3. [Dynamic Interfaces](/doc/basics/Dynamic%20Interfaces.md)
+   4. [Fonts](/doc/basics/Fonts.md)
+   5. [Keyboard Shortcuts](/doc/basics/Keyboard%20Shortcuts.md)
+   6. [Installers](/doc/basics/Installers.md)
 
 ## Generating documentation
+
 DsCinder is documented using the doxygen syntax. The documentation can be generated by running the following from the root of the ds_cinder project directory
 `doxygen ./doc/doxygen/ds_cinder_Doxyfile`
 The documentation is generated in `doc/doxygen/generated/html/` and index.html is the main page.
 
 ## Starting a project
-There's a project cloner in utility/project_cloner.ps1. Right-click that file and Run with Powershell. That applet will duplicate the full_starter example project with a name and namespace of your choice. From there, you can customize the app as you see fit. The full starter example comes with most of the extention projects (web, pdf, video, etc) already added, so you can start developing right away without messing with property sheets or compilation settings. 
+
+There's a project cloner in utility/project_cloner.ps1. Right-click that file and Run with Powershell. That applet will duplicate the full_starter example project with a name and namespace of your choice. From there, you can customize the app as you see fit. The full starter example comes with most of the extention projects (web, pdf, video, etc) already added, so you can start developing right away without messing with property sheets or compilation settings.
 
 ### Linux + Mac
-Linux was breifly supported in the past, but had insufficient usage to stay up to date.
 
+Linux was breifly supported in the past, but had insufficient usage to stay up to date.
