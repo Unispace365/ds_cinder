@@ -395,20 +395,6 @@ void FramedMediaViewer::onMediaSet() {
 void FramedMediaViewer::onDetachedSet() {
 	TitledMediaViewer::onDetachedSet();
 
-	auto attachBtn = mRootLayout->getSprite<ds::ui::SpriteButton>("attach.the_button");
-	auto detachBtn = mRootLayout->getSprite<ds::ui::SpriteButton>("detach.the_button");
-	if (attachBtn && detachBtn) {
-		attachBtn->enable(mIsDetached);
-		detachBtn->enable(!mIsDetached);
-		if (mIsDetached) {
-			attachBtn->show();
-			detachBtn->hide();
-		} else {
-			attachBtn->hide();
-			detachBtn->show();
-		}
-	}
-
 	auto background = mRootLayout->getSprite<ds::ui::LayoutSprite>("player_shade");
 	auto border		= mRootLayout->getSprite<ds::ui::LayoutSprite>("border_layout");
 	auto innerHoldy = mRootLayout->getSprite("inner_holdy");
