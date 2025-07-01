@@ -457,7 +457,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 			creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
 		if (webEnough && creationArgs.mTouchEvents) {
 			if (auto tmv = dynamic_cast<waffles::TitledMediaViewer*>(newViewer)) {
-				tmv->setInterfaceLocked(true);
+				tmv->setInterfaceLocked(true, true);
 			}
 		}
 	}

@@ -8,9 +8,9 @@
 #include "waffles/model/viewer_creation_args.h"
 #include "waffles/util/shadow_layout.h"
 #include "waffles/waffles_events.h"
+#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/interface/pdf_interface.h>
 #include <ds/ui/media/interface/web_interface.h>
-#include <ds/ui/button/toggle_container.h>
 #include <ds/ui/media/media_interface_builder.h>
 #include <ds/ui/media/media_player.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
@@ -18,7 +18,8 @@
 #include <ds/ui/sprite/image.h>
 namespace waffles {
 
-FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel, const std::string &layoutPath)
+FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel,
+									 const std::string& layoutPath)
   : TitledMediaViewer(g, eventChannel, layoutPath) {
 
 	auto tapCallback = [this](ds::ui::Sprite* bs, const ci::vec3& pos) {
@@ -89,7 +90,23 @@ FramedMediaViewer::FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string&
 
 	showTitle();
 	showInnerSideBar();
-};
+}
+
+void FramedMediaViewer::setInterfaceLocked(bool isLocked, bool allowToggle) const {
+	if (mMediaInterface) {
+		mMediaInterface->setAllowTouchToggle(allowToggle);
+		if (isLocked) {
+			mMediaInterface->startTouch();
+		} else {
+			mMediaInterface->stopTouch();
+		}
+	}
+}
+
+bool FramedMediaViewer::isInterfaceLocked() const {
+	if (mMediaInterface) return mMediaInterface->isLocked();
+	return false;
+}
 
 void FramedMediaViewer::onLayout() {
 	if (ds::approxZero(getWidth()) || ds::approxZero(getHeight())) return;
@@ -143,34 +160,34 @@ void FramedMediaViewer::onLayout() {
 		}
 	}
 	// handle the mediaIOnterface sizing
-	//auto	 controllerHolder	= mRootLayout->getSprite<ds::ui::LayoutSprite>("controller_holder");
-	//auto	 innerSidebar		= mRootLayout->getSprite("inner_sidebar");
-	//auto	 ui_holder			= mRootLayout->getSprite("ui_holder");
-	//auto	 spacing			= mEngine.getWafflesSettings().getFloat("ui:button_spacing", 0, 16);
+	// auto	 controllerHolder	= mRootLayout->getSprite<ds::ui::LayoutSprite>("controller_holder");
+	// auto	 innerSidebar		= mRootLayout->getSprite("inner_sidebar");
+	// auto	 ui_holder			= mRootLayout->getSprite("ui_holder");
+	// auto	 spacing			= mEngine.getWafflesSettings().getFloat("ui:button_spacing", 0, 16);
 	ci::vec2 interfaceCheckSize = getSize();
 	bool	 changed			= interfaceCheckSize != mInterfaceCheckSize;
 	if (/*controllerHolder && ui_holder && innerSidebar &&*/ mMediaInterface && changed) {
 		mInterfaceCheckSize = interfaceCheckSize;
-		//auto interfaceBox	= mMediaInterface->getChildBoundingBox();
-		//auto interfacePos	= mMediaInterface->localToGlobal(ci::vec3(interfaceBox.getUpperLeft(), 0));
-		//auto fullContWidth	= (innerSidebar->getGlobalPosition().x + innerSidebar->getWidth()) - interfacePos.x;
-		//auto contWidth		= interfaceBox.getWidth() + innerSidebar->getWidth() + spacing * 1;
-		//auto w				= getWidth() - (mLeftPad + mRightPad);
-		//auto pdf			= dynamic_cast<ds::ui::PDFInterface*>(mMediaInterface);
-		//if (!mIsDetached && getWidth() - (mLeftPad + mRightPad) < contWidth && getWidth() > 0 && !pdf) {
-			//controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kRight);
-			//controllerHolder->mLayoutFudge = ci::vec3(-(innerSidebar->getWidth() + spacing * 1), 0, 0);
-			//auto offset					   = contWidth - w;
-			//ui_holder->mLayoutFudge		   = ci::vec3(offset * 0.5, 0, 0);
+		// auto interfaceBox	= mMediaInterface->getChildBoundingBox();
+		// auto interfacePos	= mMediaInterface->localToGlobal(ci::vec3(interfaceBox.getUpperLeft(), 0));
+		// auto fullContWidth	= (innerSidebar->getGlobalPosition().x + innerSidebar->getWidth()) - interfacePos.x;
+		// auto contWidth		= interfaceBox.getWidth() + innerSidebar->getWidth() + spacing * 1;
+		// auto w				= getWidth() - (mLeftPad + mRightPad);
+		// auto pdf			= dynamic_cast<ds::ui::PDFInterface*>(mMediaInterface);
+		// if (!mIsDetached && getWidth() - (mLeftPad + mRightPad) < contWidth && getWidth() > 0 && !pdf) {
+		// controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kRight);
+		// controllerHolder->mLayoutFudge = ci::vec3(-(innerSidebar->getWidth() + spacing * 1), 0, 0);
+		// auto offset					   = contWidth - w;
+		// ui_holder->mLayoutFudge		   = ci::vec3(offset * 0.5, 0, 0);
 		//} else if (!mIsDetached && contWidth > fullContWidth) {
 
-			//controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
-			//controllerHolder->mLayoutFudge = ci::vec3(-spacing * 1.1, 0, 0);
+		// controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
+		// controllerHolder->mLayoutFudge = ci::vec3(-spacing * 1.1, 0, 0);
 
 		//} else {
-			//controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
-			//controllerHolder->mLayoutFudge = ci::vec3(0, 0, 0);
-			//ui_holder->mLayoutFudge		   = ci::vec3(0, 0, 0);
+		// controllerHolder->setOverallAlignment(ds::ui::LayoutSprite::kMiddle);
+		// controllerHolder->mLayoutFudge = ci::vec3(0, 0, 0);
+		// ui_holder->mLayoutFudge		   = ci::vec3(0, 0, 0);
 		//}
 	}
 
@@ -245,13 +262,13 @@ void FramedMediaViewer::onFullscreenSet() {
 
 	// Correctly update the enabled/disabled states so we can move/scale the sprite in fullscreen
 	auto innerHoldy = mRootLayout->getSprite("inner_holdy");
-	if(mIsFullscreen){
+	if (mIsFullscreen) {
 		if (mRootLayout && innerHoldy) {
 			enable(true);
 			mRootLayout->enable(true);
 			innerHoldy->enable(false);
 		}
-	}else if (!mIsFullscreen && !mIsDetached){
+	} else if (!mIsFullscreen && !mIsDetached) {
 		if (mRootLayout && innerHoldy) {
 			enable(false);
 			mRootLayout->enable(false);
@@ -273,48 +290,44 @@ void FramedMediaViewer::showTitle() {
 void FramedMediaViewer::onMediaSet() {
 	TitledMediaViewer::onMediaSet();
 
+	// We replace the media player's own interface.
+	auto mediaInterface = mMediaPlayer ? mMediaPlayer->getMediaInterface() : nullptr;
+	if (mediaInterface) {
+		mediaInterface->hide();
+		mediaInterface->setAllowDisplay(false);
+	}
+
+	// Delete existing media interface if it exists.
 	if (mMediaInterface) {
 		mMediaInterface->release();
 		mMediaInterface = nullptr;
 	}
 
-
-	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
-	auto mediaPlayer	 = getMediaPlayer();
+	// Show the web backing if we are showing web content.
 	if (mShowingWeb) {
 		auto webBacking = mRootLayout->getSprite("web_backing");
 		if (webBacking) {
 			webBacking->show();
 		}
 		if (auto filly = mRootLayout->getSprite("bg_filler")) {
-			auto borderOpacity = mEngine.getWafflesSettings().getFloat("w2:viewer:border:opacity", 0, 0.8);
+			auto borderOpacity = mEngine.getWafflesSettings().getFloat("w2:viewer:border:opacity", 0, 0.8f);
 			filly->setOpacity(borderOpacity);
 		}
 	}
 
-	if (mediaPlayer) {
-		auto mps				 = mediaPlayer->getSettings();
-		mps.mCanDisplayInterface = false;
-		mediaPlayer->setSettings(mps);
-		auto mediaInterface = mediaPlayer->getMediaInterface();
-		if (mediaInterface) {
-			mediaInterface->setAllowDisplay(false);
-		}
-	}
+	// Create our media interface.
+	auto interfaceHolder = mRootLayout->getSprite("controller_holder");
 	if (interfaceHolder) {
 		interfaceHolder->show();
-		auto contentRef = getMedia();
 
-
-		if (mediaPlayer && mediaPlayer->getPlayer()) {
+		if (mMediaPlayer && mMediaPlayer->getPlayer()) {
 			mMediaInterface =
-				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mediaPlayer->getPlayer(), interfaceHolder);
+				ds::ui::MediaInterfaceBuilder::buildMediaInterface(mEngine, mMediaPlayer->getPlayer(), interfaceHolder);
 
 			auto wafflesHelper = ds::model::ContentHelperFactory::getDefault<waffles::WafflesHelper>();
 			if (wafflesHelper) {
 				wafflesHelper->setMediaInterfaceStyle(mMediaInterface);
 			}
-			// ContentUtils::setMediaInterfaceStyle(mMediaInterface);
 
 			if (mMediaInterface) {
 				mMediaInterface->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
@@ -325,52 +338,51 @@ void FramedMediaViewer::onMediaSet() {
 					webInterface->setKeyboardAbove(false);
 					webInterface->setKeyboardOnTop(true);
 					auto keyboardBtn = webInterface->getKeyboardButton();
-					webInterface->setKeyboardStateCallback(
-						[this, webInterface, keyboardBtn, wafflesHelper](const bool onScreen) {
-							if (onScreen) {
-								auto	   keeb = webInterface->getSoftKeyboard();
-								ci::ColorA keyb = mEngine.getColors().getColorFromName("viewer_background");
-								wafflesHelper->setKeyboardStyle(keeb);
+					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn,
+															wafflesHelper](const bool onScreen) {
+						if (onScreen) {
+							auto	   keeb = webInterface->getSoftKeyboard();
+							ci::ColorA keyb = mEngine.getColors().getColorFromName("viewer_background");
+							wafflesHelper->setKeyboardStyle(keeb);
 
-								auto keyboardArea = webInterface->getKeyboardArea();
-								if (keyboardArea) {
-									keyboardArea->enable(true);
-									keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
-									keyboardArea->setColor(keyb);
+							auto keyboardArea = webInterface->getKeyboardArea();
+							if (keyboardArea) {
+								keyboardArea->enable(true);
+								keyboardArea->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+								keyboardArea->setColor(keyb);
 
-									auto pos = keyboardArea->getGlobalPosition();
-									auto w	 = keyboardArea->getScaleWidth();
-									auto h	 = keyboardArea->getScaleHeight();
-									if (pos.y + h > mEngine.getWorldHeight()) {
-										// Move up if off the bottom of the display
-										keyboardArea->move(-ci::vec3(0.f, (pos.y + h) - mEngine.getWorldHeight(), 0.f));
-									} else if (pos.y < 0) {
-										// Move down if off the top of the display
-										keyboardArea->move(-ci::vec3(0.f, pos.y, 0.f));
-									}
-
-									if (pos.x + w > mEngine.getWorldWidth()) {
-										// Move left if off the right of the display
-										keyboardArea->move(-ci::vec3((pos.x + w) - mEngine.getWorldWidth(), 0.f, 0.f));
-									} else if (pos.x < 0) {
-										// Move right if off the left of the display
-										keyboardArea->move(-ci::vec3(pos.x, 0.f, 0.f));
-									}
+								auto pos = keyboardArea->getGlobalPosition();
+								auto w	 = keyboardArea->getScaleWidth();
+								auto h	 = keyboardArea->getScaleHeight();
+								if (pos.y + h > mEngine.getWorldHeight()) {
+									// Move up if off the bottom of the display
+									keyboardArea->move(-ci::vec3(0.f, (pos.y + h) - mEngine.getWorldHeight(), 0.f));
+								} else if (pos.y < 0) {
+									// Move down if off the top of the display
+									keyboardArea->move(-ci::vec3(0.f, pos.y, 0.f));
 								}
 
-								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
-								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-
-								keyboardBtn->setChecked(true); // Set the button to checked when keyboard is on screen
-
-							} else if (!onScreen) {
-								auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
-								auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
-
-								keyboardBtn->setChecked(
-									false); // Set the button to unchecked when keyboard is off screen
+								if (pos.x + w > mEngine.getWorldWidth()) {
+									// Move left if off the right of the display
+									keyboardArea->move(-ci::vec3((pos.x + w) - mEngine.getWorldWidth(), 0.f, 0.f));
+								} else if (pos.x < 0) {
+									// Move right if off the left of the display
+									keyboardArea->move(-ci::vec3(pos.x, 0.f, 0.f));
+								}
 							}
-						});
+
+							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+							keyboardBtn->setChecked(true); // Set the button to checked when keyboard is on screen
+
+						} else if (!onScreen) {
+							auto normalColor = mEngine.getColors().getColorFromName("ui_normal");
+							auto highColor	 = mEngine.getColors().getColorFromName("ui_selected");
+
+							keyboardBtn->setChecked(false); // Set the button to unchecked when keyboard is off screen
+						}
+					});
 				}
 
 				mMediaInterface->setCanTimeout(false);
@@ -388,8 +400,9 @@ void FramedMediaViewer::onMediaSet() {
 	} else {
 		// removeDrawingTools();
 	}
-	// mRootLayout->runLayout();
-	layout();
+	
+	processAllowedButtons();
+	processAllowedTouch();
 }
 
 void FramedMediaViewer::onDetachedSet() {
@@ -406,12 +419,6 @@ void FramedMediaViewer::onDetachedSet() {
 		mRootLayout->enable(false);
 		innerHoldy->enable(true);
 
-		auto mediaInterface = mMediaPlayer->getMediaInterface();
-		if (mediaInterface) {
-			mediaInterface->hide();
-			mediaInterface->setAllowDisplay(false);
-		}
-
 	} else {
 		if (background) {
 			background->show();
@@ -419,12 +426,6 @@ void FramedMediaViewer::onDetachedSet() {
 		enable(true);
 		mRootLayout->enable(true);
 		innerHoldy->enable(false);
-
-		auto mediaInterface = mMediaPlayer->getMediaInterface();
-		if (mediaInterface) {
-			mediaInterface->hide();
-			mediaInterface->setAllowDisplay(false);
-		}
 	}
 
 	mRootLayout->runLayout();

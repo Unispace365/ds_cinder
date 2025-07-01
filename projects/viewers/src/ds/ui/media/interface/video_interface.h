@@ -17,24 +17,24 @@ namespace ds { namespace ui {
 	 */
 	class VideoInterface : public MediaInterface {
 	  public:
-		VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-					   const ci::Color buttonColor, const ci::Color backgroundColor);
+		VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          interfaceSize, const float buttonHeight,
+					   const ci::Color&      buttonColor, const ci::Color& backgroundColor);
 
 		void linkVideo(ds::ui::GstVideo* linkedVideo);
 
 		virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
-		ds::ui::LayoutButton* getPlayButton();
-		ds::ui::LayoutButton* getPauseButton();
-		ds::ui::LayoutButton* getLoopButton();
-		ds::ui::LayoutButton* getUnLoopButton();
+		ds::ui::LayoutButton* getPlayButton() const;
+		ds::ui::LayoutButton* getPauseButton() const;
+		ds::ui::LayoutButton* getLoopButton() const;
+		ds::ui::LayoutButton* getUnLoopButton() const;
 
-		ds::ui::Sprite* getScrubBarBackground();
-		ds::ui::Sprite* getScrubBarProgress();
+		ds::ui::Sprite* getScrubBarBackground() const;
+		ds::ui::Sprite* getScrubBarProgress() const;
 
-		VideoVolumeControl* getVolumeControl();
+		VideoVolumeControl* getVolumeControl() const;
 
-		void addNubToScrubBar(ds::ui::Sprite* newNub);
+		void addNubToScrubBar(ds::ui::Sprite* newNub) const;
 
 	  protected:
 		virtual void onLayout();

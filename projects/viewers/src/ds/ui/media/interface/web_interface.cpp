@@ -26,21 +26,21 @@
 
 namespace ds::ui {
 
-WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor,
+WebInterface::WebInterface(ds::ui::SpriteEngine&        eng, const ci::vec2&          sizey, const float buttonHeight,
+						   const ci::Color&             buttonColor, const ci::Color& backgroundColor,
 						   ds::ui::SoftKeyboardSettings settings)
   : MediaInterface(eng, ds::Resource::WEB_TYPE, sizey, backgroundColor)
   , mEventClient(mEngine)
   , mLinkedWeb(nullptr)
   , mKeyboardArea(nullptr)
   , mKeyboard(nullptr)
+  , mKeyboardSettings(settings)
   , mKeyboardShowing(false)
   , mKeyboardAllowed(true)
   , mKeyboardAbove(true)
   , mKeyboardAutoDisablesTimeout(true)
   , mKeyboardKeyScale(1.0f)
   , mAbleToTouchToggle(true)
-  , mWebLocked(false)
   , mKeyboardButton(nullptr)
   , mBackButton(nullptr)
   , mForwardButton(nullptr)
@@ -49,8 +49,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
   , mAuthorizing(false)
   , mAuthLayout(nullptr)
   , mUserField(nullptr)
-  , mPasswordField(nullptr)
-  , mKeyboardSettings(settings) {
+  , mPasswordField(nullptr) {
 
 	mInitialSize = sizey.y;
 	mCanLock	 = true;
@@ -181,8 +180,8 @@ void WebInterface::setAllowNativeKeyboardOnly(bool nativeKeyboardOnlyAllowed) {
 	mEnableNativeKeyboardOnly = nativeKeyboardOnlyAllowed;
 }
 
-void WebInterface::setKeyboardAbove(const bool kerboardAbove) {
-	mKeyboardAbove = kerboardAbove;
+void WebInterface::setKeyboardAbove(const bool keyboardAbove) {
+	mKeyboardAbove = keyboardAbove;
 
 	layout();
 }
@@ -195,7 +194,7 @@ void WebInterface::setKeyboardOnTop(const bool keyboardOnTop) {
 		mKeyboardArea->setPosition(pos);
 
 		std::sort(mChildren.begin(), mChildren.end(),
-				  [](Sprite* i, Sprite* j) { return i->getPosition().z < j->getPosition().z; });
+				  [](const Sprite* i, const Sprite* j) { return i->getPosition().z < j->getPosition().z; });
 	}
 }
 
@@ -274,7 +273,7 @@ void WebInterface::startAuthCallback(const std::string& host, const std::string&
 	auto userLabel = new ds::ui::Text(mEngine);
 	innerLayout->addChildPtr(userLabel);
 	userLabel->setTextStyle("viewer:widget");
-	userLabel->setFontSize(userLabel->getFontSize() * 0.66667f);
+	userLabel->setFontSize(userLabel->getFontSize() * 0.66667);
 	userLabel->setText("Username");
 	userLabel->mLayoutTPad = padding;
 
@@ -290,7 +289,7 @@ void WebInterface::startAuthCallback(const std::string& host, const std::string&
 	auto passLabel = new ds::ui::Text(mEngine);
 	innerLayout->addChildPtr(passLabel);
 	passLabel->setTextStyle("viewer:widget");
-	passLabel->setFontSize(passLabel->getFontSize() * 0.66667f);
+	passLabel->setFontSize(passLabel->getFontSize() * 0.66667);
 	passLabel->setText("Password");
 	passLabel->mLayoutTPad = padding;
 
@@ -379,10 +378,10 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb) {
 
 	if (mLinkedWeb) {
 		mLinkedWeb->setAuthCallback(
-			[this](ds::ui::Web::AuthCallback callback) { startAuthCallback(callback.mHost, callback.mRealm); });
+			[this](const ds::ui::Web::AuthCallback& callback) { startAuthCallback(callback.mHost, callback.mRealm); });
 
 		mLinkedWeb->setLoadingUpdatedCallback([this](const bool isLoading) { updateWidgets(); });
-		mLinkedWeb->setConsoleMessageCallback([this](ds::ui::Web::ConsoleMessage console) {
+		mLinkedWeb->setConsoleMessageCallback([this](const ds::ui::Web::ConsoleMessage& console) {
 			if (mMessageCallback) mMessageCallback(console.mMessage, console.mSource, console.mLine);
 		});
 	}
@@ -461,6 +460,7 @@ void WebInterface::updateWidgets() {
 			mBackButton->enable(false);
 			mBackButton->setOpacity(0.25f);
 		}
+
 		if (mLinkedWeb->canGoForward()) {
 			mForwardButton->enable(true);
 			mForwardButton->setOpacity(1.0f);
@@ -469,18 +469,16 @@ void WebInterface::updateWidgets() {
 			mForwardButton->setOpacity(0.25f);
 		}
 
-		if (mLinkedWeb) {
-			if (!mLinkedWeb->isEnabled()) {
-				mTouchToggle->setChecked(false);
-				mWebLocked = false;
-				setLocked(mWebLocked);
-			} else if (mLinkedWeb->isEnabled()) {
-				mTouchToggle->setChecked(true);
-				mWebLocked = true;
-				setLocked(mWebLocked);
-			}
-			// mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
+		if (!mLinkedWeb->isEnabled()) {
+			mTouchToggle->setOpacity(0.25f);
+			mTouchToggle->setChecked(false);
+			setLocked(false);
+		} else {
+			mTouchToggle->setOpacity(1.0f);
+			mTouchToggle->setChecked(true);
+			setLocked(true);
 		}
+		// mTouchToggle->setScale(mInitialSize / mTouchToggle->getHeight());
 	}
 
 	if (mKeyboardArea) {
@@ -620,6 +618,8 @@ void WebInterface::setToggleUnlockedColor(const ci::ColorAf& color) {
 }
 
 void WebInterface::showKeyboard(bool show) {
+	if (mKeyboardShowing == show) return;
+
 	mKeyboardShowing = show;
 	updateWidgets();
 

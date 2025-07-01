@@ -21,7 +21,7 @@ namespace ds { namespace ui {
 	class YoutubeInterface : public MediaInterface {
 	  public:
 		YoutubeInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-						 const ci::Color buttonColor, const ci::Color backgroundColor);
+						 const ci::Color&      buttonColor, const ci::Color& backgroundColor);
 
 		virtual void animateOff();
 
@@ -29,20 +29,20 @@ namespace ds { namespace ui {
 		void		 linkYouTubeWeb(ds::ui::YouTubeWeb* linkedWeb);
 		void		 updateWidgets();
 
-		void setAllowTouchToggle(const bool allowTouchToggling);
+		void setAllowTouchToggle(const bool allowTouchToggling) override;
 
-		ds::ui::LayoutButton* getBackButton();
-		ds::ui::LayoutButton* getForwardButton();
-		ds::ui::ToggleContainer* getTouchToggleButton();
+		ds::ui::LayoutButton*    getBackButton() const;
+		ds::ui::LayoutButton*    getForwardButton() const;
+		ds::ui::ToggleContainer* getTouchToggleButton() const;
 
 
-		ds::ui::LayoutButton* getPlayButton();
-		ds::ui::LayoutButton* getPauseButton();
+		ds::ui::LayoutButton* getPlayButton() const;
+		ds::ui::LayoutButton* getPauseButton() const;
 
-		ds::ui::Sprite* getScrubBarBackground();
-		ds::ui::Sprite* getScrubBarProgress();
+		ds::ui::Sprite* getScrubBarBackground() const;
+		ds::ui::Sprite* getScrubBarProgress() const;
 
-		VideoVolumeControl* getVolumeControl();
+		VideoVolumeControl* getVolumeControl() const;
 
 	  protected:
 		void		 setupButton(ds::ui::ImageButton* bs, ci::Color buttonColor, float height);
@@ -53,13 +53,13 @@ namespace ds { namespace ui {
 		bool mAbleToTouchToggle;
 		bool mWebLocked;
 
-		VideoScrubBar*		 mScrubBar;
-		VideoVolumeControl*	 mVolumeControl;
-		ds::ui::LayoutButton* mBackPageButton;
-		ds::ui::LayoutButton* mForwardPageButton;
+		VideoScrubBar*			 mScrubBar;
+		VideoVolumeControl*		 mVolumeControl;
+		ds::ui::LayoutButton*	 mBackPageButton;
+		ds::ui::LayoutButton*	 mForwardPageButton;
 		ds::ui::ToggleContainer* mTouchToggle;
-		ds::ui::LayoutButton* mPlayButton;
-		ds::ui::LayoutButton* mPauseButton;
+		ds::ui::LayoutButton*	 mPlayButton;
+		ds::ui::LayoutButton*	 mPauseButton;
 	};
 
 }} // namespace ds::ui

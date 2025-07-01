@@ -803,12 +803,12 @@ void TitledMediaViewer::processAllowedButtons() const {
 
 void TitledMediaViewer::processAllowedTouch() {
 	// Enable/disable touch events but keep constraints.
-	if (mIsFullscreen) {
+	if (mIsFullscreen || mIsDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
-	} else if (mIsDetached) {
-		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+		setInterfaceLocked(false, true);
 	} else {
 		disableMultiTouch();
+		setInterfaceLocked(true, false);
 	}
 }
 
@@ -1221,20 +1221,16 @@ ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() const {
 	return args;
 }
 
-void TitledMediaViewer::setInterfaceLocked(bool isLocked) const {
+void TitledMediaViewer::setInterfaceLocked(bool isLocked, bool allowToggle) const {
 	if (!mMediaPlayer) return;
 
-	if (auto web = dynamic_cast<ds::ui::WebInterface*>(mMediaPlayer->getMediaInterface())) {
+	auto interface = mMediaPlayer->getMediaInterface();
+	if (interface) {
+		interface->setAllowTouchToggle(allowToggle);
 		if (isLocked) {
-			web->startTouch();
+			interface->startTouch();
 		} else {
-			web->stopTouch();
-		}
-	} else if (auto pdf = dynamic_cast<ds::ui::PDFInterface*>(mMediaPlayer->getMediaInterface())) {
-		if (isLocked) {
-			pdf->startTouch();
-		} else {
-			pdf->stopTouch();
+			interface->stopTouch();
 		}
 	}
 }

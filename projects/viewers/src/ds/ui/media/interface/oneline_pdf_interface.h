@@ -23,8 +23,8 @@ class VideoScrubBar;
  */
 class OnelinePDFInterface : public PDFInterface {
   public:
-	OnelinePDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-				 const ci::Color buttonColor, const ci::Color backgroundColor);
+	OnelinePDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          interfaceSize, const float buttonHeight,
+				 const ci::Color&             buttonColor, const ci::Color& backgroundColor);
 
 	virtual void updateWidgets() override;
 	virtual void onLayout() override;

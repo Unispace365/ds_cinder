@@ -16,6 +16,9 @@ class FramedMediaViewer : public TitledMediaViewer {
 	FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel = "",
 					  const std::string &   layoutPath = "waffles/viewer/framed_media_viewer.xml");
 
+	void setInterfaceLocked(bool isLocked, bool allowToggle) const override;
+	bool isInterfaceLocked() const override;
+
   protected:
 	void setToFullscreen(bool immediate, bool showController) override;
 	void onLayout() override;

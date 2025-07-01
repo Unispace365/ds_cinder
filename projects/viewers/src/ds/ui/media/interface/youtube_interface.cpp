@@ -27,18 +27,18 @@
 namespace ds { namespace ui {
 
 	YoutubeInterface::YoutubeInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-									   const ci::Color buttonColor, const ci::Color backgroundColor)
+									   const ci::Color&      buttonColor, const ci::Color& backgroundColor)
 	  : MediaInterface(eng, ds::Resource::YOUTUBE_TYPE, sizey, backgroundColor)
 	  , mLinkedYouTube(nullptr)
-	  , mPlayButton(nullptr)
-	  , mPauseButton(nullptr)
+	  , mAbleToTouchToggle(false)
+	  , mWebLocked(false)
 	  , mScrubBar(nullptr)
 	  , mVolumeControl(nullptr)
 	  , mBackPageButton(nullptr)
 	  , mForwardPageButton(nullptr)
 	  , mTouchToggle(nullptr)
-	  , mAbleToTouchToggle(false)
-	  , mWebLocked(false) {
+	  , mPlayButton(nullptr)
+	  , mPauseButton(nullptr) {
 
 		enable(true);
 
@@ -150,37 +150,37 @@ namespace ds { namespace ui {
 	}
 
 
-	ds::ui::LayoutButton* YoutubeInterface::getBackButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getBackButton() const {
 		return mBackPageButton;
 	}
 
-	ds::ui::LayoutButton* YoutubeInterface::getForwardButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getForwardButton() const {
 		return mForwardPageButton;
 	}
 
-	ds::ui::ToggleContainer* YoutubeInterface::getTouchToggleButton() {
+	ds::ui::ToggleContainer* YoutubeInterface::getTouchToggleButton() const {
 		return mTouchToggle;
 	}
 
-	ds::ui::LayoutButton* YoutubeInterface::getPlayButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getPlayButton() const {
 		return mPlayButton;
 	}
 
-	ds::ui::LayoutButton* YoutubeInterface::getPauseButton() {
+	ds::ui::LayoutButton* YoutubeInterface::getPauseButton() const {
 		return mPauseButton;
 	}
 
-	ds::ui::Sprite* YoutubeInterface::getScrubBarBackground() {
+	ds::ui::Sprite* YoutubeInterface::getScrubBarBackground() const {
 		if (!mScrubBar) return nullptr;
 		return mScrubBar->getBacker();
 	}
 
-	ds::ui::Sprite* YoutubeInterface::getScrubBarProgress() {
+	ds::ui::Sprite* YoutubeInterface::getScrubBarProgress() const {
 		if (!mScrubBar) return nullptr;
 		return mScrubBar->getProgress();
 	}
 
-	ds::ui::VideoVolumeControl* YoutubeInterface::getVolumeControl() {
+	ds::ui::VideoVolumeControl* YoutubeInterface::getVolumeControl() const {
 		return mVolumeControl;
 	}
 

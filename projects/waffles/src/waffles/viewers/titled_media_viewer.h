@@ -57,8 +57,8 @@ class TitledMediaViewer : public BaseElement {
 
 	ViewerCreationArgs getDuplicateCreationArgs() const;
 
-	void setInterfaceLocked(bool isLocked) const;
-	bool isInterfaceLocked() const {
+	virtual void setInterfaceLocked(bool isLocked, bool allowToggle) const;
+	virtual bool isInterfaceLocked() const {
 		if (mMediaPlayer) return mMediaPlayer->isInterfaceLocked();
 		return false;
 	}

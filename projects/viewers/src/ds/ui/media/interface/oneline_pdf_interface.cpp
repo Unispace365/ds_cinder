@@ -19,14 +19,14 @@
 namespace ds::ui {
 
 OnelinePDFInterface::OnelinePDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor)
+						   const ci::Color&                    buttonColor, const ci::Color& backgroundColor)
   : PDFInterface(eng, sizey, buttonHeight, buttonColor, backgroundColor)
   {
 
 	const float padding = sizey.y / 4.0f;
 	const float componentsWidth = (mUpButton->getScaleWidth() + padding + mPageCounter->getScaleWidth() + padding +
 							   mDownButton->getScaleWidth() + padding + mTouchToggle->getScaleWidth());
-	mMinWidth = (componentsWidth * 1.5 + padding +
+	mMinWidth = (componentsWidth * 1.5f + padding +
 				 padding * 16.0f // lots of outside padding to account for the page text
 	);
 
@@ -100,7 +100,7 @@ void OnelinePDFInterface::onLayout() {
 		}
 		
 
-		float margin = ((w - (componentsWidth*1.5+padding)) * 0.5f);
+		float margin = ((w - (componentsWidth*1.5f+padding)) * 0.5f);
 		auto  parent = getParent();
 
 		float xp	 = margin;
@@ -121,7 +121,7 @@ void OnelinePDFInterface::onLayout() {
 		
 		if (mScrubBar && mScrubBar->visible()) {
 			//yFudge = padding / 2.0f;
-			mScrubBar->setSize(componentsWidth * 0.25, mScrubBar->getHeight());
+			mScrubBar->setSize(componentsWidth * 0.25f, mScrubBar->getHeight());
 			mScrubBar->setPosition(xp, (h * 0.5f) - mScrubBar->getHeight() * 0.5f + yFudge);
 			xp += mScrubBar->getWidth() + padding;
 		}

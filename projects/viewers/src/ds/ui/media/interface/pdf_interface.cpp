@@ -18,8 +18,8 @@
 
 namespace ds::ui {
 
-PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor)
+PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          sizey, const float buttonHeight,
+						   const ci::Color&      buttonColor, const ci::Color& backgroundColor)
   : MediaInterface(eng, ds::Resource::PDF_TYPE, sizey, backgroundColor)
   , mLinkedPDF(nullptr)
   , mLinkedEnabled(false)
@@ -280,10 +280,16 @@ void PDFInterface::updateWidgets() {
 	layout();
 }
 
-void PDFInterface::setPageFont(std::string fontName, float fontSize) {
+void PDFInterface::setPageFont(const std::string &fontName, double fontSize) {
 	if (mPageCounter) {
 		mPageCounter->setFont(fontName);
 		mPageCounter->setFontSize(fontSize);
+	}
+}
+
+void PDFInterface::setAllowTouchToggle(const bool allowTouchToggling) {
+	if (allowTouchToggling) {
+		DS_LOG_WARNING("PDFInterface: touch toggling is currently not allowed");
 	}
 }
 
