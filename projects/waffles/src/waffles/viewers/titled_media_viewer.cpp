@@ -39,7 +39,6 @@
 #include "waffles/waffles_events.h"
 
 #include <ds/content/content_helper.h>
-#include <ds/ui/media/media_interface_builder.h>
 
 namespace waffles {
 
@@ -630,15 +629,9 @@ void TitledMediaViewer::onMediaSet() {
 	}
 
 	if (!mShowingWebCam) {
-		auto mediaInterface = ds::ui::MediaInterfaceBuilder::buildMediaInterface(
-			mEngine,
-			mMediaPlayer->getPlayer(),
-			mRootLayout->getSprite("ui_holder")
-		);
-
 		auto wafflesHelper = ContentHelperFactory::getDefault<WafflesHelper>();
 		if (wafflesHelper) {
-			wafflesHelper->setMediaInterfaceStyle(mediaInterface);
+			wafflesHelper->setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 		}
 		// ContentUtils::setMediaInterfaceStyle(mMediaPlayer->getMediaInterface());
 	}
@@ -787,9 +780,18 @@ void TitledMediaViewer::processAllowedButtons() const {
 		}
 	}
 
+	auto attachSpr = mRootLayout->getSprite("attach.the_button");
+	if (attachSpr) {
+		if (allowDetach && mCanDetach && mCanAttach && mIsDetached) {
+			attachSpr->show();
+		} else {
+			attachSpr->hide();
+		}
+	}
+
 	auto detachSpr = mRootLayout->getSprite("detach.the_button");
 	if (detachSpr) {
-		if (allowDetach && mCanDetach && mCanAttach) {
+		if (allowDetach && mCanDetach && mCanAttach && !mIsDetached) {
 			detachSpr->show();
 		} else {
 			detachSpr->hide();
