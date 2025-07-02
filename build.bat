@@ -31,7 +31,7 @@ if errorlevel 1 goto :error
 
 :: Install GStreamer.
 :gstreamer
-call "%~dp0build_system\setup_gstreamer.bat" 1.24.12
+call "%~dp0build_system\setup_gstreamer.bat" 1.18.6
 if errorlevel 1 goto :error
 
 ::
