@@ -58,6 +58,7 @@ class PDFInterface : public MediaInterface {
 	ds::ui::IPdf* mLinkedPDF;
 	ds::Resource  mSourceResource;
 	bool		  mLinkedEnabled;
+	bool		  mAbleToTouchToggle;
 
 	ds::ui::LayoutButton*  mUpButton;
 	ds::ui::LayoutButton*  mDownButton;

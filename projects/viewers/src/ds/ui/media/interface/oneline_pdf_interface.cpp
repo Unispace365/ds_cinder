@@ -90,13 +90,17 @@ void OnelinePDFInterface::onLayout() {
 	const float w		= getWidth();
 	const float h		= mInitialHeight;
 	const float padding = h / 4.0f;
-	if (mUpButton && mDownButton && mPageCounter && mThumbsButton) {
+	if (mUpButton && mDownButton && mPageCounter && mThumbsButton && mTouchToggle) {
 
 		float componentsWidth = (mUpButton->getScaleWidth() + padding + mPageCounter->getScaleWidth() + padding +
 								 mDownButton->getScaleWidth() + padding + mTouchToggle->getScaleWidth());
 
 		if (mThumbsButton->visible()) {
 			componentsWidth += padding + mThumbsButton->getScaleWidth();
+		}
+
+		if(!mAbleToTouchToggle) {
+			componentsWidth -= (padding + mTouchToggle->getScaleWidth());
 		}
 		
 
@@ -129,8 +133,10 @@ void OnelinePDFInterface::onLayout() {
 		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f) + yFudge);
 		xp += mDownButton->getScaleWidth() + padding;
 
-		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f) + yFudge);
-		xp += mTouchToggle->getScaleWidth() + padding;
+		if (mAbleToTouchToggle) {
+			mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f) + yFudge);
+			xp += mTouchToggle->getScaleWidth() + padding;
+		}
 	}
 
 

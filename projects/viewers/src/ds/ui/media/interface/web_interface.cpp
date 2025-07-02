@@ -470,11 +470,9 @@ void WebInterface::updateWidgets() {
 		}
 
 		if (!mLinkedWeb->isEnabled()) {
-			mTouchToggle->setOpacity(0.25f);
 			mTouchToggle->setChecked(false);
 			setLocked(false);
 		} else {
-			mTouchToggle->setOpacity(1.0f);
 			mTouchToggle->setChecked(true);
 			setLocked(true);
 		}
