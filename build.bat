@@ -34,6 +34,10 @@ if errorlevel 1 goto :error
 call "%~dp0build_system\setup_gstreamer.bat" 1.18.6
 if errorlevel 1 goto :error
 
+:: Point environment variable to this repository.
+set "DS_PLATFORM_093=%cd%"
+setx "DS_PLATFORM_093" "%cd%" >NUL 2>&1
+
 ::
 setlocal EnableDelayedExpansion
 
@@ -82,14 +86,16 @@ for %%p in (
     ".\projects\nvpath\nvpath.vcxproj"
     ".\projects\waffles\waffles.vcxproj"
 ) do (
-    if defined solution_dir (
-        echo Compiling to %solution_dir%
-        msbuild "%%p" /m /p:Configuration=%target% /p:SolutionDir="%solution_dir%"
-        if errorlevel 1 goto :error
-    ) else (
-        echo Compiling
-        msbuild "%%p" /m /p:Configuration=%target% 
-        if errorlevel 1 goto :error
+    if exist "%%p" (
+        if defined solution_dir (
+            echo Compiling to %solution_dir%
+            msbuild "%%p" /m /p:Configuration=%target% /p:SolutionDir="%solution_dir%"
+            if errorlevel 1 goto :error
+        ) else (
+            echo Compiling
+            msbuild "%%p" /m /p:Configuration=%target% 
+            if errorlevel 1 goto :error
+        )
     )
 )
 
