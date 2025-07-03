@@ -2,8 +2,6 @@
 
 pushd "%~dp0"
 
-goto :boost
-
 :: Check if our working directory is clean.
 :clean
 cmd /c git diff-index --quiet HEAD --
