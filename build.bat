@@ -49,6 +49,11 @@ if defined solution_dir (
     if not "!solution_dir:~-1!"=="\" set "solution_dir=!solution_dir!\\"
 )
 
+:: Point environment variable to this repository.
+set "DS_PLATFORM_093=%~dp0"
+set "DS_PLATFORM_093=%DS_PLATFORM_093:~0,-1%"
+setx "DS_PLATFORM_093" "%DS_PLATFORM_093%" >NUL 2>&1
+
 :: Setup build environment.
 :environment
 if not exist "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" (
@@ -88,10 +93,6 @@ for %%p in (
 )
 
 endlocal
-
-:: Point environment variable to this repository.
-set "DS_PLATFORM_093=%~dp0"
-setx "DS_PLATFORM_093" "%~dp0" >NUL 2>&1
 
 popd
 pause
