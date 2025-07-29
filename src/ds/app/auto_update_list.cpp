@@ -28,7 +28,7 @@ void AutoUpdateList::update(const ds::UpdateParams& p) {
 		std::scoped_lock lock(mRunning.mMutex);
 		for (int i = 0; i < mRunning.mQueue.size(); i++) {
 			{
-				std::scoped_lock lock2(mRunning.mQueue[i]->mBenMutex);
+				std::scoped_lock lock2(mRunning.mQueue[i]->mItemMutex);
 				auto item = mRunning.mQueue[i];
 				if (!item) continue;
 				try {
@@ -47,7 +47,7 @@ void AutoUpdateList::update(const ds::UpdateParams& p) {
 			for (int i = 0; i < mWaiting.mQueue.size(); i++) {
 				{
 					std::scoped_lock lockx2(mRunning.mMutex);
-					std::scoped_lock lockx3(mWaiting.mQueue[i]->mBenMutex);
+					std::scoped_lock lockx3(mWaiting.mQueue[i]->mItemMutex);
 					mRunning.mQueue.push_back(mWaiting.mQueue[i]);
 				}
 			}
@@ -68,7 +68,7 @@ void AutoUpdateList::addWaiting(AutoUpdate* v) {
 void AutoUpdateList::remove(AutoUpdate* v) {
 	if (!v) return;
 	{
-		std::scoped_lock lock(v->mBenMutex);
+		std::scoped_lock lock(v->mItemMutex);
 		{
 			//std::scoped_lock lockee(mRunning.mMutex);
 			mRunning.mQueue.erase(std::remove(mRunning.mQueue.begin(), mRunning.mQueue.end(), v), mRunning.mQueue.end());
