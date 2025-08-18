@@ -82,6 +82,12 @@ namespace ds { namespace ui {
 			mDownImg = nullptr;
 		}
 
+		if (mKeyType == SoftKeyboardDefs::kDelete &&
+			mEngine.getAppSettings().getBool("keyboard:delete_text", 0, true)) {
+			mCharacterLower = L"delete";
+			mCharacterUpper = L"DELETE";
+		}
+
 		if (softKeySettings.mGraphicKeys) {
 
 			// circular keys look bad when stretched (if they stretch at all)
@@ -113,11 +119,6 @@ namespace ds { namespace ui {
 			} else if (mKeyType == SoftKeyboardDefs::kSpace) {
 				keySize.x = 5.0f * keySize.x + 4.0f * softKeySettings.mKeyTouchPadding;
 			} else if (mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete) {
-				if (mKeyType == SoftKeyboardDefs::kDelete && mCharacterLower.empty() && mCharacterUpper.empty()) {
-					mCharacterLower = L"delete";
-					mCharacterUpper = L"DELETE";
-				}
-
 				keySize.x = 2.5f * keySize.x + 3.0f * softKeySettings.mKeyTouchPadding;
 			} else if (mKeyType == SoftKeyboardDefs::kShift) {
 				keySize.x = (5.5f * keySize.x + 7.0f * softKeySettings.mKeyTouchPadding) / 2.0f;
@@ -282,6 +283,8 @@ namespace ds { namespace ui {
 
 			mText->setPosition(getWidth() / 2.0f - mText->getWidth() / 2.0f + mTextOffset.x,
 							   getHeight() / 2.0f - mText->getHeight() / 2.0f + mTextOffset.y);
+
+			mText->sendToFront();
 		}
 
 		if (mGraphic) {

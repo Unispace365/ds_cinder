@@ -131,7 +131,7 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 		}
 
 		auto non_recursive = ds::split(
-			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "recent,folders"), ",");
+			mEngine.getWafflesSettings().getString("launcher:non-recursive:filters", 0, "folders"), ",");
 		if (std::find(non_recursive.begin(), non_recursive.end(), mFilterSelected) == non_recursive.end()) {
 			allContent = recurseContent(allContent);
 		}
@@ -164,13 +164,11 @@ Launcher::Launcher(ds::ui::SpriteEngine& g, std::string eventChannel, bool hideC
 
 		// recent files need to be sorted correctly, not by all content ordering :(
 		if (mFilterSelected == "recent") {
-			auto unorderedPanelContent = panel_content.getChildren();
 			panel_content.clearChildren();
-			for (auto uid : mRecentFilterUids) {
-				auto found = std::find_if(unorderedPanelContent.begin(), unorderedPanelContent.end(),
-										  [uid](auto& test) { return test.getPropertyString("uid") == uid; });
-				if (found != unorderedPanelContent.end()) {
-					panel_content.addChild(*found);
+			loadRecent();
+			for (auto content : allContent) {
+				if (recentContains(content)) {
+					panel_content.addChild(content);
 				}
 			}
 		} else {
