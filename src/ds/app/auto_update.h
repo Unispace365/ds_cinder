@@ -29,7 +29,7 @@ class AutoUpdate {
 
 	ds::ui::SpriteEngine& mEngine;
 
-	std::mutex mMutex;
+	std::mutex mItemMutex;
 
   private:
 	AutoUpdate();
