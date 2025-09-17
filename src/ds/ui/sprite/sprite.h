@@ -749,6 +749,10 @@ namespace ui {
 		void setBaseShader(const std::string& vertShaderString, const std::string& fragShaderString,
 						   const std::string& shaderName, bool applyToChildren = false);
 
+		/// Get the resource content for a sprite. This is a base function that should be overridden by anything thatAdd commentMore actions
+		/// can take a Resource (Image, Video, PDF, etc)
+		virtual const ds::Resource& getResource() const;
+
 		/// Set the resource content for a sprite. This is a base function that should be overridden by anything that
 		/// can take a Resource (Image, Video, PDF, etc)
 		virtual void setResource(const ds::Resource&);

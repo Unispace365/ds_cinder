@@ -44,7 +44,7 @@ class MediaPlayer : public ds::ui::Sprite {
 	void setResourcePreview(const ds::Resource& reccy) override { mResourcePreview = reccy; }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
-	const ds::Resource& getResource() { return mResource; }
+	const ds::Resource& getResource() const override { return mResource; }
 
 	/// Returns the data model for the currently set media (may be blank or errored)
 	const ds::Resource& getResourcePreview() { return mResourcePreview; }

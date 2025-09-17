@@ -65,6 +65,9 @@ class Image : public Sprite {
 	 */
 	virtual void setResource(const ds::Resource& resource) override { setImageResource(resource); }
 
+	/// Returns the ds::Resource if it was set as a full resource or as an id.
+	const ds::Resource& getResource() const override { return mResource; }
+
 	/// Returns the absolute image path, even if the image was set by resource
 	const std::string& getImageFilename() { return mFilename; }
 
