@@ -24,12 +24,12 @@ class VideoScrubBar;
  */
 class PDFInterface : public MediaInterface {
   public:
-	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-				 const ci::Color buttonColor, const ci::Color backgroundColor);
+	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          interfaceSize, const float buttonHeight,
+				 const ci::Color&      buttonColor, const ci::Color& backgroundColor);
 
 	virtual void linkPDF(ds::ui::IPdf* linkedPDF, const ds::Resource& sourceResource);
 	virtual void updateWidgets();
-	virtual void setPageFont(std::string fontName, float fontSize);
+	virtual void setPageFont(const std::string &fontName, double fontSize);
 
 	/// For visual customization - don't release these sprites from here
 	virtual void				   addNubToScrubBar(ds::ui::Sprite* newNub);
@@ -44,11 +44,12 @@ class PDFInterface : public MediaInterface {
 	virtual void						   setToggleLockedImage(const std::string& imgPath);
 	virtual void						   setToggleUnlockedImage(const std::string& imgPath);
 	virtual void						   setToggleLockedColor(const ci::ColorAf& color);
-	virtual void						   setToggleUnlockedColor(const ci::ColorAf& color);
+	virtual void						   setToggleUnlockedColor(const ci::ColorAf& color);	
 
-	virtual void toggleTouch(); // what the "touch lock" does
-	virtual void	 startTouch();	// pdf is tappable to go forwards/back
-	virtual void	 stopTouch();	// pdf is not tappable
+	void setAllowTouchToggle(const bool allowTouchToggling) override;
+	void toggleTouch() override; // what the "touch lock" does
+	void startTouch() override;  // pdf is tappable to go forwards/back
+	void stopTouch() override;   // pdf is not tappable
 
   protected:
 	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
@@ -57,6 +58,7 @@ class PDFInterface : public MediaInterface {
 	ds::ui::IPdf* mLinkedPDF;
 	ds::Resource  mSourceResource;
 	bool		  mLinkedEnabled;
+	bool		  mAbleToTouchToggle;
 
 	ds::ui::LayoutButton*  mUpButton;
 	ds::ui::LayoutButton*  mDownButton;

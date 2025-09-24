@@ -2,6 +2,8 @@
 
 #include <ds/ui/sprite/sprite.h>
 
+#include <utility>
+
 namespace ds::ui {
 class LayoutButton;
 
@@ -25,6 +27,11 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
 	void		 layout();
 
+	virtual void setAllowTouchToggle(const bool allowTouchToggling) {}
+	virtual void toggleTouch() {}
+	virtual void startTouch() {}
+	virtual void stopTouch() {}
+
 	void setAnimateDuration(const float animDuration) { mAnimateDuration = animDuration; }
 
 	/// allows the interface to timeout and hide itself after a period of time
@@ -39,29 +46,28 @@ class MediaInterface : public ds::ui::Sprite {
 	void setBackgroundColor(ci::ColorA newColor);
 	void setBackgroundColor(ci::Color newColor);
 
-	
 
 	virtual void show() override;
 
-	ds::ui::Sprite* getBackground() { return mBackground; }
+	ds::ui::Sprite* getBackground() const { return mBackground; }
 	virtual void	setMaxWidth(float width) {
 		   mMaxWidth = width;
 		   layout();
 	}
 
-	virtual void	setMinWidth(float width) {
-		   mMinWidth = width;
-		   layout();
+	virtual void setMinWidth(float width) {
+		mMinWidth = width;
+		layout();
 	}
 
-	void setLocked(bool isLock){
-		if(!mCanLock) return;
+	void setLocked(bool isLock) {
+		if (!mCanLock) return;
 		mLocked = isLock;
-		if(mLockChangeCallback) mLockChangeCallback(isLock);
+		if (mLockChangeCallback) mLockChangeCallback(isLock);
 	}
-	bool isLocked() { return mCanLock && mLocked; }
+	bool isLocked() const { return mCanLock && mLocked; }
 	void setLockStateCallback(std::function<void(bool)> lockChangeCallback) {
-		mLockChangeCallback = lockChangeCallback;
+		mLockChangeCallback = std::move(lockChangeCallback);
 	}
 
 	virtual std::string composeIconPath(std::string iconId);
@@ -69,7 +75,7 @@ class MediaInterface : public ds::ui::Sprite {
 
 	static ds::ui::LayoutButton* createButton(ds::ui::SpriteEngine& engine, const ci::vec2& sizey,
 											  const std::string& iconIdNormal, const std::string& iconIdHigh);
-	
+
 	static float getPlayButtonHeight() { return mPlayHeight; }
 	static float getPauseButtonHeight() { return mPauseHeight; }
 	static float getKeyboardButtonHeight() { return mKeyboardHeight; }
@@ -86,8 +92,8 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor);
 
   protected:
-	virtual void onLayout(){};
-	virtual void onSizeChanged() override;
+	virtual void				  onLayout() {};
+	virtual void				  onSizeChanged() override;
 	virtual ds::ui::LayoutButton* createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
 											   const std::string& iconIdHigh);
 
@@ -106,7 +112,7 @@ class MediaInterface : public ds::ui::Sprite {
 	bool					  mLocked = false;
 	std::function<void(bool)> mLockChangeCallback;
 
-	float mInterfaceIdleSettings;
+	float		 mInterfaceIdleSettings;
 	static float mPlayHeight;
 	static float mPauseHeight;
 	static float mKeyboardHeight;

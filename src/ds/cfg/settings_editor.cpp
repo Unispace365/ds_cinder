@@ -112,7 +112,8 @@ void SettingsEditor::drawMenu() {
 				mContentOpen	   = true;
 				mShortcutsOpen	   = true;
 				mImguiStyleOpen	   = true;
-				mWafflesSettingsOpen = true;
+				mWafflesSettingsOpen = true && !mEngine.getEngineCfg().getSettings("waffles").empty();
+				mViewersSettingsOpen = true && !mEngine.getEngineCfg().getSettings("viewers").empty();
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Close All")) {
@@ -129,6 +130,7 @@ void SettingsEditor::drawMenu() {
 				mShortcutsOpen	   = false;
 				mImguiStyleOpen	   = false;
                 mWafflesSettingsOpen = false;
+				mViewersSettingsOpen = false;
 			}
 
 			drawAppStatusInfo();
@@ -168,7 +170,8 @@ void SettingsEditor::drawMenu() {
 				mStylesOpen		 = true;
 				mFontsOpen		 = true;
 				mTuioOpen		 = true;
-				mWafflesSettingsOpen = true;
+				mWafflesSettingsOpen = true && !mEngine.getEngineCfg().getSettings("waffles").empty();
+				mViewersSettingsOpen = true && !mEngine.getEngineCfg().getSettings("viewers").empty();
 			}
 
 			if (ImGui::MenuItem("Engine", nullptr, mEngineOpen)) {
@@ -186,8 +189,12 @@ void SettingsEditor::drawMenu() {
 			if (ImGui::MenuItem("Tuio", nullptr, mTuioOpen)) {
 				mTuioOpen = !mTuioOpen;
 			}
-            if (ImGui::MenuItem("Waffles", nullptr, mWafflesSettingsOpen)) {
+            if (!mEngine.getEngineCfg().getSettings("waffles").empty() && ImGui::MenuItem("Waffles", nullptr, mWafflesSettingsOpen)) {
                 mWafflesSettingsOpen = !mWafflesSettingsOpen;
+            }
+
+            if (!mEngine.getEngineCfg().getSettings("viewers").empty() && ImGui::MenuItem("Viewers", nullptr, mViewersSettingsOpen)) {
+                mViewersSettingsOpen = !mViewersSettingsOpen;
             }
            
 			ImGui::EndMenu();
@@ -219,6 +226,7 @@ void SettingsEditor::drawSettings() {
 	if (mEngineOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("engine"), mEngineOpen);
 	if (mAppSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("app_settings"), mAppSettingsOpen);
 	if (mWafflesSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("waffles"), mWafflesSettingsOpen);
+	if (mViewersSettingsOpen) drawSettingFile(mEngine.getEngineCfg().getSettings("viewers"), mViewersSettingsOpen);
 	
 	
 	if (mStylesOpen) {

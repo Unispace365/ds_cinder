@@ -18,11 +18,12 @@
 
 namespace ds::ui {
 
-PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-						   const ci::Color buttonColor, const ci::Color backgroundColor)
+PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          sizey, const float buttonHeight,
+						   const ci::Color&      buttonColor, const ci::Color& backgroundColor)
   : MediaInterface(eng, ds::Resource::PDF_TYPE, sizey, backgroundColor)
   , mLinkedPDF(nullptr)
   , mLinkedEnabled(false)
+  , mAbleToTouchToggle(true)
   , mUpButton(nullptr)
   , mDownButton(nullptr)
   , mPageCounter(nullptr)
@@ -189,14 +190,19 @@ void PDFInterface::onLayout() {
 	const float w		= getWidth();
 	const float h		= mInitialHeight;
 	const float padding = h / 4.0f;
-	if (mUpButton && mDownButton && mPageCounter && mThumbsButton) {
+	if (mUpButton && mDownButton && mPageCounter && mThumbsButton && mTouchToggle) {
 
 		float componentsWidth = (mUpButton->getScaleWidth() + padding + mPageCounter->getScaleWidth() + padding +
 								 mDownButton->getScaleWidth() + padding + mTouchToggle->getScaleWidth());
 
 		if (mThumbsButton->visible()) {
-			componentsWidth += padding + mThumbsButton->getScaleWidth();
+			componentsWidth += (padding + mThumbsButton->getScaleWidth());
 		}
+
+		if(!mAbleToTouchToggle) {
+			componentsWidth -= (padding + mTouchToggle->getScaleWidth());
+		}
+
 		float yFudge = 0.0f;
 		if (mScrubBar && mScrubBar->visible()) {
 			yFudge = padding / 2.0f;
@@ -221,8 +227,10 @@ void PDFInterface::onLayout() {
 		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f) + yFudge);
 		xp += mDownButton->getScaleWidth() + padding;
 
-		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f) + yFudge);
-		xp += mTouchToggle->getScaleWidth() + padding;
+		if (mAbleToTouchToggle) {
+			mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f) + yFudge);
+			xp += mTouchToggle->getScaleWidth() + padding;
+		}
 	}
 
 
@@ -280,10 +288,23 @@ void PDFInterface::updateWidgets() {
 	layout();
 }
 
-void PDFInterface::setPageFont(std::string fontName, float fontSize) {
+void PDFInterface::setPageFont(const std::string &fontName, double fontSize) {
 	if (mPageCounter) {
 		mPageCounter->setFont(fontName);
 		mPageCounter->setFontSize(fontSize);
+	}
+}
+
+void PDFInterface::setAllowTouchToggle(const bool allowTouchToggling) {
+	mAbleToTouchToggle = allowTouchToggling;
+	if (mTouchToggle) {
+		if (mAbleToTouchToggle) {
+			mTouchToggle->show();
+		} else {
+			mTouchToggle->hide();
+		}
+
+		layout();
 	}
 }
 

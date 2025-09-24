@@ -61,6 +61,7 @@ class SettingsEditor : public ds::ui::Sprite {
 	bool mEngineOpen				   = false;
 	bool mAppSettingsOpen			   = false;
 	bool mWafflesSettingsOpen		   = false;
+	bool mViewersSettingsOpen		   = false;
 	bool mStylesOpen				   = false;
 	bool mFontsOpen					   = false;
 	bool mTuioOpen					   = false;

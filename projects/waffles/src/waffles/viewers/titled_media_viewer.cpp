@@ -209,6 +209,14 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string&
 		}
 	});
 
+	mRootLayout->setSpriteClickFn("attach.the_button", [this] {
+		if (getIsDetached()) {
+			mEventClient.notify(RequestAttachViewer(this));
+		} else {
+			mEventClient.notify(RequestDetachViewer(this));
+		}
+	});
+
 	mRootLayout->setSpriteClickFn("detach.the_button", [this] {
 		if (getIsDetached()) {
 			mEventClient.notify(RequestAttachViewer(this));
@@ -284,6 +292,20 @@ void TitledMediaViewer::onMediaSet() {
 		mMediaRef = newMediaRef;
 	}
 
+	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, true) &&
+		(mMediaRef.getPropertyResource("media").getType() == ds::Resource::WEB_TYPE ||
+		mMediaRef.getPropertyResource("media").getType() == ds::Resource::YOUTUBE_TYPE)) {
+		auto url = mMediaRef.getPropertyResource("media").getAbsoluteFilePath();
+		auto id = ContentUtils::extractYoutubeId(url); // will return empty if not youtube link or if fails to extract
+		if (!id.empty()) {
+			auto w = mMediaRef.getPropertyResource("media").getWidth();
+			auto h = mMediaRef.getPropertyResource("media").getHeight();
+			auto res = ds::Resource("https://www.youtube.com/embed/" + id, ds::Resource::WEB_TYPE);
+			res.setWidth(w);
+			res.setHeight(h);
+			mMediaRef.setPropertyResource("media", res);
+		}
+	}
 
 	mInitialLoadError = false;
 	if (!mMediaPlayer) {
@@ -758,9 +780,18 @@ void TitledMediaViewer::processAllowedButtons() const {
 		}
 	}
 
+	auto attachSpr = mRootLayout->getSprite("attach.the_button");
+	if (attachSpr) {
+		if (allowDetach && mCanDetach && mCanAttach && mIsDetached) {
+			attachSpr->show();
+		} else {
+			attachSpr->hide();
+		}
+	}
+
 	auto detachSpr = mRootLayout->getSprite("detach.the_button");
 	if (detachSpr) {
-		if (allowDetach && mCanDetach && mCanAttach) {
+		if (allowDetach && mCanDetach && mCanAttach && !mIsDetached) {
 			detachSpr->show();
 		} else {
 			detachSpr->hide();
@@ -772,12 +803,12 @@ void TitledMediaViewer::processAllowedButtons() const {
 
 void TitledMediaViewer::processAllowedTouch() {
 	// Enable/disable touch events but keep constraints.
-	if (mIsFullscreen) {
+	if (mIsFullscreen || mIsDetached) {
 		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
-	} else if (mIsDetached) {
-		enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+		setInterfaceLocked(false, true);
 	} else {
 		disableMultiTouch();
+		setInterfaceLocked(true, false);
 	}
 }
 
@@ -1190,20 +1221,16 @@ ViewerCreationArgs TitledMediaViewer::getDuplicateCreationArgs() const {
 	return args;
 }
 
-void TitledMediaViewer::setInterfaceLocked(bool isLocked) const {
+void TitledMediaViewer::setInterfaceLocked(bool isLocked, bool allowToggle) const {
 	if (!mMediaPlayer) return;
 
-	if (auto web = dynamic_cast<ds::ui::WebInterface*>(mMediaPlayer->getMediaInterface())) {
+	auto interface = mMediaPlayer->getMediaInterface();
+	if (interface) {
+		interface->setAllowTouchToggle(allowToggle);
 		if (isLocked) {
-			web->startTouch();
+			interface->startTouch();
 		} else {
-			web->stopTouch();
-		}
-	} else if (auto pdf = dynamic_cast<ds::ui::PDFInterface*>(mMediaPlayer->getMediaInterface())) {
-		if (isLocked) {
-			pdf->startTouch();
-		} else {
-			pdf->stopTouch();
+			interface->stopTouch();
 		}
 	}
 }

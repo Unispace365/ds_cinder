@@ -76,6 +76,8 @@ WebCefService::~WebCefService() {
 			}
 		}
 #endif
+				
+		mCefSimpleApp.reset();
 	} catch (...) {
 		DS_LOG_WARNING("WebCefService destructor exception");
 	}

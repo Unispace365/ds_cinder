@@ -403,21 +403,6 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	mViewers.push_back(newViewer);
 
-	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, true) &&
-		(creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
-		creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE)) {
-		auto url = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath();
-		auto id = ContentUtils::extractYoutubeId(url); // will return empty if not youtube link or if fails to extract
-		if (!id.empty()) {
-			auto w = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getWidth();
-			auto h = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getHeight();
-			auto res = ds::Resource("https://www.youtube.com/embed/" + id, ds::Resource::WEB_TYPE);
-			res.setWidth(w);
-			res.setHeight(h);
-			creationArgs.mMediaRef.setPropertyResource(mediaPropertyKey, res);
-		}
-	}
-
 	newViewer->setCreationArgs(creationArgs);
 	newViewer->setMedia(creationArgs.mMediaRef);
 
@@ -472,7 +457,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 			creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE;
 		if (webEnough && creationArgs.mTouchEvents) {
 			if (auto tmv = dynamic_cast<waffles::TitledMediaViewer*>(newViewer)) {
-				tmv->setInterfaceLocked(true);
+				tmv->setInterfaceLocked(true, true);
 			}
 		}
 	}

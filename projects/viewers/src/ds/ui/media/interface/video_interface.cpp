@@ -18,8 +18,8 @@
 
 namespace ds { namespace ui {
 
-	VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight,
-								   const ci::Color buttonColor, const ci::Color backgroundColor)
+	VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          sizey, const float buttonHeight,
+								   const ci::Color&      buttonColor, const ci::Color& backgroundColor)
 	  : MediaInterface(eng, ds::Resource::VIDEO_TYPE, sizey, backgroundColor)
 	  , mLinkedVideo(nullptr)
 	  , mPlayButton(nullptr)
@@ -35,7 +35,7 @@ namespace ds { namespace ui {
 		mVolumeControl = new VideoVolumeControl(mEngine, sizey.y, buttonHeight, buttonColor);
 		
 		mVolumeControl->setSliderHeight(mVolumeSliderHeight);
-		mVolumeControl->setNubSize(mVolumeSliderHeight * 1.5);
+		mVolumeControl->setNubSize(mVolumeSliderHeight * 1.5f);
 		addChildPtr(mVolumeControl);
 
 		
@@ -97,37 +97,37 @@ namespace ds { namespace ui {
 		}
 	}
 
-	ds::ui::LayoutButton* VideoInterface::getPlayButton() {
+	ds::ui::LayoutButton* VideoInterface::getPlayButton() const {
 		return mPlayButton;
 	}
 
-	ds::ui::LayoutButton* VideoInterface::getPauseButton() {
+	ds::ui::LayoutButton* VideoInterface::getPauseButton() const {
 		return mPauseButton;
 	}
 
-	ds::ui::LayoutButton* VideoInterface::getLoopButton() {
+	ds::ui::LayoutButton* VideoInterface::getLoopButton() const {
 		return mLoopButton;
 	}
 
-	ds::ui::LayoutButton* VideoInterface::getUnLoopButton() {
+	ds::ui::LayoutButton* VideoInterface::getUnLoopButton() const {
 		return mUnLoopButton;
 	}
 
-	ds::ui::Sprite* VideoInterface::getScrubBarBackground() {
+	ds::ui::Sprite* VideoInterface::getScrubBarBackground() const {
 		if (!mScrubBar) return nullptr;
 		return mScrubBar->getBacker();
 	}
 
-	ds::ui::Sprite* VideoInterface::getScrubBarProgress() {
+	ds::ui::Sprite* VideoInterface::getScrubBarProgress() const {
 		if (!mScrubBar) return nullptr;
 		return mScrubBar->getProgress();
 	}
 
-	ds::ui::VideoVolumeControl* VideoInterface::getVolumeControl() {
+	ds::ui::VideoVolumeControl* VideoInterface::getVolumeControl() const {
 		return mVolumeControl;
 	}
 
-	void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) {
+	void VideoInterface::addNubToScrubBar(ds::ui::Sprite* newNub) const {
 		if (!mScrubBar) return;
 		mScrubBar->addNub(newNub);
 	}

@@ -8,7 +8,8 @@
 	<setting name="interface:keyboard:right_pad" value="16.0"  type="float" multiplier="viewers:sprite:scale"/>
 	<setting name="interface:keyboard:bottom_pad" value="16.0"  type="float" multiplier="viewers:sprite:scale"/>
 
-    <setting name="ui:media_button:size" value="24" type="float" multiplier="viewers:sprite:scale"/>
+    <setting name="ui:media_button:size" value="25" type="float" multiplier="viewers:sprite:scale"/>
+    <setting name="ui:media_button_bar:size" value="50" type="float" multiplier="viewers:sprite:scale"/>
 
     <setting name="ui:media_button:keyboard:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>
 	<setting name="ui:media_button:play:size" value="$_ui:media_button:size" type="float" multiplier="viewers:sprite:scale"/>

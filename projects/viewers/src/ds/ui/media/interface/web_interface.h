@@ -22,10 +22,10 @@ class ToggleContainer;
 class WebInterface : public MediaInterface {
   public:
 	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-				 const ci::Color buttonColor, const ci::Color backgroundColor, ds::ui::SoftKeyboardSettings settings= ds::ui::SoftKeyboardSettings(true));
+				 const ci::Color& buttonColor, const ci::Color& backgroundColor, ds::ui::SoftKeyboardSettings settings= ds::ui::SoftKeyboardSettings(true));
 
-	virtual void animateOff();
-	virtual void onUpdateServer(const ds::UpdateParams& p) override;
+	void animateOff() override;
+	void onUpdateServer(const ds::UpdateParams& p) override;
 
 	void linkWeb(ds::ui::Web* linkedWeb);
 	void updateWidgets();
@@ -34,7 +34,7 @@ class WebInterface : public MediaInterface {
 	void setKeyboardAllow(const bool keyboardAllowed);
 	void setAllowNativeKeyboard(bool nativeKeyboardAllowed);
 	void setAllowNativeKeyboardOnly(bool nativeKeyboardOnlyAllowed);
-	void setKeyboardAbove(const bool kerboardAbove);
+	void setKeyboardAbove(const bool keyboardAbove);
 	void setKeyboardOnTop(const bool keyboardOnTop);
 	void setKeyboardStateCallback(std::function<void(const bool onscreen)> func) { mKeyboardStatusCallback = func; }
 
@@ -42,7 +42,10 @@ class WebInterface : public MediaInterface {
 		mMessageCallback = func;
 	}
 
-	void setAllowTouchToggle(const bool allowTouchToggling);
+	void setAllowTouchToggle(const bool allowTouchToggling) override;
+	void toggleTouch() override; // what the "touch lock" does
+	void startTouch() override;  // web is tappable
+	void stopTouch() override;   // web is not tappable
 
 	/// If true, will keep the interface onscreen when the keyboard is on
 	/// If false, will allow timeouts when the keyboard is on (note: recommend to use this with setCanTimeout(false)
@@ -57,28 +60,22 @@ class WebInterface : public MediaInterface {
 	void showKeyboard(bool show);
 	void toggleKeyboard();
 
-	void toggleTouch(); // what the "touch lock" does
-	void startTouch();	// web is tappable
-	void stopTouch();	// web is not tappable
-
-	bool isLocked() { return mWebLocked; }
-
 	virtual void setToggleLockedImage(const std::string& imgPath);
 	virtual void setToggleUnlockedImage(const std::string& imgPath);
 	virtual void setToggleLockedColor(const ci::ColorAf& color);
 	virtual void setToggleUnlockedColor(const ci::ColorAf& color);
 
-	ds::ui::ToggleContainer* getKeyboardButton() { return mKeyboardButton; }
-	ds::ui::LayoutButton* getBackButton() { return mBackButton; }
-	ds::ui::LayoutButton* getForwardButton() { return mForwardButton; }
-	ds::ui::LayoutButton* getRefreshButton() { return mRefreshButton; }
-	ds::ui::ToggleContainer* getTouchToggleButton() { return mTouchToggle; }
-	ds::ui::Sprite*		 getKeyboardArea() { return mKeyboardArea; }
+	ds::ui::ToggleContainer* getKeyboardButton() const { return mKeyboardButton; }
+	ds::ui::LayoutButton*    getBackButton() const { return mBackButton; }
+	ds::ui::LayoutButton*    getForwardButton() const { return mForwardButton; }
+	ds::ui::LayoutButton*    getRefreshButton() const { return mRefreshButton; }
+	ds::ui::ToggleContainer* getTouchToggleButton() const { return mTouchToggle; }
+	ds::ui::Sprite*          getKeyboardArea() const { return mKeyboardArea; }
 
-	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
-	void				  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
+	ds::ui::SoftKeyboard* getSoftKeyboard() const { return mKeyboard; }
+	void                  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
   protected:
-	virtual void onLayout();
+	void onLayout() override;
 
 	ds::EventClient mEventClient;
 
@@ -101,7 +98,6 @@ class WebInterface : public MediaInterface {
 	bool mEnableNativeKeyboard = false;
 	bool mEnableNativeKeyboardOnly = false;
 	bool mAbleToTouchToggle;
-	bool mWebLocked;
 
 	ds::ui::ToggleContainer* mKeyboardButton;
 	ds::ui::LayoutButton* mBackButton;

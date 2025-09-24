@@ -13,16 +13,19 @@ namespace waffles {
  */
 class FramedMediaViewer : public TitledMediaViewer {
   public:
-	FramedMediaViewer(ds::ui::SpriteEngine& g, std::string eventChannel = "",
-					  const std::string layoutPath = "waffles/viewer/framed_media_viewer.xml");
+	FramedMediaViewer(ds::ui::SpriteEngine& g, const std::string& eventChannel = "",
+					  const std::string &   layoutPath = "waffles/viewer/framed_media_viewer.xml");
+
+	void setInterfaceLocked(bool isLocked, bool allowToggle) const override;
+	bool isInterfaceLocked() const override;
 
   protected:
-	virtual void setToFullscreen(const bool immediate, const bool showController);
-	virtual void onLayout() override;
-	virtual void onFullscreenSet() override;
-	virtual void showTitle() override;
-	virtual void onMediaSet() override;
-	virtual void onDetachedSet() override;
+	void setToFullscreen(bool immediate, bool showController) override;
+	void onLayout() override;
+	void onFullscreenSet() override;
+	void showTitle() override;
+	void onMediaSet() override;
+	void onDetachedSet() override;
 
 	ds::ui::MediaInterface* mMediaInterface = nullptr;
 
