@@ -68,9 +68,6 @@ class Image : public Sprite {
 	/// Returns the ds::Resource if it was set as a full resource or as an id.
 	const ds::Resource& getResource() const override { return mResource; }
 
-	/// Returns the ds::Resource if it was set as a full resource or as an id.
-	const ds::Resource& getResource() const override { return mResource; }
-
 	/// Returns the absolute image path, even if the image was set by resource
 	const std::string& getImageFilename() { return mFilename; }
 
