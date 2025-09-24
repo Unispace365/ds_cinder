@@ -37,6 +37,16 @@ namespace ds { namespace ui {
 		void setHighSpriteColor(const ci::ColorA& color) const { mDown.setColor(color); }
 
 		/// Provides backward compatibility with the old image button
+		#pragma deprecated(setNormalImage)
+		void setNormalImage(const std::string& url, int flags = 0) const {
+			// Not implemented, but this needs to exist for compatibility!
+		}
+		/// Provides backward compatibility with the old image button
+		#pragma deprecated(setHighImage)
+		void setHighImage(const std::string& url, int flags = 0) const {
+			// Not implemented, but this needs to exist for compatibility!
+		}
+		/// Provides backward compatibility with the old image button
 		void setNormalImageColor(const ci::ColorA& color) const { setNormalSpriteColor(color); }
 		/// Provides backward compatibility with the old image button
 		void setHighImageColor(const ci::ColorA& color) const { setHighSpriteColor(color); }
@@ -54,7 +64,6 @@ namespace ds { namespace ui {
 		/// VIEW
 		LayoutSprite& mDown;
 		LayoutSprite& mUp;
-
 
 		/// TOUCH
 		ButtonBehaviour mButtonBehaviour;

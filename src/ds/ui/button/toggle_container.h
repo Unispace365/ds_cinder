@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include <ds/ui/button/button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 
@@ -33,7 +32,17 @@ namespace ds { namespace ui {
 			if (mUnchecked) mUnchecked->setHighSpriteColor(color);
 			if (mChecked) mChecked->setHighSpriteColor(color);
 		}
-
+		
+		/// Provides backward compatibility with the old image button
+		void setNormalImage(const std::string& url, int flags = 0) const {
+			if (mUnchecked) mUnchecked->setNormalImage(url, flags);
+			if (mChecked) mChecked->setNormalImage(url, flags);
+		}
+		/// Provides backward compatibility with the old image button
+		void setHighImage(const std::string& url, int flags = 0) const {
+			if (mUnchecked) mUnchecked->setHighImage(url, flags);
+			if (mChecked) mChecked->setHighImage(url, flags);
+		}
 		/// Provides backward compatibility with the old image button
 		void setNormalImageColor(const ci::ColorA& color) const { setNormalButtonColor(color); }
 		/// Provides backward compatibility with the old image button
