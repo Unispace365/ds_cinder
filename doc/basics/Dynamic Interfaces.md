@@ -328,12 +328,12 @@ Sprite Parameters
 		1. default. does nothing. reverts to logic above.
 		2. letterbox. Force sprite to letterbox.
 		3. fill. Force sprite to fill the space.
-	* **grid_column**: Sets the column or columns in which this sprite will be placed within a Grid layout.
-	* **grid_row**: Sets the row or rows in which this sprite will be placed within a Grid layout.
-	* **min_width**: Sets the minimum width in pixels of this sprite when placed within a Grid layout.
-	* **max_width**: Sets the maximum width in pixels of this sprite when placed within a Grid layout.
-	* **min_height**: Sets the minimum height in pixels of this sprite when placed within a Grid layout.
-	* **max_height**: Sets the maximum height in pixels of this sprite when placed within a Grid layout.
+	* **grid_column**: Sets the column or columns in which this sprite will be placed within a Grid layout. Uses CSS-style notation. The first column has index 1. To span the first 3 columns, either use "1 / span 3" or "1 / 4". See[grid-template-columns](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns).
+	* **grid_row**: Sets the row or rows in which this sprite will be placed within a Grid layout. Uses CSS-style notation.
+	* **min_width**: Sets the minimum width in pixels of this sprite when placed within a Grid layout. Uses CSS-style notation, so "25" is equivalent to "25px", "50%" and "50vw" equals half the world width, etc. See [length](https://developer.mozilla.org/en-US/docs/Web/CSS/length).
+	* **max_width**: Sets the maximum width in pixels of this sprite when placed within a Grid layout. Uses CSS-style notation.
+	* **min_height**: Sets the minimum height in pixels of this sprite when placed within a Grid layout. Uses CSS-style notation.
+	* **max_height**: Sets the maximum height in pixels of this sprite when placed within a Grid layout. Uses CSS-style notation.
 	* **fit**: Currently only used within a Grid layout, this will adjust the sprite's scale and position to make it fit the assigned layout area. Defaults to "none". The property takes a string like "xMinYmid meet" (case insensitive), where "xMin" = left aligned, "xMid" = centered and "xMax" = right aligned; "yMin" = top aligned, "yMid" = centered and "yMax" = bottom aligned; "meet" will reduce the scale of the sprite until it fits the smallest of width and height (similar to letterboxing), where "slice" will increase the scale of the sprite until it fits the largest of width and height (some portions of the sprite will not be seen). See also: https://www.dofactory.com/html/svg/preserveaspectratio 
 
 Layout Parameters
