@@ -191,15 +191,21 @@ void FullscreenController::updateUi() {
 					webInterface->setKeyboardStateCallback([this, webInterface, keyboardBtn](const bool onScreen) {
 						if (onScreen) {
 							auto	  keeb		= webInterface->getSoftKeyboard();
-							auto&	  setty		= keeb->getSoftKeyboardSettings();
-							ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
-
-
-							setty.mKeyDownColor				  = ci::Color::black();
-							setty.mKeyUpColor				  = ci::Color(lightGrey);
-							setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
-							setty.mGraphicRoundedCornerRadius = 0;
-							keeb->setSoftKeyboardSettings(setty);
+							if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
+								auto kbs = ds::ui::SoftKeyboardSettings();
+								kbs.mGraphicKeys = false;
+								keeb->setSoftKeyboardSettings(kbs);
+								keeb->setColor(mEngine.getColors().getColorFromName("ui_icon_background"));
+							}
+							else {
+								auto&	  setty		= keeb->getSoftKeyboardSettings();
+								ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
+								setty.mKeyDownColor				  = ci::Color::black();
+								setty.mKeyUpColor				  = ci::Color(lightGrey);
+								setty.mGraphicType				  = ds::ui::SoftKeyboardSettings::kSolid;
+								setty.mGraphicRoundedCornerRadius = 0;
+								keeb->setSoftKeyboardSettings(setty);
+							}
 
 							keyboardBtn->setChecked(true);
 

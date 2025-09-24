@@ -553,6 +553,11 @@ void TitledMediaViewer::onMediaSet() {
 
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
 				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
+				if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
+					auto kbs = ds::ui::SoftKeyboardSettings();
+					kbs.mGraphicKeys = false;
+					keeb->setSoftKeyboardSettings(kbs);
+				}
 				wafflesHelper->setKeyboardStyle(keeb);
 
 				keyboardBtn->setChecked(true);
@@ -833,15 +838,9 @@ void TitledMediaViewer::onLayout() {
 	if (mDrawingArea) {
 		mDrawingArea->setSize(getWidth(), getHeight());
 	}
-
-	if (mCreationArgs.mUseHotspots && !mHotspots.empty() && mMediaPlayer) {
-		if (mMediaRef.getChildren().size() != mHotspots.size()) {
-			loadHotspots();
-		} else {
-			layoutHotspots();
-		}
+	if (mCreationArgs.mUseHotspots) {
+		loadHotspots();
 	}
-
 
 	if (mRootLayout) {
 		mRootLayout->completeAllTweens(false, true);
@@ -852,33 +851,7 @@ void TitledMediaViewer::onLayout() {
 	}
 }
 
-void TitledMediaViewer::layoutHotspots() const {
-	for (auto it : mHotspots) {
-		auto	 thisCm = it->getContentModel();
-		ci::vec2 pos	= ci::vec2(thisCm.getPropertyFloat("hotspot_x"), thisCm.getPropertyFloat("hotspot_y"));
-		ci::vec2 size	= ci::vec2(thisCm.getPropertyFloat("hotspot_w"), thisCm.getPropertyFloat("hotspot_h"));
-		bool	 noXY	= (pos.x == 0.f && pos.y == 0.f);
-		bool	 noWH	= (size.x == 0.f && size.y == 0.f);
-
-		std::string theStyle = "rectangles";
-		if (noXY && noWH) {
-			size = ci::vec2(1.f);
-		} else if (noWH) {
-			theStyle = "spots";
-		}
-		it->setPosition(pos * ci::vec2(mMediaPlayer->getSize()));
-		it->setSize(size * ci::vec2(mMediaPlayer->getSize()));
-		it->runLayout();
-	}
-}
-
 void TitledMediaViewer::loadHotspots() {
-	for (auto it : mHotspots) {
-		it->release();
-	}
-
-	mHotspots.clear();
-
 	for (const auto& hs : mMediaRef.getChildren()) {
 		ci::vec2 pos  = ci::vec2(hs.getPropertyFloat("hotspot_x"), hs.getPropertyFloat("hotspot_y"));
 		ci::vec2 size = ci::vec2(hs.getPropertyFloat("hotspot_w"), hs.getPropertyFloat("hotspot_h"));
@@ -898,8 +871,6 @@ void TitledMediaViewer::loadHotspots() {
 		auto hotspot = new ds::ui::SmartLayout(mEngine, layoutFile);
 		hotspot->setContentModel(hs);
 		addChildPtr(hotspot);
-		mHotspots.emplace_back(hotspot);
-
 		hotspot->setTapCallback([this, hotspot](Sprite* bs, const ci::vec3& pos) {
 			auto helper = ContentHelperFactory::getDefault<WafflesHelper>();
 			auto field_name =
@@ -943,9 +914,21 @@ void TitledMediaViewer::loadHotspots() {
 				}
 			});
 		}
+
+		// Layout the hotspot
+		ci::vec2 lpos	= ci::vec2(hs.getPropertyFloat("hotspot_x"), hs.getPropertyFloat("hotspot_y"));
+		ci::vec2 lsize	= ci::vec2(hs.getPropertyFloat("hotspot_w"), hs.getPropertyFloat("hotspot_h"));
+		bool	 lnoXY	= (lpos.x == 0.f && lpos.y == 0.f);
+		bool	 lnoWH	= (lsize.x == 0.f && lsize.y == 0.f);
+		if (lnoXY && lnoWH) {
+			lsize = ci::vec2(1.f);
+		}
+		hotspot->setPosition(lpos * ci::vec2(mMediaPlayer->getSize()));
+		hotspot->setSize(lsize * ci::vec2(mMediaPlayer->getSize()));
+		hotspot->runLayout();
 	}
 
-	layoutHotspots();
+	//layoutHotspots();
 }
 
 void TitledMediaViewer::onCreationArgsSet() {

@@ -151,14 +151,10 @@ void FramedMediaViewer::onLayout() {
 	if (mDrawingArea) {
 		mDrawingArea->setSize(getWidth(), getHeight());
 	}
-
-	if (mCreationArgs.mUseHotspots && !mHotspots.empty() && mMediaPlayer) {
-		if (mMediaRef.getChildren().size() != mHotspots.size()) {
-			loadHotspots();
-		} else {
-			layoutHotspots();
-		}
+	if (mCreationArgs.mUseHotspots) {
+		loadHotspots();
 	}
+
 	// handle the mediaIOnterface sizing
 	// auto	 controllerHolder	= mRootLayout->getSprite<ds::ui::LayoutSprite>("controller_holder");
 	// auto	 innerSidebar		= mRootLayout->getSprite("inner_sidebar");
