@@ -54,7 +54,8 @@ void VideoPlayer::setResource(const ds::Resource& resource) {
 			mVideo->seekPosition(0);
 		}
 
-		if (!mLooping) {
+		// For some reason mLooping is not correct here, switching to checking directly on the video sprite
+		if (!mVideo->getIsLooping()) {
 			mVideo->pause();
 		}
 
