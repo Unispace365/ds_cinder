@@ -12,13 +12,13 @@
 
 namespace ds { namespace ui {
 
-	EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& settings)
+	EntryField::EntryField(ds::ui::SpriteEngine& engine, const EntryFieldSettings& settings)
 	  : IEntryField(engine)
-	  , mCursor(nullptr)
-	  , mTextSprite(nullptr)
 	  , mInFocus(false)
 	  , mAutoRegisterOnFocus(true)
-	  , mCursorIndex(0) {
+	  , mCursorIndex(0)
+	  , mTextSprite(nullptr)
+	  , mCursor(nullptr) {
 		mTextSprite = new ds::ui::Text(engine);
 		mTextSprite->setAllowMarkup(false);
 		addChildPtr(mTextSprite);
@@ -41,7 +41,7 @@ namespace ds { namespace ui {
 		unfocus();
 	}
 
-	void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings) {
+	void EntryField::setEntryFieldSettings(const EntryFieldSettings& newSettings) {
 		mEntryFieldSettings = newSettings;
 
 		if (mTextSprite) {
@@ -80,21 +80,21 @@ namespace ds { namespace ui {
 		}
 	}
 
-	const std::wstring EntryField::getCurrentText() {
+	const std::wstring& EntryField::getCurrentText() const {
 		return mCurrentText;
 	}
 
-	void EntryField::setCurrentText(const std::wstring& crTxStr) {
-		mCurrentText = crTxStr;
+	void EntryField::setCurrentText(const std::wstring& curTxtStr) {
+		mCurrentText = curTxtStr;
 
-		applyText(crTxStr);
+		applyText(curTxtStr);
 
-		mCursorIndex = crTxStr.size();
+		mCursorIndex = curTxtStr.size();
 
 		textUpdated();
 	}
 
-	void EntryField::applyText(const std::wstring& theStr) {
+	void EntryField::applyText(const std::wstring& theStr) const {
 		if (mTextSprite) {
 			if (mEntryFieldSettings.mPasswordMode) {
 				std::wstring bullets;
@@ -237,24 +237,23 @@ namespace ds { namespace ui {
 		}
 	}
 
-	void EntryField::setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func) {
+	void EntryField::setNativeKeyboardCallback(const std::function<bool(ci::app::KeyEvent& keyEvent)>& func) {
 		mNativeKeyCallback = func;
 	}
 
 	void EntryField::setKeyPressedCallback(
-		std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)>
-			keyPressedFunc) {
+		const std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)>
+			& keyPressedFunc) {
 		mKeyPressedFunction = keyPressedFunc;
 	}
 
-	void EntryField::setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func) {
+	void EntryField::setTextUpdatedCallback(const std::function<void(const std::wstring& fullStr)>& func) {
 		mTextUpdateFunction = func;
 	}
 
 	void EntryField::setCursorIndex(const size_t index) {
 		mCursorIndex = index;
-		if (mCursorIndex < 0) mCursorIndex = 0;
-		if (mCursorIndex > getCurrentText().size()) mCursorIndex = getCurrentText().size();
+		mCursorIndex = std::min(mCursorIndex, getCurrentText().size());
 
 		cursorUpdated();
 	}
@@ -266,12 +265,12 @@ namespace ds { namespace ui {
 		cursorUpdated();
 	}
 
-	const ci::vec3 EntryField::getCursorPosition() {
+	ci::vec3 EntryField::getCursorPosition() const {
 		if (mCursor) {
 			return mCursor->getGlobalPosition();
 		}
 
-		return ci::vec3();
+		return {};
 	}
 
 	void EntryField::resetCurrentText() {
@@ -348,10 +347,8 @@ namespace ds { namespace ui {
 
 	void EntryField::cursorUpdated() {
 		if (mTextSprite && mCursor) {
-			if (mCursorIndex < 0) mCursorIndex = 0;
-			if (mCursorIndex > getCurrentText().size()) {
-				mCursorIndex = getCurrentText().size();
-			}
+			mCursorIndex       = std::max<size_t>(mCursorIndex, 0);
+			mCursorIndex       = std::min(mCursorIndex, getCurrentText().size());
 			ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(static_cast<int>(mCursorIndex));
 			mCursor->setPosition(cursorPos.x + mEntryFieldSettings.mCursorOffset.x,
 								 cursorPos.y + mEntryFieldSettings.mCursorOffset.y);

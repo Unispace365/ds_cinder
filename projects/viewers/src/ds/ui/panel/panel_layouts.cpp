@@ -1,48 +1,46 @@
 #include "stdafx.h"
 
-#include "panel_layouts.h"
-
-#include <ds/debug/logger.h>
-
-#include "ds/util/pixel_packer/pak/algoGil.h"
+#include "ds/debug/logger.h"
+#include "ds/ui/panel/panel_layouts.h"
 #include "ds/util/pixel_packer/pak/algoMaxRects.h"
-#include "ds/util/pixel_packer/util/myBox.h"
 #include "ds/util/pixel_packer/util/myVector2.h"
+
+#include <algorithm>
 #include <map>
 
 namespace ds { namespace ui {
 
 	struct PanelPackage {
-		int			mPanelIndex;
-		float		mAsepectRatio;
-		ci::vec2	mTheSize;  // for row packing
-		ci::vec2	mThePos;   // for row packing
-		t_myVector2 mPackSize; // for the bin packing algo
-		ci::Rectf	mOutputRect;
-	};
+		int			panelIndex;
+		float		aspectRatio;
+		ci::vec2	size;	  // for row packing
+		ci::vec2	position; // for row packing
+		t_myVector2 packSize; // for the bin packing algo
+		ci::Rectf	outputRect;
 
-	bool sortByBigness(PanelPackage& a, PanelPackage& b) {
-		return a.mPackSize.x * a.mPackSize.y > b.mPackSize.x * b.mPackSize.y;
-	}
-
-	float adjustSizes(std::vector<PanelPackage>& packages, const float fractionalAmount, const float padding) {
-		float piecemealArea = 0.0f;
-		for (auto it = packages.begin(); it < packages.end(); ++it) {
-			float tw = (float)(*it).mPackSize.x * fractionalAmount - padding;
-			float th = tw / (*it).mAsepectRatio;
-			tw += padding;
-			th += padding;
-
-			piecemealArea += tw * th;
-			(*it).mPackSize.x = (int)(tw);
-			(*it).mPackSize.y = (int)(th);
+		static bool sortByBigness(const PanelPackage& a, const PanelPackage& b) {
+			return a.packSize.x * a.packSize.y > b.packSize.x * b.packSize.y;
 		}
 
-		return piecemealArea;
-	}
+		static float adjustSizes(std::vector<PanelPackage>& packages, float fractionalAmount, float padding) {
+			float piecemealArea = 0.0f;
+			for (auto it = packages.begin(); it < packages.end(); ++it) {
+				float tw = float((*it).packSize.x) * fractionalAmount - padding;
+				float th = tw / (*it).aspectRatio;
+				tw += padding;
+				th += padding;
 
-	bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf totalAreaRect,
-							   const float padding, const float animDur) {
+				piecemealArea += tw * th;
+				it->packSize.x = int(tw);
+				it->packSize.y = int(th);
+			}
+
+			return piecemealArea;
+		}
+	};
+
+	bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf& totalAreaRect, float padding,
+							   float animationDuration) {
 		if (panels.empty()) return false;
 
 		std::vector<PanelPackage> thePackages;
@@ -58,26 +56,26 @@ namespace ds { namespace ui {
 			if (tw < 1.0f || th < 1.0f) continue;
 
 			PanelPackage pp;
-			pp.mAsepectRatio = (*it)->getContentAspectRatio();
+			pp.aspectRatio = (*it)->getContentAspectRatio();
 
 			if (tw > totalArea.x) {
 				tw = totalArea.x;
-				th = tw / pp.mAsepectRatio;
+				th = tw / pp.aspectRatio;
 			}
 
 			if (th > totalArea.y) {
 				th = totalArea.y;
-				tw = th * pp.mAsepectRatio;
+				tw = th * pp.aspectRatio;
 			}
 
 			// do the width again in case the height calculation made it too wide
 			if (tw > totalArea.x) {
 				tw = totalArea.x;
-				th = tw / pp.mAsepectRatio;
+				th = tw / pp.aspectRatio;
 			}
 			piecemealArea += tw * th;
-			pp.mPackSize   = t_myVector2((int)tw, (int)th);
-			pp.mPanelIndex = ind;
+			pp.packSize	  = t_myVector2(int(tw), int(th));
+			pp.panelIndex = ind;
 			thePackages.push_back(pp);
 			ind++;
 		}
@@ -88,14 +86,14 @@ namespace ds { namespace ui {
 		}
 
 		// be sure padding gets added
-		adjustSizes(thePackages, 1.0f, padding);
+		PanelPackage::adjustSizes(thePackages, 1.0f, padding);
 
 		while (piecemealArea < totalAreaAmount * 0.75) {
-			piecemealArea = adjustSizes(thePackages, 1.1f, padding);
+			piecemealArea = PanelPackage::adjustSizes(thePackages, 1.1f, padding);
 		}
 
 		while (piecemealArea > totalAreaAmount * 0.9f) {
-			piecemealArea = adjustSizes(thePackages, 0.95f, padding);
+			piecemealArea = PanelPackage::adjustSizes(thePackages, 0.95f, padding);
 		}
 
 
@@ -107,10 +105,10 @@ namespace ds { namespace ui {
 			isFine = false;
 			std::vector<t_myVector2> sizes;
 			for (auto it = thePackages.begin(); it < thePackages.end(); ++it) {
-				sizes.push_back((*it).mPackSize);
+				sizes.push_back((*it).packSize);
 			}
 
-			auto returny = packs.pack(sizes, t_myVector2((int)totalArea.x, (int)totalArea.y), isFine);
+			auto returny = packs.pack(sizes, t_myVector2(int(totalArea.x), int(totalArea.y)), isFine);
 			if (isFine) {
 
 				for (auto it = returny.begin(); it != returny.end(); ++it) {
@@ -122,8 +120,8 @@ namespace ds { namespace ui {
 					int bottom = yy + hei;
 
 					for (auto it = thePackages.begin(); it < thePackages.end(); ++it) {
-						if ((*it).mPackSize.x == wid && (*it).mPackSize.y == hei) {
-							(*it).mOutputRect = ci::Rectf((float)xx, (float)yy, (float)right, (float)bottom);
+						if ((*it).packSize.x == wid && (*it).packSize.y == hei) {
+							(*it).outputRect = ci::Rectf(float(xx), float(yy), float(right), float(bottom));
 							outputPackages.push_back((*it));
 							thePackages.erase(it);
 							break;
@@ -132,7 +130,7 @@ namespace ds { namespace ui {
 				}
 				break;
 			} else {
-				piecemealArea = adjustSizes(thePackages, 0.95f, padding);
+				piecemealArea = PanelPackage::adjustSizes(thePackages, 0.95f, padding);
 			}
 		}
 
@@ -141,27 +139,28 @@ namespace ds { namespace ui {
 			return false;
 		}
 
-		float farthestRight = 0.0f;
-		float farthestBotto = 0.0f;
+		float farthestRight	 = 0.0f;
+		float farthestBottom = 0.0f;
 		for (auto it = outputPackages.begin(); it < outputPackages.end(); ++it) {
-			ci::vec2 br = (*it).mOutputRect.getLowerRight();
-			if (br.x > farthestRight) farthestRight = br.x;
-			if (br.y > farthestBotto) farthestBotto = br.y;
+			ci::vec2 br	   = (*it).outputRect.getLowerRight();
+			farthestRight  = std::max(br.x, farthestRight);
+			farthestBottom = std::max(br.y, farthestBottom);
 		}
 
 		float		offsetX	   = (totalArea.x - farthestRight) / 2.0f;
-		float		offsetY	   = (totalArea.y - farthestBotto) / 2.0f;
+		float		offsetY	   = (totalArea.y - farthestBottom) / 2.0f;
 		float		delayey	   = 0.0f;
-		const float deltaDelay = animDur / (float)(outputPackages.size());
+		const float deltaDelay = animationDuration / float(outputPackages.size());
 		for (auto it = outputPackages.begin(); it < outputPackages.end(); ++it) {
-			ci::Rectf recty		  = (*it).mOutputRect;
-			auto	  tmv		  = panels[(*it).mPanelIndex];
+			ci::Rectf recty		  = (*it).outputRect;
+			auto	  tmv		  = panels[(*it).panelIndex];
 			ci::vec3  destination = ci::vec3(recty.getUpperLeft().x + offsetX + totalAreaRect.x1,
 											 recty.getUpperLeft().y + offsetY + totalAreaRect.y1, 0.0f);
 			float	  destWidth	  = recty.getWidth() - padding;
-			if (animDur > 0.0f) {
+			if (animationDuration > 0.0f) {
 				tmv->tweenStarted();
-				tmv->tweenPosition(destination, animDur, delayey, ci::EaseInOutQuad(), [tmv] { tmv->tweenEnded(); });
+				tmv->tweenPosition(destination, animationDuration, delayey, ci::EaseInOutQuad(),
+								   [tmv] { tmv->tweenEnded(); });
 				tmv->animateWidthTo(destWidth / tmv->getScale().x);
 			} else {
 				tmv->setPosition(destination);
@@ -172,9 +171,8 @@ namespace ds { namespace ui {
 		return true;
 	}
 
-	bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf totalAreaRect,
-							   const float padding /*= 5.0f*/, const float animDur /*= 0.35f*/,
-							   const int inputRows /*= 2*/) {
+	bool PanelLayouts::rowPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf& totalAreaRect, float padding,
+							   float animationDuration, int numRows) {
 		std::vector<PanelPackage> thePackages;
 		int						  ind = 0;
 
@@ -187,10 +185,8 @@ namespace ds { namespace ui {
 			DS_LOG_VERBOSE(3, "RowPack: no panels set to arrange");
 		}
 
-		int numRows = inputRows;
-		if (numRows < 1) numRows = 1;
-
 		if (panels.size() == 1) numRows = 1;
+		numRows = std::max(1, numRows);
 
 		ci::vec2 totalArea = ci::vec2(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
@@ -199,10 +195,10 @@ namespace ds { namespace ui {
 			// a = w / h
 			// ah = w
 			// h = w / a
-			pp.mAsepectRatio = it->getContentAspectRatio();
-			if (pp.mAsepectRatio == 0.0f) pp.mAsepectRatio = 1.0f;
-			pp.mTheSize	   = ci::vec2(100.0f, 100.0f / pp.mAsepectRatio);
-			pp.mPanelIndex = ind;
+			pp.aspectRatio = it->getContentAspectRatio();
+			if (pp.aspectRatio == 0.0f) pp.aspectRatio = 1.0f;
+			pp.size		  = ci::vec2(100.0f, 100.0f / pp.aspectRatio);
+			pp.panelIndex = ind;
 			thePackages.push_back(pp);
 			ind++;
 		}
@@ -212,9 +208,9 @@ namespace ds { namespace ui {
 			return false;
 		}
 
-		float rowHeight = totalAreaRect.getHeight() / numRows;
+		float rowHeight = totalAreaRect.getHeight() / float(numRows);
 		if (numRows > 1) {
-			rowHeight -= (numRows - 1) * padding;
+			rowHeight -= float(numRows - 1) * padding;
 		}
 
 		// a = w / h
@@ -226,20 +222,20 @@ namespace ds { namespace ui {
 		float totalWidth = 0.0f;
 
 		/// first, find out the total width if we were to put everything in one big row
-		for (auto it : thePackages) {
-			totalWidth += it.mAsepectRatio * rowHeight + padding;
+		for (const auto& it : thePackages) {
+			totalWidth += it.aspectRatio * rowHeight + padding;
 		}
 
 		/// then divide that width by the number of rows
-		float widthPerRow = totalWidth / numRows;
+		float widthPerRow = totalWidth / float(numRows);
 
 		/// then group the panels into the number of rows
 		std::vector<float>						 rowWidths;
 		std::map<int, std::vector<PanelPackage>> theRows;
 		int										 curRow = 0;
-		for (auto it : thePackages) {
-			float thisW = it.mAsepectRatio * rowHeight;
-			if (xp > widthPerRow && theRows.size() < numRows && it.mPanelIndex != thePackages.back().mPanelIndex) {
+		for (const auto& it : thePackages) {
+			float thisW = it.aspectRatio * rowHeight;
+			if (xp > widthPerRow && theRows.size() < numRows && it.panelIndex != thePackages.back().panelIndex) {
 				rowWidths.emplace_back(xp);
 				xp = 0.0f;
 				curRow++;
@@ -266,20 +262,19 @@ namespace ds { namespace ui {
 			xp					= 0.0f;
 			float thisRowHeight = rowHeight;
 			if (rowWidths[i] > totalArea.x) {
-				float thisAsp	= (rowWidths[i] - theRows[i].size() * padding) / rowHeight;
-				float destWidth = totalArea.x - theRows[i].size() * padding;
+				float thisAsp	= (rowWidths[i] - float(theRows[i].size()) * padding) / rowHeight;
+				float destWidth = totalArea.x - float(theRows[i].size()) * padding;
 				thisRowHeight	= destWidth / thisAsp;
 			}
 
 			for (auto& it : theRows[i]) {
 				ci::vec2 destination = ci::vec2(xp + totalAreaRect.x1, yp + totalAreaRect.y1);
 
-				float thisBot = destination.y + thisRowHeight;
-				if (thisBot > theBot) theBot = thisBot;
+				theBot = std::max(destination.y + thisRowHeight, theBot);
 
-				float destWidth = thisRowHeight * it.mAsepectRatio;
-				it.mTheSize		= ci::vec2(destWidth, thisRowHeight);
-				it.mThePos		= destination;
+				float destWidth = thisRowHeight * it.aspectRatio;
+				it.size			= ci::vec2(destWidth, thisRowHeight);
+				it.position		= destination;
 
 				xp += destWidth + padding;
 			}
@@ -291,14 +286,15 @@ namespace ds { namespace ui {
 		float deltaDif = (totalAreaRect.getY2() - theBot) / 2.0f;
 
 
-		for (auto row : theRows) {
-			for (auto it : row.second) {
-				auto	 tmv		 = panels[it.mPanelIndex];
-				ci::vec3 destination = ci::vec3(it.mThePos.x, it.mThePos.y + deltaDif, 0.0f);
-				float	 destWidth	 = it.mTheSize.x;
-				if (animDur > 0.0f) {
+		for (const auto& row : theRows) {
+			for (const auto& it : row.second) {
+				auto	 tmv		 = panels[it.panelIndex];
+				ci::vec3 destination = ci::vec3(it.position.x, it.position.y + deltaDif, 0.0f);
+				float	 destWidth	 = it.size.x;
+				if (animationDuration > 0.0f) {
 					tmv->tweenStarted();
-					tmv->tweenPosition(destination, animDur, 0.0f, ci::EaseInOutQuad(), [tmv] { tmv->tweenEnded(); });
+					tmv->tweenPosition(destination, animationDuration, 0.0f, ci::EaseInOutQuad(),
+									   [tmv] { tmv->tweenEnded(); });
 					tmv->animateWidthTo(destWidth / tmv->getScale().x);
 				} else {
 					tmv->setPosition(destination);

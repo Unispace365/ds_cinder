@@ -63,7 +63,7 @@ namespace ds { namespace ui {
 
 	class EntryField : public IEntryField {
 	  public:
-		EntryField(ds::ui::SpriteEngine&, EntryFieldSettings& settings);
+		EntryField(ds::ui::SpriteEngine&, const EntryFieldSettings& settings);
 		~EntryField();
 
 		/// This field will be in "focus", making the cursor blink and look like this is activated
@@ -75,20 +75,20 @@ namespace ds { namespace ui {
 		void unfocus();
 
 		/// If this field is in focus
-		bool getIsInFocus() { return mInFocus; }
+		bool getIsInFocus() const { return mInFocus; }
 
 		/// If true, when you call "focus", it will register this field in the main engine class to grab keyboard input
 		/// Default is true
 		void autoRegisterOnFocus(const bool doAutoRegister);
 
 		/// Get the current entered text string
-		const std::wstring getCurrentText();
-		const std::string  getCurrentTextString() { return ds::utf8_from_wstr(getCurrentText()); }
+		const std::wstring& getCurrentText() const;
+		std::string			getCurrentTextString() const { return ds::utf8_from_wstr(getCurrentText()); }
 
 		/// In case you want to do more formatting, etc. Use with caution, do not release
-		ds::ui::Text* getTextSprite() { return mTextSprite; }
+		ds::ui::Text* getTextSprite() const { return mTextSprite; }
 
-		/// Set the the current text string. Does not call any callbacks.
+		/// Set the current text string. Does not call any callbacks.
 		void setCurrentText(const std::wstring& curTxtStr);
 
 		/// Clears the current text string. Does not call any callbacks.
@@ -98,7 +98,7 @@ namespace ds { namespace ui {
 		void pasteText(const std::wstring& insertText);
 
 		/// Settings can be set at any time to update graphic properties
-		void			   setEntryFieldSettings(EntryFieldSettings& newSettings);
+		void			   setEntryFieldSettings(const EntryFieldSettings& newSettings);
 		EntryFieldSettings getEntryFieldSettings();
 
 		/// Handles key input like a keyboard would
@@ -109,15 +109,15 @@ namespace ds { namespace ui {
 		/// This is called back before the key is handled internally, in case you want to intercept some keys.
 		/// Return true if the key has been handled, return false to pass the key into the entry field. In most cases,
 		/// it just types the letter.
-		void setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func);
+		void setNativeKeyboardCallback(const std::function<bool(ci::app::KeyEvent& keyEvent)>& func);
 
 		/// Set a lambda function when the above keypressed function is called
 		void setKeyPressedCallback(
-			std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)>
-				keyPressedFunc);
+			const std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)>
+				& keyPressedFunc);
 
 		/// Set a lambda function that's called just after onTextUpdated()
-		void setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func);
+		void setTextUpdatedCallback(const std::function<void(const std::wstring& fullStr)>& func);
 
 		/// Gets the index of the cursor position in the visible text string (might have weird results when using
 		/// `<span>` tags in Text.
@@ -129,7 +129,7 @@ namespace ds { namespace ui {
 		void setCursorPosition(const ci::vec3& globalPos);
 
 		/// Gets the position of the cursor in global space
-		const ci::vec3 getCursorPosition();
+		ci::vec3 getCursorPosition() const;
 
 	  protected:
 		/// Override to know when this field gains focus.
@@ -155,7 +155,7 @@ namespace ds { namespace ui {
 		void handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
 		/// Sets the text sprite's text (bullets for pswd, normal text for normal text)
-		void applyText(const std::wstring& theStr);
+		void applyText(const std::wstring& theStr) const;
 
 		bool   mInFocus;
 		bool   mAutoRegisterOnFocus;
