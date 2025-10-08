@@ -1291,6 +1291,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			}
 		};
 
+		propertyMap["scroll_bar_size"] = [](const SprProps& p) {
+			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
+			if (scrollBar) {
+				scrollBar->setBarSize(ds::string_to_float(p.value));
+			} else {
+				logAttributionWarning(p);
+			}
+		};
 		propertyMap["scroll_bar_nub_color"] = [](const SprProps& p) {
 			auto scrollBar = dynamic_cast<ScrollBar*>(&p.sprite);
 			if (scrollBar && scrollBar->getNubSprite()) {

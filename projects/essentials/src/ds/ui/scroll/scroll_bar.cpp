@@ -5,15 +5,17 @@
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 
+#include <algorithm>
+
 namespace ds::ui {
 
-ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const float uiWidth, const float touchPadding,
-					 const bool autoHide)
+ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, bool vertical, float uiWidth, float touchPadding, bool autoHide)
   : Sprite(engine)
   , mVertical(vertical)
   , mBackground(nullptr)
   , mNub(nullptr)
   , mMinNubSize(uiWidth)
+  , mBarSize(0.0f)
   , mTouchPadding(touchPadding)
   , mScrollPercent(0.0f)
   , mPercentVisible(1.0f)
@@ -106,8 +108,8 @@ void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 			destPercent = localPos.x / totalHeight;
 		}
 
-		if (destPercent < 0.0f) destPercent = 0.0f;
-		if (destPercent > 1.0f) destPercent = 1.0f;
+		destPercent = std::max(destPercent, 0.0f);
+		destPercent = std::min(destPercent, 1.0f);
 
 		if (mScrollMoveCallback) {
 			mScrollMoveCallback(destPercent);
@@ -116,18 +118,18 @@ void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 }
 
 
-void ScrollBar::setScrollMoveCallback(std::function<void(const float scrollPercent)> func) {
+void ScrollBar::setScrollMoveCallback(const std::function<void(float scrollPercent)>& func) {
 	mScrollMoveCallback = func;
 }
 
-void ScrollBar::scrollUpdated(const float percentScrolled, const float percentVisible) {
+void ScrollBar::scrollUpdated(float percentScrolled, float percentVisible) {
 	mScrollPercent = percentScrolled;
-	if (mScrollPercent < 0.0f) mScrollPercent = 0.0f;
-	if (mScrollPercent > 1.0f) mScrollPercent = 1.0f;
+	mScrollPercent = std::max(mScrollPercent, 0.0f);
+	mScrollPercent = std::min(mScrollPercent, 1.0f);
 
 	mPercentVisible = percentVisible;
-	if (mPercentVisible < 0.0f) mPercentVisible = 0.0f;
-	if (mPercentVisible > 1.0f) mPercentVisible = 1.0f;
+	mPercentVisible = std::max(mPercentVisible, 0.0f);
+	mPercentVisible = std::min(mPercentVisible, 1.0f);
 
 	updateNubPosition();
 }
@@ -135,11 +137,11 @@ void ScrollBar::scrollUpdated(const float percentScrolled, const float percentVi
 void ScrollBar::layout() {
 	if (mBackground) {
 		if (mVertical) {
-			mBackground->setSize(getWidth() - mTouchPadding * 2.0f, getHeight());
-			mBackground->setPosition(mTouchPadding, 0.0f);
+			mBackground->setSize(std::max(mBarSize, mMinNubSize), getHeight());
+			mBackground->setPosition(0.5f * (getWidth() - mBackground->getWidth()), 0.0f);
 		} else {
-			mBackground->setSize(getWidth(), getHeight() - mTouchPadding * 2.0f);
-			mBackground->setPosition(0.0f, mTouchPadding);
+			mBackground->setSize(getWidth(), std::max(mBarSize, mMinNubSize));
+			mBackground->setPosition(0.0f, 0.5f * (getHeight() - mBackground->getHeight()));
 		}
 	}
 
@@ -153,11 +155,8 @@ void ScrollBar::onSizeChanged() {
 void ScrollBar::updateNubPosition() {
 	if (mNub && mBackground) {
 		if (mVertical) {
-			float nubSize = getHeight() * mPercentVisible;
-			if (nubSize < mMinNubSize) {
-				nubSize = mMinNubSize;
-			}
-			mNub->setSize(mBackground->getWidth(), nubSize);
+			float nubSize = std::max(getHeight() * mPercentVisible, getWidth() - 2 * mTouchPadding);
+			mNub->setSize(getWidth() - 2 * mTouchPadding, nubSize);
 
 			if (getPerspective()) {
 				mNub->setPosition(mTouchPadding, (1.0f - mScrollPercent) * (getHeight() - nubSize));
@@ -165,11 +164,8 @@ void ScrollBar::updateNubPosition() {
 				mNub->setPosition(mTouchPadding, mScrollPercent * getHeight() - mScrollPercent * mNub->getHeight());
 			}
 		} else {
-			float nubSize = getWidth() * mPercentVisible;
-			if (nubSize < mMinNubSize) {
-				nubSize = mMinNubSize;
-			}
-			mNub->setSize(nubSize, mBackground->getHeight());
+			float nubSize = std::max(getWidth() * mPercentVisible, getHeight() - 2 * mTouchPadding);
+			mNub->setSize(nubSize, getHeight() - 2 * mTouchPadding);
 			mNub->setPosition(getWidth() * mScrollPercent - mScrollPercent * mNub->getWidth(), mTouchPadding);
 		}
 	}
@@ -187,23 +183,28 @@ void ScrollBar::updateNubPosition() {
 	}
 }
 
-void ScrollBar::setVisualUpdateCallback(std::function<void()> func) {
+void ScrollBar::setVisualUpdateCallback(const std::function<void()>& func) {
 	mVisualUpdateCallback = func;
 }
 
-ds::ui::Sprite* ScrollBar::getBackgroundSprite() {
+ds::ui::Sprite* ScrollBar::getBackgroundSprite() const {
 	return mBackground;
 }
 
-ds::ui::Sprite* ScrollBar::getNubSprite() {
+ds::ui::Sprite* ScrollBar::getNubSprite() const {
 	return mNub;
 }
 
-void ScrollBar::setMinNubSize(const float minNub) {
+void ScrollBar::setMinNubSize(float minNub) {
 	mMinNubSize = minNub;
 }
 
-void ScrollBar::setTouchPadding(const float touchPadding) {
+void ScrollBar::setBarSize(float barSize) {
+	mBarSize = barSize;
+	layout();
+}
+
+void ScrollBar::setTouchPadding(float touchPadding) {
 	mTouchPadding = touchPadding;
 	layout();
 }
@@ -211,9 +212,10 @@ void ScrollBar::setTouchPadding(const float touchPadding) {
 void ScrollBar::linkScrollArea(ds::ui::ScrollArea* area) {
 	if (!area) return;
 
-	area->setScrollUpdatedCallback(
-		[this](ds::ui::ScrollArea* area) { scrollUpdated(area->getScrollPercent(), area->getVisiblePercent()); });
-	setScrollMoveCallback([area](const float scrollPercent) { area->setScrollPercent(scrollPercent); });
+	area->setScrollUpdatedCallback([this](const ds::ui::ScrollArea* scrollArea) {
+		scrollUpdated(scrollArea->getScrollPercent(), scrollArea->getVisiblePercent());
+	});
+	setScrollMoveCallback([area](float scrollPercent) { area->setScrollPercent(scrollPercent); });
 }
 
 void ScrollBar::linkScrollList(ds::ui::ScrollList* list) {
@@ -223,21 +225,21 @@ void ScrollBar::linkScrollList(ds::ui::ScrollList* list) {
 		scrollUpdated(list->getScrollArea()->getScrollPercent(), list->getScrollArea()->getVisiblePercent());
 	});
 
-	setScrollMoveCallback([list](const float scrollPercent) {
+	setScrollMoveCallback([list](float scrollPercent) {
 		if (list->getScrollArea()) {
 			list->getScrollArea()->setScrollPercent(scrollPercent);
 		}
 	});
 }
 
-void ScrollBar::enableAutoHiding(const bool autoHide) {
+void ScrollBar::enableAutoHiding(bool autoHide) {
 	mAutoHide = autoHide;
 	if (!mAutoHide) {
 		doAutoHide(false);
 	}
 }
 
-void ScrollBar::doAutoHide(const bool shouldBeHidden) {
+void ScrollBar::doAutoHide(bool shouldBeHidden) {
 	if (shouldBeHidden) {
 		if (!mAutoHidden) {
 			mAutoHidden = true;

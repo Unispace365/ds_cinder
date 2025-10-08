@@ -11,19 +11,18 @@ class ScrollArea : public ds::ui::Sprite {
   public:
 	/// Creates a ScrollArea with a Scroller. The scroller is the thing that scrolls inside this sprite
 	/// Anything you add to this needs to be added using addSpriteToScroll() so children get added properly
-	/// The scroller sizes itself based on the size of it's children, so be sure that your children have the correct
+	/// The scroller sizes itself based on the size of its children, so be sure that your children have the correct
 	/// size Call recalculate sizes if any of your children change size
-	ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, const float startHeight,
-			   const bool verticalScrolling = true);
+	ScrollArea(ds::ui::SpriteEngine& engine, float startWidth, float startHeight, bool verticalScrolling = true);
 
 	/// If true, scrolls vertically. False will scroll horizontally
 	void setVertical(bool vertical);
 
 	/// Sets the clippin' (visible) area of the scroll Area.
-	void setScrollSize(const float newWidth, const float newHeight);
+	void setScrollSize(float newWidth, float newHeight);
 
 	/// Enable/disable touches so the user can scroll this
-	void enableScrolling(bool enable);
+	void enableScrolling(bool enable) const;
 
 	/// Stop any current movement of the scrolling
 	void stopScrollMomentum();
@@ -37,23 +36,23 @@ class ScrollArea : public ds::ui::Sprite {
 
 	/// if you have buttons or whatnot in the scroll area, when you start dragging
 	/// you'll want to pass the touch to a sprite, the sprite returned by this function.
-	Sprite* getSpriteToPassTo();
+	Sprite* getSpriteToPassTo() const;
 
 	/// If this area can be scrolled
-	const bool getScrollable() const { return mScrollable; }
+	bool getScrollable() const { return mScrollable; }
 
 	/// Sets the fade colors on the top and bottom (vertical scrolling) or left and right (horizontal) if there is
 	/// more content in that direction
-	void setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTransparent);
+	void setFadeColors(const ci::ColorA& fadeColorFull, const ci::ColorA& fadeColorTransparent);
 	/// Turns fades on or off
-	void setUseFades(const bool doFading);
+	void setUseFades(bool doFading);
 	/// Sets the size of the fades in pixels
-	void setFadeHeight(const float fadeHeight);
+	void setFadeHeight(float fadeHeight);
 
 	/// Renders the scroller to a texture and uses a shader to fade off the top and bottom instead of gradients
 	/// CAVEATS! Any children cannot use blend modes; this scroll area cannot be inside of any clipping areas; this
-	/// probably wont work with any rotated clipping children
-	void setUseShaderFade(const bool shaderFade, const int samples = 0);
+	/// probably won't work with any rotated clipping children
+	void setUseShaderFade(bool shaderFade, int samples = 0);
 
 	/// recalculates the size of the scroller and fades
 	void recalculateSizes();
@@ -71,32 +70,32 @@ class ScrollArea : public ds::ui::Sprite {
 	void setScrollerTouchedCallback(const std::function<void()>& func);
 
 	/// Returns the current position of the scroller inside the area
-	const ci::vec2 getScrollerPosition();
+	ci::vec2 getScrollerPosition() const;
 
 	/// Directly sets the position of the scrolling scroller. Bounds will be checked to keep the scroller from
 	/// having an invalid position
-	void setScrollerPosition(ci::vec2);
+	void setScrollerPosition(const ci::vec2&);
 
 	/// Resets the scroller to the top / front / beginning
 	void resetScrollerPosition();
 
 	/// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 ==
 	/// the bottom (fully scrolled through the list)
-	float getScrollPercent();
+	float getScrollPercent() const;
 
 	/// Set the percentage scroller from 0.0 - 1.0, where 0.0 is the top and 1.0 is the bottom / end.
-	void setScrollPercent(const float percenty);
+	void setScrollPercent(float percenty);
 
 	/// Tweens/animates teh scroller to this percentage from 0.0-1.0
-	void tweenScrollPercent(const float percenty);
+	void tweenScrollPercent(float percenty);
 
 	/// How much of the scroller is currently visible. If the scroller is smaller than the scroll area, then this
 	/// will be 1.0
-	float getVisiblePercent();
+	float getVisiblePercent() const;
 
 	/// Move the scroll forwards or backwards by a "page", defined by the visible area minus the size of the fades
 	/// (if present) May not work correctly in perspective
-	void scrollPage(const bool forwards, const bool animate = true);
+	void scrollPage(bool forwards, bool animate = true);
 
 	/// The duration of the animation for when the scroller reaches it's bounds and snaps back
 	void setReturnAnimateTime(const float dur) { mReturnAnimateTime = dur; }
@@ -104,20 +103,20 @@ class ScrollArea : public ds::ui::Sprite {
 	/// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
 	void handleTouchesRotated(const bool doRotated) { mHandleRotatedTouches = doRotated; }
 
-	void checkBounds(const bool immediate = false);
+	void checkBounds(bool immediate = false);
 
 	// Temporarily disable the bound check, handy if you want to highlight an edge item at a specific position
 	void disableBoundCheck(const bool disable) { mSkipBoundCheck = disable; }
 
   protected:
-	virtual void onUpdateServer(const ds::UpdateParams& p) override;
-	virtual void onSizeChanged() override;
+	void         onUpdateServer(const ds::UpdateParams& p) override;
+	void         onSizeChanged() override;
 	void         scrollerUpdated(const ci::vec2& scrollPos);
 	void         scrollerTweenUpdated();
 	void         tweenComplete();
 	void         handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 	virtual bool callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination);
-	virtual void drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) override;
+	void         drawClient(const ci::mat4& transformMatrix, const ds::DrawParams& drawParams) override;
 
 	Sprite*	 mScroller;
 	bool	 mScrollable;

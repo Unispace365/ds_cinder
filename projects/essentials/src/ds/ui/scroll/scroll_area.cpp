@@ -4,6 +4,7 @@
 
 #include "ds/util/float_util.h"
 
+#include <algorithm>
 #include <ds/ui/sprite/util/clip_plane.h>
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -91,8 +92,7 @@ void main()
 
 namespace ds::ui {
 
-ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, const float startHeight,
-					   const bool vertical)
+ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, float startWidth, float startHeight, bool verticalScrolling)
   : Sprite(engine)
   , mScroller(nullptr)
   , mScrollable(false)
@@ -110,7 +110,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
   , mHandleRotatedTouches(false)
   , mSkipBoundCheck(false)
   , mShaderFade(false)
-  , mVertical(vertical)
+  , mVertical(verticalScrolling)
   , mScrollPercent(0.0f)
   , mScrollUpdatedFunction(nullptr)
   , mTweenCompleteFunction(nullptr)
@@ -145,7 +145,7 @@ void ScrollArea::setVertical(bool vertical) {
 	setScrollSize(getWidth(), getHeight());
 }
 
-void ScrollArea::setScrollSize(const float newWidth, const float newHeight) {
+void ScrollArea::setScrollSize(float newWidth, float newHeight) {
 	// onSizeChanged only triggers if the size is the same, so manually force the check bounds/fade stuff in case
 	// other things have changed
 	if (getWidth() == newWidth && getHeight() == newHeight) {
@@ -155,7 +155,7 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight) {
 	}
 }
 
-void ScrollArea::enableScrolling(bool enable) {
+void ScrollArea::enableScrolling(bool enable) const {
 	if (mScroller) {
 		mScroller->enable(enable);
 	}
@@ -201,11 +201,11 @@ void ScrollArea::addSpriteToScroll(ds::ui::Sprite* bs) {
 	}
 }
 
-Sprite* ScrollArea::getSpriteToPassTo() {
+Sprite* ScrollArea::getSpriteToPassTo() const {
 	return mScroller;
 }
 
-void ScrollArea::checkBounds(const bool immediate) {
+void ScrollArea::checkBounds(bool immediate) {
 	if (!mScroller || mSkipBoundCheck) return;
 	bool	 doTween		  = true;
 	ci::vec3 tweenDestination = mScroller->getPosition();
@@ -250,14 +250,14 @@ void ScrollArea::checkBounds(const bool immediate) {
 			}
 
 			if (scrollerPos < minPos) {
-				// Can't scroll down any more
+				// Can't scroll down anymore
 				if (mVertical) {
 					tweenDestination = ci::vec3(0.0f, minPos, 0.0f);
 				} else {
 					tweenDestination = ci::vec3(minPos, 0.0f, 0.0f);
 				}
 			} else if (scrollerPos > maxPos) {
-				// Can't scroll up any more
+				// Can't scroll up anymore
 				if (mVertical) {
 					tweenDestination = ci::vec3(0.0f, maxPos, 0.0f);
 				} else {
@@ -305,7 +305,7 @@ void ScrollArea::onUpdateServer(const ds::UpdateParams& p) {
 	}
 }
 
-void decompose(ci::mat4 matrix, ci::vec3& scaling, ci::quat& rotation, ci::vec3& position) {
+static void decompose(const ci::mat4& matrix, ci::vec3& scaling, ci::quat& rotation, ci::vec3& position) {
 
 	ci::vec3 skew;
 	ci::vec4 perspective;
@@ -394,7 +394,7 @@ void ScrollArea::drawClient(const ci::mat4& transformMatrix, const ds::DrawParam
 	if (mShaderShader) {
 		mShaderShader->bind();
 		mShaderShader->uniform("textureSize",
-							   ci::vec2((float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
+							   ci::vec2(float(sourceTexture->getWidth()), float(sourceTexture->getHeight())));
 		mShaderShader->uniform("fadeSize", mFadeHeight);
 		mShaderShader->uniform("vertical", mVertical);
 
@@ -410,12 +410,12 @@ void ScrollArea::drawClient(const ci::mat4& transformMatrix, const ds::DrawParam
 	ds::ui::applyBlendingMode(ds::ui::FBO_OUT);
 	ci::gl::color(1.0f, 1.0f, 1.0f, mDrawOpacity);
 	ci::gl::ScopedTextureBind scopedTexture(sourceTexture);
-	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, (float)sourceTexture->getWidth(), (float)sourceTexture->getHeight()));
+	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, float(sourceTexture->getWidth()), float(sourceTexture->getHeight())));
 
 	ci::gl::popModelMatrix();
 	ds::ui::applyBlendingMode(ds::ui::NORMAL);
 }
-void ScrollArea::setUseFades(const bool doFading) {
+void ScrollArea::setUseFades(bool doFading) {
 	if (doFading) {
 		float fadeWiddy = getWidth();
 		float fadeHiddy = mFadeHeight;
@@ -465,7 +465,7 @@ void ScrollArea::setUseFades(const bool doFading) {
 	onSizeChanged();
 }
 
-void ScrollArea::setFadeHeight(const float fadeHeight) {
+void ScrollArea::setFadeHeight(float fadeHeight) {
 	mFadeHeight		= fadeHeight;
 	float fadeWiddy = getWidth();
 	float fadeHiddy = mFadeHeight;
@@ -484,7 +484,7 @@ void ScrollArea::setFadeHeight(const float fadeHeight) {
 	onSizeChanged();
 }
 
-void ScrollArea::setUseShaderFade(const bool shaderFade, const int samples) {
+void ScrollArea::setUseShaderFade(bool shaderFade, int samples) {
 	mShaderFade = shaderFade;
 	if (mShaderFade) {
 		if (!mTopFade || !mBottomFade) {
@@ -502,7 +502,7 @@ void ScrollArea::setUseShaderFade(const bool shaderFade, const int samples) {
 
 		if (!mShaderShader) {
 			try {
-				mShaderShader = ci::gl::GlslProg::create(FadeVert.c_str(), FadeFrag.c_str());
+				mShaderShader = ci::gl::GlslProg::create(FadeVert, FadeFrag);
 			} catch (std::exception&) {
 				DS_LOG_WARNING("Couldn't load scroll fade shader! ");
 			}
@@ -522,23 +522,23 @@ void ScrollArea::recalculateSizes() {
 	onSizeChanged();
 }
 
-void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTrans) {
+void ScrollArea::setFadeColors(const ci::ColorA& fadeColorFull, const ci::ColorA& fadeColorTransparent) {
 	mFadeFullColor	= fadeColorFull;
-	mFadeTransColor = fadeColorTrans;
+	mFadeTransColor = fadeColorTransparent;
 
 	if (mTopFade) {
 		if (mVertical) {
-			mTopFade->setColorsAll(fadeColorFull, fadeColorFull, fadeColorTrans, fadeColorTrans);
+			mTopFade->setColorsAll(fadeColorFull, fadeColorFull, fadeColorTransparent, fadeColorTransparent);
 		} else {
-			mTopFade->setColorsAll(fadeColorFull, fadeColorTrans, fadeColorTrans, fadeColorFull);
+			mTopFade->setColorsAll(fadeColorFull, fadeColorTransparent, fadeColorTransparent, fadeColorFull);
 		}
 	}
 
 	if (mBottomFade) {
 		if (mVertical) {
-			mBottomFade->setColorsAll(fadeColorTrans, fadeColorTrans, fadeColorFull, fadeColorFull);
+			mBottomFade->setColorsAll(fadeColorTransparent, fadeColorTransparent, fadeColorFull, fadeColorFull);
 		} else {
-			mBottomFade->setColorsAll(fadeColorTrans, fadeColorFull, fadeColorFull, fadeColorTrans);
+			mBottomFade->setColorsAll(fadeColorTransparent, fadeColorFull, fadeColorFull, fadeColorTransparent);
 		}
 	}
 }
@@ -588,15 +588,15 @@ void ScrollArea::setScrollerTouchedCallback(const std::function<void()>& func) {
 	mScrollerTouchedFunction = func;
 }
 
-const ci::vec2 ScrollArea::getScrollerPosition() {
+ci::vec2 ScrollArea::getScrollerPosition() const {
 	if (mScroller) {
 		return ci::vec2(mScroller->getPosition());
 	}
 
-	return ci::vec2();
+	return {};
 }
 
-void ScrollArea::setScrollerPosition(ci::vec2 pos) {
+void ScrollArea::setScrollerPosition(const ci::vec2& pos) {
 	if (mScroller) {
 		mScroller->animStop();
 		mScroller->setPosition(pos);
@@ -628,11 +628,11 @@ void ScrollArea::tweenComplete() {
 	}
 }
 
-float ScrollArea::getScrollPercent() {
+float ScrollArea::getScrollPercent() const {
 	return mScrollPercent;
 }
 
-void ScrollArea::setScrollPercent(const float percenty) {
+void ScrollArea::setScrollPercent(float percenty) {
 	if (!mScroller) return;
 
 	if (mScrollPercent == percenty) return;
@@ -661,7 +661,7 @@ void ScrollArea::setScrollPercent(const float percenty) {
 	scrollerUpdated(ci::vec2(mScroller->getPosition()));
 }
 
-void ScrollArea::tweenScrollPercent(const float percenty) {
+void ScrollArea::tweenScrollPercent(float percenty) {
 	if (!mScroller) return;
 
 	if (mScrollPercent == percenty) return;
@@ -693,7 +693,7 @@ void ScrollArea::tweenScrollPercent(const float percenty) {
 		[this] { scrollerUpdated(ci::vec2(mScroller->getPosition())); });
 }
 
-float ScrollArea::getVisiblePercent() {
+float ScrollArea::getVisiblePercent() const {
 	if (!mScroller) return 0.0f;
 
 	if (mVertical) {
@@ -709,7 +709,7 @@ float ScrollArea::getVisiblePercent() {
 	}
 }
 
-void ScrollArea::scrollPage(const bool forwards, const bool animate) {
+void ScrollArea::scrollPage(bool forwards, bool animate) {
 	if (!mScroller) return;
 
 	const float visibPerc = getVisiblePercent();
@@ -749,8 +749,8 @@ void ScrollArea::scrollPage(const bool forwards, const bool animate) {
 		destPixels += (visiblePixes - fadePixels);
 	}
 
-	if (destPixels < theTop) destPixels = theTop;
-	if (destPixels > 0.0f) destPixels = 0.0f;
+	destPixels = std::max(destPixels, theTop);
+	destPixels = std::min(destPixels, 0.0f);
 
 
 	ci::vec3 tweenDestination = mScroller->getPosition();
