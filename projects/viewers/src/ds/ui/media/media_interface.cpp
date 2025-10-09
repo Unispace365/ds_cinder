@@ -37,14 +37,13 @@ float MediaInterface::mVolumeSliderHeight = 0.0f;
 float MediaInterface::mScrubBarHeight	  = 0.0f;
 
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey,
-							   const ci::Color backgroundColor)
-  : ds::ui::Sprite(eng, sizey.x, sizey.y)
+MediaInterface::MediaInterface(SpriteEngine& eng, int type, const ci::vec2& sizey, const ci::Color& backgroundColor)
+  : Sprite(eng, sizey.x, sizey.y)
   , mType(type)
   , mBackground(nullptr)
   , mAnimateDuration(0.35f)
-  , mMinWidth(sizey.y)
-  , mMaxWidth(sizey.x)
+  , mMinWidth(0)
+  , mMaxWidth(std::numeric_limits<float>::max())
   , mIdling(false)
   , mCanIdle(true)
   , mCanDisplay(true)
@@ -69,7 +68,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::ve
 
 	const float backOpacccy = 0.95f;
 
-	mBackground = new ds::ui::Sprite(mEngine);
+	mBackground = new Sprite(mEngine);
 	mBackground->setTransparent(false);
 	mBackground->setColor(backgroundColor);
 	mBackground->setOpacity(backOpacccy);
@@ -80,7 +79,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::ve
 	layout();
 }
 
-void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
+void MediaInterface::onUpdateServer(const UpdateParams& updateParams) {
 	if (mCanIdle && mIdling != isIdling()) {
 		mIdling = isIdling();
 		if (mIdling) {
@@ -91,7 +90,9 @@ void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
 	}
 
 	if (visible()) {
-		ci::vec3  scale, translation, skew;
+		ci::vec3  scale;
+		ci::vec3  translation;
+		ci::vec3  skew;
 		ci::vec4  persp;
 		glm::quat orient;
 		glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
@@ -101,32 +102,26 @@ void MediaInterface::onUpdateServer(const ds::UpdateParams& p) {
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void MediaInterface::layout() {
-	const float w  = getWidth();
-	const float h  = getHeight();
-	const float ww = mEngine.getWorldWidth();
+	const float width  = getWidth();
+	const float height = getHeight();
 	onLayout();
 	if (mBackground) {
 		// Ensure the maximum width always fits within the window
-		mMaxWidth = glm::min(mMaxWidth, ww);
-		// mMaxWidth  = glm::min(mMaxWidth, 900.f);
-		float newW = glm::clamp(w, mMinWidth, mMaxWidth);
-
-
-		mBackground->setSize(newW, h);
+		mBackground->setSize(glm::clamp(width, mMinWidth, glm::min(mMaxWidth, mEngine.getWorldWidth())), height);
 		mBackground->setCenter(0.5f, 0.0f);
-		mBackground->setPosition(w / 2.0f, 0.0f);
+		mBackground->setPosition(width / 2.0f, 0.0f);
 	}
 }
 
-void MediaInterface::setBackgroundColorA(const ci::ColorA backgroundColor) {
+void MediaInterface::setBackgroundColorA(const ci::ColorA& backgroundColor) const {
 	if (mBackground) mBackground->setColorA(backgroundColor);
 }
 
-void MediaInterface::setBackgroundColor(ci::ColorA newColor) {
+void MediaInterface::setBackgroundColor(const ci::ColorA& newColor) const {
 	if (mBackground) mBackground->setColorA(newColor);
 }
 
-void MediaInterface::setBackgroundColor(ci::Color newColor) {
+void MediaInterface::setBackgroundColor(const ci::Color& newColor) const {
 	if (mBackground) mBackground->setColor(newColor);
 }
 
@@ -156,11 +151,11 @@ void MediaInterface::animateOff() {
 	mEngine.getNotifier().notify(MediaInterfaceHiddenEvent(this));
 }
 
-std::string MediaInterface::composeIconPath(std::string iconId) {
+std::string MediaInterface::composeIconPath(const std::string& iconId) const {
 	return composeIconPath(mEngine, iconId);
 }
 
-std::string MediaInterface::composeIconPath(ds::ui::SpriteEngine& engine, std::string iconId) {
+std::string MediaInterface::composeIconPath(const SpriteEngine& engine, const std::string& iconId) {
 	auto baseFolder	   = engine.getViewersSettings().getString("ui:media_button:folder", 0, "");
 	auto basePostfix   = engine.getViewersSettings().getString("ui:media_button:postfix", 0, "");
 	auto baseExtension = engine.getViewersSettings().getString("ui:media_button:extension", 0, ".png");
@@ -171,7 +166,7 @@ std::string MediaInterface::composeIconPath(ds::ui::SpriteEngine& engine, std::s
 	auto extension	  = engine.getViewersSettings().getAttribute(iconId, 0, "ext", baseExtension);
 
 	std::string path = folder + iconFileName + postfix + extension;
-	path			 = ds::Environment::expand(path);
+	path			 = Environment::expand(path);
 
 	return path;
 }
@@ -179,21 +174,23 @@ std::string MediaInterface::composeIconPath(ds::ui::SpriteEngine& engine, std::s
 void MediaInterface::onSizeChanged() {
 	layout();
 
-	ci::vec3  scale, translation, skew;
+	ci::vec3  scale;
+	ci::vec3  translation;
+	ci::vec3  skew;
 	ci::vec4  persp;
 	glm::quat orient;
 	glm::decompose(this->getParent()->getGlobalTransform(), scale, orient, translation, skew, persp);
 	setScale(1.f / scale.x, 1.f / scale.y);
 }
 
-ds::ui::LayoutButton* MediaInterface::createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
-												   const std::string& iconIdHigh) {
+LayoutButton* MediaInterface::createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
+										   const std::string& iconIdHigh) {
 	return createButton(mEngine, sizey, iconIdNormal, iconIdHigh);
 }
 
-ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine, const ci::vec2& sizey,
-												   const std::string& iconIdNormal, const std::string& iconIdHigh) {
-	auto button = new ds::ui::LayoutButton(engine, sizey.x, sizey.y);
+LayoutButton* MediaInterface::createButton(SpriteEngine& engine, const ci::vec2& sizey, const std::string& iconIdNormal,
+										   const std::string& iconIdHigh) {
+	auto button = new LayoutButton(engine, sizey.x, sizey.y);
 
 	// check for svgs
 	//  This forces a fallback if DS_NVPATH is not defined.
@@ -244,12 +241,12 @@ ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine,
 		high = new ds::ui::Image(engine, highPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
 	}
 #else
-	auto			normalPath = composeIconPath(engine, iconIdNormal);
-	auto			highPath   = composeIconPath(engine, iconIdHigh);
-	ds::ui::Sprite* normal	   = nullptr;
-	ds::ui::Sprite* high	   = nullptr;
-	normal = new ds::ui::Image(engine, normalPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
-	high   = new ds::ui::Image(engine, highPath, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
+	auto	normalPath = composeIconPath(engine, iconIdNormal);
+	auto	highPath   = composeIconPath(engine, iconIdHigh);
+	Sprite* normal	   = nullptr;
+	Sprite* high	   = nullptr;
+	normal			   = new Image(engine, normalPath, Image::IMG_CACHE_F | Image::IMG_PRELOAD_F);
+	high			   = new Image(engine, highPath, Image::IMG_CACHE_F | Image::IMG_PRELOAD_F);
 #endif
 
 
@@ -264,11 +261,15 @@ ds::ui::LayoutButton* MediaInterface::createButton(ds::ui::SpriteEngine& engine,
 	return button;
 }
 
-void MediaInterface::setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor,
-									const ci::Color& highColor) {
+void MediaInterface::setButtonColor(LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor) {
 	if (button->getNormalSprite().getChildren().empty() || button->getHighSprite().getChildren().empty()) return;
 	button->getNormalSprite().getChildren()[0]->setColor(normalColor);
 	button->getHighSprite().getChildren()[0]->setColor(highColor);
+}
+
+void MediaInterface::setSizeAll(float width, float height, float depth) {
+	width = glm::clamp(width, mMinWidth, mMaxWidth);
+	Sprite::setSizeAll(width, height, depth);
 }
 
 } // namespace ds::ui

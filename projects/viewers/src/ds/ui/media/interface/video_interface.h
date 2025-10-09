@@ -17,12 +17,12 @@ namespace ds { namespace ui {
 	 */
 	class VideoInterface : public MediaInterface {
 	  public:
-		VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2&          interfaceSize, const float buttonHeight,
-					   const ci::Color&      buttonColor, const ci::Color& backgroundColor);
+		VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
+					   const ci::Color& buttonColor, const ci::Color& backgroundColor);
 
 		void linkVideo(ds::ui::GstVideo* linkedVideo);
 
-		virtual void onUpdateServer(const ds::UpdateParams& p) override;
+		void onUpdateServer(const ds::UpdateParams& p) override;
 
 		ds::ui::LayoutButton* getPlayButton() const;
 		ds::ui::LayoutButton* getPauseButton() const;
@@ -37,18 +37,17 @@ namespace ds { namespace ui {
 		void addNubToScrubBar(ds::ui::Sprite* newNub) const;
 
 	  protected:
-		virtual void onLayout();
+		void onSizeLimitsChanged();
+		void onLayout() override;
 
-		ds::ui::GstVideo* mLinkedVideo;
-
+		ds::ui::GstVideo*	  mLinkedVideo;
 		ds::ui::LayoutButton* mPlayButton;
 		ds::ui::LayoutButton* mPauseButton;
-
 		ds::ui::LayoutButton* mLoopButton;
 		ds::ui::LayoutButton* mUnLoopButton;
-
-		VideoScrubBar*		mScrubBar;
-		VideoVolumeControl* mVolumeControl;
+		VideoScrubBar*		  mScrubBar;
+		VideoVolumeControl*	  mVolumeControl;
+		float				  mPadding;
 	};
 
 }} // namespace ds::ui

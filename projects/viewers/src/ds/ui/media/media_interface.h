@@ -13,10 +13,10 @@ class LayoutButton;
  *		In this context, Interface refers to the set of buttons to control a media item (next/back pages, back/forward
  *navigate, refresh, play/pause, scrub bar, volume control)
  */
-class MediaInterface : public ds::ui::Sprite {
+class MediaInterface : public Sprite {
   public:
-	MediaInterface(ds::ui::SpriteEngine& eng, int type, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f),
-				   const ci::Color backgroundColor = ci::Color::black());
+	MediaInterface(SpriteEngine& eng, int type, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f),
+				   const ci::Color& backgroundColor = ci::Color::black());
 
 	/// Returns the type of interface (PDF, Web, Video), see ds::Resource.
 	int getType() const { return mType; }
@@ -24,8 +24,8 @@ class MediaInterface : public ds::ui::Sprite {
 	virtual void animateOn();
 	virtual void animateOff();
 
-	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
-	void		 layout();
+	void onUpdateServer(const UpdateParams& updateParams) override;
+	void layout();
 
 	virtual void setAllowTouchToggle(const bool allowTouchToggling) {}
 	virtual void toggleTouch() {}
@@ -42,17 +42,17 @@ class MediaInterface : public ds::ui::Sprite {
 	void setAllowDisplay(const bool canDisplay) { mCanDisplay = canDisplay; }
 
 	/// Conveniences to set the background color
-	void setBackgroundColorA(const ci::ColorA backgroundColor);
-	void setBackgroundColor(ci::ColorA newColor);
-	void setBackgroundColor(ci::Color newColor);
+	void setBackgroundColorA(const ci::ColorA& backgroundColor) const;
+	void setBackgroundColor(const ci::ColorA& newColor) const;
+	void setBackgroundColor(const ci::Color& newColor) const;
 
 
-	virtual void show() override;
+	void show() override;
 
-	ds::ui::Sprite* getBackground() const { return mBackground; }
-	virtual void	setMaxWidth(float width) {
-		   mMaxWidth = width;
-		   layout();
+	Sprite*		 getBackground() const { return mBackground; }
+	virtual void setMaxWidth(float width) {
+		mMaxWidth = width;
+		layout();
 	}
 
 	virtual void setMinWidth(float width) {
@@ -70,11 +70,11 @@ class MediaInterface : public ds::ui::Sprite {
 		mLockChangeCallback = std::move(lockChangeCallback);
 	}
 
-	virtual std::string composeIconPath(std::string iconId);
-	static std::string	composeIconPath(ds::ui::SpriteEngine& engine, std::string iconId);
+	std::string		   composeIconPath(const std::string& iconId) const;
+	static std::string composeIconPath(const SpriteEngine& engine, const std::string& iconId);
 
-	static ds::ui::LayoutButton* createButton(ds::ui::SpriteEngine& engine, const ci::vec2& sizey,
-											  const std::string& iconIdNormal, const std::string& iconIdHigh);
+	static LayoutButton* createButton(SpriteEngine& engine, const ci::vec2& sizey, const std::string& iconIdNormal,
+									  const std::string& iconIdHigh);
 
 	static float getPlayButtonHeight() { return mPlayHeight; }
 	static float getPauseButtonHeight() { return mPauseHeight; }
@@ -89,17 +89,19 @@ class MediaInterface : public ds::ui::Sprite {
 	static float getVolumeSliderHeight() { return mVolumeSliderHeight; }
 	static float getScrubBarHeight() { return mScrubBarHeight; }
 
-	virtual void setButtonColor(ds::ui::LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor);
+	virtual void setButtonColor(LayoutButton* button, const ci::Color& normalColor, const ci::Color& highColor);
+
+	void setSizeAll(float width, float height, float depth) override;
 
   protected:
-	virtual void				  onLayout() {};
-	virtual void				  onSizeChanged() override;
-	virtual ds::ui::LayoutButton* createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
-											   const std::string& iconIdHigh);
+	virtual void		  onLayout() {};
+	void				  onSizeChanged() override;
+	virtual LayoutButton* createButton(const ci::vec2& sizey, const std::string& iconIdNormal,
+									   const std::string& iconIdHigh);
 
-	int mType = ds::Resource::ERROR_TYPE;
+	int mType = Resource::ERROR_TYPE;
 
-	ds::ui::Sprite* mBackground;
+	Sprite* mBackground;
 
 	float mAnimateDuration;
 	float mMinWidth;
@@ -127,7 +129,7 @@ class MediaInterface : public ds::ui::Sprite {
 	static float mScrubBarHeight;
 };
 
-class MediaInterfaceShownEvent : public ds::RegisteredEvent<MediaInterfaceShownEvent> {
+class MediaInterfaceShownEvent : public RegisteredEvent<MediaInterfaceShownEvent> {
 	MediaInterface* mMediaInterface = nullptr;
 
   public:
@@ -137,7 +139,7 @@ class MediaInterfaceShownEvent : public ds::RegisteredEvent<MediaInterfaceShownE
 	MediaInterface* getMediaInterface() const { return mMediaInterface; }
 };
 
-class MediaInterfaceHiddenEvent : public ds::RegisteredEvent<MediaInterfaceHiddenEvent> {
+class MediaInterfaceHiddenEvent : public RegisteredEvent<MediaInterfaceHiddenEvent> {
 	MediaInterface* mMediaInterface = nullptr;
 
   public:
