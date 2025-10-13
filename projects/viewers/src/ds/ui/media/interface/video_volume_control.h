@@ -8,14 +8,14 @@ class YouTubeWeb;
 class ImageButton;
 class LayoutButton;
 
-enum class VideoVolumeStyle { CLASSIC, SLIDER };
+enum class VideoVolumeStyle { CLASSIC, SLIDER, UNDEFINED };
 struct VideoVolumeSliderSprites {
-	ds::ui::LayoutButton* mMuteButton  = nullptr;
-	ds::ui::LayoutButton* mVolLowButton  = nullptr;
-	ds::ui::LayoutButton* mVolHighButton  = nullptr;
-	ds::ui::Sprite*		 mSliderTrack = nullptr;
-	ds::ui::Sprite*		 mSliderFill  = nullptr;
-	ds::ui::Sprite*		 mSliderNub	  = nullptr;
+	ds::ui::LayoutButton* mMuteButton	 = nullptr;
+	ds::ui::LayoutButton* mVolLowButton	 = nullptr;
+	ds::ui::LayoutButton* mVolHighButton = nullptr;
+	ds::ui::Sprite*		  mSliderTrack	 = nullptr;
+	ds::ui::Sprite*		  mSliderFill	 = nullptr;
+	ds::ui::Sprite*		  mSliderNub	 = nullptr;
 };
 /**
  * \class VideoVolumeControl
@@ -23,8 +23,8 @@ struct VideoVolumeSliderSprites {
  */
 class VideoVolumeControl : public ds::ui::Sprite {
   public:
-	VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize = 50.0f, const float buttHeight = 25.0f,
-					   const ci::Color	interfaceColor = ci::Color::white(),
+	VideoVolumeControl(ds::ui::SpriteEngine& eng, float theSize = 50.0f, float buttHeight = 25.0f,
+					   const ci::Color& interfaceColor = ci::Color::white(),
 					   VideoVolumeStyle style		   = VideoVolumeStyle::CLASSIC);
 
 	void linkVideo(ds::ui::GstVideo* linkedVideo);
@@ -32,7 +32,7 @@ class VideoVolumeControl : public ds::ui::Sprite {
 	void setVolume(float volume) override;
 
 	void			 setStyle(VideoVolumeStyle newStyle);
-	VideoVolumeStyle getStyle() { return mStyle; }
+	VideoVolumeStyle getStyle() const { return mStyle; }
 	// do not release the bars here, this is to modify their values
 	std::vector<ds::ui::Sprite*>& getBars() { return mBars; }
 	VideoVolumeSliderSprites&	  getSliderSprites() { return mSliderSprites; }
@@ -44,9 +44,9 @@ class VideoVolumeControl : public ds::ui::Sprite {
 	void setVolumeHighImage(const std::string& imgLocation) { mVolumeHighImage = imgLocation; }
 
   protected:
-	virtual void onUpdateServer(const ds::UpdateParams& updateParams) override;
+	void onUpdateServer(const ds::UpdateParams& updateParams) override;
 
-	VideoVolumeStyle mStyle = VideoVolumeStyle::CLASSIC;
+	VideoVolumeStyle mStyle = VideoVolumeStyle::UNDEFINED;
 
 	ds::ui::GstVideo*	mLinkedVideo;
 	ds::ui::YouTubeWeb* mLinkedYouTube;

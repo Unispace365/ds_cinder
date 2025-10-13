@@ -5,21 +5,20 @@
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
-#include <ds/ui/button/layout_button.h>
 #include <ds/ui/button/image_button.h>
+#include <ds/ui/button/layout_button.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/string_util.h>
 
+#include <ds/ui/media/media_interface.h>
 #include <ds/ui/media/player/youtube_player.h>
 #include <ds/ui/sprite/video.h>
-#include <ds/ui/media/media_interface.h>
 
 namespace ds::ui {
 
 VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize, const float buttHeight,
-									   const ci::Color interfaceColor, VideoVolumeStyle style)
+									   const ci::Color& interfaceColor, VideoVolumeStyle style)
   : ds::ui::Sprite(eng, theSize * 1.5f, theSize)
-  , mStyle(style)
   , mLinkedVideo(nullptr)
   , mLinkedYouTube(nullptr)
   , mInterfaceColor(interfaceColor)
@@ -28,30 +27,31 @@ VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float th
   , mOffOpacity(0.2f) {
 
 
-
-	mVolumeHighImage = MediaInterface::composeIconPath(eng,"ui:media_icon:volume_high:file");
+	mVolumeHighImage = MediaInterface::composeIconPath(eng, "ui:media_icon:volume_high:file");
 	mVolumeLowImage	 = MediaInterface::composeIconPath(eng, "ui:media_icon:volume_low:file");
 	mMuteImage		 = MediaInterface::composeIconPath(eng, "ui:media_icon:volume_mute:file");
 
-	setStyle(mStyle);
+	setStyle(style);
 }
 
 void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
+	if (newStyle == mStyle) return;
+
 	mStyle = newStyle;
 
 	clearChildren();
 	mBars.clear();
 	if (mStyle == VideoVolumeStyle::CLASSIC) {
 		setSize(mTheSize * 1.5f, mTheSize);
-		const int barCount = 5;
+		constexpr int barCount = 5;
 
-		const float floatNumBars = (float)(barCount);
-		const float gapPading	 = getWidth() / (floatNumBars * 3.0f);
-		float		barWiddy	 = (getWidth() - (floatNumBars - 1.0f) * gapPading) / floatNumBars;
-		float		xp			 = 0.0f;
+		constexpr auto floatNumBars = float(barCount);
+		const float	   gapPadding	= getWidth() / (floatNumBars * 3.0f);
+		float		   barWiddy		= (getWidth() - (floatNumBars - 1.0f) * gapPadding) / floatNumBars;
+		float		   xp			= 0.0f;
 
 		for (int k = 0; k < barCount; ++k) {
-			ds::ui::Sprite* s = new ds::ui::Sprite(mEngine, barWiddy, mButtHeight * (float)(k + 1) / floatNumBars);
+			ds::ui::Sprite* s = new ds::ui::Sprite(mEngine, barWiddy, mButtHeight * float(k + 1) / floatNumBars);
 			if (!s) continue;
 			s->setTransparent(false);
 			s->setCenter(0.0f, 1.0f);
@@ -60,7 +60,7 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 			mBars.push_back(s);
 			addChild(*s);
 
-			xp += barWiddy + gapPading;
+			xp += barWiddy + gapPadding;
 		}
 
 	} else if (mStyle == VideoVolumeStyle::SLIDER) {
@@ -71,12 +71,15 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 		// 'track' - the background of the slider showing it's overall length
 		// 'fill' - the filled portion of the slider
 		// 'nub' - the visual handle at the current slider position
-		
-		mSliderSprites.mMuteButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_mute:file",
-										"ui:media_icon:volume_mute:file");
-		mSliderSprites.mVolLowButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), 
-										"ui:media_icon:volume_low:file","ui:media_icon:volume_low:file");
-		mSliderSprites.mVolHighButton = MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_high:file",
+
+		mSliderSprites.mMuteButton =
+			MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_mute:file",
+										 "ui:media_icon:volume_mute:file");
+		mSliderSprites.mVolLowButton =
+			MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_low:file",
+										 "ui:media_icon:volume_low:file");
+		mSliderSprites.mVolHighButton =
+			MediaInterface::createButton(mEngine, ci::vec2(mButtHeight, mButtHeight), "ui:media_icon:volume_high:file",
 										 "ui:media_icon:volume_high:file");
 
 		auto volClick = [this] {
@@ -154,8 +157,8 @@ void VideoVolumeControl::setStyle(VideoVolumeStyle newStyle) {
 	});
 }
 
-void VideoVolumeControl::linkVideo(ds::ui::GstVideo* vid) {
-	mLinkedVideo = vid;
+void VideoVolumeControl::linkVideo(ds::ui::GstVideo* linkedVideo) {
+	mLinkedVideo = linkedVideo;
 }
 
 
