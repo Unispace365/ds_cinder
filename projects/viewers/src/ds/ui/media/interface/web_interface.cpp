@@ -28,7 +28,7 @@ namespace ds::ui {
 
 WebInterface::WebInterface(ds::ui::SpriteEngine&        eng, const ci::vec2&          sizey, const float buttonHeight,
 						   const ci::Color&             buttonColor, const ci::Color& backgroundColor,
-						   ds::ui::SoftKeyboardSettings settings)
+						   const ds::ui::SoftKeyboardSettings& settings)
   : MediaInterface(eng, ds::Resource::WEB_TYPE, sizey, backgroundColor)
   , mEventClient(mEngine)
   , mLinkedWeb(nullptr)
@@ -69,6 +69,17 @@ WebInterface::WebInterface(ds::ui::SpriteEngine&        eng, const ci::vec2&    
 		if (newEntryField && newEntryField != mLinkedWeb) {
 			showKeyboard(false);
 		}
+	});
+
+	mEventClient.listenToEvents<WebKeyboardShownEvent>([this](const WebKeyboardShownEvent& e) {
+		if (e.mInterface == this)
+			mKeyboardVisible = true;
+		else if (mKeyboardVisible)
+			showKeyboard(false);
+	});
+
+	mEventClient.listenToEvents<WebKeyboardHiddenEvent>([this](const WebKeyboardHiddenEvent& e) {
+		if (e.mInterface == this) mKeyboardVisible = false;
 	});
 
 	mKeyboardButton	 = new ds::ui::ToggleContainer(mEngine, buttonHeight,
@@ -558,7 +569,7 @@ void WebInterface::updateWidgets() {
 				mKeyboardArea->show();
 				mKeyboardArea->tweenOpacity(mKeyboard->getSoftKeyboardSettings().mBackgroundOpacity, mAnimateDuration,
 											0.0f, ci::easeNone);
-				mEngine.getNotifier().notify(WebKeyboardShownEvent(mKeyboardArea));
+				mEngine.getNotifier().notify(WebKeyboardShownEvent(this, mKeyboardArea));
 			}
 		} else {
 			if (mKeyboardAutoDisablesTimeout) {
@@ -569,9 +580,10 @@ void WebInterface::updateWidgets() {
 					mEngine.registerEntryField(nullptr);
 				}
 
+
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone,
 											[this]() { mKeyboardArea->hide(); });
-				mEngine.getNotifier().notify(WebKeyboardHiddenEvent(mKeyboardArea));
+				mEngine.getNotifier().notify(WebKeyboardHiddenEvent(this, mKeyboardArea));
 			}
 		}
 	}
