@@ -486,9 +486,8 @@ void App::preServerSetup() {
 				mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
 			},
 			ds::cfg::SETTING_TYPE_COLOR);
-	}
-	else {
-		DS_LOG_WARNING("No waffles_styles settings found. This is okay if not using waffles");
+	} else if (!mEngine.getWafflesSettings().empty()) {
+		DS_LOG_WARNING("No waffles_styles settings found!");
 	}
 
 	mEngine.getEngineCfg().clearTextStyles();
@@ -499,18 +498,17 @@ void App::preServerSetup() {
 		},
 		ds::cfg::SETTING_TYPE_TEXT_STYLE);
 	
-	if(!waffles_styles.empty()) {
+	if (!waffles_styles.empty()) {
 		auto waffles_scale = mEngine.getWafflesSettings().getFloat("waffles:font:scale", 0, 1.0);
 		waffles_styles.forEachSetting(
-			[this,waffles_scale](const ds::cfg::Settings::Setting& theSetting) {
-				auto text_style = ds::ui::TextStyle::textStyleFromSetting( mEngine, theSetting.getString());
+			[this, waffles_scale](const ds::cfg::Settings::Setting& theSetting) {
+				auto text_style = ds::ui::TextStyle::textStyleFromSetting(mEngine, theSetting.getString());
 				text_style.mSize *= waffles_scale;
-				mEngine.getEngineCfg().setTextStyle(
-					theSetting.mName, text_style);
+				mEngine.getEngineCfg().setTextStyle(theSetting.mName, text_style);
 			},
 			ds::cfg::SETTING_TYPE_TEXT_STYLE);
-	} else {
-		DS_LOG_WARNING("No waffles_styles settings found. This is okay if not using waffles");
+	} else if (!mEngine.getWafflesSettings().empty()) {
+		DS_LOG_WARNING("No waffles_styles settings found");
 	}
 }
 
