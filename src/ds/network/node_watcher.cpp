@@ -12,10 +12,10 @@ namespace ds {
 /**
  * \class NodeWatcher
  */
-NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port, const bool autostart)
+NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, int port, bool autoStart)
   : ds::AutoUpdate(se)
   , mLoop(se, host, port) {
-	if (autostart) {
+	if (autoStart) {
 		startWatching();
 	}
 }
@@ -45,7 +45,7 @@ void NodeWatcher::startWatching() {
 	if (mThread.isRunning()) return;
 
 	try {
-		DS_LOG_VERBOSE(2, "NodeWatcher::Start watching");
+		DS_LOG_VERBOSE(2, toString() + ": Start watching");
 		mThread.start(mLoop);
 	} catch (std::exception& ex) {
 		DS_LOG_WARNING("NodeWatcher::startWatching() Couldn't with exception " << ex.what());
@@ -56,7 +56,7 @@ void NodeWatcher::stopWatching() {
 	if (!mThread.isRunning()) return;
 	try {
 		Poco::Mutex::ScopedLock l(mLoop.mMutex);
-		DS_LOG_VERBOSE(2, "NodeWatcher::Stop watching");
+		DS_LOG_VERBOSE(2, toString() + ": Stop watching");
 		mLoop.mAbort = true;
 		mThread.wakeUp();
 
@@ -74,12 +74,12 @@ void NodeWatcher::update(const ds::UpdateParams&) {
 	if (mMsg.empty()) return;
 
 	if (ds::Logger::hasVerboseLevel(1)) {
-		for (auto it : mMsg.mData) {
-			DS_LOG_VERBOSE(1, "NodeWatcher: got message: " << it);
+		for (const auto& it : mMsg.mData) {
+			DS_LOG_VERBOSE(1, toString() + ": got message: " << it);
 		}
 	}
 
-	for (auto it : mListener) {
+	for (const auto& it : mListener) {
 		it(mMsg);
 	}
 }
@@ -106,8 +106,8 @@ NodeWatcher::Loop::Loop(ds::ui::SpriteEngine& e, const std::string& host, const 
   , mRefreshRateMs(get_refresh_rate(e)) {}
 
 void NodeWatcher::Loop::run() {
-	static const int BUF_SIZE = 512;
-	char			 buf[BUF_SIZE];
+	static constexpr int BUF_SIZE = 512;
+	char				 buf[BUF_SIZE];
 
 	Poco::Net::DatagramSocket theSocket;
 

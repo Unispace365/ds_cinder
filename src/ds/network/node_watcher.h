@@ -33,16 +33,17 @@ class NodeWatcher : public ds::AutoUpdate {
 
   public:
 	/// Standard node location
-	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7788,
-				const bool autoStart = true);
-	~NodeWatcher();
+	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", int port = 7788, bool autoStart = true);
+	~NodeWatcher() override;
 
 	void add(const std::function<void(const Message&)>&);
 	void startWatching();
 	void stopWatching();
 
+	std::string toString() const { return std::string("NodeWatcher@") + mLoop.toString(); }
+
   protected:
-	virtual void update(const ds::UpdateParams&);
+	void update(const ds::UpdateParams&) override;
 
   private:
 	class Loop : public Poco::Runnable {
@@ -52,9 +53,14 @@ class NodeWatcher : public ds::AutoUpdate {
 		Message		mMsg;
 
 	  public:
-		Loop(ds::ui::SpriteEngine&, const std::string& host, const int port);
+		Loop(ds::ui::SpriteEngine&, const std::string& host, int port);
 
-		virtual void run();
+		void run() override;
+
+		const std::string& getHost() const { return mHost; }
+		int				   getPort() const { return mPort; }
+
+		std::string toString() const { return mHost + ":" + std::to_string(mPort); }
 
 	  private:
 		const std::string mHost;
