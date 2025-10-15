@@ -22,8 +22,7 @@ class ToggleContainer;
 class WebInterface : public MediaInterface {
   public:
 	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight,
-				 const ci::Color& buttonColor, const ci::Color& backgroundColor,
-				 const ds::ui::SoftKeyboardSettings& settings = ds::ui::SoftKeyboardSettings(true));
+				 const ci::Color& buttonColor, const ci::Color& backgroundColor, ds::ui::SoftKeyboardSettings settings= ds::ui::SoftKeyboardSettings(true));
 
 	void animateOff() override;
 	void onUpdateServer(const ds::UpdateParams& p) override;
@@ -45,8 +44,8 @@ class WebInterface : public MediaInterface {
 
 	void setAllowTouchToggle(const bool allowTouchToggling) override;
 	void toggleTouch() override; // what the "touch lock" does
-	void startTouch() override;	 // web is tappable
-	void stopTouch() override;	 // web is not tappable
+	void startTouch() override;  // web is tappable
+	void stopTouch() override;   // web is not tappable
 
 	/// If true, will keep the interface onscreen when the keyboard is on
 	/// If false, will allow timeouts when the keyboard is on (note: recommend to use this with setCanTimeout(false)
@@ -67,15 +66,14 @@ class WebInterface : public MediaInterface {
 	virtual void setToggleUnlockedColor(const ci::ColorAf& color);
 
 	ds::ui::ToggleContainer* getKeyboardButton() const { return mKeyboardButton; }
-	ds::ui::LayoutButton*	 getBackButton() const { return mBackButton; }
-	ds::ui::LayoutButton*	 getForwardButton() const { return mForwardButton; }
-	ds::ui::LayoutButton*	 getRefreshButton() const { return mRefreshButton; }
+	ds::ui::LayoutButton*    getBackButton() const { return mBackButton; }
+	ds::ui::LayoutButton*    getForwardButton() const { return mForwardButton; }
+	ds::ui::LayoutButton*    getRefreshButton() const { return mRefreshButton; }
 	ds::ui::ToggleContainer* getTouchToggleButton() const { return mTouchToggle; }
-	ds::ui::Sprite*			 getKeyboardArea() const { return mKeyboardArea; }
+	ds::ui::Sprite*          getKeyboardArea() const { return mKeyboardArea; }
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() const { return mKeyboard; }
-	void				  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
-
+	void                  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
   protected:
 	void onLayout() override;
 
@@ -83,29 +81,28 @@ class WebInterface : public MediaInterface {
 
 	ds::ui::Web* mLinkedWeb;
 
-	ds::ui::Sprite*				 mKeyboardArea;
-	ds::ui::SoftKeyboard*		 mKeyboard;
+	ds::ui::Sprite*			  mKeyboardArea;
+	ds::ui::SoftKeyboard*	  mKeyboard;
 	ds::ui::SoftKeyboardSettings mKeyboardSettings;
-	bool						 mKeyboardShowing;
-	bool						 mKeyboardAllowed;
-	bool						 mKeyboardAbove;
-	bool						 mKeyboardOnTop;
-	bool						 mKeyboardAutoDisablesTimeout;
-	std::function<void(bool)>	 mKeyboardStatusCallback = nullptr;
+	bool					  mKeyboardShowing;
+	bool					  mKeyboardAllowed;
+	bool					  mKeyboardAbove;
+	bool					  mKeyboardOnTop;
+	bool					  mKeyboardAutoDisablesTimeout;
+	std::function<void(bool)> mKeyboardStatusCallback = nullptr;
 
 	std::function<void(const std::string&, const std::string&, int line)> mMessageCallback = nullptr;
 
 	float mKeyboardKeyScale;
 
-	bool mKeyboardVisible		   = false;
-	bool mEnableNativeKeyboard	   = false;
+	bool mEnableNativeKeyboard = false;
 	bool mEnableNativeKeyboardOnly = false;
 	bool mAbleToTouchToggle;
 
 	ds::ui::ToggleContainer* mKeyboardButton;
-	ds::ui::LayoutButton*	 mBackButton;
-	ds::ui::LayoutButton*	 mForwardButton;
-	ds::ui::LayoutButton*	 mRefreshButton;
+	ds::ui::LayoutButton* mBackButton;
+	ds::ui::LayoutButton* mForwardButton;
+	ds::ui::LayoutButton* mRefreshButton;
 	ds::ui::ToggleContainer* mTouchToggle;
 
 	bool				  mAuthorizing;
@@ -115,17 +112,15 @@ class WebInterface : public MediaInterface {
 	std::string			  mToggleLockedImage   = "%APP%/data/images/media_interface/touch_locked.png";
 	std::string			  mToggleUnlockedImage = "%APP%/data/images/media_interface/touch_unlocked.png";
 	ci::ColorAf			  mToggleLockedColor   = ci::ColorAf(0.0, 0.0, 0.0, 1.0);
-	ci::ColorAf			  mToggleUnlockedColor = ci::ColorAf(1.0, 1.0, 1.0, 1.0);
+	ci::ColorAf			  mToggleUnlockedColor   = ci::ColorAf(1.0, 1.0, 1.0, 1.0);
 
-	std::string mLastUrl = "";
-	int			mInitialSize;
+	std::string			  mLastUrl			   = "";
+	int					  mInitialSize;
 };
 
-struct WebKeyboardEvent {
-	WebKeyboardEvent(WebInterface* interface, Sprite* keyboard)
-	  : mInterface(interface)
-	  , mKeyboard(keyboard) {}
-
+struct WebKeyboardEvent : public ds::RegisteredEvent<WebKeyboardEvent> {
+	WebKeyboardEvent(Sprite* keyboard)
+	  : mKeyboard(keyboard) {}
 	bool hasParent(const Sprite* parent) const {
 		Sprite* sprite = mKeyboard;
 		while (sprite) {
@@ -135,18 +130,17 @@ struct WebKeyboardEvent {
 		return false;
 	}
 
-	WebInterface* mInterface = nullptr;
-	Sprite*		  mKeyboard	 = nullptr;
+	Sprite* mKeyboard = nullptr;
 };
 
-struct WebKeyboardShownEvent : public WebKeyboardEvent, public ds::RegisteredEvent<WebKeyboardShownEvent> {
-	WebKeyboardShownEvent(WebInterface* interface, Sprite* keyboard)
-	  : WebKeyboardEvent(interface, keyboard) {}
+struct WebKeyboardShownEvent : public WebKeyboardEvent {
+	WebKeyboardShownEvent(Sprite* keyboard)
+	  : WebKeyboardEvent(keyboard) {}
 };
 
-struct WebKeyboardHiddenEvent : public WebKeyboardEvent, public ds::RegisteredEvent<WebKeyboardHiddenEvent> {
-	WebKeyboardHiddenEvent(WebInterface* interface, Sprite* keyboard)
-	  : WebKeyboardEvent(interface, keyboard) {}
+struct WebKeyboardHiddenEvent : public WebKeyboardEvent {
+	WebKeyboardHiddenEvent(Sprite* keyboard)
+	  : WebKeyboardEvent(keyboard) {}
 };
 
 } // namespace ds::ui
