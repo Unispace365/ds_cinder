@@ -109,9 +109,11 @@ Filename: "{app}\extras_installer.exe"; Description: "Install Extra Apps (Notepa
 
 [Icons]
 Name: "{group}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
+
 #ifndef SKIP_APP_ICON
 Name: "{commondesktop}\{#APP_DISPLAY_NAME}"; Filename: "{app}\{#APP_EXE}"
 #endif
+
 #ifdef USE_APPHOST
 Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
 #endif
@@ -119,20 +121,21 @@ Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost"; Filename: "{app}\DSAppHos
 ; In production will launch the app on system boot
 #ifdef IS_PRODUCTION
 
-; If we're using apphost, apphost will launch everything itself, so just launch apphost on startup
-#ifdef USE_APPHOST
-; Only if we're not replacing the shell, see below. 
-#ifndef REPLACE_SHELL
-Name: "{commonstartup}\{#APP_NAME}-DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe"
-#endif
-#else
-; No apphost, but yes for dsnode, so start that on system boot
-#ifdef USE_DSNODE
-Name: "{commonstartup}\{#APP_NAME}-DSNode"; Filename: "{app}\DSNode\DSNode.exe"
-#endif
-; No apphost, but start the main app on system boot
-Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
-#endif
+  ; If we're using apphost, apphost will launch everything itself, so just launch apphost on startup
+  #ifdef USE_APPHOST
+    ; Only if we're not replacing the shell, see below. 
+    #ifndef REPLACE_SHELL
+    Name: "{commonstartup}\{#APP_NAME}-DSAppHost"; Filename: "{app}\DSAppHost\DSAppHost.exe";
+    #endif
+  #else
+    ; No apphost, but yes for dsnode, so start that on system boot
+    #ifdef USE_DSNODE
+    Name: "{commonstartup}\{#APP_NAME}-DSNode"; Filename: "{app}\DSNode\DSNode.exe"
+    #endif
+    
+    ; No apphost, but start the main app on system boot
+    Name: "{commonstartup}\{#APP_NAME}"; Filename: "{app}\{#APP_EXE}"
+  #endif
 
 #endif
 
@@ -161,6 +164,13 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}\*"
+
+; Also delete the shortcuts on the desktop and in the startup folder
+Type: files; Name: "{commondesktop}\{#APP_DISPLAY_NAME}";
+Type: files; Name: "{commondesktop}\{#APP_DISPLAY_NAME} DSAppHost";
+Type: files; Name: "{commonstartup}\{#APP_NAME}-DSAppHost";
+Type: files; Name: "{commonstartup}\{#APP_NAME}-DSNode";
+Type: files; Name: "{commonstartup}\{#APP_NAME}";
 
 ; Check if DS_BASEURL environment variable is already set. If not, request a reboot
 ; Only checked if IS_PRODUCTION & CMS_URL are both set
