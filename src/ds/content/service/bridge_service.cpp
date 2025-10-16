@@ -54,6 +54,8 @@ void BridgeService::start() {
 			}
 
 			if (!authHash.empty()) {
+				DS_LOG_VERBOSE(2, "BridgeService: got auth hash: " << authHash.substr(0, 8) << "...");
+
 				auto server = mEngine.mContent.getChildByName("server");
 				server.setName("server");
 				server.setProperty("auth", authHash);
@@ -105,25 +107,22 @@ BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   , mValidator([](const ds::model::ContentModelRef&) { return true; }) {}
 
 void BridgeService::Loop::run() {
+	Poco::Thread::current()->setName("BridgeService");
+
 	while (true) {
 		DS_LOG_VERBOSE(2, "BridgeService::Loop has woken up")
 
 		mMutex.lock();
-
-		bool abort			 = mAbort;
 		bool contentChanged	 = mForce;
 		bool refreshDatabase = mRefreshDatabase;
 		bool refreshEvents	 = mRefreshEvents;
-
-		mForce			 = false;
-		mRefreshDatabase = false;
-		mRefreshEvents	 = false;
-
-		// Don't hold lock while processing content.
+		mForce				 = false;
+		mRefreshDatabase	 = false;
+		mRefreshEvents		 = false;
 		mMutex.unlock();
 
 		// Abort the loop on request.
-		if (abort) break;
+		if (shouldAbort()) break;
 
 		if (refreshDatabase) {
 			DS_LOG_VERBOSE(2, "BridgeService::Loop is refreshing content")
@@ -158,6 +157,9 @@ void BridgeService::Loop::run() {
 				contentChanged |= !(mEngine.mContent.getChildByName(mTags.getName()) == mTags);
 			}
 
+			// Abort the loop on request.
+			if (shouldAbort()) break;
+
 			// Replace content on the main thread only!
 			if (contentChanged && mApp) {
 				DS_LOG_VERBOSE(2, "BridgeService::Loop is replacing content")
@@ -185,6 +187,9 @@ void BridgeService::Loop::run() {
 			}
 		}
 
+		// Abort the loop on request.
+		if (shouldAbort()) break;
+
 		if (refreshEvents) {
 			DS_LOG_VERBOSE(2, "BridgeService::Loop is refreshing events")
 
@@ -197,6 +202,9 @@ void BridgeService::Loop::run() {
 				// Prevent frequent events by checking if the content has changed.
 				contentChanged |= !(mEngine.mContent.getChildByName(mEvents.getName()) == mEvents);
 			}
+
+			// Abort the loop on request.
+			if (shouldAbort()) break;
 
 			// Replace content on the main thread only!
 			if (contentChanged && mApp) {
@@ -212,6 +220,9 @@ void BridgeService::Loop::run() {
 				});
 			}
 		}
+
+		// Abort the loop on request.
+		if (shouldAbort()) break;
 
 		// Sleep until woken up externally.
 		DS_LOG_VERBOSE(2, "BridgeService::Loop going to sleep")

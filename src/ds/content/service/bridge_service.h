@@ -70,6 +70,11 @@ class BridgeService {
 
 	  private:
 		///
+		bool shouldAbort() {
+			Poco::Mutex::ScopedLock lock(mMutex);
+			return mAbort;
+		}
+		///
 		bool eventIsNow(ds::model::ContentModelRef& event, Poco::DateTime& ldt) const;
 
 		///
