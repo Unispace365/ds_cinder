@@ -21,7 +21,7 @@ namespace ds::content {
 
 class BridgeService {
   public:
-	explicit BridgeService(ds::ui::SpriteEngine& eng);
+	explicit BridgeService(ds::ui::SpriteEngine& engine);
 	~BridgeService();
 
 	void start();
@@ -99,15 +99,14 @@ class BridgeService {
 		ds::model::ContentModelRef	 mTags;			 // all the tags
 		std::unordered_map<std::string, ds::model::ContentModelRef> mRecordMap; // all the records
 		std::unordered_map<std::string, ds::model::ContentModelRef>
-					mValidMap;			   // all the valid records (as determined by the validator)
-		Poco::Mutex mMutex;				   // Controls access to abort, force and refresh flags.
-		bool		mAbort;				   // If true, will abort the background thread.
-		bool		mForce;				   // If true, will force a refresh of the content.
-		bool		mRefreshDatabase;	   // If true, will refresh the database content.
-		bool		mRefreshEvents;		   // If true, will refresh (only) the events.
-		const long	mRefreshRateMs;		   // in milliseconds
-		int			mResourceId		  = 1; //
-		int			mLoadContentCount = 0;
+					mValidMap;		  // all the valid records (as determined by the validator)
+		Poco::Mutex mMutex;			  // Controls access to abort, force and refresh flags.
+		bool		mAbort;			  // If true, will abort the background thread.
+		bool		mForce;			  // If true, will force a refresh of the content.
+		bool		mRefreshDatabase; // If true, will refresh the database content.
+		bool		mRefreshEvents;	  // If true, will refresh (only) the events.
+		const long	mRefreshRateMs;	  // in milliseconds
+		int			mResourceId = 1;  //
 
 		Poco::Mutex											   mValidatorMutex; // Controls access to the validator.
 		std::function<bool(const ds::model::ContentModelRef&)> mValidator = nullptr; //

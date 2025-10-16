@@ -191,7 +191,8 @@ App::App(const RootList& roots)
 App::~App() {
 	DS_LOG_INFO(mEngine.getAppInstanceName() << " shutting down");
 
-	if (mSyncService) delete mSyncService;
+	delete mSyncService;
+	delete mBridgeSyncService;
 
 	delete &(mEngine);
 	ds::getLogger().shutDown();

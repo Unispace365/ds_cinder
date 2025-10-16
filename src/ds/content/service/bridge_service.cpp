@@ -107,8 +107,6 @@ BridgeService::Loop::Loop(ds::ui::SpriteEngine& engine)
   , mValidator([](const ds::model::ContentModelRef&) { return true; }) {}
 
 void BridgeService::Loop::run() {
-	Poco::Thread::current()->setName("BridgeService");
-
 	while (true) {
 		DS_LOG_VERBOSE(2, "BridgeService::Loop has woken up")
 

@@ -6,24 +6,21 @@
 #include <Poco/Process.h>
 
 #include <ds/app/auto_update.h>
-#include <ds/app/event.h>
-#include <ds/app/event_client.h>
 #include <ds/network/https_client.h>
 
 namespace ds::content {
 
 
 struct BridgeSyncSettings {
-	// std::string name		 = "";
-	std::string syncPath	   = "";
-	std::string server		   = "";
-	std::string authServer	   = "";
-	std::string clientId	   = "";
-	std::string clientSecret   = "";
-	std::string directory	   = "";
-	std::string interval	   = "";
-	std::string additionalArgs = "";
-	bool		verbose		   = false;
+	std::string syncPath;
+	std::string server;
+	std::string authServer;
+	std::string clientId;
+	std::string clientSecret;
+	std::string directory;
+	std::string interval;
+	std::string additionalArgs;
+	bool		verbose = false;
 };
 
 /**
@@ -33,31 +30,53 @@ struct BridgeSyncSettings {
  */
 class BridgeSyncService : public ds::AutoUpdate {
   public:
-	BridgeSyncService(ds::ui::SpriteEngine&);
-	~BridgeSyncService();
+	explicit BridgeSyncService(ds::ui::SpriteEngine& engine);
+	~BridgeSyncService() override;
 
-	void initialize(const BridgeSyncSettings& settings);
+	BridgeSyncService(const BridgeSyncService&)			   = delete;
+	BridgeSyncService(BridgeSyncService&&)				   = delete;
+	BridgeSyncService& operator=(const BridgeSyncService&) = delete;
+	BridgeSyncService& operator=(BridgeSyncService&&)	   = delete;
+
+	void start(const BridgeSyncSettings& settings);
+	void stop();
+
+	void initialize(const BridgeSyncSettings& settings) { start(settings); }
 	void toggleOutput() { mShowOutput = !mShowOutput; }
 	void showOutput(bool show = true) { mShowOutput = show; }
+
 	// Inherited via AutoUpdate
-	virtual void update(const ds::UpdateParams&) override;
+	void update(const ds::UpdateParams&) override;
 
   private:
-	bool					mExit	 = false;
-	bool					mStarted = false;
-	HANDLE					mJobObj;
-	std::string				mPath = "";
-	Poco::Pipe				mOutPipe;
-	Poco::Pipe				mErrPipe;
-	std::string				mFirstLine = "";
-	std::deque<std::string> mStdoutBuffer;
-	std::thread				mThreadObj;
-	ds::ui::SpriteEngine&	mEngine;
-	Poco::Process::PID		mProcessId = 0;
-	std::mutex				mMutex;
-	size_t					mShowCount	= 1000;
-	bool					mTestScroll = true;
-	bool					mShowOutput = false;
+	class Loop : public Poco::Runnable {
+	  public:
+		Loop() = default;
+
+		void setSettings(const BridgeSyncSettings& settings) { mSettings = settings; }
+
+		void run() override;
+
+		// Signal the background thread that it should abort.
+		void abort() { mExit = true; }
+
+		void clearBuffer();
+		bool readBuffer(std::deque<std::string>& buffer);
+
+	  private:
+		std::deque<std::string> mStdoutBuffer;
+		BridgeSyncSettings		mSettings;
+		Poco::Mutex				mMutex; // Controls access to mStdoutBuffer
+		Poco::Pipe				mOutPipe;
+		Poco::Pipe				mErrPipe;
+		std::atomic_bool		mExit = false;
+	};
+
+	std::deque<std::string> mStdoutBuffer;		 //
+	Poco::Thread			mThread;			 //
+	Loop					mLoop;				 //
+	size_t					mShowCount	= 1000;	 //
+	bool					mShowOutput = false; //
 };
 
 } // namespace ds::content

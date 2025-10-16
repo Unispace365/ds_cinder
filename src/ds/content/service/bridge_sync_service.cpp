@@ -2,6 +2,8 @@
 
 #include "bridge_sync_service.h"
 
+#include "ds/util/float_util.h"
+
 #include <iostream>
 
 #include <Poco/CountingStream.h>
@@ -9,7 +11,6 @@
 #include <Poco/StreamCopier.h>
 
 #include <cinder/CinderImGui.h>
-#include <cinder/CinderImGuiConfig.h>
 
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
@@ -42,214 +43,231 @@ std::string errorToString(DWORD errorMessageId) {
 
 namespace ds::content {
 
-BridgeSyncService::BridgeSyncService(ds::ui::SpriteEngine& eng)
-  : AutoUpdate(eng)
-  , mEngine(eng) {
-
-	mStdoutBuffer.clear();
+BridgeSyncService::BridgeSyncService(ds::ui::SpriteEngine& engine)
+  : AutoUpdate(engine) {
+	mThread.setName("BridgeSyncService");
 }
 
 BridgeSyncService::~BridgeSyncService() {
-	// clean up properly
-	mExit = true;
-	if (mThreadObj.joinable()) mThreadObj.join();
-	if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
-	mExit = false;
-	mStarted = false;
-}
+	stop();
 
-void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
-
-	// create a job to hold the Sync Process (so it quits when we quit)
-	// if the job is already made, it will return that one, so its okay to call this more than once.
-	mJobObj = CreateJobObjectA(nullptr, "larry");
-	if (mJobObj != 0) {
-		JOBOBJECT_EXTENDED_LIMIT_INFORMATION info;
-		info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-		SetInformationJobObject(mJobObj, JobObjectExtendedLimitInformation, &info, sizeof(info));
-	} else {
-		DS_LOG_ERROR("BridgeSyncService (bridgesync): Could not create job for sync process. Aborting");
-		return;
-	}
-
-	// if we are already tracking a process, kill it for restart.
-	mExit = true;
-	if (mThreadObj.joinable()) mThreadObj.join();
-	if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
-	mExit	 = false;
-	mStarted = false;
-
-	// mPath = path;
-	mThreadObj = std::thread([this, settings]() {
-		while (!mExit) {
-
-			// set up the process
-			Poco::Process::Args args;
-			if (!settings.server.empty()) {
-				args.push_back("-s");
-				args.push_back(settings.server);
-			}
-			if (!settings.authServer.empty()) {
-				args.push_back("--authServer");
-				args.push_back(settings.authServer);
-			}
-			if (!settings.clientId.empty()) {
-				args.push_back("--clientId");
-				args.push_back(settings.clientId);
-			}
-			if (!settings.clientSecret.empty()) {
-				args.push_back("--clientSecret");
-				args.push_back(settings.clientSecret);
-			}
-			if (!settings.directory.empty()) {
-				args.push_back("-d");
-				args.push_back(settings.directory);
-			}
-			// optionals
-			if (!settings.interval.empty()) {
-				args.push_back("-i");
-				args.push_back(settings.interval);
-			}
-			if (settings.verbose) {
-				args.push_back("-v");
-			}
-			// Handle additonal args in format "--singleArg;--Another"
-			// and/or in format "-s: server; --singleArg"
-			if (!settings.additionalArgs.empty()) {
-				auto splitAdditional = ds::split(settings.additionalArgs, ";");
-				for (auto kv : splitAdditional) {
-					auto pair = ds::split(kv, ":");
-					if (pair.size() >= 1) {
-						args.push_back(pair[0]);
-					}
-					if (pair.size() >= 2) {
-						args.push_back(pair[1]);
-					}
-					
-				}
-			}
-			std::string sync_path;
-			if (settings.syncPath.empty()) {
-				//Default path on production
-				sync_path = ds::Environment::expand("%APP%/bridgesync/bridge_sync_console.exe");
-			}
-			else {
-				sync_path = ds::Environment::expand(settings.syncPath);
-			}
-
-			if (std::filesystem::exists(sync_path)) {
-				// mLock.lock();
-				try {
-					auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
-					Sleep(100);
-					if (Poco::Process::isRunning(process)) {
-						// get the win32 (as opposed to Poco) handle for the process we just started.
-						HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
-						// add it to our job.
-						AssignProcessToJobObject(mJobObj, procHandle);
-
-						mProcessId = process.id();
-						mStarted   = true;
-						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
-					} else {
-						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: "
-									 << errorToString(process.wait()));
-						Poco::PipeInputStream inErr(mErrPipe);
-						Poco::PipeInputStream inStd(mOutPipe);
-						for (std::string line; std::getline(inErr, line);) {
-							DS_LOG_ERROR("BridgeSync Error: "<<line);
-						}
-
-						for (std::string line; std::getline(inStd, line);) {
-							DS_LOG_ERROR("BridgeSync Std: " << line);
-						}
-						
-						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync")
-					
-						mExit	 = true;
-						mStarted = false;
-					}
-				} catch (const std::exception& e) {
-					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: " << e.what());
-					mExit	 = false;
-					mStarted = false;
-				}
-
-				// mLock.unlock();
-			} else {
-				DS_LOG_ERROR("BridgeSyncService (bridgesync): bridge_sync_console.exe not found at " << sync_path
-																									 << std::endl << std::flush);
-				mExit	 = true;
-				mStarted = false;
-			}
-
-			// start collecting downsync's output
-			auto pipe_stream = Poco::PipeInputStream(mOutPipe);
-
-
-			std::string line;
-
-			while (!mExit && Poco::Process::isRunning(mProcessId)) {
-				if (pipe_stream.peek() != EOF) {
-					std::getline(pipe_stream, line);
-					if (!line.empty()) {
-						std::unique_lock<std::mutex> lock(mMutex);
-						while (mStdoutBuffer.size() > 5000) {
-							mStdoutBuffer.pop_front();
-						}
-						mStdoutBuffer.push_back(line);
-						if (mFirstLine.empty()) {
-							mFirstLine = mStdoutBuffer.front();
-						}
-						mTestScroll = true;
-					}
-				}
-
-				// yield to conserve system resources
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}
-
-			if (!mExit) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-	});
+	try {
+		mThread.join();
+	} catch (std::exception&) {}
 }
 
 void BridgeSyncService::update(const ds::UpdateParams&) {
-	if (mStarted && mShowOutput) {
+	if (mThread.isRunning() && mShowOutput) {
 		ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 		ImGui::Begin("BridgeSync", &mShowOutput, ImGuiWindowFlags_NoFocusOnAppearing);
 
 		ImGui::BeginChild("Scrolling");
 
-		auto mx	 = ImGui::GetScrollMaxY();
-		auto scy = ImGui::GetScrollY();
+		auto mx			= ImGui::GetScrollMaxY();
+		auto scy		= ImGui::GetScrollY();
+		bool autoScroll = ds::approxEqual(mx, scy);
 
-		{
-			std::unique_lock<std::mutex> lock(mMutex);
-			auto offset = mStdoutBuffer.size() < mShowCount ? 0 : mStdoutBuffer.size() - mShowCount;
-			// auto offset = mStdoutBuffer.size();
-			auto start = mStdoutBuffer.begin() + offset;
-			for (auto itr = start; itr != mStdoutBuffer.end(); ++itr)
-				ImGui::TextAnsi(itr->c_str());
+		bool hasNewContent = mLoop.readBuffer(mStdoutBuffer);
+		while (mStdoutBuffer.size() > 5000) {
+			mStdoutBuffer.pop_front();
 		}
 
-		if (mTestScroll) {
-			mTestScroll = false;
-			if (mx == scy) {
-				ImGui::SetScrollHereY(1.0f);
-			}
-		}
+		auto offset = mStdoutBuffer.size() < mShowCount ? 0 : mStdoutBuffer.size() - mShowCount;
+		// auto offset = mStdoutBuffer.size();
+		auto start = mStdoutBuffer.begin() + offset;
+		for (auto itr = start; itr != mStdoutBuffer.end(); ++itr)
+			ImGui::TextAnsi(itr->c_str());
 
-		/*
-		std::stringstream ss;
-		ss << "max:" << mx << " ht:"<<ht;
-		std::string out = ss.str();
-		ImGui::Text(out.c_str());
-		*/
+		if (autoScroll && hasNewContent) {
+			ImGui::SetScrollHereY(1.0f);
+		}
 
 		ImGui::EndChild();
 		ImGui::End();
 	}
+}
+
+void BridgeSyncService::start(const BridgeSyncSettings& settings) {
+	stop();
+
+	if (!mThread.isRunning()) {
+		mLoop.setSettings(settings);
+
+		try {
+			mThread.start(mLoop);
+		} catch (std::exception& ex) {
+			DS_LOG_WARNING("BridgeSyncService::start() threw an exception: " << ex.what())
+		}
+	}
+}
+
+void BridgeSyncService::stop() {
+	if (mThread.isRunning()) {
+		try {
+			mLoop.abort();
+			mThread.wakeUp();
+		} catch (std::exception& ex) {
+			DS_LOG_WARNING("BridgeSyncService::stop() threw an exception: " << ex.what())
+		}
+	}
+}
+
+void BridgeSyncService::Loop::run() {
+	mExit = false;
+
+	clearBuffer();
+
+	// create a job to hold the Sync Process (so it quits when we quit)
+	// if the job is already made, it will return that one, so it's okay to call this more than once.
+	HANDLE jobObject = CreateJobObjectA(nullptr, "larry");
+	if (jobObject != nullptr) {
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION info;
+		info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+		SetInformationJobObject(jobObject, JobObjectExtendedLimitInformation, &info, sizeof(info));
+	} else {
+		DS_LOG_ERROR("BridgeSyncService (BridgeSync): Could not create job for sync process. Aborting");
+		return;
+	}
+
+	//
+	Poco::Process::PID processId = 0;
+
+	while (!mExit) {
+		Poco::Thread::trySleep(1000);
+
+		Poco::Process::Args args;
+		if (!mSettings.server.empty()) {
+			args.emplace_back("-s");
+			args.push_back(mSettings.server);
+		}
+		if (!mSettings.authServer.empty()) {
+			args.emplace_back("--authServer");
+			args.push_back(mSettings.authServer);
+		}
+		if (!mSettings.clientId.empty()) {
+			args.emplace_back("--clientId");
+			args.push_back(mSettings.clientId);
+		}
+		if (!mSettings.clientSecret.empty()) {
+			args.emplace_back("--clientSecret");
+			args.push_back(mSettings.clientSecret);
+		}
+		if (!mSettings.directory.empty()) {
+			args.emplace_back("-d");
+			args.push_back(mSettings.directory);
+		}
+		// optionals
+		if (!mSettings.interval.empty()) {
+			args.emplace_back("-i");
+			args.push_back(mSettings.interval);
+		}
+		if (mSettings.verbose) {
+			args.emplace_back("-v");
+		}
+
+		// Handle additional args in format "--singleArg;--Another"
+		// and/or in format "-s: server; --singleArg"
+		if (!mSettings.additionalArgs.empty()) {
+			auto splitAdditional = ds::split(mSettings.additionalArgs, ";");
+			for (const auto& kv : splitAdditional) {
+				auto pair = ds::split(kv, ":");
+				if (!pair.empty()) {
+					args.push_back(pair[0]);
+				}
+				if (pair.size() >= 2) {
+					args.push_back(pair[1]);
+				}
+			}
+		}
+
+		// Default path on production
+		std::string sync_path = ds::Environment::expand("%APP%/bridgesync/bridge_sync_console.exe");
+		if (!mSettings.syncPath.empty()) {
+			sync_path = ds::Environment::expand(mSettings.syncPath);
+		}
+
+		if (std::filesystem::exists(sync_path)) {
+
+			try {
+				auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
+				Sleep(100);
+
+				if (Poco::Process::isRunning(process)) {
+					// get the win32 (as opposed to Poco) handle for the process we just started.
+					HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
+					// add it to our job.
+					AssignProcessToJobObject(jobObject, procHandle);
+
+					processId = process.id();
+					DS_LOG_INFO("BridgeSyncService (BridgeSync): Started BridgeSync");
+				} else {
+					DS_LOG_ERROR("BridgeSyncService (BridgeSync): Failed to start BridgeSync: "
+								 << errorToString(process.wait()));
+					Poco::PipeInputStream inErr(mErrPipe);
+					Poco::PipeInputStream inStd(mOutPipe);
+					for (std::string line; std::getline(inErr, line);) {
+						DS_LOG_ERROR("BridgeSync Error: " << line);
+					}
+
+					for (std::string line; std::getline(inStd, line);) {
+						DS_LOG_ERROR("BridgeSync Std: " << line);
+					}
+
+					DS_LOG_ERROR("BridgeSyncService (BridgeSync): Failed to start BridgeSync")
+
+					mExit = true;
+				}
+			} catch (const std::exception& e) {
+				DS_LOG_ERROR("BridgeSyncService (BridgeSync): Failed to start BridgeSync: " << e.what());
+				mExit = true;
+			}
+
+		} else {
+			DS_LOG_ERROR("BridgeSyncService (BridgeSync): bridge_sync_console.exe not found at " << sync_path
+																								 << std::endl
+																								 << std::flush);
+			mExit = true;
+		}
+
+		if (!mExit) {
+			auto pipe_stream = Poco::PipeInputStream(mOutPipe);
+
+			std::string line;
+			while (!mExit && Poco::Process::isRunning(processId)) {
+				if (pipe_stream.peek() != EOF) {
+					std::getline(pipe_stream, line);
+					if (!line.empty()) {
+						Poco::Mutex::ScopedLock lock(mMutex);
+						mStdoutBuffer.push_back(line);
+
+						while (mStdoutBuffer.size() > 5000) {
+							mStdoutBuffer.pop_front();
+						}
+					}
+				}
+
+				Poco::Thread::yield();
+			}
+		}
+	}
+
+	if (Poco::Process::isRunning(processId)) Poco::Process::kill(processId);
+
+	CloseHandle(jobObject);
+}
+
+void BridgeSyncService::Loop::clearBuffer() {
+	Poco::Mutex::ScopedLock lock(mMutex);
+	mStdoutBuffer.clear();
+}
+
+bool BridgeSyncService::Loop::readBuffer(std::deque<std::string>& buffer) {
+	Poco::Mutex::ScopedLock lock(mMutex);
+	if (mStdoutBuffer.empty()) return false;
+	for (const auto& line : mStdoutBuffer)
+		buffer.push_back(line);
+	mStdoutBuffer.clear();
+	return true;
 }
 
 

@@ -20,8 +20,13 @@ namespace ui {
  */
 class AutoUpdate {
   public:
-	AutoUpdate(ds::ui::SpriteEngine&, const int mask = AutoUpdateType::SERVER);
-	virtual ~AutoUpdate();
+	explicit AutoUpdate(ds::ui::SpriteEngine&, int mask = AutoUpdateType::SERVER);
+	virtual  ~AutoUpdate();
+
+	AutoUpdate(const AutoUpdate&)			 = delete;
+	AutoUpdate(AutoUpdate&&)				 = delete;
+	AutoUpdate& operator=(const AutoUpdate&) = delete;
+	AutoUpdate& operator=(AutoUpdate&&)		 = delete;
 
   protected:
 	friend class AutoUpdateList;
@@ -30,8 +35,6 @@ class AutoUpdate {
 	ds::ui::SpriteEngine& mEngine;
 
   private:
-	AutoUpdate();
-
 	const int mMask;
 };
 
