@@ -5,6 +5,7 @@
 #include "ds/app/auto_update.h"
 #include <Poco/Condition.h>
 #include <Poco/Mutex.h>
+#include <Poco/Net/DatagramSocket.h>
 #include <Poco/Runnable.h>
 #include <Poco/Thread.h>
 #include <functional>
@@ -67,6 +68,19 @@ class NodeWatcher : public ds::AutoUpdate {
 		bool shouldAbort() {
 			Poco::Mutex::ScopedLock l(mMutex);
 			return mAbort;
+		}
+
+		bool initializeSocket(Poco::Net::DatagramSocket& socket) const {
+			try {
+				socket.bind(Poco::Net::SocketAddress(mHost, mPort), true, true);
+				socket.setBlocking(false);
+				socket.setReceiveTimeout(0);
+				DS_LOG_INFO("DatagramSocket initialized for " << toString());
+				return true;
+			} catch (std::exception& e) {
+				DS_LOG_WARNING("Failed to initialize DatagramSocket " << toString() << ": " << e.what());
+				return false;
+			}
 		}
 
 	  private:

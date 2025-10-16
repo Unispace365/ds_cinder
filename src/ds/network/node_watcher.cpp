@@ -1,17 +1,11 @@
 #include "stdafx.h"
 
+#include "ds/cfg/settings.h"
 #include "ds/network/node_watcher.h"
-
-#include <Poco/Net/DatagramSocket.h>
-#include <ds/cfg/settings.h>
-#include <ds/debug/debug_defines.h>
-#include <ds/ui/sprite/sprite_engine.h>
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 
-/**
- * \class NodeWatcher
- */
 NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, uint16_t port, bool autoStart)
   : ds::AutoUpdate(se)
   , mLoop(se, host, port) {
@@ -29,7 +23,7 @@ NodeWatcher::~NodeWatcher() {
 
 	try {
 		mThread.join();
-	} catch (std::exception&) {}
+	} catch (...) {}
 }
 
 void NodeWatcher::add(const std::function<void(const Message&)>& f) {
@@ -111,36 +105,51 @@ void NodeWatcher::Loop::run() {
 	static constexpr int BUF_SIZE = 512;
 	char				 buf[BUF_SIZE];
 
+	// Initialize the socket for first use.
 	Poco::Net::DatagramSocket theSocket;
-
-	try {
-
-
-		// theSocket.setReuseAddress(true);
-		// theSocket.setReusePort(true);
-		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true, true);
-		theSocket.setBlocking(false);
-		theSocket.setReceiveTimeout(0);
-		DS_LOG_INFO("DatagramSocket constructed for " << toString());
-	} catch (std::exception& e) {
-		DS_LOG_WARNING("Unable to construct the DatagramSocket " << toString() << ":" << e.what());
-
+	if (!initializeSocket(theSocket)) {
 		return;
 	}
 
+	// Loop.
 	while (!shouldAbort()) {
 		try {
-			int length = theSocket.receiveBytes(buf, BUF_SIZE);
-			if (length > 0) {
-				std::string				msg(buf, length);
-				Poco::Mutex::ScopedLock l(mMutex);
-				mMsg.mData.emplace_back(msg);
-
-				Poco::Thread::yield();
-				continue;
+			// Check socket state.
+			if (!theSocket.impl()->initialized()) {
+				DS_LOG_WARNING("DatagramSocket " << toString() << " is no longer initialized. Attempting to recreate.");
+				theSocket.close();
+				if (!initializeSocket(theSocket)) {
+					Poco::Thread::trySleep(1000);
+					continue;
+				}
 			}
+
+			// Check for errors first
+			if (theSocket.poll(Poco::Timespan(0), Poco::Net::Socket::SELECT_ERROR)) {
+				DS_LOG_WARNING("DatagramSocket "
+							   << toString() << " has an error condition. Last error: " << theSocket.lastErrorDesc());
+				theSocket.close();
+				if (!initializeSocket(theSocket)) {
+					Poco::Thread::trySleep(1000);
+					continue;
+				}
+			}
+
+			// If readable, attempt to receive data
+			if (theSocket.poll(Poco::Timespan(0), Poco::Net::Socket::SELECT_READ)) {
+				int length = theSocket.receiveBytes(buf, BUF_SIZE);
+				if (length > 0) {
+					std::string				msg(buf, length);
+					Poco::Mutex::ScopedLock l(mMutex);
+					mMsg.mData.emplace_back(msg);
+
+					Poco::Thread::yield();
+					continue; // Don't sleep if we got data, but continue immediately to check for more.
+				}
+			}
+
 		} catch (const Poco::TimeoutException&) {
-			DS_LOG_VERBOSE(1, "DatagramSocket timed out for " << toString());
+			DS_LOG_VERBOSE(1, "DatagramSocket " << toString() << " timed out");
 		} catch (const std::exception& e) {
 			DS_LOG_WARNING("DatagramSocket " << toString() << " threw exception: " << e.what());
 		}
