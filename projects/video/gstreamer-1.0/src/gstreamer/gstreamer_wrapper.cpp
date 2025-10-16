@@ -1703,7 +1703,7 @@ void GStreamerWrapper::handleGStMessage() {
 						mCurrentGstState = STATE_READY;
 					}
 
-					DS_LOG_VERBOSE(2, "Gst State Change, new state: " << mCurrentGstState);
+					if (oldState != newState) DS_LOG_VERBOSE(2, "Gst State Change, new state: " << mCurrentGstState);
 
 				}
 
