@@ -23,7 +23,7 @@ DelayedNodeWatcher::DelayedNodeWatcher(ds::ui::SpriteEngine& eng, const std::str
 		if (mRegularNodeCallback) {
 			mRegularNodeCallback(msg);
 		} else {
-			for (auto it : msg.mData) {
+			for (const auto& it : msg.mData) {
 				mDelayedMessages.mData.push_back(it);
 			}
 		}

@@ -12,7 +12,7 @@ namespace ds {
 /**
  * \class NodeWatcher
  */
-NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, int port, bool autoStart)
+NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, uint16_t port, bool autoStart)
   : ds::AutoUpdate(se)
   , mLoop(se, host, port) {
 	if (autoStart) {
@@ -26,6 +26,7 @@ NodeWatcher::~NodeWatcher() {
 		mLoop.mAbort = true;
 		mThread.wakeUp();
 	}
+
 	try {
 		mThread.join();
 	} catch (std::exception&) {}
@@ -84,22 +85,23 @@ void NodeWatcher::update(const ds::UpdateParams&) {
 	}
 }
 
-/**
- * \class Loop
- */
-static long get_refresh_rate(ds::ui::SpriteEngine& e) {
-	// Default to one second
-	ds::cfg::Settings& settings = e.getEngineSettings();
-	float			   rate		= settings.getFloat("node:refresh_rate", 0, .1f);
-	long			   ans		= static_cast<long>(rate * 1000.0f);
-	if (ans < 10)
-		return 10;
-	else if (ans > 1000 * 10)
-		return 1000 * 10;
-	return ans;
-}
+namespace {
 
-NodeWatcher::Loop::Loop(ds::ui::SpriteEngine& e, const std::string& host, const int port)
+	static long get_refresh_rate(const ds::ui::SpriteEngine& e) {
+		// Default to one second
+		ds::cfg::Settings& settings = e.getEngineSettings();
+		float			   rate		= settings.getFloat("node:refresh_rate", 0, .1f);
+		long			   ans		= static_cast<long>(rate * 1000.0f);
+		if (ans < 10)
+			return 10;
+		else if (ans > 1000 * 10)
+			return 1000 * 10;
+		return ans;
+	}
+
+} // namespace
+
+NodeWatcher::Loop::Loop(const ds::ui::SpriteEngine& e, const std::string& host, uint16_t port)
   : mAbort(false)
   , mHost(host)
   , mPort(port)
@@ -136,7 +138,7 @@ void NodeWatcher::Loop::run() {
 				} catch (const std::exception&) {}
 			}
 
-			Poco::Thread::sleep(mRefreshRateMs);
+			Poco::Thread::trySleep(mRefreshRateMs);
 
 			{
 				Poco::Mutex::ScopedLock l(mMutex);
@@ -157,7 +159,7 @@ void NodeWatcher::Loop::run() {
 /**
  * \class Message
  */
-NodeWatcher::Message::Message() {}
+NodeWatcher::Message::Message() = default;
 
 bool NodeWatcher::Message::empty() const {
 	return mData.empty();
@@ -167,7 +169,7 @@ void NodeWatcher::Message::clear() {
 	mData.clear();
 }
 
-void NodeWatcher::Message::swap(Message& o) {
+void NodeWatcher::Message::swap(Message& o) noexcept {
 	mData.swap(o.mData);
 }
 

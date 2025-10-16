@@ -28,12 +28,12 @@ class NodeWatcher : public ds::AutoUpdate {
 
 		bool empty() const;
 		void clear();
-		void swap(Message&);
+		void swap(Message&) noexcept;
 	};
 
   public:
 	/// Standard node location
-	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", int port = 7788, bool autoStart = true);
+	NodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", uint16_t port = 7788, bool autoStart = true);
 	~NodeWatcher() override;
 
 	void add(const std::function<void(const Message&)>&);
@@ -53,7 +53,7 @@ class NodeWatcher : public ds::AutoUpdate {
 		Message		mMsg;
 
 	  public:
-		Loop(ds::ui::SpriteEngine&, const std::string& host, int port);
+		Loop(const ds::ui::SpriteEngine&, const std::string& host, uint16_t port);
 
 		void run() override;
 
@@ -64,7 +64,7 @@ class NodeWatcher : public ds::AutoUpdate {
 
 	  private:
 		const std::string mHost;
-		const int		  mPort;
+		const uint16_t	  mPort;
 		const long		  mRefreshRateMs; // in milliseconds
 	};
 
