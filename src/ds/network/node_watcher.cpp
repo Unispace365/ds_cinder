@@ -121,39 +121,34 @@ void NodeWatcher::Loop::run() {
 		theSocket.bind(Poco::Net::SocketAddress(mHost, mPort), true, true);
 		theSocket.setBlocking(false);
 		theSocket.setReceiveTimeout(0);
+		DS_LOG_INFO("DatagramSocket constructed for " << toString());
+	} catch (std::exception& e) {
+		DS_LOG_WARNING("Unable to construct the DatagramSocket " << toString() << ":" << e.what());
 
-		while (true) {
-			int length = 0;
+		return;
+	}
 
-			try {
-				length = theSocket.receiveBytes(buf, BUF_SIZE);
-			} catch (const Poco::TimeoutException&) {
-			} catch (const std::exception&) {}
-
+	while (!shouldAbort()) {
+		try {
+			int length = theSocket.receiveBytes(buf, BUF_SIZE);
 			if (length > 0) {
-				try {
-					std::string				msg(buf, length);
-					Poco::Mutex::ScopedLock l(mMutex);
-					mMsg.mData.emplace_back(msg);
-				} catch (const std::exception&) {}
-			}
-
-			Poco::Thread::trySleep(mRefreshRateMs);
-
-			{
+				std::string				msg(buf, length);
 				Poco::Mutex::ScopedLock l(mMutex);
-				if (mAbort) break;
+				mMsg.mData.emplace_back(msg);
+
+				Poco::Thread::yield();
+				continue;
 			}
+		} catch (const Poco::TimeoutException&) {
+			DS_LOG_VERBOSE(1, "DatagramSocket timed out for " << toString());
+		} catch (const std::exception& e) {
+			DS_LOG_WARNING("DatagramSocket " << toString() << " threw exception: " << e.what());
 		}
-	} catch (std::exception& e) {
-		DS_LOG_WARNING("Unable to construct the DatagramSocket to DS Node. " << e.what());
+
+		Poco::Thread::trySleep(mRefreshRateMs);
 	}
 
-	try {
-		// theSocket.close();
-	} catch (std::exception& e) {
-		DS_LOG_WARNING("Exception closing node watcher datagram socket: " << e.what());
-	}
+	theSocket.close();
 }
 
 /**
