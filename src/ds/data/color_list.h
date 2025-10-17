@@ -13,10 +13,20 @@ class ColorList {
 	void clear();
 	bool empty() const;
 
+	/// Returns true if the color is installed
+	bool hasColor(const std::string& shortName) const { return mData.find(shortName) != mData.end(); }
+
 	/// Short name can be supplied by the app and used to refer to colors from now on.
 	/// Often it might be something in a settings file.
 	void install(const ci::ColorA& color, const std::string& shortName);
 
+	/// Short name can be supplied by the app and used to refer to colors from now on.
+	/// Often it might be something in a settings file
+	void installOnce(const ci::ColorA& color, const std::string& shortName) {
+		if (!hasColor(shortName)) {
+			install(color, shortName);
+		}
+	}
 
 	/// Clients give either a shortname and I give them a color
 	const ci::ColorA& getColorFromName(const std::string&) const;
