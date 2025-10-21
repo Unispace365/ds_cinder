@@ -16,47 +16,24 @@
 
 #include <imgui_components/TextAnsi.h>
 
-namespace {
-
-std::string errorToString(DWORD errorMessageId) {
-	if (errorMessageId == 0) return {};
-
-	// Ask Win32 to give us the string version of that message ID.
-	// The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet
-	// know how long the message string will be).
-	LPSTR  messageBuffer = nullptr;
-	size_t size			 = FormatMessageA(
-		 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-		 errorMessageId, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&messageBuffer), 0, nullptr);
-
-	// Copy the error message into a std::string.
-	std::string message(messageBuffer, size - 2); // remove the \r\n
-
-	// Free the Win32's string's buffer.
-	LocalFree(messageBuffer);
-
-	return message;
-}
-
-} // namespace
 
 namespace ds::content {
 
 BridgeSyncService::BridgeSyncService(ds::ui::SpriteEngine& eng)
   : AutoUpdate(eng)
-  , mEngine(eng) {
+  , mEngine(eng)
+  , mProcessId(0) {
 
 	mStdoutBuffer.clear();
 }
 
 BridgeSyncService::~BridgeSyncService() {
 	// clean up if we are destroyed properly
-	if (mStarted) {
+	if (mStarted && Poco::Process::isRunning(mProcessId)) {
 		mExit = true;
-		mThreadObj.join();
-		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
-		mExit = false;
+		Poco::Process::kill(mProcessId);
 	}
+	mThreadObj.join();
 }
 
 void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
@@ -74,10 +51,10 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 	}
 
 	// if we are already tracking a process, kill it for restart.
-	if (mStarted) {
+	if (mStarted && Poco::Process::isRunning(mProcessId)) {
 		mExit = true;
 		mThreadObj.join();
-		if (Poco::Process::isRunning(mProcessId)) Poco::Process::kill(mProcessId);
+		Poco::Process::kill(mProcessId);
 		mExit = false;
 	}
 
@@ -115,8 +92,6 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 			if (settings.verbose) {
 				args.push_back("-v");
 			}
-			// Handle additonal args in format "--singleArg;--Another"
-			// and/or in format "-s: server; --singleArg"
 			if (!settings.additionalArgs.empty()) {
 				auto splitAdditional = ds::split(settings.additionalArgs, ";");
 				for (auto kv : splitAdditional) {
@@ -129,6 +104,11 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 					}
 					
 				}
+				//args.push_back(settings.additionalArgs);
+				/* auto splitAdditional = ds::split(settings.additionalArgs, " ");
+				for(auto& arg : splitAdditional){
+					args.push_back(arg);
+				}*/
 			}
 			std::string sync_path;
 			if (settings.syncPath.empty()) {
@@ -141,27 +121,20 @@ void BridgeSyncService::initialize(const BridgeSyncSettings& settings) {
 
 			if (std::filesystem::exists(sync_path)) {
 				// mLock.lock();
-				try {
-					auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
+				auto process = Poco::Process::launch(sync_path, args, nullptr, &mOutPipe, &mErrPipe);
 
-					if (Poco::Process::isRunning(process)) {
-						// get the win32 (as opposed to Poco) handle for the process we just started.
-						HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
-						// add it to our job.
-						AssignProcessToJobObject(mJobObj, procHandle);
+				if (Poco::Process::isRunning(process)) {
+					// get the win32 (as opposed to Poco) handle for the process we just started.
+					HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.id());
+					// add it to our job.
+					AssignProcessToJobObject(mJobObj, procHandle);
 
-						mProcessId = process.id();
-						mStarted   = true;
-						DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
-					} else {
-						DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: "
-									 << errorToString(process.wait()));
-						mExit	 = true;
-						mStarted = false;
-					}
-				} catch (const std::exception& e) {
-					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync: " << e.what());
-					mExit	 = false;
+					mProcessId = process.id();
+					mStarted   = true;
+					DS_LOG_INFO("BridgeSyncService (bridgesync): Started bridgesync");
+				} else {
+					DS_LOG_ERROR("BridgeSyncService (bridgesync): Failed to start bridgesync");
+					mExit	 = true;
 					mStarted = false;
 				}
 
