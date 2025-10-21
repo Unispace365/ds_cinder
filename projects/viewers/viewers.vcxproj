@@ -242,10 +242,8 @@ if not exist "$(SolutionDir)..\data\images\media_interface" mkdir "$(SolutionDir
 if %NOIMAGE%==1 xcopy /y /E "$(DS_PLATFORM_093)\projects\viewers\data\images\media_interface\" "$(SolutionDir)..\data\images\media_interface\"
 
 
-if not exist "$(Solutiondir)..\settings\dummy_viewers.txt" xcopy /y /E "$(DS_PLATFORM_093)\projects\viewers\settings\dummy_viewers.txt" "$(SolutionDir)..\settings"
 if not exist "$(Solutiondir)..\settings\viewers.xml" xcopy /y /E "$(DS_PLATFORM_093)\projects\viewers\settings\viewers.xml" "$(SolutionDir)..\settings"</Command>
       <Message>Copying viewers assets</Message>
-      <Outputs>$(SolutionDir)..\settings\dummy_viewers.txt</Outputs>
       <Inputs>$(DS_PLATFORM_093)\projects\viewers\settings</Inputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
