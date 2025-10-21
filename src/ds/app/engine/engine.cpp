@@ -847,7 +847,11 @@ void Engine::createStatsView(sprite_id_t root_id) {
 
 void Engine::notifyOnChannel(const ds::Event& event, const std::string& channel, bool defaultAlso)
 {
-	notifyOnChannels(event, {channel}, defaultAlso);
+	if (channel.empty()) {
+		getNotifier().notify(event);
+	} else {
+		notifyOnChannels(event, {channel}, defaultAlso);
+	}
 }
 
 void Engine::notifyOnChannels(const ds::Event& event, std::initializer_list<std::string> channels, bool defaultAlso) {
