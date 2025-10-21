@@ -99,8 +99,12 @@ void SearchQuery::recursiveMatch(ds::model::ContentModelRef item) {
 					auto fake = item.duplicate();
 					fake.setProperty("type_key", std::string("media"));
 					fake.setProperty("type_uid", std::string("media"));
-					fake.setProperty("record_name", item.getPropertyString("record_name") + " (" +
-						item.getPropertyResource("media").getFileName() + ")");
+					std::string label = item.getPropertyString("record_name");
+					std::string path = item.getPropertyResource("media").getFileName();
+					if (!path.empty()) {
+						label += " (" + path + ")";
+					}
+					fake.setProperty("record_name", label);
 					mOutput.push_back(fake);
 					return;
 				}
