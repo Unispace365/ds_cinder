@@ -61,6 +61,8 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitch("transparent-painting-enabled");
 	//command_line->AppendSwitchWithValue("js-flags", "max_old_space_size=32000");
 	
+	command_line->AppendSwitch("no-startup-window");
+
 	command_line->AppendSwitch("disable-chrome-login-prompt");
 	//command_line->AppendSwitch("shared-texture-enabled");
 	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
