@@ -77,7 +77,6 @@ class TitledMediaViewer : public BaseElement {
 
 
 	void		loadHotspots();
-	void		layoutHotspots() const;
 	void		calculateSizeLimits();
 	void		toggleOptions();
 	static void setKeyboardButtonImage(const std::string& imagePath, ds::ui::ImageButton* keyboardBtn);
@@ -85,7 +84,6 @@ class TitledMediaViewer : public BaseElement {
 	ds::ui::SmartLayout*			  mRootLayout  = nullptr;
 	ds::ui::MediaPlayer*			  mMediaPlayer = nullptr;
 	DrawingArea*					  mDrawingArea = nullptr;
-	std::vector<ds::ui::SmartLayout*> mHotspots;
 
 	bool	   mDrawingMode			 = false;
 	bool	   mShowingOptions		 = false;

@@ -502,7 +502,11 @@ void WebInterface::updateWidgets() {
 
 				mKeyboardArea->addChildPtr(mKeyboard);
 
-				mKeyboardArea->setColor(mBackground->getColor());
+				if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
+					mKeyboardArea->setColor(mEngine.getColors().getColorFromName("ui_icon_background"));
+				} else {
+					mKeyboardArea->setColor(mBackground->getColor());
+				}
 
 				const float keyW = mKeyboard->getScaleWidth();
 				const float keyH = mKeyboard->getScaleHeight();

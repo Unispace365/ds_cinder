@@ -413,6 +413,8 @@ bool BaseWafflesHelper::isValidForFilter(const std::string& filter, ContentModel
 		return isValidFolder(model, WAFFLESCATEGORY);
 	} else if (filter == "content") {
 		return isValidMedia(model, WAFFLESCATEGORY) || isValidFolder(model, WAFFLESCATEGORY) || isValidPlaylist(model, PRESENTATIONCATEGORY);
+	} else if (filter == "recent") {
+		return true; // TODO: does this make sense?
 	}
 	return false;
 }
