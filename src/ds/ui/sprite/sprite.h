@@ -68,6 +68,11 @@ namespace ui {
 		- Sprites can clip their children along their bounds using setClipping(true)	 */
 	class Sprite : public SpriteAnimatable {
 	  public:
+		/// Sets the default number of multi-samples for the offscreen buffer. Defaults to 0.
+		inline static int SAMPLES = 0;
+		/// Sets the default number of coverage samples for the offscreen buffer. Defaults to 0.
+		inline static int COVERAGE_SAMPLES = 0;
+
 		struct FinalRenderInfo {
 			FinalRenderInfo()								   = default;
 			FinalRenderInfo(const FinalRenderInfo&)			   = default;
@@ -76,7 +81,7 @@ namespace ui {
 			FinalRenderInfo& operator=(FinalRenderInfo&&)	   = default;
 
 			bool				useLocalTransform = true;
-			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format();
+			ci::gl::Fbo::Format format			  = ci::gl::Fbo::Format().samples(SAMPLES).coverageSamples(COVERAGE_SAMPLES);
 		};
 		/** Generic sprite creation function.
 			The variadic args will be passed in the same order to your Sprite's constructor.
@@ -784,8 +789,8 @@ namespace ui {
 		// Deprecate?
 		//[[deprecated("Use FinalRenderInfo.format and setFinalRenderToTexture(bool render_to_texture, FinalRenderInfo
 		// info)")]]
-		void setFinalRenderToTexture(bool renderToTexture, ci::gl::Fbo::Format format);
-		void setFinalRenderToTexture(bool renderToTexture, FinalRenderInfo info = FinalRenderInfo());
+		void setFinalRenderToTexture(bool renderToTexture, const ci::gl::Fbo::Format& format);
+		void setFinalRenderToTexture(bool renderToTexture, const FinalRenderInfo& info = FinalRenderInfo());
 		bool isFinalRenderToTexture() const;
 
 		// Retrieve the rendered output texture

@@ -52,7 +52,12 @@ class ScrollArea : public ds::ui::Sprite {
 	/// Renders the scroller to a texture and uses a shader to fade off the top and bottom instead of gradients
 	/// CAVEATS! Any children cannot use blend modes; this scroll area cannot be inside of any clipping areas; this
 	/// probably won't work with any rotated clipping children
-	void setUseShaderFade(bool shaderFade, int samples = 0);
+	void setUseShaderFade(bool shaderFade) { setUseShaderFade(shaderFade, ds::ui::Sprite::SAMPLES); }
+
+	/// Renders the scroller to a texture and uses a shader to fade off the top and bottom instead of gradients
+	/// CAVEATS! Any children cannot use blend modes; this scroll area cannot be inside of any clipping areas; this
+	/// probably won't work with any rotated clipping children
+	void setUseShaderFade(bool shaderFade, int samples);
 
 	/// recalculates the size of the scroller and fades
 	void recalculateSizes();

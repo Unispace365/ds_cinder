@@ -1883,7 +1883,7 @@ void Sprite::setShaderExtraData(const ci::vec4& data) {
 	mShaderExtraData = data;
 }
 
-void Sprite::setFinalRenderToTexture(bool renderToTexture, FinalRenderInfo info) {
+void Sprite::setFinalRenderToTexture(bool renderToTexture, const FinalRenderInfo& info) {
 	if (renderToTexture == mIsRenderFinalToTexture) return;
 	mIsRenderFinalToTexture			  = renderToTexture;
 	mFinalToTexture_UseLocalTransform = info.useLocalTransform;
@@ -1891,7 +1891,7 @@ void Sprite::setFinalRenderToTexture(bool renderToTexture, FinalRenderInfo info)
 	setupFinalRenderBuffer();
 }
 
-void Sprite::setFinalRenderToTexture(bool renderToTexture, ci::gl::Fbo::Format format) {
+void Sprite::setFinalRenderToTexture(bool renderToTexture, const ci::gl::Fbo::Format &format) {
 	FinalRenderInfo info;
 	info.format = format;
 	setFinalRenderToTexture(renderToTexture, info);
