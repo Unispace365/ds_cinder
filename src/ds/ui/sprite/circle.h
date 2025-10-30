@@ -61,6 +61,9 @@ namespace ds { namespace ui {
 		void	  setNumberOfSegments(const int numSegments);
 		const int getNumberOfSegments() { return mNumberOfSegments; }
 
+		bool getCompatibilityMode() const { return mCompatibilityMode; }
+		void setCompatibilityMode(const bool mode) { mCompatibilityMode = mode; }
+
 		virtual void drawLocalClient();
 		virtual void drawLocalServer();
 
@@ -84,6 +87,7 @@ namespace ds { namespace ui {
 		float mRadius;
 		float mLineWidth;
 		bool  mIgnoreSizeUpdates;
+		bool  mCompatibilityMode = false;
 	};
 
 }} // namespace ds::ui

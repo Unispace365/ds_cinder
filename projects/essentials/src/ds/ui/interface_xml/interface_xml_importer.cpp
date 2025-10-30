@@ -439,6 +439,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite& sprite, const std::string& p
 			p.sprite.setRowSpan(Grid::parseSpan(&sInOut));
 			p.sprite.setRowSpanAuto(false);
 		};
+		propertyMap["circle_compatibility"] = [](const SprProps& p) {
+			auto circle = dynamic_cast<ds::ui::Circle*>(&p.sprite);
+			if (circle) {
+				const auto isEnabled = parseBoolean(p.value);
+				circle->setCompatibilityMode(isEnabled);
+			}
+		};
 		propertyMap["layout_size_mode"] = [](const SprProps& p) {
 			const auto sizeMode = p.value;
 			if (sizeMode == "fixed") {

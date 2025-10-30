@@ -131,11 +131,11 @@ namespace ds { namespace ui {
 
 	Circle::Circle(SpriteEngine& engine)
 	  : inherited(engine)
+	  , mNumberOfSegments(0)
 	  , mFilled(true)
 	  , mRadius(0.0f)
-	  , mIgnoreSizeUpdates(false)
 	  , mLineWidth(1.0f)
-	  , mNumberOfSegments(0) {
+	  , mIgnoreSizeUpdates(false) {
 		mBlobType = BLOB_TYPE;
 		setTransparent(false);
 		mLayoutFixedAspect = true;
@@ -143,11 +143,11 @@ namespace ds { namespace ui {
 
 	Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	  : inherited(engine)
+	  , mNumberOfSegments(0)
 	  , mFilled(!filled)
 	  , mRadius(radius)
-	  , mIgnoreSizeUpdates(false)
 	  , mLineWidth(1.0f)
-	  , mNumberOfSegments(0) {
+	  , mIgnoreSizeUpdates(false) {
 		mBlobType = BLOB_TYPE;
 		setTransparent(false);
 
@@ -239,7 +239,8 @@ namespace ds { namespace ui {
 		}
 
 		if (mFilled) {
-			auto theCircle = DsCircleGeom().radius(mRadius).center(ci::vec2(mRadius, mRadius));
+			auto theRadius = mCompatibilityMode ? mRadius + mLineWidth : mRadius;
+			auto theCircle = DsCircleGeom().radius(theRadius).center(ci::vec2(mRadius, mRadius));
 			if (mNumberOfSegments > 1) {
 				theCircle.subdivisions(mNumberOfSegments);
 			}
@@ -248,7 +249,8 @@ namespace ds { namespace ui {
 			else
 				mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
 		} else {
-			auto theCircle = ci::geom::Ring().radius(mRadius-(mLineWidth/2.f)).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
+			auto theRadius = mCompatibilityMode ? mRadius : mRadius - (mLineWidth / 2.f);
+			auto theCircle = ci::geom::Ring().radius(theRadius).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
 			if (mNumberOfSegments > 1) {
 				theCircle.subdivisions(mNumberOfSegments);
 			}
