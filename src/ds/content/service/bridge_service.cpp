@@ -397,37 +397,42 @@ bool BridgeService::Loop::loadContent() {
 			}
 			int recordId = 1;
 			while (it.hasValue()) {
-				auto record =
-					ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")", it.getString(0));
-				record.setId(recordId);
+				if (recordMap.count(it.getString(0))) {
+					DS_LOG_WARNING("Duplicate record in record query: " << it.getString(7));
+				} else {
+					auto record =
+						ds::model::ContentModelRef(it.getString(7) + "(" + it.getString(0) + ")", it.getString(0));
+					record.setId(recordId);
 
-				record.setProperty("record_name", it.getString(7));
-				record.setProperty("uid", it.getString(0));
-				record.setProperty("type_uid", it.getString(1));
-				record.setProperty("type_name", it.getString(2));
-				record.setProperty("type_key", it.getString(3));
-				if (!it.getString(4).empty()) record.setProperty("parent_uid", it.getString(4));
-				if (!it.getString(5).empty()) {
-					record.setProperty("parent_slot", it.getString(5));
-					record.setLabel(slotReverseOrderingMap[it.getString(5)].first);
-					record.setProperty("reverse_ordered", slotReverseOrderingMap[it.getString(5)].second);
+					record.setProperty("record_name", it.getString(7));
+					record.setProperty("uid", it.getString(0));
+					record.setProperty("type_uid", it.getString(1));
+					record.setProperty("type_name", it.getString(2));
+					record.setProperty("type_key", it.getString(3));
+					if (!it.getString(4).empty()) record.setProperty("parent_uid", it.getString(4));
+					if (!it.getString(5).empty()) {
+						record.setProperty("parent_slot", it.getString(5));
+						record.setLabel(slotReverseOrderingMap[it.getString(5)].first);
+						record.setProperty("reverse_ordered", slotReverseOrderingMap[it.getString(5)].second);
+					}
+
+					const auto& variant = it.getString(6);
+					record.setProperty("variant", variant);
+					if (variant == "SCHEDULE") {
+						record.setProperty("span_type", it.getString(8));
+						record.setProperty("start_date", it.getString(9));
+						record.setProperty("end_date", it.getString(10));
+						record.setProperty("start_time", it.getString(11));
+						record.setProperty("end_time", it.getString(12));
+						record.setProperty("effective_days", it.getInt(13));
+					}
+
+					// Put it in the map so we can wire everything up into the tree
+					recordMap[it.getString(0)] = record;
+
+					rankOrderedRecords.push_back(record);
 				}
 
-				const auto& variant = it.getString(6);
-				record.setProperty("variant", variant);
-				if (variant == "SCHEDULE") {
-					record.setProperty("span_type", it.getString(8));
-					record.setProperty("start_date", it.getString(9));
-					record.setProperty("end_date", it.getString(10));
-					record.setProperty("start_time", it.getString(11));
-					record.setProperty("end_time", it.getString(12));
-					record.setProperty("effective_days", it.getInt(13));
-				}
-
-				// Put it in the map so we can wire everything up into the tree
-				recordMap[it.getString(0)] = record;
-
-				rankOrderedRecords.push_back(record);
 				++it;
 			}
 		} else {
@@ -448,7 +453,12 @@ bool BridgeService::Loop::loadContent() {
 			} else if (type == "ROOT_PLATFORM") {
 				mPlatforms.addChild(record);
 			} else if (type == "SCHEDULE") {
-				for (const auto& parentUid : ds::split(record.getPropertyString("parent_uid"), ",")) {
+				auto parentUids = ds::split(record.getPropertyString("parent_uid"), ",", true);
+				// Remove duplicates
+				std::sort(parentUids.begin(), parentUids.end());
+				parentUids.erase(std::unique(parentUids.begin(), parentUids.end()), parentUids.end());
+
+				for (const auto& parentUid : parentUids) {
 					// Create/Add the event to its specific platform
 					auto platformEvents = recordMap[parentUid].getChildByName("scheduled_events");
 					platformEvents.setName("scheduled_events");
@@ -460,7 +470,7 @@ bool BridgeService::Loop::loadContent() {
 				// assigned to it
 				mEvents.addChild(record);
 			} else if (type == "RECORD") {
-				// it's has a record for a parent!
+				// it has a record for a parent!
 				recordMap[record.getPropertyString("parent_uid")].addChild(record);
 			} else {
 				DS_LOG_INFO("TYPE: " << type);
@@ -891,7 +901,7 @@ void BridgeService::Loop::validateContent() {
 	}
 }
 
-void BridgeService::Loop::filterContent() {
+void BridgeService::Loop::filterContent() const {
 	ds::model::ContentModelRef content;
 	content.replaceChild(mPlatforms);
 	content.replaceChild(mContent);
@@ -923,8 +933,11 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			if (eventIsNow(event, thisDayTime)) currentEvents.push_back(event);
 		}
 
+		// Allow custom sorting.
+		preSortEvents(currentEvents);
+
 		// TODO: handle correct sorting/combining of events
-		auto updateStartEnd = [thisDayTime](ds::model::ContentModelRef& event, std::string& startTimeInOut,
+		auto updateStartEnd = [thisDayTime](const ds::model::ContentModelRef& event, std::string& startTimeInOut,
 											std::string& endTimeInOut) {
 			int			   tzd = 0;
 			Poco::DateTime startDate;
@@ -1032,6 +1045,9 @@ bool BridgeService::Loop::updatePlatformEvents() const {
 			// Finally if we've exhausted those options, sort by UID which is at least unique
 			return a.getPropertyString("uid") < b.getPropertyString("uid");
 		});
+
+		// Allow custom sorting.
+		postSortEvents(currentEvents);
 
 		// For interoperability, store current events.
 		auto platformCurrentContent = mContentHelper.getCurrentContent();

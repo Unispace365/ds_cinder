@@ -43,6 +43,15 @@ class BridgeService {
 	// Called from the background thread!
 	void setFilter(const std::function<void(ds::model::ContentModelRef)>& filter) { mLoop.setFilter(filter); }
 
+	// Allows you to set a function that will be called before sorting events.
+	void setEventPreSortFunction(const std::function<void(std::vector<ds::model::ContentModelRef>&)>& fn) {
+		mLoop.setEventPreSortFunction(fn);
+	}
+	// Allows you to set a function that will be called after sorting events.
+	void setEventPostSortFunction(const std::function<void(std::vector<ds::model::ContentModelRef>&)>& fn) {
+		mLoop.setEventPostSortFunction(fn);
+	}
+
   private:
 	class Loop final : public Poco::Runnable {
 	  public:
@@ -68,6 +77,16 @@ class BridgeService {
 			mFilter = filter;
 		}
 
+		void setEventPreSortFunction(const std::function<void(std::vector<ds::model::ContentModelRef>&)>& fn) {
+			Poco::Mutex::ScopedLock l(mEventSortMutex);
+			mEventPreSortFn = fn;
+		}
+
+		void setEventPostSortFunction(const std::function<void(std::vector<ds::model::ContentModelRef>&)>& fn) {
+			Poco::Mutex::ScopedLock l(mEventSortMutex);
+			mEventPostSortFn = fn;
+		}
+
 	  private:
 		///
 		bool shouldAbort() {
@@ -82,7 +101,17 @@ class BridgeService {
 		///
 		void validateContent();
 		///
-		void filterContent();
+		void filterContent() const;
+		///
+		void preSortEvents(std::vector<ds::model::ContentModelRef>& events) const {
+			Poco::Mutex::ScopedLock l(mEventSortMutex);
+			if (mEventPreSortFn) mEventPreSortFn(events);
+		}
+		///
+		void postSortEvents(std::vector<ds::model::ContentModelRef>& events) const {
+			Poco::Mutex::ScopedLock l(mEventSortMutex);
+			if (mEventPostSortFn) mEventPostSortFn(events);
+		}
 		///
 		bool updatePlatformEvents() const;
 
@@ -108,10 +137,14 @@ class BridgeService {
 		const long	mRefreshRateMs;	  // in milliseconds
 		int			mResourceId = 1;  //
 
-		Poco::Mutex											   mValidatorMutex; // Controls access to the validator.
+		mutable Poco::Mutex									   mValidatorMutex; // Controls access to the validator.
 		std::function<bool(const ds::model::ContentModelRef&)> mValidator = nullptr; //
-		Poco::Mutex											   mFilterMutex;		 // Controls access to the filter.
+		mutable Poco::Mutex									   mFilterMutex;		 // Controls access to the filter.
 		std::function<void(ds::model::ContentModelRef)>		   mFilter = nullptr;	 //
+
+		mutable Poco::Mutex mEventSortMutex; // Controls access to the event sort functions.
+		std::function<void(std::vector<ds::model::ContentModelRef>&)> mEventPreSortFn  = nullptr; //
+		std::function<void(std::vector<ds::model::ContentModelRef>&)> mEventPostSortFn = nullptr; //
 	};
 
 	ds::ui::SpriteEngine&  mEngine; //
