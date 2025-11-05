@@ -403,7 +403,7 @@ BaseElement* ViewerController::addViewer(ViewerCreationArgs& creationArgs, const
 
 	mViewers.push_back(newViewer);
 
-	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, true) &&
+	if (mEngine.getWafflesSettings().getBool("media_viewer:web:auto_youtube_embed", 0, false) &&
 		(creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::WEB_TYPE ||
 		creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getType() == ds::Resource::YOUTUBE_TYPE)) {
 		auto url = creationArgs.mMediaRef.getPropertyResource(mediaPropertyKey).getAbsoluteFilePath();
