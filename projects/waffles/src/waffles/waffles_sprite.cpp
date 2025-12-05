@@ -502,10 +502,34 @@ void WafflesSprite::setupTouchMenu() {
 		"%APP%/data/images/waffles/icons/4x/Forward_Glow_256.png",
 		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestEngageNext()); }, emptySubtitle, menuFg, menuBg);
 
-	auto arrange = ds::ui::TouchMenu::MenuItemModel(
-		L"Arrange", "%APP%/data/images/waffles/icons/4x/Arrange_256.png", "%APP%/data/images/waffles/icons/4x/Arrange_Glow_256.png",
-		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
-		menuBg);
+	ds::ui::TouchMenu::MenuItemModel arrange;
+	if (mEngine.getWafflesSettings().getBool("five_finger_menu:arrange_override", 0, false)) {
+		auto label = mEngine.getWafflesSettings().getString("five_finger_menu:arrange_label", 0, "Arrange");
+		arrange = ds::ui::TouchMenu::MenuItemModel(
+			std::wstring(label.begin(), label.end()),
+			mEngine.getWafflesSettings().getString("five_finger_menu:arrange_icon_up", 0, ""),
+			mEngine.getWafflesSettings().getString("five_finger_menu:arrange_icon_down", 0, ""),
+			[this](ci::vec3 pos) { 
+				auto content = ds::model::ContentModelRef();
+				content.setPropertyResource(
+					"media",
+					ds::Resource(
+						mEngine.getWafflesSettings().getString("five_finger_menu:arrange_link", 0, ""),
+						ds::Resource::WEB_TYPE
+					)
+				);
+				mEventClient.notify(
+					RequestViewerLaunchEvent(
+						ViewerCreationArgs(content, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)
+					)
+				);
+			}, emptySubtitle, menuFg, menuBg);
+	} else {
+		arrange = ds::ui::TouchMenu::MenuItemModel(
+			L"Arrange", "%APP%/data/images/waffles/icons/4x/Arrange_256.png", "%APP%/data/images/waffles/icons/4x/Arrange_Glow_256.png",
+			[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestArrangeEvent(pos)); }, emptySubtitle, menuFg,
+			menuBg);
+	}
 
 	auto homeView = ds::ui::TouchMenu::MenuItemModel(
 		overallTitle, "%APP%/data/images/waffles/icons/4x/Home_256.png", "%APP%/data/images/waffles/icons/4x/Home_Glow_256.png",
@@ -526,10 +550,34 @@ void WafflesSprite::setupTouchMenu() {
 		},
 		emptySubtitle, menuFg, menuBg);
 
-	auto gather = ds::ui::TouchMenu::MenuItemModel(
-		L"Gather", "%APP%/data/images/waffles/icons/4x/Gather_256.png", "%APP%/data/images/waffles/icons/4x/Gather_Glow_256.png",
-		[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
-		menuBg);
+	ds::ui::TouchMenu::MenuItemModel gather;
+	if (mEngine.getWafflesSettings().getBool("five_finger_menu:gather_override", 0, false)) {
+		auto label = mEngine.getWafflesSettings().getString("five_finger_menu:gather_label", 0, "Gather");
+		gather = ds::ui::TouchMenu::MenuItemModel(
+			std::wstring(label.begin(), label.end()),
+			mEngine.getWafflesSettings().getString("five_finger_menu:gather_icon_up", 0, ""),
+			mEngine.getWafflesSettings().getString("five_finger_menu:gather_icon_down", 0, ""),
+			[this](ci::vec3 pos) { 
+				auto content = ds::model::ContentModelRef();
+				content.setPropertyResource(
+					"media",
+					ds::Resource(
+						mEngine.getWafflesSettings().getString("five_finger_menu:gather_link", 0, ""),
+						ds::Resource::WEB_TYPE
+					)
+				);
+				mEventClient.notify(
+					RequestViewerLaunchEvent(
+						ViewerCreationArgs(content, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)
+					)
+				);
+			}, emptySubtitle, menuFg, menuBg);
+	} else {
+		gather = ds::ui::TouchMenu::MenuItemModel(
+			L"Gather", "%APP%/data/images/waffles/icons/4x/Gather_256.png", "%APP%/data/images/waffles/icons/4x/Gather_Glow_256.png",
+			[this](ci::vec3 pos) { mChannelClient.notify(waffles::RequestGatherEvent(pos)); }, emptySubtitle, menuFg,
+			menuBg);
+	}
 
 	auto presBack = ds::ui::TouchMenu::MenuItemModel(
 		L"Presentation Back", "%APP%/data/images/waffles/icons/4x/Backward_256.png",
