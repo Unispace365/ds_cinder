@@ -45,8 +45,6 @@ WafflesSprite::WafflesSprite(ds::ui::SpriteEngine & eng)
 	pb->release();
 	auto cap = new waffles::CapturePlayer(eng);
 	cap->release();
-
-	
 }
 
 WafflesSprite::~WafflesSprite() {
@@ -152,12 +150,18 @@ void WafflesSprite::initializeWaffles(std::string eventChannel) {
 		enable(true);
 		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 		setDoubleTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos) {
-			// have to delay this a bit, otherwise the receding touch from the double tap call back will immediately invalidate the new menu
-			mEngine.timedCallback([this, pos] {
-				if (mTouchMenu) mTouchMenu->startTappableMenu(pos, 10.0f);
-
-				}, 0.01f);
-			});
+			if (mEngine.getWafflesSettings().getBool("five_finger_menu:double_tap:waffles_show_override", 0, false)) {
+				mChannelClient.notify(waffles::ShowWaffles());
+			} else {
+				// have to delay this a bit, otherwise the receding touch from the double tap call back will immediately invalidate the new menu
+				mEngine.timedCallback(
+					[this, pos] {
+						if (mTouchMenu) mTouchMenu->startTappableMenu(pos, 10.0f);
+					},
+					0.01f
+				);
+			}
+		});
 	}
 
 	mChannelClient.listenToEvents<waffles::ShowWaffles>([this](const auto& ev) { onShow(ev); });
@@ -472,6 +476,10 @@ void WafflesSprite::setupTouchMenu() {
 			  graphicSpr->addChildPtr(gen);
 			  gen->animateOn();
 		  }
+		 
+		  if (mEngine.getWafflesSettings().getBool("waffles_show:enter_immediately", 0, false)) {
+			  mChannelClient.notify(waffles::ShowWaffles());
+		  }
 	};
 
 	tmc.mDeactivatedCallback = [](ds::ui::Sprite* mainSpr, ds::ui::Sprite* graphicSpr) {
@@ -689,6 +697,7 @@ void WafflesSprite::setupTouchMenu() {
 		if (mTouchMenu) {
 			mTouchMenu->handleTouchInfo(ti);
 		}
+
 	});
 
 }
@@ -861,22 +870,19 @@ void WafflesSprite::onSizeChanged() {
 void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 	// Start presentation.
 	userInputReceived();
-	callAfterDelay(
-		[this] {
-			auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
-			// auto alreadyPres = !mEngine.mContent.getChildByName("current_presentation").getChildren().empty();
-			// if (!alreadyPres) {
-			auto pres_id = helper->getInitialPresentationUid();
-			if (!pres_id.empty()) {
-				auto pres = helper->getRecordByUid(pres_id);
-				if (pres.getChildren().size() > 0) { // activate first slide
-					mChannelClient.notify(waffles::RequestEngagePresentation(pres.getChild(0), false));
-					//mEngine.mContent.setProperty("presentation_controller_blocked", false);
+	if (mEngine.getWafflesSettings().getBool("waffles_show:initial_presentation", 0, false)) {
+		callAfterDelay(
+			[this] {
+				auto helper = ds::model::ContentHelperFactory::getDefault<WafflesHelper>();
+				auto alreadyPres = !mEngine.mContent.getChildByName("current_presentation" + mChannelName).getChildren().empty();
+				if (!alreadyPres) {
+					auto init_pres_link = helper->getPlatformModel().getPropertyString("initial_presentation");
+					auto init_pres = helper->getRecordByUid(init_pres_link);
+					mChannelClient.notify(waffles::RequestEngagePresentation(init_pres));
 				}
-			}
-			// }
-		},
-		0.35f);
+			},
+			0.05f);
+	}
 }
 
 //template <class VC>
