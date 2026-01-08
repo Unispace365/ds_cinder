@@ -40,6 +40,7 @@
 
 #include <ds/content/content_helper.h>
 #include <ds/ui/media/media_interface_builder.h>
+#include <ds/app/engine/engine_events.h>
 
 namespace waffles {
 
@@ -852,7 +853,9 @@ void TitledMediaViewer::loadHotspots() {
 			auto field_name =
 				mEngine.getWafflesSettings().getString("hotspot:destination:field_name", 0, "destination");
 			auto destId = hotspot->getContentModel().getPropertyString(field_name);
-			if (!destId.empty()) {
+			if (hotspot->getContentModel().getPropertyBool("trigger_ambient")) {
+				mEngine.startIdling();
+			} else if (!destId.empty()) {
 				// launch the thing for the hotspot at pos
 				ContentModelRef linkMedia = helper->getRecordByUid(destId);
 				if (linkMedia.empty()) {
