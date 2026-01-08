@@ -878,7 +878,9 @@ void WafflesSprite::onShow(const waffles::ShowWaffles& e) {
 				if (!alreadyPres) {
 					auto init_pres_link = helper->getPlatformModel().getPropertyString("initial_presentation");
 					auto init_pres = helper->getRecordByUid(init_pres_link);
-					mChannelClient.notify(waffles::RequestEngagePresentation(init_pres));
+					if (!init_pres.getChildren().empty()) {
+						mChannelClient.notify(waffles::RequestEngagePresentation(init_pres.getChild(0)));
+					}
 				}
 			},
 			0.05f);
