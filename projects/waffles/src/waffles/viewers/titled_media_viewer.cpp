@@ -829,6 +829,24 @@ void TitledMediaViewer::onLayout() {
 }
 
 void TitledMediaViewer::loadHotspots() {
+	if (mMediaRef.getPropertyBool("hide_controls")) {
+		mEngine.timedCallback(
+			[this]() {
+				if (mMediaPlayer) {
+					auto mediaInterface = mMediaPlayer->getMediaInterface();
+					if (mediaInterface) {
+						mediaInterface->setTransparent(true);
+						mediaInterface->setOpacity(0);
+						mediaInterface->enable(false);
+						mediaInterface->hide();
+						mediaInterface->setSize(1,1);
+						mediaInterface->mLayoutSize = ci::vec2(1,1);
+					}
+				}
+			},
+			0.01f
+		);
+	}
 	for (const auto& hs : mMediaRef.getChildren()) {
 		ci::vec2 pos  = ci::vec2(hs.getPropertyFloat("hotspot_x"), hs.getPropertyFloat("hotspot_y"));
 		ci::vec2 size = ci::vec2(hs.getPropertyFloat("hotspot_w"), hs.getPropertyFloat("hotspot_h"));
