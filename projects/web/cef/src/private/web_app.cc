@@ -64,6 +64,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitch("disable-chrome-login-prompt");
 	//command_line->AppendSwitch("shared-texture-enabled");
 	//command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
+	command_line->AppendSwitch("ignore-certificate-errors");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 }
 
