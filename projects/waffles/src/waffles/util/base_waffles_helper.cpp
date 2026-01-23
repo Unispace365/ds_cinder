@@ -136,26 +136,26 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 	if (auto vidInterface = dynamic_cast<ds::ui::VideoInterface*>(interfacey)) {
 		auto interfaceHeight = vidInterface->getHeight();
 		if (auto play = vidInterface->getPlayButton()) {
-			vidInterface->setButtonColor(play, normalColor, highColor);
+			vidInterface->setButtonColor(play, highColor, highColor);
 		}
 
 		if (auto pause = vidInterface->getPauseButton()) {
-			vidInterface->setButtonColor(pause, normalColor, highColor);
+			vidInterface->setButtonColor(pause, highColor, highColor);
 		}
 
 		if (auto loopy = vidInterface->getLoopButton()) {
-			vidInterface->setButtonColor(loopy, normalColor, highColor);
+			vidInterface->setButtonColor(loopy, highColor, highColor);
 		}
 
 		if (auto unloopy = vidInterface->getUnLoopButton()) {
-			vidInterface->setButtonColor(unloopy, normalColor, highColor);
+			vidInterface->setButtonColor(unloopy, highColor, highColor);
 		}
 
 		if (vidInterface->getScrubBarBackground() && vidInterface->getScrubBarProgress()) {
-			vidInterface->getScrubBarBackground()->setColor(normalColor);
+			vidInterface->getScrubBarBackground()->setColor(highColor);
 			vidInterface->getScrubBarBackground()->setOpacity(0.2);
 			vidInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
-			vidInterface->getScrubBarProgress()->setColor(normalColor);
+			vidInterface->getScrubBarProgress()->setColor(highColor);
 			vidInterface->getScrubBarProgress()->setCornerRadius(cornerRad);
 		}
 
@@ -169,18 +169,18 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 
 			volumeControl->setStyle(ds::ui::VideoVolumeStyle::SLIDER);
 			auto sliderSprites = volumeControl->getSliderSprites();
-			vidInterface->setButtonColor(sliderSprites.mMuteButton, normalColor, highColor);
-			vidInterface->setButtonColor(sliderSprites.mVolHighButton, normalColor, highColor);
-			vidInterface->setButtonColor(sliderSprites.mVolLowButton, normalColor, highColor);
+			vidInterface->setButtonColor(sliderSprites.mMuteButton, highColor, highColor);
+			vidInterface->setButtonColor(sliderSprites.mVolHighButton, highColor, highColor);
+			vidInterface->setButtonColor(sliderSprites.mVolLowButton, highColor, highColor);
 
-			sliderSprites.mSliderTrack->setColor(normalColor);
+			sliderSprites.mSliderTrack->setColor(highColor);
 			sliderSprites.mSliderTrack->setOpacity(0.2);
 			sliderSprites.mSliderTrack->setCornerRadius(cornerRad);
 
-			sliderSprites.mSliderFill->setColor(normalColor);
+			sliderSprites.mSliderFill->setColor(highColor);
 			sliderSprites.mSliderFill->setCornerRadius(cornerRad);
 
-			sliderSprites.mSliderNub->setColor(normalColor);
+			sliderSprites.mSliderNub->setColor(highColor);
 			sliderSprites.mSliderNub->setScale(sliderSprites.mSliderNub->getScale() * 1.25f);
 			sliderSprites.mSliderNub->setCornerRadius(100.f);
 
