@@ -256,22 +256,21 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 		}
 		*/
 		if (auto uppy = webInterface->getKeyboardButton()) {
-			webInterface->setButtonColor(uppy->getCheckedButton(), highColor, normalColor); // checked
-			webInterface->setButtonColor(uppy->getUncheckedButton(), normalColor, highColor); // unchecked
+			webInterface->setButtonColor(uppy->getCheckedButton(), highColor, highColor); // checked
+			webInterface->setButtonColor(uppy->getUncheckedButton(), highColor, highColor); // unchecked
 		}
 		if (auto downy = webInterface->getBackButton()) {
-			webInterface->setButtonColor(downy, normalColor, highColor); 
+			webInterface->setButtonColor(downy, highColor, highColor); 
 		}
 		if (auto forward = webInterface->getForwardButton()) {
-			webInterface->setButtonColor(forward, normalColor, highColor); // forward button
+			webInterface->setButtonColor(forward, highColor, highColor); // forward button
 		}
 		if (auto refresh = webInterface->getRefreshButton()) {
-			webInterface->setButtonColor(refresh, normalColor, highColor); // refresh button
+			webInterface->setButtonColor(refresh, highColor, highColor); // refresh button
 		}
 		if (auto lock = webInterface->getTouchToggleButton()) {
-			webInterface->setButtonColor(lock->getUncheckedButton(), normalColor, highColor); 
-			webInterface->setButtonColor(lock->getCheckedButton(), highColor,
-										 normalColor);
+			webInterface->setButtonColor(lock->getUncheckedButton(), highColor, highColor); 
+			webInterface->setButtonColor(lock->getCheckedButton(), highColor, highColor);
 		}
 	}
 
