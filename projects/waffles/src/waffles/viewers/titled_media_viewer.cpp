@@ -156,6 +156,36 @@ TitledMediaViewer::TitledMediaViewer(ds::ui::SpriteEngine& g, const std::string&
 				showTitle();
 			}
 		});
+		
+		// TODO: this solves an issue of having a duplicate media controls UI
+		// TODO: this finds the unnamed sprite and forcibly hides components
+		// TODO: this should be further investigated to solve the creations
+		// TODO: rather than the bandaid afterwards that this is
+		mEngine.timedCallback(
+			[this]() {
+				forEachChild(
+					[this](ds::ui::Sprite& s) {
+						if (s.getSpriteName() == L"ui_holder") {
+							s.forEachChild(
+								[this](ds::ui::Sprite& ss) {
+									if (ss.getSpriteName() != L"inner_sidebar") {
+										ss.forEachChild(
+											[this](ds::ui::Sprite& sss) {
+												sss.hide();
+											},
+											true
+										);
+									}
+								},
+								false
+							);
+						}
+					},
+					true
+				);
+			},
+			0.01f
+		);
 	}
 
 	mRootLayout->setSpriteClickFn("close_button.the_button", [this] {
