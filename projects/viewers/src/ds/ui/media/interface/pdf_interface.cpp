@@ -99,8 +99,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	addChildPtr(mTouchToggle);
 	checked->setClickFn([this]() { toggleTouch(); });
 	unchecked->setClickFn([this]() { toggleTouch(); });
-	setButtonColor(checked, buttonColor, buttonColor / 2.0f);
-	setButtonColor(unchecked, buttonColor/2.0f, buttonColor);
+	setButtonColor(checked, buttonColor, buttonColor);
+	setButtonColor(unchecked, buttonColor, buttonColor);
 	
 
 	
@@ -295,14 +295,16 @@ ds::ui::Sprite* PDFInterface::getScrubBarBackground() {
 void PDFInterface::setToggleLockedImage(const std::string& imgPath) {
 	mToggleLockedImage = imgPath;
 	updateWidgets();
-	mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	//mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	mTouchToggle->setScale(1.0f);
 	
 }
 
 void PDFInterface::setToggleUnlockedImage(const std::string& imgPath) {
 	mToggleUnlockedImage = imgPath;
 	updateWidgets();
-	mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	//mTouchToggle->setScale(mInitialHeight / mTouchToggle->getHeight());
+	mTouchToggle->setScale(1.0f);
 	
 }
 

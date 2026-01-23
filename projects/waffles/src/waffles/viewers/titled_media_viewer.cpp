@@ -961,9 +961,17 @@ void TitledMediaViewer::loadHotspots() {
 void TitledMediaViewer::onCreationArgsSet() {
 	if (mMediaPlayer) {
 		auto pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mMediaPlayer->getPlayer());
-		if (pdfPlayer && pdfPlayer->getPDF()) {
-			pdfPlayer->getPDF()->setPageNum(mCreationArgs.mPage);
-			pdfPlayer->getPDFInterface()->setColor(ci::Color(1, 0, 0));
+		if (pdfPlayer) {
+			if (pdfPlayer->getPDF()) {
+				pdfPlayer->getPDF()->setPageNum(mCreationArgs.mPage);
+			}
+			if (pdfPlayer->getPDFInterface()) {
+				pdfPlayer->getPDFInterface()->setColor(ci::Color(1, 0, 0));
+				pdfPlayer->getPDFInterface()->setToggleUnlockedColor(ci::Color::white());
+				pdfPlayer->getPDFInterface()->setToggleLockedColor(ci::Color::white());
+				pdfPlayer->getPDFInterface()->setToggleLockedImage(ds::Environment::expand("%APP%/data/images/viewers/lock.png"));
+				pdfPlayer->getPDFInterface()->setToggleUnlockedImage(ds::Environment::expand("%APP%/data/images/viewers/unlock.png"));
+			}
 		}
 
 
@@ -1560,6 +1568,15 @@ void TitledMediaViewer::userInputReceived() {
 		auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mMediaPlayer->getPlayer());
 		if (webPlayer && webPlayer->getWeb()) {
 			mEngine.registerEntryField(webPlayer->getWeb());
+		}
+		auto pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mMediaPlayer->getPlayer());
+		if (pdfPlayer) {
+			if (pdfPlayer->getPDFInterface()) {
+				pdfPlayer->getPDFInterface()->setToggleUnlockedColor(ci::Color::white());
+				pdfPlayer->getPDFInterface()->setToggleLockedColor(ci::Color::white());
+				pdfPlayer->getPDFInterface()->setToggleLockedImage(ds::Environment::expand("%APP%/data/images/viewers/lock.png"));
+				pdfPlayer->getPDFInterface()->setToggleUnlockedImage(ds::Environment::expand("%APP%/data/images/viewers/unlock.png"));
+			}
 		}
 	}
 

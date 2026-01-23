@@ -129,7 +129,7 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 	auto viewerBackground = mEngine.getColors().getColorFromName("viewer_background");
 	auto backgroundColor  = mEngine.getColors().getColorFromName("ui_background");
 	auto normalColor	  = mEngine.getColors().getColorFromName("ui_normal");
-	auto highColor		  = mEngine.getColors().getColorFromName("waffles_bloom");
+	auto highColor		  = ci::Color::white();//mEngine.getColors().getColorFromName("waffles_bloom");
 
 	constexpr auto imageFlags = ds::ui::Image::IMG_ENABLE_MIPMAP_F | ds::ui::Image::IMG_CACHE_F;
 
@@ -277,26 +277,28 @@ void BaseWafflesHelper::setMediaInterfaceStyle(ds::ui::MediaInterface* interface
 
 	auto pdfInterface = dynamic_cast<ds::ui::PDFInterface*>(interfacey);
 	if (pdfInterface) {
+		pdfInterface->setToggleLockedImage(ds::Environment::expand("%APP%/data/images/viewers/lock.png"));
+		pdfInterface->setToggleUnlockedImage(ds::Environment::expand("%APP%/data/images/viewers/unlock.png"));
 		if (auto uppy = pdfInterface->getUpButton()) {
-			pdfInterface->setButtonColor(uppy, normalColor, highColor);
+			pdfInterface->setButtonColor(uppy, highColor, highColor);
 		}
 		if (auto downy = pdfInterface->getDownButton()) {
-			pdfInterface->setButtonColor(downy, normalColor, highColor);
+			pdfInterface->setButtonColor(downy, highColor, highColor);
 		}
 		if (auto toggy = pdfInterface->getTouchToggle()) {
-			pdfInterface->setToggleUnlockedColor(normalColor);
+			pdfInterface->setToggleUnlockedColor(highColor);
 			pdfInterface->setToggleLockedColor(highColor);
 		}
 		if (auto thumbs = pdfInterface->getThumbsButton()) {
-			pdfInterface->setButtonColor(thumbs, normalColor, highColor);
+			pdfInterface->setButtonColor(thumbs, highColor, highColor);
 		}
 		if (auto count = pdfInterface->getPageCounter()) {
-			count->setColor(normalColor);
+			count->setColor(highColor);
 		}
 		if (pdfInterface->getScrubBarBackground() && pdfInterface->getScrubBarProgress()) {
 			pdfInterface->getScrubBarBackground()->setColor(highColor);
 			pdfInterface->getScrubBarBackground()->setCornerRadius(cornerRad);
-			pdfInterface->getScrubBarProgress()->setColor(normalColor);
+			pdfInterface->getScrubBarProgress()->setColor(highColor);
 			pdfInterface->getScrubBarProgress()->setCornerRadius(cornerRad);
 		}
 	}
