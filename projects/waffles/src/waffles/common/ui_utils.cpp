@@ -290,8 +290,15 @@ bool ContentUtils::handleListItemTap(ds::ui::SpriteEngine& engine, ds::ui::Smart
 	} else if (type == "folder") {
 		return false;
 	} else if (type == "media") {
+		auto media_field = model.getPropertyResource("media");
+		if (media_field.empty()) {
+			model.setPropertyResource("media", model.getPropertyResource("asset_media"));
+		} // TODO: this is a solve for search items, but probably should be fixed initially
 		notifier.notify(
-			RequestViewerLaunchEvent(ViewerCreationArgs::detached(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)));
+			RequestViewerLaunchEvent(
+				ViewerCreationArgs(model, VIEW_TYPE_TITLED_MEDIA_VIEWER, pos)
+			)
+		);
 	} else if (type == "browser") {
 		auto browserRes	  = ds::Resource("https://google.com");
 		auto browserModel = ds::model::ContentModelRef();
