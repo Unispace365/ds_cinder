@@ -147,6 +147,9 @@ SearchViewer::SearchViewer(ds::ui::SpriteEngine& g, const std::string& searchTyp
 	// these are to hide this from showing up in saved drawings
 	mEventClient.listenToEvents<RequestPreDrawingSave>([this](auto& e) { hide(); });
 	mEventClient.listenToEvents<RequestDrawingSave>([this](auto& e) { show(); });
+	mEventClient.listenToEvents<waffles::RequestCloseAllEvent>([this](auto& e) {
+		if (mCloseRequestCallback) mCloseRequestCallback();
+	});
 }
 
 
