@@ -553,16 +553,17 @@ void TitledMediaViewer::onMediaSet() {
 
 	auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mMediaPlayer->getPlayer());
 	if (webPlayer && webPlayer->getWeb()) {
-
-		ds::ui::WebInterface* webInterface = dynamic_cast<ds::ui::WebInterface*>(webPlayer->getWebInterface());
-		auto				  keyboardBtn  = webInterface->getKeyboardButton();
-
-		webPlayer->setKeyboardStateCallback([this, webPlayer, keyboardBtn](const bool onScreen) {
+		webPlayer->setKeyboardStateCallback([this](const bool onScreen) {
+			auto webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mMediaPlayer->getPlayer());
+			if (!webPlayer) return;
+			ds::ui::WebInterface* webInterface = webPlayer->getWebInterface();
+			if (!webInterface) return;
+			auto keyboardBtn = webInterface->getKeyboardButton();
 			if (onScreen) {
 				auto wafflesHelper = ContentHelperFactory::getDefault<BaseWafflesHelper>();
 
 				ci::Color lightGrey = mEngine.getColors().getColorFromName("ui_icon_background");
-				auto	  keeb		= webPlayer->getWebInterface()->getSoftKeyboard();
+				auto	  keeb		= webInterface->getSoftKeyboard();
 				if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
 					auto kbs = ds::ui::SoftKeyboardSettings();
 					kbs.mGraphicKeys = false;
@@ -570,7 +571,7 @@ void TitledMediaViewer::onMediaSet() {
 				}
 				wafflesHelper->setKeyboardStyle(keeb);
 
-				keyboardBtn->setChecked(true);
+				if (keyboardBtn) keyboardBtn->setChecked(true);
 
 				mShowingKeyboard = true;
 				hideTitle();
@@ -590,8 +591,11 @@ void TitledMediaViewer::onMediaSet() {
 			} else if (!onScreen) {
 				mShowingKeyboard = false;
 
-				keyboardBtn->setChecked(false); // Set the button to unchecked when keyboard is off screen
-												// showTitle();
+				if (keyboardBtn) keyboardBtn->setChecked(false);
+
+				showTitle();
+
+				//webInterface->initKeyboard(); // TODO: this is backup incase lost
 			}
 		});
 

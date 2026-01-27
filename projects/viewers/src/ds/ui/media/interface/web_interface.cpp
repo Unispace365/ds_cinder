@@ -65,6 +65,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 	addChildPtr(mKeyboardArea);
 
+	initKeyboard();
+
 	mEventClient.listenToEvents<ds::app::EntryFieldRegisteredEvent>([this](auto&) {
 		auto newEntryField = mEngine.getRegisteredEntryField();
 		if (newEntryField && newEntryField != mLinkedWeb) {
@@ -488,83 +490,11 @@ void WebInterface::updateWidgets() {
 			if (mKeyboardAutoDisablesTimeout) {
 				setCanTimeout(false);
 			}
-			if (!mKeyboard) {
-				ds::ui::SoftKeyboardSettings sks;
-				if (mKeyboardSettings.mEmpty) {
-					sks.mKeyScale					= mKeyboardKeyScale;
-					sks.mGraphicKeys				= true;
-					sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
-					sks.mGraphicRoundedCornerRadius = 5;
-				} else {
-					sks = mKeyboardSettings;
-				}
-				mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
 
-				mKeyboardArea->addChildPtr(mKeyboard);
-
-				if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
-					mKeyboardArea->setColor(mEngine.getColors().getColorFromName("ui_icon_background"));
-				} else {
-					mKeyboardArea->setColor(mBackground->getColor());
-				}
-
-				const float keyW = mKeyboard->getScaleWidth();
-				const float keyH = mKeyboard->getScaleHeight();
-
-				auto areaTop	= mEngine.getViewersSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
-				auto areaLeft	= mEngine.getViewersSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
-				auto areaRight	= mEngine.getViewersSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
-				auto areaBottom = mEngine.getViewersSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
-
-				const float areaW = keyW + areaLeft + areaRight;
-				const float areaH = keyH + areaTop + areaBottom;
-				mKeyboardArea->setSize(areaW, areaH);
-				mKeyboard->setPosition((areaW - keyW) * 0.5f + (areaLeft - areaRight) * 0.5,
-									   (areaH - keyH) * 0.5f + (areaTop - areaBottom) * 0.5);
-
-				mKeyboard->setKeyPressFunction(
-					[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
-						if (mLinkedWeb) {
-							if (mLinkedWeb != mEngine.getRegisteredEntryField()) {
-								mEngine.registerEntryField(mLinkedWeb);
-							}
-							if (mAuthorizing && mUserField && mPasswordField && mAuthLayout) {
-								if (mUserField->getIsInFocus()) {
-									if (keyType == SoftKeyboardDefs::KeyType::kEnter ||
-										keyType == SoftKeyboardDefs::KeyType::kTab) {
-										mUserField->unfocus();
-										mPasswordField->focus();
-									} else {
-										mUserField->keyPressed(character, keyType);
-									}
-								} else {
-									if (keyType == SoftKeyboardDefs::KeyType::kEnter) {
-										mLinkedWeb->authCallbackContinue(
-											ds::utf8_from_wstr(mUserField->getCurrentText()),
-											ds::utf8_from_wstr(mPasswordField->getCurrentText()));
-										authComplete();
-
-									} else if (keyType == SoftKeyboardDefs::KeyType::kTab) {
-										mPasswordField->unfocus();
-										mUserField->focus();
-									} else {
-										mPasswordField->keyPressed(character, keyType);
-									}
-								}
-							} else {
-								mLinkedWeb->keyPressed(character, keyType);
-							}
-						}
-					});
-
-				mEngine.registerEntryField(mLinkedWeb);
-
-				layout();
-			}
-
-			if (!mKeyboardArea->visible()) {
+			if (mKeyboardArea->getOpacity() < 0.1f || !mKeyboardArea->visible()) {
+				mKeyboardArea->completeAllTweens();
 				mKeyboardArea->show();
-				mKeyboardArea->tweenOpacity(mKeyboard->getSoftKeyboardSettings().mBackgroundOpacity, mAnimateDuration,
+				mKeyboardArea->tweenOpacity(1.f, mAnimateDuration,
 											0.0f, ci::easeNone);
 				mEngine.getNotifier().notify(WebKeyboardShownEvent(mKeyboardArea));
 			}
@@ -572,7 +502,8 @@ void WebInterface::updateWidgets() {
 			if (mKeyboardAutoDisablesTimeout) {
 				setCanTimeout(true);
 			}
-			if (mKeyboardArea->visible()) {
+			if (mKeyboardArea->getOpacity() > 0.9f || mKeyboardArea->visible()) {
+				mKeyboardArea->completeAllTweens();
 				if (mEngine.getRegisteredEntryField() == mLinkedWeb) {
 					mEngine.registerEntryField(nullptr);
 				}
@@ -658,5 +589,83 @@ void WebInterface::stopTouch() {
 	updateWidgets();
 }
 
+void WebInterface::initKeyboard() {
+	if (mKeyboard) {
+		mEngine.registerEntryField(nullptr);
+		mKeyboard->release();
+		mKeyboardArea->clearChildren();
+	}
+	ds::ui::SoftKeyboardSettings sks;
+	if (mKeyboardSettings.mEmpty) {
+		sks.mKeyScale					= mKeyboardKeyScale;
+		sks.mGraphicKeys				= true;
+		sks.mGraphicType				= ds::ui::SoftKeyboardSettings::kBorder;
+		sks.mGraphicRoundedCornerRadius = 5;
+	} else {
+		sks = mKeyboardSettings;
+	}
+	mKeyboard = ds::ui::SoftKeyboardBuilder::buildFullKeyboard(mEngine, sks);
+
+	mKeyboardArea->addChildPtr(mKeyboard);
+
+	if (mEngine.getAppSettings().getBool("keyboard:override_settings", 0, false)) {
+		mKeyboardArea->setColor(mEngine.getColors().getColorFromName("ui_icon_background"));
+	} else {
+		mKeyboardArea->setColor(mBackground->getColor());
+	}
+
+	const float keyW = mKeyboard->getScaleWidth();
+	const float keyH = mKeyboard->getScaleHeight();
+
+	auto areaTop	= mEngine.getViewersSettings().getFloat("interface:keyboard:top_pad", 0, 15.0f);
+	auto areaLeft	= mEngine.getViewersSettings().getFloat("interface:keyboard:left_pad", 0, 15.0f);
+	auto areaRight	= mEngine.getViewersSettings().getFloat("interface:keyboard:right_pad", 0, 15.0f);
+	auto areaBottom = mEngine.getViewersSettings().getFloat("interface:keyboard:bottom_pad", 0, 15.0f);
+
+	const float areaW = keyW + areaLeft + areaRight;
+	const float areaH = keyH + areaTop + areaBottom;
+	mKeyboardArea->setSize(areaW, areaH);
+	mKeyboard->setPosition((areaW - keyW) * 0.5f + (areaLeft - areaRight) * 0.5,
+						   (areaH - keyH) * 0.5f + (areaTop - areaBottom) * 0.5);
+
+	mKeyboard->setKeyPressFunction(
+		[this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType) {
+			if (mLinkedWeb) {
+				if (mLinkedWeb != mEngine.getRegisteredEntryField()) {
+					mEngine.registerEntryField(mLinkedWeb);
+				}
+				if (mAuthorizing && mUserField && mPasswordField && mAuthLayout) {
+					if (mUserField->getIsInFocus()) {
+						if (keyType == SoftKeyboardDefs::KeyType::kEnter ||
+							keyType == SoftKeyboardDefs::KeyType::kTab) {
+							mUserField->unfocus();
+							mPasswordField->focus();
+						} else {
+							mUserField->keyPressed(character, keyType);
+						}
+					} else {
+						if (keyType == SoftKeyboardDefs::KeyType::kEnter) {
+							mLinkedWeb->authCallbackContinue(
+								ds::utf8_from_wstr(mUserField->getCurrentText()),
+								ds::utf8_from_wstr(mPasswordField->getCurrentText()));
+							authComplete();
+
+						} else if (keyType == SoftKeyboardDefs::KeyType::kTab) {
+							mPasswordField->unfocus();
+							mUserField->focus();
+						} else {
+							mPasswordField->keyPressed(character, keyType);
+						}
+					}
+				} else {
+					mLinkedWeb->keyPressed(character, keyType);
+				}
+			}
+		});
+
+	mEngine.registerEntryField(mLinkedWeb);
+
+	layout();
+}
 
 } // namespace ds::ui

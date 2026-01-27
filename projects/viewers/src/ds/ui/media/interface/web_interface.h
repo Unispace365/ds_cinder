@@ -77,6 +77,7 @@ class WebInterface : public MediaInterface {
 
 	ds::ui::SoftKeyboard* getSoftKeyboard() { return mKeyboard; }
 	void				  setSoftKeyboardSettings(ds::ui::SoftKeyboardSettings& keyb) { mKeyboardSettings = keyb; }
+	void initKeyboard();
   protected:
 	virtual void onLayout();
 
